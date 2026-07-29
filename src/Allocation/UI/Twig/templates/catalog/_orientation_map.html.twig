@@ -1,0 +1,20 @@
+{% set orientationMap = orientationMap|default(null) %}
+{% if orientationMap is not null and orientationMap.enabled %}
+    <div class="card mb-3"
+         data-controller="catalog-orientation-map"
+         data-catalog-orientation-map-geo-url-value="{{ asset('geo/hessen-landkreise.geojson') }}"
+         {% if orientationMap.highlightKey %}
+             data-catalog-orientation-map-highlight-key-value="{{ orientationMap.highlightKey }}"
+         {% endif %}
+         data-catalog-orientation-map-show-all-value="{{ orientationMap.showAllAreas ? 'true' : 'false' }}"
+         data-testid="catalog-orientation-map">
+        <div class="card-body">
+            <div class="card-title">{{ 'catalog.section.orientation_map'|trans({}, 'allocation') }}</div>
+            <div class="catalog-orientation-map-frame">
+                <div class="case-flow-map-container"
+                     data-catalog-orientation-map-target="mapContainer"></div>
+            </div>
+            <div class="text-muted small mt-2">{{ 'catalog.orientation_map.hint'|trans({}, 'allocation') }}</div>
+        </div>
+    </div>
+{% endif %}

@@ -481,6 +481,510 @@
         <source>title.secondary_transport.show</source>
         <target>Sekundärtransport</target>
       </trans-unit>
+      <trans-unit id="CatIndShowDe" resname="title.indication.show">
+        <source>title.indication.show</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="CatSecDescDe" resname="catalog.section.description">
+        <source>catalog.section.description</source>
+        <target>Beschreibung</target>
+      </trans-unit>
+      <trans-unit id="CatSecCovDe" resname="catalog.section.coverage">
+        <source>catalog.section.coverage</source>
+        <target>Datenbestand</target>
+      </trans-unit>
+      <trans-unit id="CatSecActDe" resname="catalog.section.actions">
+        <source>catalog.section.actions</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="CatTypeStDe" resname="catalog.type.secondary_transport">
+        <source>catalog.type.secondary_transport</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="CatTypeIndDe" resname="catalog.type.indication">
+        <source>catalog.type.indication</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="CatTypeIgDe" resname="catalog.type.indication_group">
+        <source>catalog.type.indication_group</source>
+        <target>Indikationsgruppe</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDepDe" resname="catalog.type.department">
+        <source>catalog.type.department</source>
+        <target>Abteilung</target>
+      </trans-unit>
+      <trans-unit id="CatTypeSpeDe" resname="catalog.type.speciality">
+        <source>catalog.type.speciality</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatTypeAsgDe" resname="catalog.type.assignment">
+        <source>catalog.type.assignment</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="CatTypeOccDe" resname="catalog.type.occasion">
+        <source>catalog.type.occasion</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="CatTypeStateDe" resname="catalog.type.state">
+        <source>catalog.type.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDaDe" resname="catalog.type.dispatch_area">
+        <source>catalog.type.dispatch_area</source>
+        <target>Leitstellenbereich</target>
+      </trans-unit>
+      <trans-unit id="CatTitStateLDe" resname="title.state.list">
+        <source>title.state.list</source>
+        <target>Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="CatTitStateSDe" resname="title.state.show">
+        <source>title.state.show</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="CatSecMapDe" resname="catalog.section.orientation_map">
+        <source>catalog.section.orientation_map</source>
+        <target>Orientierungskarte</target>
+      </trans-unit>
+      <trans-unit id="CatMapHintDe" resname="catalog.orientation_map.hint">
+        <source>catalog.orientation_map.hint</source>
+        <target>Hessen-Pilot auf Basis der Leitstellengrenzen. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
+      </trans-unit>
+      <trans-unit id="CatActDaDe" resname="catalog.action.view_dispatch_areas">
+        <source>catalog.action.view_dispatch_areas</source>
+        <target>Leitstellenbereiche anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatRelStateDe" resname="catalog.relation.state">
+        <source>catalog.relation.state</source>
+        <target>Bundesland</target>
+      </trans-unit>
+      <trans-unit id="CatRelDaDe" resname="catalog.relation.dispatch_areas">
+        <source>catalog.relation.dispatch_areas</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="CatRelHosDe" resname="catalog.relation.hospitals">
+        <source>catalog.relation.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="CatTitDepDe" resname="title.department.show">
+        <source>title.department.show</source>
+        <target>Abteilung</target>
+      </trans-unit>
+      <trans-unit id="CatTitSpeDe" resname="title.speciality.show">
+        <source>title.speciality.show</source>
+        <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatTitAsgDe" resname="title.assignment.show">
+        <source>title.assignment.show</source>
+        <target>Zuweisungstyp</target>
+      </trans-unit>
+      <trans-unit id="CatTitOccDe" resname="title.occasion.show">
+        <source>title.occasion.show</source>
+        <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgLDe" resname="title.indication_group.list">
+        <source>title.indication_group.list</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgSDe" resname="title.indication_group.show">
+        <source>title.indication_group.show</source>
+        <target>Indikationsgruppe</target>
+      </trans-unit>
+      <trans-unit id="CatMetAllDe" resname="catalog.metric.allocations">
+        <source>catalog.metric.allocations</source>
+        <target>Einsätze</target>
+      </trans-unit>
+      <trans-unit id="CatMetShaDe" resname="catalog.metric.share">
+        <source>catalog.metric.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="CatMetHosDe" resname="catalog.metric.hospitals">
+        <source>catalog.metric.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="CatMetDaDe" resname="catalog.metric.dispatch_areas">
+        <source>catalog.metric.dispatch_areas</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="CatMetStaDe" resname="catalog.metric.states">
+        <source>catalog.metric.states</source>
+        <target>Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="CatMetPerDe" resname="catalog.metric.period">
+        <source>catalog.metric.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="CatMetYeaDe" resname="catalog.metric.years">
+        <source>catalog.metric.years</source>
+        <target>Abgedeckte Jahre</target>
+      </trans-unit>
+      <trans-unit id="CatCovEmpDe" resname="catalog.coverage.empty">
+        <source>catalog.coverage.empty</source>
+        <target>Für dieses Objekt liegen in den sichtbaren Daten derzeit keine Einsätze vor.</target>
+      </trans-unit>
+      <trans-unit id="CatCovSupDe" resname="catalog.coverage.suppressed">
+        <source>catalog.coverage.suppressed</source>
+        <target>Kennzahlen werden bei weniger als {threshold} Einsätzen nicht detailliert ausgewiesen.</target>
+      </trans-unit>
+      <trans-unit id="CatFbEmpDe" resname="catalog.fallback.empty">
+        <source>catalog.fallback.empty</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten derzeit in keinen Einsätzen vor.</target>
+      </trans-unit>
+      <trans-unit id="CatFbSupDe" resname="catalog.fallback.suppressed">
+        <source>catalog.fallback.suppressed</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten nur in sehr wenigen Einsätzen vor. Detaillierte Kennzahlen werden daher nicht ausgewiesen.</target>
+      </trans-unit>
+      <trans-unit id="CatFbPerDe" resname="catalog.fallback.with_period">
+        <source>catalog.fallback.with_period</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten in {allocations, number} Einsätzen aus {hospitals, number} Kliniken im Zeitraum {from} bis {to} vor.</target>
+      </trans-unit>
+      <trans-unit id="CatFbNPeDe" resname="catalog.fallback.without_period">
+        <source>catalog.fallback.without_period</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten in {allocations, number} Einsätzen aus {hospitals, number} Kliniken vor.</target>
+      </trans-unit>
+      <trans-unit id="CatActAllDe" resname="catalog.action.view_allocations">
+        <source>catalog.action.view_allocations</source>
+        <target>Einsätze anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatActInsDe" resname="catalog.action.indication_insights">
+        <source>catalog.action.indication_insights</source>
+        <target>Indikationsanalyse öffnen</target>
+      </trans-unit>
+      <trans-unit id="CatActIgDe" resname="catalog.action.indication_group_insights">
+        <source>catalog.action.indication_group_insights</source>
+        <target>Gruppenanalyse öffnen</target>
+      </trans-unit>
+      <trans-unit id="CatRelGrpDe" resname="catalog.relation.groups">
+        <source>catalog.relation.groups</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="CatRelIndDe" resname="catalog.relation.indications">
+        <source>catalog.relation.indications</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="CatTypeInfDe" resname="catalog.type.infection">
+        <source>catalog.type.infection</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="CatTitInfLDe" resname="title.infection.list">
+        <source>title.infection.list</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="CatTitInfSDe" resname="title.infection.show">
+        <source>title.infection.show</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="CatTypeGlDe" resname="catalog.type.glossary">
+        <source>catalog.type.glossary</source>
+        <target>Klassifikation</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlIxDe" resname="title.glossary.index">
+        <source>title.glossary.index</source>
+        <target>Klassifikationen &amp; Definitionen</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlUrDe" resname="title.glossary.urgency">
+        <source>title.glossary.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlTtDe" resname="title.glossary.transport_type">
+        <source>title.glossary.transport_type</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlHcDe" resname="title.glossary.hospital_classifications">
+        <source>title.glossary.hospital_classifications</source>
+        <target>Krankenhaus-Klassifikationen</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlCiDe" resname="title.glossary.clinical_indicators">
+        <source>title.glossary.clinical_indicators</source>
+        <target>Klinische Merkmale &amp; Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="CatGlIxSubDe" resname="catalog.glossary.index.subtitle">
+        <source>catalog.glossary.index.subtitle</source>
+        <target>Definitionen der verwendeten Codes und Merkmale im Explore-Datenkatalog.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrInDe" resname="catalog.glossary.urgency.intro">
+        <source>catalog.glossary.urgency.intro</source>
+        <target>Die Dringlichkeit (SK1–SK3) beschreibt die Versorgungsstufe einer Zuweisung laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtInDe" resname="catalog.glossary.transport_type.intro">
+        <source>catalog.glossary.transport_type.intro</source>
+        <target>Die Transportart unterscheidet Boden- und Luftrettung bei der Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHcInDe" resname="catalog.glossary.hospital_classifications.intro">
+        <source>catalog.glossary.hospital_classifications.intro</source>
+        <target>Kliniken werden nach Versorgungsstufe, Größe und Lage klassifiziert. Die Werte stammen aus den Klinikstammdaten.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiInDe" resname="catalog.glossary.clinical_indicators.intro">
+        <source>catalog.glossary.clinical_indicators.intro</source>
+        <target>Klinische Ressourcen und Merkmale sind boolesche Indikatoren an Zuweisungen. Sie beschreiben besondere Versorgungsbedarfe und Einsatzkontexte.</target>
+      </trans-unit>
+      <trans-unit id="CatGlRelInfDe" resname="catalog.glossary.related.infections">
+        <source>catalog.glossary.related.infections</source>
+        <target>Referenzkatalog der Infektionsarten mit Datenbestand und Filteraktionen.</target>
+      </trans-unit>
+      <trans-unit id="CatGlRelStDe" resname="catalog.glossary.related.secondary_transports">
+        <source>catalog.glossary.related.secondary_transports</source>
+        <target>Referenzkatalog der Sekundärtransport-/Verlegungsgründe.</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecValDe" resname="catalog.glossary.section.values">
+        <source>catalog.glossary.section.values</source>
+        <target>Werte</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecTierDe" resname="catalog.glossary.section.hospital_tier">
+        <source>catalog.glossary.section.hospital_tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecSizeDe" resname="catalog.glossary.section.hospital_size">
+        <source>catalog.glossary.section.hospital_size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecLocDe" resname="catalog.glossary.section.hospital_location">
+        <source>catalog.glossary.section.hospital_location</source>
+        <target>Lage</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecResDe" resname="catalog.glossary.section.clinical_resources">
+        <source>catalog.glossary.section.clinical_resources</source>
+        <target>Klinische Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecFeaDe" resname="catalog.glossary.section.clinical_features">
+        <source>catalog.glossary.section.clinical_features</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="CatGlColCodeDe" resname="catalog.glossary.column.code">
+        <source>catalog.glossary.column.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="CatGlColLabDe" resname="catalog.glossary.column.label">
+        <source>catalog.glossary.column.label</source>
+        <target>Bezeichnung</target>
+      </trans-unit>
+      <trans-unit id="CatGlColDefDe" resname="catalog.glossary.column.definition">
+        <source>catalog.glossary.column.definition</source>
+        <target>Definition</target>
+      </trans-unit>
+      <trans-unit id="CatActHosDe" resname="catalog.action.view_hospitals">
+        <source>catalog.action.view_hospitals</source>
+        <target>Kliniken anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrEmDe" resname="catalog.glossary.urgency.emergency.description">
+        <source>catalog.glossary.urgency.emergency.description</source>
+        <target>SK1 – Notfallversorgung / höchste Dringlichkeit.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrInDDe" resname="catalog.glossary.urgency.inpatient.description">
+        <source>catalog.glossary.urgency.inpatient.description</source>
+        <target>SK2 – Stationäre Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrOuDe" resname="catalog.glossary.urgency.outpatient.description">
+        <source>catalog.glossary.urgency.outpatient.description</source>
+        <target>SK3 – Ambulante Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtGrDe" resname="catalog.glossary.transport_type.ground.description">
+        <source>catalog.glossary.transport_type.ground.description</source>
+        <target>Bodengebundener Transport (Rettungswagen, Notarztwagen u. ä.).</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtAiDe" resname="catalog.glossary.transport_type.air.description">
+        <source>catalog.glossary.transport_type.air.description</source>
+        <target>Luftgebundener Transport (z. B. Rettungshubschrauber).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtBaDe" resname="catalog.glossary.hospital.tier.basic.description">
+        <source>catalog.glossary.hospital.tier.basic.description</source>
+        <target>Grundversorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtExDe" resname="catalog.glossary.hospital.tier.extended.description">
+        <source>catalog.glossary.hospital.tier.extended.description</source>
+        <target>Erweiterte Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtFuDe" resname="catalog.glossary.hospital.tier.full.description">
+        <source>catalog.glossary.hospital.tier.full.description</source>
+        <target>Maximalversorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsSmDe" resname="catalog.glossary.hospital.size.small.description">
+        <source>catalog.glossary.hospital.size.small.description</source>
+        <target>Kleine Klinik (nach Bettensystematik).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsMeDe" resname="catalog.glossary.hospital.size.medium.description">
+        <source>catalog.glossary.hospital.size.medium.description</source>
+        <target>Mittlere Klinik.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsLaDe" resname="catalog.glossary.hospital.size.large.description">
+        <source>catalog.glossary.hospital.size.large.description</source>
+        <target>Große Klinik.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlUrDe" resname="catalog.glossary.hospital.location.urban.description">
+        <source>catalog.glossary.hospital.location.urban.description</source>
+        <target>Städtische Lage.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlMiDe" resname="catalog.glossary.hospital.location.mixed.description">
+        <source>catalog.glossary.hospital.location.mixed.description</source>
+        <target>Gemischte Lage (Stadt/Umland).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlRuDe" resname="catalog.glossary.hospital.location.rural.description">
+        <source>catalog.glossary.hospital.location.rural.description</source>
+        <target>Ländliche Lage.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiReDe" resname="catalog.glossary.clinical.resus.description">
+        <source>catalog.glossary.clinical.resus.description</source>
+        <target>Bedarf an Schockraum / Reanimationseinheit.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiCaDe" resname="catalog.glossary.clinical.cathlab.description">
+        <source>catalog.glossary.clinical.cathlab.description</source>
+        <target>Bedarf an Herzkatheterlabor.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiWpDe" resname="catalog.glossary.clinical.with_physician.description">
+        <source>catalog.glossary.clinical.with_physician.description</source>
+        <target>Notarztbegleitung bzw. ärztliche Begleitung des Transports.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiCpDe" resname="catalog.glossary.clinical.cpr.description">
+        <source>catalog.glossary.clinical.cpr.description</source>
+        <target>Reanimation (CPR) im Einsatzverlauf.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiVeDe" resname="catalog.glossary.clinical.ventilation.description">
+        <source>catalog.glossary.clinical.ventilation.description</source>
+        <target>Beatmungspflichtiger Patient.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiShDe" resname="catalog.glossary.clinical.shock.description">
+        <source>catalog.glossary.clinical.shock.description</source>
+        <target>Schockzustand.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiPrDe" resname="catalog.glossary.clinical.pregnancy.description">
+        <source>catalog.glossary.clinical.pregnancy.description</source>
+        <target>Schwangerschaft als relevantes Merkmal.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiWaDe" resname="catalog.glossary.clinical.work_accident.description">
+        <source>catalog.glossary.clinical.work_accident.description</source>
+        <target>Arbeitsunfall.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiInfDe" resname="catalog.glossary.clinical.infection.description">
+        <source>catalog.glossary.clinical.infection.description</source>
+        <target>Infektiöser Patient (Infektionsangabe vorhanden).</target>
+      </trans-unit>
+      <trans-unit id="CatSecQwDe" resname="catalog.section.quality_warnings">
+        <source>catalog.section.quality_warnings</source>
+        <target>Qualitätswarnungen</target>
+      </trans-unit>
+      <trans-unit id="CatSecNormDe" resname="catalog.section.normalization">
+        <source>catalog.section.normalization</source>
+        <target>Normalisierung &amp; Synonyme</target>
+      </trans-unit>
+      <trans-unit id="CatSecDefChDe" resname="catalog.section.definition_changes">
+        <source>catalog.section.definition_changes</source>
+        <target>Definitionsänderungen</target>
+      </trans-unit>
+      <trans-unit id="CatFldNoteDe" resname="catalog.field.note">
+        <source>catalog.field.note</source>
+        <target>Hinweis</target>
+      </trans-unit>
+      <trans-unit id="CatFldCodeDe" resname="catalog.field.code">
+        <source>catalog.field.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="CatNormSynDe" resname="catalog.normalization.synonyms">
+        <source>catalog.normalization.synonyms</source>
+        <target>Rohwerte / Synonyme</target>
+      </trans-unit>
+      <trans-unit id="CatNormMatDe" resname="catalog.normalization.matched">
+        <source>catalog.normalization.matched</source>
+        <target>Gematcht</target>
+      </trans-unit>
+      <trans-unit id="CatNormOpenDe" resname="catalog.normalization.open">
+        <source>catalog.normalization.open</source>
+        <target>Offen</target>
+      </trans-unit>
+      <trans-unit id="CatNormEmptyDe" resname="catalog.normalization.empty">
+        <source>catalog.normalization.empty</source>
+        <target>Für diese Indikation sind noch keine Rohwerte als Synonyme verknüpft.</target>
+      </trans-unit>
+      <trans-unit id="CatActRevRawDe" resname="catalog.action.review_raw">
+        <source>catalog.action.review_raw</source>
+        <target>Review öffnen</target>
+      </trans-unit>
+      <trans-unit id="CatActRevWlDe" resname="catalog.action.review_raw_indications">
+        <source>catalog.action.review_raw_indications</source>
+        <target>Rohwert-Review</target>
+      </trans-unit>
+      <trans-unit id="CatActOpenWlDe" resname="catalog.action.open_review_worklist">
+        <source>catalog.action.open_review_worklist</source>
+        <target>Worklist öffnen</target>
+      </trans-unit>
+      <trans-unit id="CatDefGenDe" resname="catalog.definition_change.generic">
+        <source>catalog.definition_change.generic</source>
+        <target>Definition aktualisiert</target>
+      </trans-unit>
+      <trans-unit id="CatDefFldDe" resname="catalog.definition_change.fields">
+        <source>catalog.definition_change.fields</source>
+        <target>Geändert: {fields}</target>
+      </trans-unit>
+      <trans-unit id="CatQwNrDe" resname="catalog.quality.warning.needs_review_for_target">
+        <source>catalog.quality.warning.needs_review_for_target</source>
+        <target>{count, plural, one {# verknüpfter Rohwert wartet auf Freigabe} other {# verknüpfte Rohwerte warten auf Freigabe}}</target>
+      </trans-unit>
+      <trans-unit id="CatQwUrDe" resname="catalog.quality.warning.unreviewed_for_target">
+        <source>catalog.quality.warning.unreviewed_for_target</source>
+        <target>{count, plural, one {# verknüpfter Rohwert ist noch unreviewed} other {# verknüpfte Rohwerte sind noch unreviewed}}</target>
+      </trans-unit>
+      <trans-unit id="CatQhNrDe" resname="catalog.quality.hint.needs_review_for_target">
+        <source>catalog.quality.hint.needs_review_for_target</source>
+        <target>Prüfen und freigeben oder ablehnen in der Review-Worklist.</target>
+      </trans-unit>
+      <trans-unit id="CatQhUrDe" resname="catalog.quality.hint.unreviewed_for_target">
+        <source>catalog.quality.hint.unreviewed_for_target</source>
+        <target>Unreviewed-Rohwerte sollten gematcht oder als nicht matchbar markiert werden.</target>
+      </trans-unit>
+      <trans-unit id="CatQcTnmDe" resname="catalog.quality.check.target_not_matched">
+        <source>catalog.quality.check.target_not_matched</source>
+        <target>Target gesetzt, Status nicht matched</target>
+      </trans-unit>
+      <trans-unit id="CatQcMwtDe" resname="catalog.quality.check.matched_without_target">
+        <source>catalog.quality.check.matched_without_target</source>
+        <target>Matched ohne Target</target>
+      </trans-unit>
+      <trans-unit id="CatQcNwtDe" resname="catalog.quality.check.normalized_without_target">
+        <source>catalog.quality.check.normalized_without_target</source>
+        <target>Normalized gesetzt ohne Target</target>
+      </trans-unit>
+      <trans-unit id="CatQcTmmDe" resname="catalog.quality.check.target_normalized_mismatch">
+        <source>catalog.quality.check.target_normalized_mismatch</source>
+        <target>Target und Normalized weichen ab</target>
+      </trans-unit>
+      <trans-unit id="CatQcNrtDe" resname="catalog.quality.check.needs_review_without_target">
+        <source>catalog.quality.check.needs_review_without_target</source>
+        <target>Freigabe ohne vorgeschlagenes Target</target>
+      </trans-unit>
+      <trans-unit id="CatQcMwrDe" resname="catalog.quality.check.matched_without_reviewed_by">
+        <source>catalog.quality.check.matched_without_reviewed_by</source>
+        <target>Matched ohne reviewed_by (Legacy)</target>
+      </trans-unit>
+      <trans-unit id="CatQcTwfDe" resname="catalog.quality.check.target_without_first_matcher">
+        <source>catalog.quality.check.target_without_first_matcher</source>
+        <target>Target ohne first_matched_by</target>
+      </trans-unit>
+      <trans-unit id="CatQhTnmDe" resname="catalog.quality.hint.target_not_matched">
+        <source>catalog.quality.hint.target_not_matched</source>
+        <target>Status auf matched setzen oder Target entfernen.</target>
+      </trans-unit>
+      <trans-unit id="CatQhMwtDe" resname="catalog.quality.hint.matched_without_target">
+        <source>catalog.quality.hint.matched_without_target</source>
+        <target>Target zuweisen oder Status ändern.</target>
+      </trans-unit>
+      <trans-unit id="CatQhNwtDe" resname="catalog.quality.hint.normalized_without_target">
+        <source>catalog.quality.hint.normalized_without_target</source>
+        <target>normalized_id nach target_id übernehmen oder leeren.</target>
+      </trans-unit>
+      <trans-unit id="CatQhTmmDe" resname="catalog.quality.hint.target_normalized_mismatch">
+        <source>catalog.quality.hint.target_normalized_mismatch</source>
+        <target>target_id und normalized_id angleichen.</target>
+      </trans-unit>
+      <trans-unit id="CatQhNrtDe" resname="catalog.quality.hint.needs_review_without_target">
+        <source>catalog.quality.hint.needs_review_without_target</source>
+        <target>Target vorschlagen oder Status zurücksetzen.</target>
+      </trans-unit>
+      <trans-unit id="CatQhMwrDe" resname="catalog.quality.hint.matched_without_reviewed_by">
+        <source>catalog.quality.hint.matched_without_reviewed_by</source>
+        <target>Erwartet bei Legacy-Migrationen aus target_id.</target>
+      </trans-unit>
+      <trans-unit id="CatQhTwfDe" resname="catalog.quality.hint.target_without_first_matcher">
+        <source>catalog.quality.hint.target_without_first_matcher</source>
+        <target>Erwartet, wenn updated_by bei Migration fehlte.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,102 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ page.titleKey|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'title.glossary.index', path: path('app_explore_glossary_index') },
+                    { label: page.titleKey }
+                ]"
+        />
+
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="{{ page.icon }}" width="36px" height="36px" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 class="fw-bold" data-testid="glossary-title">{{ page.titleKey|trans({}, 'allocation') }}</h1>
+                <div class="list-inline list-inline-dots text-muted">
+                    <div class="list-inline-item">
+                        <span class="badge bg-secondary-lt">{{ 'catalog.type.glossary'|trans({}, 'allocation') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <a class="btn btn-outline-secondary" href="{{ path('app_explore_glossary_index') }}">
+                        <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                        {{ 'label.back_to_list'|trans({}, 'messages') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl" data-testid="glossary-detail">
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="card-title">{{ 'catalog.section.description'|trans({}, 'allocation') }}</div>
+                <p class="mb-0">{{ page.introKey|trans({}, 'allocation') }}</p>
+            </div>
+        </div>
+
+        {% for section in page.sections %}
+            <div class="card mb-3" data-testid="glossary-section">
+                <div class="card-header">
+                    <h3 class="card-title">{{ section.titleKey|trans({}, section.titleDomain) }}</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table mb-0">
+                        <thead>
+                            <tr>
+                                <th class="w-1">{{ 'catalog.glossary.column.code'|trans({}, 'allocation') }}</th>
+                                <th>{{ 'catalog.glossary.column.label'|trans({}, 'allocation') }}</th>
+                                <th>{{ 'catalog.glossary.column.definition'|trans({}, 'allocation') }}</th>
+                                <th class="w-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for term in section.terms %}
+                                <tr data-testid="glossary-term">
+                                    <td><code>{{ term.code }}</code></td>
+                                    <td>{{ term.labelKey|trans({}, term.labelDomain) }}</td>
+                                    <td class="text-secondary">
+                                        {% if term.descriptionKey %}
+                                            {{ term.descriptionKey|trans({}, term.descriptionDomain) }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if term.hasFilter %}
+                                            <a
+                                                class="btn btn-sm btn-outline-primary"
+                                                href="{{ path(term.filterRoute, term.filterParams) }}"
+                                                data-testid="glossary-term-filter"
+                                            >
+                                                {{ term.actionLabelKey|trans({}, 'allocation') }}
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

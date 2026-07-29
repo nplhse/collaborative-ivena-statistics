@@ -405,6 +405,510 @@
         <source>title.secondary_transport.show</source>
         <target>Secondary Transport</target>
       </trans-unit>
+      <trans-unit id="CatIndShowEn" resname="title.indication.show">
+        <source>title.indication.show</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="CatSecDescEn" resname="catalog.section.description">
+        <source>catalog.section.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="CatSecCovEn" resname="catalog.section.coverage">
+        <source>catalog.section.coverage</source>
+        <target>Data coverage</target>
+      </trans-unit>
+      <trans-unit id="CatSecActEn" resname="catalog.section.actions">
+        <source>catalog.section.actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="CatTypeStEn" resname="catalog.type.secondary_transport">
+        <source>catalog.type.secondary_transport</source>
+        <target>Secondary transport</target>
+      </trans-unit>
+      <trans-unit id="CatTypeIndEn" resname="catalog.type.indication">
+        <source>catalog.type.indication</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="CatTypeIgEn" resname="catalog.type.indication_group">
+        <source>catalog.type.indication_group</source>
+        <target>Indication group</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDepEn" resname="catalog.type.department">
+        <source>catalog.type.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="CatTypeSpeEn" resname="catalog.type.speciality">
+        <source>catalog.type.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="CatTypeAsgEn" resname="catalog.type.assignment">
+        <source>catalog.type.assignment</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="CatTypeOccEn" resname="catalog.type.occasion">
+        <source>catalog.type.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="CatTypeStateEn" resname="catalog.type.state">
+        <source>catalog.type.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="CatTypeDaEn" resname="catalog.type.dispatch_area">
+        <source>catalog.type.dispatch_area</source>
+        <target>Dispatch area</target>
+      </trans-unit>
+      <trans-unit id="CatTitStateLEn" resname="title.state.list">
+        <source>title.state.list</source>
+        <target>States</target>
+      </trans-unit>
+      <trans-unit id="CatTitStateSEn" resname="title.state.show">
+        <source>title.state.show</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="CatSecMapEn" resname="catalog.section.orientation_map">
+        <source>catalog.section.orientation_map</source>
+        <target>Orientation map</target>
+      </trans-unit>
+      <trans-unit id="CatMapHintEn" resname="catalog.orientation_map.hint">
+        <source>catalog.orientation_map.hint</source>
+        <target>Hessen pilot based on dispatch-area boundaries. The map is for orientation only and is not a precise administrative border.</target>
+      </trans-unit>
+      <trans-unit id="CatActDaEn" resname="catalog.action.view_dispatch_areas">
+        <source>catalog.action.view_dispatch_areas</source>
+        <target>View dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="CatRelStateEn" resname="catalog.relation.state">
+        <source>catalog.relation.state</source>
+        <target>State</target>
+      </trans-unit>
+      <trans-unit id="CatRelDaEn" resname="catalog.relation.dispatch_areas">
+        <source>catalog.relation.dispatch_areas</source>
+        <target>Dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="CatRelHosEn" resname="catalog.relation.hospitals">
+        <source>catalog.relation.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="CatTitDepEn" resname="title.department.show">
+        <source>title.department.show</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="CatTitSpeEn" resname="title.speciality.show">
+        <source>title.speciality.show</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="CatTitAsgEn" resname="title.assignment.show">
+        <source>title.assignment.show</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="CatTitOccEn" resname="title.occasion.show">
+        <source>title.occasion.show</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgLEn" resname="title.indication_group.list">
+        <source>title.indication_group.list</source>
+        <target>Indication groups</target>
+      </trans-unit>
+      <trans-unit id="CatTitIgSEn" resname="title.indication_group.show">
+        <source>title.indication_group.show</source>
+        <target>Indication group</target>
+      </trans-unit>
+      <trans-unit id="CatMetAllEn" resname="catalog.metric.allocations">
+        <source>catalog.metric.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="CatMetShaEn" resname="catalog.metric.share">
+        <source>catalog.metric.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="CatMetHosEn" resname="catalog.metric.hospitals">
+        <source>catalog.metric.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="CatMetDaEn" resname="catalog.metric.dispatch_areas">
+        <source>catalog.metric.dispatch_areas</source>
+        <target>Dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="CatMetStaEn" resname="catalog.metric.states">
+        <source>catalog.metric.states</source>
+        <target>States</target>
+      </trans-unit>
+      <trans-unit id="CatMetPerEn" resname="catalog.metric.period">
+        <source>catalog.metric.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="CatMetYeaEn" resname="catalog.metric.years">
+        <source>catalog.metric.years</source>
+        <target>Covered years</target>
+      </trans-unit>
+      <trans-unit id="CatCovEmpEn" resname="catalog.coverage.empty">
+        <source>catalog.coverage.empty</source>
+        <target>No allocations are currently available for this object in the visible data.</target>
+      </trans-unit>
+      <trans-unit id="CatCovSupEn" resname="catalog.coverage.suppressed">
+        <source>catalog.coverage.suppressed</source>
+        <target>Detailed metrics are not shown when fewer than {threshold} allocations are available.</target>
+      </trans-unit>
+      <trans-unit id="CatFbEmpEn" resname="catalog.fallback.empty">
+        <source>catalog.fallback.empty</source>
+        <target>{name} does not currently appear in any allocations in the data visible to you.</target>
+      </trans-unit>
+      <trans-unit id="CatFbSupEn" resname="catalog.fallback.suppressed">
+        <source>catalog.fallback.suppressed</source>
+        <target>{name} appears in only very few allocations in the data visible to you. Detailed metrics are therefore not shown.</target>
+      </trans-unit>
+      <trans-unit id="CatFbPerEn" resname="catalog.fallback.with_period">
+        <source>catalog.fallback.with_period</source>
+        <target>{name} appears in {allocations, number} allocations from {hospitals, number} hospitals between {from} and {to} in the data visible to you.</target>
+      </trans-unit>
+      <trans-unit id="CatFbNPeEn" resname="catalog.fallback.without_period">
+        <source>catalog.fallback.without_period</source>
+        <target>{name} appears in {allocations, number} allocations from {hospitals, number} hospitals in the data visible to you.</target>
+      </trans-unit>
+      <trans-unit id="CatActAllEn" resname="catalog.action.view_allocations">
+        <source>catalog.action.view_allocations</source>
+        <target>View allocations</target>
+      </trans-unit>
+      <trans-unit id="CatActInsEn" resname="catalog.action.indication_insights">
+        <source>catalog.action.indication_insights</source>
+        <target>Open indication insights</target>
+      </trans-unit>
+      <trans-unit id="CatActIgEn" resname="catalog.action.indication_group_insights">
+        <source>catalog.action.indication_group_insights</source>
+        <target>Open group insights</target>
+      </trans-unit>
+      <trans-unit id="CatRelGrpEn" resname="catalog.relation.groups">
+        <source>catalog.relation.groups</source>
+        <target>Indication groups</target>
+      </trans-unit>
+      <trans-unit id="CatRelIndEn" resname="catalog.relation.indications">
+        <source>catalog.relation.indications</source>
+        <target>Indications</target>
+      </trans-unit>
+      <trans-unit id="CatTypeInfEn" resname="catalog.type.infection">
+        <source>catalog.type.infection</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="CatTitInfLEn" resname="title.infection.list">
+        <source>title.infection.list</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="CatTitInfSEn" resname="title.infection.show">
+        <source>title.infection.show</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="CatTypeGlEn" resname="catalog.type.glossary">
+        <source>catalog.type.glossary</source>
+        <target>Classification</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlIxEn" resname="title.glossary.index">
+        <source>title.glossary.index</source>
+        <target>Classifications &amp; definitions</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlUrEn" resname="title.glossary.urgency">
+        <source>title.glossary.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlTtEn" resname="title.glossary.transport_type">
+        <source>title.glossary.transport_type</source>
+        <target>Transport type</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlHcEn" resname="title.glossary.hospital_classifications">
+        <source>title.glossary.hospital_classifications</source>
+        <target>Hospital classifications</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlCiEn" resname="title.glossary.clinical_indicators">
+        <source>title.glossary.clinical_indicators</source>
+        <target>Clinical features &amp; resources</target>
+      </trans-unit>
+      <trans-unit id="CatGlIxSubEn" resname="catalog.glossary.index.subtitle">
+        <source>catalog.glossary.index.subtitle</source>
+        <target>Definitions of codes and features used in the explore data catalog.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrInEn" resname="catalog.glossary.urgency.intro">
+        <source>catalog.glossary.urgency.intro</source>
+        <target>Urgency (SK1–SK3) describes the care level of an allocation according to IVENA.</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtInEn" resname="catalog.glossary.transport_type.intro">
+        <source>catalog.glossary.transport_type.intro</source>
+        <target>Transport type distinguishes ground and air rescue for an allocation.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHcInEn" resname="catalog.glossary.hospital_classifications.intro">
+        <source>catalog.glossary.hospital_classifications.intro</source>
+        <target>Hospitals are classified by care tier, size, and location. Values come from hospital master data.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiInEn" resname="catalog.glossary.clinical_indicators.intro">
+        <source>catalog.glossary.clinical_indicators.intro</source>
+        <target>Clinical resources and features are boolean indicators on allocations. They describe special care needs and operational context.</target>
+      </trans-unit>
+      <trans-unit id="CatGlRelInfEn" resname="catalog.glossary.related.infections">
+        <source>catalog.glossary.related.infections</source>
+        <target>Reference catalog of infection types with coverage and filter actions.</target>
+      </trans-unit>
+      <trans-unit id="CatGlRelStEn" resname="catalog.glossary.related.secondary_transports">
+        <source>catalog.glossary.related.secondary_transports</source>
+        <target>Reference catalog of secondary-transport / transfer reasons.</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecValEn" resname="catalog.glossary.section.values">
+        <source>catalog.glossary.section.values</source>
+        <target>Values</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecTierEn" resname="catalog.glossary.section.hospital_tier">
+        <source>catalog.glossary.section.hospital_tier</source>
+        <target>Care tier</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecSizeEn" resname="catalog.glossary.section.hospital_size">
+        <source>catalog.glossary.section.hospital_size</source>
+        <target>Size</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecLocEn" resname="catalog.glossary.section.hospital_location">
+        <source>catalog.glossary.section.hospital_location</source>
+        <target>Location</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecResEn" resname="catalog.glossary.section.clinical_resources">
+        <source>catalog.glossary.section.clinical_resources</source>
+        <target>Clinical resources</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecFeaEn" resname="catalog.glossary.section.clinical_features">
+        <source>catalog.glossary.section.clinical_features</source>
+        <target>Clinical features</target>
+      </trans-unit>
+      <trans-unit id="CatGlColCodeEn" resname="catalog.glossary.column.code">
+        <source>catalog.glossary.column.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="CatGlColLabEn" resname="catalog.glossary.column.label">
+        <source>catalog.glossary.column.label</source>
+        <target>Label</target>
+      </trans-unit>
+      <trans-unit id="CatGlColDefEn" resname="catalog.glossary.column.definition">
+        <source>catalog.glossary.column.definition</source>
+        <target>Definition</target>
+      </trans-unit>
+      <trans-unit id="CatActHosEn" resname="catalog.action.view_hospitals">
+        <source>catalog.action.view_hospitals</source>
+        <target>View hospitals</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrEmEn" resname="catalog.glossary.urgency.emergency.description">
+        <source>catalog.glossary.urgency.emergency.description</source>
+        <target>SK1 – emergency care / highest urgency.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrInDEn" resname="catalog.glossary.urgency.inpatient.description">
+        <source>catalog.glossary.urgency.inpatient.description</source>
+        <target>SK2 – inpatient care.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrOuEn" resname="catalog.glossary.urgency.outpatient.description">
+        <source>catalog.glossary.urgency.outpatient.description</source>
+        <target>SK3 – outpatient care.</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtGrEn" resname="catalog.glossary.transport_type.ground.description">
+        <source>catalog.glossary.transport_type.ground.description</source>
+        <target>Ground transport (ambulance, emergency physician vehicle, etc.).</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtAiEn" resname="catalog.glossary.transport_type.air.description">
+        <source>catalog.glossary.transport_type.air.description</source>
+        <target>Air transport (e.g. rescue helicopter).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtBaEn" resname="catalog.glossary.hospital.tier.basic.description">
+        <source>catalog.glossary.hospital.tier.basic.description</source>
+        <target>Basic care.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtExEn" resname="catalog.glossary.hospital.tier.extended.description">
+        <source>catalog.glossary.hospital.tier.extended.description</source>
+        <target>Extended care.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtFuEn" resname="catalog.glossary.hospital.tier.full.description">
+        <source>catalog.glossary.hospital.tier.full.description</source>
+        <target>Maximum care.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsSmEn" resname="catalog.glossary.hospital.size.small.description">
+        <source>catalog.glossary.hospital.size.small.description</source>
+        <target>Small hospital (by bed classification).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsMeEn" resname="catalog.glossary.hospital.size.medium.description">
+        <source>catalog.glossary.hospital.size.medium.description</source>
+        <target>Medium hospital.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsLaEn" resname="catalog.glossary.hospital.size.large.description">
+        <source>catalog.glossary.hospital.size.large.description</source>
+        <target>Large hospital.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlUrEn" resname="catalog.glossary.hospital.location.urban.description">
+        <source>catalog.glossary.hospital.location.urban.description</source>
+        <target>Urban location.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlMiEn" resname="catalog.glossary.hospital.location.mixed.description">
+        <source>catalog.glossary.hospital.location.mixed.description</source>
+        <target>Mixed location (urban/suburban).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlRuEn" resname="catalog.glossary.hospital.location.rural.description">
+        <source>catalog.glossary.hospital.location.rural.description</source>
+        <target>Rural location.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiReEn" resname="catalog.glossary.clinical.resus.description">
+        <source>catalog.glossary.clinical.resus.description</source>
+        <target>Requires resus / shock room capacity.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiCaEn" resname="catalog.glossary.clinical.cathlab.description">
+        <source>catalog.glossary.clinical.cathlab.description</source>
+        <target>Requires cardiac catheter lab.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiWpEn" resname="catalog.glossary.clinical.with_physician.description">
+        <source>catalog.glossary.clinical.with_physician.description</source>
+        <target>Physician accompaniment of the transport.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiCpEn" resname="catalog.glossary.clinical.cpr.description">
+        <source>catalog.glossary.clinical.cpr.description</source>
+        <target>CPR during the mission.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiVeEn" resname="catalog.glossary.clinical.ventilation.description">
+        <source>catalog.glossary.clinical.ventilation.description</source>
+        <target>Ventilated patient.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiShEn" resname="catalog.glossary.clinical.shock.description">
+        <source>catalog.glossary.clinical.shock.description</source>
+        <target>Shock state.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiPrEn" resname="catalog.glossary.clinical.pregnancy.description">
+        <source>catalog.glossary.clinical.pregnancy.description</source>
+        <target>Pregnancy as a relevant feature.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiWaEn" resname="catalog.glossary.clinical.work_accident.description">
+        <source>catalog.glossary.clinical.work_accident.description</source>
+        <target>Work accident.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiInfEn" resname="catalog.glossary.clinical.infection.description">
+        <source>catalog.glossary.clinical.infection.description</source>
+        <target>Infectious patient (infection value present).</target>
+      </trans-unit>
+      <trans-unit id="CatSecQwEn" resname="catalog.section.quality_warnings">
+        <source>catalog.section.quality_warnings</source>
+        <target>Quality warnings</target>
+      </trans-unit>
+      <trans-unit id="CatSecNormEn" resname="catalog.section.normalization">
+        <source>catalog.section.normalization</source>
+        <target>Normalization &amp; synonyms</target>
+      </trans-unit>
+      <trans-unit id="CatSecDefChEn" resname="catalog.section.definition_changes">
+        <source>catalog.section.definition_changes</source>
+        <target>Definition changes</target>
+      </trans-unit>
+      <trans-unit id="CatFldNoteEn" resname="catalog.field.note">
+        <source>catalog.field.note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="CatFldCodeEn" resname="catalog.field.code">
+        <source>catalog.field.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="CatNormSynEn" resname="catalog.normalization.synonyms">
+        <source>catalog.normalization.synonyms</source>
+        <target>Raw values / synonyms</target>
+      </trans-unit>
+      <trans-unit id="CatNormMatEn" resname="catalog.normalization.matched">
+        <source>catalog.normalization.matched</source>
+        <target>Matched</target>
+      </trans-unit>
+      <trans-unit id="CatNormOpenEn" resname="catalog.normalization.open">
+        <source>catalog.normalization.open</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="CatNormEmptyEn" resname="catalog.normalization.empty">
+        <source>catalog.normalization.empty</source>
+        <target>No raw values are linked as synonyms for this indication yet.</target>
+      </trans-unit>
+      <trans-unit id="CatActRevRawEn" resname="catalog.action.review_raw">
+        <source>catalog.action.review_raw</source>
+        <target>Open review</target>
+      </trans-unit>
+      <trans-unit id="CatActRevWlEn" resname="catalog.action.review_raw_indications">
+        <source>catalog.action.review_raw_indications</source>
+        <target>Raw indication review</target>
+      </trans-unit>
+      <trans-unit id="CatActOpenWlEn" resname="catalog.action.open_review_worklist">
+        <source>catalog.action.open_review_worklist</source>
+        <target>Open worklist</target>
+      </trans-unit>
+      <trans-unit id="CatDefGenEn" resname="catalog.definition_change.generic">
+        <source>catalog.definition_change.generic</source>
+        <target>Definition updated</target>
+      </trans-unit>
+      <trans-unit id="CatDefFldEn" resname="catalog.definition_change.fields">
+        <source>catalog.definition_change.fields</source>
+        <target>Changed: {fields}</target>
+      </trans-unit>
+      <trans-unit id="CatQwNrEn" resname="catalog.quality.warning.needs_review_for_target">
+        <source>catalog.quality.warning.needs_review_for_target</source>
+        <target>{count, plural, one {# linked raw value awaits approval} other {# linked raw values await approval}}</target>
+      </trans-unit>
+      <trans-unit id="CatQwUrEn" resname="catalog.quality.warning.unreviewed_for_target">
+        <source>catalog.quality.warning.unreviewed_for_target</source>
+        <target>{count, plural, one {# linked raw value is still unreviewed} other {# linked raw values are still unreviewed}}</target>
+      </trans-unit>
+      <trans-unit id="CatQhNrEn" resname="catalog.quality.hint.needs_review_for_target">
+        <source>catalog.quality.hint.needs_review_for_target</source>
+        <target>Approve or reject in the review worklist.</target>
+      </trans-unit>
+      <trans-unit id="CatQhUrEn" resname="catalog.quality.hint.unreviewed_for_target">
+        <source>catalog.quality.hint.unreviewed_for_target</source>
+        <target>Unreviewed raw values should be matched or marked not matchable.</target>
+      </trans-unit>
+      <trans-unit id="CatQcTnmEn" resname="catalog.quality.check.target_not_matched">
+        <source>catalog.quality.check.target_not_matched</source>
+        <target>Target set but status is not matched</target>
+      </trans-unit>
+      <trans-unit id="CatQcMwtEn" resname="catalog.quality.check.matched_without_target">
+        <source>catalog.quality.check.matched_without_target</source>
+        <target>Matched without target</target>
+      </trans-unit>
+      <trans-unit id="CatQcNwtEn" resname="catalog.quality.check.normalized_without_target">
+        <source>catalog.quality.check.normalized_without_target</source>
+        <target>Normalized set without target</target>
+      </trans-unit>
+      <trans-unit id="CatQcTmmEn" resname="catalog.quality.check.target_normalized_mismatch">
+        <source>catalog.quality.check.target_normalized_mismatch</source>
+        <target>Target and normalized disagree</target>
+      </trans-unit>
+      <trans-unit id="CatQcNrtEn" resname="catalog.quality.check.needs_review_without_target">
+        <source>catalog.quality.check.needs_review_without_target</source>
+        <target>Awaiting approval without proposed target</target>
+      </trans-unit>
+      <trans-unit id="CatQcMwrEn" resname="catalog.quality.check.matched_without_reviewed_by">
+        <source>catalog.quality.check.matched_without_reviewed_by</source>
+        <target>Matched without reviewed_by (legacy)</target>
+      </trans-unit>
+      <trans-unit id="CatQcTwfEn" resname="catalog.quality.check.target_without_first_matcher">
+        <source>catalog.quality.check.target_without_first_matcher</source>
+        <target>Target without first_matched_by</target>
+      </trans-unit>
+      <trans-unit id="CatQhTnmEn" resname="catalog.quality.hint.target_not_matched">
+        <source>catalog.quality.hint.target_not_matched</source>
+        <target>Set status to matched or clear target.</target>
+      </trans-unit>
+      <trans-unit id="CatQhMwtEn" resname="catalog.quality.hint.matched_without_target">
+        <source>catalog.quality.hint.matched_without_target</source>
+        <target>Assign a target or change status.</target>
+      </trans-unit>
+      <trans-unit id="CatQhNwtEn" resname="catalog.quality.hint.normalized_without_target">
+        <source>catalog.quality.hint.normalized_without_target</source>
+        <target>Copy normalized_id to target_id or clear it.</target>
+      </trans-unit>
+      <trans-unit id="CatQhTmmEn" resname="catalog.quality.hint.target_normalized_mismatch">
+        <source>catalog.quality.hint.target_normalized_mismatch</source>
+        <target>Align target_id and normalized_id.</target>
+      </trans-unit>
+      <trans-unit id="CatQhNrtEn" resname="catalog.quality.hint.needs_review_without_target">
+        <source>catalog.quality.hint.needs_review_without_target</source>
+        <target>Propose a target or reset status.</target>
+      </trans-unit>
+      <trans-unit id="CatQhMwrEn" resname="catalog.quality.hint.matched_without_reviewed_by">
+        <source>catalog.quality.hint.matched_without_reviewed_by</source>
+        <target>Expected for legacy rows migrated from target_id.</target>
+      </trans-unit>
+      <trans-unit id="CatQhTwfEn" resname="catalog.quality.hint.target_without_first_matcher">
+        <source>catalog.quality.hint.target_without_first_matcher</source>
+        <target>Expected when updated_by was null during migration.</target>
+      </trans-unit>
       <trans-unit id="hag01" resname="title.hospital_access_grants">
         <source>title.hospital_access_grants</source>
         <target>Access grants</target>

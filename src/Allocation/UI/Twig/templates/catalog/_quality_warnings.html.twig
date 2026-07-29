@@ -1,0 +1,32 @@
+{% if qualityWarnings is not empty %}
+    <div class="card mb-3" data-testid="catalog-quality-warnings">
+        <div class="card-body">
+            <div class="card-title">{{ 'catalog.section.quality_warnings'|trans({}, 'allocation') }}</div>
+            <div class="list-group list-group-flush">
+                {% for warning in qualityWarnings %}
+                    <div class="list-group-item px-0" data-testid="catalog-quality-warning">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="badge {{ warning.isFail ? 'bg-danger-lt' : 'bg-warning-lt' }}">
+                                {{ warning.isFail ? 'FAIL' : 'WARN' }}
+                            </span>
+                            <div class="flex-fill">
+                                <div>
+                                    {{ warning.labelKey|trans({count: warning.count}, 'allocation') }}
+                                    <span class="text-secondary">({{ warning.count }})</span>
+                                </div>
+                                {% if warning.hintKey %}
+                                    <div class="text-secondary small">{{ warning.hintKey|trans({}, 'allocation') }}</div>
+                                {% endif %}
+                                {% if warning.actionUrl %}
+                                    <a class="small" href="{{ warning.actionUrl }}">
+                                        {{ 'catalog.action.open_review_worklist'|trans({}, 'allocation') }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}

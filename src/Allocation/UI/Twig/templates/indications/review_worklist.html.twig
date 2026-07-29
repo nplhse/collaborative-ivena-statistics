@@ -93,6 +93,10 @@
 {% endblock %}
 
 {% block page_content %}
+    <div class="container-xl">
+        {{ include('@Allocation/catalog/_quality_warnings.html.twig', {qualityWarnings: qualityWarnings|default([])}) }}
+    </div>
+
     <turbo-frame id="indication-review-list" data-turbo-action="advance">
         {% if query.search is not empty %}
             <twig:Alert type="info" :message="'label.searching_for'|trans(({term: query.search}), 'messages')" />

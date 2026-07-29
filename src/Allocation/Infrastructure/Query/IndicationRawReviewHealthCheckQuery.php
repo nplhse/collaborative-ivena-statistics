@@ -19,6 +19,114 @@ final readonly class IndicationRawReviewHealthCheckQuery
      */
     public function runAll(): array
     {
+        return [
+            ...$this->runStatusCounts(),
+            ...$this->runMappingIntegrityChecks(),
+            ...$this->runAllocationProjectionChecks(),
+        ];
+    }
+
+    /**
+     * Lightweight checks for catalog/worklist warning panels (indication_raw only).
+     *
+     * @return list<IndicationRawReviewHealthCheckResult>
+     */
+    public function runMappingIntegrityChecks(): array
+    {
+        return [
+            $this->result(
+                'target_not_matched',
+                'Target set but status is not matched',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE target_id IS NOT NULL
+  AND review_status <> 'matched'
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'Set review_status to matched or clear target_id',
+            ),
+            $this->result(
+                'matched_without_target',
+                'Matched status without target',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE review_status = 'matched'
+  AND target_id IS NULL
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'Assign target or change review_status',
+            ),
+            $this->result(
+                'normalized_without_target',
+                'Normalized set without target (worklist noise)',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE normalized_id IS NOT NULL
+  AND target_id IS NULL
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Warn,
+                'Copy normalized_id to target_id or clear normalized_id',
+            ),
+            $this->result(
+                'target_normalized_mismatch',
+                'Target and normalized disagree',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE target_id IS NOT NULL
+  AND normalized_id IS NOT NULL
+  AND target_id <> normalized_id
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'Align target_id and normalized_id',
+            ),
+            $this->result(
+                'needs_review_without_target',
+                'Awaiting approval without proposed target',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE review_status = 'needs_review'
+  AND target_id IS NULL
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'Propose a target or reset review_status',
+            ),
+            $this->result(
+                'matched_without_reviewed_by',
+                'Matched without reviewed_by (legacy audit gap)',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE review_status = 'matched'
+  AND reviewed_by_id IS NULL
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Warn,
+                'Expected for legacy rows migrated from target_id',
+            ),
+            $this->result(
+                'target_without_first_matcher',
+                'Target set without first_matched_by',
+                $this->count(<<<'SQL'
+SELECT COUNT(*)::int
+FROM indication_raw
+WHERE target_id IS NOT NULL
+  AND first_matched_by_id IS NULL
+SQL),
+                IndicationRawReviewHealthCheckSeverity::Warn,
+                'Expected when updated_by_id was null during migration',
+            ),
+        ];
+    }
+
+    /**
+     * @return list<IndicationRawReviewHealthCheckResult>
+     */
+    private function runStatusCounts(): array
+    {
         $results = [
             $this->result(
                 'raw_total',
@@ -53,130 +161,45 @@ SQL),
             IndicationRawReviewHealthCheckSeverity::Info,
         );
 
-        $results[] = $this->result(
-            'target_not_matched',
-            'Target set but status is not matched',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE target_id IS NOT NULL
-  AND review_status <> 'matched'
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'Set review_status to matched or clear target_id',
-        );
+        return $results;
+    }
 
-        $results[] = $this->result(
-            'matched_without_target',
-            'Matched status without target',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE review_status = 'matched'
-  AND target_id IS NULL
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'Assign target or change review_status',
-        );
-
-        $results[] = $this->result(
-            'normalized_without_target',
-            'Normalized set without target (worklist noise)',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE normalized_id IS NOT NULL
-  AND target_id IS NULL
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Warn,
-            'Copy normalized_id to target_id or clear normalized_id',
-        );
-
-        $results[] = $this->result(
-            'target_normalized_mismatch',
-            'Target and normalized disagree',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE target_id IS NOT NULL
-  AND normalized_id IS NOT NULL
-  AND target_id <> normalized_id
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'Align target_id and normalized_id',
-        );
-
-        $results[] = $this->result(
-            'needs_review_without_target',
-            'Awaiting approval without proposed target',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE review_status = 'needs_review'
-  AND target_id IS NULL
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'Propose a target or reset review_status',
-        );
-
-        $results[] = $this->result(
-            'matched_without_reviewed_by',
-            'Matched without reviewed_by (legacy audit gap)',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE review_status = 'matched'
-  AND reviewed_by_id IS NULL
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Warn,
-            'Expected for legacy rows migrated from target_id',
-        );
-
-        $results[] = $this->result(
-            'target_without_first_matcher',
-            'Target set without first_matched_by',
-            $this->count(<<<'SQL'
-SELECT COUNT(*)::int
-FROM indication_raw
-WHERE target_id IS NOT NULL
-  AND first_matched_by_id IS NULL
-SQL),
-            IndicationRawReviewHealthCheckSeverity::Warn,
-            'Expected when updated_by_id was null during migration',
-        );
-
-        $results[] = $this->result(
-            'alloc_primary_missing_normalized',
-            'Allocations missing primary indication_normalized_id',
-            $this->count(<<<'SQL'
+    /**
+     * @return list<IndicationRawReviewHealthCheckResult>
+     */
+    private function runAllocationProjectionChecks(): array
+    {
+        return [
+            $this->result(
+                'alloc_primary_missing_normalized',
+                'Allocations missing primary indication_normalized_id',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation a
 INNER JOIN indication_raw r ON r.id = a.indication_raw_id
 WHERE COALESCE(r.normalized_id, r.target_id) IS NOT NULL
   AND a.indication_normalized_id IS NULL
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'app:allocation:backfill-indications',
-        );
-
-        $results[] = $this->result(
-            'alloc_secondary_missing_normalized',
-            'Allocations missing secondary indication_normalized_id',
-            $this->count(<<<'SQL'
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'app:allocation:backfill-indications',
+            ),
+            $this->result(
+                'alloc_secondary_missing_normalized',
+                'Allocations missing secondary indication_normalized_id',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation a
 INNER JOIN indication_raw r ON r.id = a.secondary_indication_raw_id
 WHERE COALESCE(r.normalized_id, r.target_id) IS NOT NULL
   AND a.secondary_indication_normalized_id IS NULL
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'app:allocation:backfill-indications',
-        );
-
-        $results[] = $this->result(
-            'alloc_primary_normalized_mismatch',
-            'Allocation primary normalized does not match raw',
-            $this->count(<<<'SQL'
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'app:allocation:backfill-indications',
+            ),
+            $this->result(
+                'alloc_primary_normalized_mismatch',
+                'Allocation primary normalized does not match raw',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation a
 INNER JOIN indication_raw r ON r.id = a.indication_raw_id
@@ -184,27 +207,25 @@ WHERE a.indication_normalized_id IS NOT NULL
   AND COALESCE(r.normalized_id, r.target_id) IS NOT NULL
   AND a.indication_normalized_id <> COALESCE(r.normalized_id, r.target_id)
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'app:allocation:backfill-indications',
-        );
-
-        $results[] = $this->result(
-            'projection_orphan_rows',
-            'Projection rows without allocation',
-            $this->count(<<<'SQL'
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'app:allocation:backfill-indications',
+            ),
+            $this->result(
+                'projection_orphan_rows',
+                'Projection rows without allocation',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation_stats_projection p
 LEFT JOIN allocation a ON a.id = p.id
 WHERE a.id IS NULL
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Warn,
-            'app:statistics:rebuild-projection',
-        );
-
-        $results[] = $this->result(
-            'projection_primary_mismatch',
-            'Projection primary normalized differs from allocation',
-            $this->count(<<<'SQL'
+                IndicationRawReviewHealthCheckSeverity::Warn,
+                'app:statistics:rebuild-projection',
+            ),
+            $this->result(
+                'projection_primary_mismatch',
+                'Projection primary normalized differs from allocation',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation a
 INNER JOIN allocation_stats_projection p ON p.id = a.id
@@ -212,14 +233,13 @@ WHERE a.indication_normalized_id IS NOT NULL
   AND (p.indication_normalized_id IS NULL
        OR p.indication_normalized_id <> a.indication_normalized_id)
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'app:allocation:backfill-indications --rebuild-projection',
-        );
-
-        $results[] = $this->result(
-            'projection_primary_null_with_alloc_set',
-            'Allocation has normalized but projection primary is null',
-            $this->count(<<<'SQL'
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'app:allocation:backfill-indications --rebuild-projection',
+            ),
+            $this->result(
+                'projection_primary_null_with_alloc_set',
+                'Allocation has normalized but projection primary is null',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation a
 INNER JOIN allocation_stats_projection p ON p.id = a.id
@@ -228,14 +248,13 @@ WHERE COALESCE(r.normalized_id, r.target_id) IS NOT NULL
   AND a.indication_normalized_id IS NOT NULL
   AND p.indication_normalized_id IS NULL
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'app:allocation:backfill-indications --rebuild-projection',
-        );
-
-        $results[] = $this->result(
-            'projection_secondary_mismatch',
-            'Projection secondary normalized differs from allocation',
-            $this->count(<<<'SQL'
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'app:allocation:backfill-indications --rebuild-projection',
+            ),
+            $this->result(
+                'projection_secondary_mismatch',
+                'Projection secondary normalized differs from allocation',
+                $this->count(<<<'SQL'
 SELECT COUNT(*)::int
 FROM allocation a
 INNER JOIN allocation_stats_projection p ON p.id = a.id
@@ -243,11 +262,10 @@ WHERE a.secondary_indication_normalized_id IS NOT NULL
   AND (p.secondary_indication_normalized_id IS NULL
        OR p.secondary_indication_normalized_id <> a.secondary_indication_normalized_id)
 SQL),
-            IndicationRawReviewHealthCheckSeverity::Fail,
-            'app:allocation:backfill-indications --rebuild-projection',
-        );
-
-        return $results;
+                IndicationRawReviewHealthCheckSeverity::Fail,
+                'app:allocation:backfill-indications --rebuild-projection',
+            ),
+        ];
     }
 
     /**

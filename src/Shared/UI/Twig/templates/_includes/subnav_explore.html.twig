@@ -1,84 +1,167 @@
 {% set route = app.request.attributes.get('_route') %}
 
+{% set overviewActive = route == 'app_explore_index' %}
+{% set casesActive = route starts with 'app_explore_allocation' or route starts with 'app_explore_mci_case' %}
+{% set orgActive = route starts with 'app_explore_hospital' or route starts with 'app_explore_state' or route starts with 'app_explore_dispatch_area' %}
+{% set structureActive = route starts with 'app_explore_speciality' or route starts with 'app_explore_department' %}
+{% set featuresActive = route starts with 'app_explore_indication' or route starts with 'app_explore_infection' or route starts with 'app_explore_occasion' or route starts with 'app_explore_secondary_transport' or route starts with 'app_explore_assignment' %}
+{% set glossaryActive = route starts with 'app_explore_glossary' %}
+
 <header class="navbar-expand-md">
     <div class="collapse navbar-collapse" id="navbar-menu">
         <div class="navbar">
             <div class="container-xl">
-                <ul class="navbar-nav">
-                    <li class="nav-item {{ route starts with 'app_explore_allocation' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_allocation_list') }}">
+                <ul class="navbar-nav" data-testid="explore-subnav">
+                    <li class="nav-item {{ overviewActive ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_explore_index') }}">
                             <span class="nav-link-title">
+                                {{ 'link.explore.overview'|trans({}, 'shared') }}
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown {{ casesActive ? 'active' : '' }}">
+                        <a
+                            class="nav-link dropdown-toggle {{ casesActive ? 'active' : '' }}"
+                            href="#navbar-explore-cases"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            role="button"
+                            aria-expanded="false"
+                        >
+                            <span class="nav-link-title">{{ 'link.explore.group.cases'|trans({}, 'shared') }}</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_allocation' ? 'active' : '' }}"
+                                href="{{ path('app_explore_allocation_list') }}"
+                            >
                                 {{ 'link.allocations'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_assignment' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_assignment_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.assignments'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_department' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_department_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.departments'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_dispatch_area' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_dispatch_area_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.dispatch_areas'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_hospital' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_hospital_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.hospitals'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_indication' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_indication_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.indications'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_infection' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_infection_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.infections'|trans({}, 'shared') }}
-                            </span>
-                        </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_mci_case' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_mci_case_list') }}">
-                            <span class="nav-link-title">
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_mci_case' ? 'active' : '' }}"
+                                href="{{ path('app_explore_mci_case_list') }}"
+                            >
                                 {{ 'link.mci_cases'|trans({}, 'shared') }}
-                            </span>
-                        </a>
+                            </a>
+                        </div>
                     </li>
-                    <li class="nav-item {{ route starts with 'app_explore_occasion' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_occasion_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.occasions'|trans({}, 'shared') }}
-                            </span>
+
+                    <li class="nav-item dropdown {{ orgActive ? 'active' : '' }}">
+                        <a
+                            class="nav-link dropdown-toggle {{ orgActive ? 'active' : '' }}"
+                            href="#navbar-explore-organisation"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            role="button"
+                            aria-expanded="false"
+                        >
+                            <span class="nav-link-title">{{ 'link.explore.group.organisation'|trans({}, 'shared') }}</span>
                         </a>
+                        <div class="dropdown-menu">
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_hospital' ? 'active' : '' }}"
+                                href="{{ path('app_explore_hospital_list') }}"
+                            >
+                                {{ 'link.hospitals'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_state' ? 'active' : '' }}"
+                                href="{{ path('app_explore_state_list') }}"
+                            >
+                                {{ 'link.states'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_dispatch_area' ? 'active' : '' }}"
+                                href="{{ path('app_explore_dispatch_area_list') }}"
+                            >
+                                {{ 'link.dispatch_areas'|trans({}, 'shared') }}
+                            </a>
+                        </div>
                     </li>
-                    <li class="nav-item {{ route starts with 'app_explore_secondary_transport' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_secondary_transport_list') }}">
-                            <span class="nav-link-title">
-                                {{ 'link.secondary_transports'|trans({}, 'shared') }}
-                            </span>
+
+                    <li class="nav-item dropdown {{ structureActive ? 'active' : '' }}">
+                        <a
+                            class="nav-link dropdown-toggle {{ structureActive ? 'active' : '' }}"
+                            href="#navbar-explore-structure"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            role="button"
+                            aria-expanded="false"
+                        >
+                            <span class="nav-link-title">{{ 'link.explore.group.structure'|trans({}, 'shared') }}</span>
                         </a>
-                    </li>
-                    <li class="nav-item {{ route starts with 'app_explore_speciality' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('app_explore_speciality_list') }}">
-                            <span class="nav-link-title">
+                        <div class="dropdown-menu">
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_speciality' ? 'active' : '' }}"
+                                href="{{ path('app_explore_speciality_list') }}"
+                            >
                                 {{ 'link.specialities'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_department' ? 'active' : '' }}"
+                                href="{{ path('app_explore_department_list') }}"
+                            >
+                                {{ 'link.departments'|trans({}, 'shared') }}
+                            </a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown {{ featuresActive ? 'active' : '' }}">
+                        <a
+                            class="nav-link dropdown-toggle {{ featuresActive ? 'active' : '' }}"
+                            href="#navbar-explore-features"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            role="button"
+                            aria-expanded="false"
+                        >
+                            <span class="nav-link-title">{{ 'link.explore.group.features'|trans({}, 'shared') }}</span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_indication' and not (route starts with 'app_explore_indication_group') ? 'active' : '' }}"
+                                href="{{ path('app_explore_indication_list') }}"
+                            >
+                                {{ 'link.indications'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_indication_group' ? 'active' : '' }}"
+                                href="{{ path('app_explore_indication_group_list') }}"
+                            >
+                                {{ 'link.indication_groups'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_assignment' ? 'active' : '' }}"
+                                href="{{ path('app_explore_assignment_list') }}"
+                            >
+                                {{ 'link.assignments'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_infection' ? 'active' : '' }}"
+                                href="{{ path('app_explore_infection_list') }}"
+                            >
+                                {{ 'link.infections'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_occasion' ? 'active' : '' }}"
+                                href="{{ path('app_explore_occasion_list') }}"
+                            >
+                                {{ 'link.occasions'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_secondary_transport' ? 'active' : '' }}"
+                                href="{{ path('app_explore_secondary_transport_list') }}"
+                            >
+                                {{ 'link.secondary_transports'|trans({}, 'shared') }}
+                            </a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item {{ glossaryActive ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_explore_glossary_index') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.glossary'|trans({}, 'shared') }}
                             </span>
                         </a>
                     </li>

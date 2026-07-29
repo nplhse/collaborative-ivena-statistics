@@ -9,6 +9,7 @@ use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,6 +19,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class DispatchAreaRepository extends ServiceEntityRepository implements DispatchAreaLookupInterface
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, DispatchArea::class);

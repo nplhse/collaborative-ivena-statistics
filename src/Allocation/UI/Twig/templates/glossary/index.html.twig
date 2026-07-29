@@ -1,0 +1,55 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.glossary.index'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'title.glossary.index' }
+                ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.glossary.index'|trans({}, 'allocation') }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'catalog.glossary.index.subtitle'|trans({}, 'allocation') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl">
+        <div class="row g-3" data-testid="glossary-index">
+            {% for entry in entries %}
+                <div class="col-12 col-md-6">
+                    <a href="{{ path('app_explore_glossary_show', {slug: entry.slug.value}) }}" class="card card-link" data-testid="glossary-entry">
+                        <div class="card-body d-flex align-items-start gap-3">
+                            <span class="text-primary">
+                                <twig:ux:icon name="{{ entry.icon }}" width="2.5em" height="2.5em" />
+                            </span>
+                            <div>
+                                <div class="h3 mb-1">{{ entry.titleKey|trans({}, 'allocation') }}</div>
+                                <div class="text-muted">{{ entry.introKey|trans({}, 'allocation') }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

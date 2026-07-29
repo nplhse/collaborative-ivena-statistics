@@ -122,7 +122,7 @@
                 {% for department in paginator.results %}
                     <tr>
                         <td>
-                            {{ department.name }}
+                            <a href="{{ path('app_explore_department_show', {publicId: department.publicId}) }}" target="_top">{{ department.name }}</a>
                         </td>
                         <td>
                             {{ department.updatedAt ? department.updatedAt|date('d.m.Y H:i') : department.createdAt|date('d.m.Y H:i') }}

@@ -1,0 +1,66 @@
+{% if coverage %}
+    <div class="card mb-3" data-testid="catalog-coverage">
+        <div class="card-body">
+            <div class="card-title">{{ 'catalog.section.coverage'|trans({}, 'allocation') }}</div>
+
+            {% if coverage.suppressed %}
+                <div class="alert alert-warning mb-0" data-testid="catalog-coverage-suppressed">
+                    {{ 'catalog.coverage.suppressed'|trans({threshold: constant('App\\Allocation\\Application\\Explore\\Catalog\\CatalogPrivacyPolicy::MIN_ALLOCATIONS')}, 'allocation') }}
+                </div>
+            {% elseif not coverage.hasData %}
+                <p class="text-muted mb-0" data-testid="catalog-coverage-empty">
+                    {{ 'catalog.coverage.empty'|trans({}, 'allocation') }}
+                </p>
+            {% else %}
+                <div class="datagrid" data-testid="catalog-coverage-metrics">
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ 'catalog.metric.allocations'|trans({}, 'allocation') }}</div>
+                        <div class="datagrid-content">{{ coverage.allocationCount|number_format(0, ',', '.') }}</div>
+                    </div>
+                    {% if coverage.sharePercent is not null %}
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'catalog.metric.share'|trans({}, 'allocation') }}</div>
+                            <div class="datagrid-content">{{ coverage.sharePercent|number_format(2, ',', '.') }}&nbsp;%</div>
+                        </div>
+                    {% endif %}
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ 'catalog.metric.hospitals'|trans({}, 'allocation') }}</div>
+                        <div class="datagrid-content">{{ coverage.hospitalCount|number_format(0, ',', '.') }}</div>
+                    </div>
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ 'catalog.metric.dispatch_areas'|trans({}, 'allocation') }}</div>
+                        <div class="datagrid-content">{{ coverage.dispatchAreaCount|number_format(0, ',', '.') }}</div>
+                    </div>
+                    <div class="datagrid-item">
+                        <div class="datagrid-title">{{ 'catalog.metric.states'|trans({}, 'allocation') }}</div>
+                        <div class="datagrid-content">{{ coverage.stateCount|number_format(0, ',', '.') }}</div>
+                    </div>
+                    {% if coverage.firstAt and coverage.lastAt %}
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'catalog.metric.period'|trans({}, 'allocation') }}</div>
+                            <div class="datagrid-content">
+                                {{ coverage.firstAt|date('d.m.Y') }}
+                                –
+                                {{ coverage.lastAt|date('d.m.Y') }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if coverage.years is not empty %}
+                    <div class="mt-3" data-testid="catalog-coverage-years">
+                        <div class="text-muted mb-2">{{ 'catalog.metric.years'|trans({}, 'allocation') }}</div>
+                        <div class="list-inline list-inline-dots mb-0">
+                            {% for yearRow in coverage.years %}
+                                <span class="list-inline-item">
+                                    {{ yearRow.year }}
+                                    <span class="text-muted">({{ yearRow.count|number_format(0, ',', '.') }})</span>
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

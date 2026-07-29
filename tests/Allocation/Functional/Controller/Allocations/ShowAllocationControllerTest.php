@@ -250,6 +250,44 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('.department-line', 'Closed');
     }
 
+    public function testShowHandlesMissingTransportType(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(['name' => 'Optional Transport Department']),
+            'speciality' => SpecialityFactory::createOne(['name' => 'Optional Transport Speciality']),
+            'indicationRaw' => IndicationRawFactory::createOne(['name' => 'Optional Transport Indication']),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(['name' => 'Optional Transport Indication']),
+            'occasion' => OccasionFactory::createOne(),
+            'transportType' => null,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="allocation-transport-type"]', 'Unknown');
+    }
+
     public function testShowReturns403ForRoleUserWithoutParticipantRole(): void
     {
         $client = $this->createClientAsRoleUser();

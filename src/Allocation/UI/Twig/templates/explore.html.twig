@@ -36,192 +36,216 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="row g-3">
-        <!-- Card: Allocations -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_allocation_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:list" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.allocations'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.allocations'|trans({}, 'messages') }}</small>
-                    </div>
+    <div class="container-xl" data-testid="explore-index">
+        <section class="mb-4" data-testid="explore-group-cases">
+            <h3 class="mb-3">{{ 'link.explore.group.cases'|trans({}, 'shared') }}</h3>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_allocation_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:list" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.allocations'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.allocations'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_mci_case_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:ambulance" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.mci_cases'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.mci_cases'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
 
-        <!-- Card: Assignments -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_assignment_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:archery-arrow" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.assignments'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.assignments'|trans({}, 'messages') }}</small>
-                    </div>
+        <section class="mb-4" data-testid="explore-group-organisation">
+            <h3 class="mb-3">{{ 'link.explore.group.organisation'|trans({}, 'shared') }}</h3>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_hospital_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:building-hospital" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.hospitals'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.hospitals'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_state_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:map-2" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.states'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.states'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_dispatch_area_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:map" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.dispatch_areas'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.dispatch_areas'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
 
-        <!-- Card: Departments -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_department_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:folder-dollar" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.departments'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.departments'|trans({}, 'messages') }}</small>
-                    </div>
+        <section class="mb-4" data-testid="explore-group-structure">
+            <h3 class="mb-3">{{ 'link.explore.group.structure'|trans({}, 'shared') }}</h3>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_speciality_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:folder-pin" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.specialities'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.specialities'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_department_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:folder-dollar" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.departments'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.departments'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
 
-        <!-- Card: DispatchAreas -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_dispatch_area_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:map" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.dispatch_areas'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.dispatch_areas'|trans({}, 'messages') }}</small>
-                    </div>
+        <section class="mb-4" data-testid="explore-group-features">
+            <h3 class="mb-3">{{ 'link.explore.group.features'|trans({}, 'shared') }}</h3>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_indication_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:id" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.indications'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.indications'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_indication_group_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:folders" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.indication_groups'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.indication_groups'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_assignment_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:archery-arrow" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.assignments'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.assignments'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_infection_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:biohazard" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.infections'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.infections'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_occasion_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:affiliate" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.occasions'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.occasions'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_secondary_transport_list') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:transfer" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.secondary_transports'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.secondary_transports'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
 
-        <!-- Card: Hospitals -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_hospital_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:building-hospital" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.hospitals'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.hospitals'|trans({}, 'messages') }}</small>
-                    </div>
+        <section class="mb-4" data-testid="explore-group-glossary">
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4">
+                    <a href="{{ path('app_explore_glossary_index') }}">
+                        <div class="card p-3 d-flex flex-row align-items-center">
+                            <div class="me-3 text-primary">
+                                <twig:ux:icon name="tabler:book" width="4em" height="4em" />
+                            </div>
+                            <div>
+                                <div class="h3 mb-0">{{ 'link.glossary'|trans({}, 'shared') }}</div>
+                                <small class="text-muted">{{ 'label.link.glossary'|trans({}, 'messages') }}</small>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-
-        <!-- Card: Indications -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_indication_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:id" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.indications'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.indications'|trans({}, 'messages') }}</small>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Card: Infections -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_infection_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:biohazard" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.infections'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.infections'|trans({}, 'messages') }}</small>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Card: MCI Cases -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_mci_case_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:ambulance" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.mci_cases'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.mci_cases'|trans({}, 'messages') }}</small>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Card: Occasions -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_occasion_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:affiliate" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.occasions'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.occasions'|trans({}, 'messages') }}</small>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Card: Secondary Transports -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_secondary_transport_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:transfer" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.secondary_transports'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.secondary_transports'|trans({}, 'messages') }}</small>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Card: Specialities -->
-        <div class="col-12 col-sm-6 col-md-4">
-            <a href="{{ path('app_explore_speciality_list') }}">
-                <div class="card p-3 d-flex flex-row align-items-center">
-                    <!-- Icon -->
-                    <div class="me-3 text-primary">
-                        <twig:ux:icon name="tabler:folder-pin" width="4em" height="4em" />
-                    </div>
-                    <!-- Text -->
-                    <div>
-                        <div class="h3 mb-0">{{ 'link.specialities'|trans({}, 'shared') }}</div>
-                        <small class="text-muted">{{ 'label.link.specialities'|trans({}, 'messages') }}</small>
-                    </div>
-                </div>
-            </a>
-        </div>
+            </div>
+        </section>
     </div>
 {% endblock %}

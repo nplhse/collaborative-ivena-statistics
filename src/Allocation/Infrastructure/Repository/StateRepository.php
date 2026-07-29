@@ -6,6 +6,9 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Application\Contracts\StateLookupInterface;
 use App\Allocation\Domain\Entity\State;
+use App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO;
+use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class StateRepository extends ServiceEntityRepository implements StateLookupInterface
 {
+    use PublicIdRepositoryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, State::class);
@@ -25,5 +30,31 @@ final class StateRepository extends ServiceEntityRepository implements StateLook
         $entity = $this->find($id);
 
         return $entity instanceof State ? $entity : null;
+    }
+
+    public function getListPaginator(SpecialityQueryParametersDTO $queryParametersDTO): Paginator
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->addSelect('(CASE WHEN s.updatedAt IS NOT NULL THEN s.updatedAt ELSE s.createdAt END) AS HIDDEN sortDate')
+        ;
+
+        if ('lastChange' === $queryParametersDTO->sortBy) {
+            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
+        } else {
+            $sortField = match ($queryParametersDTO->sortBy) {
+                'id' => 's.id',
+                'name' => 's.name',
+                default => 's.name',
+            };
+            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
+        }
+
+        if (null !== $queryParametersDTO->search) {
+            $qb->andWhere($qb->expr()->like('LOWER(s.name)', ':search'))
+                ->setParameter('search', '%'.mb_strtolower($queryParametersDTO->search).'%')
+            ;
+        }
+
+        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
     }
 }

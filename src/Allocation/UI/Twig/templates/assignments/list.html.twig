@@ -128,7 +128,7 @@
                 {% for assignment in paginator.results %}
                     <tr>
                         <td>
-                            {{ assignment.name }}
+                            <a href="{{ path('app_explore_assignment_show', {publicId: assignment.publicId}) }}" target="_top">{{ assignment.name }}</a>
                         </td>
                         <td>
                             {{ assignment.updatedAt ? assignment.updatedAt|date('d.m.Y H:i') : assignment.createdAt|date('d.m.Y H:i') }}

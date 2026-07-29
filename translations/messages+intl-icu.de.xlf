@@ -833,6 +833,10 @@
         <source>label.link.dispatch_areas</source>
         <target>Von im System enthaltenen Leitstellen abgedeckte Regionen</target>
       </trans-unit>
+      <trans-unit id="DeLblLinkStates" resname="label.link.states">
+        <source>label.link.states</source>
+        <target>Bundesländer mit Leitstellenbereichen und zugehörigen Einsätzen.</target>
+      </trans-unit>
       <trans-unit id="De1cb8ae40" resname="label.link.hospitals">
         <source>label.link.hospitals</source>
         <target>Übersicht aller Kliniken mit Teilnahme an notfallmedizinischer Versorgung.</target>
@@ -841,9 +845,17 @@
         <source>label.link.indications</source>
         <target>Vorläufige Verdachtsdiagnose, die das primäre medizinische Problem oder die Verletzung am Einsatzort zusammenfasst.</target>
       </trans-unit>
+      <trans-unit id="DeLblLinkIg" resname="label.link.indication_groups">
+        <source>label.link.indication_groups</source>
+        <target>Gruppierungen verwandter Indikationen für vergleichende Analysen.</target>
+      </trans-unit>
       <trans-unit id="De0dcf1ca2" resname="label.link.infections">
         <source>label.link.infections</source>
         <target>Potenzielle Infektionskrankheiten, die am Zielkrankenhaus eine Isolierung erfordern können.</target>
+      </trans-unit>
+      <trans-unit id="DeLblLinkGlossary" resname="label.link.glossary">
+        <source>label.link.glossary</source>
+        <target>Definitionen zu Dringlichkeit, Transportart, Klinikklassifikationen und klinischen Merkmalen.</target>
       </trans-unit>
       <trans-unit id="Ded7c3f978" resname="label.link.mci_cases">
         <source>label.link.mci_cases</source>
@@ -1248,6 +1260,10 @@
       <trans-unit id="De983ea9ef" resname="title.dispatch_area.list">
         <source>title.dispatch_area.list</source>
         <target>Leitstellen</target>
+      </trans-unit>
+      <trans-unit id="titDaShowDe" resname="title.dispatch_area.show">
+        <source>title.dispatch_area.show</source>
+        <target>Leitstellenbereich</target>
       </trans-unit>
       <trans-unit id="ExpTitDe01" resname="title.export.allocations">
         <source>title.export.allocations</source>

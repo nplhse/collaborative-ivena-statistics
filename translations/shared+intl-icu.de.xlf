@@ -101,6 +101,10 @@
         <source>link.dispatch_areas</source>
         <target>Leitstellen</target>
       </trans-unit>
+      <trans-unit id="lnkStatesDe" resname="link.states">
+        <source>link.states</source>
+        <target>Bundesländer</target>
+      </trans-unit>
       <trans-unit id="LocDe10" resname="link.explore">
         <source>link.explore</source>
         <target>Erkunden</target>
@@ -133,9 +137,37 @@
         <source>link.indications</source>
         <target>Indikationen</target>
       </trans-unit>
+      <trans-unit id="lnkIndGrpDe" resname="link.indication_groups">
+        <source>link.indication_groups</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
       <trans-unit id="lnkInfectDe" resname="link.infections">
         <source>link.infections</source>
         <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="lnkGlossaryDe" resname="link.glossary">
+        <source>link.glossary</source>
+        <target>Klassifikationen</target>
+      </trans-unit>
+      <trans-unit id="lnkExplCasesDe" resname="link.explore.group.cases">
+        <source>link.explore.group.cases</source>
+        <target>Fälle</target>
+      </trans-unit>
+      <trans-unit id="lnkExplOverviewDe" resname="link.explore.overview">
+        <source>link.explore.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="lnkExplOrgDe" resname="link.explore.group.organisation">
+        <source>link.explore.group.organisation</source>
+        <target>Organisation</target>
+      </trans-unit>
+      <trans-unit id="lnkExplStructDe" resname="link.explore.group.structure">
+        <source>link.explore.group.structure</source>
+        <target>Klinikstruktur</target>
+      </trans-unit>
+      <trans-unit id="lnkExplFeatDe" resname="link.explore.group.features">
+        <source>link.explore.group.features</source>
+        <target>Merkmale</target>
       </trans-unit>
       <trans-unit id="lnkMciDe" resname="link.mci_cases">
         <source>link.mci_cases</source>
