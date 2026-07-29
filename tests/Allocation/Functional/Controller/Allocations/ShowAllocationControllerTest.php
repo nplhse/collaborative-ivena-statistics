@@ -250,6 +250,47 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('.department-line', 'Closed');
     }
 
+    public function testShowReturns403ForRoleUserWithoutParticipantRole(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $department = DepartmentFactory::createOne(['name' => 'Test Department']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Test Speciality']);
+        $assignment = AssignmentFactory::createOne();
+        $indicationRaw = IndicationRawFactory::createOne(['name' => 'Test Indication']);
+        $indicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'Test Indication']);
+        $hospital = HospitalFactory::createOne([
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => $assignment,
+            'department' => $department,
+            'speciality' => $speciality,
+            'indicationRaw' => $indicationRaw,
+            'indicationNormalized' => $indicationNormalized,
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
     public function testShowRejectsPostMethod(): void
     {
         $client = $this->createClientAsParticipant();

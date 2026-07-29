@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Unit\Infrastructure\Http;
 
 use App\Allocation\Infrastructure\Http\ExploreListRateLimitSubscriber;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -80,6 +81,20 @@ final class ExploreListRateLimitSubscriberTest extends TestCase
         self::assertNull($event->getResponse());
     }
 
+    #[DataProvider('limitedExplorePathsProvider')]
+    public function testAllowsMultipleExplorePathsWhenLimitAccepted(string $path): void
+    {
+        $tokenStorage = $this->createStub(TokenStorageInterface::class);
+        $tokenStorage->method('getToken')->willReturn(null);
+
+        $subscriber = new ExploreListRateLimitSubscriber($this->createFactory(limit: 10), $tokenStorage);
+        $event = $this->createGetRequestEvent($path);
+
+        $subscriber->onKernelRequest($event);
+
+        self::assertNull($event->getResponse());
+    }
+
     private function createFactory(int $limit = 3): RateLimiterFactory
     {
         return new RateLimiterFactory(
@@ -104,5 +119,17 @@ final class ExploreListRateLimitSubscriberTest extends TestCase
         $kernel = $this->createStub(HttpKernelInterface::class);
 
         return new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function limitedExplorePathsProvider(): iterable
+    {
+        yield 'root explore' => ['/explore'];
+        yield 'department list' => ['/explore/department'];
+        yield 'dispatch area list' => ['/explore/dispatch_area'];
+        yield 'secondary transport list' => ['/explore/secondary_transport'];
+        yield 'allocation detail' => ['/explore/allocation/019fa883-a780-7929-bf8b-2392e0ae1565'];
     }
 }
