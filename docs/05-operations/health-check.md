@@ -33,6 +33,29 @@ For external uptime monitoring (Sentry Uptime or similar), point the monitor at 
 
 `degraded` means the app is up but the failed queue has messages. Investigate with `php bin/console messenger:failed:show` or the Admin ops panel. Sentry Uptime does not parse JSON response bodies.
 
+## Runbook: `degraded` or failed queue entries
+
+Use this when `/health` returns `degraded` or when routine checks show failed messages.
+
+1. Inspect failed messages:
+   ```bash
+   cd ~/www/current
+   php bin/console messenger:failed:show
+   ```
+2. Identify the failing message class and error details.
+3. Fix the underlying cause (for example env/config mismatch, temporary dependency outage, or bad payload source).
+4. Retry safe messages:
+   ```bash
+   php bin/console messenger:failed:retry
+   ```
+5. Re-check queue and health status:
+   ```bash
+   php bin/console messenger:failed:show
+   curl -sS https://<host>/health | jq
+   ```
+
+If failures keep reappearing, escalate as an incident and keep the failed queue under active observation until stable.
+
 ### Sentry Uptime setup
 
 1. Open **Alerts** → **Uptime Monitors** → create monitor.

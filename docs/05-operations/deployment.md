@@ -97,6 +97,12 @@ Manual checks that `app:env:check` cannot perform:
 - [ ] Backups scheduled on Uberspace (cron — see [backup-restore.md](backup-restore.md))
 - [ ] Sentry Uptime Monitor on `GET /health` — see [health-check.md](health-check.md)
 
+### P1 - before first invite (beta)
+
+- [ ] Sentry Error Alert rule is active and scoped to `environment=beta` (for example: more than `N` new issues in 1 hour) — see [observability-sentry.md](observability-sentry.md#proactive-error-alerts-beta)
+- [ ] Ops response for `/health` = `degraded` is documented and known by maintainers — see [health-check.md](health-check.md#runbook-degraded-or-failed-queue-entries)
+- [ ] A recurring failed-message check rhythm is defined (at least weekly): `cd ~/www/current && php bin/console messenger:failed:show`
+
 ## Bootstrap order on a new server
 
 1. Configure `shared/.env.local`
@@ -164,6 +170,10 @@ Typical order (Symfony recipe plus project tasks):
 | Retry failed | `php bin/console messenger:failed:retry` |
 
 See [health-check.md](health-check.md) for the `/health` endpoint and [backup-restore.md](backup-restore.md) for backups.
+
+Recommended beta operations rhythm:
+- Weekly (minimum): `cd ~/www/current && php bin/console messenger:failed:show`
+- Immediately when `/health` reports `degraded`: follow [health-check.md](health-check.md#runbook-degraded-or-failed-queue-entries)
 
 ### Scanner path blocking (Apache)
 

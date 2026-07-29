@@ -1,4 +1,4 @@
-# Sentry (alpha monitoring)
+# Sentry (beta monitoring)
 
 This application uses `sentry/sentry-symfony` for error monitoring, structured logs, and automatic performance tracing across HTTP, Messenger, and Doctrine.
 
@@ -7,13 +7,13 @@ This application uses `sentry/sentry-symfony` for error monitoring, structured l
 | Variable | Purpose |
 |----------|---------|
 | `SENTRY_DSN` | Sentry project DSN; leave empty to disable |
-| `SENTRY_ENVIRONMENT` | Optional; falls back to `APP_ENV` (`local`, `dev`, `staging`, `alpha`, `prod`) |
+| `SENTRY_ENVIRONMENT` | Optional; falls back to `APP_ENV` (`local`, `dev`, `staging`, `beta`, `prod`) |
 | `SENTRY_RELEASE` | Optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
 | `SENTRY_TRACES_SAMPLE_RATE` | Share of transactions to trace (`0.0`–`1.0`) |
 | `SENTRY_ENABLE_LOGS` | Enable structured logs (`true` / `false`) |
 | `SENTRY_CSP_REPORT_URI` | Optional Sentry CSP report endpoint; prod only — see [content-security-policy.md](content-security-policy.md) |
 
-For alpha deployments, set a DSN, `SENTRY_ENVIRONMENT=alpha`, and `SENTRY_TRACES_SAMPLE_RATE` between `0.2` and `1.0`. Keep the DSN empty locally and in CI; structured logs are disabled in the `test` environment.
+For beta deployments, set a DSN, `SENTRY_ENVIRONMENT=beta`, and `SENTRY_TRACES_SAMPLE_RATE` between `0.2` and `1.0`. Keep the DSN empty locally and in CI; structured logs are disabled in the `test` environment.
 
 ## Integration
 
@@ -75,6 +75,19 @@ The Symfony SDK (`sentry/sentry-symfony`) sends errors, logs, and traces **from 
 2. URL: `https://<APP_URL>/health` (same value as `APP_URL` in `shared/.env.local`).
 3. Interval: e.g. every 5 minutes.
 4. Expected HTTP status: **200**.
+
+## Proactive error alerts (beta)
+
+Uptime checks detect availability problems, but they do not alert on issue spikes. For the closed beta, define an additional error alert in the Sentry UI.
+
+### Setup (Sentry UI)
+
+1. Open **Alerts** → **Alert Rules** → create alert rule.
+2. Filter scope: `environment=beta`.
+3. Start with a simple threshold such as **more than `N` new issues in 1 hour**.
+4. Add the team notification action used for beta operations.
+
+Tune `N` after the first beta days based on normal issue volume, so noise stays manageable while true regressions still trigger quickly.
 
 ### What triggers an alert
 
