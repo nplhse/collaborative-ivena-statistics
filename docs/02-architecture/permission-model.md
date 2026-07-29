@@ -45,7 +45,7 @@ Grants are stored in `HospitalAccessGrant` as an integer mask and validated via 
 |-------|------------|---------|
 | `HospitalVoter` | `ACCESS`, `EDIT`, `MANAGE_ACCESS_GRANTS` | `Hospital` |
 | `AllocationVoter` | `VIEW` | `Allocation` |
-| `ImportVoter` | `VIEW`, `DELETE` | `Import` |
+| `ImportVoter` | `VIEW`, `DELETE`, `DOWNLOAD_SOURCE` | `Import` |
 | `ExportVoter` | `EXPORT` | (none) |
 | `IndicationRawReviewVoter` | `VIEW`, `EDIT_MATCH`, `REVIEW` | `IndicationRaw` |
 
