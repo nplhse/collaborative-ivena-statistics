@@ -188,7 +188,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`ImportFileStorage::resolve`](../../src/Import/Application/Service/ImportFileStorage.php) L23–29 — absolute paths returned as-is; relative paths joined to project dir without asserting prefix under `var/imports` |
 | Risk | If `file_path` in DB is tampered (compromised admin DB write / SQL injection elsewhere), download or worker can read arbitrary files. Normal upload path uses generated relative names only. |
 | Mitigation | After resolve: `realpath` + assert path is under configured imports base dir; reject absolute / `..` paths. |
-| Status | open |
+| Status | resolved (2026-07-28) — `ImportFileStorage::resolve` asserts canonicalized paths under `%app.imports_base_dir%`; absolute/`..` escapes throw `ImportFilePathOutsideBaseException` (download → 404; worker → failed) |
 
 ### SEC-010 — Favorite toggle open redirect via Referer
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-009, SEC-011–SEC-016, SEC-019 | Path containment, headers, docs (SEC-010 redirect resolved) |
+| P2 hardening | SEC-011–SEC-016, SEC-019 | Headers, docs (SEC-009 path containment and SEC-010 redirect resolved) |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.

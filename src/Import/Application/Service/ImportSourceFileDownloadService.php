@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
+use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use App\Import\Application\Exception\ImportSourceFileNotFoundException;
 use App\Import\Domain\Entity\Import;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -28,7 +29,12 @@ final readonly class ImportSourceFileDownloadService
             throw new ImportSourceFileNotFoundException($importId);
         }
 
-        $absolutePath = $this->fileStorage->resolve($storedPath);
+        try {
+            $absolutePath = $this->fileStorage->resolve($storedPath);
+        } catch (ImportFilePathOutsideBaseException) {
+            throw new ImportSourceFileNotFoundException($importId);
+        }
+
         if (!\is_file($absolutePath)) {
             throw new ImportSourceFileNotFoundException($importId);
         }
