@@ -853,6 +853,10 @@
         <source>label.link.infections</source>
         <target>Potenzielle Infektionskrankheiten, die am Zielkrankenhaus eine Isolierung erfordern können.</target>
       </trans-unit>
+      <trans-unit id="DeLblLinkGlossary" resname="label.link.glossary">
+        <source>label.link.glossary</source>
+        <target>Definitionen zu Dringlichkeit, Transportart, Klinikklassifikationen und klinischen Merkmalen.</target>
+      </trans-unit>
       <trans-unit id="Ded7c3f978" resname="label.link.mci_cases">
         <source>label.link.mci_cases</source>
         <target>In IVENA erfasste MANV-Fälle mit den zugehörigen operativen und medizinischen Details.</target>

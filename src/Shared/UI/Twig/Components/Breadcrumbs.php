@@ -143,6 +143,8 @@ final class Breadcrumbs
             'title.assignment.',
             'title.occasion.',
             'title.state.',
+            'title.infection.',
+            'title.glossary.',
         ] as $prefix) {
             if (str_starts_with($label, $prefix)) {
                 return 'allocation';

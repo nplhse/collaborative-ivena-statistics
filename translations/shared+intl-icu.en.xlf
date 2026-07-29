@@ -141,6 +141,10 @@
         <source>link.infections</source>
         <target>Infections</target>
       </trans-unit>
+      <trans-unit id="lnkGlossaryEn" resname="link.glossary">
+        <source>link.glossary</source>
+        <target>Classifications</target>
+      </trans-unit>
       <trans-unit id="aR9T_pC" resname="link.mci_cases">
         <source>link.mci_cases</source>
         <target>MCI Cases</target>

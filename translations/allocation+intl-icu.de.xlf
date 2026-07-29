@@ -661,6 +661,202 @@
         <source>catalog.relation.indications</source>
         <target>Indikationen</target>
       </trans-unit>
+      <trans-unit id="CatTypeInfDe" resname="catalog.type.infection">
+        <source>catalog.type.infection</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="CatTitInfLDe" resname="title.infection.list">
+        <source>title.infection.list</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="CatTitInfSDe" resname="title.infection.show">
+        <source>title.infection.show</source>
+        <target>Infektion</target>
+      </trans-unit>
+      <trans-unit id="CatTypeGlDe" resname="catalog.type.glossary">
+        <source>catalog.type.glossary</source>
+        <target>Klassifikation</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlIxDe" resname="title.glossary.index">
+        <source>title.glossary.index</source>
+        <target>Klassifikationen &amp; Definitionen</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlUrDe" resname="title.glossary.urgency">
+        <source>title.glossary.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlTtDe" resname="title.glossary.transport_type">
+        <source>title.glossary.transport_type</source>
+        <target>Transportart</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlHcDe" resname="title.glossary.hospital_classifications">
+        <source>title.glossary.hospital_classifications</source>
+        <target>Krankenhaus-Klassifikationen</target>
+      </trans-unit>
+      <trans-unit id="CatTitGlCiDe" resname="title.glossary.clinical_indicators">
+        <source>title.glossary.clinical_indicators</source>
+        <target>Klinische Merkmale &amp; Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="CatGlIxSubDe" resname="catalog.glossary.index.subtitle">
+        <source>catalog.glossary.index.subtitle</source>
+        <target>Definitionen der verwendeten Codes und Merkmale im Explore-Datenkatalog.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrInDe" resname="catalog.glossary.urgency.intro">
+        <source>catalog.glossary.urgency.intro</source>
+        <target>Die Dringlichkeit (SK1–SK3) beschreibt die Versorgungsstufe einer Zuweisung laut IVENA.</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtInDe" resname="catalog.glossary.transport_type.intro">
+        <source>catalog.glossary.transport_type.intro</source>
+        <target>Die Transportart unterscheidet Boden- und Luftrettung bei der Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHcInDe" resname="catalog.glossary.hospital_classifications.intro">
+        <source>catalog.glossary.hospital_classifications.intro</source>
+        <target>Kliniken werden nach Versorgungsstufe, Größe und Lage klassifiziert. Die Werte stammen aus den Klinikstammdaten.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiInDe" resname="catalog.glossary.clinical_indicators.intro">
+        <source>catalog.glossary.clinical_indicators.intro</source>
+        <target>Klinische Ressourcen und Merkmale sind boolesche Indikatoren an Zuweisungen. Sie beschreiben besondere Versorgungsbedarfe und Einsatzkontexte.</target>
+      </trans-unit>
+      <trans-unit id="CatGlRelInfDe" resname="catalog.glossary.related.infections">
+        <source>catalog.glossary.related.infections</source>
+        <target>Referenzkatalog der Infektionsarten mit Datenbestand und Filteraktionen.</target>
+      </trans-unit>
+      <trans-unit id="CatGlRelStDe" resname="catalog.glossary.related.secondary_transports">
+        <source>catalog.glossary.related.secondary_transports</source>
+        <target>Referenzkatalog der Sekundärtransport-/Verlegungsgründe.</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecValDe" resname="catalog.glossary.section.values">
+        <source>catalog.glossary.section.values</source>
+        <target>Werte</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecTierDe" resname="catalog.glossary.section.hospital_tier">
+        <source>catalog.glossary.section.hospital_tier</source>
+        <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecSizeDe" resname="catalog.glossary.section.hospital_size">
+        <source>catalog.glossary.section.hospital_size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecLocDe" resname="catalog.glossary.section.hospital_location">
+        <source>catalog.glossary.section.hospital_location</source>
+        <target>Lage</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecResDe" resname="catalog.glossary.section.clinical_resources">
+        <source>catalog.glossary.section.clinical_resources</source>
+        <target>Klinische Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="CatGlSecFeaDe" resname="catalog.glossary.section.clinical_features">
+        <source>catalog.glossary.section.clinical_features</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="CatGlColCodeDe" resname="catalog.glossary.column.code">
+        <source>catalog.glossary.column.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="CatGlColLabDe" resname="catalog.glossary.column.label">
+        <source>catalog.glossary.column.label</source>
+        <target>Bezeichnung</target>
+      </trans-unit>
+      <trans-unit id="CatGlColDefDe" resname="catalog.glossary.column.definition">
+        <source>catalog.glossary.column.definition</source>
+        <target>Definition</target>
+      </trans-unit>
+      <trans-unit id="CatActHosDe" resname="catalog.action.view_hospitals">
+        <source>catalog.action.view_hospitals</source>
+        <target>Kliniken anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrEmDe" resname="catalog.glossary.urgency.emergency.description">
+        <source>catalog.glossary.urgency.emergency.description</source>
+        <target>SK1 – Notfallversorgung / höchste Dringlichkeit.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrInDDe" resname="catalog.glossary.urgency.inpatient.description">
+        <source>catalog.glossary.urgency.inpatient.description</source>
+        <target>SK2 – Stationäre Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlUrOuDe" resname="catalog.glossary.urgency.outpatient.description">
+        <source>catalog.glossary.urgency.outpatient.description</source>
+        <target>SK3 – Ambulante Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtGrDe" resname="catalog.glossary.transport_type.ground.description">
+        <source>catalog.glossary.transport_type.ground.description</source>
+        <target>Bodengebundener Transport (Rettungswagen, Notarztwagen u. ä.).</target>
+      </trans-unit>
+      <trans-unit id="CatGlTtAiDe" resname="catalog.glossary.transport_type.air.description">
+        <source>catalog.glossary.transport_type.air.description</source>
+        <target>Luftgebundener Transport (z. B. Rettungshubschrauber).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtBaDe" resname="catalog.glossary.hospital.tier.basic.description">
+        <source>catalog.glossary.hospital.tier.basic.description</source>
+        <target>Grundversorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtExDe" resname="catalog.glossary.hospital.tier.extended.description">
+        <source>catalog.glossary.hospital.tier.extended.description</source>
+        <target>Erweiterte Versorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHtFuDe" resname="catalog.glossary.hospital.tier.full.description">
+        <source>catalog.glossary.hospital.tier.full.description</source>
+        <target>Maximalversorgung.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsSmDe" resname="catalog.glossary.hospital.size.small.description">
+        <source>catalog.glossary.hospital.size.small.description</source>
+        <target>Kleine Klinik (nach Bettensystematik).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsMeDe" resname="catalog.glossary.hospital.size.medium.description">
+        <source>catalog.glossary.hospital.size.medium.description</source>
+        <target>Mittlere Klinik.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHsLaDe" resname="catalog.glossary.hospital.size.large.description">
+        <source>catalog.glossary.hospital.size.large.description</source>
+        <target>Große Klinik.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlUrDe" resname="catalog.glossary.hospital.location.urban.description">
+        <source>catalog.glossary.hospital.location.urban.description</source>
+        <target>Städtische Lage.</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlMiDe" resname="catalog.glossary.hospital.location.mixed.description">
+        <source>catalog.glossary.hospital.location.mixed.description</source>
+        <target>Gemischte Lage (Stadt/Umland).</target>
+      </trans-unit>
+      <trans-unit id="CatGlHlRuDe" resname="catalog.glossary.hospital.location.rural.description">
+        <source>catalog.glossary.hospital.location.rural.description</source>
+        <target>Ländliche Lage.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiReDe" resname="catalog.glossary.clinical.resus.description">
+        <source>catalog.glossary.clinical.resus.description</source>
+        <target>Bedarf an Schockraum / Reanimationseinheit.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiCaDe" resname="catalog.glossary.clinical.cathlab.description">
+        <source>catalog.glossary.clinical.cathlab.description</source>
+        <target>Bedarf an Herzkatheterlabor.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiWpDe" resname="catalog.glossary.clinical.with_physician.description">
+        <source>catalog.glossary.clinical.with_physician.description</source>
+        <target>Notarztbegleitung bzw. ärztliche Begleitung des Transports.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiCpDe" resname="catalog.glossary.clinical.cpr.description">
+        <source>catalog.glossary.clinical.cpr.description</source>
+        <target>Reanimation (CPR) im Einsatzverlauf.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiVeDe" resname="catalog.glossary.clinical.ventilation.description">
+        <source>catalog.glossary.clinical.ventilation.description</source>
+        <target>Beatmungspflichtiger Patient.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiShDe" resname="catalog.glossary.clinical.shock.description">
+        <source>catalog.glossary.clinical.shock.description</source>
+        <target>Schockzustand.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiPrDe" resname="catalog.glossary.clinical.pregnancy.description">
+        <source>catalog.glossary.clinical.pregnancy.description</source>
+        <target>Schwangerschaft als relevantes Merkmal.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiWaDe" resname="catalog.glossary.clinical.work_accident.description">
+        <source>catalog.glossary.clinical.work_accident.description</source>
+        <target>Arbeitsunfall.</target>
+      </trans-unit>
+      <trans-unit id="CatGlCiInfDe" resname="catalog.glossary.clinical.infection.description">
+        <source>catalog.glossary.clinical.infection.description</source>
+        <target>Infektiöser Patient (Infektionsangabe vorhanden).</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

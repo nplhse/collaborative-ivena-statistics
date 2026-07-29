@@ -145,6 +145,10 @@
         <source>link.infections</source>
         <target>Infektionen</target>
       </trans-unit>
+      <trans-unit id="lnkGlossaryDe" resname="link.glossary">
+        <source>link.glossary</source>
+        <target>Klassifikationen</target>
+      </trans-unit>
       <trans-unit id="lnkMciDe" resname="link.mci_cases">
         <source>link.mci_cases</source>
         <target>MANV-Fälle</target>

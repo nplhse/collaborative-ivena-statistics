@@ -633,6 +633,10 @@
         <source>label.link.infections</source>
         <target>Potential infectious diseases that may require isolation at the destination hospital.</target>
       </trans-unit>
+      <trans-unit id="lblLinkGlossaryEn" resname="label.link.glossary">
+        <source>label.link.glossary</source>
+        <target>Definitions for urgency, transport type, hospital classifications, and clinical features.</target>
+      </trans-unit>
       <trans-unit id="ulq7DBJ" resname="label.link.mci_cases">
         <source>label.link.mci_cases</source>
         <target>Mass casualty incidents recorded in IVENA with their associated operational and medical details.</target>
