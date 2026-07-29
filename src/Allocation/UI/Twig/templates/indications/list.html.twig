@@ -178,7 +178,9 @@
                             </td>
                         {% else %}
                             <td>
-                                {{ indication.name }}
+                                <a href="{{ path('app_explore_indication_show', {publicId: indication.publicId}) }}" target="_top">
+                                    {{ indication.name }}
+                                </a>
                             </td>
                         {% endif %}
                         <td>
