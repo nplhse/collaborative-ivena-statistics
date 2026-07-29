@@ -198,9 +198,20 @@ Reports outside these patterns on your own pages deserve a closer look.
 
 > **CSP issue ≠ hack.** Clarify the source first: test, extension, policy gap, or genuine concern. Escalate mainly on unknown `blocked_uri`, many users/events, or suspicious URLs.
 
+## Audit (SEC-014)
+
+Pre-beta security review **accepted** Report-Only CSP with `'unsafe-inline'` for the beta period. The policy monitors violations without breaking pages; it does **not** yet block XSS.
+
+**Exit criteria before switching Nelmio to `enforce`** (follow-up ticket, not this rollout):
+
+1. `SENTRY_CSP_REPORT_URI` is set in production and reports reach Sentry Issues reliably.
+2. A steady triage rhythm exists (see checklist above); unexpected issues are classified within a few days.
+3. Violation noise is low: few recurring unknown `blocked_uri`s on core routes after triage.
+4. Then: add Nelmio `csp.enforce`, reduce `'unsafe-inline'` / prefer nonces or Stimulus, and keep `report` for monitoring — see P2 roadmap below.
+
 ## P2 roadmap (enforce)
 
-Not in scope for the initial report-only rollout:
+Not in scope for the initial report-only rollout (and deferred while SEC-014 remains accepted for beta):
 
 - Remove `'unsafe-inline'` where possible (nonces, Stimulus, extracted CSS)
 - Inline event handlers (`onclick`, `onsubmit`) → Stimulus

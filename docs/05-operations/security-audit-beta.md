@@ -243,7 +243,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`nelmio_security.yaml`](../../config/packages/nelmio_security.yaml) `when@prod` CSP `report`; [`content-security-policy.md`](content-security-policy.md) P2 enforce roadmap |
 | Risk | CSP does not block XSS; only reports. Inline scripts/styles allowed. |
 | Mitigation | Follow existing CSP beta triage → enforce when violation noise is low; reduce `unsafe-inline`. |
-| Status | open (tracked operationally) |
+| Status | accepted (beta, 2026-07-29) — Report-Only + `unsafe-inline` intentional for monitoring; ops: [content-security-policy.md](content-security-policy.md) triage + enforce roadmap; Enforce is a separate follow-up when violation noise is low |
 
 ### SEC-015 — Session cookie settings rely on Symfony defaults
 
@@ -349,8 +349,8 @@ Do **not** implement in this audit deliverable.
 |-------|-------------------|----------------|
 | Collaborative Explore | Participants see cross-hospital allocations; `ROLE_PARTICIPANT` required | **Accepted** (SEC-005 / ADR 011) |
 | Public statistics | `ROLE_USER` sees aggregates / public scopes | Keep |
-| Public health endpoint | Uptime-friendly JSON | Keep or slim (SEC-012) |
-| CSP report-only | Beta monitoring before enforce | Follow CSP ops guide |
+| Public health endpoint | Slim public JSON (`status` + `database`) | **Resolved** (SEC-012) |
+| CSP report-only | Beta monitoring before enforce; `unsafe-inline` allowed | **Accepted** (SEC-014) — see [content-security-policy.md](content-security-policy.md) |
 | Queue trust for import workers | No HTTP re-auth in handler | Ops hardening (SEC-018) |
 | Admin can assign `ROLE_ADMIN` | ChoiceField whitelist | Accept for small admin set |
 
@@ -362,8 +362,8 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-013–SEC-016, SEC-019 | Headers, docs (SEC-012 public `/health` payload slimmed) |
-| P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
+| P2 hardening | SEC-013, SEC-015–SEC-016, SEC-019 | Media indexes, session cookies, login logs, docs (SEC-014 CSP accepted for beta) |
+| P3 backlog | SEC-014 enforce, SEC-017, SEC-018, SEC-020 | CSP enforce + reduce `unsafe-inline`, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
 
