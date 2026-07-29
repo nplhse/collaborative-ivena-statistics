@@ -42,7 +42,7 @@
                         {{ form_widget(form.reopen, {
                             label: review.button_label('tabler:refresh', 'btn.indication.reopen'|trans({}, 'allocation')),
                             label_html: true,
-                            attr: {class: 'btn btn-outline-secondary', form: 'indication-raw-review-form'},
+                            attr: {class: 'btn', form: 'indication-raw-review-form'},
                         }) }}
                     {% endif %}
                     <a href="{{ path('app_explore_indication_raw_review_skip', {publicId: raw.publicId, segment: context.segment.value, search: context.search}) }}" class="btn">
@@ -203,7 +203,7 @@
                                     {{ form_widget(form.ignore, {
                                         label: review.button_label('tabler:eye-off', 'btn.indication.ignore'|trans({}, 'allocation'), 'w-3 h-3 me-1'),
                                         label_html: true,
-                                        attr: {class: 'btn btn-outline-secondary'},
+                                        attr: {class: 'btn'},
                                     }) }}
                                 </div>
                             {% endif %}

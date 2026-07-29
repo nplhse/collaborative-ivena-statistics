@@ -18,6 +18,7 @@ enum CatalogDimensionKey: string
     case Infection = 'infection';
     case DispatchArea = 'dispatch_area';
     case State = 'state';
+    case Hospital = 'hospital';
 
     public function projectionColumn(): string
     {
@@ -31,6 +32,7 @@ enum CatalogDimensionKey: string
             self::Infection => 'infection_id',
             self::DispatchArea => 'dispatch_area_id',
             self::State => 'state_id',
+            self::Hospital => 'hospital_id',
         };
     }
 }

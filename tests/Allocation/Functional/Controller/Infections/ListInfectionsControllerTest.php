@@ -29,8 +29,8 @@ final class ListInfectionsControllerTest extends WebTestCase
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Infections');
-        self::assertSelectorTextContains('h2', 'Listing Infections');
+        self::assertPageTitleContains('Infections');
+        self::assertSelectorTextContains('h2', 'Infections');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');

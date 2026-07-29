@@ -29,8 +29,8 @@ final class DepartmentControllerTest extends WebTestCase
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Departments');
-        self::assertSelectorTextContains('h2', 'Listing Departments');
+        self::assertPageTitleContains('Departments');
+        self::assertSelectorTextContains('h2', 'Departments');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');

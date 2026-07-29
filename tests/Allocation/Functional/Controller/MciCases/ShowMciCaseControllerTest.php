@@ -38,7 +38,7 @@ final class ShowMciCaseControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1.fw-bold', 'Mass casualty incident alpha');
         self::assertSelectorTextContains('#mci-case-mci-title', $mciCase->getMciId() ?? '');
-        self::assertSelectorTextContains('a.btn-outline-secondary', 'Back to list');
+        self::assertSelectorTextContains('a.btn', 'Back to list');
     }
 
     public function testDetailPageRejectsPostMethod(): void

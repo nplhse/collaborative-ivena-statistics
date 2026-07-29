@@ -52,7 +52,7 @@
                         </span>
                     {% endif %}
                     <span class="d-none d-sm-inline">
-                        <a class="btn btn-outline-secondary" href="{{ path('app_explore_hospital_list') }}">
+                        <a class="btn" href="{{ path('app_explore_hospital_list') }}">
                             <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
                             {{ 'label.back_to_list'|trans({}, 'messages') }}
                         </a>
@@ -65,7 +65,12 @@
 
 {% block page_content %}
     <div class="row g-3">
-        <div class="col">
+        <div class="col-lg-8">
+            {{ include('@Allocation/catalog/_coverage.html.twig', {
+                coverage: coverage,
+                coverageLayout: 'hospital',
+            }) }}
+            {{ include('@Allocation/catalog/_orientation_map.html.twig', {orientationMap: orientationMap}) }}
         </div>
         <div class="col-lg-4">
             <div class="row row-cards">

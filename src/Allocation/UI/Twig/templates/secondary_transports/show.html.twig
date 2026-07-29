@@ -30,14 +30,14 @@
                 <h1 id="secondary-transport-name" class="fw-bold">{{ secondaryTransport.name }}</h1>
                 <div class="list-inline list-inline-dots text-muted">
                     <div class="list-inline-item">
-                        <span class="badge bg-secondary-lt">{{ 'catalog.type.secondary_transport'|trans({}, 'allocation') }}</span>
+                        {{ 'catalog.type.secondary_transport'|trans({}, 'allocation') }}
                     </div>
                 </div>
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
-                    <a class="btn btn-outline-secondary" href="{{ path('app_explore_secondary_transport_list') }}">
-                        <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                    <a class="btn" href="{{ path('app_explore_secondary_transport_list') }}">
+                        <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
                         {{ 'label.back_to_list'|trans({}, 'messages') }}
                     </a>
                 </div>
@@ -47,11 +47,9 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl">
         {% embed '@Allocation/catalog/_detail.html.twig' with {
             coverage: coverage,
             actions: actions,
-            description: description,
         } %}
             {% block catalog_sidebar_extra %}
                 <div class="card mb-3" data-testid="catalog-basic-info">
@@ -81,5 +79,4 @@
                 </div>
             {% endblock %}
         {% endembed %}
-    </div>
 {% endblock %}

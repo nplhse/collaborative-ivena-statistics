@@ -7,6 +7,13 @@
              data-catalog-orientation-map-highlight-key-value="{{ orientationMap.highlightKey }}"
          {% endif %}
          data-catalog-orientation-map-show-all-value="{{ orientationMap.showAllAreas ? 'true' : 'false' }}"
+         {% if orientationMap.hasMarker %}
+             data-catalog-orientation-map-marker-lat-value="{{ orientationMap.markerLatitude }}"
+             data-catalog-orientation-map-marker-lng-value="{{ orientationMap.markerLongitude }}"
+             {% if orientationMap.markerLabel %}
+                 data-catalog-orientation-map-marker-label-value="{{ orientationMap.markerLabel }}"
+             {% endif %}
+         {% endif %}
          data-testid="catalog-orientation-map">
         <div class="card-body">
             <div class="card-title">{{ 'catalog.section.orientation_map'|trans({}, 'allocation') }}</div>
@@ -14,7 +21,6 @@
                 <div class="case-flow-map-container"
                      data-catalog-orientation-map-target="mapContainer"></div>
             </div>
-            <div class="text-muted small mt-2">{{ 'catalog.orientation_map.hint'|trans({}, 'allocation') }}</div>
         </div>
     </div>
 {% endif %}

@@ -29,8 +29,8 @@ final class ListAssignmentsControllerTest extends WebTestCase
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Assignments');
-        self::assertSelectorTextContains('h2', 'Listing Assignments');
+        self::assertPageTitleContains('Assignment types');
+        self::assertSelectorTextContains('h2', 'Assignment types');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');

@@ -7,7 +7,6 @@ namespace App\Allocation\UI\Http\Controller\Indications;
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDefinitionChangeFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
-use App\Allocation\Application\Explore\Catalog\CatalogFallbackDescriptionFactory;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogIndicationNormalizationQuery;
@@ -22,7 +21,6 @@ final class ShowIndicationNormalizedController extends AbstractController
 {
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
-        private readonly CatalogFallbackDescriptionFactory $descriptionFactory,
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogIndicationNormalizationQuery $normalizationQuery,
         private readonly CatalogDefinitionChangeFactory $definitionChangeFactory,
@@ -46,11 +44,6 @@ final class ShowIndicationNormalizedController extends AbstractController
         }
 
         $coverage = $this->coverageQuery->forDimension(CatalogDimensionKey::Indication, $id);
-        $name = $indication->getName() ?? '';
-        $note = $indication->getNote();
-        $description = (null !== $note && '' !== trim($note))
-            ? $note
-            : $this->descriptionFactory->create($name, $coverage);
 
         $canViewNormalization = $this->isGranted(IndicationRawReviewVoter::EDIT_MATCH);
         $normalization = $canViewNormalization
@@ -60,7 +53,6 @@ final class ShowIndicationNormalizedController extends AbstractController
         return $this->render('@Allocation/indications/show_normalized.html.twig', [
             'indication' => $indication,
             'coverage' => $coverage,
-            'description' => $description,
             'actions' => $this->actionFactory->forIndication($id, $code, $canViewNormalization),
             'normalization' => $normalization,
             'qualityWarnings' => $normalization instanceof \App\Allocation\Application\DTO\CatalogNormalizationSummary ? $normalization->warnings : [],

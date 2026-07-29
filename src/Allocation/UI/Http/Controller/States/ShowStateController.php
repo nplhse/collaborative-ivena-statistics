@@ -6,7 +6,6 @@ namespace App\Allocation\UI\Http\Controller\States;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
-use App\Allocation\Application\Explore\Catalog\CatalogFallbackDescriptionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
@@ -20,7 +19,6 @@ final class ShowStateController extends AbstractController
 {
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
-        private readonly CatalogFallbackDescriptionFactory $descriptionFactory,
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogOrientationMapFactory $orientationMapFactory,
     ) {
@@ -47,7 +45,6 @@ final class ShowStateController extends AbstractController
         return $this->render('@Allocation/states/show.html.twig', [
             'state' => $state,
             'coverage' => $coverage,
-            'description' => $this->descriptionFactory->create($name, $coverage),
             'actions' => $this->actionFactory->forState($id),
             'orientationMap' => $this->orientationMapFactory->forState($name),
         ]);

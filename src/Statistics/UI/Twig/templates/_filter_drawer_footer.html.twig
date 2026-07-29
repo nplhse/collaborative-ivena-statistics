@@ -1,7 +1,7 @@
 <div class="offcanvas-footer border-top p-3 d-flex justify-content-between align-items-center gap-2">
     <div>
         {% if showReset|default(false) and resetUrl is defined and resetUrl %}
-            <a href="{{ resetUrl }}" class="btn btn-outline-secondary" data-testid="{{ resetTestId|default('filter-drawer-reset') }}">
+            <a href="{{ resetUrl }}" class="btn{{ resetBtnClass ?? ' btn-outline-secondary' }}" data-testid="{{ resetTestId|default('filter-drawer-reset') }}">
                 {{ 'label.filters.reset'|trans({}, 'messages') }}
             </a>
         {% endif %}

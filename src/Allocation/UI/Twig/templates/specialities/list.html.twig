@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'title.speciality.list'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
+{% block title %}{{ 'title.speciality.list'|trans({}, 'allocation') }} - {{ parent() }}{% endblock %}
 
 {% block turbo_drive %}data-turbo=true{% endblock %}
 
@@ -26,7 +26,7 @@
                 <div class="col">
                     {% block page_intro %}
                         <h2 class="page-title">
-                            {% block page_title %}{{ 'title.speciality.list'|trans({}, 'messages') }}{% endblock %}
+                            {% block page_title %}{{ 'title.speciality.list'|trans({}, 'allocation') }}{% endblock %}
                         </h2>
                         {% block page_subtitle %}
                             {% block result_count %}

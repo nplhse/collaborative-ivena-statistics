@@ -145,6 +145,7 @@ final class Breadcrumbs
             'title.state.',
             'title.infection.',
             'title.glossary.',
+            'title.dispatch_area.',
         ] as $prefix) {
             if (str_starts_with($label, $prefix)) {
                 return 'allocation';

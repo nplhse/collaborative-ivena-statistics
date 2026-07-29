@@ -497,6 +497,10 @@
         <source>catalog.section.actions</source>
         <target>Aktionen</target>
       </trans-unit>
+      <trans-unit id="CatSecRelDe" resname="catalog.section.related_entities">
+        <source>catalog.section.related_entities</source>
+        <target>Verknüpfte Objekte</target>
+      </trans-unit>
       <trans-unit id="CatTypeStDe" resname="catalog.type.secondary_transport">
         <source>catalog.type.secondary_transport</source>
         <target>Sekundärtransport</target>
@@ -569,17 +573,41 @@
         <source>title.department.show</source>
         <target>Abteilung</target>
       </trans-unit>
+      <trans-unit id="CatTitDepLDe" resname="title.department.list">
+        <source>title.department.list</source>
+        <target>Abteilungen</target>
+      </trans-unit>
       <trans-unit id="CatTitSpeDe" resname="title.speciality.show">
         <source>title.speciality.show</source>
         <target>Fachgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatTitSpeLDe" resname="title.speciality.list">
+        <source>title.speciality.list</source>
+        <target>Fachrichtungen</target>
       </trans-unit>
       <trans-unit id="CatTitAsgDe" resname="title.assignment.show">
         <source>title.assignment.show</source>
         <target>Zuweisungstyp</target>
       </trans-unit>
+      <trans-unit id="CatTitAsgLDe" resname="title.assignment.list">
+        <source>title.assignment.list</source>
+        <target>Zuweisungstypen</target>
+      </trans-unit>
       <trans-unit id="CatTitOccDe" resname="title.occasion.show">
         <source>title.occasion.show</source>
         <target>Anlass</target>
+      </trans-unit>
+      <trans-unit id="CatTitOccLDe" resname="title.occasion.list">
+        <source>title.occasion.list</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="CatTitDaLDe" resname="title.dispatch_area.list">
+        <source>title.dispatch_area.list</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="CatTitDaSDe" resname="title.dispatch_area.show">
+        <source>title.dispatch_area.show</source>
+        <target>Leitstellenbereich</target>
       </trans-unit>
       <trans-unit id="CatTitIgLDe" resname="title.indication_group.list">
         <source>title.indication_group.list</source>
@@ -624,6 +652,14 @@
       <trans-unit id="CatCovSupDe" resname="catalog.coverage.suppressed">
         <source>catalog.coverage.suppressed</source>
         <target>Kennzahlen werden bei weniger als {threshold} Einsätzen nicht detailliert ausgewiesen.</target>
+      </trans-unit>
+      <trans-unit id="CatCovSenDe" resname="catalog.coverage.sensitive_hidden">
+        <source>catalog.coverage.sensitive_hidden</source>
+        <target>Einsatzzahlen und Anteile werden hier absichtlich nicht ausgewiesen, da sie Rückschlüsse auf das Einsatzvolumen einzelner Kliniken erlauben.</target>
+      </trans-unit>
+      <trans-unit id="CatCovYHdDe" resname="catalog.coverage.year_count_hidden">
+        <source>catalog.coverage.year_count_hidden</source>
+        <target>nicht ausgewiesen</target>
       </trans-unit>
       <trans-unit id="CatFbEmpDe" resname="catalog.fallback.empty">
         <source>catalog.fallback.empty</source>
