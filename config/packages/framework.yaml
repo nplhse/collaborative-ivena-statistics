@@ -5,7 +5,10 @@ framework:
     enabled_locales: ['en', 'de']
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    session:
+        cookie_httponly: true
+        cookie_samesite: lax
+        cookie_secure: auto
 
     #esi: true
     #fragments: true
@@ -52,6 +55,11 @@ framework:
                     a:
                         rel: 'noopener noreferrer'
                 force_https_urls: true
+
+when@prod:
+    framework:
+        session:
+            cookie_secure: true
 
 when@test:
     framework:
