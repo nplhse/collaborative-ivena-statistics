@@ -145,6 +145,26 @@
         <source>link.glossary</source>
         <target>Classifications</target>
       </trans-unit>
+      <trans-unit id="lnkExplCasesEn" resname="link.explore.group.cases">
+        <source>link.explore.group.cases</source>
+        <target>Cases</target>
+      </trans-unit>
+      <trans-unit id="lnkExplOverviewEn" resname="link.explore.overview">
+        <source>link.explore.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="lnkExplOrgEn" resname="link.explore.group.organisation">
+        <source>link.explore.group.organisation</source>
+        <target>Organisation</target>
+      </trans-unit>
+      <trans-unit id="lnkExplStructEn" resname="link.explore.group.structure">
+        <source>link.explore.group.structure</source>
+        <target>Hospital structure</target>
+      </trans-unit>
+      <trans-unit id="lnkExplFeatEn" resname="link.explore.group.features">
+        <source>link.explore.group.features</source>
+        <target>Features</target>
+      </trans-unit>
       <trans-unit id="aR9T_pC" resname="link.mci_cases">
         <source>link.mci_cases</source>
         <target>MCI Cases</target>
