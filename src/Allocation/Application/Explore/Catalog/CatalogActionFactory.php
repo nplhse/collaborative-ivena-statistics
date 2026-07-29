@@ -108,6 +108,13 @@ final readonly class CatalogActionFactory
         return [
             $this->viewAllocationsAction('state', $id),
             new CatalogAction(
+                label: $this->translator->trans('catalog.action.view_hospitals', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_explore_hospital_list', [
+                    'state' => $id,
+                ]),
+                icon: 'tabler:building-hospital',
+            ),
+            new CatalogAction(
                 label: $this->translator->trans('catalog.action.view_dispatch_areas', [], 'allocation'),
                 url: $this->urlGenerator->generate('app_explore_dispatch_area_list', [
                     'state' => $id,

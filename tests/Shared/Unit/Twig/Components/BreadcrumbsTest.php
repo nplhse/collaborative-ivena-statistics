@@ -28,19 +28,24 @@ final class BreadcrumbsTest extends TestCase
         self::assertNotSame(false, $items[1]['translatable'] ?? true);
     }
 
-    public function testCookiePreferencesTitleIsTranslatedFromSharedDomain(): void
+    public function testCatalogListTitlesResolveToAllocationDomain(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->with('app_default')->willReturn('/');
 
         $component = new Breadcrumbs($urlGenerator);
         $component->items = [
-            ['label' => 'cookie.preferences.title'],
+            ['label' => 'title.speciality.list'],
+            ['label' => 'title.assignment.list'],
+            ['label' => 'title.occasion.list'],
+            ['label' => 'title.department.list'],
+            ['label' => 'title.dispatch_area.list'],
         ];
 
         $items = $component->getFullItems();
 
-        self::assertSame('shared', $items[1]['label_domain']);
-        self::assertNotSame(false, $items[1]['translatable'] ?? true);
+        foreach (array_slice($items, 1) as $item) {
+            self::assertSame('allocation', $item['label_domain'], $item['label']);
+        }
     }
 }

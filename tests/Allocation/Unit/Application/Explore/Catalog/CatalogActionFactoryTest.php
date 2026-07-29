@@ -111,13 +111,14 @@ final class CatalogActionFactoryTest extends TestCase
         self::assertSame('/statistics/indication-group/3', $actions[0]->url);
     }
 
-    public function testStateActionsIncludeAllocationsAndDispatchAreas(): void
+    public function testStateActionsIncludeAllocationsHospitalsAndDispatchAreas(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects(self::exactly(2))
+        $urlGenerator->expects(self::exactly(3))
             ->method('generate')
             ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
                 'app_explore_allocation_list' === $route && ($params['state'] ?? null) === 5 => '/explore/allocation?state=5',
+                'app_explore_hospital_list' === $route && ($params['state'] ?? null) === 5 => '/explore/hospital?state=5',
                 'app_explore_dispatch_area_list' === $route && ($params['state'] ?? null) === 5 => '/explore/dispatch_area?state=5',
                 default => throw new \InvalidArgumentException($route),
             });
@@ -128,9 +129,10 @@ final class CatalogActionFactoryTest extends TestCase
         $factory = new CatalogActionFactory($urlGenerator, $translator);
         $actions = $factory->forState(5);
 
-        self::assertCount(2, $actions);
+        self::assertCount(3, $actions);
         self::assertSame('/explore/allocation?state=5', $actions[0]->url);
-        self::assertSame('/explore/dispatch_area?state=5', $actions[1]->url);
+        self::assertSame('/explore/hospital?state=5', $actions[1]->url);
+        self::assertSame('/explore/dispatch_area?state=5', $actions[2]->url);
     }
 
     public function testDispatchAreaActionLinksToAllocationListFilter(): void

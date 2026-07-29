@@ -30,14 +30,14 @@
                 <h1 class="fw-bold" data-testid="glossary-title">{{ page.titleKey|trans({}, 'allocation') }}</h1>
                 <div class="list-inline list-inline-dots text-muted">
                     <div class="list-inline-item">
-                        <span class="badge bg-secondary-lt">{{ 'catalog.type.glossary'|trans({}, 'allocation') }}</span>
+                        {{ 'catalog.type.glossary'|trans({}, 'allocation') }}
                     </div>
                 </div>
             </div>
             <div class="col-auto ms-auto">
                 <div class="btn-list">
-                    <a class="btn btn-outline-secondary" href="{{ path('app_explore_glossary_index') }}">
-                        <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                    <a class="btn" href="{{ path('app_explore_glossary_index') }}">
+                        <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
                         {{ 'label.back_to_list'|trans({}, 'messages') }}
                     </a>
                 </div>
@@ -47,14 +47,7 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl" data-testid="glossary-detail">
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="card-title">{{ 'catalog.section.description'|trans({}, 'allocation') }}</div>
-                <p class="mb-0">{{ page.introKey|trans({}, 'allocation') }}</p>
-            </div>
-        </div>
-
+    <div data-testid="glossary-detail">
         {% for section in page.sections %}
             <div class="card mb-3" data-testid="glossary-section">
                 <div class="card-header">

@@ -231,6 +231,7 @@
         </section>
 
         <section class="mb-4" data-testid="explore-group-glossary">
+            <h3 class="mb-3">{{ 'link.glossary'|trans({}, 'shared') }}</h3>
             <div class="row g-3">
                 <div class="col-12 col-sm-6 col-md-4">
                     <a href="{{ path('app_explore_glossary_index') }}">
@@ -239,7 +240,7 @@
                                 <twig:ux:icon name="tabler:book" width="4em" height="4em" />
                             </div>
                             <div>
-                                <div class="h3 mb-0">{{ 'link.glossary'|trans({}, 'shared') }}</div>
+                                <div class="h3 mb-0">{{ 'title.glossary.index'|trans({}, 'allocation') }}</div>
                                 <small class="text-muted">{{ 'label.link.glossary'|trans({}, 'messages') }}</small>
                             </div>
                         </div>

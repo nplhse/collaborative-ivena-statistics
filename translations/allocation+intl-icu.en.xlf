@@ -421,6 +421,10 @@
         <source>catalog.section.actions</source>
         <target>Actions</target>
       </trans-unit>
+      <trans-unit id="CatSecRelEn" resname="catalog.section.related_entities">
+        <source>catalog.section.related_entities</source>
+        <target>Related entities</target>
+      </trans-unit>
       <trans-unit id="CatTypeStEn" resname="catalog.type.secondary_transport">
         <source>catalog.type.secondary_transport</source>
         <target>Secondary transport</target>
@@ -493,17 +497,41 @@
         <source>title.department.show</source>
         <target>Department</target>
       </trans-unit>
+      <trans-unit id="CatTitDepLEn" resname="title.department.list">
+        <source>title.department.list</source>
+        <target>Departments</target>
+      </trans-unit>
       <trans-unit id="CatTitSpeEn" resname="title.speciality.show">
         <source>title.speciality.show</source>
         <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="CatTitSpeLEn" resname="title.speciality.list">
+        <source>title.speciality.list</source>
+        <target>Specialities</target>
       </trans-unit>
       <trans-unit id="CatTitAsgEn" resname="title.assignment.show">
         <source>title.assignment.show</source>
         <target>Assignment type</target>
       </trans-unit>
+      <trans-unit id="CatTitAsgLEn" resname="title.assignment.list">
+        <source>title.assignment.list</source>
+        <target>Assignment types</target>
+      </trans-unit>
       <trans-unit id="CatTitOccEn" resname="title.occasion.show">
         <source>title.occasion.show</source>
         <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="CatTitOccLEn" resname="title.occasion.list">
+        <source>title.occasion.list</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="CatTitDaLEn" resname="title.dispatch_area.list">
+        <source>title.dispatch_area.list</source>
+        <target>Dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="CatTitDaSEn" resname="title.dispatch_area.show">
+        <source>title.dispatch_area.show</source>
+        <target>Dispatch area</target>
       </trans-unit>
       <trans-unit id="CatTitIgLEn" resname="title.indication_group.list">
         <source>title.indication_group.list</source>
@@ -548,6 +576,14 @@
       <trans-unit id="CatCovSupEn" resname="catalog.coverage.suppressed">
         <source>catalog.coverage.suppressed</source>
         <target>Detailed metrics are not shown when fewer than {threshold} allocations are available.</target>
+      </trans-unit>
+      <trans-unit id="CatCovSenEn" resname="catalog.coverage.sensitive_hidden">
+        <source>catalog.coverage.sensitive_hidden</source>
+        <target>Allocation counts and shares are intentionally not shown here because they would reveal clinic-level allocation volumes.</target>
+      </trans-unit>
+      <trans-unit id="CatCovYHdEn" resname="catalog.coverage.year_count_hidden">
+        <source>catalog.coverage.year_count_hidden</source>
+        <target>not disclosed</target>
       </trans-unit>
       <trans-unit id="CatFbEmpEn" resname="catalog.fallback.empty">
         <source>catalog.fallback.empty</source>

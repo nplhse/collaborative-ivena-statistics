@@ -91,7 +91,8 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         self::assertSelectorExists('#allocation-filters .offcanvas-footer');
         self::assertSelectorExists('[data-testid="allocation-filters-cancel"]');
         self::assertSelectorExists('[data-testid="allocation-filters-apply"]');
-        self::assertSelectorExists('[data-testid="allocation-filters-reset"].btn-outline-secondary');
+        self::assertSelectorExists('[data-testid="allocation-filters-reset"].btn');
+        self::assertSelectorNotExists('[data-testid="allocation-filters-reset"].btn-outline-secondary');
         $ids = $this->extractAllocationIds($crawler);
         self::assertSame([$matchingAllocation->getPublicIdString()], $ids);
     }

@@ -31,12 +31,18 @@ final class ShowStateControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/explore/state/'.$state->getPublicIdString());
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#state-name', 'Hessen');
+        self::assertSelectorTextContains('.list-inline-item', 'State');
         self::assertSelectorExists('[data-testid="catalog-detail"]');
+        self::assertSelectorNotExists('[data-testid="catalog-description"]');
         self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
-        self::assertSelectorTextContains('[data-testid="catalog-basic-info"]', 'Frankfurt');
+        self::assertSelectorNotExists('[data-testid="catalog-basic-info"] .list-unstyled');
+        self::assertSelectorTextContains('[data-testid="catalog-related-entities"]', 'Frankfurt');
 
-        $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
-        self::assertNotNull($href);
-        self::assertStringContainsString('state='.$state->getId(), $href);
+        $actionHrefs = $crawler->filter('[data-testid="catalog-action"]')->each(
+            static fn ($node): ?string => $node->attr('href'),
+        );
+        self::assertContains('/explore/allocation?state='.$state->getId(), $actionHrefs);
+        self::assertContains('/explore/hospital?state='.$state->getId(), $actionHrefs);
+        self::assertContains('/explore/dispatch_area?state='.$state->getId(), $actionHrefs);
     }
 }
