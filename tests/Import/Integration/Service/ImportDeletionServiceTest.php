@@ -323,11 +323,14 @@ final class ImportDeletionServiceTest extends KernelTestCase
     {
         $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
         $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
-        $targetDir = Path::join($importsBaseDir, date('Y/m'));
+        $testToken = getenv('TEST_TOKEN') ?: '0';
+        $targetDir = Path::join($importsBaseDir, '_tests', (string) $testToken, bin2hex(random_bytes(4)));
         new Filesystem()->mkdir($targetDir);
 
         $absolutePath = Path::join($targetDir, $basename);
-        file_put_contents($absolutePath, "header1;header2\nvalue1;value2\n");
+        if (false === file_put_contents($absolutePath, "header1;header2\nvalue1;value2\n")) {
+            self::fail('Unable to write import fixture: '.$absolutePath);
+        }
 
         $storedPath = ltrim(str_replace('\\', '/', Path::makeRelative($absolutePath, $projectDir)), '/');
 

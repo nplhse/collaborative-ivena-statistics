@@ -320,13 +320,16 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
     {
         $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
         $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
-        $targetDir = $importsBaseDir.'/'.date('Y/m');
+        $testToken = getenv('TEST_TOKEN') ?: '0';
+        $targetDir = $importsBaseDir.'/_tests/'.$testToken.'/'.bin2hex(random_bytes(4));
         if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
             self::fail('Unable to create imports test directory: '.$targetDir);
         }
 
         $absolutePath = $targetDir.'/'.$basename;
-        file_put_contents($absolutePath, $contents);
+        if (false === file_put_contents($absolutePath, $contents)) {
+            self::fail('Unable to write import fixture: '.$absolutePath);
+        }
 
         $storedPath = ltrim(str_replace('\\', '/', (string) preg_replace(
             '#^'.preg_quote($projectDir, '#').'/?#',
