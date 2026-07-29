@@ -57,6 +57,7 @@ security:
         - { path: ^/_error/, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/hospitals, roles: ROLE_PARTICIPANT }
+        - { path: ^/import, roles: ROLE_PARTICIPANT }
         - { path: ^/explore/indication/raw/assign, roles: ROLE_PARTICIPANT }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
         - { path: ^/statistics, roles: ROLE_USER }

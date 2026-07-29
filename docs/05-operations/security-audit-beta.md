@@ -210,7 +210,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | `security.yaml` has no `^/import`; all Import controllers use `#[IsGranted('ROLE_PARTICIPANT')]` (+ voters) |
 | Risk | A new import route without attributes would be anonymous by default. |
 | Mitigation | Add `- { path: ^/import, roles: ROLE_PARTICIPANT }` (source download remains `ROLE_ADMIN` via attribute). |
-| Status | open |
+| Status | resolved (2026-07-29) — `access_control` requires `ROLE_PARTICIPANT` for `^/import`; controller attributes/voters unchanged (source download still `ROLE_ADMIN`) |
 
 ### SEC-012 — Public `/health` discloses version and failed-queue count
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-011–SEC-016, SEC-019 | Headers, docs (SEC-009 path containment and SEC-010 redirect resolved) |
+| P2 hardening | SEC-012–SEC-016, SEC-019 | Headers, docs (SEC-011 `/import` access_control resolved) |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
