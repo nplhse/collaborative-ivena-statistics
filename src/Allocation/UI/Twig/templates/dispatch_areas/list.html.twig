@@ -201,7 +201,7 @@
                 {% for dispatch_area in paginator.results %}
                     <tr>
                         <td>
-                            {{ dispatch_area.name }}
+                            <a href="{{ path('app_explore_dispatch_area_show', {publicId: dispatch_area.publicId}) }}" target="_top">{{ dispatch_area.name }}</a>
                         </td>
                         <td>
                             {{ dispatch_area.state }}
