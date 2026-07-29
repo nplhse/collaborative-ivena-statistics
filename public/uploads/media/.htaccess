@@ -1,4 +1,6 @@
-# Prevent execution of uploaded scripts
+# Prevent directory listing and execution of uploaded scripts
+Options -Indexes
+
 <IfModule mod_php.c>
     php_flag engine off
 </IfModule>

@@ -232,7 +232,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | `vich_uploader` → `public/uploads/media`; Admin-only upload with MIME allowlist; `.htaccess` disables PHP execution |
 | Risk | Public URLs by design; if server enables directory indexes, filenames may be listable (unique namer mitigates guessing). |
 | Mitigation | Ensure `Options -Indexes` / `autoindex off` in deploy docs; optional signed URLs if media must not be public. |
-| Status | open |
+| Status | resolved (2026-07-29) — `Options -Indexes` in `public/.htaccess` and `public/uploads/media/.htaccess`; deploy docs cover shared `.htaccess` and nginx `autoindex off` |
 
 ### SEC-014 — CSP remains Report-Only with `unsafe-inline`
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-013–SEC-016, SEC-019 | Headers, docs (SEC-012 public `/health` payload slimmed) |
+| P2 hardening | SEC-014–SEC-016, SEC-019 | Headers, docs (SEC-013 media directory indexes disabled) |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
