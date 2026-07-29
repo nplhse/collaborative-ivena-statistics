@@ -282,10 +282,10 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |-------|-------|
 | Severity | Info / accepted with hardening notes |
 | Area | Import / Async |
-| Evidence | `ImportAllocationsMessageHandler` loads by `importId` without actor permission re-check |
+| Evidence | Worker re-check now validates `Import->createdBy` against current `HospitalPermission::Import` for the import hospital in [`ImportAllocationsMessageHandler`](../../src/Import/Application/MessageHandler/ImportAllocationsMessageHandler.php) before file access / cleanup / run start |
 | Risk | Compromised DB/queue writer can re-trigger import processing. Not reachable from normal HTTP alone. |
 | Mitigation | Document trust boundary; harden DB/worker credentials; optional status gate (`PENDING` only) and/or actor id on message. |
-| Status | open |
+| Status | resolved (2026-07-29) — handler fails imports whose creator no longer has `HospitalPermission::Import`; integration test covers unauthorized-creator failure path |
 
 ### SEC-019 — Export empty hospital intersect falls back to all allowed hospitals
 
@@ -361,7 +361,7 @@ Do **not** implement in this audit deliverable.
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
 | P2 hardening | SEC-013, SEC-015, SEC-019 | Media indexes, session cookies, docs (SEC-014 CSP accepted for beta) |
-| P3 backlog | SEC-014 enforce, SEC-017, SEC-018, SEC-020 | CSP enforce + reduce `unsafe-inline`, docs, trust boundary, tests |
+| P3 backlog | SEC-014 enforce, SEC-020 | CSP enforce + reduce `unsafe-inline`, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
 

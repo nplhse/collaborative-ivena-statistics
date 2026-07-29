@@ -80,6 +80,59 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         self::assertSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
+    public function testInvokeWithUnauthorizedCreatorMarksImportFailed(): void
+    {
+        $creator = UserFactory::createOne(['username' => 'import-unauthorized-creator']);
+        $owner = UserFactory::createOne(['username' => 'import-unauthorized-owner']);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'UnauthorizedCreator', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Unauthorized Creator KH',
+            'owner' => $owner,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $creator->getId());
+        $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
+
+        $import = new Import()
+            ->setName('Unauthorized creator IT')
+            ->setHospital($hospitalRef)
+            ->setCreatedBy($userRef)
+            ->setType(ImportType::ALLOCATION)
+            ->setStatus(ImportStatus::PENDING)
+            ->setFilePath('var/imports/'.date('Y/m').'/ivena-import-unauthorized-'.bin2hex(random_bytes(8)).'.csv')
+            ->setFileExtension('csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize(0)
+            ->setRunCount(0)
+            ->setRunTime(0)
+            ->setRowCount(0);
+
+        $this->em->persist($import);
+        $this->em->flush();
+
+        $id = (int) $import->getId();
+        self::assertGreaterThan(0, $id);
+
+        $failedIds = [];
+        $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);
+        $dispatcher->addListener(ImportFailed::class, function (object $event) use (&$failedIds): void {
+            if ($event instanceof ImportFailed) {
+                $failedIds[] = $event->importId;
+            }
+        });
+
+        $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+        self::assertSame([$id], $failedIds);
+
+        $fresh = $this->imports->find($id);
+        self::assertNotNull($fresh);
+        self::assertSame(ImportStatus::FAILED, $fresh->getStatus());
+    }
+
     public function testDispatchImportOutcomeDispatchesImportCompletedForFinalImportStatus(): void
     {
         $import = $this->createPersistedImport(ImportStatus::PARTIAL, rowCount: 3, rowsPassed: 2, rowsRejected: 1);
