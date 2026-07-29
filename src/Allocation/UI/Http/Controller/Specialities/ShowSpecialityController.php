@@ -6,7 +6,6 @@ namespace App\Allocation\UI\Http\Controller\Specialities;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
-use App\Allocation\Application\Explore\Catalog\CatalogFallbackDescriptionFactory;
 use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -19,7 +18,6 @@ final class ShowSpecialityController extends AbstractController
 {
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
-        private readonly CatalogFallbackDescriptionFactory $descriptionFactory,
         private readonly CatalogActionFactory $actionFactory,
     ) {
     }
@@ -39,13 +37,11 @@ final class ShowSpecialityController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $name = $speciality->getName() ?? '';
         $coverage = $this->coverageQuery->forDimension(CatalogDimensionKey::Speciality, $id);
 
         return $this->render('@Allocation/specialities/show.html.twig', [
             'speciality' => $speciality,
             'coverage' => $coverage,
-            'description' => $this->descriptionFactory->create($name, $coverage),
             'actions' => $this->actionFactory->forSpeciality($id),
         ]);
     }

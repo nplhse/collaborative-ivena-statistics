@@ -35,7 +35,7 @@ final class ShowIndicationNormalizedControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#indication-name', 'STEMI');
         self::assertSelectorExists('[data-testid="catalog-detail"]');
-        self::assertSelectorExists('[data-testid="catalog-description"]');
+        self::assertSelectorNotExists('[data-testid="catalog-description"]');
         self::assertSelectorExists('[data-testid="catalog-coverage"]');
         self::assertSelectorExists('[data-testid="catalog-actions"]');
         self::assertSelectorTextContains('[data-testid="catalog-actions"]', 'View allocations');
@@ -46,7 +46,7 @@ final class ShowIndicationNormalizedControllerTest extends WebTestCase
         self::assertStringContainsString('indication=101', $href);
     }
 
-    public function testDetailPageUsesEditorialNoteWhenPresent(): void
+    public function testDetailPageShowsEditorialNoteInBasicInfoWhenPresent(): void
     {
         $client = $this->createClientAsAreaUser();
         $indication = IndicationNormalizedFactory::createOne([
@@ -58,7 +58,8 @@ final class ShowIndicationNormalizedControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/explore/indication/'.$indication->getPublicIdString());
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-testid="catalog-description"]', 'Editorial definition for stroke.');
+        self::assertSelectorNotExists('[data-testid="catalog-description"]');
+        self::assertSelectorTextContains('[data-testid="catalog-editorial-note"]', 'Editorial definition for stroke.');
     }
 
     public function testParticipantDoesNotSeeNormalizationModule(): void

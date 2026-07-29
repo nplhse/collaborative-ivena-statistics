@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Indications;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
-use App\Allocation\Application\Explore\Catalog\CatalogFallbackDescriptionFactory;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Repository\IndicationGroupRepository;
@@ -19,7 +18,6 @@ final class ShowIndicationGroupController extends AbstractController
 {
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
-        private readonly CatalogFallbackDescriptionFactory $descriptionFactory,
         private readonly CatalogActionFactory $actionFactory,
         private readonly IndicationGroupRepository $indicationGroupRepository,
     ) {
@@ -42,16 +40,10 @@ final class ShowIndicationGroupController extends AbstractController
 
         $indicationIds = $this->indicationGroupRepository->getIndicationIds($id);
         $coverage = $this->coverageQuery->forIndicationIds($indicationIds);
-        $name = $indicationGroup->getName() ?? '';
-        $descriptionText = $indicationGroup->getDescription();
-        $description = (null !== $descriptionText && '' !== trim($descriptionText))
-            ? $descriptionText
-            : $this->descriptionFactory->create($name, $coverage);
 
         return $this->render('@Allocation/indication_groups/show.html.twig', [
             'indicationGroup' => $indicationGroup,
             'coverage' => $coverage,
-            'description' => $description,
             'actions' => $this->actionFactory->forIndicationGroup($id),
         ]);
     }

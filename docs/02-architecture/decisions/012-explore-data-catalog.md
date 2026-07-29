@@ -27,7 +27,7 @@ We needed a shared product and technical model for a scientific **data catalog**
 
 5. **Coverage metrics and privacy.** Catalog KPIs aggregate from `allocation_stats_projection` for the collaborative Explore scope ([ADR 011](011-collaborative-explore-allocation-visibility.md)). Apply small-cell suppression when allocation counts fall below `CatalogPrivacyPolicy::MIN_ALLOCATIONS` (currently 5).
 
-6. **Descriptions without a metadata monster.** Prefer entity fields (`note`, `description`), i18n for enums, and generated fallbacks (`CatalogFallbackDescriptionFactory`). Introduce a shared `catalog_entry` store only if several types prove the same editorial workflow.
+6. **Descriptions stay optional and light.** Catalog detail pages do **not** render a dedicated description card or auto-generated fallback text. Prefer entity fields (`note`, `description`) in basic info when editorial content exists, and i18n for glossary term definitions. Introduce a shared `catalog_entry` store only if several types prove the same editorial workflow.
 
 7. **Information architecture.** Explore subnav and hub use the same domain groups and order: Overview → Cases → Organisation → Klinikstruktur (structure) → Merkmale (features) → Glossary (classifications). Reference lists such as infections and secondary transports live under Merkmale, not under the glossary.
 

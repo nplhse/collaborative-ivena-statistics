@@ -6,7 +6,6 @@ namespace App\Allocation\UI\Http\Controller\DispatchAreas;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
-use App\Allocation\Application\Explore\Catalog\CatalogFallbackDescriptionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
@@ -20,7 +19,6 @@ final class ShowDispatchAreaController extends AbstractController
 {
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
-        private readonly CatalogFallbackDescriptionFactory $descriptionFactory,
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogOrientationMapFactory $orientationMapFactory,
     ) {
@@ -47,7 +45,6 @@ final class ShowDispatchAreaController extends AbstractController
         return $this->render('@Allocation/dispatch_areas/show.html.twig', [
             'dispatchArea' => $dispatchArea,
             'coverage' => $coverage,
-            'description' => $this->descriptionFactory->create($name, $coverage),
             'actions' => $this->actionFactory->forDispatchArea($id),
             'orientationMap' => $this->orientationMapFactory->forDispatchArea($name),
         ]);

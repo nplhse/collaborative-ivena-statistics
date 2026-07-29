@@ -25,7 +25,7 @@ final class ShowSecondaryTransportControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#secondary-transport-name', 'Kapazitätsengpass');
-        self::assertSelectorTextContains('a.btn-outline-secondary', 'Back to list');
+        self::assertSelectorTextContains('a.btn', 'Back to list');
         self::assertSelectorExists('[data-testid="catalog-detail"]');
         self::assertSelectorExists('[data-testid="catalog-coverage"]');
         self::assertSelectorExists('[data-testid="catalog-actions"]');
