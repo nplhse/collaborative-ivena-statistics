@@ -53,6 +53,6 @@ final readonly class ExportAccessService
         $requested = array_values(array_unique(array_map(intval(...), $requestedHospitalIds)));
         $effective = array_values(array_intersect($requested, $allowed));
 
-        return [] !== $effective ? $effective : $allowed;
+        return $effective;
     }
 }
