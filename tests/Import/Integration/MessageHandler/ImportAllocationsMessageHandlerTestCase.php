@@ -338,8 +338,8 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
     }
 
     /**
-     * @param list<string>        $header
-     * @param list<list<string>>  $rows
+     * @param list<string>       $header
+     * @param list<list<string>> $rows
      */
     protected function encodeCsvRows(array $header, array $rows): string
     {
