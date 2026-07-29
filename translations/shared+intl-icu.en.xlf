@@ -129,6 +129,10 @@
         <source>link.indications</source>
         <target>Indications</target>
       </trans-unit>
+      <trans-unit id="lnkIndGrpEn" resname="link.indication_groups">
+        <source>link.indication_groups</source>
+        <target>Indication groups</target>
+      </trans-unit>
       <trans-unit id="hmthOUc" resname="link.infections">
         <source>link.infections</source>
         <target>Infections</target>

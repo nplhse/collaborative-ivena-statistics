@@ -40,7 +40,14 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route starts with 'app_explore_indication' ? 'active' : '' }}">
+                    <li class="nav-item {{ route starts with 'app_explore_indication_group' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_explore_indication_group_list') }}">
+                            <span class="nav-link-title">
+                                {{ 'link.indication_groups'|trans({}, 'shared') }}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ route starts with 'app_explore_indication' and not (route starts with 'app_explore_indication_group') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_explore_indication_list') }}">
                             <span class="nav-link-title">
                                 {{ 'link.indications'|trans({}, 'shared') }}

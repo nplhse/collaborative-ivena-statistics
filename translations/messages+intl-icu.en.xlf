@@ -621,6 +621,10 @@
         <source>label.link.indications</source>
         <target>Preliminary suspected diagnosis summarizing the primary medical problem or injury at the scene.</target>
       </trans-unit>
+      <trans-unit id="lblLinkIgEn" resname="label.link.indication_groups">
+        <source>label.link.indication_groups</source>
+        <target>Groupings of related indications for comparative analysis.</target>
+      </trans-unit>
       <trans-unit id="nEIq_sW" resname="label.link.infections">
         <source>label.link.infections</source>
         <target>Potential infectious diseases that may require isolation at the destination hospital.</target>

@@ -841,6 +841,10 @@
         <source>label.link.indications</source>
         <target>Vorläufige Verdachtsdiagnose, die das primäre medizinische Problem oder die Verletzung am Einsatzort zusammenfasst.</target>
       </trans-unit>
+      <trans-unit id="DeLblLinkIg" resname="label.link.indication_groups">
+        <source>label.link.indication_groups</source>
+        <target>Gruppierungen verwandter Indikationen für vergleichende Analysen.</target>
+      </trans-unit>
       <trans-unit id="De0dcf1ca2" resname="label.link.infections">
         <source>label.link.infections</source>
         <target>Potenzielle Infektionskrankheiten, die am Zielkrankenhaus eine Isolierung erfordern können.</target>

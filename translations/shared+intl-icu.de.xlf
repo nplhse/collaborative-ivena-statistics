@@ -133,6 +133,10 @@
         <source>link.indications</source>
         <target>Indikationen</target>
       </trans-unit>
+      <trans-unit id="lnkIndGrpDe" resname="link.indication_groups">
+        <source>link.indication_groups</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
       <trans-unit id="lnkInfectDe" resname="link.infections">
         <source>link.infections</source>
         <target>Infektionen</target>

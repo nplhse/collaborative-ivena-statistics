@@ -131,12 +131,17 @@ final class Breadcrumbs
 
         foreach ([
             'title.indication.',
+            'title.indication_group.',
             'title.allocation.',
             'title.explore',
             'title.hospital',
             'title.mci_case.',
             'title.secondary_transport.',
             'title.hospitals.',
+            'title.department.',
+            'title.speciality.',
+            'title.assignment.',
+            'title.occasion.',
         ] as $prefix) {
             if (str_starts_with($label, $prefix)) {
                 return 'allocation';
