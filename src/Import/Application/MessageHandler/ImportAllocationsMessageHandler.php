@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Import\Application\MessageHandler;
 
+use App\Allocation\Application\Service\HospitalPermissionAccess;
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
@@ -43,6 +45,7 @@ final readonly class ImportAllocationsMessageHandler
         private EventDispatcherInterface $dispatcher,
         private ImportPreviousRunCleanupService $previousRunCleanupService,
         private ImportAllocationDeduplicationService $deduplicationService,
+        private HospitalPermissionAccess $hospitalPermissionAccess,
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
         private ImportFileStorage $fileStorage,
@@ -54,6 +57,14 @@ final readonly class ImportAllocationsMessageHandler
         $import = $this->importRepository->findOneBy(['id' => $message->importId]);
         if (!$import instanceof Import) {
             $this->importLogger->error('import.not_found', ['id' => $message->importId]);
+
+            return;
+        }
+
+        $reason = $this->resolvePermissionFailureReason($import);
+        if (null !== $reason) {
+            $this->markFailed($import, $reason);
+            $this->dispatchImportOutcome($message->importId, $reason);
 
             return;
         }
@@ -265,5 +276,25 @@ final readonly class ImportAllocationsMessageHandler
     private function cleanupPreviousRun(Import $import): void
     {
         $this->previousRunCleanupService->cleanup($import);
+    }
+
+    private function resolvePermissionFailureReason(Import $import): ?string
+    {
+        $createdBy = $import->getCreatedBy();
+        if (!$createdBy instanceof \App\User\Domain\Entity\User) {
+            return 'Import has no creator user';
+        }
+
+        $hospital = $import->getHospital();
+        $hospitalId = $hospital?->getId();
+        if (null === $hospitalId) {
+            return 'Import has no hospital';
+        }
+
+        if (!$this->hospitalPermissionAccess->hasPermission($createdBy, $hospitalId, HospitalPermission::Import)) {
+            return 'Creator has no current import permission';
+        }
+
+        return null;
     }
 }
