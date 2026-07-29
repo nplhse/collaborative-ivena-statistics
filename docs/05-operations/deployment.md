@@ -19,6 +19,15 @@ cd ~/www/current && php bin/console messenger:failed:show
 Uploaded images and PDFs live in `public/uploads/media`, which Deployer keeps in
 `shared/public/uploads/media` so files survive release changes.
 
+Public URLs under `/uploads/media/…` are intentional for CMS/blog content. Upload is
+Admin-only with a MIME allowlist; filenames use Vich `SmartUniqueNamer` (hard to guess).
+
+**Directory listing:** Apache `Options -Indexes` is set in repo `public/.htaccess` and
+`public/uploads/media/.htaccess`. After migrating to the Deployer shared directory, ensure
+`shared/public/uploads/media/.htaccess` still contains the PHP-deny and `-Indexes` rules
+(copy from a release if missing). If the stack ever uses nginx, set `autoindex off` for
+`/uploads/`. Signed URLs are not required while media remains public CMS content.
+
 **One-time migration** after enabling the shared directory (copies from the release
 that currently holds the most media files):
 

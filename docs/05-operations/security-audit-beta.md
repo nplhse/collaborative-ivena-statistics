@@ -232,7 +232,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | `vich_uploader` → `public/uploads/media`; Admin-only upload with MIME allowlist; `.htaccess` disables PHP execution |
 | Risk | Public URLs by design; if server enables directory indexes, filenames may be listable (unique namer mitigates guessing). |
 | Mitigation | Ensure `Options -Indexes` / `autoindex off` in deploy docs; optional signed URLs if media must not be public. |
-| Status | open |
+| Status | resolved (2026-07-29) — `Options -Indexes` in `public/.htaccess` and `public/uploads/media/.htaccess`; deploy docs cover shared `.htaccess` and nginx `autoindex off` |
 
 ### SEC-014 — CSP remains Report-Only with `unsafe-inline`
 
