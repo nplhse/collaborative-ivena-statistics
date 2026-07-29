@@ -50,4 +50,34 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
         self::assertFalse($map->enabled);
     }
+
+    public function testHospitalMapHighlightsDispatchAreaAndKeepsMarker(): void
+    {
+        $map = $this->factory->forHospital('Frankfurt', 50.1109, 8.6821, 'Uni-Klinik');
+
+        self::assertTrue($map->enabled);
+        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertTrue($map->hasMarker());
+        self::assertSame(50.1109, $map->markerLatitude);
+        self::assertSame(8.6821, $map->markerLongitude);
+        self::assertSame('Uni-Klinik', $map->markerLabel);
+    }
+
+    public function testHospitalMapWithoutCoordinatesStillShowsArea(): void
+    {
+        $map = $this->factory->forHospital('Frankfurt', null, null, 'Uni-Klinik');
+
+        self::assertTrue($map->enabled);
+        self::assertSame('frankfurt', $map->highlightKey);
+        self::assertFalse($map->hasMarker());
+        self::assertNull($map->markerLabel);
+    }
+
+    public function testHospitalMapIsDisabledForUnknownDispatchArea(): void
+    {
+        $map = $this->factory->forHospital('Unknown Area XYZ', 50.1, 8.6, 'Klinik');
+
+        self::assertFalse($map->enabled);
+        self::assertFalse($map->hasMarker());
+    }
 }

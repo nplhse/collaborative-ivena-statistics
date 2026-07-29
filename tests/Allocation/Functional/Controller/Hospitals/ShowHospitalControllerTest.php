@@ -32,7 +32,7 @@ final class ShowHospitalControllerTest extends WebTestCase
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
         $stateName = 'Hessen';
         $state = StateFactory::createOne(['name' => $stateName]);
-        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
         $address = AddressFactory::new([
             'street' => 'Fake Street 123',
             'postalCode' => '12345',
@@ -49,13 +49,15 @@ final class ShowHospitalControllerTest extends WebTestCase
             'createdBy' => $createdBy,
             'state' => $state,
             'dispatchArea' => $dispatch,
+            'latitude' => 50.1109,
+            'longitude' => 8.6821,
             'location' => HospitalLocation::cases()[0],
             'size' => HospitalSize::cases()[0],
             'tier' => HospitalTier::cases()[0],
             'createdAt' => new \DateTimeImmutable('2025-01-02 03:04:05'),
         ]);
 
-        $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital/'.$hospital->getPublicIdString());
 
         self::assertResponseIsSuccessful();
 
@@ -70,6 +72,11 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertSelectorTextContains('#hospital-location', HospitalLocation::cases()[0]->value);
         self::assertSelectorTextContains('#hospital-tier', HospitalTier::cases()[0]->value);
         self::assertSelectorNotExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
+        self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
+        $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
+        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
+        self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
     }
 
     public function testOwnerSeesEditButtonOnOwnHospitalShowPage(): void

@@ -32,6 +32,9 @@ export default class extends Controller {
         geoUrl: String,
         highlightKey: { type: String, default: '' },
         showAll: { type: Boolean, default: false },
+        markerLat: { type: Number, default: Number.NaN },
+        markerLng: { type: Number, default: Number.NaN },
+        markerLabel: { type: String, default: '' },
     };
 
     static targets = ['mapContainer'];
@@ -77,7 +80,8 @@ export default class extends Controller {
             }).addTo(this.map);
 
             let highlightLayer = null;
-            this.geoLayer = L.geoJSON(geojson, {
+            const features = this.featuresForDisplay(geojson);
+            this.geoLayer = L.geoJSON(features, {
                 style: (feature) => this.styleForFeature(feature),
                 onEachFeature: (feature, layer) => {
                     const name = feature?.properties?.name ?? feature?.properties?.key ?? '';
@@ -89,19 +93,73 @@ export default class extends Controller {
                     }
                 },
             }).addTo(this.map);
+            this.highlightLayer = highlightLayer;
 
             if (highlightLayer && highlightLayer.getBounds?.().isValid()) {
-                this.map.fitBounds(highlightLayer.getBounds(), { padding: [24, 24], maxZoom: 10 });
+                this.map.fitBounds(highlightLayer.getBounds(), { padding: [24, 24], maxZoom: 11 });
             } else if (this.geoLayer.getBounds().isValid()) {
                 this.map.fitBounds(this.geoLayer.getBounds(), { padding: [16, 16] });
             } else {
                 this.map.setView([50.55, 9.0], 8);
             }
 
+            this.renderMarker();
+
             this.scheduleInvalidateSize();
         } catch (error) {
             this.mapContainerTarget.innerHTML = `<div class="text-danger p-3 small">${String(error)}</div>`;
         }
+    }
+
+    featuresForDisplay(geojson) {
+        if (this.showAllValue || !this.highlightKeyValue || !Array.isArray(geojson?.features)) {
+            return geojson;
+        }
+
+        return {
+            ...geojson,
+            features: geojson.features.filter((feature) => this.isHighlighted(feature)),
+        };
+    }
+
+    renderMarker() {
+        if (!Number.isFinite(this.markerLatValue) || !Number.isFinite(this.markerLngValue)) {
+            return;
+        }
+
+        const pin = L.marker([this.markerLatValue, this.markerLngValue], {
+            icon: this.hospitalPinIcon(),
+        }).addTo(this.map);
+
+        if (this.markerLabelValue) {
+            pin.bindTooltip(this.markerLabelValue, { sticky: true });
+        }
+
+        const markerLatLng = pin.getLatLng();
+        const focusBounds = this.highlightLayer?.getBounds?.().isValid()
+            ? this.highlightLayer.getBounds()
+            : this.geoLayer?.getBounds?.().isValid()
+              ? this.geoLayer.getBounds()
+              : null;
+
+        if (focusBounds) {
+            this.map.fitBounds(focusBounds.extend(markerLatLng), {
+                padding: [28, 28],
+                maxZoom: 13,
+            });
+        } else {
+            this.map.setView(markerLatLng, 12);
+        }
+    }
+
+    hospitalPinIcon() {
+        return L.divIcon({
+            className: 'catalog-orientation-map-pin',
+            html: '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#1864ab" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle fill="#ffffff" cx="12" cy="9" r="2.5"/></svg>',
+            iconSize: [26, 26],
+            iconAnchor: [13, 26],
+            tooltipAnchor: [0, -20],
+        });
     }
 
     styleForFeature(feature) {
@@ -153,5 +211,6 @@ export default class extends Controller {
             this.map = null;
         }
         this.geoLayer = null;
+        this.highlightLayer = null;
     }
 }

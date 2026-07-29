@@ -61,6 +61,28 @@ final readonly class CatalogOrientationMapFactory
         return new CatalogOrientationMap(enabled: true, showAllAreas: true);
     }
 
+    public function forHospital(
+        ?string $dispatchAreaName,
+        ?float $latitude,
+        ?float $longitude,
+        ?string $markerLabel = null,
+    ): CatalogOrientationMap {
+        $areaMap = $this->forDispatchArea($dispatchAreaName);
+        if (!$areaMap->enabled) {
+            return CatalogOrientationMap::disabled();
+        }
+
+        $hasMarker = null !== $latitude && null !== $longitude;
+
+        return new CatalogOrientationMap(
+            enabled: true,
+            highlightKey: $areaMap->highlightKey,
+            markerLatitude: $hasMarker ? $latitude : null,
+            markerLongitude: $hasMarker ? $longitude : null,
+            markerLabel: $hasMarker ? $markerLabel : null,
+        );
+    }
+
     private function resolveGeoKey(string $originName): ?string
     {
         if (isset($this->nameToGeoKey[$originName])) {
