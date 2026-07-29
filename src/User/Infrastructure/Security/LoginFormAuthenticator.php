@@ -99,7 +99,7 @@ final class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $badges[] = new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token'));
 
         if ($loginTypeDTO->getRememberMe()) {
-            $badges[] = new RememberMeBadge();
+            $badges[] = new RememberMeBadge()->enable();
         }
 
         return $badges;
