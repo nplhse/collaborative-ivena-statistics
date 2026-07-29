@@ -44,4 +44,20 @@ final class LiveComponentsAccessControlTest extends WebTestCase
             'Authenticated ROLE_USER must pass /_components access_control (not redirected to login).',
         );
     }
+
+    public function testAnalysisExplorerShellActionRedirectsGuestsToLogin(): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_POST, '/_components/AnalysisExplorerShell');
+
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testBenchmarkSelectionFormActionRedirectsGuestsToLogin(): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_POST, '/_components/BenchmarkSelectionForm');
+
+        self::assertResponseRedirects('/login');
+    }
 }

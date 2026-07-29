@@ -35,5 +35,4 @@ Separately, path-level `access_control` already requires `ROLE_PARTICIPANT` for 
 
 - [../permission-model.md](../permission-model.md)
 - [../../04-features/allocation/explore-allocation-list.md](../../04-features/allocation/explore-allocation-list.md)
-- [../../05-operations/security-audit-beta.md](../../05-operations/security-audit-beta.md) (SEC-005)
 - `src/Allocation/Infrastructure/Security/Voter/AllocationVoter.php`

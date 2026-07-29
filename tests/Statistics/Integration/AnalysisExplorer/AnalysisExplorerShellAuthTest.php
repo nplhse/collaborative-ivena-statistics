@@ -11,6 +11,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
 {
@@ -168,6 +169,31 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
             0,
             $render->crawler()->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]')->count(),
         );
+    }
+
+    public function testRoleUserCannotSubmitSaveAs(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $testComponent = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+            'canSaveAs' => true,
+        ])->actingAs($user);
+
+        $testComponent->set('saveAsTitle', 'Forbidden save as');
+
+        $this->expectException(AccessDeniedException::class);
+        $testComponent->call('submitSaveAs');
     }
 
     public function testViewMetadataFieldsRemainEnabledWhenConfigDirty(): void
