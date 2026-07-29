@@ -40,7 +40,8 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
 
-        $missingPath = sys_get_temp_dir().'/ivena-import-missing-'.bin2hex(random_bytes(8)).'.csv';
+        // Path is under imports base but file does not exist on disk.
+        $missingPath = 'var/imports/'.date('Y/m').'/ivena-import-missing-'.bin2hex(random_bytes(8)).'.csv';
 
         $import = new Import()
             ->setName('Missing file IT')

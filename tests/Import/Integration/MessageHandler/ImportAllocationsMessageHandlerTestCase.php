@@ -117,11 +117,10 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
         $fixturePath = $projectDir.'/tests/Import/Fixtures/allocation_import_sample.csv';
         self::assertFileExists($fixturePath);
 
-        $targetDir = $projectDir.'/var/tests/imports/'.date('Y/m');
-        @mkdir($targetDir, 0775, true);
-        $csvPath = $targetDir.'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
-        copy($fixturePath, $csvPath);
-        $relativePath = ltrim(str_replace('\\', '/', (string) preg_replace('#^'.preg_quote($projectDir, '#').'/?#', '', $csvPath)), '/');
+        ['absolutePath' => $csvPath, 'storedPath' => $storedPath] = $this->writeImportCsvUnderBase(
+            'allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv',
+            (string) file_get_contents($fixturePath),
+        );
 
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
@@ -132,7 +131,7 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
             ->setCreatedBy($userRef)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)
-            ->setFilePath($relativePath)
+            ->setFilePath($storedPath)
             ->setFileExtension('csv')
             ->setFileMimeType('text/csv')
             ->setFileSize((int) filesize($csvPath))
@@ -202,17 +201,10 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
 
         $rows = [$row];
 
-        $csvPath = sys_get_temp_dir().'/ivena-import-evt-'.bin2hex(random_bytes(8)).'.csv';
-        $fh = fopen($csvPath, 'wb');
-        self::assertNotFalse($fh);
-        $delimiter = ';';
-        $enclosure = '"';
-        $escape = '\\';
-        fputcsv($fh, $header, $delimiter, $enclosure, $escape);
-        foreach ($rows as $csvRow) {
-            fputcsv($fh, $csvRow, $delimiter, $enclosure, $escape);
-        }
-        fclose($fh);
+        ['absolutePath' => $csvPath, 'storedPath' => $storedPath] = $this->writeImportCsvUnderBase(
+            'ivena-import-evt-'.bin2hex(random_bytes(8)).'.csv',
+            $this->encodeCsvRows($header, $rows),
+        );
 
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
@@ -223,7 +215,7 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
             ->setCreatedBy($userRef)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)
-            ->setFilePath($csvPath)
+            ->setFilePath($storedPath)
             ->setFileExtension('csv')
             ->setFileMimeType('text/csv')
             ->setFileSize((int) filesize($csvPath))
@@ -293,17 +285,10 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
 
         $rows = [$row];
 
-        $csvPath = sys_get_temp_dir().'/ivena-import-evt-'.bin2hex(random_bytes(8)).'.csv';
-        $fh = fopen($csvPath, 'wb');
-        self::assertNotFalse($fh);
-        $delimiter = ';';
-        $enclosure = '"';
-        $escape = '\\';
-        fputcsv($fh, $header, $delimiter, $enclosure, $escape);
-        foreach ($rows as $row) {
-            fputcsv($fh, $row, $delimiter, $enclosure, $escape);
-        }
-        fclose($fh);
+        ['absolutePath' => $csvPath, 'storedPath' => $storedPath] = $this->writeImportCsvUnderBase(
+            'ivena-import-evt-'.bin2hex(random_bytes(8)).'.csv',
+            $this->encodeCsvRows($header, $rows),
+        );
 
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $owner->getId());
         $hospitalRef = $this->em->getReference(\App\Allocation\Domain\Entity\Hospital::class, $hospital->getId());
@@ -314,7 +299,7 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
             ->setCreatedBy($userRef)
             ->setType(ImportType::ALLOCATION)
             ->setStatus(ImportStatus::PENDING)
-            ->setFilePath($csvPath)
+            ->setFilePath($storedPath)
             ->setFileExtension('csv')
             ->setFileMimeType('text/csv')
             ->setFileSize((int) filesize($csvPath))
@@ -326,6 +311,53 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
         $this->em->flush();
 
         return ['id' => (int) $import->getId(), 'csvPath' => $csvPath];
+    }
+
+    /**
+     * @return array{absolutePath: string, storedPath: string}
+     */
+    protected function writeImportCsvUnderBase(string $basename, string $contents): array
+    {
+        $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $targetDir = $importsBaseDir.'/'.date('Y/m');
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+            self::fail('Unable to create imports test directory: '.$targetDir);
+        }
+
+        $absolutePath = $targetDir.'/'.$basename;
+        file_put_contents($absolutePath, $contents);
+
+        $storedPath = ltrim(str_replace('\\', '/', (string) preg_replace(
+            '#^'.preg_quote($projectDir, '#').'/?#',
+            '',
+            $absolutePath,
+        )), '/');
+
+        return ['absolutePath' => $absolutePath, 'storedPath' => $storedPath];
+    }
+
+    /**
+     * @param list<string>        $header
+     * @param list<list<string>>  $rows
+     */
+    protected function encodeCsvRows(array $header, array $rows): string
+    {
+        $fh = fopen('php://temp', 'r+b');
+        self::assertNotFalse($fh);
+        $delimiter = ';';
+        $enclosure = '"';
+        $escape = '\\';
+        fputcsv($fh, $header, $delimiter, $enclosure, $escape);
+        foreach ($rows as $csvRow) {
+            fputcsv($fh, $csvRow, $delimiter, $enclosure, $escape);
+        }
+        rewind($fh);
+        $contents = stream_get_contents($fh);
+        fclose($fh);
+        self::assertNotFalse($contents);
+
+        return $contents;
     }
 
     protected function countAssessments(): int
