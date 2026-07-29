@@ -293,10 +293,10 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |-------|-------|
 | Severity | Low |
 | Area | Export |
-| Evidence | `ExportAccessService::resolveEffectiveHospitalIds` — empty intersection → all exportable hospitals (no foreign hospital leak) |
+| Evidence | [`ExportAccessService::resolveEffectiveHospitalIds`](../../src/Allocation/Application/Export/ExportAccessService.php) now returns `[]` when `requested ∩ allowed` is empty, instead of falling back to all exportable hospitals |
 | Risk | Tampered hospital id list expands scope to all permitted hospitals instead of failing closed. |
 | Mitigation | Prefer empty result / 400 when requested ∩ allowed is empty. |
-| Status | open |
+| Status | resolved (2026-07-29) — export scope now fails closed on empty hospital intersection; integration test covers foreign-only selection |
 
 ### SEC-020 — AllocationVoter / Live Component test gaps
 
@@ -360,7 +360,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-013, SEC-015, SEC-019 | Media indexes, session cookies, docs (SEC-014 CSP accepted for beta) |
+| P2 hardening | — | No open P2 items remain |
 | P3 backlog | SEC-014 enforce, SEC-020 | CSP enforce + reduce `unsafe-inline`, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.

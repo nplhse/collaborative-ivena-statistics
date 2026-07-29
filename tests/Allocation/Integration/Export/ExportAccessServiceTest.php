@@ -82,4 +82,18 @@ final class ExportAccessServiceTest extends KernelTestCase
             $this->service->resolveEffectiveHospitalIds($grantee, [(int) $hospital->getId()]),
         );
     }
+
+    public function testResolveEffectiveHospitalIdsReturnsEmptyWhenRequestedHasNoIntersectionWithAllowed(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $other = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+
+        HospitalFactory::createOne(['owner' => $owner]);
+        $foreign = HospitalFactory::createOne(['owner' => $other]);
+
+        self::assertSame(
+            [],
+            $this->service->resolveEffectiveHospitalIds($owner, [(int) $foreign->getId()]),
+        );
+    }
 }
