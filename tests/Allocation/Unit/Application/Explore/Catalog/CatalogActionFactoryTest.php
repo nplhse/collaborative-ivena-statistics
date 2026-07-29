@@ -52,6 +52,28 @@ final class CatalogActionFactoryTest extends TestCase
         self::assertSame('/statistics/indication/7', $actions[1]->url);
     }
 
+    public function testIndicationActionsCanIncludeReviewWorklist(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::exactly(3))
+            ->method('generate')
+            ->willReturnCallback(static fn (string $route, array $params = []): string => match ($route) {
+                'app_explore_allocation_list' => '/explore/allocation',
+                'app_stats_indication_dashboard' => '/statistics/indication/7',
+                'app_explore_indication_raw_review_worklist' => '/explore/indication/raw/review',
+                default => throw new \InvalidArgumentException($route),
+            });
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('label');
+
+        $factory = new CatalogActionFactory($urlGenerator, $translator);
+        $actions = $factory->forIndication(7, 101, true);
+
+        self::assertCount(3, $actions);
+        self::assertSame('/explore/indication/raw/review', $actions[2]->url);
+    }
+
     public function testDepartmentActionLinksToAllocationListFilter(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);

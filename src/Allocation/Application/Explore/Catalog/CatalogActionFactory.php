@@ -29,9 +29,9 @@ final readonly class CatalogActionFactory
      *
      * @return list<CatalogAction>
      */
-    public function forIndication(int $id, int $code): array
+    public function forIndication(int $id, int $code, bool $includeReviewWorklist = false): array
     {
-        return [
+        $actions = [
             new CatalogAction(
                 label: $this->translator->trans('catalog.action.view_allocations', [], 'allocation'),
                 url: $this->urlGenerator->generate('app_explore_allocation_list', [
@@ -48,6 +48,16 @@ final readonly class CatalogActionFactory
                 icon: 'tabler:chart-bar',
             ),
         ];
+
+        if ($includeReviewWorklist) {
+            $actions[] = new CatalogAction(
+                label: $this->translator->trans('catalog.action.review_raw_indications', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_explore_indication_raw_review_worklist'),
+                icon: 'tabler:checklist',
+            );
+        }
+
+        return $actions;
     }
 
     /**

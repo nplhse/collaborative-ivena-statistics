@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Controller\Indications;
 
+use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\User\Domain\Factory\UserFactory;
+use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -55,5 +59,47 @@ final class ShowIndicationNormalizedControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="catalog-description"]', 'Editorial definition for stroke.');
+    }
+
+    public function testParticipantDoesNotSeeNormalizationModule(): void
+    {
+        $client = $this->createClientAsAreaUser();
+        $indication = IndicationNormalizedFactory::createOne([
+            'name' => 'STEMI',
+            'code' => 101,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/indication/'.$indication->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="catalog-normalization"]');
+    }
+
+    public function testReviewerSeesMappedRawSynonymsAndWarnings(): void
+    {
+        $client = self::createClient();
+        $reviewer = UserFactory::createOne([
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::REVIEW_INDICATIONS],
+        ]);
+        $client->loginUser($reviewer);
+
+        $indication = IndicationNormalizedFactory::createOne([
+            'name' => 'STEMI',
+            'code' => 101,
+        ]);
+        IndicationRawFactory::createOne([
+            'name' => 'STEMI alias',
+            'code' => 1001,
+            'target' => $indication,
+            'reviewStatus' => IndicationRawReviewStatus::NeedsReview,
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/indication/'.$indication->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="catalog-normalization"]');
+        self::assertSelectorTextContains('[data-testid="catalog-mapped-raw"]', 'STEMI alias');
+        self::assertSelectorExists('[data-testid="catalog-quality-warnings"]');
+        self::assertSelectorTextContains('[data-testid="catalog-actions"]', 'Raw indication review');
     }
 }

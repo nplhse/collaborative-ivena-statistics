@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Indications;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogDefinitionChangeFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Application\Explore\Catalog\CatalogFallbackDescriptionFactory;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
+use App\Allocation\Infrastructure\Query\Catalog\CatalogIndicationNormalizationQuery;
+use App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +24,8 @@ final class ShowIndicationNormalizedController extends AbstractController
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogFallbackDescriptionFactory $descriptionFactory,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogIndicationNormalizationQuery $normalizationQuery,
+        private readonly CatalogDefinitionChangeFactory $definitionChangeFactory,
     ) {
     }
 
@@ -47,11 +52,20 @@ final class ShowIndicationNormalizedController extends AbstractController
             ? $note
             : $this->descriptionFactory->create($name, $coverage);
 
+        $canViewNormalization = $this->isGranted(IndicationRawReviewVoter::EDIT_MATCH);
+        $normalization = $canViewNormalization
+            ? $this->normalizationQuery->forTarget($id)
+            : null;
+
         return $this->render('@Allocation/indications/show_normalized.html.twig', [
             'indication' => $indication,
             'coverage' => $coverage,
             'description' => $description,
-            'actions' => $this->actionFactory->forIndication($id, $code),
+            'actions' => $this->actionFactory->forIndication($id, $code, $canViewNormalization),
+            'normalization' => $normalization,
+            'qualityWarnings' => $normalization instanceof \App\Allocation\Application\DTO\CatalogNormalizationSummary ? $normalization->warnings : [],
+            'definitionChanges' => $this->definitionChangeFactory->forIndicationNormalized($indication),
+            'canViewNormalization' => $canViewNormalization,
         ]);
     }
 }

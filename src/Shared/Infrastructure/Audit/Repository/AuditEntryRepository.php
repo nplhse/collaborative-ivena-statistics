@@ -65,4 +65,23 @@ final class AuditEntryRepository extends ServiceEntityRepository
 
         return $results;
     }
+
+    /**
+     * @return list<AuditEntry>
+     */
+    public function findRecentForEntity(string $entityClass, string $entityId, int $limit = 10): array
+    {
+        /** @var list<AuditEntry> $entries */
+        $entries = $this->createQueryBuilder('a')
+            ->andWhere('a.entityClass = :entityClass')
+            ->andWhere('a.entityId = :entityId')
+            ->setParameter('entityClass', $entityClass)
+            ->setParameter('entityId', $entityId)
+            ->orderBy('a.occurredAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return $entries;
+    }
 }

@@ -1,0 +1,64 @@
+{% if normalization %}
+    <div class="card mb-3" data-testid="catalog-normalization">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'catalog.section.normalization'|trans({}, 'allocation') }}</h3>
+        </div>
+        <div class="card-body border-bottom py-3">
+            <div class="datagrid">
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'catalog.normalization.synonyms'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content">{{ normalization.synonymCount }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'catalog.normalization.matched'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content">{{ normalization.matchedCount }}</div>
+                </div>
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'catalog.normalization.open'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content">{{ normalization.openCount }}</div>
+                </div>
+            </div>
+        </div>
+        {% if normalization.hasData %}
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>{{ 'label.name'|trans({}, 'messages') }}</th>
+                            <th>{{ 'catalog.field.code'|trans({}, 'allocation') }}</th>
+                            <th>{{ 'label.indication.review_status'|trans({}, 'messages') }}</th>
+                            <th>{{ 'label.indication.occurrences'|trans({}, 'messages') }}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for raw in normalization.raws %}
+                            <tr data-testid="catalog-mapped-raw">
+                                <td>{{ raw.name }}</td>
+                                <td><code>{{ raw.code }}</code></td>
+                                <td>
+                                    <span class="badge bg-secondary-lt">
+                                        {{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans({}, 'allocation') }}
+                                    </span>
+                                </td>
+                                <td>{{ raw.occurrenceCount }}</td>
+                                <td class="text-end">
+                                    <a
+                                        class="btn btn-sm btn-outline-primary"
+                                        href="{{ path('app_explore_indication_raw_review', {publicId: raw.publicId}) }}"
+                                    >
+                                        {{ 'catalog.action.review_raw'|trans({}, 'allocation') }}
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="card-body">
+                <p class="text-secondary mb-0">{{ 'catalog.normalization.empty'|trans({}, 'allocation') }}</p>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}

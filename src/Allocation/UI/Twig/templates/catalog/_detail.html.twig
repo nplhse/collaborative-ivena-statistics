@@ -2,6 +2,9 @@
 {% set actions = actions|default([]) %}
 {% set description = description|default(null) %}
 {% set orientationMap = orientationMap|default(null) %}
+{% set qualityWarnings = qualityWarnings|default([]) %}
+{% set normalization = normalization|default(null) %}
+{% set definitionChanges = definitionChanges|default([]) %}
 
 <div class="row g-3" data-testid="catalog-detail">
     <div class="col-lg-8">
@@ -14,7 +17,13 @@
             </div>
         {% endif %}
 
+        {{ include('@Allocation/catalog/_quality_warnings.html.twig', {qualityWarnings: qualityWarnings}) }}
+
         {{ include('@Allocation/catalog/_coverage.html.twig', {coverage: coverage}) }}
+
+        {{ include('@Allocation/catalog/_normalization.html.twig', {normalization: normalization}) }}
+
+        {{ include('@Allocation/catalog/_definition_changes.html.twig', {definitionChanges: definitionChanges}) }}
 
         {{ include('@Allocation/catalog/_orientation_map.html.twig', {orientationMap: orientationMap}) }}
     </div>
