@@ -1,0 +1,42 @@
+{% set coverage = coverage|default(null) %}
+{% set actions = actions|default([]) %}
+{% set description = description|default(null) %}
+
+<div class="row g-3" data-testid="catalog-detail">
+    <div class="col-lg-8">
+        {% if description %}
+            <div class="card mb-3" data-testid="catalog-description">
+                <div class="card-body">
+                    <div class="card-title">{{ 'catalog.section.description'|trans({}, 'allocation') }}</div>
+                    <p class="mb-0">{{ description }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {{ include('@Allocation/catalog/_coverage.html.twig', {coverage: coverage}) }}
+    </div>
+
+    <div class="col-lg-4">
+        {% if actions is not empty %}
+            <div class="card mb-3" data-testid="catalog-actions">
+                <div class="card-body">
+                    <div class="card-title">{{ 'catalog.section.actions'|trans({}, 'allocation') }}</div>
+                    <div class="btn-list flex-column">
+                        {% for action in actions %}
+                            <a
+                                href="{{ action.url }}"
+                                class="btn {{ action.primary ? 'btn-primary' : 'btn-outline-secondary' }}"
+                                data-testid="catalog-action"
+                            >
+                                <twig:ux:icon name="{{ action.icon }}" width="1em" height="1em" />
+                                {{ action.label }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% block catalog_sidebar_extra %}{% endblock %}
+    </div>
+</div>

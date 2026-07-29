@@ -405,6 +405,94 @@
         <source>title.secondary_transport.show</source>
         <target>Secondary Transport</target>
       </trans-unit>
+      <trans-unit id="CatIndShowEn" resname="title.indication.show">
+        <source>title.indication.show</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="CatSecDescEn" resname="catalog.section.description">
+        <source>catalog.section.description</source>
+        <target>Description</target>
+      </trans-unit>
+      <trans-unit id="CatSecCovEn" resname="catalog.section.coverage">
+        <source>catalog.section.coverage</source>
+        <target>Data coverage</target>
+      </trans-unit>
+      <trans-unit id="CatSecActEn" resname="catalog.section.actions">
+        <source>catalog.section.actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="CatTypeStEn" resname="catalog.type.secondary_transport">
+        <source>catalog.type.secondary_transport</source>
+        <target>Secondary transport</target>
+      </trans-unit>
+      <trans-unit id="CatTypeIndEn" resname="catalog.type.indication">
+        <source>catalog.type.indication</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="CatMetAllEn" resname="catalog.metric.allocations">
+        <source>catalog.metric.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="CatMetShaEn" resname="catalog.metric.share">
+        <source>catalog.metric.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="CatMetHosEn" resname="catalog.metric.hospitals">
+        <source>catalog.metric.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="CatMetDaEn" resname="catalog.metric.dispatch_areas">
+        <source>catalog.metric.dispatch_areas</source>
+        <target>Dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="CatMetStaEn" resname="catalog.metric.states">
+        <source>catalog.metric.states</source>
+        <target>States</target>
+      </trans-unit>
+      <trans-unit id="CatMetPerEn" resname="catalog.metric.period">
+        <source>catalog.metric.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="CatMetYeaEn" resname="catalog.metric.years">
+        <source>catalog.metric.years</source>
+        <target>Covered years</target>
+      </trans-unit>
+      <trans-unit id="CatCovEmpEn" resname="catalog.coverage.empty">
+        <source>catalog.coverage.empty</source>
+        <target>No allocations are currently available for this object in the visible data.</target>
+      </trans-unit>
+      <trans-unit id="CatCovSupEn" resname="catalog.coverage.suppressed">
+        <source>catalog.coverage.suppressed</source>
+        <target>Detailed metrics are not shown when fewer than {threshold} allocations are available.</target>
+      </trans-unit>
+      <trans-unit id="CatFbEmpEn" resname="catalog.fallback.empty">
+        <source>catalog.fallback.empty</source>
+        <target>{name} does not currently appear in any allocations in the data visible to you.</target>
+      </trans-unit>
+      <trans-unit id="CatFbSupEn" resname="catalog.fallback.suppressed">
+        <source>catalog.fallback.suppressed</source>
+        <target>{name} appears in only very few allocations in the data visible to you. Detailed metrics are therefore not shown.</target>
+      </trans-unit>
+      <trans-unit id="CatFbPerEn" resname="catalog.fallback.with_period">
+        <source>catalog.fallback.with_period</source>
+        <target>{name} appears in {allocations, number} allocations from {hospitals, number} hospitals between {from} and {to} in the data visible to you.</target>
+      </trans-unit>
+      <trans-unit id="CatFbNPeEn" resname="catalog.fallback.without_period">
+        <source>catalog.fallback.without_period</source>
+        <target>{name} appears in {allocations, number} allocations from {hospitals, number} hospitals in the data visible to you.</target>
+      </trans-unit>
+      <trans-unit id="CatActAllEn" resname="catalog.action.view_allocations">
+        <source>catalog.action.view_allocations</source>
+        <target>View allocations</target>
+      </trans-unit>
+      <trans-unit id="CatActInsEn" resname="catalog.action.indication_insights">
+        <source>catalog.action.indication_insights</source>
+        <target>Open indication insights</target>
+      </trans-unit>
+      <trans-unit id="CatRelGrpEn" resname="catalog.relation.groups">
+        <source>catalog.relation.groups</source>
+        <target>Indication groups</target>
+      </trans-unit>
       <trans-unit id="hag01" resname="title.hospital_access_grants">
         <source>title.hospital_access_grants</source>
         <target>Access grants</target>

@@ -481,6 +481,94 @@
         <source>title.secondary_transport.show</source>
         <target>Sekundärtransport</target>
       </trans-unit>
+      <trans-unit id="CatIndShowDe" resname="title.indication.show">
+        <source>title.indication.show</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="CatSecDescDe" resname="catalog.section.description">
+        <source>catalog.section.description</source>
+        <target>Beschreibung</target>
+      </trans-unit>
+      <trans-unit id="CatSecCovDe" resname="catalog.section.coverage">
+        <source>catalog.section.coverage</source>
+        <target>Datenbestand</target>
+      </trans-unit>
+      <trans-unit id="CatSecActDe" resname="catalog.section.actions">
+        <source>catalog.section.actions</source>
+        <target>Aktionen</target>
+      </trans-unit>
+      <trans-unit id="CatTypeStDe" resname="catalog.type.secondary_transport">
+        <source>catalog.type.secondary_transport</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="CatTypeIndDe" resname="catalog.type.indication">
+        <source>catalog.type.indication</source>
+        <target>Indikation</target>
+      </trans-unit>
+      <trans-unit id="CatMetAllDe" resname="catalog.metric.allocations">
+        <source>catalog.metric.allocations</source>
+        <target>Einsätze</target>
+      </trans-unit>
+      <trans-unit id="CatMetShaDe" resname="catalog.metric.share">
+        <source>catalog.metric.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="CatMetHosDe" resname="catalog.metric.hospitals">
+        <source>catalog.metric.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="CatMetDaDe" resname="catalog.metric.dispatch_areas">
+        <source>catalog.metric.dispatch_areas</source>
+        <target>Leitstellenbereiche</target>
+      </trans-unit>
+      <trans-unit id="CatMetStaDe" resname="catalog.metric.states">
+        <source>catalog.metric.states</source>
+        <target>Bundesländer</target>
+      </trans-unit>
+      <trans-unit id="CatMetPerDe" resname="catalog.metric.period">
+        <source>catalog.metric.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="CatMetYeaDe" resname="catalog.metric.years">
+        <source>catalog.metric.years</source>
+        <target>Abgedeckte Jahre</target>
+      </trans-unit>
+      <trans-unit id="CatCovEmpDe" resname="catalog.coverage.empty">
+        <source>catalog.coverage.empty</source>
+        <target>Für dieses Objekt liegen in den sichtbaren Daten derzeit keine Einsätze vor.</target>
+      </trans-unit>
+      <trans-unit id="CatCovSupDe" resname="catalog.coverage.suppressed">
+        <source>catalog.coverage.suppressed</source>
+        <target>Kennzahlen werden bei weniger als {threshold} Einsätzen nicht detailliert ausgewiesen.</target>
+      </trans-unit>
+      <trans-unit id="CatFbEmpDe" resname="catalog.fallback.empty">
+        <source>catalog.fallback.empty</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten derzeit in keinen Einsätzen vor.</target>
+      </trans-unit>
+      <trans-unit id="CatFbSupDe" resname="catalog.fallback.suppressed">
+        <source>catalog.fallback.suppressed</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten nur in sehr wenigen Einsätzen vor. Detaillierte Kennzahlen werden daher nicht ausgewiesen.</target>
+      </trans-unit>
+      <trans-unit id="CatFbPerDe" resname="catalog.fallback.with_period">
+        <source>catalog.fallback.with_period</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten in {allocations, number} Einsätzen aus {hospitals, number} Kliniken im Zeitraum {from} bis {to} vor.</target>
+      </trans-unit>
+      <trans-unit id="CatFbNPeDe" resname="catalog.fallback.without_period">
+        <source>catalog.fallback.without_period</source>
+        <target>{name} kommt in den für Sie sichtbaren Daten in {allocations, number} Einsätzen aus {hospitals, number} Kliniken vor.</target>
+      </trans-unit>
+      <trans-unit id="CatActAllDe" resname="catalog.action.view_allocations">
+        <source>catalog.action.view_allocations</source>
+        <target>Einsätze anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatActInsDe" resname="catalog.action.indication_insights">
+        <source>catalog.action.indication_insights</source>
+        <target>Indikationsanalyse öffnen</target>
+      </trans-unit>
+      <trans-unit id="CatRelGrpDe" resname="catalog.relation.groups">
+        <source>catalog.relation.groups</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
