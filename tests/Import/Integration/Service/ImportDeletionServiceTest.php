@@ -119,7 +119,9 @@ final class ImportDeletionServiceTest extends KernelTestCase
     {
         $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
         $filesystem = new Filesystem();
-        $sourcePath = sys_get_temp_dir().'/ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv';
+        $sourceRelativePath = 'var/imports/delete-source-'.bin2hex(random_bytes(8)).'.csv';
+        $sourcePath = Path::join($projectDir, $sourceRelativePath);
+        $filesystem->mkdir(\dirname($sourcePath));
         file_put_contents($sourcePath, "header1;header2\nvalue1;value2\n");
 
         $rejectRelativePath = 'var/imports/rejects/delete-reject-'.bin2hex(random_bytes(4)).'.csv';
@@ -129,7 +131,7 @@ final class ImportDeletionServiceTest extends KernelTestCase
 
         ['import' => $import, 'importId' => $importId] = $this->arrangeImportWithAllocation(
             namePrefix: 'DeleteReject',
-            filePath: $sourcePath,
+            filePath: $sourceRelativePath,
             rejectFilePath: $rejectRelativePath,
         );
 
@@ -139,10 +141,11 @@ final class ImportDeletionServiceTest extends KernelTestCase
             $this->deletionService->delete($import);
 
             self::assertNull($this->imports->find($importId));
+            self::assertFileDoesNotExist($sourcePath);
             self::assertFileDoesNotExist($rejectAbsolutePath);
         } finally {
-            if (\is_file($sourcePath)) {
-                @unlink($sourcePath);
+            if ($filesystem->exists($sourcePath)) {
+                $filesystem->remove($sourcePath);
             }
             if ($filesystem->exists($rejectAbsolutePath)) {
                 $filesystem->remove($rejectAbsolutePath);
@@ -186,9 +189,14 @@ final class ImportDeletionServiceTest extends KernelTestCase
             );
             self::assertNotNull($this->imports->find((int) $secondImport->getId()));
         } finally {
-            $csvPath = $secondImport->getFilePath();
-            if (\is_string($csvPath) && '' !== $csvPath && \is_file($csvPath)) {
-                @unlink($csvPath);
+            $storedPath = $secondImport->getFilePath();
+            if (\is_string($storedPath) && '' !== $storedPath) {
+                $absolute = Path::isAbsolute($storedPath)
+                    ? $storedPath
+                    : Path::join((string) self::getContainer()->getParameter('kernel.project_dir'), $storedPath);
+                if (\is_file($absolute)) {
+                    @unlink($absolute);
+                }
             }
         }
     }
@@ -210,10 +218,14 @@ final class ImportDeletionServiceTest extends KernelTestCase
         ]);
 
         if (null === $filePath) {
-            $csvPath = sys_get_temp_dir().'/ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv';
-            file_put_contents($csvPath, "header1;header2\nvalue1;value2\n");
+            ['absolutePath' => $csvPath, 'storedPath' => $storedPath] = $this->createImportCsvUnderBase(
+                'ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv',
+            );
         } else {
-            $csvPath = $filePath;
+            $storedPath = $filePath;
+            $csvPath = Path::isAbsolute($filePath)
+                ? $filePath
+                : Path::join((string) self::getContainer()->getParameter('kernel.project_dir'), $filePath);
         }
 
         $importProxy = ImportFactory::createOne([
@@ -221,10 +233,10 @@ final class ImportDeletionServiceTest extends KernelTestCase
             'hospital' => $hospital,
             'type' => ImportType::ALLOCATION,
             'status' => ImportStatus::COMPLETED,
-            'filePath' => $csvPath,
+            'filePath' => $storedPath,
             'fileExtension' => 'csv',
             'fileMimeType' => 'text/csv',
-            'fileSize' => (int) filesize($this->resolveFileSizePath($csvPath, $filePath)),
+            'fileSize' => (int) filesize($csvPath),
             'rowCount' => 1,
             'rowsPassed' => 1,
             'rowsRejected' => null !== $rejectFilePath ? 1 : 0,
@@ -266,15 +278,16 @@ final class ImportDeletionServiceTest extends KernelTestCase
         $hospital = $firstImport->getHospital();
         self::assertNotNull($hospital);
 
-        $csvPath = sys_get_temp_dir().'/ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv';
-        file_put_contents($csvPath, "header1;header2\nvalue1;value2\n");
+        ['absolutePath' => $csvPath, 'storedPath' => $storedPath] = $this->createImportCsvUnderBase(
+            'ivena-import-delete-'.bin2hex(random_bytes(8)).'.csv',
+        );
 
         $importProxy = ImportFactory::createOne([
             'name' => 'DeleteKeepB IT',
             'hospital' => $hospital,
             'type' => ImportType::ALLOCATION,
             'status' => ImportStatus::COMPLETED,
-            'filePath' => $csvPath,
+            'filePath' => $storedPath,
             'fileExtension' => 'csv',
             'fileMimeType' => 'text/csv',
             'fileSize' => (int) filesize($csvPath),
@@ -303,6 +316,24 @@ final class ImportDeletionServiceTest extends KernelTestCase
         return $import;
     }
 
+    /**
+     * @return array{absolutePath: string, storedPath: string}
+     */
+    private function createImportCsvUnderBase(string $basename): array
+    {
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
+        $targetDir = Path::join($importsBaseDir, date('Y/m'));
+        new Filesystem()->mkdir($targetDir);
+
+        $absolutePath = Path::join($targetDir, $basename);
+        file_put_contents($absolutePath, "header1;header2\nvalue1;value2\n");
+
+        $storedPath = ltrim(str_replace('\\', '/', Path::makeRelative($absolutePath, $projectDir)), '/');
+
+        return ['absolutePath' => $absolutePath, 'storedPath' => $storedPath];
+    }
+
     private function countAllocationsForImport(int $importId): int
     {
         return (int) $this->em->createQueryBuilder()
@@ -328,14 +359,5 @@ final class ImportDeletionServiceTest extends KernelTestCase
             'SELECT COUNT(*) FROM import_batch_run_item WHERE import_id = :importId',
             ['importId' => $importId],
         );
-    }
-
-    private function resolveFileSizePath(string $storedPath, ?string $originalFilePath): string
-    {
-        if (null !== $originalFilePath && !Path::isAbsolute($originalFilePath)) {
-            return Path::join((string) self::getContainer()->getParameter('kernel.project_dir'), $storedPath);
-        }
-
-        return $storedPath;
     }
 }
