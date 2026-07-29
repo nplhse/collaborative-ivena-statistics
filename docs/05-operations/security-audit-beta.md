@@ -51,12 +51,10 @@ Role hierarchy: `ROLE_ADMIN` → `ROLE_PARTICIPANT`, `ROLE_REVIEW_INDICATIONS`.
 | Voter | Attributes | Notes |
 |-------|------------|-------|
 | `HospitalVoter` | `ACCESS`, `EDIT`, `MANAGE_ACCESS_GRANTS` | Hospital-scoped |
-| `AllocationVoter` | `VIEW` | Any `ROLE_USER`; **no hospital scope** |
+| `AllocationVoter` | `VIEW` | Any `ROLE_PARTICIPANT`; **no hospital scope** |
 | `ImportVoter` | `VIEW`, `DELETE`, `DOWNLOAD_SOURCE` | Hospital + creator/admin rules |
 | `ExportVoter` | `EXPORT` | Via `ExportAccessService` |
 | `IndicationRawReviewVoter` | `VIEW`, `EDIT_MATCH`, `REVIEW` | Participant + review roles |
-
-Doc drift: [`permission-model.md`](../02-architecture/permission-model.md) omits `ImportVoter::DOWNLOAD_SOURCE`.
 
 ### Rate limiters
 
@@ -273,10 +271,10 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |-------|-------|
 | Severity | Info |
 | Area | Docs |
-| Evidence | [`permission-model.md`](../02-architecture/permission-model.md) ImportVoter table omits `DOWNLOAD_SOURCE`; AllocationVoter collaborative semantics undocumented |
+| Evidence | [`permission-model.md`](../02-architecture/permission-model.md) ImportVoter table omitted `DOWNLOAD_SOURCE` while code already enforced it in [`ImportVoter`](../../src/Import/Infrastructure/Security/Voter/ImportVoter.php) |
 | Risk | Maintainers mis-implement access checks. |
 | Mitigation | Update voter table + document Explore collaboration / accepted risk (SEC-005). |
-| Status | open — AllocationVoter / Explore collaboration documented with SEC-005 (ADR 011); `ImportVoter::DOWNLOAD_SOURCE` still missing from voter table |
+| Status | resolved (2026-07-29) — `permission-model.md` voter table now includes `ImportVoter::DOWNLOAD_SOURCE`; Explore collaboration remains documented via SEC-005 / ADR 011 |
 
 ### SEC-018 — Messenger import handlers trust queue without permission re-check
 
