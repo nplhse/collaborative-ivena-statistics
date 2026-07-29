@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Functional\Controller;
 
-use App\Kernel;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 final class HealthCheckControllerTest extends WebTestCase
 {
-    public function testHealthEndpointIsPublicAndReturnsJson(): void
+    public function testHealthEndpointIsPublicAndReturnsSlimJson(): void
     {
         $client = self::createClient();
         $client->request(Request::METHOD_GET, '/health');
@@ -21,10 +20,11 @@ final class HealthCheckControllerTest extends WebTestCase
 
         self::assertIsArray($payload);
         self::assertArrayHasKey('status', $payload);
-        self::assertArrayHasKey('version', $payload);
         self::assertArrayHasKey('checks', $payload);
-        self::assertSame(Kernel::APP_VERSION, $payload['version']);
+        self::assertArrayNotHasKey('version', $payload);
+        self::assertSame(['database'], array_keys($payload['checks']));
         self::assertSame('ok', $payload['checks']['database']);
+        self::assertArrayNotHasKey('messenger_failed', $payload['checks']);
         self::assertContains($payload['status'], ['healthy', 'degraded']);
     }
 }
