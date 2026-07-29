@@ -14,12 +14,16 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\Service\FileUploader;
+use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Browser\Test\HasBrowser;
@@ -264,43 +268,70 @@ final class NewImportControllerTest extends WebTestCase
 
     public function testSubmitShowsFieldErrorWhenUploadMoveFails(): void
     {
+        $client = self::createClient();
+        $client->disableReboot();
+
         [$owner, $hospitalId] = $this->createOwnerWithHospital();
 
         $csvPath = $this->fixturesDir.'/allocation_import_sample.csv';
         self::assertFileExists($csvPath);
 
-        /** @var string $projectDir */
-        $projectDir = self::getContainer()->getParameter('kernel.project_dir');
-        $uploadDir = $projectDir.'/var/imports/'.date('Y').'/'.date('m');
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0775, true);
-        }
+        /** @var string $importsBaseDir */
+        $importsBaseDir = self::getContainer()->getParameter('app.imports_base_dir');
+        $isolatedBase = Path::join($importsBaseDir, '_chmod_'.bin2hex(random_bytes(4)));
+        $uploadDir = Path::join($isolatedBase, date('Y'), date('m'));
+        $filesystem = self::getContainer()->get(Filesystem::class);
+        $filesystem->mkdir($uploadDir, 0775);
+
+        $isolatedUploader = new FileUploader(
+            $isolatedBase,
+            self::getContainer()->get(ImportFileStorage::class),
+            self::getContainer()->get('monolog.logger'),
+            $filesystem,
+        );
+        self::getContainer()->set(FileUploader::class, $isolatedUploader);
 
         $previousPerms = fileperms($uploadDir) ?: 0775;
         chmod($uploadDir, 0555);
 
-        try {
-            $this->browser()
-                ->actingAs($owner)
-                ->visit('/import/new')
-                ->assertSuccessful()
-                ->fillField('import_create[name]', 'Upload Failure Attempt')
-                ->selectField('import_create[hospital]', (string) $hospitalId)
-                ->attachFile('import_create[file]', $csvPath)
-                ->click('import_create[submit]')
-                ->assertSuccessful()
-                ->assertSee('Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.')
-                ->assertSeeElement('.is-invalid[name="import_create[file]"]')
-                ->use(function (): void {
-                    /** @var EntityManagerInterface $em */
-                    $em = self::getContainer()->get(EntityManagerInterface::class);
+        $client->loginUser($owner);
 
-                    self::assertNull(
-                        $em->getRepository(Import::class)->findOneBy(['name' => 'Upload Failure Attempt']),
-                    );
-                });
+        try {
+            $crawler = $client->request(Request::METHOD_GET, '/import/new');
+            self::assertResponseIsSuccessful();
+
+            $form = $crawler->filter('form')->form();
+            $client->request(
+                Request::METHOD_POST,
+                '/import/new',
+                [
+                    'import_create' => [
+                        'name' => 'Upload Failure Attempt',
+                        'hospital' => (string) $hospitalId,
+                        '_token' => $form['import_create[_token]']->getValue(),
+                    ],
+                ],
+                [
+                    'import_create' => [
+                        'file' => new UploadedFile($csvPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                    ],
+                ],
+            );
+
+            self::assertResponseIsSuccessful();
+            self::assertSelectorTextContains('body', 'Excel files (.xls, .xlsx) are not supported. Please export your data as CSV.');
+            self::assertSelectorExists('.is-invalid[name="import_create[file]"]');
+
+            /** @var EntityManagerInterface $em */
+            $em = self::getContainer()->get(EntityManagerInterface::class);
+            self::assertNull(
+                $em->getRepository(Import::class)->findOneBy(['name' => 'Upload Failure Attempt']),
+            );
         } finally {
             chmod($uploadDir, $previousPerms & 0777);
+            if ($filesystem->exists($isolatedBase)) {
+                $filesystem->remove($isolatedBase);
+            }
         }
     }
 
