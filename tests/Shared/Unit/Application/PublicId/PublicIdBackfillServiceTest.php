@@ -16,18 +16,18 @@ final class PublicIdBackfillServiceTest extends TestCase
     public function testDryRunCountsRemainingRows(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->method('fetchOne')->willReturnMap([
-            ['SELECT COUNT(*) FROM hospital WHERE public_id IS NULL', [], [], 2],
-            ['SELECT COUNT(*) FROM secondary_transport WHERE public_id IS NULL', [], [], 0],
-            ['SELECT COUNT(*) FROM indication_raw WHERE public_id IS NULL', [], [], 1],
-            ['SELECT COUNT(*) FROM mci_case WHERE public_id IS NULL', [], [], 0],
-            ['SELECT COUNT(*) FROM allocation WHERE public_id IS NULL', [], [], 5],
-        ]);
+        $connection->method('fetchOne')->willReturnCallback(static fn (string $sql): int => match (true) {
+            str_contains($sql, 'FROM hospital') => 2,
+            str_contains($sql, 'FROM indication_raw') => 1,
+            str_contains($sql, 'FROM allocation') => 5,
+            default => 0,
+        });
 
         $service = new PublicIdBackfillService($connection);
         $result = $service->run(dryRun: true);
 
         self::assertFalse($result->completed);
+        self::assertCount(\count(PublicIdBackfillService::TABLE_ORDER), $result->remainingByTable);
         self::assertSame(2, $result->remainingByTable['hospital']);
         self::assertSame(5, $result->remainingByTable['allocation']);
         self::assertSame(0, $result->updatedByTable['hospital']);
@@ -39,14 +39,16 @@ final class PublicIdBackfillServiceTest extends TestCase
         $connection->method('fetchOne')->willReturn(0);
 
         $service = new PublicIdBackfillService($connection);
+        $expectedCount = \count(PublicIdBackfillService::TABLE_ORDER);
 
         $resultAll = $service->run(dryRun: true, tables: ['all']);
         $resultNull = $service->run(dryRun: true, tables: null);
         $resultEmpty = $service->run(dryRun: true, tables: []);
 
-        self::assertCount(5, $resultAll->remainingByTable);
-        self::assertCount(5, $resultNull->remainingByTable);
-        self::assertCount(5, $resultEmpty->remainingByTable);
+        self::assertCount($expectedCount, $resultAll->remainingByTable);
+        self::assertCount($expectedCount, $resultNull->remainingByTable);
+        self::assertCount($expectedCount, $resultEmpty->remainingByTable);
+        self::assertSame(PublicIdBackfillService::TABLE_ORDER, array_keys($resultAll->remainingByTable));
     }
 
     public function testInvalidTableThrows(): void
