@@ -122,7 +122,7 @@
                 {% for speciality in paginator.results %}
                     <tr>
                         <td>
-                            {{ speciality.name }}
+                            <a href="{{ path('app_explore_speciality_show', {publicId: speciality.publicId}) }}" target="_top">{{ speciality.name }}</a>
                         </td>
                         <td>
                             {{ speciality.updatedAt ? speciality.updatedAt|date('d.m.Y H:i') : speciality.createdAt|date('d.m.Y H:i') }}

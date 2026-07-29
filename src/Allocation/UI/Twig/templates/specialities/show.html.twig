@@ -1,0 +1,85 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.speciality.show'|trans({}, 'allocation') }}: {{ speciality.name }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'title.speciality.list', path: path('app_explore_speciality_list') },
+                    { label: speciality.name }
+                ]"
+        />
+
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:stethoscope" width="36px" height="36px" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 id="speciality-name" class="fw-bold">{{ speciality.name }}</h1>
+                <div class="list-inline list-inline-dots text-muted">
+                    <div class="list-inline-item">
+                        <span class="badge bg-secondary-lt">{{ 'catalog.type.speciality'|trans({}, 'allocation') }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <a class="btn btn-outline-secondary" href="{{ path('app_explore_speciality_list') }}">
+                        <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                        {{ 'label.back_to_list'|trans({}, 'messages') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl">
+        {% embed '@Allocation/catalog/_detail.html.twig' with {
+            coverage: coverage,
+            actions: actions,
+            description: description,
+        } %}
+            {% block catalog_sidebar_extra %}
+                <div class="card mb-3" data-testid="catalog-basic-info">
+                    <div class="card-body">
+                        <div class="card-title">
+                            {{ 'label.basic_info'|trans({}, 'messages') }}
+                        </div>
+                        <div class="mb-2">
+                            <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                            {{ 'label.created_at'|trans({}, 'messages') }} <strong>{{ speciality.createdAt|date('d.m.Y H:i') }}</strong>
+                        </div>
+                        <div class="mb-2">
+                            <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                            {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ speciality.createdBy }}</strong>
+                        </div>
+                        {% if speciality.updatedBy and speciality.updatedAt %}
+                            <div class="mt-1 mb-2">
+                                <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                                {{ 'label.updated_at'|trans({}, 'messages') }} <strong>{{ speciality.updatedAt|date('d.m.Y H:i') }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
+                                {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ speciality.updatedBy }}</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endembed %}
+    </div>
+{% endblock %}
