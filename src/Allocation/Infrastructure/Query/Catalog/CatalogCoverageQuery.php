@@ -57,6 +57,63 @@ final readonly class CatalogCoverageQuery
     }
 
     /**
+     * Hospital coverage: allocation volumes (totals, yearly counts, share) require
+     * hospital View permission. Without it, only period and year presence remain.
+     */
+    public function forHospital(int $hospitalId, bool $revealSensitiveMetrics): CatalogCoverage
+    {
+        try {
+            $summary = $this->fetchSummary(CatalogDimensionKey::Hospital, $hospitalId);
+            $total = $this->fetchTotalAllocations();
+            $years = $this->fetchYears(CatalogDimensionKey::Hospital, $hospitalId);
+        } catch (Exception) {
+            return CatalogCoverage::empty();
+        }
+
+        $allocationCount = (int) $summary['allocation_count'];
+        if ($allocationCount <= 0) {
+            return CatalogCoverage::empty();
+        }
+
+        if (!$revealSensitiveMetrics) {
+            // Keep year presence for the heatmap, but drop all volume from the DTO.
+            $years = array_map(
+                static fn (array $row): array => [
+                    'year' => $row['year'],
+                    'count' => $row['count'] > 0 ? 1 : 0,
+                ],
+                $years,
+            );
+
+            return new CatalogCoverage(
+                allocationCount: 0,
+                totalAllocationCount: 0,
+                hospitalCount: 0,
+                dispatchAreaCount: 0,
+                stateCount: 0,
+                firstAt: $this->parseDateTime($summary['first_at']),
+                lastAt: $this->parseDateTime($summary['last_at']),
+                years: $years,
+                suppressed: false,
+                revealSensitiveMetrics: false,
+            );
+        }
+
+        return new CatalogCoverage(
+            allocationCount: $allocationCount,
+            totalAllocationCount: $total,
+            hospitalCount: 1,
+            dispatchAreaCount: (int) $summary['dispatch_area_count'],
+            stateCount: (int) $summary['state_count'],
+            firstAt: $this->parseDateTime($summary['first_at']),
+            lastAt: $this->parseDateTime($summary['last_at']),
+            years: $years,
+            suppressed: false,
+            revealSensitiveMetrics: true,
+        );
+    }
+
+    /**
      * @param array{
      *     allocation_count: int|string|null,
      *     hospital_count: int|string|null,

@@ -16,5 +16,6 @@ final class CatalogDimensionKeyTest extends TestCase
         self::assertSame('department_id', CatalogDimensionKey::Department->projectionColumn());
         self::assertSame('dispatch_area_id', CatalogDimensionKey::DispatchArea->projectionColumn());
         self::assertSame('state_id', CatalogDimensionKey::State->projectionColumn());
+        self::assertSame('hospital_id', CatalogDimensionKey::Hospital->projectionColumn());
     }
 }

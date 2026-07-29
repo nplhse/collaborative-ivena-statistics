@@ -126,4 +126,40 @@ final class CatalogCoverageQueryTest extends TestCase
         self::assertSame(12, $coverage->allocationCount);
         self::assertSame(30.0, $coverage->sharePercent());
     }
+
+    public function testForHospitalHidesAllVolumeWithoutViewPermission(): void
+    {
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn([
+            'allocation_count' => 3,
+            'hospital_count' => 1,
+            'dispatch_area_count' => 1,
+            'state_count' => 1,
+            'first_at' => '2024-01-01 00:00:00',
+            'last_at' => '2024-06-01 00:00:00',
+        ]);
+        $connection->method('fetchOne')->willReturn(100);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['year' => 2024, 'count' => 3],
+        ]);
+
+        $query = new CatalogCoverageQuery($connection);
+        $restricted = $query->forHospital(42, false);
+        $revealed = $query->forHospital(42, true);
+
+        self::assertTrue($restricted->hasData());
+        self::assertFalse($restricted->suppressed);
+        self::assertSame(0, $restricted->allocationCount);
+        self::assertSame(0, $restricted->totalAllocationCount);
+        self::assertFalse($restricted->revealSensitiveMetrics);
+        self::assertNull($restricted->sharePercent());
+        self::assertCount(1, $restricted->years);
+        self::assertSame(1, $restricted->years[0]['count']);
+        self::assertNotNull($restricted->firstAt);
+
+        self::assertTrue($revealed->revealSensitiveMetrics);
+        self::assertSame(3, $revealed->allocationCount);
+        self::assertSame(3.0, $revealed->sharePercent());
+        self::assertSame(3, $revealed->years[0]['count']);
+    }
 }
