@@ -133,6 +133,36 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         self::assertSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
+    public function testResolvePermissionFailureReasonReturnsReasonWhenCreatorMissing(): void
+    {
+        $import = new Import(); // createdBy bleibt null
+
+        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailureReason');
+        $reflection->setAccessible(true);
+
+        self::assertSame(
+            'Import has no creator user',
+            $reflection->invoke($this->handler, $import),
+        );
+    }
+
+    public function testResolvePermissionFailureReasonReturnsReasonWhenHospitalMissing(): void
+    {
+        $creator = UserFactory::createOne(['username' => 'import-perm-hospital-missing']);
+        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $creator->getId());
+
+        $import = (new Import())
+            ->setCreatedBy($userRef);
+
+        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailureReason');
+        $reflection->setAccessible(true);
+
+        self::assertSame(
+            'Import has no hospital',
+            $reflection->invoke($this->handler, $import),
+        );
+    }
+
     public function testDispatchImportOutcomeDispatchesImportCompletedForFinalImportStatus(): void
     {
         $import = $this->createPersistedImport(ImportStatus::PARTIAL, rowCount: 3, rowsPassed: 2, rowsRejected: 1);
