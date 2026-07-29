@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Indications;
 
+use App\Allocation\Application\Explore\Catalog\CatalogMappingQualityWarningFactory;
 use App\Allocation\Domain\Enum\IndicationRawReviewWorklistSegment;
 use App\Allocation\Infrastructure\Query\IndicationRawOccurrenceQuery;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
@@ -22,6 +23,7 @@ final class IndicationRawReviewWorklistController extends AbstractController
     public function __construct(
         private readonly IndicationRawRepository $rawRepository,
         private readonly IndicationRawOccurrenceQuery $occurrenceQuery,
+        private readonly CatalogMappingQualityWarningFactory $mappingQualityWarningFactory,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -56,6 +58,8 @@ final class IndicationRawReviewWorklistController extends AbstractController
             ];
         }
 
+        $canEditMatch = $this->isGranted(IndicationRawReviewVoter::EDIT_MATCH);
+
         return $this->render('@Allocation/indications/review_worklist.html.twig', [
             'paginator' => $paginator,
             'results' => $results,
@@ -63,8 +67,9 @@ final class IndicationRawReviewWorklistController extends AbstractController
             'occurrence_counts' => $occurrenceCounts,
             'query' => $query,
             'segment_tabs' => $segmentTabs,
-            'can_edit_match' => $this->isGranted(IndicationRawReviewVoter::EDIT_MATCH),
+            'can_edit_match' => $canEditMatch,
             'can_review' => $this->isGranted(IndicationRawReviewVoter::REVIEW),
+            'qualityWarnings' => $canEditMatch ? $this->mappingQualityWarningFactory->create() : [],
         ]);
     }
 

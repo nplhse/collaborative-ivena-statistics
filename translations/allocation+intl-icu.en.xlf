@@ -781,6 +781,134 @@
         <source>catalog.glossary.clinical.infection.description</source>
         <target>Infectious patient (infection value present).</target>
       </trans-unit>
+      <trans-unit id="CatSecQwEn" resname="catalog.section.quality_warnings">
+        <source>catalog.section.quality_warnings</source>
+        <target>Quality warnings</target>
+      </trans-unit>
+      <trans-unit id="CatSecNormEn" resname="catalog.section.normalization">
+        <source>catalog.section.normalization</source>
+        <target>Normalization &amp; synonyms</target>
+      </trans-unit>
+      <trans-unit id="CatSecDefChEn" resname="catalog.section.definition_changes">
+        <source>catalog.section.definition_changes</source>
+        <target>Definition changes</target>
+      </trans-unit>
+      <trans-unit id="CatFldNoteEn" resname="catalog.field.note">
+        <source>catalog.field.note</source>
+        <target>Note</target>
+      </trans-unit>
+      <trans-unit id="CatFldCodeEn" resname="catalog.field.code">
+        <source>catalog.field.code</source>
+        <target>Code</target>
+      </trans-unit>
+      <trans-unit id="CatNormSynEn" resname="catalog.normalization.synonyms">
+        <source>catalog.normalization.synonyms</source>
+        <target>Raw values / synonyms</target>
+      </trans-unit>
+      <trans-unit id="CatNormMatEn" resname="catalog.normalization.matched">
+        <source>catalog.normalization.matched</source>
+        <target>Matched</target>
+      </trans-unit>
+      <trans-unit id="CatNormOpenEn" resname="catalog.normalization.open">
+        <source>catalog.normalization.open</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="CatNormEmptyEn" resname="catalog.normalization.empty">
+        <source>catalog.normalization.empty</source>
+        <target>No raw values are linked as synonyms for this indication yet.</target>
+      </trans-unit>
+      <trans-unit id="CatActRevRawEn" resname="catalog.action.review_raw">
+        <source>catalog.action.review_raw</source>
+        <target>Open review</target>
+      </trans-unit>
+      <trans-unit id="CatActRevWlEn" resname="catalog.action.review_raw_indications">
+        <source>catalog.action.review_raw_indications</source>
+        <target>Raw indication review</target>
+      </trans-unit>
+      <trans-unit id="CatActOpenWlEn" resname="catalog.action.open_review_worklist">
+        <source>catalog.action.open_review_worklist</source>
+        <target>Open worklist</target>
+      </trans-unit>
+      <trans-unit id="CatDefGenEn" resname="catalog.definition_change.generic">
+        <source>catalog.definition_change.generic</source>
+        <target>Definition updated</target>
+      </trans-unit>
+      <trans-unit id="CatDefFldEn" resname="catalog.definition_change.fields">
+        <source>catalog.definition_change.fields</source>
+        <target>Changed: {fields}</target>
+      </trans-unit>
+      <trans-unit id="CatQwNrEn" resname="catalog.quality.warning.needs_review_for_target">
+        <source>catalog.quality.warning.needs_review_for_target</source>
+        <target>{count, plural, one {# linked raw value awaits approval} other {# linked raw values await approval}}</target>
+      </trans-unit>
+      <trans-unit id="CatQwUrEn" resname="catalog.quality.warning.unreviewed_for_target">
+        <source>catalog.quality.warning.unreviewed_for_target</source>
+        <target>{count, plural, one {# linked raw value is still unreviewed} other {# linked raw values are still unreviewed}}</target>
+      </trans-unit>
+      <trans-unit id="CatQhNrEn" resname="catalog.quality.hint.needs_review_for_target">
+        <source>catalog.quality.hint.needs_review_for_target</source>
+        <target>Approve or reject in the review worklist.</target>
+      </trans-unit>
+      <trans-unit id="CatQhUrEn" resname="catalog.quality.hint.unreviewed_for_target">
+        <source>catalog.quality.hint.unreviewed_for_target</source>
+        <target>Unreviewed raw values should be matched or marked not matchable.</target>
+      </trans-unit>
+      <trans-unit id="CatQcTnmEn" resname="catalog.quality.check.target_not_matched">
+        <source>catalog.quality.check.target_not_matched</source>
+        <target>Target set but status is not matched</target>
+      </trans-unit>
+      <trans-unit id="CatQcMwtEn" resname="catalog.quality.check.matched_without_target">
+        <source>catalog.quality.check.matched_without_target</source>
+        <target>Matched without target</target>
+      </trans-unit>
+      <trans-unit id="CatQcNwtEn" resname="catalog.quality.check.normalized_without_target">
+        <source>catalog.quality.check.normalized_without_target</source>
+        <target>Normalized set without target</target>
+      </trans-unit>
+      <trans-unit id="CatQcTmmEn" resname="catalog.quality.check.target_normalized_mismatch">
+        <source>catalog.quality.check.target_normalized_mismatch</source>
+        <target>Target and normalized disagree</target>
+      </trans-unit>
+      <trans-unit id="CatQcNrtEn" resname="catalog.quality.check.needs_review_without_target">
+        <source>catalog.quality.check.needs_review_without_target</source>
+        <target>Awaiting approval without proposed target</target>
+      </trans-unit>
+      <trans-unit id="CatQcMwrEn" resname="catalog.quality.check.matched_without_reviewed_by">
+        <source>catalog.quality.check.matched_without_reviewed_by</source>
+        <target>Matched without reviewed_by (legacy)</target>
+      </trans-unit>
+      <trans-unit id="CatQcTwfEn" resname="catalog.quality.check.target_without_first_matcher">
+        <source>catalog.quality.check.target_without_first_matcher</source>
+        <target>Target without first_matched_by</target>
+      </trans-unit>
+      <trans-unit id="CatQhTnmEn" resname="catalog.quality.hint.target_not_matched">
+        <source>catalog.quality.hint.target_not_matched</source>
+        <target>Set status to matched or clear target.</target>
+      </trans-unit>
+      <trans-unit id="CatQhMwtEn" resname="catalog.quality.hint.matched_without_target">
+        <source>catalog.quality.hint.matched_without_target</source>
+        <target>Assign a target or change status.</target>
+      </trans-unit>
+      <trans-unit id="CatQhNwtEn" resname="catalog.quality.hint.normalized_without_target">
+        <source>catalog.quality.hint.normalized_without_target</source>
+        <target>Copy normalized_id to target_id or clear it.</target>
+      </trans-unit>
+      <trans-unit id="CatQhTmmEn" resname="catalog.quality.hint.target_normalized_mismatch">
+        <source>catalog.quality.hint.target_normalized_mismatch</source>
+        <target>Align target_id and normalized_id.</target>
+      </trans-unit>
+      <trans-unit id="CatQhNrtEn" resname="catalog.quality.hint.needs_review_without_target">
+        <source>catalog.quality.hint.needs_review_without_target</source>
+        <target>Propose a target or reset status.</target>
+      </trans-unit>
+      <trans-unit id="CatQhMwrEn" resname="catalog.quality.hint.matched_without_reviewed_by">
+        <source>catalog.quality.hint.matched_without_reviewed_by</source>
+        <target>Expected for legacy rows migrated from target_id.</target>
+      </trans-unit>
+      <trans-unit id="CatQhTwfEn" resname="catalog.quality.hint.target_without_first_matcher">
+        <source>catalog.quality.hint.target_without_first_matcher</source>
+        <target>Expected when updated_by was null during migration.</target>
+      </trans-unit>
       <trans-unit id="hag01" resname="title.hospital_access_grants">
         <source>title.hospital_access_grants</source>
         <target>Access grants</target>
