@@ -24,8 +24,8 @@ final class ShowCatalogGlossaryControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="glossary-index"]');
         self::assertSelectorExists('[data-testid="glossary-entry"]');
-        self::assertSelectorExists('[data-testid="glossary-related-infection"]');
-        self::assertSelectorExists('[data-testid="glossary-related-secondary-transport"]');
+        self::assertSelectorNotExists('[data-testid="glossary-related-infection"]');
+        self::assertSelectorNotExists('[data-testid="glossary-related-secondary-transport"]');
     }
 
     public function testUrgencyGlossaryShowsTermsWithAllocationFilters(): void

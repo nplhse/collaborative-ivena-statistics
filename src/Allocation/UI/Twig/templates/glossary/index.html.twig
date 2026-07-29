@@ -50,34 +50,6 @@
                     </a>
                 </div>
             {% endfor %}
-
-            <div class="col-12 col-md-6">
-                <a href="{{ path('app_explore_infection_list') }}" class="card card-link" data-testid="glossary-related-infection">
-                    <div class="card-body d-flex align-items-start gap-3">
-                        <span class="text-primary">
-                            <twig:ux:icon name="tabler:biohazard" width="2.5em" height="2.5em" />
-                        </span>
-                        <div>
-                            <div class="h3 mb-1">{{ 'link.infections'|trans({}, 'shared') }}</div>
-                            <div class="text-muted">{{ 'catalog.glossary.related.infections'|trans({}, 'allocation') }}</div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <div class="col-12 col-md-6">
-                <a href="{{ path('app_explore_secondary_transport_list') }}" class="card card-link" data-testid="glossary-related-secondary-transport">
-                    <div class="card-body d-flex align-items-start gap-3">
-                        <span class="text-primary">
-                            <twig:ux:icon name="tabler:transfer" width="2.5em" height="2.5em" />
-                        </span>
-                        <div>
-                            <div class="h3 mb-1">{{ 'link.secondary_transports'|trans({}, 'shared') }}</div>
-                            <div class="text-muted">{{ 'catalog.glossary.related.secondary_transports'|trans({}, 'allocation') }}</div>
-                        </div>
-                    </div>
-                </a>
-            </div>
         </div>
     </div>
 {% endblock %}
