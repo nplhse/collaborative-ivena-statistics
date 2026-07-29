@@ -138,7 +138,6 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         $import = new Import(); // createdBy bleibt null
 
         $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailureReason');
-        $reflection->setAccessible(true);
 
         self::assertSame(
             'Import has no creator user',
@@ -151,11 +150,10 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         $creator = UserFactory::createOne(['username' => 'import-perm-hospital-missing']);
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $creator->getId());
 
-        $import = (new Import())
+        $import = new Import()
             ->setCreatedBy($userRef);
 
         $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailureReason');
-        $reflection->setAccessible(true);
 
         self::assertSame(
             'Import has no hospital',
