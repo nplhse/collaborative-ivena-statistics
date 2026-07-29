@@ -31,8 +31,8 @@ final class DispatchAreaControllerTest extends WebTestCase
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Dispatch Areas');
-        self::assertSelectorTextContains('h2', 'Listing Dispatch Areas');
+        self::assertPageTitleContains('Dispatch areas');
+        self::assertSelectorTextContains('h2', 'Dispatch areas');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');

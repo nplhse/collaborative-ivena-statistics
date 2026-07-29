@@ -29,8 +29,8 @@ final class SpecialityControllerTest extends WebTestCase
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Specialities');
-        self::assertSelectorTextContains('h2', 'Listing Specialities');
+        self::assertPageTitleContains('Specialities');
+        self::assertSelectorTextContains('h2', 'Specialities');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');

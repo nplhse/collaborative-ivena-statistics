@@ -29,8 +29,8 @@ final class ListOccasionsControllerTest extends WebTestCase
 
         // Assert
         self::assertResponseIsSuccessful();
-        self::assertPageTitleContains('Listing Occasions');
-        self::assertSelectorTextContains('h2', 'Listing Occasions');
+        self::assertPageTitleContains('Occasions');
+        self::assertSelectorTextContains('h2', 'Occasions');
 
         // Check for the table structure
         self::assertSelectorExists('table.table tbody');
