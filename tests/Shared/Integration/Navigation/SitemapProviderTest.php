@@ -143,7 +143,7 @@ final class SitemapProviderTest extends KernelTestCase
         );
 
         $exploreSection = $this->findSection('explore');
-        self::assertCount(12, $exploreSection->links);
+        self::assertCount(15, $exploreSection->links);
         $this->assertLabelsAreAlphabetical(array_map(
             static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
             $exploreSection->links,
