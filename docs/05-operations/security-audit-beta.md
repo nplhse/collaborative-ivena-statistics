@@ -78,7 +78,7 @@ Source: [`config/packages/rate_limiter.yaml`](../../config/packages/rate_limiter
 
 Well covered: admin access, import functional access, explore/statistics access, hospital grants, impersonation guards, login/resend rate limits, CSP headers, voter unit tests for hospital/import/indication.
 
-Gaps: Live Component denial paths, registration enumeration, import source-download audit persistence, explore rate-limit paths beyond `/explore/allocation`, `LoginFailureSubscriber` field mapping.
+Gaps: Live Component denial paths, registration enumeration, import source-download audit persistence, explore rate-limit paths beyond `/explore/allocation`.
 
 CI: [`.github/workflows/security.yml`](../../.github/workflows/security.yml) (Psalm security analysis).
 
@@ -260,10 +260,10 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |-------|-------|
 | Severity | Low |
 | Area | Logging |
-| Evidence | [`LoginFailureSubscriber`](../../src/User/Infrastructure/Security/LoginFailureSubscriber.php) reads `_username`; login form uses `login[username]` — Passport UserBadge fallback usually works |
+| Evidence | [`LoginFailureSubscriber`](../../src/User/Infrastructure/Security/LoginFailureSubscriber.php) resolves `_username`, then `login[username]`, then Passport `UserBadge` |
 | Risk | Some failure paths may log `username_hash: null`, reducing forensic value. |
 | Mitigation | Also read `login[username]` from the request. |
-| Status | open |
+| Status | resolved (2026-07-29) — `resolveAttemptedUsername()` reads form field `login[username]` before UserBadge fallback; unit tests cover early-failure paths without Passport |
 
 ### SEC-017 — Permission model documentation drift
 
@@ -328,7 +328,7 @@ Do **not** implement in this audit deliverable.
 
 ## What looks solid (keep)
 
-- Login throttling, `expose_security_errors: none`, hashed login-failure usernames (when resolved).
+- Login throttling, `expose_security_errors: none`, hashed login-failure usernames.
 - Hospital permission bitmask + owner/admin grant management; no self-escalation to system roles on registration.
 - Statistics filter/scope strips unauthorized hospital IDs (public fallback).
 - Import upload allowlist (csv/txt), size limit, storage under `var/imports`, source download Admin + voter.
@@ -360,8 +360,8 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-013, SEC-016, SEC-019 | Media indexes, login logs, docs (SEC-014 CSP accepted for beta) |
-| P3 backlog | SEC-014 enforce, SEC-018, SEC-020 | CSP enforce + reduce `unsafe-inline`, trust boundary, tests |
+| P2 hardening | SEC-013, SEC-015, SEC-019 | Media indexes, session cookies, docs (SEC-014 CSP accepted for beta) |
+| P3 backlog | SEC-014 enforce, SEC-017, SEC-018, SEC-020 | CSP enforce + reduce `unsafe-inline`, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
 
