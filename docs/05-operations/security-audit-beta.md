@@ -199,7 +199,7 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 | Evidence | [`SavedExplorerViewFavoriteController`](../../src/Statistics/AnalysisExplorer/UI/Http/Controller/SavedExplorerViewFavoriteController.php) L52–54 — `redirect($referer)` without host/path validation; CSRF required |
 | Risk | CSRF-protected but still redirects to attacker-controlled Referer after a valid POST (phishing / token fixation UX). Inconsistent with Feedback/Locale safe-target helpers. |
 | Mitigation | Reuse safe local-path / same-host resolver; fallback to library route. |
-| Status | open |
+| Status | resolved (2026-07-28) — Favorite toggle uses shared `SafeRedirectTargetResolver` (local path or same-host); unsafe/empty Referer falls back to `app_stats_analysis_library` |
 
 ### SEC-011 — `/import` missing from `access_control`
 
@@ -362,7 +362,7 @@ Do **not** implement in this audit deliverable.
 |----------|----------|-----------|
 | P0 before wider beta | SEC-001, SEC-002 | Enumeration + public XSS inconsistency |
 | P1 early beta | SEC-003, SEC-004 | Export safety, Live Component defense-in-depth |
-| P2 hardening | SEC-009–SEC-016, SEC-019 | Path containment, redirects, headers, docs |
+| P2 hardening | SEC-009, SEC-011–SEC-016, SEC-019 | Path containment, headers, docs (SEC-010 redirect resolved) |
 | P3 backlog | SEC-014, SEC-017, SEC-018, SEC-020 | CSP enforce, docs, trust boundary, tests |
 
 Follow-up GitHub issues are **out of scope** for this audit and should be derived separately from the table above.
