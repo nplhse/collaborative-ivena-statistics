@@ -251,10 +251,10 @@ Severity: **Critical** > **High** > **Medium** > **Low** > **Info**. Status rema
 |-------|-------|
 | Severity | Low |
 | Area | Session hardening |
-| Evidence | [`framework.yaml`](../../config/packages/framework.yaml) `session: true` without explicit `cookie_secure` / `cookie_samesite`; Nelmio forced SSL + HSTS in prod |
+| Evidence | [`framework.yaml`](../../config/packages/framework.yaml) — explicit `cookie_httponly`, `cookie_samesite: lax`, `cookie_secure: auto` (prod override `cookie_secure: true`); Nelmio forced SSL + HSTS in prod |
 | Risk | Defaults (`secure: auto`, `httponly: true`, `samesite: lax`) are acceptable behind HTTPS; not explicitly pinned for ops review. |
 | Mitigation | Set explicit prod values (`cookie_secure: true`, document SameSite choice). |
-| Status | open |
+| Status | resolved (2026-07-29) — explicit session cookie attrs in `framework.yaml`; prod pins `cookie_secure: true`; `SameSite=Lax` documented in [deployment.md](deployment.md) pre-deploy checklist |
 
 ### SEC-016 — Login failure log may miss username hash for form field name
 
