@@ -140,7 +140,7 @@ Erst messen. Priorität: gemeinsame Query-Pfade → Lazy Loading → Indexes →
 
 ## 11. Abschluss vor Merge nach `main`
 
-1. ADR auf implementierten Stand aktualisieren; Status nach Review setzen.  
+1. ADR-Inhalt auf den implementierten Stand aktualisieren (Status bereits `accepted`).  
 2. Feature-/Architektur-Doku beschreibt den Code.  
 3. **Todo-Checkliste entfernen.**  
 4. Diesen Plan archivieren/kürzen/entfernen (bewusst).  

@@ -28,7 +28,7 @@ Each ADR includes:
 | [010](010-architecture-guardrails-and-beta-scope.md) | Architecture guardrails and beta complexity scope | accepted |
 | [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility | accepted |
 | [012](012-explore-data-catalog.md) | Explore data catalog | accepted |
-| [013](013-analysis-platform-rewrite.md) | Analysis platform rewrite (v2) | proposed |
+| [013](013-analysis-platform-rewrite.md) | Analysis platform rewrite (v2) | accepted |
 
 ## Template
 

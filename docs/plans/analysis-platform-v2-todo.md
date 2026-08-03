@@ -147,7 +147,7 @@ Branch optional: `refactor/analysis-v2-library-taxonomy`
 
 ## Abschluss vor Merge nach `main`
 
-- [ ] ADR Status/Inhalt an Code angeglichen
+- [ ] ADR-Inhalt an den finalen Code-Stand angeglichen (Status bereits `accepted`)
 - [ ] Dauerhafte Feature-Doku aktualisiert
 - [ ] Diese Todo-Datei entfernen
 - [ ] Implementierungsplan archivieren/kürzen/entfernen (bewusst)

@@ -1,6 +1,6 @@
 # ADR 013: Analysis platform rewrite (v2)
 
-**Status:** proposed *(final status after review of this initial documentation set)*
+**Status:** accepted
 
 **Note:** Operational rewrite planning documents under `docs/plans/` may be written in German. This ADR remains in English to match existing ADRs.
 
