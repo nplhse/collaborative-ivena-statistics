@@ -38,44 +38,57 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
     public function testLoadBySlugReturnsSavedConfig(): void
     {
         $filter = $this->publicFilter();
-        $result = $this->loader->load('gender-over-time', $filter, null);
+        $result = $this->loader->load('allocations-over-time', $filter, null);
 
         self::assertFalse($result->notFound);
         self::assertFalse($result->usedFallback);
         self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
         self::assertSame('month', $result->state['query']['rows']['grain'] ?? null);
-        self::assertSame('gender', $result->state['query']['columns']['dimension'] ?? null);
-        self::assertSame('grouped_bar', $result->state['presentation']['chartType'] ?? null);
+        self::assertSame('line', $result->state['presentation']['chartType'] ?? null);
     }
 
     public function testLoadByNumericId(): void
     {
-        $view = $this->repository->findBySlug('allocations-by-year');
+        $view = $this->repository->findBySlug('allocations-over-time');
         self::assertInstanceOf(SavedExplorerView::class, $view);
 
         $result = $this->loader->load((string) $view->getId(), $this->publicFilter(), null);
 
         self::assertFalse($result->notFound);
-        self::assertSame('year', $result->state['query']['rows']['grain'] ?? null);
+        self::assertSame('month', $result->state['query']['rows']['grain'] ?? null);
         self::assertSame('line', $result->state['presentation']['chartType'] ?? null);
-    }
-
-    public function testHospitalSystemViewLoadsWithoutExplicitDataSource(): void
-    {
-        $result = $this->loader->load('hospitals-by-tier', $this->publicFilter(), null);
-
-        self::assertFalse($result->notFound);
-        self::assertFalse($result->usedFallback);
-        self::assertSame('hospitals', $result->state['dataSource'] ?? null);
-        self::assertSame('hospital_tier', $result->state['query']['rows']['dimension'] ?? null);
     }
 
     public function testExplicitDataSourceMismatchFallsBack(): void
     {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $hospitalsView = new SavedExplorerView(
+            slug: 'temp-hospitals-view',
+            title: 'Temp hospitals view',
+            category: 'Hospitals',
+            configJson: [
+                'schemaVersion' => 4,
+                'dataSource' => 'hospitals',
+                'query' => [
+                    'scope' => ['group' => 'public', 'detail' => null],
+                    'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                    'metrics' => ['hospital_count'],
+                    'visualMetric' => 'hospital_count',
+                    'rows' => ['dimension' => 'hospital_tier', 'grain' => 'total'],
+                    'filters' => [],
+                ],
+                'presentation' => ['mode' => 'chart', 'chartType' => 'bar'],
+                'title' => 'Temp hospitals view',
+            ],
+            isSystem: false,
+        );
+        $hospitalsView->setCreatedBy($owner);
+        $this->repository->save($hospitalsView);
+
         $result = $this->loader->load(
-            'hospitals-by-tier',
+            'temp-hospitals-view',
             $this->publicFilter(),
-            null,
+            $owner,
             AnalysisDataSourceKey::Allocations,
         );
 
@@ -93,7 +106,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
     public function testInvalidConfigUsesFallbackWithWarning(): void
     {
-        $view = $this->repository->findBySlug('urgency-distribution');
+        $view = $this->repository->findBySlug('allocations-over-time');
         self::assertInstanceOf(SavedExplorerView::class, $view);
 
         $view->update(
@@ -104,7 +117,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         );
         $this->repository->save($view);
 
-        $result = $this->loader->load('urgency-distribution', $this->publicFilter(), null);
+        $result = $this->loader->load('allocations-over-time', $this->publicFilter(), null);
 
         self::assertTrue($result->usedFallback);
         self::assertSame(['stats.analysis_explorer.saved_view.invalid_config'], $result->warnings);

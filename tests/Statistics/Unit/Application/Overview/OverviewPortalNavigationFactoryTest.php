@@ -37,27 +37,25 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $this->factory = new OverviewPortalNavigationFactory(new ExplorerLegacyAnalyticsViewMapper());
     }
 
-    public function testResourcesOverTimeTargetPointsToClinicalResourcesComparisonView(): void
+    public function testResourcesOverTimeTargetPointsToLibraryWhileSliceIsPaused(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&dimension=resources');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->resourcesOverTimeTarget());
 
-        self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-resources', $url);
-        self::assertStringContainsString('period=all', $url);
+        self::assertStringContainsString('/statistics/analysis/library', $url);
         self::assertStringNotContainsString('dimension=resources', $url);
     }
 
-    public function testClinicalFeaturesOverTimeTargetPointsToClinicalFeaturesComparisonView(): void
+    public function testClinicalFeaturesOverTimeTargetPointsToLibraryWhileSliceIsPaused(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&dimension=features');
         $url = $this->urlBuilder->buildFromTarget($request, $this->factory->clinicalFeaturesOverTimeTarget());
 
-        self::assertStringContainsString('/statistics/analysis/explorer/overview-clinical-features', $url);
-        self::assertStringContainsString('period=all', $url);
+        self::assertStringContainsString('/statistics/analysis/library', $url);
         self::assertStringNotContainsString('dimension=features', $url);
     }
 
-    public function testBuildProvidesExplorerTargetsForOverviewCharts(): void
+    public function testBuildKeepsTimeSeriesExplorerTargetAndRoutesOtherChartsToLibrary(): void
     {
         $request = Request::create('/statistics/?scope=public&period=all_time&report=legacy');
         $navigation = $this->factory->build();
@@ -74,16 +72,16 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         self::assertStringNotContainsString('report=legacy', $timeSeriesUrl);
 
         $heatmapHourUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapHour[0]);
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-by-hour', $heatmapHourUrl);
+        self::assertStringContainsString('/statistics/analysis/library', $heatmapHourUrl);
 
         $heatmapWeekdayUrl = $this->urlBuilder->buildFromTarget($request, $navigation->heatmapWeekday[0]);
-        self::assertStringContainsString('/statistics/analysis/explorer/allocations-by-weekday', $heatmapWeekdayUrl);
+        self::assertStringContainsString('/statistics/analysis/library', $heatmapWeekdayUrl);
 
         $ageGroupsUrl = $this->urlBuilder->buildFromTarget($request, $navigation->ageGroups[0]);
-        self::assertStringContainsString('/statistics/analysis/explorer/age-group-distribution', $ageGroupsUrl);
+        self::assertStringContainsString('/statistics/analysis/library', $ageGroupsUrl);
 
         $transportTimeUrl = $this->urlBuilder->buildFromTarget($request, $navigation->transportTime[0]);
-        self::assertStringContainsString('/statistics/analysis/explorer/transport-time-bucket-distribution', $transportTimeUrl);
+        self::assertStringContainsString('/statistics/analysis/library', $transportTimeUrl);
     }
 
     public function testTimeSeriesDrillDownPreservesRequestPeriodWithoutForcingAllTime(): void

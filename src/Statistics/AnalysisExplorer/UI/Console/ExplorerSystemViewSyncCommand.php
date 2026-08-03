@@ -32,6 +32,7 @@ final readonly class ExplorerSystemViewSyncCommand
                 ['Created', (string) $result->created],
                 ['Updated', (string) $result->updated],
                 ['Skipped', (string) $result->skipped],
+                ['Removed', (string) $result->removed],
             ],
         );
 

@@ -10,11 +10,12 @@ final readonly class ExplorerSystemViewSyncResult
         public int $created = 0,
         public int $updated = 0,
         public int $skipped = 0,
+        public int $removed = 0,
     ) {
     }
 
     public function hasChanges(): bool
     {
-        return $this->created > 0 || $this->updated > 0;
+        return $this->created > 0 || $this->updated > 0 || $this->removed > 0;
     }
 }

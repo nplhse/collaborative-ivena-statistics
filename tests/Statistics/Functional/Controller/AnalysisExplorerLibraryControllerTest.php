@@ -80,19 +80,24 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         $this->seedExplorerSystemViews();
 
         $repository = self::getContainer()->get(SavedExplorerViewRepository::class);
-        $genderView = $repository->findBySlug('gender-distribution');
         $overTime = $repository->findBySlug('allocations-over-time');
-        self::assertNotNull($genderView?->getId());
         self::assertNotNull($overTime?->getId());
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/library?scope=public&period=all&search=gender',
+            '/statistics/analysis/library?scope=public&period=all&search=over+time',
         );
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-search-input"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-view-card-'.$genderView->getId().'"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-view-card-'.$overTime->getId().'"]');
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/library?scope=public&period=all&search=zzzz-no-match',
+        );
+
+        $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-view-card-'.$overTime->getId().'"]');
     }
 

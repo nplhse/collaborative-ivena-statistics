@@ -6,21 +6,23 @@ namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerSystemViewSeeder;
-use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class ExplorerSystemViewSeederTest extends KernelTestCase
 {
-    private const int EXPECTED_SYSTEM_VIEW_COUNT = 44;
+    private const int EXPECTED_SYSTEM_VIEW_COUNT = 1;
 
-    public function testDefinitionsCountMatchesLibraryStandardSet(): void
+    public function testDefinitionsContainOnlyActiveTimeSeriesSlice(): void
     {
         self::bootKernel();
 
         $seeder = self::getContainer()->get(ExplorerSystemViewSeeder::class);
         self::assertInstanceOf(ExplorerSystemViewSeeder::class, $seeder);
 
-        self::assertCount(self::EXPECTED_SYSTEM_VIEW_COUNT, $seeder->definitions());
+        $definitions = $seeder->definitions();
+        self::assertCount(self::EXPECTED_SYSTEM_VIEW_COUNT, $definitions);
+        self::assertSame('allocations-over-time', $definitions[0]['slug']);
+        self::assertSame('time_series', $definitions[0]['analysisFamily'] ?? null);
     }
 
     public function testDefinitionsHaveUniqueSlugs(): void
@@ -56,33 +58,6 @@ final class ExplorerSystemViewSeederTest extends KernelTestCase
 
             self::assertSame(ExplorerSystemViewSeeder::titleKey($definition['slug']), $config->title, $definition['slug']);
             self::assertNotEmpty($config->metricKeys, $definition['slug']);
-
-            if ('box_plot' === ($definition['preferences']['chartType'] ?? null)) {
-                self::assertTrue($config->visualMetricKey->isDistributionProfile(), $definition['slug']);
-                self::assertSame(ChartPresentationType::BoxPlot, $config->presentation->chartType, $definition['slug']);
-            }
         }
-    }
-
-    public function testNewHeatmapAndHospitalLocationSeedsArePresent(): void
-    {
-        self::bootKernel();
-
-        $seeder = self::getContainer()->get(ExplorerSystemViewSeeder::class);
-        $slugs = array_map(
-            static fn (array $definition): string => $definition['slug'],
-            $seeder->definitions(),
-        );
-
-        self::assertContains('allocations-weekday-by-day-time-heatmap', $slugs);
-        self::assertContains('allocations-weekday-by-shift-heatmap', $slugs);
-        self::assertContains('allocations-by-hour', $slugs);
-        self::assertContains('transport-time-bucket-distribution', $slugs);
-        self::assertContains('overview-clinical-resources', $slugs);
-        self::assertContains('overview-clinical-features', $slugs);
-        self::assertContains('clinical-resources-by-gender', $slugs);
-        self::assertContains('clinical-features-by-urgency', $slugs);
-        self::assertContains('beds-distribution-by-location', $slugs);
-        self::assertContains('cpr-distribution', $slugs);
     }
 }

@@ -82,27 +82,34 @@ final class SavedExplorerViewRepositoryTest extends KernelTestCase
         self::assertSame('My custom view', $results[0]->getTitle());
     }
 
-    public function testSeederIsIdempotent(): void
+    public function testSeederIsIdempotentAndPrunesObsoleteSystemViews(): void
     {
+        $admin = UserFactory::find(['username' => 'admin']);
+        $obsolete = new SavedExplorerView(
+            slug: 'obsolete-system-view',
+            title: 'Obsolete',
+            category: 'Allocations',
+            configJson: ['schemaVersion' => 1],
+            isSystem: true,
+        );
+        $obsolete->setCreatedBy($admin);
+        $this->repository->save($obsolete);
+
         $first = $this->seeder->sync();
         $second = $this->seeder->sync();
 
-        self::assertSame(44, $first->created);
+        self::assertSame(1, $first->created);
+        self::assertSame(1, $first->removed);
         self::assertSame(0, $first->updated);
         self::assertSame(0, $second->created);
         self::assertSame(0, $second->updated);
-        self::assertSame(44, $second->skipped);
+        self::assertSame(0, $second->removed);
+        self::assertSame(1, $second->skipped);
 
         $views = $this->repository->findAllSystemViewsOrdered();
-        self::assertCount(44, $views);
-        $admin = UserFactory::find(['username' => 'admin']);
-        foreach ($views as $view) {
-            self::assertTrue($view->wasCreatedBy($admin));
-        }
-        $slugs = array_map(static fn (SavedExplorerView $view): ?string => $view->getSlug(), $views);
-        self::assertContains('allocations-over-time', $slugs);
-        self::assertContains('urgency-over-time', $slugs);
-        self::assertContains('allocations-weekday-by-day-time-heatmap', $slugs);
-        self::assertContains('beds-distribution-by-location', $slugs);
+        self::assertCount(1, $views);
+        self::assertSame('allocations-over-time', $views[0]->getSlug());
+        self::assertTrue($views[0]->wasCreatedBy($admin));
+        self::assertNull($this->repository->findBySlug('obsolete-system-view'));
     }
 }

@@ -33,48 +33,40 @@ final readonly class OverviewPortalNavigationFactory
                     'allocations_by_month',
                 ),
             ],
+            // Non-time-series Overview drill-downs point to the library until
+            // those Analysis Platform v2 slices are curated again.
             heatmapHour: [
-                $this->explorerTarget(
-                    'stats.nav.overview_allocations_by_hour',
-                    'allocations_by_hour',
-                ),
+                $this->libraryTarget('stats.nav.overview_allocations_by_hour'),
             ],
             heatmapWeekday: [
-                $this->explorerTarget(
-                    'stats.nav.overview_allocations_by_weekday_short',
-                    'allocations_by_weekday',
-                ),
+                $this->libraryTarget('stats.nav.overview_allocations_by_weekday_short'),
             ],
             ageGroups: [
-                $this->explorerTarget(
-                    'stats.nav.overview_age_groups_to_analysis',
-                    'age_group_distribution',
-                ),
+                $this->libraryTarget('stats.nav.overview_age_groups_to_analysis'),
             ],
             transportTime: [
-                $this->explorerTarget(
-                    'stats.nav.overview_transport_time_to_analysis',
-                    'transport_time_bucket_distribution',
-                ),
+                $this->libraryTarget('stats.nav.overview_transport_time_to_analysis'),
             ],
         );
     }
 
     public function resourcesOverTimeTarget(): StatisticWidgetNavigationTarget
     {
-        return $this->explorerTarget(
-            'stats.nav.overview_resources_to_analysis',
-            'clinical_resources_comparison',
-            'all',
-        );
+        return $this->libraryTarget('stats.nav.overview_resources_to_analysis');
     }
 
     public function clinicalFeaturesOverTimeTarget(): StatisticWidgetNavigationTarget
     {
-        return $this->explorerTarget(
-            'stats.nav.overview_indicators_to_analysis',
-            'clinical_features_comparison',
-            'all',
+        return $this->libraryTarget('stats.nav.overview_indicators_to_analysis');
+    }
+
+    private function libraryTarget(string $labelKey): StatisticWidgetNavigationTarget
+    {
+        return new StatisticWidgetNavigationTarget(
+            $labelKey,
+            'app_stats_analysis_library',
+            [],
+            self::EXPLORER_REMOVE_KEYS,
         );
     }
 
@@ -85,12 +77,7 @@ final readonly class OverviewPortalNavigationFactory
     ): StatisticWidgetNavigationTarget {
         $slug = $this->legacyViewMapper->slugForLegacyViewKey($legacyViewKey);
         if (null === $slug) {
-            return new StatisticWidgetNavigationTarget(
-                $labelKey,
-                'app_stats_analysis_library',
-                [],
-                self::EXPLORER_REMOVE_KEYS,
-            );
+            return $this->libraryTarget($labelKey);
         }
 
         $params = ['view' => $slug];

@@ -67,89 +67,6 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
     }
 
-    public function testHospitalSavedViewOpensWithoutDataSourceParam(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $this->seedExplorerSystemViews();
-        HospitalFactory::createOne(['name' => 'Tier Hospital']);
-        $client->followRedirects(true);
-
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis/explorer/hospitals-by-tier?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
-        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-data-source-switcher"]');
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-title"]', 'Hospitals by tier');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
-    }
-
-    public function testHospitalBedsDistributionSavedViewRendersBoxPlotTable(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $this->seedExplorerSystemViews();
-        HospitalFactory::createOne(['name' => 'Box Plot Hospital', 'beds' => 80]);
-        $client->followRedirects(true);
-
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis/explorer/beds-distribution-by-tier?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-title"]', 'Beds distribution by tier');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
-        $this->assertSelectorExists('[data-generic-analysis-chart-default-type-value="box_plot"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
-    }
-
-    public function testTransportTimeDistributionSavedViewRendersBoxPlotTable(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $this->seedExplorerSystemViews();
-        $this->seedProjectionWithAllocation(arrivalAt: new \DateTimeImmutable('2026-01-15 10:00:00'));
-        $client->followRedirects(true);
-
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis/explorer/transport-time-distribution-by-urgency?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
-        $this->assertSelectorTextContains(
-            '[data-testid="stats-analysis-explorer-title"]',
-            'Transport time distribution by urgency',
-        );
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
-        $this->assertSelectorExists('[data-generic-analysis-chart-default-type-value="box_plot"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
-    }
-
-    public function testHospitalCompareSavedViewOpensWithoutFormCycleError(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $this->seedExplorerSystemViews();
-        HospitalFactory::createOne(['name' => 'Compare Hospital', 'isParticipating' => true]);
-        $client->followRedirects(true);
-
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis/explorer/hospitals-by-tier-compare?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
-        $this->assertSelectorTextContains(
-            '[data-testid="stats-analysis-explorer-title"]',
-            'Hospitals by tier (participation compare)',
-        );
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
-    }
-
     public function testInvalidDataSourceFallsBackToAllocations(): void
     {
         $client = $this->createClientAsRoleUser();
@@ -214,11 +131,6 @@ final class AnalysisExplorerControllerTest extends WebTestCase
     public static function demoViewProvider(): \Generator
     {
         yield 'allocations over time' => ['allocations-over-time', 'Allocations over time', '"line"'];
-        yield 'allocations by year' => ['allocations-by-year', 'Allocations by year', '"line"'];
-        yield 'gender distribution' => ['gender-distribution', 'Gender distribution', '"bar"'];
-        yield 'gender over time' => ['gender-over-time', 'Gender over time', '"grouped_bar"'];
-        yield 'urgency distribution' => ['urgency-distribution', 'Urgency distribution', '"bar"'];
-        yield 'urgency over time' => ['urgency-over-time', 'Urgency over time', '"stacked_bar"'];
     }
 
     public function testSystemViewTitleIsLocalizedInGerman(): void
@@ -243,59 +155,6 @@ final class AnalysisExplorerControllerTest extends WebTestCase
             '[data-testid="stats-analysis-explorer-selection-family"]',
             'Zeitreihe',
         );
-    }
-
-    public function testTransportTimeBucketDistributionViewOpensInExplorer(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $this->seedExplorerSystemViews();
-        $this->seedProjectionWithAllocation(new \DateTimeImmutable('today +30 minutes'));
-        $client->followRedirects(true);
-
-        $crawler = $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis/explorer/transport-time-bucket-distribution?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains(
-            '[data-testid="stats-analysis-explorer-title"]',
-            'Transport time bucket distribution',
-        );
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
-
-        $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
-        self::assertGreaterThan(0, $chart->count());
-        $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
-        self::assertNotNull($specsRaw);
-        $this->assertStringContainsString('"bar"', $specsRaw);
-    }
-
-    public function testOverviewClinicalResourcesViewOpensInExplorer(): void
-    {
-        $client = $this->createClientAsRoleUser();
-        $this->seedExplorerSystemViews();
-        $this->seedProjectionWithAllocation(requiresResus: true);
-        $client->followRedirects(true);
-
-        $crawler = $client->request(
-            Request::METHOD_GET,
-            '/statistics/analysis/explorer/overview-clinical-resources?scope=public&period=all',
-        );
-
-        $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains(
-            '[data-testid="stats-analysis-explorer-title"]',
-            'Clinical resources overview',
-        );
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-analysis"]');
-
-        $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
-        self::assertGreaterThan(0, $chart->count());
-        $specsRaw = $chart->attr('data-generic-analysis-chart-specs-value');
-        self::assertNotNull($specsRaw);
-        $this->assertStringContainsString('"bar"', $specsRaw);
-        $this->assertStringContainsString('"percentScale":true', $specsRaw);
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('demoViewProvider')]
@@ -343,7 +202,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->seedProjectionWithAllocation();
 
         $repository = self::getContainer()->get(\App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository::class);
-        $view = $repository->findBySlug('urgency-distribution');
+        $view = $repository->findBySlug('allocations-over-time');
         self::assertInstanceOf(\App\Statistics\Domain\Entity\SavedExplorerView::class, $view);
         $view->update(
             title: $view->getTitle(),
@@ -356,7 +215,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $client->followRedirects(true);
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/urgency-distribution?scope=public&period=all',
+            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
@@ -409,7 +268,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/analysis/explorer/gender-over-time?scope=public&period=all&chartTop=5',
+            '/statistics/analysis/explorer/allocations-over-time?scope=public&period=all&chartTop=5',
         );
 
         $this->assertResponseIsSuccessful();
