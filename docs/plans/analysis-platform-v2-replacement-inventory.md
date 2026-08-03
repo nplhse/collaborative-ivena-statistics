@@ -4,8 +4,8 @@ Pflegen während der Slices. Vor Entfernung alter Komponenten: Alt → Neu → S
 
 | Alte Funktion | Neue Entsprechung | Status |
 |---------------|-------------------|--------|
-| Overview Monatszeitreihe (Chart-Pipeline) | Time-series Analysis View + Drill-down | geplant (P1) |
-| System-View `allocations-over-time` | Time-series Family-View (ggf. gleicher Slug, neue Metadaten) | geplant (P1) |
+| Overview Monatszeitreihe (Chart-Pipeline) | Time-series Analysis View `allocations-over-time` + Overview-Drill-down (Period aus Request erhalten) | umgesetzt (P1) |
+| System-View `allocations-over-time` | Family `time_series`, Topic `allocations`; Library-Badge; Drawer-Filter-Overlay (Resus/Alter/Dringlichkeit) | umgesetzt (P1) |
 | Reports `top_diagnoses` / TopDiagnosesQuery | Ranking Analysis View (Indikation) | geplant (P2) |
 | Overview Top-Report-Cards / Indication Insights Top-Listen | Ranking System-Views + Library | geplant (P2/P2b) |
 | Overview Gender/Urgency/Age/Transport-Verteilungen | Distribution Views + Drill-down | geplant (P3+) |

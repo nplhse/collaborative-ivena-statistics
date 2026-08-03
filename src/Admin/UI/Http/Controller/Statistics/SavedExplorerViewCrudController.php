@@ -55,6 +55,16 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
         yield TextField::new('slug', 'Slug');
         yield TextField::new('title', 'Title');
         yield TextField::new('category', 'Category');
+        yield TextField::new('analysisFamily', 'Analysis family')
+            ->onlyOnDetail();
+        yield TextareaField::new('topicsPreview', 'Topics')
+            ->onlyOnDetail()
+            ->setValue('')
+            ->formatValue(static function (mixed $_, SavedExplorerView $view): string {
+                $topics = $view->getTopics();
+
+                return [] === $topics ? '—' : implode(', ', $topics);
+            });
         yield BooleanField::new('isSystem', 'System view');
         yield TextareaField::new('description', 'Description')
             ->onlyOnDetail();

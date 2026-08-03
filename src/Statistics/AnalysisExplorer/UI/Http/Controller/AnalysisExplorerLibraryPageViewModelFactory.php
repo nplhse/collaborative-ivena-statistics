@@ -309,6 +309,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         $canFavorite = $user instanceof User && null !== $viewId;
         $categoryKey = $this->categoryKey($view->getCategory());
         $categoryLabel = $view->isSystem() ? $this->categoryLabel($view->getCategory()) : '';
+        $analysisFamily = $view->getAnalysisFamily();
 
         return [
             'id' => $viewId,
@@ -321,6 +322,8 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             'viewTypeLabel' => $view->isSystem()
                 ? $this->translator->trans('stats.analysis_explorer.view_type.system', [], 'statistics')
                 : $this->translator->trans('stats.analysis_explorer.view_type.user', [], 'statistics'),
+            'analysisFamily' => $analysisFamily,
+            'analysisFamilyLabel' => $this->analysisFamilyLabel($analysisFamily),
             'categoryKey' => $categoryKey,
             'categoryLabel' => $categoryLabel,
             'categoryUrl' => $view->isSystem()
@@ -383,6 +386,19 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         $key = $this->categoryKey($category);
 
         return $this->translator->trans('stats.analysis_explorer.library.category.'.$key, [], 'statistics');
+    }
+
+    private function analysisFamilyLabel(?string $analysisFamily): string
+    {
+        if (null === $analysisFamily || '' === $analysisFamily) {
+            return '';
+        }
+
+        return $this->translator->trans(
+            'stats.analysis_explorer.family.'.$analysisFamily,
+            [],
+            'statistics',
+        );
     }
 
     private function dimensionLabel(string $dimension): string

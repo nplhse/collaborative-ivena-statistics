@@ -13,6 +13,12 @@
                         {{ card.viewTypeLabel }}
                     </span>
                 {% endif %}
+                {% if card.analysisFamilyLabel %}
+                    <span class="badge bg-azure-lt text-azure-lt-fg"
+                          data-testid="stats-analysis-explorer-family-badge-{{ card.analysisFamily }}">
+                        {{ card.analysisFamilyLabel }}
+                    </span>
+                {% endif %}
             </div>
             {% if card.canFavorite and card.favoriteUrl %}
                 <form method="post" action="{{ card.favoriteUrl }}" class="m-0">

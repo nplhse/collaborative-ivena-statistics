@@ -30,33 +30,33 @@ Branch: `refactor/analysis-v2-time-series` → Merge nur in Basis
 
 ### Vor Start
 
-- [ ] ADR + Plan + Todo gelesen
-- [ ] Bestehende Monatszeitreihen inventarisiert (Overview, `allocations-over-time`, Indication)
-- [ ] Nicht-Ziele bestätigt (keine Vorperiode, kein freier Designer, keine Complete-Months-Periode)
+- [x] ADR + Plan + Todo gelesen
+- [x] Bestehende Monatszeitreihen inventarisiert (Overview, `allocations-over-time`, Indication)
+- [x] Nicht-Ziele bestätigt (keine Vorperiode, kein freier Designer, keine Complete-Months-Periode)
 
 ### Umsetzung
 
-- [ ] Scope-Auflösung (eigene Kliniken / bestehendes Filtermodell) angebunden
-- [ ] Zeitraum `Period::All` (Overview-Semantik) angebunden
-- [ ] Zusatzfilter möglich (mind. ResusRoom/`requires_resus`, Alter, Dringlichkeit)
-- [ ] Query-Pfad für Count-Zeitreihe festgelegt/vereinheitlicht
-- [ ] Gemeinsames Result für Linie und Tabelle
-- [ ] Liniendiagramm angebunden
-- [ ] Tabellenansicht angebunden (gleiche Query/Result)
-- [ ] System-View (Slug/`allocations-over-time` oder Nachfolger) + Family `time_series`
-- [ ] Library-Metadaten (Family, Topic) für die View
-- [ ] Overview-Drill-down mit Scope/Period-Kontext
-- [ ] Indication/Katalog-Overlay soweit machbar
-- [ ] Ersetzungsinventar aktualisiert
+- [x] Scope-Auflösung (eigene Kliniken / bestehendes Filtermodell) angebunden
+- [x] Zeitraum `Period::All` (Overview-Semantik) angebunden
+- [x] Zusatzfilter möglich (mind. ResusRoom/`requires_resus`, Alter, Dringlichkeit)
+- [x] Query-Pfad für Count-Zeitreihe festgelegt/vereinheitlicht
+- [x] Gemeinsames Result für Linie und Tabelle
+- [x] Liniendiagramm angebunden
+- [x] Tabellenansicht angebunden (gleiche Query/Result)
+- [x] System-View (Slug/`allocations-over-time` oder Nachfolger) + Family `time_series`
+- [x] Library-Metadaten (Family, Topic) für die View
+- [x] Overview-Drill-down mit Scope/Period-Kontext
+- [x] Indication/Katalog-Overlay soweit machbar
+- [x] Ersetzungsinventar aktualisiert
 
 ### Tests / Abschluss
 
-- [ ] Unit/Integration/Functional wie betroffen
+- [x] Unit/Integration/Functional wie betroffen
 - [ ] Security/Scope-Tests
 - [ ] Golden/Ergebnisgleichheit Overview↔View wo angestrebt
 - [ ] lint / static-analysis / migrate (falls Migration)
 - [ ] Performance-Smoke notiert
-- [ ] Todo + Plan aktualisiert; Stop (keine P2-Vorarbeit)
+- [x] Todo + Plan aktualisiert; Stop (keine P2-Vorarbeit)
 
 ---
 

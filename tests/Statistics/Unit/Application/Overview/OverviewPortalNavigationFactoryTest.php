@@ -85,4 +85,16 @@ final class OverviewPortalNavigationFactoryTest extends TestCase
         $transportTimeUrl = $this->urlBuilder->buildFromTarget($request, $navigation->transportTime[0]);
         self::assertStringContainsString('/statistics/analysis/explorer/transport-time-bucket-distribution', $transportTimeUrl);
     }
+
+    public function testTimeSeriesDrillDownPreservesRequestPeriodWithoutForcingAllTime(): void
+    {
+        $request = Request::create('/statistics/?scope=public&period=all');
+        $navigation = $this->factory->build();
+
+        $timeSeriesUrl = $this->urlBuilder->buildFromTarget($request, $navigation->timeSeries[0]);
+
+        self::assertStringContainsString('/statistics/analysis/explorer/allocations-over-time', $timeSeriesUrl);
+        self::assertStringContainsString('period=all', $timeSeriesUrl);
+        self::assertStringNotContainsString('period=all_time', $timeSeriesUrl);
+    }
 }

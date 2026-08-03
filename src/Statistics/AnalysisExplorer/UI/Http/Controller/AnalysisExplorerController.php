@@ -91,7 +91,13 @@ final class AnalysisExplorerController extends AbstractController
 
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer_view');
         $requestedDataSource = $this->resolveExplicitDataSource($request);
-        $loadResult = $this->savedExplorerViewLoader->load($view, $pageContext->filter, $user, $requestedDataSource);
+        $loadResult = $this->savedExplorerViewLoader->load(
+            $view,
+            $pageContext->filter,
+            $user,
+            $requestedDataSource,
+            $request,
+        );
         if ($loadResult->notFound) {
             throw new NotFoundHttpException(sprintf('Explorer view "%s" was not found.', $view));
         }

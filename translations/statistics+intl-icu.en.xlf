@@ -3921,6 +3921,38 @@
         <source>stats.analysis_explorer.library.card.chart</source>
         <target>Chart</target>
       </trans-unit>
+      <trans-unit id="statsAexFam01" resname="stats.analysis_explorer.family.time_series">
+        <source>stats.analysis_explorer.family.time_series</source>
+        <target>Time series</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam02" resname="stats.analysis_explorer.family.ranking">
+        <source>stats.analysis_explorer.family.ranking</source>
+        <target>Ranking</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam03" resname="stats.analysis_explorer.family.distribution">
+        <source>stats.analysis_explorer.family.distribution</source>
+        <target>Distribution</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam04" resname="stats.analysis_explorer.family.matrix">
+        <source>stats.analysis_explorer.family.matrix</source>
+        <target>Matrix</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam05" resname="stats.analysis_explorer.family.kpi">
+        <source>stats.analysis_explorer.family.kpi</source>
+        <target>KPI</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam06" resname="stats.analysis_explorer.family.comparison">
+        <source>stats.analysis_explorer.family.comparison</source>
+        <target>Comparison</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam07" resname="stats.analysis_explorer.family.statistical_summary">
+        <source>stats.analysis_explorer.family.statistical_summary</source>
+        <target>Statistical summary</target>
+      </trans-unit>
+      <trans-unit id="statsAexFam08" resname="stats.analysis_explorer.family.special">
+        <source>stats.analysis_explorer.family.special</source>
+        <target>Special</target>
+      </trans-unit>
       <trans-unit id="statsAex59" resname="stats.analysis_explorer.saved_view.invalid_config">
         <source>stats.analysis_explorer.saved_view.invalid_config</source>
         <target>The saved view configuration is invalid. Showing the default analysis instead.</target>

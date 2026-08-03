@@ -14,6 +14,7 @@ use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 #[ResetDatabase]
@@ -124,6 +125,61 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
 
         self::assertSame('year', $result->state['query']['period']['type'] ?? null);
         self::assertSame(2024, $result->state['query']['period']['year'] ?? null);
+    }
+
+    public function testRequestDrawerFiltersAreMergedIntoQueryFilters(): void
+    {
+        $request = Request::create(
+            '/statistics/analysis/explorer/allocations-over-time',
+            'GET',
+            [
+                'requiresResus' => '1',
+                'urgency' => '2',
+                'age_group' => '65+',
+            ],
+        );
+
+        $result = $this->loader->load(
+            'allocations-over-time',
+            $this->publicFilter(),
+            null,
+            null,
+            $request,
+        );
+
+        self::assertFalse($result->notFound);
+        self::assertContains(
+            [
+                'dimensionKey' => 'resus',
+                'operator' => 'equals',
+                'value' => 1,
+            ],
+            $result->state['query']['filters'] ?? [],
+        );
+        self::assertContains(
+            [
+                'dimensionKey' => 'urgency',
+                'operator' => 'equals',
+                'value' => 2,
+            ],
+            $result->state['query']['filters'] ?? [],
+        );
+        self::assertContains(
+            [
+                'dimensionKey' => 'age_group',
+                'operator' => 'equals',
+                'value' => '65+',
+            ],
+            $result->state['query']['filters'] ?? [],
+        );
+    }
+
+    public function testAllocationsOverTimeHasTimeSeriesLibraryMetadata(): void
+    {
+        $view = $this->repository->findBySlug('allocations-over-time');
+        self::assertInstanceOf(SavedExplorerView::class, $view);
+        self::assertSame('time_series', $view->getAnalysisFamily());
+        self::assertSame(['allocations'], $view->getTopics());
     }
 
     public function testSystemViewStateTitleIsLocalized(): void

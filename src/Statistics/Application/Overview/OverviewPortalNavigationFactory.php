@@ -31,7 +31,6 @@ final readonly class OverviewPortalNavigationFactory
                 $this->explorerTarget(
                     'stats.nav.overview_kpi_to_analysis',
                     'allocations_by_month',
-                    'all_time',
                 ),
             ],
             heatmapHour: [

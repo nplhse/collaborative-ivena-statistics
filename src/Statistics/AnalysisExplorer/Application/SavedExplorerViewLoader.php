@@ -9,6 +9,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
+use Symfony\Component\HttpFoundation\Request;
 
 final readonly class SavedExplorerViewLoader
 {
@@ -19,6 +20,7 @@ final readonly class SavedExplorerViewLoader
         private ExplorerConfigMapper $configMapper,
         private DefaultAnalysisViewFactoryRegistry $defaultAnalysisViewFactory,
         private SavedExplorerViewLabelResolver $labelResolver,
+        private ExplorerRequestAnalysisFilterOverlay $requestFilterOverlay,
     ) {
     }
 
@@ -27,6 +29,7 @@ final readonly class SavedExplorerViewLoader
         StatisticsFilter $filter,
         ?User $user,
         ?AnalysisDataSourceKey $requestedDataSource = null,
+        ?Request $request = null,
     ): SavedExplorerViewLoadResult {
         $defaultSource = $requestedDataSource ?? AnalysisDataSourceKey::Allocations;
 
@@ -68,7 +71,7 @@ final readonly class SavedExplorerViewLoader
 
         try {
             $state = $configJson;
-            $this->applyFilterOverlay($state, $filter);
+            $this->applyFilterOverlay($state, $filter, $request);
             $config = $this->configMapper->viewConfigFromState($state, $user);
             $state = $this->configMapper->toStateArray($config);
             if ($savedView->isSystem()) {
@@ -128,7 +131,7 @@ final readonly class SavedExplorerViewLoader
     /**
      * @param array<string, mixed> $state
      */
-    private function applyFilterOverlay(array &$state, StatisticsFilter $filter): void
+    private function applyFilterOverlay(array &$state, StatisticsFilter $filter, ?Request $request): void
     {
         $filterState = $this->configMapper->filterToStateArray($filter);
         if (!isset($state['query']) || !\is_array($state['query'])) {
@@ -137,5 +140,21 @@ final readonly class SavedExplorerViewLoader
 
         $state['query']['scope'] = $filterState['scope'];
         $state['query']['period'] = $filterState['period'];
+
+        if (!$request instanceof Request) {
+            return;
+        }
+
+        $overlayFilters = $this->requestFilterOverlay->toStateFilters($request);
+        if ([] === $overlayFilters) {
+            return;
+        }
+
+        $existing = $state['query']['filters'] ?? [];
+        if (!\is_array($existing)) {
+            $existing = [];
+        }
+
+        $state['query']['filters'] = array_values(array_merge($existing, $overlayFilters));
     }
 }
