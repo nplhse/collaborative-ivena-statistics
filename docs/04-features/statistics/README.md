@@ -26,6 +26,7 @@
 | [indication-dashboard-performance.md](indication-dashboard-performance.md) | SQL optimisation notes |
 | [case-flow.md](case-flow.md) | Case flow dashboard |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard |
+| [Analysis platform v2 plans](../../plans/README.md) | Rewrite ADR/plan/todo on `refactor/analysis-platform-v2` |
 
 ## Reading order (statistics feature work)
 

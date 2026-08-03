@@ -16,6 +16,7 @@
 | [extension-points.md](extension-points.md) | Reference | Tagged service registries |
 | [deptrac.md](deptrac.md) | Reference | Deptrac layers, baseline, commands |
 | [decisions/](decisions/) | ADR | Architecture decision records |
+| [../plans/](../plans/) | Plans | Long-running refactor plans (e.g. analysis platform v2) |
 
 ## Reading order
 

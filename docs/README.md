@@ -10,6 +10,7 @@ Entry point for project documentation.
 | [02-architecture](02-architecture/) | Developers, maintainers | Bounded contexts, data flows, ADRs |
 | [03-development](03-development/) | Developers | Workflow, fixtures, testing, frontend |
 | [04-features](04-features/) | Developers, domain experts | Import, statistics, allocation, KPI |
+| [plans](plans/) | Developers on long-running refactors | Living rewrite plans / checklists |
 | [05-operations](05-operations/) | Operators, maintainers | Deployment, workers, backups, monitoring |
 | [06-reference](06-reference/) | All | Configuration, CLI, glossaries |
 
@@ -50,6 +51,7 @@ Role-based reading orders live in each section's README:
 - [Statistics projection & materialized views](04-features/statistics/projection-and-materialized-views.md)
 - [Data quality indicator](04-features/statistics/data-quality-indicator.md)
 - [Analysis Explorer](04-features/statistics/analysis-explorer.md)
+- [Analysis platform v2 plans](plans/README.md)
 - [Participant onboarding](04-features/onboarding/participant-onboarding.md)
 - [Explore allocation list](04-features/allocation/explore-allocation-list.md)
 - [Sentry observability](05-operations/observability-sentry.md)
