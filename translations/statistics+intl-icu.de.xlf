@@ -1413,6 +1413,34 @@
         <source>stats.analysis_explorer.family.special</source>
         <target>Spezial</target>
       </trans-unit>
+      <trans-unit id="statsAexSel01" resname="stats.analysis_explorer.selection.heading">
+        <source>stats.analysis_explorer.selection.heading</source>
+        <target>Diese Analyse</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel02" resname="stats.analysis_explorer.selection.family">
+        <source>stats.analysis_explorer.selection.family</source>
+        <target>Form</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel03" resname="stats.analysis_explorer.selection.row">
+        <source>stats.analysis_explorer.selection.row</source>
+        <target>Zeilen</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel04" resname="stats.analysis_explorer.selection.column">
+        <source>stats.analysis_explorer.selection.column</source>
+        <target>Spalten</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel05" resname="stats.analysis_explorer.selection.metric">
+        <source>stats.analysis_explorer.selection.metric</source>
+        <target>Kennzahl</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel06" resname="stats.analysis_explorer.selection.scope">
+        <source>stats.analysis_explorer.selection.scope</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel07" resname="stats.analysis_explorer.selection.period">
+        <source>stats.analysis_explorer.selection.period</source>
+        <target>Zeitraum</target>
+      </trans-unit>
       <trans-unit id="statsAex56" resname="stats.analysis_explorer.library.card.dimension">
         <source>stats.analysis_explorer.library.card.dimension</source>
         <target>Dimension</target>

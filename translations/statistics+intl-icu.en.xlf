@@ -3953,6 +3953,34 @@
         <source>stats.analysis_explorer.family.special</source>
         <target>Special</target>
       </trans-unit>
+      <trans-unit id="statsAexSel01" resname="stats.analysis_explorer.selection.heading">
+        <source>stats.analysis_explorer.selection.heading</source>
+        <target>This analysis</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel02" resname="stats.analysis_explorer.selection.family">
+        <source>stats.analysis_explorer.selection.family</source>
+        <target>Form</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel03" resname="stats.analysis_explorer.selection.row">
+        <source>stats.analysis_explorer.selection.row</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel04" resname="stats.analysis_explorer.selection.column">
+        <source>stats.analysis_explorer.selection.column</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel05" resname="stats.analysis_explorer.selection.metric">
+        <source>stats.analysis_explorer.selection.metric</source>
+        <target>Metric</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel06" resname="stats.analysis_explorer.selection.scope">
+        <source>stats.analysis_explorer.selection.scope</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAexSel07" resname="stats.analysis_explorer.selection.period">
+        <source>stats.analysis_explorer.selection.period</source>
+        <target>Period</target>
+      </trans-unit>
       <trans-unit id="statsAex59" resname="stats.analysis_explorer.saved_view.invalid_config">
         <source>stats.analysis_explorer.saved_view.invalid_config</source>
         <target>The saved view configuration is invalid. Showing the default analysis instead.</target>

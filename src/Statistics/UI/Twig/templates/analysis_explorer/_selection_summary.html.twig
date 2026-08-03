@@ -1,0 +1,88 @@
+{% if summary is defined and summary %}
+    <div class="mb-3 pb-3 border-bottom"
+         data-testid="stats-analysis-explorer-selection-summary">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+            <div class="min-w-0">
+                <div class="text-secondary small mb-1">
+                    {{ 'stats.analysis_explorer.selection.heading'|trans({}, 'statistics') }}
+                </div>
+                <div class="d-flex flex-wrap gap-2" data-testid="stats-analysis-explorer-selection-chips">
+                    {% if summary.family %}
+                        <span class="badge bg-azure-lt text-azure-lt-fg"
+                              data-testid="stats-analysis-explorer-selection-family">
+                            {{ summary.family.value }}
+                        </span>
+                    {% endif %}
+                    {% for chip in summary.structure %}
+                        {% if chip.opensEdit %}
+                            <button type="button"
+                                    class="badge bg-secondary-lt border-0 text-start"
+                                    data-bs-toggle="offcanvas"
+                                    data-bs-target="#analysisExplorerEditDrawer"
+                                    data-action="live#action"
+                                    data-live-action-param="openEdit"
+                                    data-testid="stats-analysis-explorer-selection-{{ chip.key }}">
+                                <span class="text-secondary">{{ chip.label }}:</span> {{ chip.value }}
+                            </button>
+                        {% else %}
+                            <span class="badge bg-secondary-lt"
+                                  data-testid="stats-analysis-explorer-selection-{{ chip.key }}">
+                                <span class="text-secondary">{{ chip.label }}:</span> {{ chip.value }}
+                            </span>
+                        {% endif %}
+                    {% endfor %}
+                    <button type="button"
+                            class="badge bg-secondary-lt border-0 text-start"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#analysisExplorerEditDrawer"
+                            data-action="live#action"
+                            data-live-action-param="openEdit"
+                            data-testid="stats-analysis-explorer-selection-scope">
+                        <span class="text-secondary">{{ summary.scope.label }}:</span> {{ summary.scope.value }}
+                    </button>
+                    <button type="button"
+                            class="badge bg-secondary-lt border-0 text-start"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#analysisExplorerEditDrawer"
+                            data-action="live#action"
+                            data-live-action-param="openEdit"
+                            data-testid="stats-analysis-explorer-selection-period">
+                        <span class="text-secondary">{{ summary.period.label }}:</span> {{ summary.period.value }}
+                    </button>
+                    {% for chip in summary.filters %}
+                        <button type="button"
+                                class="badge bg-blue-lt text-blue-lt-fg border-0 text-start"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#analysisExplorerEditDrawer"
+                                data-action="live#action"
+                                data-live-action-param="openEdit"
+                                data-testid="stats-analysis-explorer-selection-filter">
+                            {{ chip.label }}: {{ chip.value }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if contextControls is defined and contextControls %}
+                <div class="flex-shrink-0 d-print-none"
+                     data-testid="stats-analysis-explorer-context-controls">
+                    <div class="btn-list">
+                        {{ include('@Statistics/_scope_controls.html.twig', {
+                            pageViewModel: {
+                                showScopeSecondaryPicker: contextControls.showScopeSecondaryPicker,
+                                scopePrimaryMenu: contextControls.scopePrimaryMenu,
+                                scopeSecondaryMenu: contextControls.scopeSecondaryMenu,
+                                scopePrimaryDropdownLabel: contextControls.scopePrimaryDropdownLabel,
+                                scopeSecondaryDropdownLabel: contextControls.scopeSecondaryDropdownLabel,
+                            },
+                            testIdPrefix: 'stats-analysis-explorer-scope',
+                        }) }}
+                        {{ include('@Statistics/dashboard/_overview_period_controls.html.twig', {
+                            overviewPeriodViewModel: contextControls.period,
+                            periodTestIdPrefix: 'stats-analysis-explorer-period',
+                        }) }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

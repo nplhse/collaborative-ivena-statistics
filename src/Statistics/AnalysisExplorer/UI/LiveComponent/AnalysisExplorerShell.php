@@ -19,6 +19,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerSelectionSummaryPresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
@@ -128,6 +129,17 @@ final class AnalysisExplorerShell
     public ?string $favoriteToken = null;
 
     #[LiveProp(writable: false)]
+    public ?string $analysisFamily = null;
+
+    /**
+     * URL-based scope/period navigation menus for the selection chrome.
+     *
+     * @var array<string, mixed>
+     */
+    #[LiveProp(writable: false)]
+    public array $contextControls = [];
+
+    #[LiveProp(writable: false)]
     public string $exportCsvUrl = '';
 
     #[LiveProp(writable: true)]
@@ -201,6 +213,7 @@ final class AnalysisExplorerShell
         private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
         private readonly ExplorerEditAxisSwapper $editAxisSwapper,
         private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
+        private readonly ExplorerSelectionSummaryPresenter $selectionSummaryPresenter,
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
@@ -223,6 +236,8 @@ final class AnalysisExplorerShell
         bool $isFavorite = false,
         ?string $favoriteUrl = null,
         ?string $favoriteToken = null,
+        ?string $analysisFamily = null,
+        array $contextControls = [],
     ): void {
         $this->locale = $locale;
         $this->libraryUrl = $libraryUrl;
@@ -236,6 +251,8 @@ final class AnalysisExplorerShell
         $this->isFavorite = $isFavorite;
         $this->favoriteUrl = $favoriteUrl;
         $this->favoriteToken = $favoriteToken;
+        $this->analysisFamily = (null === $analysisFamily || '' === $analysisFamily) ? null : $analysisFamily;
+        $this->contextControls = $contextControls;
 
         if ([] !== $appliedConfigState) {
             $this->appliedConfigState = $appliedConfigState;
@@ -319,6 +336,30 @@ final class AnalysisExplorerShell
         }
 
         return $this->filterBadgePresenter->present($config);
+    }
+
+    /**
+     * @return array{
+     *     family: ?array{key: string, label: string, value: string, opensEdit: bool},
+     *     structure: list<array{key: string, label: string, value: string, opensEdit: bool}>,
+     *     scope: array{key: string, label: string, value: string, opensEdit: bool},
+     *     period: array{key: string, label: string, value: string, opensEdit: bool},
+     *     filters: list<array{key: string, label: string, value: string, opensEdit: bool}>
+     * }|null
+     */
+    public function selectionSummary(): ?array
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return null;
+        }
+
+        return $this->selectionSummaryPresenter->present(
+            $config,
+            $this->analysisFamily,
+            $this->resolveUser(),
+            $this->locale,
+        );
     }
 
     public function canSwapEditAxes(): bool

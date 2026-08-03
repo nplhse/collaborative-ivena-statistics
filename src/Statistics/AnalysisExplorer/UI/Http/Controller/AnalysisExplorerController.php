@@ -137,6 +137,7 @@ final class AnalysisExplorerController extends AbstractController
             'savedViewDescription' => $view instanceof SavedExplorerView ? $this->labelResolver->description($view) : null,
             'savedViewId' => $savedViewId,
             'isSystemView' => $isSystemView,
+            'analysisFamily' => $view?->getAnalysisFamily(),
             'canSave' => $canSave,
             'canSaveAs' => $canSaveAs,
             'canFavorite' => $canFavorite,
@@ -199,6 +200,28 @@ final class AnalysisExplorerController extends AbstractController
             filter: $pageViewModel->filter,
             dataQualityReport: $dataQualityReport,
             isLoggedIn: $pageViewModel->isLoggedIn,
+            contextControls: [
+                'showScopeSecondaryPicker' => $pageViewModel->showScopeSecondaryPicker,
+                'scopePrimaryMenu' => $pageViewModel->scopePrimaryMenu,
+                'scopeSecondaryMenu' => $pageViewModel->scopeSecondaryMenu,
+                'scopePrimaryDropdownLabel' => $pageViewModel->scopePrimaryDropdownLabel,
+                'scopeSecondaryDropdownLabel' => $pageViewModel->scopeSecondaryDropdownLabel,
+                'period' => [
+                    'headingLabel' => $overviewPeriodViewModel->headingLabel,
+                    'primaryDropdownLabel' => $overviewPeriodViewModel->primaryDropdownLabel,
+                    'secondaryDropdownLabel' => $overviewPeriodViewModel->secondaryDropdownLabel,
+                    'showSecondaryPicker' => $overviewPeriodViewModel->showSecondaryPicker,
+                    'primaryMenu' => $overviewPeriodViewModel->primaryMenu,
+                    'secondaryMenu' => $overviewPeriodViewModel->secondaryMenu,
+                    'previousUrl' => $overviewPeriodViewModel->previousUrl,
+                    'nextUrl' => $overviewPeriodViewModel->nextUrl,
+                    'previousLabel' => $overviewPeriodViewModel->previousLabel,
+                    'nextLabel' => $overviewPeriodViewModel->nextLabel,
+                    'previousEnabled' => $overviewPeriodViewModel->previousEnabled,
+                    'nextEnabled' => $overviewPeriodViewModel->nextEnabled,
+                    'showNavigation' => $overviewPeriodViewModel->showNavigation,
+                ],
+            ],
         );
     }
 
@@ -211,6 +234,7 @@ final class AnalysisExplorerController extends AbstractController
             'dataQualityReport' => $pageContext->dataQualityReport,
             'statisticsFilter' => $pageContext->filter,
             'isLoggedIn' => $pageContext->isLoggedIn,
+            'contextControls' => $pageContext->contextControls,
         ], $extra));
     }
 

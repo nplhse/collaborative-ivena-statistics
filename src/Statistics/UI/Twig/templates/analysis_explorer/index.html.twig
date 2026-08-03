@@ -21,6 +21,8 @@
             savedViewTitle="{{ savedViewTitle }}"
             savedViewDescription="{{ savedViewDescription }}"
             :isSystemView="isSystemView"
+            analysisFamily="{{ analysisFamily|default('') }}"
+            :contextControls="contextControls|default({})"
             :canSave="canSave"
             :canSaveAs="canSaveAs"
             :canFavorite="canFavorite"
