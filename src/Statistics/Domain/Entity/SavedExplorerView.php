@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: SavedExplorerViewRepository::class)]
 #[ORM\Table(name: 'saved_explorer_view')]
 #[ORM\UniqueConstraint(name: 'uniq_saved_explorer_view_slug', columns: ['slug'])]
+#[ORM\Index(name: 'idx_saved_explorer_view_analysis_family', columns: ['analysis_family'])]
 #[ORM\HasLifecycleCallbacks]
 class SavedExplorerView
 {
@@ -33,6 +34,20 @@ class SavedExplorerView
 
     #[ORM\Column(length: 80)]
     private string $category;
+
+    /**
+     * Controlled analysis family key ({@see \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisFamily}).
+     */
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $analysisFamily = null;
+
+    /**
+     * Controlled topic keys ({@see \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisTopic}).
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON, nullable: true)]
+    private ?array $topics = null;
 
     /** @var array<string, mixed> */
     #[ORM\Column(type: \Doctrine\DBAL\Types\Types::JSON)]
@@ -58,6 +73,7 @@ class SavedExplorerView
 
     /**
      * @param array<string, mixed> $configJson
+     * @param list<string>         $topics
      */
     public function __construct(
         ?string $slug,
@@ -66,6 +82,8 @@ class SavedExplorerView
         array $configJson,
         ?string $description = null,
         bool $isSystem = false,
+        ?string $analysisFamily = null,
+        array $topics = [],
     ) {
         $this->slug = $slug;
         $this->title = $title;
@@ -73,6 +91,8 @@ class SavedExplorerView
         $this->configJson = $configJson;
         $this->description = $description;
         $this->isSystem = $isSystem;
+        $this->analysisFamily = $analysisFamily;
+        $this->topics = [] === $topics ? null : array_values($topics);
         $now = new \DateTimeImmutable();
         $this->createdAt = $now;
         $this->updatedAt = $now;
@@ -101,6 +121,19 @@ class SavedExplorerView
     public function getCategory(): string
     {
         return $this->category;
+    }
+
+    public function getAnalysisFamily(): ?string
+    {
+        return $this->analysisFamily;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getTopics(): array
+    {
+        return $this->topics ?? [];
     }
 
     /**
@@ -154,17 +187,26 @@ class SavedExplorerView
 
     /**
      * @param array<string, mixed> $configJson
+     * @param list<string>|null    $topics null keeps existing topics
      */
     public function update(
         string $title,
         string $category,
         array $configJson,
         ?string $description = null,
+        ?string $analysisFamily = null,
+        ?array $topics = null,
+        bool $updateLibraryMetadata = false,
     ): void {
         $this->title = $title;
         $this->category = $category;
         $this->configJson = $configJson;
         $this->description = $description;
+
+        if ($updateLibraryMetadata) {
+            $this->analysisFamily = $analysisFamily;
+            $this->topics = null === $topics || [] === $topics ? null : array_values($topics);
+        }
     }
 
     #[ORM\PreUpdate]

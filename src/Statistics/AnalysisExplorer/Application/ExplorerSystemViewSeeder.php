@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisFamily;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisTopic;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
@@ -47,6 +49,8 @@ final readonly class ExplorerSystemViewSeeder
             );
             $configJson['title'] = $titleKey;
             $category = $definition['category'];
+            $analysisFamily = $definition['analysisFamily'] ?? null;
+            $topics = $definition['topics'] ?? [];
 
             $existing = $this->repository->findBySlug($slug);
             if (!$existing instanceof SavedExplorerView) {
@@ -57,6 +61,8 @@ final readonly class ExplorerSystemViewSeeder
                     configJson: $configJson,
                     description: $descriptionKey,
                     isSystem: true,
+                    analysisFamily: $analysisFamily,
+                    topics: $topics,
                 );
                 $view->setCreatedBy($admin);
                 $this->repository->save($view);
@@ -74,6 +80,9 @@ final readonly class ExplorerSystemViewSeeder
                 category: $category,
                 configJson: $configJson,
                 description: $descriptionKey,
+                analysisFamily: $analysisFamily,
+                topics: $topics,
+                updateLibraryMetadata: true,
             );
             if (!$existing->getCreatedBy() instanceof User) {
                 $existing->setCreatedBy($admin);
@@ -90,6 +99,8 @@ final readonly class ExplorerSystemViewSeeder
      * @return list<array{
      *     slug: string,
      *     category: string,
+     *     analysisFamily?: string,
+     *     topics?: list<string>,
      *     preferences: array<string, mixed>
      * }>
      */
@@ -105,6 +116,8 @@ final readonly class ExplorerSystemViewSeeder
      * @return list<array{
      *     slug: string,
      *     category: string,
+     *     analysisFamily?: string,
+     *     topics?: list<string>,
      *     preferences: array<string, mixed>
      * }>
      */
@@ -114,6 +127,8 @@ final readonly class ExplorerSystemViewSeeder
             [
                 'slug' => 'allocations-over-time',
                 'category' => self::CATEGORY_ALLOCATIONS,
+                'analysisFamily' => AnalysisFamily::TimeSeries->value,
+                'topics' => [AnalysisTopic::Allocations->value],
                 'preferences' => [
                     'dimension' => 'time',
                     'grain' => 'month',
@@ -567,16 +582,26 @@ final readonly class ExplorerSystemViewSeeder
     }
 
     /**
-     * @param array{slug: string, category: string, preferences: array<string, mixed>} $definition
-     * @param array<string, mixed>                                                     $configJson
+     * @param array{
+     *     slug: string,
+     *     category: string,
+     *     analysisFamily?: string,
+     *     topics?: list<string>,
+     *     preferences: array<string, mixed>
+     * } $definition
+     * @param array<string, mixed> $configJson
      */
     private function isUpToDate(SavedExplorerView $existing, array $definition, array $configJson, User $admin): bool
     {
         $slug = $definition['slug'];
+        $expectedFamily = $definition['analysisFamily'] ?? null;
+        $expectedTopics = $definition['topics'] ?? [];
 
         return $existing->getTitle() === self::titleKey($slug)
             && $existing->getDescription() === self::descriptionKey($slug)
             && $definition['category'] === $existing->getCategory()
+            && $expectedFamily === $existing->getAnalysisFamily()
+            && $expectedTopics === $existing->getTopics()
             && $existing->isSystem()
             && $existing->getConfigJson() === $configJson
             && $existing->wasCreatedBy($admin);
