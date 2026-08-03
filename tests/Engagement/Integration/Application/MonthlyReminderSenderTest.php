@@ -140,7 +140,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     public function testSchedulerSendPersistsDispatchLogForReportingPeriod(): void
     {
         $hospital = $this->createHospital(optedOut: false);
-        $referenceDate = new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin'));
+        $referenceDate = $this->frozenReferenceDate();
 
         self::assertSame([], $this->sender->sendForHospital(
             $hospital,
@@ -170,21 +170,35 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     public function testSchedulerTriggerReturnsErrorWhenAlreadySentForPeriod(): void
     {
         $hospital = $this->createHospital(optedOut: false);
+        $referenceDate = $this->frozenReferenceDate();
 
-        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Scheduler,
+            $referenceDate,
+        ));
 
         self::assertSame(
             ['monthly_reminder.error.already_sent_for_period'],
-            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler),
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler, $referenceDate),
         );
     }
 
     public function testAdminTriggerCanResendDespiteExistingSchedulerDispatch(): void
     {
         $hospital = $this->createHospital(optedOut: false);
+        $referenceDate = $this->frozenReferenceDate();
 
-        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
-        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Scheduler,
+            $referenceDate,
+        ));
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Admin,
+            $referenceDate,
+        ));
 
         $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
         self::assertTrue($dispatchRepository->existsForHospitalPeriodAndTrigger(
@@ -202,8 +216,13 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     public function testAdminSendPersistsDispatchLogWithDeliveryStatus(): void
     {
         $hospital = $this->createHospital(optedOut: false);
+        $referenceDate = $this->frozenReferenceDate();
 
-        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Admin,
+            $referenceDate,
+        ));
 
         $dispatch = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->findForHospitalPeriodAndTrigger(
             (int) $hospital->getId(),
@@ -220,8 +239,13 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     {
         $hospital = $this->createHospital(optedOut: false);
         $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
+        $referenceDate = $this->frozenReferenceDate();
 
-        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Scheduler,
+            $referenceDate,
+        ));
 
         $dispatch = $dispatchRepository->findForHospitalPeriodAndTrigger(
             (int) $hospital->getId(),
@@ -234,7 +258,11 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $dispatch->markFailed('SMTP rate limit');
         $dispatchRepository->save($dispatch);
 
-        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler));
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Scheduler,
+            $referenceDate,
+        ));
 
         $retried = $dispatchRepository->find($dispatchId);
         self::assertNotNull($retried);
@@ -249,6 +277,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
         $hospital = $this->createHospital(optedOut: false);
         $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
+        $referenceDate = $this->frozenReferenceDate();
 
         self::getContainer()->set(MailerInterface::class, new class implements MailerInterface {
             public function send(RawMessage $message, ?Envelope $envelope = null): void
@@ -260,7 +289,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $sender = self::getContainer()->get(MonthlyReminderSender::class);
 
         try {
-            $sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler);
+            $sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler, $referenceDate);
             self::fail('Expected mailer exception.');
         } catch (\RuntimeException $exception) {
             self::assertSame('SMTP unavailable', $exception->getMessage());
@@ -311,6 +340,11 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertSame('en', $email->getLocale());
         self::assertEmailSubjectContains($email, 'Monthly overview');
         self::assertEmailSubjectNotContains($email, 'Monatsübersicht');
+    }
+
+    private function frozenReferenceDate(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin'));
     }
 
     private function findReminderEmail(): TemplatedEmail
