@@ -94,7 +94,7 @@ final readonly class ExplorerConfigMapper
             $visualMetricKey = $metricKeys[0];
         }
 
-        if (TableLayout::Flat === $tableLayout && $columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef) {
+        if (TableLayout::Flat === $tableLayout && $columnAxis instanceof AnalysisAxisRef) {
             $tableLayout = $this->tableLayoutResolver->resolveForConfig($preview);
         }
 
@@ -373,7 +373,7 @@ final readonly class ExplorerConfigMapper
 
         return [
             $this->axisResolver->resolve($rowAxis, $capabilities),
-            $columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef ? $this->axisResolver->resolve($columnAxis, $capabilities) : null,
+            $columnAxis instanceof AnalysisAxisRef ? $this->axisResolver->resolve($columnAxis, $capabilities) : null,
         ];
     }
 
