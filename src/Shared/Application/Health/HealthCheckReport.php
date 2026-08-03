@@ -29,6 +29,8 @@ final readonly class HealthCheckReport
      * Full report for authenticated ops surfaces (e.g. admin dashboard).
      *
      * @return array{status: string, version: string, checks: array<string, string>}
+     *
+     * @psalm-suppress PossiblyUnusedMethod Used by unit tests; intended for authenticated ops payloads
      */
     public function toArray(): array
     {

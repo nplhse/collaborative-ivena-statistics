@@ -10,6 +10,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Shared uniqueness check for registration (generic message — no field leak).
+ *
+ * @psalm-suppress UnusedClass Wired via services.yaml alias for RegistrationIdentityGuard
  */
 final readonly class RegistrationIdentityChecker implements RegistrationIdentityGuard
 {
