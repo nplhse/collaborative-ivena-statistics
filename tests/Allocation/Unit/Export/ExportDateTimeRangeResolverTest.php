@@ -56,21 +56,34 @@ final class ExportDateTimeRangeResolverTest extends TestCase
     }
 
     #[DataProvider('invalidRangeProvider')]
-    public function testRejectsStartAfterEnd(\DateTimeInterface $from, \DateTimeInterface $to): void
-    {
+    public function testRejectsStartAfterEnd(
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        ?\DateTimeInterface $timeFrom = null,
+        ?\DateTimeInterface $timeTo = null,
+    ): void {
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->resolver->resolve($from, $to);
+        $this->resolver->resolve($from, $to, $timeFrom, $timeTo);
     }
 
     /**
-     * @return iterable<string, array{\DateTimeInterface, \DateTimeInterface}>
+     * @return iterable<string, array{\DateTimeInterface, \DateTimeInterface, ?\DateTimeInterface, ?\DateTimeInterface}>
      */
     public static function invalidRangeProvider(): iterable
     {
         yield 'dates reversed' => [
             new \DateTimeImmutable('2026-02-01'),
             new \DateTimeImmutable('2026-01-01'),
+            null,
+            null,
+        ];
+
+        yield 'same day times reversed' => [
+            new \DateTimeImmutable('2026-01-15'),
+            new \DateTimeImmutable('2026-01-15'),
+            new \DateTimeImmutable('1970-01-01 18:00:00'),
+            new \DateTimeImmutable('1970-01-01 08:00:00'),
         ];
     }
 }

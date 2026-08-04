@@ -105,6 +105,31 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertSelectorNotExists('#export-estimate #export-allocations-download-form');
     }
 
+    public function testEstimateRejectsReversedDateRangeWithUnprocessableEntity(): void
+    {
+        [$client] = $this->createOwnerClient();
+
+        $crawler = $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->filter('#export-allocations-form')->form();
+        $form['own_hospital_allocations_export[dateFrom]'] = '2026-02-01';
+        $form['own_hospital_allocations_export[dateTo]'] = '2026-01-01';
+        $values = $form->getPhpValues();
+
+        $client->request(
+            Request::METHOD_POST,
+            '/hospitals/export/allocations/estimate',
+            $values,
+            [],
+            ['HTTP_TURBO_FRAME' => 'export-estimate'],
+        );
+
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
+        self::assertSelectorExists('[data-testid="export-estimate-error"]');
+        self::assertSelectorNotExists('[data-testid="export-estimate-ok"]');
+    }
+
     public function testExportEstimateIsRateLimited(): void
     {
         [$client, $owner] = $this->createOwnerClient();

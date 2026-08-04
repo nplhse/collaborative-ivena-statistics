@@ -14,6 +14,7 @@ use App\Allocation\Infrastructure\Repository\OccasionRepository;
 use App\Allocation\Infrastructure\Repository\SecondaryTransportRepository;
 use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData;
+use App\Allocation\UI\Form\Validation\ExportDateRangeValid;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -190,6 +191,7 @@ final class OwnHospitalAllocationsExportType extends AbstractType
         $resolver->setDefaults([
             'data_class' => OwnHospitalAllocationsExportFormData::class,
             'translation_domain' => 'messages',
+            'constraints' => [new ExportDateRangeValid()],
             'hospital_choices' => [],
             'hospitals_section_label' => 'label.hospital',
             'hospitals_help' => '',

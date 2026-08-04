@@ -69,6 +69,10 @@
         <source>error.export.invalid_filter</source>
         <target>Please check the export filters.</target>
       </trans-unit>
+      <trans-unit id="ExpErrEn03" resname="error.export.date_range_invalid">
+        <source>error.export.date_range_invalid</source>
+        <target>The start date must not be after the end date.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
