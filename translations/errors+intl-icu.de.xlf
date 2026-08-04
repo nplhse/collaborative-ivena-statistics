@@ -61,6 +61,10 @@
         <source>error.export.invalid_filter</source>
         <target>Bitte prüfen Sie die Export-Filter.</target>
       </trans-unit>
+      <trans-unit id="ExpErrDe03" resname="error.export.date_range_invalid">
+        <source>error.export.date_range_invalid</source>
+        <target>Das Start-Datum darf nicht nach dem End-Datum liegen.</target>
+      </trans-unit>
       <trans-unit id="ExpErrDe01" resname="error.export.too_many_rows">
         <source>error.export.too_many_rows</source>
         <target>Export blockiert: {count, number} Datensätze überschreiten das Limit. Bitte Filter enger setzen.</target>

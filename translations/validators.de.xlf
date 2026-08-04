@@ -849,6 +849,10 @@
         <source>page.validation.image_float_requires_non_full_width</source>
         <target>Textumfluss erfordert ein Bild ohne volle Breite.</target>
       </trans-unit>
+      <trans-unit id="ExpValDe01" resname="error.export.date_range_invalid">
+        <source>error.export.date_range_invalid</source>
+        <target>Das Start-Datum darf nicht nach dem End-Datum liegen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

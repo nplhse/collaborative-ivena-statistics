@@ -849,6 +849,10 @@
         <source>page.validation.image_float_requires_non_full_width</source>
         <target>Text wrap requires a non-full-width image.</target>
       </trans-unit>
+      <trans-unit id="ExpValEn01" resname="error.export.date_range_invalid">
+        <source>error.export.date_range_invalid</source>
+        <target>The start date must not be after the end date.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
