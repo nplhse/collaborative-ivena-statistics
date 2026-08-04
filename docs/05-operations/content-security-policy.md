@@ -136,6 +136,18 @@ Multiple users / many events / unknown domain?
 
 **Action:** Resolve the issue; comment with the reason.
 
+### EasyAdmin and nonces
+
+EasyAdmin calls Nelmio’s `csp_nonce()` and adds `'nonce-…'` to `script-src` / `style-src` on `/admin` responses. Under **CSP Level 3**, that **disables `'unsafe-inline'`** for those directives — even though the YAML policy still lists it. Inline event handlers (`onsubmit`), bare `<script>` / `style=""` attributes, and vendor-injected `<style>` without a matching nonce therefore show up as Report-Only violations on admin pages only.
+
+Mitigations already in place for the known Failed Messages / dashboard KPI noise:
+
+- Confirm dialogs and select-all → Stimulus (`confirm-submit`, `checkbox-select-all`)
+- Inline layout styles → CSS classes in `admin-kpi.css`
+- ApexCharts injected styles → `chart.nonce` from `<meta name="csp-nonce">` via `applyChartNonce()` in `assets/lib/load-apexcharts.js`
+
+Resolve matching Sentry CSP issues as `policy-gap` after deploy if they stop recurring.
+
 ### Policy gap (fix later, not an attack)
 
 | Pattern | Example | Action |
@@ -143,6 +155,7 @@ Multiple users / many events / unknown domain?
 | Known CDN you plan to allow | New analytics or font host | Add to CSP in P2 or refactor to `'self'` |
 | Same route after a feature deploy | New external asset on one page | Extend policy or self-host |
 | OpenStreetMap variant | Unexpected tile subdomain | Adjust `img-src` / `connect-src` if legitimate |
+| EasyAdmin + nonce (see above) | `script-src-attr` / `style-src-elem` on `/admin/…` with `blocked_uri: inline` | Prefer Stimulus / CSS / vendor nonce; do not “fix” by removing EasyAdmin nonces |
 
 **Action:** Open a P2 ticket; resolve the issue if it is understood backlog.
 

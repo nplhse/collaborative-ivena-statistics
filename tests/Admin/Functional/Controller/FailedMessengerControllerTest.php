@@ -30,11 +30,21 @@ final class FailedMessengerControllerTest extends WebTestCase
         $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/operations/failed-messages');
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString('ImportAllocationsMessage', $client->getResponse()->getContent());
+        $indexHtml = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('ImportAllocationsMessage', $indexHtml);
+        self::assertStringContainsString('data-controller="confirm-submit"', $indexHtml);
+        self::assertStringContainsString('data-controller="checkbox-select-all"', $indexHtml);
+        self::assertStringNotContainsString('onsubmit=', $indexHtml);
+        self::assertStringNotContainsString("document.getElementById('failed-messages-select-all')", $indexHtml);
 
         $client->request(Request::METHOD_GET, '/admin/operations/failed-messages/'.$messageId);
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString('test-body-content', $client->getResponse()->getContent());
+        $detailHtml = (string) $client->getResponse()->getContent();
+        self::assertStringContainsString('test-body-content', $detailHtml);
+        self::assertStringContainsString('data-controller="confirm-submit"', $detailHtml);
+        self::assertStringNotContainsString('onsubmit=', $detailHtml);
+        self::assertStringContainsString('ea-failed-messages-pre-headers', $detailHtml);
+        self::assertStringContainsString('ea-failed-messages-pre-body', $detailHtml);
     }
 
     public function testAdminCanDeleteSingleFailedMessage(): void

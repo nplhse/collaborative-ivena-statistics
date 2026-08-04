@@ -15,7 +15,9 @@
             <form method="post"
                   action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete_all') }}"
                   class="m-0"
-                  onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_all'|trans({}, 'admin')|e('js') }}');">
+                  data-controller="confirm-submit"
+                  data-action="submit->confirm-submit#confirm"
+                  data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_all'|trans({}, 'admin') }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('failed_messages_delete_all') }}">
                 <button type="submit" class="btn btn-primary ea-admin-primary-badge-btn d-inline-flex align-items-center">
                     {{ 'ops.failed_messages.delete_all'|trans({}, 'admin') }}
@@ -27,7 +29,9 @@
                   action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete_selected') }}"
                   id="failed-messages-batch-form"
                   class="m-0"
-                  onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_selected'|trans({}, 'admin')|e('js') }}');">
+                  data-controller="confirm-submit"
+                  data-action="submit->confirm-submit#confirm"
+                  data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_selected'|trans({}, 'admin') }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('failed_messages_delete_batch') }}">
                 <button type="submit" class="btn btn-outline-primary ea-admin-action-btn">
                     {{ 'ops.failed_messages.delete_selected'|trans({}, 'admin') }}
@@ -35,15 +39,17 @@
             </form>
         </div>
 
-        <div class="card">
+        <div class="card" data-controller="checkbox-select-all">
             <div class="table-responsive">
                 <table class="table table-striped table-hover mb-0 align-middle">
                     <thead>
                         <tr>
-                            <th scope="col" style="width: 2.5rem;">
+                            <th scope="col" class="ea-failed-messages-select-col">
                                 <input type="checkbox"
                                        class="form-check-input"
                                        id="failed-messages-select-all"
+                                       data-checkbox-select-all-target="toggle"
+                                       data-action="change->checkbox-select-all#toggleAll"
                                        aria-label="{{ 'ops.failed_messages.select_all'|trans({}, 'admin') }}">
                             </th>
                             <th scope="col">ID</th>
@@ -62,6 +68,7 @@
                                            name="ids[]"
                                            value="{{ message.id }}"
                                            form="failed-messages-batch-form"
+                                           data-checkbox-select-all-target="item"
                                            aria-label="{{ 'ops.failed_messages.select_item'|trans({'%id%': message.id}, 'admin') }}">
                                 </td>
                                 <td>{{ message.id }}</td>
@@ -76,7 +83,9 @@
                                         <form method="post"
                                               action="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_delete', {id: message.id}) }}"
                                               class="m-0"
-                                              onsubmit="return confirm('{{ 'ops.failed_messages.confirm_delete_one'|trans({}, 'admin')|e('js') }}');">
+                                              data-controller="confirm-submit"
+                                              data-action="submit->confirm-submit#confirm"
+                                              data-confirm-submit-message-value="{{ 'ops.failed_messages.confirm_delete_one'|trans({}, 'admin') }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token('failed_message_delete_' ~ message.id) }}">
                                             <button type="submit" class="btn btn-sm btn-outline-secondary">
                                                 {{ 'ops.failed_messages.delete'|trans({}, 'admin') }}
@@ -90,15 +99,6 @@
                 </table>
             </div>
         </div>
-
-        <script>
-            document.getElementById('failed-messages-select-all')?.addEventListener('change', (event) => {
-                const checked = event.target.checked;
-                document.querySelectorAll('.failed-message-select').forEach((checkbox) => {
-                    checkbox.checked = checked;
-                });
-            });
-        </script>
     {% else %}
         <div class="card">
             <div class="table-responsive">
