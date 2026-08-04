@@ -37,6 +37,7 @@ framework:
             messenger.bus.default:
                 middleware:
                     - 'App\Shared\Infrastructure\Audit\Messenger\AuditMessengerMiddleware'
+                    - 'App\Shared\Infrastructure\Mail\Messenger\SkipPermanentSmtpRetryMiddleware'
 
         routing:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async_mail

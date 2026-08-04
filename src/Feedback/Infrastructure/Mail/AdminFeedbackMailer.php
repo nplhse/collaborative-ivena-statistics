@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace App\Feedback\Infrastructure\Mail;
 
+use App\Admin\UI\Http\Controller\DashboardController;
+use App\Admin\UI\Http\Controller\Feedback\FeedbackCrudController;
 use App\Feedback\Application\Contract\AdminFeedbackNotifierInterface;
+use App\Feedback\Application\FeedbackMailPreview;
 use App\Feedback\Domain\Entity\Feedback;
 use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Mail\MailConfig;
 use App\User\Infrastructure\Security\FeedbackRecipientEmailResolver;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
@@ -28,6 +33,7 @@ final readonly class AdminFeedbackMailer implements AdminFeedbackNotifierInterfa
         private TranslatorInterface $translator,
         private LocaleResolver $localeResolver,
         private LoggerInterface $logger,
+        private AdminUrlGeneratorInterface $adminUrlGenerator,
     ) {
     }
 
@@ -49,6 +55,9 @@ final readonly class AdminFeedbackMailer implements AdminFeedbackNotifierInterfa
             return;
         }
 
+        $messagePreview = FeedbackMailPreview::fromMessage((string) $feedback->getMessage());
+        $adminUrl = $this->feedbackAdminUrl($feedback);
+
         foreach ($recipientsByLocale as $locale => $recipients) {
             $email = $this->createTemplatedEmail($locale)
                 ->to(...$recipients)
@@ -63,10 +72,28 @@ final readonly class AdminFeedbackMailer implements AdminFeedbackNotifierInterfa
                     'feedback' => $feedback,
                     'categoryLabel' => $category->value,
                     'contextJson' => $contextJsonPreview,
+                    'messagePreview' => $messagePreview,
+                    'adminUrl' => $adminUrl,
                 ]);
 
             $this->mailer->send($email);
         }
+    }
+
+    private function feedbackAdminUrl(Feedback $feedback): ?string
+    {
+        $id = $feedback->getId();
+        if (null === $id) {
+            return null;
+        }
+
+        return $this->adminUrlGenerator
+            ->unsetAll()
+            ->setDashboard(DashboardController::class)
+            ->setController(FeedbackCrudController::class)
+            ->setAction(Action::DETAIL)
+            ->setEntityId($id)
+            ->generateUrl();
     }
 
     private function createTemplatedEmail(string $locale): TemplatedEmail

@@ -36,6 +36,7 @@ final class AppExtension extends Extension
         $spamConfig = $config['feedback']['spam'];
         $container->setParameter('app.feedback.spam.min_submission_seconds', $spamConfig['min_submission_seconds']);
         $container->setParameter('app.feedback.spam.long_message_threshold', $spamConfig['long_message_threshold']);
+        $container->setParameter('app.feedback.spam.max_message_length', $spamConfig['max_message_length']);
         $container->setParameter('app.feedback.spam.anonymous_threshold', $spamConfig['anonymous_threshold']);
         $container->setParameter('app.feedback.spam.authenticated_threshold', $spamConfig['authenticated_threshold']);
         $container->setParameter('app.feedback.spam.authenticated_score_bonus', $spamConfig['authenticated_score_bonus']);

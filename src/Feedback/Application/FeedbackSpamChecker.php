@@ -17,6 +17,8 @@ final readonly class FeedbackSpamChecker
         private int $minSubmissionSeconds,
         #[Autowire('%app.feedback.spam.long_message_threshold%')]
         private int $longMessageThreshold,
+        #[Autowire('%app.feedback.spam.max_message_length%')]
+        private int $maxMessageLength,
         #[Autowire('%app.feedback.spam.anonymous_threshold%')]
         private int $anonymousThreshold,
         #[Autowire('%app.feedback.spam.authenticated_threshold%')]
@@ -36,12 +38,16 @@ final readonly class FeedbackSpamChecker
         int $submittedAtTimestamp,
         bool $isAuthenticated,
     ): FeedbackSpamCheckResult {
-        $score = 0;
-        $reasons = [];
-
         if (null !== $honeypotValue && '' !== trim($honeypotValue)) {
             return new FeedbackSpamCheckResult(true, 100, ['honeypot_filled']);
         }
+
+        if (mb_strlen($message) > $this->maxMessageLength) {
+            return new FeedbackSpamCheckResult(true, 100, ['message_too_long']);
+        }
+
+        $score = 0;
+        $reasons = [];
 
         if (null !== $renderedAtTimestamp && $renderedAtTimestamp > 0) {
             $elapsed = $submittedAtTimestamp - $renderedAtTimestamp;
@@ -55,9 +61,14 @@ final readonly class FeedbackSpamChecker
         }
 
         $urlCount = preg_match_all('/\b(?:https?:\/\/|www\.)\S+/i', $message);
-        if (\is_int($urlCount) && $urlCount > 1) {
-            $score += 3;
-            $reasons[] = 'multiple_urls';
+        if (\is_int($urlCount) && $urlCount >= 1) {
+            // A single URL alone stays under the anonymous threshold (6); multiple URLs tip it.
+            $score += 4;
+            $reasons[] = 'contains_url';
+            if ($urlCount >= 2) {
+                $score += 2;
+                $reasons[] = 'multiple_urls';
+            }
         }
 
         if (1 === preg_match('/<[^>]+>/', $message)) {

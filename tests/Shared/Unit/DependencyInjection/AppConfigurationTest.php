@@ -28,6 +28,21 @@ final class AppConfigurationTest extends TestCase
         self::assertSame('csv', $processed['import']['reject_writer']);
         self::assertSame(4, $processed['feedback']['spam']['min_submission_seconds']);
         self::assertSame(1800, $processed['feedback']['spam']['long_message_threshold']);
-        self::assertSame(['casino', 'crypto', 'loan', 'viagra', 'seo', 'backlink', 'guest post'], $processed['feedback']['spam']['keywords']);
+        self::assertSame(4000, $processed['feedback']['spam']['max_message_length']);
+        self::assertSame([
+            'casino',
+            'crypto',
+            'loan',
+            'viagra',
+            'seo',
+            'backlink',
+            'guest post',
+            'cialis',
+            'forex',
+            'nft',
+            'weight loss',
+            'make money',
+            'click here',
+        ], $processed['feedback']['spam']['keywords']);
     }
 }

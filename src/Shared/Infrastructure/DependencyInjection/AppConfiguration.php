@@ -89,6 +89,10 @@ final class AppConfiguration implements ConfigurationInterface
                                     ->defaultValue(1800)
                                     ->min(200)
                                 ->end()
+                                ->integerNode('max_message_length')
+                                    ->defaultValue(4000)
+                                    ->min(200)
+                                ->end()
                                 ->integerNode('anonymous_threshold')
                                     ->defaultValue(6)
                                     ->min(1)
@@ -103,7 +107,21 @@ final class AppConfiguration implements ConfigurationInterface
                                 ->end()
                                 ->arrayNode('keywords')
                                     ->scalarPrototype()->end()
-                                    ->defaultValue(['casino', 'crypto', 'loan', 'viagra', 'seo', 'backlink', 'guest post'])
+                                    ->defaultValue([
+                                        'casino',
+                                        'crypto',
+                                        'loan',
+                                        'viagra',
+                                        'seo',
+                                        'backlink',
+                                        'guest post',
+                                        'cialis',
+                                        'forex',
+                                        'nft',
+                                        'weight loss',
+                                        'make money',
+                                        'click here',
+                                    ])
                                 ->end()
                             ->end()
                         ->end()

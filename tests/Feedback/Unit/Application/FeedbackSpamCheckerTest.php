@@ -14,6 +14,7 @@ final class FeedbackSpamCheckerTest extends TestCase
         return new FeedbackSpamChecker(
             minSubmissionSeconds: 4,
             longMessageThreshold: 1800,
+            maxMessageLength: 4000,
             anonymousThreshold: 6,
             authenticatedThreshold: 8,
             authenticatedScoreBonus: 2,
@@ -50,6 +51,22 @@ final class FeedbackSpamCheckerTest extends TestCase
         self::assertContains('submitted_too_fast', $result->getReasons());
     }
 
+    public function testSingleUrlAloneIsNotSpamForAnonymous(): void
+    {
+        $result = $this->createChecker()->check(
+            message: 'See https://a.example for details.',
+            honeypotValue: '',
+            renderedAtTimestamp: time() - 20,
+            submittedAtTimestamp: time(),
+            isAuthenticated: false,
+        );
+
+        self::assertFalse($result->isSpam());
+        self::assertSame(4, $result->getScore());
+        self::assertContains('contains_url', $result->getReasons());
+        self::assertNotContains('multiple_urls', $result->getReasons());
+    }
+
     public function testMultipleLinksIncreaseSpamScore(): void
     {
         $result = $this->createChecker()->check(
@@ -60,8 +77,10 @@ final class FeedbackSpamCheckerTest extends TestCase
             isAuthenticated: false,
         );
 
-        self::assertGreaterThanOrEqual(3, $result->getScore());
+        self::assertTrue($result->isSpam());
+        self::assertContains('contains_url', $result->getReasons());
         self::assertContains('multiple_urls', $result->getReasons());
+        self::assertGreaterThanOrEqual(6, $result->getScore());
     }
 
     public function testHtmlContentIncreasesSpamScore(): void
@@ -78,22 +97,22 @@ final class FeedbackSpamCheckerTest extends TestCase
         self::assertContains('contains_html', $result->getReasons());
     }
 
-    public function testAuthenticatedUserIsLessStrict(): void
+    public function testAuthenticatedUserIsLessStrictForMultipleUrls(): void
     {
         $now = time();
-        $message = 'Visit https://a.example and https://b.example';
+        $message = 'Visit https://a.example and https://b.example please';
 
         $anonymousResult = $this->createChecker()->check(
             message: $message,
             honeypotValue: '',
-            renderedAtTimestamp: $now - 1,
+            renderedAtTimestamp: $now - 20,
             submittedAtTimestamp: $now,
             isAuthenticated: false,
         );
         $authenticatedResult = $this->createChecker()->check(
             message: $message,
             honeypotValue: '',
-            renderedAtTimestamp: $now - 1,
+            renderedAtTimestamp: $now - 20,
             submittedAtTimestamp: $now,
             isAuthenticated: true,
         );
@@ -156,5 +175,20 @@ final class FeedbackSpamCheckerTest extends TestCase
         );
 
         self::assertContains('very_long_message', $result->getReasons());
+    }
+
+    public function testMessageAboveMaxLengthIsHardRejected(): void
+    {
+        $result = $this->createChecker()->check(
+            message: str_repeat('a', 4001),
+            honeypotValue: '',
+            renderedAtTimestamp: time() - 20,
+            submittedAtTimestamp: time(),
+            isAuthenticated: false,
+        );
+
+        self::assertTrue($result->isSpam());
+        self::assertSame(100, $result->getScore());
+        self::assertContains('message_too_long', $result->getReasons());
     }
 }
