@@ -91,6 +91,8 @@ Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`.
 4. Smoke-test: register a user, request a password reset, submit feedback.
 5. If mail does not arrive, check `messenger:stats`, `messenger:failed:show`, and `journalctl --user -u messenger -f`.
 
+Feedback admin notifications include a short, URL-stripped message preview (max 250 characters) and a link to the full entry in EasyAdmin — the full user text is not put in outbound SMTP payloads.
+
 ## Troubleshooting
 
 | Symptom | Likely cause |
@@ -99,5 +101,6 @@ Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`.
 | Reset link or mail images use `http://localhost` | `APP_URL` unset or wrong; restart worker after change |
 | Feedback saved but no admin email | No user with Admin + Receives Feedback |
 | Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |
+| `554 5.7.1 Spam message rejected` (or other SMTP 5xx) | Permanent rejection by the MTA (often spammy user content in outbound mail). Message goes to the `failed` transport **without** the usual 5 retries. Do **not** blindly retry; inspect content, delete the failed message, and fix the source (e.g. feedback spam). |
 
 More symptoms: [troubleshooting.md](troubleshooting.md)
