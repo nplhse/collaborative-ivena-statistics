@@ -8,6 +8,9 @@ use App\Allocation\Application\Export\ExportDateTimeRangeResolver;
 use App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData;
 use App\Allocation\UI\Form\Validation\ExportDateRangeValid;
 use App\Allocation\UI\Form\Validation\ExportDateRangeValidValidator;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
@@ -39,6 +42,27 @@ final class ExportDateRangeValidValidatorTest extends ConstraintValidatorTestCas
         $this->validator->validate($data, new ExportDateRangeValid());
 
         $this->assertNoViolation();
+    }
+
+    public function testSkipsNullValue(): void
+    {
+        $this->validator->validate(null, new ExportDateRangeValid());
+
+        $this->assertNoViolation();
+    }
+
+    public function testThrowsForInvalidConstraintType(): void
+    {
+        $this->expectException(UnexpectedTypeException::class);
+
+        $this->validator->validate(null, new NotBlank());
+    }
+
+    public function testThrowsForNonFormDataValue(): void
+    {
+        $this->expectException(UnexpectedValueException::class);
+
+        $this->validator->validate(new \stdClass(), new ExportDateRangeValid());
     }
 
     public function testViolationWhenDatesReversed(): void
