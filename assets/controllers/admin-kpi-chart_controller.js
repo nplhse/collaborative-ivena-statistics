@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { loadApexCharts } from '../lib/load-apexcharts.js';
+import { applyChartNonce, loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
 export default class extends Controller {
@@ -41,7 +41,7 @@ export default class extends Controller {
         const maxRecords = records.length ? Math.max(...records) : 0;
         const maxRate = rejectionRates.length ? Math.max(...rejectionRates) : 0;
 
-        const options = {
+        const options = applyChartNonce({
             chart: {
                 type: 'line',
                 height: 280,
@@ -120,7 +120,7 @@ export default class extends Controller {
                         seriesIndex === 1 ? `${value.toFixed(2)}%` : Math.round(value).toString(),
                 },
             },
-        };
+        });
 
         if (generation !== this._renderGeneration || !this.hasChartTarget) {
             return;
