@@ -61,3 +61,15 @@
 .ea-failed-messages-row-actions {
     gap: 0.5rem;
 }
+
+.ea-failed-messages-select-col {
+    width: 2.5rem;
+}
+
+.ea-failed-messages-pre-headers {
+    max-height: 16rem;
+}
+
+.ea-failed-messages-pre-body {
+    max-height: 28rem;
+}
