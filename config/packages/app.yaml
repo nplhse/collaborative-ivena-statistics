@@ -23,7 +23,21 @@ app:
         spam:
             min_submission_seconds: 4
             long_message_threshold: 1800
+            max_message_length: 4000
             anonymous_threshold: 6
             authenticated_threshold: 8
             authenticated_score_bonus: 2
-            keywords: ['casino', 'crypto', 'loan', 'viagra', 'seo', 'backlink', 'guest post']
+            keywords:
+                - casino
+                - crypto
+                - loan
+                - viagra
+                - seo
+                - backlink
+                - guest post
+                - cialis
+                - forex
+                - nft
+                - weight loss
+                - make money
+                - click here

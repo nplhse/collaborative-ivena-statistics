@@ -206,6 +206,60 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertSame(0, $repo->count([]));
     }
 
+    public function testAnonymousSubmissionWithUrlIsSilentlyDropped(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'url-spam@example.test',
+            'category' => 'other',
+            'message' => 'Check out https://spam.example/offer for deals.',
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        self::assertSame(0, $repo->count([]));
+    }
+
+    public function testMessageAboveMaxLengthGetsValidationFlash(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'toolong@example.test',
+            'category' => 'bug',
+            'message' => str_repeat('a', 4001),
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-danger');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        self::assertSame(0, $repo->count([]));
+    }
+
     public function testInvalidExtraContextAndRouteAreSanitized(): void
     {
         $client = self::createClient();

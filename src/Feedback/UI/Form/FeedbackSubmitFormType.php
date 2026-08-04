@@ -64,7 +64,7 @@ final class FeedbackSubmitFormType extends AbstractType
                 'attr' => ['rows' => 5],
                 'constraints' => [
                     new Assert\NotBlank(),
-                    new Assert\Length(min: 3, max: 5000),
+                    new Assert\Length(min: 3, max: 4000),
                 ],
                 'required' => true,
             ])
