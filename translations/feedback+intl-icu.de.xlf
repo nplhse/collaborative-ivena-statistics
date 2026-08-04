@@ -45,6 +45,14 @@
         <source>feedback.email.label.message</source>
         <target>Nachricht</target>
       </trans-unit>
+      <trans-unit id="FbkEmlFullDe" resname="feedback.email.full_message_in_admin">
+        <source>feedback.email.full_message_in_admin</source>
+        <target>Die vollständige Nachricht finden Sie im Admin-Bereich.</target>
+      </trans-unit>
+      <trans-unit id="FbkEmlOpenDe" resname="feedback.email.open_in_admin">
+        <source>feedback.email.open_in_admin</source>
+        <target>Feedback im Admin öffnen</target>
+      </trans-unit>
       <trans-unit id="FbkEmlPgDe" resname="feedback.email.label.page">
         <source>feedback.email.label.page</source>
         <target>Seite</target>

@@ -60,7 +60,14 @@
                                 </div>
                                 <div style="background-color:{{ quoteBg }};border-radius:8px;padding:14px 16px;display:inline-block;width:calc(100% - 32px);box-sizing:border-box;">
                                     <div style="font-weight:600;color:{{ fgHeading }};margin-bottom:8px;">{{ 'feedback.email.label.message'|trans({}, 'feedback') }}</div>
-                                    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word;">{{ feedback.message|e('html') }}</p>
+                                    <p style="margin:0 0 12px;font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word;">{{ messagePreview|e('html') }}</p>
+                                    <p style="margin:0;font-size:13px;line-height:1.5;color:{{ fg }};">
+                                        {{ 'feedback.email.full_message_in_admin'|trans({}, 'feedback') }}
+                                        {% if adminUrl %}
+                                            <br/>
+                                            <a href="{{ adminUrl }}" style="color:{{ link }};text-decoration:none;">{{ 'feedback.email.open_in_admin'|trans({}, 'feedback') }}</a>
+                                        {% endif %}
+                                    </p>
                                 </div>
                                 {% if feedback.userAgent %}
                                     <div style="margin-top:24px;font-size:12px;color:{{ fg }};">

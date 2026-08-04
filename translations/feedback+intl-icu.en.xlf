@@ -105,6 +105,14 @@
         <source>feedback.email.label.message</source>
         <target>Message</target>
       </trans-unit>
+      <trans-unit id="fb025" resname="feedback.email.full_message_in_admin">
+        <source>feedback.email.full_message_in_admin</source>
+        <target>Full message is available in the admin panel.</target>
+      </trans-unit>
+      <trans-unit id="fb026" resname="feedback.email.open_in_admin">
+        <source>feedback.email.open_in_admin</source>
+        <target>Open feedback in admin</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
