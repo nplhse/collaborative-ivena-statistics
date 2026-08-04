@@ -51,7 +51,7 @@ final class FeedbackSpamCheckerTest extends TestCase
         self::assertContains('submitted_too_fast', $result->getReasons());
     }
 
-    public function testSingleUrlIsSpamForAnonymous(): void
+    public function testSingleUrlAloneIsNotSpamForAnonymous(): void
     {
         $result = $this->createChecker()->check(
             message: 'See https://a.example for details.',
@@ -61,7 +61,8 @@ final class FeedbackSpamCheckerTest extends TestCase
             isAuthenticated: false,
         );
 
-        self::assertTrue($result->isSpam());
+        self::assertFalse($result->isSpam());
+        self::assertSame(4, $result->getScore());
         self::assertContains('contains_url', $result->getReasons());
         self::assertNotContains('multiple_urls', $result->getReasons());
     }
@@ -79,7 +80,7 @@ final class FeedbackSpamCheckerTest extends TestCase
         self::assertTrue($result->isSpam());
         self::assertContains('contains_url', $result->getReasons());
         self::assertContains('multiple_urls', $result->getReasons());
-        self::assertGreaterThanOrEqual(8, $result->getScore());
+        self::assertGreaterThanOrEqual(6, $result->getScore());
     }
 
     public function testHtmlContentIncreasesSpamScore(): void
@@ -96,10 +97,10 @@ final class FeedbackSpamCheckerTest extends TestCase
         self::assertContains('contains_html', $result->getReasons());
     }
 
-    public function testAuthenticatedUserIsLessStrictForSingleUrl(): void
+    public function testAuthenticatedUserIsLessStrictForMultipleUrls(): void
     {
         $now = time();
-        $message = 'Visit https://a.example please';
+        $message = 'Visit https://a.example and https://b.example please';
 
         $anonymousResult = $this->createChecker()->check(
             message: $message,

@@ -62,8 +62,8 @@ final readonly class FeedbackSpamChecker
 
         $urlCount = preg_match_all('/\b(?:https?:\/\/|www\.)\S+/i', $message);
         if (\is_int($urlCount) && $urlCount >= 1) {
-            // One URL is enough to push anonymous submissions over the default threshold.
-            $score += 6;
+            // A single URL alone stays under the anonymous threshold (6); multiple URLs tip it.
+            $score += 4;
             $reasons[] = 'contains_url';
             if ($urlCount >= 2) {
                 $score += 2;

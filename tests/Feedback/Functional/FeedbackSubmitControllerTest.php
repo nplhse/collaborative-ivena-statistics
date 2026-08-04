@@ -206,7 +206,36 @@ final class FeedbackSubmitControllerTest extends WebTestCase
         self::assertSame(0, $repo->count([]));
     }
 
-    public function testAnonymousSubmissionWithUrlIsSilentlyDropped(): void
+    public function testAnonymousSubmissionWithSingleUrlIsAccepted(): void
+    {
+        $client = self::createClient();
+        $this->acceptEssentialCookiesOnly($client);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $token = $this->csrfTokenFromFeedbackForm($client);
+        $message = 'Bug screenshot: https://example.test/shot.png';
+
+        $this->submitFeedbackPost($client, [
+            '_token' => $token,
+            '_redirect_target' => '/',
+            'guestEmail' => 'single-url@example.test',
+            'category' => 'bug',
+            'message' => $message,
+        ]);
+
+        self::assertResponseRedirects();
+        $client->followRedirect();
+        self::assertSelectorExists('.alert-success');
+
+        /** @var FeedbackRepository $repo */
+        $repo = self::getContainer()->get(FeedbackRepository::class);
+        $feedback = $repo->findOneBy(['message' => $message]);
+        self::assertNotNull($feedback);
+    }
+
+    public function testAnonymousSubmissionWithMultipleUrlsIsSilentlyDropped(): void
     {
         $client = self::createClient();
         $this->acceptEssentialCookiesOnly($client);
@@ -221,7 +250,7 @@ final class FeedbackSubmitControllerTest extends WebTestCase
             '_redirect_target' => '/',
             'guestEmail' => 'url-spam@example.test',
             'category' => 'other',
-            'message' => 'Check out https://spam.example/offer for deals.',
+            'message' => 'See https://a.example and https://b.example for deals.',
         ]);
 
         self::assertResponseRedirects();
