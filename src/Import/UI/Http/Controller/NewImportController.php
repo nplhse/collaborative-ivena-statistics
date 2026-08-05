@@ -7,6 +7,9 @@ namespace App\Import\UI\Http\Controller;
 use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
@@ -47,6 +50,7 @@ final class NewImportController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly AuditContext $auditContext,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
+        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -155,6 +159,8 @@ final class NewImportController extends AbstractController
         }
 
         $this->bus->dispatch(new ImportAllocationsMessage($importId));
+
+        $this->usageAnalytics->record(UsageEventName::IMPORT_STARTED, FeatureArea::Import);
 
         $this->addFlash('success', new TranslatableMessage('flash.import.created', domain: 'import'));
 

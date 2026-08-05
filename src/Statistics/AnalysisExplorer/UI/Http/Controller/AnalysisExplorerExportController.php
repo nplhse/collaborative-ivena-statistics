@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\Http\Controller;
 
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
@@ -41,6 +44,7 @@ final class AnalysisExplorerExportController extends AbstractController
         private readonly ExplorerResultsTableExportBuilder $exportBuilder,
         private readonly AnalysisExportServiceInterface $exportService,
         private readonly LoggerInterface $logger,
+        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -98,6 +102,8 @@ final class AnalysisExplorerExportController extends AbstractController
         }
 
         $document = $this->exportBuilder->build($normalizedConfig, $result);
+
+        $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_EXPORTED_CSV, FeatureArea::Export);
 
         return $this->exportService->exportTable($document, 'csv', $result->title);
     }

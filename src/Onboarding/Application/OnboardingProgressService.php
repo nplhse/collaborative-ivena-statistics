@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Onboarding\Application;
 
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Onboarding\Application\Dto\OnboardingCardView;
 use App\Onboarding\Domain\Entity\UserOnboardingStep;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
@@ -18,6 +21,7 @@ final readonly class OnboardingProgressService
     public function __construct(
         private OnboardingStepCatalog $stepCatalog,
         private UserOnboardingStepRepository $stepRepository,
+        private UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -78,6 +82,12 @@ final readonly class OnboardingProgressService
         }
 
         $this->stepRepository->save(new UserOnboardingStep($user, $stepKey));
+
+        $this->usageAnalytics->record(
+            UsageEventName::ONBOARDING_STEP_COMPLETED,
+            FeatureArea::Other,
+            ['step' => $stepKey->value],
+        );
     }
 
     /**

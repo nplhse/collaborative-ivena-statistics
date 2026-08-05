@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\User;
 
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -28,6 +31,7 @@ final class GrantParticipantController extends AbstractController
         private readonly UriSigner $uriSigner,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly AuditContext $auditContext,
+        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -63,6 +67,12 @@ final class GrantParticipantController extends AbstractController
             } finally {
                 $this->auditContext->endIntent();
             }
+
+            $this->usageAnalytics->recordForUser(
+                UsageEventName::USER_BECAME_PARTICIPANT,
+                $user,
+                FeatureArea::Other,
+            );
 
             $this->addFlash('success', new TranslatableMessage('flash.admin.user.grant_participant.success', domain: 'admin'));
         } else {

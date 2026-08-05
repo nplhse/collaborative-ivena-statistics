@@ -11,6 +11,9 @@ use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogIndicationNormalizationQuery;
 use App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter;
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +27,7 @@ final class ShowIndicationNormalizedController extends AbstractController
         private readonly CatalogActionFactory $actionFactory,
         private readonly CatalogIndicationNormalizationQuery $normalizationQuery,
         private readonly CatalogDefinitionChangeFactory $definitionChangeFactory,
+        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -49,6 +53,12 @@ final class ShowIndicationNormalizedController extends AbstractController
         $normalization = $canViewNormalization
             ? $this->normalizationQuery->forTarget($id)
             : null;
+
+        $this->usageAnalytics->record(
+            UsageEventName::EXPLORE_INDICATION_OPENED,
+            FeatureArea::Explore,
+            ['entity' => 'indication'],
+        );
 
         return $this->render('@Allocation/indications/show_normalized.html.twig', [
             'indication' => $indication,

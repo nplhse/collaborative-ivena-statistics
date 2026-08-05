@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller;
 
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
@@ -38,6 +41,7 @@ final class RegistrationController extends AbstractController
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LocaleResolver $localeResolver,
         private readonly RegistrationIdentityGuard $registrationIdentityChecker,
+        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -149,6 +153,8 @@ final class RegistrationController extends AbstractController
         } finally {
             $this->auditContext->endIntent();
         }
+
+        $this->usageAnalytics->record(UsageEventName::USER_EMAIL_CONFIRMED, FeatureArea::Other);
 
         $this->addFlash('success', new TranslatableMessage('flash.registration.verify.success', domain: 'user'));
 
