@@ -1,0 +1,90 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Usage analytics — Adoption{% endblock %}
+
+{% block main %}
+    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Top usage events (7 days)</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Event</th><th class="text-end">Count</th><th class="text-end">Unique users</th></tr></thead>
+                        <tbody>
+                            {% for row in adoption.topEvents %}
+                                <tr>
+                                    <td><code>{{ row.eventName }}</code></td>
+                                    <td class="text-end">{{ row.eventCount }}</td>
+                                    <td class="text-end">{{ row.uniqueUsers }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3" class="text-muted">No events yet (requires analytics consent).</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Events by role (7 days)</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Event</th><th>Role</th><th class="text-end">Count</th></tr></thead>
+                        <tbody>
+                            {% for row in adoption.eventsByRole %}
+                                <tr>
+                                    <td><code>{{ row.eventName }}</code></td>
+                                    <td>{{ row.userRole }}</td>
+                                    <td class="text-end">{{ row.eventCount }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3" class="text-muted">No events yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Role × feature area (7 days)</div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead><tr><th>Role</th><th>Area</th><th class="text-end">Requests</th></tr></thead>
+                <tbody>
+                    {% for row in adoption.roleAreaMatrix %}
+                        <tr>
+                            <td>{{ row.userRole }}</td>
+                            <td>{{ row.featureArea }}</td>
+                            <td class="text-end">{{ row.requestCount }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3" class="text-muted">No data yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Engagement depth (30 days)</h3>
+    <div class="card mb-2">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead><tr><th>Level</th><th>Meaning</th><th class="text-end">Users</th></tr></thead>
+                <tbody>
+                    {% for row in adoption.engagementDepth %}
+                        <tr>
+                            <td>{{ row.level }}</td>
+                            <td>{{ row.label }}</td>
+                            <td class="text-end">{{ row.userCount }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

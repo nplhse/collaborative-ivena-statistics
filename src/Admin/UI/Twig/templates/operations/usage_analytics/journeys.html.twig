@@ -1,0 +1,114 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Usage analytics — Journeys{% endblock %}
+
+{% block main %}
+    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
+
+    <h3 class="mb-3">Onboarding funnel (30 days)</h3>
+    <div class="card mb-4">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead><tr><th>Step</th><th class="text-end">Unique users</th><th class="text-end">Conversion from previous</th></tr></thead>
+                <tbody>
+                    {% for row in journeys.onboardingFunnel %}
+                        <tr>
+                            <td><code>{{ row.step }}</code></td>
+                            <td class="text-end">{{ row.uniqueUsers }}</td>
+                            <td class="text-end">
+                                {% if row.conversionFromPreviousPercent is not null %}
+                                    {{ row.conversionFromPreviousPercent }}%
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3" class="text-muted">No funnel data yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Time to first value (30 days)</h3>
+    <div class="card mb-4">
+        <div class="card-body text-muted small mb-0">
+            Median days from first registration/participant event to first import, analysis run, or export (same analytics user key).
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead><tr><th>Milestone</th><th class="text-end">Median days</th><th class="text-end">Sample size</th></tr></thead>
+                <tbody>
+                    {% for row in journeys.timeToFirst %}
+                        <tr>
+                            <td>{{ row.metric }}</td>
+                            <td class="text-end">
+                                {% if row.medianDays is not null %}{{ row.medianDays }}{% else %}—{% endif %}
+                            </td>
+                            <td class="text-end">{{ row.sampleSize }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Navigation (7 days, consented sessions)</h3>
+    <div class="row g-3 mb-2">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">Entry routes</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Route</th><th class="text-end">Sessions</th></tr></thead>
+                        <tbody>
+                            {% for row in journeys.entryRoutes %}
+                                <tr><td><code>{{ row.routeName }}</code></td><td class="text-end">{{ row.sessionCount }}</td></tr>
+                            {% else %}
+                                <tr><td colspan="2" class="text-muted">No data.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">Exit routes</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Route</th><th class="text-end">Sessions</th></tr></thead>
+                        <tbody>
+                            {% for row in journeys.exitRoutes %}
+                                <tr><td><code>{{ row.routeName }}</code></td><td class="text-end">{{ row.sessionCount }}</td></tr>
+                            {% else %}
+                                <tr><td colspan="2" class="text-muted">No data.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">Top transitions</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>From → To</th><th class="text-end">Count</th></tr></thead>
+                        <tbody>
+                            {% for row in journeys.transitions %}
+                                <tr>
+                                    <td><code>{{ row.fromRoute }}</code> → <code>{{ row.toRoute }}</code></td>
+                                    <td class="text-end">{{ row.transitionCount }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="2" class="text-muted">No data.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

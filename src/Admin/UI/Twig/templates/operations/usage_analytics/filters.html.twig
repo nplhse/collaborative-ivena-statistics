@@ -1,0 +1,49 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Usage analytics — Filters{% endblock %}
+
+{% block main %}
+    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
+
+    <div class="row g-3 mb-2">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Most used filter parameter names (7 days)</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Parameter</th><th class="text-end">Uses</th></tr></thead>
+                        <tbody>
+                            {% for row in filters.topFilterParams %}
+                                <tr><td><code>{{ row.paramName }}</code></td><td class="text-end">{{ row.usageCount }}</td></tr>
+                            {% else %}
+                                <tr><td colspan="2" class="text-muted">No filter params yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Requests with vs without filters (7 days)</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Area</th><th class="text-end">With</th><th class="text-end">Without</th><th class="text-end">% with</th></tr></thead>
+                        <tbody>
+                            {% for row in filters.filterUsageByArea %}
+                                <tr>
+                                    <td>{{ row.featureArea }}</td>
+                                    <td class="text-end">{{ row.withFilters }}</td>
+                                    <td class="text-end">{{ row.withoutFilters }}</td>
+                                    <td class="text-end">{{ row.withFiltersPercent }}%</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4" class="text-muted">No data.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
