@@ -171,6 +171,22 @@ Typical order (Symfony recipe plus project tasks):
 
 See [health-check.md](health-check.md) for the `/health` endpoint and [backup-restore.md](backup-restore.md) for backups.
 
+### Usage analytics rollout
+
+After deploying the Analytics migration (`Version20260804151958`) and the new `analytics` cookie preference:
+
+1. Confirm migrations applied (`doctrine:migrations:status`).
+2. Re-prompt existing users for consent (old rows treat missing `analytics` as false while `decidedAt` stays set — banner would not reappear otherwise). Prefer deleting consent rows rather than silently enabling analytics:
+
+   ```bash
+   cd ~/html/current   # or your release path
+   php bin/console dbal:run-sql 'SELECT COUNT(*) AS n FROM cookie_consent'
+   php bin/console dbal:run-sql 'DELETE FROM cookie_consent'
+   ```
+
+   Details: [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#rollout-re-prompt-after-introducing-analytics).
+3. Smoke-check Admin → **Usage analytics** → Overview after accepting cookies with “Accept all”.
+
 Recommended beta operations rhythm:
 - Weekly (minimum): `cd ~/www/current && php bin/console messenger:failed:show`
 - Immediately when `/health` reports `degraded`: follow [health-check.md](health-check.md#runbook-degraded-or-failed-queue-entries)

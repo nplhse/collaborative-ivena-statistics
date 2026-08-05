@@ -4,4 +4,4 @@
 
 | Document | Description |
 |----------|-------------|
-| [usage-analytics.md](usage-analytics.md) | Request tracking, consent, privacy, admin aggregates |
+| [usage-analytics.md](usage-analytics.md) | Request tracking, consent (incl. rollout reset), privacy, events, admin pages |
