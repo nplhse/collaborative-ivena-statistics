@@ -5,9 +5,10 @@
 ## Scope
 
 - Automatic request tracking into `analytics_request`
-- Consent preference `analytics` (separate from Sentry `monitoring`)
+- Consent preference `analytics` (optional; essential cookies remain required)
 - Usage events into `analytics_product_event` via `UsageAnalytics` (consent-gated)
 - Admin insights under `/admin/operations/usage-analytics/*` (menu section above System)
+- **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Server-side error monitoring (e.g. Sentry) is separate and not controlled by this cookie preference.
 
 Tables are created by migration `Version20260804151958` (run with normal deploy migrations).
 
@@ -19,19 +20,19 @@ Not stored: IP, full URLs, query values, SQL, raw user agent, referrer, POST/for
 
 ## Cookie consent (`analytics` preference)
 
-Preferences live in `cookie_consent.preferences` JSON: `{ essential, monitoring, analytics }`.
+Preferences live in `cookie_consent.preferences` JSON: `{ essential, analytics }`. Legacy `monitoring` keys in stored JSON are ignored.
 
-| Banner / UI action | `monitoring` | `analytics` |
-|--------------------|--------------|-------------|
-| Accept all | true | true |
-| Essential only | false | false |
-| Preferences form | checkbox | checkbox |
+| Banner / UI action | `analytics` |
+|--------------------|-------------|
+| Accept all | true |
+| Essential only | false |
+| Preferences form | checkbox |
 
 Banner is shown when `decidedAt` is null (`cookie_consent.decided` in Twig). Login also requires a decided consent.
 
 ### Backward compatibility
 
-Older rows may lack the `analytics` key. Missing values are treated as **`false`**. Users who already decided (including former “accept all”) therefore keep the banner hidden while **analytics stays off** until they decide again.
+Older rows may lack the `analytics` key. Missing values are treated as **`false`**. Users who already decided (including former “accept all” when only monitoring existed) therefore keep the banner hidden while **analytics stays off** until they decide again.
 
 ### Rollout: re-prompt after introducing analytics
 
@@ -48,7 +49,7 @@ php bin/console dbal:run-sql 'DELETE FROM cookie_consent'
 Alternative (keep rows, clear decision):
 
 ```bash
-php bin/console dbal:run-sql "UPDATE cookie_consent SET decided_at = NULL, preferences = '{\"essential\":true,\"monitoring\":false,\"analytics\":false}'::jsonb"
+php bin/console dbal:run-sql "UPDATE cookie_consent SET decided_at = NULL, preferences = '{\"essential\":true,\"analytics\":false}'::jsonb"
 ```
 
 (`::jsonb` assumes PostgreSQL; adjust if the column type differs.)
@@ -91,7 +92,7 @@ $this->usageAnalytics->recordForUser(UsageEventName::IMPORT_COMPLETED, $user, Fe
 
 Event names live in `App\Analytics\Domain\UsageEventName`. Context must be non-PII (e.g. `step`, `entity`, `user_role`) — **no** hospital/patient IDs or filter values.
 
-### Event catalog (Phase 1)
+### Event catalog
 
 | Event | Typical hook |
 |-------|----------------|
@@ -135,7 +136,7 @@ Steps (unique `analytics_user_key`):
 
 Conversion % is step N → N+1. **Reliable only with analytics consent + user keys**; anonymous traffic stays in request aggregates only.
 
-## Admin insights (Phase 1)
+## Admin insights
 
 Menu section **Usage analytics** (above System), one page per topic:
 
