@@ -44,21 +44,6 @@
                                     <input
                                         class="form-check-input"
                                         type="checkbox"
-                                        name="monitoring"
-                                        value="1"
-                                        {% if consent.preferences.monitoring %}checked{% endif %}
-                                    >
-                                    <span class="form-check-label">
-                                        <strong>{{ 'cookie.preferences.monitoring.title'|trans({}, 'shared') }}</strong>
-                                        <span class="d-block text-secondary">{{ 'cookie.preferences.monitoring.text'|trans({}, 'shared') }}</span>
-                                    </span>
-                                </label>
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-check form-switch">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
                                         name="analytics"
                                         value="1"
                                         {% if consent.preferences.analytics %}checked{% endif %}

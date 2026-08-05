@@ -36,7 +36,7 @@ final class CookieConsentController extends AbstractController
         $acceptAll = \array_key_exists('all', $submitted);
 
         $consent = $this->cookieConsentService->resolveForRequest($request, $this->currentUser());
-        $this->cookieConsentService->applyPreference($consent, $acceptAll, $acceptAll, $this->currentUser());
+        $this->cookieConsentService->applyPreference($consent, $acceptAll, $this->currentUser());
 
         $target = $this->resolveSafeLocalPath((string) ($submitted['target'] ?? '/'));
 
@@ -61,9 +61,8 @@ final class CookieConsentController extends AbstractController
         }
 
         $consent = $this->cookieConsentService->resolveForRequest($request, $this->currentUser());
-        $monitoring = $request->request->has('monitoring');
         $analytics = $request->request->has('analytics');
-        $this->cookieConsentService->applyPreference($consent, $monitoring, $analytics, $this->currentUser());
+        $this->cookieConsentService->applyPreference($consent, $analytics, $this->currentUser());
         $this->addFlash('success', new TranslatableMessage('flash.cookies.updated', domain: 'shared'));
 
         return $this->redirectToRoute('app_cookie_preferences');

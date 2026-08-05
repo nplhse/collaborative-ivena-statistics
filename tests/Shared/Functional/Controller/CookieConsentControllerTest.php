@@ -25,7 +25,7 @@ final class CookieConsentControllerTest extends WebTestCase
         self::assertGreaterThan(0, $crawler->filter('input[name="cookie_consent_banner[_token]"]')->count());
     }
 
-    public function testBannerPostAcceptAllPersistsMonitoring(): void
+    public function testBannerPostAcceptAllPersistsAnalyticsConsent(): void
     {
         $client = self::createClient();
         $crawler = $client->request(Request::METHOD_GET, '/');
@@ -69,7 +69,6 @@ final class CookieConsentControllerTest extends WebTestCase
 
         $client->request(Request::METHOD_POST, '/cookies/preferences', [
             '_token' => $token,
-            'monitoring' => '1',
             'analytics' => '1',
         ]);
 

@@ -30,11 +30,10 @@ class CookieConsent
     #[ORM\Column(length: 16)]
     private string $consentVersion = 'v1';
 
-    /** @var array{essential: bool, monitoring: bool, analytics: bool} */
+    /** @var array{essential: bool, analytics: bool} */
     #[ORM\Column]
     private array $preferences = [
         'essential' => true,
-        'monitoring' => false,
         'analytics' => false,
     ];
 
@@ -84,22 +83,20 @@ class CookieConsent
     }
 
     /**
-     * @return array{essential: bool, monitoring: bool, analytics: bool}
+     * @return array{essential: bool, analytics: bool}
      */
     public function getPreferences(): array
     {
         return [
             'essential' => true,
-            'monitoring' => $this->preferences['monitoring'] ?? false,
             'analytics' => $this->preferences['analytics'] ?? false,
         ];
     }
 
-    public function setConsents(bool $monitoring, bool $analytics): self
+    public function setConsents(bool $analytics): self
     {
         $this->preferences = [
             'essential' => true,
-            'monitoring' => $monitoring,
             'analytics' => $analytics,
         ];
         $this->decidedAt = new \DateTimeImmutable();

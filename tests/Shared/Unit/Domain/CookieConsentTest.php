@@ -17,7 +17,7 @@ final class CookieConsentTest extends TestCase
         self::assertSame('abc123', $consent->getSubjectId());
         self::assertNull($consent->getDecidedAt());
         self::assertSame(
-            ['essential' => true, 'monitoring' => false, 'analytics' => false],
+            ['essential' => true, 'analytics' => false],
             $consent->getPreferences(),
         );
         self::assertSame('v1', $consent->getConsentVersion());
@@ -27,18 +27,18 @@ final class CookieConsentTest extends TestCase
     {
         $consent = new CookieConsent('subj');
 
-        $consent->setConsents(true, true);
+        $consent->setConsents(true);
 
         self::assertInstanceOf(\DateTimeImmutable::class, $consent->getDecidedAt());
         self::assertSame(
-            ['essential' => true, 'monitoring' => true, 'analytics' => true],
+            ['essential' => true, 'analytics' => true],
             $consent->getPreferences(),
         );
 
-        $consent->setConsents(false, true);
+        $consent->setConsents(false);
 
         self::assertSame(
-            ['essential' => true, 'monitoring' => false, 'analytics' => true],
+            ['essential' => true, 'analytics' => false],
             $consent->getPreferences(),
         );
     }
@@ -46,7 +46,7 @@ final class CookieConsentTest extends TestCase
     public function testGetPreferencesDefaultsMissingAnalyticsKey(): void
     {
         $consent = new CookieConsent('legacy');
-        $consent->setConsents(true, false);
+        $consent->setConsents(false);
 
         $reflection = new \ReflectionProperty($consent, 'preferences');
         $reflection->setValue($consent, [
@@ -55,7 +55,7 @@ final class CookieConsentTest extends TestCase
         ]);
 
         self::assertSame(
-            ['essential' => true, 'monitoring' => true, 'analytics' => false],
+            ['essential' => true, 'analytics' => false],
             $consent->getPreferences(),
         );
     }

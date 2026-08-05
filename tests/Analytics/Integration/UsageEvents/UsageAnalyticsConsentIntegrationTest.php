@@ -43,7 +43,7 @@ final class UsageAnalyticsConsentIntegrationTest extends KernelTestCase
 
         $request = Request::create('/');
         $consent = $consentService->resolveForRequest($request, $user);
-        $consentService->applyPreference($consent, false, true, $user);
+        $consentService->applyPreference($consent, true, $user);
 
         $analytics->recordForUser(UsageEventName::IMPORT_COMPLETED, $user, FeatureArea::Import);
 

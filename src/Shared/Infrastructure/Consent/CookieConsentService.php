@@ -38,12 +38,12 @@ final readonly class CookieConsentService
         return $consent;
     }
 
-    public function applyPreference(CookieConsent $consent, bool $monitoring, bool $analytics, ?User $user): void
+    public function applyPreference(CookieConsent $consent, bool $analytics, ?User $user): void
     {
         if ($user instanceof User) {
             $consent->setUser($user);
         }
-        $consent->setConsents($monitoring, $analytics);
+        $consent->setConsents($analytics);
         $this->repository->save($consent);
     }
 
@@ -86,7 +86,7 @@ final readonly class CookieConsentService
     /**
      * @return array{
      *   decided: bool,
-     *   preferences: array{essential: bool, monitoring: bool, analytics: bool},
+     *   preferences: array{essential: bool, analytics: bool},
      *   consentVersion: string
      * }
      */

@@ -23,7 +23,7 @@
       </trans-unit>
       <trans-unit id="CkyBanTxtDe" resname="cookie.banner.text">
         <source>cookie.banner.text</source>
-        <target>Wir verwenden notwendige Cookies für den Betrieb dieser Anwendung sowie optionale Monitoring- und Analytics-Cookies zur Verbesserung von Zuverlässigkeit und Produkt.</target>
+        <target>Wir verwenden notwendige Cookies für den Betrieb dieser Anwendung sowie optionale Analytics-Cookies zur Verbesserung der Nutzungserfahrung.</target>
       </trans-unit>
       <trans-unit id="CkyBanTitDe" resname="cookie.banner.title">
         <source>cookie.banner.title</source>
@@ -45,21 +45,9 @@
         <source>cookie.preferences.intro</source>
         <target>Wählen Sie, welche optionalen Cookie-Kategorien verwendet werden dürfen.</target>
       </trans-unit>
-      <trans-unit id="CkyPrefMonHintDe" resname="cookie.preferences.monitoring.provider_hint">
-        <source>cookie.preferences.monitoring.provider_hint</source>
-        <target>Derzeit nutzt diese Kategorie Sentry für Anwendungs- und Fehlerüberwachung.</target>
-      </trans-unit>
-      <trans-unit id="CkyPrefMonTxDe" resname="cookie.preferences.monitoring.text">
-        <source>cookie.preferences.monitoring.text</source>
-        <target>Hilft uns, die Stabilität der Anwendung und Fehlerraten zu überwachen.</target>
-      </trans-unit>
-      <trans-unit id="CkyPrefMonTiDe" resname="cookie.preferences.monitoring.title">
-        <source>cookie.preferences.monitoring.title</source>
-        <target>Monitoring-Cookies</target>
-      </trans-unit>
       <trans-unit id="CkyPrefAnaTxDe" resname="cookie.preferences.analytics.text">
         <source>cookie.preferences.analytics.text</source>
-        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Es werden keine IP-Adressen und keine Original-User-Agents gespeichert.</target>
+        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Die Auswertung erfolgt ausschließlich serverseitig in dieser Anwendung, ohne externe Analytics-Anbieter. Es werden keine IP-Adressen und keine Original-User-Agents gespeichert.</target>
       </trans-unit>
       <trans-unit id="CkyPrefAnaTiDe" resname="cookie.preferences.analytics.title">
         <source>cookie.preferences.analytics.title</source>

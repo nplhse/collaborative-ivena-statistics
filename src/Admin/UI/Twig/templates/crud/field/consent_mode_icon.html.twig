@@ -1,25 +1,19 @@
 {% set mode = field.formattedValue %}
 
-{% if mode == 'monitoring_and_analytics' or mode == 'analytics_enabled' or mode == 'monitoring_enabled' %}
+{% if mode == 'analytics_enabled' %}
     <span
         class="badge bg-green-lt text-green-fg"
-        title="{% if mode == 'monitoring_and_analytics' %}Monitoring + Analytics{% elseif mode == 'analytics_enabled' %}Analytics{% else %}{{ 'label.admin.cookies.monitoring_enabled'|trans({}, 'messages') }}{% endif %}"
+        title="Analytics"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        aria-label="{% if mode == 'monitoring_and_analytics' %}Monitoring + Analytics{% elseif mode == 'analytics_enabled' %}Analytics{% else %}{{ 'label.admin.cookies.monitoring_enabled'|trans({}, 'messages') }}{% endif %}"
+        aria-label="Analytics"
     >
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-line me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
             <path d="M4 19l16 0" />
             <path d="M4 15l4 -6l4 2l4 -5l4 4" />
         </svg>
-        {% if mode == 'monitoring_and_analytics' %}
-            Monitoring + Analytics
-        {% elseif mode == 'analytics_enabled' %}
-            Analytics
-        {% else %}
-            {{ 'label.admin.cookies.monitoring_enabled'|trans({}, 'messages') }}
-        {% endif %}
+        Analytics
     </span>
 {% else %}
     <span
