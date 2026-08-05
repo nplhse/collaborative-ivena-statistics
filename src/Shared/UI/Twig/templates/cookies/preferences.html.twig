@@ -54,6 +54,21 @@
                                     </span>
                                 </label>
                             </div>
+                            <div class="mb-4">
+                                <label class="form-check form-switch">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="analytics"
+                                        value="1"
+                                        {% if consent.preferences.analytics %}checked{% endif %}
+                                    >
+                                    <span class="form-check-label">
+                                        <strong>{{ 'cookie.preferences.analytics.title'|trans({}, 'shared') }}</strong>
+                                        <span class="d-block text-secondary">{{ 'cookie.preferences.analytics.text'|trans({}, 'shared') }}</span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                         <div class="card-footer d-flex justify-content-between">
                             <a class="btn btn-outline-secondary" href="{{ path('app_default') }}">{{ 'label.back'|trans({}, 'messages') }}</a>

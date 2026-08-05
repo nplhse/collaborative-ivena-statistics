@@ -23,7 +23,7 @@
       </trans-unit>
       <trans-unit id="CkyBanTxtDe" resname="cookie.banner.text">
         <source>cookie.banner.text</source>
-        <target>Wir verwenden notwendige Cookies für den Betrieb dieser Anwendung und optionale Monitoring-Cookies zur Verbesserung der Zuverlässigkeit.</target>
+        <target>Wir verwenden notwendige Cookies für den Betrieb dieser Anwendung sowie optionale Monitoring- und Analytics-Cookies zur Verbesserung von Zuverlässigkeit und Produkt.</target>
       </trans-unit>
       <trans-unit id="CkyBanTitDe" resname="cookie.banner.title">
         <source>cookie.banner.title</source>
@@ -56,6 +56,14 @@
       <trans-unit id="CkyPrefMonTiDe" resname="cookie.preferences.monitoring.title">
         <source>cookie.preferences.monitoring.title</source>
         <target>Monitoring-Cookies</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefAnaTxDe" resname="cookie.preferences.analytics.text">
+        <source>cookie.preferences.analytics.text</source>
+        <target>Hilft uns zu verstehen, welche Bereiche der Anwendung genutzt werden. Es werden keine IP-Adressen und keine Original-User-Agents gespeichert.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefAnaTiDe" resname="cookie.preferences.analytics.title">
+        <source>cookie.preferences.analytics.title</source>
+        <target>Analytics-Cookies</target>
       </trans-unit>
       <trans-unit id="CkyPrefSaveDe" resname="cookie.preferences.save">
         <source>cookie.preferences.save</source>

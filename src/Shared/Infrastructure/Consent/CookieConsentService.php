@@ -38,12 +38,12 @@ final readonly class CookieConsentService
         return $consent;
     }
 
-    public function applyPreference(CookieConsent $consent, bool $monitoring, ?User $user): void
+    public function applyPreference(CookieConsent $consent, bool $monitoring, bool $analytics, ?User $user): void
     {
         if ($user instanceof User) {
             $consent->setUser($user);
         }
-        $consent->setMonitoringConsent($monitoring);
+        $consent->setConsents($monitoring, $analytics);
         $this->repository->save($consent);
     }
 
@@ -59,6 +59,12 @@ final readonly class CookieConsentService
 
         $consent->setUser($user);
         $this->repository->save($consent);
+    }
+
+    public function hasAnalyticsConsent(CookieConsent $consent): bool
+    {
+        return $consent->getDecidedAt() instanceof \DateTimeImmutable
+            && ($consent->getPreferences()['analytics'] ?? false);
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */
@@ -80,7 +86,7 @@ final readonly class CookieConsentService
     /**
      * @return array{
      *   decided: bool,
-     *   preferences: array{essential: bool, monitoring: bool},
+     *   preferences: array{essential: bool, monitoring: bool, analytics: bool},
      *   consentVersion: string
      * }
      */

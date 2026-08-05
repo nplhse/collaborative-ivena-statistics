@@ -70,8 +70,12 @@ final class CookieConsentControllerTest extends WebTestCase
         $client->request(Request::METHOD_POST, '/cookies/preferences', [
             '_token' => $token,
             'monitoring' => '1',
+            'analytics' => '1',
         ]);
 
         self::assertResponseRedirects('/cookies/preferences');
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[name="analytics"][checked]');
     }
 }

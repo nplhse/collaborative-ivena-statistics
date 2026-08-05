@@ -55,14 +55,26 @@ final class CookieConsentCrudController extends AbstractCrudController
         yield AssociationField::new('user', 'User');
         yield TextField::new('consentVersion', 'Version');
         yield TextField::new('consentMode', 'Mode')
-            ->setHelp('Legend: shield = essential only, chart = monitoring enabled.')
+            ->setHelp('Legend: shield = essential only, chart = monitoring, graph = analytics.')
             ->setTemplatePath('@Admin/crud/field/consent_mode_icon.html.twig')
             ->renderAsHtml()
             ->setValue('')
             ->formatValue(static function (mixed $_, CookieConsent $consent): string {
                 $prefs = $consent->getPreferences();
+                $monitoring = $prefs['monitoring'] ?? false;
+                $analytics = $prefs['analytics'] ?? false;
 
-                return ($prefs['monitoring'] ?? false) ? 'monitoring_enabled' : 'essential_only';
+                if ($monitoring && $analytics) {
+                    return 'monitoring_and_analytics';
+                }
+                if ($analytics) {
+                    return 'analytics_enabled';
+                }
+                if ($monitoring) {
+                    return 'monitoring_enabled';
+                }
+
+                return 'essential_only';
             });
         yield DateTimeField::new('decidedAt', 'Decided at')
             ->setFormat('yyyy-MM-dd HH:mm:ss');

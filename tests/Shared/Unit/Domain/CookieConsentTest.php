@@ -16,22 +16,48 @@ final class CookieConsentTest extends TestCase
 
         self::assertSame('abc123', $consent->getSubjectId());
         self::assertNull($consent->getDecidedAt());
-        self::assertSame(['essential' => true, 'monitoring' => false], $consent->getPreferences());
+        self::assertSame(
+            ['essential' => true, 'monitoring' => false, 'analytics' => false],
+            $consent->getPreferences(),
+        );
         self::assertSame('v1', $consent->getConsentVersion());
     }
 
-    public function testSetMonitoringConsentRecordsDecisionAndPreferences(): void
+    public function testSetConsentsRecordsDecisionAndPreferences(): void
     {
         $consent = new CookieConsent('subj');
 
-        $consent->setMonitoringConsent(true);
+        $consent->setConsents(true, true);
 
         self::assertInstanceOf(\DateTimeImmutable::class, $consent->getDecidedAt());
-        self::assertSame(['essential' => true, 'monitoring' => true], $consent->getPreferences());
+        self::assertSame(
+            ['essential' => true, 'monitoring' => true, 'analytics' => true],
+            $consent->getPreferences(),
+        );
 
-        $consent->setMonitoringConsent(false);
+        $consent->setConsents(false, true);
 
-        self::assertSame(['essential' => true, 'monitoring' => false], $consent->getPreferences());
+        self::assertSame(
+            ['essential' => true, 'monitoring' => false, 'analytics' => true],
+            $consent->getPreferences(),
+        );
+    }
+
+    public function testGetPreferencesDefaultsMissingAnalyticsKey(): void
+    {
+        $consent = new CookieConsent('legacy');
+        $consent->setConsents(true, false);
+
+        $reflection = new \ReflectionProperty($consent, 'preferences');
+        $reflection->setValue($consent, [
+            'essential' => true,
+            'monitoring' => true,
+        ]);
+
+        self::assertSame(
+            ['essential' => true, 'monitoring' => true, 'analytics' => false],
+            $consent->getPreferences(),
+        );
     }
 
     public function testSetUserIsFluent(): void

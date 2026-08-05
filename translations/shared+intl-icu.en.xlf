@@ -23,7 +23,7 @@
       </trans-unit>
       <trans-unit id="w0UG6MC" resname="cookie.banner.text">
         <source>cookie.banner.text</source>
-        <target>We use essential cookies to run this app and optional monitoring cookies to improve reliability.</target>
+        <target>We use essential cookies to run this app and optional monitoring and analytics cookies to improve reliability and the product.</target>
       </trans-unit>
       <trans-unit id="1r7OhrC" resname="cookie.banner.title">
         <source>cookie.banner.title</source>
@@ -56,6 +56,14 @@
       <trans-unit id="qJ7ToIK" resname="cookie.preferences.monitoring.title">
         <source>cookie.preferences.monitoring.title</source>
         <target>Monitoring cookies</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefAnaTxEn" resname="cookie.preferences.analytics.text">
+        <source>cookie.preferences.analytics.text</source>
+        <target>Helps us understand which parts of the application are used. No IP addresses or raw user agents are stored.</target>
+      </trans-unit>
+      <trans-unit id="CkyPrefAnaTiEn" resname="cookie.preferences.analytics.title">
+        <source>cookie.preferences.analytics.title</source>
+        <target>Analytics cookies</target>
       </trans-unit>
       <trans-unit id="I21gDqr" resname="cookie.preferences.save">
         <source>cookie.preferences.save</source>
