@@ -6,8 +6,6 @@ namespace App\Analytics\Domain;
 
 /**
  * Canonical usage event names. No DSL — plain string constants.
- *
- * @psalm-suppress UnusedConstructor Enum-like constants holder.
  */
 final class UsageEventName
 {

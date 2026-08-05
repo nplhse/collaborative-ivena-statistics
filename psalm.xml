@@ -113,6 +113,7 @@
         </UnusedProperty>
         <UnusedConstructor>
             <errorLevel type="suppress">
+                <file name="src/Analytics/Domain/UsageEventName.php" />
                 <file name="src/Import/Application/ImportDispatchExitCode.php" />
                 <file name="src/Import/Application/ImportAllowedFileTypes.php" />
                 <file name="src/Shared/Application/PublicId/PublicIdBackfillExitCode.php" />

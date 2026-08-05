@@ -131,7 +131,7 @@ final readonly class AnalyticsRequestSubscriber
         $securityUser = $this->security->getUser();
         $appUser = $securityUser instanceof User ? $securityUser : null;
         $isAuthenticated = $appUser instanceof User;
-        $userRole = $isAuthenticated ? $this->resolvePrimaryRole($appUser) : null;
+        $userRole = $appUser instanceof User ? $this->resolvePrimaryRole($appUser) : null;
         $analyticsUserKey = null;
         if ($analyticsConsent && $appUser instanceof User) {
             $userId = $appUser->getId();
