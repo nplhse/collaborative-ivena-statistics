@@ -41,6 +41,13 @@ services:
             - '**/Infrastructure/Faker'
             - 'User/Domain/Factory'
 
+    App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounterMiddleware:
+        tags:
+            - { name: doctrine.middleware }
+
+    App\Analytics\Application\UsageEvents\UsageEventContextResolverInterface: '@App\Analytics\Application\UsageEvents\UsageEventContextResolver'
+    App\Analytics\Application\UsageEvents\UsageEventRecorderInterface: '@App\Analytics\Application\UsageEvents\UsageEventRecorder'
+
     app.lock.pdo:
         class: PDO
         factory: ['@doctrine.dbal.default_connection', 'getNativeConnection']

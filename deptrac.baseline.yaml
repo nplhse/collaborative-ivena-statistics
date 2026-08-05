@@ -297,6 +297,10 @@ deptrac:
     App\Kpi\Domain\Entity\KpiDaily:
       - App\Allocation\Domain\Entity\Hospital
       - App\Kpi\Infrastructure\Repository\KpiDailyRepository
+    App\Analytics\Domain\Entity\AnalyticsRequest:
+      - App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository
+    App\Analytics\Domain\Entity\AnalyticsProductEvent:
+      - App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository
     App\Kpi\Infrastructure\Scheduler\KpiScheduleProvider:
       - App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage
     App\Onboarding\Application\OnboardingProgressService:
