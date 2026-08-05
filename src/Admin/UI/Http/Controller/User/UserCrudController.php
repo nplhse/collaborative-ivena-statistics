@@ -182,6 +182,9 @@ final class UserCrudController extends AbstractCrudController
                 && $entityInstance->getId() === $currentUser->getId()
                 && !$entityInstance->isEnabled()
             ) {
+                // Discard the in-memory disable before aborting. Rendering the
+                // exception page (or any later flush) would otherwise persist it.
+                $entityManager->refresh($entityInstance);
                 throw new \LogicException('You cannot disable your own account.');
             }
 
