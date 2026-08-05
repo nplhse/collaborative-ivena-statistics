@@ -25,4 +25,19 @@ final class QueryParameterNameExtractorTest extends TestCase
 
         self::assertSame(['gender', 'list', 'shockRoom', 'urgency'], $names);
     }
+
+    public function testSkipsEmptyNamesNullAndNestedEmptyArrays(): void
+    {
+        $extractor = new QueryParameterNameExtractor();
+
+        $names = $extractor->extract([
+            '' => 'ignored',
+            'nullValue' => null,
+            'nestedEmpty' => ['', null, []],
+            'kept' => '1',
+            'nestedKept' => ['', 'x'],
+        ]);
+
+        self::assertSame(['kept', 'nestedKept'], $names);
+    }
 }
