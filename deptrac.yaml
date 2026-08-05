@@ -203,6 +203,30 @@ deptrac:
                     type: directory
                     value: src/Kpi/UI/.*
         -
+            name: Analytics_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Analytics/Domain/.*
+        -
+            name: Analytics_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Analytics/Application/.*
+        -
+            name: Analytics_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Analytics/Infrastructure/.*
+        -
+            name: Analytics_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Analytics/UI/.*
+        -
             name: Feedback_Domain
             collectors:
                 -
@@ -311,6 +335,10 @@ deptrac:
             - Kpi_Domain
             - Kpi_Infrastructure
             - Kpi_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Analytics_Infrastructure
+            - Analytics_UI
             - Onboarding_Application
             - Onboarding_Domain
             - Onboarding_Infrastructure
@@ -357,6 +385,10 @@ deptrac:
             - Kpi_Domain
             - Kpi_Infrastructure
             - Kpi_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Analytics_Infrastructure
+            - Analytics_UI
             - Onboarding_Application
             - Onboarding_Domain
             - Onboarding_Infrastructure
@@ -403,6 +435,10 @@ deptrac:
             - Kpi_Domain
             - Kpi_Infrastructure
             - Kpi_UI
+            - Analytics_Application
+            - Analytics_Domain
+            - Analytics_Infrastructure
+            - Analytics_UI
             - Onboarding_Application
             - Onboarding_Domain
             - Onboarding_Infrastructure
@@ -457,6 +493,8 @@ deptrac:
         Allocation_UI:
             - Allocation_Application
             - Allocation_Domain
+            - Analytics_Application
+            - Analytics_Domain
             - Import_Domain
             - Shared_Application
             - Shared_Domain
@@ -650,6 +688,8 @@ deptrac:
             - Allocation_Domain
             - Allocation_Infrastructure
             - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
             - Import_Application
             - Import_Domain
             - Shared_Application
@@ -717,7 +757,46 @@ deptrac:
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
+        Analytics_Application:
+            - Analytics_Domain
+            - Analytics_Infrastructure
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Analytics_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Analytics_Infrastructure:
+            - Analytics_Application
+            - Analytics_Domain
+            - Import_Application
+            - Import_Domain
+            - Import_Infrastructure
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Analytics_UI:
+            - Analytics_Application
+            - Analytics_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
         Onboarding_Application:
+            - Analytics_Application
+            - Analytics_Domain
             - Onboarding_Domain
             - Shared_Application
             - Shared_Domain
@@ -799,6 +878,8 @@ deptrac:
             - Allocation_Domain
             - Allocation_Infrastructure
             - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
             - Import_Application
             - Import_Domain
             - Import_Infrastructure
@@ -849,6 +930,8 @@ deptrac:
             - Allocation_Domain
             - Allocation_Infrastructure
             - Allocation_UI
+            - Analytics_Application
+            - Analytics_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -882,6 +965,8 @@ deptrac:
             - User_Domain
         User_UI:
             - Allocation_Domain
+            - Analytics_Application
+            - Analytics_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

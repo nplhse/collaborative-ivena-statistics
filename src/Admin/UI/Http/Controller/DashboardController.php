@@ -38,6 +38,7 @@ use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
 use App\Admin\UI\Http\Controller\Statistics\SavedExplorerViewCrudController;
 use App\Admin\UI\Http\Controller\User\UserCrudController;
+use App\Analytics\Application\Service\AnalyticsDashboardService;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\Kpi\Application\Service\KpiDashboardService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
@@ -65,6 +66,7 @@ final class DashboardController extends AbstractDashboardController
         private readonly KpiDashboardService $kpiDashboardService,
         private readonly OperationalDashboardService $operationalDashboardService,
         private readonly MessengerStatsRepository $messengerStatsRepository,
+        private readonly AnalyticsDashboardService $analyticsDashboardService,
     ) {
     }
 
@@ -95,6 +97,52 @@ final class DashboardController extends AbstractDashboardController
         return $this->render('@Admin/operations/failed_messages_index.html.twig', [
             'messages' => $this->messengerStatsRepository->findFailedMessages(),
             'total_count' => $this->messengerStatsRepository->countFailedMessages(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics', name: 'operations_usage_analytics')]
+    public function usageAnalytics(): RedirectResponse
+    {
+        return $this->redirectToRoute('app_admin_dashboard_operations_usage_analytics_overview');
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics/overview', name: 'operations_usage_analytics_overview')]
+    public function usageAnalyticsOverview(): Response
+    {
+        return $this->render('@Admin/operations/usage_analytics/overview.html.twig', [
+            'overview' => $this->analyticsDashboardService->getOverview(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics/adoption', name: 'operations_usage_analytics_adoption')]
+    public function usageAnalyticsAdoption(): Response
+    {
+        return $this->render('@Admin/operations/usage_analytics/adoption.html.twig', [
+            'adoption' => $this->analyticsDashboardService->getAdoption(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics/journeys', name: 'operations_usage_analytics_journeys')]
+    public function usageAnalyticsJourneys(): Response
+    {
+        return $this->render('@Admin/operations/usage_analytics/journeys.html.twig', [
+            'journeys' => $this->analyticsDashboardService->getJourneys(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics/filters', name: 'operations_usage_analytics_filters')]
+    public function usageAnalyticsFilters(): Response
+    {
+        return $this->render('@Admin/operations/usage_analytics/filters.html.twig', [
+            'filters' => $this->analyticsDashboardService->getFilters(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/usage-analytics/performance', name: 'operations_usage_analytics_performance')]
+    public function usageAnalyticsPerformance(): Response
+    {
+        return $this->render('@Admin/operations/usage_analytics/performance.html.twig', [
+            'performance' => $this->analyticsDashboardService->getPerformance(),
         ]);
     }
 
@@ -306,6 +354,41 @@ final class DashboardController extends AbstractDashboardController
                 ],
             ],
             [
+                'title' => 'Usage analytics',
+                'tiles' => [
+                    [
+                        'label' => 'Overview',
+                        'description' => 'Requests, retention, feature areas',
+                        'icon' => 'fas fa-gauge-high',
+                        'route' => 'app_admin_dashboard_operations_usage_analytics_overview',
+                    ],
+                    [
+                        'label' => 'Adoption',
+                        'description' => 'Events, roles, engagement depth',
+                        'icon' => 'fas fa-chart-line',
+                        'route' => 'app_admin_dashboard_operations_usage_analytics_adoption',
+                    ],
+                    [
+                        'label' => 'Journeys',
+                        'description' => 'Onboarding funnel, navigation, time-to-first',
+                        'icon' => 'fas fa-route',
+                        'route' => 'app_admin_dashboard_operations_usage_analytics_journeys',
+                    ],
+                    [
+                        'label' => 'Filters',
+                        'description' => 'Filter parameter adoption',
+                        'icon' => 'fas fa-filter',
+                        'route' => 'app_admin_dashboard_operations_usage_analytics_filters',
+                    ],
+                    [
+                        'label' => 'Performance',
+                        'description' => 'Latency and DB load by feature area',
+                        'icon' => 'fas fa-tachometer-alt',
+                        'route' => 'app_admin_dashboard_operations_usage_analytics_performance',
+                    ],
+                ],
+            ],
+            [
                 'title' => 'System',
                 'tiles' => [
                     [
@@ -396,6 +479,13 @@ final class DashboardController extends AbstractDashboardController
         ]);
         yield MenuItem::linkTo(PageCrudController::class, new TranslatableMessage('label.pages', domain: 'content'), 'fas fa-file');
         yield MenuItem::linkTo(MediaCrudController::class, new TranslatableMessage('label.media_library', domain: 'content'), 'fas fa-photo-film');
+
+        yield MenuItem::section('Usage analytics');
+        yield MenuItem::linkToRoute('Overview', 'fas fa-gauge-high', 'app_admin_dashboard_operations_usage_analytics_overview');
+        yield MenuItem::linkToRoute('Adoption', 'fas fa-chart-line', 'app_admin_dashboard_operations_usage_analytics_adoption');
+        yield MenuItem::linkToRoute('Journeys', 'fas fa-route', 'app_admin_dashboard_operations_usage_analytics_journeys');
+        yield MenuItem::linkToRoute('Filters', 'fas fa-filter', 'app_admin_dashboard_operations_usage_analytics_filters');
+        yield MenuItem::linkToRoute('Performance', 'fas fa-tachometer-alt', 'app_admin_dashboard_operations_usage_analytics_performance');
 
         yield MenuItem::section('System');
         yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');

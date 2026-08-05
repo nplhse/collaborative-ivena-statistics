@@ -8,7 +8,7 @@ The frontend uses Symfony Asset Mapper, Stimulus, Turbo, and Live Components. Th
 - Config: `config/packages/asset_mapper.yaml` — path `assets/`, `missing_import_mode: strict` (prod: `warn`)
 - Import map: `importmap.php` — registers Stimulus, Turbo, Live Component, ApexCharts, Leaflet, and other dependencies
 
-Additional entrypoints: `admin-kpi`, `admin-page-form`, `admin-trix-media`, `error-page`, `monitoring`.
+Additional entrypoints: `admin-kpi`, `admin-page-form`, `admin-trix-media`, `error-page`.
 
 ## Stimulus
 

@@ -31,6 +31,26 @@ trait CookieConsentTestHelper
         return $browser;
     }
 
+    protected function acceptAnalyticsCookies(KernelBrowser $browser): KernelBrowser
+    {
+        $hasBanner = false;
+
+        $browser
+            ->visit('/')
+            ->assertSuccessful()
+            ->use(static function (Crawler $crawler) use (&$hasBanner): void {
+                $hasBanner = $crawler->filter('form[action="/cookies/banner"] button[name="cookie_consent_banner[all]"]')->count() > 0;
+            });
+
+        if ($hasBanner) {
+            $browser
+                ->click('Allow All Cookies')
+                ->assertSuccessful();
+        }
+
+        return $browser;
+    }
+
     protected function loginWithConsent(KernelBrowser $browser, string $username, string $password = 'password'): KernelBrowser
     {
         return $this->acceptEssentialCookies($browser)

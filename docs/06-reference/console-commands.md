@@ -93,6 +93,12 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:audit:purge-import-assessments` | One-time cleanup of import-generated `Assessment` `create` entries in `audit_log`. Default: dry-run preview. See [../05-operations/audit-log-maintenance.md](../05-operations/audit-log-maintenance.md). |
 
+### Doctrine / ad-hoc SQL
+
+| Command | Purpose |
+|---|---|
+| `dbal:run-sql '…'` | Run a single SQL statement (ops one-offs). Example: reset cookie consents after introducing the `analytics` preference — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#rollout-re-prompt-after-introducing-analytics). |
+
 ### DataFixtures (dev/test only)
 
 | Command | Purpose |

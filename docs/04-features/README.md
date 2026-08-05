@@ -13,6 +13,7 @@
 | [allocation/](allocation/) | Allocation exploration, indication normalization |
 | [onboarding/](onboarding/) | Participant onboarding checklist |
 | [kpi/](kpi/) | Daily KPI aggregation |
+| [analytics/](analytics/) | Server-side usage analytics |
 
 ## Reading order
 

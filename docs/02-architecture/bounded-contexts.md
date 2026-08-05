@@ -11,6 +11,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Feedback` | Feedback widget and notifications |
 | `Admin` | EasyAdmin back office |
 | `Kpi` | Daily KPI aggregation into `kpi_daily` |
+| `Analytics` | Server-side usage analytics (request tracking, consent-gated visitor keys) |
 | `Install` | `app:install`, `app:env:check` |
 | `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
 | `Content` | Content pages and blog |

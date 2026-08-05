@@ -26,6 +26,7 @@
         <testsuite name="unit">
             <directory>tests/Admin/Unit</directory>
             <directory>tests/Allocation/Unit</directory>
+            <directory>tests/Analytics/Unit</directory>
             <directory>tests/Content/Unit</directory>
             <directory>tests/Engagement/Unit</directory>
             <directory>tests/Feedback/Unit</directory>
@@ -39,6 +40,7 @@
 
         <testsuite name="integration">
             <directory>tests/Allocation/Integration</directory>
+            <directory>tests/Analytics/Integration</directory>
             <directory>tests/Content/Integration</directory>
             <directory>tests/Engagement/Integration</directory>
             <directory>tests/Import/Integration</directory>
@@ -52,6 +54,7 @@
         <testsuite name="functional">
             <directory>tests/Admin/Functional</directory>
             <directory>tests/Allocation/Functional</directory>
+            <directory>tests/Analytics/Functional</directory>
             <directory>tests/Content/Functional</directory>
             <directory>tests/Engagement/Functional</directory>
             <directory>tests/Feedback/Functional</directory>

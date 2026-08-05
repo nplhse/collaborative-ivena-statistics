@@ -217,10 +217,6 @@
         <source>label.admin.cookies.essential_only</source>
         <target>Nur notwendige</target>
       </trans-unit>
-      <trans-unit id="De3943cd32" resname="label.admin.cookies.monitoring_enabled">
-        <source>label.admin.cookies.monitoring_enabled</source>
-        <target>Monitoring aktiviert</target>
-      </trans-unit>
       <trans-unit id="lblAgeDe" resname="label.age">
         <source>label.age</source>
         <target>Alter</target>

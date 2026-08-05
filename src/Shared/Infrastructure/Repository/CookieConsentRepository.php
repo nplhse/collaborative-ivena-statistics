@@ -23,6 +23,14 @@ final class CookieConsentRepository extends ServiceEntityRepository
         return $this->findOneBy(['subjectId' => $subjectId]);
     }
 
+    /**
+     * @return list<CookieConsent>
+     */
+    public function findByUser(\App\User\Domain\Entity\User $user): array
+    {
+        return $this->findBy(['user' => $user]);
+    }
+
     public function save(CookieConsent $consent): void
     {
         $this->getEntityManager()->persist($consent);

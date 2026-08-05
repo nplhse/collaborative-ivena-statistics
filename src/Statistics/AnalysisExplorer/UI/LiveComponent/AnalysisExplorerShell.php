@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
@@ -202,6 +205,7 @@ final class AnalysisExplorerShell
         private readonly ExplorerEditAxisSwapper $editAxisSwapper,
         private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -704,6 +708,7 @@ final class AnalysisExplorerShell
         try {
             $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
             $this->result = $this->runnerRegistry->run($currentConfig, $query);
+            $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_RUN, FeatureArea::Analysis);
         } catch (UnsupportedAnalysisException) {
             $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config', [], 'statistics');
             $this->emptyReason = 'unsupported';

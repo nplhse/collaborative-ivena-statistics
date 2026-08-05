@@ -173,10 +173,6 @@
         <source>label.admin.cookies.essential_only</source>
         <target>Essential only</target>
       </trans-unit>
-      <trans-unit id="HTE7ESd" resname="label.admin.cookies.monitoring_enabled">
-        <source>label.admin.cookies.monitoring_enabled</source>
-        <target>Monitoring enabled</target>
-      </trans-unit>
       <trans-unit id="dnzVgba" resname="label.age">
         <source>label.age</source>
         <target>Age</target>

@@ -44,13 +44,13 @@
                                     <input
                                         class="form-check-input"
                                         type="checkbox"
-                                        name="monitoring"
+                                        name="analytics"
                                         value="1"
-                                        {% if consent.preferences.monitoring %}checked{% endif %}
+                                        {% if consent.preferences.analytics %}checked{% endif %}
                                     >
                                     <span class="form-check-label">
-                                        <strong>{{ 'cookie.preferences.monitoring.title'|trans({}, 'shared') }}</strong>
-                                        <span class="d-block text-secondary">{{ 'cookie.preferences.monitoring.text'|trans({}, 'shared') }}</span>
+                                        <strong>{{ 'cookie.preferences.analytics.title'|trans({}, 'shared') }}</strong>
+                                        <span class="d-block text-secondary">{{ 'cookie.preferences.analytics.text'|trans({}, 'shared') }}</span>
                                     </span>
                                 </label>
                             </div>

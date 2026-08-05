@@ -77,7 +77,7 @@ final class CookieConsentServiceTest extends KernelTestCase
         self::assertSame($user->getId(), $reloaded->getUser()->getId());
     }
 
-    public function testApplyPreferencePersistsMonitoringFlag(): void
+    public function testApplyPreferencePersistsAnalyticsFlag(): void
     {
         self::bootKernel();
 
@@ -91,8 +91,27 @@ final class CookieConsentServiceTest extends KernelTestCase
 
         $reloaded = $repository->findOneBySubjectId($consent->getSubjectId());
         self::assertNotNull($reloaded);
-        self::assertTrue($reloaded->getPreferences()['monitoring']);
+        self::assertTrue($reloaded->getPreferences()['analytics']);
+        self::assertTrue($service->hasAnalyticsConsent($reloaded));
         self::assertInstanceOf(\DateTimeImmutable::class, $reloaded->getDecidedAt());
+    }
+
+    public function testApplyPreferenceCanDeclineAnalytics(): void
+    {
+        self::bootKernel();
+
+        $service = self::getContainer()->get(CookieConsentService::class);
+        $repository = self::getContainer()->get(CookieConsentRepository::class);
+
+        $request = Request::create('/');
+        $consent = $service->resolveForRequest($request, null);
+
+        $service->applyPreference($consent, false, null);
+
+        $reloaded = $repository->findOneBySubjectId($consent->getSubjectId());
+        self::assertNotNull($reloaded);
+        self::assertFalse($reloaded->getPreferences()['analytics']);
+        self::assertFalse($service->hasAnalyticsConsent($reloaded));
     }
 
     public function testAttachUserLinksExistingDecidedConsentWithoutChangingPreferences(): void
@@ -125,6 +144,6 @@ final class CookieConsentServiceTest extends KernelTestCase
         self::assertNotNull($reloaded);
         self::assertNotNull($reloaded->getUser());
         self::assertSame($newUser->getId(), $reloaded->getUser()->getId());
-        self::assertTrue($reloaded->getPreferences()['monitoring']);
+        self::assertTrue($reloaded->getPreferences()['analytics']);
     }
 }

@@ -1,0 +1,70 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Usage analytics — Performance{% endblock %}
+
+{% block main %}
+    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
+
+    {% if performance.performanceInsights is not empty %}
+        <div class="alert alert-info mb-3">
+            <strong>Prioritization hints</strong>
+            <ul class="mb-0 mt-2">
+                {% for insight in performance.performanceInsights %}
+                    <li>{{ insight }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="card mb-4">
+        <div class="card-header">By feature area (7 days)</div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th class="text-end">Requests</th>
+                        <th class="text-end">Avg ms</th>
+                        <th class="text-end">P95 ms</th>
+                        <th class="text-end">Avg queries</th>
+                        <th class="text-end">Error %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in performance.performanceByArea %}
+                        <tr>
+                            <td>{{ row.featureArea }}</td>
+                            <td class="text-end">{{ row.requestCount }}</td>
+                            <td class="text-end">{{ row.avgDurationMs }}</td>
+                            <td class="text-end">{{ row.p95DurationMs }}</td>
+                            <td class="text-end">{{ row.avgQueries }}</td>
+                            <td class="text-end">{{ row.errorRatePercent }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="text-muted">No data.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header">Slowest routes (min. 5 requests, 7 days)</div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead><tr><th>Route</th><th class="text-end">Requests</th><th class="text-end">Avg ms</th></tr></thead>
+                <tbody>
+                    {% for row in performance.slowestRoutes %}
+                        <tr>
+                            <td><code>{{ row.routeName }}</code></td>
+                            <td class="text-end">{{ row.requestCount }}</td>
+                            <td class="text-end">{{ row.avgDurationMs }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3" class="text-muted">No data.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

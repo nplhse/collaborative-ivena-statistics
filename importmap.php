@@ -32,9 +32,6 @@ return [
         'path' => './assets/error-page.js',
         'entrypoint' => true,
     ],
-    'monitoring' => [
-        'path' => './assets/monitoring.js',
-    ],
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
     ],

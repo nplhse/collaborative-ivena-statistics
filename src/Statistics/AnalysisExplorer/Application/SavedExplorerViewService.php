@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Analytics\Application\UsageEvents\UsageAnalytics;
+use App\Analytics\Domain\Enum\FeatureArea;
+use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\Domain\Entity\SavedExplorerView;
@@ -19,6 +22,7 @@ final readonly class SavedExplorerViewService
         private ExplorerConfigMapper $configMapper,
         private AnalysisViewConfigNormalizer $configNormalizer,
         private AnalysisViewConfigValidator $configValidator,
+        private UsageAnalytics $usageAnalytics,
     ) {
     }
 
@@ -45,6 +49,8 @@ final readonly class SavedExplorerViewService
         );
 
         $this->repository->save($view);
+
+        $this->usageAnalytics->record(UsageEventName::ANALYSIS_SAVED_VIEW_CREATED, FeatureArea::Analysis);
 
         return $view;
     }

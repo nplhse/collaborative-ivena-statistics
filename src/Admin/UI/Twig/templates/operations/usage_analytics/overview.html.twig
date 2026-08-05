@@ -1,0 +1,89 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Usage analytics — Overview{% endblock %}
+
+{% block main %}
+    {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">Requests today</div>
+                <div class="fs-2 fw-bold">{{ overview.requestsToday }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">Requests (7 days)</div>
+                <div class="fs-2 fw-bold">{{ overview.requestsLast7Days }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">DAU / WAU / MAU</div>
+                <div class="fs-4 fw-bold">{{ overview.retention.dau }} / {{ overview.retention.wau }} / {{ overview.retention.mau }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card"><div class="card-body">
+                <div class="text-muted small">Sessions (7 days)</div>
+                <div class="fs-2 fw-bold">{{ overview.retention.sessionsLast7Days }}</div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Feature areas (7 days)</div>
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead><tr><th>Area</th><th class="text-end">Requests</th><th class="text-end">Share</th></tr></thead>
+                        <tbody>
+                            {% for row in overview.featureAreas %}
+                                <tr>
+                                    <td>{{ row.featureArea }}</td>
+                                    <td class="text-end">{{ row.requestCount }}</td>
+                                    <td class="text-end">{{ row.sharePercent }}%</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3" class="text-muted">No data yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Authentication (7 days)</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-6">Authenticated</dt>
+                        <dd class="col-6">{{ overview.authenticationSplit.authenticated }}</dd>
+                        <dt class="col-6">Anonymous</dt>
+                        <dd class="col-6">{{ overview.authenticationSplit.anonymous }}</dd>
+                        <dt class="col-6">Requests (30 days)</dt>
+                        <dd class="col-6">{{ overview.requestsLast30Days }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header">Top routes (7 days)</div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead><tr><th>Route</th><th class="text-end">Requests</th></tr></thead>
+                <tbody>
+                    {% for row in overview.topRoutes %}
+                        <tr><td><code>{{ row.routeName }}</code></td><td class="text-end">{{ row.requestCount }}</td></tr>
+                    {% else %}
+                        <tr><td colspan="2" class="text-muted">No data yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -23,7 +23,7 @@
       </trans-unit>
       <trans-unit id="w0UG6MC" resname="cookie.banner.text">
         <source>cookie.banner.text</source>
-        <target>We use essential cookies to run this app and optional monitoring cookies to improve reliability.</target>
+        <target>We use essential cookies to run this app and optional analytics cookies to improve how the product is used.</target>
       </trans-unit>
       <trans-unit id="1r7OhrC" resname="cookie.banner.title">
         <source>cookie.banner.title</source>
@@ -45,17 +45,13 @@
         <source>cookie.preferences.intro</source>
         <target>Choose which optional cookie categories may be used.</target>
       </trans-unit>
-      <trans-unit id="qP7Ku6G" resname="cookie.preferences.monitoring.provider_hint">
-        <source>cookie.preferences.monitoring.provider_hint</source>
-        <target>Currently this category uses Sentry for application and error monitoring.</target>
+      <trans-unit id="CkyPrefAnaTxEn" resname="cookie.preferences.analytics.text">
+        <source>cookie.preferences.analytics.text</source>
+        <target>Helps us understand which parts of the application are used. Measurement runs only on our servers in this application, without external analytics providers. No IP addresses or raw user agents are stored.</target>
       </trans-unit>
-      <trans-unit id="k2tpZJh" resname="cookie.preferences.monitoring.text">
-        <source>cookie.preferences.monitoring.text</source>
-        <target>Helps us monitor application stability and error rates.</target>
-      </trans-unit>
-      <trans-unit id="qJ7ToIK" resname="cookie.preferences.monitoring.title">
-        <source>cookie.preferences.monitoring.title</source>
-        <target>Monitoring cookies</target>
+      <trans-unit id="CkyPrefAnaTiEn" resname="cookie.preferences.analytics.title">
+        <source>cookie.preferences.analytics.title</source>
+        <target>Analytics cookies</target>
       </trans-unit>
       <trans-unit id="I21gDqr" resname="cookie.preferences.save">
         <source>cookie.preferences.save</source>

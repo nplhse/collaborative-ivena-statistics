@@ -47,3 +47,4 @@ AuditEntry, CookieConsent, Feedback (no manual create).
 |------|------------|---------|
 | Dashboard ops panel | `DashboardController` | Messenger, health, storage |
 | Failed messages | `DashboardController` (`operations_failed_messages`) | Inspect `messenger_messages` failed queue |
+| Usage analytics | `DashboardController` (`operations_usage_analytics_*`) | Overview, adoption, journeys, filters, performance |
