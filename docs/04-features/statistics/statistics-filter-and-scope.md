@@ -19,6 +19,16 @@ Most statistics pages share a common filter model resolved by `StatisticsFilterF
 
 `StatisticsFilterPeriod`: `all`, `all_time`, `year`, `quarter`, `month`.
 
+## Default scope (no `scope` query parameter)
+
+`StatisticsFilterInputFactory` chooses the initial scope:
+
+- Administrators (`ROLE_ADMIN`) → `public` (system-wide overview; avoids a large `hospital_id IN (...)` for all hospitals)
+- Participants with hospital access → `my_hospitals`
+- Everyone else / anonymous → `public`
+
+Admins can still select `my_hospitals` explicitly via `?scope=my_hospitals`.
+
 ## Resolution and fallbacks
 
 `StatisticsFilterFactory` normalizes URL input and applies access rules:
@@ -44,6 +54,7 @@ Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::B
 
 ## Code locations
 
+- `src/Statistics/UI/Http/Controller/StatisticsFilterInputFactory.php` (default scope)
 - `src/Statistics/Application/StatisticsFilterFactory.php`
 - `src/Statistics/Application/ComparisonScopeResolver.php`
 - `src/Statistics/Application/DTO/StatisticsFilterScope.php`
@@ -52,4 +63,5 @@ Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::B
 
 - [permission-model.md](../../02-architecture/permission-model.md)
 - [projection-and-materialized-views.md](projection-and-materialized-views.md)
+- [overview-dashboard-performance.md](overview-dashboard-performance.md)
 - [analysis-explorer.md](analysis-explorer.md)
