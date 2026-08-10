@@ -36,7 +36,7 @@ final class OverviewSliceQueryTest extends KernelTestCase
 {
     use Factories;
 
-    public function testReturnsAllTimeMonthlyRowsWithScopedHeatmaps(): void
+    public function testReturnsPeriodScopedMonthlyRowsWithScopedHeatmaps(): void
     {
         self::bootKernel();
 
@@ -83,7 +83,6 @@ final class OverviewSliceQueryTest extends KernelTestCase
 
         self::assertSame(
             [
-                ['year' => 2024, 'month' => 1, 'count' => 1],
                 ['year' => 2025, 'month' => 6, 'count' => 1],
             ],
             $slice->monthlyRows,
@@ -91,6 +90,7 @@ final class OverviewSliceQueryTest extends KernelTestCase
         self::assertSame(1, $this->sumHeatmapCounts($slice->dayTimeHeatmapCells));
         self::assertSame(1, $this->sumHeatmapCounts($slice->shiftHeatmapCells));
         self::assertSame(1, array_sum($slice->transportTimeBucketCounts));
+        self::assertSame(1, $slice->transportTypeBucketCounts['1'] ?? 0);
     }
 
     public function testAllTimePeriodUsesSingleSlice(): void
@@ -145,6 +145,7 @@ final class OverviewSliceQueryTest extends KernelTestCase
         );
         self::assertSame(2, $this->sumHeatmapCounts($slice->dayTimeHeatmapCells));
         self::assertSame(2, array_sum($slice->transportTimeBucketCounts));
+        self::assertSame(2, $slice->transportTypeBucketCounts['1'] ?? 0);
     }
 
     /**
