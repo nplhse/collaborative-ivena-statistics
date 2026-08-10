@@ -1,5 +1,4 @@
 <div class="col-lg-4 d-flex flex-column gap-3">
-    {{ include('@Statistics/dashboard/_hospital_insights_sidebar.html.twig') }}
     {% if resourcesWidget is not null %}
         {{ include('@Statistics/dashboard/_widget_renderer.html.twig', {widget: resourcesWidget}) }}
     {% endif %}

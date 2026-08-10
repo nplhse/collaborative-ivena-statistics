@@ -13,6 +13,7 @@ use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 
 final readonly class MonthlyReminderSender
 {
@@ -63,14 +64,51 @@ final readonly class MonthlyReminderSender
             return ['monthly_reminder.error.opted_out'];
         }
 
+        $lock = null;
         if (MonthlyReminderTrigger::Admin === $trigger) {
+            $hospitalId = (int) $hospital->getId();
+            $since = new \DateTimeImmutable(
+                sprintf('-%d seconds', self::MANUAL_LOCK_TTL_SECONDS),
+                new \DateTimeZone('Europe/Berlin'),
+            );
+            if ($this->dispatchRepository->hasRecentDispatchForHospitalAndTrigger(
+                $hospitalId,
+                $trigger->value,
+                $since,
+            )) {
+                return ['monthly_reminder.error.already_sent_recently'];
+            }
+
             $lock = $this->lockFactory->createLock(
-                sprintf('reminder-manual-%d', (int) $hospital->getId()),
+                sprintf('reminder-manual-%d', $hospitalId),
                 self::MANUAL_LOCK_TTL_SECONDS,
             );
             if (!$lock->acquire()) {
                 return ['monthly_reminder.error.already_sent_recently'];
             }
+        }
+
+        try {
+            return $this->sendForHospitalUnlocked($hospital, $trigger, $referenceDate, $bulkIndex);
+        } finally {
+            if ($lock instanceof LockInterface && $lock->isAcquired()) {
+                $lock->release();
+            }
+        }
+    }
+
+    /**
+     * @return list<string> validation errors; empty list means sent
+     */
+    private function sendForHospitalUnlocked(
+        Hospital $hospital,
+        MonthlyReminderTrigger $trigger,
+        ?\DateTimeImmutable $referenceDate,
+        int $bulkIndex,
+    ): array {
+        $owner = $hospital->getOwner();
+        if (!$owner instanceof User) {
+            return ['monthly_reminder.error.no_owner'];
         }
 
         $period = $this->periodResolver->resolve($referenceDate);
@@ -87,6 +125,7 @@ final readonly class MonthlyReminderSender
             return ['monthly_reminder.error.already_sent_for_period'];
         }
 
+        $email = trim((string) $owner->getEmail());
         $ownerLocale = $this->localeResolver->resolveForUser($owner);
         $content = $this->contentBuilder->build($hospital, $referenceDate, $ownerLocale);
         $reportingMonth = $content->reportingPeriodLabel;

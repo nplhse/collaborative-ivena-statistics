@@ -7,6 +7,7 @@ namespace App\Engagement\Infrastructure\Repository;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -59,6 +60,23 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
             'reportingPeriod' => $reportingPeriod,
             'trigger' => $trigger,
         ]);
+    }
+
+    public function hasRecentDispatchForHospitalAndTrigger(
+        int $hospitalId,
+        string $trigger,
+        \DateTimeImmutable $since,
+    ): bool {
+        return null !== $this->createQueryBuilder('dispatch')
+            ->andWhere('dispatch.hospital = :hospitalId')
+            ->andWhere('dispatch.trigger = :trigger')
+            ->andWhere('dispatch.sentAt >= :since')
+            ->setParameter('hospitalId', $hospitalId)
+            ->setParameter('trigger', $trigger)
+            ->setParameter('since', $since, Types::DATETIME_IMMUTABLE)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     public function save(MonthlyReminderDispatch $dispatch): void

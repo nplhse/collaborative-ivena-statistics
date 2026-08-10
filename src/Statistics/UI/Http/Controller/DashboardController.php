@@ -92,13 +92,13 @@ final class DashboardController extends AbstractController
             $request,
             $context,
             $overviewMetrics,
-            $overviewPeriodViewModel->headingLabel,
         );
 
         return $this->render('@Statistics/dashboard/index.html.twig', [
             'dataQualityLazyLoad' => true,
             'dataQualityDrawerUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_data_quality_drawer'),
             'overviewTopReportsUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_overview_top_reports'),
+            'overviewSelfBenchmarkUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_overview_self_benchmark'),
             'executiveDashboard' => $executiveDashboard,
             'overviewPortalLinks' => $this->overviewPortalNavigationFactory->build(),
             'overviewKpiMetricLabelKeys' => $this->overviewKpiPresentationFactory->metricLabelKeys($filter),

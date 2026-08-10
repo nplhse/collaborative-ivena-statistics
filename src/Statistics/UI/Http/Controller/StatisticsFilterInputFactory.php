@@ -24,9 +24,13 @@ final readonly class StatisticsFilterInputFactory
      */
     public function fromQuery(InputBag $query, ?User $user): StatisticsFilterInput
     {
-        $defaultScope = $user instanceof User && $this->hospitalAccess->canUseMyHospitalsScope($user)
-            ? StatisticsFilterScope::MyHospitals->value
-            : StatisticsFilterScope::Public->value;
+        $defaultScope = StatisticsFilterScope::Public->value;
+        if ($user instanceof User
+            && !$this->hospitalAccess->isAdminHospitalScopeUser($user)
+            && $this->hospitalAccess->canUseMyHospitalsScope($user)
+        ) {
+            $defaultScope = StatisticsFilterScope::MyHospitals->value;
+        }
 
         return new StatisticsFilterInput(
             scope: $query->getString('scope', $defaultScope),

@@ -1,0 +1,37 @@
+{# Skeleton for lazy-loaded overview top-report cards. #}
+<div class="row g-3" data-testid="stats-overview-top-reports-placeholder" aria-busy="true" aria-live="polite">
+    {% for i in 1..6 %}
+        <div class="col-md-6">
+            <div class="card h-100 placeholder-glow">
+                <div class="card-header py-2">
+                    <div class="placeholder placeholder-xs col-6"></div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th><div class="placeholder placeholder-xs col-4"></div></th>
+                                    <th><div class="placeholder placeholder-xs col-8"></div></th>
+                                    <th class="text-end"><div class="placeholder placeholder-xs col-6 ms-auto"></div></th>
+                                    <th class="text-end"><div class="placeholder placeholder-xs col-6 ms-auto"></div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in 1..5 %}
+                                    <tr>
+                                        <td><div class="placeholder placeholder-xs col-3"></div></td>
+                                        <td><div class="placeholder placeholder-xs col-9"></div></td>
+                                        <td class="text-end"><div class="placeholder placeholder-xs col-5 ms-auto"></div></td>
+                                        <td class="text-end"><div class="placeholder placeholder-xs col-5 ms-auto"></div></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <span class="visually-hidden">{{ 'stats.overview.top_reports.loading'|trans({}, 'statistics') }}</span>
+</div>

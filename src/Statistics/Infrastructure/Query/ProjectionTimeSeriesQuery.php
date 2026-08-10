@@ -12,12 +12,16 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
-final readonly class ProjectionTimeSeriesQuery
+final class ProjectionTimeSeriesQuery
 {
+    private bool $earliestCreatedAtLoaded = false;
+
+    private ?\DateTimeImmutable $earliestCreatedAt = null;
+
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private ProjectionFilterApplier $filterApplier,
-        private ProjectionDrawerFilterApplier $drawerFilterApplier,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ProjectionFilterApplier $filterApplier,
+        private readonly ProjectionDrawerFilterApplier $drawerFilterApplier,
     ) {
     }
 
@@ -38,31 +42,19 @@ final readonly class ProjectionTimeSeriesQuery
 
     public function countBefore(\DateTimeImmutable $before): int
     {
-        static $cache = [];
-        $cacheKey = $before->format(\DateTimeInterface::ATOM);
-        if (\array_key_exists($cacheKey, $cache)) {
-            return $cache[$cacheKey];
-        }
-
-        $count = (int) $this->entityManager->createQueryBuilder()
+        return (int) $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->select('COUNT(p.id)')
             ->where('p.createdAt < :before')
             ->setParameter('before', $before, Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
-
-        $cache[$cacheKey] = $count;
-
-        return $count;
     }
 
     public function getEarliestCreatedAt(): ?\DateTimeImmutable
     {
-        static $cached = null;
-        static $loaded = false;
-        if ($loaded) {
-            return $cached;
+        if ($this->earliestCreatedAtLoaded) {
+            return $this->earliestCreatedAt;
         }
 
         $value = $this->entityManager->createQueryBuilder()
@@ -72,22 +64,23 @@ final readonly class ProjectionTimeSeriesQuery
             ->getSingleScalarResult();
 
         if (null === $value || '' === $value) {
-            $loaded = true;
+            $this->earliestCreatedAt = null;
+            $this->earliestCreatedAtLoaded = true;
 
             return null;
         }
 
         if ($value instanceof \DateTimeInterface) {
-            $cached = \DateTimeImmutable::createFromInterface($value);
-            $loaded = true;
+            $this->earliestCreatedAt = \DateTimeImmutable::createFromInterface($value);
+            $this->earliestCreatedAtLoaded = true;
 
-            return $cached;
+            return $this->earliestCreatedAt;
         }
 
-        $cached = new \DateTimeImmutable((string) $value);
-        $loaded = true;
+        $this->earliestCreatedAt = new \DateTimeImmutable((string) $value);
+        $this->earliestCreatedAtLoaded = true;
 
-        return $cached;
+        return $this->earliestCreatedAt;
     }
 
     /**
@@ -176,22 +169,13 @@ final readonly class ProjectionTimeSeriesQuery
 
     public function countWithCreatedYearBefore(int $beforeYear): int
     {
-        static $cache = [];
-        if (\array_key_exists($beforeYear, $cache)) {
-            return $cache[$beforeYear];
-        }
-
-        $count = (int) $this->entityManager->createQueryBuilder()
+        return (int) $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->select('COUNT(p.id)')
             ->where('p.createdYear < :beforeYear')
             ->setParameter('beforeYear', $beforeYear)
             ->getQuery()
             ->getSingleScalarResult();
-
-        $cache[$beforeYear] = $count;
-
-        return $count;
     }
 
     /**

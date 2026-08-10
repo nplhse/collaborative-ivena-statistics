@@ -23,7 +23,7 @@ final readonly class OverviewSelfBenchmarkFactory
     {
         $baselineFilter = $this->baselineFilterFor($context->filter);
 
-        return $this->benchmarkReportService->build(
+        return $this->benchmarkReportService->buildForOverview(
             $this->benchmarkCriteriaFactory->create($context, $baselineFilter),
         );
     }

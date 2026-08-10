@@ -137,6 +137,23 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         }
     }
 
+    public function testAdminTriggerReturnsErrorWhenAlreadySentRecently(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+        $referenceDate = $this->frozenReferenceDate();
+
+        self::assertSame([], $this->sender->sendForHospital(
+            $hospital,
+            MonthlyReminderTrigger::Admin,
+            $referenceDate,
+        ));
+
+        self::assertSame(
+            ['monthly_reminder.error.already_sent_recently'],
+            $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin, $referenceDate),
+        );
+    }
+
     public function testSchedulerSendPersistsDispatchLogForReportingPeriod(): void
     {
         $hospital = $this->createHospital(optedOut: false);

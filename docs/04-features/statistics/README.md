@@ -23,7 +23,8 @@
 | [data-quality-indicator.md](data-quality-indicator.md) | Traffic-light badge dimensions |
 | [analysis-explorer.md](analysis-explorer.md) | Explorer V2 architecture and schema |
 | [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md) | Product standards and dashboard alignment |
-| [indication-dashboard-performance.md](indication-dashboard-performance.md) | SQL optimisation notes |
+| [indication-dashboard-performance.md](indication-dashboard-performance.md) | Indication detail SQL optimisation notes |
+| [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
 | [case-flow.md](case-flow.md) | Case flow dashboard |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard |
 

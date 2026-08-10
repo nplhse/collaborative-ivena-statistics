@@ -78,6 +78,52 @@ final readonly class BenchmarkAggregationProvider implements BenchmarkAggregatio
         );
     }
 
+    #[\Override]
+    public function aggregateForOverview(
+        StatisticsScopeCriteria $primaryScope,
+        StatisticsPeriodBounds $primaryPeriod,
+        StatisticsScopeCriteria $comparisonScope,
+        StatisticsPeriodBounds $comparisonPeriod,
+    ): BenchmarkAggregationResult {
+        if ($this->isEmptyScope($primaryScope) && $this->isEmptyScope($comparisonScope)) {
+            return BenchmarkAggregationResult::empty();
+        }
+
+        [$primaryPred, $primaryParams, $primaryTypes] = BenchmarkSqlFilter::buildSidePredicate(
+            $primaryScope,
+            $primaryPeriod,
+            'primary',
+        );
+        [$comparisonPred, $comparisonParams, $comparisonTypes] = BenchmarkSqlFilter::buildSidePredicate(
+            $comparisonScope,
+            $comparisonPeriod,
+            'comparison',
+        );
+
+        if ('1 = 0' === $primaryPred && '1 = 0' === $comparisonPred) {
+            return BenchmarkAggregationResult::empty();
+        }
+
+        $params = array_merge($primaryParams, $comparisonParams);
+        $types = array_merge($primaryTypes, $comparisonTypes);
+
+        $coreRow = $this->fetchOverviewCoreMetrics($primaryPred, $comparisonPred, $params, $types);
+        [$primaryPredAliased] = BenchmarkSqlFilter::buildSidePredicate($primaryScope, $primaryPeriod, 'primary', 'p');
+        [$comparisonPredAliased] = BenchmarkSqlFilter::buildSidePredicate($comparisonScope, $comparisonPeriod, 'comparison', 'p');
+        $distributionRows = $this->fetchOverviewDistributionRows(
+            $primaryPredAliased,
+            $comparisonPredAliased,
+            $params,
+            $types,
+        );
+
+        return new BenchmarkAggregationResult(
+            $this->mapSideCounts($coreRow, 'primary'),
+            $this->mapSideCounts($coreRow, 'comparison'),
+            $distributionRows,
+        );
+    }
+
     /**
      * @param array<string, mixed>                             $params
      * @param array<string, \Doctrine\DBAL\ArrayParameterType> $types
@@ -119,6 +165,56 @@ SELECT
         FILTER (WHERE {$comparisonPred}) AS comparison_median_transport,
     {$meanTransport} FILTER (WHERE {$primaryPred}) AS primary_mean_transport,
     {$meanTransport} FILTER (WHERE {$comparisonPred}) AS comparison_mean_transport
+FROM allocation_stats_projection
+WHERE {$unionWhere}
+SQL;
+
+        $row = $this->connection->fetchAssociative($sql, $params, $types);
+
+        return false === $row ? [] : $row;
+    }
+
+    /**
+     * @param array<string, mixed>                             $params
+     * @param array<string, \Doctrine\DBAL\ArrayParameterType> $types
+     *
+     * @return array<string, mixed>
+     */
+    private function fetchOverviewCoreMetrics(
+        string $primaryPred,
+        string $comparisonPred,
+        array $params,
+        array $types,
+    ): array {
+        $unionWhere = sprintf('(%s OR %s)', $primaryPred, $comparisonPred);
+        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
+        $nightCode = AllocationStatsDayTimeBucketProjectionCode::Night->value;
+        $countSelect = implode(",\n    ", [
+            sprintf('COUNT(*) FILTER (WHERE true AND %s)::int AS primary_total', $primaryPred),
+            sprintf('COUNT(*) FILTER (WHERE true AND %s)::int AS comparison_total', $comparisonPred),
+            sprintf('COUNT(*) FILTER (WHERE is_with_physician = true AND %s)::int AS primary_with_physician', $primaryPred),
+            sprintf('COUNT(*) FILTER (WHERE is_with_physician = true AND %s)::int AS comparison_with_physician', $comparisonPred),
+            sprintf('COUNT(*) FILTER (WHERE requires_resus = true AND %s)::int AS primary_resus', $primaryPred),
+            sprintf('COUNT(*) FILTER (WHERE requires_resus = true AND %s)::int AS comparison_resus', $comparisonPred),
+            sprintf('COUNT(*) FILTER (WHERE day_time_bucket_code = %d AND %s)::int AS primary_night_daytime', $nightCode, $primaryPred),
+            sprintf('COUNT(*) FILTER (WHERE day_time_bucket_code = %d AND %s)::int AS comparison_night_daytime', $nightCode, $comparisonPred),
+            sprintf('COUNT(*) FILTER (WHERE created_weekday IN (6, 7) AND %s)::int AS primary_weekend', $primaryPred),
+            sprintf('COUNT(*) FILTER (WHERE created_weekday IN (6, 7) AND %s)::int AS comparison_weekend', $comparisonPred),
+            sprintf('COUNT(*) FILTER (WHERE age >= 80 AND %s)::int AS primary_age_80_plus', $primaryPred),
+            sprintf('COUNT(*) FILTER (WHERE age >= 80 AND %s)::int AS comparison_age_80_plus', $comparisonPred),
+        ]);
+
+        $sql = <<<SQL
+SELECT
+    {$countSelect},
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age)
+        FILTER (WHERE age IS NOT NULL AND {$primaryPred}) AS primary_median_age,
+    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age)
+        FILTER (WHERE age IS NOT NULL AND {$comparisonPred}) AS comparison_median_age,
+    {$medianTransport}
+        FILTER (WHERE {$primaryPred}) AS primary_median_transport,
+    {$medianTransport}
+        FILTER (WHERE {$comparisonPred}) AS comparison_median_transport
 FROM allocation_stats_projection
 WHERE {$unionWhere}
 SQL;
@@ -240,6 +336,50 @@ UNION ALL
 SELECT 'indication', p.indication_normalized_id::text, n.name,
     COUNT(*) FILTER (WHERE ({$primaryPredAliased}))::int,
     COUNT(*) FILTER (WHERE ({$comparisonPredAliased}))::int
+FROM allocation_stats_projection p
+LEFT JOIN indication_normalized n ON n.id = p.indication_normalized_id
+WHERE ({$primaryPredAliased} OR {$comparisonPredAliased}) AND p.indication_normalized_id IS NOT NULL
+GROUP BY p.indication_normalized_id, n.name
+SQL;
+
+        /** @var list<array{dimension:string,bucket_key:?string,bucket_label:?string,primary_count:int|string,comparison_count:int|string}> $rows */
+        $rows = $this->connection->fetchAllAssociative($sql, $params, $types);
+
+        $result = [];
+        foreach ($rows as $row) {
+            $bucketKey = $row['bucket_key'] ?? '';
+            if ('' === $bucketKey) {
+                continue;
+            }
+
+            $result[] = new BenchmarkDistributionRow(
+                $row['dimension'],
+                $bucketKey,
+                $row['bucket_label'] ?? null,
+                (int) $row['primary_count'],
+                (int) $row['comparison_count'],
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<string, mixed>                             $params
+     * @param array<string, \Doctrine\DBAL\ArrayParameterType> $types
+     *
+     * @return list<BenchmarkDistributionRow>
+     */
+    private function fetchOverviewDistributionRows(
+        string $primaryPredAliased,
+        string $comparisonPredAliased,
+        array $params,
+        array $types,
+    ): array {
+        $sql = <<<SQL
+SELECT 'indication' AS dimension, p.indication_normalized_id::text AS bucket_key, n.name AS bucket_label,
+    COUNT(*) FILTER (WHERE ({$primaryPredAliased}))::int AS primary_count,
+    COUNT(*) FILTER (WHERE ({$comparisonPredAliased}))::int AS comparison_count
 FROM allocation_stats_projection p
 LEFT JOIN indication_normalized n ON n.id = p.indication_normalized_id
 WHERE ({$primaryPredAliased} OR {$comparisonPredAliased}) AND p.indication_normalized_id IS NOT NULL

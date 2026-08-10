@@ -45,6 +45,24 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         self::assertSame('my_hospitals', $input->scope);
     }
 
+    public function testDefaultScopeIsPublicForAdmin(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $input = $this->factory->fromQuery($this->queryBag([]), $user);
+
+        self::assertSame('public', $input->scope);
+        self::assertFalse($input->hasScopeQueryParameter);
+    }
+
+    public function testAdminCanExplicitlySelectMyHospitalsScope(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $input = $this->factory->fromQuery($this->queryBag(['scope' => 'my_hospitals']), $user);
+
+        self::assertSame('my_hospitals', $input->scope);
+        self::assertTrue($input->hasScopeQueryParameter);
+    }
+
     /**
      * @param array<string, string> $parameters
      *
