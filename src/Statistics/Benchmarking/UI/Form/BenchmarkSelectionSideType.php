@@ -8,6 +8,7 @@ use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
 use App\Statistics\UI\Application\StatisticsFilterSide;
+use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Form\AbstractType;
@@ -18,7 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
- * @extends AbstractType<BenchmarkSelectionSideFormData>
+ * @extends AbstractType<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData>
  */
 final class BenchmarkSelectionSideType extends AbstractType
 {
@@ -51,24 +52,26 @@ final class BenchmarkSelectionSideType extends AbstractType
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options): void {
             $data = $event->getData();
-            if (!$data instanceof BenchmarkSelectionSideFormData) {
+            if (!$data instanceof BenchmarkSelectionSideFormData && !$data instanceof StatisticsScopePeriodFormData) {
                 return;
             }
+
             /** @var StatisticsFilterSide $side */
             $side = $options['side'];
             /** @var string $locale */
             $locale = $options['locale'];
             /** @var StatisticsFilterScopeChoicePolicy $scopeChoicePolicy */
             $scopeChoicePolicy = $options['scope_choice_policy'];
-            $data = $this->choiceProvider->normalizeSideFormData(
-                $data,
-                $this->currentUser(),
-                $side,
-                $locale,
-                $scopeChoicePolicy,
-            );
+            $user = $this->currentUser();
+
+            if ($data instanceof BenchmarkSelectionSideFormData) {
+                $data = $this->choiceProvider->normalizeSideFormData($data, $user, $side, $locale, $scopeChoicePolicy);
+            } else {
+                $data = $this->choiceProvider->normalizeScopePeriodFormData($data, $user, $side, $locale, $scopeChoicePolicy);
+            }
+
             $event->setData($data);
-            /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData> $sideForm */
+            /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm */
             $sideForm = $event->getForm();
             $this->fieldsConfigurator->configureFields($sideForm, $options, $data);
         });
@@ -84,11 +87,8 @@ final class BenchmarkSelectionSideType extends AbstractType
             }
 
             $data = $event->getForm()->getData();
-            if (!$data instanceof BenchmarkSelectionSideFormData) {
-                $data = new BenchmarkSelectionSideFormData();
-            }
+            $preview = $this->previewFromFormData($data, $options);
 
-            $preview = clone $data;
             if (isset($submitted['scopeGroup']) && \is_string($submitted['scopeGroup'])) {
                 $preview->scopeGroup = $submitted['scopeGroup'];
             }
@@ -108,7 +108,7 @@ final class BenchmarkSelectionSideType extends AbstractType
                 $preview->scopeDetail = (string) $submitted['scopeDetail'];
             }
 
-            /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData> $sideForm */
+            /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm */
             $sideForm = $event->getForm();
             $this->fieldsConfigurator->configureFields($sideForm, $options, $preview);
 
@@ -143,6 +143,23 @@ final class BenchmarkSelectionSideType extends AbstractType
         $resolver->setAllowedTypes('side', StatisticsFilterSide::class);
         $resolver->setAllowedTypes('locale', 'string');
         $resolver->setAllowedTypes('scope_choice_policy', StatisticsFilterScopeChoicePolicy::class);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function previewFromFormData(mixed $data, array $options): BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData
+    {
+        if ($data instanceof BenchmarkSelectionSideFormData || $data instanceof StatisticsScopePeriodFormData) {
+            return clone $data;
+        }
+
+        $dataClass = $options['data_class'] ?? BenchmarkSelectionSideFormData::class;
+        if (StatisticsScopePeriodFormData::class === $dataClass) {
+            return new StatisticsScopePeriodFormData();
+        }
+
+        return new BenchmarkSelectionSideFormData();
     }
 
     private function currentUser(): ?User
