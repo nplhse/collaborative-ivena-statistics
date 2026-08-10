@@ -9,13 +9,17 @@ use App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery;
 use App\Shared\Application\Export\CsvStreamExportResponseFactory;
 use App\Shared\Application\Export\ExporterInterface;
 use App\User\Domain\Entity\User;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
 {
     public const string KEY = 'own_hospital_allocations';
 
     /**
+     * Technical column keys (stable order). Labels are resolved via {@see CSV_HEADER_TRANSLATIONS}.
+     *
      * @var list<string>
      */
     private const array BASE_CSV_HEADERS = [
@@ -53,11 +57,46 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
         'infection',
     ];
 
+    /**
+     * @var array<string, array{0: string, 1: string}>
+     */
+    private const array CSV_HEADER_TRANSLATIONS = [
+        'row' => ['export.column.row', 'allocation'],
+        'arrivalAt' => ['label.arrival_at', 'messages'],
+        'createdAt' => ['label.created_at', 'messages'],
+        'hospital' => ['label.hospital', 'messages'],
+        'state' => ['label.state', 'messages'],
+        'dispatchArea' => ['label.dispatch_area', 'messages'],
+        'gender' => ['field.gender', 'messages'],
+        'age' => ['field.age', 'messages'],
+        'urgency' => ['field.urgency', 'messages'],
+        'transportType' => ['field.transportType', 'messages'],
+        'indicationNormalized' => ['label.indication.normalized', 'messages'],
+        'indicationRaw' => ['label.indication.raw', 'messages'],
+        'secondaryTransport' => ['label.secondary_transport', 'messages'],
+        'department' => ['label.department', 'messages'],
+        'speciality' => ['label.speciality', 'messages'],
+        'departmentWasClosed' => ['field.departmentWasClosed', 'messages'],
+        'assignment' => ['label.assignment', 'messages'],
+        'occasion' => ['label.occasion', 'messages'],
+        'requiresResus' => ['field.requiresResus', 'messages'],
+        'requiresCathlab' => ['field.requiresCathlab', 'messages'],
+        'isCPR' => ['field.isCPR', 'messages'],
+        'isVentilated' => ['allocations.field.isVentilated', 'allocation'],
+        'isShock' => ['allocations.field.isShock', 'allocation'],
+        'isPregnant' => ['allocations.field.isPregnant', 'allocation'],
+        'isWorkAccident' => ['allocations.field.isWorkAccident', 'allocation'],
+        'isWithPhysician' => ['field.isWithPhysician', 'messages'],
+        'infection' => ['label.infection', 'messages'],
+    ];
+
     public function __construct(
         private ExportAccessService $exportAccessService,
         private OwnHospitalAllocationsExportQuery $exportQuery,
         private CsvStreamExportResponseFactory $csvStreamExportResponseFactory,
         private AllocationExportValueFormatter $exportValueFormatter,
+        private TranslatorInterface $translator,
+        private RequestStack $requestStack,
     ) {
     }
 
@@ -96,12 +135,13 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
     public function writeCsv(User $user, object $criteria, $stream): int
     {
         $filter = $this->assertFilter($criteria);
-        $this->csvStreamExportResponseFactory->writeRow($stream, $this->resolveCsvHeaders($filter));
+        $locale = $this->resolveLocale();
+        $this->csvStreamExportResponseFactory->writeRow($stream, $this->resolveCsvHeaders($filter, $locale));
 
         $written = 0;
         foreach ($this->exportQuery->iterateRows($this->resolveHospitalIdsForExport($user, $filter), $filter) as $row) {
             ++$written;
-            $this->csvStreamExportResponseFactory->writeRow($stream, $this->formatRow($written, $row, $filter));
+            $this->csvStreamExportResponseFactory->writeRow($stream, $this->formatRow($written, $row, $filter, $locale));
         }
 
         return $written;
@@ -139,14 +179,31 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
     /**
      * @return list<string>
      */
-    private function resolveCsvHeaders(OwnHospitalAllocationsExportFilter $filter): array
+    private function resolveCsvHeaders(OwnHospitalAllocationsExportFilter $filter, ?string $locale): array
     {
-        $headers = self::BASE_CSV_HEADERS;
+        $keys = self::BASE_CSV_HEADERS;
         if ($filter->includeIndicationRaw) {
-            $headers[] = 'indicationRaw';
+            $keys[] = 'indicationRaw';
         }
 
-        return array_merge($headers, self::TAIL_CSV_HEADERS);
+        $keys = array_merge($keys, self::TAIL_CSV_HEADERS);
+
+        return array_map(
+            fn (string $key): string => $this->translateHeader($key, $locale),
+            $keys,
+        );
+    }
+
+    private function translateHeader(string $columnKey, ?string $locale): string
+    {
+        $mapping = self::CSV_HEADER_TRANSLATIONS[$columnKey] ?? null;
+        if (null === $mapping) {
+            return $columnKey;
+        }
+
+        [$translationKey, $domain] = $mapping;
+
+        return $this->translator->trans($translationKey, [], $domain, $locale);
     }
 
     /**
@@ -154,43 +211,50 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
      *
      * @return list<string|int|float|null>
      */
-    private function formatRow(int $rowNumber, array $row, OwnHospitalAllocationsExportFilter $filter): array
+    private function formatRow(int $rowNumber, array $row, OwnHospitalAllocationsExportFilter $filter, ?string $locale): array
     {
+        /** @var list<string|int|float|null> $values */
         $values = [
             $rowNumber,
             $this->formatDateTime($row['arrivalAt'] ?? null),
             $this->formatDateTime($row['createdAt'] ?? null),
-            $row['hospital'] ?? null,
-            $row['state'] ?? null,
-            $row['dispatchArea'] ?? null,
-            $this->exportValueFormatter->gender($row['gender'] ?? null),
-            $row['age'] ?? null,
+            $this->scalarCell($row['hospital'] ?? null),
+            $this->scalarCell($row['state'] ?? null),
+            $this->scalarCell($row['dispatchArea'] ?? null),
+            $this->exportValueFormatter->gender($row['gender'] ?? null, $locale),
+            $this->scalarCell($row['age'] ?? null),
             $this->exportValueFormatter->urgency($row['urgency'] ?? null),
-            $this->exportValueFormatter->transportType($row['transportType'] ?? null),
-            $row['indicationNormalized'] ?? null,
+            $this->exportValueFormatter->transportType($row['transportType'] ?? null, $locale),
+            $this->scalarCell($row['indicationNormalized'] ?? null),
         ];
 
         if ($filter->includeIndicationRaw) {
-            $values[] = $row['indicationRaw'] ?? null;
+            $values[] = $this->scalarCell($row['indicationRaw'] ?? null);
         }
 
-        return array_merge($values, [
-            $row['secondaryTransport'] ?? null,
-            $row['department'] ?? null,
-            $row['speciality'] ?? null,
-            $this->formatBool($row['departmentWasClosed'] ?? null),
-            $row['assignment'] ?? null,
-            $row['occasion'] ?? null,
-            $this->formatBool($row['requiresResus'] ?? null),
-            $this->formatBool($row['requiresCathlab'] ?? null),
-            $this->formatBool($row['isCPR'] ?? null),
-            $this->formatBool($row['isVentilated'] ?? null),
-            $this->formatBool($row['isShock'] ?? null),
-            $this->formatBool($row['isPregnant'] ?? null),
-            $this->formatBool($row['isWorkAccident'] ?? null),
-            $this->formatBool($row['isWithPhysician'] ?? null),
-            $row['infection'] ?? null,
-        ]);
+        return [
+            ...$values,
+            $this->scalarCell($row['secondaryTransport'] ?? null),
+            $this->scalarCell($row['department'] ?? null),
+            $this->scalarCell($row['speciality'] ?? null),
+            $this->formatBool($row['departmentWasClosed'] ?? null, $locale),
+            $this->scalarCell($row['assignment'] ?? null),
+            $this->scalarCell($row['occasion'] ?? null),
+            $this->formatBool($row['requiresResus'] ?? null, $locale),
+            $this->formatBool($row['requiresCathlab'] ?? null, $locale),
+            $this->formatBool($row['isCPR'] ?? null, $locale),
+            $this->formatBool($row['isVentilated'] ?? null, $locale),
+            $this->formatBool($row['isShock'] ?? null, $locale),
+            $this->formatBool($row['isPregnant'] ?? null, $locale),
+            $this->formatBool($row['isWorkAccident'] ?? null, $locale),
+            $this->formatBool($row['isWithPhysician'] ?? null, $locale),
+            $this->scalarCell($row['infection'] ?? null),
+        ];
+    }
+
+    private function resolveLocale(): ?string
+    {
+        return $this->requestStack->getCurrentRequest()?->getLocale();
     }
 
     private function formatDateTime(mixed $value): ?string
@@ -199,15 +263,40 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
             return $value->format('Y-m-d H:i:s');
         }
 
-        return null === $value ? null : (string) $value;
+        if (null === $value) {
+            return null;
+        }
+
+        if (\is_string($value) || \is_int($value) || \is_float($value)) {
+            return (string) $value;
+        }
+
+        return null;
     }
 
-    private function formatBool(mixed $value): ?string
+    private function scalarCell(mixed $value): string|int|float|null
+    {
+        if (null === $value || \is_string($value) || \is_int($value) || \is_float($value)) {
+            return $value;
+        }
+
+        if ($value instanceof \Stringable) {
+            return (string) $value;
+        }
+
+        return null;
+    }
+
+    private function formatBool(mixed $value, ?string $locale): ?string
     {
         if (null === $value) {
             return null;
         }
 
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+        $key = filter_var($value, FILTER_VALIDATE_BOOLEAN)
+            ? 'export.boolean.true'
+            : 'export.boolean.false';
+
+        return $this->translator->trans($key, [], 'allocation', $locale);
     }
 }

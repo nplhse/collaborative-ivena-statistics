@@ -24,6 +24,8 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -65,8 +67,8 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
 
         $csv = $this->exportCsv($exporter, $owner, $filter);
 
-        self::assertStringContainsString('arrivalAt', $csv);
-        self::assertStringContainsString('dispatchArea', $csv);
+        self::assertStringContainsString('Arrival at', $csv);
+        self::assertStringContainsString('Dispatch Area', $csv);
         self::assertStringContainsString('CSV Owned Hospital', $csv);
         self::assertStringNotContainsString('CSV Foreign Hospital', $csv);
     }
@@ -143,8 +145,8 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
         $csvWithoutRaw = $this->exportCsv($exporter, $owner, $filterWithoutRaw);
         $csvWithRaw = $this->exportCsv($exporter, $owner, $filterWithRaw);
 
-        self::assertStringNotContainsString('indicationRaw', $csvWithoutRaw);
-        self::assertStringContainsString('indicationRaw', $csvWithRaw);
+        self::assertStringNotContainsString('Raw Indication', $csvWithoutRaw);
+        self::assertStringContainsString('Raw Indication', $csvWithRaw);
         self::assertStringContainsString('Original indication text', $csvWithRaw);
     }
 
@@ -179,12 +181,13 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
 
         $csv = $this->exportCsv($exporter, $owner, $filter);
 
-        self::assertStringContainsString('departmentWasClosed', $csv);
-        self::assertStringContainsString('assignment', $csv);
-        self::assertStringContainsString('occasion', $csv);
+        self::assertStringContainsString('Department was closed', $csv);
+        self::assertStringContainsString('Assignment', $csv);
+        self::assertStringContainsString('Occasion', $csv);
         self::assertStringContainsString('Emergency assignment', $csv);
         self::assertStringContainsString('Holiday occasion', $csv);
-        self::assertMatchesRegularExpression('/,1,/', $csv);
+        self::assertStringContainsString('True', $csv);
+        self::assertStringNotContainsString(',1,', $csv);
     }
 
     public function testWriteCsvUsesSequentialRowNumbers(): void
@@ -217,9 +220,88 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
         $csv = $this->exportCsv($exporter, $owner, $filter);
         $lines = array_values(array_filter(explode("\n", trim($csv))));
 
-        self::assertSame('row', str_getcsv($lines[0], escape: '\\')[0]);
+        self::assertSame('Row', str_getcsv($lines[0], escape: '\\')[0]);
         self::assertSame('1', str_getcsv($lines[1], escape: '\\')[0]);
         self::assertSame('2', str_getcsv($lines[2], escape: '\\')[0]);
+    }
+
+    public function testWriteCsvUsesGermanHeadersAndEnumLabelsForDeLocale(): void
+    {
+        self::bootKernel();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        $this->seedAllocationDependencies($hospital);
+
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-15 10:00:00'),
+            'gender' => AllocationGender::MALE,
+            'transportType' => AllocationTransportType::AIR,
+        ]);
+
+        $request = Request::create('/');
+        $request->setLocale('de');
+        $stack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $stack);
+        $stack->push($request);
+
+        $exporter = self::getContainer()->get(OwnHospitalAllocationsExporter::class);
+        self::assertInstanceOf(OwnHospitalAllocationsExporter::class, $exporter);
+
+        $filter = new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+        );
+
+        $csv = $this->exportCsv($exporter, $owner, $filter);
+
+        self::assertStringContainsString('Ankunft am', $csv);
+        self::assertStringContainsString('Leitstelle', $csv);
+        self::assertStringContainsString('Zeile', $csv);
+        self::assertStringContainsString('Männlich', $csv);
+        self::assertStringContainsString('Luft', $csv);
+    }
+
+    public function testWriteCsvUsesGermanBooleanLabelsForDeLocale(): void
+    {
+        self::bootKernel();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        $this->seedAllocationDependencies($hospital);
+
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-15 10:00:00'),
+            'departmentWasClosed' => true,
+            'requiresResus' => false,
+        ]);
+
+        $request = Request::create('/');
+        $request->setLocale('de');
+        $stack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $stack);
+        $stack->push($request);
+
+        $exporter = self::getContainer()->get(OwnHospitalAllocationsExporter::class);
+        self::assertInstanceOf(OwnHospitalAllocationsExporter::class, $exporter);
+
+        $filter = new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+        );
+
+        $csv = $this->exportCsv($exporter, $owner, $filter);
+
+        self::assertStringContainsString('Wahr', $csv);
+        self::assertStringContainsString('Falsch', $csv);
+        self::assertStringNotContainsString(',1,', $csv);
+        self::assertStringNotContainsString(',0,', $csv);
     }
 
     public function testWriteCsvRespectsSelectedHospitalIds(): void

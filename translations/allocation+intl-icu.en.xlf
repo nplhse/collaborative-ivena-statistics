@@ -1021,6 +1021,18 @@
         <source>help.export.department_was_closed_filter</source>
         <target>Include only allocations where the department was closed.</target>
       </trans-unit>
+      <trans-unit id="ExpColEn01" resname="export.column.row">
+        <source>export.column.row</source>
+        <target>Row</target>
+      </trans-unit>
+      <trans-unit id="ExpBoolEn01" resname="export.boolean.true">
+        <source>export.boolean.true</source>
+        <target>True</target>
+      </trans-unit>
+      <trans-unit id="ExpBoolEn02" resname="export.boolean.false">
+        <source>export.boolean.false</source>
+        <target>False</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
