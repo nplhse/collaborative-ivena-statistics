@@ -24,8 +24,8 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
     }
 
     /**
-     * @param FormInterface<BenchmarkSelectionSideFormData> $form
-     * @param array<string, mixed>                          $options
+     * @param FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $form
+     * @param array<string, mixed>                                                        $options
      */
     public function configureFields(
         FormInterface $form,
@@ -58,18 +58,16 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
             $periodMonth = $data->periodMonth ?? $periodMonth;
         }
 
-        if ($this->choiceProvider->scopeDetailRequired($scopeGroup, $user, $side, $scopeChoicePolicy)) {
-            $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy);
-            if ([] !== $detailChoices) {
-                $form->add('scopeDetail', PreTranslatedChoiceType::class, [
-                    'label' => $this->scopeDetailLabel($scopeGroup),
-                    'choices' => $this->flippedStringValueChoices($detailChoices),
-                    'choice_value' => static fn (?string $choice): string => $choice ?? '',
-                    'placeholder' => false,
-                    'required' => false,
-                    'data' => $this->defaultChoiceValue($scopeDetail, $detailChoices),
-                ]);
-            }
+        $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy);
+        if ([] !== $detailChoices) {
+            $form->add('scopeDetail', PreTranslatedChoiceType::class, [
+                'label' => $this->scopeDetailLabel($scopeGroup),
+                'choices' => $this->flippedStringValueChoices($detailChoices),
+                'choice_value' => static fn (?string $choice): string => $choice ?? '',
+                'placeholder' => false,
+                'required' => false,
+                'data' => $this->defaultChoiceValue($scopeDetail, $detailChoices),
+            ]);
         }
 
         if (\in_array($period, [StatisticsFilterPeriod::Year, StatisticsFilterPeriod::Quarter, StatisticsFilterPeriod::Month], true)) {
@@ -133,7 +131,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
     }
 
     /**
-     * @param FormInterface<BenchmarkSelectionSideFormData> $form
+     * @param FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $form
      */
     private function removeDynamicFields(FormInterface $form): void
     {
