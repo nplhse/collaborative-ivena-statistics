@@ -38,6 +38,7 @@ final readonly class TopDiagnosesQuery
             $scopeCriteria->hospitalIds,
             $limit,
             $drawerFilter,
+            $scopeCriteria->dispatchAreaId,
         );
 
         $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
@@ -45,6 +46,7 @@ final readonly class TopDiagnosesQuery
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
             $drawerFilter,
+            $scopeCriteria->dispatchAreaId,
         );
 
         return [

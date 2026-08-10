@@ -31,9 +31,13 @@ final readonly class OverviewTopReportsFactory
     public function build(Request $request, StatisticsContext $context, int $scopedTotal): array
     {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $hospitalIds = $this->scopeResolver->resolveCriteria($context)->hospitalIds;
+        $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
         $batch = ($this->batchQuery)(
-            OverviewQueryCriteria::fromPeriodBounds($bounds, $hospitalIds),
+            OverviewQueryCriteria::fromPeriodBounds(
+                $bounds,
+                $scopeCriteria->hospitalIds,
+                $scopeCriteria->dispatchAreaId,
+            ),
             self::TOP_LIMIT,
         );
 

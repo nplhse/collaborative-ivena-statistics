@@ -22,8 +22,8 @@ final readonly class OverviewDefaultPeriodResolver
 
     public function resolveDefaultPeriod(StatisticsContext $context): StatisticsFilterPeriod
     {
-        $hospitalIds = $this->scopeResolver->resolveCriteria($context)->hospitalIds;
-        if (\is_array($hospitalIds) && [] === $hospitalIds) {
+        $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
+        if (\is_array($scopeCriteria->hospitalIds) && [] === $scopeCriteria->hospitalIds) {
             return StatisticsFilterPeriod::AllTime;
         }
 
@@ -31,7 +31,8 @@ final readonly class OverviewDefaultPeriodResolver
         foreach ($this->timeSeriesQuery->countByMonthInPeriod(
             StatisticsPeriod::overviewPeriodStart(),
             null,
-            $hospitalIds,
+            $scopeCriteria->hospitalIds,
+            $scopeCriteria->dispatchAreaId,
         ) as $row) {
             if ($row['count'] > 0) {
                 ++$monthsWithData;

@@ -21,8 +21,10 @@ final readonly class HospitalSummaryQuery
     public function summarize(StatisticsContext $context, OverviewDashboardMetricsResult $metrics): HospitalSummaryData
     {
         $scope = $context->filter->scope;
+        $criteria = $this->scopeResolver->resolveCriteria($context);
         $usedUnscopedFallback = StatisticsFilterScope::Public !== $scope
-            && null === $this->scopeResolver->resolveCriteria($context)->hospitalIds;
+            && null === $criteria->hospitalIds
+            && null === $criteria->dispatchAreaId;
 
         return $this->buildDataFromDistributions(
             $metrics->platformTotal,

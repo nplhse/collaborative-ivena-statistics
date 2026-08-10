@@ -36,11 +36,13 @@ final class OverviewTopReportsController extends AbstractController
     ): Response {
         $context = $this->statisticsContextFactory->create($user, $filter);
         $bounds = StatisticsPeriodResolver::resolve($filter);
-        $hospitalIds = $this->statisticsScopeResolver->resolveCriteria($context)->hospitalIds;
+        $scopeCriteria = $this->statisticsScopeResolver->resolveCriteria($context);
         $scopedTotal = $this->timeSeriesQuery->countCreatedInPeriod(
             $bounds->from,
             $bounds->toExclusive,
-            $hospitalIds,
+            $scopeCriteria->hospitalIds,
+            null,
+            $scopeCriteria->dispatchAreaId,
         );
 
         return $this->render('@Statistics/dashboard/_overview_top_reports_frame.html.twig', [

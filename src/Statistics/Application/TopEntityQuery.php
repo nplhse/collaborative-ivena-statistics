@@ -43,6 +43,7 @@ final readonly class TopEntityQuery
             $projectionJoinProperty,
             $entityFqcn,
             $drawerFilter,
+            $scopeCriteria->dispatchAreaId,
         );
 
         $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
@@ -50,6 +51,7 @@ final readonly class TopEntityQuery
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
             $drawerFilter,
+            $scopeCriteria->dispatchAreaId,
         );
 
         return [
