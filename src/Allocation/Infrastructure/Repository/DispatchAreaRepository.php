@@ -34,6 +34,33 @@ final class DispatchAreaRepository extends ServiceEntityRepository implements Di
         return $entity instanceof DispatchArea ? $entity : null;
     }
 
+    /**
+     * @param list<int> $ids
+     *
+     * @return array<int, string>
+     */
+    public function findNamesByIds(array $ids): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $this->createQueryBuilder('da')
+            ->select('da.id', 'da.name')
+            ->andWhere('da.id IN (:ids)')
+            ->setParameter('ids', array_values(array_unique($ids)))
+            ->getQuery()
+            ->getArrayResult();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['id']] = $row['name'];
+        }
+
+        return $names;
+    }
+
     public function getAreaListPaginator(AreaListQueryParametersDTO $queryParametersDTO): Paginator
     {
         $qb = $this->createQueryBuilder('da')

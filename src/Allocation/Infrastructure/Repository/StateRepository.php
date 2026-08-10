@@ -32,6 +32,33 @@ final class StateRepository extends ServiceEntityRepository implements StateLook
         return $entity instanceof State ? $entity : null;
     }
 
+    /**
+     * @param list<int> $ids
+     *
+     * @return array<int, string>
+     */
+    public function findNamesByIds(array $ids): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $this->createQueryBuilder('s')
+            ->select('s.id', 's.name')
+            ->andWhere('s.id IN (:ids)')
+            ->setParameter('ids', array_values(array_unique($ids)))
+            ->getQuery()
+            ->getArrayResult();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $names[(int) $row['id']] = $row['name'];
+        }
+
+        return $names;
+    }
+
     public function getListPaginator(SpecialityQueryParametersDTO $queryParametersDTO): Paginator
     {
         $qb = $this->createQueryBuilder('s')
