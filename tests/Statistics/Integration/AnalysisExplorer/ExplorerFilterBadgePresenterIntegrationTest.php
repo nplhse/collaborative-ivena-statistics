@@ -85,6 +85,20 @@ final class ExplorerFilterBadgePresenterIntegrationTest extends KernelTestCase
         self::assertSame('99', $badges[1]['value']);
     }
 
+    public function testTranslatesDimensionLabelsForGermanLocaleAndIndicationGroup(): void
+    {
+        $badges = $this->presenter->present($this->viewConfig([
+            new AnalysisFilter('urgency', AnalysisFilterOperator::Equals, 1),
+            new AnalysisFilter('indication_group', AnalysisFilterOperator::Equals, 1),
+            new AnalysisFilter('resus', AnalysisFilterOperator::Equals, 1),
+        ]), 'de');
+
+        self::assertNotSame('Urgency', $badges[0]['label']);
+        self::assertNotSame('', $badges[0]['label']);
+        self::assertNotSame('indication_group', $badges[1]['label']);
+        self::assertSame('Ja', $badges[2]['value']);
+    }
+
     /**
      * @param list<AnalysisFilter> $filters
      */

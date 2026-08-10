@@ -132,4 +132,31 @@ final class AnalysisExplorerShellEdgeCasesTest extends AnalysisExplorerShellTest
         self::assertSame($tableSnapshot, $component->table);
         self::assertTrue($component->hasUnsavedChanges);
     }
+
+    public function testSetChartRowLimitUpdatesSummaryForBreakdownToplist(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $render = $testComponent->render();
+        $formName = $this->formName($render);
+
+        $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'indication',
+                'rowGrain' => 'total',
+                'columnDimension' => '',
+                'metric' => 'allocation_count',
+                'chartType' => 'bar',
+            ]))
+            ->call('applyEdit')
+            ->render();
+
+        $before = $testComponent->render()->crawler()->filter('[data-testid="stats-analysis-explorer-summary"]')->text();
+        self::assertStringNotContainsString('Top 5', $before);
+
+        $testComponent->call('setChartRowLimit', ['limit' => '5']);
+        $after = $testComponent->render()->crawler()->filter('[data-testid="stats-analysis-explorer-summary"]')->text();
+
+        self::assertStringContainsString('Top 5', $after);
+        self::assertStringContainsString('Indication', $after);
+    }
 }

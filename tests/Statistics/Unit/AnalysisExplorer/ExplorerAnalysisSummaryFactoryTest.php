@@ -271,6 +271,132 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
         );
     }
 
+    public function testQuarterAndWeekGrainsUseDedicatedAdverbs(): void
+    {
+        $quarter = $this->factory()->create($this->baseConfig(
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Quarter),
+        ));
+        self::assertStringContainsString('by quarter', $quarter->plainText());
+
+        $week = $this->factory()->create($this->baseConfig(
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Week),
+        ));
+        self::assertStringContainsString('weekly', $week->plainText());
+    }
+
+    public function testMatrixWithTemporalColumnUsesGrainNoun(): void
+    {
+        $summary = $this->factory()->create($this->baseConfig(
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+        ));
+
+        self::assertSame(
+            'Allocations by Urgency and Month for all hospitals in Last 12 months.',
+            $summary->plainText(),
+        );
+    }
+
+    public function testMatrixWithTemporalGrainOnBreakdownAxis(): void
+    {
+        $summary = $this->factory()->create($this->baseConfig(
+            rowAxis: new AnalysisAxisRef(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+        ));
+
+        self::assertSame(
+            'Allocations by Gender (Month) and Urgency for all hospitals in Last 12 months.',
+            $summary->plainText(),
+        );
+    }
+
+    public function testHospitalsScopedAndMatrixVariants(): void
+    {
+        $scoped = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [AnalysisMetricKey::HospitalCount],
+            visualMetricKey: AnalysisMetricKey::HospitalCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::State,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+                stateId: 1,
+            ),
+            presentation: new PresentationConfig(ChartPresentationType::Bar),
+            title: 'Hospitals',
+            hospitalPopulationMode: ExplorerHospitalPopulationMode::Participating,
+        );
+
+        self::assertSame(
+            'Hospitals for Participating hospitals in Hessen during Last 12 months, grouped by Hospital tier.',
+            $this->factory(scopeLabel: 'Hessen')->create($scoped)->plainText(),
+        );
+
+        $matrix = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [AnalysisMetricKey::HospitalCount],
+            visualMetricKey: AnalysisMetricKey::HospitalCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalLocation),
+            statisticsFilter: $this->defaultFilter(),
+            presentation: new PresentationConfig(ChartPresentationType::Bar),
+            title: 'Hospitals',
+            hospitalPopulationMode: ExplorerHospitalPopulationMode::All,
+        );
+
+        self::assertSame(
+            'Hospitals for All hospitals by Hospital tier and Hospital location in Last 12 months.',
+            $this->factory()->create($matrix)->plainText(),
+        );
+
+        $matrixScoped = $matrix->withStatisticsFilter(new StatisticsFilter(
+            scope: StatisticsFilterScope::DispatchArea,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+            dispatchAreaId: 2,
+        ));
+
+        self::assertSame(
+            'Hospitals for All hospitals by Hospital tier and Hospital location in Nordhessen during Last 12 months.',
+            $this->factory(scopeLabel: 'Nordhessen')->create($matrixScoped)->plainText(),
+        );
+
+        $compareScoped = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Hospitals,
+            metricKeys: [AnalysisMetricKey::HospitalCount],
+            visualMetricKey: AnalysisMetricKey::HospitalCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Hospital,
+                hospitalId: 1,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(ChartPresentationType::Bar),
+            title: 'Hospitals',
+            hospitalPopulationMode: ExplorerHospitalPopulationMode::Compare,
+        );
+
+        self::assertSame(
+            'Hospitals comparing participating and non-participating hospitals in Klinikum A during Last 12 months, grouped by Hospital tier.',
+            $this->factory(scopeLabel: 'Klinikum A')->create($compareScoped)->plainText(),
+        );
+    }
+
+    public function testEmptyFilterBadgesDoNotAppendFilterSentence(): void
+    {
+        $summary = $this->factory(filterBadges: [])->create($this->baseConfig(filters: [
+            new AnalysisFilter('urgency', AnalysisFilterOperator::Equals, 1),
+        ]));
+
+        self::assertStringNotContainsString('Filtered to', $summary->plainText());
+    }
+
     /**
      * @param list<array{label: string, value: string}> $filterBadges
      */
@@ -376,9 +502,17 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
             'stats.analysis_explorer.summary.matrix' => '{subject} by {rows} and {columns} for {scope} in {period}.',
             'stats.analysis_explorer.summary.distribution_profile' => '{subject} for {scope} in {period}, grouped by {dimension}.',
             'stats.analysis_explorer.summary.hospitals' => '{subject} for {population} in {period}, grouped by {dimension}.',
+            'stats.analysis_explorer.summary.hospitals_scoped' => '{subject} for {population} in {scope} during {period}, grouped by {dimension}.',
+            'stats.analysis_explorer.summary.hospitals_matrix' => '{subject} for {population} by {rows} and {columns} in {period}.',
+            'stats.analysis_explorer.summary.hospitals_matrix_scoped' => '{subject} for {population} by {rows} and {columns} in {scope} during {period}.',
             'stats.analysis_explorer.summary.hospitals_compare' => '{subject} comparing participating and non-participating hospitals in {period}, grouped by {dimension}.',
+            'stats.analysis_explorer.summary.hospitals_compare_scoped' => '{subject} comparing participating and non-participating hospitals in {scope} during {period}, grouped by {dimension}.',
             'stats.analysis_explorer.summary.grain.month' => 'monthly',
             'stats.analysis_explorer.summary.grain.year' => 'yearly',
+            'stats.analysis_explorer.summary.grain.quarter' => 'by quarter',
+            'stats.analysis_explorer.summary.grain.week' => 'weekly',
+            'stats.analysis_explorer.summary.grain.total' => 'as a total',
+            'stats.analysis_explorer.summary.dimension_by_grain' => '{dimension} ({grain})',
             'stats.analysis_explorer.summary.filtered_prefix' => ' Filtered to',
             'stats.analysis_explorer.summary.filters_and' => ' and ',
             'stats.analysis_explorer.summary.filters_comma' => ', ',
@@ -394,7 +528,10 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
             'stats.analysis_explorer.dimension.hospital' => 'Hospital',
             'stats.analysis_explorer.dimension.hospital_master_cohort' => 'Master cohort',
             'stats.analysis_explorer.dimension.hospital_tier' => 'Hospital tier',
+            'stats.analysis_explorer.dimension.hospital_location' => 'Hospital location',
+            'stats.analysis_explorer.dimension.month' => 'Month',
             'stats.analysis_explorer.hospital_population.participating' => 'Participating hospitals',
+            'stats.analysis_explorer.hospital_population.all' => 'All hospitals',
         ];
     }
 
