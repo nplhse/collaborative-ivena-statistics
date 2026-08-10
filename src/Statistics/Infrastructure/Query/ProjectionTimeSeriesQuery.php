@@ -12,8 +12,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
-final readonly class ProjectionTimeSeriesQuery
+final class ProjectionTimeSeriesQuery
 {
+    private bool $earliestCreatedAtLoaded = false;
+
+    private ?\DateTimeImmutable $earliestCreatedAt = null;
+
     public function __construct(
         private EntityManagerInterface $entityManager,
         private ProjectionFilterApplier $filterApplier,
@@ -49,6 +53,10 @@ final readonly class ProjectionTimeSeriesQuery
 
     public function getEarliestCreatedAt(): ?\DateTimeImmutable
     {
+        if ($this->earliestCreatedAtLoaded) {
+            return $this->earliestCreatedAt;
+        }
+
         $value = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->select('MIN(p.createdAt) AS min_created_at')
@@ -56,14 +64,23 @@ final readonly class ProjectionTimeSeriesQuery
             ->getSingleScalarResult();
 
         if (null === $value || '' === $value) {
+            $this->earliestCreatedAt = null;
+            $this->earliestCreatedAtLoaded = true;
+
             return null;
         }
 
         if ($value instanceof \DateTimeInterface) {
-            return \DateTimeImmutable::createFromInterface($value);
+            $this->earliestCreatedAt = \DateTimeImmutable::createFromInterface($value);
+            $this->earliestCreatedAtLoaded = true;
+
+            return $this->earliestCreatedAt;
         }
 
-        return new \DateTimeImmutable((string) $value);
+        $this->earliestCreatedAt = new \DateTimeImmutable((string) $value);
+        $this->earliestCreatedAtLoaded = true;
+
+        return $this->earliestCreatedAt;
     }
 
     /**

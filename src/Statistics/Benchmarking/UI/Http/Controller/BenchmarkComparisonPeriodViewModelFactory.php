@@ -45,8 +45,8 @@ final readonly class BenchmarkComparisonPeriodViewModelFactory
             $nextFilter instanceof StatisticsFilter ? $this->urlForFilter($request, $routeName, $nextFilter) : null,
             $previousFilter instanceof StatisticsFilter ? $this->periodLabel($previousFilter, $locale) : null,
             $nextFilter instanceof StatisticsFilter ? $this->periodLabel($nextFilter, $locale) : null,
-            $showNavigation && $this->periodNavigation->isPreviousEnabled($filter),
-            $showNavigation && $this->periodNavigation->isNextEnabled($filter),
+            $showNavigation && $previousFilter instanceof StatisticsFilter,
+            $showNavigation && $nextFilter instanceof StatisticsFilter,
             $showNavigation,
         );
     }
