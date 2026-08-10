@@ -39,4 +39,17 @@ final class GenericHospitalScopeSqlFilterTest extends TestCase
 
         self::assertContains('1 = 0', $conditions);
     }
+
+    public function testDispatchAreaScopeFiltersHospitalsViaProjectionOrigin(): void
+    {
+        [$conditions, $params] = $this->filter->applyHospitalScope(
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 17),
+        );
+
+        self::assertContains(
+            'h.id IN (SELECT DISTINCT asp.hospital_id FROM allocation_stats_projection asp WHERE asp.dispatch_area_id = :scope_dispatch_area_id)',
+            $conditions,
+        );
+        self::assertSame(17, $params['scope_dispatch_area_id']);
+    }
 }

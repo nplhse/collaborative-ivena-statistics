@@ -49,6 +49,11 @@ final class BenchmarkSqlFilter
             $types[sprintf('%s_hospital_ids', $prefix)] = ArrayParameterType::INTEGER;
         }
 
+        if (null !== $scope->dispatchAreaId) {
+            $conditions[] = sprintf('%sdispatch_area_id = :%s_dispatch_area_id', $columnPrefix, $prefix);
+            $params[sprintf('%s_dispatch_area_id', $prefix)] = $scope->dispatchAreaId;
+        }
+
         if (null !== $scope->locationCodes) {
             $locationCodes = array_map(intval(...), $scope->locationCodes);
             $conditions[] = sprintf('%shospital_location_code IN (:%s_location_codes)', $columnPrefix, $prefix);

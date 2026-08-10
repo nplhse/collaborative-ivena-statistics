@@ -29,7 +29,7 @@ final readonly class OverviewExecutiveDashboardAssembler
         OverviewDashboardMetricsResult $metrics,
     ): OverviewExecutiveDashboardViewModel {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
-        $hospitalIds = $this->scopeResolver->resolveCriteria($context)->hospitalIds;
+        $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
         $benchmarkingUrl = $this->navigationUrlBuilder->build($request, 'app_stats_benchmarking');
 
         return new OverviewExecutiveDashboardViewModel(
@@ -43,7 +43,11 @@ final readonly class OverviewExecutiveDashboardAssembler
             $benchmarkingUrl,
             $this->populationProfileFactory->build($metrics),
             $this->chartsFactory->build(
-                OverviewQueryCriteria::fromPeriodBounds($bounds, $hospitalIds),
+                OverviewQueryCriteria::fromPeriodBounds(
+                    $bounds,
+                    $scopeCriteria->hospitalIds,
+                    $scopeCriteria->dispatchAreaId,
+                ),
                 $metrics,
             ),
             [],

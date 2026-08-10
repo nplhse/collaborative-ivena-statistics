@@ -38,12 +38,14 @@ final readonly class OverviewPeriodComparisonService
 
         $previousContext = new StatisticsContext($context->user, $previousFilter);
         $bounds = StatisticsPeriodResolver::resolve($previousFilter);
-        $hospitalIds = $this->scopeResolver->resolveCriteria($previousContext)->hospitalIds;
+        $scopeCriteria = $this->scopeResolver->resolveCriteria($previousContext);
 
         return $this->timeSeriesQuery->countCreatedInPeriod(
             $bounds->from,
             $bounds->toExclusive,
-            $hospitalIds,
+            $scopeCriteria->hospitalIds,
+            null,
+            $scopeCriteria->dispatchAreaId,
         );
     }
 

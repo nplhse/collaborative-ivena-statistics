@@ -73,9 +73,11 @@ final class DashboardController extends AbstractController
         }
 
         $context = $this->statisticsContextFactory->create($user, $filter);
+        $scopeCriteria = $this->statisticsScopeResolver->resolveCriteria($context);
         $overviewMetrics = ($this->overviewDashboardMetricsQuery)(OverviewQueryCriteria::fromPeriodBounds(
             StatisticsPeriodResolver::resolve($filter),
-            $this->statisticsScopeResolver->resolveCriteria($context)->hospitalIds,
+            $scopeCriteria->hospitalIds,
+            $scopeCriteria->dispatchAreaId,
         ));
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,

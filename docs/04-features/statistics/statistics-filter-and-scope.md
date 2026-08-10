@@ -10,10 +10,16 @@ Most statistics pages share a common filter model resolved by `StatisticsFilterF
 |-------|---------|
 | `public` | Aggregated public view (anonymous or fallback) |
 | `my_hospitals` | Hospitals the current user can access |
-| `hospital` | Single hospital (`scope:hospital:ID`) |
+| `hospital` | Allocations **to** a single hospital (`scope=hospital:ID` → `hospital_id = ID`) |
 | `hospital_cohort` | Cohort of hospitals |
-| `state` | Federal state |
-| `dispatch_area` | Dispatch area |
+| `state` | Federal state via hospital attribution (see note below) |
+| `dispatch_area` | Allocations **originating from** a dispatch area (`scope=dispatch_area:ID` → `dispatch_area_id = ID`) |
+
+Hospital and dispatch area are orthogonal: destination hospital ≠ origin dispatch area. A hospital can receive cases from multiple Leitstellen; dispatch-area scope always filters projection rows by origin `dispatch_area_id`, never by expanding a 1:1 hospital portfolio.
+
+### State scope note
+
+`state` currently expands to hospital IDs via `mv_projection_hospital_dimensions` (`MIN(state_id)` per hospital), then applies `hospital_id IN (...)`. Whether state should mean allocation origin (`state_id` on the projection) like dispatch area is an open follow-up; do not assume the same semantics as `dispatch_area`.
 
 ## Periods
 
@@ -39,6 +45,8 @@ Admins can still select `my_hospitals` explicitly via `?scope=my_hospitals`.
 - Cohort too small → `public` with notice `cohort_too_small`
 - State/dispatch area with fewer than 2 hospitals → `public` with `state_invalid` / `dispatch_area_invalid`
 
+Dispatch-area eligibility uses distinct hospitals that appear with that origin `dispatch_area_id` (count MV). Filtering then uses `dispatch_area_id = :id` on `allocation_stats_projection` via `StatisticsScopeCriteria.dispatchAreaId`.
+
 ## Comparison scope
 
 `ComparisonScopeResolver` builds a secondary filter for benchmarking and comparison views. It derives a default cohort from the primary scope's dominant location/tier via `AllocationStatsProjectionScopeQuery`.
@@ -56,6 +64,8 @@ Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::B
 
 - `src/Statistics/UI/Http/Controller/StatisticsFilterInputFactory.php` (default scope)
 - `src/Statistics/Application/StatisticsFilterFactory.php`
+- `src/Statistics/Application/StatisticsScopeResolver.php`
+- `src/Statistics/Application/DTO/StatisticsScopeCriteria.php`
 - `src/Statistics/Application/ComparisonScopeResolver.php`
 - `src/Statistics/Application/DTO/StatisticsFilterScope.php`
 

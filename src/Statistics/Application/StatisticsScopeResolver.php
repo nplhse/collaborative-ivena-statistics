@@ -10,7 +10,6 @@ use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery;
-use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByDispatchAreaQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery;
 use App\User\Domain\Entity\User;
 
@@ -24,7 +23,6 @@ final class StatisticsScopeResolver
         private readonly HospitalAccessInterface $hospitalAccess,
         private readonly HospitalCohortResolver $hospitalCohortResolver,
         private readonly GetDistinctHospitalIdsByStateQuery $distinctHospitalIdsByStateQuery,
-        private readonly GetDistinctHospitalIdsByDispatchAreaQuery $distinctHospitalIdsByDispatchAreaQuery,
         private readonly GetDistinctHospitalIdsByCohortQuery $distinctHospitalIdsByCohortQuery,
     ) {
     }
@@ -59,9 +57,10 @@ final class StatisticsScopeResolver
 
             $criteria = new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
         } elseif (StatisticsFilterScope::DispatchArea === $filter->scope && null !== $filter->dispatchAreaId) {
-            $hospitalIds = ($this->distinctHospitalIdsByDispatchAreaQuery)($filter->dispatchAreaId);
-
-            $criteria = new StatisticsScopeCriteria([] === $hospitalIds ? null : $hospitalIds);
+            $criteria = new StatisticsScopeCriteria(
+                hospitalIds: null,
+                dispatchAreaId: $filter->dispatchAreaId,
+            );
         } elseif (StatisticsFilterScope::HospitalCohort === $filter->scope && $filter->cohortType instanceof Cohort\HospitalCohortKey) {
             $cohort = $this->hospitalCohortResolver->resolve($filter->cohortType);
             $hospitalIds = ($this->distinctHospitalIdsByCohortQuery)($cohort);

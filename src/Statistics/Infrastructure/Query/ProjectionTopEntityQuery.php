@@ -31,8 +31,9 @@ final readonly class ProjectionTopEntityQuery
         string $projectionJoinProperty,
         string $entityFqcn,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?int $dispatchAreaId = null,
     ): array {
-        $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds, $drawerFilter)
+        $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->leftJoin($entityFqcn, 'ent', 'WITH', sprintf('ent.id = p.%s', $projectionJoinProperty))
             ->select('COALESCE(ent.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
@@ -57,11 +58,13 @@ final readonly class ProjectionTopEntityQuery
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?int $dispatchAreaId = null,
     ): QueryBuilder {
         $qb = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p');
         $this->filterApplier->applyCreatedAtRange($qb, 'p.createdAt', $from, $toExclusive);
         $this->filterApplier->applyHospitalScope($qb, 'p.hospitalId', $hospitalIds);
+        $this->filterApplier->applyDispatchAreaScope($qb, 'p.dispatchAreaId', $dispatchAreaId);
 
         if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {
             $this->drawerFilterApplier->apply($qb, $drawerFilter);

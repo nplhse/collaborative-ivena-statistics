@@ -31,6 +31,11 @@ final class GenericHospitalScopeSqlFilter
             }
         }
 
+        if (null !== $scope->dispatchAreaId) {
+            $conditions[] = 'h.id IN (SELECT DISTINCT asp.hospital_id FROM allocation_stats_projection asp WHERE asp.dispatch_area_id = :scope_dispatch_area_id)';
+            $params['scope_dispatch_area_id'] = $scope->dispatchAreaId;
+        }
+
         if (null !== $scope->locationCodes) {
             $locations = [];
             foreach ($scope->locationCodes as $code) {

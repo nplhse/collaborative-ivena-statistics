@@ -33,8 +33,9 @@ final class ProjectionTimeSeriesQuery
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?int $dispatchAreaId = null,
     ): int {
-        return (int) $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter)
+        return (int) $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->select('COUNT(p.id)')
             ->getQuery()
             ->getSingleScalarResult();
@@ -88,9 +89,13 @@ final class ProjectionTimeSeriesQuery
      *
      * @return list<array{year:int,month:int,count:int}>
      */
-    public function countByMonthInPeriod(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds): array
-    {
-        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds)
+    public function countByMonthInPeriod(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        ?int $dispatchAreaId = null,
+    ): array {
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, null, $dispatchAreaId)
             ->select('p.createdYear AS year', 'p.createdMonth AS month', 'COUNT(p.id) AS count')
             ->groupBy('year', 'month')
             ->orderBy('year', 'ASC')
@@ -361,11 +366,13 @@ final class ProjectionTimeSeriesQuery
         ?\DateTimeImmutable $toExclusive,
         ?array $hospitalIds,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?int $dispatchAreaId = null,
     ): QueryBuilder {
         $qb = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p');
         $this->filterApplier->applyCreatedAtRange($qb, 'p.createdAt', $from, $toExclusive);
         $this->filterApplier->applyHospitalScope($qb, 'p.hospitalId', $hospitalIds);
+        $this->filterApplier->applyDispatchAreaScope($qb, 'p.dispatchAreaId', $dispatchAreaId);
 
         if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {
             $this->drawerFilterApplier->apply($qb, $drawerFilter);

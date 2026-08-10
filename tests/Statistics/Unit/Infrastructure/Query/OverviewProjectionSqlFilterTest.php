@@ -45,4 +45,15 @@ final class OverviewProjectionSqlFilterTest extends TestCase
         self::assertSame('2021-04-01 00:00:00', $params['from']);
         self::assertSame('2021-07-01 00:00:00', $params['to_exclusive']);
     }
+
+    public function testAddsDispatchAreaIdFilter(): void
+    {
+        [$where, $params] = OverviewProjectionSqlFilter::buildWhereClause(
+            new OverviewQueryCriteria(null, null, null, 42),
+        );
+
+        self::assertStringContainsString('dispatch_area_id = :dispatch_area_id', $where);
+        self::assertSame(42, $params['dispatch_area_id']);
+        self::assertStringNotContainsString('hospital_id', $where);
+    }
 }

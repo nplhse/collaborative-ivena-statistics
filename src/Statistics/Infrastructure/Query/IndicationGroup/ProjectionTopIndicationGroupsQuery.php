@@ -23,8 +23,13 @@ final readonly class ProjectionTopIndicationGroupsQuery
      *
      * @return list<array{groupId: int, label: string, count: int}>
      */
-    public function fetchTopGroupAggregates(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
-    {
+    public function fetchTopGroupAggregates(
+        ?\DateTimeImmutable $from,
+        ?\DateTimeImmutable $toExclusive,
+        ?array $hospitalIds,
+        int $limit,
+        ?int $dispatchAreaId = null,
+    ): array {
         $qb = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->innerJoin(IndicationNormalized::class, 'inorm', 'WITH', 'inorm.id = p.indicationNormalizedId')
@@ -36,6 +41,7 @@ final readonly class ProjectionTopIndicationGroupsQuery
 
         $this->filterApplier->applyCreatedAtRange($qb, 'p.createdAt', $from, $toExclusive);
         $this->filterApplier->applyHospitalScope($qb, 'p.hospitalId', $hospitalIds);
+        $this->filterApplier->applyDispatchAreaScope($qb, 'p.dispatchAreaId', $dispatchAreaId);
 
         /** @var list<array{groupId:int|string,label:string,cnt:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();

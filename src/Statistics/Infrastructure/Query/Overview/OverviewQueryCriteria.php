@@ -15,15 +15,19 @@ final readonly class OverviewQueryCriteria
         public ?\DateTimeImmutable $from,
         public ?\DateTimeImmutable $toExclusive,
         public ?array $hospitalIds,
+        public ?int $dispatchAreaId = null,
     ) {
     }
 
     /**
      * @param list<int>|null $hospitalIds
      */
-    public static function fromPeriodBounds(StatisticsPeriodBounds $bounds, ?array $hospitalIds): self
-    {
-        return new self($bounds->from, $bounds->toExclusive, $hospitalIds);
+    public static function fromPeriodBounds(
+        StatisticsPeriodBounds $bounds,
+        ?array $hospitalIds,
+        ?int $dispatchAreaId = null,
+    ): self {
+        return new self($bounds->from, $bounds->toExclusive, $hospitalIds, $dispatchAreaId);
     }
 
     public function hasEmptyHospitalScope(): bool

@@ -52,6 +52,19 @@ final class GenericAllocationAnalysisSqlBuilderTest extends TestCase
         self::assertSame([10, 20], $params['scope_hospital_ids']);
     }
 
+    public function testBuildsDispatchAreaOriginScopeFilter(): void
+    {
+        [$sql, $params] = $this->builder->build(new AnalysisQuery(
+            primaryDimensionKey: 'month',
+            scopeCriteria: new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 10),
+            periodBounds: new StatisticsPeriodBounds(null),
+        ));
+
+        self::assertStringContainsString('dispatch_area_id = :scope_dispatch_area_id', $sql);
+        self::assertStringNotContainsString('hospital_id IN', $sql);
+        self::assertSame(10, $params['scope_dispatch_area_id']);
+    }
+
     public function testRejectsUnknownDimensionKey(): void
     {
         $this->expectException(UnknownAnalysisDimensionException::class);

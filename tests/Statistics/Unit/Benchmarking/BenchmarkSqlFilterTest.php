@@ -85,4 +85,17 @@ final class BenchmarkSqlFilterTest extends TestCase
         self::assertArrayHasKey('primary_location_codes', $types);
         self::assertArrayHasKey('primary_tier_codes', $types);
     }
+
+    public function testBuildsDispatchAreaOriginPredicate(): void
+    {
+        [$sql, $params] = BenchmarkSqlFilter::buildSidePredicate(
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 9),
+            new StatisticsPeriodBounds(null),
+            'primary',
+        );
+
+        self::assertStringContainsString('dispatch_area_id = :primary_dispatch_area_id', $sql);
+        self::assertStringNotContainsString('hospital_id', $sql);
+        self::assertSame(9, $params['primary_dispatch_area_id']);
+    }
 }

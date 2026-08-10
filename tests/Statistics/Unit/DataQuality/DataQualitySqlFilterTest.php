@@ -53,4 +53,18 @@ final class DataQualitySqlFilterTest extends TestCase
         self::assertSame('2024-01-01 00:00:00', $params['from']);
         self::assertSame('2024-02-01 00:00:00', $params['to_exclusive']);
     }
+
+    public function testBuildWhereIncludesDispatchAreaOriginFilter(): void
+    {
+        [$where, $params] = DataQualitySqlFilter::buildWhere(
+            null,
+            null,
+            null,
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 33),
+        );
+
+        self::assertStringContainsString('dispatch_area_id = :dispatch_area_id', $where);
+        self::assertStringNotContainsString('hospital_id', $where);
+        self::assertSame(33, $params['dispatch_area_id']);
+    }
 }

@@ -54,6 +54,11 @@ final class DataQualitySqlFilter
             }
         }
 
+        if (null !== $scope->dispatchAreaId) {
+            $conditions[] = sprintf('%sdispatch_area_id = :dispatch_area_id', $prefix);
+            $params['dispatch_area_id'] = $scope->dispatchAreaId;
+        }
+
         if (null !== $scope->locationCodes) {
             $locationCodes = array_map(intval(...), $scope->locationCodes);
             $conditions[] = sprintf('%shospital_location_code IN (:location_codes)', $prefix);

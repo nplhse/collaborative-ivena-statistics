@@ -18,6 +18,7 @@ final readonly class StatisticsScopeCriteria
         public ?array $locationCodes = null,
         public ?array $tierCodes = null,
         public ?HospitalCohortKey $cohortType = null,
+        public ?int $dispatchAreaId = null,
     ) {
     }
 

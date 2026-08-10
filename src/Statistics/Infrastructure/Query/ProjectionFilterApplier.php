@@ -46,14 +46,29 @@ final class ProjectionFilterApplier
             ->setParameter('hospitalIds', $hospitalIds);
     }
 
+    public function applyDispatchAreaScope(QueryBuilder $qb, string $field, ?int $dispatchAreaId): void
+    {
+        if (null === $dispatchAreaId) {
+            return;
+        }
+
+        $qb->andWhere(sprintf('%s = :dispatchAreaId', $field))
+            ->setParameter('dispatchAreaId', $dispatchAreaId);
+    }
+
     public function applyScopeCriteria(
         QueryBuilder $qb,
         string $hospitalIdField,
         StatisticsScopeCriteria $criteria,
         ?string $locationCodeField = null,
         ?string $tierCodeField = null,
+        ?string $dispatchAreaIdField = null,
     ): void {
         $this->applyHospitalScope($qb, $hospitalIdField, $criteria->hospitalIds);
+
+        if (null !== $dispatchAreaIdField) {
+            $this->applyDispatchAreaScope($qb, $dispatchAreaIdField, $criteria->dispatchAreaId);
+        }
 
         if (null !== $locationCodeField && null !== $criteria->locationCodes) {
             $qb->andWhere(sprintf('%s IN (:cohortLocationCodes)', $locationCodeField))

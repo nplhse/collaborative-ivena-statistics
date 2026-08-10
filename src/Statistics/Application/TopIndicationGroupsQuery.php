@@ -33,9 +33,16 @@ final readonly class TopIndicationGroupsQuery
             $bounds->toExclusive,
             $scopeCriteria->hospitalIds,
             $limit,
+            $scopeCriteria->dispatchAreaId,
         );
 
-        $total = $this->timeSeriesQuery->countCreatedInPeriod($bounds->from, $bounds->toExclusive, $scopeCriteria->hospitalIds);
+        $total = $this->timeSeriesQuery->countCreatedInPeriod(
+            $bounds->from,
+            $bounds->toExclusive,
+            $scopeCriteria->hospitalIds,
+            null,
+            $scopeCriteria->dispatchAreaId,
+        );
 
         return [
             'rows' => $rows,
