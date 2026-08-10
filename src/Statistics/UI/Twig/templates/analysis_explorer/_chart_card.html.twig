@@ -7,8 +7,22 @@
      data-generic-analysis-chart-export-filename-value="{{ result ? result.title : 'analysis-chart' }}"
      data-generic-analysis-chart-chart-height-profile-value="explorer"
      {% endif %}>
-    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <h3 class="card-title mb-0" data-testid="stats-analysis-explorer-chart-title">{{ result ? result.title : '' }}</h3>
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <div class="min-w-0 flex-grow-1">
+            {% if analysisSummary is not null and analysisSummary.hasParts %}
+                <p class="text-secondary small mb-0"
+                   data-testid="stats-analysis-explorer-summary"
+                   {% if analysisSummary.abbreviatedFilterLabels is not empty %}
+                       title="{{ analysisSummary.abbreviatedFilterLabels|join(' · ') }}"
+                   {% endif %}>{%- for part in analysisSummary.parts -%}
+                        {%- if part.emphasize -%}
+                            <span class="fw-semibold text-body">{{ part.text }}</span>
+                        {%- else -%}
+                            {{- part.text -}}
+                        {%- endif -%}
+                    {%- endfor -%}</p>
+            {% endif %}
+        </div>
         {% if hasChart %}
             <div class="d-flex flex-wrap gap-2 align-items-center flex-shrink-0">
                 {% if showChartRowLimitControl %}

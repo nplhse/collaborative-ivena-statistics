@@ -11,8 +11,10 @@ use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
+use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisSummaryViewModel;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
@@ -20,7 +22,6 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerEditAxisSwapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormFilterFieldMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
-use App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
@@ -180,6 +181,8 @@ final class AnalysisExplorerShell
 
     public ?ExplorerResultsTableViewModel $table = null;
 
+    public ?AnalysisSummaryViewModel $analysisSummary = null;
+
     public ?string $emptyReason = null;
 
     private ?ExplorerEditFormData $editFormData = null;
@@ -203,7 +206,7 @@ final class AnalysisExplorerShell
         private readonly ExplorerDescriptionFactory $descriptionFactory,
         private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
         private readonly ExplorerEditAxisSwapper $editAxisSwapper,
-        private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
+        private readonly ExplorerAnalysisSummaryFactory $analysisSummaryFactory,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly UsageAnalytics $usageAnalytics,
     ) {
@@ -310,19 +313,6 @@ final class AnalysisExplorerShell
         }
 
         return $this->editFormSummaryFactory->summarize($formData, $this->resolveUser());
-    }
-
-    /**
-     * @return list<array{label: string, value: string}>
-     */
-    public function activeFilterBadges(): array
-    {
-        $config = $this->appliedConfig();
-        if (!$config instanceof AnalysisViewConfig) {
-            return [];
-        }
-
-        return $this->filterBadgePresenter->present($config);
     }
 
     public function canSwapEditAxes(): bool
@@ -732,6 +722,11 @@ final class AnalysisExplorerShell
         $this->chartRowLimit = $currentConfig->presentation->chartRowLimit->value;
         $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($currentConfig);
         $this->table = $this->tablePresenter->create($currentConfig, $this->result);
+        $this->analysisSummary = $this->analysisSummaryFactory->create(
+            $currentConfig,
+            $this->resolveUser(),
+            $this->locale,
+        );
         ++$this->analysisRevision;
     }
 
@@ -751,6 +746,11 @@ final class AnalysisExplorerShell
         $this->hasChart = $this->chartPresenter->hasChart($this->result);
         $this->chartRowLimit = $config->presentation->chartRowLimit->value;
         $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
+        $this->analysisSummary = $this->analysisSummaryFactory->create(
+            $config,
+            $this->resolveUser(),
+            $this->locale,
+        );
         ++$this->analysisRevision;
     }
 
@@ -900,5 +900,6 @@ final class AnalysisExplorerShell
         $this->showChartRowLimitControl = false;
         $this->chartRowLimit = ExplorerChartRowLimit::All->value;
         $this->table = null;
+        $this->analysisSummary = null;
     }
 }
