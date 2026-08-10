@@ -4989,6 +4989,102 @@
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.description</source>
         <target>How many allocations participating hospitals handle per location type.</target>
       </trans-unit>
+      <trans-unit id="statsAexSum01" resname="stats.analysis_explorer.summary.temporal">
+        <source>stats.analysis_explorer.summary.temporal</source>
+        <target>{subject} for {scope} in {period}, shown {grouping}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum02" resname="stats.analysis_explorer.summary.breakdown">
+        <source>stats.analysis_explorer.summary.breakdown</source>
+        <target>{subject} for {scope} in {period}, grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum03" resname="stats.analysis_explorer.summary.toplist">
+        <source>stats.analysis_explorer.summary.toplist</source>
+        <target>Top {limit} {dimension} for {scope} in {period}, measured by {metric}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum04" resname="stats.analysis_explorer.summary.over_time">
+        <source>stats.analysis_explorer.summary.over_time</source>
+        <target>{subject} for {scope} in {period}, shown {grouping} by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum05" resname="stats.analysis_explorer.summary.matrix">
+        <source>stats.analysis_explorer.summary.matrix</source>
+        <target>{subject} by {rows} and {columns} for {scope} in {period}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum06" resname="stats.analysis_explorer.summary.distribution_profile">
+        <source>stats.analysis_explorer.summary.distribution_profile</source>
+        <target>{subject} for {scope} in {period}, grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum07" resname="stats.analysis_explorer.summary.hospitals">
+        <source>stats.analysis_explorer.summary.hospitals</source>
+        <target>{subject} for {population} in {period}, grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum08" resname="stats.analysis_explorer.summary.hospitals_scoped">
+        <source>stats.analysis_explorer.summary.hospitals_scoped</source>
+        <target>{subject} for {population} in {scope} during {period}, grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum09" resname="stats.analysis_explorer.summary.hospitals_matrix">
+        <source>stats.analysis_explorer.summary.hospitals_matrix</source>
+        <target>{subject} for {population} by {rows} and {columns} in {period}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum10" resname="stats.analysis_explorer.summary.hospitals_matrix_scoped">
+        <source>stats.analysis_explorer.summary.hospitals_matrix_scoped</source>
+        <target>{subject} for {population} by {rows} and {columns} in {scope} during {period}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum11" resname="stats.analysis_explorer.summary.hospitals_compare">
+        <source>stats.analysis_explorer.summary.hospitals_compare</source>
+        <target>{subject} comparing participating and non-participating hospitals in {period}, grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum12" resname="stats.analysis_explorer.summary.hospitals_compare_scoped">
+        <source>stats.analysis_explorer.summary.hospitals_compare_scoped</source>
+        <target>{subject} comparing participating and non-participating hospitals in {scope} during {period}, grouped by {dimension}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum13" resname="stats.analysis_explorer.summary.scope.all_hospitals">
+        <source>stats.analysis_explorer.summary.scope.all_hospitals</source>
+        <target>all hospitals</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum14" resname="stats.analysis_explorer.summary.grain.month">
+        <source>stats.analysis_explorer.summary.grain.month</source>
+        <target>monthly</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum15" resname="stats.analysis_explorer.summary.grain.year">
+        <source>stats.analysis_explorer.summary.grain.year</source>
+        <target>yearly</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum16" resname="stats.analysis_explorer.summary.grain.quarter">
+        <source>stats.analysis_explorer.summary.grain.quarter</source>
+        <target>by quarter</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum17" resname="stats.analysis_explorer.summary.grain.week">
+        <source>stats.analysis_explorer.summary.grain.week</source>
+        <target>weekly</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum18" resname="stats.analysis_explorer.summary.grain.total">
+        <source>stats.analysis_explorer.summary.grain.total</source>
+        <target>as a total</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum19" resname="stats.analysis_explorer.summary.dimension_by_grain">
+        <source>stats.analysis_explorer.summary.dimension_by_grain</source>
+        <target>{dimension} ({grain})</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum20" resname="stats.analysis_explorer.summary.filtered_prefix">
+        <source>stats.analysis_explorer.summary.filtered_prefix</source>
+        <target> Filtered to</target>
+      </trans-unit>
+      <trans-unit id="statsAexSum21" resname="stats.analysis_explorer.summary.filters_and">
+        <source>stats.analysis_explorer.summary.filters_and</source>
+        <target> and </target>
+      </trans-unit>
+      <trans-unit id="statsAexSum22" resname="stats.analysis_explorer.summary.filters_comma">
+        <source>stats.analysis_explorer.summary.filters_comma</source>
+        <target>, </target>
+      </trans-unit>
+      <trans-unit id="statsAexSum23" resname="stats.analysis_explorer.summary.filters_more_separator">
+        <source>stats.analysis_explorer.summary.filters_more_separator</source>
+        <target>, </target>
+      </trans-unit>
+      <trans-unit id="statsAexSum24" resname="stats.analysis_explorer.summary.more_filters">
+        <source>stats.analysis_explorer.summary.more_filters</source>
+        <target>{count, plural, one {with # more filter} other {with # more filters}}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
