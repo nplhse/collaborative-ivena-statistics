@@ -61,6 +61,23 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
         ]);
     }
 
+    public function hasRecentDispatchForHospitalAndTrigger(
+        int $hospitalId,
+        string $trigger,
+        \DateTimeImmutable $since,
+    ): bool {
+        return null !== $this->createQueryBuilder('dispatch')
+            ->andWhere('dispatch.hospital = :hospitalId')
+            ->andWhere('dispatch.trigger = :trigger')
+            ->andWhere('dispatch.sentAt >= :since')
+            ->setParameter('hospitalId', $hospitalId)
+            ->setParameter('trigger', $trigger)
+            ->setParameter('since', $since)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function save(MonthlyReminderDispatch $dispatch): void
     {
         $this->getEntityManager()->persist($dispatch);
