@@ -271,6 +271,8 @@ Analysis filters narrow the allocation set **before** row/column grouping. They 
 
 **Reference data cache:** Entity-backed dropdown choices (department, speciality, assignment, indication, indication group) are loaded through [`ExploreFilterOptionsProvider`](../allocation/explore-filter-reference-cache.md) (`cache.allocation.reference_data`, TTL 1 hour). After cache warmup, opening or refreshing the edit drawer does not re-query those tables. Manual invalidation: `bin/console cache:pool:clear cache.allocation.reference_data`.
 
+**Scope/period choice loading:** Scope detail options (state, dispatch area, hospital under `my_hospitals`, cohorts) come from [`StatisticsFilterFormChoiceProvider`](../../../src/Statistics/UI/Application/StatisticsFilterFormChoiceProvider.php). State and dispatch-area names are batch-loaded (`findNamesByIds`); eligible rows, cohort choices, and hospital summaries are memoized for the request so LiveComponent `refreshEditForm` rebuilds do not repeat those lookups. User-specific hospital lists stay uncached across requests (permission-sensitive). See Issue [#409](https://github.com/nplhse/collaborative-ivena-statistics/issues/409).
+
 **Classes:** `ExplorerAnalysisFilterMapper`, `ExplorerAnalysisFilterExpander`, `ExplorerAnalysisFilterPolicy`, `AnalysisFilterChoiceProvider`, `ExplorerFilterBadgePresenter`.
 
 ## Supported capabilities (allocations)

@@ -20,25 +20,47 @@ use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\Infrastructure\Query\AllocationStatsProjectionScopeQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleDispatchAreaIdsQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetEligibleStateIdsQuery;
+use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class StatisticsFilterFormChoiceProvider
+/**
+ * Scope/period choice lists for statistics filter forms.
+ *
+ * Entity-backed lists are memoized for the lifetime of this service (request scope)
+ * so LiveComponent form rebuilds do not repeat the same lookups.
+ */
+final class StatisticsFilterFormChoiceProvider
 {
+    /** @var array<string, list<array{id: int, name: string}>> */
+    private array $eligibleStateRowsByPolicy = [];
+
+    /** @var array<string, list<array{id: int, name: string}>> */
+    private array $eligibleDispatchAreaRowsByPolicy = [];
+
+    /** @var array<string, list<array{key: string, label: string}>> */
+    private array $eligibleCohortChoicesByLocale = [];
+
+    /** @var array<string, array<int|string, string>> */
+    private array $hospitalDetailChoicesByKey = [];
+
+    /** @var array<string, array<string, string>> */
+    private array $scopePrimaryChoicesByKey = [];
+
     public function __construct(
-        private HospitalRepository $hospitalRepository,
-        private HospitalAccessInterface $hospitalAccess,
-        private HospitalCohortResolver $hospitalCohortResolver,
-        private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
-        private HospitalCohortLabelResolver $hospitalCohortLabelResolver,
-        private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
-        private StatisticsPeriodNavigation $periodNavigation,
-        private GetEligibleStateIdsQuery $eligibleStateIdsQuery,
-        private GetEligibleDispatchAreaIdsQuery $eligibleDispatchAreaIdsQuery,
-        private AllocationStatsProjectionScopeQuery $projectionScopeQuery,
-        private StateRepository $stateRepository,
-        private DispatchAreaRepository $dispatchAreaRepository,
-        private TranslatorInterface $translator,
+        private readonly HospitalRepository $hospitalRepository,
+        private readonly HospitalAccessInterface $hospitalAccess,
+        private readonly HospitalCohortResolver $hospitalCohortResolver,
+        private readonly HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
+        private readonly HospitalCohortLabelResolver $hospitalCohortLabelResolver,
+        private readonly StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
+        private readonly StatisticsPeriodNavigation $periodNavigation,
+        private readonly GetEligibleStateIdsQuery $eligibleStateIdsQuery,
+        private readonly GetEligibleDispatchAreaIdsQuery $eligibleDispatchAreaIdsQuery,
+        private readonly AllocationStatsProjectionScopeQuery $projectionScopeQuery,
+        private readonly StateRepository $stateRepository,
+        private readonly DispatchAreaRepository $dispatchAreaRepository,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -50,6 +72,11 @@ final readonly class StatisticsFilterFormChoiceProvider
         string $locale,
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
+        $cacheKey = sprintf('%s|%s|%s', $user?->getId() ?? 'anon', $locale, $policy->value);
+        if (isset($this->scopePrimaryChoicesByKey[$cacheKey])) {
+            return $this->scopePrimaryChoicesByKey[$cacheKey];
+        }
+
         $choices = [
             'public' => $this->translator->trans('stats.filter.scope.public', [], 'statistics', $locale),
         ];
@@ -70,7 +97,7 @@ final readonly class StatisticsFilterFormChoiceProvider
             $choices['my_hospitals'] = $this->hospitalScopeLabelResolver->groupLabel($user, $locale);
         }
 
-        return $choices;
+        return $this->scopePrimaryChoicesByKey[$cacheKey] = $choices;
     }
 
     /**
@@ -110,44 +137,78 @@ final readonly class StatisticsFilterFormChoiceProvider
         string $locale,
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): BenchmarkSelectionSideFormData {
-        $primaryChoices = $this->scopePrimaryChoices($user, $locale, $policy);
-        if (!isset($primaryChoices[$data->scopeGroup])) {
-            return new BenchmarkSelectionSideFormData(
-                'public',
-                null,
-                $data->period,
-                $data->periodYear,
-                $data->periodQuarter,
-                $data->periodMonth,
-            );
-        }
-
-        if (!$this->scopeDetailRequired($data->scopeGroup, $user, $side, $policy)) {
-            return new BenchmarkSelectionSideFormData(
-                $data->scopeGroup,
-                null,
-                $data->period,
-                $data->periodYear,
-                $data->periodQuarter,
-                $data->periodMonth,
-            );
-        }
-
-        $detailChoices = $this->scopeDetailChoices($data->scopeGroup, $user, $side, $locale, $policy);
-        $scopeDetail = $data->scopeDetail;
-        if (null === $scopeDetail || '' === $scopeDetail || !isset($detailChoices[$scopeDetail])) {
-            $firstChoice = array_key_first($detailChoices);
-            $scopeDetail = null !== $firstChoice ? (string) $firstChoice : null;
-        }
+        [$scopeGroup, $scopeDetail] = $this->normalizeScopeDetail(
+            $data->scopeGroup,
+            $data->scopeDetail,
+            $user,
+            $side,
+            $locale,
+            $policy,
+        );
 
         return new BenchmarkSelectionSideFormData(
-            $data->scopeGroup,
+            $scopeGroup,
             $scopeDetail,
             $data->period,
             $data->periodYear,
             $data->periodQuarter,
             $data->periodMonth,
         );
+    }
+
+    public function normalizeScopePeriodFormData(
+        StatisticsScopePeriodFormData $data,
+        ?User $user,
+        StatisticsFilterSide $side,
+        string $locale,
+        StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+    ): StatisticsScopePeriodFormData {
+        [$scopeGroup, $scopeDetail] = $this->normalizeScopeDetail(
+            $data->scopeGroup,
+            $data->scopeDetail,
+            $user,
+            $side,
+            $locale,
+            $policy,
+        );
+
+        return new StatisticsScopePeriodFormData(
+            $scopeGroup,
+            $scopeDetail,
+            $data->period,
+            $data->periodYear,
+            $data->periodQuarter,
+            $data->periodMonth,
+        );
+    }
+
+    /**
+     * @return array{0: string, 1: ?string}
+     */
+    private function normalizeScopeDetail(
+        string $scopeGroup,
+        ?string $scopeDetail,
+        ?User $user,
+        StatisticsFilterSide $side,
+        string $locale,
+        StatisticsFilterScopeChoicePolicy $policy,
+    ): array {
+        $primaryChoices = $this->scopePrimaryChoices($user, $locale, $policy);
+        if (!isset($primaryChoices[$scopeGroup])) {
+            return ['public', null];
+        }
+
+        if (!$this->scopeDetailRequired($scopeGroup, $user, $side, $policy)) {
+            return [$scopeGroup, null];
+        }
+
+        $detailChoices = $this->scopeDetailChoices($scopeGroup, $user, $side, $locale, $policy);
+        if (null === $scopeDetail || '' === $scopeDetail || !isset($detailChoices[$scopeDetail])) {
+            $firstChoice = array_key_first($detailChoices);
+            $scopeDetail = null !== $firstChoice ? (string) $firstChoice : null;
+        }
+
+        return [$scopeGroup, $scopeDetail];
     }
 
     /**
@@ -210,11 +271,19 @@ final readonly class StatisticsFilterFormChoiceProvider
     public function eligibleStateRows(
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
-        $ids = $this->eligibleStateIds($policy);
+        $cacheKey = $policy->value;
+        if (isset($this->eligibleStateRowsByPolicy[$cacheKey])) {
+            return $this->eligibleStateRowsByPolicy[$cacheKey];
+        }
+
+        $ids = array_values(array_filter(
+            $this->eligibleStateIds($policy),
+            static fn (int $id): bool => $id > 0,
+        ));
+        $namesById = $this->stateRepository->findNamesByIds($ids);
         $rows = [];
         foreach ($ids as $stateId) {
-            $state = $this->stateRepository->findById($stateId);
-            $name = $state?->getName();
+            $name = $namesById[$stateId] ?? null;
             if (null === $name || '' === $name) {
                 continue;
             }
@@ -222,7 +291,7 @@ final readonly class StatisticsFilterFormChoiceProvider
         }
         usort($rows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
 
-        return $rows;
+        return $this->eligibleStateRowsByPolicy[$cacheKey] = $rows;
     }
 
     /**
@@ -231,11 +300,19 @@ final readonly class StatisticsFilterFormChoiceProvider
     public function eligibleDispatchAreaRows(
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
     ): array {
-        $ids = $this->eligibleDispatchAreaIds($policy);
+        $cacheKey = $policy->value;
+        if (isset($this->eligibleDispatchAreaRowsByPolicy[$cacheKey])) {
+            return $this->eligibleDispatchAreaRowsByPolicy[$cacheKey];
+        }
+
+        $ids = array_values(array_filter(
+            $this->eligibleDispatchAreaIds($policy),
+            static fn (int $id): bool => $id > 0,
+        ));
+        $namesById = $this->dispatchAreaRepository->findNamesByIds($ids);
         $rows = [];
         foreach ($ids as $dispatchAreaId) {
-            $area = $this->dispatchAreaRepository->findById($dispatchAreaId);
-            $name = $area?->getName();
+            $name = $namesById[$dispatchAreaId] ?? null;
             if (null === $name || '' === $name) {
                 continue;
             }
@@ -243,7 +320,7 @@ final readonly class StatisticsFilterFormChoiceProvider
         }
         usort($rows, static fn (array $a, array $b): int => strcmp($a['name'], $b['name']));
 
-        return $rows;
+        return $this->eligibleDispatchAreaRowsByPolicy[$cacheKey] = $rows;
     }
 
     /**
@@ -251,6 +328,10 @@ final readonly class StatisticsFilterFormChoiceProvider
      */
     public function eligibleCohortChoices(string $locale): array
     {
+        if (isset($this->eligibleCohortChoicesByLocale[$locale])) {
+            return $this->eligibleCohortChoicesByLocale[$locale];
+        }
+
         $choices = [];
         foreach (HospitalCohortKey::all() as $cohortKey) {
             $cohort = $this->hospitalCohortResolver->resolve($cohortKey);
@@ -263,7 +344,7 @@ final readonly class StatisticsFilterFormChoiceProvider
             ];
         }
 
-        return $choices;
+        return $this->eligibleCohortChoicesByLocale[$locale] = $choices;
     }
 
     /**
@@ -318,12 +399,17 @@ final readonly class StatisticsFilterFormChoiceProvider
             return [];
         }
 
+        $cacheKey = sprintf('%d|%s|%s', $user->getId() ?? 0, $side->value, $locale);
+        if (isset($this->hospitalDetailChoicesByKey[$cacheKey])) {
+            return $this->hospitalDetailChoicesByKey[$cacheKey];
+        }
+
         $useBenchmarkingPermission = StatisticsFilterSide::Comparison === $side;
         if ($useBenchmarkingPermission && !$this->hospitalAccess->canUseBenchmarkingScope($user)) {
-            return [];
+            return $this->hospitalDetailChoicesByKey[$cacheKey] = [];
         }
         if (!$useBenchmarkingPermission && !$this->hospitalAccess->canUseMyHospitalsScope($user)) {
-            return [];
+            return $this->hospitalDetailChoicesByKey[$cacheKey] = [];
         }
 
         $hospitals = $useBenchmarkingPermission
@@ -331,7 +417,7 @@ final readonly class StatisticsFilterFormChoiceProvider
             : $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user);
 
         if (\count($hospitals) <= 1) {
-            return [];
+            return $this->hospitalDetailChoicesByKey[$cacheKey] = [];
         }
 
         $choices = [
@@ -341,7 +427,7 @@ final readonly class StatisticsFilterFormChoiceProvider
             $choices[(string) $row['id']] = $row['name'];
         }
 
-        return $choices;
+        return $this->hospitalDetailChoicesByKey[$cacheKey] = $choices;
     }
 
     /**
