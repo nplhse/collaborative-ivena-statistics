@@ -13,6 +13,7 @@ use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 
 final readonly class MonthlyReminderSender
 {
@@ -90,7 +91,7 @@ final readonly class MonthlyReminderSender
         try {
             return $this->sendForHospitalUnlocked($hospital, $trigger, $referenceDate, $bulkIndex);
         } finally {
-            if (null !== $lock && $lock->isAcquired()) {
+            if ($lock instanceof LockInterface && $lock->isAcquired()) {
                 $lock->release();
             }
         }
