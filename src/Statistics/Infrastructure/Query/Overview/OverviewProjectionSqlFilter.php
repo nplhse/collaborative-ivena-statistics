@@ -33,6 +33,11 @@ final class OverviewProjectionSqlFilter
             $conditions[] = sprintf('%shospital_id IN (%s)', $prefix, implode(',', $ids));
         }
 
+        if (null !== $criteria->dispatchAreaId) {
+            $conditions[] = sprintf('%sdispatch_area_id = :dispatch_area_id', $prefix);
+            $params['dispatch_area_id'] = $criteria->dispatchAreaId;
+        }
+
         return [implode(' AND ', $conditions), $params];
     }
 }

@@ -44,6 +44,11 @@ final class GenericAnalysisScopeSqlFilter
             }
         }
 
+        if (null !== $scope->dispatchAreaId) {
+            $conditions[] = 'dispatch_area_id = :scope_dispatch_area_id';
+            $params['scope_dispatch_area_id'] = $scope->dispatchAreaId;
+        }
+
         if (null !== $scope->locationCodes) {
             $conditions[] = 'hospital_location_code IN (:scope_location_codes)';
             $params['scope_location_codes'] = $scope->locationCodes;
