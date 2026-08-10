@@ -7,6 +7,7 @@ namespace App\Engagement\Infrastructure\Repository;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -72,7 +73,7 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
             ->andWhere('dispatch.sentAt >= :since')
             ->setParameter('hospitalId', $hospitalId)
             ->setParameter('trigger', $trigger)
-            ->setParameter('since', $since)
+            ->setParameter('since', $since, Types::DATETIME_IMMUTABLE)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
