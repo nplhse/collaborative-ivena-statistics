@@ -38,6 +38,19 @@ final class OverviewPeriodComparisonServiceIntegrationTest extends KernelTestCas
     {
         self::bootKernel();
 
+        $currentMonthStart = new \DateTimeImmutable('first day of this month')->setTime(0, 0, 0);
+        $previousMonthStart = $currentMonthStart->modify('-1 month');
+        $previousMonthMid = $previousMonthStart->setDate(
+            (int) $previousMonthStart->format('Y'),
+            (int) $previousMonthStart->format('n'),
+            10,
+        )->setTime(10, 0, 0);
+        $currentMonthMid = $currentMonthStart->setDate(
+            (int) $currentMonthStart->format('Y'),
+            (int) $currentMonthStart->format('n'),
+            10,
+        )->setTime(10, 0, 0);
+
         $user = UserFactory::createOne(['username' => 'overview-pop-'.bin2hex(random_bytes(4))]);
         $state = StateFactory::createOne(['name' => 'OverviewPopState']);
         $dispatchArea = DispatchAreaFactory::createOne(['name' => 'OverviewPopDispatch', 'state' => $state]);
@@ -65,8 +78,8 @@ final class OverviewPeriodComparisonServiceIntegrationTest extends KernelTestCas
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::EMERGENCY,
             'indicationNormalized' => $indicationNormalized,
-            'createdAt' => new \DateTimeImmutable('2025-05-10 10:00:00'),
-            'arrivalAt' => new \DateTimeImmutable('2025-05-10 10:20:00'),
+            'createdAt' => $previousMonthMid,
+            'arrivalAt' => $previousMonthMid->modify('+20 minutes'),
         ]);
         AllocationFactory::createMany(18, [
             'import' => $import,
@@ -76,8 +89,8 @@ final class OverviewPeriodComparisonServiceIntegrationTest extends KernelTestCas
             'gender' => AllocationGender::FEMALE,
             'urgency' => AllocationUrgency::INPATIENT,
             'indicationNormalized' => $indicationNormalized,
-            'createdAt' => new \DateTimeImmutable('2025-06-10 10:00:00'),
-            'arrivalAt' => new \DateTimeImmutable('2025-06-10 10:20:00'),
+            'createdAt' => $currentMonthMid,
+            'arrivalAt' => $currentMonthMid->modify('+20 minutes'),
         ]);
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
@@ -89,8 +102,8 @@ final class OverviewPeriodComparisonServiceIntegrationTest extends KernelTestCas
                 null,
                 null,
                 StatisticsFilterPeriod::Month,
-                2025,
-                6,
+                (int) $currentMonthStart->format('Y'),
+                (int) $currentMonthStart->format('n'),
             ),
         );
 
