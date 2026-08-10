@@ -342,6 +342,60 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
         self::assertStringNotContainsString('Hospital Beta', $csv);
     }
 
+    public function testPublicExporterMetadataAndCount(): void
+    {
+        self::bootKernel();
+
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        $this->seedAllocationDependencies($hospital);
+
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-15 10:00:00'),
+        ]);
+
+        $exporter = self::getContainer()->get(OwnHospitalAllocationsExporter::class);
+        self::assertInstanceOf(OwnHospitalAllocationsExporter::class, $exporter);
+
+        $filter = new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+        );
+
+        self::assertSame(OwnHospitalAllocationsExporter::KEY, $exporter->key());
+        self::assertMatchesRegularExpression('/^allocations-export-\d{4}-\d{2}-\d{2}\.csv$/', $exporter->buildFilename());
+        self::assertSame([(int) $hospital->getId()], $exporter->resolveScopeHospitalIds($owner));
+        self::assertSame(1, $exporter->count($owner, $filter));
+        self::assertArrayHasKey('dateFrom', $exporter->serializeCriteria($filter));
+    }
+
+    public function testCountRejectsInvalidCriteria(): void
+    {
+        self::bootKernel();
+
+        $exporter = self::getContainer()->get(OwnHospitalAllocationsExporter::class);
+        self::assertInstanceOf(OwnHospitalAllocationsExporter::class, $exporter);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $exporter->count(UserFactory::createOne(), new \stdClass());
+    }
+
+    public function testAssertCanExportDeniesUsersWithoutExportAccess(): void
+    {
+        self::bootKernel();
+
+        $exporter = self::getContainer()->get(OwnHospitalAllocationsExporter::class);
+        self::assertInstanceOf(OwnHospitalAllocationsExporter::class, $exporter);
+
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+
+        $this->expectException(\Symfony\Component\Security\Core\Exception\AccessDeniedException::class);
+        $exporter->assertCanExport($user);
+    }
+
     private function exportCsv(OwnHospitalAllocationsExporter $exporter, object $user, OwnHospitalAllocationsExportFilter $filter): string
     {
         $stream = fopen('php://temp', 'w+');
