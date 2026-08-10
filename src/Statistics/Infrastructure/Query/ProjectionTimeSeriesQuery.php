@@ -19,9 +19,9 @@ final class ProjectionTimeSeriesQuery
     private ?\DateTimeImmutable $earliestCreatedAt = null;
 
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private ProjectionFilterApplier $filterApplier,
-        private ProjectionDrawerFilterApplier $drawerFilterApplier,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly ProjectionFilterApplier $filterApplier,
+        private readonly ProjectionDrawerFilterApplier $drawerFilterApplier,
     ) {
     }
 
