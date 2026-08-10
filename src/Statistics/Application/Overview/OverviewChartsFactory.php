@@ -7,9 +7,10 @@ namespace App\Statistics\Application\Overview;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDistributionRow;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationHeatmapData;
 use App\Statistics\Application\IndicationDashboard\IndicationDashboardAssembler;
+use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Overview\Dto\OverviewChartsViewModel;
-use App\Statistics\Benchmarking\Application\DTO\BenchmarkReport;
 use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
+use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewSliceData;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\Overview\OverviewSliceQuery;
 
@@ -24,7 +25,6 @@ final readonly class OverviewChartsFactory
     public function build(
         OverviewQueryCriteria $criteria,
         OverviewDashboardMetricsResult $metrics,
-        BenchmarkReport $benchmarkReport,
     ): OverviewChartsViewModel {
         $slice = ($this->sliceQuery)($criteria);
         $total = $metrics->scopedTotal;
@@ -43,7 +43,7 @@ final readonly class OverviewChartsFactory
                 'heatmapShift' => $this->heatmapPayload($shiftHeatmap),
             ],
             $this->indicationDashboardAssembler->buildAgeGroupDistribution($metrics->ageGroupCounts, $total),
-            $this->buildTransportDistribution($benchmarkReport, $total),
+            $this->buildTransportDistribution($slice, $total),
             $this->indicationDashboardAssembler->buildTransportTimeDistribution($slice->transportTimeBucketCounts, $total),
             $metrics->medianAge,
             $metrics->medianTransportMinutes,
@@ -53,19 +53,23 @@ final readonly class OverviewChartsFactory
     /**
      * @return list<IndicationDistributionRow>
      */
-    private function buildTransportDistribution(BenchmarkReport $benchmarkReport, int $total): array
+    private function buildTransportDistribution(OverviewSliceData $slice, int $total): array
     {
         $rows = [];
+        $counts = $slice->transportTypeBucketCounts;
 
-        foreach ($benchmarkReport->transportType->buckets as $bucket) {
-            if ('unknown' === $bucket->key) {
-                continue;
-            }
+        foreach (AllocationStatsTransportTypeProjectionCode::displayOrder() as $case) {
+            $bucketKey = (string) $case->value;
+            $count = $counts[$bucketKey] ?? 0;
+            $label = match ($case) {
+                AllocationStatsTransportTypeProjectionCode::Ground => 'stats.indication.transport.ground',
+                AllocationStatsTransportTypeProjectionCode::Air => 'stats.indication.transport.air',
+            };
 
             $rows[] = new IndicationDistributionRow(
-                $bucket->label,
-                $bucket->primaryCount,
-                $total > 0 ? round(100 * $bucket->primaryCount / $total, 1) : 0.0,
+                $label,
+                $count,
+                $total > 0 ? round(100 * $count / $total, 1) : 0.0,
             );
         }
 

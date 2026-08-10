@@ -64,6 +64,15 @@
                  data-testid="stats-charts"
                  data-controller="indication-dashboard-charts"
                  data-indication-dashboard-charts-payload-value="{{ executiveDashboard.charts.chartPayload|json_encode|e('html_attr') }}">
+                <div class="col-12">
+                    <turbo-frame id="stats-overview-self-benchmark"
+                                 src="{{ overviewSelfBenchmarkUrl }}"
+                                 loading="lazy"
+                                 target="_top"
+                                 data-testid="stats-overview-self-benchmark-frame">
+                        {{ include('@Statistics/dashboard/_overview_self_benchmark_placeholder.html.twig') }}
+                    </turbo-frame>
+                </div>
                 {{ include('@Statistics/dashboard/_overview_charts_main.html.twig') }}
                 {{ include('@Statistics/dashboard/_overview_charts_sidebar.html.twig') }}
             </div>

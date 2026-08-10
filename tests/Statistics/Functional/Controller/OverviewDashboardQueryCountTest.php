@@ -13,9 +13,8 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Baseline before optimization (Jun 2026): 44 queries / ~299 ms on /statistics/ with broad hospital scope.
- * Target after Phase 1+2: ~18–22 queries on the synchronous overview path.
- * All-time time series is loaded in the same OverviewSliceQuery as scoped heatmaps (no extra round-trip).
+ * Sync overview path excludes Self-Benchmark (lazy Turbo-Frame).
+ * See docs/04-features/statistics/overview-dashboard-performance.md.
  */
 #[ResetDatabase]
 final class OverviewDashboardQueryCountTest extends WebTestCase
@@ -26,7 +25,7 @@ final class OverviewDashboardQueryCountTest extends WebTestCase
 
     private const int MAX_SYNC_QUERIES = 30;
 
-    public function testOverviewDashboardUsesBoundedQueryCount(): void
+    public function testOverviewDashboardUsesBoundedQueryCountWithoutSelfBenchmark(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->enableProfiler();
@@ -46,5 +45,15 @@ final class OverviewDashboardQueryCountTest extends WebTestCase
             $queryCount,
             sprintf('Expected at most %d DB queries on overview sync path, got %d.', self::MAX_SYNC_QUERIES, $queryCount),
         );
+
+        $sqlParts = [];
+        foreach ($collector->getQueries() as $connectionQueries) {
+            foreach ($connectionQueries as $query) {
+                $sqlParts[] = (string) ($query['sql'] ?? '');
+            }
+        }
+        $sqlBlob = strtolower(implode("\n", $sqlParts));
+        self::assertStringNotContainsString(' as is_primary', $sqlBlob);
+        self::assertStringNotContainsString('as is_comparison', $sqlBlob);
     }
 }

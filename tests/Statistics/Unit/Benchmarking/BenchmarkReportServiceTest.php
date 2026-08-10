@@ -95,6 +95,54 @@ final class BenchmarkReportServiceTest extends TestCase
         self::assertFalse($report->suppressRatios);
     }
 
+    public function testBuildForOverviewSkipsHeavyDistributionsButKeepsKpis(): void
+    {
+        $aggregation = new BenchmarkAggregationResult(
+            new BenchmarkSideCounts(
+                500, 300, 40, 20, 50, 30, 10, 5, 3, 8, 200, 150, 150,
+                100, 90, 80, 260, 210, 0, 65.0, 45.0, 46.0,
+            ),
+            new BenchmarkSideCounts(
+                5000, 2500, 400, 200, 500, 300, 100, 50, 30, 80, 2000, 1500, 1500,
+                1000, 900, 800, 2600, 2100, 0, 65.0, 45.0, 46.0,
+            ),
+            [
+                new BenchmarkDistributionRow('indication', '7', 'STEMI', 120, 900),
+                new BenchmarkDistributionRow('transport_type', '1', null, 400, 4000),
+            ],
+        );
+
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+
+        $service = new BenchmarkReportService(
+            new FixedBenchmarkAggregationProvider($aggregation),
+            new BenchmarkMetricBuilder(),
+            new BenchmarkHeatmapBuilder($translator),
+            new BenchmarkInsightProvider(),
+        );
+
+        $report = $service->buildForOverview(new BenchmarkCriteria(
+            StatisticsScopeCriteria::public(),
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+            new StatisticsPeriodBounds(null),
+            'Primary',
+            'Comparison',
+            '2024',
+            '2024',
+        ));
+
+        self::assertNotEmpty($report->kpiMetrics);
+        self::assertSame(BenchmarkMetricKey::IndicationMix, $report->indicationMix->dimension);
+        self::assertNotEmpty($report->indicationMix->buckets);
+        self::assertSame([], $report->insights);
+        self::assertSame([], $report->transportType->buckets);
+        self::assertSame([], $report->gender->buckets);
+        self::assertSame([], $report->dayTimeCaseDistribution->rowLabels);
+        self::assertSame([], $report->shiftCaseDistribution->rowLabels);
+    }
+
     public function testSuppressesRatiosWhenEitherSideHasFewerThanTwentyCases(): void
     {
         $aggregation = new BenchmarkAggregationResult(

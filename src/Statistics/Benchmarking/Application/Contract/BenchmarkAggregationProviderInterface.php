@@ -16,4 +16,14 @@ interface BenchmarkAggregationProviderInterface
         StatisticsScopeCriteria $comparisonScope,
         StatisticsPeriodBounds $comparisonPeriod,
     ): BenchmarkAggregationResult;
+
+    /**
+     * Overview self-benchmark: reduced core counters + indication distribution only.
+     */
+    public function aggregateForOverview(
+        StatisticsScopeCriteria $primaryScope,
+        StatisticsPeriodBounds $primaryPeriod,
+        StatisticsScopeCriteria $comparisonScope,
+        StatisticsPeriodBounds $comparisonPeriod,
+    ): BenchmarkAggregationResult;
 }

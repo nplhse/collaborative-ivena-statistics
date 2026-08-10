@@ -181,6 +181,10 @@ export default class extends Controller {
                 : { curve: 'smooth', width: 3 },
             markers: { size: 0 },
             dataLabels: { enabled: false },
+            yaxis: {
+                min: 0,
+                forceNiceScale: true,
+            },
             legend: {
                 show: showMovingAverage,
                 position: 'top',

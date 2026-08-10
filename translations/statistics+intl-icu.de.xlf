@@ -4489,6 +4489,14 @@
         <source>stats.overview.pretitle</source>
         <target>Statistik</target>
       </trans-unit>
+      <trans-unit id="DstatsOvSbLoad01" resname="stats.overview.self_benchmark.loading">
+        <source>stats.overview.self_benchmark.loading</source>
+        <target>Kennzahlen werden geladen…</target>
+      </trans-unit>
+      <trans-unit id="DstatsOvTrLoad01" resname="stats.overview.top_reports.loading">
+        <source>stats.overview.top_reports.loading</source>
+        <target>Top-Reports werden geladen…</target>
+      </trans-unit>
       <trans-unit id="Ded1014259" resname="stats.overview.section.key_findings">
         <source>stats.overview.section.key_findings</source>
         <target>Wesentliches</target>

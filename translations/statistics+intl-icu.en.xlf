@@ -1277,6 +1277,14 @@
         <source>stats.overview.pretitle</source>
         <target>Statistics</target>
       </trans-unit>
+      <trans-unit id="statsOvSbLoad01" resname="stats.overview.self_benchmark.loading">
+        <source>stats.overview.self_benchmark.loading</source>
+        <target>Loading key metrics…</target>
+      </trans-unit>
+      <trans-unit id="statsOvTrLoad01" resname="stats.overview.top_reports.loading">
+        <source>stats.overview.top_reports.loading</source>
+        <target>Loading top reports…</target>
+      </trans-unit>
       <trans-unit id="statsOvKf01" resname="stats.overview.section.key_findings">
         <source>stats.overview.section.key_findings</source>
         <target>Key findings</target>

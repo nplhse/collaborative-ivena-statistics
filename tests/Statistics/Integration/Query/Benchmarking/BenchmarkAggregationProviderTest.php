@@ -102,6 +102,66 @@ final class BenchmarkAggregationProviderTest extends KernelTestCase
         self::assertGreaterThan(0, \count($result->distributionRows));
     }
 
+    public function testAggregateForOverviewReturnsCoreKpisAndIndicationRowsOnly(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'benchmark-ov-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'BenchmarkOvState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'BenchmarkOvDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'BenchmarkOvHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'BenchmarkOvSpec']);
+        DepartmentFactory::createOne(['name' => 'BenchmarkOvDept']);
+        AssignmentFactory::createOne(['name' => 'BenchmarkOvAssign']);
+        IndicationRawFactory::createOne(['name' => 'BenchmarkOvRaw', 'code' => 912_410]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Benchmark Overview STEMI']);
+
+        $import = ImportFactory::createOne(['name' => 'BenchmarkOvImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'age' => 82,
+            'isWithPhysician' => true,
+            'requiresResus' => true,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-03-15 02:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-03-15 02:30:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        /** @var BenchmarkAggregationProvider $provider */
+        $provider = self::getContainer()->get(BenchmarkAggregationProvider::class);
+
+        $result = $provider->aggregateForOverview(
+            new StatisticsScopeCriteria([$hospital->getId()]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-01-01 00:00:00')),
+            StatisticsScopeCriteria::public(),
+            new StatisticsPeriodBounds(null),
+        );
+
+        self::assertSame(3, $result->primary->total);
+        self::assertSame(3, $result->primary->withPhysician);
+        self::assertSame(3, $result->primary->resus);
+        self::assertSame(0, $result->primary->cathlab);
+        self::assertNotEmpty($result->distributionRows);
+        foreach ($result->distributionRows as $row) {
+            self::assertSame('indication', $row->dimension);
+        }
+    }
+
     public function testReturnsEmptyResultForEmptyScopes(): void
     {
         self::bootKernel();

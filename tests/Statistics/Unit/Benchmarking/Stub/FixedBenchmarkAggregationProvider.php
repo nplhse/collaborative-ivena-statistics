@@ -25,4 +25,14 @@ final readonly class FixedBenchmarkAggregationProvider implements BenchmarkAggre
     ): BenchmarkAggregationResult {
         return $this->result;
     }
+
+    #[\Override]
+    public function aggregateForOverview(
+        StatisticsScopeCriteria $primaryScope,
+        StatisticsPeriodBounds $primaryPeriod,
+        StatisticsScopeCriteria $comparisonScope,
+        StatisticsPeriodBounds $comparisonPeriod,
+    ): BenchmarkAggregationResult {
+        return $this->result;
+    }
 }

@@ -6,8 +6,12 @@ namespace App\Statistics\Benchmarking\Application;
 
 use App\Statistics\Benchmarking\Application\Contract\BenchmarkAggregationProviderInterface;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkCriteria;
+use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkHeader;
+use App\Statistics\Benchmarking\Application\DTO\BenchmarkHeatmapData;
+use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkReport;
+use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkAggregationResult;
 
 final readonly class BenchmarkReportService
 {
@@ -34,8 +38,28 @@ final readonly class BenchmarkReportService
             $criteria->comparisonPeriod,
         );
 
+        return $this->mapAggregationToReport($criteria, $aggregation);
+    }
+
+    public function buildForOverview(BenchmarkCriteria $criteria): BenchmarkReport
+    {
+        $aggregation = $this->aggregationProvider->aggregateForOverview(
+            $criteria->primaryScope,
+            $criteria->primaryPeriod,
+            $criteria->comparisonScope,
+            $criteria->comparisonPeriod,
+        );
+
+        return $this->mapAggregationToReport($criteria, $aggregation, overview: true);
+    }
+
+    private function mapAggregationToReport(
+        BenchmarkCriteria $criteria,
+        BenchmarkAggregationResult $aggregation,
+        bool $overview = false,
+    ): BenchmarkReport {
         $kpiMetrics = $this->metricBuilder->buildIndicationCompareKpiMetrics($aggregation);
-        $insights = $this->insightProvider->build($aggregation, $kpiMetrics);
+        $insights = $overview ? [] : $this->insightProvider->build($aggregation, $kpiMetrics);
         $suppressRatios = $aggregation->primary->total < self::MIN_CASES_RATIOS
             || $aggregation->comparison->total < self::MIN_CASES_RATIOS;
 
@@ -51,20 +75,25 @@ final readonly class BenchmarkReportService
             $insights,
             $kpiMetrics,
             $this->metricBuilder->buildIndicationMix($aggregation),
-            $this->heatmapBuilder->buildDayTimeCaseDistribution($aggregation),
-            $this->heatmapBuilder->buildShiftCaseDistribution($aggregation),
-            $this->metricBuilder->buildGenderDistribution($aggregation),
-            $this->metricBuilder->buildAgeGroupDistribution($aggregation),
-            $this->metricBuilder->buildTransportTimeDistribution($aggregation),
-            $this->metricBuilder->buildTransportTypeDistribution($aggregation),
-            $this->metricBuilder->buildDayTimeBucketDistribution($aggregation),
-            $this->metricBuilder->buildShiftBucketDistribution($aggregation),
-            $this->metricBuilder->buildUrgencyDistribution($aggregation),
-            $this->metricBuilder->buildResourcesDistribution($aggregation),
-            $this->metricBuilder->buildClinicalFeaturesDistribution($aggregation),
+            $overview ? BenchmarkHeatmapData::empty() : $this->heatmapBuilder->buildDayTimeCaseDistribution($aggregation),
+            $overview ? BenchmarkHeatmapData::empty() : $this->heatmapBuilder->buildShiftCaseDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::Gender) : $this->metricBuilder->buildGenderDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::AgeGroups) : $this->metricBuilder->buildAgeGroupDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::TransportTimes) : $this->metricBuilder->buildTransportTimeDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::TransportType) : $this->metricBuilder->buildTransportTypeDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::DayTimeBuckets) : $this->metricBuilder->buildDayTimeBucketDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::ShiftBuckets) : $this->metricBuilder->buildShiftBucketDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::Urgency) : $this->metricBuilder->buildUrgencyDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::ResourceProfile) : $this->metricBuilder->buildResourcesDistribution($aggregation),
+            $overview ? $this->emptyDistribution(BenchmarkMetricKey::ClinicalFeatures) : $this->metricBuilder->buildClinicalFeaturesDistribution($aggregation),
             $aggregation->primary->total < self::MIN_PRIMARY_CASES
                 || $aggregation->comparison->total < self::MIN_COMPARISON_CASES,
             $suppressRatios,
         );
+    }
+
+    private function emptyDistribution(BenchmarkMetricKey $key): BenchmarkDistribution
+    {
+        return new BenchmarkDistribution($key, []);
     }
 }

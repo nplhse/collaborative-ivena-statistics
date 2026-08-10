@@ -1,6 +1,4 @@
 <div class="col-lg-8 d-flex flex-column gap-3">
-    {{ include('@Statistics/dashboard/_executive_kpi_grid.html.twig') }}
-
     <div class="card" data-testid="stats-overview-time-series">
         <div class="card-header py-2">
             {{ include('@Statistics/dashboard/_linked_card_title.html.twig', {
@@ -79,10 +77,6 @@
                  loading="lazy"
                  target="_top"
                  data-testid="stats-overview-top-reports-frame">
-        <div class="row g-3" data-testid="stats-overview-top-reports">
-            <div class="col-12 text-center text-muted py-4">
-                <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-            </div>
-        </div>
+        {{ include('@Statistics/dashboard/_overview_top_reports_placeholder.html.twig') }}
     </turbo-frame>
 </div>

@@ -41,20 +41,26 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Total allocations');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Gender distribution');
         $this->assertSelectorTextContains('[data-testid="stats-hospital-summary"]', 'Emergency');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpis"]');
-        $this->assertCount(6, $crawler->filter('[data-testid="stats-executive-kpis"] .card'));
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-cases_per_day"]');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_age"]');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-age_80_plus"]');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-night_daytime"]');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-weekend"]');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_transport"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-self-benchmark-frame"]');
+        self::assertSame(
+            '_top',
+            $crawler->filter('[data-testid="stats-overview-self-benchmark-frame"]')->attr('target'),
+        );
+        self::assertStringContainsString(
+            '/statistics/overview/self-benchmark',
+            (string) $crawler->filter('[data-testid="stats-overview-self-benchmark-frame"]')->attr('src'),
+        );
+        $this->assertSelectorExists('[data-testid="stats-overview-self-benchmark-placeholder"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-self-benchmark-placeholder"] .placeholder-glow');
+        $this->assertSelectorNotExists('[data-testid="stats-executive-kpis"]');
         $this->assertSelectorExists('[data-testid="stats-executive-indications"]');
         $this->assertSelectorExists('[data-testid="stats-overview-top-reports-frame"]');
         self::assertSame(
             '_top',
             $crawler->filter('[data-testid="stats-overview-top-reports-frame"]')->attr('target'),
         );
+        $this->assertSelectorExists('[data-testid="stats-overview-top-reports-placeholder"]');
+        $this->assertSelectorExists('[data-testid="stats-overview-top-reports-placeholder"] .placeholder-glow');
         $this->assertSelectorNotExists('[data-testid="stats-overview-top-specialities"]');
         $this->assertSelectorExists('[data-testid="stats-overview-time-series"]');
         $this->assertSelectorExists('[data-testid="stats-overview-heatmap"]');
@@ -74,16 +80,16 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $client = $this->createClientAsRoleUser();
         $this->seedOverviewHospitalInsightsScenario();
 
-        $crawler = $client->request(
+        $client->request(
             Request::METHOD_GET,
-            '/statistics/?scope=public&period=month&year=2026&month=6',
+            '/statistics/overview/self-benchmark?scope=public&period=month&year=2026&month=6',
         );
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-overview-hospital-insights"]');
         $this->assertGreaterThanOrEqual(
             1,
-            $crawler->filter('[data-testid^="stats-overview-hospital-insight-"]')->count(),
+            $client->getCrawler()->filter('[data-testid^="stats-overview-hospital-insight-"]')->count(),
         );
     }
 
@@ -115,7 +121,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         HospitalAccessGrantFactory::createOne(['user' => $participant, 'hospital' => $hospital]);
         $client->loginUser($participant);
 
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/overview/self-benchmark?scope=public&period=all_time');
 
         $this->assertResponseIsSuccessful();
         $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: true);
@@ -128,7 +134,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         HospitalFactory::createOne(['owner' => $owner]);
         $client->loginUser($owner);
 
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/overview/self-benchmark?scope=public&period=all_time');
 
         $this->assertResponseIsSuccessful();
         $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: false);
@@ -187,6 +193,26 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorExists('[data-testid="stats-overview-top-occasions"]');
         $this->assertSelectorExists('[data-testid="stats-overview-top-infections"]');
         $this->assertSelectorExists('[data-testid="stats-overview-top-secondary-indications"]');
+    }
+
+    public function testOverviewSelfBenchmarkLazyEndpointRendersKpis(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/overview/self-benchmark?scope=public&period=month&year=2025&month=6',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('turbo-frame#stats-overview-self-benchmark');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpis"]');
+        $this->assertCount(6, $crawler->filter('[data-testid="stats-executive-kpis"] .card'));
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-cases_per_day"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_age"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-age_80_plus"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-night_daytime"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-weekend"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_transport"]');
     }
 
     public function testDataQualityDrawerEndpointRendersDimensions(): void
