@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Analytics\Functional;
 
 use App\Analytics\Domain\Entity\AnalyticsRequest;
+use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Infrastructure\Http\AnalyticsCookieManager;
 use App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository;
 use App\User\Domain\Factory\UserFactory;
+use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -126,5 +128,54 @@ final class AnalyticsRequestTrackingTest extends WebTestCase
             self::assertStringNotContainsString('user_id', $html);
             self::assertStringNotContainsString('User ID', $html);
         }
+    }
+
+    public function testAdminAreaRequestsAreNotTracked(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create([
+            'username' => 'analytics-skip-admin-'.bin2hex(random_bytes(4)),
+        ]);
+        $client->loginUser($admin);
+
+        $repository = self::getContainer()->get(AnalyticsRequestRepository::class);
+        $beforeAdminRows = $repository->count(['featureArea' => FeatureArea::Admin]);
+
+        $client->request(Request::METHOD_GET, '/admin/operations/usage-analytics/overview');
+        self::assertResponseIsSuccessful();
+
+        self::assertSame(
+            $beforeAdminRows,
+            $repository->count(['featureArea' => FeatureArea::Admin]),
+            'Admin area requests must not create analytics_request rows.',
+        );
+
+        $appAdminRows = $repository->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.routeName LIKE :prefix')
+            ->setParameter('prefix', 'app_admin_%')
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+        self::assertSame(0, (int) $appAdminRows);
+    }
+
+    public function testAdminHomeRequestIsStillTracked(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create([
+            'username' => 'analytics-admin-home-'.bin2hex(random_bytes(4)),
+        ]);
+        $client->loginUser($admin);
+
+        $client->request(Request::METHOD_GET, '/');
+        self::assertResponseIsSuccessful();
+
+        $repository = self::getContainer()->get(AnalyticsRequestRepository::class);
+        /** @var list<AnalyticsRequest> $rows */
+        $rows = $repository->findBy(['routeName' => 'app_default'], ['id' => 'DESC'], 5);
+        self::assertNotEmpty($rows);
+        self::assertSame(FeatureArea::Home, $rows[0]->getFeatureArea());
+        self::assertSame(UserRole::ADMIN, $rows[0]->getUserRole());
     }
 }

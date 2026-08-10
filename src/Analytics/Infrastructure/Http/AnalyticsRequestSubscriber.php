@@ -189,6 +189,10 @@ final readonly class AnalyticsRequestSubscriber
     {
         $route = $request->attributes->get('_route');
         if (\is_string($route)) {
+            if (str_starts_with($route, 'app_admin_')) {
+                return true;
+            }
+
             foreach (self::SKIP_ROUTE_PREFIXES as $prefix) {
                 if (str_starts_with($route, $prefix)) {
                     return true;
@@ -198,7 +202,9 @@ final readonly class AnalyticsRequestSubscriber
 
         $path = $request->getPathInfo();
 
-        return str_starts_with($path, '/_wdt')
+        return '/admin' === $path
+            || str_starts_with($path, '/admin/')
+            || str_starts_with($path, '/_wdt')
             || str_starts_with($path, '/_profiler')
             || str_starts_with($path, '/assets/')
             || str_starts_with($path, '/build/')

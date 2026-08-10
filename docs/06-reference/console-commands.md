@@ -97,7 +97,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `dbal:run-sql '…'` | Run a single SQL statement (ops one-offs). Example: reset cookie consents after introducing the `analytics` preference — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#rollout-re-prompt-after-introducing-analytics). |
+| `dbal:run-sql '…'` | Run a single SQL statement (ops one-offs). Examples: reset cookie consents after introducing the `analytics` preference; delete historical admin UI rows from `analytics_request` — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md). |
 
 ### DataFixtures (dev/test only)
 
