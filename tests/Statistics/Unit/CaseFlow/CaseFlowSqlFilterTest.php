@@ -64,4 +64,19 @@ final class CaseFlowSqlFilterTest extends TestCase
         self::assertSame([], $params);
         self::assertSame([], $types);
     }
+
+    public function testDispatchAreaScopeFiltersByOriginId(): void
+    {
+        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            null,
+            null,
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 55),
+            'asp',
+        );
+
+        self::assertStringContainsString('asp.dispatch_area_id = :dispatch_area_id', $where);
+        self::assertStringNotContainsString('hospital_id', $where);
+        self::assertSame(55, $params['dispatch_area_id']);
+        self::assertSame([], $types);
+    }
 }

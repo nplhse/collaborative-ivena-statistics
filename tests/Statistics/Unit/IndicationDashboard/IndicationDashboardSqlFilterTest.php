@@ -51,4 +51,17 @@ final class IndicationDashboardSqlFilterTest extends TestCase
         self::assertSame([], $params);
         self::assertSame([], $types);
     }
+
+    public function testDispatchAreaScopeFiltersByOriginId(): void
+    {
+        [$where, $params] = IndicationDashboardSqlFilter::buildScopePeriodWhere(
+            null,
+            null,
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 44),
+        );
+
+        self::assertStringContainsString('dispatch_area_id = :dispatch_area_id', $where);
+        self::assertStringNotContainsString('hospital_id', $where);
+        self::assertSame(44, $params['dispatch_area_id']);
+    }
 }

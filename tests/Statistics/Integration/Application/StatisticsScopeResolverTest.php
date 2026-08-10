@@ -94,4 +94,24 @@ final class StatisticsScopeResolverTest extends DatabaseKernelTestCase
 
         self::assertSame([], $criteria->hospitalIds);
     }
+
+    public function testDispatchAreaScopeUsesOriginIdWithoutHospitalExpansion(): void
+    {
+        self::bootKernel();
+        $resolver = self::getContainer()->get(StatisticsScopeResolver::class);
+
+        $criteria = $resolver->resolveCriteria(new StatisticsContext(
+            null,
+            new StatisticsFilter(
+                StatisticsFilterScope::DispatchArea,
+                null,
+                null,
+                StatisticsFilterPeriod::All,
+                dispatchAreaId: 10,
+            ),
+        ));
+
+        self::assertNull($criteria->hospitalIds);
+        self::assertSame(10, $criteria->dispatchAreaId);
+    }
 }
