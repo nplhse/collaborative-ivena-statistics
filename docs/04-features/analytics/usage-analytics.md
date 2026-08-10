@@ -115,6 +115,22 @@ Event names live in `App\Analytics\Domain\UsageEventName`. Context must be non-P
 
 Resolved from Symfony route names: `home`, `dashboard`, `statistics`, `analysis`, `explore`, `import`, `export`, `admin`, `blog`, `pages`, `other`.
 
+### Admin area exclusion
+
+Requests under the Admin UI (`app_admin_*` routes / path `/admin`) are **not** written to `analytics_request`. Product events and normal app usage (including by users with `ROLE_ADMIN`) remain tracked.
+
+After deploying this exclusion, remove historical admin request rows once (optional but recommended so Overview/Performance are not skewed):
+
+```bash
+# Preview
+php bin/console dbal:run-sql "SELECT COUNT(*) AS n FROM analytics_request WHERE feature_area = 'admin' OR route_name LIKE 'app_admin_%'"
+
+# Delete
+php bin/console dbal:run-sql "DELETE FROM analytics_request WHERE feature_area = 'admin' OR route_name LIKE 'app_admin_%'"
+```
+
+Do **not** delete `analytics_product_event` rows for this cleanup.
+
 ## Engagement depth (levels)
 
 Derived in the dashboard (not stored). Max level per `analytics_user_key` over 30 days from events and requests:

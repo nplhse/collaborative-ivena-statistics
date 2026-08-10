@@ -186,6 +186,7 @@ After deploying the Analytics migration (`Version20260804151958`) and the new `a
 
    Details: [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#rollout-re-prompt-after-introducing-analytics).
 3. Smoke-check Admin → **Usage analytics** → Overview after accepting cookies with “Accept all”.
+4. Optional one-off: delete historical admin UI request rows so Overview/Performance are not skewed — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#admin-area-exclusion).
 
 Recommended beta operations rhythm:
 - Weekly (minimum): `cd ~/www/current && php bin/console messenger:failed:show`
