@@ -47,6 +47,8 @@ services:
 
     App\Analytics\Application\UsageEvents\UsageEventContextResolverInterface: '@App\Analytics\Application\UsageEvents\UsageEventContextResolver'
     App\Analytics\Application\UsageEvents\UsageEventRecorderInterface: '@App\Analytics\Application\UsageEvents\UsageEventRecorder'
+    App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'
+    App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFilterLabelsInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter'
 
     app.lock.pdo:
         class: PDO

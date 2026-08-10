@@ -9,7 +9,7 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class ExplorerFilterBadgePresenter
+final readonly class ExplorerFilterBadgePresenter implements ExplorerAnalysisSummaryFilterLabelsInterface
 {
     public function __construct(
         private DimensionRegistry $dimensionRegistry,
@@ -21,23 +21,36 @@ final readonly class ExplorerFilterBadgePresenter
     /**
      * @return list<array{label: string, value: string}>
      */
-    public function present(AnalysisViewConfig $config): array
+    #[\Override]
+    public function present(AnalysisViewConfig $config, ?string $locale = null): array
     {
         $badges = [];
         foreach ($config->filters as $filter) {
             $badges[] = [
-                'label' => $this->dimensionLabel($filter->dimensionKey),
-                'value' => $this->valueLabel($filter),
+                'label' => $this->dimensionLabel($filter->dimensionKey, $locale),
+                'value' => $this->valueLabel($filter, $locale),
             ];
         }
 
         return $badges;
     }
 
-    private function dimensionLabel(string $dimensionKey): string
+    private function dimensionLabel(string $dimensionKey, ?string $locale): string
     {
         if ('indication_group' === $dimensionKey) {
-            return $this->translator->trans('label.indication_group', [], 'messages');
+            return $this->translator->trans('label.indication_group', [], 'messages', $locale);
+        }
+
+        $explorerKey = 'stats.analysis_explorer.dimension.'.$dimensionKey;
+        $translated = $this->translator->trans($explorerKey, [], 'statistics', $locale);
+        if ($translated !== $explorerKey) {
+            return $translated;
+        }
+
+        $messageKey = 'label.'.$dimensionKey;
+        $messageTranslated = $this->translator->trans($messageKey, [], 'messages', $locale);
+        if ($messageTranslated !== $messageKey) {
+            return $messageTranslated;
         }
 
         if (!$this->dimensionRegistry->has($dimensionKey)) {
@@ -47,7 +60,7 @@ final readonly class ExplorerFilterBadgePresenter
         return $this->dimensionRegistry->get($dimensionKey)->label;
     }
 
-    private function valueLabel(AnalysisFilter $filter): string
+    private function valueLabel(AnalysisFilter $filter, ?string $locale): string
     {
         return match ($filter->dimensionKey) {
             'department' => $this->singleChoiceLabel($this->choiceProvider->departmentChoices(), $filter->value),
@@ -60,7 +73,7 @@ final readonly class ExplorerFilterBadgePresenter
             'indication' => $this->singleChoiceLabel($this->choiceProvider->indicationChoices(), $filter->value),
             'secondary_indication' => $this->singleChoiceLabel($this->choiceProvider->indicationChoices(), $filter->value),
             'indication_group' => $this->singleChoiceLabel($this->choiceProvider->indicationGroupChoices(), $filter->value),
-            'resus', 'cpr', 'ventilation' => $this->booleanLabel($filter->value),
+            'resus', 'cpr', 'ventilation' => $this->booleanLabel($filter->value, $locale),
             default => \is_array($filter->value) ? implode(', ', array_map(strval(...), $filter->value)) : (string) $filter->value,
         };
     }
@@ -99,7 +112,7 @@ final readonly class ExplorerFilterBadgePresenter
     /**
      * @param int|string|bool|list<int|string|bool> $value
      */
-    private function booleanLabel(int|string|bool|array $value): string
+    private function booleanLabel(int|string|bool|array $value, ?string $locale): string
     {
         if (\is_array($value)) {
             $value = $value[0] ?? 0;
@@ -108,7 +121,7 @@ final readonly class ExplorerFilterBadgePresenter
         $normalized = \is_bool($value) ? ($value ? 1 : 0) : (int) $value;
 
         return 1 === $normalized
-            ? $this->translator->trans('label.yes', [], 'messages')
-            : $this->translator->trans('label.no', [], 'messages');
+            ? $this->translator->trans('label.yes', [], 'messages', $locale)
+            : $this->translator->trans('label.no', [], 'messages', $locale);
     }
 }

@@ -163,7 +163,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-data-source-switcher"]');
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-chart-title"]', 'Allocations over time');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'Allocations');
     }
 
     public function testExplorerRendersAllocationsOverTimeChart(): void
@@ -180,8 +180,9 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-title"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-card"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-title"]');
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-chart-title"]', 'Allocations over time');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-summary"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'Allocations');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'monthly');
 
         $chart = $crawler->filter('[data-controller="generic-analysis-chart"]');
         self::assertGreaterThan(0, $chart->count());
@@ -357,7 +358,7 @@ final class AnalysisExplorerControllerTest extends WebTestCase
             '[data-testid="stats-analysis-explorer-config-warning"]',
             'invalid',
         );
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-chart-title"]', 'Allocations over time');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'Allocations');
     }
 
     public function testSystemSavedViewShowsSaveAsAndFavoriteForParticipant(): void
