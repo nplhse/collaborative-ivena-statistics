@@ -1337,6 +1337,10 @@
         <source>stats.analysis_explorer.empty_state.unsupported</source>
         <target>Diese Analyse-Konfiguration kann nicht angezeigt werden.</target>
       </trans-unit>
+      <trans-unit id="statsAexBukUnkDe" resname="stats.analysis_explorer.bucket.unknown">
+        <source>stats.analysis_explorer.bucket.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
       <trans-unit id="statsAexExp01" resname="stats.analysis_explorer.export.csv_table">
         <source>stats.analysis_explorer.export.csv_table</source>
         <target>CSV exportieren</target>

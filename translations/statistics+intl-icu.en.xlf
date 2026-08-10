@@ -3845,6 +3845,10 @@
         <source>stats.analysis_explorer.validation.invalid</source>
         <target>Invalid analysis configuration.</target>
       </trans-unit>
+      <trans-unit id="statsAexBukUnk" resname="stats.analysis_explorer.bucket.unknown">
+        <source>stats.analysis_explorer.bucket.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
       <trans-unit id="statsAexExp01" resname="stats.analysis_explorer.export.csv_table">
         <source>stats.analysis_explorer.export.csv_table</source>
         <target>Export CSV</target>

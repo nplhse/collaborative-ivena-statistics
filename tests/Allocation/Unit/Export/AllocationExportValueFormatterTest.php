@@ -13,29 +13,25 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class AllocationExportValueFormatterTest extends TestCase
 {
-    private AllocationExportValueFormatter $formatter;
-
-    #[\Override]
-    protected function setUp(): void
+    public function testFormatsGenderTransportAndUrgencyForExport(): void
     {
-        $translator = $this->createMock(TranslatorInterface::class);
+        $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
-            static fn (string $id): string => match ($id) {
-                'label.gender.male' => 'Male',
-                'label.transportType.ground' => 'Ground',
-                'label.transportType.air' => 'Air',
+            static fn (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string => match ($id) {
+                'label.gender.male' => 'de' === $locale ? 'Männlich' : 'Male',
+                'label.transportType.ground' => 'de' === $locale ? 'Boden' : 'Ground',
+                'label.transportType.air' => 'de' === $locale ? 'Luft' : 'Air',
                 default => $id,
             },
         );
 
-        $this->formatter = new AllocationExportValueFormatter($translator);
-    }
+        $formatter = new AllocationExportValueFormatter($translator);
 
-    public function testFormatsGenderTransportAndUrgencyForExport(): void
-    {
-        self::assertSame('Male', $this->formatter->gender(AllocationGender::MALE));
-        self::assertSame('SK1', $this->formatter->urgency(AllocationUrgency::EMERGENCY));
-        self::assertSame('Ground', $this->formatter->transportType(AllocationTransportType::GROUND));
-        self::assertSame('Air', $this->formatter->transportType('A'));
+        self::assertSame('Male', $formatter->gender(AllocationGender::MALE));
+        self::assertSame('SK1', $formatter->urgency(AllocationUrgency::EMERGENCY));
+        self::assertSame('Ground', $formatter->transportType(AllocationTransportType::GROUND));
+        self::assertSame('Air', $formatter->transportType('A'));
+        self::assertSame('Männlich', $formatter->gender(AllocationGender::MALE, 'de'));
+        self::assertSame('Luft', $formatter->transportType(AllocationTransportType::AIR, 'de'));
     }
 }

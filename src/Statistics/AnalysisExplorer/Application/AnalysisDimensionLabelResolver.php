@@ -82,7 +82,7 @@ final class AnalysisDimensionLabelResolver
         $bucketKey = $this->bucketKey($bucket);
 
         if ('__null__' === $bucketKey) {
-            return 'Unknown';
+            return $this->translator->trans('stats.analysis_explorer.bucket.unknown', [], 'statistics');
         }
 
         if ('hospital_cohort' === $dimension->key || 'hospital_master_cohort' === $dimension->key) {
@@ -133,7 +133,7 @@ final class AnalysisDimensionLabelResolver
             $formatted = \IntlDateFormatter::formatObject(
                 new \DateTimeImmutable(sprintf('2024-%02d-01', $month)),
                 'MMM',
-                'en',
+                $this->translator->getLocale(),
             );
 
             return false !== $formatted && '' !== $formatted ? $formatted : (string) $month;

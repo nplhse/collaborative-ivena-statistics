@@ -217,6 +217,18 @@
         <source>help.export.period</source>
         <target>Ohne Uhrzeit gilt Tagesbeginn (00:00:00) bzw. Tagesende (23:59:59). Datum und Uhrzeit bilden ein durchgängiges Intervall.</target>
       </trans-unit>
+      <trans-unit id="ExpColDe01" resname="export.column.row">
+        <source>export.column.row</source>
+        <target>Zeile</target>
+      </trans-unit>
+      <trans-unit id="ExpBoolDe01" resname="export.boolean.true">
+        <source>export.boolean.true</source>
+        <target>Wahr</target>
+      </trans-unit>
+      <trans-unit id="ExpBoolDe02" resname="export.boolean.false">
+        <source>export.boolean.false</source>
+        <target>Falsch</target>
+      </trans-unit>
       <trans-unit id="HlpIndAdmDe" resname="help.indication.review.admin_fast_path">
         <source>help.indication.review.admin_fast_path</source>
         <target>Admin: Match setzen und direkt freigeben (ohne Vier-Augen-Prüfung).</target>

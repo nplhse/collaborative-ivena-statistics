@@ -134,6 +134,8 @@ Use this table when adding a new key. When in doubt, prefer the **feature domain
 |---|---|---|---|
 | Export form | `messages` (field labels) | `allocation` (help texts) | Use `TranslatableMessage` for mixed fields |
 | Export clinical checkboxes | `allocation` | — | `allocations.field.isVentilated`, etc. |
+| Export CSV column headers | `messages` / `allocation` | — | Reuse UI field/label keys; CSV-only keys under `export.column.*` (`allocation`). Request locale via `RequestStack`. |
+| Export CSV cell values | `messages` (gender, transport) / `allocation` (booleans) | — | SK labels and entity names stay untranslated; bools use `export.boolean.true`/`false` (`True`/`False`, `Wahr`/`Falsch`) |
 | Export period accordion title | `import` | — | `label.export.period` |
 | Export clinical accordion title | `statistics` | — | `stats.analysis_explorer.dimension_group.clinical_care` |
 | Hospital edit enums (tier, location, size) | `allocation` | — | `choice_translation_domain => 'allocation'` |
@@ -146,7 +148,7 @@ Use this table when adding a new key. When in doubt, prefer the **feature domain
 | Key starts with… | Domain |
 |---|---|
 | `stats.` / `statistics.` | `statistics` |
-| `flash.indication.` / `help.export.` / `allocations.field.` / `hospital.tier.` / `hospital.location.` / `hospital.size.` | `allocation` |
+| `flash.indication.` / `help.export.` / `export.column.` / `export.boolean.` / `allocations.field.` / `hospital.tier.` / `hospital.location.` / `hospital.size.` | `allocation` |
 | `flash.import.` / `title.import.` | `import` |
 | `onboarding.` | `onboarding` |
 | `feedback.` | `feedback` |

@@ -105,14 +105,14 @@ SQL;
             type: AnalysisDimensionType::Temporal,
             recommendedChartType: 'bar',
             fixedBuckets: [1, 2, 3, 4, 5, 6, 7],
-            valueLabels: [
-                1 => 'Monday',
-                2 => 'Tuesday',
-                3 => 'Wednesday',
-                4 => 'Thursday',
-                5 => 'Friday',
-                6 => 'Saturday',
-                7 => 'Sunday',
+            valueLabelTranslationKeys: [
+                1 => 'stats.indication.weekday.1',
+                2 => 'stats.indication.weekday.2',
+                3 => 'stats.indication.weekday.3',
+                4 => 'stats.indication.weekday.4',
+                5 => 'stats.indication.weekday.5',
+                6 => 'stats.indication.weekday.6',
+                7 => 'stats.indication.weekday.7',
             ],
         ));
         $this->register($this->temporalDimension('hour', 'created_hour', 'Hour', range(0, 23)));
@@ -156,7 +156,9 @@ SQL;
                 '70_79' => '70–79',
                 '80_89' => '80–89',
                 '90_99' => '90–99',
-                'unknown' => 'Unknown',
+            ],
+            valueLabelTranslationKeys: [
+                'unknown' => 'stats.benchmark.age_group.unknown',
             ],
             nullBucketKeys: ['unknown'],
             requiresNonNullSourceColumn: 'age',
@@ -205,10 +207,6 @@ SQL;
             label: $label,
             type: AnalysisDimensionType::Boolean,
             fixedBuckets: [1, 0],
-            valueLabels: [
-                1 => 'Yes',
-                0 => 'No',
-            ],
         );
 
         $this->register($boolean('resus', 'requires_resus', 'Resuscitation required'));
