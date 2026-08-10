@@ -60,9 +60,18 @@ Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::B
 - Analysis Explorer
 - Case Flow dashboard
 
+## Scope choice performance
+
+`StatisticsFilterFormChoiceProvider` builds primary/detail dropdowns for scope forms (Explorer edit drawer, benchmarking sides, statistics filter UI):
+
+- Eligible state/dispatch-area IDs resolve to labels via repository `findNamesByIds` (one query per entity type, not N×`findById`).
+- Eligible rows, cohort choices, and hospital detail choices are memoized on the provider instance for the request lifetime so repeated form rebuilds (e.g. LiveComponent `refreshEditForm`) reuse the same lists.
+- Hospital summaries remain uncached across HTTP requests (user- and permission-specific).
+
 ## Code locations
 
 - `src/Statistics/UI/Http/Controller/StatisticsFilterInputFactory.php` (default scope)
+- `src/Statistics/UI/Application/StatisticsFilterFormChoiceProvider.php` (scope/period choice lists)
 - `src/Statistics/Application/StatisticsFilterFactory.php`
 - `src/Statistics/Application/StatisticsScopeResolver.php`
 - `src/Statistics/Application/DTO/StatisticsScopeCriteria.php`
