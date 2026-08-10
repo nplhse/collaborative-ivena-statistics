@@ -15,6 +15,17 @@ final class AnalysisExplorerShellHappyPathTest extends AnalysisExplorerShellTest
 {
     use SeedsExplorerSystemViewsTrait;
 
+    public function testMountRendersNaturalLanguageSummary(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $render = $testComponent->render();
+
+        $summary = $render->crawler()->filter('[data-testid="stats-analysis-explorer-summary"]');
+        self::assertGreaterThan(0, $summary->count());
+        self::assertStringContainsString('Allocations', $summary->text());
+        self::assertStringContainsString('monthly', $summary->text());
+    }
+
     public function testMountWithSavedGroupedBarConfig(): void
     {
         self::bootKernel();
