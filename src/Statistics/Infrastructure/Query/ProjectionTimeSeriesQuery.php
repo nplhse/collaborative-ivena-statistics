@@ -38,33 +38,17 @@ final readonly class ProjectionTimeSeriesQuery
 
     public function countBefore(\DateTimeImmutable $before): int
     {
-        static $cache = [];
-        $cacheKey = $before->format(\DateTimeInterface::ATOM);
-        if (\array_key_exists($cacheKey, $cache)) {
-            return $cache[$cacheKey];
-        }
-
-        $count = (int) $this->entityManager->createQueryBuilder()
+        return (int) $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->select('COUNT(p.id)')
             ->where('p.createdAt < :before')
             ->setParameter('before', $before, Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
-
-        $cache[$cacheKey] = $count;
-
-        return $count;
     }
 
     public function getEarliestCreatedAt(): ?\DateTimeImmutable
     {
-        static $cached = null;
-        static $loaded = false;
-        if ($loaded) {
-            return $cached;
-        }
-
         $value = $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->select('MIN(p.createdAt) AS min_created_at')
@@ -72,22 +56,14 @@ final readonly class ProjectionTimeSeriesQuery
             ->getSingleScalarResult();
 
         if (null === $value || '' === $value) {
-            $loaded = true;
-
             return null;
         }
 
         if ($value instanceof \DateTimeInterface) {
-            $cached = \DateTimeImmutable::createFromInterface($value);
-            $loaded = true;
-
-            return $cached;
+            return \DateTimeImmutable::createFromInterface($value);
         }
 
-        $cached = new \DateTimeImmutable((string) $value);
-        $loaded = true;
-
-        return $cached;
+        return new \DateTimeImmutable((string) $value);
     }
 
     /**
@@ -176,22 +152,13 @@ final readonly class ProjectionTimeSeriesQuery
 
     public function countWithCreatedYearBefore(int $beforeYear): int
     {
-        static $cache = [];
-        if (\array_key_exists($beforeYear, $cache)) {
-            return $cache[$beforeYear];
-        }
-
-        $count = (int) $this->entityManager->createQueryBuilder()
+        return (int) $this->entityManager->createQueryBuilder()
             ->from(AllocationStatsProjection::class, 'p')
             ->select('COUNT(p.id)')
             ->where('p.createdYear < :beforeYear')
             ->setParameter('beforeYear', $beforeYear)
             ->getQuery()
             ->getSingleScalarResult();
-
-        $cache[$beforeYear] = $count;
-
-        return $count;
     }
 
     /**
