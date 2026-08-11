@@ -717,6 +717,18 @@
         <source>page.validation.path_unique</source>
         <target>Dieser Pfad existiert bereits.</target>
       </trans-unit>
+      <trans-unit id="ptv001" resname="page_translation.validation.locale_unique">
+        <source>page_translation.validation.locale_unique</source>
+        <target>Für diese Sprache existiert bereits eine Übersetzung dieser Seite.</target>
+      </trans-unit>
+      <trans-unit id="ptv002" resname="page_translation.validation.path_unique">
+        <source>page_translation.validation.path_unique</source>
+        <target>Dieser Pfad existiert bereits.</target>
+      </trans-unit>
+      <trans-unit id="ptv003" resname="page_translation.validation.parent_translation_required">
+        <source>page_translation.validation.parent_translation_required</source>
+        <target>Die übergeordnete Seite benötigt eine Übersetzung in derselben Sprache, bevor diese Übersetzung veröffentlicht werden kann.</target>
+      </trans-unit>
       <trans-unit id="pagev002" resname="page.validation.parent_slug_unique">
         <source>page.validation.parent_slug_unique</source>
         <target>Dieser Slug existiert auf derselben Ebene bereits.</target>

@@ -27,8 +27,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[UniqueEntity(fields: ['key'], message: 'page.validation.key_unique')]
 class Page implements \Stringable
 {
+    /** Transitional until Phase 4 — prefer PageTranslation::STATUS_DRAFT. */
     public const string STATUS_DRAFT = 'draft';
+
+    /** Transitional until Phase 4 — prefer PageTranslation::STATUS_PUBLISHED. */
     public const string STATUS_PUBLISHED = 'published';
+
     public const string VISIBILITY_PUBLIC = 'public';
     public const string VISIBILITY_AUTHENTICATED = 'authenticated';
 
@@ -46,6 +50,12 @@ class Page implements \Stringable
     #[ORM\OrderBy(['sortOrder' => 'ASC', 'id' => 'ASC'])]
     private Collection $children;
 
+    /** @var Collection<int, PageTranslation> */
+    #[ORM\OneToMany(targetEntity: PageTranslation::class, mappedBy: 'page', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['locale' => 'ASC'])]
+    private Collection $translations;
+
+    // Transitional legacy columns until Phase 4 — prefer PageTranslation accessors.
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     #[ORM\Column(length: 255)]
@@ -97,6 +107,7 @@ class Page implements \Stringable
     public function __construct()
     {
         $this->children = new ArrayCollection();
+        $this->translations = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable('now');
     }
 
@@ -142,11 +153,54 @@ class Page implements \Stringable
         return $this;
     }
 
+    /** @return Collection<int, PageTranslation> */
+    public function getTranslations(): Collection
+    {
+        return $this->translations;
+    }
+
+    public function addTranslation(PageTranslation $translation): self
+    {
+        if (!$this->translations->contains($translation)) {
+            $this->translations->add($translation);
+            $translation->setPage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTranslation(PageTranslation $translation): self
+    {
+        if ($this->translations->removeElement($translation) && $translation->getPage() === $this) {
+            $translation->setPage(null);
+        }
+
+        return $this;
+    }
+
+    public function translation(string $locale): ?PageTranslation
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->getLocale() === $locale) {
+                return $translation;
+            }
+        }
+
+        return null;
+    }
+
+    public function hasTranslation(string $locale): bool
+    {
+        return $this->translation($locale) instanceof PageTranslation;
+    }
+
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getTitle()')]
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setTitle()')]
     public function setTitle(string $title): self
     {
         $this->title = $title;
@@ -154,11 +208,13 @@ class Page implements \Stringable
         return $this;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getSlug()')]
     public function getSlug(): ?string
     {
         return $this->slug;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setSlug()')]
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
@@ -166,11 +222,13 @@ class Page implements \Stringable
         return $this;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getPath()')]
     public function getPath(): ?string
     {
         return $this->path;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setPath()')]
     public function setPath(string $path): self
     {
         $this->path = $path;
@@ -190,11 +248,13 @@ class Page implements \Stringable
         return $this;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getStatus()')]
     public function getStatus(): string
     {
         return $this->status;
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setStatus()')]
     public function setStatus(string $status): self
     {
         $this->status = $status;
@@ -229,6 +289,7 @@ class Page implements \Stringable
     /**
      * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
      */
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getContent()')]
     public function getContent(): array
     {
         return $this->content;
@@ -237,6 +298,7 @@ class Page implements \Stringable
     /**
      * @param list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content
      */
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setContent()')]
     public function setContent(array $content): self
     {
         $this->content = $content;
@@ -260,9 +322,21 @@ class Page implements \Stringable
         $this->updatedAt = new \DateTimeImmutable('now');
     }
 
+    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::isPublished()')]
     public function isPublished(): bool
     {
         return self::STATUS_PUBLISHED === $this->status;
+    }
+
+    public function hasPublishedTranslation(): bool
+    {
+        foreach ($this->translations as $translation) {
+            if ($translation->isPublished()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #[Assert\Callback]
@@ -297,6 +371,17 @@ class Page implements \Stringable
     #[\Override]
     public function __toString(): string
     {
-        return $this->title ?? 'Untitled page';
+        if (null !== $this->title && '' !== $this->title) {
+            return $this->title;
+        }
+
+        foreach ($this->translations as $translation) {
+            $title = $translation->getTitle();
+            if (null !== $title && '' !== $title) {
+                return $title;
+            }
+        }
+
+        return 'Untitled page';
     }
 }
