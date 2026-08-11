@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { buildHeatmapSeries } from '../lib/build-heatmap-series.js';
+import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
 /* stimulusFetch: 'lazy' */
@@ -133,7 +134,7 @@ export default class extends Controller {
             const slice = values.slice(start, index + 1);
             const sum = slice.reduce((total, value) => total + value, 0);
 
-            return Math.round((sum / slice.length) * 10) / 10;
+            return Math.round(sum / slice.length);
         });
     }
 
@@ -170,10 +171,15 @@ export default class extends Controller {
                 labels: {
                     rotate: 0,
                     hideOverlappingLabels: true,
-                    formatter: (value) =>
-                        typeof value === 'string' && value.includes('-')
-                            ? value.slice(2).replace('-', '/')
-                            : value,
+                    formatter: (value) => formatChartMonthLabel(value),
+                },
+            },
+            tooltip: {
+                x: {
+                    formatter: (value) => formatChartMonthLabel(value),
+                },
+                y: {
+                    formatter: (value) => Math.round(value).toString(),
                 },
             },
             stroke: showMovingAverage
@@ -184,6 +190,10 @@ export default class extends Controller {
             yaxis: {
                 min: 0,
                 forceNiceScale: true,
+                decimalsInFloat: 0,
+                labels: {
+                    formatter: (value) => Math.round(value).toString(),
+                },
             },
             legend: {
                 show: showMovingAverage,
@@ -219,9 +229,7 @@ export default class extends Controller {
                     rotate: options.labelRotate ?? 0,
                     hideOverlappingLabels: true,
                     formatter: (value) =>
-                        options.sparseTicks && typeof value === 'string' && value.includes('-')
-                            ? value.slice(2).replace('-', '/')
-                            : value,
+                        options.sparseTicks ? formatChartMonthLabel(value) : value,
                 },
             },
             dataLabels: { enabled: false },
