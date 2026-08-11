@@ -4501,10 +4501,6 @@
         <source>stats.overview.kpi.cases_per_day_aggregate</source>
         <target>Durchschnittliches Tagesvolumen</target>
       </trans-unit>
-      <trans-unit id="Deac891283" resname="stats.overview.kpi.cases_per_day_aggregate_hint">
-        <source>stats.overview.kpi.cases_per_day_aggregate_hint</source>
-        <target>Aggregiert über alle Krankenhäuser im gewählten Bereich.</target>
-      </trans-unit>
       <trans-unit id="De73e07de7" resname="stats.overview.kpi.current_short">
         <source>stats.overview.kpi.current_short</source>
         <target>Zeitraum</target>

@@ -21,11 +21,4 @@ final readonly class OverviewKpiPresentationFactory
             'cases_per_day' => $casesPerDayKey,
         ];
     }
-
-    public function casesPerDayHintTranslationKey(StatisticsFilter $filter): ?string
-    {
-        return OverviewScopeClassifier::isAggregateScope($filter->scope)
-            ? 'stats.overview.kpi.cases_per_day_aggregate_hint'
-            : null;
-    }
 }

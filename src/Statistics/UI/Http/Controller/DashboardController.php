@@ -104,8 +104,6 @@ final class DashboardController extends AbstractController
             'executiveDashboard' => $executiveDashboard,
             'overviewPortalLinks' => $this->overviewPortalNavigationFactory->build(),
             'overviewKpiMetricLabelKeys' => $this->overviewKpiPresentationFactory->metricLabelKeys($filter),
-            'overviewKpiCasesPerDayHintKey' => $this->overviewKpiPresentationFactory->casesPerDayHintTranslationKey($filter),
-            'overviewKpiHintBelowValue' => $user instanceof User && $user->getHospitals()->isEmpty(),
             'hospitalSummaryWidgets' => $this->hospitalSummaryProvider->build($context, $overviewMetrics),
             'clinicalFeatureWidgets' => $this->clinicalFeaturesProvider->build($context, $overviewMetrics),
             'statisticsFilter' => $pageViewModel->filter,
