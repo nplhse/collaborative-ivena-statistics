@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Content\Unit\Domain\Entity;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
+use App\Shared\Application\Locale\SupportedLocales;
 use PHPUnit\Framework\TestCase;
 
 final class PageTest extends TestCase
 {
     public function testAddChildRegistersParentAndIsIdempotent(): void
     {
-        $parent = $this->makePage('parent-one');
-        $child = $this->makePage('child-one');
+        $parent = new Page();
+        $child = new Page();
 
         $parent->addChild($child);
 
@@ -27,8 +29,8 @@ final class PageTest extends TestCase
 
     public function testRemoveChildDetachesParentAndSecondRemoveIsNoOp(): void
     {
-        $parent = $this->makePage('parent-two');
-        $child = $this->makePage('child-two');
+        $parent = new Page();
+        $child = new Page();
 
         $parent->addChild($child);
         $parent->removeChild($child);
@@ -41,51 +43,40 @@ final class PageTest extends TestCase
         self::assertCount(0, $parent->getChildren());
     }
 
-    public function testToStringFallsBackToUntitledWhenTitleUnset(): void
+    public function testToStringFallsBackToUntitledWhenNoTitleAvailable(): void
     {
-        $page = new Page();
-        $page
-            ->setSlug('fresh-slug')
-            ->setPath('/fresh-slug')
-            ->setStatus(Page::STATUS_PUBLISHED)
-            ->setVisibility(Page::VISIBILITY_PUBLIC)
-            ->setContent([['type' => 'richtext', 'data' => ['html' => '<p>x</p>']]])
-        ;
-
-        self::assertSame('Untitled page', (string) $page);
-
-        $page->setTitle('Titel');
-        self::assertSame('Titel', (string) $page);
+        self::assertSame('Untitled page', (string) new Page());
     }
 
-    public function testIsPublished(): void
-    {
-        $draft = $this->makePage('drafty');
-        $draft->setStatus(Page::STATUS_DRAFT);
-        self::assertFalse($draft->isPublished());
-
-        $live = $this->makePage('livey');
-        $live->setStatus(Page::STATUS_PUBLISHED);
-        self::assertTrue($live->isPublished());
-    }
-
-    private function makePage(string $slug): Page
+    public function testToStringUsesTranslationTitle(): void
     {
         $page = new Page();
-        $page
-            ->setTitle(ucfirst(str_replace('-', ' ', $slug)))
-            ->setSlug($slug)
-            ->setPath('/'.$slug)
-            ->setStatus(Page::STATUS_PUBLISHED)
-            ->setVisibility(Page::VISIBILITY_PUBLIC)
-            ->setContent([
-                [
-                    'type' => 'richtext',
-                    'data' => ['html' => '<p>x</p>'],
-                ],
-            ])
-        ;
+        $page->addTranslation($this->makeTranslation('About us', PageTranslation::STATUS_PUBLISHED));
 
-        return $page;
+        self::assertSame('About us', (string) $page);
+    }
+
+    public function testHasPublishedTranslation(): void
+    {
+        $page = new Page();
+        self::assertFalse($page->hasPublishedTranslation());
+
+        $translation = $this->makeTranslation('Draft', PageTranslation::STATUS_DRAFT);
+        $page->addTranslation($translation);
+        self::assertFalse($page->hasPublishedTranslation());
+
+        $translation->setStatus(PageTranslation::STATUS_PUBLISHED);
+        self::assertTrue($page->hasPublishedTranslation());
+    }
+
+    private function makeTranslation(string $title, string $status): PageTranslation
+    {
+        return new PageTranslation()
+            ->setLocale(SupportedLocales::DEFAULT)
+            ->setTitle($title)
+            ->setSlug('about-us')
+            ->setPath('/about-us')
+            ->setStatus($status)
+            ->setContent([]);
     }
 }
