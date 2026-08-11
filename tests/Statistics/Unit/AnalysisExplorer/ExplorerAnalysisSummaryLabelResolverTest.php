@@ -133,14 +133,14 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
     public function testHospitalCohortScopeUsesResolverAndFallback(): void
     {
         $resolver = $this->resolver([
-            'stats.filter.cohort.label' => '{location} / {tier}',
-            'hospital.location.Urban' => 'Urban',
-            'hospital.tier.Basic' => 'Basic',
+            'stats.filter.cohort.label' => '{location} · {tier}',
+            'stats.filter.cohort.location.Urban' => 'Urban',
+            'stats.filter.cohort.tier.Basic' => 'Basic',
             'stats.filter.scope.hospital_cohort' => 'Hospital cohort',
         ]);
 
         self::assertSame(
-            'Urban / Basic',
+            'Urban · Basic',
             $resolver->scopeLabel(new StatisticsFilter(
                 scope: StatisticsFilterScope::HospitalCohort,
                 hospitalId: null,

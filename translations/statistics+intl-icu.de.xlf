@@ -2847,7 +2847,31 @@
       </trans-unit>
       <trans-unit id="Ded334e64e" resname="stats.filter.cohort.label">
         <source>stats.filter.cohort.label</source>
-        <target>{location} {tier}</target>
+        <target>{location} · {tier}</target>
+      </trans-unit>
+      <trans-unit id="statsCohortLocUrbanDe" resname="stats.filter.cohort.location.Urban">
+        <source>stats.filter.cohort.location.Urban</source>
+        <target>Städtisch</target>
+      </trans-unit>
+      <trans-unit id="statsCohortLocMixedDe" resname="stats.filter.cohort.location.Mixed">
+        <source>stats.filter.cohort.location.Mixed</source>
+        <target>Gemischt</target>
+      </trans-unit>
+      <trans-unit id="statsCohortLocRuralDe" resname="stats.filter.cohort.location.Rural">
+        <source>stats.filter.cohort.location.Rural</source>
+        <target>Ländlich</target>
+      </trans-unit>
+      <trans-unit id="statsCohortTierBasicDe" resname="stats.filter.cohort.tier.Basic">
+        <source>stats.filter.cohort.tier.Basic</source>
+        <target>Basis</target>
+      </trans-unit>
+      <trans-unit id="statsCohortTierExtendedDe" resname="stats.filter.cohort.tier.Extended">
+        <source>stats.filter.cohort.tier.Extended</source>
+        <target>Erweitert</target>
+      </trans-unit>
+      <trans-unit id="statsCohortTierFullDe" resname="stats.filter.cohort.tier.Full">
+        <source>stats.filter.cohort.tier.Full</source>
+        <target>Umfassend</target>
       </trans-unit>
       <trans-unit id="Debe6652b8" resname="stats.filter.hospital.all_hospitals">
         <source>stats.filter.hospital.all_hospitals</source>
