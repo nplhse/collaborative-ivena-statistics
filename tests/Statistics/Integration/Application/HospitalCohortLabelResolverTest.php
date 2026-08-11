@@ -27,7 +27,7 @@ final class HospitalCohortLabelResolverTest extends KernelTestCase
             new HospitalCohortKey(HospitalLocation::URBAN, HospitalTier::FULL),
         );
 
-        self::assertSame('Urban Location Full Tier', $label);
+        self::assertSame('Urban · Full', $label);
         self::assertStringNotContainsString('stats.filter.cohort.', $label);
         self::assertStringNotContainsString('urban_full', $label);
     }
@@ -38,6 +38,6 @@ final class HospitalCohortLabelResolverTest extends KernelTestCase
             new HospitalCohortKey(HospitalLocation::MIXED, HospitalTier::EXTENDED),
         );
 
-        self::assertSame('Mixed Location Extended Tier', $label);
+        self::assertSame('Mixed · Extended', $label);
     }
 }

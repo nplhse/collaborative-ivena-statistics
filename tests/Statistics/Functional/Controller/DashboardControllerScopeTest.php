@@ -51,7 +51,7 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $this->assertResponseIsSuccessful();
         $content = (string) $client->getResponse()->getContent();
         self::assertStringNotContainsString('stats.filter.cohort.', $content);
-        self::assertStringContainsString('Urban Location Basic Tier', $content);
+        self::assertStringContainsString('Urban · Basic', $content);
     }
 
     public function testStateScopeWithoutStateIdRedirectsToPublic(): void
