@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Infrastructure\Repository;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -20,29 +21,16 @@ final class PageRepository extends ServiceEntityRepository
         parent::__construct($registry, Page::class);
     }
 
-    public function findPublishedByPath(string $path): ?Page
+    public function findOneWithPublishedTranslationByKey(PageKey $key): ?Page
     {
         /** @var ?Page $page */
         $page = $this->createQueryBuilder('p')
-            ->andWhere('p.path = :path')
-            ->andWhere('p.status = :status')
-            ->setParameter('path', $path)
-            ->setParameter('status', Page::STATUS_PUBLISHED)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        return $page;
-    }
-
-    public function findOnePublishedByKey(PageKey $key): ?Page
-    {
-        /** @var ?Page $page */
-        $page = $this->createQueryBuilder('p')
+            ->addSelect('t')
+            ->innerJoin('p.translations', 't')
             ->andWhere('p.key = :key')
-            ->andWhere('p.status = :status')
+            ->andWhere('t.status = :status')
             ->setParameter('key', $key->value, Types::STRING)
-            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->setParameter('status', PageTranslation::STATUS_PUBLISHED)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -53,13 +41,15 @@ final class PageRepository extends ServiceEntityRepository
     /**
      * @return list<Page>
      */
-    public function findAllPublishedWithKey(): array
+    public function findAllWithPublishedTranslationAndKey(): array
     {
         /** @var list<Page> $pages */
         $pages = $this->createQueryBuilder('p')
+            ->addSelect('t')
+            ->innerJoin('p.translations', 't')
             ->andWhere('p.key IS NOT NULL')
-            ->andWhere('p.status = :status')
-            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->andWhere('t.status = :status')
+            ->setParameter('status', PageTranslation::STATUS_PUBLISHED)
             ->getQuery()
             ->getResult();
 
@@ -84,16 +74,20 @@ final class PageRepository extends ServiceEntityRepository
     }
 
     /**
+     * Pages that have at least one published translation.
+     *
      * @return list<Page>
      */
-    public function findAllPublished(): array
+    public function findAllWithPublishedTranslation(): array
     {
         /** @var list<Page> $pages */
         $pages = $this->createQueryBuilder('p')
             ->addSelect('parent')
+            ->addSelect('t')
             ->leftJoin('p.parent', 'parent')
-            ->andWhere('p.status = :status')
-            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->innerJoin('p.translations', 't')
+            ->andWhere('t.status = :status')
+            ->setParameter('status', PageTranslation::STATUS_PUBLISHED)
             ->getQuery()
             ->getResult();
 
@@ -101,19 +95,21 @@ final class PageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Published pages visible to authenticated users (public + authenticated visibility).
+     * Pages with a published translation visible to authenticated users.
      *
      * @return list<Page>
      */
-    public function findAllPublishedVisibleToAuthenticatedUser(): array
+    public function findAllWithPublishedTranslationVisibleToAuthenticatedUser(): array
     {
         /** @var list<Page> $pages */
         $pages = $this->createQueryBuilder('p')
             ->addSelect('parent')
+            ->addSelect('t')
             ->leftJoin('p.parent', 'parent')
-            ->andWhere('p.status = :status')
+            ->innerJoin('p.translations', 't')
+            ->andWhere('t.status = :status')
             ->andWhere('p.visibility IN (:visibilities)')
-            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->setParameter('status', PageTranslation::STATUS_PUBLISHED)
             ->setParameter('visibilities', [Page::VISIBILITY_PUBLIC, Page::VISIBILITY_AUTHENTICATED])
             ->getQuery()
             ->getResult();
@@ -122,20 +118,38 @@ final class PageRepository extends ServiceEntityRepository
     }
 
     /**
-     * Published pages with public visibility (guest-reachable CMS content).
+     * Pages with a published translation and public visibility.
      *
      * @return list<Page>
      */
-    public function findAllPublishedPublic(): array
+    public function findAllWithPublishedTranslationPublic(): array
     {
         /** @var list<Page> $pages */
         $pages = $this->createQueryBuilder('p')
             ->addSelect('parent')
+            ->addSelect('t')
             ->leftJoin('p.parent', 'parent')
-            ->andWhere('p.status = :status')
+            ->innerJoin('p.translations', 't')
+            ->andWhere('t.status = :status')
             ->andWhere('p.visibility = :visibility')
-            ->setParameter('status', Page::STATUS_PUBLISHED)
+            ->setParameter('status', PageTranslation::STATUS_PUBLISHED)
             ->setParameter('visibility', Page::VISIBILITY_PUBLIC)
+            ->getQuery()
+            ->getResult();
+
+        return $pages;
+    }
+
+    /**
+     * @return list<Page>
+     */
+    public function findAllOrderedById(): array
+    {
+        /** @var list<Page> $pages */
+        $pages = $this->createQueryBuilder('p')
+            ->addSelect('t')
+            ->leftJoin('p.translations', 't')
+            ->orderBy('p.id', 'ASC')
             ->getQuery()
             ->getResult();
 

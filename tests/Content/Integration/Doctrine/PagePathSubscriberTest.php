@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Content\Integration\Doctrine;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
+use App\Shared\Application\Locale\SupportedLocales;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -30,8 +32,8 @@ final class PagePathSubscriberTest extends KernelTestCase
             'parent' => $parent,
         ]);
 
-        self::assertSame('/segment-parent', $parent->getPath());
-        self::assertSame('/segment-parent/segment-child', $child->getPath());
+        self::assertSame('/segment-parent', $parent->translation(SupportedLocales::DEFAULT)?->getPath());
+        self::assertSame('/segment-parent/segment-child', $child->translation(SupportedLocales::DEFAULT)?->getPath());
     }
 
     public function testDescendantPathsRecomputeWhenRootSlugChanges(): void
@@ -59,14 +61,16 @@ final class PagePathSubscriberTest extends KernelTestCase
 
         self::assertSame(
             sprintf('/%s/%s/%s', $rootSlug, $midSlug, $leafSlug),
-            $leaf->getPath(),
+            $leaf->translation(SupportedLocales::DEFAULT)?->getPath(),
         );
 
         $em->clear();
 
         $rootReloaded = $em->find(Page::class, $rootId);
         self::assertInstanceOf(Page::class, $rootReloaded);
-        $rootReloaded->setSlug('x-'.$rootSlug);
+        $rootTranslation = $rootReloaded->translation(SupportedLocales::DEFAULT);
+        self::assertInstanceOf(PageTranslation::class, $rootTranslation);
+        $rootTranslation->setSlug('x-'.$rootSlug);
         $em->flush();
 
         $midReloaded = $em->find(Page::class, $midId);
@@ -77,11 +81,11 @@ final class PagePathSubscriberTest extends KernelTestCase
 
         self::assertSame(
             sprintf('/x-%s/%s', $rootSlug, $midSlug),
-            $midReloaded->getPath(),
+            $midReloaded->translation(SupportedLocales::DEFAULT)?->getPath(),
         );
         self::assertSame(
             sprintf('/x-%s/%s/%s', $rootSlug, $midSlug, $leafSlug),
-            $leafReloaded->getPath(),
+            $leafReloaded->translation(SupportedLocales::DEFAULT)?->getPath(),
         );
     }
 }

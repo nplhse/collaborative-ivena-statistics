@@ -14,11 +14,12 @@ use App\Content\Domain\Entity\Page;
 final class PageNavigationTreeBuilder
 {
     /**
-     * @param list<Page> $pages
+     * @param list<Page>                                     $pages
+     * @param array<int, array{title: string, path: string}> $displayByPageId
      *
-     * @return array<int, array{page: Page, children: array<int, mixed>}>
+     * @return array<int, array{page: Page, title: string, path: string, children: array<int, mixed>}>
      */
-    public function build(array $pages): array
+    public function build(array $pages, array $displayByPageId = []): array
     {
         /** @var array<int, list<Page>> $byParentId */
         $byParentId = [];
@@ -35,15 +36,16 @@ final class PageNavigationTreeBuilder
         }
         unset($group);
 
-        return $this->buildRecursive($byParentId, 0);
+        return $this->buildRecursive($byParentId, $displayByPageId, 0);
     }
 
     /**
-     * @param array<int, list<Page>> $byParentId
+     * @param array<int, list<Page>>                         $byParentId
+     * @param array<int, array{title: string, path: string}> $displayByPageId
      *
-     * @return array<int, array{page: Page, children: array<int, mixed>}>
+     * @return array<int, array{page: Page, title: string, path: string, children: array<int, mixed>}>
      */
-    private function buildRecursive(array $byParentId, int $parentKey): array
+    private function buildRecursive(array $byParentId, array $displayByPageId, int $parentKey): array
     {
         if (!isset($byParentId[$parentKey])) {
             return [];
@@ -53,9 +55,12 @@ final class PageNavigationTreeBuilder
         foreach ($byParentId[$parentKey] as $page) {
             $id = $page->getId();
             $childKey = $id ?? 0;
+            $display = null !== $id ? ($displayByPageId[$id] ?? null) : null;
             $nodes[] = [
                 'page' => $page,
-                'children' => $this->buildRecursive($byParentId, $childKey),
+                'title' => $display['title'] ?? '',
+                'path' => $display['path'] ?? '',
+                'children' => $this->buildRecursive($byParentId, $displayByPageId, $childKey),
             ];
         }
 

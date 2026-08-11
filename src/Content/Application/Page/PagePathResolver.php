@@ -6,6 +6,7 @@ namespace App\Content\Application\Page;
 
 use App\Content\Application\Slug\SlugGenerator;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 
 final readonly class PagePathResolver
 {
@@ -15,33 +16,44 @@ final readonly class PagePathResolver
     ) {
     }
 
-    public function synchronize(Page $page): void
+    public function synchronize(PageTranslation $translation): void
     {
-        $raw = trim((string) $page->getSlug());
+        $raw = trim((string) $translation->getSlug());
 
         if ('' === $raw) {
-            $page->setSlug($this->slugGenerator->normalize((string) $page->getTitle(), SlugGenerator::MAX_LENGTH_PAGE));
+            $translation->setSlug($this->slugGenerator->normalize((string) $translation->getTitle(), SlugGenerator::MAX_LENGTH_PAGE));
         } else {
-            $page->setSlug($raw);
+            $translation->setSlug($raw);
         }
 
-        $page->setPath($this->buildPath($page));
+        $translation->setPath($this->buildPath($translation));
     }
 
-    public function buildPath(Page $page): string
+    public function buildPath(PageTranslation $translation): string
     {
-        $slug = (string) $page->getSlug();
-        $parent = $page->getParent();
+        $slug = (string) $translation->getSlug();
+        $page = $translation->getPage();
+        $locale = (string) $translation->getLocale();
 
+        if (!$page instanceof Page) {
+            return '/'.$slug;
+        }
+
+        $parent = $page->getParent();
         if (!$parent instanceof Page) {
             return '/'.$slug;
         }
 
         $this->assertNoCycle($page);
 
-        $parentPath = $parent->getPath();
+        $parentTranslation = $parent->translation($locale);
+        if (!$parentTranslation instanceof PageTranslation) {
+            throw new \InvalidArgumentException(sprintf('Cannot build path for page translation locale "%s": parent page has no translation in that locale.', $locale));
+        }
+
+        $parentPath = $parentTranslation->getPath();
         if (null === $parentPath || '' === $parentPath) {
-            $parentPath = $this->buildPath($parent);
+            $parentPath = $this->buildPath($parentTranslation);
         }
 
         return rtrim($parentPath, '/').'/'.$slug;

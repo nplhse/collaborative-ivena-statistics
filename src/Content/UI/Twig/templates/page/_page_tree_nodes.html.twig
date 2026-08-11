@@ -1,5 +1,5 @@
 {% for node in nodes %}
-    {% set pathSegment = node.page.path|default('')|trim('/') %}
+    {% set pathSegment = node.path|default('')|trim('/') %}
     {% set isCurrent = currentPage is defined and currentPage and node.page.id == currentPage.id %}
     <li class="mb-1">
         {% if node.children is not empty %}
@@ -7,9 +7,9 @@
                 <summary class="d-flex align-items-center gap-1 small fw-medium">
                     <twig:ux:icon name="tabler:folder" class="icon text-muted flex-shrink-0" />
                     {% if pathSegment != '' %}
-                        <a href="{{ path('app_page_show', {path: pathSegment}) }}" class="{{ isCurrent ? 'fw-semibold' : '' }}" onclick="event.stopPropagation()">{{ node.page.title }}</a>
+                        <a href="{{ path('app_page_show', {path: pathSegment}) }}" class="{{ isCurrent ? 'fw-semibold' : '' }}" onclick="event.stopPropagation()">{{ node.title }}</a>
                     {% else %}
-                        <span class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.page.title }}</span>
+                        <span class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.title }}</span>
                     {% endif %}
                 </summary>
                 <ul class="list-unstyled ps-3 mt-1 mb-0 border-start ms-1">
@@ -20,9 +20,9 @@
             <div class="d-flex align-items-center gap-1 small">
                 <twig:ux:icon name="tabler:file-text" class="icon text-muted flex-shrink-0" />
                 {% if pathSegment != '' %}
-                    <a href="{{ path('app_page_show', {path: pathSegment}) }}" class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.page.title }}</a>
+                    <a href="{{ path('app_page_show', {path: pathSegment}) }}" class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.title }}</a>
                 {% else %}
-                    <span class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.page.title }}</span>
+                    <span class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.title }}</span>
                 {% endif %}
             </div>
         {% endif %}

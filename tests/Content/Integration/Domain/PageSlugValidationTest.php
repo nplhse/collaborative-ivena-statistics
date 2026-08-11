@@ -6,7 +6,9 @@ namespace App\Tests\Content\Integration\Domain;
 
 use App\Content\Application\Page\PagePathResolver;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
+use App\Shared\Application\Locale\SupportedLocales;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -35,43 +37,43 @@ final class PageSlugValidationTest extends KernelTestCase
 
     public function testValidManualSlugPassesValidationAfterSynchronize(): void
     {
-        $page = $this->createPage('my-valid-page');
+        $translation = $this->createTranslation('my-valid-page');
 
-        $this->pathResolver->synchronize($page);
+        $this->pathResolver->synchronize($translation);
 
-        $violations = $this->validator->validate($page);
+        $violations = $this->validator->validate($translation);
 
         self::assertCount(0, $violations);
-        self::assertSame('my-valid-page', $page->getSlug());
-        self::assertSame('/my-valid-page', $page->getPath());
+        self::assertSame('my-valid-page', $translation->getSlug());
+        self::assertSame('/my-valid-page', $translation->getPath());
     }
 
     public function testInvalidSlugFormatFailsValidation(): void
     {
-        $page = $this->createPage('Invalid Slug!');
+        $translation = $this->createTranslation('Invalid Slug!');
 
-        $this->pathResolver->synchronize($page);
+        $this->pathResolver->synchronize($translation);
 
-        $violations = $this->validator->validate($page);
+        $violations = $this->validator->validate($translation);
 
         self::assertNotEmpty($violations);
         self::assertSame('slug', (string) $violations->get(0)->getPropertyPath());
-        self::assertSame('Invalid Slug!', $page->getSlug());
+        self::assertSame('Invalid Slug!', $translation->getSlug());
     }
 
     public function testSlugExceedingMaxLengthFailsValidation(): void
     {
-        $page = $this->createPage(str_repeat('a', 181));
+        $translation = $this->createTranslation(str_repeat('a', 181));
 
-        $this->pathResolver->synchronize($page);
+        $this->pathResolver->synchronize($translation);
 
-        $violations = $this->validator->validate($page);
+        $violations = $this->validator->validate($translation);
 
         self::assertNotEmpty($violations);
         self::assertSame('slug', (string) $violations->get(0)->getPropertyPath());
     }
 
-    public function testDuplicateSlugUnderSameParentFailsValidation(): void
+    public function testDuplicatePathUnderSameLocaleFailsValidation(): void
     {
         $parent = PageFactory::createOne([
             'title' => 'Parent',
@@ -85,9 +87,25 @@ final class PageSlugValidationTest extends KernelTestCase
             'parent' => $parent,
         ]);
 
-        $duplicate = $this->createPage('child-slug');
-        $duplicate->setParent($parent);
+        $duplicatePage = new Page();
+        $duplicatePage->setParent($parent);
+        $duplicatePage->setTitle('Second Child');
+        $duplicatePage->setSlug('child-slug-legacy');
+        $duplicatePage->setPath('/child-slug-legacy');
+        $duplicatePage->setStatus(Page::STATUS_DRAFT);
+        $duplicatePage->setVisibility(Page::VISIBILITY_PUBLIC);
+        $duplicatePage->setContent([]);
+
+        $duplicate = new PageTranslation()
+            ->setLocale(SupportedLocales::DEFAULT)
+            ->setTitle('Second Child')
+            ->setSlug('child-slug')
+            ->setStatus(PageTranslation::STATUS_DRAFT)
+            ->setContent([]);
+        $duplicatePage->addTranslation($duplicate);
+
         $this->pathResolver->synchronize($duplicate);
+        $this->entityManager->persist($duplicatePage);
         $this->entityManager->persist($duplicate);
 
         $violations = $this->validator->validate($duplicate);
@@ -99,28 +117,33 @@ final class PageSlugValidationTest extends KernelTestCase
             $propertyPaths[] = (string) $violation->getPropertyPath();
         }
 
-        self::assertTrue(
-            in_array('slug', $propertyPaths, true) || in_array('path', $propertyPaths, true),
-            'Expected a slug or path uniqueness violation.',
-        );
+        self::assertContains('path', $propertyPaths);
     }
 
-    private function createPage(string $slug): Page
+    private function createTranslation(string $slug): PageTranslation
     {
         $page = new Page();
         $page
             ->setTitle('Validation Test')
             ->setSlug($slug)
+            ->setPath('/'.$slug)
             ->setStatus(Page::STATUS_DRAFT)
             ->setVisibility(Page::VISIBILITY_PUBLIC)
+            ->setContent([]);
+
+        $translation = new PageTranslation()
+            ->setLocale(SupportedLocales::DEFAULT)
+            ->setTitle('Validation Test')
+            ->setSlug($slug)
+            ->setStatus(PageTranslation::STATUS_DRAFT)
             ->setContent([
                 [
                     'type' => 'richtext',
                     'data' => ['html' => '<p>Test</p>'],
                 ],
-            ])
-        ;
+            ]);
+        $page->addTranslation($translation);
 
-        return $page;
+        return $translation;
     }
 }
