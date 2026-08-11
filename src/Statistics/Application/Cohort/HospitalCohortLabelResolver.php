@@ -19,15 +19,15 @@ final readonly class HospitalCohortLabelResolver
             'stats.filter.cohort.label',
             [
                 'location' => $this->translator->trans(
-                    'hospital.location.'.$key->location->value,
+                    'stats.filter.cohort.location.'.$key->location->value,
                     [],
-                    'messages',
+                    'statistics',
                     $locale,
                 ),
                 'tier' => $this->translator->trans(
-                    'hospital.tier.'.$key->tier->value,
+                    'stats.filter.cohort.tier.'.$key->tier->value,
                     [],
-                    'messages',
+                    'statistics',
                     $locale,
                 ),
             ],
