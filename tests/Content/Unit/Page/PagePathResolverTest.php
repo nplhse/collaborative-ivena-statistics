@@ -67,6 +67,34 @@ final class PagePathResolverTest extends TestCase
         $this->resolver->buildPath($firstTranslation);
     }
 
+    public function testThrowsOnIndirectCycleViaSeenSet(): void
+    {
+        $page = new Page();
+        $first = new Page();
+        $second = new Page();
+
+        $page->setParent($first);
+        $first->setParent($second);
+        $second->setParent($first);
+
+        $first->addTranslation(new PageTranslation()->setLocale('en')->setSlug('first')->setPath('/first'));
+        $second->addTranslation(new PageTranslation()->setLocale('en')->setSlug('second')->setPath('/second'));
+
+        $translation = new PageTranslation()->setLocale('en')->setSlug('leaf');
+        $page->addTranslation($translation);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cyclic parent reference detected.');
+        $this->resolver->buildPath($translation);
+    }
+
+    public function testBuildPathWithoutPageUsesSlugOnly(): void
+    {
+        $translation = new PageTranslation()->setLocale('en')->setSlug('orphan');
+
+        self::assertSame('/orphan', $this->resolver->buildPath($translation));
+    }
+
     public function testSynchronizePreservesManualSlugAndSetsPath(): void
     {
         $page = new Page();

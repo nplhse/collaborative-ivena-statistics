@@ -69,6 +69,35 @@ final class PageLocaleAlternateLinkBuilderTest extends TestCase
         self::assertSame(['en', 'de'], array_map(static fn (PageLocaleAlternateLink $l): string => $l->locale, $links));
     }
 
+    public function testBuildOmitsTranslationsWithEmptyPath(): void
+    {
+        $page = new Page();
+        $page->setVisibility(Page::VISIBILITY_PUBLIC);
+
+        $en = $this->translation('en', PageTranslation::STATUS_PUBLISHED, 'About', '/about');
+        $de = $this->translation('de', PageTranslation::STATUS_PUBLISHED, 'Über uns', '/');
+        $page->addTranslation($en);
+        $page->addTranslation($de);
+
+        $builder = $this->builder(canAuthenticate: false);
+        $links = $builder->build($page, $en);
+
+        self::assertCount(1, $links);
+        self::assertSame('en', $links[0]->locale);
+    }
+
+    public function testBuildReturnsEmptyWhenCurrentTranslationNotViewable(): void
+    {
+        $page = new Page();
+        $page->setVisibility(Page::VISIBILITY_PUBLIC);
+        $draft = $this->translation('en', PageTranslation::STATUS_DRAFT, 'Draft', '/draft');
+        $page->addTranslation($draft);
+
+        $builder = $this->builder(canAuthenticate: false);
+
+        self::assertSame([], $builder->build($page, $draft));
+    }
+
     private function builder(bool $canAuthenticate): PageLocaleAlternateLinkBuilder
     {
         $security = $this->createStub(Security::class);

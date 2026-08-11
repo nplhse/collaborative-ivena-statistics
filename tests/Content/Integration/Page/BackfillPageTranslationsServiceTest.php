@@ -92,4 +92,23 @@ final class BackfillPageTranslationsServiceTest extends KernelTestCase
         self::assertInstanceOf(Page::class, $reloaded);
         self::assertFalse($reloaded->hasTranslation(SupportedLocales::DEFAULT));
     }
+
+    public function testBackfillReportsMissingLegacyFieldsAsErrors(): void
+    {
+        PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => '',
+            'slug' => 'missing-title',
+            'path' => '/missing-title',
+            'status' => Page::STATUS_DRAFT,
+        ]);
+
+        /** @var BackfillPageTranslationsService $service */
+        $service = self::getContainer()->get(BackfillPageTranslationsService::class);
+        $result = $service->backfill(false);
+
+        self::assertSame(0, $result->created);
+        self::assertSame(1, $result->errors);
+        self::assertNotEmpty($result->errorMessages);
+        self::assertStringContainsString('missing legacy title/slug/path', $result->errorMessages[0]);
+    }
 }
