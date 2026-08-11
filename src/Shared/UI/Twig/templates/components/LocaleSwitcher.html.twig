@@ -17,7 +17,7 @@
         {% for locale in supportedLocales %}
             <a
                 class="dropdown-item{% if app.request.locale == locale %} active{% endif %}"
-                href="{{ path('app_locale_switch', {locale: locale, _target_path: app.request.requestUri}) }}"
+                href="{{ path('app_locale_switch', {locale: locale, _target_path: this.targetPathFor(locale)}) }}"
             >
                 {% if locale == 'de' %}
                     🇩🇪 {{ 'locale.german'|trans({}, 'shared') }}

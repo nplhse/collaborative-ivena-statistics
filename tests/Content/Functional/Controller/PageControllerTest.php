@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Content\Functional\Controller;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
+use App\Content\Infrastructure\Factory\PageTranslationFactory;
+use App\Shared\Application\Locale\SupportedLocales;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -210,6 +213,53 @@ final class PageControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="page-sidebar"]');
         self::assertSelectorTextContains('[data-testid="page-sidebar"]', 'Geschwister');
         self::assertSelectorTextNotContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
+    }
+
+    public function testPublishedLanguageAlternatesAreLinkedAndLocaleSwitchRedirectsToSiblingPath(): void
+    {
+        $client = self::createClient();
+
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'About',
+            'slug' => 'about-root',
+            'path' => '/about-root-legacy',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'About us',
+            'slug' => 'about-us',
+            'path' => '/about-us',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>About EN</p>']]],
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::GERMAN,
+            'title' => 'Über uns',
+            'slug' => 'ueber-uns',
+            'path' => '/ueber-uns',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>About DE</p>']]],
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/about-us');
+        self::assertResponseIsSuccessful();
+
+        $deLink = $crawler->filter('a.dropdown-item[href*="/locale/switch/de"]')->link();
+        self::assertStringContainsString('_target_path=/ueber-uns', $deLink->getUri());
+
+        $client->click($deLink);
+
+        self::assertResponseRedirects('/ueber-uns');
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1.fw-bold', 'Über uns');
+        self::assertSelectorTextContains('.page-content-blocks', 'About DE');
     }
 
     public function testSidebarShowsAuthenticatedPagesForLoggedInUser(): void
