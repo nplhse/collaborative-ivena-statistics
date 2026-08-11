@@ -39,11 +39,16 @@ final class PageTranslationRepository extends ServiceEntityRepository
 
     public function findOneByPageAndLocale(Page $page, string $locale): ?PageTranslation
     {
+        $pageId = $page->getId();
+        if (null === $pageId) {
+            return null;
+        }
+
         /** @var ?PageTranslation $translation */
         $translation = $this->createQueryBuilder('t')
-            ->andWhere('t.page = :page')
+            ->andWhere('IDENTITY(t.page) = :pageId')
             ->andWhere('t.locale = :locale')
-            ->setParameter('page', $page, Page::class)
+            ->setParameter('pageId', $pageId, Types::INTEGER)
             ->setParameter('locale', $locale)
             ->setMaxResults(1)
             ->getQuery()
@@ -54,12 +59,17 @@ final class PageTranslationRepository extends ServiceEntityRepository
 
     public function findPublishedByPageAndLocale(Page $page, string $locale): ?PageTranslation
     {
+        $pageId = $page->getId();
+        if (null === $pageId) {
+            return null;
+        }
+
         /** @var ?PageTranslation $translation */
         $translation = $this->createQueryBuilder('t')
-            ->andWhere('t.page = :page')
+            ->andWhere('IDENTITY(t.page) = :pageId')
             ->andWhere('t.locale = :locale')
             ->andWhere('t.status = :status')
-            ->setParameter('page', $page, Page::class)
+            ->setParameter('pageId', $pageId, Types::INTEGER)
             ->setParameter('locale', $locale)
             ->setParameter('status', PageTranslation::STATUS_PUBLISHED)
             ->setMaxResults(1)
