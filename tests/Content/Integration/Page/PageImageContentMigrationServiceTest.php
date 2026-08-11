@@ -31,7 +31,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
 
         self::assertSame(1, $result->updatedBlocks);
         self::assertSame(1, $result->updatedPages);
-        self::assertSame('lg', $this->reloadPage($pageId)->getContent()[0]['data']['size']);
+        self::assertSame('lg', $this->reloadContent($pageId)[0]['data']['size']);
     }
 
     public function testApplyMigratesLargeImageBlocksToAuto(): void
@@ -42,7 +42,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         $result = $this->migrationService()->migrateSizes(false, $pageId);
 
         self::assertSame(1, $result->updatedBlocks);
-        self::assertSame('auto', $this->reloadPage($pageId)->getContent()[0]['data']['size']);
+        self::assertSame('auto', $this->reloadContent($pageId)[0]['data']['size']);
     }
 
     public function testFixRichtextSnippetsReplacesLegacySizeClass(): void
@@ -67,11 +67,11 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertSame(1, $result->updatedPages);
         self::assertStringContainsString(
             'page-content-image--size-auto',
-            $this->reloadPage($pageId)->getContent()[0]['data']['html'],
+            $this->reloadContent($pageId)[0]['data']['html'],
         );
         self::assertStringNotContainsString(
             'page-content-image--size-lg',
-            $this->reloadPage($pageId)->getContent()[0]['data']['html'],
+            $this->reloadContent($pageId)[0]['data']['html'],
         );
     }
 
@@ -83,7 +83,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         $result = $this->migrationService()->migrateSizes(false);
 
         self::assertGreaterThanOrEqual(1, $result->updatedBlocks);
-        self::assertSame('auto', $this->reloadPage($pageId)->getContent()[0]['data']['size']);
+        self::assertSame('auto', $this->reloadContent($pageId)[0]['data']['size']);
     }
 
     public function testFixRichtextSnippetsDryRunDoesNotPersist(): void
@@ -107,7 +107,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertSame(1, $result->updatedBlocks);
         self::assertStringContainsString(
             'page-content-image--size-lg',
-            $this->reloadPage($pageId)->getContent()[0]['data']['html'],
+            $this->reloadContent($pageId)[0]['data']['html'],
         );
     }
 
@@ -132,7 +132,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertSame(1, $result->updatedBlocks);
         self::assertStringContainsString(
             'page-content-image--size-auto',
-            $this->reloadPage($pageId)->getContent()[0]['data']['html'],
+            $this->reloadContent($pageId)[0]['data']['html'],
         );
     }
 
@@ -162,7 +162,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertSame(1, $result->updatedBlocks);
         self::assertStringContainsString(
             'page-content-image--size-auto',
-            $this->reloadPage($pageId)->getContent()[0]['data']['items'][0]['html'],
+            $this->reloadContent($pageId)[0]['data']['items'][0]['html'],
         );
     }
 
@@ -187,7 +187,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertGreaterThanOrEqual(1, $result->updatedBlocks);
         self::assertStringContainsString(
             'page-content-image--size-auto',
-            $this->reloadPage($pageId)->getContent()[0]['data']['html'],
+            $this->reloadContent($pageId)[0]['data']['html'],
         );
     }
 
@@ -251,7 +251,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         $result = $this->migrationService()->migrateSizes(false, $pageId);
 
         self::assertSame(1, $result->updatedBlocks);
-        self::assertSame('auto', $this->reloadPage($pageId)->getContent()[1]['data']['size']);
+        self::assertSame('auto', $this->reloadContent($pageId)[1]['data']['size']);
     }
 
     public function testMigrateSizesSkipsNonLargeImageBlocksOnCandidatePage(): void
@@ -294,8 +294,8 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         $result = $this->migrationService()->migrateSizes(false, $pageId);
 
         self::assertSame(1, $result->updatedBlocks);
-        self::assertSame('auto', $this->reloadPage($pageId)->getContent()[0]['data']['size']);
-        self::assertSame('md', $this->reloadPage($pageId)->getContent()[1]['data']['size']);
+        self::assertSame('auto', $this->reloadContent($pageId)[0]['data']['size']);
+        self::assertSame('md', $this->reloadContent($pageId)[1]['data']['size']);
     }
 
     public function testFixRichtextSnippetsReturnsEmptyForUnknownPageId(): void
@@ -333,7 +333,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertSame(1, $result->updatedBlocks);
         self::assertStringContainsString(
             'page-content-image--size-auto',
-            $this->reloadPage($pageId)->getContent()[0]['data']['items'][1]['html'],
+            $this->reloadContent($pageId)[0]['data']['items'][1]['html'],
         );
     }
 
@@ -384,7 +384,7 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         $result = $this->migrationService()->migrateSizes(false, $pageId);
 
         self::assertSame(0, $result->updatedBlocks);
-        self::assertSame('lg', $this->reloadPage($pageId)->getContent()[0]['data']['size']);
+        self::assertSame('lg', $this->reloadContent($pageId)[0]['data']['size']);
     }
 
     private function createPageWithLargeImageBlock(): \App\Content\Domain\Entity\Page
@@ -419,6 +419,18 @@ final class PageImageContentMigrationServiceTest extends KernelTestCase
         self::assertNotNull($page);
 
         return $page;
+    }
+
+    /**
+     * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
+     */
+    private function reloadContent(int $pageId): array
+    {
+        $page = $this->reloadPage($pageId);
+        $translation = $page->translation('en');
+        self::assertNotNull($translation);
+
+        return $translation->getContent();
     }
 
     private function migrationService(): PageImageContentMigrationService

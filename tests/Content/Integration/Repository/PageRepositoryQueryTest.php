@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Integration\Repository;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Repository\PageRepository;
@@ -26,7 +27,7 @@ final class PageRepositoryQueryTest extends KernelTestCase
         $this->repo = self::getContainer()->get(PageRepository::class);
     }
 
-    public function testFindAllPublishedExcludesDraft(): void
+    public function testFindAllWithPublishedTranslationExcludesDraft(): void
     {
         PageFactory::createOne([
             'slug' => 'all-draft',
@@ -41,15 +42,15 @@ final class PageRepositoryQueryTest extends KernelTestCase
         ]);
 
         $slugs = array_map(
-            static fn (Page $p): ?string => $p->getSlug(),
-            $this->repo->findAllPublished(),
+            static fn (Page $p): ?string => $p->translation('en')?->getSlug(),
+            $this->repo->findAllWithPublishedTranslation(),
         );
 
         self::assertContains('all-published', $slugs);
         self::assertNotContains('all-draft', $slugs);
     }
 
-    public function testFindAllPublishedVisibleToAuthenticatedUserExcludesDraft(): void
+    public function testFindAllWithPublishedTranslationVisibleToAuthenticatedUserExcludesDraft(): void
     {
         PageFactory::createOne([
             'slug' => 'draft-only',
@@ -64,15 +65,15 @@ final class PageRepositoryQueryTest extends KernelTestCase
         ]);
 
         $slugs = array_map(
-            static fn (Page $p): ?string => $p->getSlug(),
-            $this->repo->findAllPublishedVisibleToAuthenticatedUser(),
+            static fn (Page $p): ?string => $p->translation('en')?->getSlug(),
+            $this->repo->findAllWithPublishedTranslationVisibleToAuthenticatedUser(),
         );
 
         self::assertContains('published-public', $slugs);
         self::assertNotContains('draft-only', $slugs);
     }
 
-    public function testFindAllPublishedVisibleToAuthenticatedUserIncludesPublicAndAuthenticatedVisibility(): void
+    public function testFindAllWithPublishedTranslationVisibleToAuthenticatedUserIncludesPublicAndAuthenticatedVisibility(): void
     {
         PageFactory::createOne([
             'slug' => 'vis-public',
@@ -87,15 +88,15 @@ final class PageRepositoryQueryTest extends KernelTestCase
         ]);
 
         $slugs = array_map(
-            static fn (Page $p): ?string => $p->getSlug(),
-            $this->repo->findAllPublishedVisibleToAuthenticatedUser(),
+            static fn (Page $p): ?string => $p->translation('en')?->getSlug(),
+            $this->repo->findAllWithPublishedTranslationVisibleToAuthenticatedUser(),
         );
 
         self::assertContains('vis-public', $slugs);
         self::assertContains('vis-auth', $slugs);
     }
 
-    public function testFindAllPublishedPublicOnlyReturnsPublishedPublicPages(): void
+    public function testFindAllWithPublishedTranslationPublicOnlyReturnsPublishedPublicPages(): void
     {
         PageFactory::createOne([
             'slug' => 'public-live',
@@ -116,8 +117,8 @@ final class PageRepositoryQueryTest extends KernelTestCase
         ]);
 
         $slugs = array_map(
-            static fn (Page $p): ?string => $p->getSlug(),
-            $this->repo->findAllPublishedPublic(),
+            static fn (Page $p): ?string => $p->translation('en')?->getSlug(),
+            $this->repo->findAllWithPublishedTranslationPublic(),
         );
 
         self::assertContains('public-live', $slugs);
@@ -125,7 +126,7 @@ final class PageRepositoryQueryTest extends KernelTestCase
         self::assertNotContains('public-draft', $slugs);
     }
 
-    public function testFindOnePublishedByKeyReturnsPublishedPage(): void
+    public function testFindOneWithPublishedTranslationByKeyReturnsPublishedPage(): void
     {
         PageFactory::createOne([
             'slug' => 'about-live',
@@ -133,14 +134,16 @@ final class PageRepositoryQueryTest extends KernelTestCase
             'status' => Page::STATUS_PUBLISHED,
         ]);
 
-        $page = $this->repo->findOnePublishedByKey(PageKey::About);
+        $page = $this->repo->findOneWithPublishedTranslationByKey(PageKey::About);
 
         self::assertNotNull($page);
-        self::assertSame('about-live', $page->getSlug());
-        self::assertSame('/about-live', $page->getPath());
+        $translation = $page->translation('en');
+        self::assertInstanceOf(PageTranslation::class, $translation);
+        self::assertSame('about-live', $translation->getSlug());
+        self::assertSame('/about-live', $translation->getPath());
     }
 
-    public function testFindOnePublishedByKeyReturnsNullWhenOnlyDraftExists(): void
+    public function testFindOneWithPublishedTranslationByKeyReturnsNullWhenOnlyDraftExists(): void
     {
         PageFactory::createOne([
             'slug' => 'faq-draft-only',
@@ -149,7 +152,7 @@ final class PageRepositoryQueryTest extends KernelTestCase
             'status' => Page::STATUS_DRAFT,
         ]);
 
-        self::assertNull($this->repo->findOnePublishedByKey(PageKey::Faq));
+        self::assertNull($this->repo->findOneWithPublishedTranslationByKey(PageKey::Faq));
     }
 
     public function testPageCanExistWithoutKey(): void
@@ -161,6 +164,6 @@ final class PageRepositoryQueryTest extends KernelTestCase
             'status' => Page::STATUS_PUBLISHED,
         ]);
 
-        self::assertNull($this->repo->findOnePublishedByKey(PageKey::About));
+        self::assertNull($this->repo->findOneWithPublishedTranslationByKey(PageKey::About));
     }
 }

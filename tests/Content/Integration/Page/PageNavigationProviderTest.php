@@ -250,4 +250,29 @@ final class PageNavigationProviderTest extends KernelTestCase
         self::assertCount(1, $tree[0]->children);
         self::assertSame('Getting started', $tree[0]->children[0]->label);
     }
+
+    public function testLinksForKeysReturnsOnlyVisibleValidKeys(): void
+    {
+        PageFactory::createOne([
+            'title' => 'FAQ page',
+            'slug' => 'faq-links',
+            'key' => PageKey::Faq,
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageFactory::createOne([
+            'title' => 'Draft imprint',
+            'slug' => 'imprint-draft-links',
+            'key' => PageKey::Imprint,
+            'status' => Page::STATUS_DRAFT,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        $links = $this->provider->linksForKeys(PageKey::Faq->value, 'not-a-key', PageKey::Imprint->value);
+
+        self::assertCount(1, $links);
+        self::assertSame('FAQ page', $links[0]['label']);
+        self::assertStringContainsString('/faq-links', $links[0]['url']);
+    }
 }

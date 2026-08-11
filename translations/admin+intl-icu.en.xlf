@@ -353,6 +353,30 @@
         <source>admin.page.action.back_to_index</source>
         <target>Back to list</target>
       </trans-unit>
+      <trans-unit id="admPg003" resname="admin.page.action.add_translation">
+        <source>admin.page.action.add_translation</source>
+        <target>Add translation</target>
+      </trans-unit>
+      <trans-unit id="admPg004" resname="admin.page.action.back_to_page">
+        <source>admin.page.action.back_to_page</source>
+        <target>Back to page</target>
+      </trans-unit>
+      <trans-unit id="admPg005" resname="admin.page_translation.relations">
+        <source>admin.page_translation.relations</source>
+        <target>Related page &amp; translations</target>
+      </trans-unit>
+      <trans-unit id="admPg006" resname="admin.page_translation.related_page">
+        <source>admin.page_translation.related_page</source>
+        <target>Page</target>
+      </trans-unit>
+      <trans-unit id="admPg007" resname="admin.page_translation.sibling_translations">
+        <source>admin.page_translation.sibling_translations</source>
+        <target>Translations</target>
+      </trans-unit>
+      <trans-unit id="admPg008" resname="admin.page_translation.current">
+        <source>admin.page_translation.current</source>
+        <target>Current</target>
+      </trans-unit>
       <trans-unit id="an.subjUserReg" resname="admin_notification.email.subject.user_registered">
         <source>admin_notification.email.subject.user_registered</source>
         <target>New user registration</target>

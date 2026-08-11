@@ -164,9 +164,11 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
 
         $reloaded = PageFactory::repository()->find($pageId);
         self::assertNotNull($reloaded);
+        $translation = $reloaded->translation('en');
+        self::assertNotNull($translation);
         self::assertStringContainsString(
             'page-content-image--size-auto',
-            $reloaded->getContent()[0]['data']['html'],
+            $translation->getContent()[0]['data']['html'],
         );
     }
 

@@ -86,6 +86,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:content:analyze-page-images` | Analyze CMS page images; optional dimension backfill and layout migration. Runs on deploy via Deployer. |
+| `app:content:backfill-page-translations` | Create default-locale `PageTranslation` rows from legacy `Page` columns. Idempotent; supports `--dry-run`. Required once after the additive migration (see [ADR 013](../02-architecture/decisions/013-page-multilingual-content.md)). |
 
 ### Audit
 

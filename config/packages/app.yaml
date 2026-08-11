@@ -1,5 +1,6 @@
 parameters:
     app.default.title: 'Collaborative IVENA statistics'
+    env(APP_CONTENT_DEFAULT_LOCALE): 'en'
 
 app:
     title: '%env(default:app.default.title:APP_TITLE)%'
@@ -9,6 +10,10 @@ app:
         description: 'Updates, Backgrounds and News about Collaborative IVENA Statistics.'
 
     default_locale: 'en'
+
+    content:
+        # Editorial/CMS fallback locale (independent of UI default_locale). Set APP_CONTENT_DEFAULT_LOCALE=de in production.
+        default_locale: '%env(APP_CONTENT_DEFAULT_LOCALE)%'
 
     import:
         reject_writer: 'db'

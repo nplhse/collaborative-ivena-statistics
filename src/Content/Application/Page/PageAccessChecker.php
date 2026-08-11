@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Content\Application\Page;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use Symfony\Bundle\SecurityBundle\Security;
 
 final readonly class PageAccessChecker
@@ -15,9 +16,13 @@ final readonly class PageAccessChecker
     ) {
     }
 
-    public function canView(Page $page): bool
+    public function canView(Page $page, ?PageTranslation $translation = null): bool
     {
-        if (!$page->isPublished()) {
+        if ($translation instanceof PageTranslation) {
+            if (!$translation->isPublished()) {
+                return false;
+            }
+        } elseif (!$page->hasPublishedTranslation()) {
             return false;
         }
 

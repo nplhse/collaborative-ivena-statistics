@@ -25,6 +25,7 @@
 | `MAILER_BULK_DELAY_MS` | Delay between bulk reminder emails | default `3000` |
 | `APP_URL` | Public base URL | required in prod for correct links |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
+| `APP_CONTENT_DEFAULT_LOCALE` | CMS page content fallback locale | default `en`; set `de` in production |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
 | `SENTRY_ENVIRONMENT` | Sentry environment | falls back to `APP_ENV` |
 | `SENTRY_RELEASE` | Sentry release | optional; falls back to `App\Kernel::APP_VERSION` |
@@ -41,7 +42,8 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 |-----|---------|---------|
 | `app.title` | Collaborative IVENA statistics | Display name (override with `APP_TITLE`) |
 | `app.short_title` | COIS | Short brand label |
-| `app.default_locale` | `en` | Default locale |
+| `app.default_locale` | `en` | Default UI locale |
+| `app.content.default_locale` | `en` (`APP_CONTENT_DEFAULT_LOCALE`) | CMS page content fallback locale (independent of UI) |
 | `app.blog.title` / `app.blog.description` | — | Blog metadata |
 | `app.import.reject_writer` | `db` | Reject persistence: `db` or `csv` |
 | `app.import.csv_reject_dir` | `var/import_rejects` | CSV reject output directory |

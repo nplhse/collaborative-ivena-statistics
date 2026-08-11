@@ -557,6 +557,18 @@
         <source>label.pages</source>
         <target>Pages</target>
       </trans-unit>
+      <trans-unit id="page00tr1" resname="label.page_translation">
+        <source>label.page_translation</source>
+        <target>Page translation</target>
+      </trans-unit>
+      <trans-unit id="page00tr2" resname="label.page_translations">
+        <source>label.page_translations</source>
+        <target>Page translations</target>
+      </trans-unit>
+      <trans-unit id="page00tr3" resname="label.missing">
+        <source>label.missing</source>
+        <target>Missing</target>
+      </trans-unit>
       <trans-unit id="page00ab3" resname="label.block_type">
         <source>label.block_type</source>
         <target>Block type</target>

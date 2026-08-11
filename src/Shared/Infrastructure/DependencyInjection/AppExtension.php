@@ -21,6 +21,7 @@ final class AppExtension extends Extension
         $container->setParameter('app.default.locale', $config['default_locale']);
         $container->setParameter('app.blog.title', $config['blog']['title']);
         $container->setParameter('app.blog.description', $config['blog']['description']);
+        $container->setParameter('app.content.default_locale', $config['content']['default_locale']);
 
         $metaConfig = $config['meta'];
         $container->setParameter('app.meta.copyright_start_year', $metaConfig['copyright_start_year']);

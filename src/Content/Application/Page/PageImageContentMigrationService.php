@@ -38,31 +38,33 @@ final readonly class PageImageContentMigrationService
                 continue;
             }
 
-            $content = $page->getContent();
-            $changed = false;
+            foreach ($page->getTranslations() as $translation) {
+                $content = $translation->getContent();
+                $changed = false;
 
-            foreach ($content as $index => $block) {
-                if ('image' !== $block['type']) {
-                    continue;
+                foreach ($content as $index => $block) {
+                    if ('image' !== $block['type']) {
+                        continue;
+                    }
+
+                    $data = $block['data'];
+                    $size = (string) ($data['size'] ?? 'auto');
+                    $float = (string) ($data['float'] ?? 'none');
+
+                    if ('lg' !== $size || 'none' !== $float) {
+                        continue;
+                    }
+
+                    $data['size'] = 'auto';
+                    $block['data'] = $data;
+                    $content[$index] = $block;
+                    $changed = true;
+                    ++$updatedBlocks;
                 }
 
-                $data = $block['data'];
-                $size = (string) ($data['size'] ?? 'auto');
-                $float = (string) ($data['float'] ?? 'none');
-
-                if ('lg' !== $size || 'none' !== $float) {
-                    continue;
+                if ($changed && !$dryRun) {
+                    $translation->setContent($content);
                 }
-
-                $data['size'] = 'auto';
-                $block['data'] = $data;
-                $content[$index] = $block;
-                $changed = true;
-                ++$updatedBlocks;
-            }
-
-            if ($changed && !$dryRun) {
-                $page->setContent($content);
             }
         }
 
@@ -76,7 +78,7 @@ final readonly class PageImageContentMigrationService
     public function fixRichtextSnippets(bool $dryRun, ?int $pageId = null): PageImageContentMigrationResult
     {
         $pages = null === $pageId
-            ? $this->pageRepository->findAll()
+            ? $this->pageRepository->findAllOrderedById()
             : array_filter([$this->pageRepository->find($pageId)]);
 
         $updatedBlocks = 0;
@@ -87,58 +89,68 @@ final readonly class PageImageContentMigrationService
                 continue;
             }
 
-            $content = $page->getContent();
-            $changed = false;
+            $pageChanged = false;
 
-            foreach ($content as $index => $block) {
-                $type = $block['type'];
-                $data = $block['data'];
+            foreach ($page->getTranslations() as $translation) {
+                $content = $translation->getContent();
+                $changed = false;
 
-                if ('accordion' === $type) {
-                    $items = is_array($data['items'] ?? null) ? $data['items'] : [];
-                    foreach ($items as $itemIndex => $item) {
-                        if (!is_array($item) || !is_string($item['html'] ?? null)) {
-                            continue;
+                foreach ($content as $index => $block) {
+                    $type = $block['type'];
+                    $data = $block['data'];
+
+                    if ('accordion' === $type) {
+                        $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                        $accordionChanged = false;
+                        foreach ($items as $itemIndex => $item) {
+                            if (!is_array($item) || !is_string($item['html'] ?? null)) {
+                                continue;
+                            }
+
+                            $updatedHtml = $this->replaceSnippetSizeClass($item['html']);
+                            if ($updatedHtml !== $item['html']) {
+                                $items[$itemIndex]['html'] = $updatedHtml;
+                                $accordionChanged = true;
+                                $changed = true;
+                                ++$updatedBlocks;
+                            }
                         }
 
-                        $updatedHtml = $this->replaceSnippetSizeClass($item['html']);
-                        if ($updatedHtml !== $item['html']) {
-                            $items[$itemIndex]['html'] = $updatedHtml;
-                            $changed = true;
-                            ++$updatedBlocks;
+                        if ($accordionChanged) {
+                            $data['items'] = $items;
+                            $block['data'] = $data;
+                            $content[$index] = $block;
                         }
+
+                        continue;
                     }
 
-                    if ($changed) {
-                        $data['items'] = $items;
-                        $block['data'] = $data;
-                        $content[$index] = $block;
+                    if (!in_array($type, ['richtext', 'highlight'], true) || !is_string($data['html'] ?? null)) {
+                        continue;
                     }
 
-                    continue;
+                    $updatedHtml = $this->replaceSnippetSizeClass($data['html']);
+                    if ($updatedHtml === $data['html']) {
+                        continue;
+                    }
+
+                    $data['html'] = $updatedHtml;
+                    $block['data'] = $data;
+                    $content[$index] = $block;
+                    $changed = true;
+                    ++$updatedBlocks;
                 }
 
-                if (!in_array($type, ['richtext', 'highlight'], true) || !is_string($data['html'] ?? null)) {
-                    continue;
+                if ($changed) {
+                    $pageChanged = true;
+                    if (!$dryRun) {
+                        $translation->setContent($content);
+                    }
                 }
-
-                $updatedHtml = $this->replaceSnippetSizeClass($data['html']);
-                if ($updatedHtml === $data['html']) {
-                    continue;
-                }
-
-                $data['html'] = $updatedHtml;
-                $block['data'] = $data;
-                $content[$index] = $block;
-                $changed = true;
-                ++$updatedBlocks;
             }
 
-            if ($changed) {
+            if ($pageChanged) {
                 ++$updatedPages;
-                if (!$dryRun) {
-                    $page->setContent($content);
-                }
             }
         }
 

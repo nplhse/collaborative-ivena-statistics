@@ -7,6 +7,7 @@ namespace App\Content\Application\Page;
 use App\Content\Application\Page\DTO\PageImageContentFinding;
 use App\Content\Domain\Entity\Media;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\MediaType;
 use App\Content\Domain\ValueObject\ImageDimensions;
 use App\Content\Infrastructure\Media\LocalMediaFileLocator;
@@ -36,7 +37,7 @@ final readonly class PageImageContentAnalyzer
     public function analyze(?int $pageId = null): array
     {
         $pages = null === $pageId
-            ? $this->pageRepository->findAll()
+            ? $this->pageRepository->findAllOrderedById()
             : array_filter([$this->pageRepository->find($pageId)]);
 
         $findings = [];
@@ -46,40 +47,42 @@ final readonly class PageImageContentAnalyzer
                 continue;
             }
 
-            foreach ($page->getContent() as $index => $block) {
-                $type = $block['type'];
-                $data = $block['data'];
+            foreach ($page->getTranslations() as $translation) {
+                foreach ($translation->getContent() as $index => $block) {
+                    $type = $block['type'];
+                    $data = $block['data'];
 
-                if ('image' === $type) {
-                    $findings[] = $this->analyzeImageBlock($page, $index, $type, $data);
-                    continue;
-                }
-
-                if (!in_array($type, self::HTML_BLOCK_TYPES, true)) {
-                    continue;
-                }
-
-                if ('accordion' === $type) {
-                    $items = is_array($data['items'] ?? null) ? $data['items'] : [];
-                    foreach ($items as $itemIndex => $item) {
-                        if (!is_array($item) || !is_string($item['html'] ?? null)) {
-                            continue;
-                        }
-
-                        foreach ($this->analyzeHtmlImages($page, $index, $type.' item '.($itemIndex + 1), $item['html']) as $finding) {
-                            $findings[] = $finding;
-                        }
+                    if ('image' === $type) {
+                        $findings[] = $this->analyzeImageBlock($page, $translation, $index, $type, $data);
+                        continue;
                     }
-                    continue;
-                }
 
-                $html = $data['html'] ?? null;
-                if (!is_string($html) || '' === $html) {
-                    continue;
-                }
+                    if (!in_array($type, self::HTML_BLOCK_TYPES, true)) {
+                        continue;
+                    }
 
-                foreach ($this->analyzeHtmlImages($page, $index, $type, $html) as $finding) {
-                    $findings[] = $finding;
+                    if ('accordion' === $type) {
+                        $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+                        foreach ($items as $itemIndex => $item) {
+                            if (!is_array($item) || !is_string($item['html'] ?? null)) {
+                                continue;
+                            }
+
+                            foreach ($this->analyzeHtmlImages($page, $translation, $index, $type.' item '.($itemIndex + 1), $item['html']) as $finding) {
+                                $findings[] = $finding;
+                            }
+                        }
+                        continue;
+                    }
+
+                    $html = $data['html'] ?? null;
+                    if (!is_string($html) || '' === $html) {
+                        continue;
+                    }
+
+                    foreach ($this->analyzeHtmlImages($page, $translation, $index, $type, $html) as $finding) {
+                        $findings[] = $finding;
+                    }
                 }
             }
         }
@@ -90,14 +93,20 @@ final readonly class PageImageContentAnalyzer
     /**
      * @param array<string, mixed> $data
      */
-    private function analyzeImageBlock(Page $page, int $blockIndex, string $blockType, array $data): PageImageContentFinding
-    {
+    private function analyzeImageBlock(
+        Page $page,
+        PageTranslation $translation,
+        int $blockIndex,
+        string $blockType,
+        array $data,
+    ): PageImageContentFinding {
         $size = $this->resolveSize($data);
         $float = (string) ($data['float'] ?? 'none');
         $mediaContext = $this->resolveMediaContext($data);
 
         return $this->buildFinding(
             $page,
+            $translation,
             $blockIndex,
             $blockType,
             $size,
@@ -113,8 +122,13 @@ final readonly class PageImageContentAnalyzer
     /**
      * @return list<PageImageContentFinding>
      */
-    private function analyzeHtmlImages(Page $page, int $blockIndex, string $blockType, string $html): array
-    {
+    private function analyzeHtmlImages(
+        Page $page,
+        PageTranslation $translation,
+        int $blockIndex,
+        string $blockType,
+        string $html,
+    ): array {
         $findings = [];
 
         if (false !== preg_match_all('/page-content-image--size-([a-z]+)/', $html, $matches, PREG_SET_ORDER)) {
@@ -123,6 +137,7 @@ final readonly class PageImageContentAnalyzer
                 $mediaContext = $this->resolveMediaContextFromHtml($html);
                 $findings[] = $this->buildFinding(
                     $page,
+                    $translation,
                     $blockIndex,
                     $blockType.' snippet '.($matchIndex + 1),
                     $size,
@@ -146,6 +161,7 @@ final readonly class PageImageContentAnalyzer
                 $mediaContext = $this->resolveMediaContext(['src' => $src]);
                 $findings[] = $this->buildFinding(
                     $page,
+                    $translation,
                     $blockIndex,
                     $blockType.' inline img '.($matchIndex + 1),
                     'auto',
@@ -312,6 +328,7 @@ final readonly class PageImageContentAnalyzer
 
     private function buildFinding(
         Page $page,
+        PageTranslation $translation,
         int $blockIndex,
         string $blockType,
         string $size,
@@ -324,8 +341,8 @@ final readonly class PageImageContentAnalyzer
     ): PageImageContentFinding {
         return new PageImageContentFinding(
             pageId: (int) $page->getId(),
-            pageTitle: $page->getTitle() ?? '',
-            pageSlug: $page->getSlug() ?? '',
+            pageTitle: $translation->getTitle() ?? '',
+            pageSlug: $translation->getSlug() ?? '',
             blockIndex: $blockIndex,
             blockType: $blockType,
             mediaId: $mediaId,

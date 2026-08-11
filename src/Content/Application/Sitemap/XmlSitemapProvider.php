@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Content\Application\Sitemap;
 
 use App\Content\Application\Sitemap\DTO\XmlSitemapUrl;
-use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Entity\Post;
-use App\Content\Infrastructure\Repository\PageRepository;
+use App\Content\Infrastructure\Repository\PageTranslationRepository;
 use App\Content\Infrastructure\Repository\PostRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final readonly class XmlSitemapProvider
 {
     public function __construct(
-        private PageRepository $pageRepository,
+        private PageTranslationRepository $pageTranslationRepository,
         private PostRepository $postRepository,
         private UrlGeneratorInterface $urlGenerator,
     ) {
@@ -36,13 +36,13 @@ final readonly class XmlSitemapProvider
             $this->urlGenerator->generate('app_blog_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
         );
 
-        foreach ($this->pageRepository->findAllPublishedPublic() as $page) {
-            $loc = $this->buildPageUrl($page);
+        foreach ($this->pageTranslationRepository->findAllPublishedPublic() as $translation) {
+            $loc = $this->buildPageTranslationUrl($translation);
             if (null === $loc) {
                 continue;
             }
 
-            $lastmod = $page->getUpdatedAt() ?? $page->getCreatedAt();
+            $lastmod = $translation->getUpdatedAt() ?? $translation->getCreatedAt();
             $this->addUrl($urlsByLoc, $loc, $lastmod->format('Y-m-d'));
         }
 
@@ -75,9 +75,9 @@ final readonly class XmlSitemapProvider
         $urlsByLoc[$loc] = new XmlSitemapUrl($loc, $lastmod);
     }
 
-    private function buildPageUrl(Page $page): ?string
+    private function buildPageTranslationUrl(PageTranslation $translation): ?string
     {
-        $pathSegment = trim((string) $page->getPath(), '/');
+        $pathSegment = trim((string) $translation->getPath(), '/');
         if ('' === $pathSegment) {
             return null;
         }

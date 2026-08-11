@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Admin\Functional\Controller;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,50 +19,77 @@ final class PageSlugCrudControllerTest extends WebTestCase
 {
     use Factories;
 
-    public function testCreatePageWithEmptySlugGeneratesSlugFromTitle(): void
+    public function testCreateTranslationWithEmptySlugGeneratesSlugFromTitle(): void
     {
         $client = $this->createAdminClient();
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'slug' => 'structural-page-a',
+            'path' => '/structural-page-a',
+        ]);
 
-        $crawler = $client->request(Request::METHOD_GET, '/admin/page/new');
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/admin/page-translation/new?pageId=%d&locale=en', $page->getId()),
+        );
         self::assertResponseIsSuccessful();
 
         $form = $this->selectSaveForm($crawler)->form();
-        $form['Page[title]'] = 'Generated Page Title';
-        $form['Page[slug]'] = '';
-        $form['Page[status]'] = Page::STATUS_DRAFT;
-        $form['Page[visibility]'] = Page::VISIBILITY_PUBLIC;
+        $form['PageTranslation[page]'] = (string) $page->getId();
+        $form['PageTranslation[locale]'] = 'en';
+        $form['PageTranslation[title]'] = 'Generated Page Title';
+        $form['PageTranslation[slug]'] = '';
+        $form['PageTranslation[status]'] = PageTranslation::STATUS_DRAFT;
 
         $client->submit($form);
         self::assertResponseRedirects();
 
-        $page = PageFactory::repository()->findOneBy(['title' => 'Generated Page Title']);
-        self::assertInstanceOf(Page::class, $page);
-        self::assertSame('generated-page-title', $page->getSlug());
-        self::assertSame('/generated-page-title', $page->getPath());
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $reloaded = $em->find(Page::class, $page->getId());
+        self::assertInstanceOf(Page::class, $reloaded);
+        $translation = $reloaded->translation('en');
+        self::assertInstanceOf(PageTranslation::class, $translation);
+        self::assertSame('generated-page-title', $translation->getSlug());
+        self::assertSame('/generated-page-title', $translation->getPath());
     }
 
-    public function testCreatePageWithManualSlugPersistsSlugAsEntered(): void
+    public function testCreateTranslationWithManualSlugPersistsSlugAsEntered(): void
     {
         $client = $this->createAdminClient();
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'slug' => 'structural-page-b',
+            'path' => '/structural-page-b',
+        ]);
 
-        $crawler = $client->request(Request::METHOD_GET, '/admin/page/new');
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/admin/page-translation/new?pageId=%d&locale=en', $page->getId()),
+        );
         self::assertResponseIsSuccessful();
 
         $form = $this->selectSaveForm($crawler)->form();
-        $form['Page[title]'] = 'Different Page Title';
-        $form['Page[slug]'] = 'custom-page-slug';
-        $form['Page[status]'] = Page::STATUS_DRAFT;
-        $form['Page[visibility]'] = Page::VISIBILITY_PUBLIC;
+        $form['PageTranslation[page]'] = (string) $page->getId();
+        $form['PageTranslation[locale]'] = 'en';
+        $form['PageTranslation[title]'] = 'Different Page Title';
+        $form['PageTranslation[slug]'] = 'custom-page-slug';
+        $form['PageTranslation[status]'] = PageTranslation::STATUS_DRAFT;
 
         $client->submit($form);
         self::assertResponseRedirects();
 
-        $page = PageFactory::repository()->findOneBy(['slug' => 'custom-page-slug']);
-        self::assertInstanceOf(Page::class, $page);
-        self::assertSame('/custom-page-slug', $page->getPath());
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $reloaded = $em->find(Page::class, $page->getId());
+        self::assertInstanceOf(Page::class, $reloaded);
+        $translation = $reloaded->translation('en');
+        self::assertInstanceOf(PageTranslation::class, $translation);
+        self::assertSame('custom-page-slug', $translation->getSlug());
+        self::assertSame('/custom-page-slug', $translation->getPath());
     }
 
-    public function testUpdatePagePreservesManualSlugWhenTitleChanges(): void
+    public function testUpdateTranslationPreservesManualSlugWhenTitleChanges(): void
     {
         $client = $this->createAdminClient();
         $page = PageFactory::createOne([
@@ -69,16 +97,18 @@ final class PageSlugCrudControllerTest extends WebTestCase
             'slug' => 'keep-page-slug',
             'status' => Page::STATUS_DRAFT,
         ]);
+        $translation = $page->translation('en');
+        self::assertInstanceOf(PageTranslation::class, $translation);
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            sprintf('/admin/page/%d/edit', $page->getId()),
+            sprintf('/admin/page-translation/%d/edit', $translation->getId()),
         );
         self::assertResponseIsSuccessful();
 
         $form = $this->selectSaveForm($crawler, 'Save changes')->form();
-        $form['Page[title]'] = 'Renamed Page';
-        $form['Page[slug]'] = 'keep-page-slug';
+        $form['PageTranslation[title]'] = 'Renamed Page';
+        $form['PageTranslation[slug]'] = 'keep-page-slug';
 
         $client->submit($form);
         self::assertResponseRedirects();
@@ -87,30 +117,45 @@ final class PageSlugCrudControllerTest extends WebTestCase
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $entityManager->clear();
 
-        $updated = PageFactory::repository()->find($page->getId());
-        self::assertInstanceOf(Page::class, $updated);
+        $updatedPage = PageFactory::repository()->find($page->getId());
+        self::assertInstanceOf(Page::class, $updatedPage);
+        $updated = $updatedPage->translation('en');
+        self::assertInstanceOf(PageTranslation::class, $updated);
         self::assertSame('keep-page-slug', $updated->getSlug());
         self::assertSame('/keep-page-slug', $updated->getPath());
         self::assertSame('Renamed Page', $updated->getTitle());
     }
 
-    public function testCreatePageWithInvalidSlugShowsValidationError(): void
+    public function testCreateTranslationWithInvalidSlugShowsValidationError(): void
     {
         $client = $this->createAdminClient();
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'slug' => 'structural-page-c',
+            'path' => '/structural-page-c',
+        ]);
 
-        $crawler = $client->request(Request::METHOD_GET, '/admin/page/new');
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/admin/page-translation/new?pageId=%d&locale=en', $page->getId()),
+        );
         self::assertResponseIsSuccessful();
 
         $form = $this->selectSaveForm($crawler)->form();
-        $form['Page[title]'] = 'Invalid Slug Page';
-        $form['Page[slug]'] = 'Invalid Slug!';
-        $form['Page[status]'] = Page::STATUS_DRAFT;
-        $form['Page[visibility]'] = Page::VISIBILITY_PUBLIC;
+        $form['PageTranslation[page]'] = (string) $page->getId();
+        $form['PageTranslation[locale]'] = 'en';
+        $form['PageTranslation[title]'] = 'Invalid Slug Page';
+        $form['PageTranslation[slug]'] = 'Invalid Slug!';
+        $form['PageTranslation[status]'] = PageTranslation::STATUS_DRAFT;
 
         $client->submit($form);
 
         self::assertResponseIsUnprocessable();
-        self::assertNull(PageFactory::repository()->findOneBy(['title' => 'Invalid Slug Page']));
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $reloaded = $em->find(Page::class, $page->getId());
+        self::assertInstanceOf(Page::class, $reloaded);
+        self::assertNull($reloaded->translation('en'));
     }
 
     private function createAdminClient(): \Symfony\Bundle\FrameworkBundle\KernelBrowser

@@ -6,6 +6,7 @@ namespace App\Tests\Content\Integration\Page;
 
 use App\Content\Application\Page\PagePathResolver;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -15,46 +16,50 @@ final class PagePathSynchronizationValidationTest extends KernelTestCase
     {
         self::bootKernel();
 
+        /** @var PagePathResolver $resolver */
         $resolver = self::getContainer()->get(PagePathResolver::class);
+        /** @var ValidatorInterface $validator */
         $validator = self::getContainer()->get(ValidatorInterface::class);
 
         $page = new Page();
-        $page
-            ->setTitle('Test 123')
-            ->setSlug('test-123')
-            ->setStatus(Page::STATUS_DRAFT)
-            ->setVisibility(Page::VISIBILITY_PUBLIC);
+        $translation = new PageTranslation()
+            ->setLocale('en')
+            ->setTitle('Synced Page')
+            ->setSlug('synced-page')
+            ->setStatus(PageTranslation::STATUS_DRAFT)
+            ->setContent([]);
+        $page->addTranslation($translation);
 
-        $violationsBefore = $validator->validate($page);
-        self::assertNotEmpty($violationsBefore);
-        self::assertSame('path', (string) $violationsBefore->get(0)->getPropertyPath());
+        $resolver->synchronize($translation);
 
-        $resolver->synchronize($page);
-
-        $violationsAfter = $validator->validate($page);
-        self::assertCount(0, $violationsAfter);
-        self::assertSame('/test-123', $page->getPath());
+        $violations = $validator->validate($translation);
+        self::assertCount(0, $violations);
+        self::assertSame('/synced-page', $translation->getPath());
     }
 
     public function testEmptySlugIsGeneratedFromTitleBeforeValidation(): void
     {
         self::bootKernel();
 
+        /** @var PagePathResolver $resolver */
         $resolver = self::getContainer()->get(PagePathResolver::class);
+        /** @var ValidatorInterface $validator */
         $validator = self::getContainer()->get(ValidatorInterface::class);
 
         $page = new Page();
-        $page
-            ->setTitle('Generated From Title')
+        $translation = new PageTranslation()
+            ->setLocale('en')
+            ->setTitle('From Title Only')
             ->setSlug('')
-            ->setStatus(Page::STATUS_DRAFT)
-            ->setVisibility(Page::VISIBILITY_PUBLIC);
+            ->setStatus(PageTranslation::STATUS_DRAFT)
+            ->setContent([]);
+        $page->addTranslation($translation);
 
-        $resolver->synchronize($page);
+        $resolver->synchronize($translation);
 
-        $violations = $validator->validate($page);
+        $violations = $validator->validate($translation);
         self::assertCount(0, $violations);
-        self::assertSame('generated-from-title', $page->getSlug());
-        self::assertSame('/generated-from-title', $page->getPath());
+        self::assertSame('from-title-only', $translation->getSlug());
+        self::assertSame('/from-title-only', $translation->getPath());
     }
 }

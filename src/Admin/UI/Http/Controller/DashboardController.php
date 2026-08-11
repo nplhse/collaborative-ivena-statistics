@@ -33,6 +33,7 @@ use App\Admin\UI\Http\Controller\Media\MediaCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
 use App\Admin\UI\Http\Controller\Onboarding\UserOnboardingStepCrudController;
 use App\Admin\UI\Http\Controller\Page\PageCrudController;
+use App\Admin\UI\Http\Controller\Page\PageTranslationCrudController;
 use App\Admin\UI\Http\Controller\SecondaryTransport\SecondaryTransportCrudController;
 use App\Admin\UI\Http\Controller\Speciality\SpecialityCrudController;
 use App\Admin\UI\Http\Controller\State\StateCrudController;
@@ -478,6 +479,7 @@ final class DashboardController extends AbstractDashboardController
             MenuItem::linkTo(PostTagCrudController::class, new TranslatableMessage('menu.blog.tags', domain: 'shared'), 'fas fa-tags'),
         ]);
         yield MenuItem::linkTo(PageCrudController::class, new TranslatableMessage('label.pages', domain: 'content'), 'fas fa-file');
+        yield MenuItem::linkTo(PageTranslationCrudController::class, new TranslatableMessage('label.page_translations', domain: 'content'), 'fas fa-language');
         yield MenuItem::linkTo(MediaCrudController::class, new TranslatableMessage('label.media_library', domain: 'content'), 'fas fa-photo-film');
 
         yield MenuItem::section('Usage analytics');

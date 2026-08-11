@@ -39,6 +39,7 @@ final class AppExtensionTest extends TestCase
 
         self::assertSame('Our Blog', $container->getParameter('app.blog.title'));
         self::assertSame('Blog Description', $container->getParameter('app.blog.description'));
+        self::assertSame('en', $container->getParameter('app.content.default_locale'));
         self::assertSame('COIS', $container->getParameter('app.short_title'));
         self::assertSame(2024, $container->getParameter('app.meta.copyright_start_year'));
         self::assertSame('Uberspace', $container->getParameter('app.meta.hoster.name'));

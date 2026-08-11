@@ -717,6 +717,18 @@
         <source>page.validation.path_unique</source>
         <target>This path already exists.</target>
       </trans-unit>
+      <trans-unit id="ptv001" resname="page_translation.validation.locale_unique">
+        <source>page_translation.validation.locale_unique</source>
+        <target>A translation for this locale already exists on the page.</target>
+      </trans-unit>
+      <trans-unit id="ptv002" resname="page_translation.validation.path_unique">
+        <source>page_translation.validation.path_unique</source>
+        <target>This path already exists.</target>
+      </trans-unit>
+      <trans-unit id="ptv003" resname="page_translation.validation.parent_translation_required">
+        <source>page_translation.validation.parent_translation_required</source>
+        <target>The parent page must have a translation in the same locale before this translation can be published.</target>
+      </trans-unit>
       <trans-unit id="pagev002" resname="page.validation.parent_slug_unique">
         <source>page.validation.parent_slug_unique</source>
         <target>This slug already exists on the same level.</target>
