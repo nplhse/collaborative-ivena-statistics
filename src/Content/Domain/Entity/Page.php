@@ -194,13 +194,17 @@ class Page implements \Stringable
         return $this->translation($locale) instanceof PageTranslation;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getTitle()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::getTitle().
+     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setTitle()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::setTitle().
+     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
@@ -208,13 +212,17 @@ class Page implements \Stringable
         return $this;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getSlug()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::getSlug().
+     */
     public function getSlug(): ?string
     {
         return $this->slug;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setSlug()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::setSlug().
+     */
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
@@ -222,13 +230,17 @@ class Page implements \Stringable
         return $this;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getPath()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::getPath().
+     */
     public function getPath(): ?string
     {
         return $this->path;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setPath()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::setPath().
+     */
     public function setPath(string $path): self
     {
         $this->path = $path;
@@ -248,13 +260,17 @@ class Page implements \Stringable
         return $this;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getStatus()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::getStatus().
+     */
     public function getStatus(): string
     {
         return $this->status;
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setStatus()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::setStatus().
+     */
     public function setStatus(string $status): self
     {
         $this->status = $status;
@@ -287,18 +303,20 @@ class Page implements \Stringable
     }
 
     /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::getContent().
+     *
      * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
      */
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::getContent()')]
     public function getContent(): array
     {
         return $this->content;
     }
 
     /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::setContent().
+     *
      * @param list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content
      */
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::setContent()')]
     public function setContent(array $content): self
     {
         $this->content = $content;
@@ -322,7 +340,9 @@ class Page implements \Stringable
         $this->updatedAt = new \DateTimeImmutable('now');
     }
 
-    #[\Deprecated(message: 'transitional until Phase 4 cleanup — use PageTranslation::isPublished()')]
+    /**
+     * Transitional until Phase 4 cleanup — prefer PageTranslation::isPublished() / hasPublishedTranslation().
+     */
     public function isPublished(): bool
     {
         return self::STATUS_PUBLISHED === $this->status;

@@ -81,15 +81,10 @@ final class PageCrudController extends AbstractCrudController
         $page = new Page();
         $suffix = bin2hex(random_bytes(4));
         // Transitional legacy NOT NULL columns until Phase 4 cleanup.
-        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
         $page->setTitle('Untitled page');
-        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
         $page->setSlug('untitled-'.$suffix);
-        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
         $page->setPath('/untitled-'.$suffix);
-        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
         $page->setStatus(Page::STATUS_DRAFT);
-        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
         $page->setContent([]);
 
         return $page;

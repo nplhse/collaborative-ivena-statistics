@@ -35,28 +35,27 @@ final class PageSidebarDataProviderTest extends KernelTestCase
         $provider = self::getContainer()->get(PageSidebarDataProvider::class);
         $data = $provider->getData();
 
-        $slugs = $this->collectSlugsFromTree($data['pageTree']);
+        $slugs = $this->collectPathsFromTree($data['pageTree']);
 
-        self::assertContains('sidebar-public', $slugs);
-        self::assertNotContains('sidebar-auth', $slugs);
+        self::assertContains('/sidebar-public', $slugs);
+        self::assertNotContains('/sidebar-auth', $slugs);
     }
 
     /**
-     * @param array<int, array{page: Page, children: array<int, mixed>}> $nodes
+     * @param array<int, array{page: Page, title: string, path: string, children: array<int, mixed>}> $nodes
      *
      * @return list<string>
      */
-    private function collectSlugsFromTree(array $nodes): array
+    private function collectPathsFromTree(array $nodes): array
     {
-        $slugs = [];
+        $paths = [];
         foreach ($nodes as $node) {
-            $slug = $node['page']->getSlug();
-            if (null !== $slug) {
-                $slugs[] = $slug;
+            if ('' !== $node['path']) {
+                $paths[] = $node['path'];
             }
-            $slugs = array_merge($slugs, $this->collectSlugsFromTree($node['children']));
+            $paths = array_merge($paths, $this->collectPathsFromTree($node['children']));
         }
 
-        return $slugs;
+        return $paths;
     }
 }

@@ -38,11 +38,8 @@ final readonly class BackfillPageTranslationsService
                     continue;
                 }
 
-                /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
                 $title = trim((string) $page->getTitle());
-                /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
                 $slug = trim((string) $page->getSlug());
-                /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
                 $path = trim((string) $page->getPath());
                 if (in_array('', [$title, $slug, $path], true)) {
                     ++$errors;
@@ -63,9 +60,7 @@ final readonly class BackfillPageTranslationsService
                 $translation->setTitle($title);
                 $translation->setSlug($slug);
                 $translation->setPath($path);
-                /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
                 $translation->setStatus($page->getStatus());
-                /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
                 $translation->setContent($page->getContent());
                 $page->addTranslation($translation);
                 $this->entityManager->persist($translation);

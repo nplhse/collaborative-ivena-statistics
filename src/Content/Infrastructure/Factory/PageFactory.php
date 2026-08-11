@@ -71,7 +71,6 @@ final class PageFactory extends PersistentObjectFactory
             // Keep transitional legacy path aligned with slug for roots; child translation paths
             // are rebuilt by PagePathSubscriber on flush.
             if (!$page->getParent() instanceof Page) {
-                /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
                 $page->setPath('/'.ltrim((string) $page->getSlug(), '/'));
             }
 
@@ -81,15 +80,10 @@ final class PageFactory extends PersistentObjectFactory
 
             $translation = new PageTranslation();
             $translation->setLocale(SupportedLocales::DEFAULT);
-            /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
             $translation->setTitle((string) $page->getTitle());
-            /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
             $translation->setSlug((string) $page->getSlug());
-            /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
             $translation->setPath((string) $page->getPath());
-            /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
             $translation->setStatus($page->getStatus());
-            /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
             $translation->setContent($page->getContent());
             $page->addTranslation($translation);
         });

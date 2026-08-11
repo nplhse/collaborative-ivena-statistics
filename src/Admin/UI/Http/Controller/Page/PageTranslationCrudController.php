@@ -284,8 +284,6 @@ final class PageTranslationCrudController extends AbstractCrudController
 
     /**
      * Keep transitional Page legacy columns aligned with the content default locale translation.
-     *
-     * @psalm-suppress DeprecatedMethod Transitional until Phase 4 column drop
      */
     private function syncLegacyPageFields(PageTranslation $translation): void
     {
