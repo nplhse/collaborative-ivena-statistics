@@ -4,53 +4,34 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Page;
 
-use App\Admin\UI\Form\PageContentBlockType;
-use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
-use App\Content\Application\Page\PageContentBlockDataNormalizer;
-use App\Content\Application\Page\PageContentMediaResolver;
-use App\Content\Application\Page\PageContentSanitizer;
-use App\Content\Application\Page\PageContentValidator;
-use App\Content\Application\Page\PagePathResolver;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageKey;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Shared\Application\Locale\SupportedLocales;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
+ * Structural page identity (hierarchy, key, visibility). Locale content lives in PageTranslation CRUD.
+ *
  * @extends AbstractCrudController<Page>
  */
 #[IsGranted('ROLE_ADMIN')]
 final class PageCrudController extends AbstractCrudController
 {
     public function __construct(
-        private readonly PageContentBlockDataNormalizer $pageContentBlockDataNormalizer,
-        private readonly PageContentValidator $pageContentValidator,
-        private readonly PageContentMediaResolver $pageContentMediaResolver,
-        private readonly PageContentSanitizer $pageContentSanitizer,
-        private readonly PagePathResolver $pagePathResolver,
-        private readonly MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
         private readonly TranslatorInterface $translator,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {
     }
 
@@ -66,8 +47,8 @@ final class PageCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular(new TranslatableMessage('label.page', domain: 'content'))
             ->setEntityLabelInPlural(new TranslatableMessage('label.pages', domain: 'content'))
-            ->setSearchFields(['id', 'title', 'slug', 'path', 'key'])
-            ->setDefaultSort(['path' => 'ASC']);
+            ->setSearchFields(['id', 'key', 'title'])
+            ->setDefaultSort(['id' => 'DESC']);
     }
 
     #[\Override]
@@ -75,153 +56,66 @@ final class PageCrudController extends AbstractCrudController
     {
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_INDEX, $this->createViewPublicAction())
             ->update(Crud::PAGE_DETAIL, Action::INDEX, fn (Action $action): Action => $action->setLabel(new TranslatableMessage('admin.page.action.back_to_index', domain: 'admin')))
-            ->add(Crud::PAGE_DETAIL, $this->createViewPublicAction())
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->update(Crud::PAGE_EDIT, Action::INDEX, fn (Action $action): Action => $action->setLabel(new TranslatableMessage('admin.page.action.back_to_index', domain: 'admin')))
-            ->add(Crud::PAGE_EDIT, $this->createViewPublicAction());
+            ->add(Crud::PAGE_DETAIL, $this->createAddTranslationAction())
+            ->add(Crud::PAGE_INDEX, $this->createAddTranslationAction());
     }
 
-    private function createViewPublicAction(): Action
+    private function createAddTranslationAction(): Action
     {
-        return Action::new('viewPublic', new TranslatableMessage('admin.page.action.view_public', domain: 'admin'), 'fas fa-external-link-alt')
-            ->linkToRoute('app_page_show', static fn (Page $page): array => ['path' => trim((string) $page->getPath(), '/')])
-            ->setHtmlAttributes(['target' => '_blank', 'rel' => 'noopener noreferrer'])
-            ->displayIf(static function (Page $page): bool {
-                if (Page::STATUS_PUBLISHED !== $page->getStatus()) {
-                    return false;
-                }
-
-                return '' !== trim((string) $page->getPath(), '/');
-            });
+        return Action::new('addTranslation', new TranslatableMessage('admin.page.action.add_translation', domain: 'admin'), 'fas fa-language')
+            ->linkToUrl(fn (Page $page): string => $this->adminUrlGenerator
+                ->setController(PageTranslationCrudController::class)
+                ->setAction(Action::NEW)
+                ->unset('entityId')
+                ->set('pageId', (string) $page->getId())
+                ->generateUrl())
+            ->displayIf(static fn (Page $page): bool => array_any(SupportedLocales::ALL, fn (string $locale): bool => !$page->hasTranslation($locale)));
     }
 
-    /** TextEditorType in {@see PageContentBlockType} does not pull field assets; mirror TextEditorField. */
     #[\Override]
-    public function configureAssets(Assets $assets): Assets
+    public function createEntity(string $entityFqcn): Page
     {
-        return $assets
-            ->addCssFile(Asset::fromEasyAdminAssetPackage('field-text-editor.css')->onlyOnForms())
-            ->addJsFile(Asset::fromEasyAdminAssetPackage('field-text-editor.js')->onlyOnForms())
-            ->addAssetMapperEntry(Asset::new('admin-page-form')->onlyOnForms());
+        $page = new Page();
+        $suffix = bin2hex(random_bytes(4));
+        // Transitional legacy NOT NULL columns until Phase 4 cleanup.
+        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
+        $page->setTitle('Untitled page');
+        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
+        $page->setSlug('untitled-'.$suffix);
+        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
+        $page->setPath('/untitled-'.$suffix);
+        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
+        $page->setStatus(Page::STATUS_DRAFT);
+        /** @psalm-suppress DeprecatedMethod Transitional until Phase 4 */
+        $page->setContent([]);
+
+        return $page;
     }
 
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->onlyOnDetail();
-        yield TextField::new('title', 'label.title');
-        yield TextField::new('slug', 'label.slug')
-            ->setRequired(false)
-            ->setHelp(new TranslatableMessage('help.page.slug', domain: 'content'))
-            ->hideOnIndex();
         yield ChoiceField::new('key', new TranslatableMessage('label.page_key', domain: 'content'))
             ->setChoices($this->buildPageKeyChoices())
             ->setRequired(false)
             ->allowMultipleChoices(false)
             ->setFormTypeOption('placeholder', '—');
         yield AssociationField::new('parent', 'label.parent_page')->autocomplete();
-        yield ChoiceField::new('status', 'label.status')
-            ->setChoices([
-                'Draft' => Page::STATUS_DRAFT,
-                'Published' => Page::STATUS_PUBLISHED,
-            ])
-            ->renderAsBadges();
         yield ChoiceField::new('visibility', 'label.visibility')
             ->setChoices([
                 'label.public' => Page::VISIBILITY_PUBLIC,
                 'label.authenticated' => Page::VISIBILITY_AUTHENTICATED,
             ]);
         yield IntegerField::new('sortOrder', 'label.sort_order')->hideOnIndex();
-        yield TextField::new('path', 'label.path')
-            ->hideOnForm()
-            ->hideOnIndex();
-        yield CollectionField::new('content', 'label.content_blocks')
-            ->setHelp($this->buildMediaLibraryHelp().' '.$this->translator->trans('help.page.content_blocks_reorder', [], 'content'))
-            ->setFormTypeOption('help_html', true)
-            ->setEntryType(PageContentBlockType::class)
-            ->setEntryIsComplex()
-            ->setFormTypeOption('row_attr', [
-                'data-controller' => 'collection-reorder',
-                'data-collection-reorder-move-up-label-value' => $this->translator->trans('label.move_block_up', [], 'messages'),
-                'data-collection-reorder-move-down-label-value' => $this->translator->trans('label.move_block_down', [], 'messages'),
-            ])
-            ->setEntryToStringMethod(function (mixed $value): string {
-                if (!is_array($value)) {
-                    return $this->translator->trans('label.block', [], 'messages');
-                }
-
-                $type = (string) ($value['type'] ?? 'block');
-                $enabled = (bool) ($value['enabled'] ?? true);
-                $state = $this->translator->trans($enabled ? 'label.enabled' : 'label.disabled', [], 'messages');
-
-                return sprintf('%s (%s)', $this->formatBlockTypeLabel($type), $state);
-            })
-            ->showEntryLabel()
-            ->onlyOnForms();
+        yield AssociationField::new('translations', new TranslatableMessage('label.page_translations', domain: 'content'))
+            ->setTemplatePath('@Admin/page/translations_panel.html.twig')
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt', 'label.created')->hideOnForm();
         yield DateTimeField::new('updatedAt', 'label.updated')->hideOnForm();
-    }
-
-    /**
-     * @return FormBuilderInterface<Page>
-     */
-    #[\Override]
-    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
-    {
-        /** @psalm-suppress ArgumentTypeCoercion */
-        $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
-        $this->addPathSynchronizationListener($builder);
-
-        return $builder;
-    }
-
-    /**
-     * @return FormBuilderInterface<Page>
-     */
-    #[\Override]
-    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
-    {
-        /** @psalm-suppress ArgumentTypeCoercion */
-        $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
-        $this->addPathSynchronizationListener($builder);
-
-        return $builder;
-    }
-
-    #[\Override]
-    public function persistEntity(EntityManagerInterface $entityManager, object $entityInstance): void
-    {
-        if (!$entityInstance instanceof Page) {
-            return;
-        }
-
-        $this->prepareContent($entityInstance);
-        parent::persistEntity($entityManager, $entityInstance);
-    }
-
-    #[\Override]
-    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
-    {
-        if (!$entityInstance instanceof Page) {
-            return;
-        }
-
-        $this->prepareContent($entityInstance);
-        parent::updateEntity($entityManager, $entityInstance);
-    }
-
-    private function prepareContent(Page $page): void
-    {
-        if ($this->shouldSynchronizePath($page)) {
-            $this->pagePathResolver->synchronize($page);
-        }
-
-        $content = $this->pageContentBlockDataNormalizer->normalize($page->getContent());
-        $content = $this->pageContentMediaResolver->resolve($content);
-        $this->pageContentValidator->assertValid($content);
-        $page->setContent($this->pageContentSanitizer->sanitize($content));
     }
 
     /**
@@ -235,51 +129,5 @@ final class PageCrudController extends AbstractCrudController
         }
 
         return $choices;
-    }
-
-    /**
-     * @param FormBuilderInterface<Page> $builder
-     */
-    private function addPathSynchronizationListener(FormBuilderInterface $builder): void
-    {
-        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
-            $page = $event->getData();
-            if (!$page instanceof Page) {
-                return;
-            }
-
-            if (!$this->shouldSynchronizePath($page)) {
-                return;
-            }
-
-            $this->pagePathResolver->synchronize($page);
-        }, 512);
-    }
-
-    private function shouldSynchronizePath(Page $page): bool
-    {
-        return '' !== trim((string) $page->getTitle());
-    }
-
-    private function formatBlockTypeLabel(string $type): string
-    {
-        $blockType = \App\Content\Domain\Enum\PageContentBlockType::tryFromString($type);
-
-        if ($blockType instanceof \App\Content\Domain\Enum\PageContentBlockType) {
-            return $this->translator->trans($blockType->translationKey(), [], 'content');
-        }
-
-        return $this->translator->trans('label.block_type.richtext', [], 'content');
-    }
-
-    private function buildMediaLibraryHelp(): string
-    {
-        $url = htmlspecialchars(
-            $this->mediaLibraryAdminUrlProvider->getIndexUrl(),
-            ENT_QUOTES | ENT_HTML5,
-        );
-
-        return $this->translator->trans('help.page.media_library', [], 'content')
-            .sprintf(' <a href="%s" target="_blank" rel="noopener">%s</a>.', $url, $this->translator->trans('label.media_library', [], 'content'));
     }
 }

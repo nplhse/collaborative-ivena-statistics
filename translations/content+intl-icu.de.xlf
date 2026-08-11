@@ -745,6 +745,18 @@
         <source>label.pages</source>
         <target>Seiten</target>
       </trans-unit>
+      <trans-unit id="DePageTr1" resname="label.page_translation">
+        <source>label.page_translation</source>
+        <target>Seitenübersetzung</target>
+      </trans-unit>
+      <trans-unit id="DePageTr2" resname="label.page_translations">
+        <source>label.page_translations</source>
+        <target>Seitenübersetzungen</target>
+      </trans-unit>
+      <trans-unit id="DePageTr3" resname="label.missing">
+        <source>label.missing</source>
+        <target>Fehlt</target>
+      </trans-unit>
       <trans-unit id="Dec247c42d" resname="label.spacing.lg">
         <source>label.spacing.lg</source>
         <target>Groß</target>

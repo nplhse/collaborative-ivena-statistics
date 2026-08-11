@@ -1,0 +1,76 @@
+{% set page = entity.instance %}
+{% set locales = ['en', 'de'] %}
+<table class="table table-sm mb-0">
+    <thead>
+        <tr>
+            <th>Locale</th>
+            <th>{{ 'label.status'|trans({}, 'messages') }}</th>
+            <th>{{ 'label.title'|trans({}, 'messages') }}</th>
+            <th>{{ 'label.path'|trans({}, 'messages') }}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for locale in locales %}
+            {% set translation = null %}
+            {% for candidate in page.translations %}
+                {% if candidate.locale == locale %}
+                    {% set translation = candidate %}
+                {% endif %}
+            {% endfor %}
+            <tr>
+                <td><code>{{ locale }}</code></td>
+                {% if translation %}
+                    {% set pathSegment = translation.path|default('')|trim('/') %}
+                    <td>
+                        {% if translation.status == 'published' %}
+                            <span class="badge badge-success">Published</span>
+                        {% else %}
+                            <span class="badge badge-secondary">Draft</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ translation.title }}</td>
+                    <td>
+                        {% if pathSegment != '' %}
+                            <code>{{ '/' ~ pathSegment }}</code>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        {% if translation.status == 'published' and pathSegment != '' %}
+                            <a
+                                class="btn btn-sm btn-secondary"
+                                href="{{ path('app_page_show', {path: pathSegment}) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {{ 'admin.page.action.view_public'|trans({}, 'admin') }}
+                            </a>
+                        {% endif %}
+                        <a class="btn btn-sm btn-primary" href="{{ ea_url()
+                            .setController('App\\Admin\\UI\\Http\\Controller\\Page\\PageTranslationCrudController')
+                            .setAction('edit')
+                            .setEntityId(translation.id) }}">
+                            {{ 'action.edit'|trans({}, 'EasyAdminBundle') }}
+                        </a>
+                    </td>
+                {% else %}
+                    <td><span class="badge badge-warning">{{ 'label.missing'|trans({}, 'content') }}</span></td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-success" href="{{ ea_url()
+                            .setController('App\\Admin\\UI\\Http\\Controller\\Page\\PageTranslationCrudController')
+                            .setAction('new')
+                            .unset('entityId')
+                            .set('pageId', page.id)
+                            .set('locale', locale) }}">
+                            {{ 'action.new'|trans({}, 'EasyAdminBundle') }}
+                        </a>
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

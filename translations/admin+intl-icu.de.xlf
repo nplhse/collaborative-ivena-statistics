@@ -357,6 +357,30 @@
         <source>admin.page.action.view_public</source>
         <target>Seite ansehen</target>
       </trans-unit>
+      <trans-unit id="DePageAddTr" resname="admin.page.action.add_translation">
+        <source>admin.page.action.add_translation</source>
+        <target>Übersetzung hinzufügen</target>
+      </trans-unit>
+      <trans-unit id="DePageBackPg" resname="admin.page.action.back_to_page">
+        <source>admin.page.action.back_to_page</source>
+        <target>Zurück zur Seite</target>
+      </trans-unit>
+      <trans-unit id="DePageTrRel" resname="admin.page_translation.relations">
+        <source>admin.page_translation.relations</source>
+        <target>Seite &amp; Übersetzungen</target>
+      </trans-unit>
+      <trans-unit id="DePageTrPage" resname="admin.page_translation.related_page">
+        <source>admin.page_translation.related_page</source>
+        <target>Seite</target>
+      </trans-unit>
+      <trans-unit id="DePageTrSib" resname="admin.page_translation.sibling_translations">
+        <source>admin.page_translation.sibling_translations</source>
+        <target>Übersetzungen</target>
+      </trans-unit>
+      <trans-unit id="DePageTrCur" resname="admin.page_translation.current">
+        <source>admin.page_translation.current</source>
+        <target>Aktuell</target>
+      </trans-unit>
       <trans-unit id="Dec3ad4a07" resname="admin_notification.email.import_failed.action.view">
         <source>admin_notification.email.import_failed.action.view</source>
         <target>Importdetails ansehen</target>
