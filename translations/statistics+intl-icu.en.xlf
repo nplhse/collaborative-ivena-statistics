@@ -1325,10 +1325,6 @@
         <source>stats.overview.kpi.cases_per_day_aggregate</source>
         <target>Average daily volume</target>
       </trans-unit>
-      <trans-unit id="statsOvKp03" resname="stats.overview.kpi.cases_per_day_aggregate_hint">
-        <source>stats.overview.kpi.cases_per_day_aggregate_hint</source>
-        <target>Aggregated across all hospitals in the selected scope.</target>
-      </trans-unit>
       <trans-unit id="statsOvKp04" resname="stats.overview.kpi.current_short">
         <source>stats.overview.kpi.current_short</source>
         <target>Period</target>

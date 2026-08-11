@@ -43,8 +43,6 @@ final class OverviewSelfBenchmarkController extends AbstractController
         return $this->render('@Statistics/dashboard/_overview_self_benchmark_frame.html.twig', [
             'selfBenchmarkFrame' => $selfBenchmarkFrame,
             'overviewKpiMetricLabelKeys' => $this->overviewKpiPresentationFactory->metricLabelKeys($filter),
-            'overviewKpiCasesPerDayHintKey' => $this->overviewKpiPresentationFactory->casesPerDayHintTranslationKey($filter),
-            'overviewKpiHintBelowValue' => $user instanceof User && $user->getHospitals()->isEmpty(),
         ]);
     }
 }

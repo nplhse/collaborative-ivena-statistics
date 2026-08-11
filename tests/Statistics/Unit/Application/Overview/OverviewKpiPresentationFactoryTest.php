@@ -27,10 +27,6 @@ final class OverviewKpiPresentationFactoryTest extends TestCase
         $keys = $this->factory->metricLabelKeys($this->filterForScope($scope));
 
         self::assertSame('stats.overview.kpi.cases_per_day_aggregate', $keys['cases_per_day']);
-        self::assertSame(
-            'stats.overview.kpi.cases_per_day_aggregate_hint',
-            $this->factory->casesPerDayHintTranslationKey($this->filterForScope($scope)),
-        );
     }
 
     #[DataProvider('hospitalLikeScopeProvider')]
@@ -39,7 +35,6 @@ final class OverviewKpiPresentationFactoryTest extends TestCase
         $keys = $this->factory->metricLabelKeys($this->filterForScope($scope));
 
         self::assertSame('stats.overview.kpi.cases_per_day', $keys['cases_per_day']);
-        self::assertNull($this->factory->casesPerDayHintTranslationKey($this->filterForScope($scope)));
     }
 
     /**

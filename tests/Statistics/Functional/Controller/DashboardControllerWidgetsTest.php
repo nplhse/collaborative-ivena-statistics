@@ -12,7 +12,6 @@ use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
-use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
@@ -20,7 +19,6 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 
 final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
@@ -110,34 +108,6 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
             0,
             $crawler->filter('[data-data-quality-indicator-target="badge"]')->count(),
         );
-    }
-
-    public function testOverviewShowsAggregateCasesPerDayHintBelowValueForParticipantWithoutOwnedHospitals(): void
-    {
-        $client = self::createClient();
-        $participant = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        $hospitalOwner = UserFactory::createOne();
-        $hospital = HospitalFactory::createOne(['owner' => $hospitalOwner]);
-        HospitalAccessGrantFactory::createOne(['user' => $participant, 'hospital' => $hospital]);
-        $client->loginUser($participant);
-
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/overview/self-benchmark?scope=public&period=all_time');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: true);
-    }
-
-    public function testOverviewShowsAggregateCasesPerDayHintAboveValueForHospitalOwner(): void
-    {
-        $client = self::createClient();
-        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
-        HospitalFactory::createOne(['owner' => $owner]);
-        $client->loginUser($owner);
-
-        $crawler = $client->request(Request::METHOD_GET, '/statistics/overview/self-benchmark?scope=public&period=all_time');
-
-        $this->assertResponseIsSuccessful();
-        $this->assertCasesPerDayAggregateHintPosition($crawler, belowValue: false);
     }
 
     public function testOverviewRendersPortalNavigationLinks(): void
@@ -264,29 +234,6 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertResponseIsSuccessful();
         $this->assertCount(7, $crawler->filter('[data-testid="stats-overview-features"] .progress'));
         $this->assertCount(2, $crawler->filter('[data-testid="stats-overview-resources"] .progress'));
-    }
-
-    private function assertCasesPerDayAggregateHintPosition(Crawler $crawler, bool $belowValue): void
-    {
-        $cardBody = $crawler->filter('[data-testid="stats-executive-kpi-cases_per_day"] .card-body');
-        self::assertGreaterThan(0, $cardBody->count());
-
-        $hintText = 'Aggregated across all hospitals in the selected scope.';
-        self::assertStringContainsString($hintText, $cardBody->text());
-
-        $bodyHtml = $cardBody->html();
-        $hintPos = strpos($bodyHtml, $hintText);
-        self::assertNotFalse($hintPos);
-
-        preg_match('/class="h[23]/', $bodyHtml, $matches, PREG_OFFSET_CAPTURE);
-        self::assertNotEmpty($matches);
-        $valuePos = $matches[0][1];
-
-        if ($belowValue) {
-            self::assertGreaterThan($valuePos, $hintPos, 'Expected aggregate hint below the KPI value.');
-        } else {
-            self::assertLessThan($valuePos, $hintPos, 'Expected aggregate hint above the KPI value.');
-        }
     }
 
     private function seedOverviewHospitalInsightsScenario(): void
