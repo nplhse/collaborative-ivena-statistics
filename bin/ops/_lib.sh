@@ -60,6 +60,36 @@ ops_database_url_without_query() {
     echo "${DATABASE_URL%%\?*}"
 }
 
+# Userinfo from postgresql://user:pass@host/db (password may contain URL-encoding).
+ops_database_user_from_url() {
+    local url rest userinfo
+    url="$(ops_database_url_without_query)"
+    rest="${url#*://}"
+    userinfo="${rest%%@*}"
+    echo "${userinfo%%:*}"
+}
+
+# pg_restore -l lines to skip (PostGIS / extensions from shared hosting dumps).
+ops_pg_restore_toc_exclude_ere() {
+    echo 'EXTENSION|spatial_ref_sys|geometry_columns|geography_columns'
+}
+
+# Extra pg_dump flags so backups stay app-schema-only on hosts with PostGIS in public.
+ops_pg_dump_postgis_exclude_args() {
+    echo --exclude-table=spatial_ref_sys
+    echo --exclude-table=geometry_columns
+    echo --exclude-table=geography_columns
+}
+
+ops_filter_pg_restore_toc() {
+    local dump_file="$1"
+    local list_file="$2"
+    local pattern
+    pattern="$(ops_pg_restore_toc_exclude_ere)"
+    # grep exits 1 when every line is excluded; that is fine for an empty TOC filter result.
+    pg_restore -l "$dump_file" | grep -v -E "$pattern" >"$list_file" || true
+}
+
 ops_docker_compose_available() {
     command -v docker >/dev/null 2>&1 \
         && docker compose version >/dev/null 2>&1
