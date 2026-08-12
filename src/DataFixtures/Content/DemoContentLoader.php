@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures\Content;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PageFactory;
@@ -29,7 +30,7 @@ final class DemoContentLoader
             'slug' => 'imprint',
             'path' => '/imprint',
             'key' => PageKey::Imprint,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 100,
             'content' => [
@@ -56,7 +57,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             'slug' => 'terms-conditions',
             'path' => '/terms-conditions',
             'key' => PageKey::Terms,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 90,
             'content' => [
@@ -81,7 +82,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             'slug' => 'about-us',
             'path' => '/about-us',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 10,
             'content' => [
@@ -122,7 +123,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             'slug' => 'faq',
             'path' => '/faq',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 50,
             'content' => [
@@ -184,7 +185,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
             'slug' => 'features',
             'path' => '/features',
             'key' => PageKey::Features,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 20,
             'content' => [

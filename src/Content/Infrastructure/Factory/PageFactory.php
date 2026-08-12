@@ -14,6 +14,19 @@ use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
  */
 final class PageFactory extends PersistentObjectFactory
 {
+    private const array TRANSLATION_ATTRIBUTE_KEYS = [
+        'title',
+        'slug',
+        'path',
+        'status',
+        'content',
+        'showToc',
+        'locale',
+    ];
+
+    /** @var array<string, mixed> */
+    private array $translationAttributes = [];
+
     #[\Override]
     public static function class(): string
     {
@@ -28,23 +41,22 @@ final class PageFactory extends PersistentObjectFactory
     {
         $slug = self::faker()->unique()->slug(2);
         $title = ucfirst(str_replace('-', ' ', $slug));
-        $content = [
-            [
-                'type' => 'richtext',
-                'enabled' => true,
-                'data' => ['html' => '<p>Beispielseite</p>'],
-            ],
-        ];
 
+        // Convenience attributes are stripped in beforeInstantiate and applied to PageTranslation.
         return [
-            // Transitional legacy columns (kept in sync with default-locale translation).
-            'title' => $title,
-            'slug' => $slug,
-            'status' => Page::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 0,
-            'content' => $content,
+            'title' => $title,
+            'slug' => $slug,
             'path' => '/'.$slug,
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => ['html' => '<p>Beispielseite</p>'],
+                ],
+            ],
         ];
     }
 
@@ -67,26 +79,52 @@ final class PageFactory extends PersistentObjectFactory
     protected function initialize(): static
     {
         /** @var static $factory */
-        $factory = $this->afterInstantiate(function (Page $page): void {
-            // Keep transitional legacy path aligned with slug for roots; child translation paths
-            // are rebuilt by PagePathSubscriber on flush.
-            if (!$page->getParent() instanceof Page) {
-                $page->setPath('/'.ltrim((string) $page->getSlug(), '/'));
-            }
+        $factory = $this
+            ->beforeInstantiate(function (array $attributes): array {
+                $this->translationAttributes = [];
+                foreach (self::TRANSLATION_ATTRIBUTE_KEYS as $key) {
+                    if (\array_key_exists($key, $attributes)) {
+                        $this->translationAttributes[$key] = $attributes[$key];
+                        unset($attributes[$key]);
+                    }
+                }
 
-            if ($page->getTranslations()->count() > 0) {
-                return;
-            }
+                return $attributes;
+            })
+            ->afterInstantiate(function (Page $page): void {
+                if ($page->getTranslations()->count() > 0) {
+                    $this->translationAttributes = [];
 
-            $translation = new PageTranslation();
-            $translation->setLocale(SupportedLocales::DEFAULT);
-            $translation->setTitle((string) $page->getTitle());
-            $translation->setSlug((string) $page->getSlug());
-            $translation->setPath((string) $page->getPath());
-            $translation->setStatus($page->getStatus());
-            $translation->setContent($page->getContent());
-            $page->addTranslation($translation);
-        });
+                    return;
+                }
+
+                $attrs = $this->translationAttributes;
+                $this->translationAttributes = [];
+                if ([] === $attrs) {
+                    return;
+                }
+
+                $slug = (string) ($attrs['slug'] ?? self::faker()->unique()->slug(2));
+                $title = (string) ($attrs['title'] ?? ucfirst(str_replace('-', ' ', $slug)));
+                $path = (string) ($attrs['path'] ?? '/'.ltrim($slug, '/'));
+                if (!$page->getParent() instanceof Page) {
+                    $path = '/'.ltrim($slug, '/');
+                }
+
+                $translation = new PageTranslation();
+                $translation->setLocale((string) ($attrs['locale'] ?? SupportedLocales::DEFAULT));
+                $translation->setTitle($title);
+                $translation->setSlug($slug);
+                $translation->setPath($path);
+                $translation->setStatus((string) ($attrs['status'] ?? PageTranslation::STATUS_PUBLISHED));
+                /** @var list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content */
+                $content = \is_array($attrs['content'] ?? null) ? $attrs['content'] : [];
+                $translation->setContent($content);
+                if (\array_key_exists('showToc', $attrs)) {
+                    $translation->setShowToc((bool) $attrs['showToc']);
+                }
+                $page->addTranslation($translation);
+            });
 
         return $factory;
     }
