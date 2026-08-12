@@ -1009,6 +1009,18 @@
         <source>help.page.cta_media_pdf</source>
         <target>Select a PDF uploaded in the media library.</target>
       </trans-unit>
+      <trans-unit id="pageToc001" resname="label.show_toc">
+        <source>label.show_toc</source>
+        <target>Show table of contents</target>
+      </trans-unit>
+      <trans-unit id="pageToc002" resname="help.page.show_toc">
+        <source>help.page.show_toc</source>
+        <target>When enabled, a table of contents is shown in the page sidebar if the content contains H1–H3 headings.</target>
+      </trans-unit>
+      <trans-unit id="pageToc003" resname="page.toc.title">
+        <source>page.toc.title</source>
+        <target>On this page</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

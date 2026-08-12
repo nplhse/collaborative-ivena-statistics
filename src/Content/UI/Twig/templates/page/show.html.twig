@@ -5,7 +5,11 @@
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs :items="breadcrumbItems" />
-        <h1 class="fw-bold">{{ translation.title }}</h1>
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="fw-bold mb-0">{{ translation.title }}</h1>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -19,7 +23,7 @@
                             <div class="page-content-blocks content"
                                  data-controller="lightbox"
                                  data-lightbox-gallery-value="content-gallery">
-                                {% for block in translation.content %}
+                                {% for block in content %}
                                     {% if block.enabled is not defined or block.enabled %}
                                         {% if block.type in page_content_block_types() %}
                                             <div class="page-content-block page-content-block--{{ block.type }}">

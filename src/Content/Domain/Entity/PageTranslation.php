@@ -63,6 +63,9 @@ class PageTranslation implements \Stringable
     #[ORM\Column(length: 32)]
     private string $status = self::STATUS_DRAFT;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $showToc = false;
+
     /**
      * @var list<array{
      *   type: string,
@@ -157,6 +160,18 @@ class PageTranslation implements \Stringable
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function isShowToc(): bool
+    {
+        return $this->showToc;
+    }
+
+    public function setShowToc(bool $showToc): self
+    {
+        $this->showToc = $showToc;
 
         return $this;
     }
