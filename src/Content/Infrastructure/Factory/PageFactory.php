@@ -7,6 +7,7 @@ namespace App\Content\Infrastructure\Factory;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Shared\Application\Locale\SupportedLocales;
+use Zenstruck\Foundry\Object\Instantiator;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -24,9 +25,6 @@ final class PageFactory extends PersistentObjectFactory
         'locale',
     ];
 
-    /** @var array<string, mixed> */
-    private array $translationAttributes = [];
-
     #[\Override]
     public static function class(): string
     {
@@ -42,7 +40,7 @@ final class PageFactory extends PersistentObjectFactory
         $slug = self::faker()->unique()->slug(2);
         $title = ucfirst(str_replace('-', ' ', $slug));
 
-        // Convenience attributes are stripped in beforeInstantiate and applied to PageTranslation.
+        // Convenience attributes are allowed as extras and applied to PageTranslation in afterInstantiate.
         return [
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 0,
@@ -66,7 +64,11 @@ final class PageFactory extends PersistentObjectFactory
     public function withoutDefaultTranslation(): static
     {
         /** @var static $factory */
-        $factory = $this->afterInstantiate(static function (Page $page): void {
+        $factory = $this->afterInstantiate(static function (object $page): void {
+            if (!$page instanceof Page) {
+                return;
+            }
+
             foreach ([...$page->getTranslations()] as $translation) {
                 $page->removeTranslation($translation);
             }
@@ -75,31 +77,25 @@ final class PageFactory extends PersistentObjectFactory
         return $factory;
     }
 
+    /** @psalm-suppress MoreSpecificReturnType */
     #[\Override]
     protected function initialize(): static
     {
         /** @var static $factory */
         $factory = $this
-            ->beforeInstantiate(function (array $attributes): array {
-                $this->translationAttributes = [];
-                foreach (self::TRANSLATION_ATTRIBUTE_KEYS as $key) {
-                    if (\array_key_exists($key, $attributes)) {
-                        $this->translationAttributes[$key] = $attributes[$key];
-                        unset($attributes[$key]);
-                    }
-                }
-
-                return $attributes;
-            })
-            ->afterInstantiate(function (Page $page): void {
-                if ($page->getTranslations()->count() > 0) {
-                    $this->translationAttributes = [];
-
+            ->instantiateWith(Instantiator::withConstructor()->allowExtra(...self::TRANSLATION_ATTRIBUTE_KEYS))
+            ->afterInstantiate(function (object $page, array $attributes): void {
+                if (!$page instanceof Page || $page->getTranslations()->count() > 0) {
                     return;
                 }
 
-                $attrs = $this->translationAttributes;
-                $this->translationAttributes = [];
+                $attrs = [];
+                foreach (self::TRANSLATION_ATTRIBUTE_KEYS as $key) {
+                    if (\array_key_exists($key, $attributes)) {
+                        $attrs[$key] = $attributes[$key];
+                    }
+                }
+
                 if ([] === $attrs) {
                     return;
                 }
@@ -117,9 +113,7 @@ final class PageFactory extends PersistentObjectFactory
                 $translation->setSlug($slug);
                 $translation->setPath($path);
                 $translation->setStatus((string) ($attrs['status'] ?? PageTranslation::STATUS_PUBLISHED));
-                /** @var list<array{type: string, data: array<string, mixed>, enabled?: bool}> $content */
-                $content = \is_array($attrs['content'] ?? null) ? $attrs['content'] : [];
-                $translation->setContent($content);
+                $translation->setContent(self::normalizeTranslationContent($attrs['content'] ?? null));
                 if (\array_key_exists('showToc', $attrs)) {
                     $translation->setShowToc((bool) $attrs['showToc']);
                 }
@@ -127,5 +121,40 @@ final class PageFactory extends PersistentObjectFactory
             });
 
         return $factory;
+    }
+
+    /**
+     * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
+     */
+    private static function normalizeTranslationContent(mixed $value): array
+    {
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $content = [];
+        foreach ($value as $block) {
+            if (!\is_array($block)) {
+                continue;
+            }
+
+            $type = $block['type'] ?? null;
+            $data = $block['data'] ?? null;
+            if (!\is_string($type) || !\is_array($data)) {
+                continue;
+            }
+
+            /** @var array<string, mixed> $data */
+            $item = [
+                'type' => $type,
+                'data' => $data,
+            ];
+            if (\array_key_exists('enabled', $block)) {
+                $item['enabled'] = (bool) $block['enabled'];
+            }
+            $content[] = $item;
+        }
+
+        return $content;
     }
 }
