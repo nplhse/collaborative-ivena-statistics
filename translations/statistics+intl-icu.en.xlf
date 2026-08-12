@@ -1109,108 +1109,216 @@
         <source>stats.analysis.table.summary_std_label</source>
         <target>Std. deviation:</target>
       </trans-unit>
-      <trans-unit id="statsRpPg01" resname="stats.reports.page_title">
+      <trans-unit id="statsRpPg01" resname="stats.top_lists.page_title">
+        <source>stats.top_lists.page_title</source>
+        <target>Top Lists</target>
+      </trans-unit>
+      <trans-unit id="Ac0e13fb1d" resname="stats.reports.page_title">
         <source>stats.reports.page_title</source>
         <target>Reports</target>
       </trans-unit>
-      <trans-unit id="statsRpSel00" resname="stats.reports.select_label">
-        <source>stats.reports.select_label</source>
-        <target>Report</target>
+      <trans-unit id="Af661f6e30" resname="stats.reports.index.pretitle">
+        <source>stats.reports.index.pretitle</source>
+        <target>Choose a report</target>
       </trans-unit>
-      <trans-unit id="statsRpTdLb" resname="stats.reports.top_diagnoses.label">
-        <source>stats.reports.top_diagnoses.label</source>
+      <trans-unit id="A962505982" resname="stats.reports.index.intro">
+        <source>stats.reports.index.intro</source>
+        <target>Select a predefined report to view a focused summary for your current statistics scope.</target>
+      </trans-unit>
+      <trans-unit id="A3ab35ce22" resname="stats.reports.index.open">
+        <source>stats.reports.index.open</source>
+        <target>Open report</target>
+      </trans-unit>
+      <trans-unit id="Ae66f9b7b4" resname="stats.reports.index.empty">
+        <source>stats.reports.index.empty</source>
+        <target>No reports are available yet.</target>
+      </trans-unit>
+      <trans-unit id="A0de134995" resname="stats.reports.types.monthly.label">
+        <source>stats.reports.types.monthly.label</source>
+        <target>Monthly report</target>
+      </trans-unit>
+      <trans-unit id="A689964a80" resname="stats.reports.types.monthly.description">
+        <source>stats.reports.types.monthly.description</source>
+        <target>Concise summary of the previous completed calendar month</target>
+      </trans-unit>
+      <trans-unit id="Ae491dbf70" resname="stats.reports.monthly.empty.title">
+        <source>stats.reports.monthly.empty.title</source>
+        <target>No allocations for this month</target>
+      </trans-unit>
+      <trans-unit id="Ac20ddc287" resname="stats.reports.monthly.empty.body">
+        <source>stats.reports.monthly.empty.body</source>
+        <target>There is no allocation data for {period} in the selected scope yet.</target>
+      </trans-unit>
+      <trans-unit id="Ae0e8da29e" resname="stats.reports.monthly.empty.cta_import">
+        <source>stats.reports.monthly.empty.cta_import</source>
+        <target>Upload data</target>
+      </trans-unit>
+      <trans-unit id="A3483e3b9f" resname="stats.reports.monthly.empty.cta_dashboard">
+        <source>stats.reports.monthly.empty.cta_dashboard</source>
+        <target>Open dashboard</target>
+      </trans-unit>
+      <trans-unit id="Af2f7127bf" resname="stats.reports.monthly.kpi.allocations">
+        <source>stats.reports.monthly.kpi.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="A42ff34ec8" resname="stats.reports.monthly.kpi.mom">
+        <source>stats.reports.monthly.kpi.mom</source>
+        <target>vs previous month</target>
+      </trans-unit>
+      <trans-unit id="Abc326ef6f" resname="stats.reports.monthly.kpi.yoy">
+        <source>stats.reports.monthly.kpi.yoy</source>
+        <target>vs same month last year</target>
+      </trans-unit>
+      <trans-unit id="Ad4dbc1db3" resname="stats.reports.monthly.kpi.with_physician">
+        <source>stats.reports.monthly.kpi.with_physician</source>
+        <target>With physician</target>
+      </trans-unit>
+      <trans-unit id="A95edc48fa" resname="stats.reports.monthly.kpi.median_transport">
+        <source>stats.reports.monthly.kpi.median_transport</source>
+        <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="A2b8c87b11" resname="stats.reports.monthly.kpi.minutes">
+        <source>stats.reports.monthly.kpi.minutes</source>
+        <target>min</target>
+      </trans-unit>
+      <trans-unit id="Add82fc899" resname="stats.reports.monthly.kpi.resus">
+        <source>stats.reports.monthly.kpi.resus</source>
+        <target>Resuscitation bay</target>
+      </trans-unit>
+      <trans-unit id="A2a5af714b" resname="stats.reports.monthly.chart.daily">
+        <source>stats.reports.monthly.chart.daily</source>
+        <target>Daily activity</target>
+      </trans-unit>
+      <trans-unit id="A0a8040e5e" resname="stats.reports.monthly.chart.day_axis">
+        <source>stats.reports.monthly.chart.day_axis</source>
+        <target>Day of month</target>
+      </trans-unit>
+      <trans-unit id="A7777f6a2e" resname="stats.reports.monthly.distribution.urgency">
+        <source>stats.reports.monthly.distribution.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="A4c476ff7e" resname="stats.reports.monthly.distribution.gender">
+        <source>stats.reports.monthly.distribution.gender</source>
+        <target>Gender</target>
+      </trans-unit>
+      <trans-unit id="A8ce932d69" resname="stats.reports.monthly.insights.title">
+        <source>stats.reports.monthly.insights.title</source>
+        <target>Highlights</target>
+      </trans-unit>
+      <trans-unit id="Aec4f0a3c0" resname="stats.reports.monthly.top.diagnoses">
+        <source>stats.reports.monthly.top.diagnoses</source>
         <target>Top indications</target>
       </trans-unit>
-      <trans-unit id="statsRpTdDs" resname="stats.reports.top_diagnoses.description">
-        <source>stats.reports.top_diagnoses.description</source>
-        <target>Most frequent indication labels.</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbRk" resname="stats.reports.table.rank">
-        <source>stats.reports.table.rank</source>
-        <target>Rank</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbDx" resname="stats.reports.table.diagnosis">
-        <source>stats.reports.table.diagnosis</source>
-        <target>Indication</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbCnt" resname="stats.reports.table.count">
-        <source>stats.reports.table.count</source>
-        <target>Count</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbShr" resname="stats.reports.table.share">
-        <source>stats.reports.table.share</source>
-        <target>Share</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbDp" resname="stats.reports.table.department">
-        <source>stats.reports.table.department</source>
-        <target>Department</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbAs" resname="stats.reports.table.assignment">
-        <source>stats.reports.table.assignment</source>
-        <target>Assignment type</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbIf" resname="stats.reports.table.infection">
-        <source>stats.reports.table.infection</source>
-        <target>Infection</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbSd" resname="stats.reports.table.secondary_diagnosis">
-        <source>stats.reports.table.secondary_diagnosis</source>
-        <target>Secondary indication</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbSp" resname="stats.reports.table.speciality">
-        <source>stats.reports.table.speciality</source>
-        <target>Speciality</target>
-      </trans-unit>
-      <trans-unit id="statsRpTbOc" resname="stats.reports.table.occasion">
-        <source>stats.reports.table.occasion</source>
-        <target>Occasion</target>
-      </trans-unit>
-      <trans-unit id="statsRpDpLb" resname="stats.reports.top_departments.label">
-        <source>stats.reports.top_departments.label</source>
-        <target>Top departments</target>
-      </trans-unit>
-      <trans-unit id="statsRpDpDs" resname="stats.reports.top_departments.description">
-        <source>stats.reports.top_departments.description</source>
-        <target>Most frequent departments.</target>
-      </trans-unit>
-      <trans-unit id="statsRpAtLb" resname="stats.reports.top_assignments.label">
-        <source>stats.reports.top_assignments.label</source>
-        <target>Top assignment types</target>
-      </trans-unit>
-      <trans-unit id="statsRpAtDs" resname="stats.reports.top_assignments.description">
-        <source>stats.reports.top_assignments.description</source>
-        <target>Most frequent assignment types.</target>
-      </trans-unit>
-      <trans-unit id="statsRpInLb" resname="stats.reports.top_infections.label">
-        <source>stats.reports.top_infections.label</source>
-        <target>Top infections</target>
-      </trans-unit>
-      <trans-unit id="statsRpInDs" resname="stats.reports.top_infections.description">
-        <source>stats.reports.top_infections.description</source>
-        <target>Most frequent infection labels.</target>
-      </trans-unit>
-      <trans-unit id="statsRpSdLb" resname="stats.reports.top_secondary_diagnoses.label">
-        <source>stats.reports.top_secondary_diagnoses.label</source>
-        <target>Top secondary indications</target>
-      </trans-unit>
-      <trans-unit id="statsRpSdDs" resname="stats.reports.top_secondary_diagnoses.description">
-        <source>stats.reports.top_secondary_diagnoses.description</source>
-        <target>Most frequent secondary indication labels.</target>
-      </trans-unit>
-      <trans-unit id="statsRpSlLb" resname="stats.reports.top_specialities.label">
-        <source>stats.reports.top_specialities.label</source>
-        <target>Top specialities</target>
-      </trans-unit>
-      <trans-unit id="statsRpSlDs" resname="stats.reports.top_specialities.description">
-        <source>stats.reports.top_specialities.description</source>
-        <target>Most frequent specialities.</target>
-      </trans-unit>
-      <trans-unit id="statsRpOcLb" resname="stats.reports.top_occasions.label">
-        <source>stats.reports.top_occasions.label</source>
+      <trans-unit id="A016a8d1d3" resname="stats.reports.monthly.top.occasions">
+        <source>stats.reports.monthly.top.occasions</source>
         <target>Top occasions</target>
       </trans-unit>
-      <trans-unit id="statsRpOcDs" resname="stats.reports.top_occasions.description">
-        <source>stats.reports.top_occasions.description</source>
+      <trans-unit id="A827abc436" resname="stats.reports.monthly.top.departments">
+        <source>stats.reports.monthly.top.departments</source>
+        <target>Top departments</target>
+      </trans-unit>
+      <trans-unit id="Acb7f790b5" resname="stats.reports.monthly.top.empty">
+        <source>stats.reports.monthly.top.empty</source>
+        <target>No entries</target>
+      </trans-unit>
+      <trans-unit id="statsRpSel00" resname="stats.top_lists.select_label">
+        <source>stats.top_lists.select_label</source>
+        <target>Top list</target>
+      </trans-unit>
+      <trans-unit id="statsRpTdLb" resname="stats.top_lists.top_diagnoses.label">
+        <source>stats.top_lists.top_diagnoses.label</source>
+        <target>Top indications</target>
+      </trans-unit>
+      <trans-unit id="statsRpTdDs" resname="stats.top_lists.top_diagnoses.description">
+        <source>stats.top_lists.top_diagnoses.description</source>
+        <target>Most frequent indication labels.</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbRk" resname="stats.top_lists.table.rank">
+        <source>stats.top_lists.table.rank</source>
+        <target>Rank</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbDx" resname="stats.top_lists.table.diagnosis">
+        <source>stats.top_lists.table.diagnosis</source>
+        <target>Indication</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbCnt" resname="stats.top_lists.table.count">
+        <source>stats.top_lists.table.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbShr" resname="stats.top_lists.table.share">
+        <source>stats.top_lists.table.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbDp" resname="stats.top_lists.table.department">
+        <source>stats.top_lists.table.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbAs" resname="stats.top_lists.table.assignment">
+        <source>stats.top_lists.table.assignment</source>
+        <target>Assignment type</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbIf" resname="stats.top_lists.table.infection">
+        <source>stats.top_lists.table.infection</source>
+        <target>Infection</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbSd" resname="stats.top_lists.table.secondary_diagnosis">
+        <source>stats.top_lists.table.secondary_diagnosis</source>
+        <target>Secondary indication</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbSp" resname="stats.top_lists.table.speciality">
+        <source>stats.top_lists.table.speciality</source>
+        <target>Speciality</target>
+      </trans-unit>
+      <trans-unit id="statsRpTbOc" resname="stats.top_lists.table.occasion">
+        <source>stats.top_lists.table.occasion</source>
+        <target>Occasion</target>
+      </trans-unit>
+      <trans-unit id="statsRpDpLb" resname="stats.top_lists.top_departments.label">
+        <source>stats.top_lists.top_departments.label</source>
+        <target>Top departments</target>
+      </trans-unit>
+      <trans-unit id="statsRpDpDs" resname="stats.top_lists.top_departments.description">
+        <source>stats.top_lists.top_departments.description</source>
+        <target>Most frequent departments.</target>
+      </trans-unit>
+      <trans-unit id="statsRpAtLb" resname="stats.top_lists.top_assignments.label">
+        <source>stats.top_lists.top_assignments.label</source>
+        <target>Top assignment types</target>
+      </trans-unit>
+      <trans-unit id="statsRpAtDs" resname="stats.top_lists.top_assignments.description">
+        <source>stats.top_lists.top_assignments.description</source>
+        <target>Most frequent assignment types.</target>
+      </trans-unit>
+      <trans-unit id="statsRpInLb" resname="stats.top_lists.top_infections.label">
+        <source>stats.top_lists.top_infections.label</source>
+        <target>Top infections</target>
+      </trans-unit>
+      <trans-unit id="statsRpInDs" resname="stats.top_lists.top_infections.description">
+        <source>stats.top_lists.top_infections.description</source>
+        <target>Most frequent infection labels.</target>
+      </trans-unit>
+      <trans-unit id="statsRpSdLb" resname="stats.top_lists.top_secondary_diagnoses.label">
+        <source>stats.top_lists.top_secondary_diagnoses.label</source>
+        <target>Top secondary indications</target>
+      </trans-unit>
+      <trans-unit id="statsRpSdDs" resname="stats.top_lists.top_secondary_diagnoses.description">
+        <source>stats.top_lists.top_secondary_diagnoses.description</source>
+        <target>Most frequent secondary indication labels.</target>
+      </trans-unit>
+      <trans-unit id="statsRpSlLb" resname="stats.top_lists.top_specialities.label">
+        <source>stats.top_lists.top_specialities.label</source>
+        <target>Top specialities</target>
+      </trans-unit>
+      <trans-unit id="statsRpSlDs" resname="stats.top_lists.top_specialities.description">
+        <source>stats.top_lists.top_specialities.description</source>
+        <target>Most frequent specialities.</target>
+      </trans-unit>
+      <trans-unit id="statsRpOcLb" resname="stats.top_lists.top_occasions.label">
+        <source>stats.top_lists.top_occasions.label</source>
+        <target>Top occasions</target>
+      </trans-unit>
+      <trans-unit id="statsRpOcDs" resname="stats.top_lists.top_occasions.description">
+        <source>stats.top_lists.top_occasions.description</source>
         <target>Most frequent occasions.</target>
       </trans-unit>
       <trans-unit id="statsNavKpi" resname="stats.nav.overview_kpi_to_analysis">
@@ -2381,8 +2489,8 @@
         <source>stats.indication.nav.profile</source>
         <target>View profile</target>
       </trans-unit>
-      <trans-unit id="statsInd57" resname="stats.reports.nav.indication_profile">
-        <source>stats.reports.nav.indication_profile</source>
+      <trans-unit id="statsInd57" resname="stats.top_lists.nav.indication_profile">
+        <source>stats.top_lists.nav.indication_profile</source>
         <target>Indication profile</target>
       </trans-unit>
       <trans-unit id="statsBm01" resname="stats.benchmark.title">

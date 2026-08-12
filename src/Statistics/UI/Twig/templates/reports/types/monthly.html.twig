@@ -1,0 +1,252 @@
+{% set report = report %}
+
+{% if not report.hasData %}
+    <div class="empty" data-testid="stats-monthly-report-empty">
+        <div class="empty-icon">
+            <twig:ux:icon name="tabler:file-analytics" class="icon icon-lg text-secondary" />
+        </div>
+        <p class="empty-title">{{ 'stats.reports.monthly.empty.title'|trans({}, 'statistics') }}</p>
+        <p class="empty-subtitle text-secondary">
+            {{ 'stats.reports.monthly.empty.body'|trans({period: report.periodLabel}, 'statistics') }}
+        </p>
+        <div class="empty-action">
+            <a href="{{ report.importCreateUrl }}" class="btn btn-primary">
+                {{ 'stats.reports.monthly.empty.cta_import'|trans({}, 'statistics') }}
+            </a>
+            <a href="{{ report.dashboardUrl }}" class="btn btn-outline-secondary">
+                {{ 'stats.reports.monthly.empty.cta_dashboard'|trans({}, 'statistics') }}
+            </a>
+        </div>
+    </div>
+{% else %}
+    <div class="row row-deck row-cards mb-3" data-testid="stats-monthly-report-summary">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card" data-testid="stats-monthly-report-kpis">
+                <div class="card-body">
+                    <div class="subheader">{{ 'stats.reports.monthly.kpi.allocations'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0" data-testid="stats-monthly-report-allocation-count">
+                        {{ report.allocationCount|number_format(0, ',', '.') }}
+                    </div>
+                    <div class="d-flex flex-column gap-1 mt-1">
+                        {% if report.allocationMomPercent is not null %}
+                            <div>
+                                <span class="{% if report.allocationMomPercent > 0 %}text-success{% elseif report.allocationMomPercent < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                    {{ report.allocationMomPercent >= 0 ? '+' : '' }}{{ report.allocationMomPercent|number_format(1, ',', '.') }}%
+                                </span>
+                                <span class="text-muted">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
+                            </div>
+                        {% endif %}
+                        {% if report.allocationYoyPercent is not null %}
+                            <div>
+                                <span class="{% if report.allocationYoyPercent > 0 %}text-success{% elseif report.allocationYoyPercent < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                    {{ report.allocationYoyPercent >= 0 ? '+' : '' }}{{ report.allocationYoyPercent|number_format(1, ',', '.') }}%
+                                </span>
+                                <span class="text-muted">{{ 'stats.reports.monthly.kpi.yoy'|trans({}, 'statistics') }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card" data-testid="stats-monthly-report-gender">
+                <div class="card-body">
+                    <p class="mb-2">{{ 'stats.reports.monthly.distribution.gender'|trans({}, 'statistics') }}</p>
+                    <div class="progress progress-separated mb-3">
+                        {% for segment in report.genderSegments %}
+                            <div class="progress-bar {{ segment.barClass }}"
+                                 style="width: {{ segment.percent }}%"
+                                 aria-label="{{ segment.label }}"></div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        {% for segment in report.genderSegments %}
+                            <div class="d-flex align-items-center">
+                                <span class="legend me-2 {{ segment.barClass }}"></span>
+                                <span>{{ segment.label }}</span>
+                                <span class="text-muted ms-2">
+                                    {{ segment.count|number_format(0, ',', '.') }}
+                                    ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %},
+                                        <span class="{% if segment.percentDeltaPp > 0 %}text-success{% elseif segment.percentDeltaPp < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                            {{ segment.percentDeltaPp >= 0 ? '+' : '' }}{{ segment.percentDeltaPp|number_format(1, ',', '.') }}%
+                                        </span>{% endif %})
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card" data-testid="stats-monthly-report-urgency">
+                <div class="card-body">
+                    <p class="mb-2">{{ 'stats.reports.monthly.distribution.urgency'|trans({}, 'statistics') }}</p>
+                    <div class="progress progress-separated mb-3">
+                        {% for segment in report.urgencySegments %}
+                            <div class="progress-bar {{ segment.barClass }}"
+                                 style="width: {{ segment.percent }}%"
+                                 aria-label="{{ segment.label }}"></div>
+                        {% endfor %}
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        {% for segment in report.urgencySegments %}
+                            <div class="d-flex align-items-center">
+                                <span class="legend me-2 {{ segment.barClass }}"></span>
+                                <span>{{ segment.label }}</span>
+                                <span class="text-muted ms-2">
+                                    {{ segment.count|number_format(0, ',', '.') }}
+                                    ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %},
+                                        <span class="{% if segment.percentDeltaPp > 0 %}text-success{% elseif segment.percentDeltaPp < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                            {{ segment.percentDeltaPp >= 0 ? '+' : '' }}{{ segment.percentDeltaPp|number_format(1, ',', '.') }}%
+                                        </span>{% endif %})
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="{% if report.insights is not empty %}col-lg-8{% else %}col-12{% endif %}">
+            <div class="card h-100" data-testid="stats-monthly-report-chart">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ 'stats.reports.monthly.chart.daily'|trans({}, 'statistics') }}</h3>
+                </div>
+                <div class="card-body">
+                    <div data-controller="analysis-chart"
+                         data-analysis-chart-spec-value="{{ report.dailyChart|json_encode|e('html_attr') }}">
+                        <div class="chart-lg" data-analysis-chart-target="chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if report.insights is not empty %}
+            <div class="col-lg-4">
+                <div class="card h-100 d-flex flex-column" data-testid="stats-monthly-report-insights">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0">{{ 'stats.reports.monthly.insights.title'|trans({}, 'statistics') }}</h3>
+                    </div>
+                    <div class="list-group list-group-flush list-group-hoverable flex-grow-1">
+                        {% for insight in report.insights %}
+                            <div class="list-group-item">
+                                <div class="fw-bold">{{ insight.title }}</div>
+                                <div class="text-muted">{{ insight.body }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer mt-auto">
+                        <a href="{{ report.benchmarkingUrl }}" class="btn btn-outline-primary w-100" data-testid="stats-monthly-report-insights-benchmarking">
+                            {{ 'monthly_reminder.insight.link'|trans({}, 'engagement') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row row-deck row-cards mb-3" data-testid="stats-monthly-report-side-kpis">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="subheader">{{ 'stats.reports.monthly.kpi.with_physician'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">{{ report.withPhysicianPercent|number_format(1, ',', '.') }}%</div>
+                    {% if report.withPhysicianMomPercent is not null %}
+                        <div class="mt-1">
+                            <span class="{% if report.withPhysicianMomPercent > 0 %}text-success{% elseif report.withPhysicianMomPercent < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                {{ report.withPhysicianMomPercent >= 0 ? '+' : '' }}{{ report.withPhysicianMomPercent|number_format(1, ',', '.') }}%
+                            </span>
+                            <span class="text-muted">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="subheader">{{ 'stats.reports.monthly.kpi.median_transport'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">
+                        {% if report.medianTransportMinutes is not null %}
+                            {{ report.medianTransportMinutes|number_format(1, ',', '.') }}
+                            <span class="fs-4 text-muted">{{ 'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics') }}</span>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                    {% if report.medianTransportMomMinutes is not null %}
+                        <div class="mt-1">
+                            <span class="{% if report.medianTransportMomMinutes > 0 %}text-success{% elseif report.medianTransportMomMinutes < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                {{ report.medianTransportMomMinutes >= 0 ? '+' : '' }}{{ report.medianTransportMomMinutes|number_format(1, ',', '.') }}
+                                {{ 'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics') }}
+                            </span>
+                            <span class="text-muted">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="subheader">{{ 'stats.reports.monthly.kpi.resus'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">{{ report.resusPercent|number_format(1, ',', '.') }}%</div>
+                    {% if report.resusMomPercent is not null %}
+                        <div class="mt-1">
+                            <span class="{% if report.resusMomPercent > 0 %}text-success{% elseif report.resusMomPercent < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                {{ report.resusMomPercent >= 0 ? '+' : '' }}{{ report.resusMomPercent|number_format(1, ',', '.') }}%
+                            </span>
+                            <span class="text-muted">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3" data-testid="stats-monthly-report-tops">
+        {% set topTables = [
+            {titleKey: 'stats.reports.monthly.top.diagnoses', rows: report.topDiagnoses, labelKey: 'stats.top_lists.table.diagnosis'},
+            {titleKey: 'stats.reports.monthly.top.occasions', rows: report.topOccasions, labelKey: 'stats.top_lists.table.occasion'},
+            {titleKey: 'stats.reports.monthly.top.departments', rows: report.topDepartments, labelKey: 'stats.top_lists.table.department'},
+        ] %}
+        {% for table in topTables %}
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-header py-2">
+                        <h3 class="card-title mb-0">{{ table.titleKey|trans({}, 'statistics') }}</h3>
+                    </div>
+                    <div class="card-body{% if table.rows is not empty %} p-0{% endif %}">
+                        {% if table.rows is empty %}
+                            <p class="text-muted mb-0">{{ 'stats.reports.monthly.top.empty'|trans({}, 'statistics') }}</p>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-vcenter card-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>{{ table.labelKey|trans({}, 'statistics') }}</th>
+                                            <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
+                                            <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in table.rows %}
+                                            <tr>
+                                                <td>{{ row.rank }}</td>
+                                                <td>{{ row.label }}</td>
+                                                <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                                                <td class="text-end">{{ row.shareDisplay }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

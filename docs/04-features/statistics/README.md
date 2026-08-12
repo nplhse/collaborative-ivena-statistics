@@ -7,7 +7,8 @@
 | Submodule | Route / area | Description |
 |-----------|--------------|-------------|
 | Projection & MVs | (background) | Denormalized `allocation_stats_projection` and materialized views |
-| GenericAnalysis | Various report pages | Shared SQL kernel for tabular reports |
+| Top Lists | `/statistics/top-lists` | Ranked Top-N tables (diagnoses, departments, …) |
+| Reports | `/statistics/reports` | Report catalog; detail routes under `/statistics/reports/{type}` (Monthly Report first) |
 | AnalysisExplorer | `/statistics/explorer` | Interactive saved-view analytics |
 | Benchmarking | `/statistics/benchmarking` | Hospital comparison |
 | DataQuality | Dashboard badges | Traffic-light data quality indicator |
