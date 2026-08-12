@@ -6,6 +6,7 @@ namespace App\Tests\Content\Integration\Sitemap;
 
 use App\Content\Application\Sitemap\XmlSitemapProvider;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
@@ -32,21 +33,21 @@ final class XmlSitemapProviderTest extends KernelTestCase
         PageFactory::createOne([
             'slug' => 'sitemap-public-page',
             'path' => '/sitemap-public-page',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'sitemap-auth-page',
             'path' => '/sitemap-auth-page',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
         PageFactory::createOne([
             'slug' => 'sitemap-draft-page',
             'path' => '/sitemap-draft-page',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 

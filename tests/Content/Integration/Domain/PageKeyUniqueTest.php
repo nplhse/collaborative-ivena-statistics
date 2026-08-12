@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Integration\Domain;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,23 +37,28 @@ final class PageKeyUniqueTest extends KernelTestCase
             'slug' => 'terms-first',
             'path' => '/legal/terms-first',
             'key' => PageKey::Terms,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         $duplicate = new Page();
         $duplicate
-            ->setTitle('Second terms')
-            ->setSlug('terms-second')
-            ->setPath('/legal/terms-second')
             ->setKey(PageKey::Terms)
-            ->setStatus(Page::STATUS_PUBLISHED)
-            ->setVisibility(Page::VISIBILITY_PUBLIC)
-            ->setContent([
-                [
-                    'type' => 'richtext',
-                    'data' => ['html' => '<p>x</p>'],
-                ],
-            ]);
+            ->setVisibility(Page::VISIBILITY_PUBLIC);
+
+        $duplicate->addTranslation(
+            new PageTranslation()
+                ->setLocale('en')
+                ->setTitle('Second terms')
+                ->setSlug('terms-second')
+                ->setPath('/legal/terms-second')
+                ->setStatus(PageTranslation::STATUS_PUBLISHED)
+                ->setContent([
+                    [
+                        'type' => 'richtext',
+                        'data' => ['html' => '<p>x</p>'],
+                    ],
+                ]),
+        );
 
         $this->entityManager->persist($duplicate);
         $violations = $this->validator->validate($duplicate);
@@ -66,7 +72,7 @@ final class PageKeyUniqueTest extends KernelTestCase
             'slug' => 'privacy-page',
             'path' => '/legal/privacy-policy',
             'key' => PageKey::Privacy,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         self::assertSame(PageKey::Privacy, $page->getKey());

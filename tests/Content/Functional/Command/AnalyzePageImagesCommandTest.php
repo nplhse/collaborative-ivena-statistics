@@ -133,7 +133,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
         self::assertStringContainsString('Dry run finished. Re-run without --dry-run to persist changes.', $display);
         self::assertStringContainsString(
             'page-content-image--size-lg',
-            $page->getContent()[0]['data']['html'],
+            $page->translation('en')?->getContent()[0]['data']['html'] ?? '',
         );
     }
 
@@ -221,7 +221,7 @@ final class AnalyzePageImagesCommandTest extends KernelTestCase
         self::assertStringContainsString('Image block size migration', $display);
         self::assertStringContainsString('Updated image blocks: 1', $display);
         self::assertStringContainsString('Dry run finished. Re-run without --dry-run to persist changes.', $display);
-        self::assertSame('lg', $page->getContent()[0]['data']['size']);
+        self::assertSame('lg', $page->translation('en')?->getContent()[0]['data']['size']);
     }
 
     private function seedPageWithAutoImage(): void

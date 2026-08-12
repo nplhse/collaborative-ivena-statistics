@@ -95,7 +95,7 @@ final class PageSlugCrudControllerTest extends WebTestCase
         $page = PageFactory::createOne([
             'title' => 'Original Page',
             'slug' => 'keep-page-slug',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
         ]);
         $translation = $page->translation('en');
         self::assertInstanceOf(PageTranslation::class, $translation);

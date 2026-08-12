@@ -6,6 +6,7 @@ namespace App\Tests\Content\Integration\Page;
 
 use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PostStatus;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Content\Infrastructure\Factory\PageTranslationFactory;
@@ -31,13 +32,13 @@ final class PageSidebarDataProviderTest extends KernelTestCase
 
         PageFactory::createOne([
             'slug' => 'sidebar-public',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'sidebar-auth',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -57,7 +58,7 @@ final class PageSidebarDataProviderTest extends KernelTestCase
         $page = PageFactory::new()->withoutDefaultTranslation()->create([
             'slug' => 'sidebar-locale-root',
             'path' => '/sidebar-locale-root-legacy',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -106,7 +107,7 @@ final class PageSidebarDataProviderTest extends KernelTestCase
 
         PageFactory::createOne([
             'slug' => 'sidebar-auth-visible',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 

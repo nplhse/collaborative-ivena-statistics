@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Functional\Controller;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\User\Domain\Factory\UserFactory;
@@ -52,7 +53,7 @@ final class HeaderNavigationTest extends WebTestCase
             'slug' => 'nav-about',
             'path' => '/nav-about',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'About us',
         ]);
@@ -61,7 +62,7 @@ final class HeaderNavigationTest extends WebTestCase
             'slug' => 'nav-features',
             'path' => '/nav-features',
             'key' => PageKey::Features,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'Features',
         ]);
@@ -70,7 +71,7 @@ final class HeaderNavigationTest extends WebTestCase
             'slug' => 'nav-faq',
             'path' => '/nav-faq',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'FAQ',
         ]);
