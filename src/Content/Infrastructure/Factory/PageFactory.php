@@ -113,7 +113,7 @@ final class PageFactory extends PersistentObjectFactory
                 $translation->setSlug($slug);
                 $translation->setPath($path);
                 $translation->setStatus((string) ($attrs['status'] ?? PageTranslation::STATUS_PUBLISHED));
-                $translation->setContent(self::normalizeTranslationContent($attrs['content'] ?? null));
+                $translation->setContent($this->normalizeTranslationContent($attrs['content'] ?? null));
                 if (\array_key_exists('showToc', $attrs)) {
                     $translation->setShowToc((bool) $attrs['showToc']);
                 }
@@ -126,7 +126,7 @@ final class PageFactory extends PersistentObjectFactory
     /**
      * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
      */
-    private static function normalizeTranslationContent(mixed $value): array
+    private function normalizeTranslationContent(mixed $value): array
     {
         if (!\is_array($value)) {
             return [];
