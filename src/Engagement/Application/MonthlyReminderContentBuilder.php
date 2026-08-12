@@ -139,6 +139,11 @@ final readonly class MonthlyReminderContentBuilder
             'year' => $period['reportingYear'],
             'month' => $period['reportingMonth'],
         ], UrlGeneratorInterface::ABSOLUTE_URL);
+        $monthlyReportUrl = $this->urlGenerator->generate('app_stats_reports_show', [
+            'type' => 'monthly',
+            'scope' => StatisticsFilterScope::Hospital->value,
+            'hospital' => $hospitalId,
+        ], UrlGeneratorInterface::ABSOLUTE_URL);
         $selfBenchmarkUrl = $this->urlGenerator->generate('app_stats_benchmarking', [
             'scope' => StatisticsFilterScope::Hospital->value,
             'hospital' => $hospitalId,
@@ -234,6 +239,7 @@ final readonly class MonthlyReminderContentBuilder
             statisticsDashboardUrl: $statisticsUrl,
             benchmarkingUrl: $benchmarkingUrl,
             notificationsSettingsUrl: $notificationsSettingsUrl,
+            monthlyReportUrl: $monthlyReportUrl,
             platformAllocationCount: $platformData['allocationCount'] ?? null,
             platformAllocationMomPercent: $platformData['allocationMomPercent'] ?? null,
             platformActiveHospitals: $platformData['activeHospitals'] ?? null,

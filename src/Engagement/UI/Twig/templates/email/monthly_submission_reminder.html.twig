@@ -38,6 +38,11 @@
                                 <a href="{{ content.importCreateUrl }}" style="display:inline-block;background-color:{{ link }};color:#ffffff;text-decoration:none;font-weight:500;font-size:15px;border-radius:4px;padding:12px 24px;">
                                     {{ 'monthly_reminder.cta.upload'|trans(({month: content.uploadMonthLabel}), 'engagement') }}
                                 </a>
+                                <div style="margin-top:12px;">
+                                    <a href="{{ content.monthlyReportUrl }}" style="color:{{ link }};text-decoration:none;font-size:14px;">
+                                        {{ 'monthly_reminder.cta.monthly_report'|trans({}, 'engagement') }}
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         <tr>

@@ -25,6 +25,10 @@
         <source>monthly_reminder.cta.upload</source>
         <target>Upload data for {month}</target>
       </trans-unit>
+      <trans-unit id="A581f741ee" resname="monthly_reminder.cta.monthly_report">
+        <source>monthly_reminder.cta.monthly_report</source>
+        <target>View monthly report</target>
+      </trans-unit>
       <trans-unit id="mr006" resname="monthly_reminder.section.trend">
         <source>monthly_reminder.section.trend</source>
         <target>Allocation trend — last 12 months</target>
