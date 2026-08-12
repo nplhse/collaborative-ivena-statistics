@@ -101,19 +101,19 @@ final class PageTranslationRepositoryTest extends KernelTestCase
     {
         PageFactory::createOne([
             'slug' => 'repo-public-live',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'repo-auth-live',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
         PageFactory::createOne([
             'slug' => 'repo-public-draft',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -163,19 +163,19 @@ final class PageTranslationRepositoryTest extends KernelTestCase
     {
         $parent = PageFactory::createOne([
             'slug' => 'repo-sib-parent',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         $firstChild = PageFactory::createOne([
             'slug' => 'repo-sib-child',
             'parent' => $parent,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         $secondChild = PageFactory::createOne([
             'slug' => 'repo-sib-other',
             'parent' => $parent,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         $firstTranslationId = $firstChild->translation(SupportedLocales::DEFAULT)?->getId();
@@ -202,11 +202,11 @@ final class PageTranslationRepositoryTest extends KernelTestCase
 
         $rootA = PageFactory::createOne([
             'slug' => 'repo-root-a',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
         $rootB = PageFactory::createOne([
             'slug' => 'repo-root-b',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         self::assertFalse($this->repo->existsSiblingSlug($rootA, SupportedLocales::DEFAULT, 'repo-root-a'));

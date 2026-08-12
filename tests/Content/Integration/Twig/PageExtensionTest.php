@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Integration\Twig;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -32,7 +33,7 @@ final class PageExtensionTest extends KernelTestCase
             'slug' => 'faq-page',
             'path' => '/help/faq',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -59,7 +60,7 @@ final class PageExtensionTest extends KernelTestCase
     {
         $parent = PageFactory::createOne([
             'slug' => 'legal',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -67,7 +68,7 @@ final class PageExtensionTest extends KernelTestCase
             'parent' => $parent,
             'slug' => 'privacy-notice',
             'key' => PageKey::Privacy,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -92,7 +93,7 @@ final class PageExtensionTest extends KernelTestCase
             'slug' => 'about-nav',
             'path' => '/about-nav',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'About Nav',
         ]);

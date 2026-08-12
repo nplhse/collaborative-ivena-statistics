@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Integration\Navigation;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Shared\Application\Navigation\FooterNavigationProvider;
@@ -33,7 +34,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'about',
             'path' => '/about',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -53,7 +54,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'about',
             'path' => '/about',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
         PageFactory::createOne([
@@ -61,7 +62,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'features',
             'path' => '/features',
             'key' => PageKey::Features,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
         PageFactory::createOne([
@@ -69,7 +70,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'faq',
             'path' => '/faq',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
         PageFactory::createOne([
@@ -77,7 +78,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'imprint',
             'path' => '/imprint',
             'key' => PageKey::Imprint,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
         PageFactory::createOne([
@@ -85,7 +86,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'privacy',
             'path' => '/privacy',
             'key' => PageKey::Privacy,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
         PageFactory::createOne([
@@ -93,7 +94,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'terms',
             'path' => '/terms',
             'key' => PageKey::Terms,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -133,7 +134,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
             'slug' => 'about-draft',
             'path' => '/about-draft',
             'key' => PageKey::About,
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 

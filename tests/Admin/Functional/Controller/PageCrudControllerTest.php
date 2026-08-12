@@ -73,7 +73,7 @@ final class PageCrudControllerTest extends WebTestCase
             'title' => 'About us',
             'slug' => 'about-us-admin',
             'path' => '/about-us-admin',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         $client->loginUser($admin);
@@ -111,7 +111,7 @@ final class PageCrudControllerTest extends WebTestCase
             'title' => 'Multilingual',
             'slug' => 'multilingual-root',
             'path' => '/multilingual-root-legacy',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         PageTranslationFactory::createOne([
@@ -155,7 +155,7 @@ final class PageCrudControllerTest extends WebTestCase
         $page = PageFactory::createOne([
             'title' => 'Reorder Test',
             'slug' => 'reorder-test',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [
                 [

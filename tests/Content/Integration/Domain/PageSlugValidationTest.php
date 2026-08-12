@@ -89,12 +89,7 @@ final class PageSlugValidationTest extends KernelTestCase
 
         $duplicatePage = new Page();
         $duplicatePage->setParent($parent);
-        $duplicatePage->setTitle('Second Child');
-        $duplicatePage->setSlug('child-slug-legacy');
-        $duplicatePage->setPath('/child-slug-legacy');
-        $duplicatePage->setStatus(Page::STATUS_DRAFT);
         $duplicatePage->setVisibility(Page::VISIBILITY_PUBLIC);
-        $duplicatePage->setContent([]);
 
         $duplicate = new PageTranslation()
             ->setLocale(SupportedLocales::DEFAULT)
@@ -123,13 +118,7 @@ final class PageSlugValidationTest extends KernelTestCase
     private function createTranslation(string $slug): PageTranslation
     {
         $page = new Page();
-        $page
-            ->setTitle('Validation Test')
-            ->setSlug($slug)
-            ->setPath('/'.$slug)
-            ->setStatus(Page::STATUS_DRAFT)
-            ->setVisibility(Page::VISIBILITY_PUBLIC)
-            ->setContent([]);
+        $page->setVisibility(Page::VISIBILITY_PUBLIC);
 
         $translation = new PageTranslation()
             ->setLocale(SupportedLocales::DEFAULT)

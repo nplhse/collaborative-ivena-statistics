@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Integration\Domain;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -68,19 +69,21 @@ final class PageHierarchyValidationTest extends KernelTestCase
     private function makePage(string $slug, string $path): Page
     {
         $page = new Page();
-        $page
+        $page->setVisibility(Page::VISIBILITY_PUBLIC);
+
+        $translation = new PageTranslation()
+            ->setLocale('en')
             ->setTitle('Titel '.$slug)
             ->setSlug($slug)
             ->setPath($path)
-            ->setStatus(Page::STATUS_PUBLISHED)
-            ->setVisibility(Page::VISIBILITY_PUBLIC)
+            ->setStatus(PageTranslation::STATUS_PUBLISHED)
             ->setContent([
                 [
                     'type' => 'richtext',
                     'data' => ['html' => '<p>x</p>'],
                 ],
-            ])
-        ;
+            ]);
+        $page->addTranslation($translation);
 
         return $page;
     }

@@ -9,6 +9,7 @@ use App\Allocation\Domain\HospitalPermissionMask;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Shared\Application\Navigation\DTO\SitemapPageNode;
@@ -230,7 +231,7 @@ final class SitemapProviderTest extends KernelTestCase
                 'slug' => $pageKey->value,
                 'path' => '/'.$pageKey->value,
                 'key' => $pageKey,
-                'status' => Page::STATUS_PUBLISHED,
+                'status' => PageTranslation::STATUS_PUBLISHED,
                 'visibility' => Page::VISIBILITY_PUBLIC,
             ]);
         }
@@ -240,7 +241,7 @@ final class SitemapProviderTest extends KernelTestCase
             'slug' => 'guides',
             'path' => '/guides',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 1,
         ]);
@@ -251,7 +252,7 @@ final class SitemapProviderTest extends KernelTestCase
             'path' => '/guides/custom-guide',
             'parent' => $guidesParent,
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 1,
         ]);
@@ -262,7 +263,7 @@ final class SitemapProviderTest extends KernelTestCase
             'path' => '/guides/child-page',
             'parent' => $guidesParent,
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 2,
         ]);
@@ -272,7 +273,7 @@ final class SitemapProviderTest extends KernelTestCase
             'slug' => 'members-only',
             'path' => '/members-only',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
     }

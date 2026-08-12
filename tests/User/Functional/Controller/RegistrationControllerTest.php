@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\User\Functional\Controller;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
@@ -320,7 +321,7 @@ final class RegistrationControllerTest extends WebTestCase
     {
         $parent = PageFactory::createOne([
             'slug' => 'legal',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -328,7 +329,7 @@ final class RegistrationControllerTest extends WebTestCase
             'parent' => $parent,
             'slug' => 'terms-of-service',
             'key' => PageKey::Terms,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 

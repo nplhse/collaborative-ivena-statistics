@@ -27,7 +27,7 @@ final class PageControllerTest extends WebTestCase
         $parent = PageFactory::createOne([
             'title' => 'Produkte',
             'slug' => 'produkte',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Produkte</p>']]],
         ]);
@@ -36,7 +36,7 @@ final class PageControllerTest extends WebTestCase
             'title' => 'Hosting',
             'slug' => 'hosting',
             'parent' => $parent,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Hosting</p>']]],
         ]);
@@ -56,7 +56,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Intern',
             'slug' => 'intern',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -71,7 +71,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Mitgliederbereich',
             'slug' => 'mitgliederbereich',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -92,7 +92,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Demo Blocks',
             'slug' => 'demo-blocks',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [
                 [
@@ -156,7 +156,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Auto Image',
             'slug' => 'auto-image',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [
                 [
@@ -186,7 +186,7 @@ final class PageControllerTest extends WebTestCase
         $parent = PageFactory::createOne([
             'title' => 'Öffentlich',
             'slug' => 'oeffentlich',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Öffentlich</p>']]],
         ]);
@@ -195,7 +195,7 @@ final class PageControllerTest extends WebTestCase
             'title' => 'Geschwister',
             'slug' => 'geschwister',
             'parent' => $parent,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Geschwister</p>']]],
         ]);
@@ -203,7 +203,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Nur Mitglieder',
             'slug' => 'nur-mitglieder',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -223,7 +223,7 @@ final class PageControllerTest extends WebTestCase
             'title' => 'About',
             'slug' => 'about-root',
             'path' => '/about-root-legacy',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -269,7 +269,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Start',
             'slug' => 'start',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Start</p>']]],
         ]);
@@ -277,7 +277,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'Nur Mitglieder',
             'slug' => 'nur-mitglieder',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -297,7 +297,7 @@ final class PageControllerTest extends WebTestCase
             'title' => 'Guide',
             'slug' => 'guide',
             'path' => '/guide',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -340,7 +340,7 @@ final class PageControllerTest extends WebTestCase
         PageFactory::createOne([
             'title' => 'No Toc Flag',
             'slug' => 'no-toc-flag',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'content' => [
                 [
@@ -354,7 +354,7 @@ final class PageControllerTest extends WebTestCase
             'title' => 'Empty Toc',
             'slug' => 'empty-toc',
             'path' => '/empty-toc',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -392,7 +392,7 @@ final class PageControllerTest extends WebTestCase
             'title' => 'Editable',
             'slug' => 'editable-page',
             'path' => '/editable-page',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 

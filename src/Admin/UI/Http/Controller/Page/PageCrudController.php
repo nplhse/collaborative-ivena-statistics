@@ -47,7 +47,7 @@ final class PageCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular(new TranslatableMessage('label.page', domain: 'content'))
             ->setEntityLabelInPlural(new TranslatableMessage('label.pages', domain: 'content'))
-            ->setSearchFields(['id', 'key', 'title'])
+            ->setSearchFields(['id', 'key', 'translations.title', 'translations.slug', 'translations.path'])
             ->setDefaultSort(['id' => 'DESC']);
     }
 
@@ -78,16 +78,7 @@ final class PageCrudController extends AbstractCrudController
     #[\Override]
     public function createEntity(string $entityFqcn): Page
     {
-        $page = new Page();
-        $suffix = bin2hex(random_bytes(4));
-        // Transitional legacy NOT NULL columns until Phase 4 cleanup.
-        $page->setTitle('Untitled page');
-        $page->setSlug('untitled-'.$suffix);
-        $page->setPath('/untitled-'.$suffix);
-        $page->setStatus(Page::STATUS_DRAFT);
-        $page->setContent([]);
-
-        return $page;
+        return new Page();
     }
 
     #[\Override]

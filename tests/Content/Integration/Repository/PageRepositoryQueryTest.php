@@ -31,13 +31,13 @@ final class PageRepositoryQueryTest extends KernelTestCase
     {
         PageFactory::createOne([
             'slug' => 'all-draft',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'all-published',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -54,13 +54,13 @@ final class PageRepositoryQueryTest extends KernelTestCase
     {
         PageFactory::createOne([
             'slug' => 'draft-only',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'published-public',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -77,13 +77,13 @@ final class PageRepositoryQueryTest extends KernelTestCase
     {
         PageFactory::createOne([
             'slug' => 'vis-public',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'vis-auth',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -100,19 +100,19 @@ final class PageRepositoryQueryTest extends KernelTestCase
     {
         PageFactory::createOne([
             'slug' => 'public-live',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
         PageFactory::createOne([
             'slug' => 'auth-only',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
         PageFactory::createOne([
             'slug' => 'public-draft',
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -131,7 +131,7 @@ final class PageRepositoryQueryTest extends KernelTestCase
         PageFactory::createOne([
             'slug' => 'about-live',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         $page = $this->repo->findOneWithPublishedTranslationByKey(PageKey::About);
@@ -149,7 +149,7 @@ final class PageRepositoryQueryTest extends KernelTestCase
             'slug' => 'faq-draft-only',
             'path' => '/faq-draft-only',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
         ]);
 
         self::assertNull($this->repo->findOneWithPublishedTranslationByKey(PageKey::Faq));
@@ -161,7 +161,7 @@ final class PageRepositoryQueryTest extends KernelTestCase
             'slug' => 'generic-page',
             'path' => '/generic-page',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         self::assertNull($this->repo->findOneWithPublishedTranslationByKey(PageKey::About));

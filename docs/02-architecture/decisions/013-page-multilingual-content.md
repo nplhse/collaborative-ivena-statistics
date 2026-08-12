@@ -23,11 +23,11 @@ We needed multilingual page content with:
 
 4. **Blocks stay monolingual per translation.** Each locale owns a complete content JSON structure. Do not nest `{de, en}` inside block `data` and do not make block types locale-aware.
 
-5. **URLs stay `/{path}` without locale prefix.** Paths must be **globally unique across locales** (`UNIQUE(path)` on `page_translation`). Same path in German and English is forbidden. Existing paths continue to resolve after backfill.
+5. **URLs stay `/{path}` without locale prefix.** Paths must be **globally unique across locales** (`UNIQUE(path)` on `page_translation`). Same path in German and English is forbidden. Existing paths continue to resolve.
 
 6. **Publication is translation-specific; visibility is page-wide.** A draft English translation must not become public because German is published. Access control checks published translation **and** page visibility; fallback must not bypass visibility.
 
-7. **Content default locale is configurable and separate from UI default.** Parameter `app.content.default_locale` (env `APP_CONTENT_DEFAULT_LOCALE`, default `en`). Production may set `de`. Injected into resolver/backfill — never hard-coded in domain entities.
+7. **Content default locale is configurable and separate from UI default.** Parameter `app.content.default_locale` (env `APP_CONTENT_DEFAULT_LOCALE`, default `en`). Production may set `de`. Injected into the resolver — never hard-coded in domain entities.
 
 8. **Central `PageTranslationResolver` for frontend fallback.** Requested published locale → else published content default locale → else unavailable. Path lookup uses the translation identified by path (no locale fallback on path hit). Admin must not silently invent missing translations.
 
@@ -35,18 +35,7 @@ We needed multilingual page content with:
 
 10. **EasyAdmin: separate CRUDs.** `PageCrudController` manages structure; `PageTranslationCrudController` reuses the existing block editor for locale content. Page detail links to translations (missing/draft/published).
 
-11. **Staged migration:**
-    - **Phase 1:** Additive `page_translation` table; keep legacy columns on `page`.
-    - **Phase 2:** `app:content:backfill-page-translations` (idempotent, `--dry-run`) copies legacy fields into the configured default locale.
-    - **Phase 3:** Application reads/writes translations; legacy columns remain for rollback safety and transitional sync of the default locale.
-    - **Phase 4 (later PR):** Drop `page.title|slug|path|content|status` and transitional accessors only after Phase 3 is verified in production.
-
-### Phase 4 exit criteria
-
-- All frontend, admin, nav, sitemap, and content commands use `PageTranslation` only
-- Backfill completed in production; path/count spot-checks OK
-- Tests cover translation model; no production dependency on legacy columns
-- Dedicated cleanup migration + removal of transitional Page fields in a separate PR
+11. **Completed end state.** Locale content lives only on `PageTranslation`. Legacy content columns on `page` (`title`, `slug`, `path`, `content`, `status`) have been dropped. Restoring those columns requires a database restore; there is no dual-write or backfill path anymore.
 
 ## Consequences
 
@@ -54,14 +43,14 @@ We needed multilingual page content with:
 
 - Shared hierarchy with independent locale content and publication state
 - Existing German (or default-locale) URLs remain stable
-- Incremental deploy without destructive schema change in the first release
 - Clear admin workflow per locale
+- Single source of truth for page content (no dual schema)
 
 **Negative:**
 
-- Temporary dual columns until Phase 4
 - Globally unique paths prevent identical path segments across locales (e.g. both `/about`)
 - Child locales require parent translations before publish
+- Destructive column drop is not reversible without restore from backup
 
 ## Alternatives
 
@@ -70,14 +59,11 @@ We needed multilingual page content with:
 - **Per-block locale keys** — rejected; couples every block type to i18n and complicates the editor
 - **Duplicate page trees per locale** — rejected; breaks shared hierarchy/`PageKey`
 - **Single multilingual Page form** — rejected; prefer separate EasyAdmin CRUD for maintainability
-- **Destructive one-step column drop** — rejected; unsafe for production deploy
 
 ## References
 
 - [../decisions/README.md](README.md)
-- [../../05-operations/deployment.md](../../05-operations/deployment.md) — page translation deploy sequence
 - [../../04-features/content/page-translations.md](../../04-features/content/page-translations.md)
 - `src/Content/Domain/Entity/Page.php`
 - `src/Content/Domain/Entity/PageTranslation.php`
 - `src/Content/Application/Page/PageTranslationResolver.php`
-- `src/Content/UI/Console/Command/BackfillPageTranslationsCommand.php`

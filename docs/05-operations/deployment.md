@@ -44,19 +44,6 @@ vendor/bin/dep content:analyze-page-images coishub.uber.space
 vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze_page_images_options="--dry-run"
 ```
 
-### Page translations (one-time after ADR 013 deploy)
-
-After the release that introduces `page_translation`, run the backfill **before** treating the site as healthy. Production should set `APP_CONTENT_DEFAULT_LOCALE=de` in `shared/.env.local` when existing CMS content is German.
-
-```bash
-cd ~/www/current
-set -a && source ../shared/.env.local && set +a
-php bin/console app:content:backfill-page-translations --dry-run
-php bin/console app:content:backfill-page-translations
-```
-
-See [../04-features/content/page-translations.md](../04-features/content/page-translations.md) and [ADR 013](../02-architecture/decisions/013-page-multilingual-content.md).
-
 Related docs:
 
 - [../06-reference/configuration.md](../06-reference/configuration.md) — environment variables

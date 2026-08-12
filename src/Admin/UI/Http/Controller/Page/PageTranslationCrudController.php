@@ -33,7 +33,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -58,8 +57,6 @@ final class PageTranslationCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly PageRepository $pageRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
-        #[Autowire('%app.content.default_locale%')]
-        private readonly string $contentDefaultLocale,
     ) {
     }
 
@@ -257,7 +254,6 @@ final class PageTranslationCrudController extends AbstractCrudController
         }
 
         $this->prepareContent($entityInstance);
-        $this->syncLegacyPageFields($entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
     }
 
@@ -269,7 +265,6 @@ final class PageTranslationCrudController extends AbstractCrudController
         }
 
         $this->prepareContent($entityInstance);
-        $this->syncLegacyPageFields($entityInstance);
         parent::updateEntity($entityManager, $entityInstance);
     }
 
@@ -283,28 +278,6 @@ final class PageTranslationCrudController extends AbstractCrudController
         $content = $this->pageContentMediaResolver->resolve($content);
         $this->pageContentValidator->assertValid($content);
         $translation->setContent($this->pageContentSanitizer->sanitize($content));
-    }
-
-    /**
-     * Keep transitional Page legacy columns aligned with the content default locale translation.
-     */
-    private function syncLegacyPageFields(PageTranslation $translation): void
-    {
-        $page = $translation->getPage();
-        if (!$page instanceof Page) {
-            return;
-        }
-
-        $defaultLocale = $this->contentDefaultLocale;
-        if ($translation->getLocale() !== $defaultLocale) {
-            return;
-        }
-
-        $page->setTitle((string) $translation->getTitle());
-        $page->setSlug((string) $translation->getSlug());
-        $page->setPath((string) $translation->getPath());
-        $page->setStatus($translation->getStatus());
-        $page->setContent($translation->getContent());
     }
 
     /**

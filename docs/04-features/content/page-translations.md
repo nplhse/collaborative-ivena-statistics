@@ -13,7 +13,7 @@ URLs remain `/{path}` (no locale prefix). Paths are unique across all locales.
 
 | Setting | Default | Notes |
 |---|---|---|
-| `APP_CONTENT_DEFAULT_LOCALE` / `app.content.default_locale` | `en` | Fallback locale for nav/key resolution and backfill. Set `de` in production. |
+| `APP_CONTENT_DEFAULT_LOCALE` / `app.content.default_locale` | `en` | Fallback locale for nav/key resolution. Set `de` in production when German is the primary content locale. |
 
 Independent of Symfony UI `default_locale`.
 
@@ -27,23 +27,3 @@ Independent of Symfony UI `default_locale`.
 ## Frontend language switch
 
 The existing navbar locale switcher uses page sibling targets when present: switching locale goes through `app_locale_switch` and redirects to the published sibling translation’s path (paths stay globally unique, no `/{locale}` prefix). If no sibling exists for the target locale, the switcher keeps the current URL.
-
-## Deploy sequence (Phases 1–3)
-
-1. Deploy release (Doctrine migrations create `page_translation`)
-2. Set `APP_CONTENT_DEFAULT_LOCALE=de` in production `shared/.env.local` if content should backfill as German
-3. Run:
-
-```bash
-cd ~/www/current
-set -a && source ../shared/.env.local && set +a
-php bin/console app:content:backfill-page-translations --dry-run
-php bin/console app:content:backfill-page-translations
-```
-
-4. Verify translation counts and spot-check public paths
-5. Confirm frontend pages and navigation resolve
-
-## Phase 4 (later)
-
-Drop legacy `page` columns `title`, `slug`, `path`, `content`, `status` only after the exit criteria in ADR 013 are met.

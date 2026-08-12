@@ -73,7 +73,7 @@ final class PageTranslationUniqueTest extends KernelTestCase
         $page = PageFactory::new()->withoutDefaultTranslation()->create([
             'slug' => 'privacy-root',
             'path' => '/privacy-root-legacy',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         PageTranslationFactory::createOne([

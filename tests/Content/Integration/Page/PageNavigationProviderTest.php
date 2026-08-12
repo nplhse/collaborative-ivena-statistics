@@ -6,6 +6,7 @@ namespace App\Tests\Content\Integration\Page;
 
 use App\Content\Application\Page\PageNavigationProvider;
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -30,7 +31,7 @@ final class PageNavigationProviderTest extends KernelTestCase
     {
         $parent = PageFactory::createOne([
             'slug' => 'legal',
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -38,7 +39,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'parent' => $parent,
             'slug' => 'imprint-custom',
             'key' => PageKey::Imprint,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -55,7 +56,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'features-draft',
             'path' => '/features-draft',
             'key' => PageKey::Features,
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -68,7 +69,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'about-auth',
             'path' => '/about-auth',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -81,7 +82,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'about-public',
             'path' => '/about-public',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'About us',
         ]);
@@ -90,7 +91,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'features-draft',
             'path' => '/features-draft',
             'key' => PageKey::Features,
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'Features',
         ]);
@@ -108,7 +109,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'about-public',
             'path' => '/about-public',
             'key' => PageKey::About,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'About us',
         ]);
@@ -117,7 +118,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'features-public',
             'path' => '/features-public',
             'key' => PageKey::Features,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'Features',
         ]);
@@ -126,7 +127,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'faq-public',
             'path' => '/faq-public',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'title' => 'FAQ',
         ]);
@@ -157,7 +158,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'terms-footer',
             'path' => '/terms-footer',
             'key' => PageKey::Terms,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -165,7 +166,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'imprint-footer',
             'path' => '/imprint-footer',
             'key' => PageKey::Imprint,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -184,7 +185,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'public-guide',
             'path' => '/guides/public-guide',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -193,7 +194,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'members-only',
             'path' => '/members-only',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
 
@@ -227,7 +228,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'slug' => 'documentation',
             'path' => '/documentation',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 1,
         ]);
@@ -238,7 +239,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'path' => '/documentation/getting-started',
             'parent' => $parent,
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 1,
         ]);
@@ -257,7 +258,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'title' => 'FAQ page',
             'slug' => 'faq-links',
             'key' => PageKey::Faq,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 
@@ -265,7 +266,7 @@ final class PageNavigationProviderTest extends KernelTestCase
             'title' => 'Draft imprint',
             'slug' => 'imprint-draft-links',
             'key' => PageKey::Imprint,
-            'status' => Page::STATUS_DRAFT,
+            'status' => PageTranslation::STATUS_DRAFT,
             'visibility' => Page::VISIBILITY_PUBLIC,
         ]);
 

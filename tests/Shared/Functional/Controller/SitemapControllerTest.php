@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Functional\Controller;
 
 use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Infrastructure\Factory\PageFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -70,7 +71,7 @@ final class SitemapControllerTest extends WebTestCase
             'slug' => 'guides',
             'path' => '/guides',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 1,
         ]);
@@ -81,7 +82,7 @@ final class SitemapControllerTest extends WebTestCase
             'path' => '/guides/custom-guide',
             'parent' => $guidesParent,
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 1,
         ]);
@@ -92,7 +93,7 @@ final class SitemapControllerTest extends WebTestCase
             'path' => '/guides/child-page',
             'parent' => $guidesParent,
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 2,
         ]);
@@ -102,7 +103,7 @@ final class SitemapControllerTest extends WebTestCase
             'slug' => 'members-only',
             'path' => '/members-only',
             'key' => null,
-            'status' => Page::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
             'visibility' => Page::VISIBILITY_AUTHENTICATED,
         ]);
     }
