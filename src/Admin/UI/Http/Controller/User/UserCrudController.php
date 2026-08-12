@@ -113,6 +113,7 @@ final class UserCrudController extends AbstractCrudController
             ->setChoices([
                 'Admin' => UserRole::ADMIN,
                 'Participant' => UserRole::PARTICIPANT,
+                'Board Member' => UserRole::BOARD_MEMBER,
                 'User' => UserRole::USER,
                 'Receives Feedback' => UserRole::FEEDBACK_RECIPIENT,
                 'Receives notifications' => UserRole::RECEIVES_NOTIFICATION,
@@ -122,6 +123,7 @@ final class UserCrudController extends AbstractCrudController
             ->renderAsBadges([
                 UserRole::ADMIN => 'danger',
                 UserRole::PARTICIPANT => 'warning',
+                UserRole::BOARD_MEMBER => 'info',
                 UserRole::USER => 'primary',
                 UserRole::FEEDBACK_RECIPIENT => 'success',
                 UserRole::RECEIVES_NOTIFICATION => 'info',

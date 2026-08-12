@@ -10,6 +10,8 @@ final class UserRole
 
     public const string PARTICIPANT = 'ROLE_PARTICIPANT';
 
+    public const string BOARD_MEMBER = 'ROLE_BOARD_MEMBER';
+
     public const string ADMIN = 'ROLE_ADMIN';
 
     public const string FEEDBACK_RECIPIENT = 'ROLE_FEEDBACK_RECIPIENT';

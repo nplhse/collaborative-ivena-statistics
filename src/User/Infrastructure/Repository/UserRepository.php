@@ -6,6 +6,7 @@ namespace App\User\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -19,6 +20,8 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 final class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
+    use PublicIdRepositoryTrait;
+
     /** @psalm-suppress PossiblyUnusedMethod, UnusedParam */
     public function __construct(
         ManagerRegistry $registry,
