@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
-use App\Statistics\Application\Report\Exception\UnknownReportDefinitionException;
+use App\Statistics\Application\TopList\Exception\UnknownTopListDefinitionException;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
-final class ReportDefinitionRegistry
+final class TopListDefinitionRegistry
 {
-    /** @var array<string, ReportDefinitionInterface> */
+    /** @var array<string, TopListDefinitionInterface> */
     private array $byKey = [];
 
     /**
-     * @param iterable<ReportDefinitionInterface> $definitions
+     * @param iterable<TopListDefinitionInterface> $definitions
      */
     public function __construct(
-        #[AutowireIterator('app.statistics.report_definition')]
+        #[AutowireIterator('app.statistics.top_list_definition')]
         iterable $definitions,
     ) {
         foreach ($definitions as $definition) {
@@ -25,19 +25,19 @@ final class ReportDefinitionRegistry
     }
 
     /**
-     * @return list<ReportDefinitionInterface>
+     * @return list<TopListDefinitionInterface>
      */
     public function all(): array
     {
         return array_values($this->byKey);
     }
 
-    public function get(string $key): ?ReportDefinitionInterface
+    public function get(string $key): ?TopListDefinitionInterface
     {
         return $this->byKey[$key] ?? null;
     }
 
-    public function getOrFirst(string $key): ReportDefinitionInterface
+    public function getOrFirst(string $key): TopListDefinitionInterface
     {
         if (isset($this->byKey[$key])) {
             return $this->byKey[$key];
@@ -45,7 +45,7 @@ final class ReportDefinitionRegistry
 
         $first = reset($this->byKey);
         if (false === $first) {
-            throw new UnknownReportDefinitionException('No report definitions registered.');
+            throw new UnknownTopListDefinitionException('No top list definitions registered.');
         }
 
         return $first;

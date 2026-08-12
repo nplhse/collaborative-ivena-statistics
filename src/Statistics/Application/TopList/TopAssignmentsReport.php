@@ -2,45 +2,45 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
-use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\Assignment;
 
-final readonly class TopSpecialitiesReport extends AbstractTopNTableReport
+final readonly class TopAssignmentsReport extends AbstractTopNTableReport
 {
     #[\Override]
     public function key(): string
     {
-        return 'top_specialities';
+        return 'top_assignments';
     }
 
     #[\Override]
     public function labelTranslationKey(): string
     {
-        return 'stats.reports.top_specialities.label';
+        return 'stats.top_lists.top_assignments.label';
     }
 
     #[\Override]
     public function descriptionTranslationKey(): string
     {
-        return 'stats.reports.top_specialities.description';
+        return 'stats.top_lists.top_assignments.description';
     }
 
     #[\Override]
     protected function projectionJoinProperty(): string
     {
-        return 'specialityId';
+        return 'assignmentId';
     }
 
     #[\Override]
     protected function entityFqcn(): string
     {
-        return Speciality::class;
+        return Assignment::class;
     }
 
     #[\Override]
     protected function tableLabelColumnTranslationKey(): string
     {
-        return 'stats.reports.table.speciality';
+        return 'stats.top_lists.table.assignment';
     }
 }

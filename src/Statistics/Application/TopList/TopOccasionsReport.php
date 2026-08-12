@@ -2,45 +2,45 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
-use App\Allocation\Domain\Entity\Infection;
+use App\Allocation\Domain\Entity\Occasion;
 
-final readonly class TopInfectionsReport extends AbstractTopNTableReport
+final readonly class TopOccasionsReport extends AbstractTopNTableReport
 {
     #[\Override]
     public function key(): string
     {
-        return 'top_infections';
+        return 'top_occasions';
     }
 
     #[\Override]
     public function labelTranslationKey(): string
     {
-        return 'stats.reports.top_infections.label';
+        return 'stats.top_lists.top_occasions.label';
     }
 
     #[\Override]
     public function descriptionTranslationKey(): string
     {
-        return 'stats.reports.top_infections.description';
+        return 'stats.top_lists.top_occasions.description';
     }
 
     #[\Override]
     protected function projectionJoinProperty(): string
     {
-        return 'infectionId';
+        return 'occasionId';
     }
 
     #[\Override]
     protected function entityFqcn(): string
     {
-        return Infection::class;
+        return Occasion::class;
     }
 
     #[\Override]
     protected function tableLabelColumnTranslationKey(): string
     {
-        return 'stats.reports.table.infection';
+        return 'stats.top_lists.table.occasion';
     }
 }

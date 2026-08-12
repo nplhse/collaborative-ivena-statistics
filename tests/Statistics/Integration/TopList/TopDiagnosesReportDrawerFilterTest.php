@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Statistics\Integration\Report;
+namespace App\Tests\Statistics\Integration\TopList;
 
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
@@ -22,7 +22,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
-use App\Statistics\Application\Report\TopDiagnosesReport;
+use App\Statistics\Application\TopList\TopDiagnosesReport;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;

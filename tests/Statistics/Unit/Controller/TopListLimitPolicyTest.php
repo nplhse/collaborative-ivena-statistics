@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\Controller;
 
-use App\Statistics\Application\Report\ReportLimitPolicy;
+use App\Statistics\Application\TopList\TopListLimitPolicy;
 use PHPUnit\Framework\TestCase;
 
-final class ReportLimitPolicyTest extends TestCase
+final class TopListLimitPolicyTest extends TestCase
 {
     public function testNormalizesInputAndExposesAllowedValues(): void
     {
-        $policy = new ReportLimitPolicy();
+        $policy = new TopListLimitPolicy();
 
         self::assertSame([10, 25, 50], $policy->allowed());
         self::assertSame(25, $policy->default());

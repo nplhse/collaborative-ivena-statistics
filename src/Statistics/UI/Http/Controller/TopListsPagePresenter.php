@@ -6,11 +6,11 @@ namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
-use App\Statistics\Application\Report\ReportDefinitionInterface;
+use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
 
-final readonly class ReportsPagePresenter
+final readonly class TopListsPagePresenter
 {
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
@@ -18,22 +18,22 @@ final readonly class ReportsPagePresenter
     }
 
     /**
-     * @param list<ReportDefinitionInterface> $reportDefinitions
+     * @param list<TopListDefinitionInterface> $topListDefinitions
      */
     public function present(
         Request $request,
-        ReportDefinitionInterface $currentDefinition,
-        ReportsRequestModel $requestModel,
-        StatisticWidget $reportWidget,
-        array $reportDefinitions,
-    ): ReportsPageViewModel {
+        TopListDefinitionInterface $currentDefinition,
+        TopListsRequestModel $requestModel,
+        StatisticWidget $topListWidget,
+        array $topListDefinitions,
+    ): TopListsPageViewModel {
         $currentLimit = $requestModel->limit;
 
-        $reportSelectUrls = [];
-        foreach ($reportDefinitions as $item) {
-            $reportSelectUrls[$item->key()] = $this->statisticsPageUrl(
+        $topListSelectUrls = [];
+        foreach ($topListDefinitions as $item) {
+            $topListSelectUrls[$item->key()] = $this->statisticsPageUrl(
                 $request,
-                'app_stats_reports',
+                'app_stats_top_lists',
                 ['report' => $item->key()],
             );
         }
@@ -42,18 +42,18 @@ final readonly class ReportsPagePresenter
         foreach ($currentDefinition->allowedLimits() as $limit) {
             $limitUrls[$limit] = $this->statisticsPageUrl(
                 $request,
-                'app_stats_reports',
+                'app_stats_top_lists',
                 ['limit' => $limit],
             );
         }
 
-        $reportWidget = $this->withReportTableLimitFooter($reportWidget, $limitUrls, $currentLimit);
+        $topListWidget = $this->withTopListTableLimitFooter($topListWidget, $limitUrls, $currentLimit);
 
-        return new ReportsPageViewModel(
-            $reportWidget,
-            $reportDefinitions,
+        return new TopListsPageViewModel(
+            $topListWidget,
+            $topListDefinitions,
             $currentDefinition->key(),
-            $reportSelectUrls,
+            $topListSelectUrls,
             $currentLimit,
             $currentDefinition->labelTranslationKey(),
             $currentDefinition->descriptionTranslationKey(),
@@ -63,14 +63,14 @@ final readonly class ReportsPagePresenter
     /**
      * @param array<int, string> $limitUrls
      */
-    private function withReportTableLimitFooter(StatisticWidget $widget, array $limitUrls, int $currentLimit): StatisticWidget
+    private function withTopListTableLimitFooter(StatisticWidget $widget, array $limitUrls, int $currentLimit): StatisticWidget
     {
         if (StatisticWidgetType::Table !== $widget->type) {
             return $widget;
         }
 
         $payload = $widget->payload;
-        $payload['limitFooter'] = new ReportTableLimitFooter($limitUrls, $currentLimit)->toArray();
+        $payload['limitFooter'] = new TopListTableLimitFooter($limitUrls, $currentLimit)->toArray();
 
         return new StatisticWidget($widget->type, $widget->id, $payload, $widget->title, $widget->actions);
     }

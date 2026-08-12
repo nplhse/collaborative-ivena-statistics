@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
 use App\Allocation\Domain\Entity\IndicationNormalized;
 
@@ -17,13 +17,13 @@ final readonly class TopSecondaryDiagnosesReport extends AbstractTopNTableReport
     #[\Override]
     public function labelTranslationKey(): string
     {
-        return 'stats.reports.top_secondary_diagnoses.label';
+        return 'stats.top_lists.top_secondary_diagnoses.label';
     }
 
     #[\Override]
     public function descriptionTranslationKey(): string
     {
-        return 'stats.reports.top_secondary_diagnoses.description';
+        return 'stats.top_lists.top_secondary_diagnoses.description';
     }
 
     #[\Override]
@@ -41,6 +41,6 @@ final readonly class TopSecondaryDiagnosesReport extends AbstractTopNTableReport
     #[\Override]
     protected function tableLabelColumnTranslationKey(): string
     {
-        return 'stats.reports.table.secondary_diagnosis';
+        return 'stats.top_lists.table.secondary_diagnosis';
     }
 }

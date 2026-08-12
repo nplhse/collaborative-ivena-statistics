@@ -2,43 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
-use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
-use App\Statistics\Application\TopDiagnosesQuery;
+use App\Statistics\Application\TopEntityQuery;
 
-final readonly class TopDiagnosesReport implements ReportDefinitionInterface
+abstract readonly class AbstractTopNTableReport implements TopListDefinitionInterface
 {
     public function __construct(
-        private TopDiagnosesQuery $topDiagnosesQuery,
-        private ReportLimitPolicy $reportLimitPolicy,
+        private TopEntityQuery $topEntityQuery,
+        private TopListLimitPolicy $reportLimitPolicy,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
     ) {
     }
 
-    #[\Override]
-    public function key(): string
-    {
-        return 'top_diagnoses';
-    }
+    abstract protected function projectionJoinProperty(): string;
 
-    #[\Override]
-    public function labelTranslationKey(): string
-    {
-        return 'stats.reports.top_diagnoses.label';
-    }
+    abstract protected function entityFqcn(): string;
 
-    #[\Override]
-    public function descriptionTranslationKey(): string
-    {
-        return 'stats.reports.top_diagnoses.description';
-    }
+    abstract protected function tableLabelColumnTranslationKey(): string;
 
     #[\Override]
     public function supports(StatisticsFilter $filter): bool
@@ -49,10 +36,14 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
     #[\Override]
     public function build(StatisticsContext $context, int $limit): StatisticWidget
     {
-        $data = $this->topDiagnosesQuery->fetch($context, $limit);
+        $data = $this->topEntityQuery->fetch(
+            $context,
+            $limit,
+            $this->projectionJoinProperty(),
+            $this->entityFqcn(),
+        );
         $total = $data['totalAllocations'];
         $rows = [];
-        $diagnosisRowTargets = [];
         $rank = 1;
 
         foreach ($data['rows'] as $row) {
@@ -64,29 +55,18 @@ final readonly class TopDiagnosesReport implements ReportDefinitionInterface
                 (string) $count,
                 sprintf('%.1f%%', $pct),
             ];
-            $diagnosisRowTargets[] = isset($row['indicationId'])
-                ? new StatisticWidgetNavigationTarget(
-                    'stats.reports.nav.indication_profile',
-                    'app_stats_indication_dashboard',
-                    ['indicationId' => $row['indicationId']],
-                    ['report', 'limit', 'view', 'chart'],
-                )
-                : null;
             ++$rank;
         }
 
         $payload = new TableWidgetPayload(
             [
-                'stats.reports.table.rank',
-                'stats.reports.table.diagnosis',
-                'stats.reports.table.count',
-                'stats.reports.table.share',
+                'stats.top_lists.table.rank',
+                $this->tableLabelColumnTranslationKey(),
+                'stats.top_lists.table.count',
+                'stats.top_lists.table.share',
             ],
             $rows,
-            [
-                'numericColumnStartIndex' => 3,
-                'diagnosisRowTargets' => $diagnosisRowTargets,
-            ],
+            ['numericColumnStartIndex' => 3],
         );
 
         return new StatisticWidget(

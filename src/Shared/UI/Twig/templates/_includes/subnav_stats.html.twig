@@ -21,10 +21,18 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route == 'app_stats_reports' ? 'active' : '' }}">
+                    <li class="nav-item {{ route == 'app_stats_top_lists' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_top_lists') }}">
+                            <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:list-numbers" style="height: 1.2em;" />
+                                {{ 'link.stats.top_lists'|trans({}, 'shared') }}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ route in ['app_stats_reports', 'app_stats_reports_show'] ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_reports') }}">
                             <span class="nav-link-title">
-                                <twig:ux:icon name="tabler:report-search" style="height: 1.2em;" />
+                                <twig:ux:icon name="tabler:report-analytics" style="height: 1.2em;" />
                                 {{ 'link.stats.reports'|trans({}, 'shared') }}
                             </span>
                         </a>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
@@ -10,13 +10,13 @@ use App\Statistics\Application\DTO\StatisticWidget;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
- * Curated statistics report.
+ * Curated statistics top list.
  *
  * {@see build()} receives {@see StatisticsContext} so hospital scopes such as "My hospitals"
  * can respect the signed-in user (same idea as analysis).
  */
-#[AutoconfigureTag('app.statistics.report_definition')]
-interface ReportDefinitionInterface
+#[AutoconfigureTag('app.statistics.top_list_definition')]
+interface TopListDefinitionInterface
 {
     public function key(): string;
 

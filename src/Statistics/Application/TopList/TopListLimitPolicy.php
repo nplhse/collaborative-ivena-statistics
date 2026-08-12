@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
-final class ReportLimitPolicy
+final class TopListLimitPolicy
 {
     /** @var list<int> */
     private const array ALLOWED = [10, 25, 50];

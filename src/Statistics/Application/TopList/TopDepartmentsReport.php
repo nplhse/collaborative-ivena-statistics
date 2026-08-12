@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\Report;
+namespace App\Statistics\Application\TopList;
 
 use App\Allocation\Domain\Entity\Department;
 
@@ -17,13 +17,13 @@ final readonly class TopDepartmentsReport extends AbstractTopNTableReport
     #[\Override]
     public function labelTranslationKey(): string
     {
-        return 'stats.reports.top_departments.label';
+        return 'stats.top_lists.top_departments.label';
     }
 
     #[\Override]
     public function descriptionTranslationKey(): string
     {
-        return 'stats.reports.top_departments.description';
+        return 'stats.top_lists.top_departments.description';
     }
 
     #[\Override]
@@ -41,6 +41,6 @@ final readonly class TopDepartmentsReport extends AbstractTopNTableReport
     #[\Override]
     protected function tableLabelColumnTranslationKey(): string
     {
-        return 'stats.reports.table.department';
+        return 'stats.top_lists.table.department';
     }
 }

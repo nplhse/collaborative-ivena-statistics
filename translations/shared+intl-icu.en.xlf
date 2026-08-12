@@ -205,7 +205,11 @@
         <source>link.stats.benchmarking</source>
         <target>Benchmarking</target>
       </trans-unit>
-      <trans-unit id="statsLnkRp01" resname="link.stats.reports">
+      <trans-unit id="statsLnkRp01" resname="link.stats.top_lists">
+        <source>link.stats.top_lists</source>
+        <target>Top Lists</target>
+      </trans-unit>
+      <trans-unit id="A139512993" resname="link.stats.reports">
         <source>link.stats.reports</source>
         <target>Reports</target>
       </trans-unit>

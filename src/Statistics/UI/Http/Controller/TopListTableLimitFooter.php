@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-final readonly class ReportTableLimitFooter
+final readonly class TopListTableLimitFooter
 {
     /**
      * @param array<int, string> $urls
