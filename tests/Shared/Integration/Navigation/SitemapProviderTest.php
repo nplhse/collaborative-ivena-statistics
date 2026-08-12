@@ -121,13 +121,15 @@ final class SitemapProviderTest extends KernelTestCase
         self::assertContains('Members only', $pageTreeLabels);
 
         $statisticsSection = $this->findSection('statistics');
-        self::assertCount(7, $statisticsSection->links);
+        self::assertCount(8, $statisticsSection->links);
         $statisticsLabels = array_map(
             static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
             $statisticsSection->links,
         );
         self::assertSame('Overview', $statisticsLabels[0]);
         $this->assertLabelsAreAlphabetical(array_slice($statisticsLabels, 1));
+        self::assertContains('Top Lists', $statisticsLabels);
+        self::assertContains('Reports', $statisticsLabels);
     }
 
     public function testParticipantSeesExploreDataExchangeAndMyHospitalsInAccount(): void
