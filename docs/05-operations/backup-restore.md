@@ -17,9 +17,9 @@ Backups are written to `var/backups/` locally (override with `BACKUP_DIR`).
 
 | Script | Purpose |
 |--------|---------|
-| `bin/ops/backup-database.sh` | `pg_dump` custom format (`.dump`) |
+| `bin/ops/backup-database.sh` | `pg_dump` custom format (`.dump`), schema `public` only (skips PostGIS schemas `tiger`/`topology` and PostGIS tables in `public`) |
 | `bin/ops/backup-files.sh` | `tar.gz` of imports + media |
-| `bin/ops/restore-database.sh` | `pg_restore` from `.dump` (requires `RESTORE_CONFIRM=yes`) |
+| `bin/ops/restore-database.sh` | Reset schema `public` (CASCADE), then `pg_restore` (requires `RESTORE_CONFIRM=yes`; skips PostGIS extensions/tables in the dump TOC) |
 | `bin/ops/verify-restore.sh` | Capture/compare row counts for restore drills |
 
 ### Make targets
@@ -211,7 +211,7 @@ Cron is configured on Uberspace outside this repository.
 
 4. Smoke test: `curl -sS https://<host>/health | jq` (expect HTTP 200, `checks.database: ok`), then login, import list, statistics dashboard.
 
-`pg_restore --clean --if-exists` drops and recreates objects from the dump. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
+`restore-database.sh` drops and recreates schema `public` (`DROP SCHEMA public CASCADE`), then restores from the dump without `--clean`. PostGIS extensions and tables (`spatial_ref_sys`, …) listed in the dump TOC are skipped so restores work on plain Postgres (e.g. local Docker) even when the dump came from a host with PostGIS. Schema drift after restore is unlikely if the dump matches the deployed code version; if not, run `php bin/console doctrine:migrations:status`.
 
 ### 2. Import and media files
 

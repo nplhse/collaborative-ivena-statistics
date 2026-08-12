@@ -15,13 +15,16 @@ ops_log "Database backup starting → $OUTPUT_FILE"
 
 if ops_docker_database_running; then
     ops_log "Using Docker Compose service 'database' (pg_dump inside container)"
+    # shellcheck disable=SC2046
     docker compose exec -T database \
-        pg_dump -U "${POSTGRES_USER:-app}" -d "${POSTGRES_DB:-app}" -Fc \
+        pg_dump -U "${POSTGRES_USER:-app}" -d "${POSTGRES_DB:-app}" \
+        --schema=public $(ops_pg_dump_postgis_exclude_args) -Fc \
         >"$OUTPUT_FILE"
 elif command -v pg_dump >/dev/null 2>&1; then
     DATABASE_URL_CLEAN="$(ops_database_url_without_query)"
     ops_log "Using local pg_dump with DATABASE_URL"
-    pg_dump "$DATABASE_URL_CLEAN" -Fc -f "$OUTPUT_FILE"
+    # shellcheck disable=SC2046
+    pg_dump "$DATABASE_URL_CLEAN" --schema=public $(ops_pg_dump_postgis_exclude_args) -Fc -f "$OUTPUT_FILE"
 else
     ops_die "Neither a running Docker database service nor pg_dump on PATH is available."
 fi

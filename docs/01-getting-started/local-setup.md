@@ -3,7 +3,7 @@
 ## Requirements
 
 - PHP `>=8.4`
-- PostgreSQL `>=16`
+- PostgreSQL `>=18`
 - Composer
 - Node.js `>=22.13` and npm (required for JavaScript linting in development)
 - Symfony CLI (recommended)

@@ -76,7 +76,7 @@ Further reading:
 
 On the server:
 
-- PHP 8.4+ and PostgreSQL 16+ (same as the web application)
+- PHP 8.4+ and PostgreSQL 18+ (same as the web application)
 - Document root pointing at `public/` under the Deployer `current` symlink
 - Server `.env.local` (shared across releases via Deployer)
 
