@@ -34,6 +34,7 @@ final class PageTranslationFactory extends PersistentObjectFactory
             'slug' => $slug,
             'path' => '/'.$slug,
             'status' => PageTranslation::STATUS_PUBLISHED,
+            'showToc' => false,
             'content' => [
                 [
                     'type' => 'richtext',

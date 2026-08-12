@@ -22,4 +22,4 @@
     md: 'mb-3',
     lg: 'mb-4',
 }[spacingAfter] ?? 'mb-3' %}
-<{{ level }} class="page-content-headline fw-bold {{ alignClass }} {{ spacingBeforeClass }} {{ spacingAfterClass }}">{{ block.data.text|default('') }}</{{ level }}>
+<{{ level }}{% if block.data.id|default('') %} id="{{ block.data.id }}"{% endif %} class="page-content-headline fw-bold {{ alignClass }} {{ spacingBeforeClass }} {{ spacingAfterClass }}">{{ block.data.text|default('') }}</{{ level }}>

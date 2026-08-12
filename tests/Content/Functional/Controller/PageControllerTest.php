@@ -288,4 +288,143 @@ final class PageControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="page-sidebar"]', 'Nur Mitglieder');
     }
+
+    public function testTableOfContentsIsRenderedWhenEnabledAndHeadingsExist(): void
+    {
+        $client = self::createClient();
+
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Guide',
+            'slug' => 'guide',
+            'path' => '/guide',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Guide',
+            'slug' => 'guide',
+            'path' => '/guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'showToc' => true,
+            'content' => [
+                [
+                    'type' => 'headline',
+                    'enabled' => true,
+                    'data' => ['text' => 'Getting started', 'level' => 'h2'],
+                ],
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => ['html' => '<h3>First steps</h3><p>Hello</p>'],
+                ],
+            ],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/guide');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="page-toc"]');
+        self::assertSelectorExists('[data-testid="page-toc"] a[href="#getting-started"]');
+        self::assertSelectorExists('[data-testid="page-toc"] a[href="#first-steps"]');
+        self::assertSelectorExists('h2#getting-started.page-content-headline');
+        self::assertSelectorExists('h3#first-steps');
+    }
+
+    public function testTableOfContentsIsHiddenWhenDisabledOrWithoutHeadings(): void
+    {
+        $client = self::createClient();
+
+        PageFactory::createOne([
+            'title' => 'No Toc Flag',
+            'slug' => 'no-toc-flag',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+            'content' => [
+                [
+                    'type' => 'headline',
+                    'data' => ['text' => 'Heading', 'level' => 'h2'],
+                ],
+            ],
+        ]);
+
+        $pageWithoutHeadings = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Empty Toc',
+            'slug' => 'empty-toc',
+            'path' => '/empty-toc',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        PageTranslationFactory::createOne([
+            'page' => $pageWithoutHeadings,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Empty Toc',
+            'slug' => 'empty-toc',
+            'path' => '/empty-toc',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'showToc' => true,
+            'content' => [
+                [
+                    'type' => 'richtext',
+                    'enabled' => true,
+                    'data' => ['html' => '<p>No headings here</p>'],
+                ],
+            ],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/no-toc-flag');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="page-toc"]');
+
+        $client->request(Request::METHOD_GET, '/empty-toc');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="page-toc"]');
+    }
+
+    public function testAdminSeesEditShortcutToTranslationBackend(): void
+    {
+        $client = self::createClient();
+
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Editable',
+            'slug' => 'editable-page',
+            'path' => '/editable-page',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        $translation = PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Editable',
+            'slug' => 'editable-page',
+            'path' => '/editable-page',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Edit me</p>']]],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/editable-page');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="page-edit-action"]');
+
+        $user = UserFactory::createOne();
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/editable-page');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="page-edit-action"]');
+
+        $admin = UserFactory::new()->asAdmin()->create();
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, '/editable-page');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="page-edit-action"]');
+        self::assertSelectorExists(sprintf(
+            '[data-testid="page-edit-action"][href="/admin/page-translation/%d/edit"]',
+            $translation->getId(),
+        ));
+    }
 }

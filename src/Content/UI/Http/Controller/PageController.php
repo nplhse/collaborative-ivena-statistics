@@ -7,6 +7,7 @@ namespace App\Content\UI\Http\Controller;
 use App\Content\Application\Page\PageAccessChecker;
 use App\Content\Application\Page\PageLocaleAlternateLinkBuilder;
 use App\Content\Application\Page\PageSidebarDataProvider;
+use App\Content\Application\Page\PageTableOfContentsBuilder;
 use App\Content\Application\Page\PageTranslationResolver;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
@@ -25,6 +26,7 @@ final class PageController extends AbstractController
         private readonly PageSidebarDataProvider $pageSidebarDataProvider,
         private readonly PageTranslationResolver $pageTranslationResolver,
         private readonly PageLocaleAlternateLinkBuilder $pageLocaleAlternateLinkBuilder,
+        private readonly PageTableOfContentsBuilder $pageTableOfContentsBuilder,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -55,9 +57,16 @@ final class PageController extends AbstractController
             ),
         );
 
+        $tableOfContents = $this->pageTableOfContentsBuilder->build(
+            $translation->getContent(),
+            $translation->isShowToc(),
+        );
+
         return $this->render('@Content/page/show.html.twig', [
             'page' => $page,
             'translation' => $translation,
+            'content' => $tableOfContents->content,
+            'toc' => $tableOfContents->isEmpty() ? [] : $tableOfContents->items,
             'breadcrumbItems' => $this->buildBreadcrumbItems($page, $translation),
             'currentPage' => $page,
             ...$this->pageSidebarDataProvider->getData(),

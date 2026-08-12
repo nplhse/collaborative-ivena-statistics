@@ -26,6 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -187,6 +188,8 @@ final class PageTranslationCrudController extends AbstractCrudController
                 'Published' => PageTranslation::STATUS_PUBLISHED,
             ])
             ->renderAsBadges();
+        yield BooleanField::new('showToc', new TranslatableMessage('label.show_toc', domain: 'content'))
+            ->setHelp(new TranslatableMessage('help.page.show_toc', domain: 'content'));
         yield TextField::new('path', 'label.path')
             ->hideOnForm()
             ->hideOnIndex();

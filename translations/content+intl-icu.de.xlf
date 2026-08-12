@@ -1009,6 +1009,18 @@
         <source>public.stats.users</source>
         <target>Benutzer</target>
       </trans-unit>
+      <trans-unit id="DePageToc001" resname="label.show_toc">
+        <source>label.show_toc</source>
+        <target>Inhaltsverzeichnis anzeigen</target>
+      </trans-unit>
+      <trans-unit id="DePageToc002" resname="help.page.show_toc">
+        <source>help.page.show_toc</source>
+        <target>Wenn aktiviert, erscheint in der Seitenleiste ein Inhaltsverzeichnis, sofern der Inhalt H1–H3-Überschriften enthält.</target>
+      </trans-unit>
+      <trans-unit id="DePageToc003" resname="page.toc.title">
+        <source>page.toc.title</source>
+        <target>Auf dieser Seite</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
