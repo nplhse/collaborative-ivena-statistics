@@ -683,6 +683,8 @@ deptrac:
             - Shared_Infrastructure
             - Shared_UI
             - Statistics_Application
+            - User_Application
+            - User_Domain
         Import_UI:
             - Allocation_Application
             - Allocation_Domain
@@ -973,3 +975,4 @@ deptrac:
             - Shared_UI
             - User_Application
             - User_Domain
+            - User_Infrastructure

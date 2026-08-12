@@ -2,7 +2,7 @@
 
 {% set overviewActive = route == 'app_explore_index' %}
 {% set casesActive = route starts with 'app_explore_allocation' or route starts with 'app_explore_mci_case' %}
-{% set orgActive = route starts with 'app_explore_hospital' or route starts with 'app_explore_state' or route starts with 'app_explore_dispatch_area' %}
+{% set orgActive = route starts with 'app_explore_hospital' or route starts with 'app_explore_state' or route starts with 'app_explore_dispatch_area' or route starts with 'app_explore_user' %}
 {% set structureActive = route starts with 'app_explore_speciality' or route starts with 'app_explore_department' %}
 {% set featuresActive = route starts with 'app_explore_indication' or route starts with 'app_explore_infection' or route starts with 'app_explore_occasion' or route starts with 'app_explore_secondary_transport' or route starts with 'app_explore_assignment' %}
 {% set glossaryActive = route starts with 'app_explore_glossary' %}
@@ -76,6 +76,12 @@
                                 href="{{ path('app_explore_dispatch_area_list') }}"
                             >
                                 {{ 'link.dispatch_areas'|trans({}, 'shared') }}
+                            </a>
+                            <a
+                                class="dropdown-item {{ route starts with 'app_explore_user' ? 'active' : '' }}"
+                                href="{{ path('app_explore_user_list') }}"
+                            >
+                                {{ 'link.users'|trans({}, 'shared') }}
                             </a>
                         </div>
                     </li>

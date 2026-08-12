@@ -337,6 +337,114 @@
         <source>title.settings.notifications</source>
         <target>Benachrichtigungen</target>
       </trans-unit>
+      <trans-unit id="usrTitleListDe" resname="title.user.list">
+        <source>title.user.list</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="usrTitleShowDe" resname="title.user.show">
+        <source>title.user.show</source>
+        <target>Benutzerprofil</target>
+      </trans-unit>
+      <trans-unit id="usrLblSearchDe" resname="label.user.search">
+        <source>label.user.search</source>
+        <target>Nach Namen suchen …</target>
+      </trans-unit>
+      <trans-unit id="usrLblUsernameDe" resname="label.user.username">
+        <source>label.user.username</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="usrLblRolesDe" resname="label.user.roles">
+        <source>label.user.roles</source>
+        <target>Kennzeichnung</target>
+      </trans-unit>
+      <trans-unit id="usrLblHospitalsDe" resname="label.user.hospitals">
+        <source>label.user.hospitals</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="usrLblHospitalsEmptyDe" resname="label.user.hospitals.empty">
+        <source>label.user.hospitals.empty</source>
+        <target>Keine Krankenhäuser zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="usrLblHospitalOwnerDe" resname="label.user.hospital.owner">
+        <source>label.user.hospital.owner</source>
+        <target>Eigentümer</target>
+      </trans-unit>
+      <trans-unit id="usrLblHospitalAccessDe" resname="label.user.hospital.access">
+        <source>label.user.hospital.access</source>
+        <target>Mit Zugriff</target>
+      </trans-unit>
+      <trans-unit id="usrLblImportsDe" resname="label.user.imports">
+        <source>label.user.imports</source>
+        <target>Datenimporte</target>
+      </trans-unit>
+      <trans-unit id="usrLblImportsCountDe" resname="label.user.imports.count">
+        <source>label.user.imports.count</source>
+        <target>{count, plural, one {# Datenimport} other {# Datenimporte}}</target>
+      </trans-unit>
+      <trans-unit id="usrLblImportsSuccessfulDe" resname="label.user.imports.successful">
+        <source>label.user.imports.successful</source>
+        <target>erfolgreiche Datenimporte</target>
+      </trans-unit>
+      <trans-unit id="usrLblImportsLastDe" resname="label.user.imports.last">
+        <source>label.user.imports.last</source>
+        <target>Letzter Import</target>
+      </trans-unit>
+      <trans-unit id="usrLblImportsEmptyDe" resname="label.user.imports.empty">
+        <source>label.user.imports.empty</source>
+        <target>Noch keine Datenimporte</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityDe" resname="label.user.activity">
+        <source>label.user.activity</source>
+        <target>Aktivität</target>
+      </trans-unit>
+      <trans-unit id="usrLblPostsDe" resname="label.user.posts">
+        <source>label.user.posts</source>
+        <target>Veröffentlichte Beiträge</target>
+      </trans-unit>
+      <trans-unit id="usrLblPostsEmptyDe" resname="label.user.posts.empty">
+        <source>label.user.posts.empty</source>
+        <target>Keine Beiträge vorhanden</target>
+      </trans-unit>
+      <trans-unit id="usrLblBadgeParticipantDe" resname="label.user.badge.participant">
+        <source>label.user.badge.participant</source>
+        <target>Teilnehmer</target>
+      </trans-unit>
+      <trans-unit id="usrLblBadgeAdminDe" resname="label.user.badge.admin">
+        <source>label.user.badge.admin</source>
+        <target>Administrator</target>
+      </trans-unit>
+      <trans-unit id="usrLblBadgeBoardDe" resname="label.user.badge.board_member">
+        <source>label.user.badge.board_member</source>
+        <target>Board Member</target>
+      </trans-unit>
+      <trans-unit id="usrLblSelfDe" resname="label.user.self_profile">
+        <source>label.user.self_profile</source>
+        <target>Dein Profil</target>
+      </trans-unit>
+      <trans-unit id="usrLblMyProfileDe" resname="label.user.my_profile">
+        <source>label.user.my_profile</source>
+        <target>Mein Profil</target>
+      </trans-unit>
+      <trans-unit id="usrLblFilterHospitalDe" resname="label.user.filter.hospital">
+        <source>label.user.filter.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="usrLblFilterHospitalAllDe" resname="label.user.filter.hospital_all">
+        <source>label.user.filter.hospital_all</source>
+        <target>Alle Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="usrLblEmptyListDe" resname="label.user.empty.list">
+        <source>label.user.empty.list</source>
+        <target>Keine Benutzer gefunden</target>
+      </trans-unit>
+      <trans-unit id="usrLblAccountDe" resname="label.user.account">
+        <source>label.user.account</source>
+        <target>Konto</target>
+      </trans-unit>
+      <trans-unit id="usrLblMemberSinceDe" resname="label.user.member_since">
+        <source>label.user.member_since</source>
+        <target>Mitglied seit {date}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -446,3 +446,58 @@
         </div>
     {% endif %}
 {% endmacro %}
+
+{% macro user_filter_badges(filters, hospitals) %}
+    {% set rawFilters = [] %}
+
+    {% if filters.hospitalId is not null %}
+        {% set hospitalName = null %}
+        {% for hospital in hospitals %}
+            {% if hospitalName is null and hospital.id == filters.hospitalId %}
+                {% set hospitalName = hospital.name %}
+            {% endif %}
+        {% endfor %}
+        {% if hospitalName is not null %}
+            {% set rawFilters = rawFilters|merge([{
+                key: 'label.user.filter.hospital',
+                domain: 'user',
+                value: hospitalName,
+            }]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.wantsParticipant %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.user.badge.participant',
+            domain: 'user',
+            value: 'label.yes'|trans({}, 'messages'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.wantsBoardMember %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.user.badge.board_member',
+            domain: 'user',
+            value: 'label.yes'|trans({}, 'messages'),
+        }]) %}
+    {% endif %}
+
+    {% set byKey = {} %}
+    {% set domainsByKey = {} %}
+    {% for f in rawFilters %}
+        {% set byKey = byKey|merge({(f.key): f.value}) %}
+        {% set domainsByKey = domainsByKey|merge({(f.key): f.domain}) %}
+    {% endfor %}
+
+    {% set sortedKeys = byKey|keys|sort %}
+
+    {% if sortedKeys is not empty %}
+        <div class="d-flex flex-wrap gap-1">
+            {% for key in sortedKeys %}
+                <span class="badge bg-blue-lt">
+                    <strong>{{ key|trans({}, domainsByKey[key]) }}:</strong> {{ byKey[key] }}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endmacro %}

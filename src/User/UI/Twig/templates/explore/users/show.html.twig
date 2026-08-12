@@ -1,0 +1,172 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.user.show'|trans({}, 'user') }}: {{ profile.username }} - {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'link.users', path: path('app_explore_user_list') },
+                    { label: profile.username, translatable: false }
+                ]"
+        />
+
+        <div class="row align-items-center" data-testid="user-profile-header">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:user" width="36px" height="36px" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 id="user-username" class="fw-bold mb-1">{{ profile.username }}</h1>
+                <div class="list-inline list-inline-dots text-muted">
+                    {% if profile.isSelf %}
+                        <div class="list-inline-item">
+                            <span class="badge bg-green-lt text-green-lt-fg" data-testid="user-badge-self">{{ 'label.user.self_profile'|trans({}, 'user') }}</span>
+                        </div>
+                    {% endif %}
+                    {% if profile.isAdmin %}
+                        <div class="list-inline-item">
+                            <span class="badge bg-red-lt text-red-lt-fg" data-testid="user-badge-admin">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+                        </div>
+                    {% endif %}
+                    {% if profile.isParticipant %}
+                        <div class="list-inline-item">
+                            <span class="badge bg-azure-lt text-azure-lt-fg" data-testid="user-badge-participant">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
+                        </div>
+                    {% endif %}
+                    {% if profile.isBoardMember %}
+                        <div class="list-inline-item">
+                            <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="list-inline-item" data-testid="user-member-since">
+                        {{ 'label.user.member_since'|trans(({date: profile.createdAt|date('d.m.Y')}), 'user') }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <a class="btn" href="{{ path('app_explore_user_list') }}">
+                        <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
+                        {{ 'label.back_to_list'|trans({}, 'messages') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="container-xl mt-3" data-testid="user-profile">
+        <div class="row row-cards">
+            <div class="col-12 col-lg-8">
+                <div class="card mb-3" data-testid="user-profile-hospitals">
+                    <div class="card-body">
+                        <div class="card-title">{{ 'label.user.hospitals'|trans({}, 'user') }}</div>
+                        {% if profile.hospitals is empty %}
+                            <div class="empty py-4">
+                                <p class="empty-title">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</p>
+                            </div>
+                        {% else %}
+                            <div class="list-group list-group-flush">
+                                {% for hospital in profile.hospitals %}
+                                    <a
+                                        href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                    >
+                                        <span>{{ hospital.name }}</span>
+                                        <span class="badge bg-secondary-lt">
+                                            {% if hospital.relation == 'owner' %}
+                                                {{ 'label.user.hospital.owner'|trans({}, 'user') }}
+                                            {% else %}
+                                                {{ 'label.user.hospital.access'|trans({}, 'user') }}
+                                            {% endif %}
+                                        </span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card mb-3" data-testid="user-profile-posts">
+                    <div class="card-body">
+                        <div class="card-title">{{ 'label.user.posts'|trans({}, 'user') }}</div>
+                        {% if profile.posts is empty %}
+                            <div class="empty py-4">
+                                <p class="empty-title">{{ 'label.user.posts.empty'|trans({}, 'user') }}</p>
+                            </div>
+                        {% else %}
+                            <div class="list-group list-group-flush">
+                                {% for post in profile.posts %}
+                                    <a
+                                        href="{{ path('app_blog_show', {slug: post.slug}) }}"
+                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                    >
+                                        <span>{{ post.title }}</span>
+                                        <span class="text-secondary">{{ post.publishedAt|date('d.m.Y') }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card mb-3" data-testid="user-profile-meta">
+                    <div class="card-body">
+                        <div class="card-title">{{ 'label.user.account'|trans({}, 'user') }}</div>
+                        <div class="mb-2" data-testid="user-created-at">
+                            <twig:ux:icon name="tabler:calendar-plus" width="1.5em" height="1.5em" />
+                            {{ 'label.created_at'|trans({}, 'messages') }}
+                            <strong>{{ profile.createdAt|date('d.m.Y H:i') }}</strong>
+                        </div>
+                        {% if profile.updatedAt %}
+                            <div class="mb-2" data-testid="user-updated-at">
+                                <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                                {{ 'label.updated_at'|trans({}, 'messages') }}
+                                <strong>{{ profile.updatedAt|date('d.m.Y H:i') }}</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card mb-3" data-testid="user-profile-activity">
+                    <div class="card-body">
+                        <div class="card-title">{{ 'label.user.activity'|trans({}, 'user') }}</div>
+                        <div class="datagrid">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'label.user.imports'|trans({}, 'user') }}</div>
+                                <div class="datagrid-content">
+                                    <span class="h2 mb-0" data-testid="user-import-count">{{ profile.successfulImportCount }}</span>
+                                    <div class="text-secondary">{{ 'label.user.imports.successful'|trans({}, 'user') }}</div>
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'label.user.imports.last'|trans({}, 'user') }}</div>
+                                <div class="datagrid-content">
+                                    {% if profile.lastSuccessfulImportAt %}
+                                        {{ profile.lastSuccessfulImportAt|date('d.m.Y') }}
+                                    {% else %}
+                                        <span class="text-secondary">{{ 'label.user.imports.empty'|trans({}, 'user') }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
