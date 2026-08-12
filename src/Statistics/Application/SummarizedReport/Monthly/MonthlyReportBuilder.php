@@ -123,7 +123,13 @@ final readonly class MonthlyReportBuilder
             : 0.0;
 
         $topDiagnoses = $hasData ? $this->mapTopRows(
-            $this->topDiagnosesQuery->fetch($monthContext, self::TOP_LIMIT, $allocationCount)['rows'],
+            array_map(
+                static fn (array $row): array => [
+                    'label' => $row['label'],
+                    'count' => $row['count'],
+                ],
+                $this->topDiagnosesQuery->fetch($monthContext, self::TOP_LIMIT, $allocationCount)['rows'],
+            ),
             $allocationCount,
         ) : [];
         $topOccasions = $hasData ? $this->mapTopRows(
@@ -265,8 +271,16 @@ final readonly class MonthlyReportBuilder
      *     monthStart: \DateTimeImmutable,
      *     monthEndExclusive: \DateTimeImmutable,
      *     previousMonthStart: \DateTimeImmutable,
+     *     previousMonthEndExclusive: \DateTimeImmutable,
+     *     yearAgoMonthStart: \DateTimeImmutable,
+     *     yearAgoMonthEndExclusive: \DateTimeImmutable,
+     *     latestCompletedMonthStart: \DateTimeImmutable,
      *     navigationPreviousYear: int,
      *     navigationPreviousMonth: int,
+     *     navigationNextYear: ?int,
+     *     navigationNextMonth: ?int,
+     *     navigationNextEnabled: bool,
+     *     referenceDate: \DateTimeImmutable
      * } $period
      *
      * @return list<HospitalInsight>
@@ -376,7 +390,7 @@ final readonly class MonthlyReportBuilder
             $params[StatisticsQueryKeys::COMPARISON_DISPATCH_AREA] = $filter->dispatchAreaId;
         }
         if ($filter->cohortType instanceof \App\Statistics\Application\Cohort\HospitalCohortKey) {
-            $params[StatisticsQueryKeys::COMPARISON_COHORT] = $filter->cohortType->value;
+            $params[StatisticsQueryKeys::COMPARISON_COHORT] = $filter->cohortType->value();
         }
 
         return $this->urlGenerator->generate('app_stats_benchmarking', $params);
@@ -392,7 +406,7 @@ final readonly class MonthlyReportBuilder
             StatisticsQueryKeys::HOSPITAL => $filter->hospitalId,
             StatisticsQueryKeys::STATE => $filter->stateId,
             StatisticsQueryKeys::DISPATCH_AREA => $filter->dispatchAreaId,
-            StatisticsQueryKeys::COHORT => $filter->cohortType?->value,
+            StatisticsQueryKeys::COHORT => $filter->cohortType?->value(),
             StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::Month->value,
             StatisticsQueryKeys::YEAR => $year,
             StatisticsQueryKeys::MONTH => $month,
