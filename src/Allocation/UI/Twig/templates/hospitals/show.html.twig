@@ -34,7 +34,7 @@
                 <div class="list-inline list-inline-dots text-muted">
                     <div class="list-inline-item">
                         <twig:ux:icon name="tabler:map" width="1em" height="1em" />
-                        {{ hospital.dispatchArea }}, {{ hospital.state }}
+                        {{ explore_entity_link(hospital.dispatchArea, {class: 'link-secondary'}) }}, {{ explore_entity_link(hospital.state, {class: 'link-secondary'}) }}
                     </div>
                     <div id="hospital-owned-by" class="list-inline-item">
                         <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />

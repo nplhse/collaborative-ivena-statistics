@@ -24,7 +24,7 @@ final class ShowDispatchAreaControllerTest extends WebTestCase
         $client = $this->createClientAsAreaUser();
         $state = StateFactory::createOne(['name' => 'Hessen']);
         $area = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
-        HospitalFactory::createOne([
+        $hospital = HospitalFactory::createOne([
             'name' => 'Klinik am Main',
             'state' => $state,
             'dispatchArea' => $area,
@@ -38,6 +38,12 @@ final class ShowDispatchAreaControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
         self::assertSelectorTextContains('[data-testid="catalog-related-entities"]', 'Hessen');
         self::assertSelectorTextContains('[data-testid="catalog-related-entities"]', 'Klinik am Main');
+        self::assertSelectorExists(
+            '[data-testid="catalog-related-entities"] a[href="/explore/state/'.$state->getPublicIdString().'"]',
+        );
+        self::assertSelectorExists(
+            '[data-testid="catalog-related-entities"] a[href="/explore/hospital/'.$hospital->getPublicIdString().'"]',
+        );
         self::assertSelectorExists('[data-testid="catalog-basic-info"] a[href^="/explore/user/"]');
 
         $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');

@@ -204,6 +204,65 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertStringContainsString(HospitalSize::cases()[0]->value, $pageText);
         self::assertStringContainsString(HospitalLocation::cases()[0]->value, $pageText);
         self::assertStringContainsString(HospitalTier::cases()[0]->value, $pageText);
+
+        self::assertSelectorExists('a[href="/explore/hospital/'.$hospital->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/dispatch_area/'.$dispatch->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/state/'.$state->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/department/'.$department->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/speciality/'.$speciality->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/indication/'.$indicationNormalized->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/assignment/'.$assignment->getPublicIdString().'"]');
+        $occasion = $allocation->getOccasion();
+        self::assertNotNull($occasion);
+        self::assertSelectorExists('a[href="/explore/occasion/'.$occasion->getPublicIdString().'"]');
+        self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
+    }
+
+    public function testShowLinksOptionalRelatedExplorerEntities(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Dispatch Area', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+        ]);
+        $secondaryIndicationNormalized = IndicationNormalizedFactory::createOne(['name' => 'Secondary Norm']);
+        $secondaryTransport = SecondaryTransportFactory::createOne();
+        $infection = InfectionFactory::createOne(['name' => 'MRSA']);
+        $allocation = AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'secondaryIndicationRaw' => IndicationRawFactory::createOne(),
+            'secondaryIndicationNormalized' => $secondaryIndicationNormalized,
+            'secondaryTransport' => $secondaryTransport,
+            'infection' => $infection,
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href="/explore/indication/'.$secondaryIndicationNormalized->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/secondary_transport/'.$secondaryTransport->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/infection/'.$infection->getPublicIdString().'"]');
+        self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
     }
 
     public function testShowDisplaysDepartmentWasClosedIndicator(): void

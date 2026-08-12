@@ -71,6 +71,8 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertSelectorTextContains('#hospital-beds', '321');
         self::assertSelectorTextContains('#hospital-location', HospitalLocation::cases()[0]->value);
         self::assertSelectorTextContains('#hospital-tier', HospitalTier::cases()[0]->value);
+        self::assertSelectorExists('a[href="/explore/dispatch_area/'.$dispatch->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/state/'.$state->getPublicIdString().'"]');
         self::assertSelectorNotExists('a.btn-primary[href="/hospitals/'.$hospital->getId().'/edit"]');
         self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
         $map = $crawler->filter('[data-testid="catalog-orientation-map"]');

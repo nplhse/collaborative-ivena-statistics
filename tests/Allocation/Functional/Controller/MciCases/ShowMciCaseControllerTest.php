@@ -39,6 +39,29 @@ final class ShowMciCaseControllerTest extends WebTestCase
         self::assertSelectorTextContains('h1.fw-bold', 'Mass casualty incident alpha');
         self::assertSelectorTextContains('#mci-case-mci-title', $mciCase->getMciId() ?? '');
         self::assertSelectorTextContains('a.btn', 'Back to list');
+
+        $hospital = $mciCase->getHospital();
+        $dispatchArea = $mciCase->getDispatchArea();
+        $state = $mciCase->getState();
+        $department = $mciCase->getDepartment();
+        $speciality = $mciCase->getSpeciality();
+        $indicationNormalized = $mciCase->getIndicationNormalized();
+        $infection = $mciCase->getInfection();
+        self::assertNotNull($hospital);
+        self::assertNotNull($dispatchArea);
+        self::assertNotNull($state);
+        self::assertNotNull($department);
+        self::assertNotNull($speciality);
+        self::assertNotNull($indicationNormalized);
+        self::assertNotNull($infection);
+        self::assertSelectorExists('a[href="/explore/hospital/'.$hospital->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/dispatch_area/'.$dispatchArea->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/state/'.$state->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/department/'.$department->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/speciality/'.$speciality->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/indication/'.$indicationNormalized->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/infection/'.$infection->getPublicIdString().'"]');
+        self::assertSelectorNotExists('a[href*="/explore/indication/raw/"]');
     }
 
     public function testDetailPageRejectsPostMethod(): void

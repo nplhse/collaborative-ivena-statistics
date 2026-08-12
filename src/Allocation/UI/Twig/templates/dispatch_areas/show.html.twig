@@ -90,11 +90,7 @@
                             {% if dispatchArea.state %}
                                 <div{% if dispatchArea.hospitals is not empty %} class="mb-3"{% endif %}>
                                     <div class="text-muted mb-1">{{ 'catalog.relation.state'|trans({}, 'allocation') }}</div>
-                                    {% if dispatchArea.state.publicId %}
-                                        <a href="{{ path('app_explore_state_show', {publicId: dispatchArea.state.publicId}) }}">{{ dispatchArea.state.name }}</a>
-                                    {% else %}
-                                        {{ dispatchArea.state.name }}
-                                    {% endif %}
+                                    {{ explore_entity_link(dispatchArea.state) }}
                                 </div>
                             {% endif %}
 
@@ -104,11 +100,7 @@
                                     <ul class="list-unstyled mb-0">
                                         {% for hospital in dispatchArea.hospitals|sort((a, b) => a.name <=> b.name) %}
                                             <li class="mb-1">
-                                                {% if hospital.publicId %}
-                                                    <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}">{{ hospital.name }}</a>
-                                                {% else %}
-                                                    {{ hospital.name }}
-                                                {% endif %}
+                                                {{ explore_entity_link(hospital) }}
                                             </li>
                                         {% endfor %}
                                     </ul>
