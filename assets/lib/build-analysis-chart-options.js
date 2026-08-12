@@ -24,10 +24,12 @@ export function resolveAnalysisChartFontFamily() {
 /**
  * @param {unknown} text
  * @param {{ offsetX?: number, offsetY?: number }} offsets
+ * @returns {{ text?: string, offsetX?: number, offsetY?: number, style?: Record<string, string|number> }}
  */
 function buildAxisTitleConfig(text, offsets = {}) {
+    // ApexCharts reads `axis.title.text` unconditionally; never return undefined.
     if (typeof text !== 'string' || text.trim() === '') {
-        return undefined;
+        return { text: undefined };
     }
 
     return {
