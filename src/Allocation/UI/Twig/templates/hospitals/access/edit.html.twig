@@ -13,9 +13,10 @@
         activeAccessSubsection: 'overview',
     } %}
         {% block edit_main %}
+            {% import '@Shared/_macros/users.html.twig' as users %}
             {{ form_start(form) }}
             <div class="card-header">
-                <h3 class="card-title">{{ 'title.hospital_access_grants.edit'|trans({}, 'allocation') }} · {{ grant.user.username }}</h3>
+                <h3 class="card-title">{{ 'title.hospital_access_grants.edit'|trans({}, 'allocation') }} · {{ users.link(grant.user) }}</h3>
             </div>
             <div class="card-body">
                 {{ form_row(form.permissionChoices) }}

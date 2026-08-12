@@ -53,6 +53,7 @@
         orientationMap: orientationMap,
     } %}
         {% block catalog_sidebar_extra %}
+                {% import '@Shared/_macros/users.html.twig' as users %}
             <div class="card mb-3" data-testid="catalog-basic-info">
                 <div class="card-body">
                     <div class="card-title">
@@ -64,7 +65,7 @@
                     </div>
                     <div class="mb-2">
                         <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                        {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ state.createdBy }}</strong>
+                        {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(state.createdBy) }}</strong>
                     </div>
                     {% if state.updatedBy and state.updatedAt %}
                         <div class="mt-1 mb-2">
@@ -73,7 +74,7 @@
                         </div>
                         <div class="mb-2">
                             <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ state.updatedBy }}</strong>
+                            {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(state.updatedBy) }}</strong>
                         </div>
                     {% endif %}
                 </div>

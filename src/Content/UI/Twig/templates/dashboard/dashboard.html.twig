@@ -1,5 +1,7 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
+{% import '@Shared/_macros/users.html.twig' as users %}
+
 {% block title %}{{ 'title.dashboard'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
 
 {% block page_header %}
@@ -99,7 +101,10 @@
                                     <a class="badge bg-blue-lt text-blue-emphasis" href="{{ path('app_blog_category', {slug: post.category.slug}) }}">{{ post.category.name }}</a>
                                     <span class="text-secondary">|</span>
                                     <twig:ux:icon name="tabler:user" class="w-3 h-3 flex-shrink-0" />
-                                    {{ post.createdBy ?: 'blog.meta.unknown_author'|trans({}, 'content') }}
+                                    {{ users.link(post.createdBy, {
+                                        requireParticipant: true,
+                                        empty: 'blog.meta.unknown_author'|trans({}, 'content'),
+                                    }) }}
                                     <span class="text-secondary">|</span>
                                     {{ 'blog.comments.count'|trans(({count: post.comments|length}), 'content') }}
                                 </div>

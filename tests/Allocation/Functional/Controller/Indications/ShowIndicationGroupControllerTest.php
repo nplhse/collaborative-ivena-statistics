@@ -48,7 +48,7 @@ final class ShowIndicationGroupControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="catalog-description"]');
         self::assertSelectorTextContains('[data-testid="catalog-editorial-note"]', 'Cardiac indication group.');
         self::assertSelectorTextContains('[data-testid="catalog-related-entities"]', 'STEMI');
-        self::assertSelectorNotExists('[data-testid="catalog-basic-info"] a');
+        self::assertSelectorExists('[data-testid="catalog-basic-info"] a[href^="/explore/user/"]');
 
         $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
         self::assertNotNull($href);

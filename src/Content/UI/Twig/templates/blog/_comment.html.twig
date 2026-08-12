@@ -1,6 +1,7 @@
 <div class="border rounded p-3" style="margin-left: {{ level * 1.5 }}rem;">
+    {% import '@Shared/_macros/users.html.twig' as users %}
     <div class="d-flex justify-content-between align-items-center mb-2">
-        <strong>{{ comment.author.userIdentifier }}</strong>
+        <strong>{{ users.link(comment.author, {requireParticipant: true}) }}</strong>
         <span class="text-secondary">{{ comment.createdAt|date('d.m.Y H:i') }}</span>
     </div>
     <div class="mb-2">{{ comment.content|nl2br }}</div>

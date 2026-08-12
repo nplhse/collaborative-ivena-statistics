@@ -38,7 +38,7 @@ final class ShowDispatchAreaControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
         self::assertSelectorTextContains('[data-testid="catalog-related-entities"]', 'Hessen');
         self::assertSelectorTextContains('[data-testid="catalog-related-entities"]', 'Klinik am Main');
-        self::assertSelectorNotExists('[data-testid="catalog-basic-info"] a');
+        self::assertSelectorExists('[data-testid="catalog-basic-info"] a[href^="/explore/user/"]');
 
         $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
         self::assertNotNull($href);
