@@ -41,6 +41,20 @@
                 {% endif %}
                 </div>
             </div>
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <span class="d-none d-sm-inline">
+                            <a class="btn btn-primary"
+                               data-testid="post-edit-action"
+                               href="{{ path('app_admin_dashboard_post_edit', {entityId: post.id}) }}">
+                                <twig:ux:icon name="tabler:edit" width="1em" height="1em" />&nbsp;
+                                {{ 'label.edit'|trans({}, 'messages') }}
+                            </a>
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

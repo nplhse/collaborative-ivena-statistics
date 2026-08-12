@@ -415,4 +415,40 @@ final class BlogControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertSelectorTextContains('body', 'Nested reply');
     }
+
+    public function testAdminSeesEditShortcutToPostBackend(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'Edit', 'slug' => 'edit-cat']);
+
+        $post = PostFactory::createOne([
+            'title' => 'Editable Post',
+            'slug' => 'editable-post',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+            'content' => '<p>Post body</p>',
+        ]);
+
+        $client->request(Request::METHOD_GET, '/blog/editable-post');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="post-edit-action"]');
+
+        $user = UserFactory::createOne();
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/blog/editable-post');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="post-edit-action"]');
+
+        $admin = UserFactory::new()->asAdmin()->create();
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, '/blog/editable-post');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="post-edit-action"]');
+        self::assertSelectorExists(sprintf(
+            '[data-testid="post-edit-action"][href="/admin/post/%d/edit"]',
+            $post->getId(),
+        ));
+    }
 }

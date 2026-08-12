@@ -383,4 +383,48 @@ final class PageControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="page-toc"]');
     }
+
+    public function testAdminSeesEditShortcutToTranslationBackend(): void
+    {
+        $client = self::createClient();
+
+        $page = PageFactory::new()->withoutDefaultTranslation()->create([
+            'title' => 'Editable',
+            'slug' => 'editable-page',
+            'path' => '/editable-page',
+            'status' => Page::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_PUBLIC,
+        ]);
+
+        $translation = PageTranslationFactory::createOne([
+            'page' => $page,
+            'locale' => SupportedLocales::DEFAULT,
+            'title' => 'Editable',
+            'slug' => 'editable-page',
+            'path' => '/editable-page',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'content' => [['type' => 'richtext', 'enabled' => true, 'data' => ['html' => '<p>Edit me</p>']]],
+        ]);
+
+        $client->request(Request::METHOD_GET, '/editable-page');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="page-edit-action"]');
+
+        $user = UserFactory::createOne();
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/editable-page');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="page-edit-action"]');
+
+        $admin = UserFactory::new()->asAdmin()->create();
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, '/editable-page');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="page-edit-action"]');
+        self::assertSelectorExists(sprintf(
+            '[data-testid="page-edit-action"][href="/admin/page-translation/%d/edit"]',
+            $translation->getId(),
+        ));
+    }
 }
