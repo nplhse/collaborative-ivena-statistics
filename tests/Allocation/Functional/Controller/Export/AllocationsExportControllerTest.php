@@ -78,6 +78,44 @@ final class AllocationsExportControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="export-allocations-prepare"]');
         self::assertSelectorExists('[data-testid="export-filter-section-hospital"]');
         self::assertSelectorExists('input[type="checkbox"][name*="[hospitals]"]:checked');
+        self::assertSelectorNotExists('[data-testid="export-hospitals-select-all"]');
+        self::assertSelectorNotExists('[data-controller="checkbox-select-all"]');
+    }
+
+    public function testOwnerWithMultipleHospitalsDoesNotSeeSelectAllControl(): void
+    {
+        [$client, $owner] = $this->createOwnerClient();
+        HospitalFactory::createOne(['owner' => $owner, 'name' => 'Second Export Hospital']);
+
+        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('input[type="checkbox"][name*="[hospitals]"]:checked');
+        self::assertSelectorNotExists('[data-testid="export-hospitals-select-all"]');
+        self::assertSelectorNotExists('[data-controller="checkbox-select-all"]');
+    }
+
+    public function testAdminWithMultipleHospitalsSeesSelectAllControl(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::createOne([
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_ADMIN'],
+            'username' => 'export-admin-'.bin2hex(random_bytes(4)),
+        ]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospitalA = HospitalFactory::createOne(['name' => 'Admin Export Hospital A']);
+        HospitalFactory::createOne(['name' => 'Admin Export Hospital B']);
+        $this->seedAllocationDependencies($hospitalA);
+        $client->loginUser($admin);
+
+        $client->request(Request::METHOD_GET, '/hospitals/export/allocations');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-controller="checkbox-select-all"]');
+        self::assertSelectorExists('[data-testid="export-hospitals-select-all"]');
+        self::assertSelectorExists('input[type="checkbox"][name*="[hospitals]"][data-checkbox-select-all-target="item"]');
+        self::assertSelectorExists('#export-hospitals-select-all:checked');
     }
 
     public function testExportPageHasNoMissingTranslationsInGerman(): void

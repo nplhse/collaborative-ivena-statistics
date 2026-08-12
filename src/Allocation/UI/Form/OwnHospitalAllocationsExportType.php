@@ -182,7 +182,7 @@ final class OwnHospitalAllocationsExportType extends AbstractType
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['hospitals_section_label'] = $options['hospitals_section_label'];
-        $view->vars['hospitals_help'] = $options['hospitals_help'];
+        $view->vars['hospitals_select_all'] = $options['hospitals_select_all'];
     }
 
     #[\Override]
@@ -194,12 +194,12 @@ final class OwnHospitalAllocationsExportType extends AbstractType
             'constraints' => [new ExportDateRangeValid()],
             'hospital_choices' => [],
             'hospitals_section_label' => 'label.hospital',
-            'hospitals_help' => '',
+            'hospitals_select_all' => false,
         ]);
 
         $resolver->setAllowedTypes('hospital_choices', 'array');
         $resolver->setAllowedTypes('hospitals_section_label', 'string');
-        $resolver->setAllowedTypes('hospitals_help', 'string');
+        $resolver->setAllowedTypes('hospitals_select_all', 'bool');
     }
 
     /**

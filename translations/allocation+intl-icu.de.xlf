@@ -205,9 +205,9 @@
         <source>help.export.department_was_closed_filter</source>
         <target>Nur Zuweisungen exportieren, bei denen der Fachbereich abgemeldet war.</target>
       </trans-unit>
-      <trans-unit id="ExpHlpDe03" resname="help.export.hospitals">
-        <source>help.export.hospitals</source>
-        <target>Alle zugänglichen Krankenhäuser sind standardmäßig ausgewählt. Deaktivieren Sie ein Krankenhaus, um es vom Export auszuschließen.</target>
+      <trans-unit id="ExpLblDe01" resname="label.export.hospitals_select_all">
+        <source>label.export.hospitals_select_all</source>
+        <target>Alle auswählen</target>
       </trans-unit>
       <trans-unit id="ExpHlpDe04" resname="help.export.include_indication_raw">
         <source>help.export.include_indication_raw</source>

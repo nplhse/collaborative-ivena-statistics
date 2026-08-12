@@ -12,14 +12,42 @@
             ) }}
             {{ editAccordion.panel_start('export-filter-hospital-panel', 'export-filter-hospital-heading', true) }}
                 <div class="accordion-body">
-                    <div class="row g-2">
-                        {% for hospitalField in form.hospitals %}
-                            <div class="col-md-6">{{ form_widget(hospitalField) }}</div>
-                        {% endfor %}
+                    {% set hospitalsSelectAll = form.vars.hospitals_select_all %}
+                    <div{% if hospitalsSelectAll %} data-controller="checkbox-select-all"{% endif %}>
+                        <div class="row g-2">
+                            {% if hospitalsSelectAll %}
+                                <div class="col-12">
+                                    <div class="form-check export-hospitals-select-all mb-0">
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               id="export-hospitals-select-all"
+                                               data-testid="export-hospitals-select-all"
+                                               data-checkbox-select-all-target="toggle"
+                                               data-action="change->checkbox-select-all#toggleAll"
+                                               checked
+                                               aria-label="{{ 'label.export.hospitals_select_all'|trans({}, 'allocation') }}">
+                                        <label class="form-check-label" for="export-hospitals-select-all">
+                                            {{ 'label.export.hospitals_select_all'|trans({}, 'allocation') }}
+                                        </label>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% for hospitalField in form.hospitals %}
+                                <div class="col-md-6">
+                                    {% if hospitalsSelectAll %}
+                                        {{ form_widget(hospitalField, {
+                                            attr: {
+                                                'data-checkbox-select-all-target': 'item',
+                                                'data-action': 'change->checkbox-select-all#syncToggle',
+                                            },
+                                        }) }}
+                                    {% else %}
+                                        {{ form_widget(hospitalField) }}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                    {% if form.vars.hospitals_help %}
-                        <p class="text-muted small mb-0 mt-2">{{ form.vars.hospitals_help }}</p>
-                    {% endif %}
                 </div>
             {{ editAccordion.panel_end() }}
         </div>

@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Export;
 
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\User\Domain\Entity\User;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class ExportHospitalFormOptionsProvider
 {
     public function __construct(
         private HospitalRepository $hospitalRepository,
         private StatisticsHospitalScopeLabelResolver $hospitalScopeLabelResolver,
-        private TranslatorInterface $translator,
+        private HospitalAccessInterface $hospitalAccess,
     ) {
     }
 
@@ -57,9 +57,7 @@ final readonly class ExportHospitalFormOptionsProvider
             'hospital_choices' => $choices,
             'default_hospital_ids' => $hospitalIds,
             'hospitals_section_label' => $this->hospitalScopeLabelResolver->groupLabel($user, $locale),
-            'hospitals_help' => \count($hospitals) > 1
-                ? $this->translator->trans('help.export.hospitals', [], 'allocation', $locale)
-                : '',
+            'hospitals_select_all' => $this->hospitalAccess->isAdminHospitalScopeUser($user) && \count($hospitals) > 1,
         ];
     }
 }
