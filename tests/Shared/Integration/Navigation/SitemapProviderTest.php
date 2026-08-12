@@ -146,11 +146,13 @@ final class SitemapProviderTest extends KernelTestCase
         );
 
         $exploreSection = $this->findSection('explore');
-        self::assertCount(15, $exploreSection->links);
-        $this->assertLabelsAreAlphabetical(array_map(
+        self::assertCount(16, $exploreSection->links);
+        $exploreLabels = array_map(
             static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
             $exploreSection->links,
-        ));
+        );
+        self::assertContains('Users', $exploreLabels);
+        $this->assertLabelsAreAlphabetical($exploreLabels);
 
         $dataExchangeSection = $this->findSection('data_exchange');
         self::assertCount(1, $dataExchangeSection->links);
