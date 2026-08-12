@@ -1009,9 +1009,9 @@
         <source>help.export.period</source>
         <target>Without a time, day start (00:00:00) or day end (23:59:59) applies. Date and time form one continuous interval.</target>
       </trans-unit>
-      <trans-unit id="ExpHlpEn03" resname="help.export.hospitals">
-        <source>help.export.hospitals</source>
-        <target>All accessible hospitals are selected by default. Uncheck any to exclude them from the export.</target>
+      <trans-unit id="ExpLblEn01" resname="label.export.hospitals_select_all">
+        <source>label.export.hospitals_select_all</source>
+        <target>Select all</target>
       </trans-unit>
       <trans-unit id="ExpHlpEn04" resname="help.export.include_indication_raw">
         <source>help.export.include_indication_raw</source>
