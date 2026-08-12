@@ -90,11 +90,7 @@
                         <ul class="list-unstyled mb-0">
                             {% for area in state.dispatchAreas|sort((a, b) => a.name <=> b.name) %}
                                 <li class="mb-1">
-                                    {% if area.publicId %}
-                                        <a href="{{ path('app_explore_dispatch_area_show', {publicId: area.publicId}) }}">{{ area.name }}</a>
-                                    {% else %}
-                                        {{ area.name }}
-                                    {% endif %}
+                                    {{ explore_entity_link(area) }}
                                 </li>
                             {% endfor %}
                         </ul>

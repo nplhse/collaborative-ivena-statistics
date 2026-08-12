@@ -100,11 +100,7 @@
                             <ul class="list-unstyled mb-0">
                                 {% for indication in indicationGroup.indications %}
                                     <li class="mb-1">
-                                        {% if indication.publicId %}
-                                            <a href="{{ path('app_explore_indication_show', {publicId: indication.publicId}) }}">{{ indication.name }}</a>
-                                        {% else %}
-                                            {{ indication.name }}
-                                        {% endif %}
+                                        {{ explore_entity_link(indication) }}
                                     </li>
                                 {% endfor %}
                             </ul>
