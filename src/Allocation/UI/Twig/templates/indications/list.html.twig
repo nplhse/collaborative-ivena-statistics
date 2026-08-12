@@ -98,6 +98,7 @@
             :tabs="tabs"
         >
             {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+            {% import '@Shared/_macros/users.html.twig' as users %}
 
             <table class="table data-table-card">
                 <thead>
@@ -187,7 +188,7 @@
                             {{ indication.updatedAt ? indication.updatedAt|date('d.m.Y H:i') : indication.createdAt|date('d.m.Y H:i') }}
                         </td>
                         <td>
-                            {{ indication.updatedBy ? indication.updatedBy : indication.createdBy }}
+                            {{ users.link(indication.updatedBy ?? indication.createdBy) }}
                         </td>
                     </tr>
                 {% else %}

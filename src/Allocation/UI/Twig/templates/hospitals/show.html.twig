@@ -3,6 +3,7 @@
 {% block title %}{{ 'title.hospital_show'|trans({}, 'allocation') }}: {{ hospital.name }} - {{ 'title.data'|trans({}, 'messages') }} - {{ parent() }}{% endblock %}
 
 {% import '@Shared/_macros/badges.html.twig' as badges %}
+{% import '@Shared/_macros/users.html.twig' as users %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -37,7 +38,11 @@
                     </div>
                     <div id="hospital-owned-by" class="list-inline-item">
                         <twig:ux:icon name="tabler:user-square" width="1em" height="1em" />
-                        {{ hospital.owner.userIdentifier ?? 'label.without_owner'|trans({}, 'messages') }}
+                        {% if hospital.owner %}
+                            {{ users.link(hospital.owner) }}
+                        {% else %}
+                            {{ 'label.without_owner'|trans({}, 'messages') }}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -86,7 +91,7 @@
                             </div>
                             <div id="hospital-created-by" class="mb-2">
                                 <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ hospital.createdBy }}</strong>
+                                {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.createdBy) }}</strong>
                             </div>
                             {% if hospital.updatedBy and hospital.updatedAt %}
                                 <div class="mt-1 mb-2">
@@ -95,7 +100,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em"  />
-                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ hospital.updatedBy }}</strong>
+                                    {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(hospital.updatedBy) }}</strong>
                                 </div>
                             {% endif %}
                             {% if hospital.isParticipating %}

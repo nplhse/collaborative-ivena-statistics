@@ -112,7 +112,7 @@ final class Breadcrumbs
             return 'import';
         }
 
-        if (str_starts_with($label, 'title.settings')) {
+        if (str_starts_with($label, 'title.settings') || str_starts_with($label, 'title.user.')) {
             return 'user';
         }
 

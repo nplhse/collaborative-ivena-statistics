@@ -227,6 +227,7 @@
                     <div class="row row-cards">
                         <div class="col-12">
                             <twig:Card title="{{ 'label.basic_info'|trans({}, 'messages') }}">
+                                {% import '@Shared/_macros/users.html.twig' as users %}
                                 <div id="import-created-at" class="mb-2">
                                     <twig:ux:icon name="tabler:clock-play" class="w-3 h-3" />
                                     {{ 'label.created_at'|trans({}, 'messages') }} <strong>{{ import.createdAt|date('d.m.Y H:i') }}</strong>
@@ -243,13 +244,17 @@
                                 <div id="import-created-by" class="mb-2">
                                     <twig:ux:icon name="tabler:user-plus" class="w-3 h-3" />
                                     {{ 'label.created_by'|trans({}, 'messages') }}
-                                    <strong>{{ import.createdBy ?? '—' }}</strong>
+                                    <strong>
+                                        {{ users.link(import.createdBy) }}
+                                    </strong>
                                 </div>
                                 {% if import.updatedAt is not null %}
                                     <div id="import-updated-by">
                                         <twig:ux:icon name="tabler:user-edit" class="w-3 h-3" />
                                         {{ 'label.updated_by'|trans({}, 'messages') }}
-                                        <strong>{{ import.updatedBy ?? '—' }}</strong>
+                                        <strong>
+                                            {{ users.link(import.updatedBy) }}
+                                        </strong>
                                     </div>
                                 {% endif %}
                             </twig:Card>

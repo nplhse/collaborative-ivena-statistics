@@ -617,6 +617,10 @@
         <source>label.link.hospitals</source>
         <target>Facilities delivering medical care and patient services.</target>
       </trans-unit>
+      <trans-unit id="lblLinkUsersEn" resname="label.link.users">
+        <source>label.link.users</source>
+        <target>Directory of platform users with badges and hospital links.</target>
+      </trans-unit>
       <trans-unit id="fPY_MOE" resname="label.link.indications">
         <source>label.link.indications</source>
         <target>Preliminary suspected diagnosis summarizing the primary medical problem or injury at the scene.</target>

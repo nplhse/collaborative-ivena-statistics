@@ -161,6 +161,7 @@
             :paginationRoute="pagination_route"
         >
             {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+            {% import '@Shared/_macros/users.html.twig' as users %}
 
             <table class="table data-table-card">
                 <thead>
@@ -210,7 +211,7 @@
                             {{ dispatch_area.updatedAt ? dispatch_area.updatedAt|date('d.m.Y H:i') : dispatch_area.createdAt|date('d.m.Y H:i') }}
                         </td>
                         <td>
-                            {{ dispatch_area.updatedBy ? dispatch_area.updatedBy : dispatch_area.createdBy }}
+                            {{ users.link(dispatch_area.updatedBy ?? dispatch_area.createdBy) }}
                         </td>
                     </tr>
                 {% else %}

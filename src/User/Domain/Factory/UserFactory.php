@@ -64,6 +64,18 @@ final class UserFactory extends PersistentObjectFactory
     }
 
     /** @psalm-suppress PossiblyUnusedMethod */
+    public function asParticipant(): self
+    {
+        return $this->with(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod */
+    public function asBoardMember(): self
+    {
+        return $this->with(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_BOARD_MEMBER']]);
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod */
     public function asAdmin(): self
     {
         return $this->with(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);

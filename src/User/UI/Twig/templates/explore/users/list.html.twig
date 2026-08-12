@@ -1,0 +1,347 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.user.list'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block turbo_drive %}data-turbo=true{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                    { label: 'link.explore', path: path('app_explore_index') },
+                    { label: 'link.users' }
+                ]"
+        />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    {% block page_intro %}
+                        <h2 class="page-title">
+                            {% block page_title %}{{ 'title.user.list'|trans({}, 'user') }}{% endblock %}
+                        </h2>
+                        {% block page_subtitle %}
+                            {% block result_count %}
+                                <div id="result-count" class="text-body-secondary mt-1">
+                                    {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}), 'messages') }}
+                                </div>
+                            {% endblock %}
+                        {% endblock %}
+                    {% endblock %}
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <div class="btn-group">
+                            <button
+                                class="btn"
+                                type="button"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#user-filters"
+                                aria-controls="user-filters"
+                                data-testid="user-directory-filters-toggle"
+                            >
+                                {% if activeFilterCount < 1 %}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2"
+                                        stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M4 4h16l-6 8v6l-4 -2v-4z" />
+                                    </svg>
+                                {% else %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
+                                    </svg>
+                                {% endif %}
+                                <span class="ms-2">{{ 'label.filters'|trans({}, 'messages') }}</span>
+
+                                {% if activeFilterCount > 0 %}
+                                    <span class="badge text-primary ms-2" data-testid="user-directory-active-filter-count">
+                                        {{ activeFilterCount }}
+                                    </span>
+                                {% endif %}
+                            </button>
+
+                            {% if activeFilterCount > 0 %}
+                                <a
+                                    href="{{ path('app_explore_user_list', {
+                                        search: search,
+                                        sortBy: sortBy,
+                                        orderBy: orderBy,
+                                    }) }}"
+                                    class="btn btn-icon btn-outline"
+                                    title="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+                                    aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+                                    data-testid="user-directory-filters-reset"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="icon"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="2"
+                                        stroke="currentColor"
+                                        fill="none"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M18 6l-12 12" />
+                                        <path d="M6 6l12 12" />
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <form
+                            method="GET"
+                            action="{{ path('app_explore_user_list') }}"
+                            data-controller="autosubmit"
+                            data-turbo-frame="user-list"
+                            data-testid="user-directory-search"
+                        >
+                            <input type="hidden" name="sortBy" value="{{ sortBy }}">
+                            <input type="hidden" name="orderBy" value="{{ orderBy }}">
+                            {% if filters.hospitalId %}
+                                <input type="hidden" name="hospitalId" value="{{ filters.hospitalId }}">
+                            {% endif %}
+                            {% if filters.wantsParticipant %}
+                                <input type="hidden" name="participant" value="1">
+                            {% endif %}
+                            {% if filters.wantsBoardMember %}
+                                <input type="hidden" name="boardMember" value="1">
+                            {% endif %}
+                            <div class="input-icon">
+                                <input
+                                    type="search"
+                                    name="search"
+                                    value="{{ app.request.query.get('search') }}"
+                                    aria-label="{{ 'label.user.search'|trans({}, 'user') }}"
+                                    placeholder="{{ 'label.user.search'|trans({}, 'user') }}"
+                                    class="form-control d-inline-block w-9 me-3"
+                                    data-action="autosubmit#debouncedSubmit"
+                                    autofocus
+                                >
+                                <span class="input-icon-addon">
+                                    <twig:ux:icon name="tabler:search" width="1em" height="1em" />
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <turbo-frame id="user-list" data-turbo-action="advance" data-testid="user-directory-list">
+        {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
+
+        {% if activeFilterCount > 0 %}
+            <div class="alert alert-info" role="alert" data-testid="user-directory-active-filters">
+                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
+                {{ activeFilters.user_filter_badges(filters, hospitalChoices) }}
+            </div>
+        {% elseif search is not empty %}
+            <twig:Alert type="info" :message="'label.searching_for'|trans(({term: search}), 'allocation')" />
+        {% endif %}
+
+        <twig:DataTable
+            :paginator="paginator"
+            :paginationRoute="pagination_route"
+        >
+            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+
+            <table class="table data-table-card">
+                <thead>
+                    <tr>
+                        <th class="col-3">
+                            <a class="text-muted" href="{{ path('app_explore_user_list', {
+                                ... app.request.query.all(),
+                                sortBy: 'username',
+                                orderBy: sortBy == 'username' and orderBy == 'asc' ? 'desc' : 'asc',
+                            }) }}">
+                                {{ 'label.user.username'|trans({}, 'user') }} {{ pagination.sortArrow('username', sortBy, orderBy) }}
+                            </a>
+                        </th>
+                        <th class="col-3">{{ 'label.user.roles'|trans({}, 'user') }}</th>
+                        <th class="col-4">{{ 'label.user.hospitals'|trans({}, 'user') }}</th>
+                        <th class="col-2">
+                            <a class="text-muted" href="{{ path('app_explore_user_list', {
+                                ... app.request.query.all(),
+                                sortBy: 'createdAt',
+                                orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
+                            }) }}">
+                                {{ 'label.created_at'|trans({}, 'messages') }} {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                    <tr data-testid="user-directory-row">
+                        <td>
+                            <a href="{{ path('app_explore_user_show', {publicId: item.publicId}) }}" target="_top">
+                                {{ item.username }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if item.isAdmin %}
+                                <span class="badge bg-red-lt text-red-lt-fg" data-testid="user-badge-admin">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+                            {% endif %}
+                            {% if item.isParticipant %}
+                                <span class="badge bg-azure-lt text-azure-lt-fg" data-testid="user-badge-participant">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
+                            {% endif %}
+                            {% if item.isBoardMember %}
+                                <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.hospitals is empty %}
+                                <span class="text-secondary">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</span>
+                            {% else %}
+                                {% for hospital in item.hospitals %}
+                                    <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" target="_top" class="d-inline-block me-1">
+                                        {{ hospital.name }}
+                                    </a>{% if not loop.last %}<span class="text-secondary">·</span>{% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td data-testid="user-directory-created-at">
+                            {{ item.createdAt|date('d.m.Y') }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty">
+                                <div class="empty-icon">
+                                    <twig:ux:icon name="tabler:users" width="24" height="24" />
+                                </div>
+                                <p class="empty-title">{{ 'label.user.empty.list'|trans({}, 'user') }}</p>
+                                <p class="empty-subtitle text-secondary">
+                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </twig:DataTable>
+
+        <turbo-stream action="replace" target="result-count">
+            <template>
+                {{ block('result_count') }}
+            </template>
+        </turbo-stream>
+    </turbo-frame>
+
+    <div
+        class="offcanvas offcanvas-end"
+        tabindex="-1"
+        id="user-filters"
+        aria-labelledby="user-filters-label"
+        data-testid="user-directory-filters"
+    >
+        <div class="offcanvas-header">
+            <h2 class="offcanvas-title" id="user-filters-label">
+                {{ 'label.filter.results'|trans({}, 'messages') }}
+            </h2>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+            ></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <form method="get" action="{{ path('app_explore_user_list') }}" data-testid="user-directory-filter-form">
+                <input type="hidden" name="sortBy" value="{{ sortBy }}">
+                <input type="hidden" name="orderBy" value="{{ orderBy }}">
+                {% if search %}
+                    <input type="hidden" name="search" value="{{ search }}">
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label" for="user-filter-hospital">{{ 'label.user.filter.hospital'|trans({}, 'user') }}</label>
+                    <select name="hospitalId" id="user-filter-hospital" class="form-select">
+                        <option value="">{{ 'label.user.filter.hospital_all'|trans({}, 'user') }}</option>
+                        {% for hospital in hospitalChoices %}
+                            <option
+                                value="{{ hospital.id }}"
+                                {{ filters.hospitalId == hospital.id ? 'selected' }}
+                            >
+                                {{ hospital.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input
+                            type="checkbox"
+                            class="form-check-input"
+                            name="participant"
+                            value="1"
+                            {{ filters.wantsParticipant ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
+                    </label>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input
+                            type="checkbox"
+                            class="form-check-input"
+                            name="boardMember"
+                            value="1"
+                            {{ filters.wantsBoardMember ? 'checked' }}
+                        >
+                        <span class="form-check-label">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                    </label>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        {{ 'label.filters.apply'|trans({}, 'messages') }}
+                    </button>
+
+                    {% if activeFilterCount > 0 %}
+                        <a
+                            href="{{ path('app_explore_user_list', {
+                                search: search,
+                                sortBy: sortBy,
+                                orderBy: orderBy,
+                            }) }}"
+                            class="btn btn-link w-100"
+                        >
+                            {{ 'label.filters.reset'|trans({}, 'messages') }}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

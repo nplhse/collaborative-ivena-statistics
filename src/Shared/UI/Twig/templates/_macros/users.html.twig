@@ -1,0 +1,21 @@
+{#
+  Renders a username as profile link when the user has a publicId (and optionally ROLE_PARTICIPANT).
+
+  Options:
+    - empty: fallback when user is null (default: —)
+    - requireParticipant: only link for ROLE_PARTICIPANT (default: false)
+    - target: link target (default: _top, so DataTable/Turbo-Frames navigate the full page)
+#}
+{% macro link(user, options = {}) %}
+    {% set empty = options.empty|default('—') %}
+    {% set requireParticipant = options.requireParticipant|default(false) %}
+    {% set target = options.target|default('_top') %}
+
+    {% if user is null %}
+        {{ empty }}
+    {% elseif (not requireParticipant or is_granted('ROLE_PARTICIPANT')) and user.publicId %}
+        <a href="{{ path('app_explore_user_show', {publicId: user.publicId}) }}"{% if target %} target="{{ target }}"{% endif %}>{{ user }}</a>
+    {% else %}
+        {{ user }}
+    {% endif %}
+{% endmacro %}

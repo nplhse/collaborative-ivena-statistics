@@ -57,6 +57,7 @@
             actions: actions,
         } %}
             {% block catalog_sidebar_extra %}
+                {% import '@Shared/_macros/users.html.twig' as users %}
                 <div class="card mb-3" data-testid="catalog-basic-info">
                     <div class="card-body">
                         <div class="card-title">
@@ -68,7 +69,7 @@
                         </div>
                         <div class="mb-2">
                             <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                            {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ indicationGroup.createdBy }}</strong>
+                            {{ 'label.created_by'|trans({}, 'messages') }} <strong>{{ users.link(indicationGroup.createdBy) }}</strong>
                         </div>
                         {% if indicationGroup.updatedBy and indicationGroup.updatedAt %}
                             <div class="mt-1 mb-2">
@@ -77,7 +78,7 @@
                             </div>
                             <div class="mb-2">
                                 <twig:ux:icon name="tabler:user" width="1.5em" height="1.5em" />
-                                {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ indicationGroup.updatedBy }}</strong>
+                                {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(indicationGroup.updatedBy) }}</strong>
                             </div>
                         {% endif %}
                         {% if indicationGroup.description %}

@@ -91,6 +91,7 @@
             :paginationRoute="pagination_route"
         >
             {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+            {% import '@Shared/_macros/users.html.twig' as users %}
 
             <table class="table data-table-card">
                 <thead>
@@ -128,7 +129,7 @@
                             {{ occasion.updatedAt ? occasion.updatedAt|date('d.m.Y H:i') : occasion.createdAt|date('d.m.Y H:i') }}
                         </td>
                         <td>
-                            {{ occasion.updatedBy ? occasion.updatedBy : occasion.createdBy }}
+                            {{ users.link(occasion.updatedBy ?? occasion.createdBy) }}
                         </td>
                     </tr>
                 {% else %}

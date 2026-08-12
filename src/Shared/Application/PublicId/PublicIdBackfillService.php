@@ -12,6 +12,7 @@ final readonly class PublicIdBackfillService
 {
     /** @var list<string> */
     public const array TABLE_ORDER = [
+        'user',
         'hospital',
         'secondary_transport',
         'indication_raw',
@@ -149,7 +150,7 @@ final readonly class PublicIdBackfillService
         $rows = $this->connection->fetchFirstColumn(
             sprintf(
                 'SELECT id FROM %s WHERE public_id IS NULL AND id > :lastId ORDER BY id ASC LIMIT :batchSize',
-                $table,
+                $this->quoteTable($table),
             ),
             [
                 'lastId' => $lastId,
@@ -184,7 +185,7 @@ final readonly class PublicIdBackfillService
         return $this->connection->executeStatement(
             sprintf(
                 'UPDATE %s AS t SET public_id = v.pid FROM (VALUES %s) AS v(id, pid) WHERE t.id = v.id::int',
-                $table,
+                $this->quoteTable($table),
                 implode(', ', $values),
             ),
             $params,
@@ -194,7 +195,15 @@ final readonly class PublicIdBackfillService
     private function countRemaining(string $table): int
     {
         return (int) $this->connection->fetchOne(
-            sprintf('SELECT COUNT(*) FROM %s WHERE public_id IS NULL', $table),
+            sprintf('SELECT COUNT(*) FROM %s WHERE public_id IS NULL', $this->quoteTable($table)),
         );
+    }
+
+    private function quoteTable(string $table): string
+    {
+        return match ($table) {
+            'user' => '"user"',
+            default => $table,
+        };
     }
 }

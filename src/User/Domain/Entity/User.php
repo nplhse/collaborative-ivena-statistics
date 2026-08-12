@@ -6,6 +6,7 @@ namespace App\User\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Application\Locale\SupportedLocales;
+use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,8 +22,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_USERNAME', fields: ['username'])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, \Stringable
 {
+    use HasPublicId;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -65,6 +69,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $locale = null;
 
+    #[ORM\Column]
+    private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     /**
      * @var Collection<int, Hospital>
      */
@@ -74,6 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function __construct()
     {
         $this->hospitals = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable('now');
     }
 
     public function getId(): ?int
@@ -225,6 +236,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function hasExplicitLocale(): bool
     {
         return SupportedLocales::isSupported($this->locale);
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod Doctrine lifecycle callback */
+    #[ORM\PreUpdate]
+    public function touchUpdatedAt(): void
+    {
+        $this->setUpdatedAt(new \DateTimeImmutable('now'));
     }
 
     /**
