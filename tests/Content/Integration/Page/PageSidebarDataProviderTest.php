@@ -68,7 +68,7 @@ final class PageSidebarDataProviderTest extends KernelTestCase
             'title' => 'Sidebar EN',
             'slug' => 'sidebar-en',
             'path' => '/sidebar-en',
-            'status' => \App\Content\Domain\Entity\PageTranslation::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         PageTranslationFactory::createOne([
@@ -77,7 +77,7 @@ final class PageSidebarDataProviderTest extends KernelTestCase
             'title' => 'Sidebar DE',
             'slug' => 'sidebar-de',
             'path' => '/sidebar-de',
-            'status' => \App\Content\Domain\Entity\PageTranslation::STATUS_PUBLISHED,
+            'status' => PageTranslation::STATUS_PUBLISHED,
         ]);
 
         PostFactory::createOne([
