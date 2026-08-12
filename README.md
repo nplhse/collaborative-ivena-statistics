@@ -25,7 +25,7 @@ import and validation to statistical analysis and reporting.
 ### Requirements
 
 - PHP `>=8.4`
-- PostgreSQL `>=16`
+- PostgreSQL `>=18`
 - A running web server or Symfony CLI
 - Optional Docker for local infrastructure
 
