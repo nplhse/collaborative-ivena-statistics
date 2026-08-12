@@ -18,7 +18,8 @@ This is a **read-side transparency feature**. It does not block access to statis
 | Indication Insights index | `/statistics/indication-insights` | — |
 | Indication dashboard | `/statistics/indication/{id}` | route parameter |
 | Case Flow | `/statistics/case-flow` | — |
-| Reports | `/statistics/reports` | — |
+| Top Lists | `/statistics/top-lists` | — |
+| Reports | `/statistics/reports` | Report catalog; open a type e.g. `/statistics/reports/monthly` |
 | Analysis library / explorer | `/statistics/analysis/*` | — |
 | Benchmarking | `/statistics/benchmarking` | — (primary scope) |
 

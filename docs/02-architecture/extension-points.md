@@ -24,15 +24,29 @@ To add a new CSV row type, extend `AllocationRowType` and implement `AllocationR
 
 **Implementations:** indication, speciality, dispatch area, infection, occasion, secondary transport, assignment resolvers under `src/Import/Infrastructure/Resolver/`.
 
-## Statistics reports
+## Statistics top lists
 
-**Tag:** `app.statistics.report_definition`
+**Tag:** `app.statistics.top_list_definition`
 
-**Interface:** `ReportDefinitionInterface`
+**Interface:** `TopListDefinitionInterface`
 
-**Registry:** `ReportDefinitionRegistry`
+**Registry:** `TopListDefinitionRegistry`
 
 **Implementations:** TopDiagnoses, TopAssignments, TopDepartments, TopInfections, TopOccasions, TopSecondaryDiagnoses, TopSpecialities.
+
+## Statistics summarized reports
+
+**Tag:** `app.statistics.report_type`
+
+**Interface:** `ReportTypeInterface`
+
+**Registry:** `ReportTypeRegistry`
+
+**Implementations:** `MonthlyReportType` (previous completed calendar month summary).
+
+Catalog: `GET /statistics/reports`. Detail: `GET /statistics/reports/{type}`.
+
+To add another predefined report (e.g. quarterly), implement `ReportTypeInterface` under `src/Statistics/Application/SummarizedReport/`.
 
 ## Analysis Explorer query mappers
 

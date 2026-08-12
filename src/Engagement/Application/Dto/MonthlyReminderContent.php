@@ -43,6 +43,7 @@ final readonly class MonthlyReminderContent
         public string $statisticsDashboardUrl,
         public string $benchmarkingUrl,
         public string $notificationsSettingsUrl,
+        public string $monthlyReportUrl,
         public ?int $platformAllocationCount = null,
         public ?float $platformAllocationMomPercent = null,
         public ?int $platformActiveHospitals = null,

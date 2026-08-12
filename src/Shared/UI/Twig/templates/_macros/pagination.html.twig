@@ -40,7 +40,7 @@
 {# Wie {{ results() }}, aber mit vorgegebenen Ziel-URLs (z. B. Statistics-Reports, Limit ohne Pagination). #}
 {% macro rowLimitDropdown(limitUrls, currentLimit) %}
     <div class="dropdown">
-        <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-testid="stats-reports-limit-trigger">
+        <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-testid="stats-top-lists-limit-trigger">
             <span class="me-1">
                 {{ 'label.pagination_results'|trans(({pageSize: currentLimit}), 'messages') }}
             </span>
@@ -49,7 +49,7 @@
             {% for size, url in limitUrls %}
                 <a class="dropdown-item{% if size == currentLimit %} active{% endif %}"
                    href="{{ url }}"
-                   data-testid="stats-reports-limit-{{ size }}">
+                   data-testid="stats-top-lists-limit-{{ size }}">
                     {{ 'label.pagination_results'|trans(({pageSize: size}), 'messages') }}
                 </a>
             {% endfor %}

@@ -101,6 +101,8 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         self::assertGreaterThan(0, $content->submissionMonthsTotal);
         self::assertNotEmpty($content->chartBars);
         self::assertNull($content->platformAllocationCount);
+        self::assertStringContainsString('/statistics/reports/monthly', $content->monthlyReportUrl);
+        self::assertStringNotContainsString('type=monthly', $content->monthlyReportUrl);
     }
 
     public function testBuildUsesGermanPeriodLabelsForGermanLocale(): void

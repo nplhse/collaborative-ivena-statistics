@@ -21,6 +21,10 @@
         <source>monthly_reminder.cta.upload</source>
         <target>Daten für {month} hochladen</target>
       </trans-unit>
+      <trans-unit id="A2cb59df75" resname="monthly_reminder.cta.monthly_report">
+        <source>monthly_reminder.cta.monthly_report</source>
+        <target>Monatsbericht ansehen</target>
+      </trans-unit>
       <trans-unit id="Def4661db9" resname="monthly_reminder.email.manage_notifications">
         <source>monthly_reminder.email.manage_notifications</source>
         <target>Benachrichtigungseinstellungen verwalten</target>

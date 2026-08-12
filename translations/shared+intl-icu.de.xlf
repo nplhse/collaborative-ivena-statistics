@@ -229,7 +229,11 @@
         <source>link.stats.indication_insights</source>
         <target>Indikationen</target>
       </trans-unit>
-      <trans-unit id="lnkStatsRepDe" resname="link.stats.reports">
+      <trans-unit id="lnkStatsRepDe" resname="link.stats.top_lists">
+        <source>link.stats.top_lists</source>
+        <target>Top-Listen</target>
+      </trans-unit>
+      <trans-unit id="Accad283eb" resname="link.stats.reports">
         <source>link.stats.reports</source>
         <target>Berichte</target>
       </trans-unit>

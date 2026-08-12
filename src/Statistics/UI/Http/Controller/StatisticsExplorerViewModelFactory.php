@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Statistics\Application\Report\ReportDefinitionRegistry;
+use App\Statistics\Application\TopList\TopListDefinitionRegistry;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +13,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final readonly class StatisticsExplorerViewModelFactory
 {
     public function __construct(
-        private ReportDefinitionRegistry $reportDefinitionRegistry,
+        private TopListDefinitionRegistry $topListDefinitionRegistry,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private TranslatorInterface $translator,
     ) {
@@ -29,31 +29,31 @@ final readonly class StatisticsExplorerViewModelFactory
     public function create(
         Request $request,
         string $currentPage,
-        ?string $currentReportKey = null,
+        ?string $currentTopListKey = null,
     ): array {
         if ('dashboard' === $currentPage) {
             return [];
         }
 
-        $reportEntries = [];
-        foreach ($this->reportDefinitionRegistry->all() as $definition) {
-            $reportEntries[] = [
+        $topListEntries = [];
+        foreach ($this->topListDefinitionRegistry->all() as $definition) {
+            $topListEntries[] = [
                 'key' => $definition->key(),
                 'labelKey' => $definition->labelTranslationKey(),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_reports',
+                    'app_stats_top_lists',
                     [StatisticsQueryKeys::REPORT => $definition->key()],
                 ),
-                'active' => $currentReportKey === $definition->key(),
+                'active' => $currentTopListKey === $definition->key(),
             ];
         }
-        $this->sortEntriesByTranslatedLabel($reportEntries, $request->getLocale());
+        $this->sortEntriesByTranslatedLabel($topListEntries, $request->getLocale());
 
         return [[
-            'key' => 'reports',
-            'labelKey' => 'stats.reports.select_label',
-            'entries' => $reportEntries,
+            'key' => 'top_lists',
+            'labelKey' => 'stats.top_lists.select_label',
+            'entries' => $topListEntries,
         ]];
     }
 

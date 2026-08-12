@@ -212,6 +212,7 @@ final class MonthlyReminderMailerTest extends TestCase
             statisticsDashboardUrl: 'https://example.test/stats',
             benchmarkingUrl: 'https://example.test/benchmark',
             notificationsSettingsUrl: 'https://example.test/settings',
+            monthlyReportUrl: 'https://example.test/statistics/reports/monthly',
         );
     }
 }

@@ -33,6 +33,7 @@ final readonly class SitemapProvider
         'app_hospitals_export_allocations' => ['labelKey' => 'link.export', 'labelDomain' => 'shared'],
         'app_stats_dashboard' => ['labelKey' => 'link.stats.dashboard', 'labelDomain' => 'shared'],
         'app_stats_analysis_library' => ['labelKey' => 'link.stats.analysis', 'labelDomain' => 'shared'],
+        'app_stats_top_lists' => ['labelKey' => 'link.stats.top_lists', 'labelDomain' => 'shared'],
         'app_stats_reports' => ['labelKey' => 'link.stats.reports', 'labelDomain' => 'shared'],
         'app_stats_indication_insights' => ['labelKey' => 'link.stats.indication_insights', 'labelDomain' => 'shared'],
         'app_stats_benchmarking' => ['labelKey' => 'link.stats.benchmarking', 'labelDomain' => 'shared'],
@@ -116,6 +117,7 @@ final readonly class SitemapProvider
             'entries' => [
                 ['route' => 'app_stats_dashboard', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_stats_analysis_library', 'visibility' => self::VISIBILITY_AUTHENTICATED],
+                ['route' => 'app_stats_top_lists', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_stats_reports', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_stats_indication_insights', 'visibility' => self::VISIBILITY_AUTHENTICATED],
                 ['route' => 'app_stats_benchmarking', 'visibility' => self::VISIBILITY_AUTHENTICATED],
