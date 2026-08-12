@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Content\Infrastructure\Factory;
 
 use App\Content\Domain\Entity\Page;
-use App\Content\Domain\Entity\PageTranslation;
-use App\Shared\Application\Locale\SupportedLocales;
 use Zenstruck\Foundry\Object\Instantiator;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
@@ -15,6 +13,10 @@ use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
  */
 final class PageFactory extends PersistentObjectFactory
 {
+    /**
+     * Convenience attributes forwarded to the default PageTranslation.
+     * They are not Page fields — Instantiator allows them as extras.
+     */
     private const array TRANSLATION_ATTRIBUTE_KEYS = [
         'title',
         'slug',
@@ -37,24 +39,9 @@ final class PageFactory extends PersistentObjectFactory
     #[\Override]
     protected function defaults(): array
     {
-        $slug = self::faker()->unique()->slug(2);
-        $title = ucfirst(str_replace('-', ' ', $slug));
-
-        // Convenience attributes are allowed as extras and applied to PageTranslation in afterInstantiate.
         return [
             'visibility' => Page::VISIBILITY_PUBLIC,
             'sortOrder' => 0,
-            'title' => $title,
-            'slug' => $slug,
-            'path' => '/'.$slug,
-            'status' => PageTranslation::STATUS_PUBLISHED,
-            'content' => [
-                [
-                    'type' => 'richtext',
-                    'enabled' => true,
-                    'data' => ['html' => '<p>Beispielseite</p>'],
-                ],
-            ],
         ];
     }
 
@@ -64,13 +51,13 @@ final class PageFactory extends PersistentObjectFactory
     public function withoutDefaultTranslation(): static
     {
         /** @var static $factory */
-        $factory = $this->afterInstantiate(static function (object $page): void {
-            if (!$page instanceof Page) {
+        $factory = $this->afterInstantiate(static function (object $object): void {
+            if (!$object instanceof Page) {
                 return;
             }
 
-            foreach ([...$page->getTranslations()] as $translation) {
-                $page->removeTranslation($translation);
+            foreach ([...$object->getTranslations()] as $translation) {
+                $object->removeTranslation($translation);
             }
         });
 
@@ -84,77 +71,31 @@ final class PageFactory extends PersistentObjectFactory
         /** @var static $factory */
         $factory = $this
             ->instantiateWith(Instantiator::withConstructor()->allowExtra(...self::TRANSLATION_ATTRIBUTE_KEYS))
-            ->afterInstantiate(function (object $page, array $attributes): void {
-                if (!$page instanceof Page || $page->getTranslations()->count() > 0) {
-                    return;
-                }
-
-                $attrs = [];
-                foreach (self::TRANSLATION_ATTRIBUTE_KEYS as $key) {
-                    if (\array_key_exists($key, $attributes)) {
-                        $attrs[$key] = $attributes[$key];
-                    }
-                }
-
-                if ([] === $attrs) {
-                    return;
-                }
-
-                $slug = (string) ($attrs['slug'] ?? self::faker()->unique()->slug(2));
-                $title = (string) ($attrs['title'] ?? ucfirst(str_replace('-', ' ', $slug)));
-                $path = (string) ($attrs['path'] ?? '/'.ltrim($slug, '/'));
-                if (!$page->getParent() instanceof Page) {
-                    $path = '/'.ltrim($slug, '/');
-                }
-
-                $translation = new PageTranslation();
-                $translation->setLocale((string) ($attrs['locale'] ?? SupportedLocales::DEFAULT));
-                $translation->setTitle($title);
-                $translation->setSlug($slug);
-                $translation->setPath($path);
-                $translation->setStatus((string) ($attrs['status'] ?? PageTranslation::STATUS_PUBLISHED));
-                $translation->setContent($this->normalizeTranslationContent($attrs['content'] ?? null));
-                if (\array_key_exists('showToc', $attrs)) {
-                    $translation->setShowToc((bool) $attrs['showToc']);
-                }
-                $page->addTranslation($translation);
-            });
+            ->afterInstantiate(self::addDefaultTranslation(...));
 
         return $factory;
     }
 
     /**
-     * @return list<array{type: string, data: array<string, mixed>, enabled?: bool}>
+     * @param array<string, mixed> $attributes
      */
-    private function normalizeTranslationContent(mixed $value): array
+    private static function addDefaultTranslation(object $object, array $attributes): void
     {
-        if (!\is_array($value)) {
-            return [];
+        if (!$object instanceof Page || $object->getTranslations()->count() > 0) {
+            return;
         }
 
-        $content = [];
-        foreach ($value as $block) {
-            if (!\is_array($block)) {
-                continue;
-            }
-
-            $type = $block['type'] ?? null;
-            $data = $block['data'] ?? null;
-            if (!\is_string($type) || !\is_array($data)) {
-                continue;
-            }
-
-            /** @var array<string, mixed> $data */
-            $item = [
-                'type' => $type,
-                'data' => $data,
-            ];
-            if (\array_key_exists('enabled', $block)) {
-                $item['enabled'] = (bool) $block['enabled'];
-            }
-            $content[] = $item;
+        $translationAttributes = array_intersect_key($attributes, array_flip(self::TRANSLATION_ATTRIBUTE_KEYS));
+        if (
+            \array_key_exists('slug', $translationAttributes)
+            && !\array_key_exists('path', $translationAttributes)
+            && !$object->getParent() instanceof Page
+        ) {
+            $translationAttributes['path'] = '/'.ltrim((string) $translationAttributes['slug'], '/');
         }
 
-        return $content;
+        PageTranslationFactory::new()
+            ->withoutPersisting()
+            ->create(['page' => $object, ...$translationAttributes]);
     }
 }
