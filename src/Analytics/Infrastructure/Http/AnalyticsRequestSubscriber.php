@@ -14,6 +14,8 @@ use App\Shared\Domain\Entity\CookieConsent;
 use App\Shared\Infrastructure\Consent\CookieConsentService;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -52,6 +54,7 @@ final readonly class AnalyticsRequestSubscriber
         private RequestAnalyticsRecorder $recorder,
         private Security $security,
         private LoggerInterface $logger,
+        private ManagerRegistry $doctrine,
     ) {
     }
 
@@ -103,6 +106,14 @@ final readonly class AnalyticsRequestSubscriber
         }
 
         try {
+            $em = $this->doctrine->getManager();
+            if ($em instanceof EntityManagerInterface && $em->isOpen()) {
+                // Terminate must not flush leftover request-scoped entities. A logged-in
+                // request can leave an uninitialized User in the unit of work; flushing it
+                // violates user.username NOT NULL and closes the EntityManager.
+                $em->clear();
+            }
+
             $this->recordRequest($request, $event->getResponse()->getStatusCode());
         } catch (\Throwable $e) {
             $this->logger->warning('Failed to record analytics request.', [
