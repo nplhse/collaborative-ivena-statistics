@@ -23,7 +23,7 @@ Examples: `app:import:allocations`, `app:statistics:rebuild-projection`.
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. `app:audit:purge-import-assessments` is an exception: it previews by default and requires `--execute` to delete rows.
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete) and `app:user:backfill-created-at` (`--apply` to write).
 
 ### Output
 
@@ -86,6 +86,12 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:content:analyze-page-images` | Analyze CMS page images; optional dimension backfill and layout migration. Runs on deploy via Deployer. |
+
+### User
+
+| Command | Purpose |
+|---|---|
+| `app:user:backfill-created-at` | One-time legacy tool: reconstruct `User.createdAt` from the earliest successful own import, otherwise the earliest successful import of an **owned** hospital. Access-grant users are not backfilled from hospital imports. Default: dry-run preview. Writes only with `--apply`. Removable after the production run. |
 
 ### Audit
 
