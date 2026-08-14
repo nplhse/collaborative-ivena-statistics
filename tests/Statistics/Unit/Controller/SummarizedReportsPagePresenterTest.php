@@ -69,6 +69,37 @@ final class SummarizedReportsPagePresenterTest extends TestCase
         }
     }
 
+    public function testPresentOmitsMonthOnlyNavigationForOtherReports(): void
+    {
+        $router = $this->createStub(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('/statistics/reports');
+        $earliestDateProvider = $this->createStub(ProjectionEarliestDateProviderInterface::class);
+        $presenter = new SummarizedReportsPagePresenter(
+            new StatisticsNavigationUrlBuilder($router),
+            $earliestDateProvider,
+        );
+
+        $reportType = $this->createStub(ReportTypeInterface::class);
+        $reportType->method('key')->willReturn('transport_time_profile');
+        $reportType->method('labelTranslationKey')->willReturn('stats.reports.types.transport_time_profile.label');
+        $reportType->method('descriptionTranslationKey')->willReturn('stats.reports.types.transport_time_profile.description');
+
+        $request = new Request(
+            query: ['scope' => 'public', 'period' => 'all'],
+            attributes: ['_route' => 'app_stats_reports_show', 'type' => 'transport_time_profile'],
+        );
+        $request->setLocale('en');
+
+        $model = $presenter->present(
+            $request,
+            $reportType,
+            new ReportBuildResult('@Statistics/reports/types/transport_time_profile.html.twig', new \stdClass()),
+        );
+
+        self::assertNull($model->periodNavigation);
+        self::assertSame('', $model->periodLabel);
+    }
+
     private function monthlyReportView(int $year, int $month): MonthlyReportView
     {
         return new MonthlyReportView(
