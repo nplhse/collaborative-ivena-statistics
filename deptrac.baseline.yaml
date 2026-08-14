@@ -382,6 +382,8 @@ deptrac:
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByCohortQuery
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByDispatchAreaQuery
       - App\Statistics\Infrastructure\Query\Overview\GetDistinctHospitalIdsByStateQuery
+    App\Statistics\Application\SummarizedReport\TransportTimeProfile\TransportTimeProfileBuilder:
+      - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
     App\Statistics\Application\TopDiagnosesQuery:
       - App\Statistics\Infrastructure\Query\ProjectionDiagnosisQuery
       - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
