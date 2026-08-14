@@ -17,6 +17,7 @@ final readonly class UserProfileView
         public bool $isAdmin,
         public bool $isParticipant,
         public bool $isBoardMember,
+        public bool $isUserOnly,
         public bool $isSelf,
         public \DateTimeImmutable $createdAt,
         public array $hospitals,

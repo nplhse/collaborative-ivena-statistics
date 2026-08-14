@@ -67,6 +67,31 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertStringNotContainsString('alpha-secret@example.test', $client->getResponse()->getContent() ?: '');
     }
 
+    public function testUserOnlyRoleShowsUserBadgeOnListAndProfile(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $listed = UserFactory::createOne([
+            'username' => 'plain-user',
+            'roles' => [UserRole::USER],
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user');
+        self::assertResponseIsSuccessful();
+        $row = $crawler->filter('[data-testid="user-directory-row"]')->reduce(
+            static fn ($node): bool => str_contains($node->text(), 'plain-user'),
+        );
+        self::assertCount(1, $row);
+        self::assertCount(1, $row->filter('[data-testid="user-badge-user"]'));
+        self::assertCount(0, $row->filter('[data-testid="user-badge-participant"]'));
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$listed->getPublicIdString());
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="user-badge-user"]');
+        self::assertSelectorNotExists('[data-testid="user-badge-participant"]');
+        self::assertSelectorNotExists('[data-testid="user-badge-admin"]');
+    }
+
     public function testListIsSortedAlphabeticallyByUsernameAscendingByDefault(): void
     {
         $client = $this->createClientAsParticipant();
@@ -288,6 +313,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorTextContains('#user-username', 'profile-user');
         self::assertSelectorExists('[data-testid="user-badge-participant"]');
         self::assertSelectorExists('[data-testid="user-badge-board-member"]');
+        self::assertSelectorNotExists('[data-testid="user-badge-user"]');
         self::assertSelectorTextContains('[data-testid="user-member-since"]', 'March 2025');
         self::assertSelectorTextContains('[data-testid="user-profile-header"]', 'Owned Klinik');
         self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Owned Klinik');
@@ -335,6 +361,7 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="user-badge-admin"]');
         self::assertSelectorNotExists('[data-testid="user-badge-participant"]');
+        self::assertSelectorNotExists('[data-testid="user-badge-user"]');
         self::assertSelectorTextContains('[data-testid="user-profile-header"]', 'site-admin');
         unset($crawler);
     }

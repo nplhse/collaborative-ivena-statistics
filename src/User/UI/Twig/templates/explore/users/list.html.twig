@@ -213,6 +213,9 @@
                             {% if item.isBoardMember %}
                                 <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
                             {% endif %}
+                            {% if item.isUserOnly %}
+                                <span class="badge bg-secondary-lt text-secondary-lt-fg" data-testid="user-badge-user">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if item.hospitals is empty %}

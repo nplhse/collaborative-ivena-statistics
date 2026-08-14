@@ -67,6 +67,7 @@ final readonly class UserDirectoryFactory
                 isAdmin: UserPublicRoleResolver::isAdmin($user),
                 isParticipant: UserPublicRoleResolver::isParticipant($user),
                 isBoardMember: UserPublicRoleResolver::isBoardMember($user),
+                isUserOnly: UserPublicRoleResolver::isUserOnly($user),
                 hospitals: $hospitalsByUser[$id] ?? [],
                 createdAt: $user->getCreatedAt(),
             );

@@ -16,6 +16,7 @@ final readonly class UserListItem
         public bool $isAdmin,
         public bool $isParticipant,
         public bool $isBoardMember,
+        public bool $isUserOnly,
         public array $hospitals,
         public \DateTimeImmutable $createdAt,
     ) {

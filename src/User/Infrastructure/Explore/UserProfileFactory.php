@@ -47,6 +47,7 @@ final readonly class UserProfileFactory
             isAdmin: UserPublicRoleResolver::isAdmin($user),
             isParticipant: UserPublicRoleResolver::isParticipant($user),
             isBoardMember: UserPublicRoleResolver::isBoardMember($user),
+            isUserOnly: UserPublicRoleResolver::isUserOnly($user),
             isSelf: $viewer instanceof User && $viewer->getId() === $id,
             createdAt: $user->getCreatedAt(),
             hospitals: $hospitalsByUser[$id] ?? [],

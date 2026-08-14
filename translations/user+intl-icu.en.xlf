@@ -409,6 +409,10 @@
         <source>label.user.badge.participant</source>
         <target>Participant</target>
       </trans-unit>
+      <trans-unit id="usrLblBadgeUserEn" resname="label.user.badge.user">
+        <source>label.user.badge.user</source>
+        <target>User</target>
+      </trans-unit>
       <trans-unit id="usrLblBadgeAdminEn" resname="label.user.badge.admin">
         <source>label.user.badge.admin</source>
         <target>Administrator</target>

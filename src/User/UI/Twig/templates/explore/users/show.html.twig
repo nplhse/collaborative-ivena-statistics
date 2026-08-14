@@ -51,6 +51,11 @@
                             <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
                         </div>
                     {% endif %}
+                    {% if profile.isUserOnly %}
+                        <div class="list-inline-item">
+                            <span class="badge bg-secondary-lt text-secondary-lt-fg" data-testid="user-badge-user">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
+                        </div>
+                    {% endif %}
                     {% for hospital in profile.hospitals %}
                         <div class="list-inline-item">
                             <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" class="link-secondary">{{ hospital.name }}</a>
@@ -109,6 +114,9 @@
                         {% endif %}
                         {% if profile.isAdmin %}
                             <span class="badge bg-red-lt text-red-lt-fg">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+                        {% endif %}
+                        {% if profile.isUserOnly %}
+                            <span class="badge bg-secondary-lt text-secondary-lt-fg">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
                         {% endif %}
                     </div>
                     <div class="mb-2" data-testid="user-member-since">
