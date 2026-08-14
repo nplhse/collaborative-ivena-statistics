@@ -23,7 +23,7 @@ Examples: `app:import:allocations`, `app:statistics:rebuild-projection`.
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete) and `app:user:backfill-created-at` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, and `app:user-activity:backfill` (`--apply` to write).
 
 ### Output
 
@@ -92,6 +92,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:user:backfill-created-at` | One-time legacy tool: reconstruct `User.createdAt` from the earliest successful own import, otherwise the earliest successful import of an **owned** hospital. Access-grant users are not backfilled from hospital imports. Default: dry-run preview. Writes only with `--apply`. Removable after the production run. |
+| `app:user-activity:backfill` | One-time backfill of the `user_activity` profile projection from historical imports, posts, comments, and hospital relations. Default: dry-run preview. Writes only with `--apply`. Idempotent via unique deduplication keys. See [ADR 014](../02-architecture/decisions/014-persisted-user-activity-projection.md). |
 
 ### Audit
 

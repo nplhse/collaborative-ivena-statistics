@@ -29,6 +29,7 @@ Each ADR includes:
 | [011](011-collaborative-explore-allocation-visibility.md) | Collaborative Explore allocation visibility | accepted |
 | [012](012-explore-data-catalog.md) | Explore data catalog | accepted |
 | [013](013-page-multilingual-content.md) | Multilingual CMS page content via PageTranslation | accepted |
+| [014](014-persisted-user-activity-projection.md) | Persistierte User-Activity-Projektion | accepted |
 
 ## Template
 
