@@ -42,7 +42,7 @@ To add a new CSV row type, extend `AllocationRowType` and implement `AllocationR
 
 **Registry:** `ReportTypeRegistry`
 
-**Implementations:** `MonthlyReportType` (previous completed calendar month summary).
+**Implementations:** `MonthlyReportType` (previous completed calendar month summary), `TransportTimeProfileReportType` (allocation composition across transport-time buckets).
 
 Catalog: `GET /statistics/reports`. Detail: `GET /statistics/reports/{type}`.
 

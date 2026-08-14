@@ -1,0 +1,122 @@
+<div class="stats-ttp-report" data-testid="stats-ttp-report">
+    {% if not report.hasData %}
+        <div class="empty" data-testid="stats-ttp-empty">
+            <div class="empty-icon">
+                <twig:ux:icon name="tabler:clock-bolt" class="icon icon-lg text-secondary" />
+            </div>
+            <p class="empty-title">{{ 'stats.reports.transport_time_profile.empty.title'|trans({}, 'statistics') }}</p>
+            <p class="empty-subtitle text-secondary" data-testid="stats-ttp-context">
+                {{ 'stats.reports.transport_time_profile.empty.body'|trans({context: report.contextLine}, 'statistics') }}
+            </p>
+            <div class="empty-action">
+                <a href="{{ report.importCreateUrl }}" class="btn btn-primary">
+                    {{ 'stats.reports.monthly.empty.cta_import'|trans({}, 'statistics') }}
+                </a>
+                <a href="{{ report.dashboardUrl }}" class="btn btn-outline-secondary">
+                    {{ 'stats.reports.monthly.empty.cta_dashboard'|trans({}, 'statistics') }}
+                </a>
+            </div>
+        </div>
+    {% else %}
+        {% if report.unknownTransportCount > 0 %}
+            <p class="text-secondary small mb-3" data-testid="stats-ttp-unknown-note">
+                {{ 'stats.reports.transport_time_profile.unknown_transport'|trans({count: report.unknownTransportCount}, 'statistics') }}
+            </p>
+        {% endif %}
+
+        <div class="row g-3 mb-3 align-items-stretch">
+            <div class="{% if report.insights is not empty %}col-lg-8{% else %}col-12{% endif %}">
+                <div class="card h-100" data-testid="stats-ttp-chart-card"
+                     {% if report.chartSpecs %}
+                     data-controller="generic-analysis-chart"
+                     data-generic-analysis-chart-specs-value="{{ report.chartSpecs|json_encode|e('html_attr') }}"
+                     data-generic-analysis-chart-default-type-value="cases"
+                     {% endif %}>
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+                        <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.chart.title'|trans({}, 'statistics') }}</h3>
+                        {% if report.chartSpecs %}
+                            <div class="btn-group btn-group-sm"
+                                 role="group"
+                                 aria-label="{{ 'stats.reports.transport_time_profile.chart.modes'|trans({}, 'statistics') }}"
+                                 data-testid="stats-ttp-chart-modes">
+                                <button type="button"
+                                        class="btn btn-outline-secondary active"
+                                        data-action="generic-analysis-chart#selectType"
+                                        data-generic-analysis-chart-target="typeButton"
+                                        data-chart-type="cases"
+                                        data-testid="stats-ttp-chart-mode-cases"
+                                        aria-pressed="true">
+                                    {{ 'stats.reports.transport_time_profile.chart.cases'|trans({}, 'statistics') }}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        data-action="generic-analysis-chart#selectType"
+                                        data-generic-analysis-chart-target="typeButton"
+                                        data-chart-type="gender"
+                                        data-testid="stats-ttp-chart-mode-gender"
+                                        aria-pressed="false">
+                                    {{ 'stats.reports.transport_time_profile.chart.gender'|trans({}, 'statistics') }}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        data-action="generic-analysis-chart#selectType"
+                                        data-generic-analysis-chart-target="typeButton"
+                                        data-chart-type="urgency"
+                                        data-testid="stats-ttp-chart-mode-urgency"
+                                        aria-pressed="false">
+                                    {{ 'stats.reports.transport_time_profile.chart.urgency'|trans({}, 'statistics') }}
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if report.chartSpecs %}
+                            <div class="chart-lg" data-generic-analysis-chart-target="chart" data-testid="stats-ttp-chart"></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if report.insights is not empty %}
+                <div class="col-lg-4">
+                    <div class="card h-100 stats-ttp-insights" data-testid="stats-ttp-insights">
+                        <div class="card-header py-2">
+                            <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.insights.title'|trans({}, 'statistics') }}</h3>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            {% for insight in report.insights %}
+                                <div class="list-group-item stats-ttp-insight" data-testid="stats-ttp-insight">
+                                    <div class="fw-bold">{{ insight.title }}</div>
+                                    <div class="text-muted small">{{ insight.body }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card" data-testid="stats-ttp-matrix-card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.matrix.title'|trans({}, 'statistics') }}</h3>
+            </div>
+            <div class="card-body p-0">
+                {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.matrixSections}) }}
+            </div>
+        </div>
+
+        {% if report.rankedSections is not empty %}
+            <div class="card mt-3" data-testid="stats-ttp-ranked-card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.ranked.title'|trans({}, 'statistics') }}</h3>
+                </div>
+                <div class="card-body p-0">
+                    {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.rankedSections}) }}
+                </div>
+            </div>
+        {% endif %}
+
+        <p class="text-secondary small mt-3 stats-ttp-disclaimer" data-testid="stats-ttp-disclaimer">
+            {{ 'stats.reports.transport_time_profile.disclaimer'|trans({}, 'statistics') }}
+        </p>
+    {% endif %}
+</div>

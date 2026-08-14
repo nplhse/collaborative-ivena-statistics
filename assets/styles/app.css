@@ -531,3 +531,109 @@
 .input-group [data-testid^="password-toggle-"] .icon {
     margin: 0;
 }
+
+.stats-ttp-table-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.stats-ttp-table {
+    width: 100%;
+    table-layout: fixed;
+    margin-bottom: 0;
+}
+
+.stats-ttp-table > :not(caption) > * > * {
+    padding: 0.4rem 0.45rem;
+    vertical-align: top;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.stats-ttp-table .stats-ttp-metric-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 9.5rem;
+    background: var(--tblr-bg-surface, #fff);
+    box-shadow: 1px 0 0 var(--tblr-border-color, #e6e7e9);
+}
+
+.stats-ttp-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--tblr-bg-surface, #fff);
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.stats-ttp-table thead th.stats-ttp-metric-col {
+    z-index: 4;
+}
+
+.stats-ttp-section-row th {
+    background: var(--tblr-bg-surface-secondary, #f6f8fb);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tblr-secondary);
+}
+
+.stats-ttp-ranked-td {
+    font-size: 0.8125rem;
+    line-height: 1.25;
+}
+
+.stats-ttp-ranked-cell {
+    min-width: 0;
+}
+
+.stats-ttp-ranked-label {
+    display: block;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.stats-ttp-ranked-meta {
+    margin-top: 0.15rem;
+}
+
+.stats-ttp-small-n {
+    opacity: 0.7;
+}
+
+.stats-ttp-heat-low-1 {
+    background-color: rgba(32, 107, 196, 0.08);
+}
+
+.stats-ttp-heat-low-2 {
+    background-color: rgba(32, 107, 196, 0.16);
+}
+
+.stats-ttp-heat-low-3 {
+    background-color: rgba(32, 107, 196, 0.28);
+}
+
+.stats-ttp-heat-high-1 {
+    background-color: rgba(250, 176, 5, 0.12);
+}
+
+.stats-ttp-heat-high-2 {
+    background-color: rgba(250, 176, 5, 0.22);
+}
+
+.stats-ttp-heat-high-3 {
+    background-color: rgba(250, 176, 5, 0.34);
+}
+
+.stats-ttp-insight {
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}

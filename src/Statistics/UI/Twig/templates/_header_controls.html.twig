@@ -28,6 +28,14 @@
             </button>
         {% endif %}
 
+        {% if statsTtpExplorerUrl|default(null) %}
+            <a class="btn"
+               href="{{ statsTtpExplorerUrl }}"
+               data-testid="stats-ttp-explorer-link">
+                {{ 'stats.reports.transport_time_profile.explorer_link'|trans({}, 'statistics') }}
+            </a>
+        {% endif %}
+
         {{ include('@Statistics/_scope_controls.html.twig', {
             pageViewModel: {
                 showScopeSecondaryPicker: statsShowScopeSecondaryPicker|default(false),

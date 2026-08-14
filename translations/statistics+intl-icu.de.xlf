@@ -4583,7 +4583,7 @@
       </trans-unit>
       <trans-unit id="A5bf632f9b" resname="stats.reports.types.monthly.description">
         <source>stats.reports.types.monthly.description</source>
-        <target>Kompakte Zusammenfassung des letzten abgeschlossenen Kalendermonats</target>
+        <target>Kompakte Zusammenfassung eines abgeschlossenen Kalendermonats</target>
       </trans-unit>
       <trans-unit id="A5ddf44334" resname="stats.reports.monthly.empty.title">
         <source>stats.reports.monthly.empty.title</source>
@@ -5212,6 +5212,226 @@
       <trans-unit id="statsAexSum24" resname="stats.analysis_explorer.summary.more_filters">
         <source>stats.analysis_explorer.summary.more_filters</source>
         <target>{count, plural, one {mit # weiterem Filter} other {mit # weiteren Filtern}}</target>
+      </trans-unit>
+      <trans-unit id="statsTtp01" resname="stats.reports.types.transport_time_profile.label">
+        <source>stats.reports.types.transport_time_profile.label</source>
+        <target>Transportzeitprofil</target>
+      </trans-unit>
+      <trans-unit id="statsTtp02" resname="stats.reports.types.transport_time_profile.description">
+        <source>stats.reports.types.transport_time_profile.description</source>
+        <target>Änderung der Fallzusammensetzung abhängig von der Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="statsTtp03" resname="stats.reports.transport_time_profile.empty.title">
+        <source>stats.reports.transport_time_profile.empty.title</source>
+        <target>Keine Zuweisungen in diesem Bereich</target>
+      </trans-unit>
+      <trans-unit id="statsTtp04" resname="stats.reports.transport_time_profile.empty.body">
+        <source>stats.reports.transport_time_profile.empty.body</source>
+        <target>Für {context} liegen noch keine Zuweisungsdaten vor.</target>
+      </trans-unit>
+      <trans-unit id="statsTtp05" resname="stats.reports.transport_time_profile.context">
+        <source>stats.reports.transport_time_profile.context</source>
+        <target>{scope} · {period} · {count, number} Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp06" resname="stats.reports.transport_time_profile.context_filtered">
+        <source>stats.reports.transport_time_profile.context_filtered</source>
+        <target>{context} · zusätzliche Filter aktiv</target>
+      </trans-unit>
+      <trans-unit id="statsTtp07" resname="stats.reports.transport_time_profile.unknown_transport">
+        <source>stats.reports.transport_time_profile.unknown_transport</source>
+        <target>{count, plural, one {# Zuweisung ohne nutzbare Transportzeit ist in den Profilspalten nicht enthalten.} other {# Zuweisungen ohne nutzbare Transportzeit sind in den Profilspalten nicht enthalten.}}</target>
+      </trans-unit>
+      <trans-unit id="statsTtp08" resname="stats.reports.transport_time_profile.chart.title">
+        <source>stats.reports.transport_time_profile.chart.title</source>
+        <target>Transportzeitgruppen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp09" resname="stats.reports.transport_time_profile.chart.modes">
+        <source>stats.reports.transport_time_profile.chart.modes</source>
+        <target>Chartdarstellung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp10" resname="stats.reports.transport_time_profile.chart.cases">
+        <source>stats.reports.transport_time_profile.chart.cases</source>
+        <target>Fälle</target>
+      </trans-unit>
+      <trans-unit id="statsTtp11" resname="stats.reports.transport_time_profile.chart.gender">
+        <source>stats.reports.transport_time_profile.chart.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="statsTtp12" resname="stats.reports.transport_time_profile.chart.urgency">
+        <source>stats.reports.transport_time_profile.chart.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsTtp13" resname="stats.reports.transport_time_profile.chart.axis">
+        <source>stats.reports.transport_time_profile.chart.axis</source>
+        <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="statsTtp14" resname="stats.reports.transport_time_profile.print">
+        <source>stats.reports.transport_time_profile.print</source>
+        <target>Drucken</target>
+      </trans-unit>
+      <trans-unit id="statsTtp15" resname="stats.reports.transport_time_profile.explorer_link">
+        <source>stats.reports.transport_time_profile.explorer_link</source>
+        <target>Im Explorer öffnen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp16" resname="stats.reports.transport_time_profile.insights.title">
+        <source>stats.reports.transport_time_profile.insights.title</source>
+        <target>Auffällige Muster</target>
+      </trans-unit>
+      <trans-unit id="statsTtp17" resname="stats.reports.transport_time_profile.matrix.title">
+        <source>stats.reports.transport_time_profile.matrix.title</source>
+        <target>Transportzeitprofil</target>
+      </trans-unit>
+      <trans-unit id="statsTtp18" resname="stats.reports.transport_time_profile.matrix.metric">
+        <source>stats.reports.transport_time_profile.matrix.metric</source>
+        <target>Merkmal</target>
+      </trans-unit>
+      <trans-unit id="statsTtp19" resname="stats.reports.transport_time_profile.section.volume">
+        <source>stats.reports.transport_time_profile.section.volume</source>
+        <target>Volumen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp20" resname="stats.reports.transport_time_profile.section.gender">
+        <source>stats.reports.transport_time_profile.section.gender</source>
+        <target>Demografie</target>
+      </trans-unit>
+      <trans-unit id="statsTtp21" resname="stats.reports.transport_time_profile.section.urgency">
+        <source>stats.reports.transport_time_profile.section.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsTtp22" resname="stats.reports.transport_time_profile.section.departments">
+        <source>stats.reports.transport_time_profile.section.departments</source>
+        <target>Häufigste Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp23" resname="stats.reports.transport_time_profile.section.specialities">
+        <source>stats.reports.transport_time_profile.section.specialities</source>
+        <target>Häufigste Fachgebiete</target>
+      </trans-unit>
+      <trans-unit id="statsTtp24" resname="stats.reports.transport_time_profile.section.indications">
+        <source>stats.reports.transport_time_profile.section.indications</source>
+        <target>Häufigste Indikationen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp25" resname="stats.reports.transport_time_profile.section.physician">
+        <source>stats.reports.transport_time_profile.section.physician</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp26" resname="stats.reports.transport_time_profile.section.resources">
+        <source>stats.reports.transport_time_profile.section.resources</source>
+        <target>Ressourcenanforderungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp27" resname="stats.reports.transport_time_profile.section.transport_mode">
+        <source>stats.reports.transport_time_profile.section.transport_mode</source>
+        <target>Transportmittel</target>
+      </trans-unit>
+      <trans-unit id="statsTtp28" resname="stats.reports.transport_time_profile.metric.cases">
+        <source>stats.reports.transport_time_profile.metric.cases</source>
+        <target>Fälle</target>
+      </trans-unit>
+      <trans-unit id="statsTtp29" resname="stats.reports.transport_time_profile.metric.share">
+        <source>stats.reports.transport_time_profile.metric.share</source>
+        <target>Anteil insgesamt</target>
+      </trans-unit>
+      <trans-unit id="statsTtp30" resname="stats.reports.transport_time_profile.metric.with_physician">
+        <source>stats.reports.transport_time_profile.metric.with_physician</source>
+        <target>Mit Arzt</target>
+      </trans-unit>
+      <trans-unit id="statsTtp31" resname="stats.reports.transport_time_profile.metric.requires_resus">
+        <source>stats.reports.transport_time_profile.metric.requires_resus</source>
+        <target>Schockraum angefordert</target>
+      </trans-unit>
+      <trans-unit id="statsTtp53" resname="stats.reports.transport_time_profile.metric.requires_cathlab">
+        <source>stats.reports.transport_time_profile.metric.requires_cathlab</source>
+        <target>Herzkatheter angefordert</target>
+      </trans-unit>
+      <trans-unit id="statsTtp32" resname="stats.reports.transport_time_profile.overall">
+        <source>stats.reports.transport_time_profile.overall</source>
+        <target>{percent, number, ::.0} % insgesamt</target>
+      </trans-unit>
+      <trans-unit id="statsTtp33" resname="stats.reports.transport_time_profile.pp">
+        <source>stats.reports.transport_time_profile.pp</source>
+        <target>pp</target>
+      </trans-unit>
+      <trans-unit id="statsTtp34" resname="stats.reports.transport_time_profile.rank.new">
+        <source>stats.reports.transport_time_profile.rank.new</source>
+        <target>neu</target>
+      </trans-unit>
+      <trans-unit id="statsTtp35" resname="stats.reports.transport_time_profile.small_n.label">
+        <source>stats.reports.transport_time_profile.small_n.label</source>
+        <target>Kleine n</target>
+      </trans-unit>
+      <trans-unit id="statsTtp36" resname="stats.reports.transport_time_profile.small_n.hint">
+        <source>stats.reports.transport_time_profile.small_n.hint</source>
+        <target>Kleine Fallzahl – vorsichtig interpretieren</target>
+      </trans-unit>
+      <trans-unit id="statsTtp37" resname="stats.reports.transport_time_profile.disclaimer">
+        <source>stats.reports.transport_time_profile.disclaimer</source>
+        <target>Deskriptive Analyse der ausgewählten IVENA-Zuweisungspopulation. Beobachtete Unterschiede implizieren keine Kausalität.</target>
+      </trans-unit>
+      <trans-unit id="statsTtp38" resname="stats.reports.transport_time_profile.insight.urgency_emergency.title">
+        <source>stats.reports.transport_time_profile.insight.urgency_emergency.title</source>
+        <target>Dringlichkeitszusammensetzung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp39" resname="stats.reports.transport_time_profile.insight.physician.title">
+        <source>stats.reports.transport_time_profile.insight.physician.title</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp40" resname="stats.reports.transport_time_profile.insight.resus.title">
+        <source>stats.reports.transport_time_profile.insight.resus.title</source>
+        <target>Schockraumanforderungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp41" resname="stats.reports.transport_time_profile.insight.air.title">
+        <source>stats.reports.transport_time_profile.insight.air.title</source>
+        <target>Luftrettung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp42" resname="stats.reports.transport_time_profile.insight.metric.urgency_emergency">
+        <source>stats.reports.transport_time_profile.insight.metric.urgency_emergency</source>
+        <target>Hochdringliche Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp43" resname="stats.reports.transport_time_profile.insight.metric.physician">
+        <source>stats.reports.transport_time_profile.insight.metric.physician</source>
+        <target>Arztbegleitung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp44" resname="stats.reports.transport_time_profile.insight.metric.resus">
+        <source>stats.reports.transport_time_profile.insight.metric.resus</source>
+        <target>Schockraumanforderungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp45" resname="stats.reports.transport_time_profile.insight.metric.air">
+        <source>stats.reports.transport_time_profile.insight.metric.air</source>
+        <target>Luftrettung</target>
+      </trans-unit>
+      <trans-unit id="statsTtp46" resname="stats.reports.transport_time_profile.insight.rate_increase">
+        <source>stats.reports.transport_time_profile.insight.rate_increase</source>
+        <target>{metric} ist in der Gruppe {to_bucket} ({to_percent} %) häufiger als in der Gruppe {from_bucket} ({from_percent} %).</target>
+      </trans-unit>
+      <trans-unit id="statsTtp47" resname="stats.reports.transport_time_profile.insight.rate_decrease">
+        <source>stats.reports.transport_time_profile.insight.rate_decrease</source>
+        <target>{metric} ist in der Gruppe {to_bucket} ({to_percent} %) seltener als in der Gruppe {from_bucket} ({from_percent} %).</target>
+      </trans-unit>
+      <trans-unit id="statsTtp48" resname="stats.reports.transport_time_profile.insight.rank.title">
+        <source>stats.reports.transport_time_profile.insight.rank.title</source>
+        <target>Rangänderung: {label}</target>
+      </trans-unit>
+      <trans-unit id="statsTtp49" resname="stats.reports.transport_time_profile.insight.rank.body">
+        <source>stats.reports.transport_time_profile.insight.rank.body</source>
+        <target>{label} verschiebt sich von Rang {from_rank} in der Gruppe {from_bucket} auf Rang {to_rank} in der Gruppe {to_bucket}.</target>
+      </trans-unit>
+      <trans-unit id="statsTtp50" resname="stats.reports.transport_time_profile.insight.air_overrepresented.title">
+        <source>stats.reports.transport_time_profile.insight.air_overrepresented.title</source>
+        <target>Luftrettung bei langen Transporten</target>
+      </trans-unit>
+      <trans-unit id="statsTtp51" resname="stats.reports.transport_time_profile.insight.air_overrepresented.body">
+        <source>stats.reports.transport_time_profile.insight.air_overrepresented.body</source>
+        <target>Luftrettung ist in der längsten Transportzeitgruppe ({bucket_percent} %) häufiger als in der ausgewählten Population insgesamt ({overall_percent} %).</target>
+      </trans-unit>
+      <trans-unit id="statsTtp52" resname="stats.reports.transport_time_profile.ranked.title">
+        <source>stats.reports.transport_time_profile.ranked.title</source>
+        <target>Häufigste Abteilungen, Fachgebiete und Indikationen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp54" resname="stats.reports.transport_time_profile.insight.cathlab.title">
+        <source>stats.reports.transport_time_profile.insight.cathlab.title</source>
+        <target>Herzkatheteranforderungen</target>
+      </trans-unit>
+      <trans-unit id="statsTtp55" resname="stats.reports.transport_time_profile.insight.metric.cathlab">
+        <source>stats.reports.transport_time_profile.insight.metric.cathlab</source>
+        <target>Herzkatheteranforderungen</target>
       </trans-unit>
     </body>
   </file>
