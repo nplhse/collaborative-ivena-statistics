@@ -8,7 +8,7 @@
 |-----------|--------------|-------------|
 | Projection & MVs | (background) | Denormalized `allocation_stats_projection` and materialized views |
 | Top Lists | `/statistics/top-lists` | Ranked Top-N tables (diagnoses, departments, …) |
-| Reports | `/statistics/reports` | Report catalog; detail routes under `/statistics/reports/{type}` (Monthly Report first) |
+| Reports | `/statistics/reports` | Report catalog; detail routes under `/statistics/reports/{type}` (Monthly Report, Transport Time Profile) |
 | AnalysisExplorer | `/statistics/explorer` | Interactive saved-view analytics |
 | Benchmarking | `/statistics/benchmarking` | Hospital comparison |
 | DataQuality | Dashboard badges | Traffic-light data quality indicator |

@@ -8,6 +8,8 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsDrawerFilterFactory;
 use App\Statistics\Application\SummarizedReport\Exception\UnknownReportTypeException;
+use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportView;
+use App\Statistics\Application\SummarizedReport\ReportTypeInterface;
 use App\Statistics\Application\SummarizedReport\ReportTypeRegistry;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
@@ -34,6 +36,7 @@ final class ReportsController extends AbstractController
         private readonly StatisticsDrawerFilterFactory $statisticsDrawerFilterFactory,
         private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
     ) {
     }
 
@@ -112,11 +115,14 @@ final class ReportsController extends AbstractController
         }
 
         $reportType = $this->reportTypeRegistry->get($type);
-        if (!$reportType instanceof \App\Statistics\Application\SummarizedReport\ReportTypeInterface) {
+        if (!$reportType instanceof ReportTypeInterface) {
             throw new NotFoundHttpException(sprintf('Unknown report type "%s".', $type));
         }
 
-        $drawerFilter = $this->statisticsDrawerFilterFactory->fromRequest($request);
+        $showFilterDrawer = 'transport_time_profile' !== $reportType->key();
+        $drawerFilter = $showFilterDrawer
+            ? $this->statisticsDrawerFilterFactory->fromRequest($request)
+            : null;
         $context = $this->statisticsContextFactory->create($user, $filter, drawerFilter: $drawerFilter);
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
@@ -139,8 +145,23 @@ final class ReportsController extends AbstractController
         }
 
         $reportsPage = $this->reportsPagePresenter->present($request, $reportType, $buildResult);
-        $statsFilterDrawer = $this->statisticsFilterDrawerViewModelFactory->create($request);
-        $overviewPeriodViewModel = $reportsPage->periodNavigation ?? $this->fixedPeriodViewModel($reportsPage->periodLabel);
+        $statsFilterDrawer = $showFilterDrawer
+            ? $this->statisticsFilterDrawerViewModelFactory->create($request)
+            : null;
+        $isMonthly = $buildResult->viewModel instanceof MonthlyReportView;
+        if ($isMonthly) {
+            $overviewPeriodViewModel = $reportsPage->periodNavigation ?? $this->fixedPeriodViewModel($reportsPage->periodLabel);
+            $headingPeriod = $reportsPage->periodLabel;
+        } else {
+            $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
+                $request,
+                'app_stats_reports_show',
+                $filter,
+            );
+            $headingPeriod = 'transport_time_profile' === $reportType->key()
+                ? ''
+                : $overviewPeriodViewModel->headingLabel;
+        }
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
             $user,
@@ -156,8 +177,8 @@ final class ReportsController extends AbstractController
             'app_stats_reports_show',
             [
                 'reportsPage' => $reportsPage,
-                'statisticsHeadingPeriod' => $reportsPage->periodLabel,
-                'statsShowFilterDrawer' => true,
+                'statisticsHeadingPeriod' => $headingPeriod,
+                'statsShowFilterDrawer' => $showFilterDrawer,
                 'statsFilterDrawer' => $statsFilterDrawer,
                 'statsUseOverviewPeriodControls' => true,
                 'statsHidePeriodControls' => false,

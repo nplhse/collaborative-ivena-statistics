@@ -32,4 +32,31 @@ CASE
     ELSE 'over_60'
 END
 SQL;
+
+    /**
+     * PHP mirror of {@see CASE_EXPRESSION} for rounded transport_time_minutes.
+     *
+     * Boundaries are half-open [N, N+10): 10 minutes is 10_20, not under_10.
+     */
+    public static function bucketKeyForMinutes(?int $minutes): string
+    {
+        if (null === $minutes || $minutes < 0) {
+            return 'unknown';
+        }
+
+        return match (true) {
+            $minutes < 10 => 'under_10',
+            $minutes < 20 => '10_20',
+            $minutes < 30 => '20_30',
+            $minutes < 40 => '30_40',
+            $minutes < 50 => '40_50',
+            $minutes < 60 => '50_60',
+            default => 'over_60',
+        };
+    }
+
+    public static function translationKey(string $bucketKey): string
+    {
+        return 'statistics.distribution.transport_time_bucket.'.$bucketKey;
+    }
 }
