@@ -4,15 +4,22 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Functional\Controller\Explore;
 
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PostCommentFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\Activity\UserActivityBackfill;
 use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -221,13 +228,27 @@ final class ExploreUsersControllerTest extends WebTestCase
             'updatedAt' => new \DateTimeImmutable('2026-08-01 14:00:00'),
         ]);
 
+        $state = StateFactory::createOne(['name' => 'Bayern']);
+        $dispatchArea = DispatchAreaFactory::createOne([
+            'name' => 'München',
+            'state' => $state,
+        ]);
         $ownedHospital = HospitalFactory::createOne([
             'name' => 'Owned Klinik',
             'owner' => $profileUser,
+            'dispatchArea' => $dispatchArea,
+            'state' => $state,
+            'location' => HospitalLocation::URBAN,
+            'tier' => HospitalTier::FULL,
+            'size' => HospitalSize::LARGE,
+            'beds' => 400,
         ]);
         HospitalAccessGrantFactory::createOne([
             'user' => $profileUser,
-            'hospital' => HospitalFactory::createOne(['name' => 'Grant Klinik']),
+            'hospital' => HospitalFactory::createOne([
+                'name' => 'Grant Klinik',
+                'owner' => UserFactory::createOne(),
+            ]),
         ]);
 
         ImportFactory::createOne([
@@ -259,21 +280,38 @@ final class ExploreUsersControllerTest extends WebTestCase
             'publishedAt' => null,
         ]);
 
-        $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
+        $this->backfillActivity();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#user-username', 'profile-user');
         self::assertSelectorExists('[data-testid="user-badge-participant"]');
         self::assertSelectorExists('[data-testid="user-badge-board-member"]');
-        self::assertSelectorTextContains('[data-testid="user-member-since"]', '15.03.2025');
-        self::assertSelectorTextContains('[data-testid="user-created-at"]', '15.03.2025 10:30');
-        self::assertSelectorTextContains('[data-testid="user-updated-at"]', '01.08.2026 14:00');
+        self::assertSelectorTextContains('[data-testid="user-member-since"]', 'March 2025');
+        self::assertSelectorTextContains('[data-testid="user-profile-header"]', 'Owned Klinik');
         self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Owned Klinik');
         self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Grant Klinik');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'München');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Bayern');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Urban');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Full');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Large');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', '400');
         self::assertSelectorTextContains('[data-testid="user-import-count"]', '2');
-        self::assertSelectorTextContains('[data-testid="user-profile-posts"]', 'Published Profile Post');
-        self::assertSelectorTextNotContains('[data-testid="user-profile-posts"]', 'Draft Profile Post');
+        self::assertSelectorTextContains('[data-testid="user-post-count"]', '1');
+        self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Published Profile Post');
+        self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Joined the platform');
+        self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'Draft Profile Post');
+        self::assertSelectorNotExists('.pagination');
+        self::assertSelectorNotExists('[data-testid="profile-activity-next"]');
         self::assertStringNotContainsString('profile-secret@example.test', $client->getResponse()->getContent() ?: '');
+
+        $activityTypes = $crawler->filter('[data-testid="profile-activity-item"]')->each(
+            static fn ($node): string => (string) $node->attr('data-activity-type'),
+        );
+        self::assertContains('first_import', $activityTypes);
+        self::assertSame('joined', $activityTypes[array_key_last($activityTypes)]);
 
         $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
         self::assertResponseIsSuccessful();
@@ -347,5 +385,114 @@ final class ExploreUsersControllerTest extends WebTestCase
             $collector->getQueryCount(),
             sprintf('Expected a bounded query count on /explore/user, got %d.', $collector->getQueryCount()),
         );
+    }
+
+    public function testActivityEndpointRequiresParticipantAndHidesDraftsInLaterBatches(): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_GET, '/explore/user/00000000-0000-0000-0000-000000000001/activity');
+        self::assertResponseRedirects('/login');
+
+        self::ensureKernelShutdown();
+        $forbidden = $this->createClientAsRoleUser();
+        $profileUser = UserFactory::createOne([
+            'username' => 'feed-user',
+            'email' => 'feed-secret@example.test',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+            'createdAt' => new \DateTimeImmutable('2020-01-01 00:00:00'),
+        ]);
+        $forbidden->request(
+            Request::METHOD_GET,
+            '/explore/user/'.$profileUser->getPublicIdString().'/activity',
+        );
+        self::assertResponseStatusCodeSame(403);
+
+        self::ensureKernelShutdown();
+        $client = $this->createClientAsParticipant();
+
+        for ($i = 1; $i <= 25; ++$i) {
+            PostFactory::createOne([
+                'createdBy' => $profileUser,
+                'title' => sprintf('Feed Post %02d', $i),
+                'slug' => sprintf('feed-post-%02d', $i),
+                'status' => PostStatus::PUBLISHED,
+                'publishedAt' => new \DateTimeImmutable(sprintf('2026-03-%02d 12:00:00', $i)),
+            ]);
+        }
+        PostFactory::createOne([
+            'createdBy' => $profileUser,
+            'title' => 'Hidden Draft Feed Post',
+            'slug' => 'hidden-draft-feed-post',
+            'status' => PostStatus::DRAFT,
+            'publishedAt' => null,
+        ]);
+        PostCommentFactory::createOne([
+            'author' => $profileUser,
+            'createdBy' => $profileUser,
+            'post' => PostFactory::createOne([
+                'createdBy' => $profileUser,
+                'title' => 'Draft Commented',
+                'slug' => 'draft-commented',
+                'status' => PostStatus::DRAFT,
+                'publishedAt' => null,
+            ]),
+            'content' => 'Secret draft comment',
+            'createdAt' => new \DateTimeImmutable('2026-04-01 12:00:00'),
+        ]);
+
+        $this->backfillActivity();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
+        self::assertResponseIsSuccessful();
+        self::assertCount(20, $crawler->filter('[data-testid="profile-activity-item"]'));
+        self::assertSelectorExists('[data-testid="profile-activity-next"]');
+        self::assertSelectorNotExists('.pagination');
+        self::assertStringNotContainsString('Hidden Draft Feed Post', $client->getResponse()->getContent() ?: '');
+        self::assertStringNotContainsString('Secret draft comment', $client->getResponse()->getContent() ?: '');
+        self::assertStringNotContainsString('feed-secret@example.test', $client->getResponse()->getContent() ?: '');
+
+        $nextSrc = $crawler->filter('[data-testid="profile-activity-next"]')->attr('src');
+        self::assertNotNull($nextSrc);
+        $frameId = $crawler->filter('[data-testid="profile-activity-next"]')->attr('id');
+        self::assertNotNull($frameId);
+
+        $nextCrawler = $client->request(
+            Request::METHOD_GET,
+            $nextSrc,
+            [],
+            [],
+            ['HTTP_TURBO_FRAME' => $frameId],
+        );
+        self::assertResponseIsSuccessful();
+        self::assertGreaterThanOrEqual(6, $nextCrawler->filter('[data-testid="profile-activity-item"]')->count());
+        self::assertSelectorTextContains('[data-activity-type="joined"]', 'Joined the platform');
+        self::assertSelectorNotExists('[data-testid="profile-activity-next"]');
+        self::assertStringNotContainsString('Hidden Draft Feed Post', $client->getResponse()->getContent() ?: '');
+        self::assertStringNotContainsString('Secret draft comment', $client->getResponse()->getContent() ?: '');
+        self::assertStringNotContainsString('feed-secret@example.test', $client->getResponse()->getContent() ?: '');
+    }
+
+    public function testJoinOnlyProfileDoesNotRenderLazyActivityFrame(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $profileUser = UserFactory::createOne([
+            'username' => 'newcomer',
+            'roles' => [UserRole::USER, UserRole::PARTICIPANT],
+            'createdAt' => new \DateTimeImmutable('2026-08-01 00:00:00'),
+        ]);
+
+        $this->backfillActivity();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$profileUser->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('[data-testid="profile-activity-item"]'));
+        self::assertSelectorExists('[data-activity-type="joined"]');
+        self::assertSelectorNotExists('[data-testid="profile-activity-next"]');
+    }
+
+    private function backfillActivity(): void
+    {
+        self::getContainer()->get(UserActivityBackfill::class)->run(true);
     }
 }
