@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Blog;
 
+use App\Content\Application\Blog\ContentActivityNotifier;
 use App\Content\Application\Blog\PostContentSanitizer;
 use App\Content\Application\Blog\PostSlugResolver;
 use App\Content\Application\Contract\MediaLibraryAdminUrlProviderInterface;
@@ -43,6 +44,7 @@ final class PostCrudController extends AbstractCrudController
         private readonly TranslatorInterface $translator,
         private readonly PostContentSanitizer $postContentSanitizer,
         private readonly MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
+        private readonly ContentActivityNotifier $contentActivityNotifier,
     ) {
     }
 
@@ -146,6 +148,8 @@ final class PostCrudController extends AbstractCrudController
         $this->preparePost($entityInstance, null);
 
         parent::persistEntity($entityManager, $entityInstance);
+
+        $this->contentActivityNotifier->postPublishedIfApplicable($entityInstance, null);
     }
 
     #[\Override]
@@ -155,9 +159,12 @@ final class PostCrudController extends AbstractCrudController
             return;
         }
 
+        $previousStatus = $this->originalPostStatus($entityManager, $entityInstance);
         $this->preparePost($entityInstance, $entityInstance->getId());
 
         parent::updateEntity($entityManager, $entityInstance);
+
+        $this->contentActivityNotifier->postPublishedIfApplicable($entityInstance, $previousStatus);
     }
 
     /**
@@ -177,6 +184,21 @@ final class PostCrudController extends AbstractCrudController
 
             $this->postSlugResolver->resolve($post, $post->getId());
         }, 512);
+    }
+
+    private function originalPostStatus(EntityManagerInterface $entityManager, Post $post): ?PostStatus
+    {
+        $original = $entityManager->getUnitOfWork()->getOriginalEntityData($post);
+        $status = $original['status'] ?? null;
+        if ($status instanceof PostStatus) {
+            return $status;
+        }
+
+        if (\is_string($status)) {
+            return PostStatus::tryFrom($status);
+        }
+
+        return null;
     }
 
     private function preparePost(Post $post, ?int $excludeId): void
