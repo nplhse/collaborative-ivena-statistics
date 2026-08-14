@@ -443,7 +443,71 @@
       </trans-unit>
       <trans-unit id="usrLblMemberSinceDe" resname="label.user.member_since">
         <source>label.user.member_since</source>
-        <target>Mitglied seit {date}</target>
+        <target>Mitglied seit</target>
+      </trans-unit>
+      <trans-unit id="usrLblProfileDe" resname="label.user.profile">
+        <source>label.user.profile</source>
+        <target>Profil</target>
+      </trans-unit>
+      <trans-unit id="usrLblStatsDe" resname="label.user.stats">
+        <source>label.user.stats</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="usrLblCommentsDe" resname="label.user.comments">
+        <source>label.user.comments</source>
+        <target>Kommentare</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityEmptyDe" resname="label.user.activity.empty">
+        <source>label.user.activity.empty</source>
+        <target>Noch keine Aktivität</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityLoadMoreDe" resname="label.user.activity.load_more">
+        <source>label.user.activity.load_more</source>
+        <target>Weitere Aktivitäten anzeigen</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityLoadingDe" resname="label.user.activity.loading">
+        <source>label.user.activity.loading</source>
+        <target>Weitere Aktivitäten werden geladen …</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityJoinedDe" resname="label.user.activity.joined">
+        <source>label.user.activity.joined</source>
+        <target>Der Plattform beigetreten</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityFirstImportDe" resname="label.user.activity.first_import">
+        <source>label.user.activity.first_import</source>
+        <target>Ersten Datensatz importiert</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityImportMilestoneDe" resname="label.user.activity.import_milestone">
+        <source>label.user.activity.import_milestone</source>
+        <target>{count}. Datenimport erreicht</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityPostPublishedDe" resname="label.user.activity.post_published">
+        <source>label.user.activity.post_published</source>
+        <target>Beitrag veröffentlicht</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityCommentCreatedDe" resname="label.user.activity.comment_created">
+        <source>label.user.activity.comment_created</source>
+        <target>Kommentar geschrieben</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityCommentOnDe" resname="label.user.activity.comment_on">
+        <source>label.user.activity.comment_on</source>
+        <target>Zu</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalAssociatedDe" resname="label.user.activity.hospital_associated">
+        <source>label.user.activity.hospital_associated</source>
+        <target>Mit Klinik verknüpft</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalDisassociatedDe" resname="label.user.activity.hospital_disassociated">
+        <source>label.user.activity.hospital_disassociated</source>
+        <target>Verknüpfung mit Klinik beendet</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalOwnerGrantedDe" resname="label.user.activity.hospital_owner_granted">
+        <source>label.user.activity.hospital_owner_granted</source>
+        <target>Als Klinikverantwortliche:r eingesetzt</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalOwnerRevokedDe" resname="label.user.activity.hospital_owner_revoked">
+        <source>label.user.activity.hospital_owner_revoked</source>
+        <target>Klinikverantwortung abgegeben</target>
       </trans-unit>
     </body>
   </file>

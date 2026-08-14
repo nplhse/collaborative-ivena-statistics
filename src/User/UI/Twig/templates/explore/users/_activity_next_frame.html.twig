@@ -1,0 +1,16 @@
+<turbo-frame
+    id="{{ frameId }}"
+    src="{{ path('app_explore_user_activity', {publicId: profilePublicId, cursor: nextCursor}) }}"
+    loading="lazy"
+    data-testid="profile-activity-next"
+>
+    <div class="list-group-item text-center text-secondary py-3" aria-busy="true" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></div>
+        <span class="visually-hidden">{{ 'label.user.activity.loading'|trans({}, 'user') }}</span>
+        <div class="mt-2">
+            <a href="{{ path('app_explore_user_activity', {publicId: profilePublicId, cursor: nextCursor}) }}">
+                {{ 'label.user.activity.load_more'|trans({}, 'user') }}
+            </a>
+        </div>
+    </div>
+</turbo-frame>

@@ -1,5 +1,7 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
+{% import '@Shared/_macros/badges.html.twig' as badges %}
+
 {% block title %}{{ 'title.user.show'|trans({}, 'user') }}: {{ profile.username }} - {{ parent() }}{% endblock %}
 
 {% block header %}
@@ -49,9 +51,11 @@
                             <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
                         </div>
                     {% endif %}
-                    <div class="list-inline-item" data-testid="user-member-since">
-                        {{ 'label.user.member_since'|trans(({date: profile.createdAt|date('d.m.Y')}), 'user') }}
-                    </div>
+                    {% for hospital in profile.hospitals %}
+                        <div class="list-inline-item">
+                            <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" class="link-secondary">{{ hospital.name }}</a>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
             <div class="col-auto ms-auto">
@@ -67,101 +71,135 @@
 {% endblock %}
 
 {% block page_content %}
-    <div class="container-xl mt-3" data-testid="user-profile">
-        <div class="row row-cards">
-            <div class="col-12 col-lg-8">
-                <div class="card mb-3" data-testid="user-profile-hospitals">
-                    <div class="card-body">
-                        <div class="card-title">{{ 'label.user.hospitals'|trans({}, 'user') }}</div>
-                        {% if profile.hospitals is empty %}
-                            <div class="empty py-4">
-                                <p class="empty-title">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</p>
-                            </div>
-                        {% else %}
-                            <div class="list-group list-group-flush">
-                                {% for hospital in profile.hospitals %}
-                                    <a
-                                        href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                                    >
-                                        <span>{{ hospital.name }}</span>
-                                        <span class="badge bg-secondary-lt">
-                                            {% if hospital.relation == 'owner' %}
-                                                {{ 'label.user.hospital.owner'|trans({}, 'user') }}
-                                            {% else %}
-                                                {{ 'label.user.hospital.access'|trans({}, 'user') }}
-                                            {% endif %}
-                                        </span>
-                                    </a>
-                                {% endfor %}
-                            </div>
+    <div class="row row-cards" data-testid="user-profile">
+        <div class="col-12 col-lg-8">
+            <div class="card mb-3" data-testid="user-profile-activity-feed">
+                <div class="card-header">
+                    <h2 class="card-title">{{ 'label.user.activity'|trans({}, 'user') }}</h2>
+                </div>
+                {% if profile.activities is empty %}
+                    <div class="empty py-4">
+                        <p class="empty-title">{{ 'label.user.activity.empty'|trans({}, 'user') }}</p>
+                    </div>
+                {% else %}
+                    <div class="list-group list-group-flush">
+                        {{ include('@User/explore/users/_activity_items.html.twig', {activities: profile.activities}) }}
+                        {% if profile.hasMoreActivities and profile.activityNextCursor and profile.activityNextFrameId %}
+                            {{ include('@User/explore/users/_activity_next_frame.html.twig', {
+                                profilePublicId: profile.publicId,
+                                nextCursor: profile.activityNextCursor,
+                                frameId: profile.activityNextFrameId,
+                            }) }}
                         {% endif %}
                     </div>
-                </div>
+                {% endif %}
+            </div>
+        </div>
 
-                <div class="card mb-3" data-testid="user-profile-posts">
-                    <div class="card-body">
-                        <div class="card-title">{{ 'label.user.posts'|trans({}, 'user') }}</div>
-                        {% if profile.posts is empty %}
-                            <div class="empty py-4">
-                                <p class="empty-title">{{ 'label.user.posts.empty'|trans({}, 'user') }}</p>
-                            </div>
-                        {% else %}
-                            <div class="list-group list-group-flush">
-                                {% for post in profile.posts %}
-                                    <a
-                                        href="{{ path('app_blog_show', {slug: post.slug}) }}"
-                                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                                    >
-                                        <span>{{ post.title }}</span>
-                                        <span class="text-secondary">{{ post.publishedAt|date('d.m.Y') }}</span>
-                                    </a>
-                                {% endfor %}
-                            </div>
+        <div class="col-12 col-lg-4">
+            <div class="card mb-3" data-testid="user-profile-meta">
+                <div class="card-body">
+                    <div class="card-title">{{ 'label.user.profile'|trans({}, 'user') }}</div>
+                    <div class="mb-2">
+                        {% if profile.isParticipant %}
+                            <span class="badge bg-azure-lt text-azure-lt-fg">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
                         {% endif %}
+                        {% if profile.isBoardMember %}
+                            <span class="badge bg-purple-lt text-purple-lt-fg">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                        {% endif %}
+                        {% if profile.isAdmin %}
+                            <span class="badge bg-red-lt text-red-lt-fg">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-2" data-testid="user-member-since">
+                        <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                        {{ 'label.user.member_since'|trans({}, 'user') }}
+                        <strong>{{ profile.createdAt|format_datetime(pattern: 'MMMM yyyy') }}</strong>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-lg-4">
-                <div class="card mb-3" data-testid="user-profile-meta">
-                    <div class="card-body">
-                        <div class="card-title">{{ 'label.user.account'|trans({}, 'user') }}</div>
-                        <div class="mb-2" data-testid="user-created-at">
-                            <twig:ux:icon name="tabler:calendar-plus" width="1.5em" height="1.5em" />
-                            {{ 'label.created_at'|trans({}, 'messages') }}
-                            <strong>{{ profile.createdAt|date('d.m.Y H:i') }}</strong>
-                        </div>
-                        {% if profile.updatedAt %}
-                            <div class="mb-2" data-testid="user-updated-at">
-                                <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
-                                {{ 'label.updated_at'|trans({}, 'messages') }}
-                                <strong>{{ profile.updatedAt|date('d.m.Y H:i') }}</strong>
-                            </div>
-                        {% endif %}
-                    </div>
+            <div class="card mb-3" data-testid="user-profile-hospitals">
+                <div class="card-header">
+                    <h2 class="card-title">{{ 'label.user.hospitals'|trans({}, 'user') }}</h2>
                 </div>
+                {% if profile.hospitals is empty %}
+                    <div class="empty py-4">
+                        <p class="empty-title">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</p>
+                    </div>
+                {% else %}
+                    <div class="list-group list-group-flush">
+                        {% for hospital in profile.hospitals %}
+                            <a
+                                href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}"
+                                class="list-group-item list-group-item-action"
+                                data-testid="user-profile-hospital"
+                            >
+                                <div class="row align-items-start">
+                                    <div class="col-auto">
+                                        <span class="avatar avatar-sm rounded">
+                                            <twig:ux:icon name="tabler:building-hospital" width="1.25em" height="1.25em" />
+                                        </span>
+                                    </div>
+                                    <div class="col min-w-0">
+                                        <div class="d-flex justify-content-between align-items-start gap-2">
+                                            <span class="fw-medium text-truncate">{{ hospital.name }}</span>
+                                            <span class="badge bg-secondary-lt text-nowrap">
+                                                {% if hospital.relation == 'owner' %}
+                                                    {{ 'label.user.hospital.owner'|trans({}, 'user') }}
+                                                {% else %}
+                                                    {{ 'label.user.hospital.access'|trans({}, 'user') }}
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        {% if hospital.dispatchAreaName or hospital.stateName %}
+                                            <div class="text-secondary small text-truncate">
+                                                <twig:ux:icon name="tabler:map" width="1em" height="1em" />
+                                                {{ hospital.dispatchAreaName }}{% if hospital.dispatchAreaName and hospital.stateName %}, {% endif %}{{ hospital.stateName }}
+                                            </div>
+                                        {% endif %}
+                                        {% if hospital.location or hospital.tier or hospital.size %}
+                                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                                {% if hospital.location %}
+                                                    {{ badges.render('hospital_location', hospital.location) }}
+                                                {% endif %}
+                                                {% if hospital.tier %}
+                                                    {{ badges.render('hospital_tier', hospital.tier) }}
+                                                {% endif %}
+                                                {% if hospital.size %}
+                                                    {{ badges.render('hospital_size', hospital.size, hospital.beds) }}
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="card mb-3" data-testid="user-profile-activity">
-                    <div class="card-body">
-                        <div class="card-title">{{ 'label.user.activity'|trans({}, 'user') }}</div>
-                        <div class="datagrid">
-                            <div class="datagrid-item">
-                                <div class="datagrid-title">{{ 'label.user.imports'|trans({}, 'user') }}</div>
-                                <div class="datagrid-content">
-                                    <span class="h2 mb-0" data-testid="user-import-count">{{ profile.successfulImportCount }}</span>
-                                    <div class="text-secondary">{{ 'label.user.imports.successful'|trans({}, 'user') }}</div>
-                                </div>
+            <div class="card mb-3" data-testid="user-profile-stats">
+                <div class="card-body">
+                    <div class="card-title">{{ 'label.user.stats'|trans({}, 'user') }}</div>
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'label.user.imports'|trans({}, 'user') }}</div>
+                            <div class="datagrid-content">
+                                <span class="h2 mb-0" data-testid="user-import-count">{{ profile.successfulImportCount }}</span>
+                                <div class="text-secondary">{{ 'label.user.imports.successful'|trans({}, 'user') }}</div>
                             </div>
-                            <div class="datagrid-item">
-                                <div class="datagrid-title">{{ 'label.user.imports.last'|trans({}, 'user') }}</div>
-                                <div class="datagrid-content">
-                                    {% if profile.lastSuccessfulImportAt %}
-                                        {{ profile.lastSuccessfulImportAt|date('d.m.Y') }}
-                                    {% else %}
-                                        <span class="text-secondary">{{ 'label.user.imports.empty'|trans({}, 'user') }}</span>
-                                    {% endif %}
-                                </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'label.user.posts'|trans({}, 'user') }}</div>
+                            <div class="datagrid-content">
+                                <span class="h2 mb-0" data-testid="user-post-count">{{ profile.publishedPostCount }}</span>
+                            </div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'label.user.comments'|trans({}, 'user') }}</div>
+                            <div class="datagrid-content">
+                                <span class="h2 mb-0" data-testid="user-comment-count">{{ profile.commentCount }}</span>
                             </div>
                         </div>
                     </div>

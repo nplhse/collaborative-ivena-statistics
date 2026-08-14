@@ -46,37 +46,4 @@ final readonly class DoctrineUserImportActivityProvider implements UserImportAct
 
         return $counts;
     }
-
-    #[\Override]
-    public function lastSuccessfulAtByUserIds(array $userIds): array
-    {
-        $userIds = array_values(array_unique(array_filter($userIds, static fn (int $id): bool => $id > 0)));
-        if ([] === $userIds) {
-            return [];
-        }
-
-        /** @var list<array{userId: int|string, lastAt: \DateTimeImmutable|string|null}> $rows */
-        $rows = $this->entityManager->createQueryBuilder()
-            ->select('IDENTITY(i.createdBy) AS userId', 'MAX(i.createdAt) AS lastAt')
-            ->from(Import::class, 'i')
-            ->andWhere('IDENTITY(i.createdBy) IN (:userIds)')
-            ->andWhere('i.status IN (:statuses)')
-            ->setParameter('userIds', $userIds)
-            ->setParameter('statuses', [ImportStatus::COMPLETED, ImportStatus::PARTIAL])
-            ->groupBy('i.createdBy')
-            ->getQuery()
-            ->getArrayResult();
-
-        $result = array_fill_keys($userIds, null);
-        foreach ($rows as $row) {
-            $lastAt = $row['lastAt'];
-            if ($lastAt instanceof \DateTimeImmutable) {
-                $result[(int) $row['userId']] = $lastAt;
-            } elseif (\is_string($lastAt) && '' !== $lastAt) {
-                $result[(int) $row['userId']] = new \DateTimeImmutable($lastAt);
-            }
-        }
-
-        return $result;
-    }
 }

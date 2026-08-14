@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\User\Infrastructure\Explore;
 
 use App\User\Application\Contract\UserImportActivityProviderInterface;
+use App\User\Application\Contract\UserPublishedCommentsProviderInterface;
 use App\User\Application\Contract\UserPublishedPostsProviderInterface;
 use App\User\Application\Explore\UserProfileView;
 use App\User\Application\Explore\UserPublicRoleResolver;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Query\UserHospitalRelationsQuery;
+use App\User\Infrastructure\Query\UserProfileActivityQuery;
 
 final readonly class UserProfileFactory
 {
@@ -18,6 +20,8 @@ final readonly class UserProfileFactory
         private UserHospitalRelationsQuery $hospitalRelationsQuery,
         private UserImportActivityProviderInterface $importActivityProvider,
         private UserPublishedPostsProviderInterface $publishedPostsProvider,
+        private UserPublishedCommentsProviderInterface $publishedCommentsProvider,
+        private UserProfileActivityQuery $activityQuery,
     ) {
     }
 
@@ -35,7 +39,7 @@ final readonly class UserProfileFactory
 
         $hospitalsByUser = $this->hospitalRelationsQuery->forUserIds([$id]);
         $importCounts = $this->importActivityProvider->countsByUserIds([$id]);
-        $lastImports = $this->importActivityProvider->lastSuccessfulAtByUserIds([$id]);
+        $activityPage = $this->activityQuery->getPage($user, null);
 
         return new UserProfileView(
             publicId: $user->getPublicIdString(),
@@ -45,11 +49,12 @@ final readonly class UserProfileFactory
             isBoardMember: UserPublicRoleResolver::isBoardMember($user),
             isSelf: $viewer instanceof User && $viewer->getId() === $id,
             createdAt: $user->getCreatedAt(),
-            updatedAt: $user->getUpdatedAt(),
             hospitals: $hospitalsByUser[$id] ?? [],
             successfulImportCount: $importCounts[$id] ?? 0,
-            lastSuccessfulImportAt: $lastImports[$id] ?? null,
-            posts: $this->publishedPostsProvider->findPublishedByUserId($id),
+            publishedPostCount: $this->publishedPostsProvider->countPublishedByUserId($id),
+            commentCount: $this->publishedCommentsProvider->countOnPublishedPostsByUserId($id),
+            activities: $activityPage->items,
+            activityNextCursor: $activityPage->nextCursor,
         );
     }
 }
