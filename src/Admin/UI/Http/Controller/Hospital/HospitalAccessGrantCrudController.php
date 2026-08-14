@@ -6,6 +6,8 @@ namespace App\Admin\UI\Http\Controller\Hospital;
 
 use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
 use App\Admin\UI\Form\HospitalPermissionsFieldType;
+use App\Allocation\Application\Hospital\HospitalAssociationSnapshot;
+use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,6 +32,7 @@ final class HospitalAccessGrantCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly AuditContext $auditContext,
+        private readonly HospitalRelationNotifier $hospitalRelationNotifier,
     ) {
     }
 
@@ -98,6 +101,25 @@ final class HospitalAccessGrantCrudController extends AbstractCrudController
             parent::persistEntity($entityManager, $entityInstance);
         } finally {
             $this->auditContext->endIntent();
+        }
+
+        $this->hospitalRelationNotifier->associated($entityInstance);
+    }
+
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    {
+        $snapshot = $this->hospitalRelationNotifier->snapshot($entityInstance);
+
+        $this->auditContext->beginIntent('hospital_access_grant.admin.deleted', ['source' => 'easyadmin']);
+        try {
+            parent::deleteEntity($entityManager, $entityInstance);
+        } finally {
+            $this->auditContext->endIntent();
+        }
+
+        if ($snapshot instanceof HospitalAssociationSnapshot) {
+            $this->hospitalRelationNotifier->disassociated($snapshot);
         }
     }
 

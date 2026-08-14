@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Http\Controller;
 
+use App\Content\Application\Blog\ContentActivityNotifier;
 use App\Content\Application\Blog\PostContentSanitizer;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Entity\PostComment;
@@ -34,6 +35,7 @@ final class BlogController extends AbstractController
         private readonly PostContentSanitizer $postContentSanitizer,
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
+        private readonly ContentActivityNotifier $contentActivityNotifier,
     ) {
     }
 
@@ -171,6 +173,8 @@ final class BlogController extends AbstractController
 
         $this->entityManager->persist($comment);
         $this->entityManager->flush();
+
+        $this->contentActivityNotifier->commentCreated($comment);
 
         $this->addFlash('success', $this->translator->trans('flash.blog.comment.created', [], 'content'));
 

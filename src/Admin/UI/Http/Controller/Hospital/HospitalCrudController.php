@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Hospital;
 
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
+use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Infrastructure\Doctrine\OriginalEntityUser;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Shared\Infrastructure\Audit\AuditContext;
@@ -45,6 +47,7 @@ final class HospitalCrudController extends AbstractCrudController
         private readonly AuditContext $auditContext,
         private readonly TranslatorInterface $translator,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly HospitalRelationNotifier $hospitalRelationNotifier,
     ) {
     }
 
@@ -63,17 +66,23 @@ final class HospitalCrudController extends AbstractCrudController
         } finally {
             $this->auditContext->endIntent();
         }
+
+        $this->hospitalRelationNotifier->ownershipChanged(null, $entityInstance->getOwner(), $entityInstance);
     }
 
     #[\Override]
     public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
     {
+        $previousOwner = OriginalEntityUser::from($entityManager, $entityInstance, 'owner');
+
         $this->auditContext->beginIntent('hospital.admin.updated', ['source' => 'easyadmin']);
         try {
             parent::updateEntity($entityManager, $entityInstance);
         } finally {
             $this->auditContext->endIntent();
         }
+
+        $this->hospitalRelationNotifier->ownershipChanged($previousOwner, $entityInstance->getOwner(), $entityInstance);
     }
 
     #[\Override]

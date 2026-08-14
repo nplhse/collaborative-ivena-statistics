@@ -7,7 +7,6 @@ namespace App\Content\Infrastructure\Adapter;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\User\Application\Contract\UserPublishedPostsProviderInterface;
-use App\User\Application\Explore\UserPublishedPostSummary;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
@@ -22,15 +21,14 @@ final readonly class DoctrineUserPublishedPostsProvider implements UserPublished
     }
 
     #[\Override]
-    public function findPublishedByUserId(int $userId, int $limit = 10): array
+    public function countPublishedByUserId(int $userId): int
     {
-        if ($userId < 1 || $limit < 1) {
-            return [];
+        if ($userId < 1) {
+            return 0;
         }
 
-        /** @var list<array{title: string, slug: string, publishedAt: \DateTimeImmutable}> $rows */
-        $rows = $this->entityManager->createQueryBuilder()
-            ->select('p.title AS title', 'p.slug AS slug', 'p.publishedAt AS publishedAt')
+        $count = $this->entityManager->createQueryBuilder()
+            ->select('COUNT(p.id)')
             ->from(Post::class, 'p')
             ->andWhere('IDENTITY(p.createdBy) = :userId')
             ->andWhere('p.status = :status')
@@ -38,25 +36,9 @@ final readonly class DoctrineUserPublishedPostsProvider implements UserPublished
             ->setParameter('userId', $userId)
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
-            ->orderBy('p.publishedAt', 'DESC')
-            ->setMaxResults($limit)
             ->getQuery()
-            ->getArrayResult();
+            ->getSingleScalarResult();
 
-        $posts = [];
-        foreach ($rows as $row) {
-            $publishedAt = $row['publishedAt'];
-            if (!$publishedAt instanceof \DateTimeImmutable) {
-                continue;
-            }
-
-            $posts[] = new UserPublishedPostSummary(
-                title: $row['title'],
-                slug: $row['slug'],
-                publishedAt: $publishedAt,
-            );
-        }
-
-        return $posts;
+        return (int) $count;
     }
 }

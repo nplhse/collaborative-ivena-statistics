@@ -409,6 +409,10 @@
         <source>label.user.badge.participant</source>
         <target>Participant</target>
       </trans-unit>
+      <trans-unit id="usrLblBadgeUserEn" resname="label.user.badge.user">
+        <source>label.user.badge.user</source>
+        <target>User</target>
+      </trans-unit>
       <trans-unit id="usrLblBadgeAdminEn" resname="label.user.badge.admin">
         <source>label.user.badge.admin</source>
         <target>Administrator</target>
@@ -443,7 +447,71 @@
       </trans-unit>
       <trans-unit id="usrLblMemberSinceEn" resname="label.user.member_since">
         <source>label.user.member_since</source>
-        <target>Member since {date}</target>
+        <target>Member since</target>
+      </trans-unit>
+      <trans-unit id="usrLblProfileEn" resname="label.user.profile">
+        <source>label.user.profile</source>
+        <target>Profile</target>
+      </trans-unit>
+      <trans-unit id="usrLblStatsEn" resname="label.user.stats">
+        <source>label.user.stats</source>
+        <target>Stats</target>
+      </trans-unit>
+      <trans-unit id="usrLblCommentsEn" resname="label.user.comments">
+        <source>label.user.comments</source>
+        <target>Comments</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityEmptyEn" resname="label.user.activity.empty">
+        <source>label.user.activity.empty</source>
+        <target>No activity yet</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityLoadMoreEn" resname="label.user.activity.load_more">
+        <source>label.user.activity.load_more</source>
+        <target>Show more activity</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityLoadingEn" resname="label.user.activity.loading">
+        <source>label.user.activity.loading</source>
+        <target>Loading more activity …</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityJoinedEn" resname="label.user.activity.joined">
+        <source>label.user.activity.joined</source>
+        <target>Joined the platform</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityFirstImportEn" resname="label.user.activity.first_import">
+        <source>label.user.activity.first_import</source>
+        <target>Imported first dataset</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityImportMilestoneEn" resname="label.user.activity.import_milestone">
+        <source>label.user.activity.import_milestone</source>
+        <target>Reached {count} data imports</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityPostPublishedEn" resname="label.user.activity.post_published">
+        <source>label.user.activity.post_published</source>
+        <target>Published a post</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityCommentCreatedEn" resname="label.user.activity.comment_created">
+        <source>label.user.activity.comment_created</source>
+        <target>Wrote a comment</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityCommentOnEn" resname="label.user.activity.comment_on">
+        <source>label.user.activity.comment_on</source>
+        <target>On</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalAssociatedEn" resname="label.user.activity.hospital_associated">
+        <source>label.user.activity.hospital_associated</source>
+        <target>Associated with a hospital</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalDisassociatedEn" resname="label.user.activity.hospital_disassociated">
+        <source>label.user.activity.hospital_disassociated</source>
+        <target>Hospital access ended</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalOwnerGrantedEn" resname="label.user.activity.hospital_owner_granted">
+        <source>label.user.activity.hospital_owner_granted</source>
+        <target>Became hospital owner</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityHospitalOwnerRevokedEn" resname="label.user.activity.hospital_owner_revoked">
+        <source>label.user.activity.hospital_owner_revoked</source>
+        <target>Hospital ownership ended</target>
       </trans-unit>
     </body>
   </file>

@@ -6,6 +6,7 @@ namespace App\Admin\UI\Http\Controller\User;
 
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,6 +24,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @extends AbstractCrudController<User>
@@ -35,6 +37,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly AuditContext $auditContext,
         private readonly Security $security,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -166,6 +169,11 @@ final class UserCrudController extends AbstractCrudController
             parent::persistEntity($entityManager, $entityInstance);
         } finally {
             $this->auditContext->endIntent();
+        }
+
+        $userId = $entityInstance->getId();
+        if (null !== $userId) {
+            $this->eventDispatcher->dispatch(new UserRegistered($userId));
         }
     }
 

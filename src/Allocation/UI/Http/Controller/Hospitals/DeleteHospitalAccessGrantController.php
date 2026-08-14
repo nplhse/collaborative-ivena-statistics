@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
+use App\Allocation\Application\Hospital\HospitalAssociationSnapshot;
+use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Allocation\Infrastructure\Security\Voter\HospitalVoter;
@@ -21,6 +23,7 @@ final class DeleteHospitalAccessGrantController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly AuditContext $auditContext,
+        private readonly HospitalRelationNotifier $hospitalRelationNotifier,
     ) {
     }
 
@@ -40,6 +43,8 @@ final class DeleteHospitalAccessGrantController extends AbstractController
             throw $this->createNotFoundException('Access grant not found.');
         }
 
+        $snapshot = $this->hospitalRelationNotifier->snapshot($grant);
+
         $this->entityManager->remove($grant);
         $this->auditContext->beginIntent('hospital.access_grant.deleted', [
             'hospital_id' => $hospital->getId(),
@@ -49,6 +54,10 @@ final class DeleteHospitalAccessGrantController extends AbstractController
             $this->entityManager->flush();
         } finally {
             $this->auditContext->endIntent();
+        }
+
+        if ($snapshot instanceof HospitalAssociationSnapshot) {
+            $this->hospitalRelationNotifier->disassociated($snapshot);
         }
 
         $this->addFlash('success', new TranslatableMessage('flash.hospital_access_grant.deleted', domain: 'allocation'));

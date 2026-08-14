@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\User\Application\Explore;
+namespace App\User\Application\Activity;
 
-/** @psalm-suppress PossiblyUnusedProperty Consumed by Twig explore templates. */
-final readonly class UserPublishedPostSummary
+final readonly class UserActivityBackfillPostRecord
 {
     public function __construct(
+        public int $userId,
+        public int $postId,
         public string $title,
         public string $slug,
         public \DateTimeImmutable $publishedAt,

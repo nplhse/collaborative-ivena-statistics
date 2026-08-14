@@ -23,4 +23,9 @@ final class UserPublicRoleResolver
     {
         return \in_array(UserRole::BOARD_MEMBER, $user->getRoles(), true);
     }
+
+    public static function isUserOnly(User $user): bool
+    {
+        return !self::isAdmin($user) && !self::isParticipant($user) && !self::isBoardMember($user);
+    }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
+use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
@@ -28,6 +29,7 @@ final class NewHospitalAccessGrantController extends AbstractController
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly AuditContext $auditContext,
+        private readonly HospitalRelationNotifier $hospitalRelationNotifier,
     ) {
     }
 
@@ -79,6 +81,8 @@ final class NewHospitalAccessGrantController extends AbstractController
             } finally {
                 $this->auditContext->endIntent();
             }
+
+            $this->hospitalRelationNotifier->associated($grant);
 
             $this->addFlash('success', new TranslatableMessage('flash.hospital_access_grant.created', domain: 'allocation'));
 
