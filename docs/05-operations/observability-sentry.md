@@ -31,6 +31,20 @@ CSP is configured separately via Nelmio (report-only in prod). Violations appear
 - **Issues:** unhandled exceptions and PHP errors via the error listener.
 - **Logs:** structured Monolog entries in Sentry Logs; domain keys live in the log message (for example `import.summary`).
 
+## Expected HTTP exceptions
+
+Normal 404 and 403 responses are not application defects. They are filtered by **exception type** in [`config/packages/sentry.yaml`](../../config/packages/sentry.yaml) (`ignore_exceptions`), not by HTTP status code.
+
+| Exception | Why it is ignored |
+|-----------|-------------------|
+| `NotFoundHttpException` | Expected 404 for missing resources or unknown routes |
+| `AccessDeniedHttpException` | HTTP 403 thrown directly (for example onboarding) or after Security wraps an access denial |
+| `AccessDeniedException` | Expected authorization failure (`denyAccessUnlessGranted()`, voters, `createAccessDeniedException()`) |
+
+Sentry’s error listener runs at priority **128**, before Symfony Security’s exception listener (priority **1**) wraps `AccessDeniedException` as `AccessDeniedHttpException`. Both types must therefore be listed; ignoring only the HTTP wrapper would still report the original security exception.
+
+Unexpected errors inside voters, permission services, or other authorization logic (`RuntimeException`, `TypeError`, …) are **not** ignored and remain visible in Sentry. Authentication failures (`AuthenticationException`) are also not filtered.
+
 ## Import log keys in Sentry
 
 | Message | Sent to Sentry |
