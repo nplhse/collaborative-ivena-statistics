@@ -14,9 +14,13 @@ sentry:
         before_send_transaction: 'sentry.callback.before_send_transaction'
         before_breadcrumb: 'sentry.callback.before_breadcrumb'
         before_send_log: 'sentry.callback.before_send_log'
+        # Expected HTTP outcomes, not application defects. Filter by exception type, not status code.
+        # AccessDeniedException is captured by Sentry (priority 128) before Security wraps it as
+        # AccessDeniedHttpException (priority 1). Unexpected errors in voters remain reportable.
         ignore_exceptions:
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
             - Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
+            - Symfony\Component\Security\Core\Exception\AccessDeniedException
             - Symfony\Component\ErrorHandler\Error\FatalError
 
 when@test:
