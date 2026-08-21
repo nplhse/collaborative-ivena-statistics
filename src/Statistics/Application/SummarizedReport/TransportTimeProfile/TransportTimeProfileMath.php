@@ -57,4 +57,43 @@ final class TransportTimeProfileMath
 
         return 'stats-ttp-heat-'.$direction.'-'.$level;
     }
+
+    public static function deltaBadgeClass(string $heatClass): string
+    {
+        if (str_contains($heatClass, 'high')) {
+            return 'bg-green-lt';
+        }
+
+        if (str_contains($heatClass, 'low')) {
+            return 'bg-red-lt';
+        }
+
+        return '';
+    }
+
+    public static function rankBadgeClass(?int $rankDelta, bool $enteredTop): string
+    {
+        if ($enteredTop) {
+            return 'bg-blue-lt';
+        }
+
+        if (null === $rankDelta || 0 === $rankDelta) {
+            return '';
+        }
+
+        return $rankDelta > 0 ? 'bg-green-lt' : 'bg-red-lt';
+    }
+
+    public static function rankShiftClass(?int $rankDelta, bool $enteredTop): string
+    {
+        if ($enteredTop) {
+            return 'stats-ttp-rank-shift-new';
+        }
+
+        if (null === $rankDelta || abs($rankDelta) < self::INSIGHT_MIN_RANK_CHANGE) {
+            return '';
+        }
+
+        return $rankDelta > 0 ? 'stats-ttp-rank-shift-up' : 'stats-ttp-rank-shift-down';
+    }
 }

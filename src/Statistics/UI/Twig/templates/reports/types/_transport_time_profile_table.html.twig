@@ -26,7 +26,7 @@
                             {% endif %}
                         </th>
                         {% for bucket, cell in row.cells %}
-                            <td class="{{ row.kind == 'ranked' ? 'stats-ttp-ranked-td' : 'text-end' }} {{ cell.heatClass }}{% if cell.smallSample %} stats-ttp-small-n{% endif %}">
+                            <td class="{{ row.kind == 'ranked' ? 'stats-ttp-ranked-td' : 'text-end' }} {{ cell.heatClass }} {{ cell.rankShiftClass }}{% if cell.smallSample %} stats-ttp-small-n{% endif %}">
                                 {% if cell.isEmpty %}
                                     <span class="text-secondary">—</span>
                                 {% elseif row.kind == 'count' %}
@@ -41,23 +41,50 @@
                                         <div class="small text-secondary stats-ttp-ranked-meta">
                                             {{ cell.percent|number_format(1, ',', '.') }}%
                                             · #{{ cell.rank }}
-                                            {% if cell.enteredTop %}
-                                                · {{ 'stats.reports.transport_time_profile.rank.new'|trans({}, 'statistics') }}
-                                            {% elseif cell.rankDelta is not null and cell.rankDelta != 0 %}
-                                                · {{ cell.rankDelta > 0 ? '↑' : '↓' }}{{ cell.rankDelta|abs }}
-                                            {% endif %}
                                         </div>
-                                    </div>
-                                {% else %}
-                                    <span title="n={{ cell.count }}">
-                                        {{ cell.percent|number_format(1, ',', '.') }}%
-                                        {% if cell.deltaPp is not null %}
-                                            <span class="d-block small text-secondary">
-                                                {{ cell.deltaPp > 0 ? '+' : '' }}{{ cell.deltaPp|number_format(1, ',', '.') }}
-                                                {{ 'stats.reports.transport_time_profile.pp'|trans({}, 'statistics') }}
+                                        {% if cell.enteredTop %}
+                                            <span class="badge {{ cell.rankBadgeClass }} stats-ttp-marker"
+                                                  data-testid="stats-ttp-rank-badge"
+                                                  aria-label="{{ 'stats.reports.transport_time_profile.rank.aria.new'|trans({}, 'statistics') }}">
+                                                <span class="text-blue" aria-hidden="true">
+                                                    <twig:ux:icon name="tabler:circle-filled" class="icon icon-xs" />
+                                                </span>
+                                                {{ 'stats.reports.transport_time_profile.rank.new'|trans({}, 'statistics') }}
+                                            </span>
+                                        {% elseif cell.rankDelta is not null and cell.rankDelta != 0 %}
+                                            <span class="badge {{ cell.rankBadgeClass }} stats-ttp-marker"
+                                                  data-testid="stats-ttp-rank-badge"
+                                                  aria-label="{{ (cell.rankDelta > 0 ? 'stats.reports.transport_time_profile.rank.aria.up' : 'stats.reports.transport_time_profile.rank.aria.down')|trans({delta: cell.rankDelta|abs}, 'statistics') }}">
+                                                <span class="{{ cell.rankDelta > 0 ? 'text-success' : 'text-danger' }}" aria-hidden="true">
+                                                    {% if cell.rankDelta > 0 %}
+                                                        <twig:ux:icon name="tabler:arrow-up" class="icon icon-sm" />
+                                                    {% else %}
+                                                        <twig:ux:icon name="tabler:arrow-down" class="icon icon-sm" />
+                                                    {% endif %}
+                                                </span>
+                                                {{ cell.rankDelta|abs }}
                                             </span>
                                         {% endif %}
-                                    </span>
+                                    </div>
+                                {% else %}
+                                    <div class="d-flex flex-column align-items-end gap-1 w-100" title="n={{ cell.count }}">
+                                        <div>{{ cell.percent|number_format(1, ',', '.') }}%</div>
+                                        {% if cell.deltaBadgeClass %}
+                                            {% set deltaLabel = (cell.deltaPp > 0 ? '+' : '') ~ cell.deltaPp|number_format(1, ',', '.') ~ '%' %}
+                                            <span class="badge {{ cell.deltaBadgeClass }} stats-ttp-marker"
+                                                  data-testid="stats-ttp-delta-badge"
+                                                  aria-label="{{ 'stats.reports.transport_time_profile.delta.aria'|trans({delta: deltaLabel}, 'statistics') }}">
+                                                <span class="{{ cell.deltaPp > 0 ? 'text-success' : 'text-danger' }}" aria-hidden="true">
+                                                    {% if cell.deltaPp > 0 %}
+                                                        <twig:ux:icon name="tabler:arrow-up" class="icon icon-sm" />
+                                                    {% else %}
+                                                        <twig:ux:icon name="tabler:arrow-down" class="icon icon-sm" />
+                                                    {% endif %}
+                                                </span>
+                                                {{ deltaLabel }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
                                 {% if cell.smallSample %}
                                     <span class="d-block small text-secondary" title="{{ 'stats.reports.transport_time_profile.small_n.hint'|trans({}, 'statistics') }}">

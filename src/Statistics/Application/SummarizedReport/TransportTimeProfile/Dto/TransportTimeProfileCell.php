@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto;
 
+use App\Statistics\Application\SummarizedReport\TransportTimeProfile\TransportTimeProfileMath;
+
 final readonly class TransportTimeProfileCell
 {
     public function __construct(
@@ -27,5 +29,20 @@ final readonly class TransportTimeProfileCell
         return null === $this->count
             && null === $this->percent
             && null === $this->entityLabel;
+    }
+
+    public function deltaBadgeClass(): string
+    {
+        return TransportTimeProfileMath::deltaBadgeClass($this->heatClass);
+    }
+
+    public function rankBadgeClass(): string
+    {
+        return TransportTimeProfileMath::rankBadgeClass($this->rankDelta, $this->enteredTop);
+    }
+
+    public function rankShiftClass(): string
+    {
+        return TransportTimeProfileMath::rankShiftClass($this->rankDelta, $this->enteredTop);
     }
 }

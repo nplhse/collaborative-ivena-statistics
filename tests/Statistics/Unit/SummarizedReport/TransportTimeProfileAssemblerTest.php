@@ -30,6 +30,10 @@ final class TransportTimeProfileAssemblerTest extends TestCase
         self::assertSame(25.0, $emergency->overallPercent);
         self::assertSame(-15.0, $emergency->cells['under_10']->deltaPp);
         self::assertSame(15.0, $emergency->cells['over_60']->deltaPp);
+        self::assertSame('stats-ttp-heat-low-3', $emergency->cells['under_10']->heatClass);
+        self::assertSame('stats-ttp-heat-high-3', $emergency->cells['over_60']->heatClass);
+        self::assertSame('bg-red-lt', $emergency->cells['under_10']->deltaBadgeClass());
+        self::assertSame('bg-green-lt', $emergency->cells['over_60']->deltaBadgeClass());
     }
 
     public function testTopFiveIsRankedIndependentlyPerBucket(): void
@@ -76,8 +80,12 @@ final class TransportTimeProfileAssemblerTest extends TestCase
         self::assertSame('Internal', $rank1->cells['under_10']->entityLabel);
         self::assertSame('Neurology', $rank1->cells['over_60']->entityLabel);
         self::assertSame(2, $rank1->cells['over_60']->rankDelta);
+        self::assertSame('stats-ttp-rank-shift-up', $rank1->cells['over_60']->rankShiftClass());
+        self::assertSame('bg-green-lt', $rank1->cells['over_60']->rankBadgeClass());
         self::assertSame('Neurology', $rank3->cells['under_10']->entityLabel);
         self::assertTrue($rank3->cells['over_60']->enteredTop);
+        self::assertSame('stats-ttp-rank-shift-new', $rank3->cells['over_60']->rankShiftClass());
+        self::assertSame('bg-blue-lt', $rank3->cells['over_60']->rankBadgeClass());
         self::assertSame('Trauma', $rank3->cells['over_60']->entityLabel);
         self::assertSame(40.0, $rank1->cells['under_10']->percent);
         self::assertSame(50.0, $rank1->cells['over_60']->percent);
