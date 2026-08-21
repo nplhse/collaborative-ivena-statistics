@@ -40,12 +40,39 @@ final class TransportTimeProfileMathTest extends TestCase
         self::assertSame('stats-ttp-heat-high-2', TransportTimeProfileMath::heatClass(20.0, true));
     }
 
-    public function testHeatClassIsDivergingNotNormative(): void
+    public function testHeatClassUsesHighLowDirection(): void
     {
         self::assertSame('', TransportTimeProfileMath::heatClass(0.0, false));
         self::assertStringContainsString('high', TransportTimeProfileMath::heatClass(16.3, false));
         self::assertStringContainsString('low', TransportTimeProfileMath::heatClass(-16.3, false));
-        self::assertStringNotContainsString('success', TransportTimeProfileMath::heatClass(16.3, false));
-        self::assertStringNotContainsString('danger', TransportTimeProfileMath::heatClass(-16.3, false));
+    }
+
+    public function testDeltaBadgeClassMapsHeatToSuccessAndDanger(): void
+    {
+        self::assertSame('bg-green-lt', TransportTimeProfileMath::deltaBadgeClass('stats-ttp-heat-high-2'));
+        self::assertSame('bg-red-lt', TransportTimeProfileMath::deltaBadgeClass('stats-ttp-heat-low-1'));
+        self::assertSame('', TransportTimeProfileMath::deltaBadgeClass(''));
+    }
+
+    public function testRankBadgeClassUsesSuccessDangerAndNeutralBlue(): void
+    {
+        self::assertSame('', TransportTimeProfileMath::rankBadgeClass(null, false));
+        self::assertSame('', TransportTimeProfileMath::rankBadgeClass(0, false));
+        self::assertSame('bg-green-lt', TransportTimeProfileMath::rankBadgeClass(1, false));
+        self::assertSame('bg-red-lt', TransportTimeProfileMath::rankBadgeClass(-1, false));
+        self::assertSame('bg-blue-lt', TransportTimeProfileMath::rankBadgeClass(null, true));
+        self::assertSame('bg-blue-lt', TransportTimeProfileMath::rankBadgeClass(3, true));
+    }
+
+    public function testRankShiftClassUsesInsightThreshold(): void
+    {
+        self::assertSame('', TransportTimeProfileMath::rankShiftClass(null, false));
+        self::assertSame('', TransportTimeProfileMath::rankShiftClass(0, false));
+        self::assertSame('', TransportTimeProfileMath::rankShiftClass(1, false));
+        self::assertSame('', TransportTimeProfileMath::rankShiftClass(-1, false));
+        self::assertSame('stats-ttp-rank-shift-up', TransportTimeProfileMath::rankShiftClass(2, false));
+        self::assertSame('stats-ttp-rank-shift-down', TransportTimeProfileMath::rankShiftClass(-2, false));
+        self::assertSame('stats-ttp-rank-shift-new', TransportTimeProfileMath::rankShiftClass(null, true));
+        self::assertSame('stats-ttp-rank-shift-new', TransportTimeProfileMath::rankShiftClass(3, true));
     }
 }

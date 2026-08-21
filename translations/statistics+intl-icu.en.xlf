@@ -5345,10 +5345,6 @@
         <source>stats.reports.transport_time_profile.overall</source>
         <target>{percent, number, ::.0}% overall</target>
       </trans-unit>
-      <trans-unit id="statsTtp33" resname="stats.reports.transport_time_profile.pp">
-        <source>stats.reports.transport_time_profile.pp</source>
-        <target>pp</target>
-      </trans-unit>
       <trans-unit id="statsTtp34" resname="stats.reports.transport_time_profile.rank.new">
         <source>stats.reports.transport_time_profile.rank.new</source>
         <target>new</target>
@@ -5360,10 +5356,6 @@
       <trans-unit id="statsTtp36" resname="stats.reports.transport_time_profile.small_n.hint">
         <source>stats.reports.transport_time_profile.small_n.hint</source>
         <target>Small number of cases – interpret with caution</target>
-      </trans-unit>
-      <trans-unit id="statsTtp37" resname="stats.reports.transport_time_profile.disclaimer">
-        <source>stats.reports.transport_time_profile.disclaimer</source>
-        <target>Descriptive analysis of the selected IVENA allocation population. Observed differences do not imply causality.</target>
       </trans-unit>
       <trans-unit id="statsTtp38" resname="stats.reports.transport_time_profile.insight.urgency_emergency.title">
         <source>stats.reports.transport_time_profile.insight.urgency_emergency.title</source>
@@ -5432,6 +5424,30 @@
       <trans-unit id="statsTtp55" resname="stats.reports.transport_time_profile.insight.metric.cathlab">
         <source>stats.reports.transport_time_profile.insight.metric.cathlab</source>
         <target>Cath-lab requests</target>
+      </trans-unit>
+      <trans-unit id="statsTtp56" resname="stats.reports.transport_time_profile.matrix.legend">
+        <source>stats.reports.transport_time_profile.matrix.legend</source>
+        <target>Badges highlight deviations from the overall population. Green is higher, red is lower.</target>
+      </trans-unit>
+      <trans-unit id="statsTtp57" resname="stats.reports.transport_time_profile.ranked.legend">
+        <source>stats.reports.transport_time_profile.ranked.legend</source>
+        <target>Green arrows show an increase, red arrows a decrease versus the previous transport-time group.</target>
+      </trans-unit>
+      <trans-unit id="statsTtp58" resname="stats.reports.transport_time_profile.delta.aria">
+        <source>stats.reports.transport_time_profile.delta.aria</source>
+        <target>{delta} versus the overall population</target>
+      </trans-unit>
+      <trans-unit id="statsTtp59" resname="stats.reports.transport_time_profile.rank.aria.up">
+        <source>stats.reports.transport_time_profile.rank.aria.up</source>
+        <target>Rank +{delta} versus the previous transport-time group</target>
+      </trans-unit>
+      <trans-unit id="statsTtp60" resname="stats.reports.transport_time_profile.rank.aria.down">
+        <source>stats.reports.transport_time_profile.rank.aria.down</source>
+        <target>Rank −{delta} versus the previous transport-time group</target>
+      </trans-unit>
+      <trans-unit id="statsTtp61" resname="stats.reports.transport_time_profile.rank.aria.new">
+        <source>stats.reports.transport_time_profile.rank.aria.new</source>
+        <target>New in the top 5 versus the previous transport-time group</target>
       </trans-unit>
     </body>
   </file>

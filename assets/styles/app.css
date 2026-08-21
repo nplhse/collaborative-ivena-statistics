@@ -605,32 +605,87 @@
     margin-top: 0.15rem;
 }
 
+.stats-ttp-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    width: fit-content;
+    margin-top: 0.15rem;
+    margin-left: auto;
+    padding: 0.1rem 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    white-space: nowrap;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
+.stats-ttp-marker .icon {
+    width: 0.85rem;
+    height: 0.85rem;
+}
+
+.stats-ttp-ranked-td .stats-ttp-marker {
+    margin-left: 0;
+}
+
 .stats-ttp-small-n {
     opacity: 0.7;
 }
 
+.stats-ttp-heat-low-1,
+.stats-ttp-heat-low-2,
+.stats-ttp-heat-low-3,
+.stats-ttp-heat-high-1,
+.stats-ttp-heat-high-2,
+.stats-ttp-heat-high-3,
+.stats-ttp-rank-shift-up,
+.stats-ttp-rank-shift-down,
+.stats-ttp-rank-shift-new {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
 .stats-ttp-heat-low-1 {
-    background-color: rgba(32, 107, 196, 0.08);
+    background-color: rgba(214, 57, 57, 0.08);
+    border-left: 2px solid rgba(214, 57, 57, 0.38);
 }
 
 .stats-ttp-heat-low-2 {
-    background-color: rgba(32, 107, 196, 0.16);
+    background-color: rgba(214, 57, 57, 0.16);
+    border-left: 3px solid rgba(214, 57, 57, 0.55);
 }
 
 .stats-ttp-heat-low-3 {
-    background-color: rgba(32, 107, 196, 0.28);
+    background-color: rgba(214, 57, 57, 0.28);
+    border-left: 4px solid rgba(214, 57, 57, 0.78);
 }
 
 .stats-ttp-heat-high-1 {
-    background-color: rgba(250, 176, 5, 0.12);
+    background-color: rgba(47, 179, 68, 0.10);
+    border-left: 2px solid rgba(47, 179, 68, 0.40);
 }
 
 .stats-ttp-heat-high-2 {
-    background-color: rgba(250, 176, 5, 0.22);
+    background-color: rgba(47, 179, 68, 0.18);
+    border-left: 3px solid rgba(47, 179, 68, 0.58);
 }
 
 .stats-ttp-heat-high-3 {
-    background-color: rgba(250, 176, 5, 0.34);
+    background-color: rgba(47, 179, 68, 0.30);
+    border-left: 4px solid rgba(47, 179, 68, 0.82);
+}
+
+.stats-ttp-rank-shift-up {
+    border-left: 3px solid rgba(47, 179, 68, 0.85);
+}
+
+.stats-ttp-rank-shift-down {
+    border-left: 3px solid rgba(214, 57, 57, 0.85);
+}
+
+.stats-ttp-rank-shift-new {
+    border-left: 3px solid rgba(32, 107, 196, 0.75);
 }
 
 .stats-ttp-insight {
