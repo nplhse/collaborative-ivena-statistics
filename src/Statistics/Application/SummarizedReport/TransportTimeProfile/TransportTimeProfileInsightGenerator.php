@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\SummarizedReport\TransportTimeProfile;
 
+use App\Statistics\Application\Insights\HospitalInsightTrend;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileInsight;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileMatrixSection;
@@ -217,6 +218,7 @@ final readonly class TransportTimeProfileInsightGenerator
                 'statistics',
                 $locale,
             ),
+            $delta > 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
         );
     }
 
@@ -277,6 +279,7 @@ final readonly class TransportTimeProfileInsightGenerator
                     'statistics',
                     $locale,
                 ),
+                $rankChange > 0 ? HospitalInsightTrend::Up : HospitalInsightTrend::Down,
             );
 
             return;
@@ -332,6 +335,7 @@ final readonly class TransportTimeProfileInsightGenerator
                 'statistics',
                 $locale,
             ),
+            HospitalInsightTrend::Up,
         );
     }
 }

@@ -84,9 +84,22 @@
                         </div>
                         <div class="list-group list-group-flush">
                             {% for insight in report.insights %}
-                                <div class="list-group-item stats-ttp-insight" data-testid="stats-ttp-insight">
-                                    <div class="fw-bold">{{ insight.title }}</div>
-                                    <div class="text-muted small">{{ insight.body }}</div>
+                                <div class="list-group-item stats-ttp-insight d-flex align-items-start gap-2" data-testid="stats-ttp-insight">
+                                    <span class="mt-1 flex-shrink-0 {% if insight.trend.value == 'up' %}text-success{% elseif insight.trend.value == 'down' %}text-danger{% else %}text-secondary{% endif %}"
+                                          data-testid="stats-ttp-insight-trend"
+                                          aria-hidden="true">
+                                        {% if insight.trend.value == 'up' %}
+                                            <twig:ux:icon name="tabler:arrow-up" class="icon icon-sm" />
+                                        {% elseif insight.trend.value == 'down' %}
+                                            <twig:ux:icon name="tabler:arrow-down" class="icon icon-sm" />
+                                        {% else %}
+                                            <twig:ux:icon name="tabler:circle-filled" class="icon icon-xs" />
+                                        {% endif %}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <div class="fw-bold">{{ insight.title }}</div>
+                                        <div class="text-muted small">{{ insight.body }}</div>
+                                    </div>
                                 </div>
                             {% endfor %}
                         </div>
@@ -96,8 +109,11 @@
         </div>
 
         <div class="card" data-testid="stats-ttp-matrix-card">
-            <div class="card-header">
+            <div class="card-header d-flex flex-column align-items-stretch gap-2">
                 <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.matrix.title'|trans({}, 'statistics') }}</h3>
+                <p class="text-secondary small mb-0" data-testid="stats-ttp-matrix-legend">
+                    {{ 'stats.reports.transport_time_profile.matrix.legend'|trans({}, 'statistics') }}
+                </p>
             </div>
             <div class="card-body p-0">
                 {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.matrixSections}) }}
@@ -106,17 +122,16 @@
 
         {% if report.rankedSections is not empty %}
             <div class="card mt-3" data-testid="stats-ttp-ranked-card">
-                <div class="card-header">
+                <div class="card-header d-flex flex-column align-items-stretch gap-2">
                     <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.ranked.title'|trans({}, 'statistics') }}</h3>
+                    <p class="text-secondary small mb-0" data-testid="stats-ttp-ranked-legend">
+                        {{ 'stats.reports.transport_time_profile.ranked.legend'|trans({}, 'statistics') }}
+                    </p>
                 </div>
                 <div class="card-body p-0">
                     {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.rankedSections}) }}
                 </div>
             </div>
         {% endif %}
-
-        <p class="text-secondary small mt-3 stats-ttp-disclaimer" data-testid="stats-ttp-disclaimer">
-            {{ 'stats.reports.transport_time_profile.disclaimer'|trans({}, 'statistics') }}
-        </p>
     {% endif %}
 </div>

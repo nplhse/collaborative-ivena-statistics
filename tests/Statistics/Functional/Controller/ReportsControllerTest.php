@@ -195,6 +195,7 @@ final class ReportsControllerTest extends WebTestCase
             'location' => HospitalLocation::URBAN,
         ]);
         $department = DepartmentFactory::createOne(['name' => 'TtpCtrlDept']);
+        $longHaulDepartment = DepartmentFactory::createOne(['name' => 'TtpCtrlLongDept']);
         SpecialityFactory::createOne(['name' => 'TtpCtrlSpec']);
         AssignmentFactory::createOne(['name' => 'TtpCtrlAssign']);
         IndicationRawFactory::createOne(['name' => 'TtpCtrlRaw', 'code' => 912_361]);
@@ -219,7 +220,7 @@ final class ReportsControllerTest extends WebTestCase
             'dispatchArea' => $dispatchArea,
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::EMERGENCY,
-            'department' => $department,
+            'department' => $longHaulDepartment,
             'createdAt' => new \DateTimeImmutable('2025-06-15 11:00:00'),
             'arrivalAt' => new \DateTimeImmutable('2025-06-15 12:10:00'),
         ]);
@@ -252,10 +253,14 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-chart-modes"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-matrix-card"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-ranked-card"]');
-        $this->assertSelectorExists('[data-testid="stats-ttp-disclaimer"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-unknown-note"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-row-volume-cases"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-row-resources-requires_cathlab"]');
+        $this->assertSelectorExists('[data-testid="stats-ttp-matrix-legend"]');
+        $this->assertSelectorExists('[data-testid="stats-ttp-ranked-legend"]');
+        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"]');
+        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"] .text-success, [data-testid="stats-ttp-delta-badge"] .text-danger');
+        $this->assertSelectorExists('[data-testid="stats-ttp-rank-badge"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertStringContainsString(
             'generic-analysis-chart',

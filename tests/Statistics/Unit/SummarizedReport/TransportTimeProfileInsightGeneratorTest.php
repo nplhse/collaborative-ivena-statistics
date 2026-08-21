@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\SummarizedReport;
 
+use App\Statistics\Application\Insights\HospitalInsightTrend;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileCell;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileMatrixRow;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileMatrixSection;
@@ -26,6 +27,7 @@ final class TransportTimeProfileInsightGeneratorTest extends TestCase
 
         self::assertNotEmpty($insights);
         self::assertSame('urgency_emergency', $insights[0]->id);
+        self::assertSame(HospitalInsightTrend::Up, $insights[0]->trend);
         self::assertStringContainsString('rate_increase', $insights[0]->body);
         self::assertStringNotContainsString('require', strtolower($insights[0]->body));
         self::assertStringNotContainsString('cause', strtolower($insights[0]->body));
@@ -81,6 +83,11 @@ final class TransportTimeProfileInsightGeneratorTest extends TestCase
         $ids = array_map(static fn (\App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileInsight $insight): string => $insight->id, $insights);
         self::assertContains('departments_1', $ids);
         self::assertNotContains('departments_2', $ids);
+        $rankInsight = array_values(array_filter(
+            $insights,
+            static fn (\App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileInsight $insight): bool => 'departments_1' === $insight->id,
+        ))[0];
+        self::assertSame(HospitalInsightTrend::Down, $rankInsight->trend);
     }
 
     public function testCathlabRateSpanUsesResourcesSection(): void
@@ -120,8 +127,13 @@ final class TransportTimeProfileInsightGeneratorTest extends TestCase
 
         $ids = array_map(static fn (\App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileInsight $insight): string => $insight->id, $insights);
         self::assertContains('urgency_emergency', $ids);
+        self::assertSame(HospitalInsightTrend::Down, $insights[0]->trend);
         self::assertStringContainsString('rate_decrease', $insights[0]->body);
-        self::assertContains('air_overrepresented', $ids);
+        $airInsight = array_values(array_filter(
+            $insights,
+            static fn (\App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileInsight $insight): bool => 'air_overrepresented' === $insight->id,
+        ))[0];
+        self::assertSame(HospitalInsightTrend::Up, $airInsight->trend);
         self::assertLessThanOrEqual(4, \count($insights));
     }
 
