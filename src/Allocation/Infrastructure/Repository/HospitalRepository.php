@@ -18,6 +18,7 @@ use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -77,6 +78,17 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         return (int) $this->createQueryBuilder('h')
             ->select('COUNT(h.id)')
             ->andWhere('h.isParticipating = true')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countParticipatingCreatedSince(\DateTimeInterface $from): int
+    {
+        return (int) $this->createQueryBuilder('h')
+            ->select('COUNT(h.id)')
+            ->andWhere('h.isParticipating = true')
+            ->andWhere('h.createdAt >= :from')
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
     }

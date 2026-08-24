@@ -1,0 +1,25 @@
+<div class="row row-cards" data-testid="dashboard-metrics">
+    {% for metric in metrics.items %}
+        <div class="col-6 col-lg-3">
+            <div class="card" data-testid="dashboard-metric-{{ metric.key }}">
+                <div class="card-body">
+                    <div class="d-flex align-items-start gap-2">
+                        <span class="avatar avatar-sm bg-primary-lt text-primary flex-shrink-0">
+                            {{ ux_icon(metric.icon, {style: 'height: 1.25em;'}) }}
+                        </span>
+                        <div class="min-w-0">
+                            <div class="subheader">{{ metric.labelTranslationKey|trans({}, 'content') }}</div>
+                            <div class="h1 mb-1">{{ metric.value|number_format(0, ',', '.') }}</div>
+                            <div class="text-secondary small d-flex align-items-center gap-1">
+                                {% if metric.deltaLast30Days > 0 %}
+                                    <twig:ux:icon name="tabler:plus" class="flex-shrink-0" style="height: 1em;" />
+                                {% endif %}
+                                <span>{{ metric.deltaLast30Days|number_format(0, ',', '.') }} {{ 'dashboard.metrics.last_30_days'|trans({}, 'content') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Http\Controller;
 
-use App\Allocation\Infrastructure\Repository\AllocationRepository;
-use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Content\Application\Dashboard\DashboardMetricsService;
 use App\Content\Application\Page\PageSidebarDataProvider;
 use App\Content\Infrastructure\Repository\PostRepository;
-use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Onboarding\Application\OnboardingProgressService;
 use App\User\Domain\Entity\User;
-use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,10 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DefaultController extends AbstractController
 {
     public function __construct(
-        private readonly UserRepository $userRepository,
-        private readonly HospitalRepository $hospitalRepository,
-        private readonly ImportRepository $importRepository,
-        private readonly AllocationRepository $allocationRepository,
+        private readonly DashboardMetricsService $dashboardMetricsService,
         private readonly PostRepository $postRepository,
         private readonly PageSidebarDataProvider $pageSidebarDataProvider,
         private readonly OnboardingProgressService $onboardingProgressService,
@@ -32,6 +26,8 @@ final class DefaultController extends AbstractController
     #[Route('/', name: 'app_default')]
     public function index(): Response
     {
+        $metrics = $this->dashboardMetricsService->get();
+
         if ($this->isGranted('ROLE_USER')) {
             $user = $this->getUser();
             $onboardingCard = $user instanceof User
@@ -39,17 +35,18 @@ final class DefaultController extends AbstractController
                 : null;
 
             return $this->render('@Content/dashboard/dashboard.html.twig', [
+                'metrics' => $metrics,
                 'recentPosts' => $this->postRepository->findPublishedForIndex(5),
                 'onboardingCard' => $onboardingCard,
-                ...$this->pageSidebarDataProvider->getData(),
+                'pageTree' => $this->pageSidebarDataProvider->getPageTree(),
             ]);
         }
 
         return $this->render('@Content/public/home.html.twig', [
-            'userCount' => $this->userRepository->count(),
-            'hospitalCount' => $this->hospitalRepository->countParticipating(),
-            'importCount' => $this->importRepository->count(),
-            'allocationCount' => $this->allocationRepository->count(),
+            'userCount' => $metrics->value('users'),
+            'hospitalCount' => $metrics->value('hospitals'),
+            'importCount' => $metrics->value('imports'),
+            'allocationCount' => $metrics->value('allocations'),
         ]);
     }
 }

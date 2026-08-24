@@ -10,6 +10,7 @@ use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -103,6 +104,16 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
         );
 
         return $choices;
+    }
+
+    public function countCreatedSince(\DateTimeInterface $from): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->andWhere('u.createdAt >= :from')
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     #[\Override]

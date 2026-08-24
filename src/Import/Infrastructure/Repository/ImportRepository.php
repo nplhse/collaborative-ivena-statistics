@@ -337,4 +337,14 @@ SQL;
 
         return $count > 0;
     }
+
+    public function countCreatedSince(\DateTimeInterface $from): int
+    {
+        return (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->andWhere('i.createdAt >= :from')
+            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

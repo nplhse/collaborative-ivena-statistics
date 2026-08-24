@@ -121,6 +121,46 @@
         <source>dashboard.blog.visit</source>
         <target>Visit Blog</target>
       </trans-unit>
+      <trans-unit id="dshActEmptyEn" resname="dashboard.activity.empty">
+        <source>dashboard.activity.empty</source>
+        <target>No recent activity yet.</target>
+      </trans-unit>
+      <trans-unit id="dshActErrorEn" resname="dashboard.activity.error">
+        <source>dashboard.activity.error</source>
+        <target>Activity could not be loaded.</target>
+      </trans-unit>
+      <trans-unit id="dshActLoadEn" resname="dashboard.activity.load_more">
+        <source>dashboard.activity.load_more</source>
+        <target>Show more activity</target>
+      </trans-unit>
+      <trans-unit id="dshActLoadgEn" resname="dashboard.activity.loading">
+        <source>dashboard.activity.loading</source>
+        <target>Loading activity…</target>
+      </trans-unit>
+      <trans-unit id="dshActTitleEn" resname="dashboard.activity.title">
+        <source>dashboard.activity.title</source>
+        <target>What happened recently</target>
+      </trans-unit>
+      <trans-unit id="dshMtrAllocEn" resname="dashboard.metrics.allocations">
+        <source>dashboard.metrics.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="dshMtrHospEn" resname="dashboard.metrics.hospitals">
+        <source>dashboard.metrics.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="dshMtrImpEn" resname="dashboard.metrics.imports">
+        <source>dashboard.metrics.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="dshMtr30En" resname="dashboard.metrics.last_30_days">
+        <source>dashboard.metrics.last_30_days</source>
+        <target>last 30 days</target>
+      </trans-unit>
+      <trans-unit id="dshMtrUsrEn" resname="dashboard.metrics.users">
+        <source>dashboard.metrics.users</source>
+        <target>Users</target>
+      </trans-unit>
       <trans-unit id="ZKHDIRf" resname="public.cta.learn_more">
         <source>public.cta.learn_more</source>
         <target>Learn more</target>

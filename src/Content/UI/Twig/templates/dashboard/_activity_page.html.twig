@@ -1,0 +1,17 @@
+<turbo-frame id="{{ frameId }}">
+    {% if page.items is empty %}
+        <div class="card-body py-3 text-secondary" data-testid="dashboard-activity-empty">
+            {{ 'dashboard.activity.empty'|trans({}, 'content') }}
+        </div>
+    {% else %}
+        <div class="list-group list-group-flush">
+            {{ include('@Content/dashboard/_activity_items.html.twig', {activities: page.items}) }}
+            {% if page.hasMore and page.nextCursor and page.nextFrameId %}
+                {{ include('@Content/dashboard/_activity_next_frame.html.twig', {
+                    nextCursor: page.nextCursor,
+                    frameId: page.nextFrameId,
+                }) }}
+            {% endif %}
+        </div>
+    {% endif %}
+</turbo-frame>
