@@ -148,6 +148,47 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
         self::assertSame(ProfileActivityType::HOSPITAL_ASSOCIATED, $page->items[2]->type);
     }
 
+    public function testMapsFirstImportNumericMilestoneAndIgnoresEmptyMetadata(): void
+    {
+        $user = UserFactory::createOne(['username' => 'project-feed-first-import']);
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+
+        $this->record(
+            $user,
+            UserActivityType::FIRST_IMPORT,
+            new \DateTimeImmutable('2026-06-01 08:00:00'),
+            UserActivityDeduplicationKey::importMilestone($userId, 1),
+            [
+                'milestone' => '1',
+                'hospitalName' => '',
+                'hospitalPublicId' => '',
+                'title' => '',
+                'postTitle' => 'Fallback Title',
+                'slug' => '',
+                'postSlug' => 'fallback-slug',
+            ],
+        );
+        $this->record(
+            $user,
+            UserActivityType::IMPORT_MILESTONE,
+            new \DateTimeImmutable('2026-06-02 08:00:00'),
+            UserActivityDeduplicationKey::importMilestone($userId, 5),
+            ['milestone' => 'not-a-number'],
+        );
+
+        $page = self::getContainer()->get(ProjectActivityQuery::class)->getPage(null);
+        self::assertCount(2, $page->items);
+        self::assertSame(ProfileActivityType::IMPORT_MILESTONE, $page->items[0]->type);
+        self::assertNull($page->items[0]->milestone);
+        self::assertSame(ProfileActivityType::FIRST_IMPORT, $page->items[1]->type);
+        self::assertSame(1, $page->items[1]->milestone);
+        self::assertNull($page->items[1]->hospitalName);
+        self::assertNull($page->items[1]->hospitalPublicId);
+        self::assertSame('Fallback Title', $page->items[1]->postTitle);
+        self::assertSame('fallback-slug', $page->items[1]->postSlug);
+    }
+
     /**
      * @param array<string, scalar|null> $metadata
      */

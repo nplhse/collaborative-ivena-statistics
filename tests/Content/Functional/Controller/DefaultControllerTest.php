@@ -16,6 +16,11 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
+use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PageFactory;
+use App\Content\Infrastructure\Factory\PostFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\Onboarding\Infrastructure\Factory\UserOnboardingStepFactory;
@@ -279,6 +284,36 @@ final class DefaultControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="dashboard-onboarding-card"]');
+    }
+
+    public function testDashboardSidebarShowsPublishedPostsAndPages(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'dashboard-sidebar-user']);
+        PostFactory::createOne([
+            'title' => 'Dashboard Sidebar Post',
+            'slug' => 'dashboard-sidebar-post',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-2 hours'),
+            'createdBy' => $user,
+        ]);
+        PageFactory::createOne([
+            'title' => 'Dashboard Guide',
+            'slug' => 'dashboard-guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Guide</p>']]],
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href="/blog/dashboard-sidebar-post"]');
+        self::assertSelectorTextContains('body', 'Dashboard Sidebar Post');
+        self::assertSelectorTextNotContains('body', 'No published posts yet.');
+        self::assertSelectorTextContains('body', 'Dashboard Guide');
+        self::assertSelectorTextNotContains('body', 'No pages available.');
     }
 
     public function testDashboardStaysUsableWhenActivityFrameIsSeparate(): void

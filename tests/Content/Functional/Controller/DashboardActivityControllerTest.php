@@ -174,6 +174,62 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Linked Clinic');
     }
 
+    public function testRendersRemainingCommunityTypesWithoutOptionalLinks(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'activity-types-viewer']);
+        $actor = UserFactory::createOne(['username' => 'activity-types-actor']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        $this->record(
+            $actor,
+            UserActivityType::FIRST_IMPORT,
+            new \DateTimeImmutable('2026-08-01 09:00:00'),
+            UserActivityDeduplicationKey::importMilestone($actorId, 1),
+            ['milestone' => 1, 'hospitalName' => 'First Clinic'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::IMPORT_MILESTONE,
+            new \DateTimeImmutable('2026-08-02 09:00:00'),
+            UserActivityDeduplicationKey::importMilestone($actorId, 5),
+            ['milestone' => 5, 'hospitalName' => 'First Clinic'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::COMMENT_CREATED,
+            new \DateTimeImmutable('2026-08-03 09:00:00'),
+            UserActivityDeduplicationKey::commentCreated($actorId, 11),
+            ['postTitle' => 'Untitled Comment Post', 'excerpt' => 'Nice work'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-08-04 09:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 12),
+            ['title' => 'Draft Headline'],
+        );
+
+        $client->loginUser($viewer);
+        $client->request(Request::METHOD_GET, '/dashboard/activity');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="first_import"]');
+        self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="import_milestone"]');
+        self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="comment_created"]');
+        self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="post_published"]');
+        self::assertSelectorTextContains('body', 'Imported first dataset');
+        self::assertSelectorTextContains('body', 'Reached 5 data imports');
+        self::assertSelectorTextContains('body', 'Wrote a comment');
+        self::assertSelectorTextContains('body', 'On');
+        self::assertSelectorTextContains('body', 'Untitled Comment Post');
+        self::assertSelectorTextContains('body', 'Nice work');
+        self::assertSelectorTextContains('body', 'Draft Headline');
+        self::assertSelectorNotExists('a[href^="/blog/"]');
+        self::assertSelectorNotExists('a[href^="/explore/hospital/"]');
+    }
+
     public function testFeedFailureRendersErrorInsideTheFrame(): void
     {
         $client = self::createClient();
