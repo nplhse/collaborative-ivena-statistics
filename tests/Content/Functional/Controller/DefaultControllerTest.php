@@ -66,6 +66,10 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('.home-screenshot-carousel .carousel-caption-background');
         self::assertSelectorExists('.home-screenshot-carousel .carousel-caption[data-testid="home-screenshot-caption"]');
         self::assertSelectorTextContains('body', 'Shared overview of allocations, trends and clinical distributions across the network.');
+        self::assertSelectorTextContains('body', 'Users');
+        self::assertSelectorTextContains('body', 'Hospitals');
+        self::assertSelectorTextContains('body', 'Allocations');
+        self::assertSelectorTextContains('body', 'Imports');
     }
 
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void
@@ -86,6 +90,13 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Pages');
         self::assertSelectorTextContains('body', 'No published posts yet.');
         self::assertSelectorTextContains('body', 'No pages available.');
+        self::assertSelectorExists('[data-testid="dashboard-metrics"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-allocations"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-hospitals"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-users"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-imports"]');
+        self::assertSelectorTextContains('[data-testid="dashboard-metric-users"]', 'last 30 days');
+        self::assertSelectorExists('turbo-frame#dashboard-activity[src="/dashboard/activity"]');
         self::assertSelectorExists('[data-testid="dashboard-participant-access-notice"]');
         self::assertSelectorTextContains('body', 'Your current access');
         self::assertSelectorTextContains('body', 'Browse and explore allocation data');
@@ -268,5 +279,19 @@ final class DefaultControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="dashboard-onboarding-card"]');
+    }
+
+    public function testDashboardStaysUsableWhenActivityFrameIsSeparate(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'dashboard-activity-isolated']);
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-metrics"]');
+        self::assertSelectorExists('a[href="/statistics/"]');
+        self::assertSelectorExists('turbo-frame#dashboard-activity[loading="lazy"]');
+        self::assertSelectorNotExists('[data-testid="dashboard-activity-item"]');
     }
 }
