@@ -30,6 +30,19 @@ final readonly class PageSidebarDataProvider
      */
     public function getData(): array
     {
+        return [
+            'pageTree' => $this->getPageTree(),
+            'latest_posts' => $this->postRepository->findPublishedForIndex(5),
+        ];
+    }
+
+    /**
+     * @return array<int, array{page: Page, title: string, path: string, children: array<int, mixed>}>
+     *
+     * @psalm-suppress PossiblyUnusedMethod Called from the authenticated dashboard controller.
+     */
+    public function getPageTree(): array
+    {
         $locale = $this->requestStack->getCurrentRequest()?->getLocale()
             ?? $this->pageTranslationResolver->getContentDefaultLocale();
 
@@ -59,9 +72,6 @@ final readonly class PageSidebarDataProvider
             ];
         }
 
-        return [
-            'pageTree' => $this->pageNavigationTreeBuilder->build($pages, $displayByPageId),
-            'latest_posts' => $this->postRepository->findPublishedForIndex(5),
-        ];
+        return $this->pageNavigationTreeBuilder->build($pages, $displayByPageId);
     }
 }

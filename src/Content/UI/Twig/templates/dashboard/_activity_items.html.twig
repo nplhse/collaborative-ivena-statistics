@@ -1,0 +1,88 @@
+{% set activityIcons = {
+    joined: 'tabler:user-plus',
+    first_import: 'tabler:database-import',
+    import_milestone: 'tabler:award',
+    post_published: 'tabler:file-text',
+    comment_created: 'tabler:message-circle',
+    hospital_associated: 'tabler:link',
+    hospital_owner_granted: 'tabler:key',
+} %}
+
+{% for activity in activities %}
+    <div
+        class="list-group-item"
+        data-testid="dashboard-activity-item"
+        data-activity-type="{{ activity.type.value }}"
+        data-activity-stable-id="{{ activity.stableId }}"
+    >
+        <div class="row align-items-start">
+            <div class="col-auto">
+                <span class="avatar avatar-sm rounded">
+                    <twig:ux:icon name="{{ activityIcons[activity.type.value] }}" width="1.25em" height="1.25em" />
+                </span>
+            </div>
+            <div class="col min-w-0">
+                <div class="text-secondary small" data-testid="dashboard-activity-date">
+                    {{ activity.occurredAt|date('d.m.Y') }}
+                </div>
+                <div class="fw-medium">
+                    {% if is_granted('ROLE_PARTICIPANT') and activity.actorPublicId %}
+                        <a href="{{ path('app_explore_user_show', {publicId: activity.actorPublicId}) }}" target="_top">{{ activity.actorUsername }}</a>
+                    {% else %}
+                        {{ activity.actorUsername }}
+                    {% endif %}
+                </div>
+                <div>
+                    {% if activity.type.value == 'joined' %}
+                        {{ 'label.user.activity.joined'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'first_import' %}
+                        {{ 'label.user.activity.first_import'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'import_milestone' %}
+                        {{ 'label.user.activity.import_milestone'|trans(({count: activity.milestone}), 'user') }}
+                    {% elseif activity.type.value == 'post_published' %}
+                        {{ 'label.user.activity.post_published'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'comment_created' %}
+                        {{ 'label.user.activity.comment_created'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'hospital_associated' %}
+                        {{ 'label.user.activity.hospital_associated'|trans({}, 'user') }}
+                    {% elseif activity.type.value == 'hospital_owner_granted' %}
+                        {{ 'label.user.activity.hospital_owner_granted'|trans({}, 'user') }}
+                    {% endif %}
+                </div>
+                {% if activity.type.value == 'post_published' and activity.postTitle %}
+                    <div>
+                        {% if activity.postSlug %}
+                            <a href="{{ path('app_blog_show', {slug: activity.postSlug}) }}" target="_top">„{{ activity.postTitle }}“</a>
+                        {% else %}
+                            <span class="text-secondary">„{{ activity.postTitle }}“</span>
+                        {% endif %}
+                    </div>
+                {% elseif activity.type.value == 'comment_created' %}
+                    {% if activity.postTitle %}
+                        <div>
+                            {{ 'label.user.activity.comment_on'|trans({}, 'user') }}
+                            {% if activity.postSlug %}
+                                <a href="{{ path('app_blog_show', {slug: activity.postSlug}) }}" target="_top">„{{ activity.postTitle }}“</a>
+                            {% else %}
+                                <span class="text-secondary">„{{ activity.postTitle }}“</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% if activity.excerpt %}
+                        <div class="text-secondary small text-truncate">{{ activity.excerpt }}</div>
+                    {% endif %}
+                {% elseif activity.hospitalName %}
+                    <div class="text-secondary">
+                        {% if is_granted('ROLE_PARTICIPANT') and activity.hospitalPublicId %}
+                            <a href="{{ path('app_explore_hospital_show', {publicId: activity.hospitalPublicId}) }}" target="_top">
+                                {{ activity.hospitalName }}
+                            </a>
+                        {% else %}
+                            {{ activity.hospitalName }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endfor %}

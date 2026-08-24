@@ -157,6 +157,26 @@
         <source>blog.sidebar.tags</source>
         <target>Schlagwörter</target>
       </trans-unit>
+      <trans-unit id="dshActEmptyDe" resname="dashboard.activity.empty">
+        <source>dashboard.activity.empty</source>
+        <target>Noch keine aktuellen Aktivitäten vorhanden.</target>
+      </trans-unit>
+      <trans-unit id="dshActErrorDe" resname="dashboard.activity.error">
+        <source>dashboard.activity.error</source>
+        <target>Aktivitäten konnten nicht geladen werden.</target>
+      </trans-unit>
+      <trans-unit id="dshActLoadDe" resname="dashboard.activity.load_more">
+        <source>dashboard.activity.load_more</source>
+        <target>Weitere Aktivitäten laden</target>
+      </trans-unit>
+      <trans-unit id="dshActLoadgDe" resname="dashboard.activity.loading">
+        <source>dashboard.activity.loading</source>
+        <target>Aktivitäten werden geladen …</target>
+      </trans-unit>
+      <trans-unit id="dshActTitleDe" resname="dashboard.activity.title">
+        <source>dashboard.activity.title</source>
+        <target>Was zuletzt passiert ist</target>
+      </trans-unit>
       <trans-unit id="De2a3648d3" resname="dashboard.blog.recent_empty">
         <source>dashboard.blog.recent_empty</source>
         <target>Noch keine veröffentlichten Beiträge.</target>
@@ -168,6 +188,26 @@
       <trans-unit id="De68bfad58" resname="dashboard.blog.visit">
         <source>dashboard.blog.visit</source>
         <target>Blog besuchen</target>
+      </trans-unit>
+      <trans-unit id="dshMtrAllocDe" resname="dashboard.metrics.allocations">
+        <source>dashboard.metrics.allocations</source>
+        <target>Einsätze</target>
+      </trans-unit>
+      <trans-unit id="dshMtrHospDe" resname="dashboard.metrics.hospitals">
+        <source>dashboard.metrics.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="dshMtrImpDe" resname="dashboard.metrics.imports">
+        <source>dashboard.metrics.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="dshMtr30De" resname="dashboard.metrics.last_30_days">
+        <source>dashboard.metrics.last_30_days</source>
+        <target>letzte 30 Tage</target>
+      </trans-unit>
+      <trans-unit id="dshMtrUsrDe" resname="dashboard.metrics.users">
+        <source>dashboard.metrics.users</source>
+        <target>Benutzer</target>
       </trans-unit>
       <trans-unit id="De04d93e0b" resname="dashboard.next_steps.analysis.description">
         <source>dashboard.next_steps.analysis.description</source>

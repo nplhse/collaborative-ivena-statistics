@@ -14,7 +14,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Analytics` | Server-side usage analytics (request tracking, consent-gated visitor keys) |
 | `Install` | `app:install`, `app:env:check` |
 | `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
-| `Content` | Content pages and blog |
+| `Content` | Content pages, blog, and the authenticated home dashboard (composition of project metrics and activity) |
 | `Onboarding` | Participant dashboard onboarding steps and progress |
 | `Engagement` | Monthly submission reminders and related mail content |
 | `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |

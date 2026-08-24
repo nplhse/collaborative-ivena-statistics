@@ -12,6 +12,7 @@
 | [statistics/](statistics/) | Projection, explorer, data quality, dashboards |
 | [allocation/](allocation/) | Allocation exploration, indication normalization |
 | [onboarding/](onboarding/) | Participant onboarding checklist |
+| [content/](content/) | Pages, translations, home dashboard overview |
 | [kpi/](kpi/) | Daily KPI aggregation |
 | [analytics/](analytics/) | Server-side usage analytics |
 

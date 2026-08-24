@@ -505,11 +505,14 @@ deptrac:
             - User_Infrastructure
             - User_UI
         Content_Application:
+            - Allocation_Infrastructure
             - Content_Domain
+            - Import_Infrastructure
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
+            - Statistics_Infrastructure
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -537,6 +540,7 @@ deptrac:
         Content_UI:
             - Content_Application
             - Content_Domain
+            - Onboarding_Application
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

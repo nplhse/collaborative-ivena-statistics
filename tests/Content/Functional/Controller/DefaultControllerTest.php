@@ -16,6 +16,11 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Content\Domain\Entity\Page;
+use App\Content\Domain\Entity\PageTranslation;
+use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PageFactory;
+use App\Content\Infrastructure\Factory\PostFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\Onboarding\Infrastructure\Factory\UserOnboardingStepFactory;
@@ -66,6 +71,10 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('.home-screenshot-carousel .carousel-caption-background');
         self::assertSelectorExists('.home-screenshot-carousel .carousel-caption[data-testid="home-screenshot-caption"]');
         self::assertSelectorTextContains('body', 'Shared overview of allocations, trends and clinical distributions across the network.');
+        self::assertSelectorTextContains('body', 'Users');
+        self::assertSelectorTextContains('body', 'Hospitals');
+        self::assertSelectorTextContains('body', 'Allocations');
+        self::assertSelectorTextContains('body', 'Imports');
     }
 
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void
@@ -86,6 +95,13 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Pages');
         self::assertSelectorTextContains('body', 'No published posts yet.');
         self::assertSelectorTextContains('body', 'No pages available.');
+        self::assertSelectorExists('[data-testid="dashboard-metrics"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-allocations"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-hospitals"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-users"]');
+        self::assertSelectorExists('[data-testid="dashboard-metric-imports"]');
+        self::assertSelectorTextContains('[data-testid="dashboard-metric-users"]', 'last 30 days');
+        self::assertSelectorExists('turbo-frame#dashboard-activity[src="/dashboard/activity"]');
         self::assertSelectorExists('[data-testid="dashboard-participant-access-notice"]');
         self::assertSelectorTextContains('body', 'Your current access');
         self::assertSelectorTextContains('body', 'Browse and explore allocation data');
@@ -268,5 +284,49 @@ final class DefaultControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="dashboard-onboarding-card"]');
+    }
+
+    public function testDashboardSidebarShowsPublishedPostsAndPages(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'dashboard-sidebar-user']);
+        PostFactory::createOne([
+            'title' => 'Dashboard Sidebar Post',
+            'slug' => 'dashboard-sidebar-post',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-2 hours'),
+            'createdBy' => $user,
+        ]);
+        PageFactory::createOne([
+            'title' => 'Dashboard Guide',
+            'slug' => 'dashboard-guide',
+            'status' => PageTranslation::STATUS_PUBLISHED,
+            'visibility' => Page::VISIBILITY_AUTHENTICATED,
+            'content' => [['type' => 'richtext', 'data' => ['html' => '<p>Guide</p>']]],
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('a[href="/blog/dashboard-sidebar-post"]');
+        self::assertSelectorTextContains('body', 'Dashboard Sidebar Post');
+        self::assertSelectorTextNotContains('body', 'No published posts yet.');
+        self::assertSelectorTextContains('body', 'Dashboard Guide');
+        self::assertSelectorTextNotContains('body', 'No pages available.');
+    }
+
+    public function testDashboardStaysUsableWhenActivityFrameIsSeparate(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'dashboard-activity-isolated']);
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-metrics"]');
+        self::assertSelectorExists('a[href="/statistics/"]');
+        self::assertSelectorExists('turbo-frame#dashboard-activity[loading="lazy"]');
+        self::assertSelectorNotExists('[data-testid="dashboard-activity-item"]');
     }
 }

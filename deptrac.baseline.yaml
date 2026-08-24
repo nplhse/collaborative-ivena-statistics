@@ -202,11 +202,7 @@ deptrac:
       - App\Content\Infrastructure\Repository\PostRepository
       - App\Content\Infrastructure\Repository\PostTagRepository
     App\Content\UI\Http\Controller\DefaultController:
-      - App\Allocation\Infrastructure\Repository\AllocationRepository
-      - App\Allocation\Infrastructure\Repository\HospitalRepository
       - App\Content\Infrastructure\Repository\PostRepository
-      - App\Import\Infrastructure\Repository\ImportRepository
-      - App\Onboarding\Application\OnboardingProgressService
     App\Content\UI\Http\Controller\PageController:
       - App\Content\Infrastructure\Repository\PageRepository
     App\Engagement\Application\MonthlyReminderSender:

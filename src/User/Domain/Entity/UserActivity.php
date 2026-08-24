@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'user_activity')]
 #[ORM\UniqueConstraint(name: 'uniq_user_activity_deduplication_key', columns: ['deduplication_key'])]
 #[ORM\Index(name: 'idx_user_activity_feed', columns: ['user_id', 'occurred_at', 'id'])]
+#[ORM\Index(name: 'idx_user_activity_project_feed', columns: ['occurred_at', 'id'])]
 class UserActivity
 {
     #[ORM\Id]

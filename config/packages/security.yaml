@@ -61,6 +61,7 @@ security:
         - { path: ^/explore/indication/raw/assign, roles: ROLE_PARTICIPANT }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
         - { path: ^/statistics, roles: ROLE_USER }
+        - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/_components, roles: ROLE_USER }
         - { path: ^/login/confirm, roles: IS_AUTHENTICATED_REMEMBERED }
         # - { path: ^/profile, roles: ROLE_USER }
