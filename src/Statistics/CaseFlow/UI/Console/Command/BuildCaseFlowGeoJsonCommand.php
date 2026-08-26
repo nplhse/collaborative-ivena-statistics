@@ -19,7 +19,7 @@ final readonly class BuildCaseFlowGeoJsonCommand
 {
     public function __construct(
         private HessenDispatchAreaGeoJsonBuilder $builder,
-        #[Autowire('%kernel.project_dir%')]
+        #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
     ) {
     }

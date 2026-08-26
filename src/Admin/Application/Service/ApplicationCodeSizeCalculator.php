@@ -25,7 +25,7 @@ final readonly class ApplicationCodeSizeCalculator
 
     public function __construct(
         private CacheInterface $cache,
-        #[Autowire('%kernel.project_dir%')]
+        #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
     ) {
     }

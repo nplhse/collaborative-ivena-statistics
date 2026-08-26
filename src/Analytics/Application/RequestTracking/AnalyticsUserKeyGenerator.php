@@ -10,7 +10,7 @@ final readonly class AnalyticsUserKeyGenerator
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        #[Autowire('%kernel.secret%')]
+        #[Autowire(param: 'kernel.secret')]
         private string $appSecret,
     ) {
     }

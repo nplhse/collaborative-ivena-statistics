@@ -32,10 +32,7 @@ final class DispatchAreaNameNormalizer
         $knownTypos = [
             'Groá-Gerau' => 'Groß-Gerau',
         ];
-        if (isset($knownTypos[$value])) {
-            $value = $knownTypos[$value];
-        }
 
-        return $value;
+        return $knownTypos[$value] ?? $value;
     }
 }

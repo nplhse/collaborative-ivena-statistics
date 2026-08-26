@@ -26,7 +26,7 @@ final readonly class PageImageContentAnalyzer
         private MediaRepository $mediaRepository,
         private LocalMediaFileLocator $fileLocator,
         private MediaDimensionsExtractor $dimensionsExtractor,
-        #[Autowire('%app.page_content_width_estimate%')]
+        #[Autowire(param: 'app.page_content_width_estimate')]
         private int $contentWidthEstimate,
     ) {
     }

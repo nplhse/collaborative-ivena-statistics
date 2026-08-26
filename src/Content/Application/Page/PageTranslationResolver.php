@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class PageTranslationResolver
 {
     public function __construct(
-        #[Autowire('%app.content.default_locale%')]
+        #[Autowire(param: 'app.content.default_locale')]
         private string $contentDefaultLocale,
     ) {
     }

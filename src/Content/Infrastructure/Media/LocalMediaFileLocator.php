@@ -11,7 +11,7 @@ final readonly class LocalMediaFileLocator
 {
     /** @psalm-suppress PossiblyUnusedMethod Symfony autowires this service */
     public function __construct(
-        #[Autowire('%app.media_upload_dir%')]
+        #[Autowire(param: 'app.media_upload_dir')]
         private string $uploadDir,
     ) {
     }

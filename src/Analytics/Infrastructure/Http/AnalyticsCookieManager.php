@@ -69,7 +69,7 @@ final class AnalyticsCookieManager
                     ->withPath('/')
                     ->withSecure($request->isSecure())
                     ->withHttpOnly(true)
-                    ->withSameSite('lax')
+                    ->withSameSite(Cookie::SAMESITE_LAX)
                     ->withExpires(new \DateTimeImmutable('+1 year')),
             );
             $request->cookies->set(self::VISITOR_COOKIE, $keys['setVisitor']);
@@ -81,7 +81,7 @@ final class AnalyticsCookieManager
                     ->withPath('/')
                     ->withSecure($request->isSecure())
                     ->withHttpOnly(true)
-                    ->withSameSite('lax'),
+                    ->withSameSite(Cookie::SAMESITE_LAX),
             );
             $request->cookies->set(self::SESSION_COOKIE, $keys['setSession']);
         }

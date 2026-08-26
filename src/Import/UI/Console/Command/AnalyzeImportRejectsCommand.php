@@ -28,7 +28,7 @@ final readonly class AnalyzeImportRejectsCommand
         private ImportRejectAnalysisService $analysisService,
         private RejectAnalysisExporterRegistry $exporterRegistry,
         private Filesystem $filesystem,
-        #[Autowire('%kernel.project_dir%')]
+        #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
     ) {
     }

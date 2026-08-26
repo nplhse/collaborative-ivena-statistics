@@ -23,7 +23,7 @@ final class LocaleCookieManager
             ->withPath('/')
             ->withSecure($request->isSecure())
             ->withHttpOnly(false)
-            ->withSameSite('lax')
+            ->withSameSite(Cookie::SAMESITE_LAX)
             ->withExpires(new \DateTimeImmutable('+1 year'));
     }
 }

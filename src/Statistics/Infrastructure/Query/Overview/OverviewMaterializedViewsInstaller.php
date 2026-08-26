@@ -21,7 +21,7 @@ final class OverviewMaterializedViewsInstaller
     public function __construct(
         private readonly Connection $connection,
         private readonly MaterializedViewRefresher $materializedViewRefresher,
-        #[Autowire('%kernel.environment%')]
+        #[Autowire(param: 'kernel.environment')]
         private readonly string $kernelEnvironment,
     ) {
     }

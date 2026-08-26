@@ -13,20 +13,20 @@ final readonly class FeedbackSpamChecker
      */
     /** @psalm-suppress PossiblyUnusedMethod Wired by Symfony DI container. */
     public function __construct(
-        #[Autowire('%app.feedback.spam.min_submission_seconds%')]
+        #[Autowire(param: 'app.feedback.spam.min_submission_seconds')]
         private int $minSubmissionSeconds,
-        #[Autowire('%app.feedback.spam.long_message_threshold%')]
+        #[Autowire(param: 'app.feedback.spam.long_message_threshold')]
         private int $longMessageThreshold,
-        #[Autowire('%app.feedback.spam.max_message_length%')]
+        #[Autowire(param: 'app.feedback.spam.max_message_length')]
         private int $maxMessageLength,
-        #[Autowire('%app.feedback.spam.anonymous_threshold%')]
+        #[Autowire(param: 'app.feedback.spam.anonymous_threshold')]
         private int $anonymousThreshold,
-        #[Autowire('%app.feedback.spam.authenticated_threshold%')]
+        #[Autowire(param: 'app.feedback.spam.authenticated_threshold')]
         private int $authenticatedThreshold,
-        #[Autowire('%app.feedback.spam.authenticated_score_bonus%')]
+        #[Autowire(param: 'app.feedback.spam.authenticated_score_bonus')]
         private int $authenticatedScoreBonus,
         /** @var list<string> */
-        #[Autowire('%app.feedback.spam.keywords%')]
+        #[Autowire(param: 'app.feedback.spam.keywords')]
         private array $keywords,
     ) {
     }

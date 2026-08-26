@@ -20,9 +20,9 @@ final readonly class FixtureVolumeResolver
      * } $baseline
      */
     public function __construct(
-        #[Autowire('%fixtures.scale%')]
+        #[Autowire(param: 'fixtures.scale')]
         private int $scale,
-        #[Autowire('%fixtures.baseline%')]
+        #[Autowire(param: 'fixtures.baseline')]
         private array $baseline,
     ) {
     }

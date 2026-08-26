@@ -35,7 +35,7 @@ final readonly class EnvCheckCommand
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private EnvironmentChecker $environmentChecker,
-        #[Autowire('%kernel.environment%')]
+        #[Autowire(param: 'kernel.environment')]
         private string $kernelEnvironment,
     ) {
     }

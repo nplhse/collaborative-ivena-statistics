@@ -14,9 +14,9 @@ use Symfony\Component\Filesystem\Path;
 final readonly class ImportFileStorage
 {
     public function __construct(
-        #[Autowire('%kernel.project_dir%')]
+        #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
-        #[Autowire('%app.imports_base_dir%')]
+        #[Autowire(param: 'app.imports_base_dir')]
         private string $importsBaseDir,
         private Filesystem $filesystem,
         private LoggerInterface $importLogger,

@@ -33,8 +33,8 @@ final readonly class MonthlyReminderPreviewCommand
         private LocaleResolver $localeResolver,
         private MonthlyReminderSender $reminderSender,
         private TranslatorInterface $translator,
-        #[Autowire('%env(MAILER_DSN)%')] private string $mailerDsn,
-        #[Autowire('%kernel.environment%')] private string $appEnvironment,
+        #[Autowire(env: 'MAILER_DSN')] private string $mailerDsn,
+        #[Autowire(param: 'kernel.environment')] private string $appEnvironment,
     ) {
     }
 

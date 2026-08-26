@@ -5,25 +5,15 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Twig;
 
 use App\Allocation\Application\Explore\ExploreShowUrlResolver;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
-final class ExploreEntityLinkExtension extends AbstractExtension
+final readonly class ExploreEntityLinkExtension
 {
     public function __construct(
-        private readonly ExploreShowUrlResolver $urlResolver,
+        private ExploreShowUrlResolver $urlResolver,
     ) {
     }
 
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('explore_entity_url', $this->exploreEntityUrl(...)),
-            new TwigFunction('explore_entity_link', $this->exploreEntityLink(...), ['is_safe' => ['html']]),
-        ];
-    }
-
+    #[\Twig\Attribute\AsTwigFunction(name: 'explore_entity_url')]
     public function exploreEntityUrl(?object $entity): ?string
     {
         return $this->urlResolver->resolveUrl($entity);
@@ -32,6 +22,7 @@ final class ExploreEntityLinkExtension extends AbstractExtension
     /**
      * @param array{label?: string, class?: string, empty?: string} $options
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'explore_entity_link', isSafe: ['html'])]
     public function exploreEntityLink(?object $entity, array $options = []): string
     {
         $empty = $options['empty'] ?? '—';

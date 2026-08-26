@@ -8,29 +8,19 @@ use App\Shared\Application\Navigation\DTO\FooterNavigationColumn;
 use App\Shared\Application\Navigation\DTO\SitemapSection;
 use App\Shared\Application\Navigation\FooterNavigationProvider;
 use App\Shared\Application\Navigation\SitemapProvider;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
-final class NavigationExtension extends AbstractExtension
+final readonly class NavigationExtension
 {
     public function __construct(
-        private readonly FooterNavigationProvider $footerNavigationProvider,
-        private readonly SitemapProvider $sitemapProvider,
+        private FooterNavigationProvider $footerNavigationProvider,
+        private SitemapProvider $sitemapProvider,
     ) {
-    }
-
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('footer_nav_columns', $this->footerNavColumns(...)),
-            new TwigFunction('sitemap_sections', $this->sitemapSections(...)),
-        ];
     }
 
     /**
      * @return list<FooterNavigationColumn>
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'footer_nav_columns')]
     public function footerNavColumns(): array
     {
         return $this->footerNavigationProvider->getColumns();
@@ -39,6 +29,7 @@ final class NavigationExtension extends AbstractExtension
     /**
      * @return list<SitemapSection>
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'sitemap_sections')]
     public function sitemapSections(): array
     {
         return $this->sitemapProvider->getSections();
