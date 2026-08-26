@@ -44,5 +44,27 @@ final class AppExtensionTest extends TestCase
         self::assertSame(2024, $container->getParameter('app.meta.copyright_start_year'));
         self::assertSame('Uberspace', $container->getParameter('app.meta.hoster.name'));
         self::assertSame('https://uberspace.de', $container->getParameter('app.meta.hoster.url'));
+        self::assertSame(['.ru'], $container->getParameter('app.registration.blocked_email_domains'));
+    }
+
+    public function testLoadRegistersCustomBlockedEmailDomains(): void
+    {
+        $container = new ContainerBuilder();
+
+        new AppExtension()->load([
+            [
+                'title' => 'Collaborative IVENA statistics',
+                'short_title' => 'COIS',
+                'default_locale' => 'en',
+                'registration' => [
+                    'blocked_email_domains' => ['mailinator.com', '.ru'],
+                ],
+            ],
+        ], $container);
+
+        self::assertSame(
+            ['mailinator.com', '.ru'],
+            $container->getParameter('app.registration.blocked_email_domains'),
+        );
     }
 }
