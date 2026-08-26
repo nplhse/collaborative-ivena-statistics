@@ -116,10 +116,14 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorExists('a[href^="/explore/user/"]');
         self::assertCount(10, $crawler->filter('[data-testid="dashboard-activity-item"]'));
         self::assertSelectorExists('[data-testid="dashboard-activity-next"]');
+        self::assertSelectorNotExists('turbo-frame[data-testid="dashboard-activity-next"][src]');
+        self::assertSelectorNotExists('turbo-frame[data-testid="dashboard-activity-next"][loading]');
 
-        $nextSrc = $crawler->filter('[data-testid="dashboard-activity-next"]')->attr('src');
-        self::assertNotNull($nextSrc);
-        $crawler = $client->request(Request::METHOD_GET, $nextSrc);
+        $nextHref = $crawler->filter('[data-testid="dashboard-activity-load-more"]')->attr('href');
+        self::assertNotNull($nextHref);
+        self::assertCount(2, $crawler->filter('[data-testid="dashboard-activity-load-more"] svg'));
+        self::assertSelectorTextContains('[data-testid="dashboard-activity-load-more"]', 'Show more activity');
+        $crawler = $client->request(Request::METHOD_GET, $nextHref);
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-testid="dashboard-activity-item"]'));
         self::assertSelectorNotExists('[data-testid="dashboard-activity-next"]');

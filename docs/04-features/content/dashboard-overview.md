@@ -44,7 +44,7 @@ Included types: `joined`, `first_import`, `import_milestone`, `post_published`, 
 
 Excluded: `hospital_disassociated`, `hospital_owner_revoked`. Disabled users are omitted.
 
-The initial dashboard HTML only embeds a lazy Turbo Frame (`/dashboard/activity`). The first page (10 items) and further pages load separately with keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`).
+The initial dashboard HTML only embeds a lazy Turbo Frame (`/dashboard/activity`). The first page (10 items) loads when that frame becomes visible. Further pages use the same keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`) but load only after a “Show more” click, so the rest of the dashboard (including the footer) stays reachable.
 
 Index: `idx_user_activity_project_feed` on `(occurred_at DESC, id DESC)`.
 
