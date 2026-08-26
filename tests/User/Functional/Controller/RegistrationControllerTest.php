@@ -14,6 +14,7 @@ use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
+use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -178,6 +179,52 @@ final class RegistrationControllerTest extends WebTestCase
 
         self::assertInstanceOf(TemplatedEmail::class, $adminNotification);
         self::assertEmailSubjectContains($adminNotification, 'New user registration');
+    }
+
+    public function testRegistrationWithBlockedEmailDomainShowsGenericCheckEmailWithoutCreatingUser(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('blocked-ru-%s', $suffix);
+        $email = sprintf('blocked-ru-%s@example.ru', $suffix);
+
+        $this->submitRegistrationWithoutFollowingRedirects($username, $email);
+
+        self::assertNull($this->getUserRepository()->findOneBy(['email' => $email]));
+        self::assertNull($this->getUserRepository()->findOneBy(['username' => $username]));
+        self::assertQueuedEmailCount(0);
+
+        $this->browser()
+            ->visit('/register/check-email')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Check your email')
+            ->assertSee('Your registration was almost successful.')
+            ->assertNotSee($username)
+        ;
+    }
+
+    public function testRegistrationWithBlockedEmailSubdomainIsAlsoSuppressed(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('blocked-sub-ru-%s', $suffix);
+        $email = sprintf('blocked-sub-ru-%s@mail.example.ru', $suffix);
+
+        $this->submitRegistrationWithoutFollowingRedirects($username, $email);
+
+        self::assertNull($this->getUserRepository()->findOneBy(['email' => $email]));
+        self::assertNull($this->getUserRepository()->findOneBy(['username' => $username]));
+        self::assertQueuedEmailCount(0);
+    }
+
+    public function testRegistrationWithLookalikeDomainIsNotSuppressed(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('lookalike-%s', $suffix);
+        $email = sprintf('lookalike-%s@pru.test', $suffix);
+
+        $this->submitRegistrationWithoutFollowingRedirects($username, $email);
+
+        self::assertNotNull($this->getUserRepository()->findOneBy(['email' => $email]));
+        self::assertQueuedEmailCount(1);
     }
 
     public function testUserCanRegisterButIsNotAutoLoggedInWithoutConsentDecision(): void
@@ -452,5 +499,35 @@ final class RegistrationControllerTest extends WebTestCase
                 self::assertNotEmpty($wrapper->attr('data-password-strength-strength-labels-value'));
             })
         ;
+    }
+
+    private function submitRegistrationWithoutFollowingRedirects(string $username, string $email): void
+    {
+        $previousFollowRedirects = $_SERVER['BROWSER_FOLLOW_REDIRECTS'] ?? null;
+        $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = '0';
+
+        try {
+            $this->browser()
+                ->disableReboot()
+                ->visit('/register')
+                ->fillField('registration_form[username]', $username)
+                ->fillField('registration_form[email]', $email)
+                ->fillField('registration_form[plainPassword]', 'super-secret-password')
+                ->checkField('registration_form[acceptTerms]')
+                ->click('Register')
+                ->assertStatus(302)
+            ;
+        } finally {
+            if (null === $previousFollowRedirects) {
+                unset($_SERVER['BROWSER_FOLLOW_REDIRECTS']);
+            } else {
+                $_SERVER['BROWSER_FOLLOW_REDIRECTS'] = $previousFollowRedirects;
+            }
+        }
+    }
+
+    private function getUserRepository(): UserRepository
+    {
+        return self::getContainer()->get(UserRepository::class);
     }
 }

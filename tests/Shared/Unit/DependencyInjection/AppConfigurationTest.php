@@ -29,6 +29,7 @@ final class AppConfigurationTest extends TestCase
         self::assertSame(4, $processed['feedback']['spam']['min_submission_seconds']);
         self::assertSame(1800, $processed['feedback']['spam']['long_message_threshold']);
         self::assertSame(4000, $processed['feedback']['spam']['max_message_length']);
+        self::assertSame(['.ru'], $processed['registration']['blocked_email_domains']);
         self::assertSame([
             'casino',
             'crypto',
@@ -44,5 +45,33 @@ final class AppConfigurationTest extends TestCase
             'make money',
             'click here',
         ], $processed['feedback']['spam']['keywords']);
+    }
+
+    public function testRegistrationBlockedEmailDomainsCanBeOverridden(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+            'registration' => [
+                'blocked_email_domains' => ['mailinator.com', '.ru'],
+            ],
+        ]]);
+
+        self::assertSame(['mailinator.com', '.ru'], $processed['registration']['blocked_email_domains']);
+    }
+
+    public function testRegistrationBlockedEmailDomainsCanBeCleared(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+            'registration' => [
+                'blocked_email_domains' => [],
+            ],
+        ]]);
+
+        self::assertSame([], $processed['registration']['blocked_email_domains']);
     }
 }

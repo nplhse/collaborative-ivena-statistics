@@ -24,6 +24,13 @@ app:
             name: 'Uberspace'
             url: 'https://uberspace.de'
 
+    registration:
+        # Domain suffixes (exact domain or TLD). Leading dots are optional (.ru and ru are equivalent).
+        # Matching is case-insensitive and label-based: example.ru and sub.example.ru match .ru,
+        # but pru.com / russia.com / ru.example.com do not.
+        blocked_email_domains:
+            - .ru
+
     feedback:
         spam:
             min_submission_seconds: 4

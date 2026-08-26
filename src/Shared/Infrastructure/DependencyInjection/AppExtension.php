@@ -33,6 +33,12 @@ final class AppExtension extends Extension
         $container->setParameter('app.import.reject_writer', $importConfig['reject_writer']);
         $container->setParameter('app.import.csv_reject_dir', $importConfig['csv_reject_dir']);
 
+        // Registration settings
+        $container->setParameter(
+            'app.registration.blocked_email_domains',
+            $config['registration']['blocked_email_domains'],
+        );
+
         // Feedback spam settings
         $spamConfig = $config['feedback']['spam'];
         $container->setParameter('app.feedback.spam.min_submission_seconds', $spamConfig['min_submission_seconds']);
