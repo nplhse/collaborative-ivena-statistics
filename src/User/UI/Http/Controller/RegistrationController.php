@@ -11,6 +11,8 @@ use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Application\Event\UserRegistered;
+use App\User\Application\Registration\RegistrationEmailSuppressionLogger;
+use App\User\Application\Registration\RegistrationEmailSuppressionPolicy;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Security\EmailVerifier;
@@ -42,6 +44,8 @@ final class RegistrationController extends AbstractController
         private readonly LocaleResolver $localeResolver,
         private readonly RegistrationIdentityGuard $registrationIdentityChecker,
         private readonly UsageAnalytics $usageAnalytics,
+        private readonly RegistrationEmailSuppressionPolicy $registrationEmailSuppressionPolicy,
+        private readonly RegistrationEmailSuppressionLogger $registrationEmailSuppressionLogger,
     ) {
     }
 
@@ -69,6 +73,17 @@ final class RegistrationController extends AbstractController
 
             /** @var array{username: string, email: string} $data */
             $data = $form->getData();
+            $matchedSuffix = $this->registrationEmailSuppressionPolicy->matchedSuffix($data['email']);
+            if (null !== $matchedSuffix) {
+                $this->registrationEmailSuppressionLogger->log(
+                    $data['email'],
+                    $request->getClientIp(),
+                    $matchedSuffix,
+                );
+
+                return $this->redirectToRoute('app_register_check_email');
+            }
+
             $plainPassword = $form->get('plainPassword')->getData();
             if (!\is_string($plainPassword) || '' === $plainPassword) {
                 throw new \LogicException('Registration form did not provide a password.');
