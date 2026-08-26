@@ -14,7 +14,7 @@ final readonly class RegistrationEmailSuppressionPolicy
      * @psalm-suppress PossiblyUnusedMethod Wired by Symfony DI container.
      */
     public function __construct(
-        #[Autowire('%app.registration.blocked_email_domains%')]
+        #[Autowire(param: 'app.registration.blocked_email_domains')]
         private array $blockedEmailDomains,
     ) {
     }
