@@ -15,7 +15,7 @@ final readonly class HealthCheckService
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private Connection $connection,
-        #[Autowire('%app.version%')]
+        #[Autowire(param: 'app.version')]
         private string $appVersion,
     ) {
     }

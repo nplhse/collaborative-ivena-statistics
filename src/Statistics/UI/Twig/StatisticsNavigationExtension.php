@@ -9,27 +9,16 @@ use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
-final class StatisticsNavigationExtension extends AbstractExtension
+final readonly class StatisticsNavigationExtension
 {
     public function __construct(
-        private readonly StatisticsNavigationUrlBuilder $urlBuilder,
-        private readonly RequestStack $requestStack,
+        private StatisticsNavigationUrlBuilder $urlBuilder,
+        private RequestStack $requestStack,
     ) {
     }
 
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('statistics_nav_url', $this->statisticsNavUrl(...)),
-            new TwigFunction('statistics_widget_template', $this->statisticsWidgetTemplate(...)),
-            new TwigFunction('statistics_label_domain', $this->statisticsLabelDomain(...)),
-        ];
-    }
-
+    #[\Twig\Attribute\AsTwigFunction(name: 'statistics_label_domain')]
     public function statisticsLabelDomain(string $key): string
     {
         if (str_starts_with($key, 'label.') || str_starts_with($key, 'field.')) {
@@ -55,6 +44,7 @@ final class StatisticsNavigationExtension extends AbstractExtension
         return 'messages';
     }
 
+    #[\Twig\Attribute\AsTwigFunction(name: 'statistics_nav_url')]
     public function statisticsNavUrl(StatisticWidgetNavigationTarget $target): string
     {
         $request = $this->requestStack->getMainRequest();
@@ -65,6 +55,7 @@ final class StatisticsNavigationExtension extends AbstractExtension
         return $this->urlBuilder->buildFromTarget($request, $target);
     }
 
+    #[\Twig\Attribute\AsTwigFunction(name: 'statistics_widget_template')]
     public function statisticsWidgetTemplate(StatisticWidgetType $type, bool $component = false): string
     {
         return match ([$type, $component]) {

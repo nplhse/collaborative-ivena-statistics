@@ -26,7 +26,7 @@ final readonly class MonthlyReminderMailer
         private MailConfig $mailConfig,
         private TranslatorInterface $translator,
         private LoggerInterface $logger,
-        #[Autowire('%app.mailer_bulk_delay_ms%')]
+        #[Autowire(param: 'app.mailer_bulk_delay_ms')]
         private int $bulkDelayMs,
     ) {
     }

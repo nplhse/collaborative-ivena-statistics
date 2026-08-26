@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 final readonly class HospitalPopulationGeocodingLookupFactory
 {
     public function __construct(
-        #[Autowire('%kernel.project_dir%')]
+        #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
     ) {
     }

@@ -79,7 +79,7 @@ final readonly class CookieConsentService
             ->withPath('/')
             ->withSecure($request->isSecure())
             ->withHttpOnly(true)
-            ->withSameSite('lax')
+            ->withSameSite(Cookie::SAMESITE_LAX)
             ->withExpires(new \DateTimeImmutable('+1 year'));
     }
 

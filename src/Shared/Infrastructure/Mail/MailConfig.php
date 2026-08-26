@@ -10,13 +10,13 @@ final readonly class MailConfig
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
-        #[Autowire('%app.mailer_from%')]
+        #[Autowire(param: 'app.mailer_from')]
         public string $fromEmail,
-        #[Autowire('%app.title%')]
+        #[Autowire(param: 'app.title')]
         public string $fromName,
-        #[Autowire('%app.title%')]
+        #[Autowire(param: 'app.title')]
         public string $appName,
-        #[Autowire('%app.mailer_reply_to%')]
+        #[Autowire(param: 'app.mailer_reply_to')]
         private string $replyTo,
     ) {
     }

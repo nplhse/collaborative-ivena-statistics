@@ -11,38 +11,25 @@ use App\Content\Application\Page\PageNavigationProvider;
 use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Enum\PageContentBlockType;
 use App\Content\Domain\Enum\PageKey;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
-final class PageExtension extends AbstractExtension
+final readonly class PageExtension
 {
     public function __construct(
-        private readonly PageNavigationProvider $pageNavigationProvider,
-        private readonly PageImageBlockPresenter $pageImageBlockPresenter,
+        private PageNavigationProvider $pageNavigationProvider,
+        private PageImageBlockPresenter $pageImageBlockPresenter,
     ) {
-    }
-
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('page_by_key', $this->pageByKey(...)),
-            new TwigFunction('page_url_by_key', $this->pageUrlByKey(...)),
-            new TwigFunction('page_nav_header_items', $this->pageNavHeaderItems(...)),
-            new TwigFunction('page_nav_footer_items', $this->pageNavFooterItems(...)),
-            new TwigFunction('page_content_block_types', $this->pageContentBlockTypes(...)),
-            new TwigFunction('page_image_presentation', $this->pageImagePresentation(...)),
-        ];
     }
 
     /**
      * @param array<string, mixed> $data
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_image_presentation')]
     public function pageImagePresentation(array $data): PageImagePresentation
     {
         return $this->pageImageBlockPresenter->present($data);
     }
 
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_by_key')]
     public function pageByKey(string $key): ?Page
     {
         $pageKey = PageKey::tryFrom($key);
@@ -53,6 +40,7 @@ final class PageExtension extends AbstractExtension
         return $this->pageNavigationProvider->getPageByKey($pageKey);
     }
 
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_url_by_key')]
     public function pageUrlByKey(string $key): ?string
     {
         $pageKey = PageKey::tryFrom($key);
@@ -66,6 +54,7 @@ final class PageExtension extends AbstractExtension
     /**
      * @return list<PageNavigationLink>
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_nav_header_items')]
     public function pageNavHeaderItems(): array
     {
         return $this->pageNavigationProvider->getHeaderPages();
@@ -74,6 +63,7 @@ final class PageExtension extends AbstractExtension
     /**
      * @return list<PageNavigationLink>
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_nav_footer_items')]
     public function pageNavFooterItems(): array
     {
         return $this->pageNavigationProvider->getFooterPages();
@@ -82,6 +72,7 @@ final class PageExtension extends AbstractExtension
     /**
      * @return list<string>
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'page_content_block_types')]
     public function pageContentBlockTypes(): array
     {
         return PageContentBlockType::values();

@@ -31,7 +31,7 @@ final class PageController extends AbstractController
     ) {
     }
 
-    #[Route('/{path}', name: 'app_page_show', requirements: ['path' => '.+'], methods: ['GET'], priority: -200)]
+    #[Route('/{path}', name: 'app_page_show', requirements: ['path' => \Symfony\Component\Routing\Requirement\Requirement::CATCH_ALL], methods: ['GET'], priority: -200)]
     public function show(string $path, Request $request): Response
     {
         $normalizedPath = '/'.trim($path, '/');

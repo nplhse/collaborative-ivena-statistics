@@ -14,7 +14,7 @@ final readonly class MaterializedViewRefresher implements MaterializedViewRefres
     public function __construct(
         private Connection $connection,
         private LoggerInterface $logger,
-        #[Autowire('%kernel.environment%')]
+        #[Autowire(param: 'kernel.environment')]
         private string $kernelEnvironment,
     ) {
     }

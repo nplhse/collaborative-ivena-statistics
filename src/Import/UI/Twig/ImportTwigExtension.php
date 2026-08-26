@@ -6,22 +6,13 @@ namespace App\Import\UI\Twig;
 
 use App\Import\Domain\Service\ImportDuplicationRatePresentation;
 use App\Import\Domain\Service\ImportRejectionRatePresentation;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
 
-final class ImportTwigExtension extends AbstractExtension
+final class ImportTwigExtension
 {
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('import_rate_badge', $this->importRateBadge(...)),
-        ];
-    }
-
     /**
      * @return array{color: string, icon: string}
      */
+    #[\Twig\Attribute\AsTwigFunction(name: 'import_rate_badge')]
     public function importRateBadge(float $percent, string $kind): array
     {
         $badge = match ($kind) {

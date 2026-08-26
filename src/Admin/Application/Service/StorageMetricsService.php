@@ -20,7 +20,7 @@ final readonly class StorageMetricsService
     public function __construct(
         private Connection $connection,
         private ApplicationCodeSizeCalculator $applicationCodeSizeCalculator,
-        #[Autowire('%app.admin.storage_limit_bytes%')]
+        #[Autowire(param: 'app.admin.storage_limit_bytes')]
         private int $storageLimitBytes,
     ) {
     }

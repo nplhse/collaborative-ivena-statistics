@@ -4,19 +4,9 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Twig;
 
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
-
-final class AdminTwigExtension extends AbstractExtension
+final class AdminTwigExtension
 {
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('format_bytes', $this->formatBytes(...)),
-        ];
-    }
-
+    #[\Twig\Attribute\AsTwigFilter(name: 'format_bytes')]
     public function formatBytes(int $bytes): string
     {
         if ($bytes < 1024) {

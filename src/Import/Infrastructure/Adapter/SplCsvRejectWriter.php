@@ -21,7 +21,7 @@ final class SplCsvRejectWriter implements RejectWriterInterface
 
     public function __construct(
         public readonly Filesystem $filesystem,
-        #[Autowire('%app.rejects_base_dir%')]
+        #[Autowire(param: 'app.rejects_base_dir')]
         private readonly string $rejectsBaseDir,
         private readonly string $delimiter = ';',
         private readonly string $enclosure = "\0",

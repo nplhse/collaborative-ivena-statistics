@@ -19,7 +19,7 @@ final class RejectWriterFactory
     public function __construct(
         #[AutowireIterator(tag: 'import.reject_writer')]
         iterable $writers,
-        #[Autowire('%app.import.reject_writer%')]
+        #[Autowire(param: 'app.import.reject_writer')]
         private readonly string $defaultType,
     ) {
         foreach ($writers as $writer) {

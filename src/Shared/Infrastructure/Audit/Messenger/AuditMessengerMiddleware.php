@@ -66,7 +66,7 @@ final readonly class AuditMessengerMiddleware implements MiddlewareInterface
         }
 
         if (!$envelope->last(ActorStamp::class) instanceof ActorStamp && null !== $actorId) {
-            $envelope = $envelope->with(new ActorStamp($actorId));
+            return $envelope->with(new ActorStamp($actorId));
         }
 
         return $envelope;
