@@ -14,6 +14,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Uid\Uuid;
 
+/** @psalm-suppress UnusedClass Wired as ProjectActivityQueryInterface. */
 final readonly class ProjectActivityQuery implements ProjectActivityQueryInterface
 {
     public function __construct(
