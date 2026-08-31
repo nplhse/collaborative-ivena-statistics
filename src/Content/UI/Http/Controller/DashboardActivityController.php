@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Http\Controller;
 
+use App\User\Application\Contract\PublishedPostPreviewMapInterface;
+use App\User\Application\Explore\PostPublishedActivitySlugs;
 use App\User\Application\Explore\ProjectActivityPage;
 use App\User\Application\Explore\ProjectActivityQueryInterface;
 use Psr\Log\LoggerInterface;
@@ -18,6 +20,7 @@ final class DashboardActivityController extends AbstractController
 {
     public function __construct(
         private readonly ProjectActivityQueryInterface $activityQuery,
+        private readonly PublishedPostPreviewMapInterface $postPreviews,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -41,6 +44,7 @@ final class DashboardActivityController extends AbstractController
 
         return $this->render('@Content/dashboard/_activity_page.html.twig', [
             'page' => $page,
+            'previews' => $this->postPreviews->forSlugs(PostPublishedActivitySlugs::from($page->items)),
             'frameId' => $frameId,
         ]);
     }

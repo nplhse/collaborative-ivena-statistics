@@ -5,7 +5,10 @@
         </div>
     {% else %}
         <div class="list-group list-group-flush">
-            {{ include('@Content/dashboard/_activity_items.html.twig', {activities: page.items}) }}
+            {{ include('@Content/dashboard/_activity_items.html.twig', {
+                activities: page.items,
+                previews: previews|default({}),
+            }) }}
         </div>
     {% endif %}
 </turbo-frame>

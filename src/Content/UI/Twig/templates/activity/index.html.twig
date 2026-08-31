@@ -163,6 +163,7 @@
                 {% else %}
                     {{ include('@Content/activity/_feed_page.html.twig', {
                         page: page,
+                        previews: previews|default({}),
                         frameId: 'activity-timeline',
                         query: query,
                         nextFrameId: nextFrameId,

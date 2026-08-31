@@ -11,6 +11,7 @@
         <div class="list-group list-group-flush">
             {{ include('@Content/dashboard/_activity_items.html.twig', {
                 activities: page.items,
+                previews: previews|default({}),
                 activity_item_testid: 'activity-timeline-item',
             }) }}
             {% if page.hasMore and page.nextCursor and nextFrameId %}

@@ -97,5 +97,40 @@ final class PostContentSanitizerTest extends KernelTestCase
         $sut = self::getContainer()->get(PostContentSanitizer::class);
 
         self::assertSame('', $sut->preview(''));
+        self::assertSame('', $sut->compactPreview(''));
+    }
+
+    public function testCompactPreviewStripsImagesAndFiguresFromFirstParagraph(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PostContentSanitizer::class);
+        $figure = new MediaImageFigureHtmlBuilder()->build(
+            '/uploads/media/sample.png',
+            'Sample',
+            'md',
+            'none',
+        );
+        $preview = $sut->compactPreview(
+            '<p>Safe intro <img src="/uploads/media/sample.png" alt="Sample"></p>'.$figure.'<p>More</p>',
+        );
+
+        self::assertStringContainsString('Safe intro', $preview);
+        self::assertStringNotContainsString('<img', $preview);
+        self::assertStringNotContainsString('<figure', $preview);
+        self::assertStringNotContainsString('More', $preview);
+    }
+
+    public function testCompactPreviewReturnsEmptyWhenFirstParagraphIsOnlyMedia(): void
+    {
+        self::bootKernel();
+
+        $sut = self::getContainer()->get(PostContentSanitizer::class);
+        $figure = new MediaImageFigureHtmlBuilder()->build(
+            '/uploads/media/sample.png',
+            'Sample',
+        );
+
+        self::assertSame('', $sut->compactPreview('<p>'.$figure.'</p>'));
     }
 }

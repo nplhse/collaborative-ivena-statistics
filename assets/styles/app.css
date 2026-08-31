@@ -692,3 +692,14 @@
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
 }
+
+.activity-post-preview {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+.activity-post-preview p {
+    margin-bottom: 0;
+}

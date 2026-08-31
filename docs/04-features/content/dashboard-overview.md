@@ -68,6 +68,8 @@ Privacy: all `ROLE_USER` viewers see the feed. Profile and hospital links render
 
 Timestamps are rendered as localized relative time (`just now`, `3 days ago`, …) via the shared `RelativeTimestamp` Twig component. The absolute instant is kept in a `<time datetime>` element and exposed on hover/focus (`title` plus a visually hidden label). Timezone is the app default `Europe/Berlin`. Sorting still uses stored `occurred_at`.
 
+`post_published` entries show a compact content preview taken live from currently published posts on the current page (`publishedAt <= now`), using the same first-paragraph sanitizer as the blog list (`PostContentSanitizer`). The activity projection keeps only title/slug; unpublished, scheduled, deleted, or empty posts omit the preview block. Keyword search still looks at activity metadata, not the post body.
+
 ## Performance
 
 Typical **initial** dashboard request (warm allocation cache):
@@ -77,7 +79,7 @@ Typical **initial** dashboard request (warm allocation cache):
 - Existing onboarding, posts, and page-tree queries
 - **No** `user_activity` query and **no** scan of `allocation` / `allocation_stats_projection`
 
-Activity SQL runs on `GET /dashboard/activity` (preview), `GET /activity`, and `GET /activity/feed` (cursor pages).
+Activity SQL runs on `GET /dashboard/activity` (preview), `GET /activity`, and `GET /activity/feed` (cursor pages). When the current page contains `post_published` items, one additional query loads published posts by slug for the compact preview.
 
 ## Intentionally deferred
 

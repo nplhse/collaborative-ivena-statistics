@@ -1,3 +1,4 @@
+{% set previews = previews|default({}) %}
 {% set activityIcons = {
     joined: 'tabler:user-plus',
     first_import: 'tabler:database-import',
@@ -54,6 +55,12 @@
                             <span class="text-secondary">„{{ activity.postTitle }}“</span>
                         {% endif %}
                     </div>
+                    {% set preview = activity.postSlug ? previews[activity.postSlug]|default('') : '' %}
+                    {% if preview %}
+                        <div class="text-secondary small activity-post-preview" data-testid="activity-post-preview">
+                            {{ preview|raw }}
+                        </div>
+                    {% endif %}
                 {% elseif activity.type.value == 'comment_created' %}
                     {% if activity.postTitle %}
                         <div>

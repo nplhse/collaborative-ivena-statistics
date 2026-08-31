@@ -1,5 +1,8 @@
 <turbo-frame id="{{ frameId }}">
-    {{ include('@User/explore/users/_activity_items.html.twig', {activities: page.items}) }}
+    {{ include('@User/explore/users/_activity_items.html.twig', {
+        activities: page.items,
+        previews: previews|default({}),
+    }) }}
     {% if page.hasMore and page.nextCursor and page.nextFrameId %}
         {{ include('@User/explore/users/_activity_next_frame.html.twig', {
             profilePublicId: profilePublicId,

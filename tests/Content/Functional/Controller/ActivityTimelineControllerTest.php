@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PostFactory;
 use App\User\Application\Activity\UserActivityDeduplicationKey;
 use App\User\Application\Explore\ProjectActivityFilters;
 use App\User\Application\Explore\ProjectActivityPage;
@@ -250,6 +252,67 @@ final class ActivityTimelineControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="activity-timeline-error"]');
         self::assertSelectorTextContains('body', 'Activity could not be loaded.');
+    }
+
+    public function testPostPublishedPreviewShowsSanitizedLiveContentAndHidesUnpublished(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'timeline-preview-viewer']);
+        $actor = UserFactory::createOne(['username' => 'timeline-preview-actor']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Hello Post',
+            'slug' => 'hello-post',
+            'content' => '<p>Timeline intro</p><script>alert(1)</script><p>Rest</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('2026-05-01 12:00:00'),
+        ]);
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Draft Headline',
+            'slug' => 'draft-headline',
+            'content' => '<p>Secret draft body</p>',
+            'status' => PostStatus::DRAFT,
+            'publishedAt' => null,
+        ]);
+
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-05-01 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 201),
+            ['title' => 'Hello Post', 'slug' => 'hello-post'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-05-02 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 202),
+            ['title' => 'Draft Headline', 'slug' => 'draft-headline'],
+        );
+
+        $client->loginUser($viewer);
+        $crawler = $client->request(Request::METHOD_GET, '/activity');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="activity-timeline-item"][data-activity-type="post_published"]');
+        self::assertSelectorExists('[data-testid="activity-post-preview"]');
+        self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Timeline intro');
+        self::assertSelectorTextNotContains('body', 'Secret draft body');
+        self::assertSelectorTextNotContains('body', 'Rest');
+        self::assertStringNotContainsString('<script>', $client->getResponse()->getContent() ?: '');
+        self::assertSelectorExists('a[href="/blog/hello-post"]');
+        self::assertCount(1, $crawler->filter('[data-testid="activity-post-preview"]'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/activity/feed');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="activity-post-preview"]');
+        self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Timeline intro');
+        self::assertSelectorTextNotContains('body', 'Secret draft body');
+        self::assertCount(1, $crawler->filter('[data-testid="activity-post-preview"]'));
     }
 
     /**

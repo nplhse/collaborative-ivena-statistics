@@ -295,6 +295,8 @@ final class ExploreUsersControllerTest extends WebTestCase
         PostFactory::createOne([
             'createdBy' => $profileUser,
             'title' => 'Published Profile Post',
+            'slug' => 'published-profile-post',
+            'content' => '<p>Profile preview paragraph</p><p>More</p>',
             'status' => PostStatus::PUBLISHED,
             'publishedAt' => new \DateTimeImmutable('-1 day'),
         ]);
@@ -327,6 +329,8 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="user-import-count"]', '2');
         self::assertSelectorTextContains('[data-testid="user-post-count"]', '1');
         self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Published Profile Post');
+        self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Profile preview paragraph');
+        self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'More');
         self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Joined the platform');
         self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'Draft Profile Post');
         self::assertSelectorNotExists('.pagination');
