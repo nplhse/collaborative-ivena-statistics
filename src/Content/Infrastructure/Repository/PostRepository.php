@@ -121,6 +121,35 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
         return $post;
     }
 
+    /**
+     * @param list<string> $slugs
+     *
+     * @return list<Post>
+     */
+    public function findPublishedBySlugs(array $slugs): array
+    {
+        $slugs = array_values(array_unique(array_filter(
+            $slugs,
+            static fn (string $slug): bool => '' !== $slug,
+        )));
+        if ([] === $slugs) {
+            return [];
+        }
+
+        /** @var list<Post> $posts */
+        $posts = $this->createQueryBuilder('p')
+            ->andWhere('p.slug IN (:slugs)')
+            ->andWhere('p.status = :status')
+            ->andWhere('p.publishedAt <= :now')
+            ->setParameter('slugs', $slugs)
+            ->setParameter('status', PostStatus::PUBLISHED)
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->getQuery()
+            ->getResult();
+
+        return $posts;
+    }
+
     #[\Override]
     public function slugExists(string $slug, ?int $excludeId = null): bool
     {

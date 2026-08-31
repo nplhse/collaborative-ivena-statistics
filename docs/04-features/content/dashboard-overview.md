@@ -66,6 +66,8 @@ Index: `idx_user_activity_project_feed` on `(occurred_at DESC, id DESC)`.
 
 Privacy: all `ROLE_USER` viewers see the feed. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoints are logged and replaced with a compact error state; the rest of the dashboard remains usable.
 
+`post_published` entries show a compact content preview taken live from currently published posts on the current page (`publishedAt <= now`), using the same first-paragraph sanitizer as the blog list (`PostContentSanitizer`). The activity projection keeps only title/slug; unpublished, scheduled, deleted, or empty posts omit the preview block. Keyword search still looks at activity metadata, not the post body.
+
 ## Performance
 
 Typical **initial** dashboard request (warm allocation cache):
@@ -75,7 +77,7 @@ Typical **initial** dashboard request (warm allocation cache):
 - Existing onboarding, posts, and page-tree queries
 - **No** `user_activity` query and **no** scan of `allocation` / `allocation_stats_projection`
 
-Activity SQL runs on `GET /dashboard/activity` (preview), `GET /activity`, and `GET /activity/feed` (cursor pages).
+Activity SQL runs on `GET /dashboard/activity` (preview), `GET /activity`, and `GET /activity/feed` (cursor pages). When the current page contains `post_published` items, one additional query loads published posts by slug for the compact preview.
 
 ## Intentionally deferred
 
