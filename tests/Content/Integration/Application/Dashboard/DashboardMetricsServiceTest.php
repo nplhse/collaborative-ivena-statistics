@@ -126,12 +126,16 @@ final class DashboardMetricsServiceTest extends DatabaseKernelTestCase
 
         self::assertSame(9, $byKey['allocations']->value);
         self::assertSame(6, $byKey['allocations']->deltaLast30Days);
+        self::assertSame('app_explore_allocation_list', $byKey['allocations']->routeName);
         self::assertSame(2, $byKey['hospitals']->value);
         self::assertSame(1, $byKey['hospitals']->deltaLast30Days);
+        self::assertSame('app_explore_hospital_list', $byKey['hospitals']->routeName);
         self::assertSame(2, $byKey['users']->value);
         self::assertSame(1, $byKey['users']->deltaLast30Days);
+        self::assertSame('app_explore_user_list', $byKey['users']->routeName);
         self::assertSame(2, $byKey['imports']->value);
         self::assertSame(1, $byKey['imports']->deltaLast30Days);
+        self::assertSame('app_import_index', $byKey['imports']->routeName);
 
         $cached = self::getContainer()->get(DashboardMetricsService::class)->get();
         self::assertSame(9, $cached->value('allocations'));

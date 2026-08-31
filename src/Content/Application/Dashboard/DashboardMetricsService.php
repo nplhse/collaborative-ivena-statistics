@@ -44,6 +44,7 @@ final readonly class DashboardMetricsService
                 deltaLast30Days: $allocationCounts->last30Days,
                 icon: 'tabler:ambulance',
                 labelTranslationKey: 'dashboard.metrics.allocations',
+                routeName: 'app_explore_allocation_list',
             ),
             new DashboardMetric(
                 key: 'hospitals',
@@ -51,6 +52,7 @@ final readonly class DashboardMetricsService
                 deltaLast30Days: $this->hospitalRepository->countParticipatingCreatedSince($since),
                 icon: 'tabler:building-hospital',
                 labelTranslationKey: 'dashboard.metrics.hospitals',
+                routeName: 'app_explore_hospital_list',
             ),
             new DashboardMetric(
                 key: 'users',
@@ -58,6 +60,7 @@ final readonly class DashboardMetricsService
                 deltaLast30Days: $this->userRepository->countCreatedSince($since),
                 icon: 'tabler:users',
                 labelTranslationKey: 'dashboard.metrics.users',
+                routeName: 'app_explore_user_list',
             ),
             new DashboardMetric(
                 key: 'imports',
@@ -65,6 +68,7 @@ final readonly class DashboardMetricsService
                 deltaLast30Days: $this->importRepository->countCreatedSince($since),
                 icon: 'tabler:database-import',
                 labelTranslationKey: 'dashboard.metrics.imports',
+                routeName: 'app_import_index',
             ),
         ]);
     }

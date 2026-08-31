@@ -108,6 +108,22 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="dashboard-participant-access-feedback"]');
     }
 
+    public function testDashboardHidesZeroLast30DaysDeltas(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'username' => 'dashboard-zero-delta-user',
+            'createdAt' => new \DateTimeImmutable('-40 days'),
+        ]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="dashboard-metrics"]');
+        self::assertSelectorTextNotContains('[data-testid="dashboard-metrics"]', 'last 30 days');
+    }
+
     public function testAuthenticatedUsersWithoutParticipantDoNotSeeParticipantOnlyLinks(): void
     {
         $client = self::createClient();
@@ -120,6 +136,11 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorNotExists('a[href="/explore"]');
         self::assertSelectorNotExists('a[href="/explore/hospital"]');
         self::assertSelectorNotExists('a[href="/import"]');
+        self::assertSelectorNotExists('a[data-testid="dashboard-metric-allocations"]');
+        self::assertSelectorNotExists('a[data-testid="dashboard-metric-hospitals"]');
+        self::assertSelectorNotExists('a[data-testid="dashboard-metric-users"]');
+        self::assertSelectorNotExists('a[data-testid="dashboard-metric-imports"]');
+        self::assertSelectorExists('div[data-testid="dashboard-metric-allocations"]');
         self::assertSelectorExists('a[href="/statistics/"]');
         self::assertSelectorTextContains('body', 'Analyze our Data');
         self::assertSelectorTextNotContains('body', 'Analyze your Data');
@@ -151,6 +172,10 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="dashboard-participant-access-notice"]');
         self::assertSelectorExists('a[href="/explore/hospital"]');
         self::assertSelectorExists('a[href="/explore"]');
+        self::assertSelectorExists('a[data-testid="dashboard-metric-allocations"][href="/explore/allocation"]');
+        self::assertSelectorExists('a[data-testid="dashboard-metric-hospitals"][href="/explore/hospital"]');
+        self::assertSelectorExists('a[data-testid="dashboard-metric-users"][href="/explore/user"]');
+        self::assertSelectorExists('a[data-testid="dashboard-metric-imports"][href="/import"]');
 
         $client->request(Request::METHOD_GET, '/statistics/');
 
