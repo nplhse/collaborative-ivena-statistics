@@ -21,11 +21,13 @@ Guests still see `@Content/public/home.html.twig`. Totals come from the same `Da
 
 ## KPIs
 
-`DashboardMetricsService` returns a list of `DashboardMetric` DTOs (key, value, 30-day delta, icon, translation key) so further compact stats can be appended later.
+`DashboardMetricsService` returns a list of `DashboardMetric` DTOs (key, value, 30-day delta, icon, translation key, optional explore/import route) so further compact stats can be appended later.
+
+The 30-day delta is **platform growth** (records added to the project), not the IVENA event date. Historical CSVs uploaded today increase the allocations delta even when the cases themselves are months old.
 
 | Key | Total | 30-day delta |
 |---|---|---|
-| `allocations` | `COUNT(*)` on `allocation_stats_projection` | `created_at >= now() - 30 days` on the projection |
+| `allocations` | `COUNT(*)` on `allocation_stats_projection` | projection rows whose `import.created_at` is in the last 30 days |
 | `hospitals` | `Hospital.isParticipating = true` | participating hospitals with `created_at` in the last 30 days |
 | `users` | `COUNT` on `user` | `created_at` in the last 30 days |
 | `imports` | `COUNT` on `import` | `created_at` in the last 30 days |
@@ -34,7 +36,9 @@ User, hospital, and import counts run **live** on each dashboard request (small 
 
 Allocation counts are the expensive path. They are stored in `cache.app` under `dashboard.allocation_counts` with a **1 hour TTL**. A cache miss runs the two projection counts once; later requests in that hour do not touch `allocation_stats_projection`. There is no scheduler job and no dedicated cache pool.
 
-A growth of `0` is shown neutrally (no down-trend styling).
+A delta of `0` is omitted from the card. Positive deltas keep the compact `+ N last 30 days` form.
+
+For `ROLE_PARTICIPANT`, each card links to the matching Explore/Import list (`app_explore_allocation_list`, `app_explore_hospital_list`, `app_explore_user_list`, `app_import_index`). Other authenticated users see the same totals without those links (`/explore` and `/import` require `ROLE_PARTICIPANT`).
 
 ## Activity feed
 

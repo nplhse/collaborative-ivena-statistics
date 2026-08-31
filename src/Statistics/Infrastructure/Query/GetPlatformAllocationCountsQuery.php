@@ -18,7 +18,12 @@ final readonly class GetPlatformAllocationCountsQuery
     {
         $total = (int) $this->connection->fetchOne('SELECT COUNT(*)::int FROM allocation_stats_projection');
         $last30Days = (int) $this->connection->fetchOne(
-            'SELECT COUNT(*)::int FROM allocation_stats_projection WHERE created_at >= :since',
+            <<<'SQL'
+            SELECT COUNT(*)::int
+            FROM allocation_stats_projection p
+            INNER JOIN import i ON i.id = p.import_id
+            WHERE i.created_at >= :since
+            SQL,
             ['since' => $since],
             ['since' => Types::DATETIME_IMMUTABLE],
         );

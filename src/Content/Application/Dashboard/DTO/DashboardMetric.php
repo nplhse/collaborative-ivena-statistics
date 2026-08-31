@@ -13,6 +13,7 @@ final readonly class DashboardMetric
         public int $deltaLast30Days,
         public string $icon,
         public string $labelTranslationKey,
+        public ?string $routeName = null,
     ) {
     }
 }
