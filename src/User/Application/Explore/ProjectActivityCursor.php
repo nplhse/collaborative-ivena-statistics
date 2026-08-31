@@ -6,6 +6,10 @@ namespace App\User\Application\Explore;
 
 final readonly class ProjectActivityCursor
 {
+    public const string FRAME_PREFIX_DASHBOARD = 'dashboard-activity-after-';
+
+    public const string FRAME_PREFIX_TIMELINE = 'activity-timeline-after-';
+
     private const int VERSION = 1;
 
     public function __construct(
@@ -92,8 +96,8 @@ final readonly class ProjectActivityCursor
         }
     }
 
-    public static function frameId(string $encodedCursor): string
+    public static function frameId(string $encodedCursor, string $prefix = self::FRAME_PREFIX_DASHBOARD): string
     {
-        return 'dashboard-activity-after-'.rtrim(strtr($encodedCursor, '+/', '-_'), '=');
+        return $prefix.rtrim(strtr($encodedCursor, '+/', '-_'), '=');
     }
 }

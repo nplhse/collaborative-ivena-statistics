@@ -11,6 +11,8 @@ final readonly class ProjectActivityPage
 {
     public const int PAGE_SIZE = 10;
 
+    public const int PREVIEW_SIZE = 5;
+
     /**
      * @return list<UserActivityType>
      */
@@ -44,12 +46,12 @@ final readonly class ProjectActivityPage
     }
 
     /** @psalm-suppress PossiblyUnusedMethod Consumed by Twig dashboard templates. */
-    public function nextFrameId(): ?string
+    public function nextFrameId(string $prefix = ProjectActivityCursor::FRAME_PREFIX_DASHBOARD): ?string
     {
         if (null === $this->nextCursor) {
             return null;
         }
 
-        return ProjectActivityCursor::frameId($this->nextCursor);
+        return ProjectActivityCursor::frameId($this->nextCursor, $prefix);
     }
 }

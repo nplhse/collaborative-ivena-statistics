@@ -33,6 +33,10 @@ final class ProjectActivityPageTest extends TestCase
 
         self::assertTrue($page->hasMore());
         self::assertSame(ProjectActivityCursor::frameId($cursor), $page->nextFrameId());
+        self::assertSame(
+            ProjectActivityCursor::frameId($cursor, ProjectActivityCursor::FRAME_PREFIX_TIMELINE),
+            $page->nextFrameId(ProjectActivityCursor::FRAME_PREFIX_TIMELINE),
+        );
         self::assertContains(ProfileActivityType::FIRST_IMPORT->value, array_map(
             static fn (\App\User\Domain\Enum\UserActivityType $type) => $type->value,
             ProjectActivityPage::feedTypes(),
