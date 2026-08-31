@@ -357,6 +357,38 @@
         <source>link.activity</source>
         <target>Aktivitäten</target>
       </trans-unit>
+      <trans-unit id="TimeRelJustNowDe" resname="time.relative.just_now">
+        <source>time.relative.just_now</source>
+        <target>gerade eben</target>
+      </trans-unit>
+      <trans-unit id="TimeRelMinuteDe" resname="time.relative.minute">
+        <source>time.relative.minute</source>
+        <target>{count, plural, =1 {vor einer Minute} other {vor # Minuten}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelHourDe" resname="time.relative.hour">
+        <source>time.relative.hour</source>
+        <target>{count, plural, =1 {vor einer Stunde} other {vor # Stunden}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelYesterdayDe" resname="time.relative.yesterday">
+        <source>time.relative.yesterday</source>
+        <target>gestern</target>
+      </trans-unit>
+      <trans-unit id="TimeRelDayDe" resname="time.relative.day">
+        <source>time.relative.day</source>
+        <target>{count, plural, =1 {vor einem Tag} other {vor # Tagen}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelWeekDe" resname="time.relative.week">
+        <source>time.relative.week</source>
+        <target>{count, plural, =1 {vor einer Woche} other {vor # Wochen}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelMonthDe" resname="time.relative.month">
+        <source>time.relative.month</source>
+        <target>{count, plural, =1 {vor einem Monat} other {vor # Monaten}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelYearDe" resname="time.relative.year">
+        <source>time.relative.year</source>
+        <target>{count, plural, =1 {vor einem Jahr} other {vor # Jahren}}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -16,6 +16,7 @@ use App\User\Domain\Enum\UserActivityType;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -79,7 +80,7 @@ final class DashboardActivityControllerTest extends WebTestCase
         );
 
         $client->loginUser($viewer);
-        $client->request(Request::METHOD_GET, '/dashboard/activity');
+        $crawler = $client->request(Request::METHOD_GET, '/dashboard/activity');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="dashboard-activity-item"][data-activity-type="post_published"]');
@@ -89,6 +90,7 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorNotExists('a[href^="/explore/user/"]');
         self::assertSelectorNotExists('a[href^="/explore/hospital/"]');
         self::assertSelectorTextNotContains('body', 'Hidden Clinic');
+        $this->assertRelativeTimestampMarkup($crawler, 'dashboard-activity-item');
     }
 
     public function testParticipantSeesProfileLinksAndPreviewWithoutPagination(): void
@@ -317,6 +319,41 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="dashboard-activity-error"]');
         self::assertSelectorTextContains('body', 'Activity could not be loaded.');
+    }
+
+    public function testRecentActivityUsesJustNowLabel(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'activity-just-now-viewer']);
+        $actor = UserFactory::createOne(['username' => 'activity-just-now-actor']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('-20 seconds'),
+            UserActivityDeduplicationKey::postPublished($actorId, 201),
+            ['title' => 'Just Now Post', 'slug' => 'just-now-post'],
+        );
+
+        $client->loginUser($viewer);
+        $client->request(Request::METHOD_GET, '/dashboard/activity');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="dashboard-activity-item"] time', 'just now');
+    }
+
+    private function assertRelativeTimestampMarkup(Crawler $crawler, string $itemTestId): void
+    {
+        $time = $crawler->filter(sprintf('[data-testid="%s"] time', $itemTestId))->first();
+        self::assertGreaterThan(0, $time->count());
+        self::assertNotEmpty($time->attr('datetime'));
+        self::assertNotEmpty($time->attr('title'));
+        self::assertSame('0', $time->attr('tabindex'));
+        self::assertNotEmpty($time->attr('aria-describedby'));
+        self::assertDoesNotMatchRegularExpression('/^\d{2}\.\d{2}\.\d{4}$/', trim($time->text()));
+        self::assertGreaterThan(0, $crawler->filter(sprintf('[data-testid="%s"] .visually-hidden', $itemTestId))->count());
     }
 
     /**
