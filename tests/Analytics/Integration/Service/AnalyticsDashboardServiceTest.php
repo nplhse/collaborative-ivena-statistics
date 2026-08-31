@@ -25,12 +25,13 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
         $eventRepository = self::getContainer()->get(AnalyticsProductEventRepository::class);
         $service = self::getContainer()->get(AnalyticsDashboardService::class);
 
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin'));
+        // Noon in Europe/Berlin so requestsToday stays valid around midnight.
+        $today = $requestRepository->startOfToday()->modify('+12 hours');
         $userKey = 'dashboard-user-1';
         $session = 'dashboard-session-1';
 
         $requestRepository->save(new AnalyticsRequest(
-            occurredAt: $now->modify('-1 hour'),
+            occurredAt: $today->modify('-1 hour'),
             routeName: 'app_stats_dashboard',
             featureArea: FeatureArea::Dashboard,
             httpStatus: 200,
@@ -47,7 +48,7 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             queryParamNames: [],
         ));
         $requestRepository->save(new AnalyticsRequest(
-            occurredAt: $now->modify('-50 minutes'),
+            occurredAt: $today->modify('-50 minutes'),
             routeName: 'app_stats_analysis_explorer',
             featureArea: FeatureArea::Analysis,
             httpStatus: 200,
@@ -71,7 +72,7 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             visitorKey: 'dashboard-visitor-1',
             sessionKey: $session,
             context: ['user_role' => 'ROLE_USER'],
-            occurredAt: $now->modify('-10 days'),
+            occurredAt: $today->modify('-10 days'),
         ));
         $eventRepository->save(new AnalyticsProductEvent(
             eventName: UsageEventName::ANALYSIS_EXPLORER_RUN,
@@ -80,7 +81,7 @@ final class AnalyticsDashboardServiceTest extends DatabaseKernelTestCase
             visitorKey: 'dashboard-visitor-1',
             sessionKey: $session,
             context: ['user_role' => 'ROLE_PARTICIPANT'],
-            occurredAt: $now->modify('-2 days'),
+            occurredAt: $today->modify('-2 days'),
         ));
 
         $overview = $service->getOverview();

@@ -24,12 +24,13 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
 
     public function testAggregatesCoverCountsRoutesAuthRetentionAndFilters(): void
     {
-        $now = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin'));
+        // Noon in Europe/Berlin so "today" counts stay valid around midnight.
+        $today = $this->repository->startOfToday()->modify('+12 hours');
         $session = 'session-agg-1';
         $userKey = 'user-key-agg-1';
 
         $this->saveRequest(
-            occurredAt: $now->modify('-10 minutes'),
+            occurredAt: $today->modify('-10 minutes'),
             routeName: 'app_stats_dashboard',
             featureArea: FeatureArea::Dashboard,
             isAuthenticated: true,
@@ -41,7 +42,7 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             dbQueryCount: 2,
         );
         $this->saveRequest(
-            occurredAt: $now->modify('-8 minutes'),
+            occurredAt: $today->modify('-8 minutes'),
             routeName: 'app_stats_analysis_explorer',
             featureArea: FeatureArea::Analysis,
             isAuthenticated: true,
@@ -53,7 +54,7 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
             dbQueryCount: 12,
         );
         $this->saveRequest(
-            occurredAt: $now->modify('-5 minutes'),
+            occurredAt: $today->modify('-5 minutes'),
             routeName: 'app_explore_allocation',
             featureArea: FeatureArea::Explore,
             isAuthenticated: false,
@@ -67,7 +68,7 @@ final class AnalyticsRequestRepositoryTest extends DatabaseKernelTestCase
 
         for ($i = 0; $i < 5; ++$i) {
             $this->saveRequest(
-                occurredAt: $now->modify(sprintf('-%d minutes', 20 + $i)),
+                occurredAt: $today->modify(sprintf('-%d minutes', 20 + $i)),
                 routeName: 'app_stats_analysis_explorer',
                 featureArea: FeatureArea::Analysis,
                 isAuthenticated: true,
