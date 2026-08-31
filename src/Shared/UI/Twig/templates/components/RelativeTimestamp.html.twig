@@ -1,0 +1,9 @@
+<div class="{{ class }}">
+    <time
+        datetime="{{ this.view.iso8601 }}"
+        title="{{ this.view.absoluteLabel }}"
+        tabindex="0"
+        aria-describedby="{{ this.describedById }}"
+    >{{ this.view.relativeLabel }}</time>
+    <span id="{{ this.describedById }}" class="visually-hidden">{{ this.view.absoluteLabel }}</span>
+</div>

@@ -93,7 +93,7 @@ final class ActivityTimelineControllerTest extends WebTestCase
         );
 
         $client->loginUser($viewer);
-        $client->request(Request::METHOD_GET, '/activity');
+        $crawler = $client->request(Request::METHOD_GET, '/activity');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="activity-timeline-item"][data-activity-type="post_published"]');
@@ -103,6 +103,13 @@ final class ActivityTimelineControllerTest extends WebTestCase
         self::assertSelectorNotExists('a[href^="/explore/user/"]');
         self::assertSelectorNotExists('a[href^="/explore/hospital/"]');
         self::assertSelectorTextNotContains('body', 'Hidden Clinic');
+        self::assertSelectorExists('[data-testid="activity-timeline-item"] time[datetime]');
+        self::assertNotEmpty($crawler->filter('[data-testid="activity-timeline-item"] time')->attr('title'));
+        self::assertSame('0', $crawler->filter('[data-testid="activity-timeline-item"] time')->attr('tabindex'));
+        self::assertDoesNotMatchRegularExpression(
+            '/^\d{2}\.\d{2}\.\d{4}$/',
+            trim($crawler->filter('[data-testid="activity-timeline-item"] time')->text()),
+        );
     }
 
     public function testParticipantSeesProfileLinksAndCanPaginateWithFilters(): void

@@ -338,6 +338,11 @@ final class ExploreUsersControllerTest extends WebTestCase
         );
         self::assertContains('first_import', $activityTypes);
         self::assertSame('joined', $activityTypes[array_key_last($activityTypes)]);
+        $time = $crawler->filter('[data-testid="profile-activity-item"] time')->first();
+        self::assertGreaterThan(0, $time->count());
+        self::assertNotEmpty($time->attr('datetime'));
+        self::assertNotEmpty($time->attr('title'));
+        self::assertDoesNotMatchRegularExpression('/^\d{2}\.\d{2}\.\d{4}$/', trim($time->text()));
 
         $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
         self::assertResponseIsSuccessful();

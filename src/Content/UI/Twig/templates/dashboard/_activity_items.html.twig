@@ -22,9 +22,7 @@
                 </span>
             </div>
             <div class="col min-w-0">
-                <div class="text-secondary small" data-testid="dashboard-activity-date">
-                    {{ activity.occurredAt|date('d.m.Y') }}
-                </div>
+                <twig:RelativeTimestamp :datetime="activity.occurredAt" />
                 <div class="fw-medium">
                     {% if is_granted('ROLE_PARTICIPANT') and activity.actorPublicId %}
                         <a href="{{ path('app_explore_user_show', {publicId: activity.actorPublicId}) }}" target="_top">{{ activity.actorUsername }}</a>

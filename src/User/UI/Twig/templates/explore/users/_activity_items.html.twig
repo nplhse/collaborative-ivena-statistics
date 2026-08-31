@@ -24,13 +24,7 @@
                 </span>
             </div>
             <div class="col min-w-0">
-                <div class="text-secondary small" data-testid="profile-activity-date">
-                    {% if activity.type.value == 'joined' %}
-                        {{ activity.occurredAt|format_datetime(pattern: 'MMMM yyyy') }}
-                    {% else %}
-                        {{ activity.occurredAt|date('d.m.Y') }}
-                    {% endif %}
-                </div>
+                <twig:RelativeTimestamp :datetime="activity.occurredAt" />
                 <div class="fw-medium">
                     {% if activity.type.value == 'joined' %}
                         {{ 'label.user.activity.joined'|trans({}, 'user') }}

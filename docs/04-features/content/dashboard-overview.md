@@ -66,6 +66,8 @@ Index: `idx_user_activity_project_feed` on `(occurred_at DESC, id DESC)`.
 
 Privacy: all `ROLE_USER` viewers see the feed. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoints are logged and replaced with a compact error state; the rest of the dashboard remains usable.
 
+Timestamps are rendered as localized relative time (`just now`, `3 days ago`, …) via the shared `RelativeTimestamp` Twig component. The absolute instant is kept in a `<time datetime>` element and exposed on hover/focus (`title` plus a visually hidden label). Timezone is the app default `Europe/Berlin`. Sorting still uses stored `occurred_at`.
+
 ## Performance
 
 Typical **initial** dashboard request (warm allocation cache):
