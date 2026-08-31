@@ -23,9 +23,11 @@ Guests still see `@Content/public/home.html.twig`. Totals come from the same `Da
 
 `DashboardMetricsService` returns a list of `DashboardMetric` DTOs (key, value, 30-day delta, icon, translation key) so further compact stats can be appended later.
 
+The 30-day delta is **platform growth** (records added to the project), not the IVENA event date. Historical CSVs uploaded today increase the allocations delta even when the cases themselves are months old.
+
 | Key | Total | 30-day delta |
 |---|---|---|
-| `allocations` | `COUNT(*)` on `allocation_stats_projection` | `created_at >= now() - 30 days` on the projection |
+| `allocations` | `COUNT(*)` on `allocation_stats_projection` | projection rows whose `import.created_at` is in the last 30 days |
 | `hospitals` | `Hospital.isParticipating = true` | participating hospitals with `created_at` in the last 30 days |
 | `users` | `COUNT` on `user` | `created_at` in the last 30 days |
 | `imports` | `COUNT` on `import` | `created_at` in the last 30 days |
