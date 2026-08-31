@@ -5,4 +5,4 @@
 | Document | Description |
 |----------|-------------|
 | [page-translations.md](page-translations.md) | Multilingual CMS pages |
-| [dashboard-overview.md](dashboard-overview.md) | Authenticated home dashboard KPIs and activity feed |
+| [dashboard-overview.md](dashboard-overview.md) | Authenticated home dashboard KPIs and activity timeline |

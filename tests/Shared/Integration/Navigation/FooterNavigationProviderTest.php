@@ -8,8 +8,13 @@ use App\Content\Domain\Entity\Page;
 use App\Content\Domain\Entity\PageTranslation;
 use App\Content\Domain\Enum\PageKey;
 use App\Content\Infrastructure\Factory\PageFactory;
+use App\Shared\Application\Navigation\DTO\FooterNavigationColumn;
 use App\Shared\Application\Navigation\FooterNavigationProvider;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -20,11 +25,14 @@ final class FooterNavigationProviderTest extends KernelTestCase
 
     private FooterNavigationProvider $provider;
 
+    private TokenStorageInterface $tokenStorage;
+
     #[\Override]
     protected function setUp(): void
     {
         self::bootKernel();
         $this->provider = self::getContainer()->get(FooterNavigationProvider::class);
+        $this->tokenStorage = self::getContainer()->get(TokenStorageInterface::class);
     }
 
     public function testGetColumnsOmitsEmptyColumns(): void
@@ -39,7 +47,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
         ]);
 
         $columns = $this->provider->getColumns();
-        $keys = array_map(static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationColumn $column): string => $column->key, $columns);
+        $keys = array_map(static fn (FooterNavigationColumn $column): string => $column->key, $columns);
 
         self::assertContains('project', $keys);
         self::assertNotContains('help', $keys);
@@ -139,7 +147,7 @@ final class FooterNavigationProviderTest extends KernelTestCase
         ]);
 
         $keys = array_map(
-            static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationColumn $column): string => $column->key,
+            static fn (FooterNavigationColumn $column): string => $column->key,
             $this->provider->getColumns(),
         );
 
@@ -148,16 +156,53 @@ final class FooterNavigationProviderTest extends KernelTestCase
 
         $projectColumn = array_values(array_filter(
             $this->provider->getColumns(),
-            static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationColumn $column): bool => 'project' === $column->key,
+            static fn (FooterNavigationColumn $column): bool => 'project' === $column->key,
         ))[0];
         self::assertCount(1, $projectColumn->links);
         self::assertStringContainsString('/blog', $projectColumn->links[0]->url);
 
         $moreColumn = array_values(array_filter(
             $this->provider->getColumns(),
-            static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationColumn $column): bool => 'more' === $column->key,
+            static fn (FooterNavigationColumn $column): bool => 'more' === $column->key,
         ))[0];
         self::assertCount(2, $moreColumn->links);
         self::assertStringContainsString('/sitemap', $moreColumn->links[0]->url);
+    }
+
+    public function testAuthenticatedUserSeesActivityInProjectColumn(): void
+    {
+        $this->authenticate(UserFactory::createOne(['roles' => ['ROLE_USER']]));
+
+        $projectColumn = array_values(array_filter(
+            $this->provider->getColumns(),
+            static fn (FooterNavigationColumn $column): bool => 'project' === $column->key,
+        ))[0];
+        $urls = array_map(static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationLink $link): string => $link->url, $projectColumn->links);
+        $labels = array_map(static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationLink $link): string => $link->label, $projectColumn->links);
+
+        self::assertContains('/activity', $urls);
+        self::assertContains('Activity', $labels);
+        self::assertSame('/activity', $projectColumn->links[array_key_last($projectColumn->links)]->url);
+    }
+
+    public function testGuestDoesNotSeeActivityInFooter(): void
+    {
+        $projectColumn = array_values(array_filter(
+            $this->provider->getColumns(),
+            static fn (FooterNavigationColumn $column): bool => 'project' === $column->key,
+        ))[0];
+        $urls = array_map(static fn (\App\Shared\Application\Navigation\DTO\FooterNavigationLink $link): string => $link->url, $projectColumn->links);
+
+        self::assertNotContains('/activity', $urls);
+        self::assertContains('/blog', $urls);
+    }
+
+    private function authenticate(User $user): void
+    {
+        $this->tokenStorage->setToken(new UsernamePasswordToken(
+            $user,
+            'main',
+            $user->getRoles(),
+        ));
     }
 }

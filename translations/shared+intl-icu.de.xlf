@@ -353,6 +353,10 @@
         <source>sitemap.section.clinic</source>
         <target>Klinik</target>
       </trans-unit>
+      <trans-unit id="lnkActivityDe" resname="link.activity">
+        <source>link.activity</source>
+        <target>Aktivitäten</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

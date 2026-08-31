@@ -1,6 +1,7 @@
 <footer class="footer site-footer d-print-none mt-auto bg-light border-top-0">
     <div class="container-xl">
         {% set footer_columns = footer_nav_columns() %}
+        {% set activity_url = is_granted('ROLE_USER') ? path('app_activity_timeline') : null %}
         {% if footer_columns is not empty %}
             <div class="row py-4">
                 {% for column in footer_columns %}
@@ -9,7 +10,11 @@
                         <ul class="list-unstyled mb-0 lh-lg">
                             {% for link in column.links %}
                                 <li>
-                                    <a href="{{ link.url }}" class="link-secondary site-footer__link">{{ link.label }}</a>
+                                    <a
+                                        href="{{ link.url }}"
+                                        class="link-secondary site-footer__link"
+                                        {% if activity_url and link.url == activity_url %}data-testid="footer-nav-activity"{% endif %}
+                                    >{{ link.label }}</a>
                                 </li>
                             {% endfor %}
                         </ul>

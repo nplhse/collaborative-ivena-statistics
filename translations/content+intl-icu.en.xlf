@@ -141,6 +141,10 @@
         <source>dashboard.activity.title</source>
         <target>What happened recently</target>
       </trans-unit>
+      <trans-unit id="dshActViewAllEn" resname="dashboard.activity.view_all">
+        <source>dashboard.activity.view_all</source>
+        <target>View all activity</target>
+      </trans-unit>
       <trans-unit id="dshMtrAllocEn" resname="dashboard.metrics.allocations">
         <source>dashboard.metrics.allocations</source>
         <target>Allocations</target>
@@ -1060,6 +1064,86 @@
       <trans-unit id="pageToc003" resname="page.toc.title">
         <source>page.toc.title</source>
         <target>On this page</target>
+      </trans-unit>
+      <trans-unit id="actTitleEn" resname="title.activity">
+        <source>title.activity</source>
+        <target>Activity</target>
+      </trans-unit>
+      <trans-unit id="actSubEn" resname="activity.timeline.subtitle">
+        <source>activity.timeline.subtitle</source>
+        <target>Browse community activity and filter by period, type, or person.</target>
+      </trans-unit>
+      <trans-unit id="actFltSearchEn" resname="activity.filter.search">
+        <source>activity.filter.search</source>
+        <target>Keyword</target>
+      </trans-unit>
+      <trans-unit id="actFltSearchPhEn" resname="activity.filter.search.placeholder">
+        <source>activity.filter.search.placeholder</source>
+        <target>Titles, names, descriptions</target>
+      </trans-unit>
+      <trans-unit id="actFltFromEn" resname="activity.filter.from">
+        <source>activity.filter.from</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="actFltUntilEn" resname="activity.filter.until">
+        <source>activity.filter.until</source>
+        <target>Until</target>
+      </trans-unit>
+      <trans-unit id="actFltTypeEn" resname="activity.filter.type">
+        <source>activity.filter.type</source>
+        <target>Activity type</target>
+      </trans-unit>
+      <trans-unit id="actFltTypeAllEn" resname="activity.filter.type.all">
+        <source>activity.filter.type.all</source>
+        <target>All types</target>
+      </trans-unit>
+      <trans-unit id="actFltTypeMsEn" resname="activity.filter.type.import_milestone">
+        <source>activity.filter.type.import_milestone</source>
+        <target>Import milestone</target>
+      </trans-unit>
+      <trans-unit id="actFltUserEn" resname="activity.filter.user">
+        <source>activity.filter.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="actFltUserPhEn" resname="activity.filter.user.placeholder">
+        <source>activity.filter.user.placeholder</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="actFltPresetsEn" resname="activity.filter.presets">
+        <source>activity.filter.presets</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="actFltP7En" resname="activity.filter.preset.7">
+        <source>activity.filter.preset.7</source>
+        <target>Last 7 days</target>
+      </trans-unit>
+      <trans-unit id="actFltP30En" resname="activity.filter.preset.30">
+        <source>activity.filter.preset.30</source>
+        <target>Last 30 days</target>
+      </trans-unit>
+      <trans-unit id="actFltP90En" resname="activity.filter.preset.90">
+        <source>activity.filter.preset.90</source>
+        <target>Last 90 days</target>
+      </trans-unit>
+      <trans-unit id="actEmptyEn" resname="activity.timeline.empty">
+        <source>activity.timeline.empty</source>
+        <target>No activity yet.</target>
+      </trans-unit>
+      <trans-unit id="actEmptyFltEn" resname="activity.timeline.empty_filtered">
+        <source>activity.timeline.empty_filtered</source>
+        <target>No activities match the selected filters.</target>
+      </trans-unit>
+      <trans-unit id="actErrorEn" resname="activity.timeline.error">
+        <source>activity.timeline.error</source>
+        <target>Activity could not be loaded.</target>
+      </trans-unit>
+      <trans-unit id="actLoadMoreEn" resname="activity.timeline.load_more">
+        <source>activity.timeline.load_more</source>
+        <target>Show more activity</target>
+      </trans-unit>
+      <trans-unit id="actLoadingEn" resname="activity.timeline.loading">
+        <source>activity.timeline.loading</source>
+        <target>Loading activity…</target>
       </trans-unit>
     </body>
   </file>
