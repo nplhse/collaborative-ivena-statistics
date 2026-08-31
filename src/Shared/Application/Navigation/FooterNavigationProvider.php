@@ -8,6 +8,7 @@ use App\Shared\Application\Navigation\Contract\NavigationPageLinksProviderInterf
 use App\Shared\Application\Navigation\DTO\FooterNavigationColumn;
 use App\Shared\Application\Navigation\DTO\FooterNavigationLink;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class FooterNavigationProvider
@@ -15,8 +16,14 @@ final readonly class FooterNavigationProvider
     /** @var array<string, string> */
     private const array ROUTE_LABEL_KEYS = [
         'app_blog_index' => 'link.blog',
+        'app_activity_timeline' => 'link.activity',
         'app_cookie_preferences' => 'link.cookie_preferences',
         'app_sitemap' => 'link.sitemap',
+    ];
+
+    /** @var array<string, string> */
+    private const array ROUTE_ROLES = [
+        'app_activity_timeline' => 'ROLE_USER',
     ];
 
     /**
@@ -32,7 +39,7 @@ final readonly class FooterNavigationProvider
             'key' => 'project',
             'labelKey' => 'footer.column.project',
             'pageKeys' => ['about', 'features'],
-            'routes' => ['app_blog_index'],
+            'routes' => ['app_blog_index', 'app_activity_timeline'],
         ],
         [
             'key' => 'help',
@@ -58,6 +65,7 @@ final readonly class FooterNavigationProvider
         private NavigationPageLinksProviderInterface $pageLinksProvider,
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
+        private AuthorizationCheckerInterface $authorizationChecker,
     ) {
     }
 
@@ -113,6 +121,11 @@ final readonly class FooterNavigationProvider
         foreach ($routeNames as $routeName) {
             $labelKey = self::ROUTE_LABEL_KEYS[$routeName] ?? null;
             if (null === $labelKey) {
+                continue;
+            }
+
+            $role = self::ROUTE_ROLES[$routeName] ?? null;
+            if (null !== $role && !$this->authorizationChecker->isGranted($role)) {
                 continue;
             }
 

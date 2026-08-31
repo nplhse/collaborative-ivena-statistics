@@ -177,6 +177,10 @@
         <source>dashboard.activity.title</source>
         <target>Was zuletzt passiert ist</target>
       </trans-unit>
+      <trans-unit id="dshActViewAllDe" resname="dashboard.activity.view_all">
+        <source>dashboard.activity.view_all</source>
+        <target>Alle Aktivitäten</target>
+      </trans-unit>
       <trans-unit id="De2a3648d3" resname="dashboard.blog.recent_empty">
         <source>dashboard.blog.recent_empty</source>
         <target>Noch keine veröffentlichten Beiträge.</target>
@@ -1060,6 +1064,86 @@
       <trans-unit id="DePageToc003" resname="page.toc.title">
         <source>page.toc.title</source>
         <target>Auf dieser Seite</target>
+      </trans-unit>
+      <trans-unit id="actTitleDe" resname="title.activity">
+        <source>title.activity</source>
+        <target>Aktivitäten</target>
+      </trans-unit>
+      <trans-unit id="actSubDe" resname="activity.timeline.subtitle">
+        <source>activity.timeline.subtitle</source>
+        <target>Community-Aktivitäten durchsuchen und nach Zeitraum, Typ oder Person filtern.</target>
+      </trans-unit>
+      <trans-unit id="actFltSearchDe" resname="activity.filter.search">
+        <source>activity.filter.search</source>
+        <target>Stichwort</target>
+      </trans-unit>
+      <trans-unit id="actFltSearchPhDe" resname="activity.filter.search.placeholder">
+        <source>activity.filter.search.placeholder</source>
+        <target>Titel, Namen, Beschreibungen</target>
+      </trans-unit>
+      <trans-unit id="actFltFromDe" resname="activity.filter.from">
+        <source>activity.filter.from</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="actFltUntilDe" resname="activity.filter.until">
+        <source>activity.filter.until</source>
+        <target>Bis</target>
+      </trans-unit>
+      <trans-unit id="actFltTypeDe" resname="activity.filter.type">
+        <source>activity.filter.type</source>
+        <target>Aktivitätstyp</target>
+      </trans-unit>
+      <trans-unit id="actFltTypeAllDe" resname="activity.filter.type.all">
+        <source>activity.filter.type.all</source>
+        <target>Alle Typen</target>
+      </trans-unit>
+      <trans-unit id="actFltTypeMsDe" resname="activity.filter.type.import_milestone">
+        <source>activity.filter.type.import_milestone</source>
+        <target>Import-Meilenstein</target>
+      </trans-unit>
+      <trans-unit id="actFltUserDe" resname="activity.filter.user">
+        <source>activity.filter.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="actFltUserPhDe" resname="activity.filter.user.placeholder">
+        <source>activity.filter.user.placeholder</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="actFltPresetsDe" resname="activity.filter.presets">
+        <source>activity.filter.presets</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="actFltP7De" resname="activity.filter.preset.7">
+        <source>activity.filter.preset.7</source>
+        <target>Letzte 7 Tage</target>
+      </trans-unit>
+      <trans-unit id="actFltP30De" resname="activity.filter.preset.30">
+        <source>activity.filter.preset.30</source>
+        <target>Letzte 30 Tage</target>
+      </trans-unit>
+      <trans-unit id="actFltP90De" resname="activity.filter.preset.90">
+        <source>activity.filter.preset.90</source>
+        <target>Letzte 90 Tage</target>
+      </trans-unit>
+      <trans-unit id="actEmptyDe" resname="activity.timeline.empty">
+        <source>activity.timeline.empty</source>
+        <target>Noch keine Aktivitäten vorhanden.</target>
+      </trans-unit>
+      <trans-unit id="actEmptyFltDe" resname="activity.timeline.empty_filtered">
+        <source>activity.timeline.empty_filtered</source>
+        <target>Keine Aktivitäten entsprechen den gewählten Filtern.</target>
+      </trans-unit>
+      <trans-unit id="actErrorDe" resname="activity.timeline.error">
+        <source>activity.timeline.error</source>
+        <target>Aktivitäten konnten nicht geladen werden.</target>
+      </trans-unit>
+      <trans-unit id="actLoadMoreDe" resname="activity.timeline.load_more">
+        <source>activity.timeline.load_more</source>
+        <target>Weitere Aktivitäten laden</target>
+      </trans-unit>
+      <trans-unit id="actLoadingDe" resname="activity.timeline.loading">
+        <source>activity.timeline.loading</source>
+        <target>Aktivitäten werden geladen …</target>
       </trans-unit>
     </body>
   </file>

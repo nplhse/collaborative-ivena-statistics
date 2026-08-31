@@ -74,5 +74,6 @@ final class AppRoutesTest extends SystemWebTestCase
         yield 'app_settings_index' => ['/settings'];
         yield 'app_settings_email' => ['/settings/email'];
         yield 'app_settings_password' => ['/settings/password'];
+        yield 'app_activity_timeline' => ['/activity'];
     }
 }

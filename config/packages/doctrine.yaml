@@ -81,6 +81,9 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Analytics/Domain/Entity'
                 prefix: 'App\Analytics\Domain\Entity'
+        dql:
+            string_functions:
+                JSON_GET_TEXT: App\User\Infrastructure\Doctrine\JsonGetTextFunction
         schema_ignore_classes:
             - App\Statistics\Infrastructure\Entity\ProjectionStateHospitalCount
             - App\Statistics\Infrastructure\Entity\ProjectionDispatchAreaHospitalCount

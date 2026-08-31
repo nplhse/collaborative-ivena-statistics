@@ -1,0 +1,174 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.activity'|trans({}, 'content') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.activity', label_domain: 'shared' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.activity'|trans({}, 'content') }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'activity.timeline.subtitle'|trans({}, 'content') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% set typeOptions = [
+        'joined',
+        'first_import',
+        'import_milestone',
+        'post_published',
+        'comment_created',
+        'hospital_associated',
+        'hospital_owner_granted',
+    ] %}
+    {% set filterParams = query.toQueryParams %}
+
+    <div class="row g-4">
+        <div class="col-md-3">
+            <form method="get" action="{{ path('app_activity_timeline') }}" autocomplete="off" data-testid="activity-timeline-filters">
+                {% if query.type %}
+                    <input type="hidden" name="type" value="{{ query.type }}">
+                {% endif %}
+
+                <div class="subheader mb-2">{{ 'activity.filter.search'|trans({}, 'content') }}</div>
+                <div class="mb-3">
+                    <label class="visually-hidden" for="activity-search">{{ 'activity.filter.search'|trans({}, 'content') }}</label>
+                    <div class="input-icon">
+                        <span class="input-icon-addon">
+                            <twig:ux:icon name="tabler:search" width="1em" height="1em" />
+                        </span>
+                        <input
+                            id="activity-search"
+                            class="form-control"
+                            type="search"
+                            name="search"
+                            value="{{ query.search }}"
+                            placeholder="{{ 'activity.filter.search.placeholder'|trans({}, 'content') }}"
+                            data-testid="activity-timeline-search"
+                        >
+                    </div>
+                </div>
+
+                <div class="subheader mb-2">{{ 'activity.filter.type'|trans({}, 'content') }}</div>
+                <div class="list-group list-group-transparent mb-3" data-testid="activity-timeline-type">
+                    <a
+                        class="list-group-item list-group-item-action d-flex align-items-center{{ query.type is empty ? ' active' }}"
+                        href="{{ path('app_activity_timeline', filterParams|filter((v, k) => k != 'type')) }}"
+                        data-testid="activity-timeline-type-all"
+                        {% if query.type is empty %}aria-current="true"{% endif %}
+                    >
+                        {{ 'activity.filter.type.all'|trans({}, 'content') }}
+                    </a>
+                    {% for type in typeOptions %}
+                        <a
+                            class="list-group-item list-group-item-action d-flex align-items-center{{ query.type == type ? ' active' }}"
+                            href="{{ path('app_activity_timeline', filterParams|merge({type: type})) }}"
+                            data-testid="activity-timeline-type-{{ type }}"
+                            {% if query.type == type %}aria-current="true"{% endif %}
+                        >
+                            {% if type == 'import_milestone' %}
+                                {{ 'activity.filter.type.import_milestone'|trans({}, 'content') }}
+                            {% else %}
+                                {{ ('label.user.activity.' ~ type)|trans({}, 'user') }}
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+
+                <div class="subheader mb-2">{{ 'activity.filter.presets'|trans({}, 'content') }}</div>
+                <div class="list-group list-group-transparent mb-3">
+                    {% for days, fromDate in periodPresets %}
+                        {% set presetActive = query.from == fromDate and query.until is empty %}
+                        <a
+                            class="list-group-item list-group-item-action d-flex align-items-center{{ presetActive ? ' active' }}"
+                            href="{{ path('app_activity_timeline', filterParams|merge({from: fromDate})|filter((v, k) => k != 'until')) }}"
+                            data-testid="activity-timeline-preset-{{ days }}"
+                            {% if presetActive %}aria-current="true"{% endif %}
+                        >
+                            {{ ('activity.filter.preset.' ~ days)|trans({}, 'content') }}
+                        </a>
+                    {% endfor %}
+                </div>
+                <div class="row g-2 align-items-center mb-3">
+                    <div class="col">
+                        <label class="visually-hidden" for="activity-from">{{ 'activity.filter.from'|trans({}, 'content') }}</label>
+                        <input
+                            id="activity-from"
+                            class="form-control"
+                            type="date"
+                            name="from"
+                            value="{{ query.from }}"
+                            placeholder="{{ 'activity.filter.from'|trans({}, 'content') }}"
+                            data-testid="activity-timeline-from"
+                        >
+                    </div>
+                    <div class="col-auto">—</div>
+                    <div class="col">
+                        <label class="visually-hidden" for="activity-until">{{ 'activity.filter.until'|trans({}, 'content') }}</label>
+                        <input
+                            id="activity-until"
+                            class="form-control"
+                            type="date"
+                            name="until"
+                            value="{{ query.until }}"
+                            placeholder="{{ 'activity.filter.until'|trans({}, 'content') }}"
+                            data-testid="activity-timeline-until"
+                        >
+                    </div>
+                </div>
+
+                <div class="subheader mb-2">{{ 'activity.filter.user'|trans({}, 'content') }}</div>
+                <div>
+                    <label class="visually-hidden" for="activity-user">{{ 'activity.filter.user'|trans({}, 'content') }}</label>
+                    <input
+                        id="activity-user"
+                        class="form-control"
+                        type="text"
+                        name="user"
+                        value="{{ query.user }}"
+                        placeholder="{{ 'activity.filter.user.placeholder'|trans({}, 'content') }}"
+                        data-testid="activity-timeline-user"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="mt-5">
+                    <button type="submit" class="btn btn-primary w-100" data-testid="activity-timeline-apply">
+                        {{ 'label.filters.apply'|trans({}, 'messages') }}
+                    </button>
+                    {% if query.hasActiveFilters %}
+                        <a href="{{ path('app_activity_timeline') }}" class="btn btn-link w-100" data-testid="activity-timeline-reset">
+                            {{ 'label.filters.reset'|trans({}, 'messages') }}
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        <div class="col-md-9">
+            <div class="card" data-testid="activity-timeline-feed">
+                {% if feedError %}
+                    <div class="card-body py-3 text-secondary" data-testid="activity-timeline-error">
+                        {{ 'activity.timeline.error'|trans({}, 'content') }}
+                    </div>
+                {% else %}
+                    {{ include('@Content/activity/_feed_page.html.twig', {
+                        page: page,
+                        frameId: 'activity-timeline',
+                        query: query,
+                        nextFrameId: nextFrameId,
+                    }) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -75,6 +75,7 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Hospitals');
         self::assertSelectorTextContains('body', 'Allocations');
         self::assertSelectorTextContains('body', 'Imports');
+        self::assertSelectorNotExists('[data-testid="footer-nav-activity"]');
     }
 
     public function testAuthenticatedUsersSeeDashboardOnHomepage(): void
@@ -102,6 +103,10 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="dashboard-metric-imports"]');
         self::assertSelectorTextContains('[data-testid="dashboard-metric-users"]', 'last 30 days');
         self::assertSelectorExists('turbo-frame#dashboard-activity[src="/dashboard/activity"]');
+        self::assertSelectorExists('[data-testid="dashboard-activity-view-all"]');
+        self::assertSelectorExists('a[href="/activity"]');
+        self::assertSelectorExists('[data-testid="footer-nav-activity"]');
+        self::assertSelectorNotExists('header a[href="/activity"]');
         self::assertSelectorExists('[data-testid="dashboard-participant-access-notice"]');
         self::assertSelectorTextContains('body', 'Your current access');
         self::assertSelectorTextContains('body', 'Browse and explore allocation data');
@@ -352,6 +357,7 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="dashboard-metrics"]');
         self::assertSelectorExists('a[href="/statistics/"]');
         self::assertSelectorExists('turbo-frame#dashboard-activity[loading="lazy"]');
+        self::assertSelectorExists('[data-testid="dashboard-activity-view-all"]');
         self::assertSelectorNotExists('[data-testid="dashboard-activity-item"]');
     }
 }

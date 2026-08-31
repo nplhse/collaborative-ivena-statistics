@@ -85,5 +85,12 @@ final class ProjectActivityCursorTest extends TestCase
         self::assertStringNotContainsString('+', $frameId);
         self::assertStringNotContainsString('/', $frameId);
         self::assertStringNotContainsString('=', $frameId);
+
+        $timelineFrameId = ProjectActivityCursor::frameId(
+            $cursor->encode(),
+            ProjectActivityCursor::FRAME_PREFIX_TIMELINE,
+        );
+        self::assertStringStartsWith('activity-timeline-after-', $timelineFrameId);
+        self::assertStringNotContainsString('+', $timelineFrameId);
     }
 }

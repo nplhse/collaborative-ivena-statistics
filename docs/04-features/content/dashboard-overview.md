@@ -14,7 +14,7 @@ The Content home dashboard is a **project overview**, not a second statistics ex
 Authenticated `GET /` (`DefaultController`) renders `@Content/dashboard/dashboard.html.twig`:
 
 1. Full-width KPI cards (allocations, participating hospitals, users, imports), above the two-column layout
-2. Main column: action tiles, then the project activity feed (lazy Turbo Frame)
+2. Main column: action tiles, then a **recent activity preview** (lazy Turbo Frame)
 3. Sidebar: participant notice, onboarding, latest blog posts, pages
 
 Guests still see `@Content/public/home.html.twig`. Totals come from the same `DashboardMetricsService`.
@@ -40,7 +40,7 @@ A delta of `0` is omitted from the card. Positive deltas keep the compact `+ N l
 
 For `ROLE_PARTICIPANT`, each card links to the matching Explore/Import list (`app_explore_allocation_list`, `app_explore_hospital_list`, `app_explore_user_list`, `app_import_index`). Other authenticated users see the same totals without those links (`/explore` and `/import` require `ROLE_PARTICIPANT`).
 
-## Activity feed
+## Activity preview and dedicated timeline
 
 The feed reads the existing `user_activity` table (`ProjectActivityQuery`). It is not an audit log.
 
@@ -48,11 +48,23 @@ Included types: `joined`, `first_import`, `import_milestone`, `post_published`, 
 
 Excluded: `hospital_disassociated`, `hospital_owner_revoked`. Disabled users are omitted.
 
-The initial dashboard HTML only embeds a lazy Turbo Frame (`/dashboard/activity`). The first page (10 items) loads when that frame becomes visible. Further pages use the same keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`) but load only after a “Show more” click, so the rest of the dashboard (including the footer) stays reachable.
+The homepage only embeds a lazy Turbo Frame (`/dashboard/activity`) with the **five** most recent items and a “View all activity” link to `GET /activity`. Pagination does not run on the dashboard endpoint.
+
+The dedicated timeline (`app_activity_timeline`, `ROLE_USER`) reuses the same query with filters applied at SQL level. Filters sit in a left sidebar (`col-md-3`) next to the results (`col-md-9`); type and period presets are GET links that keep the other query parameters.
+
+| Query param | Filter |
+|---|---|
+| `from` / `until` | `occurred_at` range (`Y-m-d`, until is inclusive of that day) |
+| `type` | one value from `ProjectActivityPage::feedTypes()` |
+| `user` | exact, case-insensitive username |
+| `search` | `LIKE` on username plus JSON `title` / `postTitle` / `excerpt` / `hospitalName` (not slugs or IDs) |
+| `cursor` | keyset pagination on `/activity/feed` |
+
+Further pages use keyset pagination (`occurred_at DESC, id DESC`, cursor `occurredAt` + `id`) and load when the next Turbo Frame enters the viewport (`loading="lazy"`). A fallback link remains for clients without Turbo. Filter query parameters are preserved on that request.
 
 Index: `idx_user_activity_project_feed` on `(occurred_at DESC, id DESC)`.
 
-Privacy: all `ROLE_USER` viewers see the feed. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoint are logged and replaced with a compact error state; the rest of the dashboard remains usable.
+Privacy: all `ROLE_USER` viewers see the feed. Profile and hospital links render only for `ROLE_PARTICIPANT`. Failures in the activity endpoints are logged and replaced with a compact error state; the rest of the dashboard remains usable.
 
 ## Performance
 
@@ -63,7 +75,7 @@ Typical **initial** dashboard request (warm allocation cache):
 - Existing onboarding, posts, and page-tree queries
 - **No** `user_activity` query and **no** scan of `allocation` / `allocation_stats_projection`
 
-Activity SQL runs only on `GET /dashboard/activity` (and subsequent cursor requests).
+Activity SQL runs on `GET /dashboard/activity` (preview), `GET /activity`, and `GET /activity/feed` (cursor pages).
 
 ## Intentionally deferred
 
@@ -71,3 +83,4 @@ Activity SQL runs only on `GET /dashboard/activity` (and subsequent cursor reque
 - Event for “hospital started participating”
 - Cache invalidation after each import / scheduler warm-up
 - Redis or a persisted snapshot table
+- GIN / generated-column index for keyword search

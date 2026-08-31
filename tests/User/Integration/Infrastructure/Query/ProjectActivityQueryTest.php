@@ -7,6 +7,7 @@ namespace App\Tests\User\Integration\Infrastructure\Query;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Application\Activity\UserActivityDeduplicationKey;
 use App\User\Application\Explore\ProfileActivityType;
+use App\User\Application\Explore\ProjectActivityFilters;
 use App\User\Application\Explore\ProjectActivityPage;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Entity\UserActivity;
@@ -187,6 +188,141 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
         self::assertNull($page->items[1]->hospitalPublicId);
         self::assertSame('Fallback Title', $page->items[1]->postTitle);
         self::assertSame('fallback-slug', $page->items[1]->postSlug);
+    }
+
+    public function testFiltersByPeriodTypeUserAndSearchAtQueryLevel(): void
+    {
+        $alice = UserFactory::createOne(['username' => 'filter-alice']);
+        $bob = UserFactory::createOne(['username' => 'filter-bob']);
+        $aliceId = $alice->getId();
+        $bobId = $bob->getId();
+        self::assertNotNull($aliceId);
+        self::assertNotNull($bobId);
+
+        $this->record(
+            $alice,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-03-10 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($aliceId, 21),
+            ['title' => 'Visible Title', 'slug' => 'secret-slug-token', 'postId' => 21],
+        );
+        $this->record(
+            $alice,
+            UserActivityType::COMMENT_CREATED,
+            new \DateTimeImmutable('2026-03-20 12:00:00'),
+            UserActivityDeduplicationKey::commentCreated($aliceId, 22),
+            ['postTitle' => 'Other Post', 'excerpt' => 'Nice clinic note', 'postSlug' => 'other-post'],
+        );
+        $this->record(
+            $bob,
+            UserActivityType::HOSPITAL_ASSOCIATED,
+            new \DateTimeImmutable('2026-04-01 12:00:00'),
+            UserActivityDeduplicationKey::hospitalAssociated($bobId, 3, 9),
+            ['hospitalName' => 'Harbor Clinic'],
+        );
+        $this->record(
+            $alice,
+            UserActivityType::JOINED,
+            new \DateTimeImmutable('2026-01-01 12:00:00'),
+            UserActivityDeduplicationKey::joined($aliceId),
+        );
+
+        $query = self::getContainer()->get(ProjectActivityQuery::class);
+
+        $byPeriod = $query->getPage(null, 20, new ProjectActivityFilters(
+            from: new \DateTimeImmutable('2026-03-01 00:00:00'),
+            untilExclusive: new \DateTimeImmutable('2026-04-01 00:00:00'),
+        ));
+        self::assertCount(2, $byPeriod->items);
+        self::assertSame(ProfileActivityType::COMMENT_CREATED, $byPeriod->items[0]->type);
+        self::assertSame(ProfileActivityType::POST_PUBLISHED, $byPeriod->items[1]->type);
+
+        $byType = $query->getPage(null, 20, new ProjectActivityFilters(
+            type: UserActivityType::HOSPITAL_ASSOCIATED,
+        ));
+        self::assertCount(1, $byType->items);
+        self::assertSame('filter-bob', $byType->items[0]->actorUsername);
+
+        $invalidType = $query->getPage(null, 20, new ProjectActivityFilters(
+            type: UserActivityType::HOSPITAL_DISASSOCIATED,
+        ));
+        self::assertCount(4, $invalidType->items);
+
+        $byUser = $query->getPage(null, 20, new ProjectActivityFilters(
+            username: 'Filter-Bob',
+        ));
+        self::assertCount(1, $byUser->items);
+        self::assertSame('Harbor Clinic', $byUser->items[0]->hospitalName);
+
+        $byKeywordTitle = $query->getPage(null, 20, new ProjectActivityFilters(
+            search: 'visible title',
+        ));
+        self::assertCount(1, $byKeywordTitle->items);
+        self::assertSame('Visible Title', $byKeywordTitle->items[0]->postTitle);
+
+        $byKeywordHospital = $query->getPage(null, 20, new ProjectActivityFilters(
+            search: 'harbor',
+        ));
+        self::assertCount(1, $byKeywordHospital->items);
+        self::assertSame(ProfileActivityType::HOSPITAL_ASSOCIATED, $byKeywordHospital->items[0]->type);
+
+        $slugMustNotMatch = $query->getPage(null, 20, new ProjectActivityFilters(
+            search: 'secret-slug-token',
+        ));
+        self::assertSame([], $slugMustNotMatch->items);
+
+        $combined = $query->getPage(null, 20, new ProjectActivityFilters(
+            from: new \DateTimeImmutable('2026-03-01 00:00:00'),
+            type: UserActivityType::COMMENT_CREATED,
+            username: 'filter-alice',
+            search: 'clinic',
+        ));
+        self::assertCount(1, $combined->items);
+        self::assertSame('Nice clinic note', $combined->items[0]->excerpt);
+    }
+
+    public function testPaginatesFilteredResultsWithoutDuplicates(): void
+    {
+        $user = UserFactory::createOne(['username' => 'filter-pager']);
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+
+        for ($i = 1; $i <= 5; ++$i) {
+            $this->record(
+                $user,
+                UserActivityType::POST_PUBLISHED,
+                new \DateTimeImmutable(sprintf('2026-07-%02d 12:00:00', $i)),
+                UserActivityDeduplicationKey::postPublished($userId, 100 + $i),
+                ['title' => 'Paged Filter '.$i],
+            );
+        }
+        $this->record(
+            $user,
+            UserActivityType::JOINED,
+            new \DateTimeImmutable('2026-07-10 12:00:00'),
+            UserActivityDeduplicationKey::joined($userId),
+        );
+
+        $filters = new ProjectActivityFilters(
+            type: UserActivityType::POST_PUBLISHED,
+        );
+        $query = self::getContainer()->get(ProjectActivityQuery::class);
+        $first = $query->getPage(null, 3, $filters);
+        self::assertCount(3, $first->items);
+        self::assertTrue($first->hasMore());
+
+        $second = $query->getPage($first->nextCursor, 3, $filters);
+        $keys = [
+            ...array_map(static fn ($activity): string => $activity->stableId, $first->items),
+            ...array_map(static fn ($activity): string => $activity->stableId, $second->items),
+        ];
+        self::assertCount(2, $second->items);
+        self::assertCount(5, $keys);
+        self::assertCount(5, array_values(array_unique($keys)));
+        self::assertFalse($second->hasMore());
+        foreach ([...$first->items, ...$second->items] as $item) {
+            self::assertSame(ProfileActivityType::POST_PUBLISHED, $item->type);
+        }
     }
 
     /**

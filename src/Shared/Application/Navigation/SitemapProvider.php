@@ -28,6 +28,7 @@ final readonly class SitemapProvider
         'app_register' => ['labelKey' => 'label.register', 'labelDomain' => 'messages'],
         'app_forgot_password_request' => ['labelKey' => 'label.forgot_password', 'labelDomain' => 'user'],
         'app_blog_index' => ['labelKey' => 'link.blog', 'labelDomain' => 'shared'],
+        'app_activity_timeline' => ['labelKey' => 'link.activity', 'labelDomain' => 'shared'],
         'app_cookie_preferences' => ['labelKey' => 'link.cookie_preferences', 'labelDomain' => 'shared'],
         'app_import_index' => ['labelKey' => 'link.import', 'labelDomain' => 'shared'],
         'app_hospitals_export_allocations' => ['labelKey' => 'link.export', 'labelDomain' => 'shared'],
@@ -89,6 +90,7 @@ final readonly class SitemapProvider
             'labelKey' => 'sitemap.section.content',
             'entries' => [
                 ['route' => 'app_blog_index', 'visibility' => self::VISIBILITY_ALWAYS],
+                ['route' => 'app_activity_timeline', 'visibility' => self::VISIBILITY_AUTHENTICATED],
             ],
         ],
         [

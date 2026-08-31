@@ -120,6 +120,8 @@ final class SitemapProviderTest extends KernelTestCase
         $pageTreeLabels = $this->flattenPageTreeLabels($contentSection->pageTree);
 
         self::assertContains('Members only', $pageTreeLabels);
+        $contentLabels = array_map(static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label, $contentSection->links);
+        self::assertSame(['Activity', 'Blog'], $contentLabels);
 
         $statisticsSection = $this->findSection('statistics');
         self::assertCount(8, $statisticsSection->links);

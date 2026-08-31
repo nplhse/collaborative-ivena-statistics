@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Content\Functional\Controller;
 
 use App\User\Application\Activity\UserActivityDeduplicationKey;
+use App\User\Application\Explore\ProjectActivityFilters;
 use App\User\Application\Explore\ProjectActivityPage;
 use App\User\Application\Explore\ProjectActivityQueryInterface;
 use App\User\Domain\Entity\User;
@@ -88,7 +89,7 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('body', 'Hidden Clinic');
     }
 
-    public function testParticipantSeesProfileLinksAndCanPaginate(): void
+    public function testParticipantSeesProfileLinksAndPreviewWithoutPagination(): void
     {
         $client = self::createClient();
         $participant = UserFactory::createOne([
@@ -99,7 +100,7 @@ final class DashboardActivityControllerTest extends WebTestCase
         $actorId = $actor->getId();
         self::assertNotNull($actorId);
 
-        for ($i = 1; $i <= 11; ++$i) {
+        for ($i = 1; $i <= 6; ++$i) {
             $this->record(
                 $actor,
                 UserActivityType::POST_PUBLISHED,
@@ -114,22 +115,12 @@ final class DashboardActivityControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('a[href^="/explore/user/"]');
-        self::assertCount(10, $crawler->filter('[data-testid="dashboard-activity-item"]'));
-        self::assertSelectorExists('[data-testid="dashboard-activity-next"]');
-        self::assertSelectorNotExists('turbo-frame[data-testid="dashboard-activity-next"][src]');
-        self::assertSelectorNotExists('turbo-frame[data-testid="dashboard-activity-next"][loading]');
-
-        $nextHref = $crawler->filter('[data-testid="dashboard-activity-load-more"]')->attr('href');
-        self::assertNotNull($nextHref);
-        self::assertCount(2, $crawler->filter('[data-testid="dashboard-activity-load-more"] svg'));
-        self::assertSelectorTextContains('[data-testid="dashboard-activity-load-more"]', 'Show more activity');
-        $crawler = $client->request(Request::METHOD_GET, $nextHref);
-        self::assertResponseIsSuccessful();
-        self::assertCount(1, $crawler->filter('[data-testid="dashboard-activity-item"]'));
+        self::assertCount(5, $crawler->filter('[data-testid="dashboard-activity-item"]'));
         self::assertSelectorNotExists('[data-testid="dashboard-activity-next"]');
+        self::assertSelectorNotExists('[data-testid="dashboard-activity-load-more"]');
     }
 
-    public function testInvalidCursorFallsBackToFirstPage(): void
+    public function testPreviewIgnoresCursorQueryParameter(): void
     {
         $client = self::createClient();
         $user = UserFactory::createOne(['username' => 'activity-cursor-fallback']);
@@ -242,8 +233,11 @@ final class DashboardActivityControllerTest extends WebTestCase
         $client->loginUser($user);
 
         self::getContainer()->set(ProjectActivityQueryInterface::class, new class implements ProjectActivityQueryInterface {
-            public function getPage(?string $cursor, int $limit = ProjectActivityPage::PAGE_SIZE): ProjectActivityPage
-            {
+            public function getPage(
+                ?string $cursor,
+                int $limit = ProjectActivityPage::PAGE_SIZE,
+                ?ProjectActivityFilters $filters = null,
+            ): ProjectActivityPage {
                 throw new \RuntimeException('activity query failed');
             }
         });

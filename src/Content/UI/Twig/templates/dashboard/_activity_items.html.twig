@@ -11,7 +11,7 @@
 {% for activity in activities %}
     <div
         class="list-group-item"
-        data-testid="dashboard-activity-item"
+        data-testid="{{ activity_item_testid|default('dashboard-activity-item') }}"
         data-activity-type="{{ activity.type.value }}"
         data-activity-stable-id="{{ activity.stableId }}"
     >
