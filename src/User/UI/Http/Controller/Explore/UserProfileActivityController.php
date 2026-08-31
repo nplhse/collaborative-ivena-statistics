@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller\Explore;
 
+use App\User\Application\Contract\PublishedPostPreviewMapInterface;
+use App\User\Application\Explore\PostPublishedActivitySlugs;
 use App\User\Application\Explore\ProfileActivityCursor;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Query\UserProfileActivityQuery;
@@ -19,6 +21,7 @@ final class UserProfileActivityController extends AbstractController
 {
     public function __construct(
         private readonly UserProfileActivityQuery $activityQuery,
+        private readonly PublishedPostPreviewMapInterface $postPreviews,
     ) {
     }
 
@@ -47,6 +50,7 @@ final class UserProfileActivityController extends AbstractController
         return $this->render('@User/explore/users/_activity_page.html.twig', [
             'profilePublicId' => $profileUser->getPublicIdString(),
             'page' => $page,
+            'previews' => $this->postPreviews->forSlugs(PostPublishedActivitySlugs::from($page->items)),
             'frameId' => $frameId,
         ]);
     }

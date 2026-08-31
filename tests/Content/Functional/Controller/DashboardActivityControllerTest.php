@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Content\Functional\Controller;
 
+use App\Content\Domain\Enum\PostStatus;
+use App\Content\Infrastructure\Factory\PostFactory;
 use App\User\Application\Activity\UserActivityDeduplicationKey;
 use App\User\Application\Explore\ProjectActivityFilters;
 use App\User\Application\Explore\ProjectActivityPage;
@@ -223,6 +225,74 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Draft Headline');
         self::assertSelectorNotExists('a[href^="/blog/"]');
         self::assertSelectorNotExists('a[href^="/explore/hospital/"]');
+    }
+
+    public function testPostPublishedPreviewShowsSanitizedLiveContentAndHidesUnpublished(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'activity-preview-viewer']);
+        $actor = UserFactory::createOne(['username' => 'activity-preview-actor']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Hello Post',
+            'slug' => 'hello-post',
+            'content' => '<p>Preview paragraph</p><script>alert(1)</script><p>Rest</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('2026-05-01 12:00:00'),
+        ]);
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Draft Headline',
+            'slug' => 'draft-headline',
+            'content' => '<p>Secret draft body</p>',
+            'status' => PostStatus::DRAFT,
+            'publishedAt' => null,
+        ]);
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Empty Live',
+            'slug' => 'empty-live',
+            'content' => '',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('2026-05-02 12:00:00'),
+        ]);
+
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-05-01 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 101),
+            ['title' => 'Hello Post', 'slug' => 'hello-post'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-05-02 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 102),
+            ['title' => 'Draft Headline', 'slug' => 'draft-headline'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('2026-05-03 12:00:00'),
+            UserActivityDeduplicationKey::postPublished($actorId, 103),
+            ['title' => 'Empty Live', 'slug' => 'empty-live'],
+        );
+
+        $client->loginUser($viewer);
+        $crawler = $client->request(Request::METHOD_GET, '/dashboard/activity');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="activity-post-preview"]');
+        self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Preview paragraph');
+        self::assertSelectorTextNotContains('body', 'Secret draft body');
+        self::assertSelectorTextNotContains('body', 'Rest');
+        self::assertStringNotContainsString('<script>', $client->getResponse()->getContent() ?: '');
+        self::assertSelectorExists('a[href="/blog/hello-post"]');
+        self::assertCount(1, $crawler->filter('[data-testid="activity-post-preview"]'));
     }
 
     public function testFeedFailureRendersErrorInsideTheFrame(): void
