@@ -130,6 +130,7 @@ final class DashboardMetricsServiceTest extends DatabaseKernelTestCase
         self::assertSame(2, $byKey['hospitals']->value);
         self::assertSame(1, $byKey['hospitals']->deltaLast30Days);
         self::assertSame('app_explore_hospital_list', $byKey['hospitals']->routeName);
+        self::assertSame(['participating' => '1'], $byKey['hospitals']->routeParams);
         self::assertSame(2, $byKey['users']->value);
         self::assertSame(1, $byKey['users']->deltaLast30Days);
         self::assertSame('app_explore_user_list', $byKey['users']->routeName);
@@ -140,6 +141,62 @@ final class DashboardMetricsServiceTest extends DatabaseKernelTestCase
         $cached = self::getContainer()->get(DashboardMetricsService::class)->get();
         self::assertSame(9, $cached->value('allocations'));
         self::assertSame(2, $cached->value('imports'));
+    }
+
+    public function testHospitalDeltaUsesParticipatingSinceNotCreatedAt(): void
+    {
+        $old = new \DateTimeImmutable('-40 days');
+        $recent = new \DateTimeImmutable('-2 days');
+        $user = UserFactory::createOne(['username' => 'metrics-since']);
+        $state = StateFactory::createOne(['name' => 'Since State', 'createdBy' => $user]);
+        $dispatchArea = DispatchAreaFactory::createOne([
+            'name' => 'Since Dispatch',
+            'createdBy' => $user,
+            'state' => $state,
+        ]);
+
+        HospitalFactory::createOne([
+            'name' => 'Old Catalog Recent Join',
+            'createdBy' => $user,
+            'owner' => $user,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'isParticipating' => true,
+            'createdAt' => $old,
+            'participatingSince' => $recent,
+        ]);
+        HospitalFactory::createOne([
+            'name' => 'Recent Catalog Old Join',
+            'createdBy' => $user,
+            'owner' => $user,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'isParticipating' => true,
+            'createdAt' => $recent,
+            'participatingSince' => $old,
+        ]);
+        HospitalFactory::createOne([
+            'name' => 'Recent But Not Participating',
+            'createdBy' => $user,
+            'owner' => $user,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'isParticipating' => false,
+            'createdAt' => $recent,
+            'participatingSince' => $recent,
+        ]);
+
+        $metrics = self::getContainer()->get(DashboardMetricsService::class)->get();
+        $hospitals = null;
+        foreach ($metrics->items as $item) {
+            if ('hospitals' === $item->key) {
+                $hospitals = $item;
+            }
+        }
+
+        self::assertNotNull($hospitals);
+        self::assertSame(2, $hospitals->value);
+        self::assertSame(1, $hospitals->deltaLast30Days);
     }
 
     public function testRejectsUnexpectedCachedAllocationPayload(): void

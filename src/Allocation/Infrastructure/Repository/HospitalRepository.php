@@ -82,12 +82,12 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->getSingleScalarResult();
     }
 
-    public function countParticipatingCreatedSince(\DateTimeInterface $from): int
+    public function countParticipatingSince(\DateTimeInterface $from): int
     {
         return (int) $this->createQueryBuilder('h')
             ->select('COUNT(h.id)')
             ->andWhere('h.isParticipating = true')
-            ->andWhere('h.createdAt >= :from')
+            ->andWhere('h.participatingSince >= :from')
             ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();

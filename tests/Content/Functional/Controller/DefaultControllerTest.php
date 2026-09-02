@@ -178,7 +178,7 @@ final class DefaultControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/hospital"]');
         self::assertSelectorExists('a[href="/explore"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-allocations"][href="/explore/allocation"]');
-        self::assertSelectorExists('a[data-testid="dashboard-metric-hospitals"][href="/explore/hospital"]');
+        self::assertSelectorExists('a[data-testid="dashboard-metric-hospitals"][href="/explore/hospital?participating=1"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-users"][href="/explore/user"]');
         self::assertSelectorExists('a[data-testid="dashboard-metric-imports"][href="/import"]');
 
