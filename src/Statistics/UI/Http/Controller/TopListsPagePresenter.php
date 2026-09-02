@@ -4,16 +4,24 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
+use App\Statistics\Application\TopList\TopListArrayPaginator;
+use App\Statistics\Application\TopList\TopListComparison;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
+use App\Statistics\Application\TopList\TopListLimit;
+use App\Statistics\Application\TopList\TopListRanking;
+use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class TopListsPagePresenter
 {
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
+        private BenchmarkSelectionFormDataFactory $benchmarkSelectionFormDataFactory,
     ) {
     }
 
@@ -24,8 +32,15 @@ final readonly class TopListsPagePresenter
         Request $request,
         TopListDefinitionInterface $currentDefinition,
         TopListsRequestModel $requestModel,
-        StatisticWidget $topListWidget,
+        TopListRanking $rankingA,
         array $topListDefinitions,
+        ?TopListComparison $comparison = null,
+        ?StatisticsFilter $primaryFilter = null,
+        ?StatisticsFilter $comparisonFilter = null,
+        ?string $sideAHeading = null,
+        ?string $sideASubheading = null,
+        ?string $sideBHeading = null,
+        ?string $sideBSubheading = null,
     ): TopListsPageViewModel {
         $currentLimit = $requestModel->limit;
 
@@ -33,46 +48,143 @@ final readonly class TopListsPagePresenter
         foreach ($topListDefinitions as $item) {
             $topListSelectUrls[$item->key()] = $this->statisticsPageUrl(
                 $request,
-                'app_stats_top_lists',
-                ['report' => $item->key()],
+                'app_stats_top_lists_show',
+                ['report' => $item->key(), StatisticsQueryKeys::PAGE => null],
             );
         }
 
         $limitUrls = [];
-        foreach ($currentDefinition->allowedLimits() as $limit) {
-            $limitUrls[$limit] = $this->statisticsPageUrl(
+        foreach ($currentDefinition->allowedLimits() as $allowedLimit) {
+            $limitUrls[$allowedLimit->queryValue()] = $this->statisticsPageUrl(
                 $request,
-                'app_stats_top_lists',
-                ['limit' => $limit],
+                'app_stats_top_lists_show',
+                ['limit' => $allowedLimit->queryValue(), StatisticsQueryKeys::PAGE => null],
             );
         }
 
-        $topListWidget = $this->withTopListTableLimitFooter($topListWidget, $limitUrls, $currentLimit);
+        $fullRowCount = $comparison instanceof TopListComparison ? $comparison->count() : $rankingA->count();
+        $paginator = null;
+        $displayRanking = $rankingA;
+        $displayComparison = $comparison;
+        if ($currentLimit->isAll) {
+            $paginator = TopListArrayPaginator::fromCount(
+                $fullRowCount,
+                $requestModel->page,
+                TopListLimit::ALL_PAGE_SIZE,
+            );
+            if ($displayComparison instanceof TopListComparison) {
+                $displayComparison = $displayComparison->pageSlice($paginator->getCurrentPage(), TopListLimit::ALL_PAGE_SIZE);
+            } else {
+                $displayRanking = $displayRanking->pageSlice($paginator->getCurrentPage(), TopListLimit::ALL_PAGE_SIZE);
+            }
+        }
+
+        $truncated = $rankingA->truncated || ($comparison instanceof TopListComparison && $comparison->truncated);
+        $topListWidget = null;
+        $comparisonViewModel = null;
+        if ($displayComparison instanceof TopListComparison) {
+            $comparisonViewModel = new TopListComparisonViewModel(
+                $displayComparison->rowsA,
+                $displayComparison->rowsB,
+                $displayComparison->totalAllocationsA,
+                $displayComparison->totalAllocationsB,
+                $sideAHeading ?? '',
+                $sideASubheading ?? '',
+                $sideBHeading ?? '',
+                $sideBSubheading ?? '',
+                $currentDefinition->tableLabelColumnTranslationKey(),
+                'top_diagnoses' === $currentDefinition->key(),
+            );
+        } else {
+            $topListWidget = $this->withTopListTableLimitFooter(
+                $currentDefinition->toTableWidget($displayRanking),
+                $limitUrls,
+                $currentLimit->queryValue(),
+                $paginator,
+                $truncated,
+            );
+        }
+
+        $selectionFormData = null;
+        if ($primaryFilter instanceof StatisticsFilter && $comparisonFilter instanceof StatisticsFilter) {
+            $selectionFormData = $this->benchmarkSelectionFormDataFactory->fromFilters($primaryFilter, $comparisonFilter);
+        }
 
         return new TopListsPageViewModel(
             $topListWidget,
+            $comparisonViewModel,
             $topListDefinitions,
             $currentDefinition->key(),
             $topListSelectUrls,
-            $currentLimit,
+            $currentLimit->queryValue(),
+            $limitUrls,
             $currentDefinition->labelTranslationKey(),
             $currentDefinition->descriptionTranslationKey(),
+            $requestModel->compare,
+            $this->statisticsPageUrl(
+                $request,
+                'app_stats_top_lists_show',
+                [StatisticsQueryKeys::COMPARE => '1', StatisticsQueryKeys::PAGE => null],
+            ),
+            $this->statisticsPageUrl(
+                $request,
+                'app_stats_top_lists_show',
+                [],
+                StatisticsQueryKeys::REMOVE_COMPARISON_MODE,
+            ),
+            $truncated,
+            $paginator,
+            $selectionFormData?->primary,
+            $selectionFormData?->comparison,
+            $this->preservedQuery($request),
+            $this->statisticsPageUrl(
+                $request,
+                'app_stats_top_lists',
+                [StatisticsQueryKeys::REPORT => null],
+            ),
         );
     }
 
     /**
-     * @param array<int, string> $limitUrls
+     * @param array<int|string, string> $limitUrls
      */
-    private function withTopListTableLimitFooter(StatisticWidget $widget, array $limitUrls, int $currentLimit): StatisticWidget
-    {
+    private function withTopListTableLimitFooter(
+        StatisticWidget $widget,
+        array $limitUrls,
+        int|string $currentLimit,
+        ?TopListArrayPaginator $paginator,
+        bool $truncated,
+    ): StatisticWidget {
         if (StatisticWidgetType::Table !== $widget->type) {
             return $widget;
         }
 
         $payload = $widget->payload;
-        $payload['limitFooter'] = new TopListTableLimitFooter($limitUrls, $currentLimit)->toArray();
+        $payload['limitFooter'] = new TopListTableLimitFooter($limitUrls, $currentLimit, $paginator, $truncated)->toArray();
 
         return new StatisticWidget($widget->type, $widget->id, $payload, $widget->title, $widget->actions);
+    }
+
+    /**
+     * @return array<string, bool|float|int|string>
+     */
+    private function preservedQuery(Request $request): array
+    {
+        $query = [];
+        foreach ($request->query->all() as $key => $value) {
+            if (\is_bool($value) || \is_float($value) || \is_int($value) || \is_string($value)) {
+                $query[$key] = $value;
+            }
+        }
+
+        unset($query[StatisticsQueryKeys::PAGE]);
+
+        $report = $request->attributes->get('report');
+        if (\is_string($report) && '' !== $report) {
+            $query[StatisticsQueryKeys::REPORT] = $report;
+        }
+
+        return $query;
     }
 
     /**

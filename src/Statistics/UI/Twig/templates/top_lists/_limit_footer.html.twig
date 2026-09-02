@@ -1,0 +1,12 @@
+{% import '@Shared/_macros/pagination.html.twig' as pagination %}
+<div class="card-footer d-flex align-items-center justify-content-between gap-2 flex-wrap">
+    {{ pagination.rowLimitDropdown(limitUrls, currentLimit) }}
+    {% if paginator is defined and paginator is not null and paginator.hasToPaginate %}
+        {{ pagination.navbar(paginator, app.request.attributes.get('_route')) }}
+    {% endif %}
+</div>
+{% if truncated|default(false) %}
+    <p class="text-secondary small px-3 pb-2 mb-0" data-testid="stats-top-lists-truncated-notice">
+        {{ 'stats.top_lists.limit.truncated'|trans({}, 'statistics') }}
+    </p>
+{% endif %}

@@ -59,6 +59,42 @@ final class StatisticsQueryKeys
     ];
 
     public const string REPORT = 'report';
+    public const string LIMIT = 'limit';
+    public const string PAGE = 'page';
+    public const string COMPARE = 'compare';
+
+    /** @var list<string> */
+    public const array PRIMARY_FILTERS = [
+        self::SCOPE,
+        self::HOSPITAL,
+        self::COHORT,
+        self::STATE,
+        self::DISPATCH_AREA,
+        self::PERIOD,
+        self::YEAR,
+        self::MONTH,
+        self::QUARTER,
+    ];
+
+    /** @var list<string> */
+    public const array COMPARISON_FILTERS = [
+        self::COMPARISON_SCOPE,
+        self::COMPARISON_HOSPITAL,
+        self::COMPARISON_COHORT,
+        self::COMPARISON_STATE,
+        self::COMPARISON_DISPATCH_AREA,
+        self::COMPARISON_PERIOD,
+        self::COMPARISON_YEAR,
+        self::COMPARISON_MONTH,
+        self::COMPARISON_QUARTER,
+    ];
+
+    /** @var list<string> */
+    public const array REMOVE_COMPARISON_MODE = [
+        self::COMPARE,
+        self::PAGE,
+        ...self::COMPARISON_FILTERS,
+    ];
 
     public const string INDICATION_A = 'indication_a';
     public const string INDICATION_B = 'indication_b';
@@ -73,6 +109,7 @@ final class StatisticsQueryKeys
         self::COHORT,
         self::STATE,
         self::DISPATCH_AREA,
+        self::PAGE,
     ];
 
     /** @var list<string> */
@@ -80,6 +117,7 @@ final class StatisticsQueryKeys
         self::YEAR,
         self::MONTH,
         self::QUARTER,
+        self::PAGE,
     ];
 
     /** @var list<string> */

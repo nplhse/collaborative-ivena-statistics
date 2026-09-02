@@ -33,6 +33,57 @@ final class TopListsControllerTest extends WebTestCase
 
     use Factories;
 
+    public function testIndexListsAvailableTopLists(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/top-lists?scope=public&period=all');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-index"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-card-top_diagnoses"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-card-top_departments"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-widget"]');
+        $this->assertSelectorNotExists('[data-testid="stats-explorer-sidebar"]');
+        $this->assertStringContainsString('Top Lists', $crawler->filter('[data-testid="stats-heading-title"]')->text());
+        $href = $crawler->filter('[data-testid="stats-top-lists-card-top_diagnoses"]')->attr('href');
+        $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', $href);
+        $this->assertSelectorNotExists('[data-testid="stats-scope"]');
+        $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
+        $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-top-lists-card-top_diagnoses"]',
+            'Ranked most frequent indications with count and share.',
+        );
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-top-lists-card-top_departments"]',
+            'Which destination departments were assigned most often.',
+        );
+    }
+
+    public function testLegacyReportQueryRedirectsToDetailRoute(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists?scope=public&period=all&report=top_diagnoses',
+        );
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', $location);
+        $this->assertStringContainsString('scope=public', $location);
+        $this->assertStringNotContainsString('report=', $location);
+    }
+
+    public function testUnknownTopListReturnsNotFound(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->request(Request::METHOD_GET, '/statistics/top-lists/not_a_real_list?scope=public');
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
     public function testReportsPageIsDisplayedWithTable(): void
     {
         $client = $this->createClientAsRoleUser();
@@ -59,7 +110,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&report=top_diagnoses',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
@@ -100,7 +151,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&report=top_departments',
+            '/statistics/top-lists/top_departments?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
@@ -146,7 +197,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            sprintf('/statistics/top-lists?scope=public&period=all&report=%s', $reportKey),
+            sprintf('/statistics/top-lists/%s?scope=public&period=all', $reportKey),
         );
 
         $this->assertResponseIsSuccessful();
@@ -168,12 +219,102 @@ final class TopListsControllerTest extends WebTestCase
         yield 'top_occasions' => ['top_occasions', 'Occasion', 'Seeded Report Occasion'];
     }
 
+    public function testSecondaryDiagnosesExcludeMissingValuesFromCountsAndShares(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-secondary-null-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Primary Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Primary Indication']);
+        $secondary = IndicationNormalizedFactory::createOne(['name' => 'Present Secondary']);
+        $allocationDefaults = [
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ];
+        AllocationFactory::createOne($allocationDefaults);
+        AllocationFactory::createOne($allocationDefaults);
+        AllocationFactory::createOne($allocationDefaults + ['secondaryIndicationNormalized' => $secondary]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_secondary_diagnoses?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $tableText = $crawler->filter('[data-testid="stats-analysis-table-card"]')->text();
+        self::assertStringNotContainsString('Unknown', $tableText);
+        self::assertStringNotContainsString('Unbekannt', $tableText);
+
+        $rows = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr');
+        self::assertCount(1, $rows);
+        $cells = $rows->eq(0)->filter('td');
+        self::assertSame('Present Secondary', trim($cells->eq(1)->text()));
+        self::assertSame('1', trim($cells->eq(2)->text()));
+        self::assertSame('100.0%', trim($cells->eq(3)->text()));
+    }
+
+    public function testInfectionsExcludeMissingValuesFromCountsAndShares(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-infection-null-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Primary Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Primary Indication']);
+        $infection = InfectionFactory::createOne(['name' => 'Present Infection']);
+        $allocationDefaults = [
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ];
+        AllocationFactory::createOne($allocationDefaults + ['infection' => null]);
+        AllocationFactory::createOne($allocationDefaults + ['infection' => null]);
+        AllocationFactory::createOne($allocationDefaults + ['infection' => $infection]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_infections?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $tableText = $crawler->filter('[data-testid="stats-analysis-table-card"]')->text();
+        self::assertStringNotContainsString('Unknown', $tableText);
+        self::assertStringNotContainsString('Unbekannt', $tableText);
+
+        $rows = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr');
+        self::assertCount(1, $rows);
+        $cells = $rows->eq(0)->filter('td');
+        self::assertSame('Present Infection', trim($cells->eq(1)->text()));
+        self::assertSame('1', trim($cells->eq(2)->text()));
+        self::assertSame('100.0%', trim($cells->eq(3)->text()));
+    }
+
     public function testLimitParameterTenIsAccepted(): void
     {
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&limit=10',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=10',
         );
 
         $this->assertResponseIsSuccessful();
@@ -181,12 +322,85 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertStringContainsString('limit=10', $link->getUri());
     }
 
+    public function testLimitParameterHundredAndAllAreAccepted(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=100',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-limit-100"].active');
+        $allLink = $crawler->filter('[data-testid="stats-top-lists-limit-all"]')->link();
+        $this->assertStringContainsString('limit=all', $allLink->getUri());
+
+        $client->request(Request::METHOD_GET, '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=all');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-limit-all"].active');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"][data-bs-toggle="modal"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"][href]');
+    }
+
+    public function testCompareModeRendersSelectionCardAndComparisonTable(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-top-lists-compare']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Compare Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Compare Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Compare Diagnosis']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-selection"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-table"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-table-a"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-table-b"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-a-edit"][data-bs-target="#stats-top-lists-comparison-modal-a"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-b-edit"][data-bs-target="#stats-top-lists-comparison-modal-b"]');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-a-edit"]', 'Edit comparison A');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-b-edit"]', 'Edit comparison B');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-a"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-disable"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-edit"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-actions"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"]');
+        $this->assertSelectorNotExists('[data-testid="stats-explorer-sidebar"]');
+        $this->assertSelectorNotExists('[data-testid="stats-scope"]');
+        $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
+        $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+    }
+
     public function testInvalidLimitFallsBackToTwentyFive(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&limit=invalid',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=invalid',
         );
 
         $this->assertResponseIsSuccessful();
@@ -198,12 +412,19 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all_time',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all_time',
         );
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
+        $this->assertSelectorExists('[data-testid="stats-scope"]');
+        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"][data-bs-toggle="modal"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"][data-bs-target="#stats-top-lists-comparison-modal-b"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"][href]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-comparison-modal-a"]');
     }
 
     public function testReportsShowsPeriodNavigationWithYearPeriod(): void
@@ -211,14 +432,14 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=year&year=2021',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021',
         );
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-period-navigation"]');
         $this->assertSelectorExists('[data-testid="stats-period-primary"]');
         $previousHref = $crawler->filter('[data-testid="stats-period-nav-previous"] a.page-link[href]')->attr('href');
-        $this->assertStringContainsString('/statistics/top-lists', $previousHref);
+        $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', $previousHref);
         $this->assertStringContainsString('year=2020', $previousHref);
     }
 
@@ -227,7 +448,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
@@ -240,7 +461,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&report=top_diagnoses&gender=2&age_group=30_39',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&gender=2&age_group=30_39',
         );
 
         $this->assertResponseIsSuccessful();
@@ -273,7 +494,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&report=top_diagnoses',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all',
         );
 
         $this->assertResponseIsSuccessful();
@@ -316,7 +537,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists?scope=public&period=all&report=top_diagnoses&urgency=1',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&urgency=1',
         );
 
         $this->assertResponseIsSuccessful();

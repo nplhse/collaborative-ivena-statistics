@@ -15,19 +15,35 @@ final class TopListsRequestModelFactoryTest extends TestCase
         $factory = new TopListsRequestModelFactory(new TopListLimitPolicy());
 
         $model = $factory->fromQuery([
-            'report' => 'top_diagnoses',
             'limit' => '10',
-        ]);
+        ], 'top_diagnoses');
 
         self::assertSame('top_diagnoses', $model->topListKey);
-        self::assertSame(10, $model->limit);
+        self::assertSame(10, $model->limit->queryValue());
+        self::assertSame(1, $model->page);
+        self::assertFalse($model->compare);
     }
 
     public function testFallsBackToDefaultLimit(): void
     {
         $factory = new TopListsRequestModelFactory(new TopListLimitPolicy());
 
-        self::assertSame(25, $factory->fromQuery(['limit' => 'invalid'])->limit);
-        self::assertSame(25, $factory->fromQuery([])->limit);
+        self::assertSame(25, $factory->fromQuery(['limit' => 'invalid'], 'top_diagnoses')->limit->queryValue());
+        self::assertSame(25, $factory->fromQuery([], 'top_diagnoses')->limit->queryValue());
+    }
+
+    public function testParsesAllLimitCompareAndPage(): void
+    {
+        $factory = new TopListsRequestModelFactory(new TopListLimitPolicy());
+
+        $model = $factory->fromQuery([
+            'limit' => 'all',
+            'page' => '3',
+            'compare' => '1',
+        ], 'top_diagnoses');
+
+        self::assertTrue($model->limit->isAll);
+        self::assertSame(3, $model->page);
+        self::assertTrue($model->compare);
     }
 }

@@ -14,9 +14,11 @@
         }) }}
     </div>
     {% if p.limitFooter is defined and p.limitFooter.urls is defined and p.limitFooter.current is defined %}
-        <div class="card-footer d-flex align-items-center">
-            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
-            {{ pagination.rowLimitDropdown(p.limitFooter.urls, p.limitFooter.current) }}
-        </div>
+        {{ include('@Statistics/top_lists/_limit_footer.html.twig', {
+            limitUrls: p.limitFooter.urls,
+            currentLimit: p.limitFooter.current,
+            paginator: p.limitFooter.paginator|default(null),
+            truncated: p.limitFooter.truncated|default(false),
+        }) }}
     {% endif %}
 </div>

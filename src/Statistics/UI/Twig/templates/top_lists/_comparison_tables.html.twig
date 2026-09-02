@@ -1,0 +1,20 @@
+<div class="row g-4" data-testid="stats-top-lists-comparison-table">
+    <div class="col-12 col-xl-6">
+        {{ include('@Statistics/top_lists/_comparison_side_table.html.twig', {
+            comparison: comparison,
+            rows: comparison.rowsA,
+            titleKey: 'stats.top_lists.comparison.side_a',
+            showDiff: false,
+            testId: 'stats-top-lists-comparison-table-a',
+        }) }}
+    </div>
+    <div class="col-12 col-xl-6">
+        {{ include('@Statistics/top_lists/_comparison_side_table.html.twig', {
+            comparison: comparison,
+            rows: comparison.rowsB,
+            titleKey: 'stats.top_lists.comparison.side_b',
+            showDiff: true,
+            testId: 'stats-top-lists-comparison-table-b',
+        }) }}
+    </div>
+</div>

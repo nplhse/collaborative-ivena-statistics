@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\UI\Form;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
@@ -40,6 +41,8 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
         $locale = $options['locale'];
         /** @var StatisticsFilterScopeChoicePolicy $scopeChoicePolicy */
         $scopeChoicePolicy = $options['scope_choice_policy'];
+        /** @var HospitalPermission|null $hospitalPermission */
+        $hospitalPermission = $options['hospital_permission'] ?? null;
         $user = $this->currentUser();
 
         $scopeGroup = 'public';
@@ -58,7 +61,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
             $periodMonth = $data->periodMonth ?? $periodMonth;
         }
 
-        $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy);
+        $detailChoices = $this->choiceProvider->scopeDetailChoices($scopeGroup, $user, $side, $locale, $scopeChoicePolicy, $hospitalPermission);
         if ([] !== $detailChoices) {
             $form->add('scopeDetail', PreTranslatedChoiceType::class, [
                 'label' => $this->scopeDetailLabel($scopeGroup),

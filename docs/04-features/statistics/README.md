@@ -7,7 +7,7 @@
 | Submodule | Route / area | Description |
 |-----------|--------------|-------------|
 | Projection & MVs | (background) | Denormalized `allocation_stats_projection` and materialized views |
-| Top Lists | `/statistics/top-lists` | Ranked Top-N tables (diagnoses, departments, …) |
+| Top Lists | `/statistics/top-lists` | Catalog of ranked tables; detail routes under `/statistics/top-lists/{report}` (Top 10–100, All, optional Scope/Period comparison) |
 | Reports | `/statistics/reports` | Report catalog; detail routes under `/statistics/reports/{type}` (Monthly Report, Transport Time Profile) |
 | AnalysisExplorer | `/statistics/explorer` | Interactive saved-view analytics |
 | Benchmarking | `/statistics/benchmarking` | Hospital comparison |

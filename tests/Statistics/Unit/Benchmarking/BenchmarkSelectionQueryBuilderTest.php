@@ -89,4 +89,48 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
 
         self::assertSame(StatisticsFilterScope::Public->value, $query[StatisticsQueryKeys::SCOPE]);
     }
+
+    #[Test]
+    public function mergeComparisonSideWritesCompareFlagAndResetsPage(): void
+    {
+        $comparison = new BenchmarkSelectionSideFormData('state', '3', 'year', 2024);
+        $query = $this->builder->mergeComparisonSide($comparison, [
+            'report' => 'top_diagnoses',
+            'page' => 2,
+            'gender' => 'male',
+            StatisticsQueryKeys::COMPARISON_HOSPITAL => '99',
+        ]);
+
+        self::assertSame('1', $query[StatisticsQueryKeys::COMPARE]);
+        self::assertSame('top_diagnoses', $query['report']);
+        self::assertSame('male', $query['gender']);
+        self::assertSame('state:3', $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
+        self::assertSame('3', $query[StatisticsQueryKeys::COMPARISON_STATE]);
+        self::assertSame(2024, $query[StatisticsQueryKeys::COMPARISON_YEAR]);
+        self::assertArrayNotHasKey('page', $query);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_HOSPITAL, $query);
+    }
+
+    #[Test]
+    public function mergePrimarySideWritesCompareFlagKeepsComparisonAndResetsPage(): void
+    {
+        $primary = new BenchmarkSelectionSideFormData('public', null, 'all');
+        $query = $this->builder->mergePrimarySide($primary, [
+            'report' => 'top_diagnoses',
+            'page' => 2,
+            'gender' => 'male',
+            StatisticsQueryKeys::HOSPITAL => '99',
+            StatisticsQueryKeys::COMPARISON_SCOPE => 'state:3',
+            StatisticsQueryKeys::COMPARE => '1',
+        ]);
+
+        self::assertSame('1', $query[StatisticsQueryKeys::COMPARE]);
+        self::assertSame('top_diagnoses', $query['report']);
+        self::assertSame('male', $query['gender']);
+        self::assertSame('public', $query[StatisticsQueryKeys::SCOPE]);
+        self::assertSame('all', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertSame('state:3', $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
+        self::assertArrayNotHasKey('page', $query);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::HOSPITAL, $query);
+    }
 }
