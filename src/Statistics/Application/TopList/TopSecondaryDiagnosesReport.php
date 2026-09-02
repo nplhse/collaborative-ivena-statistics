@@ -27,6 +27,12 @@ final readonly class TopSecondaryDiagnosesReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:id';
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'secondaryIndicationNormalizedId';
@@ -39,8 +45,14 @@ final readonly class TopSecondaryDiagnosesReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.secondary_diagnosis';
+    }
+
+    #[\Override]
+    protected function requireJoinedEntity(): bool
+    {
+        return true;
     }
 }

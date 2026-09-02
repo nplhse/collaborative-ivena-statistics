@@ -73,12 +73,12 @@ final readonly class TransportTimeProfileBuilder
         }
 
         $departmentsUrl = $this->urlGenerator->generate(
-            'app_stats_top_lists',
-            [StatisticsQueryKeys::REPORT => 'top_departments'] + $filterParams,
+            'app_stats_top_lists_show',
+            ['report' => 'top_departments'] + $filterParams,
         );
         $specialitiesUrl = $this->urlGenerator->generate(
-            'app_stats_top_lists',
-            [StatisticsQueryKeys::REPORT => 'top_specialities'] + $filterParams,
+            'app_stats_top_lists_show',
+            ['report' => 'top_specialities'] + $filterParams,
         );
         $explorerUrl = $this->urlGenerator->generate(
             'app_stats_analysis_explorer_view',

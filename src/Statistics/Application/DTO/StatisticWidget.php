@@ -13,7 +13,8 @@ namespace App\Statistics\Application\DTO;
  * - chart_pair: allocationChart, importChart (same shape as before for templates)
  * - table: headerTranslationKeys, rows, optional footerRow, optional summaryStats (meanDisplay, stdDevDisplay),
  *          optional numericColumnStartIndex (1-based column index from which numbers are right-aligned; default 2 as before)
- *          optional limitFooter for report tables: urls (array<int, string>), current (int), same idea as allocations pagination
+ *          optional limitFooter for report tables: urls (array<int|string, string>), current (int|string),
+ *          optional paginator, optional truncated (bool)
  *          optional monthRowTargets (analysis): list<StatisticWidgetNavigationTarget|null> parallel to rows — first column as link
  * - simple_chart: chartType (line|bar), labels, counts, optional summaryStats (same as table)
  * - section: titleTranslationKey

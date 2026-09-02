@@ -27,6 +27,12 @@ final readonly class TopDepartmentsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:folder-dollar';
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'departmentId';
@@ -39,7 +45,7 @@ final readonly class TopDepartmentsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.department';
     }
