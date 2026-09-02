@@ -59,6 +59,7 @@ class Post implements \Stringable
     /** @var Collection<int, PostTag> */
     #[ORM\ManyToMany(targetEntity: PostTag::class, inversedBy: 'posts')]
     #[ORM\JoinTable(name: 'post_post_tag')]
+    #[ORM\OrderBy(['name' => 'ASC'])]
     private Collection $tags;
 
     /** @var Collection<int, PostComment> */
@@ -169,6 +170,20 @@ class Post implements \Stringable
     public function getTags(): Collection
     {
         return $this->tags;
+    }
+
+    /**
+     * @return list<PostTag>
+     */
+    public function getSortedTags(): array
+    {
+        $tags = $this->tags->toArray();
+        usort(
+            $tags,
+            static fn (PostTag $left, PostTag $right): int => ($left->getName() ?? '') <=> ($right->getName() ?? ''),
+        );
+
+        return $tags;
     }
 
     public function addTag(PostTag $tag): static
