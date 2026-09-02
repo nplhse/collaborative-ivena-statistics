@@ -77,6 +77,7 @@ final class BlogControllerTest extends WebTestCase
     public function testIndexSupportsPagination(): void
     {
         $client = self::createClient();
+        $author = UserFactory::createOne(['username' => 'pagination-author']);
         $category = PostCategoryFactory::createOne(['name' => 'Pagination', 'slug' => 'pagination']);
 
         for ($i = 1; $i <= 12; ++$i) {
@@ -86,6 +87,8 @@ final class BlogControllerTest extends WebTestCase
                 'status' => PostStatus::PUBLISHED,
                 'publishedAt' => new \DateTimeImmutable(sprintf('-%d minutes', $i)),
                 'category' => $category,
+                'createdBy' => $author,
+                'tags' => [],
             ]);
         }
 
