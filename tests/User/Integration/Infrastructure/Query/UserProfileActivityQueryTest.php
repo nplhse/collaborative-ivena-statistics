@@ -113,6 +113,52 @@ final class UserProfileActivityQueryTest extends DatabaseKernelTestCase
         self::assertSame(ProfileActivityType::JOINED, $page->items[2]->type);
     }
 
+    public function testHidesScheduledPostPublishedUntilPublicationTime(): void
+    {
+        $user = UserFactory::createOne(['username' => 'profile-feed-scheduled']);
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+
+        $this->record(
+            $user,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('-1 hour'),
+            UserActivityDeduplicationKey::postPublished($userId, 501),
+            ['title' => 'Already Live', 'slug' => 'already-live'],
+        );
+        $this->record(
+            $user,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('now'),
+            UserActivityDeduplicationKey::postPublished($userId, 502),
+            ['title' => 'Publishing Now', 'slug' => 'publishing-now'],
+        );
+        $this->record(
+            $user,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('+1 day'),
+            UserActivityDeduplicationKey::postPublished($userId, 503),
+            ['title' => 'Scheduled Headline', 'slug' => 'scheduled-headline'],
+        );
+        $this->record(
+            $user,
+            UserActivityType::COMMENT_CREATED,
+            new \DateTimeImmutable('+2 days'),
+            UserActivityDeduplicationKey::commentCreated($userId, 88),
+            ['postTitle' => 'Future Comment Post', 'postSlug' => 'future-comment', 'excerpt' => 'Later'],
+        );
+
+        $page = self::getContainer()->get(UserProfileActivityQuery::class)->getPage($user, null);
+        $titles = array_map(static fn ($item) => $item->postTitle, $page->items);
+        $types = array_map(static fn ($item) => $item->type, $page->items);
+
+        self::assertContains('Already Live', $titles);
+        self::assertContains('Publishing Now', $titles);
+        self::assertNotContains('Scheduled Headline', $titles);
+        self::assertContains(ProfileActivityType::COMMENT_CREATED, $types);
+        self::assertSame('Future Comment Post', $page->items[0]->postTitle);
+    }
+
     /**
      * @param array<string, scalar|null> $metadata
      */

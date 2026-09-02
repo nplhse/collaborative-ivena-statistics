@@ -13,6 +13,7 @@ use App\User\Domain\Entity\UserActivity;
 use App\User\Domain\Enum\UserActivityType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 final readonly class UserProfileActivityQuery
 {
@@ -60,8 +61,11 @@ final readonly class UserProfileActivityQuery
             ->andWhere('IDENTITY(a.user) = :userId')
             ->setParameter('userId', $userId)
             ->setParameter('joinedType', UserActivityType::JOINED)
-            ->orderBy('joinedRank', 'ASC')
-            ->addOrderBy('a.occurredAt', 'DESC')
+            ->orderBy('joinedRank', 'ASC');
+
+        $this->excludeUnpublishedPostActivities($qb);
+
+        $qb->addOrderBy('a.occurredAt', 'DESC')
             ->addOrderBy('a.id', 'DESC')
             ->setMaxResults($limit);
 
@@ -103,6 +107,13 @@ final readonly class UserProfileActivityQuery
         $rows = $qb->getQuery()->getResult();
 
         return $rows;
+    }
+
+    private function excludeUnpublishedPostActivities(QueryBuilder $qb): void
+    {
+        $qb->andWhere('NOT (a.type = :postPublished AND a.occurredAt > :now)')
+            ->setParameter('postPublished', UserActivityType::POST_PUBLISHED)
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE);
     }
 
     private function toActivity(UserActivity $activity): ProfileActivity

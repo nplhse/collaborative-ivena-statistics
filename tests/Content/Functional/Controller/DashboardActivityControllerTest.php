@@ -297,6 +297,57 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('[data-testid="activity-post-preview"]'));
     }
 
+    public function testHidesScheduledBlogPostUntilPublicationDate(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'activity-scheduled-viewer']);
+        $actor = UserFactory::createOne(['username' => 'activity-scheduled-actor']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Live Dashboard Post',
+            'slug' => 'live-dashboard-post',
+            'content' => '<p>Already public</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Scheduled Dashboard Post',
+            'slug' => 'scheduled-dashboard-post',
+            'content' => '<p>Not public yet</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('+1 day'),
+        ]);
+
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('-1 hour'),
+            UserActivityDeduplicationKey::postPublished($actorId, 401),
+            ['title' => 'Live Dashboard Post', 'slug' => 'live-dashboard-post'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('+1 day'),
+            UserActivityDeduplicationKey::postPublished($actorId, 402),
+            ['title' => 'Scheduled Dashboard Post', 'slug' => 'scheduled-dashboard-post'],
+        );
+
+        $client->loginUser($viewer);
+        $client->request(Request::METHOD_GET, '/dashboard/activity');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Live Dashboard Post');
+        self::assertSelectorExists('a[href="/blog/live-dashboard-post"]');
+        self::assertSelectorTextNotContains('body', 'Scheduled Dashboard Post');
+        self::assertSelectorTextNotContains('body', 'Not public yet');
+        self::assertSelectorNotExists('a[href="/blog/scheduled-dashboard-post"]');
+    }
+
     public function testFeedFailureRendersErrorInsideTheFrame(): void
     {
         $client = self::createClient();
