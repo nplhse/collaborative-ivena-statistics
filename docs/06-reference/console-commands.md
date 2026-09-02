@@ -23,7 +23,7 @@ Examples: `app:import:allocations`, `app:statistics:rebuild-projection`.
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, and `app:user-activity:backfill` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, and `app:hospital:backfill-participating-since` (`--apply` to write).
 
 ### Output
 
@@ -63,6 +63,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:allocation:backfill-indications` | Repair tool: sync normalized indication fields (not for routine use). |
 | `app:allocation:audit-indication-review` | Health check for indication raw review data consistency. |
 | `app:explore:backfill-public-ids` | Backfill `public_id` UUID v4 values for explore detail resources. See [../04-features/allocation/explore-public-ids.md](../04-features/allocation/explore-public-ids.md). |
+| `app:hospital:backfill-participating-since` | One-time tool: fill `Hospital.participatingSince` for currently participating hospitals that have no timestamp. Prefer the earliest `audit_log` evidence of becoming participating, otherwise the first successful import (`Completed`/`Partial`). Does **not** fall back to `created_at`. Default: dry-run preview. Writes only with `--apply`. See [../04-features/content/dashboard-overview.md](../04-features/content/dashboard-overview.md). |
 
 ### Statistics
 
