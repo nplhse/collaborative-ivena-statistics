@@ -1,0 +1,31 @@
+{% set comparisonModalId = comparisonModalId|default('stats-top-lists-comparison-modal-b') %}
+{% set comparisonModalTitleKey = comparisonModalTitleKey|default('stats.top_lists.comparison.modal_title_b') %}
+{% set comparisonModalTestId = comparisonModalTestId|default(comparisonModalId) %}
+{% set comparisonSide = comparisonSide|default('comparison') %}
+<div class="modal modal-blur fade"
+     id="{{ comparisonModalId }}"
+     tabindex="-1"
+     aria-labelledby="{{ comparisonModalId }}-label"
+     aria-hidden="true"
+     data-testid="{{ comparisonModalTestId }}">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ comparisonModalId }}-label">
+                    {{ comparisonModalTitleKey|trans({}, 'statistics') }}
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
+            </div>
+            {{ component('TopListComparisonSelectionForm', {
+                initialData: comparisonFormData,
+                preservedQuery: topListsPage.comparisonPreservedQuery,
+                locale: app.request.locale,
+                side: comparisonSide,
+                key: comparisonSide,
+            }) }}
+        </div>
+    </div>
+</div>

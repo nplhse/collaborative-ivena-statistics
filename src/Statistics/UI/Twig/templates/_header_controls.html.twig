@@ -1,9 +1,30 @@
 {% set activePeriodLabel = statisticsHeadingPeriod %}
+{% set topListCompareEnabled = statsTopListCompareEnabled|default(false) %}
 
 <div class="col-auto ms-auto d-print-none">
     <div class="btn-list">
+        {% if statsTopListCompareEnableUrl is defined and not topListCompareEnabled %}
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#stats-top-lists-comparison-modal-b"
+                    data-testid="stats-top-lists-compare-enable">
+                <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
+                {{ 'stats.top_lists.comparison.enable'|trans({}, 'statistics') }}
+            </button>
+        {% endif %}
+
         {% if statsShowFilterDrawer|default(false) %}
             {{ include('@Statistics/_filter_drawer_trigger.html.twig') }}
+        {% endif %}
+
+        {% if statsTopListCompareEnableUrl is defined and topListCompareEnabled %}
+            <a class="btn btn-outline-danger"
+               href="{{ statsTopListCompareDisableUrl }}"
+               data-testid="stats-top-lists-compare-disable">
+                <twig:ux:icon name="tabler:x" class="icon icon-sm" />
+                {{ 'stats.top_lists.comparison.disable'|trans({}, 'statistics') }}
+            </a>
         {% endif %}
 
         {% if statsShowCompareLaunchButton|default(false) %}
@@ -36,15 +57,17 @@
             </a>
         {% endif %}
 
-        {{ include('@Statistics/_scope_controls.html.twig', {
-            pageViewModel: {
-                showScopeSecondaryPicker: statsShowScopeSecondaryPicker|default(false),
-                scopePrimaryMenu: statsScopePrimaryMenu|default([]),
-                scopeSecondaryMenu: statsScopeSecondaryMenu|default([]),
-                scopePrimaryDropdownLabel: statsScopePrimaryDropdownLabel|default(statisticsHeadingScope),
-                scopeSecondaryDropdownLabel: statsScopeSecondaryDropdownLabel|default(''),
-            },
-        }) }}
+        {% if not statsHideScopeControls|default(false) %}
+            {{ include('@Statistics/_scope_controls.html.twig', {
+                pageViewModel: {
+                    showScopeSecondaryPicker: statsShowScopeSecondaryPicker|default(false),
+                    scopePrimaryMenu: statsScopePrimaryMenu|default([]),
+                    scopeSecondaryMenu: statsScopeSecondaryMenu|default([]),
+                    scopePrimaryDropdownLabel: statsScopePrimaryDropdownLabel|default(statisticsHeadingScope),
+                    scopeSecondaryDropdownLabel: statsScopeSecondaryDropdownLabel|default(''),
+                },
+            }) }}
+        {% endif %}
 
         {% if not statsHidePeriodControls|default(false) %}
             {% if statsUseOverviewPeriodControls|default(false) %}

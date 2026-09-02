@@ -605,13 +605,12 @@
     margin-top: 0.15rem;
 }
 
-.stats-ttp-marker {
+.stats-ttp-marker,
+.stats-rank-shift-badge {
     display: flex;
     align-items: center;
     gap: 0.15rem;
     width: fit-content;
-    margin-top: 0.15rem;
-    margin-left: auto;
     padding: 0.1rem 0.35rem;
     font-size: 0.7rem;
     font-weight: 500;
@@ -620,9 +619,25 @@
     -webkit-print-color-adjust: exact;
 }
 
-.stats-ttp-marker .icon {
+.stats-ttp-marker {
+    margin-top: 0.15rem;
+    margin-left: auto;
+}
+
+.stats-rank-shift-badge {
+    margin: 0;
+}
+
+.stats-ttp-marker .icon,
+.stats-rank-shift-badge .icon {
     width: 0.85rem;
     height: 0.85rem;
+}
+
+.stats-top-lists-value-pair {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
 }
 
 .stats-ttp-ranked-td .stats-ttp-marker {
@@ -641,7 +656,10 @@
 .stats-ttp-heat-high-3,
 .stats-ttp-rank-shift-up,
 .stats-ttp-rank-shift-down,
-.stats-ttp-rank-shift-new {
+.stats-ttp-rank-shift-new,
+.stats-rank-shift-up,
+.stats-rank-shift-down,
+.stats-rank-shift-new {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
 }
@@ -676,15 +694,18 @@
     border-left: 4px solid rgba(47, 179, 68, 0.82);
 }
 
-.stats-ttp-rank-shift-up {
+.stats-ttp-rank-shift-up,
+.stats-rank-shift-up {
     border-left: 3px solid rgba(47, 179, 68, 0.85);
 }
 
-.stats-ttp-rank-shift-down {
+.stats-ttp-rank-shift-down,
+.stats-rank-shift-down {
     border-left: 3px solid rgba(214, 57, 57, 0.85);
 }
 
-.stats-ttp-rank-shift-new {
+.stats-ttp-rank-shift-new,
+.stats-rank-shift-new {
     border-left: 3px solid rgba(32, 107, 196, 0.75);
 }
 

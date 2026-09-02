@@ -34,6 +34,8 @@ To add a new CSV row type, extend `AllocationRowType` and implement `AllocationR
 
 **Implementations:** TopDiagnoses, TopAssignments, TopDepartments, TopInfections, TopOccasions, TopSecondaryDiagnoses, TopSpecialities.
 
+Definitions expose `icon()` for the hub catalog (same Tabler names as Explore), `fetchRanking()` for reusable ranked datasets (single table, ranking depth, page size, and comparison). `build()` remains the table widget used by the Top Lists page.
+
 ## Statistics summarized reports
 
 **Tag:** `app.statistics.report_type`

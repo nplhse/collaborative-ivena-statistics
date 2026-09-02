@@ -26,12 +26,21 @@ interface TopListDefinitionInterface
     /** XLIFF resname for the short description under the selector. */
     public function descriptionTranslationKey(): string;
 
+    /** Tabler icon name, aligned with the Explore catalog. */
+    public function icon(): string;
+
     public function supports(StatisticsFilter $filter): bool;
+
+    public function fetchRanking(StatisticsContext $context, int $limit): TopListRanking;
+
+    public function toTableWidget(TopListRanking $ranking): StatisticWidget;
 
     public function build(StatisticsContext $context, int $limit): StatisticWidget;
 
+    public function tableLabelColumnTranslationKey(): string;
+
     /**
-     * @return list<int>
+     * @return list<TopListLimit>
      */
     public function allowedLimits(): array;
 }

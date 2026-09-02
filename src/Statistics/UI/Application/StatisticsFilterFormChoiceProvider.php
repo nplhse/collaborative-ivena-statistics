@@ -109,12 +109,13 @@ final class StatisticsFilterFormChoiceProvider
         StatisticsFilterSide $side,
         string $locale,
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+        ?HospitalPermission $hospitalPermission = null,
     ): array {
         return match ($scopeGroup) {
             'state' => $this->stateDetailChoices($policy),
             'dispatch_area' => $this->dispatchAreaDetailChoices($policy),
             'hospital_cohort' => $this->cohortDetailChoices($locale),
-            'my_hospitals' => $this->hospitalDetailChoices($user, $side, $locale),
+            'my_hospitals' => $this->hospitalDetailChoices($user, $side, $locale, $hospitalPermission),
             default => [],
         };
     }
@@ -124,8 +125,9 @@ final class StatisticsFilterFormChoiceProvider
         ?User $user,
         StatisticsFilterSide $side,
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+        ?HospitalPermission $hospitalPermission = null,
     ): bool {
-        $choices = $this->scopeDetailChoices($scopeGroup, $user, $side, 'en', $policy);
+        $choices = $this->scopeDetailChoices($scopeGroup, $user, $side, 'en', $policy, $hospitalPermission);
 
         return [] !== $choices;
     }
@@ -136,6 +138,7 @@ final class StatisticsFilterFormChoiceProvider
         StatisticsFilterSide $side,
         string $locale,
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+        ?HospitalPermission $hospitalPermission = null,
     ): BenchmarkSelectionSideFormData {
         [$scopeGroup, $scopeDetail] = $this->normalizeScopeDetail(
             $data->scopeGroup,
@@ -144,6 +147,7 @@ final class StatisticsFilterFormChoiceProvider
             $side,
             $locale,
             $policy,
+            $hospitalPermission,
         );
 
         return new BenchmarkSelectionSideFormData(
@@ -162,6 +166,7 @@ final class StatisticsFilterFormChoiceProvider
         StatisticsFilterSide $side,
         string $locale,
         StatisticsFilterScopeChoicePolicy $policy = StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+        ?HospitalPermission $hospitalPermission = null,
     ): StatisticsScopePeriodFormData {
         [$scopeGroup, $scopeDetail] = $this->normalizeScopeDetail(
             $data->scopeGroup,
@@ -170,6 +175,7 @@ final class StatisticsFilterFormChoiceProvider
             $side,
             $locale,
             $policy,
+            $hospitalPermission,
         );
 
         return new StatisticsScopePeriodFormData(
@@ -192,17 +198,18 @@ final class StatisticsFilterFormChoiceProvider
         StatisticsFilterSide $side,
         string $locale,
         StatisticsFilterScopeChoicePolicy $policy,
+        ?HospitalPermission $hospitalPermission = null,
     ): array {
         $primaryChoices = $this->scopePrimaryChoices($user, $locale, $policy);
         if (!isset($primaryChoices[$scopeGroup])) {
             return ['public', null];
         }
 
-        if (!$this->scopeDetailRequired($scopeGroup, $user, $side, $policy)) {
+        if (!$this->scopeDetailRequired($scopeGroup, $user, $side, $policy, $hospitalPermission)) {
             return [$scopeGroup, null];
         }
 
-        $detailChoices = $this->scopeDetailChoices($scopeGroup, $user, $side, $locale, $policy);
+        $detailChoices = $this->scopeDetailChoices($scopeGroup, $user, $side, $locale, $policy, $hospitalPermission);
         if (null === $scopeDetail || '' === $scopeDetail || !isset($detailChoices[$scopeDetail])) {
             $firstChoice = array_key_first($detailChoices);
             $scopeDetail = null !== $firstChoice ? (string) $firstChoice : null;
@@ -393,18 +400,23 @@ final class StatisticsFilterFormChoiceProvider
     /**
      * @return array<int|string, string>
      */
-    private function hospitalDetailChoices(?User $user, StatisticsFilterSide $side, string $locale): array
-    {
+    private function hospitalDetailChoices(
+        ?User $user,
+        StatisticsFilterSide $side,
+        string $locale,
+        ?HospitalPermission $hospitalPermission = null,
+    ): array {
         if (!$user instanceof User) {
             return [];
         }
 
-        $cacheKey = sprintf('%d|%s|%s', $user->getId() ?? 0, $side->value, $locale);
+        $permission = $this->resolveHospitalPermission($side, $hospitalPermission);
+        $cacheKey = sprintf('%d|%s|%s|%s', $user->getId() ?? 0, $side->value, $permission->name, $locale);
         if (isset($this->hospitalDetailChoicesByKey[$cacheKey])) {
             return $this->hospitalDetailChoicesByKey[$cacheKey];
         }
 
-        $useBenchmarkingPermission = StatisticsFilterSide::Comparison === $side;
+        $useBenchmarkingPermission = HospitalPermission::Benchmarking === $permission;
         if ($useBenchmarkingPermission && !$this->hospitalAccess->canUseBenchmarkingScope($user)) {
             return $this->hospitalDetailChoicesByKey[$cacheKey] = [];
         }
@@ -412,9 +424,7 @@ final class StatisticsFilterFormChoiceProvider
             return $this->hospitalDetailChoicesByKey[$cacheKey] = [];
         }
 
-        $hospitals = $useBenchmarkingPermission
-            ? $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user, HospitalPermission::Benchmarking)
-            : $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user);
+        $hospitals = $this->hospitalRepository->findAccessibleParticipatingHospitalSummaries($user, $permission);
 
         if (\count($hospitals) <= 1) {
             return $this->hospitalDetailChoicesByKey[$cacheKey] = [];
@@ -491,5 +501,18 @@ final class StatisticsFilterFormChoiceProvider
         }
 
         return $keys;
+    }
+
+    private function resolveHospitalPermission(
+        StatisticsFilterSide $side,
+        ?HospitalPermission $hospitalPermission,
+    ): HospitalPermission {
+        if ($hospitalPermission instanceof HospitalPermission) {
+            return $hospitalPermission;
+        }
+
+        return StatisticsFilterSide::Comparison === $side
+            ? HospitalPermission::Benchmarking
+            : HospitalPermission::Statistics;
     }
 }

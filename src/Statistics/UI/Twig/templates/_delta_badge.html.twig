@@ -1,0 +1,8 @@
+{% if delta is not null and delta != 0 %}
+    {% set deltaLabel = deltaLabel|default((delta > 0 ? '+' : '') ~ delta) %}
+    <span class="badge {{ delta > 0 ? 'bg-green-lt' : 'bg-red-lt' }} stats-rank-shift-badge"
+          data-testid="{{ testId }}"
+          aria-label="{{ ariaKey|trans({delta: deltaLabel}, 'statistics') }}">
+        {{ deltaLabel }}
+    </span>
+{% endif %}

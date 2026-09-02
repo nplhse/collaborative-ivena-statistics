@@ -27,6 +27,12 @@ final readonly class TopInfectionsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:biohazard';
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'infectionId';
@@ -39,8 +45,14 @@ final readonly class TopInfectionsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.infection';
+    }
+
+    #[\Override]
+    protected function requireJoinedEntity(): bool
+    {
+        return true;
     }
 }

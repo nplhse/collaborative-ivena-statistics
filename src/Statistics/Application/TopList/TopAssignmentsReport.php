@@ -27,6 +27,12 @@ final readonly class TopAssignmentsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:archery-arrow';
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'assignmentId';
@@ -39,7 +45,7 @@ final readonly class TopAssignmentsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.assignment';
     }

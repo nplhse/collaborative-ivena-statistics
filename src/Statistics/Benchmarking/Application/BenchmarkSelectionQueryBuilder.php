@@ -54,6 +54,40 @@ final readonly class BenchmarkSelectionQueryBuilder
     }
 
     /**
+     * @param array<string, bool|float|int|string> $preservedQuery
+     *
+     * @return array<string, bool|float|int|string>
+     */
+    public function mergeComparisonSide(BenchmarkSelectionSideFormData $comparison, array $preservedQuery): array
+    {
+        $query = $preservedQuery;
+        foreach (StatisticsQueryKeys::COMPARISON_FILTERS as $key) {
+            unset($query[$key]);
+        }
+        unset($query[StatisticsQueryKeys::PAGE]);
+        $query[StatisticsQueryKeys::COMPARE] = '1';
+
+        return array_merge($query, $this->sideQueryParams($comparison, true));
+    }
+
+    /**
+     * @param array<string, bool|float|int|string> $preservedQuery
+     *
+     * @return array<string, bool|float|int|string>
+     */
+    public function mergePrimarySide(BenchmarkSelectionSideFormData $primary, array $preservedQuery): array
+    {
+        $query = $preservedQuery;
+        foreach (StatisticsQueryKeys::PRIMARY_FILTERS as $key) {
+            unset($query[$key]);
+        }
+        unset($query[StatisticsQueryKeys::PAGE]);
+        $query[StatisticsQueryKeys::COMPARE] = '1';
+
+        return array_merge($query, $this->sideQueryParams($primary, false));
+    }
+
+    /**
      * @return array<string, bool|float|int|string>
      */
     private function sideQueryParams(BenchmarkSelectionSideFormData $side, bool $isComparison): array

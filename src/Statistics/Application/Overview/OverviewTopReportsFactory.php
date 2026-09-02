@@ -9,10 +9,12 @@ use App\Statistics\Application\Overview\Dto\OverviewTopReportCard;
 use App\Statistics\Application\Overview\Dto\OverviewTopTableRow;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\TopList\TopListRanking;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\Overview\OverviewTopEntitiesBatchQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class OverviewTopReportsFactory
 {
@@ -22,6 +24,7 @@ final readonly class OverviewTopReportsFactory
         private OverviewTopEntitiesBatchQuery $batchQuery,
         private StatisticsScopeResolver $scopeResolver,
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -46,13 +49,25 @@ final readonly class OverviewTopReportsFactory
         foreach ($this->sections() as $section) {
             $rows = [];
             $rank = 1;
-
+            $denominator = $scopedTotal;
+            $sourceRows = [];
             foreach ($batch[$section['batchKey']] as $row) {
+                if (OverviewTopEntitiesBatchQuery::PRESENCE_TOTAL_LABEL === $row['label']) {
+                    $denominator = $row['count'];
+                    continue;
+                }
+                $sourceRows[] = $row;
+            }
+
+            foreach ($sourceRows as $row) {
                 $count = $row['count'];
-                $share = $scopedTotal > 0 ? round(100 * $count / $scopedTotal, 1) : 0.0;
+                $share = $denominator > 0 ? round(100 * $count / $denominator, 1) : 0.0;
                 $rows[] = new OverviewTopTableRow(
                     $rank,
-                    $row['label'],
+                    TopListRanking::localizeLabel(
+                        $row['label'],
+                        $this->translator->trans(TopListRanking::UNKNOWN_TRANSLATION_KEY, [], 'statistics'),
+                    ),
                     $count,
                     sprintf('%.1f%%', $share),
                 );
@@ -64,7 +79,7 @@ final readonly class OverviewTopReportsFactory
                 $section['labelColumnTranslationKey'],
                 $this->navigationUrlBuilder->build(
                     $request,
-                    'app_stats_top_lists',
+                    'app_stats_top_lists_show',
                     ['report' => $section['reportKey']],
                 ),
                 $section['testId'],

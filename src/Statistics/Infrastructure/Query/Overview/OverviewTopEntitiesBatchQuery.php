@@ -15,6 +15,8 @@ final readonly class OverviewTopEntitiesBatchQuery
     public const string DIMENSION_INFECTION = 'infection';
     public const string DIMENSION_SECONDARY_DIAGNOSIS = 'secondary_diagnosis';
 
+    public const string PRESENCE_TOTAL_LABEL = '__presence_total__';
+
     public function __construct(
         private Connection $connection,
     ) {
@@ -82,19 +84,31 @@ UNION ALL
 (
     SELECT :dim_infection, COALESCE(i.name, 'Unknown'), COUNT(*)::int
     FROM base b
-    LEFT JOIN infection i ON i.id = b.infection_id
+    INNER JOIN infection i ON i.id = b.infection_id
     GROUP BY i.name
     ORDER BY 3 DESC
     LIMIT {$limitPerDimension}
 )
 UNION ALL
 (
+    SELECT :dim_infection, :presence_total, COUNT(*)::int
+    FROM base b
+    WHERE b.infection_id IS NOT NULL
+)
+UNION ALL
+(
     SELECT :dim_secondary, COALESCE(n.name, 'Unknown'), COUNT(*)::int
     FROM base b
-    LEFT JOIN indication_normalized n ON n.id = b.secondary_indication_normalized_id
+    INNER JOIN indication_normalized n ON n.id = b.secondary_indication_normalized_id
     GROUP BY n.name
     ORDER BY 3 DESC
     LIMIT {$limitPerDimension}
+)
+UNION ALL
+(
+    SELECT :dim_secondary, :presence_total, COUNT(*)::int
+    FROM base b
+    WHERE b.secondary_indication_normalized_id IS NOT NULL
 )
 SQL;
 
@@ -104,6 +118,7 @@ SQL;
         $params['dim_occasion'] = self::DIMENSION_OCCASION;
         $params['dim_infection'] = self::DIMENSION_INFECTION;
         $params['dim_secondary'] = self::DIMENSION_SECONDARY_DIAGNOSIS;
+        $params['presence_total'] = self::PRESENCE_TOTAL_LABEL;
 
         /** @var list<array{dimension: string, label: string, cnt: int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql, $params);

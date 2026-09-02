@@ -27,6 +27,12 @@ final readonly class TopOccasionsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:affiliate';
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'occasionId';
@@ -39,7 +45,7 @@ final readonly class TopOccasionsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.occasion';
     }

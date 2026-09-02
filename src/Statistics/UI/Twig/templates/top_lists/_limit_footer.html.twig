@@ -1,0 +1,36 @@
+{% import '@Shared/_macros/pagination.html.twig' as pagination %}
+{% set wrapperClass = wrapperClass|default('card-footer') %}
+<div class="{{ wrapperClass }} d-flex align-items-center justify-content-between gap-2 flex-wrap">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        {% if rankingDepthUrls is defined and rankingDepthUrls is not empty %}
+            {{ include('@Statistics/top_lists/_ranking_depth.html.twig', {
+                rankingDepthUrls: rankingDepthUrls,
+                currentLimit: currentLimit,
+            }) }}
+        {% endif %}
+        <div class="dropdown">
+            <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-testid="stats-top-lists-page-size-trigger">
+                <span class="me-1">
+                    {{ 'label.pagination_results'|trans({pageSize: currentPageSize}, 'messages') }}
+                </span>
+            </a>
+            <div class="dropdown-menu">
+                {% for size, url in pageSizeUrls %}
+                    <a class="dropdown-item{% if size == currentPageSize %} active{% endif %}"
+                       href="{{ url }}"
+                       data-testid="stats-top-lists-page-size-{{ size }}">
+                        {{ 'label.pagination_results'|trans({pageSize: size}, 'messages') }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% if paginator is defined and paginator is not null and paginator.hasToPaginate %}
+        {{ pagination.navbar(paginator, app.request.attributes.get('_route')) }}
+    {% endif %}
+</div>
+{% if truncated|default(false) %}
+    <p class="text-secondary small px-3 pb-2 mb-0" data-testid="stats-top-lists-truncated-notice">
+        {{ 'stats.top_lists.limit.truncated'|trans({}, 'statistics') }}
+    </p>
+{% endif %}
