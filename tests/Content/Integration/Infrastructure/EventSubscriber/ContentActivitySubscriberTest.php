@@ -44,4 +44,36 @@ final class ContentActivitySubscriberTest extends DatabaseKernelTestCase
         self::assertSame(UserActivityType::COMMENT_CREATED, $rows[1]->getType());
         self::assertSame('Kurzer Ausschnitt', $rows[1]->getMetadata()['excerpt'] ?? null);
     }
+
+    public function testRescheduledPublishUpdatesOccurredAtWithoutDuplicate(): void
+    {
+        $user = UserFactory::createOne();
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+
+        $subscriber = new ContentActivitySubscriber(
+            self::getContainer()->get(UserActivityRecorderInterface::class),
+        );
+        $subscriber->onPostPublished(new PostPublished(
+            $userId,
+            19,
+            'Geplant',
+            'geplant',
+            new \DateTimeImmutable('2026-09-03 10:42:00'),
+        ));
+        $subscriber->onPostPublished(new PostPublished(
+            $userId,
+            19,
+            'Die Entstehungsgeschichte des Projekts',
+            'die-entstehungsgeschichte-des-projekts',
+            new \DateTimeImmutable('2026-09-02 11:00:00'),
+        ));
+
+        $rows = self::getContainer()->get(UserActivityRepository::class)->findBy(['user' => $user], ['id' => 'ASC']);
+        self::assertCount(1, $rows);
+        self::assertSame(UserActivityType::POST_PUBLISHED, $rows[0]->getType());
+        self::assertEquals(new \DateTimeImmutable('2026-09-02 11:00:00'), $rows[0]->getOccurredAt());
+        self::assertSame('Die Entstehungsgeschichte des Projekts', $rows[0]->getMetadata()['title'] ?? null);
+        self::assertSame('die-entstehungsgeschichte-des-projekts', $rows[0]->getMetadata()['slug'] ?? null);
+    }
 }

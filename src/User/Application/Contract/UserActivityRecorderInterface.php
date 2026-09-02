@@ -16,4 +16,13 @@ interface UserActivityRecorderInterface
      * @psalm-suppress PossiblyUnusedReturnValue Production callers ignore the result; tests assert it.
      */
     public function record(UserActivityWrite $write): bool;
+
+    /**
+     * Inserts the activity, or updates occurredAt and metadata when the key already exists.
+     *
+     * @return bool true when a row was inserted or updated
+     *
+     * @psalm-suppress PossiblyUnusedReturnValue Production callers ignore the result; tests assert it.
+     */
+    public function sync(UserActivityWrite $write): bool;
 }

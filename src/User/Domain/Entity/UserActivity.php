@@ -97,4 +97,15 @@ class UserActivity
     {
         return $this->createdAt;
     }
+
+    /**
+     * Corrects the projection snapshot when the source publication time changes.
+     *
+     * @param array<string, mixed> $metadata
+     */
+    public function syncSnapshot(\DateTimeImmutable $occurredAt, array $metadata): void
+    {
+        $this->occurredAt = $occurredAt;
+        $this->metadata = $metadata;
+    }
 }
