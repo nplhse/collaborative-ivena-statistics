@@ -13,7 +13,9 @@ use App\Content\Infrastructure\Factory\PostFactory;
 use App\Content\Infrastructure\Factory\PostTagFactory;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -340,7 +342,7 @@ final class BlogControllerTest extends WebTestCase
             'createdBy' => $author,
         ]);
 
-        /** @var \Doctrine\ORM\EntityManagerInterface $entityManager */
+        /** @var EntityManagerInterface $entityManager */
         $entityManager = self::getContainer()->get('doctrine')->getManager();
         /** @var \Doctrine\ORM\EntityRepository<AuditEntry> $auditRepository */
         $auditRepository = $entityManager->getRepository(AuditEntry::class);
@@ -450,5 +452,111 @@ final class BlogControllerTest extends WebTestCase
             '[data-testid="post-edit-action"][href="/admin/post/%d/edit"]',
             $post->getId(),
         ));
+    }
+
+    public function testMultipleTagsAreDisplayedOnDetailListAndTagFilter(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'News', 'slug' => 'news']);
+        $zebra = PostTagFactory::createOne(['name' => 'Zebra', 'slug' => 'zebra']);
+        $alpha = PostTagFactory::createOne(['name' => 'Alpha', 'slug' => 'alpha']);
+        $middle = PostTagFactory::createOne(['name' => 'Middle', 'slug' => 'middle']);
+        $solo = PostTagFactory::createOne(['name' => 'Solo', 'slug' => 'solo']);
+
+        $multi = PostFactory::createOne([
+            'title' => 'Multi Tag Post',
+            'slug' => 'multi-tag-post',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+            'category' => $category,
+            'tags' => [$zebra, $alpha, $middle],
+        ]);
+        PostCommentFactory::createOne(['post' => $multi, 'content' => 'First comment']);
+        PostCommentFactory::createOne(['post' => $multi, 'content' => 'Second comment']);
+
+        PostFactory::createOne([
+            'title' => 'Single Tag Post',
+            'slug' => 'single-tag-post',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-2 hours'),
+            'category' => $category,
+            'tags' => [$solo],
+        ]);
+
+        PostFactory::createOne([
+            'title' => 'Untagged Post',
+            'slug' => 'untagged-post',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-3 hours'),
+            'category' => $category,
+            'tags' => [],
+        ]);
+
+        $this->clearIdentityMap();
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog/multi-tag-post');
+        self::assertResponseIsSuccessful();
+        $this->assertTagBadges(
+            $crawler->filter('.list-inline-item a.badge.bg-azure-lt'),
+            ['Alpha', 'Middle', 'Zebra'],
+            ['/blog/tag/alpha', '/blog/tag/middle', '/blog/tag/zebra'],
+        );
+
+        $this->clearIdentityMap();
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog');
+        self::assertResponseIsSuccessful();
+        $this->assertTagBadges(
+            $this->postCard($crawler, 'Multi Tag Post')->filter('a.badge.bg-azure-lt'),
+            ['Alpha', 'Middle', 'Zebra'],
+            ['/blog/tag/alpha', '/blog/tag/middle', '/blog/tag/zebra'],
+        );
+        $this->assertTagBadges(
+            $this->postCard($crawler, 'Single Tag Post')->filter('a.badge.bg-azure-lt'),
+            ['Solo'],
+            ['/blog/tag/solo'],
+        );
+        self::assertCount(0, $this->postCard($crawler, 'Untagged Post')->filter('a.badge.bg-azure-lt'));
+
+        $this->clearIdentityMap();
+
+        $crawler = $client->request(Request::METHOD_GET, '/blog/tag/middle');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.page-title', 'Tag: Middle');
+        $this->assertTagBadges(
+            $this->postCard($crawler, 'Multi Tag Post')->filter('a.badge.bg-azure-lt'),
+            ['Alpha', 'Middle', 'Zebra'],
+            ['/blog/tag/alpha', '/blog/tag/middle', '/blog/tag/zebra'],
+        );
+        self::assertStringNotContainsString('Single Tag Post', $this->postCard($crawler, 'Multi Tag Post')->text());
+        self::assertStringNotContainsString('Untagged Post', $this->postCard($crawler, 'Multi Tag Post')->text());
+    }
+
+    private function clearIdentityMap(): void
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = self::getContainer()->get('doctrine')->getManager();
+        $entityManager->clear();
+    }
+
+    private function postCard(Crawler $crawler, string $title): Crawler
+    {
+        $cards = $crawler->filter('.col-lg-8 .card')->reduce(
+            static fn (Crawler $node): bool => str_contains($node->text(), $title),
+        );
+
+        self::assertGreaterThan(0, $cards->count(), sprintf('Expected a list card containing "%s".', $title));
+
+        return $cards->first();
+    }
+
+    /**
+     * @param list<string> $names
+     * @param list<string> $hrefs
+     */
+    private function assertTagBadges(Crawler $badges, array $names, array $hrefs): void
+    {
+        self::assertSame($names, $badges->each(static fn (Crawler $node): string => trim($node->text())));
+        self::assertSame($hrefs, $badges->each(static fn (Crawler $node): string => (string) $node->attr('href')));
     }
 }
