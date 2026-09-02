@@ -19,6 +19,7 @@ final class HospitalTest extends TestCase
         $hospital = new Hospital();
 
         $this->assertNull($hospital->getUpdatedAt());
+        $this->assertNull($hospital->getParticipatingSince());
         $this->assertNull($hospital->getName());
         $this->assertNull($hospital->getBeds());
         $this->assertSame('', $hospital->getAddress()->getStreet());
@@ -88,5 +89,62 @@ final class HospitalTest extends TestCase
 
         self::assertFalse($area->getHospitals()->contains($hospital));
         self::assertNull($hospital->getDispatchArea());
+    }
+
+    public function testRejoiningDoesNotOverwriteParticipatingSince(): void
+    {
+        $hospital = new Hospital();
+        $firstJoin = new \DateTimeImmutable('2024-06-01 12:00:00', new \DateTimeZone('UTC'));
+        $hospital->setParticipatingSince($firstJoin);
+        $hospital->setIsParticipating(true);
+
+        $hospital->setIsParticipating(false);
+        self::assertSame('2024-06-01T12:00:00+00:00', $this->atom($hospital->getParticipatingSince()));
+
+        $hospital->setIsParticipating(true);
+        self::assertSame('2024-06-01T12:00:00+00:00', $this->atom($hospital->getParticipatingSince()));
+    }
+
+    public function testPrePersistCopiesCreatedAtWhenParticipatingWithoutTimestamp(): void
+    {
+        $hospital = new Hospital();
+        $createdAt = new \DateTimeImmutable('2024-03-01 10:00:00', new \DateTimeZone('UTC'));
+        $hospital->setCreatedAt($createdAt);
+
+        $hospital->ensureParticipatingSinceOnPersist();
+
+        self::assertSame('2024-03-01T10:00:00+00:00', $this->atom($hospital->getParticipatingSince()));
+    }
+
+    public function testPrePersistDoesNotSetTimestampWhenNotParticipating(): void
+    {
+        $hospital = new Hospital();
+        $hospital->setIsParticipating(false);
+
+        $hospital->ensureParticipatingSinceOnPersist();
+
+        self::assertNull($hospital->getParticipatingSince());
+    }
+
+    public function testPrePersistDoesNotOverwriteExistingParticipatingSince(): void
+    {
+        $hospital = new Hospital();
+        $createdAt = new \DateTimeImmutable('2024-03-01 10:00:00', new \DateTimeZone('UTC'));
+        $existing = new \DateTimeImmutable('2025-01-15 08:00:00', new \DateTimeZone('UTC'));
+        $hospital->setCreatedAt($createdAt);
+        $hospital->setParticipatingSince($existing);
+
+        $hospital->ensureParticipatingSinceOnPersist();
+
+        self::assertSame('2025-01-15T08:00:00+00:00', $this->atom($hospital->getParticipatingSince()));
+    }
+
+    private function atom(?\DateTimeImmutable $value): string
+    {
+        if (!$value instanceof \DateTimeImmutable) {
+            return '';
+        }
+
+        return $value->format(\DateTimeInterface::ATOM);
     }
 }

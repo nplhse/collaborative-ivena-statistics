@@ -201,6 +201,9 @@ final class HospitalCrudController extends AbstractCrudController
         yield NumberField::new('longitude', 'Longitude')
             ->hideOnIndex();
         yield BooleanField::new('isParticipating', 'Participating');
+        yield DateTimeField::new('participatingSince', 'Participating since')
+            ->setFormat('dd.MM.yyyy HH:mm')
+            ->hideOnIndex();
         yield AssociationField::new('accessGrants', 'Access grants')
             ->onlyOnDetail();
 
