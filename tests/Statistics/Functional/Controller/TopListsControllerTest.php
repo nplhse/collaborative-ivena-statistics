@@ -53,11 +53,15 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
         $this->assertSelectorTextContains(
             '[data-testid="stats-top-lists-card-top_diagnoses"]',
-            'Ranked most frequent indications with count and share.',
+            'Most frequent indications among assignments, with count and share.',
         );
         $this->assertSelectorTextContains(
             '[data-testid="stats-top-lists-card-top_departments"]',
-            'Which destination departments were assigned most often.',
+            'Destination departments that appear most often among assignments.',
+        );
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-top-lists-card-top_infections"]',
+            'Reported or suspected infectious diseases among assignments.',
         );
     }
 
@@ -118,6 +122,9 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-widget"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-table-card"]');
         $this->assertSelectorNotExists('[data-testid="stats-analysis-table-card"] .card-header');
+        $this->assertSelectorExists('[data-testid="stats-analysis-table-card"] [data-testid="stats-top-lists-ranking-depth"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-limit-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-page-size-trigger"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Rank');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Indication');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Count');
@@ -158,6 +165,47 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-widget"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Department');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Seeded Report Department');
+    }
+
+    public function testPaginationLinksIncludeReportPathParameter(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-top-lists-pagination']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Pagination Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Pagination Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Pagination Diagnosis']);
+
+        $importId = (int) $import->getId();
+        for ($i = 1; $i <= 26; ++$i) {
+            AllocationFactory::createOne([
+                'createdAt' => new \DateTimeImmutable('today'),
+                'import' => $import,
+                'department' => DepartmentFactory::createOne(['name' => sprintf('Paged Department %02d', $i)]),
+                'indicationRaw' => $raw,
+                'indicationNormalized' => $normalized,
+            ]);
+        }
+        $this->rebuildProjectionForImports([$importId]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_departments?scope=public&period=all&limit=50',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $next = $crawler->filter('.pagination a.page-link[href*="page=2"]');
+        self::assertGreaterThan(0, $next->count());
+        $href = (string) $next->first()->attr('href');
+        self::assertStringContainsString('/statistics/top-lists/top_departments', $href);
+        self::assertStringContainsString('limit=50', $href);
     }
 
     #[\PHPUnit\Framework\Attributes\DataProvider('newTopReportCases')]
@@ -368,7 +416,7 @@ final class TopListsControllerTest extends WebTestCase
         ]);
         $this->rebuildProjectionForImports([(int) $import->getId()]);
 
-        $client->request(
+        $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1',
         );
@@ -384,7 +432,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-b-edit"]', 'Edit comparison B');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-a"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
-        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-disable"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-disable"].btn-outline-danger');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-edit"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-actions"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"]');
@@ -393,6 +441,15 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-ranking-depth"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-page-size-trigger"]');
+
+        $toolbarHtml = $crawler->filter('.page-header .btn-list')->html();
+        $filterPos = strpos($toolbarHtml, 'statistics-filters-drawer-trigger');
+        $disablePos = strpos($toolbarHtml, 'stats-top-lists-compare-disable');
+        self::assertNotFalse($filterPos);
+        self::assertNotFalse($disablePos);
+        self::assertLessThan($disablePos, $filterPos);
     }
 
     public function testInvalidLimitFallsBackToTwentyFive(): void
@@ -407,10 +464,38 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-limit-25"].active');
     }
 
-    public function testReportsPageAcceptsScopeAndPeriodParameters(): void
+    public function testPageSizeParameterIsAccepted(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&limit=10&per_page=50',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-limit-10"].active');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-page-size-50"].active');
+        $link = $crawler->filter('[data-testid="stats-top-lists-page-size-100"]')->link();
+        $this->assertStringContainsString('per_page=100', $link->getUri());
+        $this->assertStringContainsString('limit=10', $link->getUri());
+    }
+
+    public function testInvalidPageSizeFallsBackToTwentyFive(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&per_page=invalid',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-page-size-25"].active');
+    }
+
+    public function testReportsPageAcceptsScopeAndPeriodParameters(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/top-lists/top_diagnoses?scope=public&period=all_time',
         );
@@ -425,6 +510,13 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"][href]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-comparison-modal-a"]');
+
+        $toolbarHtml = $crawler->filter('.page-header .btn-list')->html();
+        $comparePos = strpos($toolbarHtml, 'stats-top-lists-compare-enable');
+        $filterPos = strpos($toolbarHtml, 'statistics-filters-drawer-trigger');
+        self::assertNotFalse($comparePos);
+        self::assertNotFalse($filterPos);
+        self::assertLessThan($filterPos, $comparePos);
     }
 
     public function testReportsShowsPeriodNavigationWithYearPeriod(): void
