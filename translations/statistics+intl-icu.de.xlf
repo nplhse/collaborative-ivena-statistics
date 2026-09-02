@@ -4563,7 +4563,7 @@
       </trans-unit>
       <trans-unit id="statsTlIdxDe02" resname="stats.top_lists.index.intro">
         <source>stats.top_lists.index.intro</source>
-        <target>Wähle eine Rangliste, um Anzahlen und Anteile für deinen aktuellen Statistik-Scope und Zeitraum zu sehen.</target>
+        <target>Wähle eine Rangliste, um Anzahlen und Anteile der Zuweisungen für deinen aktuellen Statistik-Scope und Zeitraum zu sehen.</target>
       </trans-unit>
       <trans-unit id="statsTlIdxDe03" resname="stats.top_lists.index.open">
         <source>stats.top_lists.index.open</source>
@@ -4727,7 +4727,7 @@
       </trans-unit>
       <trans-unit id="De683c6ffd" resname="stats.top_lists.top_assignments.description">
         <source>stats.top_lists.top_assignments.description</source>
-        <target>Verteilung der Zuweisungsarten im gewählten Zeitraum.</target>
+        <target>Welche Zuweisungstypen in den Zuweisungen am häufigsten vorkommen.</target>
       </trans-unit>
       <trans-unit id="De1f2ae254" resname="stats.top_lists.top_assignments.label">
         <source>stats.top_lists.top_assignments.label</source>
@@ -4735,7 +4735,7 @@
       </trans-unit>
       <trans-unit id="Dedf3e4f0d" resname="stats.top_lists.top_departments.description">
         <source>stats.top_lists.top_departments.description</source>
-        <target>Welche Zielabteilungen am häufigsten zugewiesen wurden.</target>
+        <target>Zielabteilungen, die in den Zuweisungen am häufigsten vorkommen.</target>
       </trans-unit>
       <trans-unit id="De33113db9" resname="stats.top_lists.top_departments.label">
         <source>stats.top_lists.top_departments.label</source>
@@ -4743,7 +4743,7 @@
       </trans-unit>
       <trans-unit id="Dea45ebaae" resname="stats.top_lists.top_diagnoses.description">
         <source>stats.top_lists.top_diagnoses.description</source>
-        <target>Rangfolge der häufigsten Indikationen mit Anzahl und Anteil.</target>
+        <target>Häufigste Indikationen der Zuweisungen, mit Anzahl und Anteil.</target>
       </trans-unit>
       <trans-unit id="De423e969f" resname="stats.top_lists.top_diagnoses.label">
         <source>stats.top_lists.top_diagnoses.label</source>
@@ -4751,7 +4751,7 @@
       </trans-unit>
       <trans-unit id="Dedac4d941" resname="stats.top_lists.top_infections.description">
         <source>stats.top_lists.top_infections.description</source>
-        <target>Häufigste dokumentierte Infektionskennzeichen.</target>
+        <target>Gemeldete oder vermutete Infektionskrankheiten der Zuweisungen.</target>
       </trans-unit>
       <trans-unit id="De0e7038d2" resname="stats.top_lists.top_infections.label">
         <source>stats.top_lists.top_infections.label</source>
@@ -4759,7 +4759,7 @@
       </trans-unit>
       <trans-unit id="Decfbe75bc" resname="stats.top_lists.top_occasions.description">
         <source>stats.top_lists.top_occasions.description</source>
-        <target>Häufigste Anlässe der Zuweisung.</target>
+        <target>Häufigste Anlässe der Zuweisungen.</target>
       </trans-unit>
       <trans-unit id="Debe7eaee9" resname="stats.top_lists.top_occasions.label">
         <source>stats.top_lists.top_occasions.label</source>
@@ -4767,7 +4767,7 @@
       </trans-unit>
       <trans-unit id="De2bf7d865" resname="stats.top_lists.top_secondary_diagnoses.description">
         <source>stats.top_lists.top_secondary_diagnoses.description</source>
-        <target>Rangfolge der sekundären Indikationen.</target>
+        <target>Häufigste sekundäre Indikationen der Zuweisungen.</target>
       </trans-unit>
       <trans-unit id="De25e3ba4f" resname="stats.top_lists.top_secondary_diagnoses.label">
         <source>stats.top_lists.top_secondary_diagnoses.label</source>
@@ -4775,7 +4775,7 @@
       </trans-unit>
       <trans-unit id="De0d3434c8" resname="stats.top_lists.top_specialities.description">
         <source>stats.top_lists.top_specialities.description</source>
-        <target>Welche Fachrichtungen die Zuweisungen dominieren.</target>
+        <target>Fachrichtungen, die in den Zuweisungen am häufigsten vorkommen.</target>
       </trans-unit>
       <trans-unit id="Dec4f20cb7" resname="stats.top_lists.top_specialities.label">
         <source>stats.top_lists.top_specialities.label</source>
@@ -5472,6 +5472,14 @@
       <trans-unit id="statsTlDe01" resname="stats.top_lists.limit.all">
         <source>stats.top_lists.limit.all</source>
         <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe28" resname="stats.top_lists.limit.top">
+        <source>stats.top_lists.limit.top</source>
+        <target>Top {count}</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe29" resname="stats.top_lists.limit.depth_label">
+        <source>stats.top_lists.limit.depth_label</source>
+        <target>Rangtiefe</target>
       </trans-unit>
       <trans-unit id="statsTlDe02" resname="stats.top_lists.limit.truncated">
         <source>stats.top_lists.limit.truncated</source>

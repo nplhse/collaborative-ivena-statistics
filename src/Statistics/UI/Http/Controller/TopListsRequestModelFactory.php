@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\TopList\TopListLimitPolicy;
+use App\Statistics\Application\TopList\TopListPageSizePolicy;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 
 final readonly class TopListsRequestModelFactory
 {
     public function __construct(
         private TopListLimitPolicy $topListLimitPolicy,
+        private TopListPageSizePolicy $topListPageSizePolicy,
     ) {
     }
 
@@ -24,9 +26,10 @@ final readonly class TopListsRequestModelFactory
 
         return new TopListsRequestModel(
             $topListKey,
-            $this->topListLimitPolicy->normalize($query['limit'] ?? null),
+            $this->topListLimitPolicy->normalize($query[StatisticsQueryKeys::LIMIT] ?? null),
             false !== $page ? max(1, $page) : 1,
             '1' === (string) $compareRaw || 1 === $compareRaw || true === $compareRaw,
+            $this->topListPageSizePolicy->normalize($query[StatisticsQueryKeys::PER_PAGE] ?? null),
         );
     }
 }

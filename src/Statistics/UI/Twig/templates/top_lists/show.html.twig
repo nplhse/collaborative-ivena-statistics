@@ -97,8 +97,11 @@
                     {{ include('@Statistics/top_lists/_comparison_tables.html.twig', {comparison: topListsPage.comparison}) }}
                     <div class="card mt-4" data-testid="stats-analysis-table-card">
                         {{ include('@Statistics/top_lists/_limit_footer.html.twig', {
-                            limitUrls: topListsPage.limitUrls,
+                            wrapperClass: 'card-footer border-top-0',
+                            rankingDepthUrls: topListsPage.limitUrls,
                             currentLimit: topListsPage.currentLimit,
+                            pageSizeUrls: topListsPage.pageSizeUrls,
+                            currentPageSize: topListsPage.currentPageSize,
                             paginator: topListsPage.paginator,
                             truncated: topListsPage.truncated,
                         }) }}

@@ -45,16 +45,23 @@ final class TopListsPagePresenterTest extends TestCase
         $model = $presenter->present($request, $topLists[0], $requestModel, $ranking, $topLists);
 
         self::assertSame(10, $model->currentLimit);
+        self::assertSame(25, $model->currentPageSize);
         self::assertArrayHasKey('top_diagnoses', $model->topListSelectUrls);
         self::assertStringContainsString('app_stats_top_lists_show', $model->topListSelectUrls['top_diagnoses']);
         self::assertStringContainsString('app_stats_top_lists?', $model->indexUrl);
         self::assertStringNotContainsString('report=', $model->indexUrl);
         self::assertNotNull($model->topListWidget);
+        self::assertArrayHasKey('rankingDepth', $model->topListWidget->payload);
+        self::assertSame(10, $model->topListWidget->payload['rankingDepth']['current']);
         self::assertArrayHasKey('limitFooter', $model->topListWidget->payload);
-        self::assertSame(10, $model->topListWidget->payload['limitFooter']['current']);
+        self::assertSame(25, $model->topListWidget->payload['limitFooter']['current']);
         self::assertArrayHasKey(100, $model->limitUrls);
         self::assertArrayHasKey('all', $model->limitUrls);
+        self::assertArrayHasKey(50, $model->pageSizeUrls);
+        self::assertStringContainsString('per_page=50', $model->pageSizeUrls[50]);
         self::assertFalse($model->compareEnabled);
+        self::assertNotNull($model->paginator);
+        self::assertFalse($model->paginator->hasToPaginate());
     }
 
     public function testBuildsFormDataForBothComparisonSides(): void
@@ -151,7 +158,48 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertSame('hospital_cohort', $model->comparisonFormData->scopeGroup);
     }
 
-    private function definition(string $key): TopListDefinitionInterface
+    public function testPaginatesRankingWhenRowCountExceedsPageSize(): void
+    {
+        $router = $this->createStub(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturnCallback(
+            static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
+        );
+        $presenter = new TopListsPagePresenter(
+            new StatisticsNavigationUrlBuilder($router),
+            new BenchmarkSelectionFormDataFactory(),
+        );
+
+        $rows = [];
+        for ($i = 1; $i <= 30; ++$i) {
+            $rows[] = new TopListRankedRow((string) $i, 'Item '.$i, $i, 1.0, $i, $i);
+        }
+        $ranking = new TopListRanking($rows, 465);
+        $slicedRanking = null;
+        $definition = $this->definition('top_diagnoses', static function (TopListRanking $display) use (&$slicedRanking): StatisticWidget {
+            $slicedRanking = $display;
+
+            return new StatisticWidget(StatisticWidgetType::Table, 'top_list', ['rows' => []], null, []);
+        });
+        $request = new Request(query: ['scope' => 'public', 'limit' => '100', 'per_page' => '25', 'page' => '2']);
+        $requestModel = new TopListsRequestModel('top_diagnoses', TopListLimit::of(100), 2, false, 25);
+
+        $model = $presenter->present($request, $definition, $requestModel, $ranking, [$definition]);
+
+        self::assertSame(100, $model->currentLimit);
+        self::assertSame(25, $model->currentPageSize);
+        self::assertNotNull($model->paginator);
+        self::assertTrue($model->paginator->hasToPaginate());
+        self::assertSame(2, $model->paginator->getCurrentPage());
+        self::assertSame(2, $model->paginator->getLastPage());
+        self::assertInstanceOf(TopListRanking::class, $slicedRanking);
+        self::assertCount(5, $slicedRanking->rows);
+        self::assertSame(26, $slicedRanking->rows[0]->rank);
+    }
+
+    /**
+     * @param (callable(TopListRanking): StatisticWidget)|null $toTableWidget
+     */
+    private function definition(string $key, ?callable $toTableWidget = null): TopListDefinitionInterface
     {
         $definition = $this->createStub(TopListDefinitionInterface::class);
         $definition->method('key')->willReturn($key);
@@ -165,8 +213,8 @@ final class TopListsPagePresenterTest extends TestCase
             TopListLimit::of(100),
             TopListLimit::all(),
         ]);
-        $definition->method('toTableWidget')->willReturn(
-            new StatisticWidget(StatisticWidgetType::Table, 'top_list', ['rows' => []], null, []),
+        $definition->method('toTableWidget')->willReturnCallback(
+            $toTableWidget ?? static fn (): StatisticWidget => new StatisticWidget(StatisticWidgetType::Table, 'top_list', ['rows' => []], null, []),
         );
 
         return $definition;

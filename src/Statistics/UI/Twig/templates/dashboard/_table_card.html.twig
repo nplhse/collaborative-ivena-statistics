@@ -15,8 +15,10 @@
     </div>
     {% if p.limitFooter is defined and p.limitFooter.urls is defined and p.limitFooter.current is defined %}
         {{ include('@Statistics/top_lists/_limit_footer.html.twig', {
-            limitUrls: p.limitFooter.urls,
-            currentLimit: p.limitFooter.current,
+            rankingDepthUrls: p.rankingDepth.urls|default({}),
+            currentLimit: p.rankingDepth.current|default(null),
+            pageSizeUrls: p.limitFooter.urls,
+            currentPageSize: p.limitFooter.current,
             paginator: p.limitFooter.paginator|default(null),
             truncated: p.limitFooter.truncated|default(false),
         }) }}

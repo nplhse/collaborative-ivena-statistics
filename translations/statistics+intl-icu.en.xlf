@@ -1119,7 +1119,7 @@
       </trans-unit>
       <trans-unit id="statsTlIdx02" resname="stats.top_lists.index.intro">
         <source>stats.top_lists.index.intro</source>
-        <target>Select a ranked list to explore counts and shares for your current statistics scope and period.</target>
+        <target>Select a ranked list to explore assignment counts and shares for your current statistics scope and period.</target>
       </trans-unit>
       <trans-unit id="statsTlIdx03" resname="stats.top_lists.index.open">
         <source>stats.top_lists.index.open</source>
@@ -1247,7 +1247,7 @@
       </trans-unit>
       <trans-unit id="statsRpTdDs" resname="stats.top_lists.top_diagnoses.description">
         <source>stats.top_lists.top_diagnoses.description</source>
-        <target>Ranked most frequent indications with count and share.</target>
+        <target>Most frequent indications among assignments, with count and share.</target>
       </trans-unit>
       <trans-unit id="statsRpTbRk" resname="stats.top_lists.table.rank">
         <source>stats.top_lists.table.rank</source>
@@ -1295,7 +1295,7 @@
       </trans-unit>
       <trans-unit id="statsRpDpDs" resname="stats.top_lists.top_departments.description">
         <source>stats.top_lists.top_departments.description</source>
-        <target>Which destination departments were assigned most often.</target>
+        <target>Destination departments that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpAtLb" resname="stats.top_lists.top_assignments.label">
         <source>stats.top_lists.top_assignments.label</source>
@@ -1303,7 +1303,7 @@
       </trans-unit>
       <trans-unit id="statsRpAtDs" resname="stats.top_lists.top_assignments.description">
         <source>stats.top_lists.top_assignments.description</source>
-        <target>How assignment types are distributed in the selected period.</target>
+        <target>Assignment types that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpInLb" resname="stats.top_lists.top_infections.label">
         <source>stats.top_lists.top_infections.label</source>
@@ -1311,7 +1311,7 @@
       </trans-unit>
       <trans-unit id="statsRpInDs" resname="stats.top_lists.top_infections.description">
         <source>stats.top_lists.top_infections.description</source>
-        <target>Most frequently documented infection flags.</target>
+        <target>Reported or suspected infectious diseases among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpSdLb" resname="stats.top_lists.top_secondary_diagnoses.label">
         <source>stats.top_lists.top_secondary_diagnoses.label</source>
@@ -1319,7 +1319,7 @@
       </trans-unit>
       <trans-unit id="statsRpSdDs" resname="stats.top_lists.top_secondary_diagnoses.description">
         <source>stats.top_lists.top_secondary_diagnoses.description</source>
-        <target>Ranked most frequent secondary indications.</target>
+        <target>Most frequent secondary indications among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpSlLb" resname="stats.top_lists.top_specialities.label">
         <source>stats.top_lists.top_specialities.label</source>
@@ -1327,7 +1327,7 @@
       </trans-unit>
       <trans-unit id="statsRpSlDs" resname="stats.top_lists.top_specialities.description">
         <source>stats.top_lists.top_specialities.description</source>
-        <target>Which specialities account for most assignments.</target>
+        <target>Specialities that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpOcLb" resname="stats.top_lists.top_occasions.label">
         <source>stats.top_lists.top_occasions.label</source>
@@ -1335,7 +1335,7 @@
       </trans-unit>
       <trans-unit id="statsRpOcDs" resname="stats.top_lists.top_occasions.description">
         <source>stats.top_lists.top_occasions.description</source>
-        <target>Most frequent occasions for assignment.</target>
+        <target>Most frequent occasions among assignments.</target>
       </trans-unit>
       <trans-unit id="statsTlUnk" resname="stats.top_lists.unknown">
         <source>stats.top_lists.unknown</source>
@@ -5472,6 +5472,14 @@
       <trans-unit id="statsTl01" resname="stats.top_lists.limit.all">
         <source>stats.top_lists.limit.all</source>
         <target>All</target>
+      </trans-unit>
+      <trans-unit id="statsTl28" resname="stats.top_lists.limit.top">
+        <source>stats.top_lists.limit.top</source>
+        <target>Top {count}</target>
+      </trans-unit>
+      <trans-unit id="statsTl29" resname="stats.top_lists.limit.depth_label">
+        <source>stats.top_lists.limit.depth_label</source>
+        <target>Ranking depth</target>
       </trans-unit>
       <trans-unit id="statsTl02" resname="stats.top_lists.limit.truncated">
         <source>stats.top_lists.limit.truncated</source>

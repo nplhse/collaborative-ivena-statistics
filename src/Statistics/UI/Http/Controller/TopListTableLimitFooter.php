@@ -9,18 +9,18 @@ use App\Statistics\Application\TopList\TopListArrayPaginator;
 final readonly class TopListTableLimitFooter
 {
     /**
-     * @param array<int|string, string> $urls
+     * @param array<int, string> $urls
      */
     public function __construct(
         public array $urls,
-        public int|string $current,
+        public int $current,
         public ?TopListArrayPaginator $paginator = null,
         public bool $truncated = false,
     ) {
     }
 
     /**
-     * @return array{urls: array<int|string, string>, current: int|string, paginator: ?TopListArrayPaginator, truncated: bool}
+     * @return array{urls: array<int, string>, current: int, paginator: ?TopListArrayPaginator, truncated: bool}
      */
     public function toArray(): array
     {

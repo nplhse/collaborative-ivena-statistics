@@ -60,6 +60,7 @@ final class StatisticsQueryKeys
 
     public const string REPORT = 'report';
     public const string LIMIT = 'limit';
+    public const string PER_PAGE = 'per_page';
     public const string PAGE = 'page';
     public const string COMPARE = 'compare';
 

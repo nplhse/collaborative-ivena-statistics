@@ -8,7 +8,6 @@ final readonly class TopListLimit
 {
     public const string ALL = 'all';
     public const int ALL_SAFETY_CAP = 1000;
-    public const int ALL_PAGE_SIZE = 50;
 
     private function __construct(
         private int $numericValue,

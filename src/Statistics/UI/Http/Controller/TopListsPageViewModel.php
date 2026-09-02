@@ -15,6 +15,7 @@ final readonly class TopListsPageViewModel
      * @param list<TopListDefinitionInterface>     $topListDefinitions
      * @param array<string, string>                $topListSelectUrls
      * @param array<int|string, string>            $limitUrls
+     * @param array<int, string>                   $pageSizeUrls
      * @param array<string, bool|float|int|string> $comparisonPreservedQuery
      */
     public function __construct(
@@ -25,6 +26,8 @@ final readonly class TopListsPageViewModel
         public array $topListSelectUrls,
         public int|string $currentLimit,
         public array $limitUrls,
+        public int $currentPageSize,
+        public array $pageSizeUrls,
         public string $headerTitleKey,
         public string $headerSubtitleKey,
         public bool $compareEnabled,

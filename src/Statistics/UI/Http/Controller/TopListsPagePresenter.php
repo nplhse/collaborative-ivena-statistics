@@ -10,7 +10,7 @@ use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\TopList\TopListArrayPaginator;
 use App\Statistics\Application\TopList\TopListComparison;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
-use App\Statistics\Application\TopList\TopListLimit;
+use App\Statistics\Application\TopList\TopListPageSizePolicy;
 use App\Statistics\Application\TopList\TopListRanking;
 use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
@@ -58,25 +58,32 @@ final readonly class TopListsPagePresenter
             $limitUrls[$allowedLimit->queryValue()] = $this->statisticsPageUrl(
                 $request,
                 'app_stats_top_lists_show',
-                ['limit' => $allowedLimit->queryValue(), StatisticsQueryKeys::PAGE => null],
+                [StatisticsQueryKeys::LIMIT => $allowedLimit->queryValue(), StatisticsQueryKeys::PAGE => null],
+            );
+        }
+
+        $pageSize = $requestModel->pageSize;
+        $pageSizeUrls = [];
+        foreach (TopListPageSizePolicy::ALLOWED as $allowedPageSize) {
+            $pageSizeUrls[$allowedPageSize] = $this->statisticsPageUrl(
+                $request,
+                'app_stats_top_lists_show',
+                [StatisticsQueryKeys::PER_PAGE => $allowedPageSize, StatisticsQueryKeys::PAGE => null],
             );
         }
 
         $fullRowCount = $comparison instanceof TopListComparison ? $comparison->count() : $rankingA->count();
-        $paginator = null;
+        $paginator = TopListArrayPaginator::fromCount(
+            $fullRowCount,
+            $requestModel->page,
+            $pageSize,
+        );
         $displayRanking = $rankingA;
         $displayComparison = $comparison;
-        if ($currentLimit->isAll) {
-            $paginator = TopListArrayPaginator::fromCount(
-                $fullRowCount,
-                $requestModel->page,
-                TopListLimit::ALL_PAGE_SIZE,
-            );
-            if ($displayComparison instanceof TopListComparison) {
-                $displayComparison = $displayComparison->pageSlice($paginator->getCurrentPage(), TopListLimit::ALL_PAGE_SIZE);
-            } else {
-                $displayRanking = $displayRanking->pageSlice($paginator->getCurrentPage(), TopListLimit::ALL_PAGE_SIZE);
-            }
+        if ($displayComparison instanceof TopListComparison) {
+            $displayComparison = $displayComparison->pageSlice($paginator->getCurrentPage(), $pageSize);
+        } else {
+            $displayRanking = $displayRanking->pageSlice($paginator->getCurrentPage(), $pageSize);
         }
 
         $truncated = $rankingA->truncated || ($comparison instanceof TopListComparison && $comparison->truncated);
@@ -96,10 +103,12 @@ final readonly class TopListsPagePresenter
                 'top_diagnoses' === $currentDefinition->key(),
             );
         } else {
-            $topListWidget = $this->withTopListTableLimitFooter(
+            $topListWidget = $this->withTopListTableControls(
                 $currentDefinition->toTableWidget($displayRanking),
                 $limitUrls,
                 $currentLimit->queryValue(),
+                $pageSizeUrls,
+                $pageSize,
                 $paginator,
                 $truncated,
             );
@@ -118,6 +127,8 @@ final readonly class TopListsPagePresenter
             $topListSelectUrls,
             $currentLimit->queryValue(),
             $limitUrls,
+            $pageSize,
+            $pageSizeUrls,
             $currentDefinition->labelTranslationKey(),
             $currentDefinition->descriptionTranslationKey(),
             $requestModel->compare,
@@ -147,12 +158,15 @@ final readonly class TopListsPagePresenter
 
     /**
      * @param array<int|string, string> $limitUrls
+     * @param array<int, string>        $pageSizeUrls
      */
-    private function withTopListTableLimitFooter(
+    private function withTopListTableControls(
         StatisticWidget $widget,
         array $limitUrls,
         int|string $currentLimit,
-        ?TopListArrayPaginator $paginator,
+        array $pageSizeUrls,
+        int $currentPageSize,
+        TopListArrayPaginator $paginator,
         bool $truncated,
     ): StatisticWidget {
         if (StatisticWidgetType::Table !== $widget->type) {
@@ -160,7 +174,11 @@ final readonly class TopListsPagePresenter
         }
 
         $payload = $widget->payload;
-        $payload['limitFooter'] = new TopListTableLimitFooter($limitUrls, $currentLimit, $paginator, $truncated)->toArray();
+        $payload['rankingDepth'] = [
+            'urls' => $limitUrls,
+            'current' => $currentLimit,
+        ];
+        $payload['limitFooter'] = new TopListTableLimitFooter($pageSizeUrls, $currentPageSize, $paginator, $truncated)->toArray();
 
         return new StatisticWidget($widget->type, $widget->id, $payload, $widget->title, $widget->actions);
     }
