@@ -66,6 +66,7 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
             ->addOrderBy('a.id', 'DESC')
             ->setMaxResults($limit);
 
+        $this->excludeUnpublishedPostActivities($qb);
         $this->applyFilters($qb, $filters);
 
         if ($cursor instanceof ProjectActivityCursor) {
@@ -103,6 +104,13 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
         }
 
         return [$filters->type];
+    }
+
+    private function excludeUnpublishedPostActivities(QueryBuilder $qb): void
+    {
+        $qb->andWhere('NOT (a.type = :postPublished AND a.occurredAt > :now)')
+            ->setParameter('postPublished', UserActivityType::POST_PUBLISHED)
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE);
     }
 
     private function applyFilters(QueryBuilder $qb, ?ProjectActivityFilters $filters): void

@@ -325,6 +325,52 @@ final class ProjectActivityQueryTest extends DatabaseKernelTestCase
         }
     }
 
+    public function testHidesScheduledPostPublishedUntilPublicationTime(): void
+    {
+        $user = UserFactory::createOne(['username' => 'project-feed-scheduled']);
+        $userId = $user->getId();
+        self::assertNotNull($userId);
+
+        $this->record(
+            $user,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('-1 hour'),
+            UserActivityDeduplicationKey::postPublished($userId, 401),
+            ['title' => 'Already Live', 'slug' => 'already-live'],
+        );
+        $this->record(
+            $user,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('now'),
+            UserActivityDeduplicationKey::postPublished($userId, 402),
+            ['title' => 'Publishing Now', 'slug' => 'publishing-now'],
+        );
+        $this->record(
+            $user,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('+1 day'),
+            UserActivityDeduplicationKey::postPublished($userId, 403),
+            ['title' => 'Scheduled Headline', 'slug' => 'scheduled-headline'],
+        );
+        $this->record(
+            $user,
+            UserActivityType::HOSPITAL_ASSOCIATED,
+            new \DateTimeImmutable('+2 days'),
+            UserActivityDeduplicationKey::hospitalAssociated($userId, 8, 15),
+            ['hospitalName' => 'Future Clinic'],
+        );
+
+        $page = self::getContainer()->get(ProjectActivityQuery::class)->getPage(null, 20);
+        $titles = array_map(static fn ($item) => $item->postTitle, $page->items);
+        $types = array_map(static fn ($item) => $item->type, $page->items);
+
+        self::assertContains('Already Live', $titles);
+        self::assertContains('Publishing Now', $titles);
+        self::assertNotContains('Scheduled Headline', $titles);
+        self::assertContains(ProfileActivityType::HOSPITAL_ASSOCIATED, $types);
+        self::assertSame('Future Clinic', $page->items[0]->hospitalName);
+    }
+
     /**
      * @param array<string, scalar|null> $metadata
      */

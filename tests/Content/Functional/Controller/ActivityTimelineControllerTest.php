@@ -315,6 +315,63 @@ final class ActivityTimelineControllerTest extends WebTestCase
         self::assertCount(1, $crawler->filter('[data-testid="activity-post-preview"]'));
     }
 
+    public function testHidesScheduledBlogPostUntilPublicationDate(): void
+    {
+        $client = self::createClient();
+        $viewer = UserFactory::createOne(['username' => 'timeline-scheduled-viewer']);
+        $actor = UserFactory::createOne(['username' => 'timeline-scheduled-actor']);
+        $actorId = $actor->getId();
+        self::assertNotNull($actorId);
+
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Live Timeline Post',
+            'slug' => 'live-timeline-post',
+            'content' => '<p>Already public</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('-1 hour'),
+        ]);
+        PostFactory::createOne([
+            'createdBy' => $actor,
+            'title' => 'Scheduled Timeline Post',
+            'slug' => 'scheduled-timeline-post',
+            'content' => '<p>Not public yet</p>',
+            'status' => PostStatus::PUBLISHED,
+            'publishedAt' => new \DateTimeImmutable('+1 day'),
+        ]);
+
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('-1 hour'),
+            UserActivityDeduplicationKey::postPublished($actorId, 301),
+            ['title' => 'Live Timeline Post', 'slug' => 'live-timeline-post'],
+        );
+        $this->record(
+            $actor,
+            UserActivityType::POST_PUBLISHED,
+            new \DateTimeImmutable('+1 day'),
+            UserActivityDeduplicationKey::postPublished($actorId, 302),
+            ['title' => 'Scheduled Timeline Post', 'slug' => 'scheduled-timeline-post'],
+        );
+
+        $client->loginUser($viewer);
+        $client->request(Request::METHOD_GET, '/activity');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Live Timeline Post');
+        self::assertSelectorExists('a[href="/blog/live-timeline-post"]');
+        self::assertSelectorTextNotContains('body', 'Scheduled Timeline Post');
+        self::assertSelectorTextNotContains('body', 'Not public yet');
+        self::assertSelectorNotExists('a[href="/blog/scheduled-timeline-post"]');
+
+        $client->request(Request::METHOD_GET, '/activity/feed');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Live Timeline Post');
+        self::assertSelectorTextNotContains('body', 'Scheduled Timeline Post');
+        self::assertSelectorNotExists('a[href="/blog/scheduled-timeline-post"]');
+    }
+
     /**
      * @param array<string, scalar|null> $metadata
      */

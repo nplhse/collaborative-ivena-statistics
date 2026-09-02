@@ -160,11 +160,16 @@ final class PostCrudController extends AbstractCrudController
         }
 
         $previousStatus = $this->originalPostStatus($entityManager, $entityInstance);
+        $previousPublishedAt = $this->originalPublishedAt($entityManager, $entityInstance);
         $this->preparePost($entityInstance, $entityInstance->getId());
 
         parent::updateEntity($entityManager, $entityInstance);
 
-        $this->contentActivityNotifier->postPublishedIfApplicable($entityInstance, $previousStatus);
+        $this->contentActivityNotifier->postPublishedIfApplicable(
+            $entityInstance,
+            $previousStatus,
+            $previousPublishedAt,
+        );
     }
 
     /**
@@ -196,6 +201,21 @@ final class PostCrudController extends AbstractCrudController
 
         if (\is_string($status)) {
             return PostStatus::tryFrom($status);
+        }
+
+        return null;
+    }
+
+    private function originalPublishedAt(EntityManagerInterface $entityManager, Post $post): ?\DateTimeImmutable
+    {
+        $original = $entityManager->getUnitOfWork()->getOriginalEntityData($post);
+        $publishedAt = $original['publishedAt'] ?? null;
+        if ($publishedAt instanceof \DateTimeImmutable) {
+            return $publishedAt;
+        }
+
+        if ($publishedAt instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($publishedAt);
         }
 
         return null;

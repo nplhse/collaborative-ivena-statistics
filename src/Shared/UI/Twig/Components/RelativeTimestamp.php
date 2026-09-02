@@ -11,6 +11,7 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 #[AsTwigComponent(name: 'RelativeTimestamp', template: '@Shared/components/RelativeTimestamp.html.twig')]
 final class RelativeTimestamp
 {
+    /** @psalm-suppress PropertyNotSetInConstructor Hydrated by Twig Component attributes. */
     public \DateTimeInterface $datetime;
 
     public string $class = 'text-secondary small';

@@ -59,4 +59,22 @@ final readonly class DoctrineUserActivityRecorder implements UserActivityRecorde
 
         return true;
     }
+
+    #[\Override]
+    public function sync(UserActivityWrite $write): bool
+    {
+        if ($write->userId < 1 || '' === $write->deduplicationKey) {
+            return false;
+        }
+
+        $existing = $this->activityRepository->findOneByDeduplicationKey($write->deduplicationKey);
+        if ($existing instanceof UserActivity) {
+            $existing->syncSnapshot($write->occurredAt, $write->metadata);
+            $this->entityManager->flush();
+
+            return true;
+        }
+
+        return $this->record($write);
+    }
 }
