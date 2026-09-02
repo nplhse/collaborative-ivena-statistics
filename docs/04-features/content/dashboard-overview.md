@@ -21,16 +21,44 @@ Guests still see `@Content/public/home.html.twig`. Totals come from the same `Da
 
 ## KPIs
 
-`DashboardMetricsService` returns a list of `DashboardMetric` DTOs (key, value, 30-day delta, icon, translation key, optional explore/import route) so further compact stats can be appended later.
+`DashboardMetricsService` returns a list of `DashboardMetric` DTOs (key, value, 30-day delta, icon, translation key, optional explore/import route and query params) so further compact stats can be appended later.
 
 The 30-day delta is **platform growth** (records added to the project), not the IVENA event date. Historical CSVs uploaded today increase the allocations delta even when the cases themselves are months old.
 
 | Key | Total | 30-day delta |
 |---|---|---|
 | `allocations` | `COUNT(*)` on `allocation_stats_projection` | projection rows whose `import.created_at` is in the last 30 days |
-| `hospitals` | `Hospital.isParticipating = true` | participating hospitals with `created_at` in the last 30 days |
+| `hospitals` | `Hospital.isParticipating = true` | participating hospitals with `participating_since` in the last 30 days |
 | `users` | `COUNT` on `user` | `created_at` in the last 30 days |
 | `imports` | `COUNT` on `import` | `created_at` in the last 30 days |
+
+### Participating hospitals
+
+**Participating** means `Hospital.isParticipating = true` (the admin/participant checkbox). That is distinct from a hospital existing in the catalog (`created_at`) and from a hospital contributing data (first successful import). The KPI total and its historical development both use this flag.
+
+`Hospital.participatingSince` is when the hospital **first** became participating:
+
+- Set on the first `false → true` transition; left unchanged when participation is turned off or later turned on again.
+- On create-as-participating (`PrePersist`), copied from `createdAt` when still empty.
+- Editable in EasyAdmin as a manual fallback. Not shown on the participant hospital form.
+
+`createdAt` is only the catalog row’s birth date and is **not** used for the 30-day hospital delta.
+
+For `ROLE_PARTICIPANT`, the hospitals card links to Explore with `participating=1` so the list matches the KPI total. The dashboard next-steps tile “View all Hospitals” stays unfiltered.
+
+#### Backfill (`app:hospital:backfill-participating-since`)
+
+Existing participating hospitals with a null `participatingSince` can be filled once. Default is a dry-run preview; `--apply` writes. Candidates are only `is_participating = true` and `participating_since IS NULL`.
+
+| Priority | Source | Used when |
+|---|---|---|
+| 1 | Earliest `audit_log` evidence | Hospital `create` with `isParticipating.new = true`, or `update` `false → true` |
+| 2 | First successful import | `MIN(import.created_at)` where status is `Completed` or `Partial` |
+| 3 | Leave null | No automatic `created_at` (catalog age is not participation start). Set the EasyAdmin field by hand. |
+
+Audit of the flag exists only since the `audit_log` table (~March 2026). Earlier joins therefore fall through to the first successful import or stay empty. Reconstructed timestamps are written with SQL so the backfill does not bump `updated_at` or add audit rows.
+
+The column can later support “new participating hospitals per month” and a cumulative first-join series without another schema change. A true stock series (“how many were participating on date X”) would also need leave dates and is out of scope.
 
 User, hospital, and import counts run **live** on each dashboard request (small tables).
 
@@ -38,7 +66,7 @@ Allocation counts are the expensive path. They are stored in `cache.app` under `
 
 A delta of `0` is omitted from the card. Positive deltas keep the compact `+ N last 30 days` form.
 
-For `ROLE_PARTICIPANT`, each card links to the matching Explore/Import list (`app_explore_allocation_list`, `app_explore_hospital_list`, `app_explore_user_list`, `app_import_index`). Other authenticated users see the same totals without those links (`/explore` and `/import` require `ROLE_PARTICIPANT`).
+For `ROLE_PARTICIPANT`, each card links to the matching Explore/Import list (`app_explore_allocation_list`, `app_explore_hospital_list?participating=1`, `app_explore_user_list`, `app_import_index`). Other authenticated users see the same totals without those links (`/explore` and `/import` require `ROLE_PARTICIPANT`).
 
 ## Activity preview and dedicated timeline
 

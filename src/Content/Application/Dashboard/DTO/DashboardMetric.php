@@ -7,6 +7,9 @@ namespace App\Content\Application\Dashboard\DTO;
 /** @psalm-suppress PossiblyUnusedProperty Consumed by Twig dashboard templates. */
 final readonly class DashboardMetric
 {
+    /**
+     * @param array<string, scalar> $routeParams
+     */
     public function __construct(
         public string $key,
         public int $value,
@@ -14,6 +17,7 @@ final readonly class DashboardMetric
         public string $icon,
         public string $labelTranslationKey,
         public ?string $routeName = null,
+        public array $routeParams = [],
     ) {
     }
 }

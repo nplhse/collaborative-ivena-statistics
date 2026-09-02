@@ -68,6 +68,9 @@ class Hospital implements \Stringable
     #[ORM\Column(options: ['default' => false])]
     private bool $isParticipating = true;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $participatingSince = null;
+
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
 
@@ -240,7 +243,23 @@ class Hospital implements \Stringable
 
     public function setIsParticipating(bool $isParticipating): static
     {
+        if ($isParticipating && !$this->participatingSince instanceof \DateTimeImmutable) {
+            $this->participatingSince = new \DateTimeImmutable();
+        }
+
         $this->isParticipating = $isParticipating;
+
+        return $this;
+    }
+
+    public function getParticipatingSince(): ?\DateTimeImmutable
+    {
+        return $this->participatingSince;
+    }
+
+    public function setParticipatingSince(?\DateTimeImmutable $participatingSince): static
+    {
+        $this->participatingSince = $participatingSince;
 
         return $this;
     }
@@ -292,6 +311,14 @@ class Hospital implements \Stringable
         $this->accessGrants->removeElement($accessGrant);
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function ensureParticipatingSinceOnPersist(): void
+    {
+        if ($this->isParticipating && !$this->participatingSince instanceof \DateTimeImmutable) {
+            $this->participatingSince = $this->createdAt;
+        }
     }
 
     #[ORM\PreUpdate]

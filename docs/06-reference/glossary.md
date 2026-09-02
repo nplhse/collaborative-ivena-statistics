@@ -33,6 +33,7 @@ See [console-commands.md](console-commands.md) for the full list and conventions
 | `app:statistics:rebuild-projection` | Rebuild allocation statistics projection |
 | `app:statistics:deduplicate-projection` | Remove duplicate projection/allocation rows |
 | `app:allocation:backfill-indications` | Repair normalized indication fields on allocations |
+| `app:hospital:backfill-participating-since` | Fill participating-since timestamps for currently participating hospitals |
 | `app:allocation:audit-indication-review` | Health check for indication review data |
 | `app:kpi:aggregate` | Aggregate daily KPI metrics |
 | `app:reminder:preview` | Preview monthly submission reminder email |

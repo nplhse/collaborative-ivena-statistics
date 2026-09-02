@@ -45,6 +45,9 @@ final class HospitalParticipationFixtureTest extends KernelTestCase
         self::assertSame(26, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital WHERE is_participating = true AND owner_id IS NOT NULL',
         ));
+        self::assertSame(26, (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM hospital WHERE is_participating = true AND participating_since IS NOT NULL',
+        ));
         self::assertSame(51, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital WHERE is_participating = false AND owner_id IS NULL',
         ));

@@ -3,7 +3,7 @@
         {% set canLink = is_granted('ROLE_PARTICIPANT') and metric.routeName %}
         <div class="col-6 col-lg-3">
             {% if canLink %}
-                <a href="{{ path(metric.routeName) }}" class="card card-link h-100 text-reset text-decoration-none" data-testid="dashboard-metric-{{ metric.key }}">
+                <a href="{{ path(metric.routeName, metric.routeParams) }}" class="card card-link h-100 text-reset text-decoration-none" data-testid="dashboard-metric-{{ metric.key }}">
             {% else %}
                 <div class="card" data-testid="dashboard-metric-{{ metric.key }}">
             {% endif %}

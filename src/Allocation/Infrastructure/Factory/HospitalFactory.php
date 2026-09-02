@@ -50,11 +50,26 @@ final class HospitalFactory extends PersistentObjectFactory
         ];
     }
 
+    /** @psalm-suppress MoreSpecificReturnType */
     #[\Override]
     protected function initialize(): static
     {
         self::faker()->addProvider(new \App\Allocation\Infrastructure\Faker\Provider\Hospital(self::faker()));
 
-        return $this;
+        /** @var static $factory */
+        $factory = $this->afterInstantiate(
+            /**
+             * @param array<string, mixed> $attributes
+             */
+            static function (Hospital $hospital, array $attributes): void {
+                if (!$hospital->isParticipating() || \array_key_exists('participatingSince', $attributes)) {
+                    return;
+                }
+
+                $hospital->setParticipatingSince($hospital->getCreatedAt());
+            },
+        );
+
+        return $factory;
     }
 }

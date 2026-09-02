@@ -49,10 +49,11 @@ final readonly class DashboardMetricsService
             new DashboardMetric(
                 key: 'hospitals',
                 value: $this->hospitalRepository->countParticipating(),
-                deltaLast30Days: $this->hospitalRepository->countParticipatingCreatedSince($since),
+                deltaLast30Days: $this->hospitalRepository->countParticipatingSince($since),
                 icon: 'tabler:building-hospital',
                 labelTranslationKey: 'dashboard.metrics.hospitals',
                 routeName: 'app_explore_hospital_list',
+                routeParams: ['participating' => '1'],
             ),
             new DashboardMetric(
                 key: 'users',
