@@ -50,6 +50,7 @@ final readonly class ExplorerEditFormNormalizer
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $filter->period,
         );
         if (!\in_array($rowAxis->dimensionKey, $capabilities->dimensions, true)) {
             $rowAxis = AnalysisDataSourceKey::Hospitals === $dataSourceKey
@@ -74,6 +75,7 @@ final readonly class ExplorerEditFormNormalizer
                     $formData->columnDimension,
                     $columnGrain->value,
                     $capabilities,
+                    $filter->period,
                 );
                 if ($capabilities->supportsColumnAxis($rowAxis, $candidate)) {
                     $columnAxis = $candidate;

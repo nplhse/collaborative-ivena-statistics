@@ -68,6 +68,7 @@ final readonly class ExplorerDescriptionFactory
             AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.description.grain.year', [], 'statistics'),
             AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
             AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Day => $this->translator->trans('stats.analysis_explorer.description.grain.day', [], 'statistics'),
             AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
         };
     }

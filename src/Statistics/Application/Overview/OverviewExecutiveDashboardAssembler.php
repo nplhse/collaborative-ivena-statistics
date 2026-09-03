@@ -7,6 +7,7 @@ namespace App\Statistics\Application\Overview;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
 use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
@@ -47,6 +48,7 @@ final readonly class OverviewExecutiveDashboardAssembler
                     $bounds,
                     $scopeCriteria->hospitalIds,
                     $scopeCriteria->dispatchAreaId,
+                    TimeSeriesGrainResolver::resolve($context->filter->period),
                 ),
                 $metrics,
             ),

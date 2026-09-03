@@ -11,6 +11,7 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardCriteria;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardHeader;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardMetricsQuery;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSliceQuery;
 
@@ -38,7 +39,13 @@ final readonly class IndicationDashboardService
         $indicationId = $criteria->indicationId;
 
         $metrics = $this->metricsQuery->fetch([$criteria->indicationId], $from, $toExclusive, $scope);
-        $slice = $this->sliceQuery->fetch([$criteria->indicationId], $from, $toExclusive, $scope);
+        $slice = $this->sliceQuery->fetch(
+            [$criteria->indicationId],
+            $from,
+            $toExclusive,
+            $scope,
+            $criteria->timeSeriesGrain,
+        );
 
         $total = $metrics->totalIndication;
 
@@ -52,7 +59,7 @@ final readonly class IndicationDashboardService
             ),
             $this->assembler->buildSummaryDeck($slice->genderCounts, $metrics),
             $this->insightEngine->build($metrics),
-            $this->assembler->buildTimeSeries($slice->monthlyRows),
+            $this->assembler->buildTimeSeries($slice->monthlyRows, $criteria->timeSeriesGrain, $criteria->period),
             $this->assembler->buildDayTimeHeatmap($slice->dayTimeHeatmapCells),
             $this->assembler->buildShiftHeatmap($slice->shiftHeatmapCells),
             $this->assembler->buildResourcesDistribution($metrics),
@@ -69,6 +76,7 @@ final readonly class IndicationDashboardService
         IndicationSubject $subject,
         StatisticsScopeCriteria $scope,
         StatisticsPeriodBounds $period,
+        TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
     ): ?IndicationDashboardResult {
         if ([] === $subject->indicationIds) {
             return null;
@@ -78,7 +86,7 @@ final readonly class IndicationDashboardService
         $toExclusive = $period->toExclusive;
 
         $metrics = $this->metricsQuery->fetch($subject->indicationIds, $from, $toExclusive, $scope);
-        $slice = $this->sliceQuery->fetch($subject->indicationIds, $from, $toExclusive, $scope);
+        $slice = $this->sliceQuery->fetch($subject->indicationIds, $from, $toExclusive, $scope, $timeSeriesGrain);
 
         $total = $metrics->totalIndication;
 
@@ -95,7 +103,7 @@ final readonly class IndicationDashboardService
             ),
             $this->assembler->buildSummaryDeck($slice->genderCounts, $metrics),
             $this->insightEngine->build($metrics),
-            $this->assembler->buildTimeSeries($slice->monthlyRows),
+            $this->assembler->buildTimeSeries($slice->monthlyRows, $timeSeriesGrain, $period),
             $this->assembler->buildDayTimeHeatmap($slice->dayTimeHeatmapCells),
             $this->assembler->buildShiftHeatmap($slice->shiftHeatmapCells),
             $this->assembler->buildResourcesDistribution($metrics),

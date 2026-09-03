@@ -139,6 +139,13 @@ final class AnalysisDimensionLabelResolver
             return false !== $formatted && '' !== $formatted ? $formatted : (string) $month;
         }
 
+        if ('day' === $dimension->key && 1 === preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $bucketKey, $matches)) {
+            $date = new \DateTimeImmutable(sprintf('%s-%s-%s', $matches[1], $matches[2], $matches[3]));
+            $formatted = \IntlDateFormatter::formatObject($date, 'dd.MM.', $this->translator->getLocale());
+
+            return false !== $formatted && '' !== $formatted ? $formatted : $bucketKey;
+        }
+
         return $bucketKey;
     }
 

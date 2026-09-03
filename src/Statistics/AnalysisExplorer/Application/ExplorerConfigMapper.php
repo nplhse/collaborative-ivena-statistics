@@ -79,7 +79,7 @@ final readonly class ExplorerConfigMapper
         $tableLayout = TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat;
         $capabilities = $this->capabilitiesRegistry->capabilitiesFor($base->dataSourceKey, $user, $filter);
 
-        [$rowAxis, $columnAxis] = $this->axesFromFormData($formData, $capabilities);
+        [$rowAxis, $columnAxis] = $this->axesFromFormData($formData, $capabilities, $filter->period);
 
         $preview = $this->previewFactory->fromFormData(
             $capabilities,
@@ -177,7 +177,7 @@ final readonly class ExplorerConfigMapper
         $capabilities = $this->capabilitiesRegistry->capabilitiesFor($dataSourceKey, $user, $filter);
 
         [$metricKeys, $visualMetricKey] = $this->metricKeysFromState($state['query'] ?? []);
-        [$rowAxis, $columnAxis] = $this->axesFromState($state['query'] ?? [], $capabilities);
+        [$rowAxis, $columnAxis] = $this->axesFromState($state['query'] ?? [], $capabilities, $filter->period);
 
         $queryState = \is_array($state['query'] ?? null) ? $state['query'] : [];
         $chartRowLimit = ExplorerChartRowLimit::fromValue((string) ($state['presentation']['chartRowLimit'] ?? ExplorerChartRowLimit::All->value));
@@ -330,12 +330,16 @@ final readonly class ExplorerConfigMapper
     /**
      * @return array{0: AnalysisAxisRef, 1: ?AnalysisAxisRef}
      */
-    private function axesFromFormData(ExplorerEditFormData $formData, \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities): array
-    {
+    private function axesFromFormData(
+        ExplorerEditFormData $formData,
+        \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+        StatisticsFilterPeriod $period,
+    ): array {
         $rowAxis = $this->axisResolver->resolveFromStrings(
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $period,
         );
 
         $columnAxis = null;
@@ -344,6 +348,7 @@ final readonly class ExplorerConfigMapper
                 $formData->columnDimension,
                 $formData->columnGrain,
                 $capabilities,
+                $period,
             );
         }
 
@@ -355,13 +360,16 @@ final readonly class ExplorerConfigMapper
      *
      * @return array{0: AnalysisAxisRef, 1: ?AnalysisAxisRef}
      */
-    private function axesFromState(array $queryState, \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities): array
-    {
+    private function axesFromState(
+        array $queryState,
+        \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+        StatisticsFilterPeriod $period,
+    ): array {
         if (isset($queryState['rows']) && \is_array($queryState['rows'])) {
-            $rowAxis = $this->axisResolver->resolve(AnalysisAxisRef::fromStateArray($queryState['rows']), $capabilities);
+            $rowAxis = $this->axisResolver->resolve(AnalysisAxisRef::fromStateArray($queryState['rows']), $capabilities, $period);
             $columnAxis = null;
             if (isset($queryState['columns']) && \is_array($queryState['columns'])) {
-                $columnAxis = $this->axisResolver->resolve(AnalysisAxisRef::fromStateArray($queryState['columns']), $capabilities);
+                $columnAxis = $this->axisResolver->resolve(AnalysisAxisRef::fromStateArray($queryState['columns']), $capabilities, $period);
             }
 
             return [$rowAxis, $columnAxis];
@@ -372,8 +380,8 @@ final readonly class ExplorerConfigMapper
         [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
 
         return [
-            $this->axisResolver->resolve($rowAxis, $capabilities),
-            $columnAxis instanceof AnalysisAxisRef ? $this->axisResolver->resolve($columnAxis, $capabilities) : null,
+            $this->axisResolver->resolve($rowAxis, $capabilities, $period),
+            $columnAxis instanceof AnalysisAxisRef ? $this->axisResolver->resolve($columnAxis, $capabilities, $period) : null,
         ];
     }
 

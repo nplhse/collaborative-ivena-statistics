@@ -13,6 +13,7 @@ use App\Statistics\Application\IndicationDashboard\IndicationSubjectResolver;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -67,6 +68,7 @@ final class IndicationDashboardController extends AbstractController
             $indicationId,
             $scope,
             $period,
+            TimeSeriesGrainResolver::resolve($filter->period),
         ));
 
         if (!$result instanceof \App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult) {

@@ -31,6 +31,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
         self::assertContains(AnalysisDimensionKey::AgeGroup, $capabilities->dimensions);
         self::assertSame(
             [
+                AnalysisDimensionGrain::Day,
                 AnalysisDimensionGrain::Month,
                 AnalysisDimensionGrain::Year,
                 AnalysisDimensionGrain::Quarter,

@@ -140,6 +140,22 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
         );
     }
 
+    public function testMatrixWithDayColumnUsesDayNoun(): void
+    {
+        $config = $this->baseConfig(
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            columnAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Day),
+        );
+
+        $summary = $this->factory()->create($config);
+
+        self::assertSame(
+            'Allocations by Urgency and Day for all hospitals in Last 12 months.',
+            $summary->plainText(),
+        );
+        self::assertTrue($this->hasEmphasized($summary->parts, 'Day'));
+    }
+
     public function testSingleFilterIsInline(): void
     {
         $config = $this->baseConfig(filters: [
@@ -530,6 +546,7 @@ final class ExplorerAnalysisSummaryFactoryTest extends TestCase
             'stats.analysis_explorer.dimension.hospital_tier' => 'Hospital tier',
             'stats.analysis_explorer.dimension.hospital_location' => 'Hospital location',
             'stats.analysis_explorer.dimension.month' => 'Month',
+            'stats.analysis_explorer.dimension.day' => 'Day',
             'stats.analysis_explorer.hospital_population.participating' => 'Participating hospitals',
             'stats.analysis_explorer.hospital_population.all' => 'All hospitals',
         ];
