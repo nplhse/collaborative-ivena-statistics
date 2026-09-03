@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
+
 final readonly class TopListComparisonRow
 {
     public function __construct(
@@ -21,6 +23,30 @@ final readonly class TopListComparisonRow
         public bool $onlyInA,
         public bool $onlyInB,
         public ?int $entityId = null,
+        public ?string $publicId = null,
+        public ?StatisticWidgetNavigationTarget $labelTarget = null,
     ) {
+    }
+
+    public function withLabelTarget(?StatisticWidgetNavigationTarget $labelTarget): self
+    {
+        return new self(
+            $this->identity,
+            $this->label,
+            $this->rankA,
+            $this->countA,
+            $this->shareA,
+            $this->rankB,
+            $this->countB,
+            $this->shareB,
+            $this->deltaCount,
+            $this->deltaShare,
+            $this->rankMovement,
+            $this->onlyInA,
+            $this->onlyInB,
+            $this->entityId,
+            $this->publicId,
+            $labelTarget,
+        );
     }
 }

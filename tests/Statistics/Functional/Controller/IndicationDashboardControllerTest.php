@@ -91,7 +91,10 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-indication-weekday"]');
         self::assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
         self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
-        self::assertSelectorExists('[data-testid="stats-indication-compare-launch-button"]');
+        self::assertSelectorExists('[data-testid="stats-indication-header-actions"].btn-group');
+        self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-catalog-link"].btn');
+        self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-compare-launch-button"].btn');
+        self::assertSelectorNotExists('[data-testid="stats-indication-compare-launch-button"].btn-outline-primary');
         self::assertSelectorExists('[data-testid="stats-indication-compare-launch-modal"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-compare-cta"]');
         $crawler = $client->getCrawler();
@@ -99,6 +102,13 @@ final class IndicationDashboardControllerTest extends WebTestCase
             'Dashboard Test Indication',
             (string) $crawler->filter('#stats-indication-compare-launch-a')->attr('value'),
         );
+        $catalogHref = $crawler->filter('[data-testid="stats-indication-catalog-link"]')->attr('href');
+        self::assertNotNull($catalogHref);
+        self::assertStringContainsString('/explore/indication/'.$indication->getPublicIdString(), $catalogHref);
+        $topListHref = $crawler->filter('[data-testid="stats-indication-top-list-link"]')->attr('href');
+        self::assertNotNull($topListHref);
+        self::assertStringContainsString('/statistics/top-lists/top_diagnoses', $topListHref);
+        self::assertStringContainsString('scope=hospital', $topListHref);
     }
 
     public function testUnknownIndicationReturns404(): void

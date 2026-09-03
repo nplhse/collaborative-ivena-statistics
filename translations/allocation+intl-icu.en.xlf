@@ -605,6 +605,10 @@
         <source>catalog.action.view_allocations</source>
         <target>View allocations</target>
       </trans-unit>
+      <trans-unit id="CatActTlEn" resname="catalog.action.view_top_list">
+        <source>catalog.action.view_top_list</source>
+        <target>Open top list</target>
+      </trans-unit>
       <trans-unit id="CatActInsEn" resname="catalog.action.indication_insights">
         <source>catalog.action.indication_insights</source>
         <target>Open indication insights</target>

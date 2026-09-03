@@ -11,6 +11,7 @@ final readonly class IndicationDashboardHeader
         public string $indicationName,
         public ?int $indicationCode,
         public int $caseCount,
+        public ?string $publicId = null,
     ) {
     }
 }

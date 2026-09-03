@@ -1281,6 +1281,10 @@
         <source>stats.top_lists.table.secondary_diagnosis</source>
         <target>Secondary indication</target>
       </trans-unit>
+      <trans-unit id="statsRpTbSt" resname="stats.top_lists.table.secondary_transport">
+        <source>stats.top_lists.table.secondary_transport</source>
+        <target>Secondary transport</target>
+      </trans-unit>
       <trans-unit id="statsRpTbSp" resname="stats.top_lists.table.speciality">
         <source>stats.top_lists.table.speciality</source>
         <target>Speciality</target>
@@ -1320,6 +1324,14 @@
       <trans-unit id="statsRpSdDs" resname="stats.top_lists.top_secondary_diagnoses.description">
         <source>stats.top_lists.top_secondary_diagnoses.description</source>
         <target>Most frequent secondary indications among assignments.</target>
+      </trans-unit>
+      <trans-unit id="statsRpStLb" resname="stats.top_lists.top_secondary_transports.label">
+        <source>stats.top_lists.top_secondary_transports.label</source>
+        <target>Top secondary transports</target>
+      </trans-unit>
+      <trans-unit id="statsRpStDs" resname="stats.top_lists.top_secondary_transports.description">
+        <source>stats.top_lists.top_secondary_transports.description</source>
+        <target>Secondary transport types that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpSlLb" resname="stats.top_lists.top_specialities.label">
         <source>stats.top_lists.top_specialities.label</source>
@@ -2512,6 +2524,22 @@
       <trans-unit id="statsInd57" resname="stats.top_lists.nav.indication_profile">
         <source>stats.top_lists.nav.indication_profile</source>
         <target>Indication profile</target>
+      </trans-unit>
+      <trans-unit id="statsTlNavCatEn" resname="stats.top_lists.nav.catalog_entry">
+        <source>stats.top_lists.nav.catalog_entry</source>
+        <target>Catalogue entry</target>
+      </trans-unit>
+      <trans-unit id="statsTlNavCatListEn" resname="stats.top_lists.nav.catalog_list">
+        <source>stats.top_lists.nav.catalog_list</source>
+        <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavCatEn" resname="stats.indication.nav.catalog">
+        <source>stats.indication.nav.catalog</source>
+        <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavTlEn" resname="stats.indication.nav.top_list">
+        <source>stats.indication.nav.top_list</source>
+        <target>Open top list</target>
       </trans-unit>
       <trans-unit id="statsBm01" resname="stats.benchmark.title">
         <source>stats.benchmark.title</source>
@@ -5471,11 +5499,11 @@
       </trans-unit>
       <trans-unit id="statsTl01" resname="stats.top_lists.limit.all">
         <source>stats.top_lists.limit.all</source>
-        <target>All</target>
+        <target>All entries</target>
       </trans-unit>
       <trans-unit id="statsTl28" resname="stats.top_lists.limit.top">
         <source>stats.top_lists.limit.top</source>
-        <target>Top {count}</target>
+        <target>Top {count} entries</target>
       </trans-unit>
       <trans-unit id="statsTl29" resname="stats.top_lists.limit.depth_label">
         <source>stats.top_lists.limit.depth_label</source>
@@ -5504,6 +5532,18 @@
       <trans-unit id="statsTl27" resname="stats.top_lists.comparison.edit_b">
         <source>stats.top_lists.comparison.edit_b</source>
         <target>Edit comparison B</target>
+      </trans-unit>
+      <trans-unit id="statsTl30" resname="stats.top_lists.comparison.swap">
+        <source>stats.top_lists.comparison.swap</source>
+        <target>Swap comparison sides</target>
+      </trans-unit>
+      <trans-unit id="statsTl31" resname="stats.top_lists.comparison.open_as_top_list">
+        <source>stats.top_lists.comparison.open_as_top_list</source>
+        <target>Open as Top List</target>
+      </trans-unit>
+      <trans-unit id="statsTl32" resname="stats.top_lists.table.empty">
+        <source>stats.top_lists.table.empty</source>
+        <target>No matching data for this selection.</target>
       </trans-unit>
       <trans-unit id="statsTl06" resname="stats.top_lists.comparison.modal_title_a">
         <source>stats.top_lists.comparison.modal_title_a</source>

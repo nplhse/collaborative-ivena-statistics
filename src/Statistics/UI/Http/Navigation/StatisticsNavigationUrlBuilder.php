@@ -48,7 +48,19 @@ final readonly class StatisticsNavigationUrlBuilder
 
     public function buildFromTarget(Request $request, StatisticWidgetNavigationTarget $target): string
     {
+        if (!$target->mergeRequestQuery) {
+            return $this->generate($target->route, $target->params);
+        }
+
         return $this->build($request, $target->route, $target->params, $target->removeKeys);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    public function generate(string $routeName, array $params = []): string
+    {
+        return $this->router->generate($routeName, $params);
     }
 
     /**

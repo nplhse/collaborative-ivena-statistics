@@ -32,5 +32,10 @@ final class ShowAssignmentControllerTest extends WebTestCase
         $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
         self::assertNotNull($href);
         self::assertStringContainsString('assignment='.$assignment->getId(), $href);
+
+        $actionHrefs = $crawler->filter('[data-testid="catalog-action"]')->each(
+            static fn ($node): string => (string) $node->attr('href'),
+        );
+        self::assertContains('/statistics/top-lists/top_assignments', $actionHrefs);
     }
 }

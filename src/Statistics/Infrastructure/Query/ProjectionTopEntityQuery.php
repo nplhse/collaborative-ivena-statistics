@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Uid\Uuid;
 
 final readonly class ProjectionTopEntityQuery
 {
@@ -21,7 +22,7 @@ final readonly class ProjectionTopEntityQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return list<array{label:string,count:int,entityId:?int}>
+     * @return list<array{label:string,count:int,entityId:?int,publicId:?string}>
      */
     public function fetchTopAggregates(
         ?\DateTimeImmutable $from,
@@ -43,23 +44,30 @@ final readonly class ProjectionTopEntityQuery
             $qb->leftJoin($entityFqcn, 'ent', 'WITH', sprintf('ent.id = p.%s', $projectionJoinProperty));
         }
 
-        $qb->select('ent.id AS entityId', 'COALESCE(ent.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
+        $qb->select('ent.id AS entityId', 'ent.publicId AS publicId', 'COALESCE(ent.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
-            ->groupBy('entityId', 'label')
+            ->groupBy('entityId', 'publicId', 'label')
             ->orderBy('cnt', 'DESC')
             ->setMaxResults($limit);
 
-        /** @var list<array{entityId:int|string|null,label:string,cnt:numeric-string|int}> $rows */
+        /** @var list<array{entityId:int|string|null,publicId:Uuid|string|null,label:string,cnt:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
 
         return array_map(
             static function (array $row): array {
                 $entityId = $row['entityId'] ?? null;
+                $publicId = $row['publicId'] ?? null;
+                if ($publicId instanceof Uuid) {
+                    $publicId = $publicId->toRfc4122();
+                } elseif (!\is_string($publicId) || '' === $publicId) {
+                    $publicId = null;
+                }
 
                 return [
                     'label' => $row['label'],
                     'count' => (int) $row['cnt'],
                     'entityId' => null !== $entityId && '' !== $entityId ? (int) $entityId : null,
+                    'publicId' => $publicId,
                 ];
             },
             $rows,

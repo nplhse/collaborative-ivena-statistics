@@ -431,7 +431,7 @@ final readonly class MonthlyReportBuilder
     }
 
     /**
-     * @param list<array{label: string, count: int, entityId?: ?int}> $rows
+     * @param list<array{label: string, count: int, entityId?: ?int, publicId?: ?string}> $rows
      *
      * @return list<MonthlyReportTopRow>
      */

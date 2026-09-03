@@ -47,6 +47,13 @@
             <div class="card" data-testid="stats-indication-insights-top-table">
                 <div class="card-header">
                     <h3 class="card-title mb-0">{{ 'stats.indication.insights.index.top_title'|trans({}, 'statistics') }}</h3>
+                    {% if topListUrl is defined and topListUrl %}
+                        <div class="card-actions">
+                            <a href="{{ topListUrl }}" class="btn btn-sm btn-link px-2 py-1" data-testid="stats-indication-insights-top-list-link">
+                                {{ 'stats.indication.nav.top_list'|trans({}, 'statistics') }}
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="card-body p-0">
                     {% if topRows is empty %}

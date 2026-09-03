@@ -693,6 +693,10 @@
         <source>catalog.action.view_allocations</source>
         <target>Einsätze anzeigen</target>
       </trans-unit>
+      <trans-unit id="CatActTlDe" resname="catalog.action.view_top_list">
+        <source>catalog.action.view_top_list</source>
+        <target>Top-Liste öffnen</target>
+      </trans-unit>
       <trans-unit id="CatActInsDe" resname="catalog.action.indication_insights">
         <source>catalog.action.indication_insights</source>
         <target>Indikationsanalyse öffnen</target>

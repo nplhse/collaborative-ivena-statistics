@@ -11,7 +11,7 @@ use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 /**
  * Most frequent diagnosis / indication labels (normalized, otherwise raw name) for the selected period and scope.
  *
- * @phpstan-type Row array{label: string, count: int, indicationId: ?int}
+ * @phpstan-type Row array{label: string, count: int, indicationId: ?int, publicId: ?string}
  */
 final readonly class TopDiagnosesQuery
 {

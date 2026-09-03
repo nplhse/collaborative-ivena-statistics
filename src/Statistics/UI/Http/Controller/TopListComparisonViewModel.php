@@ -22,7 +22,6 @@ final readonly class TopListComparisonViewModel
         public string $sideBHeading,
         public string $sideBSubheading,
         public string $labelColumnTranslationKey,
-        public bool $linkDiagnoses,
     ) {
     }
 }

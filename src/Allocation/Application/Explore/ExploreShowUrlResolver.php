@@ -52,22 +52,32 @@ final readonly class ExploreShowUrlResolver
             return null;
         }
 
-        $route = $this->routeFor($entity);
+        return $this->resolveUrlForClass($entity::class, $this->publicIdFor($entity));
+    }
+
+    /**
+     * @param class-string $class
+     */
+    public function resolveUrlForClass(string $class, Uuid|string|null $publicId): ?string
+    {
+        $route = $this->routeForClass($class);
         if (null === $route) {
             return null;
         }
 
-        $publicId = $this->publicIdFor($entity);
-        if (null === $publicId) {
+        $normalizedPublicId = $this->normalizePublicId($publicId);
+        if (null === $normalizedPublicId) {
             return null;
         }
 
-        return $this->urlGenerator->generate($route, ['publicId' => $publicId]);
+        return $this->urlGenerator->generate($route, ['publicId' => $normalizedPublicId]);
     }
 
-    private function routeFor(object $entity): ?string
+    /**
+     * @param class-string $class
+     */
+    private function routeForClass(string $class): ?string
     {
-        $class = $entity::class;
         if (isset(self::ROUTES[$class])) {
             return self::ROUTES[$class];
         }
@@ -84,6 +94,19 @@ final readonly class ExploreShowUrlResolver
         }
 
         return null;
+    }
+
+    private function normalizePublicId(Uuid|string|null $publicId): ?string
+    {
+        if ($publicId instanceof Uuid) {
+            return $publicId->toRfc4122();
+        }
+
+        if (null === $publicId || '' === $publicId) {
+            return null;
+        }
+
+        return $publicId;
     }
 
     private function publicIdFor(object $entity): ?string

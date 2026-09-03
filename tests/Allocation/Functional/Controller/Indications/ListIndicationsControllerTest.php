@@ -53,6 +53,10 @@ final class ListIndicationsControllerTest extends WebTestCase
 
         $userRow = $rows->eq(0)->filter('td')->eq(3)->text();
         self::assertSame('area-user', trim($userRow));
+
+        $topListHref = $crawler->filter('[data-testid="catalog-top-list-action"]')->attr('href');
+        self::assertNotNull($topListHref);
+        self::assertSame('/statistics/top-lists/top_diagnoses', $topListHref);
     }
 
     public function testTableCanBeSorted(): void

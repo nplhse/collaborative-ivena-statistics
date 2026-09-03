@@ -87,6 +87,11 @@ final class IndicationInsightsIndexControllerTest extends WebTestCase
         self::assertSelectorExists(
             sprintf('a[href*="/statistics/indication/%d"]', $indication->getId()),
         );
+        self::assertSelectorExists('[data-testid="stats-indication-insights-top-list-link"]');
+        $topListHref = $client->getCrawler()->filter('[data-testid="stats-indication-insights-top-list-link"]')->attr('href');
+        self::assertNotNull($topListHref);
+        self::assertStringContainsString('/statistics/top-lists/top_diagnoses', $topListHref);
+        self::assertStringContainsString('scope=hospital', $topListHref);
         self::assertSelectorExists('[data-testid="stats-data-quality-indicator"]');
         self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-picker-card"]');

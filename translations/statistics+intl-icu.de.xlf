@@ -4553,6 +4553,22 @@
         <source>stats.top_lists.nav.indication_profile</source>
         <target>Indikationsprofil</target>
       </trans-unit>
+      <trans-unit id="statsTlNavCatDe" resname="stats.top_lists.nav.catalog_entry">
+        <source>stats.top_lists.nav.catalog_entry</source>
+        <target>Katalogeintrag</target>
+      </trans-unit>
+      <trans-unit id="statsTlNavCatListDe" resname="stats.top_lists.nav.catalog_list">
+        <source>stats.top_lists.nav.catalog_list</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavCatDe" resname="stats.indication.nav.catalog">
+        <source>stats.indication.nav.catalog</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavTlDe" resname="stats.indication.nav.top_list">
+        <source>stats.indication.nav.top_list</source>
+        <target>Top-Liste öffnen</target>
+      </trans-unit>
       <trans-unit id="De3d88ff8d" resname="stats.top_lists.page_title">
         <source>stats.top_lists.page_title</source>
         <target>Top-Listen</target>
@@ -4717,6 +4733,10 @@
         <source>stats.top_lists.table.secondary_diagnosis</source>
         <target>Sekundärindikation</target>
       </trans-unit>
+      <trans-unit id="statsTlDeTbSt" resname="stats.top_lists.table.secondary_transport">
+        <source>stats.top_lists.table.secondary_transport</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
       <trans-unit id="De052d8192" resname="stats.top_lists.table.share">
         <source>stats.top_lists.table.share</source>
         <target>Anteil</target>
@@ -4772,6 +4792,14 @@
       <trans-unit id="De25e3ba4f" resname="stats.top_lists.top_secondary_diagnoses.label">
         <source>stats.top_lists.top_secondary_diagnoses.label</source>
         <target>Top-Sekundärindikationen</target>
+      </trans-unit>
+      <trans-unit id="statsTlDeStDs" resname="stats.top_lists.top_secondary_transports.description">
+        <source>stats.top_lists.top_secondary_transports.description</source>
+        <target>Häufigste Sekundärtransportarten der Zuweisungen.</target>
+      </trans-unit>
+      <trans-unit id="statsTlDeStLb" resname="stats.top_lists.top_secondary_transports.label">
+        <source>stats.top_lists.top_secondary_transports.label</source>
+        <target>Top-Sekundärtransporte</target>
       </trans-unit>
       <trans-unit id="De0d3434c8" resname="stats.top_lists.top_specialities.description">
         <source>stats.top_lists.top_specialities.description</source>
@@ -5471,11 +5499,11 @@
       </trans-unit>
       <trans-unit id="statsTlDe01" resname="stats.top_lists.limit.all">
         <source>stats.top_lists.limit.all</source>
-        <target>Alle</target>
+        <target>Alle Einträge</target>
       </trans-unit>
       <trans-unit id="statsTlDe28" resname="stats.top_lists.limit.top">
         <source>stats.top_lists.limit.top</source>
-        <target>Top {count}</target>
+        <target>Top {count} Einträge</target>
       </trans-unit>
       <trans-unit id="statsTlDe29" resname="stats.top_lists.limit.depth_label">
         <source>stats.top_lists.limit.depth_label</source>
@@ -5504,6 +5532,18 @@
       <trans-unit id="statsTlDe27" resname="stats.top_lists.comparison.edit_b">
         <source>stats.top_lists.comparison.edit_b</source>
         <target>Vergleich B bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe30" resname="stats.top_lists.comparison.swap">
+        <source>stats.top_lists.comparison.swap</source>
+        <target>Vergleichsseiten tauschen</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe31" resname="stats.top_lists.comparison.open_as_top_list">
+        <source>stats.top_lists.comparison.open_as_top_list</source>
+        <target>Als Top-Liste öffnen</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe32" resname="stats.top_lists.table.empty">
+        <source>stats.top_lists.table.empty</source>
+        <target>Keine passenden Daten für diese Auswahl.</target>
       </trans-unit>
       <trans-unit id="statsTlDe06" resname="stats.top_lists.comparison.modal_title_a">
         <source>stats.top_lists.comparison.modal_title_a</source>

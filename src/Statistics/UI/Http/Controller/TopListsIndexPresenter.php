@@ -7,12 +7,14 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\TopList\TopListDefinitionRegistry;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class TopListsIndexPresenter
 {
     public function __construct(
         private TopListDefinitionRegistry $topListDefinitionRegistry,
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
+        private TranslatorInterface $translator,
     ) {
     }
 
@@ -32,7 +34,22 @@ final readonly class TopListsIndexPresenter
                 ),
             );
         }
+        $this->sortCardsByTranslatedLabel($cards, $request->getLocale());
 
         return new TopListsIndexViewModel($cards);
+    }
+
+    /**
+     * @param list<TopListsIndexCardViewModel> $cards
+     */
+    private function sortCardsByTranslatedLabel(array &$cards, string $locale): void
+    {
+        usort(
+            $cards,
+            fn (TopListsIndexCardViewModel $left, TopListsIndexCardViewModel $right): int => strcmp(
+                mb_strtolower($this->translator->trans($left->labelKey, [], 'statistics', $locale)),
+                mb_strtolower($this->translator->trans($right->labelKey, [], 'statistics', $locale)),
+            ),
+        );
     }
 }

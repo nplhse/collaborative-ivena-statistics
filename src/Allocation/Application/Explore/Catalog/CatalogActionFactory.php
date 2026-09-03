@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Explore\Catalog;
 
 use App\Allocation\Application\DTO\CatalogAction;
+use App\Statistics\Application\TopList\TopListCatalogCrossReference;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -13,6 +14,7 @@ final readonly class CatalogActionFactory
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
+        private TopListCatalogCrossReference $topListCatalogCrossReference,
     ) {
     }
 
@@ -21,7 +23,7 @@ final readonly class CatalogActionFactory
      */
     public function forSecondaryTransport(int $id): array
     {
-        return [$this->viewAllocationsAction('secondaryTransport', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('secondaryTransport', $id)], CatalogDimensionKey::SecondaryTransport);
     }
 
     /**
@@ -57,7 +59,7 @@ final readonly class CatalogActionFactory
             );
         }
 
-        return $actions;
+        return $this->withTopListAction($actions, CatalogDimensionKey::Indication);
     }
 
     /**
@@ -65,7 +67,7 @@ final readonly class CatalogActionFactory
      */
     public function forDepartment(int $id): array
     {
-        return [$this->viewAllocationsAction('department', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('department', $id)], CatalogDimensionKey::Department);
     }
 
     /**
@@ -73,7 +75,7 @@ final readonly class CatalogActionFactory
      */
     public function forSpeciality(int $id): array
     {
-        return [$this->viewAllocationsAction('speciality', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('speciality', $id)], CatalogDimensionKey::Speciality);
     }
 
     /**
@@ -81,7 +83,7 @@ final readonly class CatalogActionFactory
      */
     public function forAssignment(int $id): array
     {
-        return [$this->viewAllocationsAction('assignment', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('assignment', $id)], CatalogDimensionKey::Assignment);
     }
 
     /**
@@ -89,7 +91,7 @@ final readonly class CatalogActionFactory
      */
     public function forOccasion(int $id): array
     {
-        return [$this->viewAllocationsAction('occasion', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('occasion', $id)], CatalogDimensionKey::Occasion);
     }
 
     /**
@@ -97,7 +99,7 @@ final readonly class CatalogActionFactory
      */
     public function forInfection(int $id): array
     {
-        return [$this->viewAllocationsAction('infection', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('infection', $id)], CatalogDimensionKey::Infection);
     }
 
     /**
@@ -151,6 +153,11 @@ final readonly class CatalogActionFactory
         ];
     }
 
+    public function forCatalogList(CatalogDimensionKey $dimension): ?CatalogAction
+    {
+        return $this->viewTopListAction($dimension);
+    }
+
     private function viewAllocationsAction(string $filterParam, int $id): CatalogAction
     {
         return new CatalogAction(
@@ -160,6 +167,37 @@ final readonly class CatalogActionFactory
             ]),
             icon: 'tabler:list',
             primary: true,
+        );
+    }
+
+    /**
+     * @param list<CatalogAction> $actions
+     *
+     * @return list<CatalogAction>
+     */
+    private function withTopListAction(array $actions, CatalogDimensionKey $dimension): array
+    {
+        $topListAction = $this->viewTopListAction($dimension);
+        if ($topListAction instanceof CatalogAction) {
+            $actions[] = $topListAction;
+        }
+
+        return $actions;
+    }
+
+    private function viewTopListAction(CatalogDimensionKey $dimension): ?CatalogAction
+    {
+        $report = $this->topListCatalogCrossReference->topListKeyForDimension($dimension);
+        if (null === $report) {
+            return null;
+        }
+
+        return new CatalogAction(
+            label: $this->translator->trans('catalog.action.view_top_list', [], 'allocation'),
+            url: $this->urlGenerator->generate('app_stats_top_lists_show', [
+                'report' => $report,
+            ]),
+            icon: 'tabler:list-numbers',
         );
     }
 }

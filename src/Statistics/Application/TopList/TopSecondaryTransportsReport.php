@@ -5,55 +5,61 @@ declare(strict_types=1);
 namespace App\Statistics\Application\TopList;
 
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
-use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\SecondaryTransport;
 
-final readonly class TopDepartmentsReport extends AbstractTopNTableReport
+final readonly class TopSecondaryTransportsReport extends AbstractTopNTableReport
 {
     #[\Override]
     public function key(): string
     {
-        return 'top_departments';
+        return 'top_secondary_transports';
     }
 
     #[\Override]
     public function labelTranslationKey(): string
     {
-        return 'stats.top_lists.top_departments.label';
+        return 'stats.top_lists.top_secondary_transports.label';
     }
 
     #[\Override]
     public function descriptionTranslationKey(): string
     {
-        return 'stats.top_lists.top_departments.description';
+        return 'stats.top_lists.top_secondary_transports.description';
     }
 
     #[\Override]
     public function icon(): string
     {
-        return 'tabler:folder-dollar';
+        return 'tabler:transfer';
     }
 
     #[\Override]
     public function catalogDimension(): CatalogDimensionKey
     {
-        return CatalogDimensionKey::Department;
+        return CatalogDimensionKey::SecondaryTransport;
     }
 
     #[\Override]
     protected function projectionJoinProperty(): string
     {
-        return 'departmentId';
+        return 'secondaryTransportId';
     }
 
     #[\Override]
     protected function entityFqcn(): string
     {
-        return Department::class;
+        return SecondaryTransport::class;
     }
 
     #[\Override]
     public function tableLabelColumnTranslationKey(): string
     {
-        return 'stats.top_lists.table.department';
+        return 'stats.top_lists.table.secondary_transport';
+    }
+
+    #[\Override]
+    protected function requireJoinedEntity(): bool
+    {
+        return true;
     }
 }

@@ -48,6 +48,7 @@ final readonly class IndicationDashboardService
                 $indication->getName() ?? '',
                 $indication->getCode(),
                 $total,
+                $indication->getPublicId()?->toRfc4122(),
             ),
             $this->assembler->buildSummaryDeck($slice->genderCounts, $metrics),
             $this->insightEngine->build($metrics),

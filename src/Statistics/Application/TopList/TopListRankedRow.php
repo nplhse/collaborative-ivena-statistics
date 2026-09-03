@@ -13,6 +13,7 @@ final readonly class TopListRankedRow
         public float $share,
         public int $rank,
         public ?int $entityId = null,
+        public ?string $publicId = null,
     ) {
     }
 }

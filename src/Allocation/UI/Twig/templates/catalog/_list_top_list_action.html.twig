@@ -1,0 +1,7 @@
+{% set topListAction = catalog_top_list_action(dimension) %}
+{% if topListAction %}
+    <a href="{{ topListAction.url }}" class="btn" data-testid="catalog-top-list-action">
+        <twig:ux:icon name="{{ topListAction.icon }}" class="me-1" width="1em" height="1em" />
+        {{ topListAction.label }}
+    </a>
+{% endif %}

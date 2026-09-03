@@ -21,7 +21,7 @@ final readonly class TopListRanking
     }
 
     /**
-     * @param list<array{label: string, count: int, entityId?: ?int, indicationId?: ?int}> $rows
+     * @param list<array{label: string, count: int, entityId?: ?int, indicationId?: ?int, publicId?: ?string}> $rows
      */
     public static function fromAggregates(array $rows, int $totalAllocations, int $fetchLimit, string $unknownLabel = self::UNKNOWN_SENTINEL): self
     {
@@ -35,6 +35,7 @@ final readonly class TopListRanking
         foreach ($rows as $row) {
             $count = $row['count'];
             $entityId = $row['entityId'] ?? $row['indicationId'] ?? null;
+            $publicId = $row['publicId'] ?? null;
             $ranked[] = new TopListRankedRow(
                 null !== $entityId ? (string) $entityId : 'unknown',
                 self::localizeLabel($row['label'], $unknownLabel),
@@ -42,6 +43,7 @@ final readonly class TopListRanking
                 $totalAllocations > 0 ? round(100 * $count / $totalAllocations, 1) : 0.0,
                 $rank,
                 $entityId,
+                $publicId,
             );
             ++$rank;
         }

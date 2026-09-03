@@ -34,5 +34,23 @@ final class ShowDepartmentControllerTest extends WebTestCase
         self::assertNotNull($href);
         self::assertStringContainsString('/explore/allocation', $href);
         self::assertStringContainsString('department='.$department->getId(), $href);
+
+        $actionHrefs = $crawler->filter('[data-testid="catalog-action"]')->each(
+            static fn ($node): string => (string) $node->attr('href'),
+        );
+        self::assertContains('/statistics/top-lists/top_departments', $actionHrefs);
+    }
+
+    public function testListPageLinksToDepartmentsTopList(): void
+    {
+        $client = $this->createClientAsAreaUser();
+        DepartmentFactory::createOne(['name' => 'Stroke Unit']);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/department');
+
+        self::assertResponseIsSuccessful();
+        $href = $crawler->filter('[data-testid="catalog-top-list-action"]')->attr('href');
+        self::assertNotNull($href);
+        self::assertSame('/statistics/top-lists/top_departments', $href);
     }
 }

@@ -74,8 +74,10 @@ final class TopDiagnosesReportTest extends KernelTestCase
         self::assertSame(StatisticWidgetType::Table, $widget->type);
         self::assertSame('top_diagnoses_table', $widget->id);
         self::assertSame('Report STEMI', $widget->payload['rows'][0][1]);
-        self::assertNotNull($widget->payload['diagnosisRowTargets'][0]);
-        self::assertSame('app_stats_indication_dashboard', $widget->payload['diagnosisRowTargets'][0]->route);
-        self::assertSame($indication->getId(), $widget->payload['diagnosisRowTargets'][0]->params['indicationId']);
+        self::assertNotNull($widget->payload['labelRowTargets'][0]);
+        self::assertSame('app_explore_indication_show', $widget->payload['labelRowTargets'][0]->route);
+        self::assertSame($indication->getPublicIdString(), $widget->payload['labelRowTargets'][0]->params['publicId']);
+        self::assertFalse($widget->payload['labelRowTargets'][0]->mergeRequestQuery);
+        self::assertSame([100.0], $widget->payload['shareBars']);
     }
 }
