@@ -21,7 +21,7 @@ final class ShowSecondaryTransportControllerTest extends WebTestCase
     {
         $client = $this->createClientAsAreaUser();
         $st = SecondaryTransportFactory::createOne(['name' => 'Kapazitätsengpass']);
-        $client->request(Request::METHOD_GET, '/explore/secondary_transport/'.$st->getPublicIdString());
+        $crawler = $client->request(Request::METHOD_GET, '/explore/secondary_transport/'.$st->getPublicIdString());
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('#secondary-transport-name', 'Kapazitätsengpass');
@@ -30,6 +30,11 @@ final class ShowSecondaryTransportControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="catalog-coverage"]');
         self::assertSelectorExists('[data-testid="catalog-actions"]');
         self::assertSelectorTextContains('[data-testid="catalog-actions"]', 'View allocations');
+
+        $actionHrefs = $crawler->filter('[data-testid="catalog-action"]')->each(
+            static fn ($node): string => (string) $node->attr('href'),
+        );
+        self::assertContains('/statistics/top-lists/top_secondary_transports', $actionHrefs);
     }
 
     public function testAllocationsActionLinksToExploreListFilter(): void
