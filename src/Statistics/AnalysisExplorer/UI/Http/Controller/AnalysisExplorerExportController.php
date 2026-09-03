@@ -13,18 +13,14 @@ use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTableExportBuilder;
-use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
-use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\GenericAnalysis\Application\Contract\AnalysisExportServiceInterface;
-use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\User\Domain\Entity\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -57,7 +53,6 @@ final class AnalysisExplorerExportController extends AbstractController
     public function exportTableCsv(
         Request $request,
         #[CurrentUser] ?User $user,
-        #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
         #[Autowire(service: 'limiter.analysis_explorer_export')]
         RateLimiterFactory $analysisExplorerExportLimiter,
     ): Response {
@@ -85,7 +80,6 @@ final class AnalysisExplorerExportController extends AbstractController
         }
 
         $config = $this->configMapper->viewConfigFromState($state, $user);
-        $config = $this->applyFilterOverlay($config, $filter);
         $normalizedConfig = $this->configNormalizer->normalize($config);
 
         try {
@@ -106,22 +100,6 @@ final class AnalysisExplorerExportController extends AbstractController
         $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_EXPORTED_CSV, FeatureArea::Export);
 
         return $this->exportService->exportTable($document, 'csv', $result->title);
-    }
-
-    private function applyFilterOverlay(AnalysisViewConfig $config, StatisticsFilter $filter): AnalysisViewConfig
-    {
-        return new AnalysisViewConfig(
-            dataSourceKey: $config->dataSourceKey,
-            metricKeys: $config->metricKeys,
-            visualMetricKey: $config->visualMetricKey,
-            rowAxis: $config->rowAxis,
-            columnAxis: $config->columnAxis,
-            statisticsFilter: $filter,
-            presentation: $config->presentation,
-            title: $config->title,
-            hospitalPopulationMode: $config->hospitalPopulationMode,
-            filters: $config->filters,
-        );
     }
 
     public static function csrfTokenId(): string
