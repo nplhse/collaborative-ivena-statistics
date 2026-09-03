@@ -167,7 +167,7 @@ This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDes
 | CSV (table) | Server `POST /statistics/analysis/explorer/export/table.csv` | `AnalysisRunResult` via `ExplorerResultsTableExportBuilder` → `TabularExportDocument` → `CsvTabularExporter` | Raw numeric cells, UTF-8 BOM, streamed |
 | PNG (chart) | Client Stimulus `generic-analysis-chart#exportPng` | Off-screen ApexCharts instance + `dataURI({ scale: 2 })` | Same chart spec as UI; adds `result.title` and Tabler font stack for export only |
 
-CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalysis()`). Config is submitted via POST with CSRF; scope/period come from URL query parameters.
+CSV export re-runs the normalizer + runner pipeline (same guards as `rerunAnalysis()`). Config is submitted via POST with CSRF as `appliedConfigState`. Scope, period, filters, axes and metrics come from that state — the same source as the chart and data table. URL query parameters are not overlaid onto the export (URL scope/period overlay applies only when loading a saved view).
 
 ### Chart row limit
 

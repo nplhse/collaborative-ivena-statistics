@@ -78,7 +78,7 @@ final class AnalysisExplorerController extends AbstractController
                 'explorerAppliedConfigState' => $appliedState,
                 'initialConfigWarning' => null,
                 'libraryUrl' => $this->libraryUrl($request),
-                'exportCsvUrl' => $this->exportCsvUrl($request),
+                'exportCsvUrl' => $this->exportCsvUrl(),
             ],
         ));
     }
@@ -115,7 +115,7 @@ final class AnalysisExplorerController extends AbstractController
                 'explorerAppliedConfigState' => $this->mergeChartTopQueryOverride($request, $loadResult->state),
                 'initialConfigWarning' => $initialConfigWarning,
                 'libraryUrl' => $this->libraryUrl($request),
-                'exportCsvUrl' => $this->exportCsvUrl($request),
+                'exportCsvUrl' => $this->exportCsvUrl(),
             ],
         ));
     }
@@ -221,9 +221,9 @@ final class AnalysisExplorerController extends AbstractController
         return $this->router->generate('app_stats_analysis_library', $this->scopeQuery($request));
     }
 
-    private function exportCsvUrl(Request $request): string
+    private function exportCsvUrl(): string
     {
-        return $this->router->generate('app_stats_analysis_explorer_export_csv', $this->scopeQuery($request));
+        return $this->router->generate('app_stats_analysis_explorer_export_csv');
     }
 
     /**
