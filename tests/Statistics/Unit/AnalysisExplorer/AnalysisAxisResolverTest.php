@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
+use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
@@ -93,6 +97,50 @@ final class AnalysisAxisResolverTest extends TestCase
 
         $resolved = $resolver->resolve(
             new AnalysisAxisRef(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month),
+            $capabilities,
+            StatisticsFilterPeriod::Month,
+        );
+
+        self::assertSame(AnalysisDimensionGrain::Month, $resolved->resolvedGrain());
+    }
+
+    public function testKeepsRequestedGrainWhenPeriodIsOmitted(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $resolver = new AnalysisAxisResolver();
+
+        $resolved = $resolver->resolveFromStrings(
+            AnalysisDimensionKey::Time->value,
+            AnalysisDimensionGrain::Year->value,
+            $capabilities,
+        );
+
+        self::assertSame(AnalysisDimensionGrain::Year, $resolved->resolvedGrain());
+    }
+
+    public function testKeepsRequestedGrainWhenClampedGrainIsUnsupported(): void
+    {
+        $capabilities = new DataSourceCapabilities(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            dimensions: [AnalysisDimensionKey::Time],
+            primaryMetrics: [AnalysisMetricKey::AllocationCount],
+            metrics: [AnalysisMetricKey::AllocationCount],
+            timeGrains: [
+                AnalysisDimensionGrain::Month,
+                AnalysisDimensionGrain::Year,
+                AnalysisDimensionGrain::Quarter,
+                AnalysisDimensionGrain::Week,
+            ],
+            chartTypes: [ChartPresentationType::Bar],
+            defaultDimension: AnalysisDimensionKey::Time,
+            defaultMetric: AnalysisMetricKey::AllocationCount,
+            defaultTimeGrain: AnalysisDimensionGrain::Month,
+            defaultChartType: ChartPresentationType::Bar,
+        );
+        $resolver = new AnalysisAxisResolver();
+
+        $resolved = $resolver->resolve(
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
             $capabilities,
             StatisticsFilterPeriod::Month,
         );

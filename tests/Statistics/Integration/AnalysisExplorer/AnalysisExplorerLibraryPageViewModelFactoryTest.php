@@ -7,6 +7,7 @@ namespace App\Tests\Statistics\Integration\AnalysisExplorer;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\UI\Http\Controller\AnalysisExplorerLibraryPageViewModelFactory;
 use App\Statistics\AnalysisExplorer\UI\Http\Navigation\ExplorerLibraryQueryKeys;
+use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\User\Domain\Factory\UserFactory;
@@ -209,5 +210,37 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         );
 
         self::assertStringContainsString(ExplorerLibraryQueryKeys::SEARCH.'=tier', $page->tabs[1]['url']);
+    }
+
+    public function testCreateLabelsDayGrainOnUserViews(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $view = new SavedExplorerView(
+            slug: null,
+            title: 'Daily allocations',
+            category: 'My views',
+            configJson: [
+                'schemaVersion' => 4,
+                'query' => [
+                    'rows' => ['dimension' => 'time', 'grain' => 'day'],
+                ],
+                'presentation' => ['chartType' => 'line'],
+            ],
+            isSystem: false,
+        );
+        $view->setCreatedBy($user);
+        $this->repository->save($view);
+
+        $page = $this->factory->create(
+            Request::create(
+                '/statistics/analysis/library?'.ExplorerLibraryQueryKeys::TAB.'=my_views',
+                Request::METHOD_GET,
+            ),
+            $user,
+        );
+
+        self::assertCount(1, $page->cards);
+        self::assertSame('Day', $page->cards[0]['grain']);
+        self::assertSame('Daily allocations', $page->cards[0]['title']);
     }
 }

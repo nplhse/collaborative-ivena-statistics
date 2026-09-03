@@ -24,6 +24,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSliceQuery;
 use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
 use App\User\Domain\Factory\UserFactory;
@@ -187,5 +188,86 @@ final class IndicationDashboardSliceQueryTest extends KernelTestCase
 
         self::assertSame(0, $slice->transportTimeBucketCounts['under_10'] ?? 0);
         self::assertSame(1, $slice->transportTimeBucketCounts['10_20'] ?? 0);
+    }
+
+    public function testDayGrainReturnsSortedDailyRows(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'indication-day-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'IndicationDayState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'IndicationDayDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'IndicationDayHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'IndicationDaySpec']);
+        DepartmentFactory::createOne(['name' => 'IndicationDayDept']);
+        AssignmentFactory::createOne(['name' => 'IndicationDayAssign']);
+        IndicationRawFactory::createOne(['name' => 'IndicationDayRaw', 'code' => 912_354]);
+        $targetIndication = IndicationNormalizedFactory::createOne(['name' => 'Day Target']);
+        $import = ImportFactory::createOne(['name' => 'IndicationDayImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $targetIndication,
+            'createdAt' => new \DateTimeImmutable('2025-06-15 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-06-15 10:30:00'),
+        ]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $targetIndication,
+            'createdAt' => new \DateTimeImmutable('2025-06-02 08:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-06-02 08:20:00'),
+        ]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationNormalized' => $targetIndication,
+            'createdAt' => new \DateTimeImmutable('2025-05-01 08:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-05-01 08:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $filter = new StatisticsFilter(
+            StatisticsFilterScope::Hospital,
+            $hospital->getId(),
+            null,
+            StatisticsFilterPeriod::Month,
+            2025,
+            6,
+        );
+        $bounds = StatisticsPeriodResolver::resolve($filter);
+        $scope = new StatisticsScopeCriteria([$hospital->getId()]);
+
+        $slice = self::getContainer()->get(IndicationDashboardSliceQuery::class)
+            ->fetch(
+                [$targetIndication->getId()],
+                $bounds->from,
+                $bounds->toExclusive,
+                $scope,
+                TimeSeriesGrain::Day,
+            );
+
+        self::assertSame(
+            [
+                ['year' => 2025, 'month' => 6, 'day' => 2, 'count' => 1],
+                ['year' => 2025, 'month' => 6, 'day' => 15, 'count' => 1],
+            ],
+            $slice->monthlyRows,
+        );
     }
 }

@@ -84,6 +84,18 @@ final class ExplorerAllocationQueryMapperTest extends TestCase
         self::assertSame('urgency', $mapped->seriesDimensionKey);
     }
 
+    public function testDayRowsMapToDayRegistryKey(): void
+    {
+        $mapped = $this->mapper->map($this->query(
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Day),
+            null,
+        ));
+
+        self::assertSame('day', $mapped->primaryDimensionKey);
+        self::assertTrue(AnalysisDimensionGrain::Day->isTemporal());
+        self::assertSame('day', AnalysisDimensionGrain::Day->registryTemporalKey());
+    }
+
     public function testMapsFiltersToGenericQuery(): void
     {
         $mapped = $this->mapper->map($this->query(

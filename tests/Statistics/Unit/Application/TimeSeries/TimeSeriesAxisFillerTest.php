@@ -280,4 +280,72 @@ final class TimeSeriesAxisFillerTest extends TestCase
             new \DateTimeImmutable('2026-09-03 12:00:00'),
         ));
     }
+
+    public function testIsoKeyFromRowUsesDayOrFallsBackToTheFirst(): void
+    {
+        self::assertSame('2026-09-03', TimeSeriesAxisFiller::isoKeyFromRow(
+            ['year' => 2026, 'month' => 9, 'day' => 3, 'count' => 1],
+            TimeSeriesGrain::Day,
+        ));
+        self::assertSame('2026-09-01', TimeSeriesAxisFiller::isoKeyFromRow(
+            ['year' => 2026, 'month' => 9, 'count' => 1],
+            TimeSeriesGrain::Day,
+        ));
+        self::assertSame('2026-09', TimeSeriesAxisFiller::isoKeyFromRow(
+            ['year' => 2026, 'month' => 9, 'count' => 1],
+            TimeSeriesGrain::Month,
+        ));
+    }
+
+    public function testOpenPeriodStartsAtTheEarliestKeyEvenIfInsertedLast(): void
+    {
+        $filled = TimeSeriesAxisFiller::fill(
+            TimeSeriesGrain::Month,
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2025-01-01 00:00:00')),
+            ['2026-03' => 5, '2026-01' => 2],
+            new \DateTimeImmutable('2026-03-15 12:00:00'),
+        );
+
+        self::assertSame(
+            [
+                ['key' => '2026-01', 'count' => 2],
+                ['key' => '2026-02', 'count' => 0],
+            ],
+            $filled,
+        );
+    }
+
+    public function testInvalidObservedKeysFallBackToSortedObservedOrder(): void
+    {
+        $invalid = TimeSeriesAxisFiller::fill(
+            TimeSeriesGrain::Month,
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2025-01-01 00:00:00')),
+            ['0-xx' => 4],
+            new \DateTimeImmutable('2026-09-03 12:00:00'),
+        );
+        self::assertSame([['key' => '0-xx', 'count' => 4]], $invalid);
+
+        $emptyKey = TimeSeriesAxisFiller::fill(
+            TimeSeriesGrain::Month,
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2025-01-01 00:00:00')),
+            ['' => 1],
+            new \DateTimeImmutable('2026-09-03 12:00:00'),
+        );
+        self::assertSame([['key' => '', 'count' => 1]], $emptyKey);
+    }
+
+    public function testClosedPeriodFallsBackToObservedOrderWhenStartIsNotBeforeClip(): void
+    {
+        $filled = TimeSeriesAxisFiller::fill(
+            TimeSeriesGrain::Month,
+            new StatisticsPeriodBounds(
+                new \DateTimeImmutable('2026-01-01 00:00:00'),
+                new \DateTimeImmutable('2027-01-01 00:00:00'),
+            ),
+            ['2025-12' => 3],
+            new \DateTimeImmutable('2026-01-01 00:00:00'),
+        );
+
+        self::assertSame([['key' => '2025-12', 'count' => 3]], $filled);
+    }
 }

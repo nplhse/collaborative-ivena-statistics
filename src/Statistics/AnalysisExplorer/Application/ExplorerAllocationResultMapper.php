@@ -128,7 +128,7 @@ final readonly class ExplorerAllocationResultMapper
             }
         }
 
-        $seriesKeys = [] === $seriesMeta ? [''] : array_keys($seriesMeta);
+        $seriesKeys = [] === $seriesMeta ? [''] : array_map(strval(...), array_keys($seriesMeta));
         $zeroMetrics = [];
         foreach ($query->metricKeys as $metricKey) {
             $zeroMetrics[$metricKey->value] = 0;
