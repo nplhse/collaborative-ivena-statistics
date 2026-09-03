@@ -4553,6 +4553,22 @@
         <source>stats.top_lists.nav.indication_profile</source>
         <target>Indikationsprofil</target>
       </trans-unit>
+      <trans-unit id="statsTlNavCatDe" resname="stats.top_lists.nav.catalog_entry">
+        <source>stats.top_lists.nav.catalog_entry</source>
+        <target>Katalogeintrag</target>
+      </trans-unit>
+      <trans-unit id="statsTlNavCatListDe" resname="stats.top_lists.nav.catalog_list">
+        <source>stats.top_lists.nav.catalog_list</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavCatDe" resname="stats.indication.nav.catalog">
+        <source>stats.indication.nav.catalog</source>
+        <target>Erkunden</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavTlDe" resname="stats.indication.nav.top_list">
+        <source>stats.indication.nav.top_list</source>
+        <target>Top-Liste öffnen</target>
+      </trans-unit>
       <trans-unit id="De3d88ff8d" resname="stats.top_lists.page_title">
         <source>stats.top_lists.page_title</source>
         <target>Top-Listen</target>
@@ -5471,11 +5487,11 @@
       </trans-unit>
       <trans-unit id="statsTlDe01" resname="stats.top_lists.limit.all">
         <source>stats.top_lists.limit.all</source>
-        <target>Alle</target>
+        <target>Alle Einträge</target>
       </trans-unit>
       <trans-unit id="statsTlDe28" resname="stats.top_lists.limit.top">
         <source>stats.top_lists.limit.top</source>
-        <target>Top {count}</target>
+        <target>Top {count} Einträge</target>
       </trans-unit>
       <trans-unit id="statsTlDe29" resname="stats.top_lists.limit.depth_label">
         <source>stats.top_lists.limit.depth_label</source>

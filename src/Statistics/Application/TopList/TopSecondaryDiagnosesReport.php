@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 
 final readonly class TopSecondaryDiagnosesReport extends AbstractTopNTableReport
@@ -30,6 +31,12 @@ final readonly class TopSecondaryDiagnosesReport extends AbstractTopNTableReport
     public function icon(): string
     {
         return 'tabler:id';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Indication;
     }
 
     #[\Override]

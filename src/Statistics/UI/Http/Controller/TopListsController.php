@@ -209,6 +209,7 @@ final class TopListsController extends AbstractController
                 'statsTopListCompareDisableUrl' => $topListsPage->compareDisableUrl,
                 'statsHideScopeControls' => $topListsPage->compareEnabled,
                 'statsHidePeriodControls' => $topListsPage->compareEnabled,
+                'statsTopListCatalogUrl' => $topListsPage->catalogListUrl,
             ],
         ));
     }

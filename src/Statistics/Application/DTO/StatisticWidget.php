@@ -17,6 +17,7 @@ namespace App\Statistics\Application\DTO;
  *          optional limitFooter for report tables: urls (array<int, string>), current (int page size),
  *          optional paginator, optional truncated (bool)
  *          optional monthRowTargets (analysis): list<StatisticWidgetNavigationTarget|null> parallel to rows — first column as link
+ *          optional labelRowTargets (top lists): list<StatisticWidgetNavigationTarget|null> parallel to rows — label column as link
  * - simple_chart: chartType (line|bar), labels, counts, optional summaryStats (same as table)
  * - section: titleTranslationKey
  * - distribution: titleTranslationKey, rows (labelTranslationKey, count, percent); optional widget.actions (cross-nav in card header)

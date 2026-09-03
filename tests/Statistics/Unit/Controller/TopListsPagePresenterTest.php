@@ -9,7 +9,8 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
-use App\Statistics\Application\TopList\TopListComparison;
+use App\Statistics\Application\TopList\TopListCatalogCrossReference;
+use App\Statistics\Application\TopList\TopListComparisonAssembler;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Application\TopList\TopListLimit;
 use App\Statistics\Application\TopList\TopListRankedRow;
@@ -30,10 +31,7 @@ final class TopListsPagePresenterTest extends TestCase
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
         );
-        $presenter = new TopListsPagePresenter(
-            new StatisticsNavigationUrlBuilder($router),
-            new BenchmarkSelectionFormDataFactory(),
-        );
+        $presenter = $this->presenter($router);
 
         $request = new Request(query: ['scope' => 'public', 'report' => 'top_diagnoses', 'limit' => '10']);
         $ranking = new TopListRanking([
@@ -50,6 +48,7 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertStringContainsString('app_stats_top_lists_show', $model->topListSelectUrls['top_diagnoses']);
         self::assertStringContainsString('app_stats_top_lists?', $model->indexUrl);
         self::assertStringNotContainsString('report=', $model->indexUrl);
+        self::assertSame('app_explore_indication_list?', $model->catalogListUrl);
         self::assertNotNull($model->topListWidget);
         self::assertArrayHasKey('rankingDepth', $model->topListWidget->payload);
         self::assertSame(10, $model->topListWidget->payload['rankingDepth']['current']);
@@ -70,14 +69,11 @@ final class TopListsPagePresenterTest extends TestCase
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
         );
-        $presenter = new TopListsPagePresenter(
-            new StatisticsNavigationUrlBuilder($router),
-            new BenchmarkSelectionFormDataFactory(),
-        );
+        $presenter = $this->presenter($router);
 
         $request = new Request(query: ['scope' => 'public', 'period' => 'all', 'compare' => '1']);
         $ranking = new TopListRanking([
-            new TopListRankedRow('1', 'STEMI', 4, 100.0, 1, 1),
+            new TopListRankedRow('1', 'STEMI', 4, 100.0, 1, 1, '11111111-1111-4111-8111-111111111111'),
         ], 4);
         $topLists = [$this->definition('top_diagnoses')];
         $requestModel = new TopListsRequestModel('top_diagnoses', TopListLimit::of(10), compare: true);
@@ -90,7 +86,7 @@ final class TopListsPagePresenterTest extends TestCase
             2024,
             stateId: 3,
         );
-        $comparison = new TopListComparison([], [], 4, 0);
+        $comparison = new TopListComparisonAssembler()->assemble($ranking, $ranking);
 
         $model = $presenter->present(
             $request,
@@ -116,6 +112,10 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertSame('3', $model->comparisonFormData->scopeDetail);
         self::assertSame('year', $model->comparisonFormData->period);
         self::assertSame(2024, $model->comparisonFormData->periodYear);
+        self::assertNotNull($model->comparison);
+        self::assertNotNull($model->comparison->rowsA[0]->labelTarget);
+        self::assertSame('app_explore_indication_show', $model->comparison->rowsA[0]->labelTarget->route);
+        self::assertFalse($model->comparison->rowsA[0]->labelTarget->mergeRequestQuery);
     }
 
     public function testBuildsComparisonFormDataOnSingleListForLaunchDialog(): void
@@ -124,10 +124,7 @@ final class TopListsPagePresenterTest extends TestCase
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
         );
-        $presenter = new TopListsPagePresenter(
-            new StatisticsNavigationUrlBuilder($router),
-            new BenchmarkSelectionFormDataFactory(),
-        );
+        $presenter = $this->presenter($router);
 
         $request = new Request(query: ['scope' => 'public', 'period' => 'all']);
         $ranking = new TopListRanking([], 0);
@@ -164,10 +161,7 @@ final class TopListsPagePresenterTest extends TestCase
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $params): string => sprintf('%s?%s', $routeName, http_build_query($params)),
         );
-        $presenter = new TopListsPagePresenter(
-            new StatisticsNavigationUrlBuilder($router),
-            new BenchmarkSelectionFormDataFactory(),
-        );
+        $presenter = $this->presenter($router);
 
         $rows = [];
         for ($i = 1; $i <= 30; ++$i) {
@@ -218,5 +212,14 @@ final class TopListsPagePresenterTest extends TestCase
         );
 
         return $definition;
+    }
+
+    private function presenter(UrlGeneratorInterface $router): TopListsPagePresenter
+    {
+        return new TopListsPagePresenter(
+            new StatisticsNavigationUrlBuilder($router),
+            new BenchmarkSelectionFormDataFactory(),
+            new TopListCatalogCrossReference(),
+        );
     }
 }

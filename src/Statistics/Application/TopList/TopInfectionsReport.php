@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Infection;
 
 final readonly class TopInfectionsReport extends AbstractTopNTableReport
@@ -30,6 +31,12 @@ final readonly class TopInfectionsReport extends AbstractTopNTableReport
     public function icon(): string
     {
         return 'tabler:biohazard';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Infection;
     }
 
     #[\Override]

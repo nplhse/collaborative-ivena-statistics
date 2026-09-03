@@ -39,6 +39,7 @@ final readonly class TopListsPageViewModel
         public ?BenchmarkSelectionSideFormData $comparisonFormData,
         public array $comparisonPreservedQuery,
         public string $indexUrl,
+        public ?string $catalogListUrl,
     ) {
     }
 }

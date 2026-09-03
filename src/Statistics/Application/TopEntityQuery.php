@@ -9,7 +9,7 @@ use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 use App\Statistics\Infrastructure\Query\ProjectionTopEntityQuery;
 
 /**
- * @phpstan-type Row array{label: string, count: int, entityId: ?int}
+ * @phpstan-type Row array{label: string, count: int, entityId: ?int, publicId: ?string}
  */
 final readonly class TopEntityQuery
 {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Assignment;
 
 final readonly class TopAssignmentsReport extends AbstractTopNTableReport
@@ -30,6 +31,12 @@ final readonly class TopAssignmentsReport extends AbstractTopNTableReport
     public function icon(): string
     {
         return 'tabler:archery-arrow';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Assignment;
     }
 
     #[\Override]

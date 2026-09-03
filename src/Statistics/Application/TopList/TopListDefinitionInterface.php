@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
@@ -30,6 +31,9 @@ interface TopListDefinitionInterface
     public function icon(): string;
 
     public function supports(StatisticsFilter $filter): bool;
+
+    /** Explore catalog dimension this ranking describes, if any. */
+    public function catalogDimension(): ?CatalogDimensionKey;
 
     public function fetchRanking(StatisticsContext $context, int $limit): TopListRanking;
 

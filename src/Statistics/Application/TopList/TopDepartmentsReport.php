@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Department;
 
 final readonly class TopDepartmentsReport extends AbstractTopNTableReport
@@ -30,6 +31,12 @@ final readonly class TopDepartmentsReport extends AbstractTopNTableReport
     public function icon(): string
     {
         return 'tabler:folder-dollar';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Department;
     }
 
     #[\Override]

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
-use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
@@ -21,6 +21,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
         private TopListLimitPolicy $reportLimitPolicy,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
         private TranslatorInterface $translator,
+        private TopListCatalogCrossReference $catalogCrossReference,
     ) {
     }
 
@@ -46,6 +47,12 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
     public function icon(): string
     {
         return 'tabler:id';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Indication;
     }
 
     #[\Override]
@@ -77,7 +84,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
     public function toTableWidget(TopListRanking $ranking): StatisticWidget
     {
         $rows = [];
-        $diagnosisRowTargets = [];
+        $labelRowTargets = [];
 
         foreach ($ranking->rows as $row) {
             $rows[] = [
@@ -86,14 +93,10 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
                 (string) $row->count,
                 sprintf('%.1f%%', $row->share),
             ];
-            $diagnosisRowTargets[] = null !== $row->entityId
-                ? new StatisticWidgetNavigationTarget(
-                    'stats.top_lists.nav.indication_profile',
-                    'app_stats_indication_dashboard',
-                    ['indicationId' => $row->entityId],
-                    ['report', 'limit', 'view', 'chart'],
-                )
-                : null;
+            $labelRowTargets[] = $this->catalogCrossReference->labelRowTarget(
+                $this->key(),
+                $row->publicId,
+            );
         }
 
         $payload = new TableWidgetPayload(
@@ -106,7 +109,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
             $rows,
             [
                 'numericColumnStartIndex' => 3,
-                'diagnosisRowTargets' => $diagnosisRowTargets,
+                'labelRowTargets' => $labelRowTargets,
             ],
         );
 

@@ -8,7 +8,9 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\TopList\TopListArrayPaginator;
+use App\Statistics\Application\TopList\TopListCatalogCrossReference;
 use App\Statistics\Application\TopList\TopListComparison;
+use App\Statistics\Application\TopList\TopListComparisonRow;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Application\TopList\TopListPageSizePolicy;
 use App\Statistics\Application\TopList\TopListRanking;
@@ -22,6 +24,7 @@ final readonly class TopListsPagePresenter
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private BenchmarkSelectionFormDataFactory $benchmarkSelectionFormDataFactory,
+        private TopListCatalogCrossReference $catalogCrossReference,
     ) {
     }
 
@@ -91,8 +94,8 @@ final readonly class TopListsPagePresenter
         $comparisonViewModel = null;
         if ($displayComparison instanceof TopListComparison) {
             $comparisonViewModel = new TopListComparisonViewModel(
-                $displayComparison->rowsA,
-                $displayComparison->rowsB,
+                $this->withComparisonLabelTargets($displayComparison->rowsA, $currentDefinition->key()),
+                $this->withComparisonLabelTargets($displayComparison->rowsB, $currentDefinition->key()),
                 $displayComparison->totalAllocationsA,
                 $displayComparison->totalAllocationsB,
                 $sideAHeading ?? '',
@@ -100,7 +103,6 @@ final readonly class TopListsPagePresenter
                 $sideBHeading ?? '',
                 $sideBSubheading ?? '',
                 $currentDefinition->tableLabelColumnTranslationKey(),
-                'top_diagnoses' === $currentDefinition->key(),
             );
         } else {
             $topListWidget = $this->withTopListTableControls(
@@ -153,7 +155,35 @@ final readonly class TopListsPagePresenter
                 'app_stats_top_lists',
                 [StatisticsQueryKeys::REPORT => null],
             ),
+            $this->catalogListUrl($currentDefinition->key()),
         );
+    }
+
+    /**
+     * @param list<TopListComparisonRow> $rows
+     *
+     * @return list<TopListComparisonRow>
+     */
+    private function withComparisonLabelTargets(array $rows, string $topListKey): array
+    {
+        $mapped = [];
+        foreach ($rows as $row) {
+            $mapped[] = $row->withLabelTarget(
+                $this->catalogCrossReference->labelRowTarget($topListKey, $row->publicId),
+            );
+        }
+
+        return $mapped;
+    }
+
+    private function catalogListUrl(string $topListKey): ?string
+    {
+        $route = $this->catalogCrossReference->catalogListRoute($topListKey);
+        if (null === $route) {
+            return null;
+        }
+
+        return $this->statisticsNavigationUrlBuilder->generate($route);
     }
 
     /**

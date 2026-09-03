@@ -80,6 +80,7 @@ final readonly class TopListComparisonAssembler
             $onlyInA,
             $onlyInB,
             $source->entityId,
+            $source->publicId,
         );
     }
 }

@@ -21,6 +21,7 @@ final readonly class StatisticWidgetNavigationTarget
         public string $route,
         public array $params = [],
         public array $removeKeys = [],
+        public bool $mergeRequestQuery = true,
     ) {
     }
 }

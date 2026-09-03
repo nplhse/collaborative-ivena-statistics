@@ -91,6 +91,48 @@ final class ExploreShowUrlResolverTest extends TestCase
         self::assertSame('/explore/department/'.self::PUBLIC_ID, $resolver->resolveUrl($proxy));
     }
 
+    public function testResolveUrlForClassGeneratesShowUrl(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_department_show', ['publicId' => self::PUBLIC_ID])
+            ->willReturn('/explore/department/'.self::PUBLIC_ID);
+
+        $resolver = new ExploreShowUrlResolver($urlGenerator);
+
+        self::assertSame(
+            '/explore/department/'.self::PUBLIC_ID,
+            $resolver->resolveUrlForClass(Department::class, Uuid::fromString(self::PUBLIC_ID)),
+        );
+    }
+
+    public function testResolveUrlForClassAcceptsPublicIdString(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_indication_show', ['publicId' => self::PUBLIC_ID])
+            ->willReturn('/explore/indication/'.self::PUBLIC_ID);
+
+        $resolver = new ExploreShowUrlResolver($urlGenerator);
+
+        self::assertSame(
+            '/explore/indication/'.self::PUBLIC_ID,
+            $resolver->resolveUrlForClass(IndicationNormalized::class, self::PUBLIC_ID),
+        );
+    }
+
+    public function testResolveUrlForClassReturnsNullForUnsupportedClass(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::never())->method('generate');
+
+        $resolver = new ExploreShowUrlResolver($urlGenerator);
+
+        self::assertNull($resolver->resolveUrlForClass(\stdClass::class, self::PUBLIC_ID));
+    }
+
     public function testResolveUrlReturnsNullForUnknownClass(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);

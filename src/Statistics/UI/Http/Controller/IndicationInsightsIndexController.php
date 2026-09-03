@@ -138,6 +138,11 @@ final class IndicationInsightsIndexController extends AbstractController
                 ],
             ),
             'groupPicker' => $this->groupPickerViewModelFactory->create($request),
+            'topListUrl' => $this->navigationUrlBuilder->build(
+                $request,
+                'app_stats_top_lists_show',
+                ['report' => 'top_diagnoses'],
+            ),
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,

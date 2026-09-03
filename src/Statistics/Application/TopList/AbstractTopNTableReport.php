@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
@@ -20,6 +21,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
         private TopListLimitPolicy $reportLimitPolicy,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
         private TranslatorInterface $translator,
+        private TopListCatalogCrossReference $catalogCrossReference,
     ) {
     }
 
@@ -29,6 +31,9 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
 
     #[\Override]
     abstract public function tableLabelColumnTranslationKey(): string;
+
+    #[\Override]
+    abstract public function catalogDimension(): CatalogDimensionKey;
 
     protected function requireJoinedEntity(): bool
     {
@@ -64,6 +69,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
     public function toTableWidget(TopListRanking $ranking): StatisticWidget
     {
         $rows = [];
+        $labelRowTargets = [];
         foreach ($ranking->rows as $row) {
             $rows[] = [
                 (string) $row->rank,
@@ -71,6 +77,10 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
                 (string) $row->count,
                 sprintf('%.1f%%', $row->share),
             ];
+            $labelRowTargets[] = $this->catalogCrossReference->labelRowTarget(
+                $this->key(),
+                $row->publicId,
+            );
         }
 
         $payload = new TableWidgetPayload(
@@ -81,7 +91,10 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
                 'stats.top_lists.table.share',
             ],
             $rows,
-            ['numericColumnStartIndex' => 3],
+            [
+                'numericColumnStartIndex' => 3,
+                'labelRowTargets' => $labelRowTargets,
+            ],
         );
 
         return new StatisticWidget(
