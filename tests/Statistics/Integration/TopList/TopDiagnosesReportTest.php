@@ -78,5 +78,6 @@ final class TopDiagnosesReportTest extends KernelTestCase
         self::assertSame('app_explore_indication_show', $widget->payload['labelRowTargets'][0]->route);
         self::assertSame($indication->getPublicIdString(), $widget->payload['labelRowTargets'][0]->params['publicId']);
         self::assertFalse($widget->payload['labelRowTargets'][0]->mergeRequestQuery);
+        self::assertSame([100.0], $widget->payload['shareBars']);
     }
 }

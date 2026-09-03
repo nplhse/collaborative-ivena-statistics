@@ -85,6 +85,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
     {
         $rows = [];
         $labelRowTargets = [];
+        $shareBars = [];
 
         foreach ($ranking->rows as $row) {
             $rows[] = [
@@ -97,6 +98,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
                 $this->key(),
                 $row->publicId,
             );
+            $shareBars[] = $row->share;
         }
 
         $payload = new TableWidgetPayload(
@@ -110,6 +112,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
             [
                 'numericColumnStartIndex' => 3,
                 'labelRowTargets' => $labelRowTargets,
+                'shareBars' => $shareBars,
             ],
         );
 

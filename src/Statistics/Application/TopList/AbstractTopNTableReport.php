@@ -70,6 +70,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
     {
         $rows = [];
         $labelRowTargets = [];
+        $shareBars = [];
         foreach ($ranking->rows as $row) {
             $rows[] = [
                 (string) $row->rank,
@@ -81,6 +82,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
                 $this->key(),
                 $row->publicId,
             );
+            $shareBars[] = $row->share;
         }
 
         $payload = new TableWidgetPayload(
@@ -94,6 +96,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
             [
                 'numericColumnStartIndex' => 3,
                 'labelRowTargets' => $labelRowTargets,
+                'shareBars' => $shareBars,
             ],
         );
 
