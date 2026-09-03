@@ -295,6 +295,8 @@ final class ExploreUsersControllerTest extends WebTestCase
         PostFactory::createOne([
             'createdBy' => $profileUser,
             'title' => 'Published Profile Post',
+            'slug' => 'published-profile-post',
+            'content' => '<p>Profile preview paragraph</p><p>More</p>',
             'status' => PostStatus::PUBLISHED,
             'publishedAt' => new \DateTimeImmutable('-1 day'),
         ]);
@@ -327,6 +329,8 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="user-import-count"]', '2');
         self::assertSelectorTextContains('[data-testid="user-post-count"]', '1');
         self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Published Profile Post');
+        self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Profile preview paragraph');
+        self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'More');
         self::assertSelectorTextContains('[data-testid="user-profile-activity-feed"]', 'Joined the platform');
         self::assertSelectorTextNotContains('[data-testid="user-profile-activity-feed"]', 'Draft Profile Post');
         self::assertSelectorNotExists('.pagination');
@@ -338,6 +342,11 @@ final class ExploreUsersControllerTest extends WebTestCase
         );
         self::assertContains('first_import', $activityTypes);
         self::assertSame('joined', $activityTypes[array_key_last($activityTypes)]);
+        $time = $crawler->filter('[data-testid="profile-activity-item"] time')->first();
+        self::assertGreaterThan(0, $time->count());
+        self::assertNotEmpty($time->attr('datetime'));
+        self::assertNotEmpty($time->attr('title'));
+        self::assertDoesNotMatchRegularExpression('/^\d{2}\.\d{2}\.\d{4}$/', trim($time->text()));
 
         $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
         self::assertResponseIsSuccessful();

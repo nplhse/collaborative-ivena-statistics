@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Benchmarking\UI\Form;
 
+use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterScopeChoicePolicy;
@@ -62,12 +63,14 @@ final class BenchmarkSelectionSideType extends AbstractType
             $locale = $options['locale'];
             /** @var StatisticsFilterScopeChoicePolicy $scopeChoicePolicy */
             $scopeChoicePolicy = $options['scope_choice_policy'];
+            /** @var HospitalPermission|null $hospitalPermission */
+            $hospitalPermission = $options['hospital_permission'] ?? null;
             $user = $this->currentUser();
 
             if ($data instanceof BenchmarkSelectionSideFormData) {
-                $data = $this->choiceProvider->normalizeSideFormData($data, $user, $side, $locale, $scopeChoicePolicy);
+                $data = $this->choiceProvider->normalizeSideFormData($data, $user, $side, $locale, $scopeChoicePolicy, $hospitalPermission);
             } else {
-                $data = $this->choiceProvider->normalizeScopePeriodFormData($data, $user, $side, $locale, $scopeChoicePolicy);
+                $data = $this->choiceProvider->normalizeScopePeriodFormData($data, $user, $side, $locale, $scopeChoicePolicy, $hospitalPermission);
             }
 
             $event->setData($data);
@@ -138,11 +141,13 @@ final class BenchmarkSelectionSideType extends AbstractType
             'locale' => 'en',
             'translation_domain' => 'statistics',
             'scope_choice_policy' => StatisticsFilterScopeChoicePolicy::RegisteredHospitals,
+            'hospital_permission' => null,
         ]);
 
         $resolver->setAllowedTypes('side', StatisticsFilterSide::class);
         $resolver->setAllowedTypes('locale', 'string');
         $resolver->setAllowedTypes('scope_choice_policy', StatisticsFilterScopeChoicePolicy::class);
+        $resolver->setAllowedTypes('hospital_permission', ['null', HospitalPermission::class]);
     }
 
     /**

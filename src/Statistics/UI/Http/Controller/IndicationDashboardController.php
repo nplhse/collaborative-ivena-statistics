@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Allocation\Application\Explore\ExploreShowUrlResolver;
+use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardCriteria;
 use App\Statistics\Application\IndicationDashboard\IndicationDashboardService;
@@ -11,6 +13,8 @@ use App\Statistics\Application\IndicationDashboard\IndicationSubjectResolver;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
+use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +37,8 @@ final class IndicationDashboardController extends AbstractController
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
         private readonly IndicationSubjectResolver $subjectResolver,
+        private readonly ExploreShowUrlResolver $exploreShowUrlResolver,
+        private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
     ) {
     }
 
@@ -62,6 +68,7 @@ final class IndicationDashboardController extends AbstractController
             $indicationId,
             $scope,
             $period,
+            TimeSeriesGrainResolver::resolve($filter->period),
         ));
 
         if (!$result instanceof \App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult) {
@@ -115,6 +122,14 @@ final class IndicationDashboardController extends AbstractController
                 $this->subjectResolver->resolveSingle($indicationId) ?? throw $this->createNotFoundException('Indication not found.'),
             ),
             'statsShowCompareLaunchButton' => true,
+            'statsIndicationCatalogUrl' => null !== $result->header->publicId && '' !== $result->header->publicId
+                ? $this->exploreShowUrlResolver->resolveUrlForClass(IndicationNormalized::class, $result->header->publicId)
+                : null,
+            'statsIndicationTopListUrl' => $this->navigationUrlBuilder->build(
+                $request,
+                'app_stats_top_lists_show',
+                ['report' => 'top_diagnoses'],
+            ),
         ]);
     }
 }

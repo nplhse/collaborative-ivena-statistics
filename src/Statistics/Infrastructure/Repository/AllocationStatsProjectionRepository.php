@@ -238,7 +238,7 @@ final class AllocationStatsProjectionRepository extends ServiceEntityRepository 
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return list<array{label:string,count:int,indicationId:int|null}>
+     * @return list<array{label:string,count:int,indicationId:int|null,publicId:?string}>
      */
     public function fetchTopDiagnosisAggregates(?\DateTimeImmutable $from, ?\DateTimeImmutable $toExclusive, ?array $hospitalIds, int $limit): array
     {

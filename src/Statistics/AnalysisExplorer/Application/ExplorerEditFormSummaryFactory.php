@@ -45,6 +45,7 @@ final readonly class ExplorerEditFormSummaryFactory
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $filter->period,
         );
 
         $columnLabel = $this->translator->trans('stats.analysis_explorer.edit.structure_no_columns', [], 'statistics');
@@ -64,6 +65,7 @@ final readonly class ExplorerEditFormSummaryFactory
                     $formData->columnDimension,
                     $columnGrain->value,
                     $capabilities,
+                    $filter->period,
                 );
                 if ($capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
                     $columnLabel = $this->axisLabel($columnAxis);
@@ -111,6 +113,7 @@ final readonly class ExplorerEditFormSummaryFactory
     {
         return match ($grain) {
             AnalysisDimensionGrain::Month => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
+            AnalysisDimensionGrain::Day => $this->translator->trans('stats.analysis_explorer.dimension.day', [], 'statistics'),
             AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
             AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
             AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),

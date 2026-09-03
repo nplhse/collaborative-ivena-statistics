@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\Controller\Explore;
 
+use App\User\Application\Contract\PublishedPostPreviewMapInterface;
+use App\User\Application\Explore\PostPublishedActivitySlugs;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Explore\UserProfileFactory;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -16,6 +18,7 @@ final class ShowUserController extends AbstractController
 {
     public function __construct(
         private readonly UserProfileFactory $userProfileFactory,
+        private readonly PublishedPostPreviewMapInterface $postPreviews,
     ) {
     }
 
@@ -40,6 +43,7 @@ final class ShowUserController extends AbstractController
 
         return $this->render('@User/explore/users/show.html.twig', [
             'profile' => $profile,
+            'previews' => $this->postPreviews->forSlugs(PostPublishedActivitySlugs::from($profile->activities)),
         ]);
     }
 }

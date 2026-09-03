@@ -1,3 +1,4 @@
+{% set previews = previews|default({}) %}
 {% set activityIcons = {
     joined: 'tabler:user-plus',
     first_import: 'tabler:database-import',
@@ -11,7 +12,7 @@
 {% for activity in activities %}
     <div
         class="list-group-item"
-        data-testid="dashboard-activity-item"
+        data-testid="{{ activity_item_testid|default('dashboard-activity-item') }}"
         data-activity-type="{{ activity.type.value }}"
         data-activity-stable-id="{{ activity.stableId }}"
     >
@@ -22,9 +23,7 @@
                 </span>
             </div>
             <div class="col min-w-0">
-                <div class="text-secondary small" data-testid="dashboard-activity-date">
-                    {{ activity.occurredAt|date('d.m.Y') }}
-                </div>
+                <twig:RelativeTimestamp :datetime="activity.occurredAt" />
                 <div class="fw-medium">
                     {% if is_granted('ROLE_PARTICIPANT') and activity.actorPublicId %}
                         <a href="{{ path('app_explore_user_show', {publicId: activity.actorPublicId}) }}" target="_top">{{ activity.actorUsername }}</a>
@@ -57,6 +56,12 @@
                             <span class="text-secondary">„{{ activity.postTitle }}“</span>
                         {% endif %}
                     </div>
+                    {% set preview = activity.postSlug ? previews[activity.postSlug]|default('') : '' %}
+                    {% if preview %}
+                        <div class="text-secondary small activity-post-preview" data-testid="activity-post-preview">
+                            {{ preview|raw }}
+                        </div>
+                    {% endif %}
                 {% elseif activity.type.value == 'comment_created' %}
                     {% if activity.postTitle %}
                         <div>

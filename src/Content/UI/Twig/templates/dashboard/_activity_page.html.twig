@@ -5,13 +5,10 @@
         </div>
     {% else %}
         <div class="list-group list-group-flush">
-            {{ include('@Content/dashboard/_activity_items.html.twig', {activities: page.items}) }}
-            {% if page.hasMore and page.nextCursor and page.nextFrameId %}
-                {{ include('@Content/dashboard/_activity_next_frame.html.twig', {
-                    nextCursor: page.nextCursor,
-                    frameId: page.nextFrameId,
-                }) }}
-            {% endif %}
+            {{ include('@Content/dashboard/_activity_items.html.twig', {
+                activities: page.items,
+                previews: previews|default({}),
+            }) }}
         </div>
     {% endif %}
 </turbo-frame>

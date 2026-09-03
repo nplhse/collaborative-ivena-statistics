@@ -1,3 +1,4 @@
+{% set previews = previews|default({}) %}
 {% set activityIcons = {
     joined: 'tabler:user-plus',
     first_import: 'tabler:database-import',
@@ -24,13 +25,7 @@
                 </span>
             </div>
             <div class="col min-w-0">
-                <div class="text-secondary small" data-testid="profile-activity-date">
-                    {% if activity.type.value == 'joined' %}
-                        {{ activity.occurredAt|format_datetime(pattern: 'MMMM yyyy') }}
-                    {% else %}
-                        {{ activity.occurredAt|date('d.m.Y') }}
-                    {% endif %}
-                </div>
+                <twig:RelativeTimestamp :datetime="activity.occurredAt" />
                 <div class="fw-medium">
                     {% if activity.type.value == 'joined' %}
                         {{ 'label.user.activity.joined'|trans({}, 'user') }}
@@ -60,6 +55,12 @@
                             <span class="text-secondary">„{{ activity.postTitle }}“</span>
                         {% endif %}
                     </div>
+                    {% set preview = activity.postSlug ? previews[activity.postSlug]|default('') : '' %}
+                    {% if preview %}
+                        <div class="text-secondary small activity-post-preview" data-testid="activity-post-preview">
+                            {{ preview|raw }}
+                        </div>
+                    {% endif %}
                 {% elseif activity.type.value == 'comment_created' %}
                     {% if activity.postTitle %}
                         <div>

@@ -7,6 +7,7 @@ namespace App\Statistics\AnalysisExplorer\Domain\Enum;
 enum AnalysisDimensionGrain: string
 {
     case Total = 'total';
+    case Day = 'day';
     case Month = 'month';
     case Year = 'year';
     case Quarter = 'quarter';
@@ -15,7 +16,7 @@ enum AnalysisDimensionGrain: string
     public function isTemporal(): bool
     {
         return match ($this) {
-            self::Month, self::Year, self::Quarter, self::Week => true,
+            self::Day, self::Month, self::Year, self::Quarter, self::Week => true,
             self::Total => false,
         };
     }
@@ -27,6 +28,7 @@ enum AnalysisDimensionGrain: string
             self::Quarter => 'quarter',
             self::Week => 'week',
             self::Month => 'month',
+            self::Day => 'day',
             self::Total => throw new \LogicException('Total is not a temporal registry key.'),
         };
     }

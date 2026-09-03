@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Infection;
 
 final readonly class TopInfectionsReport extends AbstractTopNTableReport
@@ -27,6 +28,18 @@ final readonly class TopInfectionsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:biohazard';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Infection;
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'infectionId';
@@ -39,8 +52,14 @@ final readonly class TopInfectionsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.infection';
+    }
+
+    #[\Override]
+    protected function requireJoinedEntity(): bool
+    {
+        return true;
     }
 }

@@ -97,4 +97,41 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertCount(10, $rows, 'We should see 10 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 26-35 of 35 results.');
     }
+
+    public function testParticipatingFilterBadgeUsesTranslatedValue(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['name' => 'Participating Clinic', 'isParticipating' => true]);
+        HospitalFactory::createOne(['name' => 'Catalog Clinic', 'isParticipating' => false]);
+
+        $client->request(Request::METHOD_GET, '/explore/hospital?participating=1');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.badge.bg-blue-lt', 'Participation: Is participating');
+        self::assertSelectorTextContains('table.table tbody', 'Participating Clinic');
+        self::assertSelectorTextNotContains('table.table tbody', 'Catalog Clinic');
+    }
+
+    public function testParticipatingFilterBadgeIsTranslatedForGermanLocale(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'username' => 'hospital-filter-de',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'locale' => 'de',
+        ]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['name' => 'Teilnehmende Klinik', 'isParticipating' => true]);
+        HospitalFactory::createOne(['name' => 'Katalogklinik', 'isParticipating' => false]);
+
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/explore/hospital?participating=1');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.badge.bg-blue-lt', 'Teilnahme: Nimmt teil');
+        self::assertSelectorTextNotContains('.badge.bg-blue-lt', 'Yes');
+    }
 }

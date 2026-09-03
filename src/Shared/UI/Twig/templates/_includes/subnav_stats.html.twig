@@ -21,7 +21,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item {{ route == 'app_stats_top_lists' ? 'active' : '' }}">
+                    <li class="nav-item {{ route in ['app_stats_top_lists', 'app_stats_top_lists_show'] ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_top_lists') }}">
                             <span class="nav-link-title">
                                 <twig:ux:icon name="tabler:list-numbers" style="height: 1.2em;" />

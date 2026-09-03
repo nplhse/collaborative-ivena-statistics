@@ -353,4 +353,29 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         $merged = $mapper->mergeChartRowLimitIntoState($state, ExplorerChartRowLimit::Top5);
         self::assertSame('5', $merged['presentation']['chartRowLimit']);
     }
+
+    public function testMonthPeriodClampsStoredYearGrainToDayIncludingColumns(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $config = $mapper->viewConfigFromState([
+            'schemaVersion' => 4,
+            'dataSource' => 'allocations',
+            'query' => [
+                'scope' => ['group' => 'public', 'detail' => null],
+                'period' => ['type' => 'month', 'year' => 2026, 'quarter' => null, 'month' => 4],
+                'metrics' => ['allocation_count'],
+                'visualMetric' => 'allocation_count',
+                'rows' => ['dimension' => 'time', 'grain' => 'year'],
+                'columns' => ['dimension' => 'gender', 'grain' => 'total'],
+            ],
+            'presentation' => ['mode' => 'chart', 'chartType' => 'grouped_bar'],
+            'title' => 'Daily allocations by gender',
+        ], null);
+
+        self::assertSame(AnalysisDimensionGrain::Day, $config->rowAxis->resolvedGrain());
+        self::assertSame(AnalysisDimensionKey::Gender, $config->columnAxis?->dimensionKey);
+        self::assertSame(StatisticsFilterPeriod::Month, $config->statisticsFilter->period);
+    }
 }

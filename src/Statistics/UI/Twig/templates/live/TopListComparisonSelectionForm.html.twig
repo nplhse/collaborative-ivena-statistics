@@ -1,0 +1,27 @@
+{% set isPrimary = side == 'primary' %}
+<div {{ attributes }}>
+    <div class="modal-body">
+        {{ form_start(form) }}
+            <p class="text-muted small mb-3">{{ (isPrimary ? 'stats.top_lists.comparison.modal_hint_a' : 'stats.top_lists.comparison.modal_hint_b')|trans({}, 'statistics') }}</p>
+            {{ include('@Statistics/benchmarking/_selection_side_fields.html.twig', {
+                sideForm: form,
+                testId: isPrimary ? 'stats-top-lists-comparison-form-a' : 'stats-top-lists-comparison-form-b',
+            }) }}
+        {{ form_end(form) }}
+    </div>
+
+    <div class="modal-footer">
+        <button type="button"
+                class="btn btn-link link-secondary"
+                data-bs-dismiss="modal">
+            {{ 'action.cancel'|trans({}, 'messages') }}
+        </button>
+        <button type="button"
+                class="btn btn-primary"
+                data-action="live#action"
+                data-live-action-param="apply"
+                data-testid="{{ isPrimary ? 'stats-top-lists-comparison-apply-a' : 'stats-top-lists-comparison-apply-b' }}">
+            {{ 'stats.top_lists.comparison.apply'|trans({}, 'statistics') }}
+        </button>
+    </div>
+</div>

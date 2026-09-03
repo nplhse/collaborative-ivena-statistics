@@ -104,6 +104,10 @@ final readonly class ReferenceDataLoader
                 ->setOwner(null)
                 ->setCreatedBy($user);
 
+            if ((bool) $row['participating']) {
+                $hospital->setParticipatingSince($hospital->getCreatedAt());
+            }
+
             $coordinates = $geocoding->resolve(
                 $addressData['postalCode'],
                 $addressData['city'],

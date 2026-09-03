@@ -50,4 +50,24 @@ final readonly class PostContentSanitizer
 
         return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
+
+    /**
+     * Compact HTML snippet for activity feeds: blog preview without embedded media.
+     */
+    public function compactPreview(string $content): string
+    {
+        $preview = $this->preview($content);
+        if ('' === $preview) {
+            return '';
+        }
+
+        $withoutMedia = preg_replace('#<figure\b[^>]*>.*?</figure>#is', '', $preview) ?? $preview;
+        $withoutMedia = preg_replace('#<img\b[^>]*>#i', '', $withoutMedia) ?? $withoutMedia;
+        $withoutMedia = preg_replace('#<a\b[^>]*>\s*</a>#i', '', $withoutMedia) ?? $withoutMedia;
+        if ('' === trim(strip_tags($withoutMedia))) {
+            return '';
+        }
+
+        return $withoutMedia;
+    }
 }

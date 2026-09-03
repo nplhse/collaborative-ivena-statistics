@@ -20,13 +20,11 @@ final class UserActivityRepository extends ServiceEntityRepository
 
     public function existsWithDeduplicationKey(string $deduplicationKey): bool
     {
-        $count = $this->createQueryBuilder('a')
-            ->select('COUNT(a.id)')
-            ->andWhere('a.deduplicationKey = :key')
-            ->setParameter('key', $deduplicationKey)
-            ->getQuery()
-            ->getSingleScalarResult();
+        return $this->findOneByDeduplicationKey($deduplicationKey) instanceof UserActivity;
+    }
 
-        return (int) $count > 0;
+    public function findOneByDeduplicationKey(string $deduplicationKey): ?UserActivity
+    {
+        return $this->findOneBy(['deduplicationKey' => $deduplicationKey]);
     }
 }

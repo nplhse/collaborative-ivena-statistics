@@ -1113,6 +1113,22 @@
         <source>stats.top_lists.page_title</source>
         <target>Top Lists</target>
       </trans-unit>
+      <trans-unit id="statsTlIdx01" resname="stats.top_lists.index.pretitle">
+        <source>stats.top_lists.index.pretitle</source>
+        <target>Choose a top list</target>
+      </trans-unit>
+      <trans-unit id="statsTlIdx02" resname="stats.top_lists.index.intro">
+        <source>stats.top_lists.index.intro</source>
+        <target>Select a ranked list to explore assignment counts and shares for your current statistics scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsTlIdx03" resname="stats.top_lists.index.open">
+        <source>stats.top_lists.index.open</source>
+        <target>Open top list</target>
+      </trans-unit>
+      <trans-unit id="statsTlIdx04" resname="stats.top_lists.index.empty">
+        <source>stats.top_lists.index.empty</source>
+        <target>No top lists are available yet.</target>
+      </trans-unit>
       <trans-unit id="Ac0e13fb1d" resname="stats.reports.page_title">
         <source>stats.reports.page_title</source>
         <target>Reports</target>
@@ -1231,7 +1247,7 @@
       </trans-unit>
       <trans-unit id="statsRpTdDs" resname="stats.top_lists.top_diagnoses.description">
         <source>stats.top_lists.top_diagnoses.description</source>
-        <target>Most frequent indication labels.</target>
+        <target>Most frequent indications among assignments, with count and share.</target>
       </trans-unit>
       <trans-unit id="statsRpTbRk" resname="stats.top_lists.table.rank">
         <source>stats.top_lists.table.rank</source>
@@ -1265,6 +1281,10 @@
         <source>stats.top_lists.table.secondary_diagnosis</source>
         <target>Secondary indication</target>
       </trans-unit>
+      <trans-unit id="statsRpTbSt" resname="stats.top_lists.table.secondary_transport">
+        <source>stats.top_lists.table.secondary_transport</source>
+        <target>Secondary transport</target>
+      </trans-unit>
       <trans-unit id="statsRpTbSp" resname="stats.top_lists.table.speciality">
         <source>stats.top_lists.table.speciality</source>
         <target>Speciality</target>
@@ -1279,7 +1299,7 @@
       </trans-unit>
       <trans-unit id="statsRpDpDs" resname="stats.top_lists.top_departments.description">
         <source>stats.top_lists.top_departments.description</source>
-        <target>Most frequent departments.</target>
+        <target>Destination departments that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpAtLb" resname="stats.top_lists.top_assignments.label">
         <source>stats.top_lists.top_assignments.label</source>
@@ -1287,7 +1307,7 @@
       </trans-unit>
       <trans-unit id="statsRpAtDs" resname="stats.top_lists.top_assignments.description">
         <source>stats.top_lists.top_assignments.description</source>
-        <target>Most frequent assignment types.</target>
+        <target>Assignment types that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpInLb" resname="stats.top_lists.top_infections.label">
         <source>stats.top_lists.top_infections.label</source>
@@ -1295,7 +1315,7 @@
       </trans-unit>
       <trans-unit id="statsRpInDs" resname="stats.top_lists.top_infections.description">
         <source>stats.top_lists.top_infections.description</source>
-        <target>Most frequent infection labels.</target>
+        <target>Reported or suspected infectious diseases among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpSdLb" resname="stats.top_lists.top_secondary_diagnoses.label">
         <source>stats.top_lists.top_secondary_diagnoses.label</source>
@@ -1303,7 +1323,15 @@
       </trans-unit>
       <trans-unit id="statsRpSdDs" resname="stats.top_lists.top_secondary_diagnoses.description">
         <source>stats.top_lists.top_secondary_diagnoses.description</source>
-        <target>Most frequent secondary indication labels.</target>
+        <target>Most frequent secondary indications among assignments.</target>
+      </trans-unit>
+      <trans-unit id="statsRpStLb" resname="stats.top_lists.top_secondary_transports.label">
+        <source>stats.top_lists.top_secondary_transports.label</source>
+        <target>Top secondary transports</target>
+      </trans-unit>
+      <trans-unit id="statsRpStDs" resname="stats.top_lists.top_secondary_transports.description">
+        <source>stats.top_lists.top_secondary_transports.description</source>
+        <target>Secondary transport types that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpSlLb" resname="stats.top_lists.top_specialities.label">
         <source>stats.top_lists.top_specialities.label</source>
@@ -1311,7 +1339,7 @@
       </trans-unit>
       <trans-unit id="statsRpSlDs" resname="stats.top_lists.top_specialities.description">
         <source>stats.top_lists.top_specialities.description</source>
-        <target>Most frequent specialities.</target>
+        <target>Specialities that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpOcLb" resname="stats.top_lists.top_occasions.label">
         <source>stats.top_lists.top_occasions.label</source>
@@ -1319,7 +1347,11 @@
       </trans-unit>
       <trans-unit id="statsRpOcDs" resname="stats.top_lists.top_occasions.description">
         <source>stats.top_lists.top_occasions.description</source>
-        <target>Most frequent occasions.</target>
+        <target>Most frequent occasions among assignments.</target>
+      </trans-unit>
+      <trans-unit id="statsTlUnk" resname="stats.top_lists.unknown">
+        <source>stats.top_lists.unknown</source>
+        <target>Unknown</target>
       </trans-unit>
       <trans-unit id="statsNavKpi" resname="stats.nav.overview_kpi_to_analysis">
         <source>stats.nav.overview_kpi_to_analysis</source>
@@ -2492,6 +2524,22 @@
       <trans-unit id="statsInd57" resname="stats.top_lists.nav.indication_profile">
         <source>stats.top_lists.nav.indication_profile</source>
         <target>Indication profile</target>
+      </trans-unit>
+      <trans-unit id="statsTlNavCatEn" resname="stats.top_lists.nav.catalog_entry">
+        <source>stats.top_lists.nav.catalog_entry</source>
+        <target>Catalogue entry</target>
+      </trans-unit>
+      <trans-unit id="statsTlNavCatListEn" resname="stats.top_lists.nav.catalog_list">
+        <source>stats.top_lists.nav.catalog_list</source>
+        <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavCatEn" resname="stats.indication.nav.catalog">
+        <source>stats.indication.nav.catalog</source>
+        <target>Explore</target>
+      </trans-unit>
+      <trans-unit id="statsIndNavTlEn" resname="stats.indication.nav.top_list">
+        <source>stats.indication.nav.top_list</source>
+        <target>Open top list</target>
       </trans-unit>
       <trans-unit id="statsBm01" resname="stats.benchmark.title">
         <source>stats.benchmark.title</source>
@@ -3725,6 +3773,10 @@
         <source>stats.analysis_explorer.dimension.month</source>
         <target>Month</target>
       </trans-unit>
+      <trans-unit id="statsAexDayDim" resname="stats.analysis_explorer.dimension.day">
+        <source>stats.analysis_explorer.dimension.day</source>
+        <target>Day</target>
+      </trans-unit>
       <trans-unit id="statsAex06" resname="stats.analysis_explorer.metric.allocation_count">
         <source>stats.analysis_explorer.metric.allocation_count</source>
         <target>Allocations</target>
@@ -4200,6 +4252,10 @@
       <trans-unit id="statsAex91" resname="stats.analysis_explorer.description.grain.year">
         <source>stats.analysis_explorer.description.grain.year</source>
         <target>Yearly</target>
+      </trans-unit>
+      <trans-unit id="statsAexDayDesc" resname="stats.analysis_explorer.description.grain.day">
+        <source>stats.analysis_explorer.description.grain.day</source>
+        <target>Daily</target>
       </trans-unit>
       <trans-unit id="statsAex92" resname="stats.analysis_explorer.allocations_by_dimension">
         <source>stats.analysis_explorer.allocations_by_dimension</source>
@@ -5185,6 +5241,10 @@
         <source>stats.analysis_explorer.summary.grain.week</source>
         <target>weekly</target>
       </trans-unit>
+      <trans-unit id="statsAexDaySum" resname="stats.analysis_explorer.summary.grain.day">
+        <source>stats.analysis_explorer.summary.grain.day</source>
+        <target>daily</target>
+      </trans-unit>
       <trans-unit id="statsAexSum18" resname="stats.analysis_explorer.summary.grain.total">
         <source>stats.analysis_explorer.summary.grain.total</source>
         <target>as a total</target>
@@ -5448,6 +5508,134 @@
       <trans-unit id="statsTtp61" resname="stats.reports.transport_time_profile.rank.aria.new">
         <source>stats.reports.transport_time_profile.rank.aria.new</source>
         <target>New in the top 5 versus the previous transport-time group</target>
+      </trans-unit>
+      <trans-unit id="statsTl01" resname="stats.top_lists.limit.all">
+        <source>stats.top_lists.limit.all</source>
+        <target>All entries</target>
+      </trans-unit>
+      <trans-unit id="statsTl28" resname="stats.top_lists.limit.top">
+        <source>stats.top_lists.limit.top</source>
+        <target>Top {count} entries</target>
+      </trans-unit>
+      <trans-unit id="statsTl29" resname="stats.top_lists.limit.depth_label">
+        <source>stats.top_lists.limit.depth_label</source>
+        <target>Ranking depth</target>
+      </trans-unit>
+      <trans-unit id="statsTl02" resname="stats.top_lists.limit.truncated">
+        <source>stats.top_lists.limit.truncated</source>
+        <target>Showing the first 1,000 values. Narrow the scope or period if you need a complete ranking.</target>
+      </trans-unit>
+      <trans-unit id="statsTl03" resname="stats.top_lists.comparison.enable">
+        <source>stats.top_lists.comparison.enable</source>
+        <target>Compare</target>
+      </trans-unit>
+      <trans-unit id="statsTl04" resname="stats.top_lists.comparison.disable">
+        <source>stats.top_lists.comparison.disable</source>
+        <target>Stop comparing</target>
+      </trans-unit>
+      <trans-unit id="statsTl05" resname="stats.top_lists.comparison.edit">
+        <source>stats.top_lists.comparison.edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="statsTl26" resname="stats.top_lists.comparison.edit_a">
+        <source>stats.top_lists.comparison.edit_a</source>
+        <target>Edit comparison A</target>
+      </trans-unit>
+      <trans-unit id="statsTl27" resname="stats.top_lists.comparison.edit_b">
+        <source>stats.top_lists.comparison.edit_b</source>
+        <target>Edit comparison B</target>
+      </trans-unit>
+      <trans-unit id="statsTl30" resname="stats.top_lists.comparison.swap">
+        <source>stats.top_lists.comparison.swap</source>
+        <target>Swap comparison sides</target>
+      </trans-unit>
+      <trans-unit id="statsTl31" resname="stats.top_lists.comparison.open_as_top_list">
+        <source>stats.top_lists.comparison.open_as_top_list</source>
+        <target>Open as Top List</target>
+      </trans-unit>
+      <trans-unit id="statsTl32" resname="stats.top_lists.table.empty">
+        <source>stats.top_lists.table.empty</source>
+        <target>No matching data for this selection.</target>
+      </trans-unit>
+      <trans-unit id="statsTl06" resname="stats.top_lists.comparison.modal_title_a">
+        <source>stats.top_lists.comparison.modal_title_a</source>
+        <target>Comparison A</target>
+      </trans-unit>
+      <trans-unit id="statsTl07" resname="stats.top_lists.comparison.modal_hint_a">
+        <source>stats.top_lists.comparison.modal_hint_a</source>
+        <target>Choose scope and period for comparison A.</target>
+      </trans-unit>
+      <trans-unit id="statsTl24" resname="stats.top_lists.comparison.modal_title_b">
+        <source>stats.top_lists.comparison.modal_title_b</source>
+        <target>Comparison B</target>
+      </trans-unit>
+      <trans-unit id="statsTl25" resname="stats.top_lists.comparison.modal_hint_b">
+        <source>stats.top_lists.comparison.modal_hint_b</source>
+        <target>Choose scope and period for comparison B.</target>
+      </trans-unit>
+      <trans-unit id="statsTl08" resname="stats.top_lists.comparison.apply">
+        <source>stats.top_lists.comparison.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsTl09" resname="stats.top_lists.comparison.side_a">
+        <source>stats.top_lists.comparison.side_a</source>
+        <target>Comparison A</target>
+      </trans-unit>
+      <trans-unit id="statsTl10" resname="stats.top_lists.comparison.side_b">
+        <source>stats.top_lists.comparison.side_b</source>
+        <target>Comparison B</target>
+      </trans-unit>
+      <trans-unit id="statsTl11" resname="stats.top_lists.comparison.rank_a">
+        <source>stats.top_lists.comparison.rank_a</source>
+        <target>Rank A</target>
+      </trans-unit>
+      <trans-unit id="statsTl12" resname="stats.top_lists.comparison.rank_b">
+        <source>stats.top_lists.comparison.rank_b</source>
+        <target>Rank B</target>
+      </trans-unit>
+      <trans-unit id="statsTl13" resname="stats.top_lists.comparison.delta_count">
+        <source>stats.top_lists.comparison.delta_count</source>
+        <target>Δ Count</target>
+      </trans-unit>
+      <trans-unit id="statsTl14" resname="stats.top_lists.comparison.delta_share">
+        <source>stats.top_lists.comparison.delta_share</source>
+        <target>Δ Share</target>
+      </trans-unit>
+      <trans-unit id="statsTl15" resname="stats.top_lists.comparison.rank_movement">
+        <source>stats.top_lists.comparison.rank_movement</source>
+        <target>Rank change</target>
+      </trans-unit>
+      <trans-unit id="statsTl16" resname="stats.top_lists.comparison.only_in_a">
+        <source>stats.top_lists.comparison.only_in_a</source>
+        <target>Only in A</target>
+      </trans-unit>
+      <trans-unit id="statsTl17" resname="stats.top_lists.comparison.only_in_b">
+        <source>stats.top_lists.comparison.only_in_b</source>
+        <target>Only in B</target>
+      </trans-unit>
+      <trans-unit id="statsTl18" resname="stats.top_lists.comparison.gone">
+        <source>stats.top_lists.comparison.gone</source>
+        <target>Gone</target>
+      </trans-unit>
+      <trans-unit id="statsTl19" resname="stats.top_lists.comparison.new">
+        <source>stats.top_lists.comparison.new</source>
+        <target>New</target>
+      </trans-unit>
+      <trans-unit id="statsTl20" resname="stats.top_lists.comparison.rank.aria.up">
+        <source>stats.top_lists.comparison.rank.aria.up</source>
+        <target>Rank +{delta} versus comparison A</target>
+      </trans-unit>
+      <trans-unit id="statsTl21" resname="stats.top_lists.comparison.rank.aria.down">
+        <source>stats.top_lists.comparison.rank.aria.down</source>
+        <target>Rank −{delta} versus comparison A</target>
+      </trans-unit>
+      <trans-unit id="statsTl22" resname="stats.top_lists.comparison.rank.aria.new">
+        <source>stats.top_lists.comparison.rank.aria.new</source>
+        <target>New in comparison B</target>
+      </trans-unit>
+      <trans-unit id="statsTl23" resname="stats.top_lists.comparison.delta.aria">
+        <source>stats.top_lists.comparison.delta.aria</source>
+        <target>{delta} versus comparison A</target>
       </trans-unit>
     </body>
   </file>

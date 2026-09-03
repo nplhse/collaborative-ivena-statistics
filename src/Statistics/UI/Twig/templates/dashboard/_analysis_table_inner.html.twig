@@ -19,6 +19,9 @@
                     {% for hk in p.headerTranslationKeys %}
                         <th class="{{ loop.index < numericStart ? '' : 'text-end' }}">{{ hk|trans({}, statistics_label_domain(hk)) }}</th>
                     {% endfor %}
+                    {% if p.shareBars is defined %}
+                        <th class="stats-top-lists-share-col" aria-hidden="true"></th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -27,22 +30,31 @@
                     {% if p.monthRowTargets is defined %}
                         {% set monthRowTarget = p.monthRowTargets[loop.index0]|default(null) %}
                     {% endif %}
-                    {% set diagnosisRowTarget = null %}
-                    {% if p.diagnosisRowTargets is defined %}
-                        {% set diagnosisRowTarget = p.diagnosisRowTargets[loop.index0]|default(null) %}
+                    {% set labelRowTarget = null %}
+                    {% if p.labelRowTargets is defined %}
+                        {% set labelRowTarget = p.labelRowTargets[loop.index0]|default(null) %}
+                    {% endif %}
+                    {% set shareBar = null %}
+                    {% if p.shareBars is defined and p.shareBars[loop.index0] is defined %}
+                        {% set shareBar = p.shareBars[loop.index0] %}
                     {% endif %}
                     <tr>
                         {% for cell in row %}
                             <td class="{{ loop.index < numericStart ? '' : 'text-end' }}">
                                 {% if loop.first and monthRowTarget is defined and monthRowTarget is not null %}
                                     <a href="{{ statistics_nav_url(monthRowTarget) }}" class="text-reset">{{ cell }}</a>
-                                {% elseif loop.index == 2 and diagnosisRowTarget is not null %}
-                                    <a href="{{ statistics_nav_url(diagnosisRowTarget) }}" class="text-reset">{{ cell }}</a>
+                                {% elseif loop.index == 2 and labelRowTarget is not null %}
+                                    <a href="{{ statistics_nav_url(labelRowTarget) }}">{{ cell }}</a>
                                 {% else %}
                                     {{ cell }}
                                 {% endif %}
                             </td>
                         {% endfor %}
+                        {% if p.shareBars is defined %}
+                            <td class="stats-top-lists-share-col">
+                                {{ include('@Statistics/top_lists/_share_bar.html.twig', {share: shareBar|default(0)}) }}
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

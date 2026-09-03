@@ -25,6 +25,14 @@ Hospital and dispatch area are orthogonal: destination hospital ≠ origin dispa
 
 `StatisticsFilterPeriod`: `all`, `all_time`, `year`, `quarter`, `month`.
 
+Period is only the query window (`[from, toExclusive)` via `StatisticsPeriodResolver`). Time-series charts use a separate bucket size from `TimeSeriesGrainResolver` (`year`/`quarter`/`all`/`all_time` → month, `month` → day) and `TimeSeriesAxisFiller`:
+
+- Monthly series omit the in-progress calendar month, even if it already has rows.
+- Daily series (month period) include today and leave later days off the axis; past days without cases stay `0`.
+- KPIs and totals still count the selected period, including the current month.
+
+Tests: `tests/Statistics/Unit/Application/TimeSeries/TimeSeriesGrainResolverTest.php`, `TimeSeriesAxisFillerTest.php`.
+
 ## Default scope (no `scope` query parameter)
 
 `StatisticsFilterInputFactory` chooses the initial scope:

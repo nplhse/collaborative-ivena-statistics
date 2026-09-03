@@ -1,0 +1,19 @@
+<turbo-frame
+    id="{{ frameId }}"
+    src="{{ path('app_activity_timeline_feed', query.toQueryParams|merge({cursor: nextCursor})) }}"
+    loading="lazy"
+    data-testid="activity-timeline-next"
+>
+    <div class="list-group-item text-center text-secondary py-3" aria-busy="true" aria-live="polite">
+        <div class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></div>
+        <span class="visually-hidden">{{ 'activity.timeline.loading'|trans({}, 'content') }}</span>
+        <div class="mt-2">
+            <a
+                href="{{ path('app_activity_timeline_feed', query.toQueryParams|merge({cursor: nextCursor})) }}"
+                data-testid="activity-timeline-load-more"
+            >
+                {{ 'activity.timeline.load_more'|trans({}, 'content') }}
+            </a>
+        </div>
+    </div>
+</turbo-frame>

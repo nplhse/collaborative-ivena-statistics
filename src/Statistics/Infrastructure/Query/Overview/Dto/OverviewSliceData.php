@@ -7,7 +7,7 @@ namespace App\Statistics\Infrastructure\Query\Overview\Dto;
 final readonly class OverviewSliceData
 {
     /**
-     * @param list<array{year:int,month:int,count:int}>                $monthlyRows
+     * @param list<array{year:int,month:int,day?:int,count:int}>       $monthlyRows
      * @param array<string, int>                                       $ageGroupCounts
      * @param array<string, int>                                       $transportTimeBucketCounts
      * @param array<array-key, int>                                    $transportTypeBucketCounts keyed by projection code as string

@@ -42,8 +42,8 @@ final readonly class StatisticsExplorerViewModelFactory
                 'labelKey' => $definition->labelTranslationKey(),
                 'url' => $this->statisticsNavigationUrlBuilder->build(
                     $request,
-                    'app_stats_top_lists',
-                    [StatisticsQueryKeys::REPORT => $definition->key()],
+                    'app_stats_top_lists_show',
+                    ['report' => $definition->key(), StatisticsQueryKeys::PAGE => null],
                 ),
                 'active' => $currentTopListKey === $definition->key(),
             ];

@@ -1,12 +1,38 @@
-<div class="mb-3" data-testid="{{ testId|default('stats-compare-selection') }}">
+<div class="{{ wrapperClass|default('mb-3') }}" data-testid="{{ testId|default('stats-compare-selection') }}">
     <div class="row g-3 align-items-stretch">
         <div class="col-md">
             <div class="rounded-3 p-3 h-100 bg-primary-lt border-start border-4 stats-indication-compare-side-a">
                 <div class="d-flex align-items-start gap-3">
                     <span class="avatar avatar-md bg-primary text-white fw-bold flex-shrink-0">{{ sideAAvatar|default('A') }}</span>
-                    <div class="min-w-0">
-                        <div class="text-primary fw-medium small text-uppercase mb-1">
-                            {{ sideATitleKey|trans({}, 'statistics') }}
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <div class="text-primary fw-medium small text-uppercase mb-1">
+                                {{ sideATitleKey|trans({}, 'statistics') }}
+                            </div>
+                            {% if (sideAContinueUrl is defined and sideAContinueUrl) or (sideAEditModalTarget is defined and sideAEditModalTarget) %}
+                                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                    {% if sideAContinueUrl is defined and sideAContinueUrl %}
+                                        {% set sideAContinueLabel = (sideAContinueLabelKey|default('stats.top_lists.comparison.open_as_top_list'))|trans({}, 'statistics') %}
+                                        <a class="btn btn-sm stats-top-lists-compare-continue"
+                                           href="{{ sideAContinueUrl }}"
+                                           data-testid="{{ sideAContinueTestId|default(testId ~ '-continue-a') }}"
+                                           aria-label="{{ sideAContinueLabel }}"
+                                           title="{{ sideAContinueLabel }}">
+                                            <twig:ux:icon name="tabler:eye" class="icon icon-sm" />
+                                        </a>
+                                    {% endif %}
+                                    {% if sideAEditModalTarget is defined and sideAEditModalTarget %}
+                                        <button type="button"
+                                                class="btn btn-sm flex-shrink-0"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="{{ sideAEditModalTarget }}"
+                                                data-testid="{{ sideAEditTestId|default(testId ~ '-a-edit') }}">
+                                            <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+                                            {{ (sideAEditLabelKey|default('stats.top_lists.comparison.edit_a'))|trans({}, 'statistics') }}
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                         <h3 class="h2 mb-{% if sideASubheading is defined and sideASubheading %}1{% else %}2{% endif %}">
                             {% if sideAUrl is defined and sideAUrl %}
@@ -36,17 +62,52 @@
             </div>
         </div>
 
-        <div class="col-auto d-none d-md-flex align-items-center px-0">
-            <span class="text-muted fw-medium text-uppercase small">vs</span>
-        </div>
+        {% if swapUrl is defined and swapUrl %}
+            <div class="col-12 col-md-auto d-flex align-items-center justify-content-center py-1 py-md-0">
+                {{ include('@Statistics/top_lists/_comparison_swap.html.twig', {
+                    swapUrl: swapUrl,
+                    swapTestId: swapTestId|default('stats-top-lists-compare-swap'),
+                }) }}
+            </div>
+        {% else %}
+            <div class="col-auto d-none d-md-flex align-items-center px-0">
+                <span class="text-muted fw-medium text-uppercase small">vs</span>
+            </div>
+        {% endif %}
 
         <div class="col-md">
             <div class="rounded-3 p-3 h-100 bg-secondary-lt border-start border-4 stats-indication-compare-side-b">
                 <div class="d-flex align-items-start gap-3">
                     <span class="avatar avatar-md bg-secondary text-secondary-fg fw-bold flex-shrink-0">{{ sideBAvatar|default('B') }}</span>
-                    <div class="min-w-0">
-                        <div class="text-secondary fw-medium small text-uppercase mb-1">
-                            {{ sideBTitleKey|trans({}, 'statistics') }}
+                    <div class="min-w-0 flex-grow-1">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <div class="text-secondary fw-medium small text-uppercase mb-1">
+                                {{ sideBTitleKey|trans({}, 'statistics') }}
+                            </div>
+                            {% if (sideBContinueUrl is defined and sideBContinueUrl) or (sideBEditModalTarget is defined and sideBEditModalTarget) %}
+                                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                    {% if sideBContinueUrl is defined and sideBContinueUrl %}
+                                        {% set sideBContinueLabel = (sideBContinueLabelKey|default('stats.top_lists.comparison.open_as_top_list'))|trans({}, 'statistics') %}
+                                        <a class="btn btn-sm stats-top-lists-compare-continue"
+                                           href="{{ sideBContinueUrl }}"
+                                           data-testid="{{ sideBContinueTestId|default(testId ~ '-continue-b') }}"
+                                           aria-label="{{ sideBContinueLabel }}"
+                                           title="{{ sideBContinueLabel }}">
+                                            <twig:ux:icon name="tabler:eye" class="icon icon-sm" />
+                                        </a>
+                                    {% endif %}
+                                    {% if sideBEditModalTarget is defined and sideBEditModalTarget %}
+                                        <button type="button"
+                                                class="btn btn-sm flex-shrink-0"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="{{ sideBEditModalTarget }}"
+                                                data-testid="{{ sideBEditTestId|default(testId ~ '-b-edit') }}">
+                                            <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+                                            {{ (sideBEditLabelKey|default('stats.top_lists.comparison.edit_b'))|trans({}, 'statistics') }}
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                         <h3 class="h2 mb-{% if sideBSubheading is defined and sideBSubheading %}1{% else %}2{% endif %}">
                             {% if sideBUrl is defined and sideBUrl %}

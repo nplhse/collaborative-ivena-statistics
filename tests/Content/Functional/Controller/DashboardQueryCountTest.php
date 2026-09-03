@@ -70,4 +70,30 @@ final class DashboardQueryCountTest extends WebTestCase
         self::assertStringContainsString('user_activity', $sqlBlob);
         self::assertStringNotContainsString('allocation_stats_projection', $sqlBlob);
     }
+
+    public function testActivityTimelineQueriesUserActivityOnce(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $client->enableProfiler();
+        $client->request(Request::METHOD_GET, '/activity');
+
+        self::assertResponseIsSuccessful();
+
+        $profile = $client->getProfile();
+        self::assertNotNull($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        $activityQueries = 0;
+        foreach ($collector->getQueries() as $connectionQueries) {
+            foreach ($connectionQueries as $query) {
+                $sql = strtolower((string) ($query['sql'] ?? ''));
+                if (str_contains($sql, 'user_activity')) {
+                    ++$activityQueries;
+                }
+            }
+        }
+
+        self::assertSame(1, $activityQueries);
+    }
 }

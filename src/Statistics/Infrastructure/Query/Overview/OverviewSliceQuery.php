@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query\Overview;
 
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\Overview\Dto\OverviewSliceData;
 use Doctrine\DBAL\Connection;
 
@@ -23,12 +24,19 @@ final readonly class OverviewSliceQuery
 
         [$where, $params] = OverviewProjectionSqlFilter::buildWhereClause($criteria);
         $transportBucketCase = StatisticsTransportTimeBucketSql::CASE_EXPRESSION;
+        $timeSeriesDim3 = TimeSeriesGrain::Day === $criteria->timeSeriesGrain
+            ? 'created_day::text'
+            : 'NULL::text';
+        $timeSeriesGroupBy = TimeSeriesGrain::Day === $criteria->timeSeriesGrain
+            ? 'created_year, created_month, created_day'
+            : 'created_year, created_month';
 
         $sql = <<<SQL
 WITH slice AS (
     SELECT
         created_year,
         created_month,
+        created_day,
         transport_time_minutes,
         transport_type_code,
         created_weekday,
@@ -37,33 +45,33 @@ WITH slice AS (
     FROM allocation_stats_projection
     WHERE {$where}
 )
-SELECT 'time_series' AS slice_kind, created_year::text AS dim1, created_month::text AS dim2, COUNT(*)::int AS count
-FROM slice GROUP BY created_year, created_month
+SELECT 'time_series' AS slice_kind, created_year::text AS dim1, created_month::text AS dim2, {$timeSeriesDim3} AS dim3, COUNT(*)::int AS count
+FROM slice GROUP BY {$timeSeriesGroupBy}
 UNION ALL
-SELECT 'transport_time', bucket, NULL, COUNT(*)::int
+SELECT 'transport_time', bucket, NULL, NULL, COUNT(*)::int
 FROM (SELECT {$transportBucketCase} AS bucket FROM slice) grouped
 GROUP BY bucket
 UNION ALL
-SELECT 'transport_type', transport_type_code::text, NULL, COUNT(*)::int
+SELECT 'transport_type', transport_type_code::text, NULL, NULL, COUNT(*)::int
 FROM slice
 WHERE transport_type_code IS NOT NULL
 GROUP BY transport_type_code
 UNION ALL
-SELECT 'day_time_heatmap', created_weekday::text, day_time_bucket_code::text, COUNT(*)::int
+SELECT 'day_time_heatmap', created_weekday::text, day_time_bucket_code::text, NULL, COUNT(*)::int
 FROM slice GROUP BY created_weekday, day_time_bucket_code
 UNION ALL
-SELECT 'shift_heatmap', created_weekday::text, shift_bucket_code::text, COUNT(*)::int
+SELECT 'shift_heatmap', created_weekday::text, shift_bucket_code::text, NULL, COUNT(*)::int
 FROM slice GROUP BY created_weekday, shift_bucket_code
 SQL;
 
-        /** @var list<array{slice_kind:string,dim1:?string,dim2:?string,count:int|string}> $rows */
+        /** @var list<array{slice_kind:string,dim1:?string,dim2:?string,dim3:?string,count:int|string}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql, $params);
 
         return $this->parseRows($rows);
     }
 
     /**
-     * @param list<array{slice_kind:string,dim1:?string,dim2:?string,count:int|string}> $rows
+     * @param list<array{slice_kind:string,dim1:?string,dim2:?string,dim3:?string,count:int|string}> $rows
      */
     private function parseRows(array $rows): OverviewSliceData
     {
@@ -78,13 +86,10 @@ SQL;
             $kind = $row['slice_kind'];
             $dim1 = $row['dim1'] ?? '';
             $dim2 = $row['dim2'] ?? '';
+            $dim3 = $row['dim3'] ?? '';
 
             match ($kind) {
-                'time_series' => $monthlyRows[] = [
-                    'year' => (int) $dim1,
-                    'month' => (int) $dim2,
-                    'count' => $count,
-                ],
+                'time_series' => $monthlyRows[] = $this->timeSeriesRow($dim1, $dim2, $dim3, $count),
                 'transport_time' => $transportTimeBucketCounts[$dim1] = $count,
                 'transport_type' => $transportTypeBucketCounts[$dim1] = $count,
                 'day_time_heatmap' => $dayTimeHeatmapCells[] = [
@@ -103,7 +108,9 @@ SQL;
 
         usort(
             $monthlyRows,
-            static fn (array $a, array $b): int => $a['year'] <=> $b['year'] ?: $a['month'] <=> $b['month'],
+            static fn (array $a, array $b): int => $a['year'] <=> $b['year']
+                ?: $a['month'] <=> $b['month']
+                ?: ($a['day'] ?? 0) <=> ($b['day'] ?? 0),
         );
 
         return new OverviewSliceData(
@@ -114,5 +121,26 @@ SQL;
             $dayTimeHeatmapCells,
             $shiftHeatmapCells,
         );
+    }
+
+    /**
+     * @return array{year:int,month:int,day?:int,count:int}
+     */
+    private function timeSeriesRow(string $year, string $month, string $day, int $count): array
+    {
+        if ('' !== $day) {
+            return [
+                'year' => (int) $year,
+                'month' => (int) $month,
+                'day' => (int) $day,
+                'count' => $count,
+            ];
+        }
+
+        return [
+            'year' => (int) $year,
+            'month' => (int) $month,
+            'count' => $count,
+        ];
     }
 }

@@ -82,8 +82,12 @@
                 </div>
 
                 <div class="card" data-testid="dashboard-activity-feed">
-                    <div class="card-header">
+                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                         <h3 class="card-title mb-0">{{ 'dashboard.activity.title'|trans({}, 'content') }}</h3>
+                        <a href="{{ path('app_activity_timeline') }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2" data-testid="dashboard-activity-view-all">
+                            <twig:ux:icon name="tabler:activity" style="height: 1.25em;" />
+                            {{ 'dashboard.activity.view_all'|trans({}, 'content') }}
+                        </a>
                     </div>
                     <turbo-frame
                         id="dashboard-activity"

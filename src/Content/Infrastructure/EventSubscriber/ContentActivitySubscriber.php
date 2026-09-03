@@ -22,7 +22,7 @@ final readonly class ContentActivitySubscriber
     #[AsEventListener(event: PostPublished::class)]
     public function onPostPublished(PostPublished $event): void
     {
-        $this->activityRecorder->record(new UserActivityWrite(
+        $this->activityRecorder->sync(new UserActivityWrite(
             userId: $event->userId,
             type: UserActivityType::POST_PUBLISHED,
             occurredAt: $event->publishedAt,

@@ -494,6 +494,7 @@ final readonly class ExplorerResultsTablePresenter
             AnalysisDimensionGrain::Year => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
             AnalysisDimensionGrain::Quarter => $this->translator->trans('stats.analysis_explorer.dimension.quarter', [], 'statistics'),
             AnalysisDimensionGrain::Week => $this->translator->trans('stats.analysis_explorer.dimension.week', [], 'statistics'),
+            AnalysisDimensionGrain::Day => $this->translator->trans('stats.analysis_explorer.dimension.day', [], 'statistics'),
             AnalysisDimensionGrain::Total => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
             default => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
         };

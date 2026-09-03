@@ -34,10 +34,18 @@ final class ProjectionTimeSeriesQuery
         ?array $hospitalIds,
         ?StatisticsDrawerFilter $drawerFilter = null,
         ?int $dispatchAreaId = null,
+        ?string $requireNonNullProperty = null,
     ): int {
-        return (int) $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
-            ->select('COUNT(p.id)')
-            ->getQuery()
+        $qb = $this->createBaseCountQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
+            ->select('COUNT(p.id)');
+        if (null !== $requireNonNullProperty) {
+            if (1 !== preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $requireNonNullProperty)) {
+                throw new \InvalidArgumentException(sprintf('Invalid projection property "%s".', $requireNonNullProperty));
+            }
+            $qb->andWhere(sprintf('p.%s IS NOT NULL', $requireNonNullProperty));
+        }
+
+        return (int) $qb->getQuery()
             ->getSingleScalarResult();
     }
 

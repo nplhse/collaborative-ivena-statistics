@@ -60,8 +60,9 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
         $qb = $this->createQueryBuilder('p')
             ->addSelect('c', 't')
             ->leftJoin('p.category', 'c')
+            ->innerJoin('p.tags', 'filterTag')
+            ->andWhere('filterTag.slug = :slug')
             ->leftJoin('p.tags', 't')
-            ->andWhere('t.slug = :slug')
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $tagSlug)
@@ -100,25 +101,49 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
     {
         /** @var ?Post $post */
         $post = $this->createQueryBuilder('p')
-            ->addSelect('c', 't', 'comments', 'children', 'commentAuthor')
+            ->addSelect('c', 't')
             ->leftJoin('p.category', 'c')
             ->leftJoin('p.tags', 't')
-            ->leftJoin('p.comments', 'comments')
-            ->leftJoin('comments.children', 'children')
-            ->leftJoin('comments.author', 'commentAuthor')
             ->andWhere('p.slug = :slug')
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $slug)
             ->setParameter('status', PostStatus::PUBLISHED)
             ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
-            ->orderBy('comments.createdAt', 'ASC')
-            ->addOrderBy('children.createdAt', 'ASC')
-            ->setMaxResults(1)
+            ->addOrderBy('t.name', 'ASC')
             ->getQuery()
             ->getOneOrNullResult();
 
         return $post;
+    }
+
+    /**
+     * @param list<string> $slugs
+     *
+     * @return list<Post>
+     */
+    public function findPublishedBySlugs(array $slugs): array
+    {
+        $slugs = array_values(array_unique(array_filter(
+            $slugs,
+            static fn (string $slug): bool => '' !== $slug,
+        )));
+        if ([] === $slugs) {
+            return [];
+        }
+
+        /** @var list<Post> $posts */
+        $posts = $this->createQueryBuilder('p')
+            ->andWhere('p.slug IN (:slugs)')
+            ->andWhere('p.status = :status')
+            ->andWhere('p.publishedAt <= :now')
+            ->setParameter('slugs', $slugs)
+            ->setParameter('status', PostStatus::PUBLISHED)
+            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->getQuery()
+            ->getResult();
+
+        return $posts;
     }
 
     #[\Override]

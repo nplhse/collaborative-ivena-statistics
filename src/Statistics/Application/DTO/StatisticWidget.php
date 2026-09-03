@@ -13,8 +13,12 @@ namespace App\Statistics\Application\DTO;
  * - chart_pair: allocationChart, importChart (same shape as before for templates)
  * - table: headerTranslationKeys, rows, optional footerRow, optional summaryStats (meanDisplay, stdDevDisplay),
  *          optional numericColumnStartIndex (1-based column index from which numbers are right-aligned; default 2 as before)
- *          optional limitFooter for report tables: urls (array<int, string>), current (int), same idea as allocations pagination
+ *          optional rankingDepth for top-list tables: urls (array<int|string, string>), current (int|string)
+ *          optional limitFooter for report tables: urls (array<int, string>), current (int page size),
+ *          optional paginator, optional truncated (bool)
  *          optional monthRowTargets (analysis): list<StatisticWidgetNavigationTarget|null> parallel to rows — first column as link
+ *          optional labelRowTargets (top lists): list<StatisticWidgetNavigationTarget|null> parallel to rows — label column as link
+ *          optional shareBars (top lists): list<float> 0–100 share values parallel to rows — extra last column with a compact bar
  * - simple_chart: chartType (line|bar), labels, counts, optional summaryStats (same as table)
  * - section: titleTranslationKey
  * - distribution: titleTranslationKey, rows (labelTranslationKey, count, percent); optional widget.actions (cross-nav in card header)

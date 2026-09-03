@@ -605,13 +605,12 @@
     margin-top: 0.15rem;
 }
 
-.stats-ttp-marker {
+.stats-ttp-marker,
+.stats-rank-shift-badge {
     display: flex;
     align-items: center;
     gap: 0.15rem;
     width: fit-content;
-    margin-top: 0.15rem;
-    margin-left: auto;
     padding: 0.1rem 0.35rem;
     font-size: 0.7rem;
     font-weight: 500;
@@ -620,9 +619,84 @@
     -webkit-print-color-adjust: exact;
 }
 
-.stats-ttp-marker .icon {
+.stats-ttp-marker {
+    margin-top: 0.15rem;
+    margin-left: auto;
+}
+
+.stats-rank-shift-badge {
+    margin: 0;
+}
+
+.stats-ttp-marker .icon,
+.stats-rank-shift-badge .icon {
     width: 0.85rem;
     height: 0.85rem;
+}
+
+.btn.stats-top-lists-compare-continue {
+    --stats-compare-continue-size: calc(
+        var(--tblr-btn-line-height, 1.4285714) * 1em
+        + var(--tblr-btn-padding-y, 0.25rem) * 2
+        + var(--tblr-border-width, 1px) * 2
+    );
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--stats-compare-continue-size);
+    min-width: var(--stats-compare-continue-size);
+    height: var(--stats-compare-continue-size);
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.btn.stats-top-lists-compare-continue .icon {
+    display: block;
+    margin: 0;
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.stats-top-lists-value-pair {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 1.375rem;
+}
+
+.stats-top-lists-comparison-side-header {
+    min-height: 2.5rem;
+}
+
+.stats-top-lists-comparison-tables {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 1200px) {
+    .stats-top-lists-comparison-tables {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        row-gap: 0;
+    }
+}
+
+.stats-top-lists-comparison-tables tbody td {
+    height: 2.25rem;
+}
+
+.stats-top-lists-share-col {
+    width: 6.5rem;
+    min-width: 4.5rem;
+    vertical-align: middle;
+}
+
+.stats-top-lists-share-bar {
+    width: 100%;
+    min-width: 0;
 }
 
 .stats-ttp-ranked-td .stats-ttp-marker {
@@ -641,7 +715,10 @@
 .stats-ttp-heat-high-3,
 .stats-ttp-rank-shift-up,
 .stats-ttp-rank-shift-down,
-.stats-ttp-rank-shift-new {
+.stats-ttp-rank-shift-new,
+.stats-rank-shift-up,
+.stats-rank-shift-down,
+.stats-rank-shift-new {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
 }
@@ -676,19 +753,33 @@
     border-left: 4px solid rgba(47, 179, 68, 0.82);
 }
 
-.stats-ttp-rank-shift-up {
+.stats-ttp-rank-shift-up,
+.stats-rank-shift-up {
     border-left: 3px solid rgba(47, 179, 68, 0.85);
 }
 
-.stats-ttp-rank-shift-down {
+.stats-ttp-rank-shift-down,
+.stats-rank-shift-down {
     border-left: 3px solid rgba(214, 57, 57, 0.85);
 }
 
-.stats-ttp-rank-shift-new {
+.stats-ttp-rank-shift-new,
+.stats-rank-shift-new {
     border-left: 3px solid rgba(32, 107, 196, 0.75);
 }
 
 .stats-ttp-insight {
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
+}
+
+.activity-post-preview {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+.activity-post-preview p {
+    margin-bottom: 0;
 }

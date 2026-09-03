@@ -236,9 +236,10 @@ final class ExplorerEditFormType extends AbstractType
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $filter->period,
         );
         $formData = $this->withResolvedColumnGrain($formData, $rowAxis, $capabilities);
-        $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities);
+        $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities, $filter->period);
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::defaultFor($dataSourceKey);
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
         $compatibleMetrics = array_values(array_filter(
@@ -568,6 +569,7 @@ final class ExplorerEditFormType extends AbstractType
         ExplorerEditFormData $formData,
         AnalysisAxisRef $rowAxis,
         \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+        \App\Statistics\Application\DTO\StatisticsFilterPeriod $period,
     ): ?AnalysisAxisRef {
         if (null === $formData->columnDimension || self::NONE_COLUMN === $formData->columnDimension) {
             return null;
@@ -577,6 +579,7 @@ final class ExplorerEditFormType extends AbstractType
             $formData->columnDimension,
             $formData->columnGrain,
             $capabilities,
+            $period,
         );
 
         if (!$capabilities->supportsColumnAxis($rowAxis, $candidate)) {
@@ -653,6 +656,7 @@ final class ExplorerEditFormType extends AbstractType
                 AnalysisDimensionGrain::Year => 'stats.analysis_explorer.dimension.year',
                 AnalysisDimensionGrain::Quarter => 'stats.analysis_explorer.dimension.quarter',
                 AnalysisDimensionGrain::Week => 'stats.analysis_explorer.dimension.week',
+                AnalysisDimensionGrain::Day => 'stats.analysis_explorer.dimension.day',
                 default => 'stats.analysis_explorer.dimension.month',
             };
             $choices[$this->translator->trans($labelKey, [], 'statistics')] = $grain->value;

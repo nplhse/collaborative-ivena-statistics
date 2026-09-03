@@ -1,0 +1,28 @@
+<div class="dropdown" data-testid="stats-top-lists-ranking-depth">
+    <a class="btn dropdown-toggle"
+       data-bs-toggle="dropdown"
+       aria-expanded="false"
+       aria-label="{{ 'stats.top_lists.limit.depth_label'|trans({}, 'statistics') }}"
+       data-testid="stats-top-lists-limit-trigger">
+        <span class="me-1">
+            {% if currentLimit == 'all' %}
+                {{ 'stats.top_lists.limit.all'|trans({}, 'statistics') }}
+            {% else %}
+                {{ 'stats.top_lists.limit.top'|trans({count: currentLimit}, 'statistics') }}
+            {% endif %}
+        </span>
+    </a>
+    <div class="dropdown-menu">
+        {% for size, url in rankingDepthUrls %}
+            <a class="dropdown-item{% if size == currentLimit %} active{% endif %}"
+               href="{{ url }}"
+               data-testid="stats-top-lists-limit-{{ size }}">
+                {% if size == 'all' %}
+                    {{ 'stats.top_lists.limit.all'|trans({}, 'statistics') }}
+                {% else %}
+                    {{ 'stats.top_lists.limit.top'|trans({count: size}, 'statistics') }}
+                {% endif %}
+            </a>
+        {% endfor %}
+    </div>
+</div>

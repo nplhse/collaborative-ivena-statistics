@@ -37,6 +37,10 @@ final class ListSecondaryTransportsControllerTest extends WebTestCase
         self::assertSelectorTextContains('#result-count', 'Showing 1-25 of 35 results.');
 
         self::assertSelectorExists('a[href*="/explore/secondary_transport/"]');
+
+        $topListHref = $crawler->filter('[data-testid="catalog-top-list-action"]')->attr('href');
+        self::assertNotNull($topListHref);
+        self::assertSame('/statistics/top-lists/top_secondary_transports', $topListHref);
     }
 
     public function testTableCanBeSorted(): void

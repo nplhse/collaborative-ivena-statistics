@@ -39,10 +39,32 @@ final class ContentActivityNotifierTest extends TestCase
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects(self::never())->method('dispatch');
 
+        $post = $this->post(PostStatus::PUBLISHED);
         new ContentActivityNotifier($dispatcher)->postPublishedIfApplicable(
-            $this->post(PostStatus::PUBLISHED),
+            $post,
             PostStatus::PUBLISHED,
+            $post->getPublishedAt(),
         );
+    }
+
+    public function testChangedPublicationTimeDispatchesEvent(): void
+    {
+        $post = $this->post(PostStatus::PUBLISHED);
+        $dispatcher = new EventDispatcher();
+        $events = [];
+        $dispatcher->addListener(PostPublished::class, static function (object $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        new ContentActivityNotifier($dispatcher)->postPublishedIfApplicable(
+            $post,
+            PostStatus::PUBLISHED,
+            new \DateTimeImmutable('2026-09-03 10:42:00'),
+        );
+
+        self::assertCount(1, $events);
+        self::assertInstanceOf(PostPublished::class, $events[0]);
+        self::assertEquals(new \DateTimeImmutable('2026-07-12 10:00:00'), $events[0]->publishedAt);
     }
 
     public function testDraftDoesNotDispatch(): void

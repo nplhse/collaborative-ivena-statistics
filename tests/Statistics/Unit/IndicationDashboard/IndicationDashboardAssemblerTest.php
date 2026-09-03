@@ -123,6 +123,21 @@ final class IndicationDashboardAssemblerTest extends TestCase
         self::assertCount(3, $deck->urgencySegments);
         self::assertSame(['2026-03', '2026-04'], $series->labels);
         self::assertSame([12, 8], $series->values);
+
+        $daily = $this->assembler->buildTimeSeries(
+            [
+                ['year' => 2026, 'month' => 9, 'day' => 1, 'count' => 12],
+                ['year' => 2026, 'month' => 9, 'day' => 3, 'count' => 17],
+            ],
+            \App\Statistics\Application\TimeSeries\TimeSeriesGrain::Day,
+            new \App\Statistics\Application\DTO\StatisticsPeriodBounds(
+                new \DateTimeImmutable('2026-09-01 00:00:00'),
+                new \DateTimeImmutable('2026-10-01 00:00:00'),
+            ),
+            new \DateTimeImmutable('2026-09-03 12:00:00'),
+        );
+        self::assertSame(['2026-09-01', '2026-09-02', '2026-09-03'], $daily->labels);
+        self::assertSame([12, 0, 17], $daily->values);
     }
 
     public function testBuildAgeHistogramAndGroupDistribution(): void

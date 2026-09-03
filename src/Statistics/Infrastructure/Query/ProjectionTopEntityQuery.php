@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Uid\Uuid;
 
 final readonly class ProjectionTopEntityQuery
 {
@@ -21,7 +22,7 @@ final readonly class ProjectionTopEntityQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return list<array{label:string,count:int}>
+     * @return list<array{label:string,count:int,entityId:?int,publicId:?string}>
      */
     public function fetchTopAggregates(
         ?\DateTimeImmutable $from,
@@ -32,20 +33,43 @@ final readonly class ProjectionTopEntityQuery
         string $entityFqcn,
         ?StatisticsDrawerFilter $drawerFilter = null,
         ?int $dispatchAreaId = null,
+        bool $requireJoinedEntity = false,
     ): array {
-        $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
-            ->leftJoin($entityFqcn, 'ent', 'WITH', sprintf('ent.id = p.%s', $projectionJoinProperty))
-            ->select('COALESCE(ent.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
+        $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId);
+        if ($requireJoinedEntity) {
+            $this->assertProjectionProperty($projectionJoinProperty);
+            $qb->innerJoin($entityFqcn, 'ent', 'WITH', sprintf('ent.id = p.%s', $projectionJoinProperty))
+                ->andWhere(sprintf('p.%s IS NOT NULL', $projectionJoinProperty));
+        } else {
+            $qb->leftJoin($entityFqcn, 'ent', 'WITH', sprintf('ent.id = p.%s', $projectionJoinProperty));
+        }
+
+        $qb->select('ent.id AS entityId', 'ent.publicId AS publicId', 'COALESCE(ent.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
-            ->groupBy('label')
+            ->groupBy('entityId', 'publicId', 'label')
             ->orderBy('cnt', 'DESC')
             ->setMaxResults($limit);
 
-        /** @var list<array{label:string,cnt:numeric-string|int}> $rows */
+        /** @var list<array{entityId:int|string|null,publicId:Uuid|string|null,label:string,cnt:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
 
         return array_map(
-            static fn (array $row): array => ['label' => $row['label'], 'count' => (int) $row['cnt']],
+            static function (array $row): array {
+                $entityId = $row['entityId'] ?? null;
+                $publicId = $row['publicId'] ?? null;
+                if ($publicId instanceof Uuid) {
+                    $publicId = $publicId->toRfc4122();
+                } elseif (!\is_string($publicId) || '' === $publicId) {
+                    $publicId = null;
+                }
+
+                return [
+                    'label' => $row['label'],
+                    'count' => (int) $row['cnt'],
+                    'entityId' => null !== $entityId && '' !== $entityId ? (int) $entityId : null,
+                    'publicId' => $publicId,
+                ];
+            },
             $rows,
         );
     }
@@ -71,5 +95,12 @@ final readonly class ProjectionTopEntityQuery
         }
 
         return $qb;
+    }
+
+    private function assertProjectionProperty(string $property): void
+    {
+        if (1 !== preg_match('/^[a-zA-Z][a-zA-Z0-9]*$/', $property)) {
+            throw new \InvalidArgumentException(sprintf('Invalid projection property "%s".', $property));
+        }
     }
 }

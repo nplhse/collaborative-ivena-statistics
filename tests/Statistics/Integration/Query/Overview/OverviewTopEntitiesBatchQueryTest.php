@@ -60,7 +60,7 @@ final class OverviewTopEntitiesBatchQueryTest extends KernelTestCase
 
         $import = ImportFactory::createOne(['name' => 'TopBatchImport', 'hospital' => $hospital, 'createdBy' => $user]);
 
-        AllocationFactory::createOne([
+        $allocationDefaults = [
             'import' => $import,
             'hospital' => $hospital,
             'state' => $state,
@@ -71,12 +71,13 @@ final class OverviewTopEntitiesBatchQueryTest extends KernelTestCase
             'occasion' => $occasion,
             'infection' => $infection,
             'indicationNormalized' => $indication,
-            'secondaryIndicationNormalized' => $secondary,
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::INPATIENT,
             'transportType' => AllocationTransportType::GROUND,
             'createdAt' => new \DateTimeImmutable('2025-06-15 10:00:00'),
-        ]);
+        ];
+        AllocationFactory::createOne(array_merge($allocationDefaults, ['secondaryIndicationNormalized' => $secondary]));
+        AllocationFactory::createOne(array_merge($allocationDefaults, ['infection' => null]));
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
@@ -95,11 +96,35 @@ final class OverviewTopEntitiesBatchQueryTest extends KernelTestCase
         $result = $batch($criteria, 5);
 
         self::assertSame('TopBatchSpec', $result[OverviewTopEntitiesBatchQuery::DIMENSION_SPECIALITY][0]['label']);
-        self::assertSame(1, $result[OverviewTopEntitiesBatchQuery::DIMENSION_SPECIALITY][0]['count']);
+        self::assertSame(2, $result[OverviewTopEntitiesBatchQuery::DIMENSION_SPECIALITY][0]['count']);
         self::assertSame('TopBatchDept', $result[OverviewTopEntitiesBatchQuery::DIMENSION_DEPARTMENT][0]['label']);
         self::assertSame('TopBatchAssign', $result[OverviewTopEntitiesBatchQuery::DIMENSION_ASSIGNMENT][0]['label']);
         self::assertSame('TopBatchOcc', $result[OverviewTopEntitiesBatchQuery::DIMENSION_OCCASION][0]['label']);
         self::assertSame('TopBatchInf', $result[OverviewTopEntitiesBatchQuery::DIMENSION_INFECTION][0]['label']);
+        self::assertSame(1, $result[OverviewTopEntitiesBatchQuery::DIMENSION_INFECTION][0]['count']);
+        $infectionLabels = array_column($result[OverviewTopEntitiesBatchQuery::DIMENSION_INFECTION], 'label');
+        self::assertNotContains('Unknown', $infectionLabels);
+        self::assertContains(OverviewTopEntitiesBatchQuery::PRESENCE_TOTAL_LABEL, $infectionLabels);
+        self::assertSame(1, $this->presenceTotal($result[OverviewTopEntitiesBatchQuery::DIMENSION_INFECTION]));
         self::assertSame('TopBatchSecondary', $result[OverviewTopEntitiesBatchQuery::DIMENSION_SECONDARY_DIAGNOSIS][0]['label']);
+        self::assertSame(1, $result[OverviewTopEntitiesBatchQuery::DIMENSION_SECONDARY_DIAGNOSIS][0]['count']);
+        $secondaryLabels = array_column($result[OverviewTopEntitiesBatchQuery::DIMENSION_SECONDARY_DIAGNOSIS], 'label');
+        self::assertNotContains('Unknown', $secondaryLabels);
+        self::assertContains(OverviewTopEntitiesBatchQuery::PRESENCE_TOTAL_LABEL, $secondaryLabels);
+        self::assertSame(1, $this->presenceTotal($result[OverviewTopEntitiesBatchQuery::DIMENSION_SECONDARY_DIAGNOSIS]));
+    }
+
+    /**
+     * @param list<array{label: string, count: int}> $rows
+     */
+    private function presenceTotal(array $rows): ?int
+    {
+        foreach ($rows as $row) {
+            if (OverviewTopEntitiesBatchQuery::PRESENCE_TOTAL_LABEL === $row['label']) {
+                return $row['count'];
+            }
+        }
+
+        return null;
     }
 }

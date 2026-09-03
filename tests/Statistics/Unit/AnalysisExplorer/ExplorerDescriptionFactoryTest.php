@@ -70,6 +70,23 @@ final class ExplorerDescriptionFactoryTest extends TestCase
         );
     }
 
+    public function testDescriptionForTimeDayUsesDedicatedText(): void
+    {
+        $factory = $this->factory([
+            'stats.analysis_explorer.description.temporal_primary' => '{grain} allocation totals.',
+            'stats.analysis_explorer.description.grain.day' => 'Daily',
+        ]);
+
+        self::assertSame(
+            'Daily allocation totals.',
+            $factory->descriptionForAxes(
+                AnalysisAxisRef::time(AnalysisDimensionGrain::Day),
+                null,
+                ChartPresentationType::Line,
+            ),
+        );
+    }
+
     /**
      * @param array<string, string> $map
      */

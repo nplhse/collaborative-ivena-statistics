@@ -24,6 +24,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsPeriodResolver;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\Overview\OverviewSliceQuery;
 use App\User\Domain\Factory\UserFactory;
@@ -77,13 +78,17 @@ final class OverviewSliceQueryTest extends KernelTestCase
             6,
         );
         $bounds = StatisticsPeriodResolver::resolve($filter);
-        $criteria = OverviewQueryCriteria::fromPeriodBounds($bounds, [$hospital->getId()]);
+        $criteria = OverviewQueryCriteria::fromPeriodBounds(
+            $bounds,
+            [$hospital->getId()],
+            timeSeriesGrain: TimeSeriesGrain::Day,
+        );
 
         $slice = self::getContainer()->get(OverviewSliceQuery::class)($criteria);
 
         self::assertSame(
             [
-                ['year' => 2025, 'month' => 6, 'count' => 1],
+                ['year' => 2025, 'month' => 6, 'day' => 15, 'count' => 1],
             ],
             $slice->monthlyRows,
         );
@@ -146,6 +151,65 @@ final class OverviewSliceQueryTest extends KernelTestCase
         self::assertSame(2, $this->sumHeatmapCounts($slice->dayTimeHeatmapCells));
         self::assertSame(2, array_sum($slice->transportTimeBucketCounts));
         self::assertSame(2, $slice->transportTypeBucketCounts['1'] ?? 0);
+    }
+
+    public function testQuarterPeriodReturnsMonthlyRows(): void
+    {
+        self::bootKernel();
+
+        [$hospital, $import, $state, $dispatchArea] = $this->seedHospitalWithImport();
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'transportType' => AllocationTransportType::GROUND,
+            'createdAt' => new \DateTimeImmutable('2025-04-10 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-04-10 10:30:00'),
+        ]);
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'transportType' => AllocationTransportType::GROUND,
+            'createdAt' => new \DateTimeImmutable('2025-06-15 08:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-06-15 08:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $filter = new StatisticsFilter(
+            StatisticsFilterScope::Hospital,
+            $hospital->getId(),
+            null,
+            StatisticsFilterPeriod::Quarter,
+            2025,
+            null,
+            2,
+        );
+        $bounds = StatisticsPeriodResolver::resolve($filter);
+        $criteria = OverviewQueryCriteria::fromPeriodBounds(
+            $bounds,
+            [$hospital->getId()],
+            timeSeriesGrain: TimeSeriesGrain::Month,
+        );
+
+        $slice = self::getContainer()->get(OverviewSliceQuery::class)($criteria);
+
+        self::assertSame(
+            [
+                ['year' => 2025, 'month' => 4, 'count' => 1],
+                ['year' => 2025, 'month' => 6, 'count' => 1],
+            ],
+            $slice->monthlyRows,
+        );
     }
 
     /**

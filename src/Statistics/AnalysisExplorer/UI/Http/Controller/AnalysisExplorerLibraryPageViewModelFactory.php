@@ -404,6 +404,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 
         return match ($grain) {
             'month' => $this->translator->trans('stats.analysis_explorer.dimension.month', [], 'statistics'),
+            'day' => $this->translator->trans('stats.analysis_explorer.dimension.day', [], 'statistics'),
             'year' => $this->translator->trans('stats.analysis_explorer.dimension.year', [], 'statistics'),
             'total' => $this->translator->trans('stats.analysis_explorer.grain.total', [], 'statistics'),
             default => $grain,

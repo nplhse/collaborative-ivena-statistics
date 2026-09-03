@@ -423,8 +423,12 @@
     {% endif %}
 
     {# --- Boolean-like filters --- #}
-    {% if filters.participating is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.participation', value: filters.participating ? 'Yes' : 'No'}]) %}
+    {% if filters.participating is not empty %}
+        {% set participatingValueKey = filters.participating == '1' ? 'label.is_participating.yes' : 'label.is_participating.not' %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.participation',
+            value: participatingValueKey|trans({}, 'messages'),
+        }]) %}
     {% endif %}
 
     {# 2. Manual alphabetical sort by label-translation-key #}

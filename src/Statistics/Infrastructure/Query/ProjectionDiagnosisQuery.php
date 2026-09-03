@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Infrastructure\Entity\AllocationStatsProjection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\Uid\Uuid;
 
 final readonly class ProjectionDiagnosisQuery
 {
@@ -21,7 +22,7 @@ final readonly class ProjectionDiagnosisQuery
     /**
      * @param list<int>|null $hospitalIds
      *
-     * @return list<array{label:string,count:int,indicationId:?int}>
+     * @return list<array{label:string,count:int,indicationId:?int,publicId:?string}>
      */
     public function fetchTopDiagnosisAggregates(
         ?\DateTimeImmutable $from,
@@ -33,23 +34,30 @@ final readonly class ProjectionDiagnosisQuery
     ): array {
         $qb = $this->createBaseQb($from, $toExclusive, $hospitalIds, $drawerFilter, $dispatchAreaId)
             ->leftJoin(\App\Allocation\Domain\Entity\IndicationNormalized::class, 'inorm', 'WITH', 'inorm.id = p.indicationNormalizedId')
-            ->select('inorm.id AS indicationId', 'COALESCE(inorm.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
+            ->select('inorm.id AS indicationId', 'inorm.publicId AS publicId', 'COALESCE(inorm.name, :unknown) AS label', 'COUNT(p.id) AS cnt')
             ->setParameter('unknown', 'Unknown')
-            ->groupBy('indicationId', 'label')
+            ->groupBy('indicationId', 'publicId', 'label')
             ->orderBy('cnt', 'DESC')
             ->setMaxResults($limit);
 
-        /** @var list<array{indicationId:int|string|null,label:string,cnt:numeric-string|int}> $rows */
+        /** @var list<array{indicationId:int|string|null,publicId:Uuid|string|null,label:string,cnt:numeric-string|int}> $rows */
         $rows = $qb->getQuery()->getArrayResult();
 
         return array_map(
             static function (array $row): array {
                 $indicationId = $row['indicationId'] ?? null;
+                $publicId = $row['publicId'] ?? null;
+                if ($publicId instanceof Uuid) {
+                    $publicId = $publicId->toRfc4122();
+                } elseif (!\is_string($publicId) || '' === $publicId) {
+                    $publicId = null;
+                }
 
                 return [
                     'label' => $row['label'],
                     'count' => (int) $row['cnt'],
                     'indicationId' => null !== $indicationId && '' !== $indicationId ? (int) $indicationId : null,
+                    'publicId' => $publicId,
                 ];
             },
             $rows,

@@ -39,7 +39,7 @@ final class UserFactory extends PersistentObjectFactory
             'isVerified' => true,
             'password' => 'password',
             'roles' => ['ROLE_USER'],
-            'username' => self::faker()->userName(),
+            'username' => sprintf('user-%s', bin2hex(random_bytes(8))),
         ];
     }
 

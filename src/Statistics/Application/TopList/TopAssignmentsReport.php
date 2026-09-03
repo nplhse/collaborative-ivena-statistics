@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Assignment;
 
 final readonly class TopAssignmentsReport extends AbstractTopNTableReport
@@ -27,6 +28,18 @@ final readonly class TopAssignmentsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:archery-arrow';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Assignment;
+    }
+
+    #[\Override]
     protected function projectionJoinProperty(): string
     {
         return 'assignmentId';
@@ -39,7 +52,7 @@ final readonly class TopAssignmentsReport extends AbstractTopNTableReport
     }
 
     #[\Override]
-    protected function tableLabelColumnTranslationKey(): string
+    public function tableLabelColumnTranslationKey(): string
     {
         return 'stats.top_lists.table.assignment';
     }

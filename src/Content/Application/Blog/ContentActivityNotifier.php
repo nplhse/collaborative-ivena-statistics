@@ -19,13 +19,12 @@ final readonly class ContentActivityNotifier
     ) {
     }
 
-    public function postPublishedIfApplicable(Post $post, ?PostStatus $previousStatus): void
-    {
+    public function postPublishedIfApplicable(
+        Post $post,
+        ?PostStatus $previousStatus,
+        ?\DateTimeImmutable $previousPublishedAt = null,
+    ): void {
         if (PostStatus::PUBLISHED !== $post->getStatus()) {
-            return;
-        }
-
-        if (PostStatus::PUBLISHED === $previousStatus) {
             return;
         }
 
@@ -35,6 +34,10 @@ final readonly class ContentActivityNotifier
         $slug = $post->getSlug();
         $publishedAt = $post->getPublishedAt();
         if (!\is_int($postId) || !\is_int($userId) || !\is_string($title) || '' === $title || !\is_string($slug) || '' === $slug || !$publishedAt instanceof \DateTimeImmutable) {
+            return;
+        }
+
+        if (PostStatus::PUBLISHED === $previousStatus && !$this->publicationTimeChanged($previousPublishedAt, $publishedAt)) {
             return;
         }
 
@@ -67,5 +70,14 @@ final readonly class ContentActivityNotifier
             excerpt: CommentExcerpt::from($content),
             occurredAt: $comment->getCreatedAt(),
         ));
+    }
+
+    private function publicationTimeChanged(?\DateTimeImmutable $previousPublishedAt, \DateTimeImmutable $publishedAt): bool
+    {
+        if (!$previousPublishedAt instanceof \DateTimeImmutable) {
+            return true;
+        }
+
+        return $previousPublishedAt != $publishedAt;
     }
 }

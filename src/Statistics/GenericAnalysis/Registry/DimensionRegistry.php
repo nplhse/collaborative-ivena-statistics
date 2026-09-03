@@ -88,6 +88,14 @@ SQL;
         $this->register($this->temporalDimension('quarter', 'created_quarter', 'Quarter', [1, 2, 3, 4]));
         $this->register($this->temporalDimension('month', 'created_month', 'Month', range(1, 12)));
         $this->register($this->temporalDimension('week', 'created_week', 'Calendar week', range(1, 53)));
+        $this->register(new AnalysisDimension(
+            key: 'day',
+            column: 'created_day',
+            label: 'Day',
+            type: AnalysisDimensionType::Temporal,
+            recommendedChartType: 'line',
+            sqlExpression: "to_char(make_date(created_year, created_month, created_day), 'YYYY-MM-DD')",
+        ));
         $this->register($this->clinicalIndicatorDimension(
             ClinicalIndicatorDefinitions::DIMENSION_RESOURCES,
             'Clinical resources',

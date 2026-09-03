@@ -32,7 +32,7 @@ final readonly class AnalysisViewConfigNormalizer
             : null;
 
         $rowAxis = $capabilities->supportsAxis($config->rowAxis)
-            ? $this->axisResolver->resolve($config->rowAxis, $capabilities)
+            ? $this->axisResolver->resolve($config->rowAxis, $capabilities, $config->statisticsFilter->period)
             : ('hospitals' === $config->dataSourceKey->value
                 ? \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown($capabilities->defaultDimension)
                 : \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::time($capabilities->defaultTimeGrain));
@@ -42,7 +42,7 @@ final readonly class AnalysisViewConfigNormalizer
             if (!$capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
                 $columnAxis = null;
             } else {
-                $columnAxis = $this->axisResolver->resolve($columnAxis, $capabilities);
+                $columnAxis = $this->axisResolver->resolve($columnAxis, $capabilities, $config->statisticsFilter->period);
             }
         }
 

@@ -68,4 +68,25 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
 
         $builder->buildFromTarget($request, $target);
     }
+
+    public function testBuildFromTargetSkipsRequestQueryWhenMergeDisabled(): void
+    {
+        $router = $this->createMock(UrlGeneratorInterface::class);
+        $router
+            ->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_department_show', ['publicId' => '11111111-1111-4111-8111-111111111111'])
+            ->willReturn('/explore/department/11111111-1111-4111-8111-111111111111');
+
+        $builder = new StatisticsNavigationUrlBuilder($router);
+        $request = Request::create('/statistics/top-lists/top_departments?scope=public&period=all');
+        $target = new StatisticWidgetNavigationTarget(
+            'stats.top_lists.nav.catalog_entry',
+            'app_explore_department_show',
+            ['publicId' => '11111111-1111-4111-8111-111111111111'],
+            mergeRequestQuery: false,
+        );
+
+        $builder->buildFromTarget($request, $target);
+    }
 }

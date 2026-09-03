@@ -40,6 +40,7 @@
                 <!-- Page title actions -->
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
+                        {{ include('@Allocation/catalog/_list_top_list_action.html.twig', {dimension: 'occasion'}) }}
                         <form
                             method="GET"
                             action="{{ path('app_explore_occasion_list') }}"

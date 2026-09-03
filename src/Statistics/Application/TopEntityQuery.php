@@ -9,7 +9,7 @@ use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
 use App\Statistics\Infrastructure\Query\ProjectionTopEntityQuery;
 
 /**
- * @phpstan-type Row array{label: string, count: int}
+ * @phpstan-type Row array{label: string, count: int, entityId: ?int, publicId: ?string}
  */
 final readonly class TopEntityQuery
 {
@@ -29,6 +29,7 @@ final readonly class TopEntityQuery
         string $projectionJoinProperty,
         string $entityFqcn,
         ?int $totalAllocations = null,
+        bool $requireJoinedEntity = false,
     ): array {
         $bounds = StatisticsPeriodResolver::resolve($context->filter);
         $scopeCriteria = $this->scopeResolver->resolveCriteria($context);
@@ -44,6 +45,7 @@ final readonly class TopEntityQuery
             $entityFqcn,
             $drawerFilter,
             $scopeCriteria->dispatchAreaId,
+            $requireJoinedEntity,
         );
 
         $total = $totalAllocations ?? $this->timeSeriesQuery->countCreatedInPeriod(
@@ -52,6 +54,7 @@ final readonly class TopEntityQuery
             $scopeCriteria->hospitalIds,
             $drawerFilter,
             $scopeCriteria->dispatchAreaId,
+            $requireJoinedEntity ? $projectionJoinProperty : null,
         );
 
         return [

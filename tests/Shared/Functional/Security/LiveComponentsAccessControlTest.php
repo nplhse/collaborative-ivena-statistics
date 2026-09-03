@@ -32,6 +32,14 @@ final class LiveComponentsAccessControlTest extends WebTestCase
         self::assertResponseRedirects('/login');
     }
 
+    public function testTopListComparisonSelectionFormRedirectsGuestsToLogin(): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_GET, '/_components/TopListComparisonSelectionForm');
+
+        self::assertResponseRedirects('/login');
+    }
+
     public function testAnalysisExplorerShellDoesNotRedirectAuthenticatedUserToLogin(): void
     {
         $client = self::createClient();
@@ -57,6 +65,14 @@ final class LiveComponentsAccessControlTest extends WebTestCase
     {
         $client = self::createClient();
         $client->request(Request::METHOD_POST, '/_components/BenchmarkSelectionForm');
+
+        self::assertResponseRedirects('/login');
+    }
+
+    public function testTopListComparisonSelectionFormActionRedirectsGuestsToLogin(): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_POST, '/_components/TopListComparisonSelectionForm');
 
         self::assertResponseRedirects('/login');
     }

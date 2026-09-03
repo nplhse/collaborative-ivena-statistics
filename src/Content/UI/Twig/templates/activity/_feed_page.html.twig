@@ -1,0 +1,26 @@
+<turbo-frame id="{{ frameId }}">
+    {% if page.items is empty %}
+        <div class="card-body py-3 text-secondary" data-testid="activity-timeline-empty">
+            {% if query.hasActiveFilters %}
+                {{ 'activity.timeline.empty_filtered'|trans({}, 'content') }}
+            {% else %}
+                {{ 'activity.timeline.empty'|trans({}, 'content') }}
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="list-group list-group-flush">
+            {{ include('@Content/dashboard/_activity_items.html.twig', {
+                activities: page.items,
+                previews: previews|default({}),
+                activity_item_testid: 'activity-timeline-item',
+            }) }}
+            {% if page.hasMore and page.nextCursor and nextFrameId %}
+                {{ include('@Content/activity/_next_frame.html.twig', {
+                    nextCursor: page.nextCursor,
+                    frameId: nextFrameId,
+                    query: query,
+                }) }}
+            {% endif %}
+        </div>
+    {% endif %}
+</turbo-frame>

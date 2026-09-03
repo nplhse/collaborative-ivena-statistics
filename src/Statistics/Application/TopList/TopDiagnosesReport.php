@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\TopList;
 
+use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
-use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\TableWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Application\TopDiagnosesQuery;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class TopDiagnosesReport implements TopListDefinitionInterface
 {
@@ -19,6 +20,8 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
         private TopDiagnosesQuery $topDiagnosesQuery,
         private TopListLimitPolicy $reportLimitPolicy,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
+        private TranslatorInterface $translator,
+        private TopListCatalogCrossReference $catalogCrossReference,
     ) {
     }
 
@@ -41,38 +44,61 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
     }
 
     #[\Override]
+    public function icon(): string
+    {
+        return 'tabler:id';
+    }
+
+    #[\Override]
+    public function catalogDimension(): CatalogDimensionKey
+    {
+        return CatalogDimensionKey::Indication;
+    }
+
+    #[\Override]
+    public function tableLabelColumnTranslationKey(): string
+    {
+        return 'stats.top_lists.table.diagnosis';
+    }
+
+    #[\Override]
     public function supports(StatisticsFilter $filter): bool
     {
         return true;
     }
 
     #[\Override]
-    public function build(StatisticsContext $context, int $limit): StatisticWidget
+    public function fetchRanking(StatisticsContext $context, int $limit): TopListRanking
     {
         $data = $this->topDiagnosesQuery->fetch($context, $limit);
-        $total = $data['totalAllocations'];
-        $rows = [];
-        $diagnosisRowTargets = [];
-        $rank = 1;
 
-        foreach ($data['rows'] as $row) {
-            $count = $row['count'];
-            $pct = $total > 0 ? round(100 * $count / $total, 1) : 0.0;
+        return TopListRanking::fromAggregates(
+            $data['rows'],
+            $data['totalAllocations'],
+            $limit,
+            $this->translator->trans(TopListRanking::UNKNOWN_TRANSLATION_KEY, [], 'statistics'),
+        );
+    }
+
+    #[\Override]
+    public function toTableWidget(TopListRanking $ranking): StatisticWidget
+    {
+        $rows = [];
+        $labelRowTargets = [];
+        $shareBars = [];
+
+        foreach ($ranking->rows as $row) {
             $rows[] = [
-                (string) $rank,
-                $row['label'],
-                (string) $count,
-                sprintf('%.1f%%', $pct),
+                (string) $row->rank,
+                $row->label,
+                (string) $row->count,
+                sprintf('%.1f%%', $row->share),
             ];
-            $diagnosisRowTargets[] = isset($row['indicationId'])
-                ? new StatisticWidgetNavigationTarget(
-                    'stats.top_lists.nav.indication_profile',
-                    'app_stats_indication_dashboard',
-                    ['indicationId' => $row['indicationId']],
-                    ['report', 'limit', 'view', 'chart'],
-                )
-                : null;
-            ++$rank;
+            $labelRowTargets[] = $this->catalogCrossReference->labelRowTarget(
+                $this->key(),
+                $row->publicId,
+            );
+            $shareBars[] = $row->share;
         }
 
         $payload = new TableWidgetPayload(
@@ -85,7 +111,8 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
             $rows,
             [
                 'numericColumnStartIndex' => 3,
-                'diagnosisRowTargets' => $diagnosisRowTargets,
+                'labelRowTargets' => $labelRowTargets,
+                'shareBars' => $shareBars,
             ],
         );
 
@@ -94,6 +121,12 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
             $this->key().'_table',
             $this->widgetPayloadNormalizer->normalize($payload),
         );
+    }
+
+    #[\Override]
+    public function build(StatisticsContext $context, int $limit): StatisticWidget
+    {
+        return $this->toTableWidget($this->fetchRanking($context, $limit));
     }
 
     #[\Override]

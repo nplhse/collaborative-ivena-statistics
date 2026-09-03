@@ -41,6 +41,20 @@ final class BlogEntitiesTest extends TestCase
         self::assertSame('My First Post', (string) $post);
     }
 
+    public function testSortedTagsAreAlphabeticalByName(): void
+    {
+        $post = new Post();
+        $post->addTag(new PostTag()->setName('Zebra')->setSlug('zebra'));
+        $post->addTag(new PostTag()->setName('Alpha')->setSlug('alpha'));
+        $post->addTag(new PostTag()->setName('Middle')->setSlug('middle'));
+
+        self::assertSame(['Alpha', 'Middle', 'Zebra'], array_map(
+            static fn (PostTag $tag): ?string => $tag->getName(),
+            $post->getSortedTags(),
+        ));
+        self::assertSame([], new Post()->getSortedTags());
+    }
+
     public function testPostCategoryAndTagStringAndTimestamps(): void
     {
         $category = new PostCategory()->setName('Updates')->setSlug('updates');

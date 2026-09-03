@@ -353,6 +353,42 @@
         <source>sitemap.section.clinic</source>
         <target>Clinic</target>
       </trans-unit>
+      <trans-unit id="lnkActivityEn" resname="link.activity">
+        <source>link.activity</source>
+        <target>Activity</target>
+      </trans-unit>
+      <trans-unit id="TimeRelJustNowEn" resname="time.relative.just_now">
+        <source>time.relative.just_now</source>
+        <target>just now</target>
+      </trans-unit>
+      <trans-unit id="TimeRelMinuteEn" resname="time.relative.minute">
+        <source>time.relative.minute</source>
+        <target>{count, plural, =1 {a minute ago} other {# minutes ago}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelHourEn" resname="time.relative.hour">
+        <source>time.relative.hour</source>
+        <target>{count, plural, =1 {an hour ago} other {# hours ago}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelYesterdayEn" resname="time.relative.yesterday">
+        <source>time.relative.yesterday</source>
+        <target>yesterday</target>
+      </trans-unit>
+      <trans-unit id="TimeRelDayEn" resname="time.relative.day">
+        <source>time.relative.day</source>
+        <target>{count, plural, =1 {a day ago} other {# days ago}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelWeekEn" resname="time.relative.week">
+        <source>time.relative.week</source>
+        <target>{count, plural, =1 {a week ago} other {# weeks ago}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelMonthEn" resname="time.relative.month">
+        <source>time.relative.month</source>
+        <target>{count, plural, =1 {a month ago} other {# months ago}}</target>
+      </trans-unit>
+      <trans-unit id="TimeRelYearEn" resname="time.relative.year">
+        <source>time.relative.year</source>
+        <target>{count, plural, =1 {a year ago} other {# years ago}}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

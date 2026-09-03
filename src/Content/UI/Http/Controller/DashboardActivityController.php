@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Content\UI\Http\Controller;
 
-use App\User\Application\Explore\ProjectActivityCursor;
+use App\User\Application\Contract\PublishedPostPreviewMapInterface;
+use App\User\Application\Explore\PostPublishedActivitySlugs;
+use App\User\Application\Explore\ProjectActivityPage;
 use App\User\Application\Explore\ProjectActivityQueryInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -19,21 +20,18 @@ final class DashboardActivityController extends AbstractController
 {
     public function __construct(
         private readonly ProjectActivityQueryInterface $activityQuery,
+        private readonly PublishedPostPreviewMapInterface $postPreviews,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     #[Route('/dashboard/activity', name: 'app_dashboard_activity', methods: ['GET'])]
-    public function __invoke(Request $request): Response
+    public function __invoke(): Response
     {
-        $rawCursor = $request->query->get('cursor');
-        $cursor = \is_string($rawCursor) && '' !== $rawCursor ? $rawCursor : null;
-        $frameId = null !== $cursor
-            ? ProjectActivityCursor::frameId($cursor)
-            : 'dashboard-activity';
+        $frameId = 'dashboard-activity';
 
         try {
-            $page = $this->activityQuery->getPage($cursor);
+            $page = $this->activityQuery->getPage(null, ProjectActivityPage::PREVIEW_SIZE);
         } catch (\Throwable $exception) {
             $this->logger->error('Dashboard activity feed failed.', [
                 'exception' => $exception,
@@ -46,6 +44,7 @@ final class DashboardActivityController extends AbstractController
 
         return $this->render('@Content/dashboard/_activity_page.html.twig', [
             'page' => $page,
+            'previews' => $this->postPreviews->forSlugs(PostPublishedActivitySlugs::from($page->items)),
             'frameId' => $frameId,
         ]);
     }

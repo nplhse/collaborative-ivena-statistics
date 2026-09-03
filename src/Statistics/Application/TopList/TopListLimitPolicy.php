@@ -7,33 +7,43 @@ namespace App\Statistics\Application\TopList;
 final class TopListLimitPolicy
 {
     /** @var list<int> */
-    private const array ALLOWED = [10, 25, 50];
+    private const array ALLOWED_NUMERIC = [10, 25, 50, 100];
     private const int DEFAULT = 25;
 
     /**
-     * @return list<int>
+     * @return list<TopListLimit>
      */
     public function allowed(): array
     {
-        return self::ALLOWED;
+        $limits = [];
+        foreach (self::ALLOWED_NUMERIC as $value) {
+            $limits[] = TopListLimit::of($value);
+        }
+        $limits[] = TopListLimit::all();
+
+        return $limits;
     }
 
-    public function default(): int
+    public function default(): TopListLimit
     {
-        return self::DEFAULT;
+        return TopListLimit::of(self::DEFAULT);
     }
 
-    public function normalize(mixed $rawLimit): int
+    public function normalize(mixed $rawLimit): TopListLimit
     {
         if (null === $rawLimit || '' === (string) $rawLimit) {
-            return self::DEFAULT;
+            return $this->default();
+        }
+
+        if (TopListLimit::ALL === strtolower((string) $rawLimit)) {
+            return TopListLimit::all();
         }
 
         $parsed = filter_var((string) $rawLimit, FILTER_VALIDATE_INT);
-        if (false !== $parsed && \in_array($parsed, self::ALLOWED, true)) {
-            return $parsed;
+        if (false !== $parsed && \in_array($parsed, self::ALLOWED_NUMERIC, true)) {
+            return TopListLimit::of($parsed);
         }
 
-        return self::DEFAULT;
+        return $this->default();
     }
 }

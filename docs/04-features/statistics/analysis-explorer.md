@@ -330,7 +330,7 @@ Six original views (`allocations-over-time`, `gender-over-time`, …) plus eight
 
 No changes to `AllocationsCountQuery` SQL are required when the dimension is in `DimensionRegistry` — the GA bridge handles aggregation and labeling.
 
-Grain resolution is centralized in `AnalysisAxisResolver` (per-axis defaults and capability clamping).
+Grain resolution is centralized in `AnalysisAxisResolver` (per-axis defaults, capability clamping, and period-based time-grain clamp via `TimeSeriesGrainResolver`). A month period refines `month`/`quarter`/`year` to `day`; a quarter/year period refines coarser grains to `month`. `all_time` + explicit `year` is left unchanged. Monthly time axes omit the in-progress calendar month; daily axes include today only. Zero-fill for `day`/`month` row axes uses `TimeSeriesAxisFiller`.
 
 ## How to add another data source later
 
