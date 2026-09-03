@@ -145,6 +145,16 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertStringNotContainsString('scope=', $rowHref);
         $this->assertStringNotContainsString('period=', $rowHref);
         $this->assertStringNotContainsString('text-reset', (string) $rowLink->attr('class'));
+        $this->assertSelectorExists('[data-testid="stats-analysis-table-card"] [data-testid="stats-top-lists-share-bar"]');
+        $shareBarStyle = $crawler->filter('[data-testid="stats-top-lists-share-bar"] .progress-bar')->attr('style');
+        $this->assertNotNull($shareBarStyle);
+        $this->assertMatchesRegularExpression('/width:\s*100(\.0)?%/', $shareBarStyle);
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"] tbody', '100.0%');
+        $firstRowCells = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr')->first()->filter('td');
+        $this->assertSame(5, $firstRowCells->count());
+        $this->assertStringContainsString('100.0%', $firstRowCells->eq(3)->text());
+        $this->assertGreaterThan(0, $firstRowCells->eq(4)->filter('[data-testid="stats-top-lists-share-bar"]')->count());
+        $this->assertStringNotContainsString('100.0%', $firstRowCells->eq(4)->text());
     }
 
     public function testTopDepartmentsReportIsDisplayedWithTable(): void
@@ -515,6 +525,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertStringNotContainsString('scope=', $compareHref);
         $this->assertStringNotContainsString('period=', $compareHref);
         $this->assertStringNotContainsString('text-reset', (string) $compareLink->attr('class'));
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-share-bar"]');
     }
 
     public function testInvalidLimitFallsBackToTwentyFive(): void

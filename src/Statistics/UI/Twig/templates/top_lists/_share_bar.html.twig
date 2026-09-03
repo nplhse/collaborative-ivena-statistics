@@ -1,0 +1,11 @@
+{% set shareWidth = share|default(0) %}
+{% if shareWidth < 0 %}
+    {% set shareWidth = 0 %}
+{% elseif shareWidth > 100 %}
+    {% set shareWidth = 100 %}
+{% endif %}
+<div class="progress progress-sm stats-top-lists-share-bar"
+     aria-hidden="true"
+     data-testid="stats-top-lists-share-bar">
+    <div class="progress-bar" style="width: {{ shareWidth }}%"></div>
+</div>

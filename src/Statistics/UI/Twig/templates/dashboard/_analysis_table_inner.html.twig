@@ -19,6 +19,9 @@
                     {% for hk in p.headerTranslationKeys %}
                         <th class="{{ loop.index < numericStart ? '' : 'text-end' }}">{{ hk|trans({}, statistics_label_domain(hk)) }}</th>
                     {% endfor %}
+                    {% if p.shareBars is defined %}
+                        <th class="stats-top-lists-share-col" aria-hidden="true"></th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +33,10 @@
                     {% set labelRowTarget = null %}
                     {% if p.labelRowTargets is defined %}
                         {% set labelRowTarget = p.labelRowTargets[loop.index0]|default(null) %}
+                    {% endif %}
+                    {% set shareBar = null %}
+                    {% if p.shareBars is defined and p.shareBars[loop.index0] is defined %}
+                        {% set shareBar = p.shareBars[loop.index0] %}
                     {% endif %}
                     <tr>
                         {% for cell in row %}
@@ -43,6 +50,11 @@
                                 {% endif %}
                             </td>
                         {% endfor %}
+                        {% if p.shareBars is defined %}
+                            <td class="stats-top-lists-share-col">
+                                {{ include('@Statistics/top_lists/_share_bar.html.twig', {share: shareBar|default(0)}) }}
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

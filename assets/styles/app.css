@@ -640,6 +640,17 @@
     gap: 0.35rem;
 }
 
+.stats-top-lists-share-col {
+    width: 6.5rem;
+    min-width: 4.5rem;
+    vertical-align: middle;
+}
+
+.stats-top-lists-share-bar {
+    width: 100%;
+    min-width: 0;
+}
+
 .stats-ttp-ranked-td .stats-ttp-marker {
     margin-left: 0;
 }
