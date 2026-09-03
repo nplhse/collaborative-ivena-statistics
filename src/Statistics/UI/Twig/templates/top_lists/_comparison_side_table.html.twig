@@ -1,92 +1,90 @@
 {% set showDiff = showDiff|default(false) %}
 
-<div class="card h-100" data-testid="{{ testId }}">
-    <div class="card-header py-2 {{ showDiff ? 'bg-secondary-lt' : 'bg-primary-lt' }}">
+<div class="h-100" data-testid="{{ testId }}">
+    <div class="d-flex align-items-center px-3 py-2 stats-top-lists-comparison-side-header {{ showDiff ? 'bg-secondary-lt' : 'bg-primary-lt' }}">
         <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-sm table-vcenter card-table table-striped mb-0">
-                <thead>
-                    <tr>
-                        <th>{{ 'stats.top_lists.table.rank'|trans({}, 'statistics') }}</th>
-                        <th>{{ comparison.labelColumnTranslationKey|trans({}, 'statistics') }}</th>
-                        <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
-                        <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in rows %}
-                        {% set rank = showDiff ? row.rankB : row.rankA %}
-                        {% set count = showDiff ? row.countB : row.countA %}
-                        {% set share = showDiff ? row.shareB : row.shareA %}
-                        {% set countDelta = showDiff and not row.onlyInB ? row.deltaCount : null %}
-                        {% set shareDelta = showDiff and not row.onlyInB ? row.deltaShare : null %}
-                        {% set rankShiftClass = '' %}
-                        {% if showDiff and row.onlyInB %}
-                            {% set rankShiftClass = 'stats-rank-shift-new' %}
-                        {% elseif showDiff and row.rankMovement is not null and row.rankMovement > 0 %}
-                            {% set rankShiftClass = 'stats-rank-shift-up' %}
-                        {% elseif showDiff and row.rankMovement is not null and row.rankMovement < 0 %}
-                            {% set rankShiftClass = 'stats-rank-shift-down' %}
-                        {% endif %}
-                        <tr data-testid="{{ testId }}-row-{{ row.identity }}">
-                            <td class="text-nowrap {{ rankShiftClass }}">
-                                <div class="stats-top-lists-value-pair">
-                                    <span>{{ rank ?? '—' }}</span>
-                                    {% if showDiff %}
-                                        {{ include('@Statistics/_rank_shift_badge.html.twig', {
-                                            entered: row.onlyInB,
-                                            rankDelta: row.rankMovement,
-                                            newLabelKey: 'stats.top_lists.comparison.new',
-                                            ariaNewKey: 'stats.top_lists.comparison.rank.aria.new',
-                                            ariaUpKey: 'stats.top_lists.comparison.rank.aria.up',
-                                            ariaDownKey: 'stats.top_lists.comparison.rank.aria.down',
-                                            testId: 'stats-top-lists-rank-badge',
-                                        }) }}
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td>
-                                {% if row.labelTarget %}
-                                    <a href="{{ statistics_nav_url(row.labelTarget) }}">{{ row.label }}</a>
-                                {% else %}
-                                    {{ row.label }}
+    <div class="table-responsive">
+        <table class="table table-sm table-vcenter card-table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>{{ 'stats.top_lists.table.rank'|trans({}, 'statistics') }}</th>
+                    <th>{{ comparison.labelColumnTranslationKey|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    {% set rank = showDiff ? row.rankB : row.rankA %}
+                    {% set count = showDiff ? row.countB : row.countA %}
+                    {% set share = showDiff ? row.shareB : row.shareA %}
+                    {% set countDelta = showDiff and not row.onlyInB ? row.deltaCount : null %}
+                    {% set shareDelta = showDiff and not row.onlyInB ? row.deltaShare : null %}
+                    {% set rankShiftClass = '' %}
+                    {% if showDiff and row.onlyInB %}
+                        {% set rankShiftClass = 'stats-rank-shift-new' %}
+                    {% elseif showDiff and row.rankMovement is not null and row.rankMovement > 0 %}
+                        {% set rankShiftClass = 'stats-rank-shift-up' %}
+                    {% elseif showDiff and row.rankMovement is not null and row.rankMovement < 0 %}
+                        {% set rankShiftClass = 'stats-rank-shift-down' %}
+                    {% endif %}
+                    <tr data-testid="{{ testId }}-row-{{ row.identity }}">
+                        <td class="text-nowrap {{ rankShiftClass }}">
+                            <div class="stats-top-lists-value-pair">
+                                <span>{{ rank ?? '—' }}</span>
+                                {% if showDiff %}
+                                    {{ include('@Statistics/_rank_shift_badge.html.twig', {
+                                        entered: row.onlyInB,
+                                        rankDelta: row.rankMovement,
+                                        newLabelKey: 'stats.top_lists.comparison.new',
+                                        ariaNewKey: 'stats.top_lists.comparison.rank.aria.new',
+                                        ariaUpKey: 'stats.top_lists.comparison.rank.aria.up',
+                                        ariaDownKey: 'stats.top_lists.comparison.rank.aria.down',
+                                        testId: 'stats-top-lists-rank-badge',
+                                    }) }}
                                 {% endif %}
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <div class="stats-top-lists-value-pair justify-content-end">
-                                    <span>{{ count is not null ? count : '—' }}</span>
-                                    {% if showDiff %}
-                                        {{ include('@Statistics/_delta_badge.html.twig', {
-                                            delta: countDelta,
-                                            ariaKey: 'stats.top_lists.comparison.delta.aria',
-                                            testId: 'stats-top-lists-delta-count',
-                                        }) }}
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td class="text-end text-nowrap">
-                                <div class="stats-top-lists-value-pair justify-content-end">
-                                    <span>{{ share is not null ? share|number_format(1, ',', '.') ~ '%' : '—' }}</span>
-                                    {% if showDiff %}
-                                        {{ include('@Statistics/_delta_badge.html.twig', {
-                                            delta: shareDelta,
-                                            deltaLabel: shareDelta is not null ? (shareDelta > 0 ? '+' : '') ~ shareDelta|number_format(1, ',', '.') ~ '%' : null,
-                                            ariaKey: 'stats.top_lists.comparison.delta.aria',
-                                            testId: 'stats-top-lists-delta-share',
-                                        }) }}
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="text-muted">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if row.labelTarget %}
+                                <a href="{{ statistics_nav_url(row.labelTarget) }}">{{ row.label }}</a>
+                            {% else %}
+                                {{ row.label }}
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <div class="stats-top-lists-value-pair justify-content-end">
+                                <span>{{ count is not null ? count : '—' }}</span>
+                                {% if showDiff %}
+                                    {{ include('@Statistics/_delta_badge.html.twig', {
+                                        delta: countDelta,
+                                        ariaKey: 'stats.top_lists.comparison.delta.aria',
+                                        testId: 'stats-top-lists-delta-count',
+                                    }) }}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <div class="stats-top-lists-value-pair justify-content-end">
+                                <span>{{ share is not null ? share|number_format(1, ',', '.') ~ '%' : '—' }}</span>
+                                {% if showDiff %}
+                                    {{ include('@Statistics/_delta_badge.html.twig', {
+                                        delta: shareDelta,
+                                        deltaLabel: shareDelta is not null ? (shareDelta > 0 ? '+' : '') ~ shareDelta|number_format(1, ',', '.') ~ '%' : null,
+                                        ariaKey: 'stats.top_lists.comparison.delta.aria',
+                                        testId: 'stats-top-lists-delta-share',
+                                    }) }}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-muted">{{ 'stats.top_lists.table.empty'|trans({}, 'statistics') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>

@@ -151,7 +151,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertMatchesRegularExpression('/width:\s*100(\.0)?%/', $shareBarStyle);
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"] tbody', '100.0%');
         $firstRowCells = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr')->first()->filter('td');
-        $this->assertSame(5, $firstRowCells->count());
+        $this->assertCount(5, $firstRowCells);
         $this->assertStringContainsString('100.0%', $firstRowCells->eq(3)->text());
         $this->assertGreaterThan(0, $firstRowCells->eq(4)->filter('[data-testid="stats-top-lists-share-bar"]')->count());
         $this->assertStringNotContainsString('100.0%', $firstRowCells->eq(4)->text());
@@ -454,14 +454,18 @@ final class TopListsControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-selection"]');
-        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-table"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"] [data-testid="stats-top-lists-compare-selection"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"] [data-testid="stats-top-lists-comparison-table"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-table-a"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-table-b"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"] [data-testid="stats-top-lists-ranking-depth"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"] [data-testid="stats-top-lists-page-size-trigger"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-table-card"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-a-edit"][data-bs-target="#stats-top-lists-comparison-modal-a"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-b-edit"][data-bs-target="#stats-top-lists-comparison-modal-b"]');
         $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-a-edit"]', 'Edit comparison A');
@@ -486,6 +490,31 @@ final class TopListsControllerTest extends WebTestCase
         self::assertNotFalse($filterPos);
         self::assertNotFalse($disablePos);
         self::assertLessThan($disablePos, $filterPos);
+
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-swap"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-swap-header"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-selection"] [data-testid="stats-top-lists-compare-swap"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-continue-a"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-continue-b"]');
+        $swapQuery = $this->queryParamsFromHref($crawler->filter('[data-testid="stats-top-lists-compare-swap"]')->attr('href'));
+        self::assertSame('1', $swapQuery['compare'] ?? null);
+        self::assertSame('public', $swapQuery['scope'] ?? null);
+        self::assertSame('all', $swapQuery['period'] ?? null);
+        self::assertSame('public', $swapQuery['comparison_scope'] ?? null);
+        self::assertSame('year', $swapQuery['comparison_period'] ?? null);
+        self::assertSame('2021', (string) ($swapQuery['comparison_year'] ?? ''));
+        $continueAQuery = $this->queryParamsFromHref($crawler->filter('[data-testid="stats-top-lists-compare-continue-a"]')->attr('href'));
+        self::assertArrayNotHasKey('compare', $continueAQuery);
+        self::assertSame('public', $continueAQuery['scope'] ?? null);
+        self::assertSame('year', $continueAQuery['period'] ?? null);
+        self::assertSame('2021', (string) ($continueAQuery['year'] ?? ''));
+        self::assertArrayNotHasKey('comparison_scope', $continueAQuery);
+        $continueBQuery = $this->queryParamsFromHref($crawler->filter('[data-testid="stats-top-lists-compare-continue-b"]')->attr('href'));
+        self::assertArrayNotHasKey('compare', $continueBQuery);
+        self::assertSame('public', $continueBQuery['scope'] ?? null);
+        self::assertSame('all', $continueBQuery['period'] ?? null);
+        self::assertArrayNotHasKey('comparison_scope', $continueBQuery);
+        self::assertArrayNotHasKey('comparison_period', $continueBQuery);
     }
 
     public function testCompareDiagnosisRowsLinkToCatalogWithoutScopeAndPeriod(): void
@@ -712,5 +741,126 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Urgency Filter Emergency');
         $this->assertSelectorTextNotContains('[data-testid="stats-analysis-table-card"]', 'Urgency Filter Inpatient');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', '100.0%');
+    }
+
+    public function testCompareSwapExchangesSidesAndKeepsCompareMode(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedCompareDiagnosisFixtures('stats-top-lists-compare-swap');
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $headingA = trim($crawler->filter('[data-testid="stats-top-lists-compare-a"]')->text());
+        $headingB = trim($crawler->filter('[data-testid="stats-top-lists-compare-b"]')->text());
+        $periodA = trim($crawler->filter('[data-testid="stats-top-lists-compare-selection-period-a"]')->text());
+        $periodB = trim($crawler->filter('[data-testid="stats-top-lists-compare-selection-period-b"]')->text());
+        self::assertNotSame($periodA, $periodB);
+
+        $swapHref = $crawler->filter('[data-testid="stats-top-lists-compare-swap"]')->attr('href');
+        $this->assertNotNull($swapHref);
+        $crawler = $client->request(Request::METHOD_GET, $swapHref);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"]');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-a"]', $headingB);
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-b"]', $headingA);
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-selection-period-a"]', $periodB);
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-selection-period-b"]', $periodA);
+        $swappedQuery = $this->queryParamsFromHref($client->getRequest()->getRequestUri());
+        self::assertSame('1', $swappedQuery['compare'] ?? null);
+    }
+
+    public function testCompareContinueWithAKeepsPrimaryAndLeavesCompare(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedCompareDiagnosisFixtures('stats-top-lists-compare-continue-a');
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+        );
+
+        $continueHref = $crawler->filter('[data-testid="stats-top-lists-compare-continue-a"]')->attr('href');
+        $this->assertNotNull($continueHref);
+        $client->request(Request::METHOD_GET, $continueHref);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-comparison-workspace"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-table-card"]');
+        $query = $this->queryParamsFromHref($client->getRequest()->getRequestUri());
+        self::assertArrayNotHasKey('compare', $query);
+        self::assertSame('public', $query['scope'] ?? null);
+        self::assertSame('year', $query['period'] ?? null);
+        self::assertSame('2021', (string) ($query['year'] ?? ''));
+        self::assertArrayNotHasKey('comparison_scope', $query);
+    }
+
+    public function testCompareContinueWithBPromotesComparisonAndLeavesCompare(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedCompareDiagnosisFixtures('stats-top-lists-compare-continue-b');
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+        );
+
+        $continueHref = $crawler->filter('[data-testid="stats-top-lists-compare-continue-b"]')->attr('href');
+        $this->assertNotNull($continueHref);
+        $client->request(Request::METHOD_GET, $continueHref);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-comparison-workspace"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-table-card"]');
+        $query = $this->queryParamsFromHref($client->getRequest()->getRequestUri());
+        self::assertArrayNotHasKey('compare', $query);
+        self::assertSame('public', $query['scope'] ?? null);
+        self::assertSame('all', $query['period'] ?? null);
+        self::assertArrayNotHasKey('comparison_scope', $query);
+        self::assertArrayNotHasKey('comparison_period', $query);
+    }
+
+    private function seedCompareDiagnosisFixtures(string $username): void
+    {
+        UserFactory::createOne(['username' => $username]);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => $username.' Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => $username.' Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => $username.' Diagnosis']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function queryParamsFromHref(?string $href): array
+    {
+        $this->assertNotNull($href);
+        $query = parse_url($href, PHP_URL_QUERY);
+        if (!\is_string($query) || '' === $query) {
+            return [];
+        }
+
+        $params = [];
+        parse_str($query, $params);
+
+        return $params;
     }
 }

@@ -5521,6 +5521,18 @@
         <source>stats.top_lists.comparison.edit_b</source>
         <target>Vergleich B bearbeiten</target>
       </trans-unit>
+      <trans-unit id="statsTlDe30" resname="stats.top_lists.comparison.swap">
+        <source>stats.top_lists.comparison.swap</source>
+        <target>Vergleichsseiten tauschen</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe31" resname="stats.top_lists.comparison.open_as_top_list">
+        <source>stats.top_lists.comparison.open_as_top_list</source>
+        <target>Als Top-Liste öffnen</target>
+      </trans-unit>
+      <trans-unit id="statsTlDe32" resname="stats.top_lists.table.empty">
+        <source>stats.top_lists.table.empty</source>
+        <target>Keine passenden Daten für diese Auswahl.</target>
+      </trans-unit>
       <trans-unit id="statsTlDe06" resname="stats.top_lists.comparison.modal_title_a">
         <source>stats.top_lists.comparison.modal_title_a</source>
         <target>Vergleich A</target>

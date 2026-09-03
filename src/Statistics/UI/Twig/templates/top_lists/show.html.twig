@@ -75,37 +75,46 @@
             {{ include('@Statistics/_filter_active_badges.html.twig') }}
 
             {% if topListsPage.comparison %}
-                {{ include('@Statistics/_compare_selection_card.html.twig', {
-                    testId: 'stats-top-lists-compare-selection',
-                    sideATitleKey: 'stats.top_lists.comparison.side_a',
-                    sideAHeading: topListsPage.comparison.sideAHeading,
-                    sideASubheading: topListsPage.comparison.sideASubheading,
-                    sideACount: topListsPage.comparison.totalAllocationsA,
-                    sideATestId: 'stats-top-lists-compare-a',
-                    sideAEditModalTarget: '#stats-top-lists-comparison-modal-a',
-                    sideAEditTestId: 'stats-top-lists-compare-a-edit',
-                    sideBTitleKey: 'stats.top_lists.comparison.side_b',
-                    sideBHeading: topListsPage.comparison.sideBHeading,
-                    sideBSubheading: topListsPage.comparison.sideBSubheading,
-                    sideBCount: topListsPage.comparison.totalAllocationsB,
-                    sideBTestId: 'stats-top-lists-compare-b',
-                    sideBEditModalTarget: '#stats-top-lists-comparison-modal-b',
-                    sideBEditTestId: 'stats-top-lists-compare-b-edit',
-                }) }}
-
-                <div data-testid="stats-top-lists-widget">
-                    {{ include('@Statistics/top_lists/_comparison_tables.html.twig', {comparison: topListsPage.comparison}) }}
-                    <div class="card mt-4" data-testid="stats-analysis-table-card">
-                        {{ include('@Statistics/top_lists/_limit_footer.html.twig', {
-                            wrapperClass: 'card-footer border-top-0',
-                            rankingDepthUrls: topListsPage.limitUrls,
-                            currentLimit: topListsPage.currentLimit,
-                            pageSizeUrls: topListsPage.pageSizeUrls,
-                            currentPageSize: topListsPage.currentPageSize,
-                            paginator: topListsPage.paginator,
-                            truncated: topListsPage.truncated,
+                <div class="card" data-testid="stats-top-lists-comparison-workspace">
+                    <div class="card-header flex-column align-items-stretch">
+                        {{ include('@Statistics/_compare_selection_card.html.twig', {
+                            wrapperClass: 'mb-0',
+                            testId: 'stats-top-lists-compare-selection',
+                            sideATitleKey: 'stats.top_lists.comparison.side_a',
+                            sideAHeading: topListsPage.comparison.sideAHeading,
+                            sideASubheading: topListsPage.comparison.sideASubheading,
+                            sideACount: topListsPage.comparison.totalAllocationsA,
+                            sideATestId: 'stats-top-lists-compare-a',
+                            sideAEditModalTarget: '#stats-top-lists-comparison-modal-a',
+                            sideAEditTestId: 'stats-top-lists-compare-a-edit',
+                            sideAContinueUrl: topListsPage.compareDisableUrl,
+                            sideAContinueTestId: 'stats-top-lists-compare-continue-a',
+                            sideBTitleKey: 'stats.top_lists.comparison.side_b',
+                            sideBHeading: topListsPage.comparison.sideBHeading,
+                            sideBSubheading: topListsPage.comparison.sideBSubheading,
+                            sideBCount: topListsPage.comparison.totalAllocationsB,
+                            sideBTestId: 'stats-top-lists-compare-b',
+                            sideBEditModalTarget: '#stats-top-lists-comparison-modal-b',
+                            sideBEditTestId: 'stats-top-lists-compare-b-edit',
+                            sideBContinueUrl: topListsPage.compareContinueWithBUrl,
+                            sideBContinueTestId: 'stats-top-lists-compare-continue-b',
+                            swapUrl: topListsPage.compareSwapUrl,
                         }) }}
                     </div>
+                    <div class="card-body p-0" data-testid="stats-top-lists-widget">
+                        {{ include('@Statistics/top_lists/_comparison_tables.html.twig', {
+                            comparison: topListsPage.comparison,
+                        }) }}
+                    </div>
+                    {{ include('@Statistics/top_lists/_limit_footer.html.twig', {
+                        wrapperClass: 'card-footer',
+                        rankingDepthUrls: topListsPage.limitUrls,
+                        currentLimit: topListsPage.currentLimit,
+                        pageSizeUrls: topListsPage.pageSizeUrls,
+                        currentPageSize: topListsPage.currentPageSize,
+                        paginator: topListsPage.paginator,
+                        truncated: topListsPage.truncated,
+                    }) }}
                 </div>
             {% else %}
                 <div data-testid="stats-top-lists-widget">

@@ -1,0 +1,8 @@
+{% set swapLabel = 'stats.top_lists.comparison.swap'|trans({}, 'statistics') %}
+<a class="btn btn-ghost-secondary btn-icon btn-sm border-0 stats-top-lists-compare-swap {{ swapClass|default('') }}"
+   href="{{ swapUrl }}"
+   data-testid="{{ swapTestId|default('stats-top-lists-compare-swap') }}"
+   aria-label="{{ swapLabel }}"
+   title="{{ swapLabel }}">
+    <twig:ux:icon name="tabler:arrows-exchange" class="icon icon-sm" />
+</a>
