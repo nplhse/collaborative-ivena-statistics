@@ -79,6 +79,7 @@ final class AllocationsCapabilitiesProvider implements DataSourceCapabilitiesPro
             primaryMetrics: AnalysisMetricKey::primaryMetricChoices(),
             metrics: $enabledMetrics,
             timeGrains: [
+                AnalysisDimensionGrain::Day,
                 AnalysisDimensionGrain::Month,
                 AnalysisDimensionGrain::Year,
                 AnalysisDimensionGrain::Quarter,

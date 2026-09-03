@@ -3773,6 +3773,10 @@
         <source>stats.analysis_explorer.dimension.month</source>
         <target>Month</target>
       </trans-unit>
+      <trans-unit id="statsAexDayDim" resname="stats.analysis_explorer.dimension.day">
+        <source>stats.analysis_explorer.dimension.day</source>
+        <target>Day</target>
+      </trans-unit>
       <trans-unit id="statsAex06" resname="stats.analysis_explorer.metric.allocation_count">
         <source>stats.analysis_explorer.metric.allocation_count</source>
         <target>Allocations</target>
@@ -4248,6 +4252,10 @@
       <trans-unit id="statsAex91" resname="stats.analysis_explorer.description.grain.year">
         <source>stats.analysis_explorer.description.grain.year</source>
         <target>Yearly</target>
+      </trans-unit>
+      <trans-unit id="statsAexDayDesc" resname="stats.analysis_explorer.description.grain.day">
+        <source>stats.analysis_explorer.description.grain.day</source>
+        <target>Daily</target>
       </trans-unit>
       <trans-unit id="statsAex92" resname="stats.analysis_explorer.allocations_by_dimension">
         <source>stats.analysis_explorer.allocations_by_dimension</source>
@@ -5232,6 +5240,10 @@
       <trans-unit id="statsAexSum17" resname="stats.analysis_explorer.summary.grain.week">
         <source>stats.analysis_explorer.summary.grain.week</source>
         <target>weekly</target>
+      </trans-unit>
+      <trans-unit id="statsAexDaySum" resname="stats.analysis_explorer.summary.grain.day">
+        <source>stats.analysis_explorer.summary.grain.day</source>
+        <target>daily</target>
       </trans-unit>
       <trans-unit id="statsAexSum18" resname="stats.analysis_explorer.summary.grain.total">
         <source>stats.analysis_explorer.summary.grain.total</source>

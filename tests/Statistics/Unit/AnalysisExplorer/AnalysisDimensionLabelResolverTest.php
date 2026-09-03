@@ -114,6 +114,19 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
         self::assertNotSame($enLabel, $deLabel);
     }
 
+    public function testDayUsesIsoDatePattern(): void
+    {
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('getLocale')->willReturn('de');
+
+        $resolver = $this->resolver($translator);
+        $day = new DimensionRegistry()->get('day');
+
+        $label = $resolver->labelFor($day, '2026-09-03');
+        self::assertNotSame('', $label);
+        self::assertNotSame('2026-09-03', $label);
+    }
+
     private function resolver(TranslatorInterface $translator): AnalysisDimensionLabelResolver
     {
         $entityLabelResolver = $this->createStub(GenericAnalysisEntityLabelResolverInterface::class);

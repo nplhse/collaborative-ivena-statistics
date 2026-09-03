@@ -584,6 +584,12 @@ final readonly class ExplorerAnalysisSummaryFactory
                 'statistics',
                 $locale,
             ),
+            AnalysisDimensionGrain::Day => $this->translator->trans(
+                'stats.analysis_explorer.dimension.day',
+                [],
+                'statistics',
+                $locale,
+            ),
             AnalysisDimensionGrain::Year => $this->translator->trans(
                 'stats.analysis_explorer.dimension.year',
                 [],

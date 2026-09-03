@@ -11,6 +11,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -41,10 +42,12 @@ final readonly class ExplorerEditAxisSwapper
         }
 
         $capabilities = $this->capabilitiesFor($formData);
+        $period = $this->periodFor($formData);
         $rowAxis = $this->axisResolver->resolveFromStrings(
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $period,
         );
         $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities);
         if (!$columnAxis instanceof AnalysisAxisRef) {
@@ -55,6 +58,7 @@ final readonly class ExplorerEditAxisSwapper
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $period,
         );
 
         return $capabilities->supportsColumnAxis($columnAxis, $swappedColumnAxis);
@@ -155,6 +159,7 @@ final readonly class ExplorerEditAxisSwapper
             $columnDimensionKey,
             $columnGrain->value,
             $capabilities,
+            $this->periodFor($formData),
         );
 
         if (!$capabilities->supportsColumnAxis($rowAxis, $candidate)) {
@@ -178,13 +183,15 @@ final readonly class ExplorerEditAxisSwapper
         }
 
         $capabilities = $this->capabilitiesFor($formData);
+        $period = $this->periodFor($formData);
         $rowAxis = $this->axisResolver->resolveFromStrings(
             $formData->rowDimension,
             $formData->rowGrain,
             $capabilities,
+            $period,
         );
         $swappedRowAxis = AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalPopulationGroup);
-        $swappedColumnAxis = $this->axisResolver->resolve($rowAxis, $capabilities);
+        $swappedColumnAxis = $this->axisResolver->resolve($rowAxis, $capabilities, $period);
 
         return $capabilities->supportsColumnAxis($swappedRowAxis, $swappedColumnAxis);
     }
@@ -197,10 +204,22 @@ final readonly class ExplorerEditAxisSwapper
         return $this->capabilitiesRegistry->capabilitiesFor(
             $dataSourceKey,
             $user instanceof User ? $user : null,
-            $this->statisticsFilterFactory->createFromInput(
-                $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
-                $user instanceof User ? $user : null,
-            ),
+            $this->filterFor($formData),
+        );
+    }
+
+    private function periodFor(ExplorerEditFormData $formData): StatisticsFilterPeriod
+    {
+        return $this->filterFor($formData)->period;
+    }
+
+    private function filterFor(ExplorerEditFormData $formData): \App\Statistics\Application\DTO\StatisticsFilter
+    {
+        $user = $this->security->getUser();
+
+        return $this->statisticsFilterFactory->createFromInput(
+            $this->filterInputFactory->fromSideFormData($formData->scopePeriod),
+            $user instanceof User ? $user : null,
         );
     }
 }
