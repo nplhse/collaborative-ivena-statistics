@@ -88,6 +88,37 @@ final readonly class BenchmarkSelectionQueryBuilder
     }
 
     /**
+     * @param array<string, bool|float|int|string> $preservedQuery
+     *
+     * @return array<string, bool|float|int|string>
+     */
+    public function swapSides(BenchmarkSelectionFormData $data, array $preservedQuery): array
+    {
+        $query = $this->build(new BenchmarkSelectionFormData($data->comparison, $data->primary), $preservedQuery);
+        $query[StatisticsQueryKeys::COMPARE] = '1';
+
+        return $query;
+    }
+
+    /**
+     * @param array<string, bool|float|int|string> $preservedQuery
+     *
+     * @return array<string, bool|float|int|string>
+     */
+    public function promoteComparison(BenchmarkSelectionFormData $data, array $preservedQuery): array
+    {
+        $query = $preservedQuery;
+        foreach (self::SELECTION_QUERY_KEYS as $key) {
+            unset($query[$key]);
+        }
+        foreach (StatisticsQueryKeys::REMOVE_COMPARISON_MODE as $key) {
+            unset($query[$key]);
+        }
+
+        return array_merge($query, $this->sideQueryParams($data->comparison, false));
+    }
+
+    /**
      * @return array<string, bool|float|int|string>
      */
     private function sideQueryParams(BenchmarkSelectionSideFormData $side, bool $isComparison): array

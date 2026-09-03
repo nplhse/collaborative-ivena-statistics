@@ -133,4 +133,60 @@ final class BenchmarkSelectionQueryBuilderTest extends TestCase
         self::assertArrayNotHasKey('page', $query);
         self::assertArrayNotHasKey(StatisticsQueryKeys::HOSPITAL, $query);
     }
+
+    #[Test]
+    public function swapSidesExchangesPrimaryAndComparisonAndKeepsCompare(): void
+    {
+        $data = new BenchmarkSelectionFormData(
+            new BenchmarkSelectionSideFormData('public', null, 'year', 2021),
+            new BenchmarkSelectionSideFormData('hospital_cohort', 'urban_acute', 'all_time'),
+        );
+
+        $query = $this->builder->swapSides($data, [
+            'gender' => 'male',
+            'limit' => 25,
+            StatisticsQueryKeys::COMPARE => '1',
+            StatisticsQueryKeys::HOSPITAL => '99',
+        ]);
+
+        self::assertSame('1', $query[StatisticsQueryKeys::COMPARE]);
+        self::assertSame('male', $query['gender']);
+        self::assertSame(25, $query['limit']);
+        self::assertSame('hospital_cohort:urban_acute', $query[StatisticsQueryKeys::SCOPE]);
+        self::assertSame('urban_acute', $query[StatisticsQueryKeys::COHORT]);
+        self::assertSame('all_time', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertSame(StatisticsFilterScope::Public->value, $query[StatisticsQueryKeys::COMPARISON_SCOPE]);
+        self::assertSame('year', $query[StatisticsQueryKeys::COMPARISON_PERIOD]);
+        self::assertSame(2021, $query[StatisticsQueryKeys::COMPARISON_YEAR]);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::HOSPITAL, $query);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_COHORT, $query);
+    }
+
+    #[Test]
+    public function promoteComparisonWritesComparisonAsPrimaryAndDropsCompare(): void
+    {
+        $data = new BenchmarkSelectionFormData(
+            new BenchmarkSelectionSideFormData('public', null, 'year', 2021),
+            new BenchmarkSelectionSideFormData('state', '3', 'all'),
+        );
+
+        $query = $this->builder->promoteComparison($data, [
+            'gender' => 'female',
+            'limit' => 50,
+            'page' => 2,
+            StatisticsQueryKeys::COMPARE => '1',
+            StatisticsQueryKeys::COMPARISON_HOSPITAL => '99',
+        ]);
+
+        self::assertSame('female', $query['gender']);
+        self::assertSame(50, $query['limit']);
+        self::assertSame('state:3', $query[StatisticsQueryKeys::SCOPE]);
+        self::assertSame('3', $query[StatisticsQueryKeys::STATE]);
+        self::assertSame('all', $query[StatisticsQueryKeys::PERIOD]);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARE, $query);
+        self::assertArrayNotHasKey('page', $query);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_SCOPE, $query);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::COMPARISON_HOSPITAL, $query);
+        self::assertArrayNotHasKey(StatisticsQueryKeys::YEAR, $query);
+    }
 }

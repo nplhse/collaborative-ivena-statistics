@@ -15,6 +15,7 @@ use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Application\TopList\TopListLimit;
 use App\Statistics\Application\TopList\TopListRankedRow;
 use App\Statistics\Application\TopList\TopListRanking;
+use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
 use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Controller\TopListsPagePresenter;
 use App\Statistics\UI\Http\Controller\TopListsRequestModel;
@@ -112,6 +113,14 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertSame('3', $model->comparisonFormData->scopeDetail);
         self::assertSame('year', $model->comparisonFormData->period);
         self::assertSame(2024, $model->comparisonFormData->periodYear);
+        self::assertNotSame('', $model->compareSwapUrl);
+        self::assertStringContainsString('compare=1', $model->compareSwapUrl);
+        self::assertStringContainsString('scope=state%3A3', $model->compareSwapUrl);
+        self::assertStringContainsString('comparison_scope=public', $model->compareSwapUrl);
+        self::assertNotSame('', $model->compareContinueWithBUrl);
+        self::assertStringContainsString('scope=state%3A3', $model->compareContinueWithBUrl);
+        self::assertStringNotContainsString('compare=1', $model->compareContinueWithBUrl);
+        self::assertStringNotContainsString('comparison_scope=', $model->compareContinueWithBUrl);
         self::assertNotNull($model->comparison);
         self::assertNotNull($model->comparison->rowsA[0]->labelTarget);
         self::assertSame('app_explore_indication_show', $model->comparison->rowsA[0]->labelTarget->route);
@@ -219,6 +228,7 @@ final class TopListsPagePresenterTest extends TestCase
         return new TopListsPagePresenter(
             new StatisticsNavigationUrlBuilder($router),
             new BenchmarkSelectionFormDataFactory(),
+            new BenchmarkSelectionQueryBuilder(),
             new TopListCatalogCrossReference(),
         );
     }

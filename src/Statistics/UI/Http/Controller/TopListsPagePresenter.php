@@ -14,7 +14,9 @@ use App\Statistics\Application\TopList\TopListComparisonRow;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Application\TopList\TopListPageSizePolicy;
 use App\Statistics\Application\TopList\TopListRanking;
+use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
 use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
+use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionFormData;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +26,7 @@ final readonly class TopListsPagePresenter
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private BenchmarkSelectionFormDataFactory $benchmarkSelectionFormDataFactory,
+        private BenchmarkSelectionQueryBuilder $benchmarkSelectionQueryBuilder,
         private TopListCatalogCrossReference $catalogCrossReference,
     ) {
     }
@@ -121,6 +124,20 @@ final readonly class TopListsPagePresenter
             $selectionFormData = $this->benchmarkSelectionFormDataFactory->fromFilters($primaryFilter, $comparisonFilter);
         }
 
+        $preservedQuery = $this->preservedQuery($request);
+        $compareSwapUrl = '';
+        $compareContinueWithBUrl = '';
+        if ($requestModel->compare && $selectionFormData instanceof BenchmarkSelectionFormData) {
+            $compareSwapUrl = $this->comparisonActionUrl(
+                $currentDefinition->key(),
+                $this->benchmarkSelectionQueryBuilder->swapSides($selectionFormData, $preservedQuery),
+            );
+            $compareContinueWithBUrl = $this->comparisonActionUrl(
+                $currentDefinition->key(),
+                $this->benchmarkSelectionQueryBuilder->promoteComparison($selectionFormData, $preservedQuery),
+            );
+        }
+
         return new TopListsPageViewModel(
             $topListWidget,
             $comparisonViewModel,
@@ -145,11 +162,13 @@ final readonly class TopListsPagePresenter
                 [],
                 StatisticsQueryKeys::REMOVE_COMPARISON_MODE,
             ),
+            $compareSwapUrl,
+            $compareContinueWithBUrl,
             $truncated,
             $paginator,
             $selectionFormData?->primary,
             $selectionFormData?->comparison,
-            $this->preservedQuery($request),
+            $preservedQuery,
             $this->statisticsPageUrl(
                 $request,
                 'app_stats_top_lists',
@@ -233,6 +252,21 @@ final readonly class TopListsPagePresenter
         }
 
         return $query;
+    }
+
+    /**
+     * @param array<string, bool|float|int|string> $query
+     */
+    private function comparisonActionUrl(string $report, array $query): string
+    {
+        $params = $query;
+        $reportParam = isset($params[StatisticsQueryKeys::REPORT]) ? (string) $params[StatisticsQueryKeys::REPORT] : $report;
+        unset($params[StatisticsQueryKeys::REPORT]);
+
+        return $this->statisticsNavigationUrlBuilder->generate(
+            'app_stats_top_lists_show',
+            ['report' => $reportParam] + $params,
+        );
     }
 
     /**

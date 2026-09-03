@@ -33,6 +33,8 @@ final readonly class TopListsPageViewModel
         public bool $compareEnabled,
         public string $compareEnableUrl,
         public string $compareDisableUrl,
+        public string $compareSwapUrl,
+        public string $compareContinueWithBUrl,
         public bool $truncated,
         public ?TopListArrayPaginator $paginator,
         public ?BenchmarkSelectionSideFormData $primaryFormData,
