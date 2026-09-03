@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Overview;
 
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDistributionRow;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationHeatmapData;
 use App\Statistics\Application\IndicationDashboard\IndicationDashboardAssembler;
@@ -31,7 +32,11 @@ final readonly class OverviewChartsFactory
 
         $dayTimeHeatmap = $this->indicationDashboardAssembler->buildDayTimeHeatmap($slice->dayTimeHeatmapCells);
         $shiftHeatmap = $this->indicationDashboardAssembler->buildShiftHeatmap($slice->shiftHeatmapCells);
-        $timeSeries = $this->indicationDashboardAssembler->buildTimeSeries($slice->monthlyRows);
+        $timeSeries = $this->indicationDashboardAssembler->buildTimeSeries(
+            $slice->monthlyRows,
+            $criteria->timeSeriesGrain,
+            new StatisticsPeriodBounds($criteria->from, $criteria->toExclusive),
+        );
 
         return new OverviewChartsViewModel(
             [

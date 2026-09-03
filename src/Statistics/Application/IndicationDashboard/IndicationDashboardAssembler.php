@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Application\IndicationDashboard;
 
 use App\Allocation\Domain\Enum\AllocationGender;
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationChartSeries;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationDistributionRow;
 use App\Statistics\Application\IndicationDashboard\DTO\IndicationHeatmapData;
@@ -15,6 +16,8 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsShiftBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
+use App\Statistics\Application\TimeSeries\TimeSeriesAxisFiller;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -54,16 +57,36 @@ final readonly class IndicationDashboardAssembler
     }
 
     /**
-     * @param list<array{year:int,month:int,count:int}> $monthlyRows
+     * @param list<array{year:int,month:int,day?:int,count:int}> $rows
      */
-    public function buildTimeSeries(array $monthlyRows): IndicationChartSeries
-    {
+    public function buildTimeSeries(
+        array $rows,
+        TimeSeriesGrain $grain = TimeSeriesGrain::Month,
+        ?StatisticsPeriodBounds $bounds = null,
+        ?\DateTimeImmutable $now = null,
+    ): IndicationChartSeries {
+        $countsByKey = [];
+        foreach ($rows as $row) {
+            $countsByKey[TimeSeriesAxisFiller::isoKeyFromRow($row, $grain)] = $row['count'];
+        }
+
+        if (!$bounds instanceof StatisticsPeriodBounds) {
+            $labels = [];
+            $values = [];
+            foreach ($countsByKey as $key => $count) {
+                $labels[] = $key;
+                $values[] = $count;
+            }
+
+            return new IndicationChartSeries($labels, $values);
+        }
+
+        $filled = TimeSeriesAxisFiller::fill($grain, $bounds, $countsByKey, $now ?? new \DateTimeImmutable('now'));
         $labels = [];
         $values = [];
-
-        foreach ($monthlyRows as $row) {
-            $labels[] = sprintf('%04d-%02d', $row['year'], $row['month']);
-            $values[] = $row['count'];
+        foreach ($filled as $point) {
+            $labels[] = $point['key'];
+            $values[] = $point['count'];
         }
 
         return new IndicationChartSeries($labels, $values);

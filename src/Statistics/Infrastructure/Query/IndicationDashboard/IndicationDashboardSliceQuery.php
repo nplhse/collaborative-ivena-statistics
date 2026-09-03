@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardSliceData;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -32,6 +33,7 @@ final readonly class IndicationDashboardSliceQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
     ): IndicationDashboardSliceData {
         if ([] === $indicationIds) {
             return IndicationDashboardSliceData::empty();
@@ -50,12 +52,19 @@ final readonly class IndicationDashboardSliceQuery
         $maleCode = AllocationStatsGenderProjectionCode::Male->value;
         $femaleCode = AllocationStatsGenderProjectionCode::Female->value;
         $otherCode = AllocationStatsGenderProjectionCode::Other->value;
+        $timeSeriesDim3 = TimeSeriesGrain::Day === $timeSeriesGrain
+            ? 'created_day::text'
+            : 'NULL::text';
+        $timeSeriesGroupBy = TimeSeriesGrain::Day === $timeSeriesGrain
+            ? 'created_year, created_month, created_day'
+            : 'created_year, created_month';
 
         $sql = <<<SQL
 WITH slice AS (
     SELECT
         created_year,
         created_month,
+        created_day,
         gender_code,
         age,
         transport_time_minutes,
@@ -74,8 +83,8 @@ SELECT 'gender', 'other', NULL, NULL, COUNT(*)::int FROM slice WHERE gender_code
 UNION ALL
 SELECT 'gender', 'unknown', NULL, NULL, COUNT(*)::int FROM slice WHERE gender_code IS NULL
 UNION ALL
-SELECT 'time_series', created_year::text, created_month::text, NULL, COUNT(*)::int
-FROM slice GROUP BY created_year, created_month
+SELECT 'time_series', created_year::text, created_month::text, {$timeSeriesDim3}, COUNT(*)::int
+FROM slice GROUP BY {$timeSeriesGroupBy}
 UNION ALL
 SELECT 'age_group', bucket, NULL, NULL, COUNT(*)::int
 FROM (SELECT {$ageBucketCase} AS bucket FROM slice) grouped
@@ -116,17 +125,14 @@ SQL;
             $kind = $row['slice_kind'];
             $dim1 = $row['dim1'] ?? '';
             $dim2 = $row['dim2'] ?? '';
+            $dim3 = $row['dim3'] ?? '';
 
             match ($kind) {
                 'gender' => match ($dim1) {
                     'male', 'female', 'other', 'unknown' => $genderCounts[$dim1] = $count,
                     default => null,
                 },
-                'time_series' => $monthlyRows[] = [
-                    'year' => (int) $dim1,
-                    'month' => (int) $dim2,
-                    'count' => $count,
-                ],
+                'time_series' => $monthlyRows[] = $this->timeSeriesRow($dim1, $dim2, $dim3, $count),
                 'age_group' => $ageGroupCounts[$dim1] = $count,
                 'transport_time' => $transportTimeBucketCounts[$dim1] = $count,
                 'day_time_heatmap' => $dayTimeHeatmapCells[] = [
@@ -145,7 +151,9 @@ SQL;
 
         usort(
             $monthlyRows,
-            static fn (array $a, array $b): int => $a['year'] <=> $b['year'] ?: $a['month'] <=> $b['month'],
+            static fn (array $a, array $b): int => $a['year'] <=> $b['year']
+                ?: $a['month'] <=> $b['month']
+                ?: ($a['day'] ?? 0) <=> ($b['day'] ?? 0),
         );
 
         return new IndicationDashboardSliceData(
@@ -156,5 +164,22 @@ SQL;
             $dayTimeHeatmapCells,
             $shiftHeatmapCells,
         );
+    }
+
+    /**
+     * @return array{year:int,month:int,day?:int,count:int}
+     */
+    private function timeSeriesRow(string $year, string $month, string $day, int $count): array
+    {
+        $row = [
+            'year' => (int) $year,
+            'month' => (int) $month,
+            'count' => $count,
+        ];
+        if ('' !== $day) {
+            $row['day'] = (int) $day;
+        }
+
+        return $row;
     }
 }

@@ -10,7 +10,7 @@ namespace App\Statistics\Infrastructure\Query\IndicationDashboard\Dto;
 final readonly class IndicationDashboardSliceData
 {
     /**
-     * @param list<array{year:int,month:int,count:int}>                $monthlyRows
+     * @param list<array{year:int,month:int,day?:int,count:int}>       $monthlyRows
      * @param array{male:int,female:int,other:int,unknown:int}         $genderCounts
      * @param array<string, int>                                       $ageGroupCounts
      * @param array<string, int>                                       $transportTimeBucketCounts

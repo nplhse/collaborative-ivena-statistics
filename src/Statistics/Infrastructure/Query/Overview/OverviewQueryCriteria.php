@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query\Overview;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
+use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 
 final readonly class OverviewQueryCriteria
 {
@@ -16,6 +17,7 @@ final readonly class OverviewQueryCriteria
         public ?\DateTimeImmutable $toExclusive,
         public ?array $hospitalIds,
         public ?int $dispatchAreaId = null,
+        public TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
     ) {
     }
 
@@ -26,8 +28,9 @@ final readonly class OverviewQueryCriteria
         StatisticsPeriodBounds $bounds,
         ?array $hospitalIds,
         ?int $dispatchAreaId = null,
+        TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
     ): self {
-        return new self($bounds->from, $bounds->toExclusive, $hospitalIds, $dispatchAreaId);
+        return new self($bounds->from, $bounds->toExclusive, $hospitalIds, $dispatchAreaId, $timeSeriesGrain);
     }
 
     public function hasEmptyHospitalScope(): bool
