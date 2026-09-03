@@ -112,7 +112,7 @@ final class TopListsControllerTest extends WebTestCase
         ]);
         $this->rebuildProjectionForImports([(int) $import->getId()]);
 
-        $client->request(
+        $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/top-lists/top_diagnoses?scope=public&period=all',
         );
@@ -124,11 +124,27 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-analysis-table-card"] .card-header');
         $this->assertSelectorExists('[data-testid="stats-analysis-table-card"] [data-testid="stats-top-lists-ranking-depth"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-limit-trigger"]');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-limit-trigger"]', 'Top 25 entries');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-limit-10"]', 'Top 10 entries');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-limit-all"]', 'All entries');
         $this->assertSelectorExists('[data-testid="stats-top-lists-page-size-trigger"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Rank');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Indication');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Count');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Share');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"].btn-group');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-catalog-link"].btn');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-compare-enable"].btn');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"].btn-outline-primary');
+        $catalogHref = $crawler->filter('[data-testid="stats-top-lists-catalog-link"]')->attr('href');
+        $this->assertSame('/explore/indication', $catalogHref);
+        $rowLink = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody a');
+        $rowHref = $rowLink->attr('href');
+        $this->assertNotNull($rowHref);
+        $this->assertSame('/explore/indication/'.$normalized->getPublicIdString(), $rowHref);
+        $this->assertStringNotContainsString('scope=', $rowHref);
+        $this->assertStringNotContainsString('period=', $rowHref);
+        $this->assertStringNotContainsString('text-reset', (string) $rowLink->attr('class'));
     }
 
     public function testTopDepartmentsReportIsDisplayedWithTable(): void
@@ -156,7 +172,7 @@ final class TopListsControllerTest extends WebTestCase
         ]);
         $this->rebuildProjectionForImports([(int) $import->getId()]);
 
-        $client->request(
+        $crawler = $client->request(
             Request::METHOD_GET,
             '/statistics/top-lists/top_departments?scope=public&period=all',
         );
@@ -165,6 +181,16 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-widget"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Department');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Seeded Report Department');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-catalog-link"]');
+        $this->assertSame(
+            '/explore/department',
+            $crawler->filter('[data-testid="stats-top-lists-catalog-link"]')->attr('href'),
+        );
+        $rowHref = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody a')->attr('href');
+        $this->assertNotNull($rowHref);
+        $this->assertSame('/explore/department/'.$department->getPublicIdString(), $rowHref);
+        $this->assertStringNotContainsString('scope=', $rowHref);
+        $this->assertStringNotContainsString('period=', $rowHref);
     }
 
     public function testPaginationLinksIncludeReportPathParameter(): void
@@ -450,6 +476,45 @@ final class TopListsControllerTest extends WebTestCase
         self::assertNotFalse($filterPos);
         self::assertNotFalse($disablePos);
         self::assertLessThan($disablePos, $filterPos);
+    }
+
+    public function testCompareDiagnosisRowsLinkToCatalogWithoutScopeAndPeriod(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-top-lists-compare-links']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Compare Links Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        InfectionFactory::createOne(['name' => 'Test Infection']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Compare Links Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Compare Links Diagnosis']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&compare=1',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $compareLink = $crawler->filter('[data-testid="stats-top-lists-comparison-table-a"] tbody a');
+        $compareHref = $compareLink->attr('href');
+        $this->assertNotNull($compareHref);
+        $this->assertSame('/explore/indication/'.$normalized->getPublicIdString(), $compareHref);
+        $this->assertStringNotContainsString('scope=', $compareHref);
+        $this->assertStringNotContainsString('period=', $compareHref);
+        $this->assertStringNotContainsString('text-reset', (string) $compareLink->attr('class'));
     }
 
     public function testInvalidLimitFallsBackToTwentyFive(): void

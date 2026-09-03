@@ -1,17 +1,68 @@
 {% set activePeriodLabel = statisticsHeadingPeriod %}
 {% set topListCompareEnabled = statsTopListCompareEnabled|default(false) %}
+{% set showTopListCatalog = statsTopListCatalogUrl|default(null) %}
+{% set showTopListCompareEnable = statsTopListCompareEnableUrl is defined and not topListCompareEnabled %}
+{% set showIndicationCatalog = statsIndicationCatalogUrl|default(null) %}
+{% set showIndicationTopList = statsIndicationTopListUrl|default(null) %}
+{% set showIndicationCompareLaunch = statsShowCompareLaunchButton|default(false) %}
 
 <div class="col-auto ms-auto d-print-none">
     <div class="btn-list">
-        {% if statsTopListCompareEnableUrl is defined and not topListCompareEnabled %}
-            <button type="button"
-                    class="btn btn-outline-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#stats-top-lists-comparison-modal-b"
-                    data-testid="stats-top-lists-compare-enable">
-                <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
-                {{ 'stats.top_lists.comparison.enable'|trans({}, 'statistics') }}
-            </button>
+        {% if showTopListCatalog or showTopListCompareEnable %}
+            <div class="btn-group" role="group" data-testid="stats-top-lists-header-actions">
+                {% if showTopListCatalog %}
+                    <a class="btn"
+                       href="{{ statsTopListCatalogUrl }}"
+                       data-testid="stats-top-lists-catalog-link">
+                        <twig:ux:icon name="tabler:book-2" class="icon icon-sm" />
+                        {{ 'stats.top_lists.nav.catalog_list'|trans({}, 'statistics') }}
+                    </a>
+                {% endif %}
+
+                {% if showTopListCompareEnable %}
+                    <button type="button"
+                            class="btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#stats-top-lists-comparison-modal-b"
+                            data-testid="stats-top-lists-compare-enable">
+                        <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
+                        {{ 'stats.top_lists.comparison.enable'|trans({}, 'statistics') }}
+                    </button>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if showIndicationCatalog or showIndicationTopList or showIndicationCompareLaunch %}
+            <div class="btn-group" role="group" data-testid="stats-indication-header-actions">
+                {% if showIndicationCatalog %}
+                    <a class="btn"
+                       href="{{ statsIndicationCatalogUrl }}"
+                       data-testid="stats-indication-catalog-link">
+                        <twig:ux:icon name="tabler:book-2" class="icon icon-sm" />
+                        {{ 'stats.indication.nav.catalog'|trans({}, 'statistics') }}
+                    </a>
+                {% endif %}
+
+                {% if showIndicationTopList %}
+                    <a class="btn"
+                       href="{{ statsIndicationTopListUrl }}"
+                       data-testid="stats-indication-top-list-link">
+                        <twig:ux:icon name="tabler:list-numbers" class="icon icon-sm" />
+                        {{ 'stats.indication.nav.top_list'|trans({}, 'statistics') }}
+                    </a>
+                {% endif %}
+
+                {% if showIndicationCompareLaunch %}
+                    <button type="button"
+                            class="btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ statsCompareLaunchModalId|default('stats-indication-compare-launch-modal') }}"
+                            data-testid="stats-indication-compare-launch-button">
+                        <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
+                        {{ 'stats.indication.compare.with'|trans({}, 'statistics') }}
+                    </button>
+                {% endif %}
+            </div>
         {% endif %}
 
         {% if statsShowFilterDrawer|default(false) %}
@@ -27,20 +78,9 @@
             </a>
         {% endif %}
 
-        {% if statsShowCompareLaunchButton|default(false) %}
-            <button type="button"
-                    class="btn btn-outline-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#{{ statsCompareLaunchModalId|default('stats-indication-compare-launch-modal') }}"
-                    data-testid="stats-indication-compare-launch-button">
-                <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
-                {{ 'stats.indication.compare.with'|trans({}, 'statistics') }}
-            </button>
-        {% endif %}
-
         {% if statsShowCompareEditButton|default(false) %}
             <button type="button"
-                    class="btn btn-outline-primary"
+                    class="btn"
                     data-bs-toggle="modal"
                     data-bs-target="#stats-indication-compare-edit-modal"
                     data-testid="stats-indication-compare-edit-button">

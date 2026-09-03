@@ -48,8 +48,8 @@
                                 </div>
                             </td>
                             <td>
-                                {% if comparison.linkDiagnoses and row.entityId %}
-                                    <a href="{{ path('app_stats_indication_dashboard', {indicationId: row.entityId}) }}" class="text-reset">{{ row.label }}</a>
+                                {% if row.labelTarget %}
+                                    <a href="{{ statistics_nav_url(row.labelTarget) }}">{{ row.label }}</a>
                                 {% else %}
                                     {{ row.label }}
                                 {% endif %}

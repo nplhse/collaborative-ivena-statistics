@@ -32,5 +32,10 @@ final class ShowInfectionControllerTest extends WebTestCase
         $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
         self::assertNotNull($href);
         self::assertStringContainsString('infection='.$infection->getId(), $href);
+
+        $actionHrefs = $crawler->filter('[data-testid="catalog-action"]')->each(
+            static fn ($node): string => (string) $node->attr('href'),
+        );
+        self::assertContains('/statistics/top-lists/top_infections', $actionHrefs);
     }
 }

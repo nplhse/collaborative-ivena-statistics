@@ -44,6 +44,11 @@ final class ShowIndicationNormalizedControllerTest extends WebTestCase
         self::assertNotNull($href);
         self::assertStringContainsString('/explore/allocation', $href);
         self::assertStringContainsString('indication=101', $href);
+
+        $actionHrefs = $crawler->filter('[data-testid="catalog-action"]')->each(
+            static fn ($node): string => (string) $node->attr('href'),
+        );
+        self::assertContains('/statistics/top-lists/top_diagnoses', $actionHrefs);
     }
 
     public function testDetailPageShowsEditorialNoteInBasicInfoWhenPresent(): void
