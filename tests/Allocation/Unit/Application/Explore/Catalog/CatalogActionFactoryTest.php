@@ -16,16 +16,20 @@ final class CatalogActionFactoryTest extends TestCase
     public function testSecondaryTransportActionLinksToAllocationListFilter(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects(self::once())
+        $urlGenerator->expects(self::exactly(2))
             ->method('generate')
-            ->with('app_explore_allocation_list', ['secondaryTransport' => 42])
-            ->willReturn('/explore/allocation?secondaryTransport=42');
+            ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
+                'app_explore_allocation_list' === $route && ($params['secondaryTransport'] ?? null) === 42 => '/explore/allocation?secondaryTransport=42',
+                'app_stats_top_lists_show' === $route && ($params['report'] ?? null) === 'top_secondary_transports' => '/statistics/top-lists/top_secondary_transports',
+                default => throw new \InvalidArgumentException($route),
+            });
 
         $actions = $this->factory($urlGenerator)->forSecondaryTransport(42);
 
-        self::assertCount(1, $actions);
+        self::assertCount(2, $actions);
         self::assertTrue($actions[0]->primary);
         self::assertSame('/explore/allocation?secondaryTransport=42', $actions[0]->url);
+        self::assertSame('/statistics/top-lists/top_secondary_transports', $actions[1]->url);
     }
 
     public function testIndicationActionsIncludeInsightsAndTopList(): void

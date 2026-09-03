@@ -14,6 +14,7 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
+use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -42,6 +43,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-index"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-card-top_diagnoses"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-card-top_departments"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-card-top_secondary_transports"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-widget"]');
         $this->assertSelectorNotExists('[data-testid="stats-explorer-sidebar"]');
         $this->assertStringContainsString('Top Lists', $crawler->filter('[data-testid="stats-heading-title"]')->text());
@@ -63,6 +65,23 @@ final class TopListsControllerTest extends WebTestCase
             '[data-testid="stats-top-lists-card-top_infections"]',
             'Reported or suspected infectious diseases among assignments.',
         );
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-top-lists-card-top_secondary_transports"]',
+            'Secondary transport types that appear most often among assignments.',
+        );
+        $cardTestIds = $crawler->filter('[data-testid="stats-top-lists-index"] a.card-link')->each(
+            static fn ($node): string => (string) $node->attr('data-testid'),
+        );
+        self::assertSame([
+            'stats-top-lists-card-top_assignments',
+            'stats-top-lists-card-top_departments',
+            'stats-top-lists-card-top_diagnoses',
+            'stats-top-lists-card-top_infections',
+            'stats-top-lists-card-top_occasions',
+            'stats-top-lists-card-top_secondary_diagnoses',
+            'stats-top-lists-card-top_secondary_transports',
+            'stats-top-lists-card-top_specialities',
+        ], $cardTestIds);
     }
 
     public function testLegacyReportQueryRedirectsToDetailRoute(): void
@@ -262,6 +281,7 @@ final class TopListsControllerTest extends WebTestCase
         $assignment = AssignmentFactory::createOne(['name' => 'Seeded Report Assignment']);
         $occasion = OccasionFactory::createOne(['name' => 'Seeded Report Occasion']);
         $infection = InfectionFactory::createOne(['name' => 'Seeded Report Infection']);
+        $secondaryTransport = SecondaryTransportFactory::createOne(['name' => 'Seeded Report Secondary Transport']);
         $raw = IndicationRawFactory::createOne(['name' => 'Seeded Report Diagnosis Raw']);
         $normalized = IndicationNormalizedFactory::createOne(['name' => 'Seeded Report Diagnosis']);
         $secondaryNormalized = IndicationNormalizedFactory::createOne(['name' => 'Seeded Report Secondary Diagnosis']);
@@ -273,6 +293,7 @@ final class TopListsControllerTest extends WebTestCase
             'assignment' => $assignment,
             'occasion' => $occasion,
             'infection' => $infection,
+            'secondaryTransport' => $secondaryTransport,
             'indicationRaw' => $raw,
             'indicationNormalized' => $normalized,
             'secondaryIndicationNormalized' => $secondaryNormalized,
@@ -299,6 +320,7 @@ final class TopListsControllerTest extends WebTestCase
         yield 'top_assignments' => ['top_assignments', 'Assignment type', 'Seeded Report Assignment'];
         yield 'top_infections' => ['top_infections', 'Infection', 'Seeded Report Infection'];
         yield 'top_secondary_diagnoses' => ['top_secondary_diagnoses', 'Secondary indication', 'Seeded Report Secondary Diagnosis'];
+        yield 'top_secondary_transports' => ['top_secondary_transports', 'Secondary transport', 'Seeded Report Secondary Transport'];
         yield 'top_specialities' => ['top_specialities', 'Speciality', 'Seeded Report Speciality'];
         yield 'top_occasions' => ['top_occasions', 'Occasion', 'Seeded Report Occasion'];
     }
@@ -391,6 +413,129 @@ final class TopListsControllerTest extends WebTestCase
         self::assertSame('Present Infection', trim($cells->eq(1)->text()));
         self::assertSame('1', trim($cells->eq(2)->text()));
         self::assertSame('100.0%', trim($cells->eq(3)->text()));
+    }
+
+    public function testSecondaryTransportsExcludeMissingValuesFromCountsAndShares(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-secondary-transport-null-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Primary Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Primary Indication']);
+        $secondaryTransport = SecondaryTransportFactory::createOne(['name' => 'Present Secondary Transport']);
+        $allocationDefaults = [
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+        ];
+        AllocationFactory::createOne($allocationDefaults + ['secondaryTransport' => null]);
+        AllocationFactory::createOne($allocationDefaults + ['secondaryTransport' => null]);
+        AllocationFactory::createOne($allocationDefaults + ['secondaryTransport' => $secondaryTransport]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_secondary_transports?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $tableText = $crawler->filter('[data-testid="stats-analysis-table-card"]')->text();
+        self::assertStringNotContainsString('Unknown', $tableText);
+        self::assertStringNotContainsString('Unbekannt', $tableText);
+
+        $rows = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr');
+        self::assertCount(1, $rows);
+        $cells = $rows->eq(0)->filter('td');
+        self::assertSame('Present Secondary Transport', trim($cells->eq(1)->text()));
+        self::assertSame('1', trim($cells->eq(2)->text()));
+        self::assertSame('100.0%', trim($cells->eq(3)->text()));
+    }
+
+    public function testSecondaryTransportsRowsLinkToCatalogWithoutScopeAndPeriod(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-secondary-transport-catalog-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Primary Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Primary Indication']);
+        $secondaryTransport = SecondaryTransportFactory::createOne(['name' => 'Catalog Secondary Transport']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+            'secondaryTransport' => $secondaryTransport,
+        ]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_secondary_transports?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $catalogHref = $crawler->filter('[data-testid="stats-top-lists-catalog-link"]')->attr('href');
+        $this->assertSame('/explore/secondary_transport', $catalogHref);
+        $rowHref = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody a')->attr('href');
+        $this->assertNotNull($rowHref);
+        $this->assertSame('/explore/secondary_transport/'.$secondaryTransport->getPublicIdString(), $rowHref);
+        $this->assertStringNotContainsString('scope=', $rowHref);
+        $this->assertStringNotContainsString('period=', $rowHref);
+        $this->assertSelectorExists('[data-testid="stats-analysis-table-card"] [data-testid="stats-top-lists-share-bar"]');
+    }
+
+    public function testSecondaryTransportsCompareModeRendersWorkspace(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        UserFactory::createOne(['username' => 'stats-secondary-transport-compare-test']);
+        StateFactory::createOne(['name' => 'Hessen']);
+        DispatchAreaFactory::createOne(['name' => 'Dispatch Area']);
+        HospitalFactory::createOne(['name' => 'Test Hospital']);
+        $import = ImportFactory::createOne(['name' => 'Test Import']);
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        AssignmentFactory::createOne(['name' => 'Test Assignment']);
+        OccasionFactory::createOne(['name' => 'Test Occasion']);
+        $raw = IndicationRawFactory::createOne(['name' => 'Primary Raw']);
+        $normalized = IndicationNormalizedFactory::createOne(['name' => 'Primary Indication']);
+        $secondaryTransport = SecondaryTransportFactory::createOne(['name' => 'Compare Secondary Transport']);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('today'),
+            'import' => $import,
+            'indicationRaw' => $raw,
+            'indicationNormalized' => $normalized,
+            'secondaryTransport' => $secondaryTransport,
+        ]);
+        $this->rebuildProjectionForImports([(int) $import->getId()]);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/top-lists/top_secondary_transports?scope=public&period=year&year=2021&compare=1&comparison_scope=public&comparison_period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-swap"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-continue-a"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-compare-continue-b"]');
     }
 
     public function testLimitParameterTenIsAccepted(): void

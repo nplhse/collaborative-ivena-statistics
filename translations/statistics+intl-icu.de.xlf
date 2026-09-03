@@ -4733,6 +4733,10 @@
         <source>stats.top_lists.table.secondary_diagnosis</source>
         <target>Sekundärindikation</target>
       </trans-unit>
+      <trans-unit id="statsTlDeTbSt" resname="stats.top_lists.table.secondary_transport">
+        <source>stats.top_lists.table.secondary_transport</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
       <trans-unit id="De052d8192" resname="stats.top_lists.table.share">
         <source>stats.top_lists.table.share</source>
         <target>Anteil</target>
@@ -4788,6 +4792,14 @@
       <trans-unit id="De25e3ba4f" resname="stats.top_lists.top_secondary_diagnoses.label">
         <source>stats.top_lists.top_secondary_diagnoses.label</source>
         <target>Top-Sekundärindikationen</target>
+      </trans-unit>
+      <trans-unit id="statsTlDeStDs" resname="stats.top_lists.top_secondary_transports.description">
+        <source>stats.top_lists.top_secondary_transports.description</source>
+        <target>Häufigste Sekundärtransportarten der Zuweisungen.</target>
+      </trans-unit>
+      <trans-unit id="statsTlDeStLb" resname="stats.top_lists.top_secondary_transports.label">
+        <source>stats.top_lists.top_secondary_transports.label</source>
+        <target>Top-Sekundärtransporte</target>
       </trans-unit>
       <trans-unit id="De0d3434c8" resname="stats.top_lists.top_specialities.description">
         <source>stats.top_lists.top_specialities.description</source>

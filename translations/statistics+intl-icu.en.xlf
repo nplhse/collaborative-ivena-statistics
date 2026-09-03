@@ -1281,6 +1281,10 @@
         <source>stats.top_lists.table.secondary_diagnosis</source>
         <target>Secondary indication</target>
       </trans-unit>
+      <trans-unit id="statsRpTbSt" resname="stats.top_lists.table.secondary_transport">
+        <source>stats.top_lists.table.secondary_transport</source>
+        <target>Secondary transport</target>
+      </trans-unit>
       <trans-unit id="statsRpTbSp" resname="stats.top_lists.table.speciality">
         <source>stats.top_lists.table.speciality</source>
         <target>Speciality</target>
@@ -1320,6 +1324,14 @@
       <trans-unit id="statsRpSdDs" resname="stats.top_lists.top_secondary_diagnoses.description">
         <source>stats.top_lists.top_secondary_diagnoses.description</source>
         <target>Most frequent secondary indications among assignments.</target>
+      </trans-unit>
+      <trans-unit id="statsRpStLb" resname="stats.top_lists.top_secondary_transports.label">
+        <source>stats.top_lists.top_secondary_transports.label</source>
+        <target>Top secondary transports</target>
+      </trans-unit>
+      <trans-unit id="statsRpStDs" resname="stats.top_lists.top_secondary_transports.description">
+        <source>stats.top_lists.top_secondary_transports.description</source>
+        <target>Secondary transport types that appear most often among assignments.</target>
       </trans-unit>
       <trans-unit id="statsRpSlLb" resname="stats.top_lists.top_specialities.label">
         <source>stats.top_lists.top_specialities.label</source>

@@ -23,7 +23,7 @@ final readonly class CatalogActionFactory
      */
     public function forSecondaryTransport(int $id): array
     {
-        return [$this->viewAllocationsAction('secondaryTransport', $id)];
+        return $this->withTopListAction([$this->viewAllocationsAction('secondaryTransport', $id)], CatalogDimensionKey::SecondaryTransport);
     }
 
     /**

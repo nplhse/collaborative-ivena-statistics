@@ -21,6 +21,7 @@ final readonly class TopListCatalogCrossReference
             CatalogDimensionKey::Assignment => 'top_assignments',
             CatalogDimensionKey::Occasion => 'top_occasions',
             CatalogDimensionKey::Infection => 'top_infections',
+            CatalogDimensionKey::SecondaryTransport => 'top_secondary_transports',
             default => null,
         };
     }
@@ -34,6 +35,7 @@ final readonly class TopListCatalogCrossReference
             'top_assignments' => 'app_explore_assignment_list',
             'top_occasions' => 'app_explore_occasion_list',
             'top_infections' => 'app_explore_infection_list',
+            'top_secondary_transports' => 'app_explore_secondary_transport_list',
             default => null,
         };
     }
@@ -47,6 +49,7 @@ final readonly class TopListCatalogCrossReference
             'top_assignments' => $this->catalogShowTarget('app_explore_assignment_show', $publicId),
             'top_occasions' => $this->catalogShowTarget('app_explore_occasion_show', $publicId),
             'top_infections' => $this->catalogShowTarget('app_explore_infection_show', $publicId),
+            'top_secondary_transports' => $this->catalogShowTarget('app_explore_secondary_transport_show', $publicId),
             default => null,
         };
     }

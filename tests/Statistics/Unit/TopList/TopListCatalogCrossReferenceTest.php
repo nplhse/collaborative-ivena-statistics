@@ -30,10 +30,10 @@ final class TopListCatalogCrossReferenceTest extends TestCase
         yield 'assignment' => [CatalogDimensionKey::Assignment, 'top_assignments'];
         yield 'occasion' => [CatalogDimensionKey::Occasion, 'top_occasions'];
         yield 'infection' => [CatalogDimensionKey::Infection, 'top_infections'];
+        yield 'secondary transport' => [CatalogDimensionKey::SecondaryTransport, 'top_secondary_transports'];
         yield 'hospital' => [CatalogDimensionKey::Hospital, null];
         yield 'state' => [CatalogDimensionKey::State, null];
         yield 'dispatch area' => [CatalogDimensionKey::DispatchArea, null];
-        yield 'secondary transport' => [CatalogDimensionKey::SecondaryTransport, null];
     }
 
     public function testIndicationRowsLinkToCatalogWithoutQueryMerge(): void
@@ -82,6 +82,7 @@ final class TopListCatalogCrossReferenceTest extends TestCase
         self::assertSame('app_explore_assignment_list', $crossReference->catalogListRoute('top_assignments'));
         self::assertSame('app_explore_occasion_list', $crossReference->catalogListRoute('top_occasions'));
         self::assertSame('app_explore_infection_list', $crossReference->catalogListRoute('top_infections'));
+        self::assertSame('app_explore_secondary_transport_list', $crossReference->catalogListRoute('top_secondary_transports'));
         self::assertNull($crossReference->catalogListRoute('unknown'));
     }
 
@@ -107,6 +108,7 @@ final class TopListCatalogCrossReferenceTest extends TestCase
         yield 'assignment' => ['top_assignments', 'app_explore_assignment_show'];
         yield 'occasion' => ['top_occasions', 'app_explore_occasion_show'];
         yield 'infection' => ['top_infections', 'app_explore_infection_show'];
+        yield 'secondary transport' => ['top_secondary_transports', 'app_explore_secondary_transport_show'];
     }
 
     public function testUnknownTopListHasNoRowTarget(): void
