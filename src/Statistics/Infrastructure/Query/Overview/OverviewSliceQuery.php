@@ -128,15 +128,19 @@ SQL;
      */
     private function timeSeriesRow(string $year, string $month, string $day, int $count): array
     {
-        $row = [
+        if ('' !== $day) {
+            return [
+                'year' => (int) $year,
+                'month' => (int) $month,
+                'day' => (int) $day,
+                'count' => $count,
+            ];
+        }
+
+        return [
             'year' => (int) $year,
             'month' => (int) $month,
             'count' => $count,
         ];
-        if ('' !== $day) {
-            $row['day'] = (int) $day;
-        }
-
-        return $row;
     }
 }
