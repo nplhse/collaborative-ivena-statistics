@@ -741,6 +741,10 @@
         <source>validation.registration.identity_taken</source>
         <target>This username or email address is already taken.</target>
       </trans-unit>
+      <trans-unit id="usrv001" resname="validation.username.format">
+        <source>validation.username.format</source>
+        <target>Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.</target>
+      </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
         <target>This page key is already assigned to another page.</target>

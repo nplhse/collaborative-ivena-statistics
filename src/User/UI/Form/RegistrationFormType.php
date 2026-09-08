@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\User\UI\Form;
 
 use App\User\Domain\Validator\UserPasswordConstraints;
+use App\User\Domain\Validator\UserUsernameConstraints;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -16,7 +17,6 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\IsTrue;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -36,10 +36,7 @@ final class RegistrationFormType extends AbstractType
             ->add('username', TextType::class, [
                 'label' => 'label.username',
                 'translation_domain' => 'messages',
-                'constraints' => [
-                    new NotBlank(),
-                    new Length(min: 3, max: 180),
-                ],
+                'constraints' => UserUsernameConstraints::forUsername(),
             ])
             ->add('email', EmailType::class, [
                 'label' => 'label.email_address',

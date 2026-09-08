@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
+use App\User\Domain\Validator\UserUsernameConstraints;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -34,6 +35,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
+    #[Assert\Length(min: UserUsernameConstraints::MIN_LENGTH, max: UserUsernameConstraints::MAX_LENGTH)]
+    #[Assert\Regex(
+        pattern: UserUsernameConstraints::PATTERN,
+        message: 'validation.username.format',
+    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -100,7 +106,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
 
     public function setUsername(string $username): static
     {
-        $this->username = $username;
+        $this->username = UserUsernameConstraints::trim($username);
 
         return $this;
     }

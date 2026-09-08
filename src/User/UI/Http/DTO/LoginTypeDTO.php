@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\User\UI\Http\DTO;
 
+use App\User\Domain\Validator\UserUsernameConstraints;
+
 final class LoginTypeDTO
 {
     public function __construct(
@@ -15,12 +17,12 @@ final class LoginTypeDTO
 
     public function getUsername(): string
     {
-        return $this->username;
+        return UserUsernameConstraints::trim($this->username);
     }
 
     public function setUsername(string $username): void
     {
-        $this->username = $username;
+        $this->username = UserUsernameConstraints::trim($username);
     }
 
     public function getPassword(): string
