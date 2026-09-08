@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application;
 
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
@@ -35,8 +36,8 @@ final class StatisticsDrawerFilterFactory
             isCpr: $this->parseOptionalBoolean($query, 'isCPR'),
             isPregnant: $this->parseOptionalBoolean($query, 'isPregnant'),
             isWorkAccident: $this->parseOptionalBoolean($query, 'isWorkAccident'),
-            isInfectious: $this->parseOptionalBoolean($query, 'isInfectious'),
-            infection: $this->parsePositiveInt($query->getString('infection')),
+            isInfectious: $this->parseInfectiousPresence($query),
+            infection: $this->parseInfectiousId($query),
         );
     }
 
@@ -79,5 +80,26 @@ final class StatisticsDrawerFilterFactory
         }
 
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * @param InputBag<string> $query
+     */
+    private function parseInfectiousPresence(InputBag $query): ?bool
+    {
+        $fromInfection = OptionalRelationFilter::fromQuery($query->getString('infection'));
+        if ($fromInfection->isActive()) {
+            return 1 === $fromInfection->toPresenceAndId()[0];
+        }
+
+        return $this->parseOptionalBoolean($query, 'isInfectious');
+    }
+
+    /**
+     * @param InputBag<string> $query
+     */
+    private function parseInfectiousId(InputBag $query): ?int
+    {
+        return OptionalRelationFilter::fromQuery($query->getString('infection'))->equalsId;
     }
 }

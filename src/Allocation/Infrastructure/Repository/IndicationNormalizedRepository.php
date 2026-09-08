@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Repository;
 
+use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO;
 use App\Shared\Infrastructure\Pagination\Paginator;
@@ -85,5 +86,28 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
         }
 
         return $result['name'].(empty($result['code']) ? '' : ' ('.$result['code'].')');
+    }
+
+    /**
+     * Normalized indications that appear as a secondary indication on at least one allocation.
+     *
+     * @return list<IndicationNormalized>
+     */
+    public function findUsedAsSecondaryIndication(): array
+    {
+        /** @var list<IndicationNormalized> $result */
+        $result = $this->createQueryBuilder('n')
+            ->andWhere('n.code > 0')
+            ->andWhere(
+                'EXISTS (
+                    SELECT 1 FROM '.Allocation::class.' a
+                    WHERE a.secondaryIndicationNormalized = n
+                )'
+            )
+            ->orderBy('n.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
     }
 }

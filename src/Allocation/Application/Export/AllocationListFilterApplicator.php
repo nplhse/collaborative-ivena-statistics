@@ -6,6 +6,7 @@ namespace App\Allocation\Application\Export;
 
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use App\Allocation\Application\Export\DTO\ExportDateTimeRange;
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\HospitalLocation;
@@ -112,10 +113,21 @@ final class AllocationListFilterApplicator
                 ->setParameter('indication', $criteria->indication);
         }
 
-        if (null !== $criteria->secondaryTransport) {
-            $qb->andWhere('st.id = :secondaryTransportId')
-                ->setParameter('secondaryTransportId', $criteria->secondaryTransport);
-        }
+        OptionalRelationFilter::fromQuery($criteria->secondaryIndication, allowPresent: false)->apply(
+            $qb,
+            'a.secondaryIndicationNormalized IS NULL',
+            'a.secondaryIndicationNormalized IS NOT NULL',
+            'IDENTITY(a.secondaryIndicationNormalized)',
+            'secondaryIndicationNormalizedId',
+        );
+
+        OptionalRelationFilter::fromQuery($criteria->secondaryTransport)->apply(
+            $qb,
+            'a.secondaryTransport IS NULL',
+            'a.secondaryTransport IS NOT NULL',
+            'st.id',
+            'secondaryTransportId',
+        );
 
         if (null !== $criteria->department) {
             $qb->andWhere('IDENTITY(a.department) = :departmentId')
@@ -132,10 +144,13 @@ final class AllocationListFilterApplicator
                 ->setParameter('assignmentId', $criteria->assignment);
         }
 
-        if (null !== $criteria->occasion) {
-            $qb->andWhere('IDENTITY(a.occasion) = :occasionId')
-                ->setParameter('occasionId', $criteria->occasion);
-        }
+        OptionalRelationFilter::fromQuery($criteria->occasion, allowPresent: false)->apply(
+            $qb,
+            'a.occasion IS NULL',
+            'a.occasion IS NOT NULL',
+            'IDENTITY(a.occasion)',
+            'occasionId',
+        );
 
         if (null !== $criteria->departmentWasClosed) {
             $qb->andWhere('a.departmentWasClosed = :departmentWasClosed')

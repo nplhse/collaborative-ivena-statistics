@@ -265,6 +265,10 @@
         <source>label.all</source>
         <target>Alle</target>
       </trans-unit>
+      <trans-unit id="lblAllAllocationsDe" resname="label.all_allocations">
+        <source>label.all_allocations</source>
+        <target>Alle Einsätze</target>
+      </trans-unit>
       <trans-unit id="lblAllAssignmentsDe" resname="label.all_assignments">
         <source>label.all_assignments</source>
         <target>Alle Zuweisungen</target>
@@ -300,6 +304,14 @@
       <trans-unit id="lblAllSecondaryTransportsDe" resname="label.all_secondary_transports">
         <source>label.all_secondary_transports</source>
         <target>Alle Sekundärtransporte</target>
+      </trans-unit>
+      <trans-unit id="lblAnySecondaryTransportDe" resname="label.any_secondary_transport">
+        <source>label.any_secondary_transport</source>
+        <target>Jeder Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="lblAnyInfectionDe" resname="label.any_infection">
+        <source>label.any_infection</source>
+        <target>Jede Infektion</target>
       </trans-unit>
       <trans-unit id="lblAllSizesDe" resname="label.all_sizes">
         <source>label.all_sizes</source>

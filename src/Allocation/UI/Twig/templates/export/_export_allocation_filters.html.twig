@@ -98,6 +98,9 @@
                 </div>
                 <div class="row g-3 align-items-center">
                     <div class="col-md-6">{{ form_row(form.indication, {row_attr: {class: 'mb-0'}}) }}</div>
+                    <div class="col-md-6">{{ form_row(form.secondaryIndication, {row_attr: {class: 'mb-0'}}) }}</div>
+                </div>
+                <div class="row g-3 align-items-center">
                     <div class="col-md-6">{{ form_row(form.includeIndicationRaw, {row_attr: {class: 'mb-0 w-100'}}) }}</div>
                 </div>
                 <div class="row g-3">
@@ -137,10 +140,7 @@
                 </div>
                 <div class="row g-2">
                     <div class="col-md-6">{{ form_row(form.isWorkAccident) }}</div>
-                </div>
-                <div class="row g-2 align-items-center">
-                    <div class="col-md-6">{{ form_row(form.isInfectious, {row_attr: {class: 'mb-0'}}) }}</div>
-                    <div class="col-md-6">{{ form_row(form.infection) }}</div>
+                    <div class="col-md-6">{{ form_row(form.infection, {row_attr: {class: 'mb-0'}}) }}</div>
                 </div>
             </div>
         {{ editAccordion.panel_end() }}

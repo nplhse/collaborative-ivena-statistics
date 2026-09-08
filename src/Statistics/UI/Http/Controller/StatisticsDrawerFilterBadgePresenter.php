@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class StatisticsDrawerFilterBadgePresenter
@@ -89,6 +90,15 @@ final readonly class StatisticsDrawerFilterBadgePresenter
             return filter_var($raw, FILTER_VALIDATE_BOOLEAN)
                 ? $this->translator->trans('label.yes', [], 'messages')
                 : $this->translator->trans('label.no', [], 'messages');
+        }
+
+        if ('infection' === $key) {
+            if (OptionalRelationFilter::NONE === $raw) {
+                return $this->translator->trans('label.no_infection', [], 'messages');
+            }
+            if (OptionalRelationFilter::ANY === $raw) {
+                return $this->translator->trans('label.any_infection', [], 'messages');
+            }
         }
 
         if (\in_array($key, self::CHOICE_KEYS, true)) {

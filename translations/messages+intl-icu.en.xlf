@@ -257,6 +257,14 @@
         <source>label.all_secondary_transports</source>
         <target>All secondary transports</target>
       </trans-unit>
+      <trans-unit id="lblAnySecTrEn" resname="label.any_secondary_transport">
+        <source>label.any_secondary_transport</source>
+        <target>Any secondary transport</target>
+      </trans-unit>
+      <trans-unit id="lblAnyInfEn" resname="label.any_infection">
+        <source>label.any_infection</source>
+        <target>Any infection</target>
+      </trans-unit>
       <trans-unit id="GRL.4Ts" resname="label.all_sizes">
         <source>label.all_sizes</source>
         <target>All Sizes</target>
@@ -316,6 +324,10 @@
       <trans-unit id="labelAll" resname="label.all">
         <source>label.all</source>
         <target>All</target>
+      </trans-unit>
+      <trans-unit id="lblAllAllocationsEn" resname="label.all_allocations">
+        <source>label.all_allocations</source>
+        <target>All allocations</target>
       </trans-unit>
       <trans-unit id="6QPDzOS" resname="label.allocation">
         <source>label.allocation</source>

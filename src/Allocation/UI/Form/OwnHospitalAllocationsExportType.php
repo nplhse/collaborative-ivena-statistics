@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Form;
 
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Repository\AssignmentRepository;
@@ -101,7 +102,10 @@ final class OwnHospitalAllocationsExportType extends AbstractType
             ]))
             ->add('occasion', ChoiceType::class, $this->choiceFieldOptions([
                 'label' => 'label.occasion',
-                'choices' => $this->entityIdChoices($this->occasionRepository->findBy([], ['name' => 'ASC'])),
+                'choices' => $this->optionalRelationChoices(
+                    $this->occasionRepository->findBy([], ['name' => 'ASC']),
+                    'label.no_occasion',
+                ),
                 'placeholder' => 'label.all_occasions',
             ]))
             ->add('transportType', ChoiceType::class, $this->choiceFieldOptions([
@@ -114,6 +118,14 @@ final class OwnHospitalAllocationsExportType extends AbstractType
                 'choices' => $this->indicationChoices(),
                 'placeholder' => 'label.all_indications',
             ]))
+            ->add('secondaryIndication', ChoiceType::class, $this->choiceFieldOptions([
+                'label' => 'label.secondary_indication',
+                'choices' => $this->optionalRelationChoices(
+                    $this->secondaryIndicationEntities(),
+                    'label.no_secondary_indication',
+                ),
+                'placeholder' => 'label.all_secondary_indications',
+            ]))
             ->add('includeIndicationRaw', CheckboxType::class, [
                 'required' => false,
                 'label' => new TranslatableMessage('field.includeIndicationRaw', domain: 'messages'),
@@ -121,7 +133,11 @@ final class OwnHospitalAllocationsExportType extends AbstractType
             ])
             ->add('secondaryTransport', ChoiceType::class, $this->choiceFieldOptions([
                 'label' => 'label.secondary_transport',
-                'choices' => $this->entityIdChoices($this->secondaryTransportRepository->findBy([], ['name' => 'ASC'])),
+                'choices' => $this->optionalRelationChoices(
+                    $this->secondaryTransportRepository->findBy([], ['name' => 'ASC']),
+                    'label.no_secondary_transport',
+                    'label.any_secondary_transport',
+                ),
                 'placeholder' => 'label.all_secondary_transports',
             ]))
             ->add('department', ChoiceType::class, $this->choiceFieldOptions([
@@ -167,13 +183,13 @@ final class OwnHospitalAllocationsExportType extends AbstractType
                 'label' => new TranslatableMessage('allocations.field.isWorkAccident', domain: 'allocation'),
                 'required' => false,
             ])
-            ->add('isInfectious', CheckboxType::class, [
-                'label' => 'label.is_infectious',
-                'required' => false,
-            ])
             ->add('infection', ChoiceType::class, $this->choiceFieldOptions([
                 'label' => 'field.infection',
-                'choices' => $this->entityIdChoices($this->infectionRepository->findBy([], ['name' => 'ASC'])),
+                'choices' => $this->optionalRelationChoices(
+                    $this->infectionRepository->findBy([], ['name' => 'ASC']),
+                    'label.no_infection',
+                    'label.any_infection',
+                ),
                 'placeholder' => 'label.all_infections',
             ]));
     }
@@ -262,6 +278,14 @@ final class OwnHospitalAllocationsExportType extends AbstractType
     }
 
     /**
+     * @return list<object>
+     */
+    private function secondaryIndicationEntities(): array
+    {
+        return $this->indicationNormalizedRepository->findUsedAsSecondaryIndication();
+    }
+
+    /**
      * @param list<object> $entities
      *
      * @return array<string, int>
@@ -280,6 +304,27 @@ final class OwnHospitalAllocationsExportType extends AbstractType
             }
 
             $choices[(string) $entity->getName()] = (int) $id;
+        }
+
+        return $choices;
+    }
+
+    /**
+     * @param list<object> $entities
+     *
+     * @return array<string, int|string>
+     */
+    private function optionalRelationChoices(array $entities, string $noneLabelKey, ?string $anyLabelKey = null): array
+    {
+        $choices = [
+            $this->translator->trans($noneLabelKey, [], 'messages') => OptionalRelationFilter::NONE,
+        ];
+        if (null !== $anyLabelKey) {
+            $choices[$this->translator->trans($anyLabelKey, [], 'messages')] = OptionalRelationFilter::ANY;
+        }
+
+        foreach ($this->entityIdChoices($entities) as $label => $id) {
+            $choices[$label] = (string) $id;
         }
 
         return $choices;

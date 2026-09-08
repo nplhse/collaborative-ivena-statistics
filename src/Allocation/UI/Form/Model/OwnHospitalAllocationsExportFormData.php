@@ -21,7 +21,9 @@ final class OwnHospitalAllocationsExportFormData
 
     public ?int $indication = null;
 
-    public ?int $secondaryTransport = null;
+    public ?string $secondaryIndication = null;
+
+    public ?string $secondaryTransport = null;
 
     public ?int $department = null;
 
@@ -29,7 +31,7 @@ final class OwnHospitalAllocationsExportFormData
 
     public ?int $assignment = null;
 
-    public ?int $occasion = null;
+    public ?string $occasion = null;
 
     public bool $departmentWasClosed = false;
 
@@ -49,9 +51,7 @@ final class OwnHospitalAllocationsExportFormData
 
     public bool $isWorkAccident = false;
 
-    public bool $isInfectious = false;
-
-    public ?int $infection = null;
+    public ?string $infection = null;
 
     public bool $includeIndicationRaw = false;
 }

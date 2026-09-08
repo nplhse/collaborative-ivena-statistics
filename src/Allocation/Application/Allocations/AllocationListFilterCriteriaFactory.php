@@ -36,6 +36,7 @@ final readonly class AllocationListFilterCriteriaFactory
             requiresResus: $base->requiresResus,
             requiresCathlab: $base->requiresCathlab,
             indication: $base->indication,
+            secondaryIndication: $base->secondaryIndication,
             secondaryTransport: $base->secondaryTransport,
             isVentilated: $base->isVentilated,
             isShock: $base->isShock,

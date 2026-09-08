@@ -73,8 +73,8 @@
         {% set rawFilters = rawFilters|merge([{key: 'label.is_work_accident', value: filters.isWorkAccident ? 'Yes' : 'No'}]) %}
     {% endif %}
 
-    {% if filters.isInfectious is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_infectious', value: filters.isInfectious ? 'Yes' : 'No'}]) %}
+    {% if filters.isInfectious is not null and filters.isInfectious != '' %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_infectious', value: filters.isInfectious == '1' or filters.isInfectious == 1 ? 'Yes' : 'No'}]) %}
     {% endif %}
 
     {% if filters.departmentWasClosed is not null %}
@@ -120,16 +120,39 @@
         {% endif %}
     {% endif %}
 
-    {# --- Lookup: Secondary Transport (id → name) --- #}
-    {% if filters.secondaryTransport is not null and secondaryTransports is defined %}
-        {% set secondaryTransportName = null %}
-        {% for st in secondaryTransports %}
-            {% if secondaryTransportName is null and st.id == filters.secondaryTransport %}
-                {% set secondaryTransportName = st.name %}
+    {# --- Lookup: Secondary indication (id → name, or absence sentinel) --- #}
+    {% if filters.secondaryIndication is not null and filters.secondaryIndication != '' %}
+        {% if filters.secondaryIndication == 'none' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.secondary_indication', value: 'label.no_secondary_indication'|trans({}, 'messages')}]) %}
+        {% else %}
+            {% set secondaryIndicationName = null %}
+            {% for i in indications %}
+                {% if secondaryIndicationName is null and i.id == filters.secondaryIndication %}
+                    {% set secondaryIndicationName = i.name %}
+                {% endif %}
+            {% endfor %}
+            {% if secondaryIndicationName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.secondary_indication', value: secondaryIndicationName}]) %}
             {% endif %}
-        {% endfor %}
-        {% if secondaryTransportName is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: secondaryTransportName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {# --- Lookup: Secondary Transport (id → name, or absence/presence sentinels) --- #}
+    {% if filters.secondaryTransport is not null and filters.secondaryTransport != '' %}
+        {% if filters.secondaryTransport == 'none' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: 'label.no_secondary_transport'|trans({}, 'messages')}]) %}
+        {% elseif filters.secondaryTransport == 'any' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: 'label.any_secondary_transport'|trans({}, 'messages')}]) %}
+        {% elseif secondaryTransports is defined %}
+            {% set secondaryTransportName = null %}
+            {% for st in secondaryTransports %}
+                {% if secondaryTransportName is null and st.id == filters.secondaryTransport %}
+                    {% set secondaryTransportName = st.name %}
+                {% endif %}
+            {% endfor %}
+            {% if secondaryTransportName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.secondary_transport', value: secondaryTransportName}]) %}
+            {% endif %}
         {% endif %}
     {% endif %}
 
@@ -172,16 +195,20 @@
         {% endif %}
     {% endif %}
 
-    {# --- Lookup: Occasion (id → name) --- #}
-    {% if filters.occasion is not null and occasions is defined %}
-        {% set occasionName = null %}
-        {% for occasion in occasions %}
-            {% if occasionName is null and occasion.id == filters.occasion %}
-                {% set occasionName = occasion.name %}
+    {# --- Lookup: Occasion (id → name, or absence sentinel) --- #}
+    {% if filters.occasion is not null and filters.occasion != '' %}
+        {% if filters.occasion == 'none' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.occasion', value: 'label.no_occasion'|trans({}, 'messages')}]) %}
+        {% elseif occasions is defined %}
+            {% set occasionName = null %}
+            {% for occasion in occasions %}
+                {% if occasionName is null and occasion.id == filters.occasion %}
+                    {% set occasionName = occasion.name %}
+                {% endif %}
+            {% endfor %}
+            {% if occasionName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.occasion', value: occasionName}]) %}
             {% endif %}
-        {% endfor %}
-        {% if occasionName is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'label.occasion', value: occasionName}]) %}
         {% endif %}
     {% endif %}
 
@@ -198,16 +225,22 @@
         {% endif %}
     {% endif %}
 
-    {# --- Lookup: Infection (id → name) --- #}
-    {% if filters.infection is not null and infections is defined %}
-        {% set infectionName = null %}
-        {% for inf in infections %}
-            {% if infectionName is null and inf.id == filters.infection %}
-                {% set infectionName = inf.name %}
+    {# --- Lookup: Infection (id → name, or absence/presence sentinels) --- #}
+    {% if filters.infection is not null and filters.infection != '' %}
+        {% if filters.infection == 'none' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: 'label.no_infection'|trans({}, 'messages')}]) %}
+        {% elseif filters.infection == 'any' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: 'label.any_infection'|trans({}, 'messages')}]) %}
+        {% elseif infections is defined %}
+            {% set infectionName = null %}
+            {% for inf in infections %}
+                {% if infectionName is null and inf.id == filters.infection %}
+                    {% set infectionName = inf.name %}
+                {% endif %}
+            {% endfor %}
+            {% if infectionName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: infectionName}]) %}
             {% endif %}
-        {% endfor %}
-        {% if infectionName is not null %}
-            {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: infectionName}]) %}
         {% endif %}
     {% endif %}
 

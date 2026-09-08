@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Export;
 
 use App\Allocation\Application\Export\DTO\OwnHospitalAllocationsExportFilter;
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData;
 
 final class OwnHospitalAllocationsExportFilterMapper
@@ -14,6 +15,9 @@ final class OwnHospitalAllocationsExportFilterMapper
         if (!$data->dateFrom instanceof \DateTimeInterface || !$data->dateTo instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException('Export requires dateFrom and dateTo.');
         }
+
+        [$infectionPresence, $infectionId] = OptionalRelationFilter::fromQuery($this->emptyToNull($data->infection))
+            ->toPresenceAndId();
 
         return new OwnHospitalAllocationsExportFilter(
             dateFrom: $data->dateFrom,
@@ -25,18 +29,19 @@ final class OwnHospitalAllocationsExportFilterMapper
             requiresResus: $data->requiresResus ? 1 : null,
             requiresCathlab: $data->requiresCathlab ? 1 : null,
             indication: $data->indication,
-            secondaryTransport: $data->secondaryTransport,
+            secondaryIndication: $this->emptyToNull($data->secondaryIndication),
+            secondaryTransport: $this->emptyToNull($data->secondaryTransport),
             isVentilated: $data->isVentilated ? 1 : null,
             isShock: $data->isShock ? 1 : null,
             isCPR: $data->isCPR ? 1 : null,
             isPregnant: $data->isPregnant ? 1 : null,
             isWorkAccident: $data->isWorkAccident ? 1 : null,
-            isInfectious: $data->isInfectious ? 1 : null,
-            infection: $data->infection,
+            isInfectious: $infectionPresence,
+            infection: $infectionId,
             department: $data->department,
             speciality: $data->speciality,
             assignment: $data->assignment,
-            occasion: $data->occasion,
+            occasion: $this->emptyToNull($data->occasion),
             departmentWasClosed: $data->departmentWasClosed ? 1 : null,
             transportType: $this->emptyToNull($data->transportType),
             includeIndicationRaw: $data->includeIndicationRaw,

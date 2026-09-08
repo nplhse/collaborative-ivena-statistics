@@ -6,6 +6,7 @@ namespace App\Allocation\UI\Http\DTO;
 
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver;
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class AllocationQueryParametersDTO
@@ -47,7 +48,11 @@ final readonly class AllocationQueryParametersDTO
 
         public ?int $indication = null,
 
-        public ?int $secondaryTransport = null,
+        #[Assert\Regex(pattern: '/^(?:none|\d+)?$/')]
+        public ?string $secondaryIndication = null,
+
+        #[Assert\Regex(pattern: '/^(?:none|any|\d+)?$/')]
+        public ?string $secondaryTransport = null,
 
         public ?int $isVentilated = null,
 
@@ -59,9 +64,11 @@ final readonly class AllocationQueryParametersDTO
 
         public ?int $isWorkAccident = null,
 
-        public ?int $isInfectious = null,
+        #[Assert\Regex(pattern: '/^(?:0|1)?$/')]
+        public ?string $isInfectious = null,
 
-        public ?int $infection = null,
+        #[Assert\Regex(pattern: '/^(?:none|any|\d+)?$/')]
+        public ?string $infection = null,
 
         public ?int $department = null,
 
@@ -69,7 +76,8 @@ final readonly class AllocationQueryParametersDTO
 
         public ?int $assignment = null,
 
-        public ?int $occasion = null,
+        #[Assert\Regex(pattern: '/^(?:none|\d+)?$/')]
+        public ?string $occasion = null,
 
         public ?int $departmentWasClosed = null,
 
@@ -105,6 +113,8 @@ final readonly class AllocationQueryParametersDTO
 
     public function toListFilterCriteria(): AllocationListFilterCriteria
     {
+        [$infectionPresence, $infectionId] = $this->resolveInfectionFilter();
+
         return new AllocationListFilterCriteria(
             importId: $this->importId,
             tier: $this->tier,
@@ -116,14 +126,15 @@ final readonly class AllocationQueryParametersDTO
             requiresResus: $this->requiresResus,
             requiresCathlab: $this->requiresCathlab,
             indication: $this->indication,
+            secondaryIndication: $this->secondaryIndication,
             secondaryTransport: $this->secondaryTransport,
             isVentilated: $this->isVentilated,
             isShock: $this->isShock,
             isCPR: $this->isCPR,
             isPregnant: $this->isPregnant,
             isWorkAccident: $this->isWorkAccident,
-            isInfectious: $this->isInfectious,
-            infection: $this->infection,
+            isInfectious: $infectionPresence,
+            infection: $infectionId,
             department: $this->department,
             speciality: $this->speciality,
             assignment: $this->assignment,
@@ -131,5 +142,38 @@ final readonly class AllocationQueryParametersDTO
             departmentWasClosed: $this->departmentWasClosed,
             transportType: $this->transportType,
         );
+    }
+
+    private function optionalTriStateInt(?string $value): ?int
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        if ('0' === $value) {
+            return 0;
+        }
+
+        return '1' === $value ? 1 : null;
+    }
+
+    /**
+     * @return array{0: ?int, 1: ?int}
+     */
+    private function resolveInfectionFilter(): array
+    {
+        $fromInfectionParam = OptionalRelationFilter::fromQuery($this->infection);
+        if ($fromInfectionParam->isActive()) {
+            return $fromInfectionParam->toPresenceAndId();
+        }
+
+        return OptionalRelationFilter::fromPresenceAndValue(
+            match ($this->optionalTriStateInt($this->isInfectious)) {
+                0 => false,
+                1 => true,
+                default => null,
+            },
+            null,
+        )->toPresenceAndId();
     }
 }

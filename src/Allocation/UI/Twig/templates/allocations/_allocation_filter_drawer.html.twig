@@ -8,11 +8,12 @@
     or filters.dispatchArea is not null %}
 {% set allocationActive = filters.urgency is not empty
     or filters.indication is not null
-    or filters.secondaryTransport is not null
+    or filters.secondaryIndication is not empty
+    or filters.secondaryTransport is not empty
     or filters.department is not null
     or filters.speciality is not null
     or filters.assignment is not null
-    or filters.occasion is not null
+    or filters.occasion is not empty
     or filters.departmentWasClosed is not null
     or filters.transportType is not empty %}
 {% set clinicalActive = filters.requiresResus is not null
@@ -22,8 +23,8 @@
     or filters.isCPR is not null
     or filters.isPregnant is not null
     or filters.isWorkAccident is not null
-    or filters.isInfectious is not null
-    or filters.infection is not null %}
+    or (filters.isInfectious is not null and filters.isInfectious != '')
+    or filters.infection is not empty %}
 
 <div class="offcanvas offcanvas-end filter-drawer"
      tabindex="-1"
@@ -189,6 +190,7 @@
                                     <label class="form-label">{{ 'label.occasion'|trans({}, 'messages') }}</label>
                                     <select name="occasion" class="form-select">
                                         <option value="">{{ 'label.all_occasions'|trans({}, 'messages') }}</option>
+                                        <option value="none" {{ filters.occasion == 'none' ? 'selected' }}>{{ 'label.no_occasion'|trans({}, 'messages') }}</option>
                                         {% for occasion in occasions %}
                                             <option value="{{ occasion.id }}" {{ filters.occasion == occasion.id ? 'selected' }}>
                                                 {{ occasion.name }}
@@ -221,9 +223,28 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
+                                    <label class="form-label">{{ 'label.secondary_indication'|trans({}, 'messages') }}</label>
+                                    <select name="secondaryIndication" class="form-select">
+                                        <option value="">{{ 'label.all_secondary_indications'|trans({}, 'messages') }}</option>
+                                        <option value="none" {{ filters.secondaryIndication == 'none' ? 'selected' }}>{{ 'label.no_secondary_indication'|trans({}, 'messages') }}</option>
+                                        {% if secondaryIndications is not empty %}
+                                            <option disabled>────────────</option>
+                                        {% endif %}
+                                        {% for indication in secondaryIndications %}
+                                            {% if indication.code > 0 %}
+                                                <option value="{{ indication.id }}" {{ filters.secondaryIndication == indication.id ? 'selected' }}>
+                                                    {{ indication.name }}
+                                                </option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
                                     <label class="form-label">{{ 'label.secondary_transport'|trans({}, 'messages') }}</label>
                                     <select name="secondaryTransport" class="form-select">
                                         <option value="">{{ 'label.all_secondary_transports'|trans({}, 'messages') }}</option>
+                                        <option value="none" {{ filters.secondaryTransport == 'none' ? 'selected' }}>{{ 'label.no_secondary_transport'|trans({}, 'messages') }}</option>
+                                        <option value="any" {{ filters.secondaryTransport == 'any' ? 'selected' }}>{{ 'label.any_secondary_transport'|trans({}, 'messages') }}</option>
                                         {% for st in secondaryTransports %}
                                             <option value="{{ st.id }}" {{ filters.secondaryTransport == st.id ? 'selected' }}>
                                                 {{ st.name }}
@@ -284,6 +305,7 @@
                                 values: filters,
                                 infections: infections,
                                 infectionSelectId: 'allocation-filter-infection',
+                                testIdPrefix: 'allocation-filter',
                             }) }}
                         </div>
                     {{ editAccordion.panel_end() }}

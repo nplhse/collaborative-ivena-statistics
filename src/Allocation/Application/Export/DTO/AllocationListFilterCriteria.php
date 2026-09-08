@@ -17,7 +17,8 @@ final readonly class AllocationListFilterCriteria
         public ?int $requiresResus = null,
         public ?int $requiresCathlab = null,
         public ?int $indication = null,
-        public ?int $secondaryTransport = null,
+        public ?string $secondaryIndication = null,
+        public ?string $secondaryTransport = null,
         public ?int $isVentilated = null,
         public ?int $isShock = null,
         public ?int $isCPR = null,
@@ -28,7 +29,7 @@ final readonly class AllocationListFilterCriteria
         public ?int $department = null,
         public ?int $speciality = null,
         public ?int $assignment = null,
-        public ?int $occasion = null,
+        public ?string $occasion = null,
         public ?int $departmentWasClosed = null,
         public ?string $transportType = null,
         /** @var list<int>|null */

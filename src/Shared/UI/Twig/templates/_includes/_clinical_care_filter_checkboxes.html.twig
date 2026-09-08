@@ -71,37 +71,36 @@
         </label>
     </div>
 
-    <div class="allocation-filter-checkbox-group" data-controller="infection-filter">
-        <label class="form-check form-switch">
-            <input class="form-check-input"
-                   type="checkbox"
-                   name="isInfectious"
-                   value="1"
-                   {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-is-infectious"{% endif %}
-                   data-infection-filter-target="toggle"
-                   data-action="change->infection-filter#sync"
-                   {{ values.isInfectious ? 'checked' }}>
-            <span class="form-check-label">{{ 'label.is_infectious'|trans({}, 'messages') }}</span>
-        </label>
-        <div class="{{ values.isInfectious ? '' : 'd-none' }}" data-infection-filter-target="panel">
-            <label class="form-label" for="{{ infectionSelectId }}">{{ 'label.infection'|trans({}, 'messages') }}</label>
-            <select id="{{ infectionSelectId }}"
-                    name="infection"
-                    class="form-select"
-                    {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-infection"{% endif %}
-                    data-infection-filter-target="select"
-                    {{ values.isInfectious ? '' : 'disabled' }}>
-                <option value="">{{ 'label.all_infections'|trans({}, 'messages') }}</option>
-                {% if infectionChoices is defined %}
-                    {% for choiceKey, choiceLabel in infectionChoices %}
-                        <option value="{{ choiceKey }}" {{ values.infection == choiceKey ? 'selected' }}>{{ choiceLabel }}</option>
-                    {% endfor %}
-                {% else %}
-                    {% for infection in infections %}
-                        <option value="{{ infection.id }}" {{ values.infection == infection.id ? 'selected' }}>{{ infection.name }}</option>
-                    {% endfor %}
-                {% endif %}
-            </select>
-        </div>
+    <div class="allocation-filter-checkbox-group">
+        {% set selectedInfection = values.infection|default('') %}
+        {% if selectedInfection == '' %}
+            {% if values.isInfectious is same as(0) or values.isInfectious == '0' %}
+                {% set selectedInfection = 'none' %}
+            {% elseif values.isInfectious is same as(1) or values.isInfectious == '1' %}
+                {% set selectedInfection = 'any' %}
+            {% endif %}
+        {% endif %}
+        <label class="form-label" for="{{ infectionSelectId }}">{{ 'label.infection'|trans({}, 'messages') }}</label>
+        <select id="{{ infectionSelectId }}"
+                name="infection"
+                class="form-select"
+                {% if testIdPrefix is not empty %}data-testid="{{ testIdPrefix }}-infection"{% endif %}>
+            <option value="">{{ 'label.all_allocations'|trans({}, 'messages') }}</option>
+            <option value="none" {{ selectedInfection == 'none' ? 'selected' }}>{{ 'label.no_infection'|trans({}, 'messages') }}</option>
+            <option value="any" {{ selectedInfection == 'any' ? 'selected' }}>{{ 'label.any_infection'|trans({}, 'messages') }}</option>
+            {% set hasInfectionList = infectionChoices is defined ? infectionChoices is not empty : infections is not empty %}
+            {% if hasInfectionList %}
+                <option disabled>────────────</option>
+            {% endif %}
+            {% if infectionChoices is defined %}
+                {% for choiceKey, choiceLabel in infectionChoices %}
+                    <option value="{{ choiceKey }}" {{ selectedInfection == choiceKey ? 'selected' }}>{{ choiceLabel }}</option>
+                {% endfor %}
+            {% else %}
+                {% for infection in infections %}
+                    <option value="{{ infection.id }}" {{ selectedInfection == infection.id ? 'selected' }}>{{ infection.name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
     </div>
 </div>

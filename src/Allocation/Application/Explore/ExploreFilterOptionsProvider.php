@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Application\Explore;
 
+use App\Allocation\Application\Filter\OptionalRelationFilter;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
@@ -37,6 +38,8 @@ final readonly class ExploreFilterOptionsProvider
     private const string CACHE_KEY_DISPATCH_AREAS = 'explore_filter.dispatch_areas';
 
     private const string CACHE_KEY_INDICATIONS = 'explore_filter.indications';
+
+    private const string CACHE_KEY_SECONDARY_INDICATIONS = 'explore_filter.secondary_indications';
 
     private const string CACHE_KEY_SECONDARY_TRANSPORTS = 'explore_filter.secondary_transports';
 
@@ -73,6 +76,7 @@ final readonly class ExploreFilterOptionsProvider
      *     states: list<array{id: int, name: string}>,
      *     dispatchAreas: list<array{id: int, name: string}>,
      *     indications: list<array{id: int, code: int, name: string}>,
+     *     secondaryIndications: list<array{id: int, code: int, name: string}>,
      *     secondaryTransports: list<array{id: int, name: string}>,
      *     infections: list<array{id: int, name: string}>,
      *     departments: list<array{id: int, name: string}>,
@@ -87,6 +91,7 @@ final readonly class ExploreFilterOptionsProvider
             'states' => $this->states(),
             'dispatchAreas' => $this->dispatchAreas(),
             'indications' => $this->indications(),
+            'secondaryIndications' => $this->secondaryIndications(),
             'secondaryTransports' => $this->secondaryTransports(),
             'infections' => $this->infections(),
             'departments' => $this->departments(),
@@ -141,14 +146,54 @@ final readonly class ExploreFilterOptionsProvider
             $item->expiresAfter(self::TTL_SECONDS);
 
             return array_map(
-                static fn (IndicationNormalized $indication): array => [
-                    'id' => (int) $indication->getId(),
-                    'code' => (int) $indication->getCode(),
-                    'name' => (string) $indication->getName(),
-                ],
+                $this->mapIndication(...),
                 $this->indicationNormalizedRepository->findAll(),
             );
         });
+    }
+
+    /**
+     * @return list<array{id: int, code: int, name: string}>
+     */
+    public function secondaryIndications(): array
+    {
+        return $this->cache->get(self::CACHE_KEY_SECONDARY_INDICATIONS, function (ItemInterface $item): array {
+            $item->expiresAfter(self::TTL_SECONDS);
+
+            return array_map(
+                $this->mapIndication(...),
+                $this->indicationNormalizedRepository->findUsedAsSecondaryIndication(),
+            );
+        });
+    }
+
+    /**
+     * Occurrence list plus the currently selected id when it is missing (stale cache or bookmarked URL).
+     *
+     * @return list<array{id: int, code: int, name: string}>
+     */
+    public function secondaryIndicationsIncluding(?string $selected): array
+    {
+        $options = $this->secondaryIndications();
+        if (null === $selected || '' === $selected || OptionalRelationFilter::NONE === $selected) {
+            return $options;
+        }
+
+        foreach ($options as $option) {
+            if ((string) $option['id'] === $selected) {
+                return $options;
+            }
+        }
+
+        foreach ($this->indications() as $indication) {
+            if ((string) $indication['id'] === $selected) {
+                $options[] = $indication;
+
+                return $options;
+            }
+        }
+
+        return $options;
     }
 
     /**
@@ -239,6 +284,18 @@ final readonly class ExploreFilterOptionsProvider
                 $this->indicationGroupRepository->findBy([], ['name' => 'ASC']),
             );
         });
+    }
+
+    /**
+     * @return array{id: int, code: int, name: string}
+     */
+    private function mapIndication(IndicationNormalized $indication): array
+    {
+        return [
+            'id' => (int) $indication->getId(),
+            'code' => (int) $indication->getCode(),
+            'name' => (string) $indication->getName(),
+        ];
     }
 
     /**

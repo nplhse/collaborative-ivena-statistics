@@ -40,6 +40,11 @@ final class ListAllocationsController extends AbstractController
             $hospitalScopeOptions = $this->hospitalScopeOptionsProvider->optionsFor($participant);
         }
 
+        $filterOptions = $this->filterOptionsProvider->allocationListOptions();
+        $filterOptions['secondaryIndications'] = $this->filterOptionsProvider->secondaryIndicationsIncluding(
+            $query->secondaryIndication,
+        );
+
         return $this->render('@Allocation/allocations/list.html.twig', [
             'paginator' => $paginator,
             'pagination_route' => 'app_explore_allocation_list',
@@ -51,7 +56,7 @@ final class ListAllocationsController extends AbstractController
             'locations' => HospitalLocation::cases(),
             'sizes' => HospitalSize::cases(),
             'urgencies' => AllocationUrgency::cases(),
-            ...$this->filterOptionsProvider->allocationListOptions(),
+            ...$filterOptions,
             'transportTypes' => AllocationTransportType::cases(),
             'hospitalScopeOptions' => $hospitalScopeOptions,
         ]);
@@ -67,6 +72,7 @@ final class ListAllocationsController extends AbstractController
             'size',
             'urgency',
             'indication',
+            'secondaryIndication',
             'secondaryTransport',
             'department',
             'speciality',

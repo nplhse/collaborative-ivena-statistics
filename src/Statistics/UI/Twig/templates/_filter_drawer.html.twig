@@ -16,9 +16,9 @@
     or drawerValues.isShock is not empty
     or drawerValues.isCPR is not empty
     or drawerValues.isPregnant is not empty
-    or drawerValues.isWorkAccident is not empty
-    or drawerValues.isInfectious is not empty
-    or drawerValues.infection is not empty %}
+    or drawerValues.isWorkAccident != ''
+    or drawerValues.isInfectious != ''
+    or drawerValues.infection != '' %}
 {% set demographicsActive = drawerValues.gender is not empty
     or drawerValues.age_group is not empty %}
 
