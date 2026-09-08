@@ -25,7 +25,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 /**
- * Baseline without cache: each /explore/allocation request loads nine reference lists from the DB.
+ * Baseline without cache: each /explore/allocation request loads ten reference lists from the DB.
  * After cache warmup on the first request, the second request should skip those redundant queries.
  */
 #[ResetDatabase]

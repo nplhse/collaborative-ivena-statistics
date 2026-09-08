@@ -49,6 +49,8 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
         $translator->method('trans')->willReturnCallback(static fn (string $key): string => match ($key) {
             'label.age_group' => 'Age group',
             'label.infection' => 'Infection',
+            'label.any_infection' => 'Any infection',
+            'label.no_infection' => 'No infection',
             'label.is_cpr' => 'CPR',
             'label.urgency' => 'Urgency',
             'label.yes' => 'Yes',
@@ -79,5 +81,27 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
             ['label' => 'Infection', 'value' => 'MRSA'],
             ['label' => 'Urgency', 'value' => 'Inpatient care'],
         ], $badges);
+    }
+
+    public function testPresentsInfectionAbsenceAndPresenceSentinels(): void
+    {
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $key): string => match ($key) {
+            'label.infection' => 'Infection',
+            'label.any_infection' => 'Any infection',
+            'label.no_infection' => 'No infection',
+            default => $key,
+        });
+
+        $presenter = new StatisticsDrawerFilterBadgePresenter($translator);
+
+        self::assertSame(
+            [['label' => 'Infection', 'value' => 'No infection']],
+            $presenter->present(['infection' => 'none'], []),
+        );
+        self::assertSame(
+            [['label' => 'Infection', 'value' => 'Any infection']],
+            $presenter->present(['infection' => 'any'], []),
+        );
     }
 }

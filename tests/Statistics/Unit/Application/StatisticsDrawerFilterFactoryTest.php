@@ -48,6 +48,7 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
         self::assertSame(12, $filter->department);
         self::assertSame(34, $filter->speciality);
         self::assertSame(7, $filter->infection);
+        self::assertTrue($filter->isInfectious);
     }
 
     public function testParsesBooleanCheckboxFilters(): void
@@ -61,6 +62,34 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
         self::assertTrue($filter->requiresResus);
         self::assertFalse($filter->isCpr);
         self::assertTrue($filter->isInfectious);
+    }
+
+    public function testParsesInfectiousAbsence(): void
+    {
+        $legacy = $this->factory->fromQuery($this->queryBag([
+            'isInfectious' => '0',
+        ]));
+
+        self::assertTrue($legacy->isActive());
+        self::assertFalse($legacy->isInfectious);
+
+        $none = $this->factory->fromQuery($this->queryBag([
+            'infection' => 'none',
+        ]));
+
+        self::assertTrue($none->isActive());
+        self::assertFalse($none->isInfectious);
+        self::assertNull($none->infection);
+    }
+
+    public function testParsesInfectiousAny(): void
+    {
+        $filter = $this->factory->fromQuery($this->queryBag([
+            'infection' => 'any',
+        ]));
+
+        self::assertTrue($filter->isInfectious);
+        self::assertNull($filter->infection);
     }
 
     public function testIgnoresInvalidValues(): void

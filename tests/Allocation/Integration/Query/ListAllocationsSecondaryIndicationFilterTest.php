@@ -9,8 +9,8 @@ use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
-use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
@@ -22,7 +22,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest extends KernelTestCase
+final class ListAllocationsSecondaryIndicationFilterTest extends KernelTestCase
 {
     use Factories;
 
@@ -35,48 +35,39 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
         $this->query = self::getContainer()->get(ListAllocationsQuery::class);
     }
 
-    public function testFiltersByAssignmentOccasionAndDepartmentWasClosed(): void
+    public function testFiltersBySecondaryIndicationAbsenceAndNormalizedId(): void
     {
         $shared = $this->seedAllocationGraph();
 
-        $assignmentA = AssignmentFactory::createOne(['name' => 'Assignment A']);
-        $assignmentB = AssignmentFactory::createOne(['name' => 'Assignment B']);
-        $occasionA = OccasionFactory::createOne(['name' => 'Occasion A']);
-        $occasionB = OccasionFactory::createOne(['name' => 'Occasion B']);
+        $target = IndicationNormalizedFactory::createOne([
+            'name' => 'Target Secondary',
+            'code' => 6101,
+        ]);
+        $other = IndicationNormalizedFactory::createOne([
+            'name' => 'Other Secondary',
+            'code' => 6102,
+        ]);
 
-        AllocationFactory::createOne([
-            'assignment' => $assignmentA,
-            'occasion' => $occasionA,
-            'departmentWasClosed' => true,
-        ] + $shared);
-        AllocationFactory::createOne([
-            'assignment' => $assignmentB,
-            'occasion' => $occasionB,
-            'departmentWasClosed' => false,
-        ] + $shared);
+        AllocationFactory::createOne(['secondaryIndicationNormalized' => null] + $shared);
+        AllocationFactory::createOne(['secondaryIndicationNormalized' => $target] + $shared);
+        AllocationFactory::createOne(['secondaryIndicationNormalized' => $other] + $shared);
 
-        $assignmentResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
-            assignment: (int) $assignmentA->getId(),
+        $noneResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+            secondaryIndication: 'none',
         ))->getResults());
-        self::assertCount(1, $assignmentResults);
+        self::assertCount(1, $noneResults);
+        self::assertNull($noneResults[0]['secondaryIndicationNormalizedName']);
 
-        $occasionResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
-            occasion: (string) $occasionA->getId(),
+        $idResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+            secondaryIndication: (string) $target->getId(),
         ))->getResults());
-        self::assertCount(1, $occasionResults);
+        self::assertCount(1, $idResults);
+        self::assertSame('Target Secondary', $idResults[0]['secondaryIndicationNormalizedName']);
 
-        $closedResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
-            departmentWasClosed: 1,
+        $ignoredAny = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+            secondaryIndication: 'any',
         ))->getResults());
-        self::assertCount(1, $closedResults);
-        self::assertTrue($closedResults[0]['departmentWasClosed']);
-
-        $combinedResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
-            assignment: (int) $assignmentA->getId(),
-            occasion: (string) $occasionA->getId(),
-            departmentWasClosed: 1,
-        ))->getResults());
-        self::assertCount(1, $combinedResults);
+        self::assertCount(3, $ignoredAny);
     }
 
     /**
@@ -91,6 +82,7 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
         $import = ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user]);
         SpecialityFactory::createOne();
         DepartmentFactory::createOne();
+        AssignmentFactory::createOne();
         IndicationRawFactory::createOne();
 
         return [

@@ -12,6 +12,7 @@ use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -164,6 +165,130 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
         self::assertResponseIsSuccessful();
         self::assertSame([$matchingAllocation->getPublicIdString()], $this->extractAllocationIds($crawler));
+    }
+
+    public function testSecondaryTransportNoneAndAnyDistinguishAbsenceFromPresence(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $transport = SecondaryTransportFactory::createOne(['name' => 'Presence Secondary']);
+        $withoutTransport = AllocationFactory::createOne(['secondaryTransport' => null]);
+        $withTransport = AllocationFactory::createOne(['secondaryTransport' => $transport]);
+
+        $noneCrawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?secondaryTransport=none&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="secondaryTransport"] option[value="none"][selected]');
+        self::assertSame([$withoutTransport->getPublicIdString()], $this->extractAllocationIds($noneCrawler));
+
+        $anyCrawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?secondaryTransport=any&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="secondaryTransport"] option[value="any"][selected]');
+        self::assertSame([$withTransport->getPublicIdString()], $this->extractAllocationIds($anyCrawler));
+    }
+
+    public function testOccasionNoneFilterOnlyReturnsAllocationsWithoutOccasion(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $occasion = OccasionFactory::createOne(['name' => 'Present Occasion']);
+        $withoutOccasion = AllocationFactory::createOne(['occasion' => null]);
+        AllocationFactory::createOne(['occasion' => $occasion]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?occasion=none&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="occasion"] option[value="none"][selected]');
+        self::assertSame([$withoutOccasion->getPublicIdString()], $this->extractAllocationIds($crawler));
+    }
+
+    public function testSecondaryIndicationNoneAndIdFiltersDistinguishAbsenceFromConcreteValue(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $targetIndication = IndicationNormalizedFactory::createOne([
+            'name' => 'Target Secondary Indication',
+            'code' => 5101,
+        ]);
+        $otherIndication = IndicationNormalizedFactory::createOne([
+            'name' => 'Other Secondary Indication',
+            'code' => 5102,
+        ]);
+        $unusedIndication = IndicationNormalizedFactory::createOne([
+            'name' => 'Unused As Secondary Indication',
+            'code' => 5103,
+        ]);
+
+        $withoutSecondary = AllocationFactory::createOne(['secondaryIndicationNormalized' => null]);
+        $matching = AllocationFactory::createOne(['secondaryIndicationNormalized' => $targetIndication]);
+        AllocationFactory::createOne(['secondaryIndicationNormalized' => $otherIndication]);
+
+        $noneCrawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?secondaryIndication=none&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('select[name="secondaryIndication"] option[value=""]', 'All secondary indications');
+        self::assertSelectorExists('select[name="secondaryIndication"] option[value="none"][selected]');
+        self::assertSelectorExists('select[name="secondaryIndication"] option[disabled]');
+        self::assertSelectorExists(sprintf(
+            'select[name="secondaryIndication"] option[value="%d"]',
+            $targetIndication->getId(),
+        ));
+        self::assertSelectorNotExists(sprintf(
+            'select[name="secondaryIndication"] option[value="%d"]',
+            $unusedIndication->getId(),
+        ));
+        self::assertSame([$withoutSecondary->getPublicIdString()], $this->extractAllocationIds($noneCrawler));
+
+        $idCrawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?secondaryIndication=%d&limit=50', $targetIndication->getId()),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists(sprintf(
+            'select[name="secondaryIndication"] option[value="%d"][selected]',
+            $targetIndication->getId(),
+        ));
+        self::assertSame([$matching->getPublicIdString()], $this->extractAllocationIds($idCrawler));
+    }
+
+    public function testSecondaryIndicationSelectKeepsSelectedCatalogIdThatIsNotInOccurrenceList(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $unusedIndication = IndicationNormalizedFactory::createOne([
+            'name' => 'Catalog Only Secondary',
+            'code' => 5104,
+        ]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?secondaryIndication=%d&limit=50', $unusedIndication->getId()),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists(sprintf(
+            'select[name="secondaryIndication"] option[value="%d"][selected]',
+            $unusedIndication->getId(),
+        ));
+        self::assertSame([], $this->extractAllocationIds($crawler));
     }
 
     public function testSortByAgeOrdersAllocationsAscending(): void

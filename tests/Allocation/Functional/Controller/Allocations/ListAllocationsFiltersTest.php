@@ -36,8 +36,76 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         );
 
         self::assertResponseIsSuccessful();
+        self::assertSelectorExists(sprintf('select[name="infection"] option[value="%d"]', $targetInfection->getId()));
         $ids = $this->extractAllocationIds($crawler);
         self::assertSame([$matchingAllocation->getPublicIdString()], $ids);
+    }
+
+    public function testSpecificInfectionFilterWorksWithoutInfectiousPresenceParam(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $targetInfection = InfectionFactory::createOne(['name' => 'Influenza']);
+        $otherInfection = InfectionFactory::createOne(['name' => 'Norovirus']);
+
+        $matchingAllocation = AllocationFactory::createOne(['infection' => $targetInfection]);
+        AllocationFactory::createOne(['infection' => $otherInfection]);
+        AllocationFactory::createOne(['infection' => null]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?infection=%d&limit=50', $targetInfection->getId()),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists(sprintf(
+            'select[name="infection"] option[value="%d"][selected]',
+            $targetInfection->getId(),
+        ));
+        self::assertSame([$matchingAllocation->getPublicIdString()], $this->extractAllocationIds($crawler));
+    }
+
+    public function testIsInfectiousZeroReturnsAllocationsWithoutInfection(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $infection = InfectionFactory::createOne(['name' => 'MRSA']);
+        $withoutInfection = AllocationFactory::createOne(['infection' => null]);
+        AllocationFactory::createOne(['infection' => $infection]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?infection=none&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('select[name="infection"] option[value=""]', 'All allocations');
+        self::assertSelectorExists('select[name="infection"] option[value="none"][selected]');
+        self::assertSelectorExists('select[name="infection"] option[disabled]');
+        self::assertSelectorExists(sprintf('select[name="infection"] option[value="%d"]', $infection->getId()));
+        $ids = $this->extractAllocationIds($crawler);
+        self::assertSame([$withoutInfection->getPublicIdString()], $ids);
+    }
+
+    public function testInfectionAnyReturnsAllocationsWithAnyInfection(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $infection = InfectionFactory::createOne(['name' => 'MRSA']);
+        $withInfection = AllocationFactory::createOne(['infection' => $infection]);
+        AllocationFactory::createOne(['infection' => null]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?infection=any&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="infection"] option[value="any"][selected]');
+        self::assertSame([$withInfection->getPublicIdString()], $this->extractAllocationIds($crawler));
     }
 
     public function testIsVentilatedFilterOnlyReturnsVentilatedAllocations(): void

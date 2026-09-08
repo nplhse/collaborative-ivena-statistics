@@ -55,14 +55,62 @@ final class OwnHospitalAllocationsExportFilterMapperTest extends TestCase
         $data->dateFrom = new \DateTimeImmutable('2026-01-01');
         $data->dateTo = new \DateTimeImmutable('2026-01-31');
         $data->assignment = 7;
-        $data->occasion = 9;
+        $data->occasion = '9';
         $data->departmentWasClosed = true;
 
         $filter = $this->mapper->fromFormData($data);
 
         self::assertSame(7, $filter->assignment);
-        self::assertSame(9, $filter->occasion);
+        self::assertSame('9', $filter->occasion);
         self::assertSame(1, $filter->departmentWasClosed);
+    }
+
+    public function testMapsOptionalRelationSentinelsAndInfectiousAbsence(): void
+    {
+        $data = new OwnHospitalAllocationsExportFormData();
+        $data->dateFrom = new \DateTimeImmutable('2026-01-01');
+        $data->dateTo = new \DateTimeImmutable('2026-01-31');
+        $data->secondaryTransport = 'none';
+        $data->occasion = 'none';
+        $data->secondaryIndication = 'none';
+        $data->infection = 'none';
+
+        $filter = $this->mapper->fromFormData($data);
+
+        self::assertSame('none', $filter->secondaryTransport);
+        self::assertSame('none', $filter->occasion);
+        self::assertSame('none', $filter->secondaryIndication);
+        self::assertSame(0, $filter->isInfectious);
+        self::assertNull($filter->infection);
+    }
+
+    public function testMapsSpecificInfectionId(): void
+    {
+        $data = new OwnHospitalAllocationsExportFormData();
+        $data->dateFrom = new \DateTimeImmutable('2026-01-01');
+        $data->dateTo = new \DateTimeImmutable('2026-01-31');
+        $data->infection = '12';
+
+        $filter = $this->mapper->fromFormData($data);
+
+        self::assertSame(1, $filter->isInfectious);
+        self::assertSame(12, $filter->infection);
+    }
+
+    public function testMapsSecondaryIndicationSentinelAndId(): void
+    {
+        $none = new OwnHospitalAllocationsExportFormData();
+        $none->dateFrom = new \DateTimeImmutable('2026-01-01');
+        $none->dateTo = new \DateTimeImmutable('2026-01-31');
+        $none->secondaryIndication = 'none';
+
+        $id = new OwnHospitalAllocationsExportFormData();
+        $id->dateFrom = new \DateTimeImmutable('2026-01-01');
+        $id->dateTo = new \DateTimeImmutable('2026-01-31');
+        $id->secondaryIndication = '21';
+
+        self::assertSame('none', $this->mapper->fromFormData($none)->secondaryIndication);
+        self::assertSame('21', $this->mapper->fromFormData($id)->secondaryIndication);
     }
 
     public function testEmptyHospitalSelectionMapsToNull(): void

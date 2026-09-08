@@ -174,12 +174,53 @@ final class OwnHospitalAllocationsExportQueryTest extends KernelTestCase
         self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
             dateFrom: new \DateTimeImmutable('2026-01-01'),
             dateTo: new \DateTimeImmutable('2026-01-31'),
-            occasion: (int) $occasionA->getId(),
+            occasion: (string) $occasionA->getId(),
         )));
         self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
             dateFrom: new \DateTimeImmutable('2026-01-01'),
             dateTo: new \DateTimeImmutable('2026-01-31'),
             departmentWasClosed: 1,
+        )));
+    }
+
+    public function testFiltersBySecondaryIndicationAbsenceAndId(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => $owner]);
+        $this->seedAllocationDependencies($hospital);
+
+        $target = IndicationNormalizedFactory::createOne(['name' => 'Export Secondary', 'code' => 7101]);
+        $other = IndicationNormalizedFactory::createOne(['name' => 'Other Export Secondary', 'code' => 7102]);
+
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-10 12:00:00'),
+            'secondaryIndicationNormalized' => null,
+        ]);
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-11 12:00:00'),
+            'secondaryIndicationNormalized' => $target,
+        ]);
+        AllocationFactory::createOne([
+            'hospital' => $hospital,
+            'arrivalAt' => new \DateTimeImmutable('2026-01-12 12:00:00'),
+            'secondaryIndicationNormalized' => $other,
+        ]);
+
+        $hospitalId = (int) $hospital->getId();
+
+        self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+            secondaryIndication: 'none',
+        )));
+        self::assertSame(1, $this->query->count([$hospitalId], new OwnHospitalAllocationsExportFilter(
+            dateFrom: new \DateTimeImmutable('2026-01-01'),
+            dateTo: new \DateTimeImmutable('2026-01-31'),
+            secondaryIndication: (string) $target->getId(),
         )));
     }
 
