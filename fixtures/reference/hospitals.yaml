@@ -84,9 +84,9 @@ hospitals:
     location: Urban
     address:
       street: 'Dieburger Straße 31'
-      city: '64287'
+      city: Darmstadt
       state: Hessen
-      postalCode: Darmstadt
+      postalCode: '64287'
       country: Deutschland
     participating: false
   -
@@ -354,9 +354,9 @@ hospitals:
     location: Urban
     address:
       street: 'Hansteinstraße 29'
-      city: '34121'
+      city: Kassel
       state: Hessen
-      postalCode: Kassel
+      postalCode: '34121'
       country: Deutschland
     participating: false
   -
