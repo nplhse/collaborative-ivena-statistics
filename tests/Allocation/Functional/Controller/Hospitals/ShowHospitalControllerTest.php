@@ -79,6 +79,7 @@ final class ShowHospitalControllerTest extends WebTestCase
         self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
         self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
         self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
+        self::assertSame('false', $map->attr('data-catalog-orientation-map-show-route-value'));
     }
 
     public function testOwnerSeesEditButtonOnOwnHospitalShowPage(): void

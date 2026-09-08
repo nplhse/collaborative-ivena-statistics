@@ -205,6 +205,18 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertStringContainsString(HospitalLocation::cases()[0]->value, $pageText);
         self::assertStringContainsString(HospitalTier::cases()[0]->value, $pageText);
 
+        self::assertSelectorExists('[data-testid="allocation-origin-destination"]');
+        self::assertSelectorExists('[data-testid="allocation-origin"]');
+        self::assertSelectorExists('[data-testid="allocation-destination"]');
+        self::assertSelectorExists('[data-testid="allocation-destination-profile"]');
+        self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalLocation::cases()[0]->value);
+        self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalTier::cases()[0]->value);
+        self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', HospitalSize::cases()[0]->value);
+        self::assertSelectorTextContains('[data-testid="allocation-destination-profile"]', '321');
+        self::assertSelectorNotExists('[data-testid="catalog-orientation-map"]');
+        self::assertSelectorNotExists('[data-testid="allocation-origin-district"]');
+        self::assertSelectorNotExists('[data-testid="allocation-cross-district"]');
+
         self::assertSelectorExists('a[href="/explore/hospital/'.$hospital->getPublicIdString().'"]');
         self::assertSelectorExists('a[href="/explore/dispatch_area/'.$dispatch->getPublicIdString().'"]');
         self::assertSelectorExists('a[href="/explore/state/'.$state->getPublicIdString().'"]');
@@ -394,6 +406,195 @@ final class ShowAllocationControllerTest extends WebTestCase
         $client->request(Request::METHOD_POST, '/explore/allocation/00000000-0000-4000-8000-000000000000');
 
         self::assertResponseStatusCodeSame(405);
+    }
+
+    public function testShowDisplaysOriginDestinationMapForMappedHessenDispatchArea(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Uni-Klinik',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'latitude' => 50.1109,
+            'longitude' => 8.6821,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-origin-destination"]');
+        self::assertSelectorTextContains('[data-testid="allocation-origin-district"]', 'Kreisfreie Stadt Frankfurt am Main');
+        self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
+        self::assertSelectorNotExists('[data-testid="allocation-cross-district"]');
+
+        $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
+        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame('50.1109', $map->attr('data-catalog-orientation-map-marker-lat-value'));
+        self::assertSame('8.6821', $map->attr('data-catalog-orientation-map-marker-lng-value'));
+        self::assertSame('true', $map->attr('data-catalog-orientation-map-show-route-value'));
+        self::assertNull($map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
+        self::assertNotEmpty($map->attr('data-catalog-orientation-map-origin-label-value'));
+        self::assertSelectorExists('.catalog-orientation-map-legend');
+        self::assertCount(4, $crawler->filter('.catalog-orientation-map-legend > li'));
+        self::assertSelectorExists('.catalog-orientation-map-legend.row');
+    }
+
+    public function testShowDisplaysOriginMapWithoutRouteWhenHospitalHasNoCoordinates(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Uni-Klinik',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'latitude' => null,
+            'longitude' => null,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => ImportFactory::createOne([
+                'hospital' => $hospital,
+                'createdBy' => $createdBy,
+            ]),
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="catalog-orientation-map"]');
+        self::assertSelectorTextContains('[data-testid="allocation-origin-district"]', 'Kreisfreie Stadt Frankfurt am Main');
+        self::assertSelectorNotExists('.catalog-orientation-map-legend');
+
+        $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
+        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame('false', $map->attr('data-catalog-orientation-map-show-route-value'));
+        self::assertNull($map->attr('data-catalog-orientation-map-marker-lat-value'));
+        self::assertNull($map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
+    }
+
+    public function testShowOmitsOrientationMapWhenOriginDispatchAreaIsUnmapped(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Bayern']);
+        $dispatch = DispatchAreaFactory::createOne(['name' => 'Unknown Area XYZ', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'latitude' => 50.1109,
+            'longitude' => 8.6821,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $createdBy,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'dispatchArea' => $dispatch,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-origin-destination"]');
+        self::assertSelectorNotExists('[data-testid="catalog-orientation-map"]');
+        self::assertSelectorNotExists('[data-testid="allocation-origin-district"]');
+    }
+
+    public function testShowHighlightsCrossDistrictOriginOnOrientationMap(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $owner = UserFactory::createOne(['username' => 'owner-user']);
+        $createdBy = UserFactory::createOne(['username' => 'area-user']);
+        $state = StateFactory::createOne(['name' => 'Hessen']);
+        $origin = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
+        $hospitalArea = DispatchAreaFactory::createOne(['name' => 'Offenbach', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Klinik Offenbach',
+            'state' => $state,
+            'dispatchArea' => $hospitalArea,
+            'latitude' => 50.1,
+            'longitude' => 8.76,
+            'createdBy' => $createdBy,
+            'owner' => $owner,
+        ]);
+        $allocation = AllocationFactory::createOne([
+            'import' => ImportFactory::createOne([
+                'hospital' => $hospital,
+                'createdBy' => $createdBy,
+            ]),
+            'hospital' => $hospital,
+            'dispatchArea' => $origin,
+            'state' => $state,
+            'assignment' => AssignmentFactory::createOne(),
+            'department' => DepartmentFactory::createOne(),
+            'speciality' => SpecialityFactory::createOne(),
+            'indicationRaw' => IndicationRawFactory::createOne(),
+            'indicationNormalized' => IndicationNormalizedFactory::createOne(),
+            'occasion' => OccasionFactory::createOne(),
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation/'.$allocation->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-cross-district"]');
+        self::assertSelectorExists('a[href="/explore/dispatch_area/'.$origin->getPublicIdString().'"]');
+        self::assertSelectorExists('a[href="/explore/dispatch_area/'.$hospitalArea->getPublicIdString().'"]');
+
+        $map = $crawler->filter('[data-testid="catalog-orientation-map"]');
+        self::assertSame('frankfurt', $map->attr('data-catalog-orientation-map-highlight-key-value'));
+        self::assertSame('offenbach', $map->attr('data-catalog-orientation-map-destination-highlight-key-value'));
+        self::assertSame('true', $map->attr('data-catalog-orientation-map-show-route-value'));
     }
 
     public function testShow404ForUnknownAllocation(): void
