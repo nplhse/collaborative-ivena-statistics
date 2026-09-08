@@ -1,6 +1,8 @@
 # Transactional mail
 
-Registration verification, password reset, and feedback admin notifications are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
+Registration verification, password reset, participation welcome mail, and feedback admin notifications are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
+
+A **participation welcome email** is sent when an administrator first grants `ROLE_PARTICIPANT` (signed grant link or EasyAdmin user form). Re-saving an already active participant does not send it again. The mail uses the user's username for the greeting, links back to the dashboard, and lists a few next steps based on whether the user owns hospitals.
 
 Related: [../06-reference/configuration.md](../06-reference/configuration.md), [messenger-workers.md](messenger-workers.md), [deployment.md](deployment.md)
 
@@ -88,7 +90,7 @@ Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`.
 1. Set `MAILER_DSN`, `MAILER_FROM`, and `APP_URL` in server `.env.local`.
 2. Confirm the Messenger worker is active.
 3. Assign **Receives Feedback** to at least one verified admin.
-4. Smoke-test: register a user, request a password reset, submit feedback.
+4. Smoke-test: register a user, request a password reset, grant participant access, submit feedback.
 5. If mail does not arrive, check `messenger:stats`, `messenger:failed:show`, and `journalctl --user -u messenger -f`.
 
 Feedback admin notifications include a short, URL-stripped message preview (max 250 characters) and a link to the full entry in EasyAdmin — the full user text is not put in outbound SMTP payloads.

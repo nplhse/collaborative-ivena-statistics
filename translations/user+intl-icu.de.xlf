@@ -77,6 +77,82 @@
         <source>email.verify.title</source>
         <target>E-Mail-Adresse bestätigen</target>
       </trans-unit>
+      <trans-unit id="EmlWlcCtaDe" resname="email.welcome.cta">
+        <source>email.welcome.cta</source>
+        <target>Loslegen</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcFbAfDe" resname="email.welcome.fallback_after_link">
+        <source>email.welcome.fallback_after_link</source>
+        <target> </target>
+      </trans-unit>
+      <trans-unit id="EmlWlcFbBeDe" resname="email.welcome.fallback_before_link">
+        <source>email.welcome.fallback_before_link</source>
+        <target>Wenn der Button nicht funktioniert, öffnen Sie diesen Link in Ihrem Browser: </target>
+      </trans-unit>
+      <trans-unit id="EmlWlcGreetDe" resname="email.welcome.greeting">
+        <source>email.welcome.greeting</source>
+        <target>Hallo {name},</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcHdgDe" resname="email.welcome.heading">
+        <source>email.welcome.heading</source>
+        <target>Willkommen bei {app}</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcIntroDe" resname="email.welcome.intro">
+        <source>email.welcome.intro</source>
+        <target>Ihre Teilnahme am Projekt wurde aktiviert. Sie können jetzt die teilnehmerspezifischen Funktionen von {app} nutzen.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcAnaDDe" resname="email.welcome.next_steps.analysis.description">
+        <source>email.welcome.next_steps.analysis.description</source>
+        <target>Öffnen Sie die Statistik-Übersicht, den Analysis Explorer sowie Reports und Top-Listen.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcAnaTDe" resname="email.welcome.next_steps.analysis.title">
+        <source>email.welcome.next_steps.analysis.title</source>
+        <target>Statistiken und Analysen nutzen</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcExpDDe" resname="email.welcome.next_steps.explore.description">
+        <source>email.welcome.next_steps.explore.description</source>
+        <target>Erkunden Sie Zuweisungen und Stammdaten im Data Catalog.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcExpTDe" resname="email.welcome.next_steps.explore.title">
+        <source>email.welcome.next_steps.explore.title</source>
+        <target>Datenkatalog öffnen</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcHospADDe" resname="email.welcome.next_steps.hospitals.all.description">
+        <source>email.welcome.next_steps.hospitals.all.description</source>
+        <target>Durchsuchen Sie das Krankenhausverzeichnis und entdecken Sie teilnehmende Einrichtungen.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcHospATDe" resname="email.welcome.next_steps.hospitals.all.title">
+        <source>email.welcome.next_steps.hospitals.all.title</source>
+        <target>Krankenhäuser ansehen</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcHospODDe" resname="email.welcome.next_steps.hospitals.owned.description">
+        <source>email.welcome.next_steps.hospitals.owned.description</source>
+        <target>Prüfen Sie die mit Ihrem Konto verknüpften Krankenhäuser.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcHospOTDe" resname="email.welcome.next_steps.hospitals.owned.title">
+        <source>email.welcome.next_steps.hospitals.owned.title</source>
+        <target>Ihre Krankenhäuser prüfen</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcImpDDe" resname="email.welcome.next_steps.import.description">
+        <source>email.welcome.next_steps.import.description</source>
+        <target>Laden Sie den ersten IVENA-Datensatz hoch, um Ihre Daten aktuell zu halten.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcImpTDe" resname="email.welcome.next_steps.import.title">
+        <source>email.welcome.next_steps.import.title</source>
+        <target>Ersten Datensatz importieren</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcStepsDe" resname="email.welcome.next_steps_heading">
+        <source>email.welcome.next_steps_heading</source>
+        <target>Nützliche nächste Schritte</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcPreDe" resname="email.welcome.preheader">
+        <source>email.welcome.preheader</source>
+        <target>Ihre Teilnahme wurde aktiviert. Entdecken Sie die nächsten Schritte.</target>
+      </trans-unit>
+      <trans-unit id="EmlWlcTitDe" resname="email.welcome.title">
+        <source>email.welcome.title</source>
+        <target>Willkommen bei {app}</target>
+      </trans-unit>
       <trans-unit id="EmlViewOnDe" resname="email.view_online">
         <source>email.view_online</source>
         <target>Online ansehen</target>

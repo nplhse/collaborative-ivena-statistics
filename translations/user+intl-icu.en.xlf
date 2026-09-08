@@ -337,6 +337,82 @@
         <source>email.verify.fallback_after_link</source>
         <target> If you did not request this email, you can ignore it.</target>
       </trans-unit>
+      <trans-unit id="em.welcomeCta" resname="email.welcome.cta">
+        <source>email.welcome.cta</source>
+        <target>Get started</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeFbAfter" resname="email.welcome.fallback_after_link">
+        <source>email.welcome.fallback_after_link</source>
+        <target> </target>
+      </trans-unit>
+      <trans-unit id="em.welcomeFbBefore" resname="email.welcome.fallback_before_link">
+        <source>email.welcome.fallback_before_link</source>
+        <target>If the button does not work, open this link in your browser: </target>
+      </trans-unit>
+      <trans-unit id="em.welcomeGreeting" resname="email.welcome.greeting">
+        <source>email.welcome.greeting</source>
+        <target>Hello {name},</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeHeading" resname="email.welcome.heading">
+        <source>email.welcome.heading</source>
+        <target>Welcome to {app}</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeIntro" resname="email.welcome.intro">
+        <source>email.welcome.intro</source>
+        <target>Your participation in the project has been activated. You can now start using the participant-specific features of {app}.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeAnaDesc" resname="email.welcome.next_steps.analysis.description">
+        <source>email.welcome.next_steps.analysis.description</source>
+        <target>Open the statistics overview, Analysis Explorer, reports, and top lists.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeAnaTitle" resname="email.welcome.next_steps.analysis.title">
+        <source>email.welcome.next_steps.analysis.title</source>
+        <target>Use statistics and analyses</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeExpDesc" resname="email.welcome.next_steps.explore.description">
+        <source>email.welcome.next_steps.explore.description</source>
+        <target>Explore allocations and reference data in the data catalog.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeExpTitle" resname="email.welcome.next_steps.explore.title">
+        <source>email.welcome.next_steps.explore.title</source>
+        <target>Open the data catalog</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeHospAllDesc" resname="email.welcome.next_steps.hospitals.all.description">
+        <source>email.welcome.next_steps.hospitals.all.description</source>
+        <target>Browse the hospital directory and discover participating facilities.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeHospAllTitle" resname="email.welcome.next_steps.hospitals.all.title">
+        <source>email.welcome.next_steps.hospitals.all.title</source>
+        <target>Review hospitals</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeHospOwnDesc" resname="email.welcome.next_steps.hospitals.owned.description">
+        <source>email.welcome.next_steps.hospitals.owned.description</source>
+        <target>Review the hospitals linked to your account.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeHospOwnTitle" resname="email.welcome.next_steps.hospitals.owned.title">
+        <source>email.welcome.next_steps.hospitals.owned.title</source>
+        <target>Review your hospitals</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeImpDesc" resname="email.welcome.next_steps.import.description">
+        <source>email.welcome.next_steps.import.description</source>
+        <target>Upload the first IVENA dataset to keep your records up to date.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeImpTitle" resname="email.welcome.next_steps.import.title">
+        <source>email.welcome.next_steps.import.title</source>
+        <target>Import your first dataset</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeSteps" resname="email.welcome.next_steps_heading">
+        <source>email.welcome.next_steps_heading</source>
+        <target>Useful next steps</target>
+      </trans-unit>
+      <trans-unit id="em.welcomePreheader" resname="email.welcome.preheader">
+        <source>email.welcome.preheader</source>
+        <target>Your participation has been activated. Discover useful next steps.</target>
+      </trans-unit>
+      <trans-unit id="em.welcomeTitle" resname="email.welcome.title">
+        <source>email.welcome.title</source>
+        <target>Welcome to {app}</target>
+      </trans-unit>
       <trans-unit id="usrTitleListEn" resname="title.user.list">
         <source>title.user.list</source>
         <target>Users</target>

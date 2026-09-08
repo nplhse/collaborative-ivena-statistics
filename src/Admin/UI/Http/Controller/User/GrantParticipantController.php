@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\User;
 
-use App\Analytics\Application\UsageEvents\UsageAnalytics;
-use App\Analytics\Domain\Enum\FeatureArea;
-use App\Analytics\Domain\UsageEventName;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\Event\UserBecameParticipant;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[IsGranted('ROLE_ADMIN')]
 #[AdminRoute(path: '/users', name: 'user')]
@@ -31,7 +30,7 @@ final class GrantParticipantController extends AbstractController
         private readonly UriSigner $uriSigner,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly AuditContext $auditContext,
-        private readonly UsageAnalytics $usageAnalytics,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -68,11 +67,7 @@ final class GrantParticipantController extends AbstractController
                 $this->auditContext->endIntent();
             }
 
-            $this->usageAnalytics->recordForUser(
-                UsageEventName::USER_BECAME_PARTICIPANT,
-                $user,
-                FeatureArea::Other,
-            );
+            $this->eventDispatcher->dispatch(new UserBecameParticipant($id));
 
             $this->addFlash('success', new TranslatableMessage('flash.admin.user.grant_participant.success', domain: 'admin'));
         } else {
