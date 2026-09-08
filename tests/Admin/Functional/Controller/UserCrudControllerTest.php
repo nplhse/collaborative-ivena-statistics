@@ -198,6 +198,46 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertCount(1, $this->welcomeEmails());
     }
 
+    public function testAdminCannotSaveUsernameWithInternalWhitespace(): void
+    {
+        $client = self::createClient();
+
+        $suffix = bin2hex(random_bytes(4));
+        $originalUsername = 'admin-space-target-'.$suffix;
+        $target = UserFactory::createOne([
+            'username' => $originalUsername,
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'admin-space-admin-'.$suffix,
+            ])
+        ;
+
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save changes')->form([
+            'User[username]' => 'invalid name '.$suffix,
+        ]);
+        $client->submit($form);
+
+        self::assertFalse($client->getResponse()->isRedirect());
+        self::assertStringContainsString(
+            'Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.',
+            (string) $client->getResponse()->getContent(),
+        );
+
+        $targetId = $target->getId();
+        self::assertNotNull($targetId);
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+        $reloaded = self::getContainer()->get(UserRepository::class)->find($targetId);
+        self::assertInstanceOf(User::class, $reloaded);
+        self::assertSame($originalUsername, $reloaded->getUsername());
+    }
+
     private function setCheckboxValue(Form $form, string $name, bool $checked): void
     {
         $field = $form->get($name);

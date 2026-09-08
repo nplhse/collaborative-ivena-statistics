@@ -15,7 +15,7 @@ final class RegistrationIdentityCheckerTest extends KernelTestCase
 {
     use Factories;
 
-    public function testIsIdentityTakenWhenUsernameExists(): void
+    public function testIsIdentityTakenWhenUsernameExistsWithSurroundingWhitespace(): void
     {
         UserFactory::createOne([
             'username' => 'alice',
@@ -24,7 +24,7 @@ final class RegistrationIdentityCheckerTest extends KernelTestCase
 
         $checker = self::getContainer()->get(RegistrationIdentityChecker::class);
 
-        self::assertTrue($checker->isIdentityTaken('alice', 'other@example.test'));
+        self::assertTrue($checker->isIdentityTaken('  alice  ', 'other@example.test'));
     }
 
     public function testIsIdentityTakenWhenEmailExistsNormalized(): void
