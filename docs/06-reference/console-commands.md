@@ -23,7 +23,7 @@ Examples: `app:import:allocations`, `app:statistics:rebuild-projection`.
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, and `app:hospital:backfill-participating-since` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:hospital:geocode-coordinates`, and `app:allocation:fetch-hospital-isochrones` (`--apply` to write).
 
 ### Output
 
@@ -62,6 +62,8 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:allocation:backfill-indications` | Repair tool: sync normalized indication fields (not for routine use). |
 | `app:allocation:audit-indication-review` | Health check for indication raw review data consistency. |
+| `app:hospital:geocode-coordinates <stateId>` | Geocode hospital street addresses via OpenRouteService. Default: dry-run. Writes only with `--apply`. Existing coordinates are skipped unless `--force`. Runbook: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
+| `app:allocation:fetch-hospital-isochrones <stateId>` | Fetch destination isochrones (5–50 minutes) for **all** hospitals in a federal state and store GeoJSON under `var/geo/hospital-isochrones/{stateId}/{publicId}.geojson`. Default: dry-run. Writes only with `--apply`. Skips an existing file only when its stored origin still matches the hospital coordinates. Runbook: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
 | `app:explore:backfill-public-ids` | Backfill `public_id` UUID v4 values for explore detail resources. See [../04-features/allocation/explore-public-ids.md](../04-features/allocation/explore-public-ids.md). |
 | `app:hospital:backfill-participating-since` | One-time tool: fill `Hospital.participatingSince` for currently participating hospitals that have no timestamp. Prefer the earliest `audit_log` evidence of becoming participating, otherwise the first successful import (`Completed`/`Partial`). Does **not** fall back to `created_at`. Default: dry-run preview. Writes only with `--apply`. See [../04-features/content/dashboard-overview.md](../04-features/content/dashboard-overview.md). |
 

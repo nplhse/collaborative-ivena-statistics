@@ -17,6 +17,7 @@
 | [health-check.md](health-check.md) | Reference | `GET /health` endpoint |
 | [troubleshooting.md](troubleshooting.md) | Guide | Symptom → cause → fix |
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
+| [hospital-geodata.md](hospital-geodata.md) | Guide | Geocode hospital coordinates and fetch destination isochrones |
 
 ## Reading order
 
@@ -26,5 +27,6 @@
 4. [health-check.md](health-check.md)
 5. [troubleshooting.md](troubleshooting.md)
 6. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
+7. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
 
 Other role-based paths: [../README.md#reading-paths](../README.md#reading-paths)
