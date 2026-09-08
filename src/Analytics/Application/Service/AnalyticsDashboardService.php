@@ -9,7 +9,9 @@ use App\Analytics\Application\DTO\UsageAnalyticsFiltersDto;
 use App\Analytics\Application\DTO\UsageAnalyticsJourneysDto;
 use App\Analytics\Application\DTO\UsageAnalyticsOverviewDto;
 use App\Analytics\Application\DTO\UsageAnalyticsPerformanceDto;
+use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\UsageEventName;
+use App\Analytics\Infrastructure\Query\AnalyticsReportingQuery;
 use App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository;
 use App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository;
 
@@ -37,41 +39,42 @@ final readonly class AnalyticsDashboardService
     public function __construct(
         private AnalyticsRequestRepository $requestRepository,
         private AnalyticsProductEventRepository $eventRepository,
+        private AnalyticsReportingQuery $reportingQuery,
     ) {
     }
 
     public function getOverview(): UsageAnalyticsOverviewDto
     {
-        $from7 = $this->requestRepository->daysAgo(6);
+        $from7 = AnalyticsCalendar::daysAgo(6);
 
         return new UsageAnalyticsOverviewDto(
-            requestsToday: $this->requestRepository->countToday(),
-            requestsLast7Days: $this->requestRepository->countLast7Days(),
-            requestsLast30Days: $this->requestRepository->countLast30Days(),
-            featureAreas: $this->requestRepository->featureAreaDistributionSince($from7),
-            topRoutes: $this->requestRepository->topRoutesSince($from7),
-            authenticationSplit: $this->requestRepository->authenticationSplitSince($from7),
+            requestsToday: $this->reportingQuery->countSince(AnalyticsCalendar::startOfToday()),
+            requestsLast7Days: $this->reportingQuery->countSince($from7),
+            requestsLast30Days: $this->reportingQuery->countSince(AnalyticsCalendar::daysAgo(29)),
+            featureAreas: $this->reportingQuery->featureAreaDistributionSince($from7),
+            topRoutes: $this->reportingQuery->topRoutesSince($from7),
+            authenticationSplit: $this->reportingQuery->authenticationSplitSince($from7),
             retention: $this->requestRepository->retentionSnapshot(),
         );
     }
 
     public function getAdoption(): UsageAnalyticsAdoptionDto
     {
-        $from7 = $this->requestRepository->daysAgo(6);
-        $from30 = $this->requestRepository->daysAgo(29);
+        $from7 = AnalyticsCalendar::daysAgo(6);
+        $from30 = AnalyticsCalendar::daysAgo(29);
 
         return new UsageAnalyticsAdoptionDto(
-            topEvents: $this->eventRepository->topEventsSince($from7),
-            eventsByRole: $this->eventRepository->eventsByRoleSince($from7),
-            roleAreaMatrix: $this->requestRepository->roleAreaMatrixSince($from7),
+            topEvents: $this->reportingQuery->topEventsSince($from7),
+            eventsByRole: $this->reportingQuery->eventsByRoleSince($from7),
+            roleAreaMatrix: $this->reportingQuery->roleAreaMatrixSince($from7),
             engagementDepth: $this->buildEngagementDepth($from30),
         );
     }
 
     public function getJourneys(): UsageAnalyticsJourneysDto
     {
-        $from7 = $this->requestRepository->daysAgo(6);
-        $from30 = $this->requestRepository->daysAgo(29);
+        $from7 = AnalyticsCalendar::daysAgo(6);
+        $from30 = AnalyticsCalendar::daysAgo(29);
 
         return new UsageAnalyticsJourneysDto(
             onboardingFunnel: $this->eventRepository->onboardingFunnelSince($from30, self::FUNNEL_STEPS),
@@ -84,17 +87,17 @@ final readonly class AnalyticsDashboardService
 
     public function getFilters(): UsageAnalyticsFiltersDto
     {
-        $from7 = $this->requestRepository->daysAgo(6);
+        $from7 = AnalyticsCalendar::daysAgo(6);
 
         return new UsageAnalyticsFiltersDto(
-            topFilterParams: $this->requestRepository->topFilterParamsSince($from7),
-            filterUsageByArea: $this->requestRepository->filterUsageByAreaSince($from7),
+            topFilterParams: $this->reportingQuery->topFilterParamsSince($from7),
+            filterUsageByArea: $this->reportingQuery->filterUsageByAreaSince($from7),
         );
     }
 
     public function getPerformance(): UsageAnalyticsPerformanceDto
     {
-        $from7 = $this->requestRepository->daysAgo(6);
+        $from7 = AnalyticsCalendar::daysAgo(6);
         $perfByArea = $this->requestRepository->performanceByAreaSince($from7);
         $insightsInput = array_map(
             static fn (array $row): array => [
