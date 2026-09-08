@@ -741,6 +741,10 @@
         <source>validation.registration.identity_taken</source>
         <target>Dieser Benutzername oder diese E-Mail-Adresse ist bereits vergeben.</target>
       </trans-unit>
+      <trans-unit id="usrv001" resname="validation.username.format">
+        <source>validation.username.format</source>
+        <target>Bitte nur Buchstaben und Zahlen verwenden. Punkt, Unterstrich und Bindestrich sind möglich, Leerzeichen nicht.</target>
+      </trans-unit>
       <trans-unit id="pagev013" resname="page.validation.key_unique">
         <source>page.validation.key_unique</source>
         <target>Dieser Seiten-Schlüssel ist bereits einer anderen Seite zugewiesen.</target>

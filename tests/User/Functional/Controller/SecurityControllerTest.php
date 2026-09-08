@@ -181,6 +181,24 @@ final class SecurityControllerTest extends WebTestCase
         ;
     }
 
+    public function testLoginTrimsLeadingAndTrailingWhitespace(): void
+    {
+        UserFactory::new(['username' => 'trim-login-user'])->create();
+
+        $this->loginWithConsent($this->browser(), '  trim-login-user  ')
+            ->assertSeeIn('#user_name', 'trim-login-user')
+        ;
+    }
+
+    public function testExistingUserWithInternalWhitespaceCanStillLogin(): void
+    {
+        UserFactory::new(['username' => 'John Doe'])->create();
+
+        $this->loginWithConsent($this->browser(), 'John Doe')
+            ->assertSeeIn('#user_name', 'John Doe')
+        ;
+    }
+
     public function testLoginPasswordFieldHasAccessibleVisibilityToggle(): void
     {
         $this->browser()

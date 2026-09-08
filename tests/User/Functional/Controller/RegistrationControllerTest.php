@@ -12,6 +12,7 @@ use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\Tests\Support\Translation\AssertsNoMissingTranslations;
 use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\Registration\RegistrationIdentityGuard;
 use App\User\Infrastructure\Repository\UserRepository;
@@ -498,6 +499,140 @@ final class RegistrationControllerTest extends WebTestCase
                 self::assertNotEmpty($wrapper->attr('data-password-strength-policy-value'));
                 self::assertNotEmpty($wrapper->attr('data-password-strength-strength-labels-value'));
             })
+        ;
+    }
+
+    public function testRegistrationAcceptsLettersDigitsAndAllowedPunctuation(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('Müller.User_%s-1', $suffix);
+        $email = sprintf('register-valid-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', $username)
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Check your email')
+        ;
+
+        UserFactory::assert()->exists(['username' => $username]);
+    }
+
+    public function testRegistrationTrimsLeadingAndTrailingWhitespace(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('trim-user-%s', $suffix);
+        $email = sprintf('register-trim-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', '  '.$username.'  ')
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertSuccessful()
+            ->assertSeeIn('h2', 'Check your email')
+        ;
+
+        UserFactory::assert()->exists(['username' => $username]);
+        UserFactory::assert()->notExists(['username' => '  '.$username.'  ']);
+    }
+
+    public function testRegistrationRejectsInternalWhitespace(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $email = sprintf('register-space-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', 'John Doe')
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertStatus(422)
+            ->assertSeeIn('h2', 'Register')
+            ->assertSee('Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.')
+        ;
+
+        UserFactory::assert()->notExists(['email' => $email]);
+    }
+
+    public function testRegistrationRejectsForbiddenCharacters(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $email = sprintf('register-at-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', 'user@host')
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertStatus(422)
+            ->assertSeeIn('h2', 'Register')
+            ->assertSee('Please use letters and numbers. Periods, underscores, and hyphens are fine, but spaces are not.')
+        ;
+
+        UserFactory::assert()->notExists(['email' => $email]);
+    }
+
+    public function testRegistrationFailsWhenTrimmedUsernameIsTaken(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $existingUsername = sprintf('taken-trim-%s', $suffix);
+        UserFactory::createOne([
+            'username' => $existingUsername,
+            'email' => sprintf('existing-trim-%s@example.test', $suffix),
+        ]);
+
+        $attemptEmail = sprintf('new-trim-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', '  '.$existingUsername.'  ')
+            ->fillField('registration_form[email]', $attemptEmail)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertStatus(422)
+            ->assertSeeIn('h2', 'Register')
+            ->assertSee('This username or email address is already taken.')
+        ;
+
+        UserFactory::assert()->notExists(['email' => $attemptEmail]);
+        UserFactory::assert()->count(1, ['username' => $existingUsername]);
+    }
+
+    public function testRegisteredUsernameCanBeUsedToLogIn(): void
+    {
+        $suffix = bin2hex(random_bytes(4));
+        $username = sprintf('login-after-%s', $suffix);
+        $email = sprintf('login-after-%s@example.test', $suffix);
+
+        $this->browser()
+            ->visit('/register')
+            ->fillField('registration_form[username]', '  '.$username.'  ')
+            ->fillField('registration_form[email]', $email)
+            ->fillField('registration_form[plainPassword]', 'super-secret-password')
+            ->checkField('registration_form[acceptTerms]')
+            ->click('Register')
+            ->assertSuccessful()
+        ;
+
+        $user = UserFactory::repository()->findOneBy(['username' => $username]);
+        self::assertInstanceOf(User::class, $user);
+        $user->setIsVerified(true);
+        \Zenstruck\Foundry\Persistence\save($user);
+
+        $this->loginWithConsent($this->browser(), '  '.$username.'  ', 'super-secret-password')
+            ->assertSeeIn('#user_name', $username)
         ;
     }
 

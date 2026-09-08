@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\Registration;
 
+use App\User\Domain\Validator\UserUsernameConstraints;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Component\Form\FormError;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -27,9 +28,10 @@ final readonly class RegistrationIdentityChecker implements RegistrationIdentity
     #[\Override]
     public function isIdentityTaken(string $username, string $email): bool
     {
+        $normalizedUsername = UserUsernameConstraints::trim($username);
         $normalizedEmail = mb_strtolower(trim($email));
 
-        return null !== $this->userRepository->findOneBy(['username' => $username])
+        return null !== $this->userRepository->findOneBy(['username' => $normalizedUsername])
             || null !== $this->userRepository->findOneBy(['email' => $normalizedEmail]);
     }
 
