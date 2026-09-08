@@ -6,6 +6,7 @@ namespace App\Admin\UI\Http\Controller\User;
 
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\User\Application\Event\UserBecameParticipant;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
@@ -157,6 +158,7 @@ final class UserCrudController extends AbstractCrudController
             return;
         }
 
+        $createdAsParticipant = UserRole::containsParticipant($entityInstance->getRoles());
         $this->auditContext->beginIntent('user.admin.created', ['source' => 'easyadmin']);
         try {
             $plainPassword = $entityInstance->getPassword();
@@ -174,6 +176,9 @@ final class UserCrudController extends AbstractCrudController
         $userId = $entityInstance->getId();
         if (null !== $userId) {
             $this->eventDispatcher->dispatch(new UserRegistered($userId));
+            if ($createdAsParticipant) {
+                $this->eventDispatcher->dispatch(new UserBecameParticipant($userId));
+            }
         }
     }
 
@@ -184,6 +189,7 @@ final class UserCrudController extends AbstractCrudController
             return;
         }
 
+        $becameParticipant = false;
         $this->auditContext->beginIntent('user.admin.updated', ['source' => 'easyadmin']);
         try {
             $currentUser = $this->security->getUser();
@@ -225,9 +231,20 @@ final class UserCrudController extends AbstractCrudController
                 $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));
             }
 
+            $originalRoles = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance)['roles'] ?? [];
+            $becameParticipant = !UserRole::containsParticipant($originalRoles)
+                && UserRole::containsParticipant($entityInstance->getRoles());
+
             parent::updateEntity($entityManager, $entityInstance);
         } finally {
             $this->auditContext->endIntent();
+        }
+
+        if ($becameParticipant) {
+            $userId = $entityInstance->getId();
+            if (null !== $userId) {
+                $this->eventDispatcher->dispatch(new UserBecameParticipant($userId));
+            }
         }
     }
 }

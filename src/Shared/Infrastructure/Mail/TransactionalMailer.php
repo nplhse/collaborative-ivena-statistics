@@ -25,4 +25,15 @@ interface TransactionalMailer
         ResetPasswordToken $resetToken,
         string $locale,
     ): void;
+
+    /**
+     * @param list<array{titleKey: string, descriptionKey: string, url: string}> $nextSteps
+     */
+    public function sendParticipationWelcomeEmail(
+        string $recipientEmail,
+        string $greetingName,
+        string $dashboardUrl,
+        array $nextSteps,
+        string $locale,
+    ): void;
 }

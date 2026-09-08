@@ -73,6 +73,35 @@ final readonly class SymfonyTransactionalMailer implements TransactionalMailer
         $this->mailer->send($email);
     }
 
+    /**
+     * @param list<array{titleKey: string, descriptionKey: string, url: string}> $nextSteps
+     */
+    #[\Override]
+    public function sendParticipationWelcomeEmail(
+        string $recipientEmail,
+        string $greetingName,
+        string $dashboardUrl,
+        array $nextSteps,
+        string $locale,
+    ): void {
+        $email = $this->createTemplatedEmail($locale)
+            ->to($recipientEmail)
+            ->subject($this->translator->trans(
+                'email.welcome.title',
+                ['app' => $this->mailConfig->appName],
+                'user',
+                $locale,
+            ))
+            ->htmlTemplate('@User/participation/welcome_email.html.twig')
+            ->context([
+                'greetingName' => $greetingName,
+                'dashboardUrl' => $dashboardUrl,
+                'nextSteps' => $nextSteps,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
     private function createTemplatedEmail(string $locale): TemplatedEmail
     {
         $email = new TemplatedEmail()
