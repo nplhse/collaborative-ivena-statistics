@@ -82,8 +82,8 @@ final class IndicationInsightEngineTest extends TestCase
             femaleBaseline: 300,
             medianAgeIndication: 25.0,
             medianAgeBaseline: 40.0,
-            medianTransportMinutesIndication: 45.0,
-            medianTransportMinutesBaseline: 30.0,
+            meanTransportMinutesIndication: 45.0,
+            meanTransportMinutesBaseline: 30.0,
         );
 
         $insights = $this->engine->build($metrics);
@@ -125,8 +125,8 @@ final class IndicationInsightEngineTest extends TestCase
             femaleBaseline: 200,
             medianAgeIndication: 72.0,
             medianAgeBaseline: 55.0,
-            medianTransportMinutesIndication: 20.0,
-            medianTransportMinutesBaseline: 40.0,
+            meanTransportMinutesIndication: 20.0,
+            meanTransportMinutesBaseline: 40.0,
         );
 
         $ids = $this->insightIds($this->engine->build($metrics));
@@ -218,8 +218,8 @@ final class IndicationInsightEngineTest extends TestCase
         int $femaleBaseline = 0,
         ?float $medianAgeIndication = null,
         ?float $medianAgeBaseline = null,
-        ?float $medianTransportMinutesIndication = null,
-        ?float $medianTransportMinutesBaseline = null,
+        ?float $meanTransportMinutesIndication = null,
+        ?float $meanTransportMinutesBaseline = null,
         int $groundTransportIndication = 0,
         int $groundTransportBaseline = 0,
         int $airTransportIndication = 0,
@@ -264,8 +264,8 @@ final class IndicationInsightEngineTest extends TestCase
             femaleBaseline: $femaleBaseline,
             medianAgeIndication: $medianAgeIndication,
             medianAgeBaseline: $medianAgeBaseline,
-            medianTransportMinutesIndication: $medianTransportMinutesIndication,
-            medianTransportMinutesBaseline: $medianTransportMinutesBaseline,
+            meanTransportMinutesIndication: $meanTransportMinutesIndication,
+            meanTransportMinutesBaseline: $meanTransportMinutesBaseline,
             groundTransportIndication: $groundTransportIndication,
             groundTransportBaseline: $groundTransportBaseline,
             airTransportIndication: $airTransportIndication,

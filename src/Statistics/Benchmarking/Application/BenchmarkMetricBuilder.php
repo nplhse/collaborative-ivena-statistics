@@ -49,7 +49,7 @@ final readonly class BenchmarkMetricBuilder
             $this->rateMetric(BenchmarkMetricKey::Age80Plus, $primary->age80Plus, $primary->total, $comparison->age80Plus, $comparison->total),
             $this->rateMetric(BenchmarkMetricKey::NightDaytime, $primary->nightDaytime, $primary->total, $comparison->nightDaytime, $comparison->total),
             $this->rateMetric(BenchmarkMetricKey::Weekend, $primary->weekend, $primary->total, $comparison->weekend, $comparison->total),
-            $this->absoluteMetric(BenchmarkMetricKey::MedianTransport, $primary->medianTransportMinutes, $comparison->medianTransportMinutes, BenchmarkMetricFormat::Minutes),
+            $this->absoluteMetric(BenchmarkMetricKey::MeanTransport, $primary->meanTransportMinutes, $comparison->meanTransportMinutes, BenchmarkMetricFormat::Minutes),
         ];
     }
 
@@ -72,7 +72,7 @@ final readonly class BenchmarkMetricBuilder
             BenchmarkMetricKey::Age80Plus,
             BenchmarkMetricKey::NightDaytime,
             BenchmarkMetricKey::Weekend,
-            BenchmarkMetricKey::MedianTransport,
+            BenchmarkMetricKey::MeanTransport,
         ];
 
         $metrics = [];

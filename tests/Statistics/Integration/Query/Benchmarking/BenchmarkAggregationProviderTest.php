@@ -156,6 +156,7 @@ final class BenchmarkAggregationProviderTest extends KernelTestCase
         self::assertSame(3, $result->primary->withPhysician);
         self::assertSame(3, $result->primary->resus);
         self::assertSame(0, $result->primary->cathlab);
+        self::assertEqualsWithDelta(30.0, $result->primary->meanTransportMinutes, 0.001);
         self::assertNotEmpty($result->distributionRows);
         foreach ($result->distributionRows as $row) {
             self::assertSame('indication', $row->dimension);

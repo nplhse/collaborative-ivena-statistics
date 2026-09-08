@@ -161,11 +161,11 @@ final readonly class IndicationCompareInsightEngine
      */
     private function addTransportTimeInsights(array &$candidates, IndicationCompareSideCounts $sideA, IndicationCompareSideCounts $sideB): void
     {
-        if (null === $sideA->medianTransportMinutes || null === $sideB->medianTransportMinutes || $sideB->medianTransportMinutes <= 0.0) {
+        if (null === $sideA->meanTransportMinutes || null === $sideB->meanTransportMinutes || $sideB->meanTransportMinutes <= 0.0) {
             return;
         }
 
-        $ratio = $sideA->medianTransportMinutes / $sideB->medianTransportMinutes;
+        $ratio = $sideA->meanTransportMinutes / $sideB->meanTransportMinutes;
 
         if ($ratio >= 1.2) {
             $candidates[] = $this->buildInsight(
@@ -173,8 +173,8 @@ final readonly class IndicationCompareInsightEngine
                 IndicationCompareInsightSeverity::Elevated,
                 'stats.indication.compare.insight.transport_time_long',
                 round($ratio, 1),
-                $sideA->medianTransportMinutes,
-                $sideB->medianTransportMinutes,
+                $sideA->meanTransportMinutes,
+                $sideB->meanTransportMinutes,
                 40,
             );
         } elseif ($ratio <= 0.8) {
@@ -183,8 +183,8 @@ final readonly class IndicationCompareInsightEngine
                 IndicationCompareInsightSeverity::Elevated,
                 'stats.indication.compare.insight.transport_time_short',
                 round($ratio, 1),
-                $sideA->medianTransportMinutes,
-                $sideB->medianTransportMinutes,
+                $sideA->meanTransportMinutes,
+                $sideB->meanTransportMinutes,
                 35,
             );
         }

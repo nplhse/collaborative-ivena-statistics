@@ -62,18 +62,18 @@ final readonly class IndicationDashboardMetricsQuery
             $workAccidentFilter,
         );
 
-        $baselineMedianFilter = '(indication_normalized_id IS NULL OR indication_normalized_id NOT IN (:indication_ids))';
-        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
+        $baselineMeanFilter = '(indication_normalized_id IS NULL OR indication_normalized_id NOT IN (:indication_ids))';
+        $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes();
 
         $scopeSql = <<<SQL
 SELECT
     {$countSelect},
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (
-        WHERE {$baselineMedianFilter} AND age IS NOT NULL
+        WHERE {$baselineMeanFilter} AND age IS NOT NULL
     ) AS median_age_baseline,
-    {$medianTransport} FILTER (
-        WHERE {$baselineMedianFilter}
-    ) AS median_transport_baseline
+    {$meanTransport} FILTER (
+        WHERE {$baselineMeanFilter}
+    ) AS mean_transport_baseline
 FROM allocation_stats_projection
 WHERE {$where}
 SQL;
@@ -88,7 +88,7 @@ SQL;
 SELECT
     {$countSelect},
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (WHERE age IS NOT NULL) AS median_age_indication,
-    {$medianTransport} AS median_transport_indication
+    {$meanTransport} AS mean_transport_indication
 FROM allocation_stats_projection
 WHERE {$indicationWhere}
 SQL;
@@ -211,8 +211,8 @@ SQL;
             $counts['female_baseline'],
             $this->toFloatOrNull($indicationRow['median_age_indication'] ?? null),
             $this->toFloatOrNull($scopeRow['median_age_baseline'] ?? null),
-            $this->toFloatOrNull($indicationRow['median_transport_indication'] ?? null),
-            $this->toFloatOrNull($scopeRow['median_transport_baseline'] ?? null),
+            $this->toFloatOrNull($indicationRow['mean_transport_indication'] ?? null),
+            $this->toFloatOrNull($scopeRow['mean_transport_baseline'] ?? null),
             $counts['ground_transport_indication'],
             $counts['ground_transport_baseline'],
             $counts['air_transport_indication'],

@@ -166,19 +166,19 @@
         <div class="col-sm-6 col-lg-4">
             <div class="card">
                 <div class="card-body">
-                    <div class="subheader">{{ 'stats.reports.monthly.kpi.median_transport'|trans({}, 'statistics') }}</div>
+                    <div class="subheader">{{ 'stats.reports.monthly.kpi.mean_transport'|trans({}, 'statistics') }}</div>
                     <div class="h1 mt-2 mb-0">
-                        {% if report.medianTransportMinutes is not null %}
-                            {{ report.medianTransportMinutes|number_format(1, ',', '.') }}
+                        {% if report.meanTransportMinutes is not null %}
+                            {{ report.meanTransportMinutes|number_format(1, ',', '.') }}
                             <span class="fs-4 text-muted">{{ 'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics') }}</span>
                         {% else %}
                             —
                         {% endif %}
                     </div>
-                    {% if report.medianTransportMomMinutes is not null %}
+                    {% if report.meanTransportMomMinutes is not null %}
                         <div class="mt-1">
-                            <span class="{% if report.medianTransportMomMinutes > 0 %}text-success{% elseif report.medianTransportMomMinutes < 0 %}text-danger{% else %}text-muted{% endif %}">
-                                {{ report.medianTransportMomMinutes >= 0 ? '+' : '' }}{{ report.medianTransportMomMinutes|number_format(1, ',', '.') }}
+                            <span class="{% if report.meanTransportMomMinutes > 0 %}text-success{% elseif report.meanTransportMomMinutes < 0 %}text-danger{% else %}text-muted{% endif %}">
+                                {{ report.meanTransportMomMinutes >= 0 ? '+' : '' }}{{ report.meanTransportMomMinutes|number_format(1, ',', '.') }}
                                 {{ 'stats.reports.monthly.kpi.minutes'|trans({}, 'statistics') }}
                             </span>
                             <span class="text-muted">{{ 'stats.reports.monthly.kpi.mom'|trans({}, 'statistics') }}</span>

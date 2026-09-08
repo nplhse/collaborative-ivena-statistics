@@ -29,7 +29,7 @@ final readonly class IndicationCompareSideCounts
         public int $groundTransport,
         public int $airTransport,
         public ?float $medianAge,
-        public ?float $medianTransportMinutes,
+        public ?float $meanTransportMinutes,
     ) {
     }
 

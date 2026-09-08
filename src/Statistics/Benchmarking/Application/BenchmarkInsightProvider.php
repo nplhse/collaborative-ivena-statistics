@@ -100,27 +100,27 @@ final readonly class BenchmarkInsightProvider
             }
         }
 
-        $medianTransport = $this->findMetric($kpiMetrics, BenchmarkMetricKey::MedianTransport);
-        if ($medianTransport instanceof BenchmarkMetric
-            && $medianTransport->comparisonValue > 0.0) {
-            if ($medianTransport->ratio >= 1.2) {
+        $meanTransport = $this->findMetric($kpiMetrics, BenchmarkMetricKey::MeanTransport);
+        if ($meanTransport instanceof BenchmarkMetric
+            && $meanTransport->comparisonValue > 0.0) {
+            if ($meanTransport->ratio >= 1.2) {
                 $candidates[] = $this->buildInsight(
                     'transport_time_long',
                     BenchmarkInsightDirection::Above,
                     BenchmarkInsightSeverity::Elevated,
-                    $medianTransport->ratio,
-                    $medianTransport->primaryValue,
-                    $medianTransport->comparisonValue,
+                    $meanTransport->ratio,
+                    $meanTransport->primaryValue,
+                    $meanTransport->comparisonValue,
                     50,
                 );
-            } elseif ($medianTransport->ratio <= 0.8) {
+            } elseif ($meanTransport->ratio <= 0.8) {
                 $candidates[] = $this->buildInsight(
                     'transport_time_short',
                     BenchmarkInsightDirection::Below,
                     BenchmarkInsightSeverity::Elevated,
-                    $medianTransport->ratio,
-                    $medianTransport->primaryValue,
-                    $medianTransport->comparisonValue,
+                    $meanTransport->ratio,
+                    $meanTransport->primaryValue,
+                    $meanTransport->comparisonValue,
                     45,
                 );
             }

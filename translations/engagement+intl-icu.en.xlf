@@ -71,7 +71,7 @@
       </trans-unit>
       <trans-unit id="mr016" resname="monthly_reminder.kpi.transport">
         <source>monthly_reminder.kpi.transport</source>
-        <target>Median transport time</target>
+        <target>Mean transport time</target>
       </trans-unit>
       <trans-unit id="mr063" resname="monthly_reminder.kpi.physician_baseline_delta">
         <source>monthly_reminder.kpi.physician_baseline_delta</source>

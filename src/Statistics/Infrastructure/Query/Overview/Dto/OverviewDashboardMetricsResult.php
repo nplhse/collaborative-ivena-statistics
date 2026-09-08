@@ -28,7 +28,7 @@ final readonly class OverviewDashboardMetricsResult
         public int $nightDaytime,
         public int $weekend,
         public ?float $medianAge,
-        public ?float $medianTransportMinutes,
+        public ?float $meanTransportMinutes,
         public array $ageGroupCounts,
     ) {
     }

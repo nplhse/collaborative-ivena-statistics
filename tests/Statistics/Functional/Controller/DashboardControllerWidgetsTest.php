@@ -182,7 +182,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorExists('[data-testid="stats-executive-kpi-age_80_plus"]');
         $this->assertSelectorExists('[data-testid="stats-executive-kpi-night_daytime"]');
         $this->assertSelectorExists('[data-testid="stats-executive-kpi-weekend"]');
-        $this->assertSelectorExists('[data-testid="stats-executive-kpi-median_transport"]');
+        $this->assertSelectorExists('[data-testid="stats-executive-kpi-mean_transport"]');
     }
 
     public function testDataQualityDrawerEndpointRendersDimensions(): void

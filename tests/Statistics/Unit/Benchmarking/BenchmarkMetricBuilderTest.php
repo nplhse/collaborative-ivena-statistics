@@ -234,6 +234,30 @@ final class BenchmarkMetricBuilderTest extends TestCase
         self::assertNull($this->builder->metricByKey($metrics, BenchmarkMetricKey::IndicationMix));
     }
 
+    public function testKpiMetricsUseMeanTransportNotMedian(): void
+    {
+        $result = new BenchmarkAggregationResult(
+            new BenchmarkSideCounts(
+                200, 120, 40, 20, 10, 8, 6, 0, 0, 4, 80, 60, 60,
+                50, 40, 30, 100, 80, 0, 65.0, 20.0, 20.4,
+            ),
+            new BenchmarkSideCounts(
+                1000, 400, 100, 50, 40, 30, 20, 0, 0, 10, 300, 400, 300,
+                200, 180, 120, 520, 420, 0, 60.0, 19.0, 21.1,
+            ),
+            [],
+        );
+
+        $metrics = $this->builder->buildKpiMetrics($result);
+        $mean = $this->findMetric($metrics, BenchmarkMetricKey::MeanTransport);
+        $median = $this->findMetric($metrics, BenchmarkMetricKey::MedianTransport);
+
+        self::assertNotNull($mean);
+        self::assertNull($median);
+        self::assertSame(20.4, $mean->primaryValue);
+        self::assertSame(21.1, $mean->comparisonValue);
+    }
+
     /**
      * @param list<\App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric> $metrics
      */

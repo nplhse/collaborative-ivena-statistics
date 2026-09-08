@@ -2187,11 +2187,11 @@
       </trans-unit>
       <trans-unit id="De812d3e8c" resname="stats.benchmark.insight.transport_time_long">
         <source>stats.benchmark.insight.transport_time_long</source>
-        <target>Die mediane Transportzeit ist länger ({primaryValue, number} vs. {comparisonValue, number} Min.).</target>
+        <target>Die mittlere Transportzeit ist länger ({primaryValue, number} vs. {comparisonValue, number} Min.).</target>
       </trans-unit>
       <trans-unit id="De28f50c54" resname="stats.benchmark.insight.transport_time_short">
         <source>stats.benchmark.insight.transport_time_short</source>
-        <target>Die mediane Transportzeit ist kürzer ({primaryValue, number} vs. {comparisonValue, number} Min.).</target>
+        <target>Die mittlere Transportzeit ist kürzer ({primaryValue, number} vs. {comparisonValue, number} Min.).</target>
       </trans-unit>
       <trans-unit id="De12ca4e18" resname="stats.benchmark.insight.urgency_emergency">
         <source>stats.benchmark.insight.urgency_emergency</source>
@@ -2260,6 +2260,10 @@
       <trans-unit id="Deeba79609" resname="stats.benchmark.metric.median_transport">
         <source>stats.benchmark.metric.median_transport</source>
         <target>Mediane Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="statsBmMeanTransport" resname="stats.benchmark.metric.mean_transport">
+        <source>stats.benchmark.metric.mean_transport</source>
+        <target>Mittlere Transportzeit</target>
       </trans-unit>
       <trans-unit id="De9c396460" resname="stats.benchmark.metric.night_daytime">
         <source>stats.benchmark.metric.night_daytime</source>
@@ -3771,11 +3775,11 @@
       </trans-unit>
       <trans-unit id="De700b2d0b" resname="stats.indication.compare.insight.transport_time_long">
         <source>stats.indication.compare.insight.transport_time_long</source>
-        <target>Die mediane Transportzeit ist bei Indikation A länger ({percentA, number} vs. {percentB, number} Min.).</target>
+        <target>Die mittlere Transportzeit ist bei Indikation A länger ({percentA, number} vs. {percentB, number} Min.).</target>
       </trans-unit>
       <trans-unit id="De5bd83cc4" resname="stats.indication.compare.insight.transport_time_short">
         <source>stats.indication.compare.insight.transport_time_short</source>
-        <target>Die mediane Transportzeit ist bei Indikation A kürzer ({percentA, number} vs. {percentB, number} Min.).</target>
+        <target>Die mittlere Transportzeit ist bei Indikation A kürzer ({percentA, number} vs. {percentB, number} Min.).</target>
       </trans-unit>
       <trans-unit id="De810fd14b" resname="stats.indication.compare.insight.urgency_emergency">
         <source>stats.indication.compare.insight.urgency_emergency</source>
@@ -4019,11 +4023,11 @@
       </trans-unit>
       <trans-unit id="Dede07d188" resname="stats.indication.insight.transport_time_long">
         <source>stats.indication.insight.transport_time_long</source>
-        <target>Die mediane Transportzeit ist länger als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Min.).</target>
+        <target>Die mittlere Transportzeit ist länger als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Min.).</target>
       </trans-unit>
       <trans-unit id="De2fc7e2a2" resname="stats.indication.insight.transport_time_short">
         <source>stats.indication.insight.transport_time_short</source>
-        <target>Die mediane Transportzeit ist kürzer als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Min.).</target>
+        <target>Die mittlere Transportzeit ist kürzer als bei anderen Indikationen ({indicationPercent, number} vs. {baselinePercent, number} Min.).</target>
       </trans-unit>
       <trans-unit id="De1abaf024" resname="stats.indication.insight.urgency_emergency">
         <source>stats.indication.insight.urgency_emergency</source>
@@ -4080,6 +4084,10 @@
       <trans-unit id="De1d1528d2" resname="stats.indication.median_transport">
         <source>stats.indication.median_transport</source>
         <target>Median: {minutes, number} Min.</target>
+      </trans-unit>
+      <trans-unit id="statsIndMeanTransport" resname="stats.indication.mean_transport">
+        <source>stats.indication.mean_transport</source>
+        <target>Mittelwert: {minutes, number} Min.</target>
       </trans-unit>
       <trans-unit id="De29d67982" resname="stats.indication.nav.profile">
         <source>stats.indication.nav.profile</source>
@@ -4360,6 +4368,10 @@
       <trans-unit id="Dee7676e6a" resname="stats.overview.executive.kpi.median_transport">
         <source>stats.overview.executive.kpi.median_transport</source>
         <target>Mediane Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="statsOvExMeanTransport" resname="stats.overview.executive.kpi.mean_transport">
+        <source>stats.overview.executive.kpi.mean_transport</source>
+        <target>Mittlere Transportzeit</target>
       </trans-unit>
       <trans-unit id="Debe9bbbe4" resname="stats.overview.executive.kpi.night_share">
         <source>stats.overview.executive.kpi.night_share</source>
@@ -4660,6 +4672,10 @@
       <trans-unit id="Adc82b49a4" resname="stats.reports.monthly.kpi.median_transport">
         <source>stats.reports.monthly.kpi.median_transport</source>
         <target>Mediane Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyMeanTransport" resname="stats.reports.monthly.kpi.mean_transport">
+        <source>stats.reports.monthly.kpi.mean_transport</source>
+        <target>Mittlere Transportzeit</target>
       </trans-unit>
       <trans-unit id="A169dd39ba" resname="stats.reports.monthly.kpi.minutes">
         <source>stats.reports.monthly.kpi.minutes</source>

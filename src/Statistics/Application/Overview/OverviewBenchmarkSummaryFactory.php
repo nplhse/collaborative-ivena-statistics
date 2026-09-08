@@ -24,7 +24,7 @@ final readonly class OverviewBenchmarkSummaryFactory
     /** @var list<BenchmarkMetricKey> */
     private const array SCORECARD_KEYS = [
         BenchmarkMetricKey::WithPhysician,
-        BenchmarkMetricKey::MedianTransport,
+        BenchmarkMetricKey::MeanTransport,
         BenchmarkMetricKey::Resus,
         BenchmarkMetricKey::MedianAge,
     ];

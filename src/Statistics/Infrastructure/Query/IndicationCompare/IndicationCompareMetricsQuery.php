@@ -63,7 +63,7 @@ final readonly class IndicationCompareMetricsQuery
         $workAccidentFilter = $hasExtended ? 'is_work_accident = true' : 'false';
 
         $countSelect = $this->dualCountSelectSql($predA, $predB, $shockFilter, $pregnantFilter, $workAccidentFilter);
-        $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
+        $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes();
 
         $sql = <<<SQL
 SELECT
@@ -72,10 +72,10 @@ SELECT
         FILTER (WHERE age IS NOT NULL AND {$predA}) AS side_a_median_age,
     PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age)
         FILTER (WHERE age IS NOT NULL AND {$predB}) AS side_b_median_age,
-    {$medianTransport}
-        FILTER (WHERE {$predA}) AS side_a_median_transport,
-    {$medianTransport}
-        FILTER (WHERE {$predB}) AS side_b_median_transport
+    {$meanTransport}
+        FILTER (WHERE {$predA}) AS side_a_mean_transport,
+    {$meanTransport}
+        FILTER (WHERE {$predB}) AS side_b_mean_transport
 FROM allocation_stats_projection
 WHERE {$where}
 SQL;
@@ -181,7 +181,7 @@ SQL;
             (int) ($row[$prefix.'ground_transport'] ?? 0),
             (int) ($row[$prefix.'air_transport'] ?? 0),
             $this->toFloatOrNull($row[$prefix.'median_age'] ?? null),
-            $this->toFloatOrNull($row[$prefix.'median_transport'] ?? null),
+            $this->toFloatOrNull($row[$prefix.'mean_transport'] ?? null),
         );
     }
 

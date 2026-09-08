@@ -76,9 +76,9 @@ final readonly class GetOverviewDashboardMetricsQuery
 
         $nightCode = AllocationStatsDayTimeBucketProjectionCode::Night->value;
         $medianAgeExpr = 'PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY age) FILTER (WHERE age IS NOT NULL)';
-        $medianTransportExpr = sprintf(
+        $meanTransportExpr = sprintf(
             '%s FILTER (WHERE arrival_at IS NOT NULL AND created_at IS NOT NULL)',
-            StatisticsTransportTimeSql::medianPreciseMinutes(),
+            StatisticsTransportTimeSql::meanPreciseMinutes(),
         );
 
         [$where, $params] = OverviewProjectionSqlFilter::buildWhereClause($criteria);
@@ -100,7 +100,7 @@ SELECT
     %s::int AS night_daytime,
     %s::int AS weekend,
     %s AS median_age,
-    %s AS median_transport_minutes,
+    %s AS mean_transport_minutes,
     %s
 FROM allocation_stats_projection
 WHERE %s
@@ -118,7 +118,7 @@ SQL,
             $this->scopedCountFilter(sprintf('day_time_bucket_code = %d', $nightCode), $scopedHospitalSql),
             $this->scopedCountFilter('created_weekday IN (6, 7)', $scopedHospitalSql),
             $medianAgeExpr,
-            $medianTransportExpr,
+            $meanTransportExpr,
             implode(",\n    ", [...$genderSelects, ...$urgencySelects, ...$ageGroupSelects]),
             $where,
         );
@@ -158,7 +158,7 @@ SQL,
             (int) ($row['night_daytime'] ?? 0),
             (int) ($row['weekend'] ?? 0),
             $this->toFloatOrNull($row['median_age'] ?? null),
-            $this->toFloatOrNull($row['median_transport_minutes'] ?? null),
+            $this->toFloatOrNull($row['mean_transport_minutes'] ?? null),
             $ageGroupCounts,
         );
     }
