@@ -91,6 +91,48 @@ final class SymfonyTransactionalMailerTest extends TestCase
         );
     }
 
+    public function testSendParticipationWelcomeEmailUsesConfiguredSenderLocaleAndTemplate(): void
+    {
+        $translator = $this->createTranslatorStub();
+        $mailer = $this->createMock(MailerInterface::class);
+        $mailer->expects(self::once())
+            ->method('send')
+            ->with(self::callback(function (TemplatedEmail $email): bool {
+                self::assertSame('no-reply@example.test', $email->getFrom()[0]->getAddress());
+                self::assertSame(['welcome@example.test'], array_map(
+                    static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(),
+                    $email->getTo(),
+                ));
+                self::assertSame('Willkommen bei Test App', $email->getSubject());
+                self::assertSame('de', $email->getLocale());
+                self::assertSame('@User/participation/welcome_email.html.twig', $email->getHtmlTemplate());
+                self::assertSame('welcome-user', $email->getContext()['greetingName'] ?? null);
+                self::assertSame('https://example.test/', $email->getContext()['dashboardUrl'] ?? null);
+                self::assertSame(
+                    [[
+                        'titleKey' => 'email.welcome.next_steps.explore.title',
+                        'descriptionKey' => 'email.welcome.next_steps.explore.description',
+                        'url' => 'https://example.test/explore',
+                    ]],
+                    $email->getContext()['nextSteps'] ?? null,
+                );
+
+                return true;
+            }));
+
+        $this->createMailer($mailer, translator: $translator)->sendParticipationWelcomeEmail(
+            'welcome@example.test',
+            'welcome-user',
+            'https://example.test/',
+            [[
+                'titleKey' => 'email.welcome.next_steps.explore.title',
+                'descriptionKey' => 'email.welcome.next_steps.explore.description',
+                'url' => 'https://example.test/explore',
+            ]],
+            'de',
+        );
+    }
+
     public function testReplyToIsAppliedWhenConfigured(): void
     {
         $mailer = $this->createMock(MailerInterface::class);
@@ -152,6 +194,10 @@ final class SymfonyTransactionalMailerTest extends TestCase
             static fn (string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string => match ($id) {
                 'email.verify.title' => 'de' === $locale ? 'E-Mail-Adresse bestätigen' : 'Confirm your email address',
                 'email.reset_password.title' => 'de' === $locale ? 'Passwort zurücksetzen' : 'Reset your password',
+                'email.welcome.title' => sprintf(
+                    'de' === $locale ? 'Willkommen bei %s' : 'Welcome to %s',
+                    (string) ($parameters['app'] ?? ''),
+                ),
                 default => $id,
             },
         );

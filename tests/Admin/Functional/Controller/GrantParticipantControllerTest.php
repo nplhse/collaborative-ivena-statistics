@@ -7,8 +7,11 @@ namespace App\Tests\Admin\Functional\Controller;
 use App\Admin\Application\Service\GrantParticipantUrlGenerator;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
+use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\UriSigner;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Zenstruck\Browser\Test\HasBrowser;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -19,9 +22,12 @@ final class GrantParticipantControllerTest extends WebTestCase
 {
     use Factories;
     use HasBrowser;
+    use MailerAssertionsTrait;
 
     public function testAdminCanGrantParticipantRoleViaSignedUrl(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asNotificationRecipient()
             ->create([
@@ -36,18 +42,19 @@ final class GrantParticipantControllerTest extends WebTestCase
         $urlGenerator = self::getContainer()->get(GrantParticipantUrlGenerator::class);
         $url = $urlGenerator->generate((int) $target->getId());
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit($url)
-            ->assertSuccessful()
-        ;
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, $url);
+        self::assertResponseRedirects();
 
         \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertContains(UserRole::PARTICIPANT, $target->getRoles());
+        self::assertCount(1, $this->welcomeEmails());
     }
 
     public function testGrantParticipantIsIdempotent(): void
     {
+        $client = self::createClient();
+
         $admin = UserFactory::new()
             ->asNotificationRecipient()
             ->create([
@@ -62,14 +69,13 @@ final class GrantParticipantControllerTest extends WebTestCase
         $urlGenerator = self::getContainer()->get(GrantParticipantUrlGenerator::class);
         $url = $urlGenerator->generate((int) $target->getId());
 
-        $this->browser()
-            ->actingAs($admin)
-            ->visit($url)
-            ->assertSuccessful()
-        ;
+        $client->loginUser($admin);
+        $client->request(Request::METHOD_GET, $url);
+        self::assertResponseRedirects();
 
         \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertContains(UserRole::PARTICIPANT, $target->getRoles());
+        self::assertCount(0, $this->welcomeEmails());
     }
 
     public function testInvalidSignedUrlIsRejected(): void
@@ -118,5 +124,25 @@ final class GrantParticipantControllerTest extends WebTestCase
             ->visit($expiredUrl)
             ->assertStatus(403)
         ;
+    }
+
+    /**
+     * @return list<Email>
+     */
+    private function welcomeEmails(): array
+    {
+        $messages = [];
+        foreach (self::getMailerMessages() as $message) {
+            if (!$message instanceof Email) {
+                continue;
+            }
+
+            $subject = (string) $message->getSubject();
+            if (str_contains($subject, 'Welcome to') || str_contains($subject, 'Willkommen bei')) {
+                $messages[] = $message;
+            }
+        }
+
+        return $messages;
     }
 }
