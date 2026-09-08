@@ -79,6 +79,16 @@ final class AnalyticsAggregateCommandTest extends DatabaseKernelTestCase
         self::assertStringContainsString('Invalid --date', $tester->getDisplay());
     }
 
+    public function testDryRunWithoutCleanupOnlyWarnsThatAggregationStillWrites(): void
+    {
+        self::bootKernel();
+        $command = self::getContainer()->get(AnalyticsAggregateCommand::class);
+        $tester = new CommandTester($command);
+        $tester->execute(['--date' => '2026-05-10', '--dry-run' => true]);
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('--dry-run only previews cleanup', $tester->getDisplay());
+    }
+
     public function testCleanupOnlyDryRunDoesNotDeleteRawRows(): void
     {
         self::bootKernel();

@@ -163,14 +163,10 @@ final readonly class AnalyticsDailyAggregationService
     {
         $count = 0;
         foreach ($this->aggregationQuery->fetchSessionBoundaries($date) as $row) {
-            $kind = SessionBoundaryKind::tryFrom($row['kind']);
-            if (null === $kind) {
-                continue;
-            }
             $this->entityManager->persist(new AnalyticsSessionBoundaryDaily(
                 date: $date,
                 routeName: $row['routeName'],
-                kind: $kind,
+                kind: SessionBoundaryKind::from($row['kind']),
                 sessionCount: $row['sessionCount'],
             ));
             ++$count;
