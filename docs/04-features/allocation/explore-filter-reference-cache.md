@@ -2,7 +2,7 @@
 
 **Audience:** Developers working on Explore list pages and allocation performance.
 
-Explore list routes render filter dropdowns from slowly changing reference data (states, dispatch areas, indications, and more). Before caching, each page view reloaded that data from the database — up to nine extra queries on `/explore/allocation` alone.
+Explore list routes render filter dropdowns from slowly changing reference data (states, dispatch areas, indications, and more). Before caching, each page view reloaded that data from the database — up to ten extra queries on `/explore/allocation` alone.
 
 ## Motivation
 
@@ -25,6 +25,7 @@ User-specific hospital scope options stay uncached via `AllocationListHospitalSc
 | `explore_filter.states` | `states()` | `/explore/allocation`, `/explore/hospital`, `/explore/dispatch_area` |
 | `explore_filter.dispatch_areas` | `dispatchAreas()` | `/explore/allocation`, `/explore/hospital` |
 | `explore_filter.indications` | `indications()` | `/explore/allocation` |
+| `explore_filter.secondary_indications` | `secondaryIndications()` | `/explore/allocation` (distinct normalized IDs used as secondary indication) |
 | `explore_filter.secondary_transports` | `secondaryTransports()` | `/explore/allocation` |
 | `explore_filter.infections` | `infections()` | `/explore/allocation` |
 | `explore_filter.departments` | `departments()` | `/explore/allocation` |
