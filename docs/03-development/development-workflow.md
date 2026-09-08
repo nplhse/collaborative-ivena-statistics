@@ -71,7 +71,7 @@ KPIs refresh every 6 hours via Symfony Scheduler. Each run aggregates **yesterda
 
 Monthly submission reminders are triggered daily at 08:00 Europe/Berlin; emails are sent only on the first working day of each month (see [Monthly submission reminders](#monthly-submission-reminders) below).
 
-The schedule is defined in `KpiScheduleProvider` and requires `make consume`.
+The schedule is defined in `DefaultScheduleProvider` (KPI, reminders, and analytics contributions) and requires `make consume`.
 
 **Diagnostics:**
 

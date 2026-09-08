@@ -27,6 +27,8 @@ parameters:
     env(SENTRY_ENABLE_LOGS): 'true'
     env(APP_ADMIN_STORAGE_LIMIT_BYTES): '0'
     app.admin.storage_limit_bytes: '%env(int:APP_ADMIN_STORAGE_LIMIT_BYTES)%'
+    env(ANALYTICS_RAW_RETENTION_DAYS): '30'
+    analytics.raw_retention_days: '%env(int:ANALYTICS_RAW_RETENTION_DAYS)%'
 
 services:
     _defaults:

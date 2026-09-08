@@ -19,7 +19,7 @@ Related: [../../02-architecture/messenger-and-scheduler.md](../../02-architectur
 
 ## Scheduled aggregation
 
-`KpiScheduleProvider` dispatches `GenerateDailyKpisMessage` every 6 hours (`0 */6 * * *`).
+`KpiScheduleContribution` registers `GenerateDailyKpisMessage` every 6 hours (`0 */6 * * *`) on the shared `DefaultScheduleProvider`.
 
 `KpiScheduledAggregationService` aggregates **yesterday and today** (Europe/Berlin timezone).
 

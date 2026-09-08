@@ -75,11 +75,12 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md). |
 | `app:statistics:case-flow:build-geojson` | Build merged Hessen dispatch-area GeoJSON asset for Case Flow maps. |
 
-### KPI and engagement
+### KPI, analytics, and engagement
 
 | Command | Purpose |
 |---|---|
 | `app:kpi:aggregate` | Aggregate daily KPIs into `kpi_daily`. Scheduler equivalent; see [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregation.md). |
+| `app:analytics:aggregate` | Aggregate completed usage-analytics days and purge expired raw events. Scheduler equivalent; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md). |
 | `app:reminder:preview --hospital-id=ID` | Preview or send monthly submission reminder email. |
 
 ### Content
@@ -128,3 +129,4 @@ Some commands mirror scheduled Messenger jobs:
 |---|---|---|
 | Every 6 hours | `GenerateDailyKpisMessage` | `app:kpi:aggregate --days=2` (similar window) |
 | Daily 08:00 Europe/Berlin | `SendMonthlySubmissionRemindersMessage` | `app:reminder:preview --hospital-id=ID --send` (per hospital) |
+| Daily 02:15 Europe/Berlin | `AggregateDailyAnalyticsMessage` | `app:analytics:aggregate` (yesterday + catch-up + cleanup) |

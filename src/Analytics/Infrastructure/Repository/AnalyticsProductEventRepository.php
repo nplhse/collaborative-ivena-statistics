@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Analytics\Infrastructure\Repository;
 
 use App\Analytics\Application\Engagement\EngagementDepthResolver;
+use App\Analytics\Domain\AnalyticsCalendar;
 use App\Analytics\Domain\Entity\AnalyticsProductEvent;
 use App\Analytics\Domain\UsageEventName;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -16,8 +17,6 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class AnalyticsProductEventRepository extends ServiceEntityRepository
 {
-    private const string TIMEZONE = 'Europe/Berlin';
-
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         ManagerRegistry $registry,
@@ -275,7 +274,6 @@ final class AnalyticsProductEventRepository extends ServiceEntityRepository
 
     public function daysAgo(int $days): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('today', new \DateTimeZone(self::TIMEZONE))
-            ->modify(sprintf('-%d days', $days));
+        return AnalyticsCalendar::daysAgo($days);
     }
 }

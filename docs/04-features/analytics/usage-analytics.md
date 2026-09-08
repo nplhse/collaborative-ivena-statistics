@@ -10,7 +10,7 @@
 - Admin insights under `/admin/operations/usage-analytics/*` (menu section above System)
 - **Local only:** measurement runs on this application’s servers — no external analytics providers (no Google Analytics, Matomo cloud, etc.). Server-side error monitoring (e.g. Sentry) is separate and not controlled by this cookie preference.
 
-Tables are created by migration `Version20260804151958` (run with normal deploy migrations).
+Tables are created by migration `Version20260804151958` (run with normal deploy migrations). Completed days are rolled up into daily aggregate tables; raw rows older than 30 days are deleted only after a successful rollup. See [aggregation-and-retention.md](aggregation-and-retention.md).
 
 ## Privacy
 
@@ -165,3 +165,5 @@ Menu section **Usage analytics** (above System), one page per topic:
 | Performance | `…/performance` | Latency/queries/errors by area, slowest routes, prioritization hints |
 
 `/admin/operations/usage-analytics` redirects to Overview. No per-user search or raw identifiers.
+
+Count-based widgets (requests, feature areas, routes, filters, event counts) combine daily aggregates with raw rows for today and any unaggregated gaps. Distinct-user and sequence metrics (DAU/WAU/MAU, funnels, engagement depth, journeys, p95) stay on the raw 30-day window. Details: [aggregation-and-retention.md](aggregation-and-retention.md).
