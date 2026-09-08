@@ -2,7 +2,7 @@
 
 Async messages use four transports (`async_priority_high`, `async_priority_low`, `async_mail`, `scheduler_default`) configured in [`config/packages/messenger.yaml`](../../config/packages/messenger.yaml).
 
-In production, email uses the dedicated `async_mail` transport with rate limiting and slower retries; other domain jobs use the priority queues. Scheduled KPI aggregation uses `scheduler_default`. Without a running worker, messages stay in the database.
+In production, email uses the dedicated `async_mail` transport with rate limiting and slower retries; other domain jobs use the priority queues. Scheduled KPI aggregation, monthly reminders, and analytics rollups use `scheduler_default`. Without a running worker, messages stay in the database.
 
 Related: [deployment.md](deployment.md), [transactional-mail.md](transactional-mail.md), [../02-architecture/messenger-and-scheduler.md](../02-architecture/messenger-and-scheduler.md)
 

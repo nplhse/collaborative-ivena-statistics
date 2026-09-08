@@ -11,7 +11,7 @@ Configured in `config/packages/messenger.yaml`:
 | Transport | Purpose |
 |-----------|---------|
 | `async_priority_high` | Import processing |
-| `async_priority_low` | Statistics rebuild, KPI aggregation |
+| `async_priority_low` | Statistics rebuild, KPI aggregation, analytics aggregation |
 | `async_mail` | Transactional and bulk mail (rate-limited) |
 | `scheduler_default` | Symfony Scheduler messages |
 | `failed` | Failed message store |
@@ -25,22 +25,25 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 | `ImportAllocationsMessage` | `async_priority_high` |
 | `RebuildAllocationStatsProjection` | `async_priority_low` |
 | `GenerateDailyKpisMessage` | `async_priority_low` |
+| `SendMonthlySubmissionRemindersMessage` | `async_priority_low` |
+| `AggregateDailyAnalyticsMessage` | `async_priority_low` |
 | `SendEmailMessage` (prod) | `async_mail` |
 
 In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 
 ## Scheduler
 
-`KpiScheduleProvider` (`src/Kpi/Infrastructure/Scheduler/KpiScheduleProvider.php`) registers:
+`DefaultScheduleProvider` (`src/Shared/Infrastructure/Scheduler/DefaultScheduleProvider.php`) collects jobs from `ScheduleContributionInterface` implementations:
 
 | Schedule | Message |
 |----------|---------|
 | `0 */6 * * *` (every 6 hours) | `GenerateDailyKpisMessage` |
 | `0 8 * * *` (daily 08:00 Europe/Berlin) | `SendMonthlySubmissionRemindersMessage` |
+| `15 2 * * *` (daily 02:15 Europe/Berlin) | `AggregateDailyAnalyticsMessage` |
 
 The scheduler requires a running worker consuming `scheduler_default`. Locally: `make consume`.
 
-Details: [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregation.md)
+Details: [../04-features/kpi/kpi-aggregation.md](../04-features/kpi/kpi-aggregation.md), [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md)
 
 ## Local development
 
