@@ -480,9 +480,7 @@ SQL;
                 continue;
             }
             $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
+            $buckets[$key] ??= 0;
             ++$buckets[$key];
         }
 
@@ -535,9 +533,7 @@ SQL;
                 continue;
             }
             $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
+            $buckets[$key] ??= 0;
             ++$buckets[$key];
         }
 
@@ -1044,9 +1040,7 @@ SQL;
             }
 
             $k = $createdAt->format('Y-m-d');
-            if (!isset($counts[$k])) {
-                $counts[$k] = 0;
-            }
+            $counts[$k] ??= 0;
             ++$counts[$k];
         }
 

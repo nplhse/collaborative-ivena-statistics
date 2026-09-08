@@ -478,9 +478,7 @@ final readonly class AllocationBucketQuery
             $gender = $allocation->getGender() ?? AllocationGender::OTHER;
             $g = $gender->value;
 
-            if (!isset($buckets[$ym][$g])) {
-                $buckets[$ym][$g] = 0;
-            }
+            $buckets[$ym][$g] ??= 0;
             ++$buckets[$ym][$g];
         }
 
@@ -511,9 +509,7 @@ final readonly class AllocationBucketQuery
             $urgency = $allocation->getUrgency() ?? AllocationUrgency::OUTPATIENT;
             $u = sprintf('%d', $urgency->value);
 
-            if (!isset($buckets[$ym][$u])) {
-                $buckets[$ym][$u] = 0;
-            }
+            $buckets[$ym][$u] ??= 0;
             ++$buckets[$ym][$u];
         }
 
@@ -564,9 +560,7 @@ final readonly class AllocationBucketQuery
             }
 
             $ym = $createdAt->format('Y-m');
-            if (!isset($buckets[$ym])) {
-                $buckets[$ym] = ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
-            }
+            $buckets[$ym] ??= ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
 
             $this->incrementResourcesRequiredCells($allocation, $buckets[$ym]);
         }
@@ -593,9 +587,7 @@ final readonly class AllocationBucketQuery
             }
 
             $ym = $createdAt->format('Y-m');
-            if (!isset($buckets[$ym])) {
-                $buckets[$ym] = $this->emptyClinicalFeatureCell();
-            }
+            $buckets[$ym] ??= $this->emptyClinicalFeatureCell();
 
             $this->incrementClinicalFeatureCells($allocation, $buckets[$ym]);
         }
@@ -624,9 +616,7 @@ final readonly class AllocationBucketQuery
             $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
             $g = ($allocation->getGender() ?? AllocationGender::OTHER)->value;
 
-            if (!isset($buckets[$calKey][$g])) {
-                $buckets[$calKey][$g] = 0;
-            }
+            $buckets[$calKey][$g] ??= 0;
             ++$buckets[$calKey][$g];
         }
 
@@ -654,9 +644,7 @@ final readonly class AllocationBucketQuery
             $dayKey = $createdAt->format('Y-m-d');
             $g = ($allocation->getGender() ?? AllocationGender::OTHER)->value;
 
-            if (!isset($buckets[$dayKey][$g])) {
-                $buckets[$dayKey][$g] = 0;
-            }
+            $buckets[$dayKey][$g] ??= 0;
             ++$buckets[$dayKey][$g];
         }
 
@@ -684,9 +672,7 @@ final readonly class AllocationBucketQuery
             $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
             $u = sprintf('%d', ($allocation->getUrgency() ?? AllocationUrgency::OUTPATIENT)->value);
 
-            if (!isset($buckets[$calKey][$u])) {
-                $buckets[$calKey][$u] = 0;
-            }
+            $buckets[$calKey][$u] ??= 0;
             ++$buckets[$calKey][$u];
         }
 
@@ -714,9 +700,7 @@ final readonly class AllocationBucketQuery
             $dayKey = $createdAt->format('Y-m-d');
             $u = sprintf('%d', ($allocation->getUrgency() ?? AllocationUrgency::OUTPATIENT)->value);
 
-            if (!isset($buckets[$dayKey][$u])) {
-                $buckets[$dayKey][$u] = 0;
-            }
+            $buckets[$dayKey][$u] ??= 0;
             ++$buckets[$dayKey][$u];
         }
 
@@ -742,9 +726,7 @@ final readonly class AllocationBucketQuery
             }
 
             $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            if (!isset($buckets[$calKey])) {
-                $buckets[$calKey] = ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
-            }
+            $buckets[$calKey] ??= ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
 
             $this->incrementResourcesRequiredCells($allocation, $buckets[$calKey]);
         }
@@ -771,9 +753,7 @@ final readonly class AllocationBucketQuery
             }
 
             $dayKey = $createdAt->format('Y-m-d');
-            if (!isset($buckets[$dayKey])) {
-                $buckets[$dayKey] = ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
-            }
+            $buckets[$dayKey] ??= ['cathlab' => 0, 'resus' => 0, 'with_any' => 0];
 
             $this->incrementResourcesRequiredCells($allocation, $buckets[$dayKey]);
         }
@@ -827,9 +807,7 @@ final readonly class AllocationBucketQuery
             }
 
             $calKey = sprintf('cal-%02d', (int) $createdAt->format('n'));
-            if (!isset($buckets[$calKey])) {
-                $buckets[$calKey] = $this->emptyClinicalFeatureCell();
-            }
+            $buckets[$calKey] ??= $this->emptyClinicalFeatureCell();
 
             $this->incrementClinicalFeatureCells($allocation, $buckets[$calKey]);
         }
@@ -853,9 +831,7 @@ final readonly class AllocationBucketQuery
             }
 
             $dayKey = $createdAt->format('Y-m-d');
-            if (!isset($buckets[$dayKey])) {
-                $buckets[$dayKey] = $this->emptyClinicalFeatureCell();
-            }
+            $buckets[$dayKey] ??= $this->emptyClinicalFeatureCell();
 
             $this->incrementClinicalFeatureCells($allocation, $buckets[$dayKey]);
         }

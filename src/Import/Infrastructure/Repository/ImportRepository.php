@@ -89,9 +89,7 @@ SQL;
         foreach ($rows as $import) {
             $createdAt = $import->getCreatedAt();
             $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
+            $buckets[$key] ??= 0;
             ++$buckets[$key];
         }
 
@@ -131,9 +129,7 @@ SQL;
         $bucketed = [];
         foreach ($rows as $row) {
             $year = (int) $row['createdAt']->format('Y');
-            if (!isset($bucketed[$year])) {
-                $bucketed[$year] = 0;
-            }
+            $bucketed[$year] ??= 0;
             ++$bucketed[$year];
         }
 
@@ -260,9 +256,7 @@ SQL;
         foreach ($rows as $import) {
             $createdAt = $import->getCreatedAt();
             $key = $createdAt->format('Y-m');
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
+            $buckets[$key] ??= 0;
             ++$buckets[$key];
         }
 

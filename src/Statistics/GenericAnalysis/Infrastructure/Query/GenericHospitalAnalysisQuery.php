@@ -100,9 +100,7 @@ final readonly class GenericHospitalAnalysisQuery
             $metrics[$key] = $this->normalizeMetricValue($row[$key]);
         }
 
-        if (!isset($metrics[$baseMetricKey])) {
-            $metrics[$baseMetricKey] = 0;
-        }
+        $metrics[$baseMetricKey] ??= 0;
 
         return $metrics;
     }

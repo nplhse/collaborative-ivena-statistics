@@ -51,9 +51,7 @@ final class Breadcrumbs
             $item['translatable'] = false;
         }
 
-        if (!isset($item['label_domain'])) {
-            $item['label_domain'] = $this->resolveLabelDomain($item['label']);
-        }
+        $item['label_domain'] ??= $this->resolveLabelDomain($item['label']);
 
         return $item;
     }
