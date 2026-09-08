@@ -160,7 +160,7 @@ final class AllocationIndicationResolverTest extends TestCase
                 return;
             }
             $ref = $ref->getParentClass();
-        } while ($ref);
+        } while ($ref instanceof \ReflectionObject);
 
         self::fail('Entity has no id property.');
     }
