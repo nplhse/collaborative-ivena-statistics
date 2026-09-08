@@ -297,8 +297,6 @@ deptrac:
       - App\Analytics\Infrastructure\Repository\AnalyticsRequestRepository
     App\Analytics\Domain\Entity\AnalyticsProductEvent:
       - App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository
-    App\Kpi\Infrastructure\Scheduler\KpiScheduleProvider:
-      - App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage
     App\Onboarding\Application\OnboardingProgressService:
       - App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository
     App\Onboarding\Application\OnboardingStepCatalog:
