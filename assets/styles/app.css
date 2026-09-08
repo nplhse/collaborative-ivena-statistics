@@ -137,6 +137,7 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     max-height: 420px;
+    min-height: 220px;
 }
 
 .catalog-orientation-map-frame .case-flow-map-container {
@@ -150,9 +151,41 @@
     background: var(--tblr-bg-surface-secondary, #f8f9fa);
 }
 
-.catalog-orientation-map-pin {
+.catalog-orientation-map-pin,
+.catalog-orientation-map-origin {
     background: transparent;
     border: 0;
+}
+
+.catalog-orientation-map-legend-swatch {
+    flex: 0 0 0.85rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 1px solid var(--tblr-border-color, #dee2e6);
+}
+
+.catalog-orientation-map-legend-swatch-origin {
+    background: #339af0;
+    border-color: #1864ab;
+}
+
+.catalog-orientation-map-legend-swatch-origin-point {
+    border-radius: 50%;
+    background: #1864ab;
+    border-color: #1864ab;
+}
+
+.catalog-orientation-map-legend-swatch-destination {
+    background: #d9480f;
+    border-color: #ffffff;
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.catalog-orientation-map-legend-swatch-route {
+    height: 0;
+    border: 0;
+    border-top: 2px dashed #495057;
+    background: transparent;
 }
 
 .catalog-year-heatmap {

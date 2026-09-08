@@ -1,12 +1,17 @@
 {% set orientationMap = orientationMap|default(null) %}
+{% set orientationMapEmbed = orientationMapEmbed|default(false) %}
 {% if orientationMap is not null and orientationMap.enabled %}
-    <div class="card mb-3"
+    <div class="{{ orientationMapEmbed ? 'catalog-orientation-map-embed mt-3' : 'card mb-3' }}"
          data-controller="catalog-orientation-map"
          data-catalog-orientation-map-geo-url-value="{{ asset('geo/hessen-landkreise.geojson') }}"
          {% if orientationMap.highlightKey %}
              data-catalog-orientation-map-highlight-key-value="{{ orientationMap.highlightKey }}"
          {% endif %}
          data-catalog-orientation-map-show-all-value="{{ orientationMap.showAllAreas ? 'true' : 'false' }}"
+         data-catalog-orientation-map-show-route-value="{{ orientationMap.showRoute ? 'true' : 'false' }}"
+         {% if orientationMap.hasDestinationHighlight %}
+             data-catalog-orientation-map-destination-highlight-key-value="{{ orientationMap.destinationHighlightKey }}"
+         {% endif %}
          {% if orientationMap.hasMarker %}
              data-catalog-orientation-map-marker-lat-value="{{ orientationMap.markerLatitude }}"
              data-catalog-orientation-map-marker-lng-value="{{ orientationMap.markerLongitude }}"
@@ -14,13 +19,46 @@
                  data-catalog-orientation-map-marker-label-value="{{ orientationMap.markerLabel }}"
              {% endif %}
          {% endif %}
+         {% if orientationMap.showRoute %}
+             data-catalog-orientation-map-origin-label-value="{{ 'allocation.route.origin_approximate'|trans({}, 'allocation') }}"
+         {% endif %}
          data-testid="catalog-orientation-map">
-        <div class="card-body">
-            <div class="card-title">{{ 'catalog.section.orientation_map'|trans({}, 'allocation') }}</div>
-            <div class="catalog-orientation-map-frame">
-                <div class="case-flow-map-container"
-                     data-catalog-orientation-map-target="mapContainer"></div>
+        {% if not orientationMapEmbed %}
+            <div class="card-body">
+                <div class="card-title">{{ 'catalog.section.orientation_map'|trans({}, 'allocation') }}</div>
+        {% endif %}
+                <div class="catalog-orientation-map-frame">
+                    <div class="case-flow-map-container"
+                         data-catalog-orientation-map-target="mapContainer"></div>
+                </div>
+                {% if orientationMap.showRoute %}
+                    <ul class="catalog-orientation-map-legend list-unstyled small text-muted mb-0 mt-2 row g-2">
+                        <li class="col-sm-6 d-flex align-items-center gap-2">
+                            <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-origin" aria-hidden="true"></span>
+                            {{ 'catalog.orientation_map.legend.origin'|trans({}, 'allocation') }}
+                        </li>
+                        <li class="col-sm-6 d-flex align-items-center gap-2">
+                            <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-destination" aria-hidden="true"></span>
+                            {{ 'catalog.orientation_map.legend.destination'|trans({}, 'allocation') }}
+                        </li>
+                        <li class="col-sm-6 d-flex align-items-center gap-2">
+                            <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-origin-point" aria-hidden="true"></span>
+                            {{ 'catalog.orientation_map.legend.origin_point'|trans({}, 'allocation') }}
+                        </li>
+                        <li class="col-sm-6 d-flex align-items-center gap-2">
+                            <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-route" aria-hidden="true"></span>
+                            {{ 'catalog.orientation_map.legend.route'|trans({}, 'allocation') }}
+                        </li>
+                    </ul>
+                {% endif %}
+                <p class="catalog-orientation-map-hint text-muted small mb-0 mt-2">
+                    {{ 'catalog.orientation_map.hint'|trans({}, 'allocation') }}
+                    {% if orientationMap.showRoute %}
+                        {{ 'allocation.orientation_map.precision_hint'|trans({}, 'allocation') }}
+                    {% endif %}
+                </p>
+        {% if not orientationMapEmbed %}
             </div>
-        </div>
+        {% endif %}
     </div>
 {% endif %}
