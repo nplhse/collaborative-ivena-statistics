@@ -61,7 +61,7 @@ final class CaseFlowControllerTest extends WebTestCase
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::EMERGENCY,
             'createdAt' => new \DateTimeImmutable('2026-04-01 09:00:00'),
-            'arrivalAt' => new \DateTimeImmutable('2026-04-01 09:30:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 09:17:18'),
         ]);
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
@@ -72,6 +72,7 @@ final class CaseFlowControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-kpis"]', '15');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-kpis"]', '100%');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-kpis"]', '17,3');
 
         $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
         $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);

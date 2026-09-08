@@ -24,6 +24,8 @@ final class MetricValueFormatterTest extends TestCase
         self::assertSame('8,4 %', $this->formatter->format($registry->get('percent_of_total'), 8.4));
         self::assertSame('8,4 %', $this->formatter->format($registry->get('resus_rate'), 8.4));
         self::assertSame('18 min', $this->formatter->format($registry->get('median_transport_time'), 18));
+        self::assertSame('17,3 min', $this->formatter->format($registry->get('median_transport_time'), 17.3));
+        self::assertSame('17,3 min', $this->formatter->format($registry->get('mean_transport_time'), 17.3));
         self::assertSame('123', $this->formatter->format($registry->get('count'), 123));
         self::assertSame('12 %', $this->formatter->format($registry->get('percent_of_total'), 12.0));
     }

@@ -121,8 +121,8 @@ final class CaseFlowInsightEngine
             CaseFlowInsightSeverity::Elevated,
             'stats.case_flow.insight.elevated_transport_time',
             [
-                'mean' => round($mean, 0),
-                'baselineMean' => round($baselineMean, 0),
+                'mean' => round($mean, 1),
+                'baselineMean' => round($baselineMean, 1),
             ],
             (int) round($ratio * 50.0),
             sprintf('%.1f×', round($ratio, 1)),

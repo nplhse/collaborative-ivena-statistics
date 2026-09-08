@@ -41,6 +41,7 @@ final class MetricRegistryTest extends TestCase
             $metric = $this->registry->get($key);
             self::assertSame(MetricComputationKind::SqlAggregate, $metric->computationKind);
             self::assertSame(MetricFormat::Minutes, $metric->defaultFormat);
+            self::assertSame(1, $metric->defaultPrecision);
             self::assertSame('transport_time_minutes', $metric->sourceColumn);
             self::assertStringContainsString('AS '.$key, $metric->sqlSelectExpression ?? '');
         }
