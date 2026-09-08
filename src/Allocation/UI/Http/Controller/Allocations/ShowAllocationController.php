@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Allocations;
 
+use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Infrastructure\Security\Voter\AllocationVoter;
 use App\Analytics\Application\UsageEvents\UsageAnalytics;
@@ -19,6 +20,7 @@ final class ShowAllocationController extends AbstractController
 {
     public function __construct(
         private readonly UsageAnalytics $usageAnalytics,
+        private readonly CatalogOrientationMapFactory $orientationMapFactory,
     ) {
     }
 
@@ -41,6 +43,7 @@ final class ShowAllocationController extends AbstractController
 
         return $this->render('@Allocation/allocations/show.html.twig', [
             'allocation' => $allocation,
+            'orientationMap' => $this->orientationMapFactory->forAllocation($allocation),
         ]);
     }
 }

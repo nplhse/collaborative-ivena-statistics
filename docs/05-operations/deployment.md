@@ -44,6 +44,24 @@ vendor/bin/dep content:analyze-page-images coishub.uber.space
 vendor/bin/dep content:analyze-page-images coishub.uber.space -o content_analyze_page_images_options="--dry-run"
 ```
 
+### Hospital isochrones (shared across releases)
+
+Destination isochrones live in `var/geo/hospital-isochrones`, which Deployer keeps in
+`shared/var/geo/hospital-isochrones` so files survive release changes. Allocation
+detail maps read these files only; they do not call OpenRouteService.
+
+If the shared directory is empty after a deploy, or after hospital coordinates were geocoded, fetch them:
+
+```bash
+cd ~/www/current
+php bin/console dbal:run-sql "SELECT id, name FROM state ORDER BY id"
+php bin/console app:hospital:geocode-coordinates <stateId>
+php bin/console app:hospital:geocode-coordinates <stateId> --apply --force
+php bin/console app:allocation:fetch-hospital-isochrones <stateId> --apply --force
+```
+
+The first geocode run needs `--force` because existing coordinates are city/postal-code centroids. Full operator runbook (new hospitals, address changes, adding a federal state): [hospital-geodata.md](hospital-geodata.md).
+
 Related docs:
 
 - [../06-reference/configuration.md](../06-reference/configuration.md) — environment variables

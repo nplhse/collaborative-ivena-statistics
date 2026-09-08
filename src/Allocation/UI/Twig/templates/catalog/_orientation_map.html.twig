@@ -1,12 +1,17 @@
 {% set orientationMap = orientationMap|default(null) %}
+{% set orientationMapEmbed = orientationMapEmbed|default(false) %}
 {% if orientationMap is not null and orientationMap.enabled %}
-    <div class="card mb-3"
+    <div class="{{ orientationMapEmbed ? 'catalog-orientation-map-embed mt-3' : 'card mb-3' }}"
          data-controller="catalog-orientation-map"
          data-catalog-orientation-map-geo-url-value="{{ asset('geo/hessen-landkreise.geojson') }}"
          {% if orientationMap.highlightKey %}
              data-catalog-orientation-map-highlight-key-value="{{ orientationMap.highlightKey }}"
          {% endif %}
          data-catalog-orientation-map-show-all-value="{{ orientationMap.showAllAreas ? 'true' : 'false' }}"
+         data-catalog-orientation-map-show-route-value="{{ orientationMap.showRoute ? 'true' : 'false' }}"
+         {% if orientationMap.hasDestinationHighlight %}
+             data-catalog-orientation-map-destination-highlight-key-value="{{ orientationMap.destinationHighlightKey }}"
+         {% endif %}
          {% if orientationMap.hasMarker %}
              data-catalog-orientation-map-marker-lat-value="{{ orientationMap.markerLatitude }}"
              data-catalog-orientation-map-marker-lng-value="{{ orientationMap.markerLongitude }}"
@@ -14,13 +19,71 @@
                  data-catalog-orientation-map-marker-label-value="{{ orientationMap.markerLabel }}"
              {% endif %}
          {% endif %}
+         {% if orientationMap.hasIsochrones %}
+             data-catalog-orientation-map-isochrones-value="{{ orientationMap.isochronesGeoJson|json_encode|e('html_attr') }}"
+             {% if orientationMap.recordedTravelMinutes is not null %}
+                 data-catalog-orientation-map-recorded-travel-minutes-value="{{ orientationMap.recordedTravelMinutes }}"
+             {% endif %}
+         {% endif %}
+         {% if orientationMap.hasContextMarkers %}
+             data-catalog-orientation-map-context-markers-value="{{ orientationMap.contextMarkers|json_encode|e('html_attr') }}"
+         {% endif %}
          data-testid="catalog-orientation-map">
-        <div class="card-body">
-            <div class="card-title">{{ 'catalog.section.orientation_map'|trans({}, 'allocation') }}</div>
-            <div class="catalog-orientation-map-frame">
-                <div class="case-flow-map-container"
-                     data-catalog-orientation-map-target="mapContainer"></div>
+        {% if not orientationMapEmbed %}
+            <div class="card-body">
+                <div class="card-title">{{ 'catalog.section.orientation_map'|trans({}, 'allocation') }}</div>
+        {% endif %}
+                <div class="catalog-orientation-map-frame">
+                    <div class="case-flow-map-container"
+                         data-catalog-orientation-map-target="mapContainer"></div>
+                </div>
+                {% if orientationMap.showRoute or orientationMap.hasContextMarkers %}
+                    <ul class="catalog-orientation-map-legend list-unstyled small text-muted mb-0 mt-2 row g-2">
+                        <li class="col-sm-6 d-flex align-items-center gap-2">
+                            <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-origin" aria-hidden="true"></span>
+                            {{ 'catalog.orientation_map.legend.origin'|trans({}, 'allocation') }}
+                        </li>
+                        {% if orientationMap.hasMarker %}
+                            <li class="col-sm-6 d-flex align-items-center gap-2">
+                                <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-destination" aria-hidden="true"></span>
+                                {{ 'catalog.orientation_map.legend.destination'|trans({}, 'allocation') }}
+                            </li>
+                        {% endif %}
+                        {% if orientationMap.hasContextMarkers %}
+                            <li class="col-sm-6 d-flex align-items-center gap-2">
+                                <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-context" aria-hidden="true"></span>
+                                {{ 'catalog.orientation_map.legend.context_hospitals'|trans({}, 'allocation') }}
+                            </li>
+                        {% endif %}
+                        {% if orientationMap.hasIsochrones %}
+                            <li class="col-sm-6 d-flex align-items-center gap-2">
+                                <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-isochrone-outside" aria-hidden="true"></span>
+                                {{ 'catalog.orientation_map.legend.isochrone_outside'|trans({}, 'allocation') }}
+                            </li>
+                            <li class="col-sm-6 d-flex align-items-center gap-2">
+                                <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-isochrone-band" aria-hidden="true"></span>
+                                {{ 'catalog.orientation_map.legend.isochrone_band'|trans({}, 'allocation') }}
+                            </li>
+                        {% endif %}
+                    </ul>
+                {% endif %}
+                <p class="catalog-orientation-map-hint text-muted small mb-0 mt-2">
+                    {{ 'catalog.orientation_map.hint'|trans({}, 'allocation') }}
+                    {% if orientationMap.showRoute %}
+                        {{ 'allocation.orientation_map.precision_hint'|trans({}, 'allocation') }}
+                    {% endif %}
+                    {% if orientationMap.hasIsochrones %}
+                        {{ 'allocation.orientation_map.isochrone_hint'|trans({}, 'allocation') }}
+                        {% if orientationMap.recordedTravelExceedsIsochrones %}
+                            {{ 'allocation.orientation_map.isochrone_over_max'|trans({}, 'allocation') }}
+                        {% endif %}
+                    {% endif %}
+                    {% if orientationMap.hasContextMarkers %}
+                        {{ 'allocation.orientation_map.secondary_hospitals_hint'|trans({}, 'allocation') }}
+                    {% endif %}
+                </p>
+        {% if not orientationMapEmbed %}
             </div>
-        </div>
+        {% endif %}
     </div>
 {% endif %}

@@ -29,6 +29,7 @@ Entry point for project documentation.
 | Backups | [05-operations/backup-restore.md](05-operations/backup-restore.md) |
 | Troubleshooting | [05-operations/troubleshooting.md](05-operations/troubleshooting.md) |
 | Audit log maintenance | [05-operations/audit-log-maintenance.md](05-operations/audit-log-maintenance.md) |
+| Hospital geodata (geocode + isochrones) | [05-operations/hospital-geodata.md](05-operations/hospital-geodata.md) |
 | Glossary | [06-reference/glossary.md](06-reference/glossary.md) |
 | i18n glossary (DE) | [06-reference/glossary-i18n-de.md](06-reference/glossary-i18n-de.md) |
 
@@ -52,5 +53,6 @@ Role-based reading orders live in each section's README:
 - [Analysis Explorer](04-features/statistics/analysis-explorer.md)
 - [Participant onboarding](04-features/onboarding/participant-onboarding.md)
 - [Explore allocation list](04-features/allocation/explore-allocation-list.md)
+- [Allocation orientation map](04-features/allocation/orientation-map.md)
 - [Sentry observability](05-operations/observability-sentry.md)
 - [Content Security Policy (report-only)](05-operations/content-security-policy.md)

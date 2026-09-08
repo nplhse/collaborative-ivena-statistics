@@ -78,6 +78,8 @@ YAML files under `fixtures/reference/` are the single source of truth for master
 
 Indication raw rows are linked to normalized entries by hash after load (`IndicationKey`).
 
+Hospital coordinates in reference YAML / `config/hospital_population/geocoding.yaml` are **city/PLZ centroids** for local and CI maps. Production street-level coordinates and destination isochrones are filled by console commands, not by fixture load. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md).
+
 ## Pattern-based synthetic allocations
 
 `PatternAllocationFixture` uses committed pattern files (`fixtures/patterns/manifest.yaml` lists available patterns). Sampling is handled by `PatternSampler` and `SyntheticAllocationGenerator`.

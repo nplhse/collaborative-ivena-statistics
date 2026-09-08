@@ -477,6 +477,66 @@
         <source>catalog.orientation_map.hint</source>
         <target>Hessen pilot based on dispatch-area boundaries. The map is for orientation only and is not a precise administrative border.</target>
       </trans-unit>
+      <trans-unit id="AllocOdSecEn" resname="allocation.section.origin_destination">
+        <source>allocation.section.origin_destination</source>
+        <target>Origin and destination</target>
+      </trans-unit>
+      <trans-unit id="AllocLblOrigEn" resname="allocation.label.origin">
+        <source>allocation.label.origin</source>
+        <target>Origin</target>
+      </trans-unit>
+      <trans-unit id="AllocLblDistEn" resname="allocation.label.origin_district">
+        <source>allocation.label.origin_district</source>
+        <target>District</target>
+      </trans-unit>
+      <trans-unit id="AllocLblDestEn" resname="allocation.label.destination">
+        <source>allocation.label.destination</source>
+        <target>Destination</target>
+      </trans-unit>
+      <trans-unit id="AllocHintXdEn" resname="allocation.hint.cross_district">
+        <source>allocation.hint.cross_district</source>
+        <target>Cross-district transport: origin and destination hospital are in different dispatch areas.</target>
+      </trans-unit>
+      <trans-unit id="AllocRtOrigEn" resname="allocation.route.origin_approximate">
+        <source>allocation.route.origin_approximate</source>
+        <target>Origin (approximate)</target>
+      </trans-unit>
+      <trans-unit id="AllocMapPrecEn" resname="allocation.orientation_map.precision_hint">
+        <source>allocation.orientation_map.precision_hint</source>
+        <target>The origin is the dispatch area, not a precise incident location.</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegOrigEn" resname="catalog.orientation_map.legend.origin">
+        <source>catalog.orientation_map.legend.origin</source>
+        <target>Origin area (dispatch area)</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegDestEn" resname="catalog.orientation_map.legend.destination">
+        <source>catalog.orientation_map.legend.destination</source>
+        <target>Destination hospital</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegCtxEn" resname="catalog.orientation_map.legend.context_hospitals">
+        <source>catalog.orientation_map.legend.context_hospitals</source>
+        <target>Other hospitals in the origin area</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoOutEn" resname="catalog.orientation_map.legend.isochrone_outside">
+        <source>catalog.orientation_map.legend.isochrone_outside</source>
+        <target>Isochrone outside the origin area</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoBEn" resname="catalog.orientation_map.legend.isochrone_band">
+        <source>catalog.orientation_map.legend.isochrone_band</source>
+        <target>Likely origin area</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoEn" resname="allocation.orientation_map.isochrone_hint">
+        <source>allocation.orientation_map.isochrone_hint</source>
+        <target>Highlighted is the part of the car isochrone that lies inside the origin area (OpenStreetMap road network, no emergency privileges). The duration is the recorded time from allocation to arrival, not driving time from the incident location.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoMaxEn" resname="allocation.orientation_map.isochrone_over_max">
+        <source>allocation.orientation_map.isochrone_over_max</source>
+        <target>The recorded duration is over 50 minutes; the 50-minute band is shown.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapSecHospEn" resname="allocation.orientation_map.secondary_hospitals_hint">
+        <source>allocation.orientation_map.secondary_hospitals_hint</source>
+        <target>The additional pins are hospitals in the origin dispatch area. The sending hospital is not recorded in the data.</target>
+      </trans-unit>
       <trans-unit id="CatActDaEn" resname="catalog.action.view_dispatch_areas">
         <source>catalog.action.view_dispatch_areas</source>
         <target>View dispatch areas</target>

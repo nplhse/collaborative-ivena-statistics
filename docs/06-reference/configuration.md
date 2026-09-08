@@ -33,6 +33,7 @@
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
 | `SENTRY_CSP_REPORT_URI` | Sentry CSP report endpoint | optional; prod only; adds `report-uri` when set (see [content-security-policy.md](../05-operations/content-security-policy.md)) |
 | `ANALYTICS_RAW_RETENTION_DAYS` | Days of detailed usage-analytics rows to keep | default `30`; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md) |
+| `OPENROUTESERVICE_API_KEY` | OpenRouteService key for `app:hospital:geocode-coordinates` and `app:allocation:fetch-hospital-isochrones` | optional; empty skips both commands. Maps read stored GeoJSON only. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
 | `FIXTURES_SCALE` | Dev fixture volume multiplier | `1`–`10`; see [../03-development/fixtures.md](../03-development/fixtures.md) |
 
 ## Application configuration (`app.yaml`)

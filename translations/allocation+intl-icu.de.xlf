@@ -565,6 +565,66 @@
         <source>catalog.orientation_map.hint</source>
         <target>Hessen-Pilot auf Basis der Leitstellengrenzen. Die Karte dient der Orientierung und ist keine flächengenaue Verwaltungsgrenze.</target>
       </trans-unit>
+      <trans-unit id="AllocOdSecDe" resname="allocation.section.origin_destination">
+        <source>allocation.section.origin_destination</source>
+        <target>Herkunft und Ziel</target>
+      </trans-unit>
+      <trans-unit id="AllocLblOrigDe" resname="allocation.label.origin">
+        <source>allocation.label.origin</source>
+        <target>Herkunft</target>
+      </trans-unit>
+      <trans-unit id="AllocLblDistDe" resname="allocation.label.origin_district">
+        <source>allocation.label.origin_district</source>
+        <target>Landkreis</target>
+      </trans-unit>
+      <trans-unit id="AllocLblDestDe" resname="allocation.label.destination">
+        <source>allocation.label.destination</source>
+        <target>Ziel</target>
+      </trans-unit>
+      <trans-unit id="AllocHintXdDe" resname="allocation.hint.cross_district">
+        <source>allocation.hint.cross_district</source>
+        <target>Überregionaler Transport: Herkunft und Zielklinik liegen in unterschiedlichen Leitstellenbereichen.</target>
+      </trans-unit>
+      <trans-unit id="AllocRtOrigDe" resname="allocation.route.origin_approximate">
+        <source>allocation.route.origin_approximate</source>
+        <target>Herkunft (ungefähr)</target>
+      </trans-unit>
+      <trans-unit id="AllocMapPrecDe" resname="allocation.orientation_map.precision_hint">
+        <source>allocation.orientation_map.precision_hint</source>
+        <target>Die Herkunft ist der Leitstellenbereich, nicht ein genauer Einsatzort.</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegOrigDe" resname="catalog.orientation_map.legend.origin">
+        <source>catalog.orientation_map.legend.origin</source>
+        <target>Herkunftsgebiet (Leitstellenbereich)</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegDestDe" resname="catalog.orientation_map.legend.destination">
+        <source>catalog.orientation_map.legend.destination</source>
+        <target>Zielklinik</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegCtxDe" resname="catalog.orientation_map.legend.context_hospitals">
+        <source>catalog.orientation_map.legend.context_hospitals</source>
+        <target>Weitere Kliniken im Herkunftsgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoOutDe" resname="catalog.orientation_map.legend.isochrone_outside">
+        <source>catalog.orientation_map.legend.isochrone_outside</source>
+        <target>Isochrone außerhalb des Herkunftsgebiets</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoBDe" resname="catalog.orientation_map.legend.isochrone_band">
+        <source>catalog.orientation_map.legend.isochrone_band</source>
+        <target>Wahrscheinlicher Herkunftsbereich</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoDe" resname="allocation.orientation_map.isochrone_hint">
+        <source>allocation.orientation_map.isochrone_hint</source>
+        <target>Hervorgehoben ist der Teil der Pkw-Isochrone, der im Herkunftsgebiet liegt (OpenStreetMap-Straßennetz, keine Sonderrechte). Die Dauer ist die erfasste Zeit von der Zuweisung bis zur Ankunft, nicht die reine Fahrt vom Einsatzort.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoMaxDe" resname="allocation.orientation_map.isochrone_over_max">
+        <source>allocation.orientation_map.isochrone_over_max</source>
+        <target>Die erfasste Dauer liegt über 50 Minuten; die 50-Minuten-Bande ist dargestellt.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapSecHospDe" resname="allocation.orientation_map.secondary_hospitals_hint">
+        <source>allocation.orientation_map.secondary_hospitals_hint</source>
+        <target>Die weiteren Pins sind Kliniken im Herkunfts-Leitstellenbereich. Welche Klinik verlegt hat, ist in den Daten nicht erfasst.</target>
+      </trans-unit>
       <trans-unit id="CatActDaDe" resname="catalog.action.view_dispatch_areas">
         <source>catalog.action.view_dispatch_areas</source>
         <target>Leitstellenbereiche anzeigen</target>
