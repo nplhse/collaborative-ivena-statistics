@@ -171,12 +171,10 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         $categories = [];
         foreach ($this->repository->findAllSystemViewsOrdered() as $view) {
             $key = $this->categoryKey($view->getCategory());
-            if (!isset($categories[$key])) {
-                $categories[$key] = [
-                    'key' => $key,
-                    'label' => $this->categoryLabel($view->getCategory()),
-                ];
-            }
+            $categories[$key] ??= [
+                'key' => $key,
+                'label' => $this->categoryLabel($view->getCategory()),
+            ];
         }
 
         $categories = array_values($categories);

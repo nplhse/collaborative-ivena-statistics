@@ -137,9 +137,7 @@ final class MciCaseRepository extends ServiceEntityRepository
 
             $key = $createdAt->format('Y-m');
 
-            if (!isset($buckets[$key])) {
-                $buckets[$key] = 0;
-            }
+            $buckets[$key] ??= 0;
 
             ++$buckets[$key];
         }

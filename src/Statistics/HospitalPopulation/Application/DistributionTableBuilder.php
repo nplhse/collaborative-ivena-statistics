@@ -198,16 +198,14 @@ final readonly class DistributionTableBuilder
         foreach ($snapshots as $snapshot) {
             $key = sprintf('%d:%d', $snapshot->stateId, $snapshot->dispatchAreaId);
 
-            if (!isset($aggregates[$key])) {
-                $aggregates[$key] = [
-                    'stateId' => $snapshot->stateId,
-                    'stateName' => $snapshot->stateName,
-                    'dispatchAreaId' => $snapshot->dispatchAreaId,
-                    'dispatchAreaName' => $snapshot->dispatchAreaName,
-                    'population' => 0,
-                    'participants' => 0,
-                ];
-            }
+            $aggregates[$key] ??= [
+                'stateId' => $snapshot->stateId,
+                'stateName' => $snapshot->stateName,
+                'dispatchAreaId' => $snapshot->dispatchAreaId,
+                'dispatchAreaName' => $snapshot->dispatchAreaName,
+                'population' => 0,
+                'participants' => 0,
+            ];
 
             ++$aggregates[$key]['population'];
             if ($snapshot->isParticipating) {

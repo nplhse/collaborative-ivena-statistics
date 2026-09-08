@@ -206,7 +206,7 @@ class Allocation
 
     public function setArrivalAt(\DateTimeImmutable $arrivalAt): static
     {
-        if ($this->createdAt && $arrivalAt < $this->createdAt) {
+        if ($this->createdAt instanceof \DateTimeImmutable && $arrivalAt < $this->createdAt) {
             throw new \InvalidArgumentException('ArrivalAt cannot be before createdAt');
         }
 

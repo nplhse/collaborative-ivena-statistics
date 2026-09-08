@@ -44,17 +44,15 @@ final readonly class ImportRejectAnalysisService
                     $normalized['reason'],
                 );
 
-                if (!isset($aggregated[$key])) {
-                    $aggregated[$key] = [
-                        'count' => 0,
-                        'field' => $normalized['field'],
-                        'rejected_value' => $normalized['rejected_value'],
-                        'reason' => $normalized['reason'],
-                        'example_file' => $exampleFile,
-                        'example_line' => $exampleLine,
-                        'example_raw_row' => $exampleRawRow,
-                    ];
-                }
+                $aggregated[$key] ??= [
+                    'count' => 0,
+                    'field' => $normalized['field'],
+                    'rejected_value' => $normalized['rejected_value'],
+                    'reason' => $normalized['reason'],
+                    'example_file' => $exampleFile,
+                    'example_line' => $exampleLine,
+                    'example_raw_row' => $exampleRawRow,
+                ];
 
                 ++$aggregated[$key]['count'];
             }

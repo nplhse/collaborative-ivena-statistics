@@ -104,9 +104,7 @@ final readonly class GenericAllocationAnalysisQuery
             $metrics[$key] = $this->normalizeMetricValue($row[$key]);
         }
 
-        if (!isset($metrics['count'])) {
-            $metrics['count'] = 0;
-        }
+        $metrics['count'] ??= 0;
 
         return $metrics;
     }
