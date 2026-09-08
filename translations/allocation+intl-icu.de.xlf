@@ -597,17 +597,33 @@
         <source>catalog.orientation_map.legend.origin</source>
         <target>Herkunftsgebiet (Leitstellenbereich)</target>
       </trans-unit>
-      <trans-unit id="CatMapLegPtDe" resname="catalog.orientation_map.legend.origin_point">
-        <source>catalog.orientation_map.legend.origin_point</source>
-        <target>Ungefährer Mittelpunkt des Herkunftsgebiets</target>
-      </trans-unit>
       <trans-unit id="CatMapLegDestDe" resname="catalog.orientation_map.legend.destination">
         <source>catalog.orientation_map.legend.destination</source>
         <target>Zielklinik</target>
       </trans-unit>
-      <trans-unit id="CatMapLegRtDe" resname="catalog.orientation_map.legend.route">
-        <source>catalog.orientation_map.legend.route</source>
-        <target>Verbindung zur Orientierung, keine Fahrstrecke</target>
+      <trans-unit id="CatMapLegCtxDe" resname="catalog.orientation_map.legend.context_hospitals">
+        <source>catalog.orientation_map.legend.context_hospitals</source>
+        <target>Weitere Kliniken im Herkunftsgebiet</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoOutDe" resname="catalog.orientation_map.legend.isochrone_outside">
+        <source>catalog.orientation_map.legend.isochrone_outside</source>
+        <target>Isochrone außerhalb des Herkunftsgebiets</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoBDe" resname="catalog.orientation_map.legend.isochrone_band">
+        <source>catalog.orientation_map.legend.isochrone_band</source>
+        <target>Wahrscheinlicher Herkunftsbereich</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoDe" resname="allocation.orientation_map.isochrone_hint">
+        <source>allocation.orientation_map.isochrone_hint</source>
+        <target>Hervorgehoben ist der Teil der Pkw-Isochrone, der im Herkunftsgebiet liegt (OpenStreetMap-Straßennetz, keine Sonderrechte). Die Dauer ist die erfasste Zeit von der Zuweisung bis zur Ankunft, nicht die reine Fahrt vom Einsatzort.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoMaxDe" resname="allocation.orientation_map.isochrone_over_max">
+        <source>allocation.orientation_map.isochrone_over_max</source>
+        <target>Die erfasste Dauer liegt über 50 Minuten; die 50-Minuten-Bande ist dargestellt.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapSecHospDe" resname="allocation.orientation_map.secondary_hospitals_hint">
+        <source>allocation.orientation_map.secondary_hospitals_hint</source>
+        <target>Die weiteren Pins sind Kliniken im Herkunfts-Leitstellenbereich. Welche Klinik verlegt hat, ist in den Daten nicht erfasst.</target>
       </trans-unit>
       <trans-unit id="CatActDaDe" resname="catalog.action.view_dispatch_areas">
         <source>catalog.action.view_dispatch_areas</source>

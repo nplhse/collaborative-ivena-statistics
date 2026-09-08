@@ -45,10 +45,12 @@ add('shared_files', [
 ]);
 add('shared_dirs', [
     'var/imports',
+    'var/geo/hospital-isochrones',
     'public/uploads/media',
 ]);
 add('writable_dirs', [
     'var/imports',
+    'var/geo/hospital-isochrones',
     'public/uploads/media',
 ]);
 

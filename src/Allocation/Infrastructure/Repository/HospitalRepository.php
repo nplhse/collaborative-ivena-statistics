@@ -302,6 +302,54 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
     /**
      * @return list<Hospital>
      */
+    #[\Override]
+    public function findByState(State $state): array
+    {
+        $stateId = $state->getId();
+        if (null === $stateId) {
+            return [];
+        }
+
+        /** @var list<Hospital> $hospitals */
+        $hospitals = $this->createQueryBuilder('h')
+            ->addSelect('s')
+            ->innerJoin('h.state', 's')
+            ->andWhere('h.state = :state')
+            ->setParameter('state', $stateId, Types::INTEGER)
+            ->orderBy('h.name', 'ASC')
+            ->addOrderBy('h.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $hospitals;
+    }
+
+    /**
+     * @return list<Hospital>
+     */
+    #[\Override]
+    public function findByDispatchArea(DispatchArea $dispatchArea): array
+    {
+        $dispatchAreaId = $dispatchArea->getId();
+        if (null === $dispatchAreaId) {
+            return [];
+        }
+
+        /** @var list<Hospital> $hospitals */
+        $hospitals = $this->createQueryBuilder('h')
+            ->andWhere('h.dispatchArea = :dispatchArea')
+            ->setParameter('dispatchArea', $dispatchAreaId, Types::INTEGER)
+            ->orderBy('h.name', 'ASC')
+            ->addOrderBy('h.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $hospitals;
+    }
+
+    /**
+     * @return list<Hospital>
+     */
     public function findParticipatingWithOwner(): array
     {
         /** @var list<Hospital> $hospitals */

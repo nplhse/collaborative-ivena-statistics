@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import intersect from '@turf/intersect';
 
 const MUTED_STYLE = {
     color: '#868e96',
@@ -16,6 +17,14 @@ const HIGHLIGHT_STYLE = {
     opacity: 1,
     fillColor: '#339af0',
     fillOpacity: 0.55,
+};
+
+const ORIGIN_WITH_ISOCHRONE_STYLE = {
+    color: '#1864ab',
+    weight: 2,
+    opacity: 0.85,
+    fillColor: '#339af0',
+    fillOpacity: 0.12,
 };
 
 const DESTINATION_STYLE = {
@@ -34,11 +43,30 @@ const ALL_AREAS_STYLE = {
     fillOpacity: 0.35,
 };
 
-const ROUTE_LINE_STYLE = {
-    color: '#495057',
+const ISOCHRONE_OUTSIDE_STYLE = {
+    stroke: false,
+    fillColor: '#fd7e14',
+    fillOpacity: 0.22,
+    interactive: false,
+};
+
+const ISOCHRONE_INSIDE_STYLE = {
+    color: '#d9480f',
     weight: 2,
-    dashArray: '6 8',
-    opacity: 0.9,
+    opacity: 1,
+    fillColor: '#fd7e14',
+    fillOpacity: 0.42,
+    interactive: true,
+};
+
+const ISOCHRONE_OUTLINE_STYLE = {
+    color: '#e8590c',
+    weight: 2,
+    opacity: 0.95,
+    dashArray: '8 5',
+    lineCap: 'round',
+    lineJoin: 'round',
+    fill: false,
     interactive: false,
 };
 
@@ -53,7 +81,9 @@ export default class extends Controller {
         markerLabel: { type: String, default: '' },
         showRoute: { type: Boolean, default: false },
         destinationHighlightKey: { type: String, default: '' },
-        originLabel: { type: String, default: '' },
+        isochrones: { type: Object, default: {} },
+        recordedTravelMinutes: { type: Number, default: Number.NaN },
+        contextMarkers: { type: Array, default: [] },
     };
 
     static targets = ['mapContainer'];
@@ -124,8 +154,9 @@ export default class extends Controller {
             this.highlightLayer = highlightLayer;
             this.destinationLayer = destinationLayer;
 
+            this.renderIsochrones();
+            this.renderContextMarkers();
             this.renderDestinationMarker();
-            this.renderOriginAndRoute();
             this.fitMapToContents();
 
             this.scheduleInvalidateSize();
@@ -150,6 +181,110 @@ export default class extends Controller {
         };
     }
 
+    renderIsochrones() {
+        this.isochroneHighlightLayer = null;
+        if (!this.map || !this.hasIsochrones()) {
+            return;
+        }
+
+        const group = L.featureGroup().addTo(this.map);
+        const originFeature = this.originPolygonFeature();
+        const features = this.isochronesValue.features;
+
+        for (const feature of features) {
+            L.geoJSON(feature, { style: () => ISOCHRONE_OUTSIDE_STYLE }).addTo(group);
+
+            const inside = originFeature ? this.intersectWithOrigin(feature, originFeature) : null;
+            if (inside) {
+                L.geoJSON(inside, {
+                    style: () => ISOCHRONE_INSIDE_STYLE,
+                    onEachFeature: (insideFeature, featureLayer) => {
+                        const minutes = Math.round((this.isochroneValue(feature) ?? 0) / 60);
+                        if (minutes > 0) {
+                            featureLayer.bindTooltip(`${minutes} min`, { sticky: true });
+                        }
+                    },
+                }).addTo(group);
+            }
+
+            L.geoJSON(feature, { style: () => ISOCHRONE_OUTLINE_STYLE }).addTo(group);
+        }
+
+        group.bringToFront();
+        this.isochroneHighlightLayer = group;
+    }
+
+    originPolygonFeature() {
+        const geojson = this.highlightLayer?.toGeoJSON?.();
+        if (!geojson) {
+            return null;
+        }
+
+        if (geojson.type === 'Feature' && geojson.geometry) {
+            return geojson;
+        }
+
+        const first = geojson.features?.[0];
+        if (first?.type === 'Feature' && first.geometry) {
+            return first;
+        }
+
+        return null;
+    }
+
+    intersectWithOrigin(isochroneFeature, originFeature) {
+        try {
+            return intersect({
+                type: 'FeatureCollection',
+                features: [
+                    { type: 'Feature', properties: {}, geometry: originFeature.geometry },
+                    { type: 'Feature', properties: {}, geometry: isochroneFeature.geometry },
+                ],
+            });
+        } catch {
+            return null;
+        }
+    }
+
+    hasIsochrones() {
+        return (
+            Array.isArray(this.isochronesValue?.features) &&
+            this.isochronesValue.features.length > 0
+        );
+    }
+
+    isochroneValue(feature) {
+        const value = feature?.properties?.value;
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+
+        return null;
+    }
+
+    renderContextMarkers() {
+        if (!this.map) {
+            return;
+        }
+
+        for (const marker of this.contextMarkersValue) {
+            const lat = Number(marker?.lat);
+            const lng = Number(marker?.lng);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                continue;
+            }
+
+            const pin = L.marker([lat, lng], {
+                icon: this.contextHospitalPinIcon(),
+                zIndexOffset: -100,
+            }).addTo(this.map);
+
+            if (typeof marker.label === 'string' && marker.label !== '') {
+                pin.bindTooltip(marker.label, { sticky: true });
+            }
+        }
+    }
+
     renderDestinationMarker() {
         if (!this.map || !this.hasDestinationMarker()) {
             return;
@@ -162,39 +297,6 @@ export default class extends Controller {
         if (this.markerLabelValue) {
             pin.bindTooltip(this.markerLabelValue, { sticky: true });
         }
-    }
-
-    renderOriginAndRoute() {
-        if (!this.showRouteValue || !this.map) {
-            return;
-        }
-
-        const originBounds = this.highlightLayer?.getBounds?.();
-        if (!originBounds?.isValid()) {
-            return;
-        }
-
-        const originCenter = originBounds.getCenter();
-        const originMarker = L.circleMarker(originCenter, {
-            radius: 7,
-            color: '#ffffff',
-            weight: 2,
-            fillColor: '#1864ab',
-            fillOpacity: 1,
-        }).addTo(this.map);
-
-        if (this.originLabelValue) {
-            originMarker.bindTooltip(this.originLabelValue, { sticky: true });
-        }
-
-        if (!this.hasDestinationMarker()) {
-            return;
-        }
-
-        L.polyline(
-            [originCenter, L.latLng(this.markerLatValue, this.markerLngValue)],
-            ROUTE_LINE_STYLE,
-        ).addTo(this.map);
     }
 
     layerBounds(layer) {
@@ -216,6 +318,19 @@ export default class extends Controller {
 
         if (this.hasDestinationMarker()) {
             corners.push(L.latLng(this.markerLatValue, this.markerLngValue));
+        }
+
+        for (const marker of this.contextMarkersValue) {
+            const lat = Number(marker?.lat);
+            const lng = Number(marker?.lng);
+            if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                corners.push(L.latLng(lat, lng));
+            }
+        }
+
+        const isochroneBounds = this.layerBounds(this.isochroneHighlightLayer);
+        if (isochroneBounds) {
+            corners.push(isochroneBounds.getSouthWest(), isochroneBounds.getNorthEast());
         }
 
         if (corners.length === 0) {
@@ -245,9 +360,19 @@ export default class extends Controller {
         });
     }
 
+    contextHospitalPinIcon() {
+        return L.divIcon({
+            className: 'catalog-orientation-map-pin catalog-orientation-map-pin-context',
+            html: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#1864ab" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle fill="#ffffff" cx="12" cy="9" r="2.5"/></svg>',
+            iconSize: [22, 22],
+            iconAnchor: [11, 22],
+            tooltipAnchor: [0, -18],
+        });
+    }
+
     styleForFeature(feature) {
         if (this.isHighlighted(feature)) {
-            return HIGHLIGHT_STYLE;
+            return this.hasIsochrones() ? ORIGIN_WITH_ISOCHRONE_STYLE : HIGHLIGHT_STYLE;
         }
 
         if (this.isDestinationHighlighted(feature)) {
@@ -370,6 +495,7 @@ export default class extends Controller {
         this.geoLayer = null;
         this.highlightLayer = null;
         this.destinationLayer = null;
+        this.isochroneHighlightLayer = null;
 
         if (!map) {
             return;

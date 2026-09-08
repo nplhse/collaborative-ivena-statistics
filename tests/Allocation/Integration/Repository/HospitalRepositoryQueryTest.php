@@ -190,4 +190,37 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
             self::assertNotNull($hospital->getOwner());
         }
     }
+
+    public function testFindByDispatchAreaReturnsHospitalsOfThatAreaIncludingNonParticipating(): void
+    {
+        UserFactory::createOne();
+        $state = StateFactory::createOne();
+        $frankfurt = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
+        $offenbach = DispatchAreaFactory::createOne(['name' => 'Offenbach', 'state' => $state]);
+
+        $inArea = HospitalFactory::createOne([
+            'name' => 'Klinik Frankfurt',
+            'state' => $state,
+            'dispatchArea' => $frankfurt,
+        ]);
+        $nonParticipating = HospitalFactory::createOne([
+            'name' => 'Nicht teilnehmend',
+            'state' => $state,
+            'dispatchArea' => $frankfurt,
+            'isParticipating' => false,
+        ]);
+        HospitalFactory::createOne([
+            'name' => 'Klinik Offenbach',
+            'state' => $state,
+            'dispatchArea' => $offenbach,
+        ]);
+
+        $result = $this->repo->findByDispatchArea($frankfurt);
+        $ids = array_map(static fn (Hospital $hospital): ?int => $hospital->getId(), $result);
+
+        self::assertContains($inArea->getId(), $ids);
+        self::assertContains($nonParticipating->getId(), $ids);
+        self::assertCount(2, $result);
+        self::assertContainsOnlyInstancesOf(Hospital::class, $result);
+    }
 }

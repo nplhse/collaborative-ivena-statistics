@@ -509,17 +509,33 @@
         <source>catalog.orientation_map.legend.origin</source>
         <target>Origin area (dispatch area)</target>
       </trans-unit>
-      <trans-unit id="CatMapLegPtEn" resname="catalog.orientation_map.legend.origin_point">
-        <source>catalog.orientation_map.legend.origin_point</source>
-        <target>Approximate center of the origin area</target>
-      </trans-unit>
       <trans-unit id="CatMapLegDestEn" resname="catalog.orientation_map.legend.destination">
         <source>catalog.orientation_map.legend.destination</source>
         <target>Destination hospital</target>
       </trans-unit>
-      <trans-unit id="CatMapLegRtEn" resname="catalog.orientation_map.legend.route">
-        <source>catalog.orientation_map.legend.route</source>
-        <target>Visual connection, not a driving route</target>
+      <trans-unit id="CatMapLegCtxEn" resname="catalog.orientation_map.legend.context_hospitals">
+        <source>catalog.orientation_map.legend.context_hospitals</source>
+        <target>Other hospitals in the origin area</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoOutEn" resname="catalog.orientation_map.legend.isochrone_outside">
+        <source>catalog.orientation_map.legend.isochrone_outside</source>
+        <target>Isochrone outside the origin area</target>
+      </trans-unit>
+      <trans-unit id="CatMapLegIsoBEn" resname="catalog.orientation_map.legend.isochrone_band">
+        <source>catalog.orientation_map.legend.isochrone_band</source>
+        <target>Likely origin area</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoEn" resname="allocation.orientation_map.isochrone_hint">
+        <source>allocation.orientation_map.isochrone_hint</source>
+        <target>Highlighted is the part of the car isochrone that lies inside the origin area (OpenStreetMap road network, no emergency privileges). The duration is the recorded time from allocation to arrival, not driving time from the incident location.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapIsoMaxEn" resname="allocation.orientation_map.isochrone_over_max">
+        <source>allocation.orientation_map.isochrone_over_max</source>
+        <target>The recorded duration is over 50 minutes; the 50-minute band is shown.</target>
+      </trans-unit>
+      <trans-unit id="AllocMapSecHospEn" resname="allocation.orientation_map.secondary_hospitals_hint">
+        <source>allocation.orientation_map.secondary_hospitals_hint</source>
+        <target>The additional pins are hospitals in the origin dispatch area. The sending hospital is not recorded in the data.</target>
       </trans-unit>
       <trans-unit id="CatActDaEn" resname="catalog.action.view_dispatch_areas">
         <source>catalog.action.view_dispatch_areas</source>

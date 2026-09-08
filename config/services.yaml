@@ -29,6 +29,8 @@ parameters:
     app.admin.storage_limit_bytes: '%env(int:APP_ADMIN_STORAGE_LIMIT_BYTES)%'
     env(ANALYTICS_RAW_RETENTION_DAYS): '30'
     analytics.raw_retention_days: '%env(int:ANALYTICS_RAW_RETENTION_DAYS)%'
+    env(OPENROUTESERVICE_API_KEY): ''
+    app.hospital_isochrones_dir: '%kernel.project_dir%/var/geo/hospital-isochrones'
 
 services:
     _defaults:
@@ -47,6 +49,9 @@ services:
         tags:
             - { name: doctrine.middleware }
 
+    App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
+    App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
+    App\Allocation\Application\Contracts\HospitalIsochroneClientInterface: '@App\Allocation\Infrastructure\Http\OpenRouteServiceIsochroneClient'
     App\Analytics\Application\UsageEvents\UsageEventContextResolverInterface: '@App\Analytics\Application\UsageEvents\UsageEventContextResolver'
     App\Analytics\Application\UsageEvents\UsageEventRecorderInterface: '@App\Analytics\Application\UsageEvents\UsageEventRecorder'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'

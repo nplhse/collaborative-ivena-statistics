@@ -169,23 +169,29 @@
     border-color: #1864ab;
 }
 
-.catalog-orientation-map-legend-swatch-origin-point {
-    border-radius: 50%;
-    background: #1864ab;
-    border-color: #1864ab;
-}
-
 .catalog-orientation-map-legend-swatch-destination {
     background: #d9480f;
     border-color: #ffffff;
     clip-path: polygon(50% 100%, 0 0, 100% 0);
 }
 
-.catalog-orientation-map-legend-swatch-route {
-    height: 0;
-    border: 0;
-    border-top: 2px dashed #495057;
-    background: transparent;
+.catalog-orientation-map-legend-swatch-context {
+    background: #1864ab;
+    border-color: #ffffff;
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+.catalog-orientation-map-legend-swatch-isochrone-outside {
+    background: rgba(253, 126, 20, 0.28);
+    border-color: #e8590c;
+    border-style: dashed;
+    border-width: 2px;
+}
+
+.catalog-orientation-map-legend-swatch-isochrone-band {
+    background: rgba(253, 126, 20, 0.45);
+    border-color: #d9480f;
+    border-width: 2px;
 }
 
 .catalog-year-heatmap {
