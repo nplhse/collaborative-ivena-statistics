@@ -136,8 +136,8 @@ final class GetOverviewDashboardMetricsQueryTest extends KernelTestCase
         if (null !== $bundle->medianAge) {
             self::assertSame(40.0, $bundle->medianAge);
         }
-        if (null !== $bundle->medianTransportMinutes) {
-            self::assertSame(30.0, $bundle->medianTransportMinutes);
+        if (null !== $bundle->meanTransportMinutes) {
+            self::assertSame(30.0, $bundle->meanTransportMinutes);
         }
     }
 

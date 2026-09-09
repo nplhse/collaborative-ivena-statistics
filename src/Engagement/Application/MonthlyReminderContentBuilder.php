@@ -104,7 +104,7 @@ final readonly class MonthlyReminderContentBuilder
             : 0.0;
 
         $physicianMetric = $this->findMetric($selfReport->kpiMetrics, BenchmarkMetricKey::WithPhysician);
-        $transportMetric = $this->findMetric($selfReport->kpiMetrics, BenchmarkMetricKey::MedianTransport);
+        $transportMetric = $this->findMetric($selfReport->kpiMetrics, BenchmarkMetricKey::MeanTransport);
         $resusMetric = $this->findMetric($selfReport->kpiMetrics, BenchmarkMetricKey::Resus);
 
         $chartBars = $this->chartBuilder->build(
@@ -212,8 +212,8 @@ final readonly class MonthlyReminderContentBuilder
             withPhysicianPercent: $withPhysicianPercent,
             withPhysicianBaselineDeltaPp: $physicianMetric?->absoluteDelta,
             baselinePeriodLabel: $baselinePeriodLabel,
-            medianTransportMinutes: $transportMetric instanceof \App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric ? $transportMetric->primaryValue : 0.0,
-            medianTransportBaselineDeltaMinutes: $transportMetric?->absoluteDelta,
+            meanTransportMinutes: $transportMetric instanceof \App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric ? $transportMetric->primaryValue : 0.0,
+            meanTransportBaselineDeltaMinutes: $transportMetric?->absoluteDelta,
             trendSummary: '' !== $trendKey ? $this->trans($trendKey, [
                 'percent' => number_format(abs($this->averageMonthlyChange($allocationSeries)), 1, '.', ''),
             ], $locale) : '',

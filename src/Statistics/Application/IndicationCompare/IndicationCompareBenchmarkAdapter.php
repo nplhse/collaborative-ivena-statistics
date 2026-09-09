@@ -111,8 +111,8 @@ final readonly class IndicationCompareBenchmarkAdapter
             $side->female,
             $side->genderOther,
             $side->medianAge,
-            $side->medianTransportMinutes,
             null,
+            $side->meanTransportMinutes,
         );
     }
 }

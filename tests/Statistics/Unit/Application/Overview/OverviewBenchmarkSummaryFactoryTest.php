@@ -43,7 +43,7 @@ final class OverviewBenchmarkSummaryFactoryTest extends TestCase
                     BenchmarkMetricFormat::Percent,
                 ),
                 new BenchmarkMetric(
-                    BenchmarkMetricKey::MedianTransport,
+                    BenchmarkMetricKey::MeanTransport,
                     42.3,
                     40.0,
                     2.3,

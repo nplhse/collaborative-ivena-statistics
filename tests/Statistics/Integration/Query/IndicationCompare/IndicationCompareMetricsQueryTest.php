@@ -198,7 +198,7 @@ final class IndicationCompareMetricsQueryTest extends KernelTestCase
         self::assertSame(5, $result->sideB->total);
     }
 
-    public function testMedianTransportUsesPreciseTimestampMinutes(): void
+    public function testMeanTransportUsesPreciseTimestampMinutes(): void
     {
         self::bootKernel();
 
@@ -257,14 +257,14 @@ final class IndicationCompareMetricsQueryTest extends KernelTestCase
         );
 
         self::assertEqualsWithDelta(
-            PreciseTransportTimeScenarios::PRECISE_MEDIAN_MINUTES,
-            $result->sideA->medianTransportMinutes,
+            PreciseTransportTimeScenarios::PRECISE_MEAN_MINUTES,
+            $result->sideA->meanTransportMinutes,
             0.001,
         );
         self::assertNotEquals(
             PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
-            $result->sideA->medianTransportMinutes,
+            $result->sideA->meanTransportMinutes,
         );
-        self::assertSame(20.0, $result->sideB->medianTransportMinutes);
+        self::assertSame(20.0, $result->sideB->meanTransportMinutes);
     }
 }

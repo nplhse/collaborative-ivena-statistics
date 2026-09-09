@@ -202,9 +202,9 @@ final class MonthlyReportBuilderInsightsTest extends DatabaseKernelTestCase
         self::assertSame(100.0, $view->withPhysicianMomPercent);
         self::assertSame(100.0, $view->resusPercent);
         self::assertSame(100.0, $view->resusMomPercent);
-        self::assertNotNull($view->medianTransportMinutes);
-        self::assertNotNull($view->medianTransportMomMinutes);
-        self::assertLessThan(0.0, $view->medianTransportMomMinutes);
+        self::assertNotNull($view->meanTransportMinutes);
+        self::assertNotNull($view->meanTransportMomMinutes);
+        self::assertLessThan(0.0, $view->meanTransportMomMinutes);
     }
 
     private function insertHospitalKpi(

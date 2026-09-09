@@ -20,7 +20,7 @@ final readonly class OverviewExecutiveKpiFactory
         BenchmarkMetricKey::Age80Plus,
         BenchmarkMetricKey::NightDaytime,
         BenchmarkMetricKey::Weekend,
-        BenchmarkMetricKey::MedianTransport,
+        BenchmarkMetricKey::MeanTransport,
     ];
 
     public function __construct(

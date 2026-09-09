@@ -121,7 +121,7 @@ final class MetricRegistry
             sourceColumn: 'transport_time_minutes',
             requiredSourceType: MetricSourceType::Numeric,
             defaultFormat: MetricFormat::Minutes,
-            defaultPrecision: 0,
+            defaultPrecision: 1,
             sortPriority: 30,
         ));
 
@@ -181,7 +181,7 @@ final class MetricRegistry
             sourceColumn: $sourceColumn ?? $column,
             requiredSourceType: MetricSourceType::Numeric,
             defaultFormat: MetricFormat::Minutes,
-            defaultPrecision: 0,
+            defaultPrecision: 1,
             sortPriority: $sortPriority,
         ));
     }

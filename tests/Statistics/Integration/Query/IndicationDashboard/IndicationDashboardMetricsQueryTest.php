@@ -183,7 +183,7 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         self::assertNull($row->medianAgeBaseline);
     }
 
-    public function testMedianTransportUsesPreciseTimestampMinutes(): void
+    public function testMeanTransportUsesPreciseTimestampMinutes(): void
     {
         self::bootKernel();
 
@@ -237,14 +237,14 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
             ->fetch([$targetIndication->getId()], null, null, $scope);
 
         self::assertEqualsWithDelta(
-            PreciseTransportTimeScenarios::PRECISE_MEDIAN_MINUTES,
-            $row->medianTransportMinutesIndication,
+            PreciseTransportTimeScenarios::PRECISE_MEAN_MINUTES,
+            $row->meanTransportMinutesIndication,
             0.001,
         );
         self::assertNotEquals(
             PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
-            $row->medianTransportMinutesIndication,
+            $row->meanTransportMinutesIndication,
         );
-        self::assertSame(20.0, $row->medianTransportMinutesBaseline);
+        self::assertSame(20.0, $row->meanTransportMinutesBaseline);
     }
 }

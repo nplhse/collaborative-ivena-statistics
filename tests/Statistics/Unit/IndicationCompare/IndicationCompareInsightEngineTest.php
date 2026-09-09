@@ -153,8 +153,8 @@ final class IndicationCompareInsightEngineTest extends TestCase
     public function testEmitsTransportTimeLongInsightWhenMedianMuchHigher(): void
     {
         $ids = $this->insightIds($this->engine->build(
-            $this->sideCounts(total: 100, medianTransportMinutes: 36.0),
-            $this->sideCounts(total: 100, medianTransportMinutes: 15.0),
+            $this->sideCounts(total: 100, meanTransportMinutes: 36.0),
+            $this->sideCounts(total: 100, meanTransportMinutes: 15.0),
         ));
 
         self::assertContains('transport_time_long', $ids);
@@ -164,8 +164,8 @@ final class IndicationCompareInsightEngineTest extends TestCase
     public function testEmitsTransportTimeShortInsightWhenMedianMuchLower(): void
     {
         $ids = $this->insightIds($this->engine->build(
-            $this->sideCounts(total: 100, medianTransportMinutes: 12.0),
-            $this->sideCounts(total: 100, medianTransportMinutes: 30.0),
+            $this->sideCounts(total: 100, meanTransportMinutes: 12.0),
+            $this->sideCounts(total: 100, meanTransportMinutes: 30.0),
         ));
 
         self::assertContains('transport_time_short', $ids);
@@ -196,7 +196,7 @@ final class IndicationCompareInsightEngineTest extends TestCase
         int $shock = 0,
         int $infectious = 0,
         ?float $medianAge = null,
-        ?float $medianTransportMinutes = null,
+        ?float $meanTransportMinutes = null,
     ): IndicationCompareSideCounts {
         return new IndicationCompareSideCounts(
             $total,
@@ -221,7 +221,7 @@ final class IndicationCompareInsightEngineTest extends TestCase
             0,
             0,
             $medianAge,
-            $medianTransportMinutes,
+            $meanTransportMinutes,
         );
     }
 }

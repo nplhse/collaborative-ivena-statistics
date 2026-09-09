@@ -94,6 +94,26 @@ final class CaseFlowInsightEngineTest extends TestCase
         self::assertContains('elevated_transport_time', $ids);
     }
 
+    public function testTransportInsightFormatsMinutesToOneDecimal(): void
+    {
+        $metrics = new CaseFlowRegionalMetricsRow(200, 100, 50, 40, 17.34, 16.0);
+        $insights = $this->engine->build(
+            CaseFlowMode::SystemFlow,
+            $metrics,
+            [],
+            ['meanTransport' => 10.16, 'medianTransport' => 10.0, 'fullTierPercent' => 20.0],
+        );
+
+        $transportInsights = array_values(array_filter(
+            $insights,
+            static fn (\App\Statistics\CaseFlow\Application\DTO\CaseFlowInsight $insight): bool => 'elevated_transport_time' === $insight->id,
+        ));
+
+        self::assertCount(1, $transportInsights);
+        self::assertSame(17.3, $transportInsights[0]->translationParams['mean']);
+        self::assertSame(10.2, $transportInsights[0]->translationParams['baselineMean']);
+    }
+
     public function testBuildLimitsInsightsToFourCandidates(): void
     {
         $metrics = new CaseFlowRegionalMetricsRow(200, 160, 120, 100, 48.0, 45.0);

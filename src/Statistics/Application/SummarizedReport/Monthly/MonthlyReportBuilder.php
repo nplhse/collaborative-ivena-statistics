@@ -171,7 +171,7 @@ final readonly class MonthlyReportBuilder
         $genderSegments = [];
         $withPhysicianMomPercent = null;
         $resusMomPercent = null;
-        $medianTransportMomMinutes = null;
+        $meanTransportMomMinutes = null;
         if ($hasData) {
             $previousOverviewMetrics = ($this->overviewMetricsQuery)(
                 new OverviewQueryCriteria(
@@ -210,11 +210,11 @@ final readonly class MonthlyReportBuilder
             }
 
             if (
-                null !== $overviewMetrics->medianTransportMinutes
-                && null !== $previousOverviewMetrics->medianTransportMinutes
+                null !== $overviewMetrics->meanTransportMinutes
+                && null !== $previousOverviewMetrics->meanTransportMinutes
             ) {
-                $medianTransportMomMinutes = round(
-                    $overviewMetrics->medianTransportMinutes - $previousOverviewMetrics->medianTransportMinutes,
+                $meanTransportMomMinutes = round(
+                    $overviewMetrics->meanTransportMinutes - $previousOverviewMetrics->meanTransportMinutes,
                     1,
                 );
             }
@@ -233,8 +233,8 @@ final readonly class MonthlyReportBuilder
             allocationYoyPercent: $yoy,
             withPhysicianPercent: $withPhysicianPercent,
             withPhysicianMomPercent: $withPhysicianMomPercent,
-            medianTransportMinutes: $hasData ? $overviewMetrics->medianTransportMinutes : null,
-            medianTransportMomMinutes: $medianTransportMomMinutes,
+            meanTransportMinutes: $hasData ? $overviewMetrics->meanTransportMinutes : null,
+            meanTransportMomMinutes: $meanTransportMomMinutes,
             resusPercent: $resusPercent,
             resusMomPercent: $resusMomPercent,
             urgencySegments: $urgencySegments,

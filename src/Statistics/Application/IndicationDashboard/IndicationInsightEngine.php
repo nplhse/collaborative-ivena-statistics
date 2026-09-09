@@ -209,15 +209,15 @@ final readonly class IndicationInsightEngine
      */
     private function addTransportTimeInsights(array &$candidates, IndicationDashboardMetricsRow $metrics): void
     {
-        if (null === $metrics->medianTransportMinutesIndication || null === $metrics->medianTransportMinutesBaseline) {
+        if (null === $metrics->meanTransportMinutesIndication || null === $metrics->meanTransportMinutesBaseline) {
             return;
         }
 
-        if ($metrics->medianTransportMinutesBaseline <= 0.0) {
+        if ($metrics->meanTransportMinutesBaseline <= 0.0) {
             return;
         }
 
-        $ratio = $metrics->medianTransportMinutesIndication / $metrics->medianTransportMinutesBaseline;
+        $ratio = $metrics->meanTransportMinutesIndication / $metrics->meanTransportMinutesBaseline;
 
         if ($ratio >= 1.2) {
             $candidates[] = new IndicationInsight(
@@ -225,8 +225,8 @@ final readonly class IndicationInsightEngine
                 IndicationInsightSeverity::Elevated,
                 'stats.indication.insight.transport_time_long',
                 round($ratio, 1),
-                $metrics->medianTransportMinutesIndication,
-                $metrics->medianTransportMinutesBaseline,
+                $metrics->meanTransportMinutesIndication,
+                $metrics->meanTransportMinutesBaseline,
                 40,
             );
         } elseif ($ratio <= 0.8) {
@@ -235,8 +235,8 @@ final readonly class IndicationInsightEngine
                 IndicationInsightSeverity::Elevated,
                 'stats.indication.insight.transport_time_short',
                 round($ratio, 1),
-                $metrics->medianTransportMinutesIndication,
-                $metrics->medianTransportMinutesBaseline,
+                $metrics->meanTransportMinutesIndication,
+                $metrics->meanTransportMinutesBaseline,
                 35,
             );
         }

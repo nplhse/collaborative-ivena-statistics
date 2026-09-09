@@ -160,11 +160,11 @@ final class BenchmarkInsightProviderTest extends TestCase
         $aggregation = new BenchmarkAggregationResult(
             new BenchmarkSideCounts(
                 500, 210, 20, 10, 5, 4, 3, 0, 0, 2, 100, 80, 80,
-                50, 45, 40, 250, 200, 0, 58.0, 20.0, 40.0,
+                50, 45, 40, 250, 200, 0, 58.0, 20.0, 20.0,
             ),
             new BenchmarkSideCounts(
                 5000, 2100, 200, 100, 80, 60, 40, 0, 0, 20, 1000, 2000, 2000,
-                500, 450, 400, 2500, 2000, 0, 58.0, 40.0, 41.0,
+                500, 450, 400, 2500, 2000, 0, 58.0, 40.0, 40.0,
             ),
             [],
         );

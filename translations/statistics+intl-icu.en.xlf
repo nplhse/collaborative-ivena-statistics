@@ -1193,6 +1193,10 @@
         <source>stats.reports.monthly.kpi.median_transport</source>
         <target>Median transport time</target>
       </trans-unit>
+      <trans-unit id="statsMonthlyMeanTransport" resname="stats.reports.monthly.kpi.mean_transport">
+        <source>stats.reports.monthly.kpi.mean_transport</source>
+        <target>Mean transport time</target>
+      </trans-unit>
       <trans-unit id="A2b8c87b11" resname="stats.reports.monthly.kpi.minutes">
         <source>stats.reports.monthly.kpi.minutes</source>
         <target>min</target>
@@ -1568,6 +1572,10 @@
       <trans-unit id="statsOvEx16" resname="stats.overview.executive.kpi.median_transport">
         <source>stats.overview.executive.kpi.median_transport</source>
         <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="statsOvExMeanTransport" resname="stats.overview.executive.kpi.mean_transport">
+        <source>stats.overview.executive.kpi.mean_transport</source>
+        <target>Mean transport time</target>
       </trans-unit>
       <trans-unit id="statsOvEx17" resname="stats.overview.executive.kpi.data_completeness">
         <source>stats.overview.executive.kpi.data_completeness</source>
@@ -2151,11 +2159,11 @@
       </trans-unit>
       <trans-unit id="statsIndCmp27" resname="stats.indication.compare.insight.transport_time_long">
         <source>stats.indication.compare.insight.transport_time_long</source>
-        <target>Median transport time is longer for indication A ({percentA, number} vs. {percentB, number} minutes).</target>
+        <target>Mean transport time is longer for indication A ({percentA, number} vs. {percentB, number} minutes).</target>
       </trans-unit>
       <trans-unit id="statsIndCmp28" resname="stats.indication.compare.insight.transport_time_short">
         <source>stats.indication.compare.insight.transport_time_short</source>
-        <target>Median transport time is shorter for indication A ({percentA, number} vs. {percentB, number} minutes).</target>
+        <target>Mean transport time is shorter for indication A ({percentA, number} vs. {percentB, number} minutes).</target>
       </trans-unit>
       <trans-unit id="statsIndCmp29" resname="stats.indication.compare.edit">
         <source>stats.indication.compare.edit</source>
@@ -2345,6 +2353,10 @@
         <source>stats.indication.median_transport</source>
         <target>Median: {minutes, number} min</target>
       </trans-unit>
+      <trans-unit id="statsIndMeanTransport" resname="stats.indication.mean_transport">
+        <source>stats.indication.mean_transport</source>
+        <target>Mean: {minutes, number} min</target>
+      </trans-unit>
       <trans-unit id="statsInd17" resname="stats.indication.distribution.empty">
         <source>stats.indication.distribution.empty</source>
         <target>No data</target>
@@ -2511,11 +2523,11 @@
       </trans-unit>
       <trans-unit id="statsInd54" resname="stats.indication.insight.transport_time_long">
         <source>stats.indication.insight.transport_time_long</source>
-        <target>Median transport time is longer than for other indications ({indicationPercent, number} vs. {baselinePercent, number} minutes).</target>
+        <target>Mean transport time is longer than for other indications ({indicationPercent, number} vs. {baselinePercent, number} minutes).</target>
       </trans-unit>
       <trans-unit id="statsInd55" resname="stats.indication.insight.transport_time_short">
         <source>stats.indication.insight.transport_time_short</source>
-        <target>Median transport time is shorter than for other indications ({indicationPercent, number} vs. {baselinePercent, number} minutes).</target>
+        <target>Mean transport time is shorter than for other indications ({indicationPercent, number} vs. {baselinePercent, number} minutes).</target>
       </trans-unit>
       <trans-unit id="statsInd56" resname="stats.indication.nav.profile">
         <source>stats.indication.nav.profile</source>
@@ -2761,6 +2773,10 @@
         <source>stats.benchmark.metric.median_transport</source>
         <target>Median transport time</target>
       </trans-unit>
+      <trans-unit id="statsBmMeanTransport" resname="stats.benchmark.metric.mean_transport">
+        <source>stats.benchmark.metric.mean_transport</source>
+        <target>Mean transport time</target>
+      </trans-unit>
       <trans-unit id="statsBm33" resname="stats.benchmark.gender.male">
         <source>stats.benchmark.gender.male</source>
         <target>Male</target>
@@ -2979,11 +2995,11 @@
       </trans-unit>
       <trans-unit id="statsBm80" resname="stats.benchmark.insight.transport_time_long">
         <source>stats.benchmark.insight.transport_time_long</source>
-        <target>Median transport time is longer ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
+        <target>Mean transport time is longer ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
       </trans-unit>
       <trans-unit id="statsBm81" resname="stats.benchmark.insight.transport_time_short">
         <source>stats.benchmark.insight.transport_time_short</source>
-        <target>Median transport time is shorter ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
+        <target>Mean transport time is shorter ({primaryValue, number} vs. {comparisonValue, number} minutes).</target>
       </trans-unit>
       <trans-unit id="statsPf02" resname="stats.case_flow.title">
         <source>stats.case_flow.title</source>

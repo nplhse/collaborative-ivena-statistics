@@ -40,7 +40,7 @@ final class IndicationCompareMetricBuilderTest extends TestCase
                 BenchmarkMetricKey::Age80Plus,
                 BenchmarkMetricKey::NightDaytime,
                 BenchmarkMetricKey::Weekend,
-                BenchmarkMetricKey::MedianTransport,
+                BenchmarkMetricKey::MeanTransport,
             ],
             array_map(static fn (\App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric $metric): BenchmarkMetricKey => $metric->key, $metrics),
         );

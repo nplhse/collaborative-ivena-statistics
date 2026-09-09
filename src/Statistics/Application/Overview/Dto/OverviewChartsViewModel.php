@@ -20,7 +20,7 @@ final readonly class OverviewChartsViewModel
         public array $transportDistribution,
         public array $transportTimeDistribution,
         public ?float $medianAge,
-        public ?float $medianTransportMinutes,
+        public ?float $meanTransportMinutes,
     ) {
     }
 }

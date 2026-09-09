@@ -188,6 +188,7 @@ SQL;
     ): array {
         $unionWhere = sprintf('(%s OR %s)', $primaryPred, $comparisonPred);
         $medianTransport = StatisticsTransportTimeSql::medianPreciseMinutes();
+        $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes();
         $nightCode = AllocationStatsDayTimeBucketProjectionCode::Night->value;
         $countSelect = implode(",\n    ", [
             sprintf('COUNT(*) FILTER (WHERE true AND %s)::int AS primary_total', $primaryPred),
@@ -214,7 +215,9 @@ SELECT
     {$medianTransport}
         FILTER (WHERE {$primaryPred}) AS primary_median_transport,
     {$medianTransport}
-        FILTER (WHERE {$comparisonPred}) AS comparison_median_transport
+        FILTER (WHERE {$comparisonPred}) AS comparison_median_transport,
+    {$meanTransport} FILTER (WHERE {$primaryPred}) AS primary_mean_transport,
+    {$meanTransport} FILTER (WHERE {$comparisonPred}) AS comparison_mean_transport
 FROM allocation_stats_projection
 WHERE {$unionWhere}
 SQL;

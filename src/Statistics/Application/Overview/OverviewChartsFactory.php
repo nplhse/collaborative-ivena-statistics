@@ -51,7 +51,7 @@ final readonly class OverviewChartsFactory
             $this->buildTransportDistribution($slice, $total),
             $this->indicationDashboardAssembler->buildTransportTimeDistribution($slice->transportTimeBucketCounts, $total),
             $metrics->medianAge,
-            $metrics->medianTransportMinutes,
+            $metrics->meanTransportMinutes,
         );
     }
 
