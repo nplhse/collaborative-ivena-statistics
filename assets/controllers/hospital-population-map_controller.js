@@ -13,7 +13,7 @@ export default class extends Controller {
         tierLabel: { type: String, default: 'Tier' },
         locationLabel: { type: String, default: 'Location' },
         bedsLabel: { type: String, default: 'Beds' },
-        allHospitalsLabel: { type: String, default: 'All hospitals' },
+        allHospitalsLabel: { type: String, default: 'All' },
         participantsLabel: { type: String, default: 'Participants' },
         coverageLabel: { type: String, default: 'Coverage' },
     };

@@ -1,0 +1,53 @@
+{% import '@Statistics/hospital_population/_cross_table.html.twig' as crossTable %}
+
+<div data-testid="stats-hospital-population-coverage">
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            {{ crossTable.coverage_cross_table(
+                'stats.hospital_population.section.location_by_tier'|trans({}, 'statistics'),
+                'stats.hospital_population.table.tier'|trans({}, 'statistics'),
+                'stats.hospital_population.table.location'|trans({}, 'statistics'),
+                result.urbanityByTierCrossTable,
+            ) }}
+        </div>
+        <div class="col-lg-6">
+            {{ crossTable.coverage_cross_table(
+                'stats.hospital_population.section.size_by_tier'|trans({}, 'statistics'),
+                'stats.hospital_population.table.tier'|trans({}, 'statistics'),
+                'stats.hospital_population.table.size'|trans({}, 'statistics'),
+                result.sizeByTierCrossTable,
+            ) }}
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            {{ include('@Statistics/hospital_population/_representativity_table.html.twig', {
+                title: 'stats.hospital_population.section.care_level'|trans({}, 'statistics'),
+                rows: result.byCareLevel,
+                testid: 'stats-hospital-population-coverage-tier',
+            }) }}
+        </div>
+        <div class="col-12">
+            {{ include('@Statistics/hospital_population/_representativity_table.html.twig', {
+                title: 'stats.hospital_population.section.size'|trans({}, 'statistics'),
+                rows: result.bySize,
+                testid: 'stats-hospital-population-coverage-size',
+            }) }}
+        </div>
+        <div class="col-12">
+            {{ include('@Statistics/hospital_population/_representativity_table.html.twig', {
+                title: 'stats.hospital_population.section.urbanity'|trans({}, 'statistics'),
+                rows: result.byLocation,
+                testid: 'stats-hospital-population-coverage-location',
+            }) }}
+        </div>
+        <div class="col-12">
+            {{ include('@Statistics/hospital_population/_representativity_table.html.twig', {
+                title: 'stats.hospital_population.section.state'|trans({}, 'statistics'),
+                rows: result.byState,
+                testid: 'stats-hospital-population-coverage-state',
+            }) }}
+        </div>
+    </div>
+</div>

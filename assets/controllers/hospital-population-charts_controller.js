@@ -127,7 +127,7 @@ export default class extends Controller {
         const chart = new ApexCharts(element, {
             chart: {
                 type: 'boxPlot',
-                height: 260,
+                height: 300,
                 toolbar: { show: false },
                 fontFamily: 'inherit',
             },

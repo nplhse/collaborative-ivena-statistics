@@ -3467,7 +3467,7 @@
       </trans-unit>
       <trans-unit id="statsHp66" resname="stats.hospital_population.beds_matrix.column_population">
         <source>stats.hospital_population.beds_matrix.column_population</source>
-        <target>All hospitals (n={count})</target>
+        <target>All (n={count})</target>
       </trans-unit>
       <trans-unit id="statsHp67" resname="stats.hospital_population.beds_matrix.column_participants">
         <source>stats.hospital_population.beds_matrix.column_participants</source>
@@ -3539,7 +3539,7 @@
       </trans-unit>
       <trans-unit id="statsHp23" resname="stats.hospital_population.table.population">
         <source>stats.hospital_population.table.population</source>
-        <target>All hospitals</target>
+        <target>All</target>
       </trans-unit>
       <trans-unit id="statsHp24" resname="stats.hospital_population.table.participants">
         <source>stats.hospital_population.table.participants</source>
@@ -3571,7 +3571,7 @@
       </trans-unit>
       <trans-unit id="statsHp28" resname="stats.hospital_population.table.population_pct">
         <source>stats.hospital_population.table.population_pct</source>
-        <target>All hospitals %</target>
+        <target>All %</target>
       </trans-unit>
       <trans-unit id="statsHp29" resname="stats.hospital_population.table.participant_pct">
         <source>stats.hospital_population.table.participant_pct</source>
@@ -3599,7 +3599,7 @@
       </trans-unit>
       <trans-unit id="statsHp35" resname="stats.hospital_population.sort.population">
         <source>stats.hospital_population.sort.population</source>
-        <target>All hospitals</target>
+        <target>All</target>
       </trans-unit>
       <trans-unit id="statsHp36" resname="stats.hospital_population.sort.participants">
         <source>stats.hospital_population.sort.participants</source>
@@ -3768,6 +3768,62 @@
       <trans-unit id="statsHp98" resname="stats.hospital_population.allocation.cross_table_share_hint">
         <source>stats.hospital_population.allocation.cross_table_share_hint</source>
         <target>The percentage shows this cell's share of all allocations and highlights where the data is concentrated.</target>
+      </trans-unit>
+      <trans-unit id="statsHp99" resname="stats.hospital_population.tab.participation">
+        <source>stats.hospital_population.tab.participation</source>
+        <target>Participation</target>
+      </trans-unit>
+      <trans-unit id="statsHp100" resname="stats.hospital_population.tab.coverage">
+        <source>stats.hospital_population.tab.coverage</source>
+        <target>Coverage</target>
+      </trans-unit>
+      <trans-unit id="statsHp101" resname="stats.hospital_population.tab.characteristics">
+        <source>stats.hospital_population.tab.characteristics</source>
+        <target>Characteristics</target>
+      </trans-unit>
+      <trans-unit id="statsHp102" resname="stats.hospital_population.pretitle.participation">
+        <source>stats.hospital_population.pretitle.participation</source>
+        <target>Who participates, and where?</target>
+      </trans-unit>
+      <trans-unit id="statsHp103" resname="stats.hospital_population.pretitle.coverage">
+        <source>stats.hospital_population.pretitle.coverage</source>
+        <target>How representative is the participating sample?</target>
+      </trans-unit>
+      <trans-unit id="statsHp104" resname="stats.hospital_population.pretitle.characteristics">
+        <source>stats.hospital_population.pretitle.characteristics</source>
+        <target>What are the structural and volume characteristics of hospitals?</target>
+      </trans-unit>
+      <trans-unit id="statsHp107" resname="stats.hospital_population.pretitle.beds">
+        <source>stats.hospital_population.pretitle.beds</source>
+        <target>How are hospitals distributed by bed capacity?</target>
+      </trans-unit>
+      <trans-unit id="statsHp108" resname="stats.hospital_population.pretitle.allocations">
+        <source>stats.hospital_population.pretitle.allocations</source>
+        <target>How are allocation volumes distributed across hospitals?</target>
+      </trans-unit>
+      <trans-unit id="statsHp109" resname="stats.hospital_population.nav.beds">
+        <source>stats.hospital_population.nav.beds</source>
+        <target>Beds</target>
+      </trans-unit>
+      <trans-unit id="statsHp110" resname="stats.hospital_population.nav.allocations">
+        <source>stats.hospital_population.nav.allocations</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsHp111" resname="stats.hospital_population.nav.group.overview">
+        <source>stats.hospital_population.nav.group.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsHp112" resname="stats.hospital_population.nav.group.characteristics">
+        <source>stats.hospital_population.nav.group.characteristics</source>
+        <target>Characteristics</target>
+      </trans-unit>
+      <trans-unit id="statsHp105" resname="stats.hospital_population.kpi.dispatch_areas">
+        <source>stats.hospital_population.kpi.dispatch_areas</source>
+        <target>Represented dispatch areas</target>
+      </trans-unit>
+      <trans-unit id="statsHp106" resname="stats.hospital_population.section.state">
+        <source>stats.hospital_population.section.state</source>
+        <target>Distribution by state</target>
       </trans-unit>
       <trans-unit id="statsAex01" resname="stats.analysis_explorer.title">
         <source>stats.analysis_explorer.title</source>

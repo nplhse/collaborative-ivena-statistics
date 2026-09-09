@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\HospitalPopulation\UI\Http\Controller;
 
-use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationDashboardResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationMapChoroplethFeature;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationMapMarker;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationParticipationResult;
 
 final readonly class HospitalPopulationMapPayloadFactory
 {
@@ -14,11 +16,11 @@ final readonly class HospitalPopulationMapPayloadFactory
      *     choropleth: list<array{geoFeatureKey: string, landkreis: string, population: int, participants: int, coverage: float}>
      * }
      */
-    public function create(HospitalPopulationDashboardResult $result): array
+    public function create(HospitalPopulationParticipationResult $result): array
     {
         return [
             'markers' => array_map(
-                static fn (\App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationMapMarker $marker): array => [
+                static fn (HospitalPopulationMapMarker $marker): array => [
                     'id' => $marker->id,
                     'name' => $marker->name,
                     'lat' => $marker->latitude,
@@ -31,7 +33,7 @@ final readonly class HospitalPopulationMapPayloadFactory
                 $result->mapMarkers,
             ),
             'choropleth' => array_map(
-                static fn (\App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationMapChoroplethFeature $feature): array => [
+                static fn (HospitalPopulationMapChoroplethFeature $feature): array => [
                     'geoFeatureKey' => $feature->geoFeatureKey,
                     'landkreis' => $feature->landkreis,
                     'population' => $feature->population,

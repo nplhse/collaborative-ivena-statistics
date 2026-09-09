@@ -91,7 +91,7 @@ Legend: **Link** = replace chart with library deep-link; **Keep** = stay bespoke
 |--------|------------------|--------|
 | Delta heatmap, %-grouped bars, KPI tiles, indication mix | Thematic overlap only | **Keep** — add optional “view absolute breakdown” links to related library views |
 
-### Hospital Population (`/statistics/hospital-population`)
+### Hospital Population (`/statistics/hospital-population/{section}`)
 
 | Visual | Library slug(s) | Phase 2 action |
 |--------|-----------------|----------------|

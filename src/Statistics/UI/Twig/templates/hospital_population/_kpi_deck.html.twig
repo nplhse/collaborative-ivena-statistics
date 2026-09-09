@@ -1,6 +1,6 @@
-{% set overview = result.overview %}
+{% set overview = result.kpis %}
 <div class="row row-deck row-cards g-3 mb-3" data-testid="stats-hospital-population-kpi-deck">
-    <div class="col-lg-4">
+    <div class="col-sm-6 col-xl-3">
         <div class="card">
             <div class="card-body">
                 <div class="subheader">{{ 'stats.hospital_population.kpi.total_hospitals'|trans({}, 'statistics') }}</div>
@@ -8,7 +8,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
+    <div class="col-sm-6 col-xl-3">
         <div class="card">
             <div class="card-body">
                 <div class="subheader">{{ 'stats.hospital_population.kpi.participants'|trans({}, 'statistics') }}</div>
@@ -16,7 +16,18 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card" data-testid="stats-hospital-population-dispatch-areas-kpi">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.hospital_population.kpi.dispatch_areas'|trans({}, 'statistics') }}</div>
+                <div class="h1 mb-0">
+                    {{ overview.dispatchAreasRepresented|number_format(0, ',', '.') }}
+                    <span class="fs-3 text-secondary">/ {{ overview.dispatchAreasTotal|number_format(0, ',', '.') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
         <div class="card">
             <div class="card-body">
                 <div class="subheader">{{ 'stats.hospital_population.kpi.coverage'|trans({}, 'statistics') }}</div>

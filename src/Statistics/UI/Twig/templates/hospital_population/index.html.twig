@@ -1,6 +1,6 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% block title %}{{ 'stats.hospital_population.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+{% block title %}{{ section.labelKey()|trans({}, 'statistics') }} – {{ 'stats.hospital_population.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
 
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
@@ -14,13 +14,14 @@
     <div class="container-xl">
         <twig:Breadcrumbs :items="[
             { label: 'link.statistics', path: path('app_stats_dashboard') },
-            { label: 'stats.hospital_population.title' }
+            { label: 'stats.hospital_population.title', path: path('app_stats_hospital_population') },
+            { label: section.labelKey() }
         ]" />
 
         <div class="page-header d-print-none mb-0">
             <div class="row g-2 align-items-center">
                 <div class="col min-w-0">
-                    <div class="page-pretitle">{{ 'stats.hospital_population.pretitle'|trans({}, 'statistics') }}</div>
+                    <div class="page-pretitle">{{ section.pretitleKey()|trans({}, 'statistics') }}</div>
                     <h2 class="page-title mb-0" data-testid="stats-hospital-population-heading">{{ 'stats.hospital_population.title'|trans({}, 'statistics') }}</h2>
                 </div>
             </div>
@@ -33,13 +34,21 @@
 {% block page_content_class %}content pt-0{% endblock %}
 
 {% block page_content %}
-    <div data-controller="hospital-population-charts"
-         data-hospital-population-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+    {{ include('@Statistics/hospital_population/_section_tabs.html.twig') }}
 
-        {{ include('@Statistics/hospital_population/_kpi_deck.html.twig') }}
-        {{ include('@Statistics/hospital_population/_overview_section.html.twig') }}
-        {{ include('@Statistics/hospital_population/_beds_section.html.twig') }}
-
-        {{ include('@Statistics/hospital_population/_allocation_basis.html.twig') }}
-    </div>
+    {% if section.value == 'participation' %}
+        {{ include('@Statistics/hospital_population/_participation.html.twig') }}
+    {% elseif section.value == 'coverage' %}
+        {{ include('@Statistics/hospital_population/_coverage.html.twig') }}
+    {% elseif section.value == 'beds' %}
+        <div data-controller="hospital-population-charts"
+             data-hospital-population-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+            {{ include('@Statistics/hospital_population/_beds_section.html.twig') }}
+        </div>
+    {% else %}
+        <div data-controller="hospital-population-charts"
+             data-hospital-population-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+            {{ include('@Statistics/hospital_population/_allocation_basis.html.twig') }}
+        </div>
+    {% endif %}
 {% endblock %}

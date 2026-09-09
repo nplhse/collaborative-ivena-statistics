@@ -13,7 +13,7 @@
 | Benchmarking | `/statistics/benchmarking` | Hospital comparison |
 | DataQuality | Dashboard badges | Traffic-light data quality indicator |
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
-| HospitalPopulation | `/statistics/hospital-population` | Hospital population overview |
+| HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
 
 ## Documents
 
@@ -27,7 +27,7 @@
 | [indication-dashboard-performance.md](indication-dashboard-performance.md) | Indication detail SQL optimisation notes |
 | [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
 | [case-flow.md](case-flow.md) | Case flow dashboard |
-| [hospital-population.md](hospital-population.md) | Hospital population dashboard |
+| [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
 
 ## Reading order (statistics feature work)
 

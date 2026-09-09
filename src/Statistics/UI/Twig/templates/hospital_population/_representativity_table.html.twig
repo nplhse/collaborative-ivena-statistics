@@ -1,0 +1,42 @@
+{% import '@Statistics/hospital_population/_cross_table.html.twig' as crossTable %}
+
+<div class="card" data-testid="{{ testid }}">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ title }}</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-sm mb-0">
+            <thead>
+                <tr>
+                    <th>{{ 'stats.hospital_population.table.category'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.hospital_population.table.population'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.hospital_population.table.participants'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.hospital_population.table.coverage'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.hospital_population.table.population_pct'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.hospital_population.table.participant_pct'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.hospital_population.table.delta'|trans({}, 'statistics') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{{ row.label }}</td>
+                        <td class="text-end">{{ row.population|number_format(0, ',', '.') }}</td>
+                        <td class="text-end">{{ row.participants|number_format(0, ',', '.') }}</td>
+                        <td class="text-end">{{ crossTable.coverage_badge(row.coverage) }}</td>
+                        <td class="text-end">{{ row.populationSharePercent|number_format(1, ',', '.') }}%</td>
+                        <td class="text-end">{{ row.participantSharePercent|number_format(1, ',', '.') }}%</td>
+                        <td class="text-end">
+                            {% set deltaClass = row.deltaPercentPoints > 0 ? 'text-green' : (row.deltaPercentPoints < 0 ? 'text-red' : 'text-secondary') %}
+                            <span class="{{ deltaClass }}">{{ row.deltaPercentPoints|number_format(1, ',', '.') }}</span>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans({}, 'statistics') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

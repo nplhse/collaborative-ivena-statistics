@@ -10,7 +10,6 @@ export default class extends Controller {
             sortClass: 'table-sort',
             listClass: 'table-tbody',
             valueNames: [
-                'sort-state',
                 'sort-dispatch-area',
                 { attr: 'data-population', name: 'sort-population' },
                 { attr: 'data-participants', name: 'sort-participants' },

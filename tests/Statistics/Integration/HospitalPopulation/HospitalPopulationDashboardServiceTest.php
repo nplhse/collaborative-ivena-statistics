@@ -83,24 +83,39 @@ final class HospitalPopulationDashboardServiceTest extends KernelTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $result = self::getContainer()->get(HospitalPopulationDashboardService::class)->build();
+        $service = self::getContainer()->get(HospitalPopulationDashboardService::class);
+        $participation = $service->buildParticipation();
+        $coverage = $service->buildCoverage();
+        $beds = $service->buildBeds();
+        $allocations = $service->buildAllocations();
 
-        self::assertSame(2, $result->overview->totalHospitals);
-        self::assertSame(1, $result->overview->participants);
-        self::assertSame(0.5, $result->overview->coverage);
-        self::assertCount(3, $result->allocationBasis->byTier);
-        self::assertCount(3, $result->allocationBasis->byLocation);
-        self::assertCount(3, $result->allocationBasis->sizeByTierCrossTable->rows);
-        self::assertSame(12, $result->allocationBasis->byTier[2]->totalAllocations);
-        self::assertCount(2, $result->mapMarkers);
-        self::assertCount(2, $result->regionalCoverage);
-        self::assertCount(3, $result->bedsBoxPlotByCareLevel);
-        self::assertCount(3, $result->bedsBoxPlotByLocation);
-        self::assertCount(3, $result->overview->sizeByTierCrossTable->rows);
-        self::assertCount(3, $result->overview->sizeByTierCrossTable->columns);
-        self::assertSame(1, $result->overview->sizeByTierCrossTable->rows[2]->cells[2]->participants);
-        self::assertSame(0, $result->overview->sizeByTierCrossTable->rows[0]->cells[0]->participants);
-        self::assertSame(1, $result->overview->urbanityByTierCrossTable->rows[2]->cells[0]->participants);
-        self::assertSame('Example State', $result->regionalCoverage[0]->stateName);
+        self::assertSame(2, $participation->kpis->totalHospitals);
+        self::assertSame(1, $participation->kpis->participants);
+        self::assertSame(0.5, $participation->kpis->coverage);
+        self::assertSame(2, $participation->kpis->dispatchAreasTotal);
+        self::assertSame(1, $participation->kpis->dispatchAreasRepresented);
+        self::assertCount(2, $participation->mapMarkers);
+        self::assertCount(2, $participation->regionalCoverage);
+        self::assertSame('Example State', $participation->regionalCoverage[0]->stateName);
+
+        self::assertCount(3, $coverage->byCareLevel);
+        self::assertCount(3, $coverage->bySize);
+        self::assertCount(3, $coverage->byLocation);
+        self::assertCount(1, $coverage->byState);
+        self::assertSame('Example State', $coverage->byState[0]->label);
+        self::assertSame(2, $coverage->byState[0]->population);
+        self::assertSame(1, $coverage->byState[0]->participants);
+        self::assertCount(3, $coverage->sizeByTierCrossTable->rows);
+        self::assertCount(3, $coverage->sizeByTierCrossTable->columns);
+        self::assertSame(1, $coverage->sizeByTierCrossTable->rows[2]->cells[2]->participants);
+        self::assertSame(0, $coverage->sizeByTierCrossTable->rows[0]->cells[0]->participants);
+        self::assertSame(1, $coverage->urbanityByTierCrossTable->rows[2]->cells[0]->participants);
+
+        self::assertCount(3, $allocations->allocationBasis->byTier);
+        self::assertCount(3, $allocations->allocationBasis->byLocation);
+        self::assertCount(3, $allocations->allocationBasis->sizeByTierCrossTable->rows);
+        self::assertSame(12, $allocations->allocationBasis->byTier[2]->totalAllocations);
+        self::assertCount(3, $beds->bedsBoxPlotByCareLevel);
+        self::assertCount(3, $beds->bedsBoxPlotByLocation);
     }
 }

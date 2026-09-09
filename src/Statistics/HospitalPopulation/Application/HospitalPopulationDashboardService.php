@@ -8,10 +8,15 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Statistics\CaseFlow\Application\CaseFlowGeoKeyResolver;
-use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationDashboardResult;
+use App\Statistics\HospitalPopulation\Application\DTO\CoverageCrossTable;
+use App\Statistics\HospitalPopulation\Application\DTO\DistributionSummaryRow;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationAllocationsResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationBedsResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationCoverageResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationKpis;
 use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationMapChoroplethFeature;
 use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationMapMarker;
-use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationOverview;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationParticipationResult;
 use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationSnapshot;
 use App\Statistics\HospitalPopulation\Application\DTO\RegionalCoverageRow;
 use App\Statistics\HospitalPopulation\Infrastructure\Query\GetAllocationCountsPerHospitalQuery;
@@ -20,6 +25,9 @@ use App\Statistics\HospitalPopulation\Infrastructure\Query\GetHospitalPopulation
 
 final readonly class HospitalPopulationDashboardService
 {
+    private const string UNKNOWN_KEY = 'unknown';
+    private const string UNKNOWN_LABEL = 'Unknown';
+
     public function __construct(
         private GetHospitalPopulationQuery $populationQuery,
         private GetHospitalIdsWithAllocationsQuery $hospitalIdsWithAllocationsQuery,
@@ -34,51 +42,71 @@ final readonly class HospitalPopulationDashboardService
     ) {
     }
 
-    public function build(): HospitalPopulationDashboardResult
+    public function buildParticipation(): HospitalPopulationParticipationResult
     {
-        $snapshots = $this->snapshotEnricher->enrich(
-            ($this->populationQuery)(),
-            ($this->hospitalIdsWithAllocationsQuery)(),
-            ($this->allocationCountsPerHospitalQuery)(),
-        );
+        $snapshots = $this->loadSnapshots(withAllocationCounts: false);
+        $regionalCoverage = $this->distributionTableBuilder->buildRegionalCoverageTable($snapshots);
 
+        return new HospitalPopulationParticipationResult(
+            kpis: $this->buildKpis($snapshots, $regionalCoverage),
+            regionalCoverage: $regionalCoverage,
+            mapMarkers: $this->buildMapMarkers($snapshots),
+            mapChoropleth: $this->buildMapChoropleth($regionalCoverage),
+        );
+    }
+
+    public function buildCoverage(): HospitalPopulationCoverageResult
+    {
+        $snapshots = $this->loadSnapshots(withAllocationCounts: false);
         $totalHospitals = \count($snapshots);
-        $participants = \count(array_filter(
-            $snapshots,
-            static fn (HospitalPopulationSnapshot $snapshot): bool => $snapshot->isParticipating,
-        ));
+        $participants = $this->countParticipants($snapshots);
+        $enumLabel = static fn (string $key): string => self::UNKNOWN_KEY === $key ? self::UNKNOWN_LABEL : $key;
+        $tierKeys = array_values(HospitalTier::getValues());
 
-        $bedValues = array_map(static fn (HospitalPopulationSnapshot $snapshot): int => $snapshot->beds, $snapshots);
-        $bedStats = $this->descriptiveStatisticsCalculator->calculate($bedValues);
-
-        $tierKeys = array_map(
-            static fn (HospitalTier $tier): string => $tier->value,
-            HospitalTier::cases(),
-        );
-        $enumLabel = static fn (string $key): string => $key;
-
-        $overview = new HospitalPopulationOverview(
-            totalHospitals: $totalHospitals,
-            participants: $participants,
-            coverage: $this->coverageCalculator->calculate($participants, $totalHospitals),
-            sizeByTierCrossTable: $this->distributionTableBuilder->buildCrossTable(
+        return new HospitalPopulationCoverageResult(
+            byCareLevel: $this->withoutEmptyUnknownRows($this->buildDimensionSummaries(
                 $snapshots,
-                static fn (HospitalPopulationSnapshot $snapshot): ?string => $snapshot->careLevel?->value,
+                static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->careLevel instanceof HospitalTier
+                    ? $snapshot->careLevel->value
+                    : self::UNKNOWN_KEY,
+                [...$tierKeys, self::UNKNOWN_KEY],
+                $enumLabel,
+                $totalHospitals,
+                $participants,
+            )),
+            bySize: $this->buildDimensionSummaries(
+                $snapshots,
                 static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->size->value,
-                $tierKeys,
-                array_map(static fn (HospitalSize $size): string => $size->value, HospitalSize::cases()),
+                array_values(HospitalSize::getValues()),
                 $enumLabel,
+                $totalHospitals,
+                $participants,
             ),
-            urbanityByTierCrossTable: $this->distributionTableBuilder->buildCrossTable(
+            byLocation: $this->buildDimensionSummaries(
                 $snapshots,
-                static fn (HospitalPopulationSnapshot $snapshot): ?string => $snapshot->careLevel?->value,
                 static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->urbanity->value,
-                $tierKeys,
-                array_map(static fn (HospitalLocation $location): string => $location->value, HospitalLocation::cases()),
+                array_values(HospitalLocation::getValues()),
                 $enumLabel,
+                $totalHospitals,
+                $participants,
             ),
+            byState: $this->buildDimensionSummaries(
+                $snapshots,
+                static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->stateName,
+                $this->orderedStateNames($snapshots),
+                $enumLabel,
+                $totalHospitals,
+                $participants,
+            ),
+            sizeByTierCrossTable: $this->buildSizeByTierCrossTable($snapshots, $tierKeys, $enumLabel),
+            urbanityByTierCrossTable: $this->buildUrbanityByTierCrossTable($snapshots, $tierKeys, $enumLabel),
         );
+    }
 
+    public function buildBeds(): HospitalPopulationBedsResult
+    {
+        $snapshots = $this->loadSnapshots(withAllocationCounts: false);
+        $bedValues = array_map(static fn (HospitalPopulationSnapshot $snapshot): int => $snapshot->beds, $snapshots);
         $participantBeds = array_map(
             static fn (HospitalPopulationSnapshot $snapshot): int => $snapshot->beds,
             array_values(array_filter(
@@ -86,22 +114,169 @@ final readonly class HospitalPopulationDashboardService
                 static fn (HospitalPopulationSnapshot $snapshot): bool => $snapshot->isParticipating,
             )),
         );
-
-        $regionalCoverage = $this->distributionTableBuilder->buildRegionalCoverageTable($snapshots);
-
         $bedsBoxPlotBreakdown = $this->bedsBoxPlotBuilder->build($snapshots);
 
-        return new HospitalPopulationDashboardResult(
-            overview: $overview,
-            regionalCoverage: $regionalCoverage,
-            bedsPopulation: $bedStats,
+        return new HospitalPopulationBedsResult(
+            bedsPopulation: $this->descriptiveStatisticsCalculator->calculate($bedValues),
             bedsParticipants: $this->descriptiveStatisticsCalculator->calculate($participantBeds),
-            allocationBasis: $this->allocationBasisSummaryCalculator->calculate($snapshots),
-            mapMarkers: $this->buildMapMarkers($snapshots),
-            mapChoropleth: $this->buildMapChoropleth($regionalCoverage),
             bedsBoxPlotByCareLevel: $bedsBoxPlotBreakdown->byCareLevel,
             bedsBoxPlotByLocation: $bedsBoxPlotBreakdown->byLocation,
         );
+    }
+
+    public function buildAllocations(): HospitalPopulationAllocationsResult
+    {
+        return new HospitalPopulationAllocationsResult(
+            allocationBasis: $this->allocationBasisSummaryCalculator->calculate(
+                $this->loadSnapshots(withAllocationCounts: true),
+            ),
+        );
+    }
+
+    /**
+     * @return list<HospitalPopulationSnapshot>
+     */
+    private function loadSnapshots(bool $withAllocationCounts): array
+    {
+        return $this->snapshotEnricher->enrich(
+            ($this->populationQuery)(),
+            ($this->hospitalIdsWithAllocationsQuery)(),
+            $withAllocationCounts ? ($this->allocationCountsPerHospitalQuery)() : [],
+        );
+    }
+
+    /**
+     * @param list<HospitalPopulationSnapshot> $snapshots
+     * @param list<RegionalCoverageRow>        $regionalCoverage
+     */
+    private function buildKpis(array $snapshots, array $regionalCoverage): HospitalPopulationKpis
+    {
+        $totalHospitals = \count($snapshots);
+        $participants = $this->countParticipants($snapshots);
+        $dispatchAreasTotal = \count($regionalCoverage);
+        $dispatchAreasRepresented = \count(array_filter(
+            $regionalCoverage,
+            static fn (RegionalCoverageRow $row): bool => $row->participants > 0,
+        ));
+
+        return new HospitalPopulationKpis(
+            totalHospitals: $totalHospitals,
+            participants: $participants,
+            coverage: $this->coverageCalculator->calculate($participants, $totalHospitals),
+            dispatchAreasTotal: $dispatchAreasTotal,
+            dispatchAreasRepresented: $dispatchAreasRepresented,
+        );
+    }
+
+    /**
+     * @param list<HospitalPopulationSnapshot>             $snapshots
+     * @param callable(HospitalPopulationSnapshot): string $keyResolver
+     * @param list<string>                                 $orderedKeys
+     * @param callable(string): string                     $labelResolver
+     *
+     * @return list<DistributionSummaryRow>
+     */
+    private function buildDimensionSummaries(
+        array $snapshots,
+        callable $keyResolver,
+        array $orderedKeys,
+        callable $labelResolver,
+        int $totalHospitals,
+        int $participants,
+    ): array {
+        $coverageRows = $this->distributionTableBuilder->buildCategoryTable(
+            $snapshots,
+            $keyResolver,
+            $labelResolver,
+            $orderedKeys,
+        );
+
+        return $this->distributionTableBuilder->buildDistributionSummaries(
+            $snapshots,
+            $coverageRows,
+            $totalHospitals,
+            $participants,
+        );
+    }
+
+    /**
+     * @param list<HospitalPopulationSnapshot> $snapshots
+     * @param list<string>                     $tierKeys
+     * @param callable(string): string         $labelResolver
+     */
+    private function buildSizeByTierCrossTable(
+        array $snapshots,
+        array $tierKeys,
+        callable $labelResolver,
+    ): CoverageCrossTable {
+        return $this->distributionTableBuilder->buildCrossTable(
+            $snapshots,
+            static fn (HospitalPopulationSnapshot $snapshot): ?string => $snapshot->careLevel?->value,
+            static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->size->value,
+            $tierKeys,
+            array_values(HospitalSize::getValues()),
+            $labelResolver,
+        );
+    }
+
+    /**
+     * @param list<HospitalPopulationSnapshot> $snapshots
+     * @param list<string>                     $tierKeys
+     * @param callable(string): string         $labelResolver
+     */
+    private function buildUrbanityByTierCrossTable(
+        array $snapshots,
+        array $tierKeys,
+        callable $labelResolver,
+    ): CoverageCrossTable {
+        return $this->distributionTableBuilder->buildCrossTable(
+            $snapshots,
+            static fn (HospitalPopulationSnapshot $snapshot): ?string => $snapshot->careLevel?->value,
+            static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->urbanity->value,
+            $tierKeys,
+            array_values(HospitalLocation::getValues()),
+            $labelResolver,
+        );
+    }
+
+    /**
+     * @param list<DistributionSummaryRow> $rows
+     *
+     * @return list<DistributionSummaryRow>
+     */
+    private function withoutEmptyUnknownRows(array $rows): array
+    {
+        return array_values(array_filter(
+            $rows,
+            static fn (DistributionSummaryRow $row): bool => self::UNKNOWN_KEY !== $row->key || $row->population > 0,
+        ));
+    }
+
+    /**
+     * @param list<HospitalPopulationSnapshot> $snapshots
+     *
+     * @return list<string>
+     */
+    private function orderedStateNames(array $snapshots): array
+    {
+        $names = array_values(array_unique(array_map(
+            static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->stateName,
+            $snapshots,
+        )));
+        sort($names, \SORT_STRING);
+
+        return $names;
+    }
+
+    /**
+     * @param list<HospitalPopulationSnapshot> $snapshots
+     */
+    private function countParticipants(array $snapshots): int
+    {
+        return \count(array_filter(
+            $snapshots,
+            static fn (HospitalPopulationSnapshot $snapshot): bool => $snapshot->isParticipating,
+        ));
     }
 
     /**

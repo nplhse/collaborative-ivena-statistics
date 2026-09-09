@@ -1,0 +1,38 @@
+{% import '@Statistics/hospital_population/_cross_table.html.twig' as crossTable %}
+
+<div class="card h-100 d-flex flex-column">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.regional_coverage'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div
+        id="hospital-population-regional-coverage"
+        class="table-responsive flex-grow-1"
+        data-controller="hospital-population-regional-table"
+        data-testid="stats-hospital-population-regional-coverage"
+    >
+        <table class="table table-vcenter card-table table-sm mb-0">
+            <thead>
+                <tr>
+                    <th><button class="table-sort" data-sort="sort-dispatch-area">{{ 'stats.hospital_population.table.dispatch_area'|trans({}, 'statistics') }}</button></th>
+                    <th class="text-end"><button class="table-sort" data-sort="sort-population">{{ 'stats.hospital_population.table.population'|trans({}, 'statistics') }}</button></th>
+                    <th class="text-end"><button class="table-sort" data-sort="sort-participants">{{ 'stats.hospital_population.table.participants'|trans({}, 'statistics') }}</button></th>
+                    <th class="text-end"><button class="table-sort" data-sort="sort-coverage">{{ 'stats.hospital_population.table.coverage'|trans({}, 'statistics') }}</button></th>
+                </tr>
+            </thead>
+            <tbody class="table-tbody">
+                {% for row in result.regionalCoverage %}
+                    <tr>
+                        <td class="sort-dispatch-area">{{ row.dispatchAreaName }}</td>
+                        <td class="sort-population text-end" data-population="{{ row.population }}">{{ row.population|number_format(0, ',', '.') }}</td>
+                        <td class="sort-participants text-end" data-participants="{{ row.participants }}">{{ row.participants|number_format(0, ',', '.') }}</td>
+                        <td class="sort-coverage text-end" data-coverage="{{ row.coverage|number_format(6, '.', '') }}">{{ crossTable.coverage_badge(row.coverage) }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans({}, 'statistics') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
