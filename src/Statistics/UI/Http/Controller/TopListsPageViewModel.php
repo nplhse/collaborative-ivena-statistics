@@ -42,6 +42,7 @@ final readonly class TopListsPageViewModel
         public array $comparisonPreservedQuery,
         public string $indexUrl,
         public ?string $catalogListUrl,
+        public string $exportCsvUrl,
     ) {
     }
 }

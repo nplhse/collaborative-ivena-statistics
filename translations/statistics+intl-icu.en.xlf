@@ -5653,6 +5653,46 @@
         <source>stats.top_lists.comparison.delta.aria</source>
         <target>{delta} versus comparison A</target>
       </trans-unit>
+      <trans-unit id="statsTlExp01" resname="stats.top_lists.export.csv">
+        <source>stats.top_lists.export.csv</source>
+        <target>Export CSV</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp02" resname="stats.top_lists.export.scope_a">
+        <source>stats.top_lists.export.scope_a</source>
+        <target>Scope A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp03" resname="stats.top_lists.export.period_a">
+        <source>stats.top_lists.export.period_a</source>
+        <target>Period A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp04" resname="stats.top_lists.export.scope_b">
+        <source>stats.top_lists.export.scope_b</source>
+        <target>Scope B</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp05" resname="stats.top_lists.export.period_b">
+        <source>stats.top_lists.export.period_b</source>
+        <target>Period B</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp06" resname="stats.top_lists.export.relative_delta">
+        <source>stats.top_lists.export.relative_delta</source>
+        <target>Relative delta</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp07" resname="stats.top_lists.comparison.count_a">
+        <source>stats.top_lists.comparison.count_a</source>
+        <target>Count A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp08" resname="stats.top_lists.comparison.share_a">
+        <source>stats.top_lists.comparison.share_a</source>
+        <target>Share A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp09" resname="stats.top_lists.comparison.count_b">
+        <source>stats.top_lists.comparison.count_b</source>
+        <target>Count B</target>
+      </trans-unit>
+      <trans-unit id="statsTlExp10" resname="stats.top_lists.comparison.share_b">
+        <source>stats.top_lists.comparison.share_b</source>
+        <target>Share B</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

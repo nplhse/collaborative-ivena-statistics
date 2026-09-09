@@ -24,6 +24,28 @@ final readonly class TopListComparison
         return max(\count($this->rowsA), \count($this->rowsB));
     }
 
+    /**
+     * Full outer join of both rankings: all A identities first, then values that exist only in B.
+     *
+     * @return list<TopListComparisonRow>
+     */
+    public function mergedRows(): array
+    {
+        $merged = $this->rowsA;
+        $identities = [];
+        foreach ($this->rowsA as $row) {
+            $identities[$row->identity] = true;
+        }
+
+        foreach ($this->rowsB as $row) {
+            if (!isset($identities[$row->identity])) {
+                $merged[] = $row;
+            }
+        }
+
+        return $merged;
+    }
+
     public function pageSlice(int $page, int $pageSize): self
     {
         return new self(

@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Allocation\Domain\Enum\HospitalPermission;
-use App\Statistics\Application\ComparisonScopeResolver;
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\StatisticsContextFactory;
-use App\Statistics\Application\StatisticsDrawerFilterFactory;
-use App\Statistics\Application\TopList\TopListComparisonAssembler;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Application\TopList\TopListDefinitionRegistry;
+use App\Statistics\Application\TopList\TopListResultLoader;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
@@ -27,21 +23,18 @@ use Symfony\Component\Translation\TranslatableMessage;
 final class TopListsController extends AbstractController
 {
     public function __construct(
-        private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly TopListsRequestModelFactory $topListsRequestModelFactory,
         private readonly TopListDefinitionRegistry $topListDefinitionRegistry,
+        private readonly TopListResultLoader $topListResultLoader,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly TopListsIndexPresenter $topListsIndexPresenter,
         private readonly TopListsPagePresenter $topListsPagePresenter,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly StatisticsExplorerViewModelFactory $statisticsExplorerViewModelFactory,
         private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
-        private readonly StatisticsDrawerFilterFactory $statisticsDrawerFilterFactory,
         private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
-        private readonly ComparisonScopeResolver $comparisonScopeResolver,
-        private readonly TopListComparisonAssembler $topListComparisonAssembler,
     ) {
     }
 
@@ -122,8 +115,6 @@ final class TopListsController extends AbstractController
             throw new NotFoundHttpException(sprintf('Unknown top list "%s".', $report));
         }
 
-        $drawerFilter = $this->statisticsDrawerFilterFactory->fromRequest($request);
-        $context = $this->statisticsContextFactory->create($user, $filter, drawerFilter: $drawerFilter);
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
             'app_stats_top_lists_show',
@@ -136,35 +127,28 @@ final class TopListsController extends AbstractController
         }
 
         $topListsRequest = $this->topListsRequestModelFactory->fromQuery($request->query->all(), $report);
-        $rankingA = $definition->fetchRanking($context, $topListsRequest->limit->queryLimit());
-
-        $comparisonFilter = $this->comparisonScopeResolver->resolve(
+        $resolved = $this->topListResultLoader->load(
             $request,
             $user,
             $filter,
-            HospitalPermission::Statistics,
+            $definition,
+            $topListsRequest->limit,
+            $topListsRequest->compare,
         );
-        $comparison = null;
+
         $comparisonPageViewModel = null;
         $comparisonPeriodViewModel = null;
         if ($topListsRequest->compare) {
-            $contextB = $this->statisticsContextFactory->create(
-                $user,
-                $comparisonFilter,
-                drawerFilter: $drawerFilter,
-            );
-            $rankingB = $definition->fetchRanking($contextB, $topListsRequest->limit->queryLimit());
-            $comparison = $this->topListComparisonAssembler->assemble($rankingA, $rankingB);
             $comparisonPageViewModel = $this->statisticsPageViewModelFactory->create(
                 $request,
                 'app_stats_top_lists_show',
                 $user,
-                $comparisonFilter,
+                $resolved->comparisonFilter,
             );
             $comparisonPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
                 $request,
                 'app_stats_top_lists_show',
-                $comparisonFilter,
+                $resolved->comparisonFilter,
             );
         }
 
@@ -173,11 +157,11 @@ final class TopListsController extends AbstractController
             $request,
             $definition,
             $topListsRequest,
-            $rankingA,
+            $resolved->rankingA,
             $this->topListDefinitionRegistry->all(),
-            $comparison,
+            $resolved->comparison,
             $filter,
-            $comparisonFilter,
+            $resolved->comparisonFilter,
             $pageViewModel->headingScope,
             $overviewPeriodViewModel->headingLabel,
             $comparisonPageViewModel?->headingScope,
@@ -210,6 +194,7 @@ final class TopListsController extends AbstractController
                 'statsHideScopeControls' => $topListsPage->compareEnabled,
                 'statsHidePeriodControls' => $topListsPage->compareEnabled,
                 'statsTopListCatalogUrl' => $topListsPage->catalogListUrl,
+                'statsTopListExportCsvUrl' => $topListsPage->exportCsvUrl,
             ],
         ));
     }
