@@ -55,9 +55,9 @@ If the shared directory is empty after a deploy, or after hospital coordinates w
 ```bash
 cd ~/www/current
 php bin/console dbal:run-sql "SELECT id, name FROM state ORDER BY id"
-php bin/console app:hospital:geocode-coordinates <stateId>
-php bin/console app:hospital:geocode-coordinates <stateId> --apply --force
-php bin/console app:allocation:fetch-hospital-isochrones <stateId> --apply --force
+php bin/console app:geo:geocode-hospitals --state-id=<stateId>
+php bin/console app:geo:geocode-hospitals --state-id=<stateId> --apply --force
+php bin/console app:geo:fetch-isochrones --state-id=<stateId> --apply --force
 ```
 
 The first geocode run needs `--force` because existing coordinates are city/postal-code centroids. Full operator runbook (new hospitals, address changes, adding a federal state): [hospital-geodata.md](hospital-geodata.md).

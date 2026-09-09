@@ -14,6 +14,7 @@ final readonly class HospitalIsochroneFetchReport
         public bool $success,
         public bool $dryRun,
         public ?string $error = null,
+        public string $scopeLabel = '',
         public array $rows = [],
         public int $inspected = 0,
         public int $missingCoords = 0,
@@ -21,6 +22,7 @@ final readonly class HospitalIsochroneFetchReport
         public int $toFetch = 0,
         public int $written = 0,
         public int $failed = 0,
+        public bool $rateLimited = false,
     ) {
     }
 }

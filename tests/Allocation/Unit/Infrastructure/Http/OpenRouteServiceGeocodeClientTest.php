@@ -97,6 +97,20 @@ final class OpenRouteServiceGeocodeClientTest extends TestCase
 
         $outcome = $client->geocodeAddress('Mönchebergstraße 41-43', '34125', 'Kassel', 'DE');
         self::assertTrue($outcome->requestFailed);
+        self::assertFalse($outcome->rateLimited);
+    }
+
+    public function testReturnsRateLimitedForQuotaExceeded(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse('{"error":"Quota exceeded"}', ['http_code' => 403]),
+        ]);
+        $client = new OpenRouteServiceGeocodeClient($httpClient, new NullLogger(), 'test-key');
+
+        $outcome = $client->geocodeAddress('Mönchebergstraße 41-43', '34125', 'Kassel', 'DE');
+        self::assertTrue($outcome->rateLimited);
+        self::assertFalse($outcome->requestFailed);
+        self::assertNull($outcome->match);
     }
 
     public function testReturnsUnusableWhenPayloadHasNoFeatures(): void

@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Hospital;
 
 use App\Allocation\Application\Contracts\HospitalGeocodeClientInterface;
-use App\Allocation\Application\Contracts\HospitalLookupInterface;
-use App\Allocation\Application\Contracts\StateLookupInterface;
 use App\Allocation\Application\Hospital\DTO\HospitalGeocodeMatch;
+use App\Allocation\Application\Hospital\DTO\HospitalGeocodeOutcome;
 use App\Allocation\Application\Hospital\DTO\HospitalGeocodeReport;
 use App\Allocation\Domain\Entity\Hospital;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,24 +14,24 @@ use Doctrine\ORM\EntityManagerInterface;
 final readonly class HospitalGeocodeService
 {
     public function __construct(
-        private StateLookupInterface $stateLookup,
-        private HospitalLookupInterface $hospitalLookup,
+        private HospitalGeoScopeResolver $scopeResolver,
         private HospitalGeocodeClientInterface $geocodeClient,
         private EntityManagerInterface $entityManager,
+        private OpenRouteServiceCallPacer $pacer = new OpenRouteServiceCallPacer(),
     ) {
     }
 
-    public function run(int $stateId, bool $apply, bool $force, int $delayMs): HospitalGeocodeReport
+    public function run(HospitalGeoScope $scope, bool $apply, bool $force, int $delayMs): HospitalGeocodeReport
     {
         $dryRun = !$apply;
         $delayMs = max(0, $delayMs);
 
-        $state = $this->stateLookup->findById($stateId);
-        if (!$state instanceof \App\Allocation\Domain\Entity\State) {
+        $resolution = $this->scopeResolver->resolve($scope);
+        if (!$resolution->success) {
             return new HospitalGeocodeReport(
                 success: false,
                 dryRun: $dryRun,
-                error: sprintf('Unknown federal state #%d.', $stateId),
+                error: $resolution->error ?? 'Hospital geo scope could not be resolved.',
             );
         }
 
@@ -44,15 +43,13 @@ final readonly class HospitalGeocodeService
             );
         }
 
-        $hospitals = $this->hospitalLookup->findByState($state);
+        $hospitals = $resolution->hospitals;
+        /** @var list<array{0: string, 1: string, 2: string, 3: string, 4: string}> $rows */
         $rows = [];
+        /** @var list<array{hospital: Hospital, query: HospitalGeocodeAddress, row: int}> $pending */
+        $pending = [];
         $skipped = 0;
         $missingAddress = 0;
-        $toGeocode = 0;
-        $written = 0;
-        $unusableMatch = 0;
-        $failed = 0;
-        $delayBeforeNextFetch = false;
 
         foreach ($hospitals as $hospital) {
             $name = $hospital->getName() ?? '';
@@ -72,50 +69,83 @@ final readonly class HospitalGeocodeService
                 continue;
             }
 
-            ++$toGeocode;
-            if ($dryRun) {
-                $rows[] = [$name, $addressDisplay, $previous, '—', 'geocode'];
-                continue;
-            }
+            $rows[] = [$name, $addressDisplay, $previous, '—', 'geocode'];
+            $pending[] = ['hospital' => $hospital, 'query' => $query, 'row' => \count($rows) - 1];
+        }
 
-            if ($delayBeforeNextFetch && $delayMs > 0) {
-                usleep($delayMs * 1000);
-            }
-
-            $outcome = $this->geocodeClient->geocodeAddress(
-                $query->street,
-                $query->postalCode,
-                $query->city,
-                $query->country,
+        $toGeocode = \count($pending);
+        if ($dryRun) {
+            return new HospitalGeocodeReport(
+                success: true,
+                dryRun: true,
+                scopeLabel: $resolution->label,
+                rows: $rows,
+                inspected: \count($hospitals),
+                skipped: $skipped,
+                missingAddress: $missingAddress,
+                toGeocode: $toGeocode,
             );
+        }
+
+        $written = 0;
+        $unusableMatch = 0;
+        $failed = 0;
+        $delayBeforeNextFetch = false;
+
+        foreach ($pending as $item) {
+            $hospital = $item['hospital'];
+            $query = $item['query'];
+            $rowIndex = $item['row'];
+
+            $this->pacer->pauseBetweenCalls($delayBeforeNextFetch, $delayMs);
+            $outcome = $this->geocodeWithSingleRetry($query, $delayMs);
             $delayBeforeNextFetch = true;
 
+            if ($outcome->rateLimited) {
+                $rows[$rowIndex][4] = 'rate-limited';
+                $this->flushIfNeeded($written);
+
+                return new HospitalGeocodeReport(
+                    success: true,
+                    dryRun: false,
+                    scopeLabel: $resolution->label,
+                    rows: array_values($rows),
+                    inspected: \count($hospitals),
+                    skipped: $skipped,
+                    missingAddress: $missingAddress,
+                    toGeocode: $toGeocode,
+                    written: $written,
+                    unusableMatch: $unusableMatch,
+                    failed: $failed,
+                    rateLimited: true,
+                );
+            }
+
             if ($outcome->requestFailed) {
-                $rows[] = [$name, $addressDisplay, $previous, '—', 'failed'];
+                $rows[$rowIndex][4] = 'failed';
                 ++$failed;
                 continue;
             }
 
             $match = $outcome->match;
             if ($outcome->unusableMatch || !$match instanceof HospitalGeocodeMatch) {
-                $rows[] = [$name, $addressDisplay, $previous, '—', 'unusable-match'];
+                $rows[$rowIndex][4] = 'unusable-match';
                 ++$unusableMatch;
                 continue;
             }
 
             $this->applyMatch($hospital, $match->latitude, $match->longitude);
-            $rows[] = [$name, $addressDisplay, $previous, $this->formatMatch($match), 'geocode'];
+            $rows[$rowIndex][3] = $this->formatMatch($match);
             ++$written;
         }
 
-        if ($apply && $written > 0) {
-            $this->entityManager->flush();
-        }
+        $this->flushIfNeeded($written);
 
         return new HospitalGeocodeReport(
             success: true,
-            dryRun: $dryRun,
-            rows: $rows,
+            dryRun: false,
+            scopeLabel: $resolution->label,
+            rows: array_values($rows),
             inspected: \count($hospitals),
             skipped: $skipped,
             missingAddress: $missingAddress,
@@ -124,6 +154,35 @@ final readonly class HospitalGeocodeService
             unusableMatch: $unusableMatch,
             failed: $failed,
         );
+    }
+
+    private function geocodeWithSingleRetry(HospitalGeocodeAddress $query, int $delayMs): HospitalGeocodeOutcome
+    {
+        $outcome = $this->geocodeClient->geocodeAddress(
+            $query->street,
+            $query->postalCode,
+            $query->city,
+            $query->country,
+        );
+        if (!$outcome->rateLimited) {
+            return $outcome;
+        }
+
+        $this->pacer->pauseForRetryAfter($outcome->retryAfterSeconds, $delayMs);
+
+        return $this->geocodeClient->geocodeAddress(
+            $query->street,
+            $query->postalCode,
+            $query->city,
+            $query->country,
+        );
+    }
+
+    private function flushIfNeeded(int $written): void
+    {
+        if ($written > 0) {
+            $this->entityManager->flush();
+        }
     }
 
     private function applyMatch(Hospital $hospital, float $latitude, float $longitude): void

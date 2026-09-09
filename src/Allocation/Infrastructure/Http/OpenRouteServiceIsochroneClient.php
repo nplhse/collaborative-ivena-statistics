@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Http;
 
 use App\Allocation\Application\Contracts\HospitalIsochroneClientInterface;
+use App\Allocation\Application\Hospital\DTO\HospitalIsochroneFetchOutcome;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -38,14 +39,11 @@ final readonly class OpenRouteServiceIsochroneClient implements HospitalIsochron
         return '' !== trim($this->apiKey);
     }
 
-    /**
-     * @return array{type: string, features: list<array<string, mixed>>}|null
-     */
     #[\Override]
-    public function fetchDestinationIsochrones(float $latitude, float $longitude): ?array
+    public function fetchDestinationIsochrones(float $latitude, float $longitude): HospitalIsochroneFetchOutcome
     {
         if (!$this->hasApiKey()) {
-            return null;
+            return HospitalIsochroneFetchOutcome::failed();
         }
 
         try {
@@ -64,18 +62,31 @@ final readonly class OpenRouteServiceIsochroneClient implements HospitalIsochron
                 'timeout' => self::REQUEST_TIMEOUT_SECONDS,
             ]);
 
-            if ($response->getStatusCode() >= 300) {
+            $status = $response->getStatusCode();
+            if ($status >= 300) {
+                $body = $response->getContent(false);
                 $this->logger->warning('OpenRouteService isochrones request failed.', [
-                    'status' => $response->getStatusCode(),
-                    'response' => $response->getContent(false),
+                    'status' => $status,
+                    'response' => $body,
                     'latitude' => $latitude,
                     'longitude' => $longitude,
                 ]);
 
-                return null;
+                if (OpenRouteServiceRateLimit::detected($status, $body)) {
+                    return HospitalIsochroneFetchOutcome::rateLimited(
+                        OpenRouteServiceRateLimit::retryAfterSeconds($response),
+                    );
+                }
+
+                return HospitalIsochroneFetchOutcome::failed();
             }
 
-            return $this->reduceGeoJson($response->toArray(false));
+            $geojson = $this->reduceGeoJson($response->toArray(false));
+            if (null === $geojson) {
+                return HospitalIsochroneFetchOutcome::failed();
+            }
+
+            return HospitalIsochroneFetchOutcome::success($geojson);
         } catch (TransportExceptionInterface|HttpExceptionInterface|DecodingExceptionInterface $exception) {
             $this->logger->warning('OpenRouteService isochrones request failed.', [
                 'exception' => $exception,
@@ -83,7 +94,7 @@ final readonly class OpenRouteServiceIsochroneClient implements HospitalIsochron
                 'longitude' => $longitude,
             ]);
 
-            return null;
+            return HospitalIsochroneFetchOutcome::failed();
         }
     }
 

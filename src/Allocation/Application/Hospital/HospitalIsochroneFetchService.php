@@ -6,31 +6,31 @@ namespace App\Allocation\Application\Hospital;
 
 use App\Allocation\Application\Contracts\HospitalIsochroneClientInterface;
 use App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface;
-use App\Allocation\Application\Contracts\HospitalLookupInterface;
-use App\Allocation\Application\Contracts\StateLookupInterface;
+use App\Allocation\Application\Hospital\DTO\HospitalIsochroneFetchOutcome;
 use App\Allocation\Application\Hospital\DTO\HospitalIsochroneFetchReport;
+use App\Allocation\Domain\Entity\Hospital;
 
 final readonly class HospitalIsochroneFetchService
 {
     public function __construct(
-        private StateLookupInterface $stateLookup,
-        private HospitalLookupInterface $hospitalLookup,
+        private HospitalGeoScopeResolver $scopeResolver,
         private HospitalIsochroneClientInterface $isochroneClient,
         private HospitalIsochroneStoreInterface $isochroneStore,
+        private OpenRouteServiceCallPacer $pacer = new OpenRouteServiceCallPacer(),
     ) {
     }
 
-    public function run(int $stateId, bool $apply, bool $force, int $delayMs): HospitalIsochroneFetchReport
+    public function run(HospitalGeoScope $scope, bool $apply, bool $force, int $delayMs): HospitalIsochroneFetchReport
     {
         $dryRun = !$apply;
         $delayMs = max(0, $delayMs);
 
-        $state = $this->stateLookup->findById($stateId);
-        if (!$state instanceof \App\Allocation\Domain\Entity\State) {
+        $resolution = $this->scopeResolver->resolve($scope);
+        if (!$resolution->success) {
             return new HospitalIsochroneFetchReport(
                 success: false,
                 dryRun: $dryRun,
-                error: sprintf('Unknown federal state #%d.', $stateId),
+                error: $resolution->error ?? 'Hospital geo scope could not be resolved.',
             );
         }
 
@@ -42,14 +42,13 @@ final readonly class HospitalIsochroneFetchService
             );
         }
 
-        $hospitals = $this->hospitalLookup->findByState($state);
+        $hospitals = $resolution->hospitals;
+        /** @var list<array{0: string, 1: string, 2: string}> $rows */
         $rows = [];
+        /** @var list<array{hospital: Hospital, row: int}> $pending */
+        $pending = [];
         $missingCoords = 0;
         $skipped = 0;
-        $toFetch = 0;
-        $written = 0;
-        $failed = 0;
-        $delayBeforeNextFetch = false;
 
         foreach ($hospitals as $hospital) {
             $name = $hospital->getName() ?? '';
@@ -63,45 +62,83 @@ final readonly class HospitalIsochroneFetchService
                 continue;
             }
 
-            if (!$force && $this->isochroneStore->existsForHospital($hospital)) {
-                $existing = $this->isochroneStore->findForHospital($hospital);
-                if (IsochroneOrigin::matches($existing, $latitude, $longitude)) {
-                    $rows[] = [$name, $coordinates, 'skip'];
-                    ++$skipped;
-                    continue;
-                }
-            }
-
-            ++$toFetch;
-            if ($dryRun) {
-                $rows[] = [$name, $coordinates, 'fetch'];
+            if (!$force && $this->shouldSkip($hospital, $latitude, $longitude)) {
+                $rows[] = [$name, $coordinates, 'skip'];
+                ++$skipped;
                 continue;
             }
 
-            if ($delayBeforeNextFetch && $delayMs > 0) {
-                usleep($delayMs * 1000);
+            $rows[] = [$name, $coordinates, 'fetch'];
+            $pending[] = ['hospital' => $hospital, 'row' => \count($rows) - 1];
+        }
+
+        $toFetch = \count($pending);
+        if ($dryRun) {
+            return new HospitalIsochroneFetchReport(
+                success: true,
+                dryRun: true,
+                scopeLabel: $resolution->label,
+                rows: $rows,
+                inspected: \count($hospitals),
+                missingCoords: $missingCoords,
+                skipped: $skipped,
+                toFetch: $toFetch,
+            );
+        }
+
+        $written = 0;
+        $failed = 0;
+        $delayBeforeNextFetch = false;
+
+        foreach ($pending as $item) {
+            $hospital = $item['hospital'];
+            $rowIndex = $item['row'];
+            $latitude = $hospital->getLatitude();
+            $longitude = $hospital->getLongitude();
+            if (null === $latitude || null === $longitude) {
+                continue;
             }
 
-            $geojson = $this->isochroneClient->fetchDestinationIsochrones($latitude, $longitude);
+            $this->pacer->pauseBetweenCalls($delayBeforeNextFetch, $delayMs);
+            $outcome = $this->fetchWithSingleRetry($latitude, $longitude, $delayMs);
             $delayBeforeNextFetch = true;
-            if (null === $geojson) {
-                $rows[] = [$name, $coordinates, 'fetch'];
+
+            if ($outcome->rateLimited) {
+                $rows[$rowIndex][2] = 'rate-limited';
+
+                return new HospitalIsochroneFetchReport(
+                    success: true,
+                    dryRun: false,
+                    scopeLabel: $resolution->label,
+                    rows: array_values($rows),
+                    inspected: \count($hospitals),
+                    missingCoords: $missingCoords,
+                    skipped: $skipped,
+                    toFetch: $toFetch,
+                    written: $written,
+                    failed: $failed,
+                    rateLimited: true,
+                );
+            }
+
+            if ($outcome->requestFailed || null === $outcome->geojson) {
+                $rows[$rowIndex][2] = 'failed';
                 ++$failed;
                 continue;
             }
 
             $this->isochroneStore->writeForHospital(
                 $hospital,
-                IsochroneOrigin::withCoordinates($geojson, $latitude, $longitude),
+                IsochroneOrigin::withCoordinates($outcome->geojson, $latitude, $longitude),
             );
-            $rows[] = [$name, $coordinates, 'fetch'];
             ++$written;
         }
 
         return new HospitalIsochroneFetchReport(
             success: true,
-            dryRun: $dryRun,
-            rows: $rows,
+            dryRun: false,
+            scopeLabel: $resolution->label,
+            rows: array_values($rows),
             inspected: \count($hospitals),
             missingCoords: $missingCoords,
             skipped: $skipped,
@@ -109,6 +146,29 @@ final readonly class HospitalIsochroneFetchService
             written: $written,
             failed: $failed,
         );
+    }
+
+    private function shouldSkip(Hospital $hospital, float $latitude, float $longitude): bool
+    {
+        if (!$this->isochroneStore->existsForHospital($hospital)) {
+            return false;
+        }
+
+        $existing = $this->isochroneStore->findForHospital($hospital);
+
+        return IsochroneOrigin::matches($existing, $latitude, $longitude);
+    }
+
+    private function fetchWithSingleRetry(float $latitude, float $longitude, int $delayMs): HospitalIsochroneFetchOutcome
+    {
+        $outcome = $this->isochroneClient->fetchDestinationIsochrones($latitude, $longitude);
+        if (!$outcome->rateLimited) {
+            return $outcome;
+        }
+
+        $this->pacer->pauseForRetryAfter($outcome->retryAfterSeconds, $delayMs);
+
+        return $this->isochroneClient->fetchDestinationIsochrones($latitude, $longitude);
     }
 
     private function formatCoordinates(?float $latitude, ?float $longitude): string

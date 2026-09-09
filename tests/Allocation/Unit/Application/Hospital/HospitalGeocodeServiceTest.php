@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Unit\Application\Hospital;
 
+use App\Allocation\Application\Contracts\DispatchAreaLookupInterface;
 use App\Allocation\Application\Contracts\HospitalGeocodeClientInterface;
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Application\Contracts\StateLookupInterface;
 use App\Allocation\Application\Hospital\DTO\HospitalGeocodeMatch;
 use App\Allocation\Application\Hospital\DTO\HospitalGeocodeOutcome;
 use App\Allocation\Application\Hospital\HospitalGeocodeService;
+use App\Allocation\Application\Hospital\HospitalGeoScope;
+use App\Allocation\Application\Hospital\HospitalGeoScopeResolver;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\State;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,9 +20,9 @@ use PHPUnit\Framework\TestCase;
 
 final class HospitalGeocodeServiceTest extends TestCase
 {
-    public function testUnknownStateFails(): void
+    public function testUnknownScopeFails(): void
     {
-        $report = $this->service(unknownState: true)->run(99, apply: false, force: false, delayMs: 0);
+        $report = $this->service(unknownScope: true)->run($this->scope(), apply: false, force: false, delayMs: 0);
 
         self::assertFalse($report->success);
         self::assertStringContainsString('Unknown federal state', (string) $report->error);
@@ -31,7 +34,7 @@ final class HospitalGeocodeServiceTest extends TestCase
         $client->method('hasApiKey')->willReturn(false);
         $client->expects(self::never())->method('geocodeAddress');
 
-        $report = $this->service(client: $client)->run(1, apply: true, force: false, delayMs: 0);
+        $report = $this->service(client: $client)->run($this->scope(), apply: true, force: false, delayMs: 0);
 
         self::assertFalse($report->success);
         self::assertStringContainsString('OPENROUTESERVICE_API_KEY', (string) $report->error);
@@ -52,7 +55,7 @@ final class HospitalGeocodeServiceTest extends TestCase
             hospitals: [$withCoords, $withoutCoords, $missingAddress],
             client: $client,
             entityManager: $entityManager,
-        )->run(1, apply: false, force: false, delayMs: 0);
+        )->run($this->scope(), apply: false, force: false, delayMs: 0);
 
         self::assertTrue($report->success);
         self::assertTrue($report->dryRun);
@@ -63,6 +66,7 @@ final class HospitalGeocodeServiceTest extends TestCase
         self::assertSame('skip', $report->rows[0][4]);
         self::assertSame('geocode', $report->rows[1][4]);
         self::assertSame('missing-address', $report->rows[2][4]);
+        self::assertSame('Hessen', $report->scopeLabel);
     }
 
     public function testApplyWritesCoordinatesWithForce(): void
@@ -88,7 +92,7 @@ final class HospitalGeocodeServiceTest extends TestCase
             hospitals: [$hospital],
             client: $client,
             entityManager: $entityManager,
-        )->run(1, apply: true, force: true, delayMs: 0);
+        )->run($this->scope(), apply: true, force: true, delayMs: 0);
 
         self::assertTrue($report->success);
         self::assertSame(1, $report->written);
@@ -107,7 +111,7 @@ final class HospitalGeocodeServiceTest extends TestCase
         $entityManager->expects(self::never())->method('flush');
 
         $report = $this->service(hospitals: [$hospital], client: $client, entityManager: $entityManager)
-            ->run(1, apply: true, force: false, delayMs: 0);
+            ->run($this->scope(), apply: true, force: false, delayMs: 0);
 
         self::assertSame(1, $report->unusableMatch);
         self::assertSame(0, $report->written);
@@ -124,7 +128,7 @@ final class HospitalGeocodeServiceTest extends TestCase
         $entityManager->expects(self::never())->method('flush');
 
         $report = $this->service(hospitals: [$hospital], client: $client, entityManager: $entityManager)
-            ->run(1, apply: true, force: false, delayMs: 0);
+            ->run($this->scope(), apply: true, force: false, delayMs: 0);
 
         self::assertSame(1, $report->failed);
         self::assertSame(0, $report->written);
@@ -132,31 +136,91 @@ final class HospitalGeocodeServiceTest extends TestCase
         self::assertNull($hospital->getLatitude());
     }
 
+    public function testRateLimitRetriesOnceThenAbortsAfterFlushingWrittenCoordinates(): void
+    {
+        $first = $this->hospital('Erste', '34125', 'Kassel');
+        $second = $this->hospital('Zweite', '34125', 'Kassel');
+        $client = $this->createMock(HospitalGeocodeClientInterface::class);
+        $client->method('hasApiKey')->willReturn(true);
+        $client->expects(self::exactly(3))->method('geocodeAddress')
+            ->willReturnOnConsecutiveCalls(
+                HospitalGeocodeOutcome::match(new HospitalGeocodeMatch(
+                    latitude: 51.3224,
+                    longitude: 9.5081,
+                    label: 'Erste',
+                    layer: 'address',
+                )),
+                HospitalGeocodeOutcome::rateLimited(1),
+                HospitalGeocodeOutcome::rateLimited(1),
+            );
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('flush');
+
+        $report = $this->service(hospitals: [$first, $second], client: $client, entityManager: $entityManager)
+            ->run($this->scope(), apply: true, force: false, delayMs: 0);
+
+        self::assertTrue($report->rateLimited);
+        self::assertSame(1, $report->written);
+        self::assertSame(51.3224, $first->getLatitude());
+        self::assertNull($second->getLatitude());
+        self::assertSame('rate-limited', $report->rows[1][4]);
+    }
+
+    public function testRateLimitRetryCanRecoverAndContinue(): void
+    {
+        $hospital = $this->hospital('Ohne Koordinaten', '34125', 'Kassel');
+        $client = $this->createMock(HospitalGeocodeClientInterface::class);
+        $client->method('hasApiKey')->willReturn(true);
+        $client->expects(self::exactly(2))->method('geocodeAddress')
+            ->willReturnOnConsecutiveCalls(
+                HospitalGeocodeOutcome::rateLimited(1),
+                HospitalGeocodeOutcome::match(new HospitalGeocodeMatch(
+                    latitude: 51.3224,
+                    longitude: 9.5081,
+                    label: 'Klinik',
+                    layer: 'address',
+                )),
+            );
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('flush');
+
+        $report = $this->service(hospitals: [$hospital], client: $client, entityManager: $entityManager)
+            ->run($this->scope(), apply: true, force: false, delayMs: 0);
+
+        self::assertFalse($report->rateLimited);
+        self::assertSame(1, $report->written);
+        self::assertSame(51.3224, $hospital->getLatitude());
+        self::assertSame('geocode', $report->rows[0][4]);
+    }
+
     /**
      * @param list<Hospital> $hospitals
      */
     private function service(
-        ?State $state = null,
-        bool $unknownState = false,
+        bool $unknownScope = false,
         array $hospitals = [],
         ?HospitalGeocodeClientInterface $client = null,
         ?EntityManagerInterface $entityManager = null,
     ): HospitalGeocodeService {
-        if (!$unknownState && !$state instanceof State) {
-            $state = new State()->setName('Hessen');
-        }
-
         $stateLookup = $this->createStub(StateLookupInterface::class);
-        $stateLookup->method('findById')->willReturn($state);
+        $stateLookup->method('findById')->willReturn($unknownScope ? null : new State()->setName('Hessen'));
         $hospitalLookup = $this->createStub(HospitalLookupInterface::class);
         $hospitalLookup->method('findByState')->willReturn($hospitals);
 
         return new HospitalGeocodeService(
-            $stateLookup,
-            $hospitalLookup,
+            new HospitalGeoScopeResolver(
+                $hospitalLookup,
+                $this->createStub(DispatchAreaLookupInterface::class),
+                $stateLookup,
+            ),
             $client ?? $this->createStub(HospitalGeocodeClientInterface::class),
             $entityManager ?? $this->createStub(EntityManagerInterface::class),
         );
+    }
+
+    private function scope(): HospitalGeoScope
+    {
+        return HospitalGeoScope::state(1);
     }
 
     private function hospital(

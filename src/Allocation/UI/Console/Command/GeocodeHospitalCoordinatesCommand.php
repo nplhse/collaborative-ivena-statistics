@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Console\Command;
 
 use App\Allocation\Application\Hospital\HospitalGeocodeService;
-use App\Allocation\UI\Console\Input\GeocodeHospitalCoordinatesInput;
-use Symfony\Component\Console\Attribute\Argument;
+use App\Allocation\UI\Console\Input\HospitalGeoCommandInput;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:hospital:geocode-coordinates',
-    description: 'Geocode hospital street addresses to coordinates for a federal state (default: dry-run preview).',
+    name: 'app:geo:geocode-hospitals',
+    description: 'Geocode hospital street addresses to coordinates (hospital, dispatch area, or state; default: dry-run preview).',
 )]
 final readonly class GeocodeHospitalCoordinatesCommand
 {
@@ -25,22 +24,34 @@ final readonly class GeocodeHospitalCoordinatesCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'ID of the federal state', name: 'stateId')]
-        int $stateId,
-        #[MapInput] GeocodeHospitalCoordinatesInput $input,
+        #[MapInput] HospitalGeoCommandInput $input,
     ): int {
         $apply = $input->apply;
         if ($apply && $input->dryRun) {
             $io->warning('Both --apply and --dry-run were passed; --apply takes precedence.');
         }
 
-        $io->title('Geocode hospital coordinates');
+        $scopeError = $input->scopeError();
+        if (null !== $scopeError) {
+            $io->error($scopeError);
 
-        $report = $this->geocodeService->run($stateId, $apply, $input->force, $input->delayMs);
+            return Command::FAILURE;
+        }
+
+        $io->title('Geocode hospital coordinates');
+        if ($input->ignoresParticipatingOnly()) {
+            $io->warning('--participating-only is ignored when --hospital-id is set.');
+        }
+
+        $report = $this->geocodeService->run($input->toScope(), $apply, $input->force, $input->delayMs);
         if (!$report->success) {
             $io->error($report->error ?? 'Hospital geocoding failed.');
 
             return Command::FAILURE;
+        }
+
+        if ('' !== $report->scopeLabel) {
+            $io->text(sprintf('Scope: %s', $report->scopeLabel));
         }
 
         if ($report->dryRun) {
@@ -59,13 +70,23 @@ final readonly class GeocodeHospitalCoordinatesCommand
                 ['Hospitals inspected', (string) $report->inspected],
                 ['Existing coordinates skipped', (string) $report->skipped],
                 ['Missing address', (string) $report->missingAddress],
-                [$report->dryRun ? 'Would geocode' : 'Geocoded', (string) ($report->dryRun ? $report->toGeocode : $report->written)],
+                ['OpenRouteService requests required', (string) $report->toGeocode],
                 ...($report->dryRun ? [] : [
+                    ['Geocoded', (string) $report->written],
                     ['Unusable match', (string) $report->unusableMatch],
                     ['Failed', (string) $report->failed],
                 ]),
             ],
         );
+
+        if ($report->rateLimited) {
+            $io->error(sprintf(
+                'OpenRouteService rate limit reached after writing %d coordinate pair(s). Re-run later to resume; already stored coordinates are kept.',
+                $report->written,
+            ));
+
+            return Command::FAILURE;
+        }
 
         if ($report->dryRun) {
             $io->success('Dry run finished. Re-run with --apply to geocode missing coordinates, or --apply --force to overwrite existing ones.');
