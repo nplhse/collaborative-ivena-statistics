@@ -124,7 +124,7 @@
                 {% for occasion in paginator.results %}
                     <tr>
                         <td>
-                            <a href="{{ path('app_explore_occasion_show', {publicId: occasion.publicId}) }}" target="_top">{{ occasion.name }}</a>
+                            {{ explore_entity_link(occasion, {target: '_top'}) }}
                         </td>
                         <td>
                             {{ occasion.updatedAt ? occasion.updatedAt|date('d.m.Y H:i') : occasion.createdAt|date('d.m.Y H:i') }}

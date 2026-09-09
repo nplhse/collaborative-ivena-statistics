@@ -44,10 +44,11 @@ final class ExploreEntityLinkExtensionTest extends TestCase
         $extension = $this->extension();
 
         self::assertSame(
-            '<a href="/explore/department/'.self::PUBLIC_ID.'" class="link-secondary">Dept</a>',
+            '<a href="/explore/department/'.self::PUBLIC_ID.'" class="link-secondary" target="_top">Dept</a>',
             $extension->exploreEntityLink($department, [
                 'label' => 'Dept',
                 'class' => 'link-secondary',
+                'target' => '_top',
             ]),
         );
     }
