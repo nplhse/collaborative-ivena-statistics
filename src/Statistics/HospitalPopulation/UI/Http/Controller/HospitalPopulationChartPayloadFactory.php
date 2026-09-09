@@ -7,7 +7,8 @@ namespace App\Statistics\HospitalPopulation\UI\Http\Controller;
 use App\Statistics\HospitalPopulation\Application\DTO\AllocationGroupStats;
 use App\Statistics\HospitalPopulation\Application\DTO\BedsCategoryBoxPlotRow;
 use App\Statistics\HospitalPopulation\Application\DTO\DescriptiveStats;
-use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationDashboardResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationAllocationsResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationBedsResult;
 
 final readonly class HospitalPopulationChartPayloadFactory
 {
@@ -20,19 +21,29 @@ final readonly class HospitalPopulationChartPayloadFactory
      *     bedsBoxPlotByLocation: array{
      *         population: array{series: list<array{name: string, type: string, data: list<array{x: string, y: list<float>}>}>},
      *         participants: array{series: list<array{name: string, type: string, data: list<array{x: string, y: list<float>}>}>}
-     *     },
+     *     }
+     * }
+     */
+    public function createBeds(HospitalPopulationBedsResult $result): array
+    {
+        return [
+            'bedsBoxPlotByCareLevel' => $this->buildSplitCategoryBoxPlotPayload($result->bedsBoxPlotByCareLevel),
+            'bedsBoxPlotByLocation' => $this->buildSplitCategoryBoxPlotPayload($result->bedsBoxPlotByLocation),
+        ];
+    }
+
+    /**
+     * @return array{
      *     allocationByTier: array{categories: list<string>, series: list<array{name: string, data: list<int>}>},
      *     allocationBySize: array{categories: list<string>, series: list<array{name: string, data: list<int>}>},
      *     allocationByLocation: array{categories: list<string>, series: list<array{name: string, data: list<int>}>}
      * }
      */
-    public function create(HospitalPopulationDashboardResult $result): array
+    public function createAllocations(HospitalPopulationAllocationsResult $result): array
     {
         $allocationBasis = $result->allocationBasis;
 
         return [
-            'bedsBoxPlotByCareLevel' => $this->buildSplitCategoryBoxPlotPayload($result->bedsBoxPlotByCareLevel),
-            'bedsBoxPlotByLocation' => $this->buildSplitCategoryBoxPlotPayload($result->bedsBoxPlotByLocation),
             'allocationByTier' => $this->buildGroupedBarPayload($allocationBasis->byTier, 'Allocations by tier'),
             'allocationBySize' => $this->buildGroupedBarPayload($allocationBasis->bySize, 'Allocations by size'),
             'allocationByLocation' => $this->buildGroupedBarPayload($allocationBasis->byLocation, 'Allocations by location'),

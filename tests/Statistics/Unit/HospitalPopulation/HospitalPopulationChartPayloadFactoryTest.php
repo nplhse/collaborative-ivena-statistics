@@ -8,10 +8,9 @@ use App\Statistics\HospitalPopulation\Application\DescriptiveStatisticsCalculato
 use App\Statistics\HospitalPopulation\Application\DTO\AllocationBasisSummary;
 use App\Statistics\HospitalPopulation\Application\DTO\AllocationCrossTable;
 use App\Statistics\HospitalPopulation\Application\DTO\BedsCategoryBoxPlotRow;
-use App\Statistics\HospitalPopulation\Application\DTO\CoverageCrossTable;
 use App\Statistics\HospitalPopulation\Application\DTO\DescriptiveStats;
-use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationDashboardResult;
-use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationOverview;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationAllocationsResult;
+use App\Statistics\HospitalPopulation\Application\DTO\HospitalPopulationBedsResult;
 use App\Statistics\HospitalPopulation\UI\Http\Controller\HospitalPopulationChartPayloadFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -36,7 +35,7 @@ final class HospitalPopulationChartPayloadFactoryTest extends TestCase
             new BedsCategoryBoxPlotRow('Rural', 'Rural', $calculator->calculate([500]), $calculator->calculate([500])),
         ];
 
-        $payload = $this->factory->create($this->dashboardResult($careLevelRows, $locationRows));
+        $payload = $this->factory->createBeds($this->bedsResult($careLevelRows, $locationRows));
 
         self::assertArrayHasKey('bedsBoxPlotByCareLevel', $payload);
         self::assertArrayHasKey('bedsBoxPlotByLocation', $payload);
@@ -56,7 +55,15 @@ final class HospitalPopulationChartPayloadFactoryTest extends TestCase
 
     public function testBuildsAllocationCategoryBarPayloads(): void
     {
-        $payload = $this->factory->create($this->dashboardResult([], []));
+        $payload = $this->factory->createAllocations(new HospitalPopulationAllocationsResult(
+            allocationBasis: new AllocationBasisSummary(
+                bySize: [],
+                byTier: [],
+                byLocation: [],
+                sizeByTierCrossTable: new AllocationCrossTable([], []),
+                locationByTierCrossTable: new AllocationCrossTable([], []),
+            ),
+        ));
 
         self::assertArrayHasKey('allocationByTier', $payload);
         self::assertArrayHasKey('allocationBySize', $payload);
@@ -68,24 +75,13 @@ final class HospitalPopulationChartPayloadFactoryTest extends TestCase
      * @param list<BedsCategoryBoxPlotRow> $careLevelRows
      * @param list<BedsCategoryBoxPlotRow> $locationRows
      */
-    private function dashboardResult(array $careLevelRows, array $locationRows): HospitalPopulationDashboardResult
+    private function bedsResult(array $careLevelRows, array $locationRows): HospitalPopulationBedsResult
     {
         $emptyStats = new DescriptiveStats(0, null, null, null, null, null, null, null, null, null, null);
 
-        return new HospitalPopulationDashboardResult(
-            overview: new HospitalPopulationOverview(0, 0, 0.0, new CoverageCrossTable([], []), new CoverageCrossTable([], [])),
-            regionalCoverage: [],
+        return new HospitalPopulationBedsResult(
             bedsPopulation: $emptyStats,
             bedsParticipants: $emptyStats,
-            allocationBasis: new AllocationBasisSummary(
-                bySize: [],
-                byTier: [],
-                byLocation: [],
-                sizeByTierCrossTable: new AllocationCrossTable([], []),
-                locationByTierCrossTable: new AllocationCrossTable([], []),
-            ),
-            mapMarkers: [],
-            mapChoropleth: [],
             bedsBoxPlotByCareLevel: $careLevelRows,
             bedsBoxPlotByLocation: $locationRows,
         );
