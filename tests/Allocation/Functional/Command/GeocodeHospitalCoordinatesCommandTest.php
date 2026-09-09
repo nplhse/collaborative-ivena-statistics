@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Command;
 
+use App\Allocation\Application\Contracts\DispatchAreaLookupInterface;
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Application\Contracts\StateLookupInterface;
 use App\Allocation\Application\Hospital\HospitalGeocodeService;
+use App\Allocation\Application\Hospital\HospitalGeoScopeResolver;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\AddressFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -31,11 +33,41 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
 {
     use Factories;
 
+    public function testMissingScopeExitsWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Specify exactly one of', $tester->getDisplay());
+    }
+
+    public function testMultipleScopesExitWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute(['--hospital-id' => 1, '--state-id' => 1]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Specify exactly one of', $tester->getDisplay());
+    }
+
+    public function testUnknownHospitalExitsWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute(['--hospital-id' => 99999]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Unknown hospital', $tester->getDisplay());
+    }
+
     public function testUnknownStateExitsWithFailure(): void
     {
         $tester = $this->createTester($this->failingHttpClient(), 'test-key');
 
-        $status = $tester->execute(['stateId' => 99999]);
+        $status = $tester->execute(['--state-id' => 99999]);
 
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('Unknown federal state', $tester->getDisplay());
@@ -48,7 +80,7 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         self::assertNotNull($stateId);
         $tester = $this->createTester($this->failingHttpClient(), '');
 
-        $status = $tester->execute(['stateId' => $stateId, '--apply' => true]);
+        $status = $tester->execute(['--state-id' => $stateId, '--apply' => true]);
 
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('OPENROUTESERVICE_API_KEY', $tester->getDisplay());
@@ -58,7 +90,7 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
     {
         $tester = $this->createTester($this->failingHttpClient(), 'test-key');
 
-        $status = $tester->execute(['stateId' => 99999, '--apply' => true, '--dry-run' => true]);
+        $status = $tester->execute(['--state-id' => 99999, '--apply' => true, '--dry-run' => true]);
 
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('Both --apply and --dry-run were passed', $tester->getDisplay());
@@ -69,7 +101,7 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         $hospitals = $this->seedHospitals();
         $tester = $this->createTester($this->failingHttpClient(), 'test-key');
 
-        $status = $tester->execute(['stateId' => $hospitals['stateId']]);
+        $status = $tester->execute(['--state-id' => $hospitals['stateId']]);
 
         self::assertSame(Command::SUCCESS, $status);
         $display = $tester->getDisplay();
@@ -80,6 +112,7 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         self::assertStringContainsString('skip', $display);
         self::assertStringContainsString('geocode', $display);
         self::assertStringContainsString('missing-address', $display);
+        self::assertStringContainsString('OpenRouteService requests required', $display);
         self::assertNull($this->reload($hospitals['withoutCoords'])->getLatitude());
         self::assertSame(50.1109, $this->reload($hospitals['withCoords'])->getLatitude());
     }
@@ -91,25 +124,12 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         $httpClient = new MockHttpClient(function () use (&$requests): MockResponse {
             ++$requests;
 
-            return new MockResponse(json_encode([
-                'type' => 'FeatureCollection',
-                'features' => [
-                    [
-                        'type' => 'Feature',
-                        'geometry' => ['type' => 'Point', 'coordinates' => [9.5081, 51.3224]],
-                        'properties' => [
-                            'layer' => 'address',
-                            'label' => 'Mönchebergstraße 41-43, 34125 Kassel, Germany',
-                            'country_a' => 'DEU',
-                        ],
-                    ],
-                ],
-            ], JSON_THROW_ON_ERROR), ['http_code' => 200]);
+            return $this->successResponse();
         });
         $tester = $this->createTester($httpClient, 'test-key');
 
         $status = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
@@ -121,6 +141,76 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         self::assertSame(51.3224, $withoutCoords->getLatitude());
         self::assertSame(9.5081, $withoutCoords->getLongitude());
         self::assertNull($this->reload($hospitals['missingAddress'])->getLatitude());
+        self::assertSame(48.1, $this->reload($hospitals['otherState'])->getLatitude());
+    }
+
+    public function testParticipatingOnlySkipsNonParticipatingHospitals(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $httpClient = new MockHttpClient(static function (): MockResponse {
+            Assert::fail('OpenRouteService must not be called for participating-only when remaining hospitals already have coordinates.');
+        });
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--state-id' => $hospitals['stateId'],
+            '--participating-only' => true,
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertStringNotContainsString('Ohne Koordinaten', $tester->getDisplay());
+        self::assertNull($this->reload($hospitals['withoutCoords'])->getLatitude());
+    }
+
+    public function testHospitalScopeGeocodesNonParticipatingHospital(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $hospitalId = $hospitals['withoutCoords']->getId();
+        self::assertNotNull($hospitalId);
+        $requests = 0;
+        $httpClient = new MockHttpClient(function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return $this->successResponse();
+        });
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--hospital-id' => $hospitalId,
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertSame(1, $requests);
+        self::assertSame(51.3224, $this->reload($hospitals['withoutCoords'])->getLatitude());
+        self::assertSame(50.1109, $this->reload($hospitals['withCoords'])->getLatitude());
+    }
+
+    public function testDispatchAreaScopeDoesNotGeocodeOtherAreas(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $dispatchAreaId = $hospitals['withCoords']->getDispatchArea()?->getId();
+        self::assertNotNull($dispatchAreaId);
+        $requests = 0;
+        $httpClient = new MockHttpClient(function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return $this->successResponse();
+        });
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--dispatch-area-id' => $dispatchAreaId,
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertSame(1, $requests);
+        self::assertSame(51.3224, $this->reload($hospitals['withoutCoords'])->getLatitude());
         self::assertSame(48.1, $this->reload($hospitals['otherState'])->getLatitude());
     }
 
@@ -149,7 +239,7 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         $tester = $this->createTester($httpClient, 'test-key');
 
         $skip = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
@@ -159,7 +249,7 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         self::assertSame(50.1109, $this->reload($hospitals['withCoords'])->getLatitude());
 
         $force = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--force' => true,
             '--delay-ms' => 0,
@@ -193,13 +283,33 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         $tester = $this->createTester($httpClient, 'test-key');
 
         $status = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
 
         self::assertSame(Command::SUCCESS, $status);
         self::assertStringContainsString('unusable match(es)', $tester->getDisplay());
+        self::assertNull($this->reload($hospitals['withoutCoords'])->getLatitude());
+    }
+
+    public function testApplyAbortsOnRateLimitAfterOneRetry(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $httpClient = new MockHttpClient([
+            new MockResponse('{"error":"Quota exceeded"}', ['http_code' => 403]),
+            new MockResponse('{"error":"Quota exceeded"}', ['http_code' => 403]),
+        ]);
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--state-id' => $hospitals['stateId'],
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('rate limit reached', $tester->getDisplay());
         self::assertNull($this->reload($hospitals['withoutCoords'])->getLatitude());
     }
 
@@ -277,8 +387,11 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
     {
         $command = new GeocodeHospitalCoordinatesCommand(
             new HospitalGeocodeService(
-                self::getContainer()->get(StateLookupInterface::class),
-                self::getContainer()->get(HospitalLookupInterface::class),
+                new HospitalGeoScopeResolver(
+                    self::getContainer()->get(HospitalLookupInterface::class),
+                    self::getContainer()->get(DispatchAreaLookupInterface::class),
+                    self::getContainer()->get(StateLookupInterface::class),
+                ),
                 new OpenRouteServiceGeocodeClient($httpClient, new NullLogger(), $apiKey),
                 self::getContainer()->get(EntityManagerInterface::class),
             ),
@@ -303,5 +416,23 @@ final class GeocodeHospitalCoordinatesCommandTest extends KernelTestCase
         return new MockHttpClient(static function (): MockResponse {
             Assert::fail('OpenRouteService must not be called.');
         });
+    }
+
+    private function successResponse(): MockResponse
+    {
+        return new MockResponse(json_encode([
+            'type' => 'FeatureCollection',
+            'features' => [
+                [
+                    'type' => 'Feature',
+                    'geometry' => ['type' => 'Point', 'coordinates' => [9.5081, 51.3224]],
+                    'properties' => [
+                        'layer' => 'address',
+                        'label' => 'Mönchebergstraße 41-43, 34125 Kassel, Germany',
+                        'country_a' => 'DEU',
+                    ],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR), ['http_code' => 200]);
     }
 }

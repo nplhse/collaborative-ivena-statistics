@@ -24,7 +24,9 @@ final class OpenRouteServiceIsochroneClientTest extends TestCase
         );
 
         self::assertFalse($client->hasApiKey());
-        self::assertNull($client->fetchDestinationIsochrones(50.1109, 8.6821));
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->requestFailed);
+        self::assertNull($outcome->geojson);
     }
 
     public function testMapsOpenRouteServicePayloadToSlimGeoJsonWithoutCaching(): void
@@ -73,11 +75,11 @@ final class OpenRouteServiceIsochroneClientTest extends TestCase
 
         self::assertTrue($client->hasApiKey());
         self::assertSame(2, $requests);
-        self::assertIsArray($first);
-        self::assertSame('FeatureCollection', $first['type']);
-        self::assertCount(2, $first['features']);
-        self::assertSame(['value' => 300], $first['features'][0]['properties']);
-        self::assertSame($first, $second);
+        self::assertNotNull($first->geojson);
+        self::assertSame('FeatureCollection', $first->geojson['type']);
+        self::assertCount(2, $first->geojson['features']);
+        self::assertSame(['value' => 300], $first->geojson['features'][0]['properties']);
+        self::assertSame($first->geojson, $second->geojson);
     }
 
     public function testReturnsNullWhenOpenRouteServiceRespondsWithError(): void
@@ -91,10 +93,48 @@ final class OpenRouteServiceIsochroneClientTest extends TestCase
             'test-key',
         );
 
-        self::assertNull($client->fetchDestinationIsochrones(50.1109, 8.6821));
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->requestFailed);
+        self::assertFalse($outcome->rateLimited);
     }
 
-    public function testReturnsNullWhenPayloadHasNoFeatures(): void
+    public function testReturnsRateLimitedForTooManyRequests(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse('{"error":"Rate limit exceeded"}', [
+                'http_code' => 429,
+                'response_headers' => ['retry-after' => '12'],
+            ]),
+        ]);
+        $client = new OpenRouteServiceIsochroneClient(
+            $httpClient,
+            new NullLogger(),
+            'test-key',
+        );
+
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->rateLimited);
+        self::assertSame(12, $outcome->retryAfterSeconds);
+        self::assertNull($outcome->geojson);
+    }
+
+    public function testReturnsRateLimitedForQuotaExceeded(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse('{"error":"Quota exceeded"}', ['http_code' => 403]),
+        ]);
+        $client = new OpenRouteServiceIsochroneClient(
+            $httpClient,
+            new NullLogger(),
+            'test-key',
+        );
+
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->rateLimited);
+        self::assertNull($outcome->geojson);
+    }
+
+    public function testReturnsFailedWhenPayloadHasNoFeatures(): void
     {
         $httpClient = new MockHttpClient([
             new MockResponse('{"type":"FeatureCollection","features":[]}', ['http_code' => 200]),
@@ -105,20 +145,22 @@ final class OpenRouteServiceIsochroneClientTest extends TestCase
             'test-key',
         );
 
-        self::assertNull($client->fetchDestinationIsochrones(50.1109, 8.6821));
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->requestFailed);
     }
 
-    public function testReturnsNullWhenTransportThrows(): void
+    public function testReturnsFailedWhenTransportThrows(): void
     {
         $httpClient = new MockHttpClient(static function (): MockResponse {
             throw new \Symfony\Component\HttpClient\Exception\TransportException('timeout');
         });
         $client = new OpenRouteServiceIsochroneClient($httpClient, new NullLogger(), 'test-key');
 
-        self::assertNull($client->fetchDestinationIsochrones(50.1109, 8.6821));
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->requestFailed);
     }
 
-    public function testSkipsInvalidFeaturesAndReturnsNullWhenNoneRemain(): void
+    public function testSkipsInvalidFeaturesAndReturnsFailedWhenNoneRemain(): void
     {
         $httpClient = new MockHttpClient([
             new MockResponse(json_encode([
@@ -139,6 +181,7 @@ final class OpenRouteServiceIsochroneClientTest extends TestCase
         ]);
         $client = new OpenRouteServiceIsochroneClient($httpClient, new NullLogger(), 'test-key');
 
-        self::assertNull($client->fetchDestinationIsochrones(50.1109, 8.6821));
+        $outcome = $client->fetchDestinationIsochrones(50.1109, 8.6821);
+        self::assertTrue($outcome->requestFailed);
     }
 }

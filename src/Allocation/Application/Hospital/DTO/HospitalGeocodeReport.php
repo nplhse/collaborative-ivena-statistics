@@ -14,6 +14,7 @@ final readonly class HospitalGeocodeReport
         public bool $success,
         public bool $dryRun,
         public ?string $error = null,
+        public string $scopeLabel = '',
         public array $rows = [],
         public int $inspected = 0,
         public int $skipped = 0,
@@ -22,6 +23,7 @@ final readonly class HospitalGeocodeReport
         public int $written = 0,
         public int $unusableMatch = 0,
         public int $failed = 0,
+        public bool $rateLimited = false,
     ) {
     }
 }

@@ -71,14 +71,22 @@ final readonly class OpenRouteServiceGeocodeClient implements HospitalGeocodeCli
                 'timeout' => self::REQUEST_TIMEOUT_SECONDS,
             ]);
 
-            if ($response->getStatusCode() >= 300) {
+            $status = $response->getStatusCode();
+            if ($status >= 300) {
+                $body = $response->getContent(false);
                 $this->logger->warning('OpenRouteService geocode request failed.', [
-                    'status' => $response->getStatusCode(),
-                    'response' => $response->getContent(false),
+                    'status' => $status,
+                    'response' => $body,
                     'street' => $street,
                     'postalCode' => $postalCode,
                     'city' => $city,
                 ]);
+
+                if (OpenRouteServiceRateLimit::detected($status, $body)) {
+                    return HospitalGeocodeOutcome::rateLimited(
+                        OpenRouteServiceRateLimit::retryAfterSeconds($response),
+                    );
+                }
 
                 return HospitalGeocodeOutcome::failed();
             }

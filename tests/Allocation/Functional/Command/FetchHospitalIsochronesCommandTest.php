@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Command;
 
+use App\Allocation\Application\Contracts\DispatchAreaLookupInterface;
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Application\Contracts\StateLookupInterface;
+use App\Allocation\Application\Hospital\HospitalGeoScopeResolver;
 use App\Allocation\Application\Hospital\HospitalIsochroneFetchService;
+use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
@@ -46,14 +49,54 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         parent::tearDown();
     }
 
+    public function testMissingScopeExitsWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute([]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Specify exactly one of', $tester->getDisplay());
+    }
+
+    public function testMultipleScopesExitWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute(['--hospital-id' => 1, '--state-id' => 1]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Specify exactly one of', $tester->getDisplay());
+    }
+
     public function testUnknownStateExitsWithFailure(): void
     {
         $tester = $this->createTester($this->failingHttpClient(), 'test-key');
 
-        $status = $tester->execute(['stateId' => 99999]);
+        $status = $tester->execute(['--state-id' => 99999]);
 
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('Unknown federal state', $tester->getDisplay());
+    }
+
+    public function testUnknownHospitalExitsWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute(['--hospital-id' => 99999]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Unknown hospital', $tester->getDisplay());
+    }
+
+    public function testUnknownDispatchAreaExitsWithFailure(): void
+    {
+        $tester = $this->createTester($this->failingHttpClient(), 'test-key');
+
+        $status = $tester->execute(['--dispatch-area-id' => 99999]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('Unknown dispatch area', $tester->getDisplay());
     }
 
     public function testApplyWithoutApiKeyExitsWithFailure(): void
@@ -63,7 +106,7 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         self::assertNotNull($stateId);
         $tester = $this->createTester($this->failingHttpClient(), '');
 
-        $status = $tester->execute(['stateId' => $stateId, '--apply' => true]);
+        $status = $tester->execute(['--state-id' => $stateId, '--apply' => true]);
 
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('OPENROUTESERVICE_API_KEY', $tester->getDisplay());
@@ -73,7 +116,7 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
     {
         $tester = $this->createTester($this->failingHttpClient(), 'test-key');
 
-        $status = $tester->execute(['stateId' => 99999, '--apply' => true, '--dry-run' => true]);
+        $status = $tester->execute(['--state-id' => 99999, '--apply' => true, '--dry-run' => true]);
 
         self::assertSame(Command::FAILURE, $status);
         self::assertStringContainsString('Both --apply and --dry-run were passed', $tester->getDisplay());
@@ -84,7 +127,7 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         $hospitals = $this->seedHospitals();
         $tester = $this->createTester($this->failingHttpClient(), 'test-key');
 
-        $status = $tester->execute(['stateId' => $hospitals['stateId']]);
+        $status = $tester->execute(['--state-id' => $hospitals['stateId']]);
 
         self::assertSame(Command::SUCCESS, $status);
         $display = $tester->getDisplay();
@@ -94,6 +137,7 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         self::assertStringNotContainsString('Bayern Klinik', $display);
         self::assertStringContainsString('missing-coords', $display);
         self::assertStringContainsString('fetch', $display);
+        self::assertStringContainsString('OpenRouteService requests required', $display);
         self::assertFalse($this->store()->existsForHospital($hospitals['participating']));
         self::assertFalse($this->store()->existsForHospital($hospitals['nonParticipating']));
     }
@@ -110,15 +154,16 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         $tester = $this->createTester($httpClient, 'test-key');
 
         $status = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
 
         self::assertSame(Command::SUCCESS, $status);
-        self::assertSame(2, $requests);
+        self::assertSame(3, $requests);
         self::assertTrue($this->store()->existsForHospital($hospitals['participating']));
         self::assertTrue($this->store()->existsForHospital($hospitals['nonParticipating']));
+        self::assertTrue($this->store()->existsForHospital($hospitals['otherArea']));
         self::assertFalse($this->store()->existsForHospital($hospitals['missingCoords']));
         self::assertFalse($this->store()->existsForHospital($hospitals['otherState']));
         $stored = $this->store()->findForHospital($hospitals['participating']);
@@ -126,6 +171,84 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         self::assertCount(2, $stored['features']);
         self::assertSame(600, $stored['features'][1]['properties']['value']);
         self::assertSame(['lat' => 50.1109, 'lng' => 8.6821], $stored['properties']['origin'] ?? null);
+    }
+
+    public function testParticipatingOnlySkipsNonParticipatingHospitals(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $requests = 0;
+        $httpClient = new MockHttpClient(function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return new MockResponse(json_encode($this->geojson(), JSON_THROW_ON_ERROR), ['http_code' => 200]);
+        });
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--state-id' => $hospitals['stateId'],
+            '--participating-only' => true,
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertSame(1, $requests);
+        self::assertTrue($this->store()->existsForHospital($hospitals['participating']));
+        self::assertFalse($this->store()->existsForHospital($hospitals['nonParticipating']));
+        self::assertStringNotContainsString('Nicht teilnehmend', $tester->getDisplay());
+    }
+
+    public function testHospitalScopeProcessesNonParticipatingHospitalAndIgnoresParticipatingOnly(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $hospitalId = $hospitals['nonParticipating']->getId();
+        self::assertNotNull($hospitalId);
+        $requests = 0;
+        $httpClient = new MockHttpClient(function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return new MockResponse(json_encode($this->geojson(), JSON_THROW_ON_ERROR), ['http_code' => 200]);
+        });
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--hospital-id' => $hospitalId,
+            '--participating-only' => true,
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertSame(1, $requests);
+        self::assertTrue($this->store()->existsForHospital($hospitals['nonParticipating']));
+        self::assertFalse($this->store()->existsForHospital($hospitals['participating']));
+        self::assertStringContainsString('--participating-only is ignored when --hospital-id is set.', $tester->getDisplay());
+    }
+
+    public function testDispatchAreaScopeDoesNotIncludeOtherAreas(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $dispatchAreaId = $hospitals['dispatchArea']->getId();
+        self::assertNotNull($dispatchAreaId);
+        $requests = 0;
+        $httpClient = new MockHttpClient(function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return new MockResponse(json_encode($this->geojson(), JSON_THROW_ON_ERROR), ['http_code' => 200]);
+        });
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--dispatch-area-id' => $dispatchAreaId,
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertSame(2, $requests);
+        self::assertTrue($this->store()->existsForHospital($hospitals['participating']));
+        self::assertFalse($this->store()->existsForHospital($hospitals['otherArea']));
+        self::assertFalse($this->store()->existsForHospital($hospitals['otherState']));
     }
 
     public function testApplySkipsExistingFilesWhenOriginMatchesUnlessForced(): void
@@ -147,24 +270,24 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         $tester = $this->createTester($httpClient, 'test-key');
 
         $skip = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
 
         self::assertSame(Command::SUCCESS, $skip);
-        self::assertSame(1, $requests->count);
+        self::assertSame(2, $requests->count);
         self::assertStringContainsString('skip', $tester->getDisplay());
 
         $force = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--force' => true,
             '--delay-ms' => 0,
         ]);
 
         self::assertSame(Command::SUCCESS, $force);
-        self::assertSame(3, $requests->count);
+        self::assertSame(5, $requests->count);
     }
 
     public function testApplyRefetchesWhenStoredOriginIsMissing(): void
@@ -180,13 +303,13 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         $tester = $this->createTester($httpClient, 'test-key');
 
         $status = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
 
         self::assertSame(Command::SUCCESS, $status);
-        self::assertSame(2, $requests);
+        self::assertSame(3, $requests);
         self::assertStringContainsString('fetch', $tester->getDisplay());
     }
 
@@ -196,11 +319,12 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         $httpClient = new MockHttpClient([
             new MockResponse('{"error":"denied"}', ['http_code' => 401]),
             new MockResponse('{"error":"denied"}', ['http_code' => 401]),
+            new MockResponse('{"error":"denied"}', ['http_code' => 401]),
         ]);
         $tester = $this->createTester($httpClient, 'test-key');
 
         $status = $tester->execute([
-            'stateId' => $hospitals['stateId'],
+            '--state-id' => $hospitals['stateId'],
             '--apply' => true,
             '--delay-ms' => 0,
         ]);
@@ -210,8 +334,42 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         self::assertFalse($this->store()->existsForHospital($hospitals['participating']));
     }
 
+    public function testApplyAbortsOnRateLimitAfterOneRetryAndKeepsWrittenFiles(): void
+    {
+        $hospitals = $this->seedHospitals();
+        $httpClient = new MockHttpClient([
+            new MockResponse(json_encode($this->geojson(), JSON_THROW_ON_ERROR), ['http_code' => 200]),
+            new MockResponse('{"error":"Rate limit exceeded"}', [
+                'http_code' => 429,
+                'response_headers' => ['retry-after' => '1'],
+            ]),
+            new MockResponse('{"error":"Rate limit exceeded"}', ['http_code' => 429]),
+        ]);
+        $tester = $this->createTester($httpClient, 'test-key');
+
+        $status = $tester->execute([
+            '--state-id' => $hospitals['stateId'],
+            '--apply' => true,
+            '--delay-ms' => 0,
+        ]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('rate limit reached', $tester->getDisplay());
+        self::assertTrue($this->store()->existsForHospital($hospitals['otherArea']));
+        self::assertFalse($this->store()->existsForHospital($hospitals['nonParticipating']));
+        self::assertFalse($this->store()->existsForHospital($hospitals['participating']));
+    }
+
     /**
-     * @return array{stateId: int, participating: Hospital, nonParticipating: Hospital, missingCoords: Hospital, otherState: Hospital}
+     * @return array{
+     *     stateId: int,
+     *     dispatchArea: DispatchArea,
+     *     participating: Hospital,
+     *     nonParticipating: Hospital,
+     *     missingCoords: Hospital,
+     *     otherArea: Hospital,
+     *     otherState: Hospital
+     * }
      */
     private function seedHospitals(): array
     {
@@ -222,10 +380,12 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
         self::assertNotNull($hessenId);
         $bayern = StateFactory::createOne(['name' => 'Bayern']);
         $dispatch = DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $hessen]);
+        $otherDispatch = DispatchAreaFactory::createOne(['name' => 'Kassel', 'state' => $hessen]);
         $bayernDispatch = DispatchAreaFactory::createOne(['name' => 'München', 'state' => $bayern]);
 
         return [
             'stateId' => $hessenId,
+            'dispatchArea' => $dispatch,
             'participating' => HospitalFactory::createOne([
                 'name' => 'Teilnehmende Klinik',
                 'state' => $hessen,
@@ -255,6 +415,16 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
                 'createdBy' => $createdBy,
                 'owner' => $owner,
             ]),
+            'otherArea' => HospitalFactory::createOne([
+                'name' => 'Andere Leitstelle',
+                'state' => $hessen,
+                'dispatchArea' => $otherDispatch,
+                'latitude' => 51.3,
+                'longitude' => 9.5,
+                'isParticipating' => false,
+                'createdBy' => $createdBy,
+                'owner' => $owner,
+            ]),
             'otherState' => HospitalFactory::createOne([
                 'name' => 'Bayern Klinik',
                 'state' => $bayern,
@@ -271,8 +441,11 @@ final class FetchHospitalIsochronesCommandTest extends KernelTestCase
     {
         $command = new FetchHospitalIsochronesCommand(
             new HospitalIsochroneFetchService(
-                self::getContainer()->get(StateLookupInterface::class),
-                self::getContainer()->get(HospitalLookupInterface::class),
+                new HospitalGeoScopeResolver(
+                    self::getContainer()->get(HospitalLookupInterface::class),
+                    self::getContainer()->get(DispatchAreaLookupInterface::class),
+                    self::getContainer()->get(StateLookupInterface::class),
+                ),
                 new OpenRouteServiceIsochroneClient($httpClient, new NullLogger(), $apiKey),
                 $this->store(),
             ),

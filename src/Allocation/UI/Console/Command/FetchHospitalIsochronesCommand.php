@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Console\Command;
 
 use App\Allocation\Application\Hospital\HospitalIsochroneFetchService;
-use App\Allocation\UI\Console\Input\FetchHospitalIsochronesInput;
-use Symfony\Component\Console\Attribute\Argument;
+use App\Allocation\UI\Console\Input\HospitalGeoCommandInput;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:allocation:fetch-hospital-isochrones',
-    description: 'Fetch destination isochrones for all hospitals in a federal state and store them as GeoJSON (default: dry-run preview).',
+    name: 'app:geo:fetch-isochrones',
+    description: 'Fetch destination isochrones for hospitals (hospital, dispatch area, or state) and store them as GeoJSON (default: dry-run preview).',
 )]
 final readonly class FetchHospitalIsochronesCommand
 {
@@ -25,22 +24,34 @@ final readonly class FetchHospitalIsochronesCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument(description: 'ID of the federal state', name: 'stateId')]
-        int $stateId,
-        #[MapInput] FetchHospitalIsochronesInput $input,
+        #[MapInput] HospitalGeoCommandInput $input,
     ): int {
         $apply = $input->apply;
         if ($apply && $input->dryRun) {
             $io->warning('Both --apply and --dry-run were passed; --apply takes precedence.');
         }
 
-        $io->title('Fetch hospital isochrones');
+        $scopeError = $input->scopeError();
+        if (null !== $scopeError) {
+            $io->error($scopeError);
 
-        $report = $this->fetchService->run($stateId, $apply, $input->force, $input->delayMs);
+            return Command::FAILURE;
+        }
+
+        $io->title('Fetch hospital isochrones');
+        if ($input->ignoresParticipatingOnly()) {
+            $io->warning('--participating-only is ignored when --hospital-id is set.');
+        }
+
+        $report = $this->fetchService->run($input->toScope(), $apply, $input->force, $input->delayMs);
         if (!$report->success) {
             $io->error($report->error ?? 'Isochrone fetch failed.');
 
             return Command::FAILURE;
+        }
+
+        if ('' !== $report->scopeLabel) {
+            $io->text(sprintf('Scope: %s', $report->scopeLabel));
         }
 
         if ($report->dryRun) {
@@ -59,10 +70,22 @@ final readonly class FetchHospitalIsochronesCommand
                 ['Hospitals inspected', (string) $report->inspected],
                 ['Missing coordinates', (string) $report->missingCoords],
                 ['Existing files skipped', (string) $report->skipped],
-                [$report->dryRun ? 'Would fetch' : 'Fetched', (string) ($report->dryRun ? $report->toFetch : $report->written)],
-                ...($report->dryRun ? [] : [['Failed', (string) $report->failed]]),
+                ['OpenRouteService requests required', (string) $report->toFetch],
+                ...($report->dryRun ? [] : [
+                    ['Fetched', (string) $report->written],
+                    ['Failed', (string) $report->failed],
+                ]),
             ],
         );
+
+        if ($report->rateLimited) {
+            $io->error(sprintf(
+                'OpenRouteService rate limit reached after writing %d file(s). Re-run later to resume; already stored files are kept.',
+                $report->written,
+            ));
+
+            return Command::FAILURE;
+        }
 
         if ($report->dryRun) {
             $io->success('Dry run finished. Re-run with --apply to fetch missing isochrones.');
