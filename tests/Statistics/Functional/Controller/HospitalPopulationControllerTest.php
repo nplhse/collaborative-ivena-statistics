@@ -39,6 +39,26 @@ final class HospitalPopulationControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-hospital-population-participation"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-population-dispatch-areas-kpi"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-population-map"]');
+        $this->assertSelectorExists('.hospital-population-map-frame');
+        $this->assertSelectorNotExists('.case-flow-map-square');
+        $this->assertSelectorExists('[data-testid="stats-hospital-population-regional-coverage"]');
+        $this->assertSelectorExists('[data-sort="sort-dispatch-area"]');
+        $this->assertSelectorNotExists('[data-sort="sort-state"]');
+        $this->assertSelectorNotExists('.sort-state');
+        self::assertSame(
+            ['Dispatch area', 'All', 'Participants', 'Coverage'],
+            $crawler->filter('[data-testid="stats-hospital-population-regional-coverage"] thead th')->each(
+                static fn ($node): string => trim($node->text()),
+            ),
+        );
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-hospital-population-map"]')->closest('.col-lg-6')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-hospital-population-regional-coverage"]')->closest('.col-lg-6')->count(),
+        );
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-coverage"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-beds"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-allocation-basis"]');
@@ -63,6 +83,28 @@ final class HospitalPopulationControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-hospital-population-coverage-size"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-population-coverage-location"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-population-coverage-state"]');
+        self::assertGreaterThan(
+            0,
+            $crawler->filter('[data-testid="stats-hospital-population-coverage-tier"]')->closest('.col-12')->count(),
+        );
+        self::assertSame(
+            [
+                'Coverage by location and tier',
+                'Coverage by size and tier',
+                'Distribution by tier',
+            ],
+            array_slice(
+                $crawler->filter('[data-testid="stats-hospital-population-coverage"] .card-title')->each(
+                    static fn ($node): string => trim($node->text()),
+                ),
+                0,
+                3,
+            ),
+        );
+        $this->assertSelectorTextNotContains(
+            '[data-testid="stats-hospital-population-coverage"]',
+            'Positive delta indicates overrepresentation',
+        );
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-participation"]');
         $this->assertSelectorNotExists('[data-controller="hospital-population-charts"]');
         self::assertSame('page', $crawler->filter('[data-testid="stats-hospital-population-tab-coverage"]')->attr('aria-current'));
@@ -79,6 +121,16 @@ final class HospitalPopulationControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-hospital-population-beds"]');
         $this->assertSelectorExists('[data-testid="stats-hospital-population-beds-matrix"]');
+        self::assertSame(
+            [
+                'Beds by tier',
+                'Beds by location',
+                'Beds – descriptive statistics',
+            ],
+            $crawler->filter('[data-testid="stats-hospital-population-beds"] .card-title')->each(
+                static fn ($node): string => trim($node->text()),
+            ),
+        );
         $this->assertSelectorExists('[data-controller="hospital-population-charts"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-allocation-basis"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-participation"]');
@@ -95,6 +147,15 @@ final class HospitalPopulationControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-hospital-population-allocation-basis"]');
+        self::assertNull($crawler->filter('[data-testid="stats-hospital-population-allocation-basis"]')->attr('class'));
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-hospital-population-allocation-basis"]',
+            'Allocations by tier',
+        );
+        $this->assertSelectorTextNotContains(
+            '[data-testid="stats-hospital-population-allocation-basis"]',
+            'Descriptive summary of allocations per participating hospital',
+        );
         $this->assertSelectorExists('[data-controller="hospital-population-charts"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-beds"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-participation"]');
