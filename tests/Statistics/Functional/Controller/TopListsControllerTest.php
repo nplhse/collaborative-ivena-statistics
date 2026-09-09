@@ -154,6 +154,13 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"].btn-group');
         $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-catalog-link"].btn');
         $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-compare-enable"].btn');
+        $this->assertSelectorExists('[data-testid="stats-analysis-table-card"] [data-testid="stats-top-lists-export-csv"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-export-csv"]');
+        $exportHref = $crawler->filter('[data-testid="stats-top-lists-export-csv"]')->attr('href');
+        $this->assertNotNull($exportHref);
+        $this->assertStringContainsString('/statistics/top-lists/top_diagnoses/export.csv', $exportHref);
+        $this->assertStringContainsString('scope=public', $exportHref);
+        $this->assertStringContainsString('period=all', $exportHref);
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"].btn-outline-primary');
         $catalogHref = $crawler->filter('[data-testid="stats-top-lists-catalog-link"]')->attr('href');
         $this->assertSame('/explore/indication', $catalogHref);
@@ -618,6 +625,12 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-a"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-disable"].btn-outline-danger');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"] [data-testid="stats-top-lists-export-csv"]');
+        $this->assertSelectorNotExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-export-csv"]');
+        $compareExportHref = $crawler->filter('[data-testid="stats-top-lists-export-csv"]')->attr('href');
+        $this->assertNotNull($compareExportHref);
+        $this->assertStringContainsString('/statistics/top-lists/top_diagnoses/export.csv', $compareExportHref);
+        $this->assertStringContainsString('compare=1', $compareExportHref);
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-edit"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-actions"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-compare-enable"]');

@@ -51,6 +51,31 @@ final class TopListComparisonAssemblerTest extends TestCase
         self::assertNull($delta->rankA);
     }
 
+    public function testMergedRowsKeepAOrderThenOnlyInB(): void
+    {
+        $rankingA = new TopListRanking([
+            new TopListRankedRow('1', 'Alpha', 20, 50.0, 1, 1),
+            new TopListRankedRow('2', 'Beta', 10, 25.0, 2, 2),
+            new TopListRankedRow('3', 'Gamma', 5, 12.5, 3, 3),
+        ], 40);
+        $rankingB = new TopListRanking([
+            new TopListRankedRow('2', 'Beta', 30, 60.0, 1, 2),
+            new TopListRankedRow('1', 'Alpha', 15, 30.0, 2, 1),
+            new TopListRankedRow('4', 'Delta', 5, 10.0, 3, 4),
+        ], 50);
+
+        $merged = new TopListComparisonAssembler()->assemble($rankingA, $rankingB)->mergedRows();
+
+        self::assertSame(['Alpha', 'Beta', 'Gamma', 'Delta'], array_map(
+            static fn (\App\Statistics\Application\TopList\TopListComparisonRow $row): string => $row->label,
+            $merged,
+        ));
+        self::assertTrue($merged[2]->onlyInA);
+        self::assertTrue($merged[3]->onlyInB);
+        self::assertSame(1, $merged[1]->rankB);
+        self::assertSame(20, $merged[1]->deltaCount);
+    }
+
     public function testPageSliceDoesNotRepeatShorterSide(): void
     {
         $rowsA = [];

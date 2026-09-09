@@ -49,6 +49,10 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertStringContainsString('app_stats_top_lists_show', $model->topListSelectUrls['top_diagnoses']);
         self::assertStringContainsString('app_stats_top_lists?', $model->indexUrl);
         self::assertStringNotContainsString('report=', $model->indexUrl);
+        self::assertStringContainsString('app_stats_top_lists_export_csv', $model->exportCsvUrl);
+        self::assertStringContainsString('limit=10', $model->exportCsvUrl);
+        self::assertStringNotContainsString('page=', $model->exportCsvUrl);
+        self::assertStringNotContainsString('per_page=', $model->exportCsvUrl);
         self::assertSame('app_explore_indication_list?', $model->catalogListUrl);
         self::assertNotNull($model->topListWidget);
         self::assertArrayHasKey('rankingDepth', $model->topListWidget->payload);
