@@ -2,64 +2,57 @@
 
 {% set basis = result.allocationBasis %}
 
-<div class="card mb-3" data-testid="stats-hospital-population-allocation-basis">
-    <div class="card-header py-2">
-        <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.allocation_basis'|trans({}, 'statistics') }}</h3>
-    </div>
-    <div class="card-body">
-        <p class="text-secondary">{{ 'stats.hospital_population.allocation_basis.intro'|trans({}, 'statistics') }}</p>
-
-        <div class="row g-3 mb-3">
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header py-2">
-                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_tier'|trans({}, 'statistics') }}</h4>
-                    </div>
-                    <div class="card-body pt-2">
-                        <div class="chart-md" data-hospital-population-charts-target="allocationByTierChart"></div>
-                    </div>
+<div data-testid="stats-hospital-population-allocation-basis">
+    <div class="row g-3 mb-3">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <h3 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_tier'|trans({}, 'statistics') }}</h3>
                 </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header py-2">
-                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_size'|trans({}, 'statistics') }}</h4>
-                    </div>
-                    <div class="card-body pt-2">
-                        <div class="chart-md" data-hospital-population-charts-target="allocationBySizeChart"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-header py-2">
-                        <h4 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_location'|trans({}, 'statistics') }}</h4>
-                    </div>
-                    <div class="card-body pt-2">
-                        <div class="chart-md" data-hospital-population-charts-target="allocationByLocationChart"></div>
-                    </div>
+                <div class="card-body pt-2">
+                    <div class="chart-md" data-hospital-population-charts-target="allocationByTierChart"></div>
                 </div>
             </div>
         </div>
-
-        <div class="row g-3">
-            <div class="col-lg-6">
-                {{ crossTable.allocation_cross_table(
-                    'stats.hospital_population.allocation.cross_table_location_by_tier'|trans({}, 'statistics'),
-                    'stats.hospital_population.table.location'|trans({}, 'statistics'),
-                    'stats.hospital_population.table.tier'|trans({}, 'statistics'),
-                    basis.locationByTierCrossTable,
-                ) }}
-            </div>
-            <div class="col-lg-6">
-                {{ crossTable.allocation_cross_table(
-                    'stats.hospital_population.allocation.cross_table_size_by_tier'|trans({}, 'statistics'),
-                    'stats.hospital_population.table.size'|trans({}, 'statistics'),
-                    'stats.hospital_population.table.tier'|trans({}, 'statistics'),
-                    basis.sizeByTierCrossTable,
-                ) }}
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <h3 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_size'|trans({}, 'statistics') }}</h3>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="chart-md" data-hospital-population-charts-target="allocationBySizeChart"></div>
+                </div>
             </div>
         </div>
-        <p class="text-secondary small mb-0 mt-2">{{ 'stats.hospital_population.allocation.cross_table_share_hint'|trans({}, 'statistics') }}</p>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <h3 class="card-title mb-0">{{ 'stats.hospital_population.allocation.chart_by_location'|trans({}, 'statistics') }}</h3>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="chart-md" data-hospital-population-charts-target="allocationByLocationChart"></div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            {{ crossTable.allocation_cross_table(
+                'stats.hospital_population.allocation.cross_table_location_by_tier'|trans({}, 'statistics'),
+                'stats.hospital_population.table.location'|trans({}, 'statistics'),
+                'stats.hospital_population.table.tier'|trans({}, 'statistics'),
+                basis.locationByTierCrossTable,
+            ) }}
+        </div>
+        <div class="col-lg-6">
+            {{ crossTable.allocation_cross_table(
+                'stats.hospital_population.allocation.cross_table_size_by_tier'|trans({}, 'statistics'),
+                'stats.hospital_population.table.size'|trans({}, 'statistics'),
+                'stats.hospital_population.table.tier'|trans({}, 'statistics'),
+                basis.sizeByTierCrossTable,
+            ) }}
+        </div>
+    </div>
+    <p class="text-secondary small mb-0">{{ 'stats.hospital_population.allocation.cross_table_share_hint'|trans({}, 'statistics') }}</p>
 </div>

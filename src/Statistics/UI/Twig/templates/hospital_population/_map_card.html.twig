@@ -1,4 +1,4 @@
-<div class="card mb-3"
+<div class="card h-100"
      data-controller="hospital-population-map"
      data-hospital-population-map-payload-value="{{ mapPayload|json_encode|e('html_attr') }}"
      data-hospital-population-map-geo-url-value="{{ asset('geo/hessen-landkreise.geojson') }}"
@@ -13,7 +13,7 @@
         <h3 class="card-title mb-0">{{ 'stats.hospital_population.section.map'|trans({}, 'statistics') }}</h3>
     </div>
     <div class="card-body pt-2">
-        <div class="case-flow-map-square">
+        <div class="hospital-population-map-frame">
             <div class="case-flow-map-container"
                  data-hospital-population-map-target="mapContainer"></div>
         </div>
