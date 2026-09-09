@@ -30,7 +30,7 @@ The `Statistics` context is internally divided:
 | `Benchmarking` | Hospital comparison |
 | `DataQuality` | Data quality indicator badge |
 | `CaseFlow` | Regional flow metrics and maps |
-| `HospitalPopulation` | Hospital population overview |
+| `HospitalPopulation` | Hospital population: participation, coverage, beds, allocations |
 
 See [../04-features/statistics/README.md](../04-features/statistics/README.md).
 

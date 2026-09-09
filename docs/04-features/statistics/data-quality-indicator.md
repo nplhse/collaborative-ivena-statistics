@@ -23,7 +23,7 @@ This is a **read-side transparency feature**. It does not block access to statis
 | Analysis library / explorer | `/statistics/analysis/*` | — |
 | Benchmarking | `/statistics/benchmarking` | — (primary scope) |
 
-**Excluded:** Hospital Population (`/statistics/hospital-population`) — no scope/period filter context.
+**Excluded:** Hospital Population (`/statistics/hospital-population` and section URLs under that path) — no scope/period filter context.
 
 Pages with extra filters (comparison scope in benchmarking, analytics dimensions) still show **scope + period** quality only, not filter-specific quality.
 
