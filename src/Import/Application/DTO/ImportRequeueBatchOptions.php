@@ -11,6 +11,8 @@ final readonly class ImportRequeueBatchOptions
         public int $fromId = 1,
         public ?int $limit = null,
         public ?int $onlyId = null,
+        /** @var list<int>|null */
+        public ?array $onlyIds = null,
         public bool $resume = false,
         public ?int $runId = null,
         public int $maxRetriesPerImport = 3,
@@ -27,6 +29,7 @@ final readonly class ImportRequeueBatchOptions
             'fromId' => $this->fromId,
             'limit' => $this->limit,
             'onlyId' => $this->onlyId,
+            'onlyIds' => $this->onlyIds,
             'resume' => $this->resume,
             'runId' => $this->runId,
             'maxRetriesPerImport' => $this->maxRetriesPerImport,

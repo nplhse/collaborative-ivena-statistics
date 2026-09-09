@@ -107,6 +107,38 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         self::assertSame(1, $this->countBatchRunItems());
     }
 
+    public function testOnlyIdsProcessesListedImports(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Skip Import']);
+        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Import A']);
+        $second = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Import B']);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--only-ids' => sprintf('%d,%d', $first->getId(), $second->getId()),
+        ]);
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
+        self::assertSame(2, $this->countBatchRunItems());
+        self::assertStringContainsString('Keep Import A', $tester->getDisplay());
+        self::assertStringContainsString('Keep Import B', $tester->getDisplay());
+        self::assertStringNotContainsString('Skip Import', $tester->getDisplay());
+    }
+
+    public function testEmptyOnlyIdsDispatchesNothing(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+
+        $orchestrator = self::getContainer()->get(ImportRequeueBatchOrchestrator::class);
+        $summary = $orchestrator->run(new ImportRequeueBatchOptions(dryRun: true, onlyIds: []));
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $summary->exitCode);
+        self::assertSame(0, $summary->wouldDispatch);
+        self::assertSame(0, $this->countBatchRuns());
+    }
+
     public function testResumeAfterRunningRetriesSameImport(): void
     {
         $seed = $this->seedReferenceGraph();

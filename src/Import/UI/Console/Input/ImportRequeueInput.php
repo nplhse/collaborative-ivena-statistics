@@ -24,6 +24,9 @@ final class ImportRequeueInput
     #[Assert\Positive]
     public ?int $onlyId = null;
 
+    #[Option(description: 'Process only these import IDs (comma-separated)', name: 'only-ids')]
+    public ?string $onlyIds = null;
+
     #[Option(description: 'Resume the latest incomplete batch run')]
     public bool $resume = false;
 

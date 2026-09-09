@@ -36,6 +36,7 @@ final readonly class ImportRequeueBatchOrchestrator
         $imports = $this->importRepository->findIdsForRequeue(
             fromId: $options->fromId,
             onlyId: $options->onlyId,
+            onlyIds: $options->onlyIds,
             limit: $options->limit,
         );
 
