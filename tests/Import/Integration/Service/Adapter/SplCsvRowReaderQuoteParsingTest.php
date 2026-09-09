@@ -49,22 +49,38 @@ final class SplCsvRowReaderQuoteParsingTest extends TestCase
         self::assertSame('ja', $row['aerztlich_begleitet']);
     }
 
+    public function testEmptyFileIsRejected(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'ivena_empty_');
+        self::assertNotFalse($path);
+        file_put_contents($path, '');
+        $this->tempFiles[] = $path;
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('CSV appears to be empty or header row could not be read.');
+
+        $this->createReader($path);
+    }
+
     /**
      * @return array<string, string>
      */
     private function readFirstAssocRow(string $path): array
     {
-        $reader = new SplCsvRowReader(
+        $rows = iterator_to_array($this->createReader($path)->rowsAssoc(), false);
+        self::assertNotEmpty($rows);
+
+        return $rows[0];
+    }
+
+    private function createReader(string $path): SplCsvRowReader
+    {
+        return new SplCsvRowReader(
             new \SplFileObject($path, 'r'),
             new EncodingDetector(),
             new SplCsvStreamFactory(new Logger('test', [new TestHandler()])),
             'UTF-8',
         );
-
-        $rows = iterator_to_array($reader->rowsAssoc(), false);
-        self::assertNotEmpty($rows);
-
-        return $rows[0];
     }
 
     private function writeFixture(string $quotedPzcUndTextCell): string

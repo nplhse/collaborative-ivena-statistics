@@ -209,10 +209,10 @@ final readonly class IndicationRawCorruptionMergeService
 UPDATE indication_raw
 SET name = :name,
     hash = :hash,
-    target_id = COALESCE(target_id, :targetId),
-    normalized_id = COALESCE(normalized_id, :normalizedId),
+    target_id = COALESCE(target_id, CAST(:targetId AS INTEGER)),
+    normalized_id = COALESCE(normalized_id, CAST(:normalizedId AS INTEGER)),
     review_status = CASE
-        WHEN :targetId IS NOT NULL AND review_status = 'unreviewed' THEN 'matched'
+        WHEN CAST(:targetId AS INTEGER) IS NOT NULL AND review_status = 'unreviewed' THEN 'matched'
         ELSE review_status
     END
 WHERE id = :id
@@ -224,7 +224,11 @@ SQL,
                     'normalizedId' => $catalog['id'] ?? null,
                     'id' => $action->loserId,
                 ],
-                ['id' => Types::INTEGER],
+                [
+                    'targetId' => Types::INTEGER,
+                    'normalizedId' => Types::INTEGER,
+                    'id' => Types::INTEGER,
+                ],
             );
 
             return $this->importIdsForRaw($action->loserId);

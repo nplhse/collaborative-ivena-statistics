@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Command;
 
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -146,6 +150,185 @@ final class RepairIndicationCorruptionCommandTest extends KernelTestCase
         self::assertStringNotContainsString('Unrelated Import', $tester->getDisplay());
     }
 
+    public function testOverflowSinceDateIsInvalid(): void
+    {
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--dry-run' => true,
+            '--skip-merge' => true,
+            '--skip-requeue' => true,
+            '--since' => '2025-02-30',
+        ]);
+
+        self::assertSame(Command::INVALID, $exitCode);
+        self::assertStringContainsString('Invalid --since date', $tester->getDisplay());
+    }
+
+    public function testDryRunRestoresCatalogStubWithoutSurvivorId(): void
+    {
+        IndicationNormalizedFactory::createOne([
+            'code' => 299,
+            'name' => 'Gefäßchirurgischer Notfall, sonstiger',
+        ]);
+        IndicationRawFactory::createOne([
+            'code' => 299,
+            'name' => 'ßchirurgischer Notfall, sonstiger',
+            'hash' => 'cmd-catalog-stub',
+            'reviewStatus' => IndicationRawReviewStatus::Unreviewed,
+        ]);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--dry-run' => true,
+            '--skip-requeue' => true,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        $display = $tester->getDisplay();
+        self::assertStringContainsString('stub_restore', $display);
+        self::assertStringContainsString('ßchirurgischer Notfall, sonstiger', $display);
+    }
+
+    public function testAppliesMergeAndRebuildsProjectionWithoutDryRun(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'name' => 'Merge Persist Import',
+            'filePath' => $this->writeImportCsv('merge-persist.csv')['stored'],
+        ]);
+        IndicationRawFactory::createOne([
+            'code' => 299,
+            'name' => 'Gefäßchirurgischer Notfall, sonstiger',
+            'hash' => 'cmd-intact-persist',
+            'reviewStatus' => IndicationRawReviewStatus::Matched,
+        ]);
+        $stub = IndicationRawFactory::createOne([
+            'code' => 299,
+            'name' => 'ßchirurgischer Notfall, sonstiger',
+            'hash' => 'cmd-stub-persist',
+            'reviewStatus' => IndicationRawReviewStatus::Unreviewed,
+        ]);
+        $hospital = $seed['hospital'];
+        $state = $hospital->getState();
+        $dispatchArea = $hospital->getDispatchArea();
+        self::assertInstanceOf(State::class, $state);
+        self::assertInstanceOf(DispatchArea::class, $dispatchArea);
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'indicationRaw' => $stub,
+            'indicationNormalized' => null,
+        ]);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--skip-requeue' => true,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        $display = $tester->getDisplay();
+        self::assertStringContainsString('Repair finished.', $display);
+        self::assertStringContainsString('Projection rebuilt for', $display);
+        self::assertFalse(
+            $this->em->getConnection()->fetchOne("SELECT id FROM indication_raw WHERE hash = 'cmd-stub-persist'"),
+        );
+    }
+
+    public function testOnlyImportIdFiltersQuoteBrokenDiscovery(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $included = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'name' => 'Included Quote Import',
+            'filePath' => $this->writeImportCsv('included.csv')['stored'],
+            'createdAt' => new \DateTimeImmutable('2025-06-02 10:00:00'),
+        ]);
+        $excluded = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'name' => 'Excluded Quote Import',
+            'filePath' => $this->writeImportCsv('excluded.csv')['stored'],
+            'createdAt' => new \DateTimeImmutable('2025-06-03 10:00:00'),
+        ]);
+        $this->persistQuoteReject($included);
+        $this->persistQuoteReject($excluded);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--dry-run' => true,
+            '--skip-merge' => true,
+            '--only-import-id' => (string) $included->getId(),
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        $display = $tester->getDisplay();
+        self::assertStringContainsString('Included Quote Import', $display);
+        self::assertStringNotContainsString('Excluded Quote Import', $display);
+    }
+
+    public function testDiscoversPzc332RejectWithoutMciMessages(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'name' => 'PZC Quote Import',
+            'filePath' => $this->writeImportCsv('pzc.csv')['stored'],
+            'createdAt' => new \DateTimeImmutable('2025-06-02 10:00:00'),
+        ]);
+
+        $reject = new ImportReject();
+        $reject->setImport($import);
+        $reject->setLineNumber(3);
+        $reject->setMessages(['unrelated']);
+        $reject->setRow([
+            'pzc' => '332731',
+            'pzc_und_text' => 'STEMI',
+            'manv' => '',
+        ]);
+        $this->em->persist($reject);
+        $this->em->flush();
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--dry-run' => true,
+            '--skip-merge' => true,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertStringContainsString('PZC Quote Import', $tester->getDisplay());
+    }
+
+    public function testDispatchesReadyQuoteBrokenImportWithoutDryRun(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'name' => 'Dispatch Quote Import',
+            'filePath' => $this->writeImportCsv('dispatch.csv')['stored'],
+            'createdAt' => new \DateTimeImmutable('2025-06-02 10:00:00'),
+        ]);
+        $this->persistQuoteReject($import);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--skip-merge' => true,
+            '--skip-projection' => true,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        $display = $tester->getDisplay();
+        self::assertStringContainsString('Dispatched: 1', $display);
+        self::assertStringContainsString('Repair finished.', $display);
+    }
+
     public function testInvalidSinceReturnsInvalid(): void
     {
         $tester = $this->commandTester();
@@ -218,7 +401,7 @@ final class RepairIndicationCorruptionCommandTest extends KernelTestCase
     }
 
     /**
-     * @return array{user: object, hospital: object}
+     * @return array{user: object, hospital: Hospital}
      */
     private function seedReferenceGraph(): array
     {

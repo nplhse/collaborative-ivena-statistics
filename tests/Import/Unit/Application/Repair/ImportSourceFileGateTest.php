@@ -74,4 +74,25 @@ final class ImportSourceFileGateTest extends TestCase
 
         self::assertSame(ImportSourceFileStatus::EmptyFile, $this->gate->inspect($relative));
     }
+
+    public function testUnreadableFile(): void
+    {
+        $relative = 'var/imports/unreadable.csv';
+        $absolute = Path::join($this->projectDir, $relative);
+        file_put_contents($absolute, "a;b\n1;2\n");
+
+        $previous = umask(0);
+        chmod($absolute, 0000);
+        umask($previous);
+
+        try {
+            if (is_readable($absolute)) {
+                self::markTestSkipped('Process can still read chmod 000 files.');
+            }
+
+            self::assertSame(ImportSourceFileStatus::Unreadable, $this->gate->inspect($relative));
+        } finally {
+            chmod($absolute, 0644);
+        }
+    }
 }

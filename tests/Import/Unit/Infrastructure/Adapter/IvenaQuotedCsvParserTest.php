@@ -67,6 +67,35 @@ final class IvenaQuotedCsvParserTest extends TestCase
         self::assertSame('manv', $parsed[7]);
     }
 
+    public function testLenientQuotedRejectsUnquotedAndEmptySeparator(): void
+    {
+        self::assertNull($this->parser->parseLenientQuoted('foo;bar', ';', '"'));
+        self::assertNull($this->parser->parseLenientQuoted('', ';', '"'));
+        self::assertNull($this->parser->parseLenientQuoted('x', '', ''));
+    }
+
+    public function testQuotedLineFallsBackToRfcWhenColumnCountMismatches(): void
+    {
+        $parsed = $this->parser->parseLine('"a";"b";"c"', ';', '"', '', 2);
+
+        self::assertSame(['a', 'b', 'c'], $parsed);
+    }
+
+    public function testUnquotedEmptyFieldIsStringified(): void
+    {
+        self::assertSame(['a', '', 'c'], $this->parser->parseLine('a;;c', ';', '"', ''));
+    }
+
+    public function testLenientKeepsLastFieldWithoutTrailingEnclosure(): void
+    {
+        self::assertSame(['a', 'b;c'], $this->parser->parseLenientQuoted('"a";"b;c', ';', '"'));
+    }
+
+    public function testLenientAllowsEmptyFirstField(): void
+    {
+        self::assertSame(['', 'foo', 'bar'], $this->parser->parseLenientQuoted('";"foo";"bar"', ';', '"'));
+    }
+
     #[DataProvider('provideEmptyLines')]
     public function testEmptyLineMatchesFgetcsvSentinel(string $line): void
     {

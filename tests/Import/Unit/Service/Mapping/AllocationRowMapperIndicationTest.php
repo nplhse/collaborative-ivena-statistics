@@ -21,6 +21,8 @@ final class AllocationRowMapperIndicationTest extends TestCase
     public static function indicationProvider(): iterable
     {
         yield 'null' => [null, null];
+        yield 'empty string' => ['', ''];
+        yield 'whitespace only' => ['   ', ''];
         yield 'plain label unchanged' => [
             'Gefäßchirurgischer Notfall, sonstiger',
             'Gefäßchirurgischer Notfall, sonstiger',

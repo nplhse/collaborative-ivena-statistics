@@ -27,6 +27,7 @@ use App\Import\Domain\Enum\ImportBatchRunStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use App\Import\UI\Console\Command\RequeueAllImportsCommand;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -124,6 +125,32 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         self::assertStringContainsString('Keep Import A', $tester->getDisplay());
         self::assertStringContainsString('Keep Import B', $tester->getDisplay());
         self::assertStringNotContainsString('Skip Import', $tester->getDisplay());
+    }
+
+    public function testOnlyIdsSkipsNonNumericTokens(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Skip Import']);
+        $keep = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Numeric Import']);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--only-ids' => sprintf('%d,abc,%d-x, ', $keep->getId(), $keep->getId()),
+            '--dry-run' => true,
+        ]);
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
+        self::assertStringContainsString('Keep Numeric Import', $tester->getDisplay());
+        self::assertStringNotContainsString('Skip Import', $tester->getDisplay());
+    }
+
+    public function testHandleSignalBeforeRunDoesNotFail(): void
+    {
+        $command = self::getContainer()->get(RequeueAllImportsCommand::class);
+        self::assertInstanceOf(RequeueAllImportsCommand::class, $command);
+
+        self::assertFalse($command->handleSignal(\SIGINT));
+        self::assertFalse($command->handleSignal(\SIGTERM));
     }
 
     public function testEmptyOnlyIdsDispatchesNothing(): void
