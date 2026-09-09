@@ -107,7 +107,6 @@ final class MciCaseImporterFromProvidedCsvTest extends KernelTestCase
             encodingHint: 'UTF-8',
             delimiter: ';',
             enclosure: '"',
-            escape: '\\',
         );
 
         $rejectWriter = new SplCsvRejectWriter(

@@ -18,6 +18,7 @@ final class TraitHelper
         normalizeImportDatePart as private traitNormalizeImportDatePart;
         getStringOrNull as private traitGetStringOrNull;
         normalizeDispatchArea as private traitNormalizeDispatchArea;
+        normalizeIndication as private traitNormalizeIndication;
     }
 
     public static function normalizeGender(?string $value): string
@@ -66,5 +67,10 @@ final class TraitHelper
     public static function normalizeDispatchArea(?string $value): ?string
     {
         return self::traitNormalizeDispatchArea($value);
+    }
+
+    public static function normalizeIndication(?string $value): ?string
+    {
+        return self::traitNormalizeIndication($value);
     }
 }

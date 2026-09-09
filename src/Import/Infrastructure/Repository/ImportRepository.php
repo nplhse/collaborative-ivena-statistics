@@ -145,9 +145,11 @@ SQL;
     }
 
     /**
+     * @param list<int>|null $onlyIds
+     *
      * @return list<array{id: int, name: ?string, filePath: ?string}>
      */
-    public function findIdsForRequeue(int $fromId = 1, ?int $onlyId = null, ?int $limit = null): array
+    public function findIdsForRequeue(int $fromId = 1, ?int $onlyId = null, ?array $onlyIds = null, ?int $limit = null): array
     {
         $qb = $this->createQueryBuilder('i')
             ->select('i.id AS id', 'i.name AS name', 'i.filePath AS filePath')
@@ -156,6 +158,13 @@ SQL;
         if (null !== $onlyId) {
             $qb->andWhere('i.id = :onlyId')
                 ->setParameter('onlyId', $onlyId);
+        } elseif (null !== $onlyIds) {
+            if ([] === $onlyIds) {
+                return [];
+            }
+
+            $qb->andWhere('i.id IN (:onlyIds)')
+                ->setParameter('onlyIds', $onlyIds);
         } else {
             $qb->andWhere('i.id >= :fromId')
                 ->setParameter('fromId', $fromId);

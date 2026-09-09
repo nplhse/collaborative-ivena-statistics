@@ -58,6 +58,7 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
             fromId: $input->fromId,
             limit: $input->limit,
             onlyId: $input->onlyId,
+            onlyIds: $this->parseOnlyIds($input->onlyIds),
             resume: $input->resume,
             runId: $input->runId,
             maxRetriesPerImport: $input->maxRetriesPerImport,
@@ -133,5 +134,27 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
         } else {
             $io->warning('Batch finished with dispatch failures.');
         }
+    }
+
+    /**
+     * @return list<int>|null
+     */
+    private function parseOnlyIds(?string $onlyIds): ?array
+    {
+        if (null === $onlyIds || '' === trim($onlyIds)) {
+            return null;
+        }
+
+        $ids = [];
+        foreach (explode(',', $onlyIds) as $part) {
+            $part = trim($part);
+            if ('' === $part || !ctype_digit($part)) {
+                continue;
+            }
+
+            $ids[] = (int) $part;
+        }
+
+        return $ids;
     }
 }

@@ -41,6 +41,8 @@ final class SplCsvRowReader implements RowReaderInterface
     private readonly string $delimiter;
     private readonly string $enclosure;
     private readonly string $escape;
+    private readonly IvenaQuotedCsvParser $csvParser;
+    private ?int $expectedColumnCount = null;
 
     public function __construct(
         \SplFileObject $file,
@@ -49,7 +51,8 @@ final class SplCsvRowReader implements RowReaderInterface
         private readonly string $encodingHint = 'auto',
         string $delimiter = ';',
         string $enclosure = '"',
-        string $escape = '\\',
+        string $escape = '',
+        ?IvenaQuotedCsvParser $csvParser = null,
     ) {
         $path = $file->getRealPath();
         if (false === $path) {
@@ -58,10 +61,11 @@ final class SplCsvRowReader implements RowReaderInterface
 
         $sourceEncoding = $this->detector->detectFromPath($path, $this->encodingHint);
 
-        $this->file = $this->streamFactory->openUtf8($path, $sourceEncoding, $delimiter, $enclosure, $escape);
+        $this->file = $this->streamFactory->openUtf8($path, $sourceEncoding, $delimiter, $enclosure, $escape, readCsv: false);
         $this->delimiter = $delimiter;
         $this->enclosure = $enclosure;
         $this->escape = $escape;
+        $this->csvParser = $csvParser ?? new IvenaQuotedCsvParser();
 
         $this->rawHeaderRow = $this->readUtf8Row();
         if (null === $this->rawHeaderRow) {
@@ -70,6 +74,7 @@ final class SplCsvRowReader implements RowReaderInterface
 
         $normalized = \array_map($this->normalizeHeader(...), $this->rawHeaderRow);
         $this->headerRow = $this->makeUniqueHeaders($normalized);
+        $this->expectedColumnCount = \count($this->headerRow);
     }
 
     #[\Override]
@@ -146,16 +151,25 @@ final class SplCsvRowReader implements RowReaderInterface
     }
 
     /**
-     * Always pass all CSV controls explicitly to avoid default fallback behavior.
+     * Read one physical line and parse it as RFC 4180 CSV (empty escape).
+     * Falls back to a quoted-field split when inner ASCII quotes shift columns.
      *
      * @return array<int,string|null>|false
      */
     private function readCsvRow(): array|false
     {
-        return $this->file->fgetcsv(
-            separator: $this->delimiter,
-            enclosure: $this->enclosure,
-            escape: $this->escape,
+        if ($this->file->eof()) {
+            return false;
+        }
+
+        $line = $this->file->fgets();
+
+        return $this->csvParser->parseLine(
+            $line,
+            $this->delimiter,
+            $this->enclosure,
+            $this->escape,
+            $this->expectedColumnCount,
         );
     }
 

@@ -58,7 +58,6 @@ final class AllocationPipelineFromProvidedCsvTest extends KernelTestCase
             encodingHint: 'UTF-8',
             delimiter: ';',
             enclosure: '"',
-            escape: '\\',
         );
 
         return \iterator_to_array($reader->rowsAssoc(), preserve_keys: false);

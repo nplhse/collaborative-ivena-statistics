@@ -27,6 +27,7 @@ use App\Import\Domain\Enum\ImportBatchRunStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use App\Import\UI\Console\Command\RequeueAllImportsCommand;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
@@ -105,6 +106,64 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
 
         self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
         self::assertSame(1, $this->countBatchRunItems());
+    }
+
+    public function testOnlyIdsProcessesListedImports(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Skip Import']);
+        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Import A']);
+        $second = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Import B']);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--only-ids' => sprintf('%d,%d', $first->getId(), $second->getId()),
+        ]);
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
+        self::assertSame(2, $this->countBatchRunItems());
+        self::assertStringContainsString('Keep Import A', $tester->getDisplay());
+        self::assertStringContainsString('Keep Import B', $tester->getDisplay());
+        self::assertStringNotContainsString('Skip Import', $tester->getDisplay());
+    }
+
+    public function testOnlyIdsSkipsNonNumericTokens(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Skip Import']);
+        $keep = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Numeric Import']);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--only-ids' => sprintf('%d,abc,%d-x, ', $keep->getId(), $keep->getId()),
+            '--dry-run' => true,
+        ]);
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
+        self::assertStringContainsString('Keep Numeric Import', $tester->getDisplay());
+        self::assertStringNotContainsString('Skip Import', $tester->getDisplay());
+    }
+
+    public function testHandleSignalBeforeRunDoesNotFail(): void
+    {
+        $command = self::getContainer()->get(RequeueAllImportsCommand::class);
+        self::assertInstanceOf(RequeueAllImportsCommand::class, $command);
+
+        self::assertFalse($command->handleSignal(\SIGINT));
+        self::assertFalse($command->handleSignal(\SIGTERM));
+    }
+
+    public function testEmptyOnlyIdsDispatchesNothing(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+
+        $orchestrator = self::getContainer()->get(ImportRequeueBatchOrchestrator::class);
+        $summary = $orchestrator->run(new ImportRequeueBatchOptions(dryRun: true, onlyIds: []));
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $summary->exitCode);
+        self::assertSame(0, $summary->wouldDispatch);
+        self::assertSame(0, $this->countBatchRuns());
     }
 
     public function testResumeAfterRunningRetriesSameImport(): void

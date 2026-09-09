@@ -18,6 +18,7 @@
 | [troubleshooting.md](troubleshooting.md) | Guide | Symptom → cause → fix |
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
 | [hospital-geodata.md](hospital-geodata.md) | Guide | Geocode hospital coordinates and fetch destination isochrones |
+| [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md) | Runbook | One-time issue 521 repair on production (CSV quotes, stubs, STEMI leftover) |
 
 ## Reading order
 
@@ -28,5 +29,6 @@
 5. [troubleshooting.md](troubleshooting.md)
 6. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
 7. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
+8. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
 
 Other role-based paths: [../README.md#reading-paths](../README.md#reading-paths)

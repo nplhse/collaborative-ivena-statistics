@@ -33,6 +33,7 @@ Filtered runs:
 ```bash
 php bin/console app:import:requeue-all --from-id=10 --limit=5
 php bin/console app:import:requeue-all --only-id=42
+php bin/console app:import:requeue-all --only-ids=42,43,44
 ```
 
 Resume after interruption (OOM, SIGTERM, server restart):

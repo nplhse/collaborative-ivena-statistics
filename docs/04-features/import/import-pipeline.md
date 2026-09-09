@@ -132,5 +132,6 @@ See [../../02-architecture/decisions/005-reject-writer-strategy.md](../../02-arc
 
 - Requeue: [batch-requeue.md](batch-requeue.md)
 - Reject analysis: [reject-analysis.md](reject-analysis.md)
+- Indication corruption repair: [repair-indication-corruption.md](repair-indication-corruption.md)
 - Statistics projection: [../statistics/projection-and-materialized-views.md](../statistics/projection-and-materialized-views.md)
 - Operations diagnosis: [../../05-operations/troubleshooting.md](../../05-operations/troubleshooting.md)

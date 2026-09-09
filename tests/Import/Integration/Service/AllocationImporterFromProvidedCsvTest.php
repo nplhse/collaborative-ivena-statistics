@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Integration\Service;
 
+use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -23,6 +25,7 @@ use App\Import\Infrastructure\Adapter\SplCsvRowReader;
 use App\Import\Infrastructure\Adapter\SplCsvStreamFactory;
 use App\Import\Infrastructure\Charset\EncodingDetector;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -120,7 +123,6 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
             encodingHint: 'UTF-8',
             delimiter: ';',
             enclosure: '"',
-            escape: '\\',
         );
 
         $rejectWriter = new SplCsvRejectWriter(
@@ -160,5 +162,104 @@ final class AllocationImporterFromProvidedCsvTest extends KernelTestCase
         self::assertNotNull($alloc);
         self::assertSame('2025-01-07 10:19', $alloc->getCreatedAt()->format('Y-m-d H:i'));
         self::assertSame('2025-01-07 13:14', $alloc->getArrivalAt()->format('Y-m-d H:i'));
+    }
+
+    public function testUnescapedOmiQuotesImportAsAllocationNotMciReject(): void
+    {
+        $path = $this->writeStemiOmiFixture();
+
+        $reader = new SplCsvRowReader(
+            new \SplFileObject($path, 'r'),
+            new EncodingDetector(),
+            new SplCsvStreamFactory($this->logger),
+            encodingHint: 'UTF-8',
+        );
+
+        $rejectWriter = new SplCsvRejectWriter(
+            filesystem: $this->fs,
+            rejectsBaseDir: $this->rejectDir,
+            delimiter: ';',
+            enclosure: "\0",
+            escape: '\\'
+        );
+        $rejectWriter->start($this->import);
+
+        $summary = $this->importerFactory->create($reader, $rejectWriter)->import($this->import);
+
+        self::assertSame(1, $summary->total);
+        self::assertSame(1, $summary->ok);
+        self::assertSame(0, $summary->rejected);
+
+        /** @var AllocationRepository $repo */
+        $repo = self::getContainer()->get(AllocationRepository::class);
+        $alloc = $repo->findOneBy([]);
+        self::assertInstanceOf(Allocation::class, $alloc);
+        $raw = $alloc->getIndicationRaw();
+        self::assertInstanceOf(IndicationRaw::class, $raw);
+        self::assertSame('STEMI / "OMI"', $raw->getName());
+        self::assertSame(332, $raw->getCode());
+        @unlink($path);
+    }
+
+    public function testMixedQuoteOmiLeftoverHashesLikeAsciiOmi(): void
+    {
+        $path = $this->writeMixedQuoteStemiOmiFixture();
+
+        $reader = new SplCsvRowReader(
+            new \SplFileObject($path, 'r'),
+            new EncodingDetector(),
+            new SplCsvStreamFactory($this->logger),
+            encodingHint: 'UTF-8',
+        );
+
+        $rejectWriter = new SplCsvRejectWriter(
+            filesystem: $this->fs,
+            rejectsBaseDir: $this->rejectDir,
+            delimiter: ';',
+            enclosure: "\0",
+            escape: '\\'
+        );
+        $rejectWriter->start($this->import);
+
+        $summary = $this->importerFactory->create($reader, $rejectWriter)->import($this->import);
+
+        self::assertSame(1, $summary->total);
+        self::assertSame(1, $summary->ok);
+        self::assertSame(0, $summary->rejected);
+
+        /** @var AllocationRepository $repo */
+        $repo = self::getContainer()->get(AllocationRepository::class);
+        $alloc = $repo->findOneBy([]);
+        self::assertInstanceOf(Allocation::class, $alloc);
+        $raw = $alloc->getIndicationRaw();
+        self::assertInstanceOf(IndicationRaw::class, $raw);
+        self::assertSame(332, $raw->getCode());
+        self::assertSame(
+            IndicationKey::hashFrom('332', 'STEMI / "OMI"'),
+            $raw->getHash(),
+        );
+        @unlink($path);
+    }
+
+    private function writeStemiOmiFixture(): string
+    {
+        $header = '"Versorgungsbereich";"KHS-Versorgungsgebiet";"Krankenhaus";"Krankenhaus-Kurzname";"Datum (Eintreffzeit)";"Uhrzeit (Eintreffzeit)";"Geschlecht";"Alter";"Schockraum";"Herzkatheter";"Reanimation";"Beatmet";"Schock";"Schwanger";"Arztbegleitet";"Transportmittel";"Datum (Erstellungsdatum)";"Uhrzeit (Erstellungsdatum)";"PZC";"Fachgebiet";"Fachbereich";"Fachbereich war abgemeldet?";"Anlass";"Grund";"Ansteckungsfähig";"PZC und Text";"MANV";"MANV-ID"';
+        $row = '"Test Area";"1";"Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt";"KH Test";"07.01.2025";"13:14";"W";"74";"S+";"H+";"R+";"B-";"";"Schwanger";"N+";"Boden";"07.01.2025";"10:19";"332731";"Innere Medizin";"Kardiologie";"Ja";"Häuslicher Einsatz";"RD";"Noro";"332 STEMI / "OMI"";"";""';
+
+        $path = sys_get_temp_dir().'/allocation_stemi_omi_'.bin2hex(random_bytes(4)).'.csv';
+        file_put_contents($path, $header."\n".$row."\n");
+
+        return $path;
+    }
+
+    private function writeMixedQuoteStemiOmiFixture(): string
+    {
+        $header = '"Versorgungsbereich";"KHS-Versorgungsgebiet";"Krankenhaus";"Krankenhaus-Kurzname";"Datum (Eintreffzeit)";"Uhrzeit (Eintreffzeit)";"Geschlecht";"Alter";"Schockraum";"Herzkatheter";"Reanimation";"Beatmet";"Schock";"Schwanger";"Arztbegleitet";"Transportmittel";"Datum (Erstellungsdatum)";"Uhrzeit (Erstellungsdatum)";"PZC";"Fachgebiet";"Fachbereich";"Fachbereich war abgemeldet?";"Anlass";"Grund";"Ansteckungsfähig";"PZC und Text";"MANV";"MANV-ID"';
+        $row = '"Test Area";"1";"Testkrankenhaus Musterstadt, Teststraße 1, 12345 Musterstadt";"KH Test";"07.01.2025";"13:14";"W";"74";"S+";"H+";"R+";"B-";"";"Schwanger";"N+";"Boden";"07.01.2025";"10:19";"332731";"Innere Medizin";"Kardiologie";"Ja";"Häuslicher Einsatz";"RD";"Noro";"332 STEMI / \\OMI\\"""";"";""';
+
+        $path = sys_get_temp_dir().'/allocation_stemi_omi_mixed_'.bin2hex(random_bytes(4)).'.csv';
+        file_put_contents($path, $header."\n".$row."\n");
+
+        return $path;
     }
 }

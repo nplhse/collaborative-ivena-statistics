@@ -350,7 +350,7 @@ abstract class ImportAllocationsMessageHandlerTestCase extends DatabaseKernelTes
         self::assertNotFalse($fh);
         $delimiter = ';';
         $enclosure = '"';
-        $escape = '\\';
+        $escape = '';
         fputcsv($fh, $header, $delimiter, $enclosure, $escape);
         foreach ($rows as $csvRow) {
             fputcsv($fh, $csvRow, $delimiter, $enclosure, $escape);
