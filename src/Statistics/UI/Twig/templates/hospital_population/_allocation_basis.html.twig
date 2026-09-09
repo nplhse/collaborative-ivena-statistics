@@ -1,65 +1,5 @@
 {% import '@Statistics/hospital_population/_cross_table.html.twig' as crossTable %}
 
-{% macro allocation_group_table(title, rows) %}
-    <div class="card h-100">
-        <div class="card-header py-2">
-            <h4 class="card-title mb-0">{{ title }}</h4>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-vcenter card-table table-sm mb-0">
-                <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        {% for row in rows %}
-                            <th scope="col" class="text-end">{{ row.label }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if rows %}
-                        <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.hospitals_with_data'|trans({}, 'statistics') }}</th>
-                            {% for row in rows %}
-                                <td class="text-end">{{ row.hospitalCount|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.allocations_total'|trans({}, 'statistics') }}</th>
-                            {% for row in rows %}
-                                <td class="text-end">{{ row.totalAllocations|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.mean_per_hospital'|trans({}, 'statistics') }}</th>
-                            {% for row in rows %}
-                                <td class="text-end">{{ row.meanPerHospital is not null ? row.meanPerHospital|number_format(1, ',', '.') : '–' }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.stats.median'|trans({}, 'statistics') }}</th>
-                            {% for row in rows %}
-                                <td class="text-end">{{ row.medianPerHospital is not null ? row.medianPerHospital|number_format(1, ',', '.') : '–' }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <th scope="row" class="fw-normal">{{ 'stats.hospital_population.allocation.allocations_share'|trans({}, 'statistics') }}</th>
-                            {% for row in rows %}
-                                <td class="text-end">{{ crossTable.share_badge(row.sharePercent) }}</td>
-                            {% endfor %}
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="2" class="text-secondary">{{ 'stats.hospital_population.table.empty'|trans({}, 'statistics') }}</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-{% endmacro %}
-
-{% import _self as allocation %}
-
 {% set basis = result.allocationBasis %}
 
 <div class="card mb-3" data-testid="stats-hospital-population-allocation-basis">
@@ -99,18 +39,6 @@
                         <div class="chart-md" data-hospital-population-charts-target="allocationByLocationChart"></div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="row g-3 mb-3">
-            <div class="col-lg-4">
-                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_tier'|trans({}, 'statistics'), basis.byTier) }}
-            </div>
-            <div class="col-lg-4">
-                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_size'|trans({}, 'statistics'), basis.bySize) }}
-            </div>
-            <div class="col-lg-4">
-                {{ allocation.allocation_group_table('stats.hospital_population.allocation.by_location'|trans({}, 'statistics'), basis.byLocation) }}
             </div>
         </div>
 

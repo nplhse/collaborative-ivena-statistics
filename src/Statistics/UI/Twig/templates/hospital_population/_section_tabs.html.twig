@@ -1,0 +1,12 @@
+<ul class="nav nav-tabs analytics-library-tabs mb-4" role="tablist" data-testid="stats-hospital-population-tabs">
+    {% for tab in tabs %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link{% if tab.active %} active{% endif %}"
+               href="{{ tab.url }}"
+               {% if tab.active %}aria-current="page"{% endif %}
+               data-testid="stats-hospital-population-tab-{{ tab.key }}">
+                {{ tab.labelKey|trans({}, 'statistics') }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>

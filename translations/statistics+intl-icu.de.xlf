@@ -3389,6 +3389,10 @@
         <source>stats.hospital_population.kpi.coverage</source>
         <target>Abdeckung</target>
       </trans-unit>
+      <trans-unit id="statsHp105" resname="stats.hospital_population.kpi.dispatch_areas">
+        <source>stats.hospital_population.kpi.dispatch_areas</source>
+        <target>Vertretene Leitstellen</target>
+      </trans-unit>
       <trans-unit id="Ded6fd31b5" resname="stats.hospital_population.kpi.participants">
         <source>stats.hospital_population.kpi.participants</source>
         <target>Teilnehmende</target>
@@ -3416,6 +3420,26 @@
       <trans-unit id="De407cd055" resname="stats.hospital_population.pretitle">
         <source>stats.hospital_population.pretitle</source>
         <target>Stammdaten &amp; Repräsentativität</target>
+      </trans-unit>
+      <trans-unit id="statsHp104" resname="stats.hospital_population.pretitle.characteristics">
+        <source>stats.hospital_population.pretitle.characteristics</source>
+        <target>Wie sind die Häuser strukturell und vom Volumen her?</target>
+      </trans-unit>
+      <trans-unit id="statsHp108" resname="stats.hospital_population.pretitle.allocations">
+        <source>stats.hospital_population.pretitle.allocations</source>
+        <target>Wie verteilen sich die Zuweisungsvolumina?</target>
+      </trans-unit>
+      <trans-unit id="statsHp107" resname="stats.hospital_population.pretitle.beds">
+        <source>stats.hospital_population.pretitle.beds</source>
+        <target>Wie sind die Häuser vom Bettenspektrum her?</target>
+      </trans-unit>
+      <trans-unit id="statsHp103" resname="stats.hospital_population.pretitle.coverage">
+        <source>stats.hospital_population.pretitle.coverage</source>
+        <target>Wie repräsentativ ist die Stichprobe?</target>
+      </trans-unit>
+      <trans-unit id="statsHp102" resname="stats.hospital_population.pretitle.participation">
+        <source>stats.hospital_population.pretitle.participation</source>
+        <target>Wer nimmt teil, und wo?</target>
       </trans-unit>
       <trans-unit id="De036156aa" resname="stats.hospital_population.representativity.hint">
         <source>stats.hospital_population.representativity.hint</source>
@@ -3480,6 +3504,10 @@
       <trans-unit id="Deb7e92de3" resname="stats.hospital_population.section.size_by_tier">
         <source>stats.hospital_population.section.size_by_tier</source>
         <target>Abdeckung nach Größe und Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="statsHp106" resname="stats.hospital_population.section.state">
+        <source>stats.hospital_population.section.state</source>
+        <target>Verteilung nach Bundesland</target>
       </trans-unit>
       <trans-unit id="Deace47eab" resname="stats.hospital_population.section.urbanity">
         <source>stats.hospital_population.section.urbanity</source>
@@ -3620,6 +3648,34 @@
       <trans-unit id="Defdc332cf" resname="stats.hospital_population.table.tier">
         <source>stats.hospital_population.table.tier</source>
         <target>Versorgungsstufe</target>
+      </trans-unit>
+      <trans-unit id="statsHp110" resname="stats.hospital_population.nav.allocations">
+        <source>stats.hospital_population.nav.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsHp109" resname="stats.hospital_population.nav.beds">
+        <source>stats.hospital_population.nav.beds</source>
+        <target>Betten</target>
+      </trans-unit>
+      <trans-unit id="statsHp112" resname="stats.hospital_population.nav.group.characteristics">
+        <source>stats.hospital_population.nav.group.characteristics</source>
+        <target>Merkmale</target>
+      </trans-unit>
+      <trans-unit id="statsHp111" resname="stats.hospital_population.nav.group.overview">
+        <source>stats.hospital_population.nav.group.overview</source>
+        <target>Überblick</target>
+      </trans-unit>
+      <trans-unit id="statsHp101" resname="stats.hospital_population.tab.characteristics">
+        <source>stats.hospital_population.tab.characteristics</source>
+        <target>Merkmale</target>
+      </trans-unit>
+      <trans-unit id="statsHp100" resname="stats.hospital_population.tab.coverage">
+        <source>stats.hospital_population.tab.coverage</source>
+        <target>Abdeckung</target>
+      </trans-unit>
+      <trans-unit id="statsHp99" resname="stats.hospital_population.tab.participation">
+        <source>stats.hospital_population.tab.participation</source>
+        <target>Teilnahme</target>
       </trans-unit>
       <trans-unit id="De56b170fa" resname="stats.hospital_population.title">
         <source>stats.hospital_population.title</source>
