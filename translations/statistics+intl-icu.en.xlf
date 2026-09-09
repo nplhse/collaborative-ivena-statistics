@@ -3467,7 +3467,7 @@
       </trans-unit>
       <trans-unit id="statsHp66" resname="stats.hospital_population.beds_matrix.column_population">
         <source>stats.hospital_population.beds_matrix.column_population</source>
-        <target>All hospitals (n={count})</target>
+        <target>All (n={count})</target>
       </trans-unit>
       <trans-unit id="statsHp67" resname="stats.hospital_population.beds_matrix.column_participants">
         <source>stats.hospital_population.beds_matrix.column_participants</source>
@@ -3539,7 +3539,7 @@
       </trans-unit>
       <trans-unit id="statsHp23" resname="stats.hospital_population.table.population">
         <source>stats.hospital_population.table.population</source>
-        <target>All hospitals</target>
+        <target>All</target>
       </trans-unit>
       <trans-unit id="statsHp24" resname="stats.hospital_population.table.participants">
         <source>stats.hospital_population.table.participants</source>
@@ -3571,7 +3571,7 @@
       </trans-unit>
       <trans-unit id="statsHp28" resname="stats.hospital_population.table.population_pct">
         <source>stats.hospital_population.table.population_pct</source>
-        <target>All hospitals %</target>
+        <target>All %</target>
       </trans-unit>
       <trans-unit id="statsHp29" resname="stats.hospital_population.table.participant_pct">
         <source>stats.hospital_population.table.participant_pct</source>
@@ -3599,7 +3599,7 @@
       </trans-unit>
       <trans-unit id="statsHp35" resname="stats.hospital_population.sort.population">
         <source>stats.hospital_population.sort.population</source>
-        <target>All hospitals</target>
+        <target>All</target>
       </trans-unit>
       <trans-unit id="statsHp36" resname="stats.hospital_population.sort.participants">
         <source>stats.hospital_population.sort.participants</source>

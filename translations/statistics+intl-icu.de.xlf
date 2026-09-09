@@ -3359,7 +3359,7 @@
       </trans-unit>
       <trans-unit id="De680eac8d" resname="stats.hospital_population.beds_matrix.column_population">
         <source>stats.hospital_population.beds_matrix.column_population</source>
-        <target>Alle Krankenhäuser (n={count})</target>
+        <target>Alle (n={count})</target>
       </trans-unit>
       <trans-unit id="Deee9ccc65" resname="stats.hospital_population.beds_matrix.mean_sd">
         <source>stats.hospital_population.beds_matrix.mean_sd</source>
@@ -3531,7 +3531,7 @@
       </trans-unit>
       <trans-unit id="De2586ebe1" resname="stats.hospital_population.sort.population">
         <source>stats.hospital_population.sort.population</source>
-        <target>Alle Krankenhäuser</target>
+        <target>Alle</target>
       </trans-unit>
       <trans-unit id="Def9d74c58" resname="stats.hospital_population.stats.count">
         <source>stats.hospital_population.stats.count</source>
@@ -3627,11 +3627,11 @@
       </trans-unit>
       <trans-unit id="Dee824f2f1" resname="stats.hospital_population.table.population">
         <source>stats.hospital_population.table.population</source>
-        <target>Alle Krankenhäuser</target>
+        <target>Alle</target>
       </trans-unit>
       <trans-unit id="De28c07869" resname="stats.hospital_population.table.population_pct">
         <source>stats.hospital_population.table.population_pct</source>
-        <target>Alle Krankenhäuser %</target>
+        <target>Alle %</target>
       </trans-unit>
       <trans-unit id="De618b0cce" resname="stats.hospital_population.table.population_short">
         <source>stats.hospital_population.table.population_short</source>

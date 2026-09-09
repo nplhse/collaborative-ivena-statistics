@@ -95,7 +95,7 @@ final readonly class HospitalPopulationChartPayloadFactory
             'population' => [
                 'series' => [
                     [
-                        'name' => 'All hospitals',
+                        'name' => 'All',
                         'type' => 'boxPlot',
                         'data' => $populationData,
                     ],

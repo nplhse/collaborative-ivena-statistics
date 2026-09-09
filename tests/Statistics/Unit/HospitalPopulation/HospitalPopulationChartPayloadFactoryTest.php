@@ -43,7 +43,7 @@ final class HospitalPopulationChartPayloadFactoryTest extends TestCase
         self::assertArrayHasKey('participants', $payload['bedsBoxPlotByCareLevel']);
         self::assertCount(1, $payload['bedsBoxPlotByCareLevel']['population']['series']);
         self::assertCount(1, $payload['bedsBoxPlotByCareLevel']['participants']['series']);
-        self::assertSame('All hospitals', $payload['bedsBoxPlotByCareLevel']['population']['series'][0]['name']);
+        self::assertSame('All', $payload['bedsBoxPlotByCareLevel']['population']['series'][0]['name']);
         self::assertSame('Participants', $payload['bedsBoxPlotByCareLevel']['participants']['series'][0]['name']);
         self::assertSame('Basic', $payload['bedsBoxPlotByCareLevel']['population']['series'][0]['data'][0]['x']);
         self::assertSame(100.0, $payload['bedsBoxPlotByCareLevel']['population']['series'][0]['data'][0]['y'][0]);
