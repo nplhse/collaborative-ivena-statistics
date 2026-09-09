@@ -18,11 +18,17 @@ final readonly class SplCsvStreamFactory
         string $sourceEncoding,
         string $delimiter = ';',
         string $enclosure = '"',
-        string $escape = '\\',
+        string $escape = '',
+        bool $readCsv = true,
     ): \SplFileObject {
+        $flags = \SplFileObject::SKIP_EMPTY | \SplFileObject::DROP_NEW_LINE;
+        if ($readCsv) {
+            $flags |= \SplFileObject::READ_CSV;
+        }
+
         if ('UTF-8' === $sourceEncoding) {
             $f = new \SplFileObject($path, 'r');
-            $f->setFlags(\SplFileObject::READ_CSV | \SplFileObject::SKIP_EMPTY | \SplFileObject::DROP_NEW_LINE);
+            $f->setFlags($flags);
             $f->setCsvControl($delimiter, $enclosure, $escape);
             $this->stripBomAtStreamStart($f);
 
@@ -40,7 +46,7 @@ final readonly class SplCsvStreamFactory
         $uri = sprintf('php://filter/read=convert.iconv.%s.%s/resource=%s', $from, $to, $path);
 
         $f = new \SplFileObject($uri, 'r');
-        $f->setFlags(\SplFileObject::READ_CSV | \SplFileObject::SKIP_EMPTY | \SplFileObject::DROP_NEW_LINE);
+        $f->setFlags($flags);
         $f->setCsvControl($delimiter, $enclosure, $escape);
 
         $this->stripBomAtStreamStart($f);

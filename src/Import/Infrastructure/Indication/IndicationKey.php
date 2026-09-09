@@ -28,7 +28,12 @@ final class IndicationKey
         }
 
         $s = trim($raw);
+        $s = str_replace(["\u{201C}", "\u{201D}", "\u{201E}"], '"', $s);
+        // Mixed-quote IVENA rows store \"OMI\" as \OMI\"" (empty-escape leftover).
+        $s = preg_replace('/\\\\([^\\\\"\/]+)\\\\""/u', '"$1"', $s) ?? $s;
+        $s = str_replace('\\"', '"', $s);
         $s = preg_replace('/\s+/u', ' ', $s) ?? $s;
+        $s = preg_replace('/\s*\/\s*/u', '/', $s) ?? $s;
 
         return mb_strtolower($s, 'UTF-8');
     }

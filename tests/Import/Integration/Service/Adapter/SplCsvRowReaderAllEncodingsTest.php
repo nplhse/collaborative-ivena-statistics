@@ -37,7 +37,6 @@ final class SplCsvRowReaderAllEncodingsTest extends TestCase
             'auto',
             ';',
             '"',
-            '\\',
         );
 
         self::assertSame(

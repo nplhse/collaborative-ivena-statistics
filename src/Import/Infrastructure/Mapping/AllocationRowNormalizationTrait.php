@@ -249,8 +249,15 @@ trait AllocationRowNormalizationTrait
         }
 
         $clean = trim($value);
+        if ('' === $clean) {
+            return $clean;
+        }
 
-        return mb_substr($clean, 4);
+        if (1 === preg_match('/^(?:\d{6}|\d{3})\s+/u', $clean, $matches)) {
+            return trim(mb_substr($clean, mb_strlen($matches[0])));
+        }
+
+        return $clean;
     }
 
     protected static function normalizeDispatchArea(?string $value): ?string
