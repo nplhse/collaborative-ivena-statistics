@@ -31,6 +31,14 @@ Routes under `/explore/indication/raw/review/{id}`:
 
 Business logic: `IndicationRawReviewService`
 
+## Import text rules
+
+`AllocationRowNormalizationTrait::normalizeIndication()` strips a leading PZC prefix from `pzc_und_text` only when the cell matches `^\d{3}\s+` or `^\d{6}\s+`. A plain label is stored unchanged (no blind 4-character cut).
+
+`IndicationKey::normalizeText()` collapses whitespace, treats ASCII `"`, typographic `“”„`, leftover `\"`, and the mixed-quote leftover `\OMI\""` as the same quote, and removes spaces around `/`. Quote variants of the same PZC + label share one `IndicationRaw` hash.
+
+One-time repair of already imported stubs, quote variants, and the mixed-quote STEMI leftover (`\OMI\""`): production runbook in [repair-indication-corruption.md](../import/repair-indication-corruption.md).
+
 ## Permissions
 
 | Action | Roles |
@@ -41,7 +49,7 @@ Business logic: `IndicationRawReviewService`
 
 ## Backfill command
 
-Repair normalized indication links after bulk changes:
+Matching a raw in the review UI sets `indication_raw.normalized_id` immediately and dispatches `BackfillAllocationsForIndicationRawMessage` on `async_priority_low`. Until that job runs, allocations keep `indication_normalized_id` NULL and statistics stay empty. Consume the queue or run this command with `--rebuild-projection`.
 
 ```bash
 php bin/console app:allocation:backfill-indications
@@ -75,3 +83,4 @@ php bin/console app:allocation:audit-indication-review
 
 - [../../02-architecture/permission-model.md](../../02-architecture/permission-model.md)
 - [explore-allocation-list.md](explore-allocation-list.md)
+- [Repair CSV indication corruption](../import/repair-indication-corruption.md)

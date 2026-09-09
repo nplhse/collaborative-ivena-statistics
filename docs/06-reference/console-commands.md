@@ -53,14 +53,15 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:import:allocations <importId>` | Dispatch a single import job via Messenger. |
-| `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [../04-features/import/batch-requeue.md](../04-features/import/batch-requeue.md). |
+| `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [../04-features/import/batch-requeue.md](../04-features/import/batch-requeue.md). `--only-ids` limits to a comma-separated ID list. |
 | `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [../04-features/import/reject-analysis.md](../04-features/import/reject-analysis.md). |
+| `app:import:repair-indication-corruption` | One-time issue 521 repair: merge quote/stub/`\OMI\""` IndicationRaws, then requeue quote-broken imports whose source CSV still exists. Production runbook: [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md). |
 
 ### Allocation
 
 | Command | Purpose |
 |---|---|
-| `app:allocation:backfill-indications` | Repair tool: sync normalized indication fields (not for routine use). |
+| `app:allocation:backfill-indications` | Repair tool: sync normalized indication fields (not for routine use). After matching a raw in the UI, prefer the `async_priority_low` backfill job; use `--rebuild-projection` if updating the projection too. See [../04-features/allocation/indication-normalization.md](../04-features/allocation/indication-normalization.md) and the STEMI path-B steps in [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md). |
 | `app:allocation:audit-indication-review` | Health check for indication raw review data consistency. |
 | `app:explore:backfill-public-ids` | Backfill `public_id` UUID v4 values for explore detail resources. See [../04-features/allocation/explore-public-ids.md](../04-features/allocation/explore-public-ids.md). |
 | `app:hospital:backfill-participating-since` | One-time tool: fill `Hospital.participatingSince` for currently participating hospitals that have no timestamp. Prefer the earliest `audit_log` evidence of becoming participating, otherwise the first successful import (`Completed`/`Partial`). Does **not** fall back to `created_at`. Default: dry-run preview. Writes only with `--apply`. See [../04-features/content/dashboard-overview.md](../04-features/content/dashboard-overview.md). |

@@ -48,6 +48,7 @@ Role-based reading orders live in each section's README:
 
 - [Import batch requeue](04-features/import/batch-requeue.md)
 - [Import reject analysis](04-features/import/reject-analysis.md)
+- [Repair CSV indication corruption](04-features/import/repair-indication-corruption.md) (production runbook for issue 521)
 - [Statistics projection & materialized views](04-features/statistics/projection-and-materialized-views.md)
 - [Data quality indicator](04-features/statistics/data-quality-indicator.md)
 - [Analysis Explorer](04-features/statistics/analysis-explorer.md)
