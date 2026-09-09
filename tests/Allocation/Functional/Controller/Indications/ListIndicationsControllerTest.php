@@ -6,6 +6,7 @@ namespace App\Tests\Allocation\Functional\Controller\Indications;
 
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -57,6 +58,30 @@ final class ListIndicationsControllerTest extends WebTestCase
         $topListHref = $crawler->filter('[data-testid="catalog-top-list-action"]')->attr('href');
         self::assertNotNull($topListHref);
         self::assertSame('/statistics/top-lists/top_diagnoses', $topListHref);
+    }
+
+    public function testTableRendersRowsWithoutPublicId(): void
+    {
+        $client = $this->createClientAsAreaUser();
+        $indication = IndicationNormalizedFactory::createOne([
+            'code' => 101,
+            'name' => 'Missing Public Id',
+        ]);
+
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            'UPDATE indication_normalized SET public_id = NULL WHERE id = :id',
+            ['id' => $indication->getId()],
+        );
+        self::getContainer()->get('doctrine')->getManager()->clear();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication');
+
+        self::assertResponseIsSuccessful();
+        $nameCell = $crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1);
+        self::assertSame('Missing Public Id', trim($nameCell->text()));
+        self::assertCount(0, $nameCell->filter('a'));
     }
 
     public function testTableCanBeSorted(): void

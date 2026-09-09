@@ -4599,7 +4599,7 @@
       </trans-unit>
       <trans-unit id="statsTlIdxDe02" resname="stats.top_lists.index.intro">
         <source>stats.top_lists.index.intro</source>
-        <target>Wähle eine Rangliste, um Anzahlen und Anteile der Zuweisungen für deinen aktuellen Statistik-Scope und Zeitraum zu sehen.</target>
+        <target>Wähle eine Rangliste, um Anzahlen und Anteile der Zuweisungen für deinen aktuellen Statistik-Vergleich und Zeitraum zu sehen.</target>
       </trans-unit>
       <trans-unit id="statsTlIdxDe03" resname="stats.top_lists.index.open">
         <source>stats.top_lists.index.open</source>
@@ -4619,7 +4619,7 @@
       </trans-unit>
       <trans-unit id="A6663c0816" resname="stats.reports.index.intro">
         <source>stats.reports.index.intro</source>
-        <target>Wähle einen vordefinierten Bericht, um eine kompakte Zusammenfassung für deinen aktuellen Statistik-Scope zu sehen.</target>
+        <target>Wähle einen vordefinierten Bericht, um eine kompakte Zusammenfassung für deinen aktuellen Statistik-Vergleich zu sehen.</target>
       </trans-unit>
       <trans-unit id="Aa574b48a3" resname="stats.reports.index.open">
         <source>stats.reports.index.open</source>
@@ -4643,7 +4643,7 @@
       </trans-unit>
       <trans-unit id="A3a56f1f53" resname="stats.reports.monthly.empty.body">
         <source>stats.reports.monthly.empty.body</source>
-        <target>Für {period} liegen im gewählten Scope noch keine Zuweisungsdaten vor.</target>
+        <target>Für {period} liegen im gewählten Vergleich noch keine Zuweisungsdaten vor.</target>
       </trans-unit>
       <trans-unit id="Af8b7a092b" resname="stats.reports.monthly.empty.cta_import">
         <source>stats.reports.monthly.empty.cta_import</source>
@@ -5539,7 +5539,7 @@
       </trans-unit>
       <trans-unit id="statsTlDe02" resname="stats.top_lists.limit.truncated">
         <source>stats.top_lists.limit.truncated</source>
-        <target>Es werden die ersten 1.000 Werte angezeigt. Verkleinern Sie Scope oder Zeitraum, wenn Sie die vollständige Rangfolge benötigen.</target>
+        <target>Es werden die ersten 1.000 Werte angezeigt. Verkleinern Sie den Vergleich oder den Zeitraum, wenn Sie die vollständige Rangfolge benötigen.</target>
       </trans-unit>
       <trans-unit id="statsTlDe03" resname="stats.top_lists.comparison.enable">
         <source>stats.top_lists.comparison.enable</source>
@@ -5579,7 +5579,7 @@
       </trans-unit>
       <trans-unit id="statsTlDe07" resname="stats.top_lists.comparison.modal_hint_a">
         <source>stats.top_lists.comparison.modal_hint_a</source>
-        <target>Wählen Sie Scope und Zeitraum für Vergleich A.</target>
+        <target>Wählen Sie Bereich und Zeitraum für Vergleich A.</target>
       </trans-unit>
       <trans-unit id="statsTlDe24" resname="stats.top_lists.comparison.modal_title_b">
         <source>stats.top_lists.comparison.modal_title_b</source>
@@ -5587,7 +5587,7 @@
       </trans-unit>
       <trans-unit id="statsTlDe25" resname="stats.top_lists.comparison.modal_hint_b">
         <source>stats.top_lists.comparison.modal_hint_b</source>
-        <target>Wählen Sie Scope und Zeitraum für Vergleich B.</target>
+        <target>Wählen Sie Bereich und Zeitraum für Vergleich B.</target>
       </trans-unit>
       <trans-unit id="statsTlDe08" resname="stats.top_lists.comparison.apply">
         <source>stats.top_lists.comparison.apply</source>
@@ -5652,6 +5652,46 @@
       <trans-unit id="statsTlDe23" resname="stats.top_lists.comparison.delta.aria">
         <source>stats.top_lists.comparison.delta.aria</source>
         <target>{delta} gegenüber Vergleich A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe01" resname="stats.top_lists.export.csv">
+        <source>stats.top_lists.export.csv</source>
+        <target>CSV exportieren</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe02" resname="stats.top_lists.export.scope_a">
+        <source>stats.top_lists.export.scope_a</source>
+        <target>Vergleich A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe03" resname="stats.top_lists.export.period_a">
+        <source>stats.top_lists.export.period_a</source>
+        <target>Zeitraum A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe04" resname="stats.top_lists.export.scope_b">
+        <source>stats.top_lists.export.scope_b</source>
+        <target>Vergleich B</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe05" resname="stats.top_lists.export.period_b">
+        <source>stats.top_lists.export.period_b</source>
+        <target>Zeitraum B</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe06" resname="stats.top_lists.export.relative_delta">
+        <source>stats.top_lists.export.relative_delta</source>
+        <target>Relative Differenz</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe07" resname="stats.top_lists.comparison.count_a">
+        <source>stats.top_lists.comparison.count_a</source>
+        <target>Anzahl A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe08" resname="stats.top_lists.comparison.share_a">
+        <source>stats.top_lists.comparison.share_a</source>
+        <target>Anteil A</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe09" resname="stats.top_lists.comparison.count_b">
+        <source>stats.top_lists.comparison.count_b</source>
+        <target>Anzahl B</target>
+      </trans-unit>
+      <trans-unit id="statsTlExpDe10" resname="stats.top_lists.comparison.share_b">
+        <source>stats.top_lists.comparison.share_b</source>
+        <target>Anteil B</target>
       </trans-unit>
     </body>
   </file>

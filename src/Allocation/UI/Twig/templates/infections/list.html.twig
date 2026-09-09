@@ -124,7 +124,7 @@
                 {% for infection in paginator.results %}
                     <tr>
                         <td>
-                            <a href="{{ path('app_explore_infection_show', {publicId: infection.publicId}) }}" target="_top">{{ infection.name }}</a>
+                            {{ explore_entity_link(infection, {target: '_top'}) }}
                         </td>
                         <td>
                             {{ infection.updatedAt ? infection.updatedAt|date('d.m.Y H:i') : infection.createdAt|date('d.m.Y H:i') }}

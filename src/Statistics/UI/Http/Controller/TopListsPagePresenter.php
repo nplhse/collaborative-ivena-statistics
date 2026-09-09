@@ -175,6 +175,11 @@ final readonly class TopListsPagePresenter
                 [StatisticsQueryKeys::REPORT => null],
             ),
             $this->catalogListUrl($currentDefinition->key()),
+            $this->statisticsPageUrl(
+                $request,
+                'app_stats_top_lists_export_csv',
+                [StatisticsQueryKeys::PAGE => null, StatisticsQueryKeys::PER_PAGE => null],
+            ),
         );
     }
 

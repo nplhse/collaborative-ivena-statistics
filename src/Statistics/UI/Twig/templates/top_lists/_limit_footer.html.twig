@@ -1,5 +1,6 @@
 {% import '@Shared/_macros/pagination.html.twig' as pagination %}
 {% set wrapperClass = wrapperClass|default('card-footer') %}
+{% set exportCsvUrl = exportCsvUrl|default(null) %}
 <div class="{{ wrapperClass }} d-flex align-items-center justify-content-between gap-2 flex-wrap">
     <div class="d-flex align-items-center gap-2 flex-wrap">
         {% if rankingDepthUrls is defined and rankingDepthUrls is not empty %}
@@ -25,8 +26,21 @@
             </div>
         </div>
     </div>
-    {% if paginator is defined and paginator is not null and paginator.hasToPaginate %}
-        {{ pagination.navbar(paginator, app.request.attributes.get('_route')) }}
+    {% set showPaginator = paginator is defined and paginator is not null and paginator.hasToPaginate %}
+    {% if showPaginator or exportCsvUrl %}
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            {% if showPaginator %}
+                {{ pagination.navbar(paginator, app.request.attributes.get('_route')) }}
+            {% endif %}
+            {% if exportCsvUrl %}
+                <a class="btn d-print-none"
+                   href="{{ exportCsvUrl }}"
+                   data-testid="stats-top-lists-export-csv">
+                    <twig:ux:icon name="tabler:download" class="icon icon-sm" />
+                    {{ 'stats.top_lists.export.csv'|trans({}, 'statistics') }}
+                </a>
+            {% endif %}
+        </div>
     {% endif %}
 </div>
 {% if truncated|default(false) %}

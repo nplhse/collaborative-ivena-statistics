@@ -20,7 +20,7 @@ final readonly class ExploreEntityLinkExtension
     }
 
     /**
-     * @param array{label?: string, class?: string, empty?: string} $options
+     * @param array{label?: string, class?: string, empty?: string, target?: string} $options
      */
     #[\Twig\Attribute\AsTwigFunction(name: 'explore_entity_link', isSafe: ['html'])]
     public function exploreEntityLink(?object $entity, array $options = []): string
@@ -38,12 +38,14 @@ final readonly class ExploreEntityLinkExtension
 
         $class = $options['class'] ?? '';
         $classAttr = '' !== $class ? ' class="'.$this->escape($class).'"' : '';
+        $target = $options['target'] ?? '';
+        $targetAttr = '' !== $target ? ' target="'.$this->escape($target).'"' : '';
 
-        return sprintf('<a href="%s"%s>%s</a>', $this->escape($url), $classAttr, $label);
+        return sprintf('<a href="%s"%s%s>%s</a>', $this->escape($url), $classAttr, $targetAttr, $label);
     }
 
     /**
-     * @param array{label?: string, class?: string, empty?: string} $options
+     * @param array{label?: string, class?: string, empty?: string, target?: string} $options
      */
     private function labelFor(object $entity, array $options, string $empty): string
     {
