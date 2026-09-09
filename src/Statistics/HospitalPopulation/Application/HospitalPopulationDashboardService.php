@@ -61,7 +61,7 @@ final readonly class HospitalPopulationDashboardService
         $totalHospitals = \count($snapshots);
         $participants = $this->countParticipants($snapshots);
         $enumLabel = static fn (string $key): string => self::UNKNOWN_KEY === $key ? self::UNKNOWN_LABEL : $key;
-        $tierKeys = HospitalTier::getValues();
+        $tierKeys = array_values(HospitalTier::getValues());
 
         return new HospitalPopulationCoverageResult(
             byCareLevel: $this->withoutEmptyUnknownRows($this->buildDimensionSummaries(
@@ -77,7 +77,7 @@ final readonly class HospitalPopulationDashboardService
             bySize: $this->buildDimensionSummaries(
                 $snapshots,
                 static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->size->value,
-                HospitalSize::getValues(),
+                array_values(HospitalSize::getValues()),
                 $enumLabel,
                 $totalHospitals,
                 $participants,
@@ -85,7 +85,7 @@ final readonly class HospitalPopulationDashboardService
             byLocation: $this->buildDimensionSummaries(
                 $snapshots,
                 static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->urbanity->value,
-                HospitalLocation::getValues(),
+                array_values(HospitalLocation::getValues()),
                 $enumLabel,
                 $totalHospitals,
                 $participants,
@@ -214,7 +214,7 @@ final readonly class HospitalPopulationDashboardService
             static fn (HospitalPopulationSnapshot $snapshot): ?string => $snapshot->careLevel?->value,
             static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->size->value,
             $tierKeys,
-            HospitalSize::getValues(),
+            array_values(HospitalSize::getValues()),
             $labelResolver,
         );
     }
@@ -234,7 +234,7 @@ final readonly class HospitalPopulationDashboardService
             static fn (HospitalPopulationSnapshot $snapshot): ?string => $snapshot->careLevel?->value,
             static fn (HospitalPopulationSnapshot $snapshot): string => $snapshot->urbanity->value,
             $tierKeys,
-            HospitalLocation::getValues(),
+            array_values(HospitalLocation::getValues()),
             $labelResolver,
         );
     }
