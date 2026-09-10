@@ -12,10 +12,10 @@ use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Domain\IndicationKey;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\DataFixtures\Reference\ReferenceDataLoader;
-use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
@@ -42,7 +42,8 @@ final class ReferenceDataLoaderTest extends KernelTestCase
         $areas = $this->entityManager()->getRepository(DispatchArea::class)->findBy([], ['name' => 'ASC']);
 
         self::assertNotEmpty($states);
-        self::assertCount(25, $areas);
+        self::assertCount(29, $areas);
+        self::assertCount(4, $states);
 
         $hessen = $this->entityManager()->getRepository(State::class)->findOneBy(['name' => 'Hessen']);
         self::assertInstanceOf(State::class, $hessen);

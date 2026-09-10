@@ -25,7 +25,6 @@ deptrac:
       - App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery
     App\Allocation\Application\Indication\IndicationMatchSuggestionService:
       - App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository
-      - App\Import\Infrastructure\Indication\IndicationKey
     App\Allocation\Application\Indication\IndicationRawReviewNavigator:
       - App\Allocation\Infrastructure\Repository\IndicationRawRepository
       - App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO
