@@ -6,6 +6,7 @@ namespace App\Tests\Import\Unit\Application\ReferenceCatalog;
 
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\Occasion;
 use App\Import\Application\Analysis\ImportRejectAnalysisReader;
 use App\Import\Application\Analysis\RejectMessageNormalizer;
 use App\Import\Application\Mapping\DispatchAreaNameNormalizer;
@@ -57,6 +58,12 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
                 yield $this->row(2, 'createdAt: This value should not be blank.', [
                     'anlass' => '',
                 ]);
+                yield $this->row(2, "REF_NOT_FOUND | field=occasion | value=\"H\u{0084}uslicher Einsatz\"", [
+                    'anlass' => "H\u{0084}uslicher Einsatz",
+                ]);
+                yield $this->row(2, "REF_NOT_FOUND | field=occasion | value=\"\u{0099}ffentlicher Raum\"", [
+                    'anlass' => "\u{0099}ffentlicher Raum",
+                ]);
             }
 
             /**
@@ -92,11 +99,17 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         $geburtshilfe->method('getName')->willReturn('Geburtshilfe');
         $frankfurt = $this->createStub(DispatchArea::class);
         $frankfurt->method('getName')->willReturn('Frankfurt');
+        $haeuslich = $this->createStub(Occasion::class);
+        $haeuslich->method('getName')->willReturn('Häuslicher Einsatz');
+        $oeffentlich = $this->createStub(Occasion::class);
+        $oeffentlich->method('getName')->willReturn('Öffentlicher Raum');
 
         $departmentRepo = $this->createStub(EntityRepository::class);
         $departmentRepo->method('findBy')->willReturn([$geburtshilfe]);
         $dispatchRepo = $this->createStub(EntityRepository::class);
         $dispatchRepo->method('findBy')->willReturn([$frankfurt]);
+        $occasionRepo = $this->createStub(EntityRepository::class);
+        $occasionRepo->method('findBy')->willReturn([$haeuslich, $oeffentlich]);
         $emptyRepo = $this->createStub(EntityRepository::class);
         $emptyRepo->method('findBy')->willReturn([]);
 
@@ -105,6 +118,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
             static fn (string $class): EntityRepository => match ($class) {
                 Department::class => $departmentRepo,
                 DispatchArea::class => $dispatchRepo,
+                Occasion::class => $occasionRepo,
                 default => $emptyRepo,
             },
         );
@@ -119,6 +133,9 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         $all = $proposer->propose(minCount: 1);
         self::assertSame(['Göttingen'], array_column($all->document->dispatchAreas, 'name'));
         self::assertContains('aus Klinik', $all->document->occasions);
+        self::assertNotContains('Häuslicher Einsatz', $all->document->occasions);
+        self::assertNotContains('Öffentlicher Raum', $all->document->occasions);
+        self::assertNotContains("H\u{0084}uslicher Einsatz", $all->document->occasions);
         self::assertContains('ECMO-Therapie', $all->document->specialities);
         self::assertContains('NAW', $all->document->assignments);
         self::assertContains('MRSA', $all->document->infections);

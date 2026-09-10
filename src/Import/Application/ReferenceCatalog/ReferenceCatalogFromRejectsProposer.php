@@ -14,6 +14,7 @@ use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
 use App\Import\Application\Analysis\ImportRejectAnalysisReader;
 use App\Import\Application\Analysis\RejectMessageNormalizer;
+use App\Import\Application\Mapping\Cp850MojibakeRepair;
 use App\Import\Application\Mapping\DepartmentNameAlias;
 use App\Import\Application\Mapping\DispatchAreaNameNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -59,7 +60,7 @@ final readonly class ReferenceCatalogFromRejectsProposer
                 }
 
                 $canonical = $this->canonicalize($candidate['type'], $candidate['value']);
-                if (null === $canonical) {
+                if (null === $canonical || Cp850MojibakeRepair::hasC1Controls($canonical)) {
                     ++$droppedJunk;
                     continue;
                 }
@@ -186,13 +187,12 @@ final readonly class ReferenceCatalogFromRejectsProposer
 
     private function canonicalize(string $type, string $value): ?string
     {
+        $value = Cp850MojibakeRepair::repair(trim($value));
         if ('dispatch-area' === $type) {
             return $this->dispatchAreaNameNormalizer->normalize($value);
         }
 
-        $trimmed = trim($value);
-
-        return '' === $trimmed ? null : $trimmed;
+        return '' === $value ? null : $value;
     }
 
     /**
