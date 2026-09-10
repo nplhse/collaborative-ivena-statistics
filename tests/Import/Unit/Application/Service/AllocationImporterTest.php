@@ -151,6 +151,7 @@ final class AllocationImporterTest extends TestCase
         $detector->method('detect')->willReturnOnConsecutiveCalls(AllocationRowType::ALLOCATION, null);
 
         $persister = $this->createMock(AllocationPersisterInterface::class);
+        $persister->expects($this->once())->method('clear');
         $persister->expects($this->once())->method('flush');
 
         $processor = $this->createNoopProcessor(AllocationRowType::ALLOCATION);

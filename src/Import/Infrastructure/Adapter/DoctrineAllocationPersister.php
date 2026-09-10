@@ -32,6 +32,12 @@ final class DoctrineAllocationPersister implements AllocationPersisterInterface
     public function flush(): void
     {
         $this->em->flush();
+        $this->clear();
+    }
+
+    #[\Override]
+    public function clear(): void
+    {
         $this->em->clear();
         $this->count = 0;
     }

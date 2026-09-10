@@ -122,6 +122,12 @@ final class AllocationImportFeatureTest extends DatabaseKernelTestCase
         $countOk = $this->countAllocationsForImportId((int) $import->getId());
         self::assertSame(2, $countOk, 'Expected 2 persisted allocations');
 
+        $this->em->clear();
+        $reloadedArea = $this->em->find(\App\Allocation\Domain\Entity\DispatchArea::class, $dispatch->getId());
+        self::assertNotNull($reloadedArea);
+        self::assertSame('Test', $reloadedArea->getName());
+        self::assertNotNull($reloadedArea->getState());
+
         $one = $this->findOneAllocationForImportId((int) $import->getId());
         self::assertInstanceOf(Allocation::class, $one);
         self::assertContains($one->getGender()->value, ['M', 'F', 'X']);

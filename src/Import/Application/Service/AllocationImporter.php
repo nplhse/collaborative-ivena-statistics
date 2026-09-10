@@ -31,6 +31,8 @@ final readonly class AllocationImporter implements AllocationImporterInterface
     public function import(Import $import): ImportSummary
     {
         $this->processorRegistry->warmAll();
+        // Detach Import→Hospital→DispatchArea so native lazy objects cannot flush catalog rows as NULL.
+        $this->persister->clear();
 
         $total = $ok = $rejected = 0;
 
