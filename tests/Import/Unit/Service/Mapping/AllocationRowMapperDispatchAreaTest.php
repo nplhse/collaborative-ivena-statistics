@@ -30,5 +30,7 @@ final class AllocationRowMapperDispatchAreaTest extends TestCase
         yield 'null' => [null, null];
         yield 'empty string' => ['', null];
         yield 'whitespace only' => ['   ', null];
+        yield 'goettingen ivena prefix' => ['_Kommunale Regionalleitstelle Göttingen', 'Göttingen'];
+        yield 'fuehrungsstab' => ['Frankfurt Führungsstab', 'Frankfurt'];
     }
 }
