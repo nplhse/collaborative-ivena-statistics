@@ -65,6 +65,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorExists('[data-testid="stats-overview-age-groups"]');
         $this->assertSelectorExists('[data-testid="stats-overview-transport"]');
         $this->assertSelectorExists('[data-testid="stats-overview-transport-time"]');
+        $this->assertSelectorNotExists('[data-testid="stats-isochrone-origin-map-frame"]');
         $this->assertSelectorExists('[data-testid="stats-overview-features"]');
         $this->assertSelectorExists('[data-testid="stats-overview-resources"]');
         $this->assertSelectorExists('[data-testid="stats-charts"]');

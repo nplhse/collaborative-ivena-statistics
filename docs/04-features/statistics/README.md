@@ -14,6 +14,7 @@
 | DataQuality | Dashboard badges | Traffic-light data quality indicator |
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
 | HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
+| Isochrone origin heatmap | Overview / Indication Insights (hospital scope) | Lazy travel-time isochrone map |
 
 ## Documents
 
@@ -28,6 +29,7 @@
 | [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
 | [case-flow.md](case-flow.md) | Case flow dashboard |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
+| [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md) | Hospital-scope travel-time isochrone heatmap |
 
 ## Reading order (statistics feature work)
 

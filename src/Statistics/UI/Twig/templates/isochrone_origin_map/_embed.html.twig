@@ -1,0 +1,8 @@
+{% if statisticsFilter.scope.value == 'hospital' and statisticsFilter.hospitalId and isochroneOriginMapUrl is defined %}
+    <turbo-frame id="stats-isochrone-origin-map"
+                 src="{{ isochroneOriginMapUrl }}"
+                 loading="lazy"
+                 data-testid="stats-isochrone-origin-map-frame">
+        {{ include('@Statistics/isochrone_origin_map/_placeholder.html.twig') }}
+    </turbo-frame>
+{% endif %}

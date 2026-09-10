@@ -56,6 +56,8 @@
                      data-age-group-values="{{ ageGroupValues|json_encode|e('html_attr') }}"></div>
             </div>
         </div>
+
+        {{ include('@Statistics/isochrone_origin_map/_embed.html.twig') }}
     </div>
 
     <div class="col-lg-4 d-flex flex-column gap-3">

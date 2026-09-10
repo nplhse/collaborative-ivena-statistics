@@ -24,6 +24,7 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 | `benchmarking-charts` | Benchmarking |
 | `analysis-chart`, `generic-analysis-chart` | Analysis views |
 | `catalog-orientation-map` | Explore allocation/hospital orientation map (Leaflet, Turf) |
+| `isochrone-origin-map` | Statistics hospital-scope travel-time isochrone heatmap (Leaflet, Turf) |
 
 `assets/controllers.json` enables `@symfony/ux-live-component` and `@symfony/ux-turbo`.
 

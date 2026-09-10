@@ -130,6 +130,7 @@ final class IndicationDashboardController extends AbstractController
                 'app_stats_top_lists_show',
                 ['report' => 'top_diagnoses'],
             ),
+            'isochroneOriginMapUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_isochrone_origin_map'),
         ]);
     }
 }

@@ -5749,6 +5749,46 @@
         <source>stats.top_lists.comparison.share_b</source>
         <target>Anteil B</target>
       </trans-unit>
+      <trans-unit id="statsIsoMapDe01" resname="stats.isochrone_origin_map.title">
+        <source>stats.isochrone_origin_map.title</source>
+        <target>Mögliche Herkunft nach Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe02" resname="stats.isochrone_origin_map.loading">
+        <source>stats.isochrone_origin_map.loading</source>
+        <target>Fahrzeitkarte wird geladen…</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe03" resname="stats.isochrone_origin_map.band">
+        <source>stats.isochrone_origin_map.band</source>
+        <target>{from}–{to} Min.</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe04" resname="stats.isochrone_origin_map.cases">
+        <source>stats.isochrone_origin_map.cases</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe05" resname="stats.isochrone_origin_map.share">
+        <source>stats.isochrone_origin_map.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe06" resname="stats.isochrone_origin_map.legend.fewer">
+        <source>stats.isochrone_origin_map.legend.fewer</source>
+        <target>Weniger Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe07" resname="stats.isochrone_origin_map.legend.more">
+        <source>stats.isochrone_origin_map.legend.more</source>
+        <target>Mehr Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe09" resname="stats.isochrone_origin_map.unknown">
+        <source>stats.isochrone_origin_map.unknown</source>
+        <target>{count, plural, one {# Zuweisung ohne nutzbare Transportzeit} other {# Zuweisungen ohne nutzbare Transportzeit}}</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe10" resname="stats.isochrone_origin_map.beyond_max">
+        <source>stats.isochrone_origin_map.beyond_max</source>
+        <target>{count, plural, one {# Zuweisung außerhalb der dargestellten 50 Min.} other {# Zuweisungen außerhalb der dargestellten 50 Min.}}</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMapDe11" resname="stats.isochrone_origin_map.unmapped_separator">
+        <source>stats.isochrone_origin_map.unmapped_separator</source>
+        <target> · </target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

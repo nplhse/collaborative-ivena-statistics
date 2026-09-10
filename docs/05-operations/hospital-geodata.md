@@ -4,7 +4,7 @@
 
 Allocation detail maps (`/explore/allocation/{publicId}`) **never** call OpenRouteService. They only read hospital coordinates from the database and GeoJSON files under `var/geo/hospital-isochrones`. The two console commands below are the only write path.
 
-See also: [../04-features/allocation/orientation-map.md](../04-features/allocation/orientation-map.md), [../06-reference/console-commands.md](../06-reference/console-commands.md), [configuration.md](../06-reference/configuration.md), [deployment.md](deployment.md).
+See also: [../04-features/allocation/orientation-map.md](../04-features/allocation/orientation-map.md), [../04-features/statistics/isochrone-origin-heatmap.md](../04-features/statistics/isochrone-origin-heatmap.md), [../06-reference/console-commands.md](../06-reference/console-commands.md), [configuration.md](../06-reference/configuration.md), [deployment.md](deployment.md).
 
 ## What lives where
 
@@ -12,13 +12,13 @@ See also: [../04-features/allocation/orientation-map.md](../04-features/allocati
 |------|---------|---------------|--------------|
 | Hospital street address | `hospital` / address columns | Import, fixtures, admin | Geocode command |
 | `Hospital.latitude` / `longitude` | Database | `app:geo:geocode-hospitals --apply` (production). Fixtures still seed city/PLZ centroids for local/CI. | Map pins, isochrone command |
-| Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply` | Allocation show map (one band only) |
+| Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply` | Allocation show map (one 5-minute band); Statistics Overview / Indication Insights origin heatmap (10-minute bands at 10/20/30/40/50 min, hospital scope) |
 
 IDs in the CLI are numeric Doctrine IDs (`Hospital`, `DispatchArea`, `State`), not names or ISO codes. Isochrone files include `properties.origin` (`lat`/`lng` used for the OpenRouteService request). The fetch command skips an existing file only when that origin still matches the hospital coordinates.
 
 ## Everyday use in the web app
 
-Hospital users and reviewers do **not** load or refresh geographic data in the UI. The Explore allocation map (and the same map on related catalog pages) only displays what is already stored.
+Hospital users and reviewers do **not** load or refresh geographic data in the UI. The Explore allocation map and the Statistics isochrone origin heatmap only display what is already stored.
 
 | What you see | Meaning | Who fixes it |
 |--------------|---------|--------------|
