@@ -71,28 +71,24 @@ final readonly class ReferenceCatalogFromRejectsProposer
                 }
 
                 $key = $candidate['type']."\0".$canonical;
-                if (!isset($buckets[$key])) {
-                    $buckets[$key] = [
-                        'type' => $candidate['type'],
-                        'value' => $canonical,
-                        'count' => 0,
-                        'exampleFile' => $reject['importFilePath'] ?? $reject['importName'] ?? '',
-                    ];
-                }
+                $buckets[$key] ??= [
+                    'type' => $candidate['type'],
+                    'value' => $canonical,
+                    'count' => 0,
+                    'exampleFile' => $reject['importFilePath'] ?? $reject['importName'] ?? '',
+                ];
                 ++$buckets[$key]['count'];
                 $proposedThisRow = true;
             }
 
             if ($proposedThisRow && null !== $reject['importId']) {
                 $importId = $reject['importId'];
-                if (!isset($importMeta[$importId])) {
-                    $importMeta[$importId] = [
-                        'importId' => $importId,
-                        'hospitalName' => $reject['hospitalName'] ?? '',
-                        'file' => $reject['importFilePath'] ?? $reject['importName'] ?? '',
-                        'count' => 0,
-                    ];
-                }
+                $importMeta[$importId] ??= [
+                    'importId' => $importId,
+                    'hospitalName' => $reject['hospitalName'] ?? '',
+                    'file' => $reject['importFilePath'] ?? $reject['importName'] ?? '',
+                    'count' => 0,
+                ];
                 ++$importMeta[$importId]['count'];
             }
         }
