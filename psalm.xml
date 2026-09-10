@@ -54,6 +54,7 @@
                 <directory name="src/Import/Application/Factory" />
                 <directory name="src/Import/Application/Service/" />
                 <directory name="src/Import/Application/Analysis/" />
+                <directory name="src/Import/Application/ReferenceCatalog/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Import/Infrastructure/Analysis/" />
                 <directory name="src/Import/Infrastructure/Indication/" />
