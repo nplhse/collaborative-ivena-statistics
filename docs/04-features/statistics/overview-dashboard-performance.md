@@ -43,7 +43,7 @@ Self-benchmark compares `period=all` (primary) to `all_time` (comparison). Publi
 ## Mitigation (Aug 2026)
 
 1. **Lazy Turbo-Frame** `GET /statistics/overview/self-benchmark` — KPI grid + hospital insights load after first paint (same pattern as Top Reports).
-2. **Sync path** only runs metrics + slice (plus `transport_type` buckets in `OverviewSliceQuery`; charts no longer need `BenchmarkReport`).
+2. **Sync path** only runs metrics + slice (plus `transport_type` buckets in `OverviewSliceQuery`; charts no longer need `BenchmarkReport`). The isochrone origin heatmap is a separate lazy Turbo-Frame (`GET /statistics/widgets/isochrone-origin-map`) and is not part of the sync query budget.
 3. **Slim overview aggregation** `BenchmarkAggregationProvider::aggregateForOverview` — reduced core counters + `indication` distribution only (full provider unchanged for `/statistics/benchmarking`).
 
 Sync query budget: `tests/Statistics/Functional/Controller/OverviewDashboardQueryCountTest.php` (max 30 queries; asserts no self-benchmark SQL on sync).

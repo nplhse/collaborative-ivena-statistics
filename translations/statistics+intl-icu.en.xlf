@@ -5749,6 +5749,46 @@
         <source>stats.top_lists.comparison.share_b</source>
         <target>Share B</target>
       </trans-unit>
+      <trans-unit id="statsIsoMap01" resname="stats.isochrone_origin_map.title">
+        <source>stats.isochrone_origin_map.title</source>
+        <target>Possible origin by transport time</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap02" resname="stats.isochrone_origin_map.loading">
+        <source>stats.isochrone_origin_map.loading</source>
+        <target>Loading travel-time map…</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap03" resname="stats.isochrone_origin_map.band">
+        <source>stats.isochrone_origin_map.band</source>
+        <target>{from}–{to} min</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap04" resname="stats.isochrone_origin_map.cases">
+        <source>stats.isochrone_origin_map.cases</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap05" resname="stats.isochrone_origin_map.share">
+        <source>stats.isochrone_origin_map.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap06" resname="stats.isochrone_origin_map.legend.fewer">
+        <source>stats.isochrone_origin_map.legend.fewer</source>
+        <target>Fewer allocations</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap07" resname="stats.isochrone_origin_map.legend.more">
+        <source>stats.isochrone_origin_map.legend.more</source>
+        <target>More allocations</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap09" resname="stats.isochrone_origin_map.unknown">
+        <source>stats.isochrone_origin_map.unknown</source>
+        <target>{count, plural, one {# allocation without a usable travel time} other {# allocations without a usable travel time}}</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap10" resname="stats.isochrone_origin_map.beyond_max">
+        <source>stats.isochrone_origin_map.beyond_max</source>
+        <target>{count, plural, one {# allocation beyond the mapped 50 min} other {# allocations beyond the mapped 50 min}}</target>
+      </trans-unit>
+      <trans-unit id="statsIsoMap11" resname="stats.isochrone_origin_map.unmapped_separator">
+        <source>stats.isochrone_origin_map.unmapped_separator</source>
+        <target> · </target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

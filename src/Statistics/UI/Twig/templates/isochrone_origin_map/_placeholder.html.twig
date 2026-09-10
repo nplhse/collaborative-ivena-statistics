@@ -1,0 +1,14 @@
+{# Skeleton for lazy-loaded isochrone origin heatmap. #}
+<div class="card" data-testid="stats-isochrone-origin-map-placeholder" aria-busy="true" aria-live="polite">
+    <div class="card-header py-2 placeholder-glow">
+        <div class="placeholder placeholder-xs col-6"></div>
+    </div>
+    <div class="card-body placeholder-glow">
+        <div class="isochrone-origin-map-frame bg-secondary-lt rounded">
+            <div class="placeholder w-100 h-100"></div>
+        </div>
+        <div class="placeholder placeholder-xs col-8 mt-2"></div>
+        <div class="placeholder placeholder-xs col-10 mt-1"></div>
+    </div>
+    <span class="visually-hidden">{{ 'stats.isochrone_origin_map.loading'|trans({}, 'statistics') }}</span>
+</div>

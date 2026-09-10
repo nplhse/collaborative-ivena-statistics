@@ -135,6 +135,7 @@ final class IndicationGroupDashboardController extends AbstractController
             'comparePresets' => $comparePresets,
             'statsShowCompareLaunchButton' => true,
             'statsCompareLaunchModalId' => 'stats-indication-group-compare-launch-modal',
+            'isochroneOriginMapUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_isochrone_origin_map'),
         ]);
     }
 }

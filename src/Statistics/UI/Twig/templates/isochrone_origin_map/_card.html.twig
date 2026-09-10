@@ -1,0 +1,42 @@
+<div class="card"
+     data-controller="isochrone-origin-map"
+     data-isochrone-origin-map-payload-value="{{ heatmap.mapPayload|json_encode|e('html_attr') }}"
+     data-isochrone-origin-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics')|e('html_attr') }}"
+     data-isochrone-origin-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics')|e('html_attr') }}"
+     data-testid="stats-isochrone-origin-map">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.isochrone_origin_map.title'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        <div class="isochrone-origin-map-frame">
+            <div class="case-flow-map-container"
+                 data-isochrone-origin-map-target="mapContainer"></div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mt-2" data-testid="stats-isochrone-origin-map-legend">
+            <span class="text-muted small">{{ 'stats.isochrone_origin_map.legend.fewer'|trans({}, 'statistics') }}</span>
+            <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                <span class="isochrone-origin-map-legend-swatch" style="background:#2f9e44;"></span>
+                <span class="isochrone-origin-map-legend-swatch" style="background:#74b816;"></span>
+                <span class="isochrone-origin-map-legend-swatch" style="background:#fab005;"></span>
+                <span class="isochrone-origin-map-legend-swatch" style="background:#fd7e14;"></span>
+                <span class="isochrone-origin-map-legend-swatch" style="background:#e03131;"></span>
+            </span>
+            <span class="text-muted small">{{ 'stats.isochrone_origin_map.legend.more'|trans({}, 'statistics') }}</span>
+        </div>
+
+        {% if heatmap.unknownCount > 0 or heatmap.beyondMaxCount > 0 %}
+            <p class="text-muted small mb-0 mt-2" data-testid="stats-isochrone-origin-map-unmapped">
+                {% if heatmap.unknownCount > 0 %}
+                    {{ 'stats.isochrone_origin_map.unknown'|trans({count: heatmap.unknownCount}, 'statistics') }}
+                {% endif %}
+                {% if heatmap.unknownCount > 0 and heatmap.beyondMaxCount > 0 %}
+                    {{ 'stats.isochrone_origin_map.unmapped_separator'|trans({}, 'statistics') }}
+                {% endif %}
+                {% if heatmap.beyondMaxCount > 0 %}
+                    {{ 'stats.isochrone_origin_map.beyond_max'|trans({count: heatmap.beyondMaxCount}, 'statistics') }}
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+</div>
