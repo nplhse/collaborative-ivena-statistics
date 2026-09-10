@@ -57,6 +57,14 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [../04-features/import/reject-analysis.md](../04-features/import/reject-analysis.md). |
 | `app:import:repair-indication-corruption` | One-time issue 521 repair: merge quote/stub/`\OMI\""` IndicationRaws, then requeue quote-broken imports whose source CSV still exists. Production runbook: [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md). |
 
+### Reference catalog
+
+| Command | Purpose |
+|---|---|
+| `app:reference:import` | Load `fixtures/reference/catalog.yaml` (or `--source=`) into the database. Default `--mode=add` inserts missing rows only. `--mode=replace` purges catalog tables and reloads; aborts when allocations, MCI cases, or imports exist. Dispatch areas without `state` are skipped. See [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md). |
+| `app:reference:export` | Write the current DB catalog into one YAML file (`--output=`, optional `--types=`). |
+| `app:reference:propose-from-rejects` | Read-only on rejects: write a catalog stub directory (`catalog.yaml`, `report.md`, requeue ID list). Fill area `state` before import. |
+
 ### Allocation
 
 | Command | Purpose |
@@ -120,7 +128,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:reference:load-indication-groups` | Load indication groups from YAML without purging the database. |
+| `app:reference:load-indication-groups` | Load indication groups from `fixtures/reference/catalog.yaml` without purging the database. Prefer `app:reference:import --types=indication-group` in production. |
 | `app:fixtures:export-patterns` | Export distribution patterns from projection data. |
 | `app:fixtures:validate-patterns` | Validate committed pattern YAML files. |
 | `app:fixtures:generate-csv` | Generate CSV encoding test fixtures. |

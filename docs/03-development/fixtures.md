@@ -6,7 +6,7 @@ This document describes how demo and reference data is loaded for local developm
 
 | Layer | Location | Purpose |
 |---|---|---|
-| Reference YAML | `fixtures/reference/*.yaml` | Curated master data (areas, hospitals, lookups, indications) |
+| Reference YAML | `fixtures/reference/catalog.yaml` | Curated master data (areas, hospitals, lookups, indications) |
 | Distribution patterns | `fixtures/patterns/*.yaml` | Statistical profiles for synthetic allocations |
 | Fixture classes | `src/DataFixtures/` | Loaders, groups, synthetic allocation generator |
 | Foundry factories | `src/*/Infrastructure/Factory/` | Ad-hoc test data; lookup factories align with reference names where possible |
@@ -67,7 +67,7 @@ Scale is resolved by `FixtureVolumeResolver` and applied in `PatternAllocationFi
 
 ## Reference data
 
-YAML files under `fixtures/reference/` are the single source of truth for master data. They are loaded by:
+YAML file `fixtures/reference/catalog.yaml` is the single source of truth for master data. Schema: [../04-features/import/reference-catalog-yaml.md](../04-features/import/reference-catalog-yaml.md). It is loaded by:
 
 - `AreaReferenceFixture`
 - `HospitalReferenceFixture`
@@ -79,6 +79,8 @@ YAML files under `fixtures/reference/` are the single source of truth for master
 Indication raw rows are linked to normalized entries by hash after load (`IndicationKey`).
 
 Hospital coordinates in reference YAML / `config/hospital_population/geocoding.yaml` are **city/PLZ centroids** for local and CI maps. Production street-level coordinates and destination isochrones are filled by console commands, not by fixture load. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md).
+
+Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) (`app:reference:import --mode=add`, or `--mode=replace` only on an empty install).
 
 ## Pattern-based synthetic allocations
 

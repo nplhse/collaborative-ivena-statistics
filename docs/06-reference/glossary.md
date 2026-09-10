@@ -13,7 +13,7 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[glossary-i
 | Data quality indicator | Traffic-light badge on statistics pages with scope and period filters; summarises coverage, representativeness, subgroup support, and allocation volume (indication-specific on the indication dashboard) |
 | Materialized view | Pre-aggregated database view for fast reads |
 | Fixture group | Named subset of Doctrine fixtures (`reference`, `dev`, `allocations`, …) |
-| Reference fixture | Versioned master data from `fixtures/reference/*.yaml` |
+| Reference fixture | Versioned master data from `fixtures/reference/catalog.yaml` |
 | Distribution pattern | YAML file describing statistical weights for synthetic allocations |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |

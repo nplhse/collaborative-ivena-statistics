@@ -8,7 +8,7 @@
 
 | Section | Description |
 |---------|-------------|
-| [import/](import/) | CSV import pipeline, requeue, reject analysis |
+| [import/](import/) | CSV import pipeline, requeue, reject analysis, reference catalog |
 | [statistics/](statistics/) | Projection, explorer, data quality, dashboards |
 | [allocation/](allocation/) | Allocation exploration, indication normalization |
 | [onboarding/](onboarding/) | Participant onboarding checklist |

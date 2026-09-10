@@ -4,7 +4,7 @@ Authoritative EN↔DE table for UI translations. Domain-specific keys live in co
 
 Used as a reference for manual review and machine-translation drafts (phase 0 of the translation strategy).
 
-**See also:** technical project terms in [glossary.md](glossary.md) · clinical reference data in `fixtures/reference/*.yaml`
+**See also:** technical project terms in [glossary.md](glossary.md) · clinical reference data in `fixtures/reference/catalog.yaml`
 
 ---
 
@@ -107,7 +107,7 @@ Entities and filter labels — mostly from existing DE labels in `messages+intl-
 | Normalized indication | Indikation (normalisiert) | |
 | Raw indication | Indikation (original) | currently partly English „Raw-Indikation“ |
 | Secondary indication | Sekundärindikation | |
-| Indication group | Indikationsgruppe | see `fixtures/reference/indication_groups.yaml` |
+| Indication group | Indikationsgruppe | see `fixtures/reference/catalog.yaml` (`indication_groups`) |
 | MCI case(s) | MANV-Fälle | mass-casualty incident |
 | Urgency | Dringlichkeit | |
 | Urgency 1 / emergency | Notfallversorgung | `allocation.urgency.1` |
@@ -118,7 +118,7 @@ Entities and filter labels — mostly from existing DE labels in `messages+intl-
 | Gender | Geschlecht | |
 | Male / female / other | Männlich / Weiblich / Divers | for `label.gender.*` |
 
-### Assignment types (reference `fixtures/reference/assignments.yaml`)
+### Assignment types (reference `fixtures/reference/catalog.yaml`, `assignments`)
 
 | DE (reference) | UI note |
 |---|---|
