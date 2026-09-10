@@ -50,4 +50,5 @@ return [
     'polyclip-ts' => ['version' => '0.16.8'],
     'bignumber.js' => ['version' => '9.1.2'],
     'splaytree-ts' => ['version' => '1.0.2'],
+    'es-module-shims' => ['version' => '2.8.4'],
 ];
