@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
+use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
@@ -15,6 +16,7 @@ use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -236,6 +238,105 @@ final class UserCrudControllerTest extends WebTestCase
         $reloaded = self::getContainer()->get(UserRepository::class)->find($targetId);
         self::assertInstanceOf(User::class, $reloaded);
         self::assertSame($originalUsername, $reloaded->getUsername());
+    }
+
+    public function testVerifyingUserOnEditKeepsOriginalPassword(): void
+    {
+        $client = self::createClient();
+        $plainPassword = 'keep-original-pass-'.bin2hex(random_bytes(4));
+        $target = UserFactory::createOne([
+            'username' => 'verify-keep-pass-'.bin2hex(random_bytes(4)),
+            'isVerified' => false,
+            'password' => $plainPassword,
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'verify-keep-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save changes')->form();
+        $this->setCheckboxValue($form, 'User[isVerified]', true);
+        $client->submit($form);
+        self::assertResponseRedirects();
+
+        \Zenstruck\Foundry\Persistence\refresh($target);
+        self::assertTrue($target->isVerified());
+        self::assertTrue(
+            self::getContainer()->get(UserPasswordHasherInterface::class)->isPasswordValid($target, $plainPassword),
+        );
+    }
+
+    public function testUpdatingUserWithoutSubmittedPasswordDoesNotRehashExistingHash(): void
+    {
+        $client = self::createClient();
+        $plainPassword = 'toggle-keep-pass-'.bin2hex(random_bytes(4));
+        $target = UserFactory::createOne([
+            'username' => 'toggle-keep-pass-'.bin2hex(random_bytes(4)),
+            'isVerified' => false,
+            'password' => $plainPassword,
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'toggle-keep-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $originalHash = $target->getPassword();
+        self::assertNotNull($originalHash);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $managedUser = $entityManager->find(User::class, $target->getId());
+        self::assertInstanceOf(User::class, $managedUser);
+        $managedUser->setIsVerified(true);
+
+        self::getContainer()->get(UserCrudController::class)->updateEntity($entityManager, $managedUser);
+
+        \Zenstruck\Foundry\Persistence\refresh($target);
+        self::assertTrue($target->isVerified());
+        self::assertSame($originalHash, $target->getPassword());
+        self::assertTrue(
+            self::getContainer()->get(UserPasswordHasherInterface::class)->isPasswordValid($target, $plainPassword),
+        );
+    }
+
+    public function testChangingPasswordOnEditRehashesWhenANewPasswordIsSubmitted(): void
+    {
+        $client = self::createClient();
+        $originalPassword = 'old-pass-'.bin2hex(random_bytes(4));
+        $newPassword = 'new-pass-'.bin2hex(random_bytes(4));
+        $target = UserFactory::createOne([
+            'username' => 'change-pass-'.bin2hex(random_bytes(4)),
+            'password' => $originalPassword,
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'change-pass-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('Save changes')->form([
+            'User[password]' => $newPassword,
+        ]);
+        $client->submit($form);
+        self::assertResponseRedirects();
+
+        \Zenstruck\Foundry\Persistence\refresh($target);
+        $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
+        self::assertFalse($hasher->isPasswordValid($target, $originalPassword));
+        self::assertTrue($hasher->isPasswordValid($target, $newPassword));
     }
 
     private function setCheckboxValue(Form $form, string $name, bool $checked): void

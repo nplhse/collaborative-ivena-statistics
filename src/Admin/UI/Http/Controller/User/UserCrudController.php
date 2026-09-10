@@ -22,6 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -138,6 +139,8 @@ final class UserCrudController extends AbstractCrudController
             ->setRequired(Crud::PAGE_NEW === $pageName)
             ->setHelp('On edit leave empty to keep the current password.')
             ->setFormTypeOption('empty_data', '')
+            ->setFormTypeOption('mapped', Crud::PAGE_NEW === $pageName)
+            ->setFormTypeOption('attr', ['autocomplete' => 'new-password'])
             ->onlyOnForms();
     }
 
@@ -204,32 +207,7 @@ final class UserCrudController extends AbstractCrudController
                 throw new \LogicException('You cannot disable your own account.');
             }
 
-            $plainPassword = $entityInstance->getPassword() ?? '';
-            if ('' === $plainPassword) {
-                $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
-                $originalPassword = $originalData['password'] ?? null;
-
-                if (!\is_string($originalPassword) || '' === $originalPassword) {
-                    $userId = $entityInstance->getId();
-                    if (null !== $userId) {
-                        $storedPassword = $entityManager->getConnection()->fetchOne(
-                            'SELECT password FROM "user" WHERE id = :id',
-                            ['id' => $userId]
-                        );
-                        if (\is_string($storedPassword) && '' !== $storedPassword) {
-                            $originalPassword = $storedPassword;
-                        }
-                    }
-                }
-
-                if (\is_string($originalPassword) && '' !== $originalPassword) {
-                    $entityInstance->setPassword($originalPassword);
-                } else {
-                    throw new \LogicException('Could not preserve existing password while updating user.');
-                }
-            } else {
-                $entityInstance->setPassword($this->passwordHasher->hashPassword($entityInstance, $plainPassword));
-            }
+            $this->applyPasswordOnUpdate($entityManager, $entityInstance);
 
             $originalRoles = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance)['roles'] ?? [];
             $becameParticipant = !UserRole::containsParticipant($originalRoles)
@@ -246,5 +224,68 @@ final class UserCrudController extends AbstractCrudController
                 $this->eventDispatcher->dispatch(new UserBecameParticipant($userId));
             }
         }
+    }
+
+    private function applyPasswordOnUpdate(EntityManagerInterface $entityManager, User $user): void
+    {
+        $submitted = $this->submittedPlainPassword();
+        $current = $user->getPassword() ?? '';
+        $willHashSubmitted = '' !== $submitted && !$this->looksLikePasswordHash($submitted);
+
+        if ($willHashSubmitted) {
+            $user->setPassword($this->passwordHasher->hashPassword($user, $submitted));
+
+            return;
+        }
+
+        if ($this->looksLikePasswordHash($current)) {
+            return;
+        }
+
+        $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($user);
+        $originalPassword = $originalData['password'] ?? null;
+
+        if (!\is_string($originalPassword) || '' === $originalPassword) {
+            $userId = $user->getId();
+            if (null !== $userId) {
+                $storedPassword = $entityManager->getConnection()->fetchOne(
+                    'SELECT password FROM "user" WHERE id = :id',
+                    ['id' => $userId]
+                );
+                if (\is_string($storedPassword) && '' !== $storedPassword) {
+                    $originalPassword = $storedPassword;
+                }
+            }
+        }
+
+        if (\is_string($originalPassword) && '' !== $originalPassword) {
+            $user->setPassword($originalPassword);
+
+            return;
+        }
+
+        throw new \LogicException('Could not preserve existing password while updating user.');
+    }
+
+    private function submittedPlainPassword(): string
+    {
+        $request = $this->getContext()?->getRequest();
+        if (!$request instanceof Request) {
+            return '';
+        }
+
+        $formData = $request->request->all('User');
+        $password = $formData['password'] ?? null;
+
+        return \is_string($password) ? $password : '';
+    }
+
+    private function looksLikePasswordHash(string $value): bool
+    {
+        return str_starts_with($value, '$2y$')
+            || str_starts_with($value, '$2a$')
+            || str_starts_with($value, '$2b$')
+            || str_starts_with($value, '$argon2id$')
+            || str_starts_with($value, '$argon2i$');
     }
 }
