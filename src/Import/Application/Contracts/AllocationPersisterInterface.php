@@ -9,4 +9,7 @@ interface AllocationPersisterInterface
     public function persist(object $entity): void;
 
     public function flush(): void;
+
+    /** Drop identity-map catalog entities so flush cannot UPDATE them to NULL. */
+    public function clear(): void;
 }
