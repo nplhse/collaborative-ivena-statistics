@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Indication;
 
 use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
-use App\Import\Infrastructure\Indication\IndicationKey;
+use App\Allocation\Domain\IndicationKey;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Mapping;
 
+use App\Import\Application\Mapping\DispatchAreaNameNormalizer;
+
 trait AllocationRowNormalizationTrait
 {
     /**

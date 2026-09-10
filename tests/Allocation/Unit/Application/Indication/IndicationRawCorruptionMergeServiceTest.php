@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Unit\Application\Indication;
 
 use App\Allocation\Application\Indication\IndicationRawCorruptionMergeService;
-use App\Import\Infrastructure\Indication\IndicationKey;
+use App\Allocation\Domain\IndicationKey;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

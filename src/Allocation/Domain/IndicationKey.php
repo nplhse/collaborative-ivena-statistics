@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Import\Infrastructure\Indication;
+namespace App\Allocation\Domain;
 
 final class IndicationKey
 {

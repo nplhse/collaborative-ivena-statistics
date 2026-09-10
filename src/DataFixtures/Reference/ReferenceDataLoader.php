@@ -19,7 +19,7 @@ use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
-use App\Import\Infrastructure\Indication\IndicationKey;
+use App\Allocation\Domain\IndicationKey;
 use App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationCoordinates;
 use App\Statistics\HospitalPopulation\Infrastructure\Geocoding\HospitalPopulationGeocodingLookupFactory;
 use App\User\Domain\Entity\User;
@@ -60,12 +60,12 @@ final readonly class ReferenceDataLoader
 
     public function loadLookups(User $user): void
     {
-        $this->loadNameEntities(Department::class, $this->yaml->names('departments.yaml'), $user);
-        $this->loadNameEntities(Speciality::class, $this->yaml->names('specialities.yaml'), $user);
-        $this->loadNameEntities(Assignment::class, $this->yaml->names('assignments.yaml'), $user);
-        $this->loadNameEntities(Occasion::class, $this->yaml->names('occasions.yaml'), $user);
-        $this->loadNameEntities(Infection::class, $this->yaml->names('infections.yaml'), $user);
-        $this->loadNameEntities(SecondaryTransport::class, $this->yaml->names('secondary_transports.yaml'), $user);
+        $this->loadNameEntities(Department::class, $this->yaml->names('departments'), $user);
+        $this->loadNameEntities(Speciality::class, $this->yaml->names('specialities'), $user);
+        $this->loadNameEntities(Assignment::class, $this->yaml->names('assignments'), $user);
+        $this->loadNameEntities(Occasion::class, $this->yaml->names('occasions'), $user);
+        $this->loadNameEntities(Infection::class, $this->yaml->names('infections'), $user);
+        $this->loadNameEntities(SecondaryTransport::class, $this->yaml->names('secondary_transports'), $user);
     }
 
     public function loadHospitals(User $user, bool $all = true, ?int $limit = null): void

@@ -53,6 +53,7 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
         yield 'issue 125 Perinatalzentrum Level 1' => ['Perinatalzentrum Level 1'];
         yield 'issue 125 Perinataler Schwerpunkt' => ['Perinataler Schwerpunkt'];
         yield 'issue 125 Geburtsklinik' => ['Geburtsklinik'];
+        yield 'perinatalzentrum level 2' => ['Perinatalzentrum Level 2'];
     }
 
     public function testUnknownDepartmentStillThrowsReferenceNotFoundException(): void

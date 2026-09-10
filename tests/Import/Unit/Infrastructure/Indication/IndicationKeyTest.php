@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Infrastructure\Indication;
 
-use App\Import\Infrastructure\Indication\IndicationKey;
+use App\Allocation\Domain\IndicationKey;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

@@ -42,12 +42,12 @@ final class ReferenceFixtureLoadTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
 
-        self::assertSame(25, (int) $connection->fetchOne('SELECT COUNT(*) FROM dispatch_area'));
+        self::assertSame(29, (int) $connection->fetchOne('SELECT COUNT(*) FROM dispatch_area'));
         self::assertSame(77, (int) $connection->fetchOne('SELECT COUNT(*) FROM hospital'));
-        self::assertGreaterThanOrEqual(108, (int) $connection->fetchOne('SELECT COUNT(*) FROM department'));
-        self::assertGreaterThanOrEqual(20, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality'));
+        self::assertSame(113, (int) $connection->fetchOne('SELECT COUNT(*) FROM department'));
+        self::assertSame(22, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality'));
         self::assertSame(7, (int) $connection->fetchOne('SELECT COUNT(*) FROM assignment'));
-        self::assertSame(29, (int) $connection->fetchOne('SELECT COUNT(*) FROM occasion'));
+        self::assertSame(31, (int) $connection->fetchOne('SELECT COUNT(*) FROM occasion'));
         self::assertSame(19, (int) $connection->fetchOne('SELECT COUNT(*) FROM infection'));
         self::assertSame(8, (int) $connection->fetchOne('SELECT COUNT(*) FROM secondary_transport'));
         self::assertSame(210, (int) $connection->fetchOne('SELECT COUNT(*) FROM indication_normalized'));

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:reference:load-indication-groups',
-    description: 'Load indication groups from fixtures/reference/indication_groups.yaml without purging the database.',
+    description: 'Load indication groups from fixtures/reference/catalog.yaml without purging the database.',
 )]
 final readonly class LoadReferenceIndicationGroupsCommand
 {

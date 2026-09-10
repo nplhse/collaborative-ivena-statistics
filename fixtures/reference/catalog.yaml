@@ -1,0 +1,2320 @@
+# Allocation reference catalog (single file).
+# Used by Doctrine fixtures and app:reference:import / export.
+# Schema: docs/04-features/import/reference-catalog-yaml.md
+states:
+  - Bayern
+  - Hessen
+  - Niedersachsen
+  - Thüringen
+dispatch_areas:
+  - state: Hessen
+    name: Bergstraße
+  - state: Hessen
+    name: Darmstadt
+  - state: Hessen
+    name: Darmstadt-Dieburg
+  - state: Hessen
+    name: Frankfurt
+  - state: Hessen
+    name: Fulda
+  - state: Hessen
+    name: Gießen
+  - state: Hessen
+    name: Groß-Gerau
+  - state: Hessen
+    name: Hersfeld-Rotenburg
+  - state: Hessen
+    name: Hochtaunus
+  - state: Hessen
+    name: Kassel
+  - state: Hessen
+    name: Lahn-Dill
+  - state: Hessen
+    name: Limburg-Weilburg
+  - state: Hessen
+    name: Main-Kinzig
+  - state: Hessen
+    name: Main-Taunus
+  - state: Hessen
+    name: Marburg-Biedenkopf
+  - state: Hessen
+    name: Odenwald
+  - state: Hessen
+    name: Offenbach
+  - state: Hessen
+    name: 'Rheingau Taunus'
+  - state: Hessen
+    name: Schwalm-Eder
+  - state: Hessen
+    name: Vogelsberg
+  - state: Hessen
+    name: Waldeck-Frankenberg
+  - state: Hessen
+    name: Werra-Meißner
+  - state: Hessen
+    name: Wetterau
+  - state: Hessen
+    name: Wiesbaden
+  - state: Bayern
+    name: 'Bayerischer Untermain'
+  - state: Niedersachsen
+    name: Göttingen
+  - state: Niedersachsen
+    name: Northeim
+  - state: Thüringen
+    name: Eichsfeld
+  - state: Bayern
+    name: Schweinfurt
+departments:
+  - 'Akut- und Gerontopsych. / Isolierung'
+  - 'Akut- und Gerontopsychiatrie'
+  - 'Allgemein Innere Medizin'
+  - 'Allgemein- und Viszeralchirurgie'
+  - 'Allgemeine Augenheilkunde'
+  - 'Allgemeine Augenheilkunde - Isolierung'
+  - 'Allgemeine Geriatrie - Isolierung'
+  - 'Allgemeine Kinderheilkunde - Isolierung'
+  - 'Allgemeine Neurologie - Isolierung'
+  - 'Allgemeine Urologie - Isolierung'
+  - 'Cardiac Arrest Center'
+  - 'Chest Pain Unit'
+  - 'Chir. Allgemein - Isolierung'
+  - 'Chir. IMC - Isolierung'
+  - 'Chir. IMC ohne Beatmung'
+  - 'Chir. Intensiv - Isolierung'
+  - 'Chir. Intensiv mit Beatmung'
+  - 'Chir. Intensiv mit Isolierung'
+  - 'Chir. Intensiv ohne Beatmung'
+  - 'CoVID-19 Intensivstation'
+  - 'CoVID-19 Normalstation'
+  - Endokrino-/Diabetologie
+  - 'Endokrino-/Diabetologie - Isolierung'
+  - Gastroenterologie
+  - 'Gastroenterologie - Isolierung'
+  - Geburtshilfe
+  - 'Geburtshilfe - Isolierung'
+  - Gefäßchirurgie
+  - Geriatrie
+  - Gynäkologie
+  - 'Gynäkologie - Isolierung'
+  - Hals-Nasen-Ohrenheilkunde
+  - 'Hals-Nasen-Ohrenheilkunde - Isolierung'
+  - Handchirurgie
+  - 'Haut- und Geschlechtsk. - Isolierung'
+  - 'Haut- und Geschlechtskrankheiten'
+  - Herzchirurgie
+  - IMC
+  - Infektiologie
+  - 'Innere Allgemein - Isolierung'
+  - 'Innere IMC - Isolierung'
+  - 'Innere IMC ohne Beatmung'
+  - 'Innere Intensiv - Isolierung'
+  - 'Innere Intensiv mit Beatmung'
+  - 'Innere Intensiv ohne Beatmung'
+  - 'Innere Überwachung'
+  - Intensivstation
+  - Intoxikation
+  - Kardiologie
+  - 'Kardiologie - Isolierung'
+  - 'Kardiologie Intensiv - Isolierung'
+  - 'Kardiologie Intensiv mit Beatmung'
+  - 'Kardiologie Intensiv ohne Beatmung'
+  - 'Kinder / Jugendpsychiatrie / Isolierung'
+  - 'Kinder Intensiv - Isolierung'
+  - 'Kinder Intensiv mit Beatmung'
+  - 'Kinder Intensiv ohne Beatmung'
+  - 'Kinder- und Jugendgynäkologie'
+  - Kinder-HNO
+  - Kinder-Pneumologie
+  - Kinderaugenheilkunde
+  - Kinderchirurgie
+  - Kinderdiabetologie
+  - Kindergastroenterologie
+  - Kinderheilkunde
+  - Kinderinfektiologie
+  - Kinderkardiologie
+  - Kinderneurochirurgie
+  - Kinderneurologie
+  - Kinderpsychiatrie
+  - Kinderurologie
+  - Mund-Kiefer-Gesichtschirurgie
+  - 'Mund-Kiefer-Gesichtschirurgie - Isolier'
+  - 'Neonatologie Intensiv'
+  - Neurochirurgie
+  - 'Neurochirurgie Intensiv - Isolierung'
+  - 'Neurochirurgie Intensiv mit Beatmung'
+  - 'Neurochirurgie Intensiv ohne Beatmung'
+  - Neurologie
+  - 'Neurologie Intensiv - Isolierung'
+  - 'Neurologie Intensiv mit Beatmung'
+  - 'Neurologie Intensiv ohne Beatmung'
+  - Nuklearmedizin
+  - 'Operative Neurochirurgie - Isolierung'
+  - Orthopädie
+  - 'Orthopädie - Isolierung'
+  - Pneumologie
+  - 'Pneumologie - Isolierung'
+  - Psychiatrie
+  - 'Psychiatrie / Psychother. / Isolierung'
+  - 'Psychiatrie HFEG'
+  - 'Sektorenzuweisung nach PSychKHG'
+  - Strahlentherapie
+  - 'Stroke Unit'
+  - Suchtbehandlung
+  - Thoraxchirurgie
+  - Thrombektomie
+  - 'Transport zu definierter Leistung'
+  - 'Traumatologisch Intensiv - Isolierung'
+  - 'Traumatologisch Intensiv mit Beatmung'
+  - 'Traumatologisch Intensiv ohne Beatmung'
+  - Unfallchirurgie
+  - 'Unfallchirurgie - Isolierung'
+  - Urologie
+  - Verbrennungschirurgie
+  - Wirbelsäulenchirurgie
+  - ZAS
+  - ZOM
+  - 'Zu- Verlegung Sonderlage Ukraine'
+  - 'Chir. Überwachung'
+  - 'vvECMO Zuverlegung'
+  - 'vaECMO Zuverlegung'
+  - 'eCPR Zuverlegung'
+specialities:
+  - Augenheilkunde
+  - Chirurgie
+  - Diagnostik/Geräte
+  - 'Frauenheilkunde u. Geburtshilfe'
+  - Geriatrie
+  - Hals-Nasen-Ohrenheilkunde
+  - 'Haut- und Geschlechtskrankheiten'
+  - Herzchirurgie
+  - 'Innere Medizin'
+  - Interdisziplinär
+  - 'Kinder- und Jugendmedizin'
+  - Mund-Kiefer-Gesichtschirurgie
+  - Neurochirurgie
+  - Neurologie
+  - Nuklearmedizin/Hämatologie/Onkologie
+  - 'Psychiatrie und Psychotherapie'
+  - 'Sonderlage Ukraine'
+  - Strahlentherapie
+  - Urologie
+  - 'Zentrale Notaufnahme'
+  - ECMO-Therapie
+  - Nuklearmedizin
+assignments:
+  - Arzt/Arzt
+  - Einweisung
+  - LST
+  - Notzuweisung
+  - Patient
+  - RD
+  - ZLST
+occasions:
+  - Arbeitsunfall
+  - 'aus Arztpraxis'
+  - Bahnunfall
+  - Diagnostik
+  - Fluggeräteunfall
+  - 'Häuslicher Einsatz'
+  - Hausunfall
+  - Intensivstation
+  - Intervention
+  - k.A.
+  - 'Öffentlicher Raum'
+  - OP
+  - 'Schiff / Bootunfall'
+  - Schussverletzung
+  - Sekundärverlegung
+  - 'Sonstiger Einsatz'
+  - Sportunfall
+  - 'Stich- / Schnittverletzung'
+  - Stichverletzung
+  - 'Sturz < 3m Höhe'
+  - 'Sturz > 3m Höhe'
+  - 'Unfall > 4 Verletzte'
+  - 'Unfall 2 bis 4 Verletzte'
+  - 'Unfall eingeklemmte Pers.'
+  - Verkehrsunfall
+  - 'VU mit Fußgänger'
+  - 'VU mit Zweirad'
+  - 'VU Verletzte Person'
+  - Weaning
+  - 'aus Klinik'
+  - Krankentransport
+infections:
+  - 3MRGN
+  - 4MRGN/CRE
+  - HKLE
+  - I-
+  - I+
+  - I+MR
+  - I+NO
+  - Influenza
+  - Masern
+  - MERS
+  - MRSA
+  - Mumps
+  - Noro
+  - Rota
+  - Rötel
+  - Sonstiges
+  - TBC
+  - 'V.a. COVID'
+  - Varizellen
+secondary_transports:
+  - Diagnostik
+  - Intensivstation
+  - Intervention
+  - OP
+  - Sekundärverlegung
+  - 'Sonstiger Einsatz'
+  - Weaning
+  - Kapazitätsengpass
+indications_normalized:
+  - code: '000'
+    name: 'Kein Patient vorhanden'
+  - code: '111'
+    name: 'primäre Todesfeststellung'
+  - code: '121'
+    name: 'Reanimation ohne ROSC'
+  - code: '122'
+    name: 'Reanimation mit ROSC (Tod am EO)'
+  - code: '123'
+    name: 'Reanimation mit ROSC (Tod auf Trsp.)'
+  - code: '131'
+    name: 'Reanimation laufend /intermittierend'
+  - code: '132'
+    name: 'Reanimation ROSC'
+  - code: '133'
+    name: 'Reanimation bei Trauma laufend/intermittierend'
+  - code: '134'
+    name: 'Reanimation Hypothermie'
+  - code: '140'
+    name: 'vvECMO Zuverlegung'
+  - code: '141'
+    name: 'vvECMO Abholung'
+  - code: '142'
+    name: 'vaECMO Zuverlegung'
+  - code: '143'
+    name: 'vaECMO Abholung'
+  - code: '144'
+    name: 'eCPR Zuverlegung'
+  - code: '145'
+    name: 'eCPR Abholung'
+  - code: '201'
+    name: 'Chirurgie Zu-Verlegung Intensiv mit Arzt'
+  - code: '202'
+    name: 'Chirurgie Zu-Verlegung Intensiv ohne Arzt'
+  - code: '203'
+    name: 'Chirurgie Zu-Verlegung IMC mit Arzt'
+  - code: '204'
+    name: 'Chirurgie Zu-Verlegung IMC ohne Arzt'
+  - code: '205'
+    name: 'Neurochirurgie Zu-Verlegung Intensiv mit Arzt'
+  - code: '206'
+    name: 'Neurochirurgie Zu-Verlegung Intensiv ohne Arzt'
+  - code: '211'
+    name: 'Polytrauma mit SHT'
+  - code: '212'
+    name: 'Polytrauma ohne SHT'
+  - code: '213'
+    name: 'Schockraumindikation nach Unfallhergang'
+  - code: '214'
+    name: 'Mehrfachverletzung sonstige'
+  - code: '215'
+    name: 'Mehrfachverletzung mit Augen'
+  - code: '219'
+    name: 'oberflächliche Verletzung beliebiger Lokalisation'
+  - code: '211'
+    name: 'SHT offen'
+  - code: '222'
+    name: 'SHT geschlossen'
+  - code: '223'
+    name: Gesichtsverletzung
+  - code: '224'
+    name: Kopfverletzung
+  - code: '225'
+    name: Augenverletzung
+  - code: '231'
+    name: 'Thorax penetrierend'
+  - code: '232'
+    name: 'Thorax geschlossen/stumpf'
+  - code: '233'
+    name: 'Pneumothorax (traumatisch)'
+  - code: '241'
+    name: 'Abdomen penetrierend'
+  - code: '242'
+    name: 'Abdomen geschlossen/stumpf'
+  - code: '243'
+    name: 'Akutes Abdomen (nicht traumatisch)'
+  - code: '251'
+    name: 'Verletzung der Wirbelsäulen mit neuro. Ausfällen'
+  - code: '252'
+    name: 'Verletzung der Wirbelsäulen ohne neuro. Ausfällen'
+  - code: '253'
+    name: 'Rückenschmerzen, akut mit neuro. Symptomatik'
+  - code: '254'
+    name: 'Rückenschmerzen, nicht traumatisch ohne neuro. Ausfällen'
+  - code: '255'
+    name: 'Lähmung / Querschnitt akut (nicht Stroke)'
+  - code: '261'
+    name: 'Becken offen'
+  - code: '262'
+    name: 'Becken geschlossen'
+  - code: '263'
+    name: 'Urogenitaltrauma (isoliert)'
+  - code: '271'
+    name: 'Extremitäten offen'
+  - code: '272'
+    name: 'Extremitäten geschlossen'
+  - code: '273'
+    name: Hüft-/Schenkelhalsfraktur
+  - code: '274'
+    name: 'Verl. d. Extrem. mit Gefäß-/Nervenverl.'
+  - code: '275'
+    name: Handverletzung
+  - code: '276'
+    name: 'Finger Amputation'
+  - code: '277'
+    name: 'Hand-/Extremitäten Amputation'
+  - code: '281'
+    name: 'Verbrennung / Verbrühung'
+  - code: '282'
+    name: Verätzung
+  - code: '283'
+    name: Hochspannungstrauma
+  - code: '284'
+    name: 'Barotrauma / Tauchunfall /Dekompressionskrankheit'
+  - code: '285'
+    name: Strahlentrauma
+  - code: '286'
+    name: 'Hitzeerschöpfung / Hitzschlag'
+  - code: '287'
+    name: 'Unterkühlung / Erfrierung'
+  - code: '288'
+    name: '(Beinahe-) Ertrinken / Badeunfall'
+  - code: '291'
+    name: Aortenaneurysma
+  - code: '292'
+    name: 'Extremitätenischaemie (akut)'
+  - code: '293'
+    name: 'Aorta ascendens Dissektion (bestätigt)'
+  - code: '299'
+    name: 'Gefäßchirurgischer Notfall, sonstiger'
+  - code: '301'
+    name: 'Innere Medizin Zu-Verlegung Intensiv mit Arzt'
+  - code: '302'
+    name: 'Innere Medizin Zu-Verlegung Intensiv ohne Arzt'
+  - code: '303'
+    name: 'Innere Medizin Zu-Verlegung IMC mit Arzt'
+  - code: '304'
+    name: 'Innere Medizin Zu-Verlegung IMC ohne Arzt'
+  - code: '311'
+    name: 'Atemnot (unklar) /Atembeschwerden /ARI'
+  - code: '312'
+    name: 'Obstruktion (Asthma / COPD)'
+  - code: '313'
+    name: 'Hämoptoe / Hämoptysen'
+  - code: '314'
+    name: '(Bolus-) Aspiration'
+  - code: '315'
+    name: 'Bronchitis / Pneumonie'
+  - code: '316'
+    name: Hyperventilation
+  - code: '317'
+    name: 'Lungenödem (nicht kardial)'
+  - code: '318'
+    name: Spontanpneumothorax
+  - code: '319'
+    name: 'Pneumologischer Notfall, sonstiger'
+  - code: '321'
+    name: 'Anaphylaxie / Unverträglichkeitsreaktion'
+  - code: '322'
+    name: 'Synkope / Kollaps'
+  - code: '323'
+    name: Hypotonie
+  - code: '324'
+    name: Thrombose
+  - code: '325'
+    name: 'Unklares Fieber'
+  - code: '326'
+    name: Exsikkose
+  - code: '329'
+    name: 'Internistischer Notfall, sonstiger'
+  - code: '331'
+    name: 'Unklarer Brust-/Thoraxschmerz'
+  - code: '332'
+    name: STEMI/“OMI“
+  - code: '333'
+    name: 'NSTEMI, instabile AP'
+  - code: '341'
+    name: Arrhythmie
+  - code: '342'
+    name: Bradykardie
+  - code: '343'
+    name: Tachykardie
+  - code: '344'
+    name: 'Elektrounfall (Schwachstrom)'
+  - code: '345'
+    name: 'Hypertensiver Notfall/Krise'
+  - code: '346'
+    name: 'Kardiogener Schock'
+  - code: '347'
+    name: Herzinsuffizienz
+  - code: '348'
+    name: Lungenembolie
+  - code: '349'
+    name: 'Kardiologischer Notfall, sonstiger'
+  - code: '351'
+    name: GI-Blutung
+  - code: '353'
+    name: Bauchschmerzen
+  - code: '354'
+    name: Gastroenteritis
+  - code: '359'
+    name: 'Gastroenterologischer Notfall, sonstiger'
+  - code: '360'
+    name: 'Rauchgas/Reizgas (nicht CO)'
+  - code: '361'
+    name: Alkohol
+  - code: '362'
+    name: 'Drogen / Rauschgift'
+  - code: '363'
+    name: 'Mischintoxikation / Alkohol / Drogen / Medikamente'
+  - code: '364'
+    name: Lebensmittel
+  - code: '365'
+    name: Medikamente
+  - code: '366'
+    name: Pflanzenschutzmittel
+  - code: '367'
+    name: 'Tierische Gifte'
+  - code: '368'
+    name: Giftpflanzen
+  - code: '369'
+    name: 'Inhalative Intoxikation, sonstige'
+  - code: '370'
+    name: Kohlenmonoxid-Vergiftung
+  - code: '371'
+    name: 'Meningitis /Enzephalitis'
+  - code: '372'
+    name: TBC
+  - code: '373'
+    name: 'Sepsis (Infekt. + qSOFA mind. 2)'
+  - code: '374'
+    name: 'Septischer Schock'
+  - code: '375'
+    name: 'Hochkontagiöse Erkrankung (Sonder-ISO)'
+  - code: '376'
+    name: 'Infektionskrankheit – (bestätigt)'
+  - code: '377'
+    name: 'Infektionskrankheit – (nicht bestätigt)'
+  - code: '378'
+    name: 'Infektionskrankheit – (zur Quarantäne)'
+  - code: '379'
+    name: 'Infektiologischer Notfall, sonstiger'
+  - code: '391'
+    name: 'Akuter endokrinologischer Notfall'
+  - code: '392'
+    name: Hyperglykämie
+  - code: '393'
+    name: Hypoglykämie
+  - code: '401'
+    name: 'Neurologie Zu-Verlegung Intensiv mit Arzt'
+  - code: '402'
+    name: 'Neurologie Zu-Verlegung Intensiv ohne Arzt'
+  - code: '411'
+    name: 'Anhaltender epileptischer Krampfanfall'
+  - code: '412'
+    name: 'Epileptischer Anfall (stattgehabt)'
+  - code: '413'
+    name: 'Kopf-/Gesichtsschmerz (bei SK1 NC!)'
+  - code: '414'
+    name: 'Vigilanzminderung /Koma (ohne Trauma)'
+  - code: '415'
+    name: Schwindel
+  - code: '419'
+    name: 'Neurologischer Notfall, sonstiger'
+  - code: '421'
+    name: 'Schlaganfall / Blutung < 24 h oder unklar'
+  - code: '422'
+    name: 'Wie 421 Einsatzstelle -- > Thrombektomie'
+  - code: '423'
+    name: 'Schlaganfall / Blutung >24 h'
+  - code: '425'
+    name: 'Diagnostik Cereb. Gefäßverschl. zur Thrombektomie'
+  - code: '431'
+    name: 'Suizid, angedroht'
+  - code: '432'
+    name: 'Einweisung, psychiatrische'
+  - code: '433'
+    name: 'Einweisung (nach LandesPsychKG)'
+  - code: '434'
+    name: 'Einweisung (nach LandesPsychKG)"'
+  - code: '435'
+    name: 'Akute Verwirrtheit/Delir'
+  - code: '501'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv mit Arzt'
+  - code: '502'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv ohne Arzt'
+  - code: '502'
+    name: 'Zuverlegung Inkubator'
+  - code: '511'
+    name: 'Pädiatrisch - Atemnot'
+  - code: '512'
+    name: 'schwerer Husten (Pseudokrupp)'
+  - code: '513'
+    name: 'pädiatrisch Fieberkrampf'
+  - code: '519'
+    name: 'Pädiatrischer Notfall, sonstiger'
+  - code: '521'
+    name: '<16 SSW'
+  - code: '522'
+    name: '16+0 SSW bis 21+6 SSW'
+  - code: '523'
+    name: '22+0 SSW bis 28+6 SSW'
+  - code: '524'
+    name: '29+0 SSW bis 31+6 SSW'
+  - code: '525'
+    name: '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung'
+  - code: '526'
+    name: 'ab 37+0 SSW'
+  - code: '527'
+    name: 'ab 37+0 SSW + Diabetes'
+  - code: '528'
+    name: 'Drillinge bis 32+6, alle über 3 Mehrlinge'
+  - code: '529'
+    name: 'Drillinge ab 33+0'
+  - code: '531'
+    name: '<16 SSW'
+  - code: '532'
+    name: '16+0 SSW bis 21+6 SSW'
+  - code: '533'
+    name: '22+0 SSW bis 28+6 SSW'
+  - code: '534'
+    name: '29+0 SSW bis 31+6 SSW'
+  - code: '535'
+    name: '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung'
+  - code: '536'
+    name: 'ab 37+0 SSW'
+  - code: '537'
+    name: 'ab 37+0 SSW + Diabetes'
+  - code: '538'
+    name: 'Drillinge bis 32+6, alle über 3 Mehrlinge'
+  - code: '539'
+    name: 'Drillinge ab 33+0'
+  - code: '530'
+    name: 'akute fetale Gefährdung, Erstversorgung ggf. in ungeeigneter Klinik'
+  - code: '541'
+    name: '<16 SSW'
+  - code: '542'
+    name: '16+0 SSW bis 21+6 SSW'
+  - code: '543'
+    name: '22+0 SSW bis 28+6 SSW'
+  - code: '544'
+    name: '29+0 SSW bis 31+6 SSW'
+  - code: '545'
+    name: '32+0 SSW bis 36+6 SSW + jede Wachstumsstörung'
+  - code: '546'
+    name: 'ab 37+0 SSW'
+  - code: '547'
+    name: 'ab 37+0 SSW + Diabetes'
+  - code: '548'
+    name: 'Drillinge bis 32+6, alle über 3 Mehrlinge'
+  - code: '549'
+    name: 'Drillinge ab 33+0'
+  - code: '540'
+    name: 'akute fetale Gefährdung, Erstversorgung ggf. in ungeeigneter Klinik'
+  - code: '551'
+    name: 'Vaginale Blutung'
+  - code: '552'
+    name: Unterbauchschmerzen
+  - code: '553'
+    name: Sexualdelikt
+  - code: '559'
+    name: 'Gynäkologischer Notfall, sonstiger'
+  - code: '601'
+    name: 'Transport zu definierten Leistungen'
+  - code: '601'
+    name: 'Transport zu geplanter Dialyse'
+  - code: '601'
+    name: 'Transport zu geplantem Herzkatheter'
+  - code: '601'
+    name: 'Transport zu geplantem CT'
+  - code: '601'
+    name: 'Transport zu geplantem MRT'
+  - code: '626'
+    name: 'Strategische Verlegung (z.B. Kleeblatt)'
+  - code: '631'
+    name: 'Entlassung aus stationärer Behandlung'
+  - code: '701'
+    name: 'Haut-u. Geschlechtskrankheiten'
+  - code: '711'
+    name: 'Nieren- Harnleiterkolik'
+  - code: '712'
+    name: Hodenschmerz
+  - code: '713'
+    name: 'Harnverhalt (akut)'
+  - code: '714'
+    name: Hämaturie
+  - code: '715'
+    name: 'Katheterwechsel (transurethral)'
+  - code: '716'
+    name: 'Katheterwechsel (suprapubisch)'
+  - code: '717'
+    name: Katheterverlust/-verstopfung
+  - code: '718'
+    name: Harnwegsinfekt
+  - code: '719'
+    name: 'Urologischer Notfall, sonstiger'
+  - code: '721'
+    name: 'Akute Augenerkrankung'
+  - code: '729'
+    name: 'Augennotfall, sonstiger'
+  - code: '731'
+    name: 'Nasenbluten (Epistaxis) unstillbar'
+  - code: '732'
+    name: '(Nach-)Blutung, HNO, akut'
+  - code: '733'
+    name: Tracheostoma-Komplikation
+  - code: '739'
+    name: 'HNO Notfall, sonstiger'
+  - code: '749'
+    name: 'MKG Notfall, sonstiger'
+  - code: '751'
+    name: 'Geriatrische Einweisung'
+  - code: '779'
+    name: 'sonstige Notfallsituationen'
+  - code: '801'
+    name: 'Schmerz/Schwellung Bewegungsapparat (nicht traumatisch)'
+  - code: '802'
+    name: 'Schwellung/Abszeß sonstige Lokalisation'
+  - code: '809'
+    name: 'Allgemeinmedizin, sonstiger Notfall'
+indications_raw:
+  - code: '111'
+    name: 'primäre Todesfeststellung'
+  - code: '121'
+    name: 'Reanimation ohne ROSC'
+  - code: '201'
+    name: 'Chirurgie Zu-Verlegung Intensiv mit Arzt'
+  - code: '202'
+    name: 'Chirurgie Zu-Verlegung Intensiv ohne Arzt'
+  - code: '203'
+    name: 'Chirurgie Zu-Verlegung IMC mit Arzt'
+  - code: '204'
+    name: 'Chirurgie Zu-Verlegung IMC ohne Arzt'
+  - code: '205'
+    name: 'Neurochirurgie Zu-Verlegung Intensiv mit Arzt'
+  - code: '206'
+    name: 'Neurochirurgie Zu-Verlegung  Intensiv ohne Arzt'
+  - code: '210'
+    name: 'sonstige kombinierte Verletzung'
+  - code: '211'
+    name: 'Polytrauma mit SHT'
+  - code: '212'
+    name: 'Polytrauma ohne SHT'
+  - code: '213'
+    name: 'Schockraumindikation nach Unfallhergang'
+  - code: '214'
+    name: Gesichts-/Kopfverletzung
+  - code: '215'
+    name: 'Gesichts-/Kopfverletzung mit Augenbeteiligung'
+  - code: '216'
+    name: 'Gesichts-/Kopfverletzung mit MKG Beteiligung'
+  - code: '217'
+    name: 'Gesichts-/Kopfverletzung mit HNO Beteiligung'
+  - code: '221'
+    name: 'Kopf SHT offen'
+  - code: '222'
+    name: 'Kopf SHT geschlossen'
+  - code: '223'
+    name: SAB
+  - code: '230'
+    name: 'sonstige thoraxchirurgische Verletzung'
+  - code: '231'
+    name: 'Thorax penetrierend'
+  - code: '232'
+    name: 'Thorax geschlossen/stumpf'
+  - code: '233'
+    name: Pneumothorax
+  - code: '240'
+    name: 'sonstiger viszeralchirurgischer Notfall'
+  - code: '241'
+    name: 'Abdomen penetrierend'
+  - code: '242'
+    name: 'Abdomen geschlossen/stumpf'
+  - code: '243'
+    name: 'Akutes Abdomen (nicht traumatisch)'
+  - code: '244'
+    name: Appendizitis
+  - code: '251'
+    name: 'Wirbelsäulentrauma mit neurologischen Ausfällen'
+  - code: '252'
+    name: 'Wirbelsäulentrauma ohne neurologische Ausfälle'
+  - code: '253'
+    name: 'Rückenschmerz nicht traum. mit neuro. Ausfällen'
+  - code: '254'
+    name: 'Rückenschmerz nicht traum. ohne neuro Ausfällen'
+  - code: '261'
+    name: 'Becken penetrierend'
+  - code: '262'
+    name: 'Becken geschlossen/stumpf'
+  - code: '270'
+    name: 'Sonstige kombinierte Extremitäten Verletzung'
+  - code: '271'
+    name: 'Extremitäten offen'
+  - code: '272'
+    name: 'Extremitäten geschlossen'
+  - code: '273'
+    name: 'Extremitäten geschlossen'
+  - code: '273'
+    name: Schenkelhals
+  - code: '274'
+    name: Luxation
+  - code: '275'
+    name: Handverletzung
+  - code: '276'
+    name: Hand-Amputation
+  - code: '277'
+    name: Finger-Amputation
+  - code: '278'
+    name: Extremitäten-Amputation
+  - code: '281'
+    name: 'Verbrennung /Verbrühung'
+  - code: '282'
+    name: 'Verätzung (äußerlich)'
+  - code: '283'
+    name: Blitzschlag/Hochspannungstrauma
+  - code: '290'
+    name: 'sonstiger gefäßchirurgischer Notfall'
+  - code: '291'
+    name: 'Extremitäten mit Gefäß-/Nervenverletzung'
+  - code: '292'
+    name: Aortenaneurysma
+  - code: '293'
+    name: 'Extremitätenischaemie (akut)'
+  - code: '294'
+    name: 'Aorta ascendens Dissektion'
+  - code: '301'
+    name: 'Innere Medizin Zu-Verlegung Intensiv mit Arzt'
+  - code: '302'
+    name: 'Innere Medizin Zu-Verlegung Intensiv ohne Arzt'
+  - code: '303'
+    name: 'Innere Medizin Zu-Verlegung IMC mit Arzt'
+  - code: '304'
+    name: 'Innere Medizin Zu-Verlegung IMC ohne Arzt'
+  - code: '310'
+    name: 'sonstiger respiratorischer Notfall'
+  - code: '311'
+    name: 'Atemnot (unklar)'
+  - code: '312'
+    name: 'Obstruktion (Asthma / COPD)'
+  - code: '313'
+    name: Hämoptoe/Hämoptysen
+  - code: '314'
+    name: '(Bolus-) Aspiration'
+  - code: '315'
+    name: Bronchitis/Pneumonie
+  - code: '316'
+    name: Hyperventilation
+  - code: '317'
+    name: Rauchgas/Reizgas
+  - code: '318'
+    name: Spontanpneumothorax
+  - code: '319'
+    name: '(Beinahe-) Ertrinken'
+  - code: '320'
+    name: 'sonstiger internistischer Notfall'
+  - code: '321'
+    name: Anaphylaxie/Unverträglichkeitsreaktion
+  - code: '322'
+    name: 'sonstiger respiratorischer Notfall'
+  - code: '322'
+    name: Synkope/Kollaps
+  - code: '323'
+    name: Hypertonie
+  - code: '324'
+    name: Hypotonie
+  - code: '324'
+    name: 'sonstige Notfallsituation'
+  - code: '325'
+    name: Thrombose
+  - code: '326'
+    name: 'unklares Fieber'
+  - code: '327'
+    name: Hitzeerschöpfung/Hitzschlag
+  - code: '328'
+    name: Unterkühlung/Erfrierung
+  - code: '329'
+    name: Exsikkose
+  - code: '330'
+    name: 'sonstiger kardiologischer Notfall'
+  - code: '331'
+    name: 'STEMI  < 12h (EKG gesichert)'
+  - code: '332'
+    name: 'STEMI  > 12h (EKG gesichert)'
+  - code: '333'
+    name: 'Akutes Koronarsyndrom (Sonstiges)'
+  - code: '341'
+    name: Arrhythmie/Rhythmusstörungen
+  - code: '342'
+    name: 'bradykarde Rhythmusstörungen'
+  - code: '343'
+    name: Hypertonie
+  - code: '343'
+    name: 'tachykarde Rhythmusstörungen'
+  - code: '344'
+    name: 'Elektrounfall (Schwachstrom)'
+  - code: '347'
+    name: 'Kardiogener Schock'
+  - code: '348'
+    name: Herzinsuffizienz/Lungenödem
+  - code: '349'
+    name: Lungenembolie
+  - code: '350'
+    name: 'sonstiger gastroenterologischer Notfall'
+  - code: '351'
+    name: 'Obere GI-Blutung'
+  - code: '352'
+    name: 'Untere GI-Blutung'
+  - code: '353'
+    name: 'Unklares Abdomen'
+  - code: '354'
+    name: 'Infektiöse Gastroenteritis'
+  - code: '355'
+    name: Hämaturie
+  - code: '355'
+    name: 'Sonstige Gastroenteritis'
+  - code: '356'
+    name: 'Verätzung/Ingestion (innerlich)'
+  - code: '357'
+    name: Kolik
+  - code: '360'
+    name: 'sonstige Intoxikationen'
+  - code: '361'
+    name: Alkohol
+  - code: '362'
+    name: 'Drogen / Rauschgift'
+  - code: '363'
+    name: 'Mischintoxikation Alkohol/Drogen/Medikament'
+  - code: '364'
+    name: Lebensmittel
+  - code: '365'
+    name: Medikamente
+  - code: '366'
+    name: Pflanzenschutzmittel
+  - code: '367'
+    name: 'Tierische Gifte / Giftpflanzen'
+  - code: '370'
+    name: 'sonstiger infektiologischer Notfall'
+  - code: '371'
+    name: 'Definierte Infektionskrankheit'
+  - code: '372'
+    name: Meningitis
+  - code: '373'
+    name: NTBC
+  - code: '374'
+    name: 'septischer Schock'
+  - code: '376'
+    name: '(SARS-CoV-2) Covid-19 bestätigt'
+  - code: '377'
+    name: '(SARS-CoV-2) Covid-19 nicht bestätigt'
+  - code: '379'
+    name: 'Hochkontagiöse Erkrankung'
+  - code: '391'
+    name: 'Diabetischer Notfall'
+  - code: '392'
+    name: Hyperglykämie
+  - code: '393'
+    name: Hypoglykämie
+  - code: '394'
+    name: 'Akuter endokrinologischer Notfall (nicht 391)'
+  - code: '401'
+    name: 'Neurologie Zu-Verlegung Intensiv mit Arzt'
+  - code: '402'
+    name: 'Neurologie Zu-Verlegung Intensiv ohne Arzt'
+  - code: '410'
+    name: 'sonstiger neurologischer Notfall'
+  - code: '411'
+    name: 'Krampfanfall bei bekanntem Krampfleiden'
+  - code: '412'
+    name: 'erstmaliger Krampfanfall'
+  - code: '413'
+    name: Kopf-/Gesichtsschmerzen
+  - code: '414'
+    name: 'unklare Bewusstlosigkeit'
+  - code: '421'
+    name: 'Apoplex/TIA/Blutung  < 6 h'
+  - code: '422'
+    name: 'Apoplex/TIA/Blutung  6-24 h'
+  - code: '423'
+    name: 'Apoplex/TIA/Blutung >24h'
+  - code: '425'
+    name: 'Cerebraler Gefäßverschluss zur Thrombektomie'
+  - code: '430'
+    name: 'sonstiger psychiatrischer Notfall'
+  - code: '431'
+    name: 'Akute Suizidalität'
+  - code: '434'
+    name: 'Fachpsychiatrische Unterbringung'
+  - code: '435'
+    name: 'Unterbringung nach PSychKHG'
+  - code: '436'
+    name: 'Akuter Erregungszustand '
+  - code: '437'
+    name: 'Akute Psychose'
+  - code: '438'
+    name: Entzugssyndrom
+  - code: '501'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv mit Arzt'
+  - code: '502'
+    name: 'Kinderheilkunde Zu-Verlegung Intensiv ohne Arzt'
+  - code: '503'
+    name: 'Zuverlegung Inkubator'
+  - code: '510'
+    name: 'sonstige pädiatrische Notfall'
+  - code: '511'
+    name: 'Pädiatrisch - Atemnot'
+  - code: '512'
+    name: 'Krupp / Pseudokrupp'
+  - code: '513'
+    name: 'Pädiatrisch Fieberkrampf'
+  - code: '514'
+    name: 'Pädiatrisch Epilepsie'
+  - code: '515'
+    name: 'Akuter kindlicher Hüftschmerz'
+  - code: '520'
+    name: 'sonstiger Notfall in der Schwangerschaft'
+  - code: '521'
+    name: 'Entbindung/Einsetzende Geburt > 36.SSW'
+  - code: '521'
+    name: 'Entbindung/Einsetzende Geburt >= 36.SSW'
+  - code: '522'
+    name: 'Entbindung/Einsetzende Geburt > 32. und < 36.SSW'
+  - code: '522'
+    name: 'Entbindung/Einsetzende Geburt >= 32. und < 36.SSW'
+  - code: '523'
+    name: 'Entbindung/Einsetzende Geburt > 29. und < 32.SSW'
+  - code: '523'
+    name: 'Entbindung/Einsetzende Geburt >= 29. und < 32.SSW'
+  - code: '524'
+    name: 'Entbindung/Einsetzende Geburt < 29.SSW'
+  - code: '525'
+    name: 'Präklinische Geburt '
+  - code: '526'
+    name: 'Präklinische Frühgeburt < 36. SSW'
+  - code: '527'
+    name: 'Eklampsie '
+  - code: '528'
+    name: 'Vaginale Blutung w. d. Schwangerschaft < 20. SSW'
+  - code: '529'
+    name: 'Vaginale Blutung w. d. Schwangerschaft > 20. SSW'
+  - code: '529'
+    name: 'Vaginale Blutung w. d. Schwangerschaft >= 20. SSW'
+  - code: '530'
+    name: 'sonstiger gynäkologischer Notfall'
+  - code: '531'
+    name: 'Vaginale Blutung'
+  - code: '532'
+    name: Unterbauchschmerzen
+  - code: '533'
+    name: Sexualdelikt
+  - code: '601'
+    name: 'Transport zu definierter Leistung (KT)'
+  - code: '602'
+    name: 'Transport zu geplanter Dialyse'
+  - code: '603'
+    name: 'Transport zu geplantem Herzkatheter'
+  - code: '604'
+    name: 'Transport zu geplanter CT'
+  - code: '605'
+    name: 'Transport zu geplanter MRT'
+  - code: '606'
+    name: ''
+  - code: '607'
+    name: ''
+  - code: '625'
+    name: 'Sekundärverlegung Covid-Patienten'
+  - code: '626'
+    name: 'Zu- Verlegung Sonderlage Ukraine'
+  - code: '702'
+    name: 'Geriatrie Einweisung'
+  - code: '703'
+    name: 'Haut- u- Geschlechtskrankheit Einweisung'
+  - code: '710'
+    name: 'sonstiger urologischer Notfall'
+  - code: '711'
+    name: 'Nieren- Harnleiterkolik'
+  - code: '711'
+    name: 'Unklares Abdomen'
+  - code: '712'
+    name: Hodenschmerz
+  - code: '713'
+    name: Harnverhalt
+  - code: '713'
+    name: 'Katheterwechsel (transurethral)'
+  - code: '714'
+    name: Hämaturie
+  - code: '715'
+    name: 'Katheterwechsel (transurethral)'
+  - code: '716'
+    name: 'Katheterwechsel (suprapubisch)'
+  - code: '717'
+    name: Katheterverlust
+  - code: '718'
+    name: Harnwegsinfekt
+  - code: '718'
+    name: 'Katheterwechsel (transurethral)'
+  - code: '720'
+    name: 'sonstiger ophthalmologischer Notfall'
+  - code: '721'
+    name: 'Augenverletzung mit Fremdkörper'
+  - code: '722'
+    name: 'Augenverletzung ohne Fremdkörper'
+  - code: '723'
+    name: 'Akute Augenerkrankung'
+  - code: '730'
+    name: 'sonstiger HNO Notfall'
+  - code: '731'
+    name: Epistaxis
+  - code: '732'
+    name: Barotrauma
+  - code: '733'
+    name: Hörsturz
+  - code: '734'
+    name: 'HNO Nachblutung'
+  - code: '741'
+    name: 'MKG Einweisung'
+  - code: '751'
+    name: Strahlentrauma
+  - code: '761'
+    name: Kohlenmonoxid-Vergiftung
+  - code: '770'
+    name: 'sonstige Notfallsituation'
+indication_groups:
+  - name: 'Akute Dyspnoe & respiratorische Notfälle'
+    category: Pneumologie
+    codes:
+      - '311'
+      - '312'
+      - '315'
+      - '316'
+      - '317'
+      - '318'
+      - '348'
+  - name: 'Akute Herzinsuffizienz & kardiogener Schock'
+    category: Kardiologie
+    codes:
+      - '346'
+      - '347'
+  - name: 'Akutes Abdomen & GI-Notfall'
+    category: Viszeral
+    codes:
+      - '243'
+      - '351'
+      - '353'
+      - '354'
+  - name: 'Brustschmerz & akutes Koronarsyndrom'
+    category: Kardiologie
+    codes:
+      - '331'
+      - '332'
+      - '333'
+  - name: 'ECMO & ECLS Transport'
+    category: ECLS
+    codes:
+      - '140'
+      - '141'
+      - '142'
+      - '143'
+      - '144'
+      - '145'
+  - name: 'Endokrinologischer Notfall'
+    category: Endokrinologie
+    codes:
+      - '391'
+      - '392'
+      - '393'
+  - name: 'Epilepsie & Krampf'
+    category: Neurologie
+    codes:
+      - '411'
+      - '412'
+  - name: 'Gefäßchirurgischer Notfall'
+    category: Gefäßchirurgie
+    codes:
+      - '291'
+      - '292'
+      - '293'
+      - '299'
+  - name: Intoxikation
+    category: Toxikologie
+    codes:
+      - '361'
+      - '362'
+      - '363'
+      - '364'
+      - '365'
+      - '366'
+      - '367'
+      - '368'
+      - '369'
+      - '370'
+  - name: 'Pädiatrische Atemnot'
+    category: Pädiatrie
+    codes:
+      - '511'
+      - '512'
+      - '513'
+  - name: 'Polytrauma & Schockraum'
+    category: Trauma
+    codes:
+      - '211'
+      - '212'
+      - '213'
+      - '214'
+      - '215'
+  - name: 'Psychiatrischer Notfall'
+    category: Psychiatrie
+    codes:
+      - '431'
+      - '432'
+      - '433'
+      - '434'
+      - '435'
+  - name: 'Reanimation & ROSC'
+    category: Reanimation
+    codes:
+      - '121'
+      - '122'
+      - '123'
+      - '131'
+      - '132'
+      - '133'
+      - '134'
+  - name: Schädel-Hirn-Trauma
+    category: Trauma
+    codes:
+      - '222'
+      - '224'
+  - name: 'Schlaganfall akut'
+    category: Neurologie
+    codes:
+      - '421'
+      - '422'
+      - '425'
+  - name: 'Sepsis & septischer Schock'
+    category: Infektiologie
+    codes:
+      - '325'
+      - '371'
+      - '373'
+      - '374'
+  - name: 'Synkope, Arrhythmie & Kreislauf'
+    category: Kardiologie
+    codes:
+      - '322'
+      - '323'
+      - '341'
+      - '342'
+      - '343'
+  - name: Thoraxtrauma
+    category: Trauma
+    codes:
+      - '231'
+      - '232'
+      - '233'
+  - name: 'Urologischer Akutnotfall'
+    category: Urologie
+    codes:
+      - '711'
+      - '712'
+      - '713'
+  - name: 'Verbrennung & Umweltmedizin'
+    category: Umweltmedizin
+    codes:
+      - '281'
+      - '286'
+      - '287'
+      - '288'
+hospitals:
+  - state: Hessen
+    area: Frankfurt
+    name: 'Agaplesion Bethanien Krankenhaus'
+    tier: Basic
+    size: Medium
+    beds: 204
+    location: Urban
+    address:
+      street: 'Im Prüfling 21-25'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60389'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Kassel
+    name: 'Agaplesion Diakonie Kliniken Kassel'
+    tier: Extended
+    size: Medium
+    beds: 316
+    location: Urban
+    address:
+      street: 'Herkulesstraße 34'
+      city: Kassel
+      state: Hessen
+      postalCode: '34119'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Darmstadt
+    name: 'Agaplesion Elisabethenstift Evangelisches Krankenhaus'
+    tier: Basic
+    size: Large
+    beds: 419
+    location: Urban
+    address:
+      street: 'Landgraf-Georg-Straße 100'
+      city: Darmstadt
+      state: Hessen
+      postalCode: '64287'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Gießen
+    name: 'Agaplesion Evangelisches Krankenhaus Mittelhessen'
+    tier: Extended
+    size: Medium
+    beds: 263
+    location: Urban
+    address:
+      street: 'Paul-Zipp-Straße 171'
+      city: Gießen
+      state: Hessen
+      postalCode: '35398'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Frankfurt
+    name: 'Agaplesion Markus Krankenhaus'
+    tier: Extended
+    size: Large
+    beds: 635
+    location: Urban
+    address:
+      street: 'Wilhelm-Epstein-Straße 4'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60431'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Darmstadt
+    name: Alice-Hospital
+    tier: ~
+    size: Medium
+    beds: 146
+    location: Urban
+    address:
+      street: 'Dieburger Straße 31'
+      city: Darmstadt
+      state: Hessen
+      postalCode: '64287'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Offenbach
+    name: 'Asklepios Klinik Langen'
+    tier: Extended
+    size: Large
+    beds: 431
+    location: Urban
+    address:
+      street: 'Röntgenstraße 20'
+      city: Langen(Hessen)
+      state: Hessen
+      postalCode: '63225'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Gießen
+    name: 'Asklepios Klinik Lich'
+    tier: Extended
+    size: Medium
+    beds: 244
+    location: Rural
+    address:
+      street: 'Goethestraße 4'
+      city: Lich
+      state: Hessen
+      postalCode: '35423'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Offenbach
+    name: 'Asklepios Klinik Seligenstadt'
+    tier: Basic
+    size: Medium
+    beds: 265
+    location: Mixed
+    address:
+      street: 'Dudenhöfer Straße 9'
+      city: Seligenstadt
+      state: Hessen
+      postalCode: '63500'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Wiesbaden
+    name: 'Asklepios Paulinen Klinik Wiesbaden'
+    tier: Basic
+    size: Medium
+    beds: 293
+    location: Urban
+    address:
+      street: 'Geisenheimer Straße 10'
+      city: Wiesbaden
+      state: Hessen
+      postalCode: '65197'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Waldeck-Frankenberg
+    name: 'Asklepios Stadtklinik Bad Wildungen'
+    tier: Basic
+    size: Medium
+    beds: 175
+    location: Rural
+    address:
+      street: 'Brunnenallee 19'
+      city: 'Bad Wildungen'
+      state: Hessen
+      postalCode: '34537'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Frankfurt
+    name: 'BG Unfallklinik Frankfurt am Main'
+    tier: Extended
+    size: Medium
+    beds: 386
+    location: Urban
+    address:
+      street: 'Friedberger Landstraße 430'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60389'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Frankfurt
+    name: 'Bürgerhospital Frankfurt'
+    tier: Basic
+    size: Medium
+    beds: 320
+    location: Urban
+    address:
+      street: 'Nibelungenallee 37-41'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60318'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Wetterau
+    name: 'Bürgerhospital Friedberg'
+    tier: Basic
+    size: Medium
+    beds: 267
+    location: Mixed
+    address:
+      street: 'Ockstädter Straße 3-5'
+      city: Friedberg(Hessen)
+      state: Hessen
+      postalCode: '61169'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Marburg-Biedenkopf
+    name: 'DGD Diakonie-Krankenhaus Wehrda'
+    tier: Basic
+    size: Medium
+    beds: 208
+    location: Urban
+    address:
+      street: 'Hebronberg 5'
+      city: Marburg
+      state: Hessen
+      postalCode: '35041'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Frankfurt
+    name: 'DGD Krankenhaus Sachsenhausen'
+    tier: Basic
+    size: Medium
+    beds: 211
+    location: Urban
+    address:
+      street: 'Schulstraße 31'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60594'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Marburg-Biedenkopf
+    name: 'DRK Krankenhaus Biedenkopf'
+    tier: Basic
+    size: Small
+    beds: 113
+    location: Rural
+    address:
+      street: 'Hainstraße 71-75'
+      city: Biedenkopf
+      state: Hessen
+      postalCode: '35216'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Kassel
+    name: 'Elisabeth-Krankenhaus Kassel'
+    tier: Basic
+    size: Medium
+    beds: 198
+    location: Urban
+    address:
+      street: 'Weinbergstraße 7'
+      city: Kassel
+      state: Hessen
+      postalCode: '34117'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Frankfurt
+    name: 'Frankfurter Rotkreuz-Kliniken'
+    tier: Basic
+    size: Medium
+    beds: 300
+    location: Urban
+    address:
+      street: 'Königswarterstraße 8-16'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60316'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Groß-Gerau
+    name: 'GPR Klinikum Rüsselsheim'
+    tier: Extended
+    size: Large
+    beds: 413
+    location: Urban
+    address:
+      street: 'August-Bebel-Str. 59'
+      city: Rüsselsheim
+      state: Hessen
+      postalCode: '65428'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Bergstraße
+    name: 'Heilig-Geist Hospital'
+    tier: Basic
+    size: Medium
+    beds: 134
+    location: Mixed
+    address:
+      street: 'Rodensteinstraße 94'
+      city: Bensheim
+      state: Hessen
+      postalCode: '64625'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Wiesbaden
+    name: 'Helios Dr. Horst-Schmidt-Kliniken Wiesbaden'
+    tier: Full
+    size: Large
+    beds: 730
+    location: Urban
+    address:
+      street: 'Ludwig-Erhard-Straße 90'
+      city: Wiesbaden
+      state: Hessen
+      postalCode: '65199'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: 'Rheingau Taunus'
+    name: 'Helios Klinik Idstein'
+    tier: Basic
+    size: Small
+    beds: 83
+    location: Rural
+    address:
+      street: 'Robert-Koch-Straße 2'
+      city: Idstein
+      state: Hessen
+      postalCode: '65510'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Kassel
+    name: 'Helios Kliniken Kassel - Standort Wehlheiden'
+    tier: Extended
+    size: Medium
+    beds: 219
+    location: Urban
+    address:
+      street: 'Hansteinstraße 29'
+      city: Kassel
+      state: Hessen
+      postalCode: '34121'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Fulda
+    name: 'Helios St. Elisabeth Klinik Hünfeld'
+    tier: Basic
+    size: Medium
+    beds: 158
+    location: Rural
+    address:
+      street: 'Schillerstraße 22'
+      city: Hünfeld
+      state: Hessen
+      postalCode: '36088'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Fulda
+    name: Herz-Jesu-Krankenhaus
+    tier: Basic
+    size: Medium
+    beds: 354
+    location: Urban
+    address:
+      street: 'Buttlarstraße 74'
+      city: Fulda
+      state: Hessen
+      postalCode: '36039'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Hochtaunus
+    name: 'Hochtaunus-Kliniken - Bad Homburg'
+    tier: Full
+    size: Large
+    beds: 474
+    location: Urban
+    address:
+      street: 'Zeppelinstraße 20'
+      city: 'Bad Homburg v d Höhe'
+      state: Hessen
+      postalCode: '61352'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Hochtaunus
+    name: 'Hochtaunus-Kliniken - Usingen'
+    tier: Basic
+    size: Small
+    beds: 100
+    location: Mixed
+    address:
+      street: 'Weilburger Straße 48'
+      city: Usingen
+      state: Hessen
+      postalCode: '61250'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Wetterau
+    name: 'Hochwaldkrankenhaus Bad Nauheim'
+    tier: Extended
+    size: Medium
+    beds: 241
+    location: Mixed
+    address:
+      street: 'Chaumontplatz 1'
+      city: 'Bad Nauheim'
+      state: Hessen
+      postalCode: '61231'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Frankfurt
+    name: 'Hospital zum Heiligen Geist'
+    tier: Basic
+    size: Medium
+    beds: 226
+    location: Urban
+    address:
+      street: 'Lange Straße 4-6'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60311'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Schwalm-Eder
+    name: 'Hospital zum Heiligen Geist'
+    tier: Extended
+    size: Medium
+    beds: 177
+    location: Rural
+    address:
+      street: 'Am Hospital 6'
+      city: Fritzlar
+      state: Hessen
+      postalCode: '34560'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Lahn-Dill
+    name: 'Kaiserin-Auguste-Victoria Krankenhaus'
+    tier: ~
+    size: Small
+    beds: 97
+    location: Rural
+    address:
+      street: 'Stegwiese 27'
+      city: Ehringshausen
+      state: Hessen
+      postalCode: '35630'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Offenbach
+    name: 'Ketteler Krankenhaus'
+    tier: Basic
+    size: Medium
+    beds: 253
+    location: Urban
+    address:
+      street: 'Lichtenplattenweg 85'
+      city: 'Offenbach am Main'
+      state: Hessen
+      postalCode: '63071'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Hersfeld-Rotenburg
+    name: 'Klinikum Bad Hersfeld'
+    tier: Full
+    size: Large
+    beds: 568
+    location: Rural
+    address:
+      street: 'Seilerweg 29'
+      city: 'Bad Hersfeld'
+      state: Hessen
+      postalCode: '36251'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Darmstadt
+    name: 'Klinikum Darmstadt'
+    tier: Full
+    size: Large
+    beds: 879
+    location: Urban
+    address:
+      street: 'Grafenstraße 9'
+      city: Darmstadt
+      state: Hessen
+      postalCode: '64283'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Lahn-Dill
+    name: 'Klinikum Dillenburg'
+    tier: Basic
+    size: Medium
+    beds: 261
+    location: Mixed
+    address:
+      street: 'Rotebergstraße 2'
+      city: Dillenburg
+      state: Hessen
+      postalCode: '35683'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Frankfurt
+    name: 'Varisano Klinikum Frankfurt-Höchst'
+    tier: Full
+    size: Large
+    beds: 828
+    location: Urban
+    address:
+      street: 'Gotenstraße 6-8'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '65929'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Fulda
+    name: 'Klinikum Fulda'
+    tier: Full
+    size: Large
+    beds: 952
+    location: Urban
+    address:
+      street: 'Pacellialle 4'
+      city: Fulda
+      state: Hessen
+      postalCode: '36043'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Main-Kinzig
+    name: 'Klinikum Hanau'
+    tier: Full
+    size: Large
+    beds: 727
+    location: Urban
+    address:
+      street: 'Leimenstraße 20'
+      city: Hanau
+      state: Hessen
+      postalCode: '63450'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Kassel
+    name: 'Klinikum Kassel'
+    tier: Full
+    size: Large
+    beds: 1026
+    location: Urban
+    address:
+      street: 'Mönchebergstraße 41-43'
+      city: Kassel
+      state: Hessen
+      postalCode: '34125'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Schwalm-Eder
+    name: 'Asklepios Klinikum Schwalmstadt'
+    tier: Extended
+    size: Medium
+    beds: 238
+    location: Rural
+    address:
+      street: 'Krankenhausstrasse 27'
+      city: Schwalmstadt
+      state: Hessen
+      postalCode: '34613'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Lahn-Dill
+    name: 'Klinikum Wetzlar'
+    tier: Full
+    size: Large
+    beds: 654
+    location: Urban
+    address:
+      street: 'Forsthausstraße 1'
+      city: Wetzlar
+      state: Hessen
+      postalCode: '35578'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Werra-Meißner
+    name: 'Klinikum Werra Meißner - Standort Eschwege'
+    tier: Extended
+    size: Medium
+    beds: 324
+    location: Rural
+    address:
+      street: 'Elsa-Brändström-Straße 1'
+      city: Eschwege
+      state: Hessen
+      postalCode: '37269'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Werra-Meißner
+    name: 'Klinikum Werra Meißner - Standort Witzenhausen'
+    tier: Basic
+    size: Medium
+    beds: 125
+    location: Rural
+    address:
+      street: 'Steinstraße 18-26'
+      city: Witzenhausen
+      state: Hessen
+      postalCode: '37213'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Waldeck-Frankenberg
+    name: 'Krankenhaus Bad Arolsen'
+    tier: Basic
+    size: Small
+    beds: 103
+    location: Rural
+    address:
+      street: 'Große Allee 50'
+      city: 'Bad Arolsen'
+      state: Hessen
+      postalCode: '34454'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Main-Taunus
+    name: 'Krankenhaus Bad Soden'
+    tier: Extended
+    size: Medium
+    beds: 385
+    location: Urban
+    address:
+      street: 'Kronberger Straße 36'
+      city: 'Bad Soden am Taunus'
+      state: Hessen
+      postalCode: '65812'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Vogelsberg
+    name: 'Krankenhaus Eichhof Lauterbach'
+    tier: Basic
+    size: Medium
+    beds: 240
+    location: Rural
+    address:
+      street: 'Eichhofstraße 1'
+      city: Lauterbach(Hessen)
+      state: Hessen
+      postalCode: '36341'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Main-Taunus
+    name: 'Krankenhaus Hofheim'
+    tier: Basic
+    size: Medium
+    beds: 165
+    location: Urban
+    address:
+      street: 'Lindenstraße 10'
+      city: 'Hofheim am Taunus'
+      state: Hessen
+      postalCode: '65719'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Frankfurt
+    name: 'Krankenhaus Nordwest'
+    tier: Full
+    size: Large
+    beds: 438
+    location: Urban
+    address:
+      street: 'Steinbacher Hohl 2-26'
+      city: Frankfurt
+      state: Hessen
+      postalCode: '60488'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Groß-Gerau
+    name: 'Kreisklinik Groß-Gerau'
+    tier: Basic
+    size: Medium
+    beds: 220
+    location: Urban
+    address:
+      street: 'Wilhelm-Seipp-Str. 3A'
+      city: Groß-Gerau
+      state: Hessen
+      postalCode: '64521'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Darmstadt-Dieburg
+    name: 'Kreisklinik Groß-Umstadt'
+    tier: Extended
+    size: Medium
+    beds: 363
+    location: Mixed
+    address:
+      street: 'Krankenhausstraße 11'
+      city: Groß-Umstadt
+      state: Hessen
+      postalCode: '64823'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Kassel
+    name: 'Kreisklinik Hofgeismar'
+    tier: Basic
+    size: Small
+    beds: 114
+    location: Rural
+    address:
+      street: 'Liebenauer Straße 1'
+      city: Hofgeismar
+      state: Hessen
+      postalCode: '34369'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Kassel
+    name: 'Kreisklinik Wolfhagen'
+    tier: Basic
+    size: Small
+    beds: 82
+    location: Rural
+    address:
+      street: 'Am Kleinen Ofenberg 1'
+      city: Wolfhagen
+      state: Hessen
+      postalCode: '34466'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Vogelsberg
+    name: 'Kreiskrankenhaus Alsfeld'
+    tier: Basic
+    size: Medium
+    beds: 154
+    location: Rural
+    address:
+      street: 'Schwabenröder Straße 81'
+      city: Alsfeld
+      state: Hessen
+      postalCode: '36304'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Bergstraße
+    name: 'Kreiskrankenhaus Bergstraße'
+    tier: Basic
+    size: Medium
+    beds: 260
+    location: Mixed
+    address:
+      street: 'Viernheimer Straße 2'
+      city: Heppenheim(Bergstraße)
+      state: Hessen
+      postalCode: '64646'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Odenwald
+    name: 'Kreiskrankenhaus Erbach'
+    tier: Basic
+    size: Medium
+    beds: 344
+    location: Rural
+    address:
+      street: 'Albert-Schweitzer-Straße 10'
+      city: Erbach
+      state: Hessen
+      postalCode: '64711'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Waldeck-Frankenberg
+    name: 'Kreiskrankenhaus Frankenberg'
+    tier: Basic
+    size: Medium
+    beds: 223
+    location: Rural
+    address:
+      street: 'Forststraße 9'
+      city: Frankenberg(Eder)
+      state: Hessen
+      postalCode: '35066'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Hersfeld-Rotenburg
+    name: 'Kreiskrankenhaus Rotenburg an der Fulda'
+    tier: Basic
+    size: Medium
+    beds: 168
+    location: Rural
+    address:
+      street: 'Am Emanuelsberg 1'
+      city: 'Rotenburg an der Fulda'
+      state: Hessen
+      postalCode: '36199'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Wetterau
+    name: 'Kreiskrankenhaus Schotten'
+    tier: Basic
+    size: Medium
+    beds: 142
+    location: Rural
+    address:
+      street: 'Wetterauer Platz 1'
+      city: Schotten
+      state: Hessen
+      postalCode: '63679'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Limburg-Weilburg
+    name: 'Kreiskrankenhaus Weilburg'
+    tier: Basic
+    size: Medium
+    beds: 181
+    location: Rural
+    address:
+      street: 'Am Steinbühl 2'
+      city: Weilburg
+      state: Hessen
+      postalCode: '35781'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Main-Kinzig
+    name: 'Main-Kinzig-Kliniken - Gelnhausen'
+    tier: Full
+    size: Large
+    beds: 441
+    location: Mixed
+    address:
+      street: 'Herzbachweg 14'
+      city: Gelnhausen
+      state: Hessen
+      postalCode: '63571'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Main-Kinzig
+    name: 'Main-Kinzig-Kliniken - Schlüchtern'
+    tier: Basic
+    size: Medium
+    beds: 276
+    location: Mixed
+    address:
+      street: 'Kurfürstenstraße 17'
+      city: Schlüchtern
+      state: Hessen
+      postalCode: '36381'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Kassel
+    name: 'Marienkrankenhaus Kassel'
+    tier: Basic
+    size: Medium
+    beds: 205
+    location: Urban
+    address:
+      street: 'Marburger Str. 85'
+      city: Kassel
+      state: Hessen
+      postalCode: '34127'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Offenbach
+    name: 'Sana Klinikum Offenbach'
+    tier: Full
+    size: Large
+    beds: 824
+    location: Urban
+    address:
+      street: 'Starkenburgring 66'
+      city: 'Offenbach am Main'
+      state: Hessen
+      postalCode: '63069'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Frankfurt
+    name: 'Sankt Katharinen-Krankenhaus'
+    tier: Basic
+    size: Medium
+    beds: 248
+    location: Urban
+    address:
+      street: 'Seckbacher Landstraße 65'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60389'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Frankfurt
+    name: 'St. Elisabethen-Krankenhaus'
+    tier: Basic
+    size: Medium
+    beds: 225
+    location: Urban
+    address:
+      street: 'Ginnheimer Straße 3'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60487'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Gießen
+    name: 'St. Josefs Krankenhaus'
+    tier: Basic
+    size: Medium
+    beds: 254
+    location: Urban
+    address:
+      street: 'Wilhelmstraße 7'
+      city: Gießen
+      state: Hessen
+      postalCode: '35392'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: 'Rheingau Taunus'
+    name: 'St. Josefs-Hospital Rheingau'
+    tier: Basic
+    size: Small
+    beds: 109
+    location: Rural
+    address:
+      street: 'Eibinger Straße 9'
+      city: 'Rüdesheim am Rhein'
+      state: Hessen
+      postalCode: '65385'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Wiesbaden
+    name: 'St. Josefs-Hospital Wiesbaden'
+    tier: Full
+    size: Large
+    beds: 505
+    location: Urban
+    address:
+      street: 'Beethovenstraße 20'
+      city: Wiesbaden
+      state: Hessen
+      postalCode: '65189'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Bergstraße
+    name: 'St. Josef Krankenhaus Viernheim'
+    tier: ~
+    size: Small
+    beds: 76
+    location: Mixed
+    address:
+      street: 'Seegartenstraße 4'
+      city: Viernheim
+      state: Hessen
+      postalCode: '68519'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Bergstraße
+    name: 'St. Marien Krankenhaus Lampertheim'
+    tier: Basic
+    size: Small
+    beds: 93
+    location: Mixed
+    address:
+      street: 'Neue Schulstraße 12'
+      city: Lampertheim
+      state: Hessen
+      postalCode: '68623'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Limburg-Weilburg
+    name: 'St. Vincenz-Krankenhaus Limburg'
+    tier: Full
+    size: Large
+    beds: 410
+    location: Mixed
+    address:
+      street: 'Auf dem Schafsberg 1'
+      city: 'Limburg an der Lahn'
+      state: Hessen
+      postalCode: '65549'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Main-Kinzig
+    name: 'St. Vinzenz-Krankenhaus Hanau'
+    tier: Basic
+    size: Medium
+    beds: 306
+    location: Urban
+    address:
+      street: 'Am Frankfurter Tor 25'
+      city: Hanau
+      state: Hessen
+      postalCode: '63450'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Waldeck-Frankenberg
+    name: 'Stadtkrankenhaus Korbach'
+    tier: Extended
+    size: Medium
+    beds: 249
+    location: Rural
+    address:
+      street: 'Enser Straße 19'
+      city: Korbach
+      state: Hessen
+      postalCode: '34497'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Frankfurt
+    name: 'Universitätsklinikum Frankfurt'
+    tier: Full
+    size: Large
+    beds: 1394
+    location: Urban
+    address:
+      street: 'Theodor-Stern-Kai 7'
+      city: 'Frankfurt am Main'
+      state: Hessen
+      postalCode: '60596'
+      country: Deutschland
+    participating: false
+  - state: Hessen
+    area: Gießen
+    name: 'Universitätsklinikum Gießen und Marburg, Standort Gießen'
+    tier: Full
+    size: Large
+    beds: 1282
+    location: Urban
+    address:
+      street: 'Rudolf-Buchheim-Straße 8'
+      city: Gießen
+      state: Hessen
+      postalCode: '35392'
+      country: Deutschland
+    participating: true
+  - state: Hessen
+    area: Marburg-Biedenkopf
+    name: 'Universitätsklinikum Gießen und Marburg, Standort Marburg'
+    tier: Full
+    size: Large
+    beds: 944
+    location: Urban
+    address:
+      street: Baldingerstraße
+      city: Marburg
+      state: Hessen
+      postalCode: '35043'
+      country: Deutschland
+    participating: true

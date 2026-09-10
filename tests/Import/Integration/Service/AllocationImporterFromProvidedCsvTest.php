@@ -6,6 +6,7 @@ namespace App\Tests\Import\Integration\Service;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Domain\IndicationKey;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
@@ -25,7 +26,6 @@ use App\Import\Infrastructure\Adapter\SplCsvRowReader;
 use App\Import\Infrastructure\Adapter\SplCsvStreamFactory;
 use App\Import\Infrastructure\Charset\EncodingDetector;
 use App\Import\Infrastructure\Factory\ImportFactory;
-use App\Import\Infrastructure\Indication\IndicationKey;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;

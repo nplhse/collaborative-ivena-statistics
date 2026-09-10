@@ -40,6 +40,7 @@ final class DispatchAreaImportMappingTest extends KernelTestCase
         $state = StateFactory::createOne(['name' => 'Hessen']);
         DispatchAreaFactory::createOne(['name' => 'Schwalm-Eder', 'state' => $state]);
         DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
+        DispatchAreaFactory::createOne(['name' => 'Göttingen', 'state' => $state]);
 
         $hospital = HospitalFactory::createOne([
             'name' => 'Test Hospital',
@@ -80,6 +81,30 @@ final class DispatchAreaImportMappingTest extends KernelTestCase
         $dto = $this->mapper->mapAssoc($this->baseRow([
             'zuweisung_durch' => 'Koordinierungsstelle für Sekundärtransporte - HE (Einsatzbearbeiter KST Hessen)',
             'versorgungsbereich' => 'Leitstelle Frankfurt',
+        ]));
+
+        $allocation = $this->factory->fromDto($dto, $this->import);
+
+        self::assertSame('Frankfurt', $allocation->getDispatchArea()->getName());
+    }
+
+    public function testGoettingenIvenaPrefixResolvesToDispatchAreaEntity(): void
+    {
+        $dto = $this->mapper->mapAssoc($this->baseRow([
+            'zuweisung_durch' => '_Kommunale Regionalleitstelle Göttingen',
+            'versorgungsbereich' => 'Leitstelle Waldeck-Frankenberg',
+        ]));
+
+        $allocation = $this->factory->fromDto($dto, $this->import);
+
+        self::assertSame('Göttingen', $allocation->getDispatchArea()->getName());
+    }
+
+    public function testFuehrungsstabResolvesToCanonicalDispatchArea(): void
+    {
+        $dto = $this->mapper->mapAssoc($this->baseRow([
+            'zuweisung_durch' => 'Frankfurt Führungsstab',
+            'versorgungsbereich' => 'Leitstelle Waldeck-Frankenberg',
         ]));
 
         $allocation = $this->factory->fromDto($dto, $this->import);

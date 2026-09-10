@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Indication;
 
 use App\Allocation\Domain\Entity\IndicationRaw;
+use App\Allocation\Domain\IndicationKey;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
-use App\Import\Infrastructure\Indication\IndicationKey;
 
 final readonly class IndicationMatchSuggestionService
 {

@@ -81,9 +81,14 @@ final class CatalogOrientationMapFactoryTest extends TestCase
 
     public function testStateIsDisabledOutsideHessenPilot(): void
     {
-        $map = $this->factory->forState('Bayern');
+        self::assertFalse($this->factory->forState('Bayern')->enabled);
+        self::assertFalse($this->factory->forState('Niedersachsen')->enabled);
+    }
 
-        self::assertFalse($map->enabled);
+    public function testDispatchAreaIsDisabledForNonHessenCatalogNames(): void
+    {
+        self::assertFalse($this->factory->forDispatchArea('Göttingen')->enabled);
+        self::assertFalse($this->factory->forDispatchArea('Bayerischer Untermain')->enabled);
     }
 
     public function testStateIsDisabledForEmptyName(): void

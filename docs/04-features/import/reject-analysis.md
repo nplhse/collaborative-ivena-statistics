@@ -31,5 +31,6 @@ Columns: `count`, `field`, `rejected_value`, `reason`, `example_file`, `example_
 
 ## Notes
 
-- Does not repair data or re-run imports — analysis and export only.
+- Does not repair data, write stammdaten, or re-run imports — analysis and export only.
+- For catalog stubs from the same rejects, see [reference-catalog.md](reference-catalog.md).
 - With very large reject volumes, only the aggregated group list is kept in memory; rejects are streamed.

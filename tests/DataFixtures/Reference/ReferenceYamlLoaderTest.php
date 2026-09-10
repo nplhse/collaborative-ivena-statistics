@@ -18,15 +18,19 @@ final class ReferenceYamlLoaderTest extends TestCase
         $rows = $this->referenceYamlLoader()->areas();
 
         self::assertSame(['state' => 'Hessen', 'name' => 'Bergstraße'], $rows[0] ?? null);
-        self::assertSame(['state' => 'Bayern', 'name' => 'Bayerischer Untermain'], $rows[\count($rows) - 1] ?? null);
+        self::assertSame(['state' => 'Bayern', 'name' => 'Schweinfurt'], $rows[\count($rows) - 1] ?? null);
 
         self::assertTrue($this->containsAreaPair($rows, 'Hessen', 'Darmstadt'));
         self::assertTrue($this->containsAreaPair($rows, 'Hessen', 'Offenbach'));
         self::assertTrue($this->containsAreaPair($rows, 'Hessen', 'Wiesbaden'));
+        self::assertTrue($this->containsAreaPair($rows, 'Niedersachsen', 'Göttingen'));
+        self::assertTrue($this->containsAreaPair($rows, 'Niedersachsen', 'Northeim'));
+        self::assertTrue($this->containsAreaPair($rows, 'Thüringen', 'Eichsfeld'));
+        self::assertTrue($this->containsAreaPair($rows, 'Bayern', 'Schweinfurt'));
 
         $keys = \array_map(static fn (array $row): string => $row['state'].'|'.$row['name'], $rows);
         self::assertSame($keys, \array_values(\array_unique($keys)));
-        self::assertCount(25, $rows);
+        self::assertCount(29, $rows);
     }
 
     #[Test]
@@ -50,9 +54,10 @@ final class ReferenceYamlLoaderTest extends TestCase
         self::assertSame('Akut- und Gerontopsych. / Isolierung', $values[0] ?? null);
         self::assertContains('Kardiologie', $values);
         self::assertContains('Nuklearmedizin', $values);
-        self::assertSame('Zu- Verlegung Sonderlage Ukraine', $values[\count($values) - 1] ?? null);
+        self::assertSame('eCPR Zuverlegung', $values[\count($values) - 1] ?? null);
+        self::assertContains('Chir. Überwachung', $values);
         self::assertSame($values, \array_values(\array_unique($values)));
-        self::assertGreaterThanOrEqual(108, \count($values));
+        self::assertCount(113, $values);
     }
 
     #[Test]
@@ -63,9 +68,10 @@ final class ReferenceYamlLoaderTest extends TestCase
         self::assertSame('Augenheilkunde', $values[0] ?? null);
         self::assertContains('Innere Medizin', $values);
         self::assertContains('Neurologie', $values);
-        self::assertSame('Zentrale Notaufnahme', $values[\count($values) - 1] ?? null);
+        self::assertSame('Nuklearmedizin', $values[\count($values) - 1] ?? null);
+        self::assertContains('ECMO-Therapie', $values);
         self::assertSame($values, \array_values(\array_unique($values)));
-        self::assertGreaterThanOrEqual(20, \count($values));
+        self::assertCount(22, $values);
     }
 
     #[Test]
@@ -88,12 +94,13 @@ final class ReferenceYamlLoaderTest extends TestCase
         $values = $this->referenceYamlLoader()->names('occasions.yaml');
 
         self::assertSame('Arbeitsunfall', $values[0] ?? null);
-        self::assertSame('Weaning', $values[\count($values) - 1] ?? null);
+        self::assertSame('Krankentransport', $values[\count($values) - 1] ?? null);
         self::assertContains('Verkehrsunfall', $values);
         self::assertContains('Sturz < 3m Höhe', $values);
         self::assertContains('Hausunfall', $values);
+        self::assertContains('aus Klinik', $values);
         self::assertSame($values, \array_values(\array_unique($values)));
-        self::assertCount(29, $values);
+        self::assertCount(31, $values);
     }
 
     #[Test]

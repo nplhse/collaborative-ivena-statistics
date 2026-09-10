@@ -46,6 +46,8 @@ Role-based reading orders live in each section's README:
 
 ## Feature deep dives
 
+- [Reference catalog YAML schema](04-features/import/reference-catalog-yaml.md)
+- [Reference catalog (import/export/propose)](04-features/import/reference-catalog.md)
 - [Import batch requeue](04-features/import/batch-requeue.md)
 - [Import reject analysis](04-features/import/reject-analysis.md)
 - [Repair CSV indication corruption](04-features/import/repair-indication-corruption.md) (production runbook for issue 521)

@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Mapping;
 
 use App\Import\Application\Contracts\RowToDtoMapperInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
+use App\Import\Application\Mapping\DispatchAreaNameNormalizer;
 
 /**
  * Maps a normalized associative CSV row (snake_case keys produced by
