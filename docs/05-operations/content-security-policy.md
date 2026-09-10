@@ -41,7 +41,7 @@ Set in `shared/.env.local` on the server when you want violations in Sentry.
 | `default-src` | `'self'` | Baseline |
 | `base-uri` | `'self'` | |
 | `object-src` | `'none'` | |
-| `script-src` | `'self'`, `'unsafe-inline'`, `data:` | Legacy inline scripts; AssetMapper CSS importmap (`data:application/javascript,`) |
+| `script-src` | `'self'`, `'unsafe-inline'`, `data:` | Legacy inline scripts; AssetMapper CSS importmap (`data:application/javascript,`); `es-module-shims` is self-hosted (do not allow `ga.jspm.io`) |
 | `style-src` | `'self'`, `'unsafe-inline'` | Twig `style=""`, inline `<style>` |
 | `img-src` | `'self'`, `data:`, `https://*.tile.openstreetmap.org` | Favicon, Leaflet |
 | `font-src` | `'self'`, `data:` | |
@@ -133,6 +133,7 @@ Multiple users / many events / unknown domain?
 | Your own test | `cdn.jsdelivr.net`, `example.com` | Manual console test |
 | Browser extension | `chrome-extension://`, `moz-extension://` | Not your application |
 | Single event, single user, you were testing | lodash script test | Reproducible |
+| Import-map polyfill in ancient UAs | `blocked_uri: blob:` with source `es-module-shims` | Chrome without import maps (for example Chrome 79) creates blob workers; the polyfill is self-hosted. Do not add `blob:` to `script-src`. |
 
 **Action:** Resolve the issue; comment with the reason.
 
@@ -197,6 +198,7 @@ These should align with the current policy:
 - Scripts/styles: `'self'`, `'unsafe-inline'`, `data:` (AssetMapper)
 - Images: `'self'`, `data:`, `*.tile.openstreetmap.org`
 - Connect: `'self'`, OSM tiles, `*.ingest.sentry.io`
+- Import-map polyfill: `es-module-shims` from `'self'` via [`importmap.php`](../../importmap.php). AssetMapper falls back to `https://ga.jspm.io/…` only when that package is missing — a `ga.jspm.io` report after deploy is a regression, not a CDN to allow.
 
 Reports outside these patterns on your own pages deserve a closer look.
 
