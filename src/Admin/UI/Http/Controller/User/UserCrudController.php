@@ -14,18 +14,27 @@ use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto;
+use EasyCorp\Bundle\EasyAdminBundle\Exception\EntityRemoveException;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -40,6 +49,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly Security $security,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
     ) {
     }
 
@@ -63,10 +73,96 @@ final class UserCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         return $actions
+            ->disable(Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
-            ->add(Crud::PAGE_EDIT, Action::INDEX);
+            ->add(Crud::PAGE_EDIT, Action::INDEX)
+            ->add(Crud::PAGE_EDIT, Action::DELETE)
+            ->update(Crud::PAGE_INDEX, Action::DELETE, $this->withUserDeleteVisibility(...))
+            ->update(Crud::PAGE_DETAIL, Action::DELETE, $this->withUserDeleteVisibility(...))
+            ->update(Crud::PAGE_EDIT, Action::DELETE, $this->withUserDeleteVisibility(...));
+    }
+
+    #[\Override]
+    public function delete(AdminContext $context): KeyValueStore|Response
+    {
+        $csrfToken = $context->getRequest()->request->has('token')
+            ? (string) $context->getRequest()->request->get('token')
+            : null;
+        if (!$this->isCsrfTokenValid('ea-delete', $csrfToken)) {
+            return $this->redirectToRoute($context->getDashboardRouteName());
+        }
+
+        $entityInstance = $context->getEntity()->getInstance();
+        if (!$entityInstance instanceof User) {
+            return $this->redirectBlockedUserDelete();
+        }
+
+        if ($this->isCurrentUser($entityInstance)) {
+            $this->addFlash('danger', new TranslatableMessage('flash.admin.user.delete.self', domain: 'admin'));
+
+            return $this->redirectToUserIndex();
+        }
+
+        if (!$entityInstance->getHospitals()->isEmpty()) {
+            return $this->redirectBlockedUserDelete();
+        }
+
+        try {
+            return parent::delete($context);
+        } catch (EntityRemoveException) {
+            return $this->redirectBlockedUserDelete();
+        }
+    }
+
+    #[\Override]
+    public function batchDelete(AdminContext $context, BatchActionDto $batchActionDto): RedirectResponse
+    {
+        if (!$this->isCsrfTokenValid('ea-batch-action-'.Action::BATCH_DELETE.'-'.$batchActionDto->getEntityFqcn(), $batchActionDto->getCsrfToken())) {
+            return $this->redirectToRoute($context->getDashboardRouteName());
+        }
+
+        return $this->redirectBlockedUserDelete();
+    }
+
+    private function withUserDeleteVisibility(Action $action): Action
+    {
+        return $action->displayIf(fn (User $user): bool => $this->canOfferUserDelete($user));
+    }
+
+    private function canOfferUserDelete(User $user): bool
+    {
+        if ($this->isCurrentUser($user)) {
+            return false;
+        }
+
+        return $user->getHospitals()->isEmpty();
+    }
+
+    private function isCurrentUser(User $user): bool
+    {
+        $currentUser = $this->security->getUser();
+
+        return $currentUser instanceof User && $user->getId() === $currentUser->getId();
+    }
+
+    private function redirectBlockedUserDelete(): RedirectResponse
+    {
+        $this->addFlash('danger', new TranslatableMessage('flash.admin.user.delete.blocked', domain: 'admin'));
+
+        return $this->redirectToUserIndex();
+    }
+
+    private function redirectToUserIndex(): RedirectResponse
+    {
+        return $this->redirect(
+            $this->adminUrlGenerator
+                ->setController(self::class)
+                ->setAction(Action::INDEX)
+                ->unset(EA::ENTITY_ID)
+                ->generateUrl(),
+        );
     }
 
     private function createImpersonateAction(): Action
@@ -103,6 +199,7 @@ final class UserCrudController extends AbstractCrudController
         yield BooleanField::new('isVerified');
         yield BooleanField::new('credentialsExpired');
         yield BooleanField::new('isEnabled')
+            ->setHelp(new TranslatableMessage('help.admin.user.is_enabled', domain: 'admin'))
             ->renderAsSwitch();
         yield ChoiceField::new('locale', 'Locale')
             ->setChoices([

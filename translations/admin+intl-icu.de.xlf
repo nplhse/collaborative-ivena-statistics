@@ -469,6 +469,18 @@
         <source>flash.admin.user.grant_participant.success</source>
         <target>Teilnehmer-Rolle wurde zugewiesen.</target>
       </trans-unit>
+      <trans-unit id="FlsAdmUsrDelBlkDe" resname="flash.admin.user.delete.blocked">
+        <source>flash.admin.user.delete.blocked</source>
+        <target>Dieses Konto kann nicht gelöscht werden, solange Krankenhäuser oder andere Datensätze darauf verweisen. Weisen Sie die Krankenhaus-Zuordnung neu zu und deaktivieren Sie das Konto anschließend oder versuchen Sie das Löschen erneut.</target>
+      </trans-unit>
+      <trans-unit id="FlsAdmUsrDelSelfDe" resname="flash.admin.user.delete.self">
+        <source>flash.admin.user.delete.self</source>
+        <target>Sie können Ihr eigenes Konto nicht löschen.</target>
+      </trans-unit>
+      <trans-unit id="HlpAdmUsrEnDe" resname="help.admin.user.is_enabled">
+        <source>help.admin.user.is_enabled</source>
+        <target>Deaktivieren Sie Konten, die in der Datenbank bleiben sollen. Unbenutzte Konten können gelöscht werden, nachdem Krankenhaus-Zuordnungen und andere Verweise neu zugewiesen wurden.</target>
+      </trans-unit>
       <trans-unit id="admMr04" resname="admin.hospital.action.reminder_history">
         <source>admin.hospital.action.reminder_history</source>
         <target>Erinnerungsverlauf</target>

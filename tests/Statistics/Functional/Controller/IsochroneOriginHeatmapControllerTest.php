@@ -83,6 +83,22 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-isochrone-origin-map-placeholder"]');
     }
 
+    public function testWidgetAppliesDepartmentWasClosedQuery(): void
+    {
+        $client = self::createClient();
+        $fixture = $this->seedHospitalFixture($client, writeIsochrones: false);
+
+        foreach (['1', 'true', '0', 'false'] as $value) {
+            $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
+                'scope' => 'hospital',
+                'hospital' => (string) $fixture['hospitalId'],
+                'period' => 'all',
+                'departmentWasClosed' => $value,
+            ]);
+            $this->assertResponseIsSuccessful();
+        }
+    }
+
     public function testWidgetRendersMapWhenIsochronesExist(): void
     {
         $client = self::createClient();

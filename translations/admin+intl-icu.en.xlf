@@ -465,6 +465,18 @@
         <source>flash.admin.user.grant_participant.already</source>
         <target>This user already has the participant role.</target>
       </trans-unit>
+      <trans-unit id="flash.userDeleteBlocked" resname="flash.admin.user.delete.blocked">
+        <source>flash.admin.user.delete.blocked</source>
+        <target>This account cannot be deleted while hospitals or other records still reference it. Reassign hospital ownership, then disable the account or try deleting again.</target>
+      </trans-unit>
+      <trans-unit id="flash.userDeleteSelf" resname="flash.admin.user.delete.self">
+        <source>flash.admin.user.delete.self</source>
+        <target>You cannot delete your own account.</target>
+      </trans-unit>
+      <trans-unit id="help.userIsEnabled" resname="help.admin.user.is_enabled">
+        <source>help.admin.user.is_enabled</source>
+        <target>Disable accounts that should stay in the database. Unused accounts can be deleted after hospital ownership and other references are reassigned.</target>
+      </trans-unit>
       <trans-unit id="adminIndGrp01" resname="admin.indication_group.action.view_statistics">
         <source>admin.indication_group.action.view_statistics</source>
         <target>Open in statistics</target>
