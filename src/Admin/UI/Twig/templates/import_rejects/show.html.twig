@@ -1,5 +1,10 @@
 {% extends '@Admin/base.html.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin/import-reject-show.css') }}">
+{% endblock %}
+
 {% block title %}
     {{ 'title.import_reject.show'|trans({}, 'admin') }} #{{ reject.id }} - {{ parent() }}
 {% endblock %}
@@ -117,15 +122,14 @@
                                 <tbody>
                                 {% for key, value in row %}
                                     <tr>
-                                        <td class="text-body-secondary" style="width: 35%;">
+                                        <td class="text-body-secondary import-reject-row-key">
                                             {{ key }}
                                         </td>
                                         <td>
                                             {% if value is same as(null) %}
                                                 <span class="text-body-secondary">null</span>
                                             {% elseif value is iterable %}
-                                                <pre class="bg-body-tertiary p-2 rounded mb-0"
-                                                     style="max-height: 200px; overflow:auto;"><code>
+                                                <pre class="bg-body-tertiary p-2 rounded mb-0 import-reject-nested-json"><code>
 {{ value|json_encode(constant('JSON_PRETTY_PRINT') b-or constant('JSON_UNESCAPED_UNICODE') b-or constant('JSON_UNESCAPED_SLASHES')) }}
 </code></pre>
                                             {% else %}
@@ -147,7 +151,10 @@
         </div>
 
         <div class="col-lg-6">
-            <div class="card h-100">
+            <div class="card h-100" data-controller="copy-to-clipboard"
+                 data-copy-to-clipboard-success-class-value="btn-success"
+                 data-copy-to-clipboard-idle-class-value=""
+                 data-copy-to-clipboard-success-duration-value="800">
                 <div class="card-header">
                     <h3 class="card-title">{{ 'label.row_json'|trans({}, 'admin') }}</h3>
 
@@ -155,7 +162,8 @@
                         <button
                             class="btn btn-sm"
                             type="button"
-                            id="copy-json-btn"
+                            data-copy-to-clipboard-target="button"
+                            data-action="copy-to-clipboard#copy"
                         >
                             <twig:ux:icon name="tabler:copy" class="w-3 h-3" />
                             <span class="ms-1">{{ 'label.copy'|trans({}, 'admin') }}</span>
@@ -164,32 +172,12 @@
                 </div>
 
                 <div class="card-body p-0">
-                <pre id="row-json"
-                     class="m-0 p-3"
-                     style="max-height: 65vh; overflow:auto; font-size: 0.85rem;">
+                <pre class="m-0 p-3 import-reject-row-json"
+                     data-copy-to-clipboard-target="source">
 <code>{{ row_json }}</code>
                 </pre>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        (function () {
-            const btn = document.getElementById('copy-json-btn');
-            const pre = document.getElementById('row-json');
-            if (!btn || !pre || !navigator.clipboard) return;
-
-            btn.addEventListener('click', async () => {
-                try {
-                    await navigator.clipboard.writeText(pre.innerText);
-                    btn.blur();
-                    btn.classList.add('btn-success');
-                    setTimeout(() => btn.classList.remove('btn-success'), 800);
-                } catch (e) {
-                    // Fallback: do nothing (optional: show toast if you have one)
-                }
-            });
-        })();
-    </script>
 {% endblock %}

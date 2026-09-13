@@ -1,0 +1,15 @@
+/* Leftover Tabler import-reject show template (not routed). Keep classes CSP-safe. */
+.import-reject-row-key {
+    width: 35%;
+}
+
+.import-reject-nested-json {
+    max-height: 200px;
+    overflow: auto;
+}
+
+.import-reject-row-json {
+    font-size: 0.85rem;
+    max-height: 65vh;
+    overflow: auto;
+}
