@@ -103,6 +103,84 @@ final class UserImpersonationTest extends WebTestCase
             ->assertNotSeeIn('body', 'End impersonation')
             ->assertSeeIn('body', $admin->getUserIdentifier())
         ;
+
+        $adminId = $admin->getId();
+        self::assertNotNull($adminId);
+
+        $exits = self::getContainer()->get(AuditEntryRepository::class)->findBy(
+            ['action' => 'impersonate_exit'],
+            ['occurredAt' => 'DESC'],
+            1,
+        );
+
+        self::assertCount(1, $exits);
+        $entry = $exits[0];
+        self::assertSame(User::class, $entry->getEntityClass());
+        self::assertSame((string) $target->getId(), $entry->getEntityId());
+        self::assertNotNull($entry->getActor());
+        self::assertSame($adminId, $entry->getActor()->getId());
+    }
+
+    public function testExitWithoutImpersonationDoesNotFail(): void
+    {
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'noop-exit-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $this->browser()
+            ->actingAs($admin)
+            ->visit('/?_switch_user=_exit')
+            ->assertSuccessful()
+            ->assertNotSeeIn('body', 'End impersonation')
+            ->assertSeeIn('body', $admin->getUserIdentifier())
+        ;
+
+        self::assertCount(0, self::getContainer()->get(AuditEntryRepository::class)->findBy(
+            ['action' => 'impersonate_exit'],
+        ));
+    }
+
+    public function testExitAfterSuccessfulExitDoesNotFail(): void
+    {
+        $target = UserFactory::createOne([
+            'username' => 'double-exit-target-'.bin2hex(random_bytes(4)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'double-exit-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $this->browser()
+            ->actingAs($admin)
+            ->visit('/?_switch_user='.$target->getUserIdentifier())
+            ->assertSuccessful()
+            ->visit('/?_switch_user=_exit')
+            ->assertSuccessful()
+            ->assertNotSeeIn('body', 'End impersonation')
+            ->visit('/?_switch_user=_exit')
+            ->assertSuccessful()
+            ->assertNotSeeIn('body', 'End impersonation')
+            ->assertSeeIn('body', $admin->getUserIdentifier())
+        ;
+
+        self::assertCount(1, self::getContainer()->get(AuditEntryRepository::class)->findBy(
+            ['action' => 'impersonate_exit'],
+        ));
+    }
+
+    public function testAnonymousExitImpersonationRedirectsToLogin(): void
+    {
+        $this->browser()
+            ->interceptRedirects()
+            ->visit('/?_switch_user=_exit')
+            ->assertRedirectedTo('/login')
+        ;
     }
 
     public function testImpersonationIsRecordedInAuditLog(): void
