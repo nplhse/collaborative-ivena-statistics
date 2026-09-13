@@ -30,6 +30,7 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('public', $input->scope);
+        self::assertSame('all', $input->period);
         self::assertFalse($input->hasScopeQueryParameter);
     }
 
@@ -43,6 +44,7 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('my_hospitals', $input->scope);
+        self::assertSame('all', $input->period);
     }
 
     public function testDefaultScopeIsPublicForAdmin(): void
@@ -51,7 +53,16 @@ final class StatisticsFilterInputFactoryTest extends DatabaseKernelTestCase
         $input = $this->factory->fromQuery($this->queryBag([]), $user);
 
         self::assertSame('public', $input->scope);
+        self::assertSame('all', $input->period);
         self::assertFalse($input->hasScopeQueryParameter);
+    }
+
+    public function testExplicitAllTimePeriodIsPreserved(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+        $input = $this->factory->fromQuery($this->queryBag(['period' => 'all_time']), $user);
+
+        self::assertSame('all_time', $input->period);
     }
 
     public function testAdminCanExplicitlySelectMyHospitalsScope(): void
