@@ -68,7 +68,7 @@ final readonly class ListImportRejectsQuery
         $qb->orderBy($field, $query->orderBy);
 
         if (null !== $query->search && '' !== trim($query->search)) {
-            $qb->andWhere("LOWER(FUNCTION('CAST', r.messages, 'text')) LIKE :search")
+            $qb->andWhere('LOWER(CAST_TEXT(r.messages)) LIKE :search')
                 ->setParameter('search', '%'.mb_strtolower(trim($query->search)).'%');
         }
 

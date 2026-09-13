@@ -84,6 +84,7 @@ doctrine:
         dql:
             string_functions:
                 JSON_GET_TEXT: App\User\Infrastructure\Doctrine\JsonGetTextFunction
+                CAST_TEXT: App\Shared\Infrastructure\Doctrine\CastTextFunction
         schema_ignore_classes:
             - App\Statistics\Infrastructure\Entity\ProjectionStateHospitalCount
             - App\Statistics\Infrastructure\Entity\ProjectionDispatchAreaHospitalCount
