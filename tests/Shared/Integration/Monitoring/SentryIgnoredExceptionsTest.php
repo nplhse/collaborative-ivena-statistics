@@ -10,6 +10,7 @@ use Symfony\Component\ErrorHandler\Error\FatalError;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 final class SentryIgnoredExceptionsTest extends KernelTestCase
 {
@@ -24,5 +25,6 @@ final class SentryIgnoredExceptionsTest extends KernelTestCase
         self::assertContains(AccessDeniedHttpException::class, $ignored);
         self::assertContains(AccessDeniedException::class, $ignored);
         self::assertContains(FatalError::class, $ignored);
+        self::assertNotContains(AuthenticationCredentialsNotFoundException::class, $ignored);
     }
 }
