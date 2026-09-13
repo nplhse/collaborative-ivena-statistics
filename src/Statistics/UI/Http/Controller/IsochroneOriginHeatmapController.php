@@ -87,11 +87,11 @@ final class IsochroneOriginHeatmapController extends AbstractController
             return null;
         }
 
-        if ('1' === (string) $raw || 'true' === (string) $raw) {
+        if ('1' === $raw || 'true' === $raw) {
             return true;
         }
 
-        if ('0' === (string) $raw || 'false' === (string) $raw) {
+        if ('0' === $raw || 'false' === $raw) {
             return false;
         }
 
