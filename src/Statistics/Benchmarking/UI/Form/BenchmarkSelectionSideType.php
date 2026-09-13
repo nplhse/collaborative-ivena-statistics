@@ -16,6 +16,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -74,7 +75,7 @@ final class BenchmarkSelectionSideType extends AbstractType
             }
 
             $event->setData($data);
-            /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm */
+            /** @var FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm */
             $sideForm = $event->getForm();
             $this->fieldsConfigurator->configureFields($sideForm, $options, $data);
         });
@@ -111,24 +112,45 @@ final class BenchmarkSelectionSideType extends AbstractType
                 $preview->scopeDetail = (string) $submitted['scopeDetail'];
             }
 
-            /** @var \Symfony\Component\Form\FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm */
+            /** @var FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm */
             $sideForm = $event->getForm();
             $this->fieldsConfigurator->configureFields($sideForm, $options, $preview);
 
-            if ($event->getForm()->has('periodYear') && !isset($submitted['periodYear'])) {
-                $submitted['periodYear'] = (string) $event->getForm()->get('periodYear')->getConfig()->getData();
+            if ($sideForm->has('periodYear') && !isset($submitted['periodYear'])) {
+                $submitted['periodYear'] = (string) $sideForm->get('periodYear')->getConfig()->getData();
             }
-            if ($event->getForm()->has('periodQuarter') && !isset($submitted['periodQuarter'])) {
-                $submitted['periodQuarter'] = (string) $event->getForm()->get('periodQuarter')->getConfig()->getData();
+            if ($sideForm->has('periodQuarter') && !isset($submitted['periodQuarter'])) {
+                $submitted['periodQuarter'] = (string) $sideForm->get('periodQuarter')->getConfig()->getData();
             }
-            if ($event->getForm()->has('periodMonth') && !isset($submitted['periodMonth'])) {
-                $submitted['periodMonth'] = (string) $event->getForm()->get('periodMonth')->getConfig()->getData();
+            if ($sideForm->has('periodMonth') && !isset($submitted['periodMonth'])) {
+                $submitted['periodMonth'] = (string) $sideForm->get('periodMonth')->getConfig()->getData();
             }
-            if ($event->getForm()->has('scopeDetail') && !isset($submitted['scopeDetail'])) {
-                $submitted['scopeDetail'] = (string) $event->getForm()->get('scopeDetail')->getConfig()->getData();
+            if ($sideForm->has('scopeDetail') && !isset($submitted['scopeDetail'])) {
+                $submitted['scopeDetail'] = (string) $sideForm->get('scopeDetail')->getConfig()->getData();
             }
 
-            $event->setData($submitted);
+            $event->setData($this->sanitizeSubmittedDynamicFields($submitted, $sideForm));
+        });
+
+        $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
+            $data = $event->getData();
+            if (!$data instanceof BenchmarkSelectionSideFormData && !$data instanceof StatisticsScopePeriodFormData) {
+                return;
+            }
+
+            $form = $event->getForm();
+            if (!$form->has('scopeDetail')) {
+                $data->scopeDetail = null;
+            }
+            if (!$form->has('periodYear')) {
+                $data->periodYear = null;
+            }
+            if (!$form->has('periodQuarter')) {
+                $data->periodQuarter = null;
+            }
+            if (!$form->has('periodMonth')) {
+                $data->periodMonth = null;
+            }
         });
     }
 
@@ -148,6 +170,62 @@ final class BenchmarkSelectionSideType extends AbstractType
         $resolver->setAllowedTypes('locale', 'string');
         $resolver->setAllowedTypes('scope_choice_policy', StatisticsFilterScopeChoicePolicy::class);
         $resolver->setAllowedTypes('hospital_permission', ['null', HospitalPermission::class]);
+    }
+
+    /**
+     * Drop leftover dynamic keys after a scope/period rebuild, and remap stale
+     * scopeDetail onto the first valid choice (ChoiceType validates the raw submit).
+     *
+     * @param array<string, mixed>                                                        $submitted
+     * @param FormInterface<BenchmarkSelectionSideFormData|StatisticsScopePeriodFormData> $sideForm
+     *
+     * @return array<string, mixed>
+     */
+    private function sanitizeSubmittedDynamicFields(array $submitted, FormInterface $sideForm): array
+    {
+        foreach (['scopeDetail', 'periodYear', 'periodQuarter', 'periodMonth'] as $fieldName) {
+            if (!$sideForm->has($fieldName)) {
+                unset($submitted[$fieldName]);
+            }
+        }
+
+        if (!$sideForm->has('scopeDetail')) {
+            return $submitted;
+        }
+
+        $field = $sideForm->get('scopeDetail');
+        $submittedDetail = $submitted['scopeDetail'] ?? '';
+        $submittedDetail = \is_string($submittedDetail) || \is_int($submittedDetail) || \is_float($submittedDetail)
+            ? (string) $submittedDetail
+            : '';
+
+        if (!\in_array($submittedDetail, $this->choiceValues($field), true)) {
+            $submitted['scopeDetail'] = (string) $field->getConfig()->getData();
+        }
+
+        return $submitted;
+    }
+
+    /**
+     * @param FormInterface<mixed> $field
+     *
+     * @return list<string>
+     */
+    private function choiceValues(FormInterface $field): array
+    {
+        $choices = $field->getConfig()->getOption('choices');
+        if (!\is_array($choices)) {
+            return [];
+        }
+
+        $values = [];
+        foreach ($choices as $value) {
+            if (\is_string($value) || \is_int($value) || \is_float($value)) {
+                $values[] = (string) $value;
+            }
+        }
+
+        return $values;
     }
 
     /**

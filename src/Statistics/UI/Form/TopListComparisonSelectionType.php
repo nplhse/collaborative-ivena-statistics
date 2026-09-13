@@ -25,6 +25,8 @@ final class TopListComparisonSelectionType extends AbstractType
             'hospital_permission' => HospitalPermission::Statistics,
             'translation_domain' => 'statistics',
             'csrf_protection' => false,
+            // Same Live Component morph leftovers as BenchmarkSelectionType.
+            'allow_extra_fields' => true,
         ]);
     }
 

@@ -156,6 +156,78 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
         self::assertIsString($form->get('scopeDetail')->getConfig()->getData());
     }
 
+    public function testPreSubmitRemapsStaleScopeDetailToFirstValidChoice(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'SideTypeStaleDetail');
+        $this->loginUser($user);
+        $stateId = $scope['state']->getId();
+        self::assertNotNull($stateId);
+
+        $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
+            'public',
+            null,
+            'all',
+        ), [
+            'side' => StatisticsFilterSide::Comparison,
+            'locale' => 'en',
+            'csrf_protection' => false,
+        ]);
+
+        $form->submit([
+            'scopeGroup' => 'state',
+            'period' => 'all',
+            'scopeDetail' => '999999',
+        ]);
+
+        self::assertTrue($form->isSynchronized());
+        self::assertTrue($form->isValid());
+        $data = $form->getData();
+        self::assertInstanceOf(BenchmarkSelectionSideFormData::class, $data);
+        self::assertSame((string) $stateId, $data->scopeDetail);
+    }
+
+    public function testPreSubmitDropsRemovedDynamicFieldsWhenSwitchingToPublic(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'SideTypeDropExtra');
+        $this->loginUser($user);
+        $stateId = $scope['state']->getId();
+        self::assertNotNull($stateId);
+
+        $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
+            'state',
+            (string) $stateId,
+            'quarter',
+            2025,
+            2,
+        ), [
+            'side' => StatisticsFilterSide::Comparison,
+            'locale' => 'en',
+            'csrf_protection' => false,
+        ]);
+
+        $form->submit([
+            'scopeGroup' => 'public',
+            'period' => 'all_time',
+            'scopeDetail' => (string) $stateId,
+            'periodYear' => '2025',
+            'periodQuarter' => '2',
+        ]);
+
+        self::assertTrue($form->isSynchronized());
+        self::assertTrue($form->isValid());
+        self::assertFalse($form->has('scopeDetail'));
+        self::assertFalse($form->has('periodYear'));
+        self::assertFalse($form->has('periodQuarter'));
+        $data = $form->getData();
+        self::assertInstanceOf(BenchmarkSelectionSideFormData::class, $data);
+        self::assertSame('public', $data->scopeGroup);
+        self::assertNull($data->scopeDetail);
+        self::assertNull($data->periodYear);
+        self::assertNull($data->periodQuarter);
+    }
+
     private function loginUser(\App\User\Domain\Entity\User $user): void
     {
         $tokenStorage = self::getContainer()->get(TokenStorageInterface::class);

@@ -11,6 +11,7 @@ use App\Statistics\UI\Form\TopListComparisonSelectionType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -78,9 +79,21 @@ final class TopListComparisonSelectionForm
     }
 
     #[LiveAction]
-    public function apply(): RedirectResponse
+    public function refreshSelection(): void
     {
-        $this->submitForm(true);
+        $this->submitForm(false);
+    }
+
+    #[LiveAction]
+    public function apply(): ?RedirectResponse
+    {
+        try {
+            $this->submitForm(true);
+        } catch (UnprocessableEntityHttpException) {
+            // Live Component submitForm() always throws on invalid forms. Re-render
+            // the modal with errors instead of turning a validation failure into a 422.
+            return null;
+        }
 
         /** @var BenchmarkSelectionSideFormData $data */
         $data = $this->getForm()->getData();
