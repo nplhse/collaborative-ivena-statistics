@@ -1,0 +1,8 @@
+<turbo-frame id="stats-closed-department-details">
+    <div class="d-flex flex-column gap-3"
+         data-controller="closed-department-assignments-charts"
+         data-closed-department-assignments-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+        {{ include('@Statistics/closed_department_assignments/_context.html.twig') }}
+        {{ include('@Statistics/closed_department_assignments/_transport.html.twig') }}
+    </div>
+</turbo-frame>

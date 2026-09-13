@@ -24,6 +24,19 @@ final class AllocationQueryParametersDTOTest extends TestCase
         self::assertSame(1, $criteria->departmentWasClosed);
     }
 
+    public function testToListFilterCriteriaMapsCreatedAtRange(): void
+    {
+        $dto = new AllocationQueryParametersDTO(
+            createdFrom: '2026-03-01T00:00:00',
+            createdToExclusive: '2026-04-01T00:00:00',
+        );
+
+        $criteria = $dto->toListFilterCriteria();
+
+        self::assertEquals(new \DateTimeImmutable('2026-03-01 00:00:00'), $criteria->createdFrom);
+        self::assertEquals(new \DateTimeImmutable('2026-04-01 00:00:00'), $criteria->createdToExclusive);
+    }
+
     public function testToListFilterCriteriaMapsOptionalRelationSentinels(): void
     {
         $dto = new AllocationQueryParametersDTO(

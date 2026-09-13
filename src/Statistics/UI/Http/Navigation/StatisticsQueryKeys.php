@@ -148,5 +148,6 @@ final class StatisticsQueryKeys
         'isWorkAccident',
         'isInfectious',
         'infection',
+        'departmentWasClosed',
     ];
 }

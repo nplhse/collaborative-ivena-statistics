@@ -73,7 +73,7 @@ final class TimeSeriesAxisFiller
     }
 
     /**
-     * @param array{year: int, month: int, day?: int, count: int} $row
+     * @param array{year: int, month: int, day?: int, ...} $row
      */
     public static function isoKeyFromRow(array $row, TimeSeriesGrain $grain): string
     {

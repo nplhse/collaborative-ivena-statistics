@@ -91,6 +91,12 @@ final readonly class AllocationQueryParametersDTO
 
         #[Assert\Regex(pattern: '/^(my_hospitals|\d+)$/')]
         public ?string $hospitalFilter = null,
+
+        #[Assert\Length(max: 32)]
+        public ?string $createdFrom = null,
+
+        #[Assert\Length(max: 32)]
+        public ?string $createdToExclusive = null,
     ) {
     }
 
@@ -141,7 +147,25 @@ final readonly class AllocationQueryParametersDTO
             occasion: $this->occasion,
             departmentWasClosed: $this->departmentWasClosed,
             transportType: $this->transportType,
+            createdFrom: $this->parseDateTime($this->createdFrom),
+            createdToExclusive: $this->parseDateTime($this->createdToExclusive),
         );
+    }
+
+    private function parseDateTime(?string $value): ?\DateTimeImmutable
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        foreach (['Y-m-d\TH:i:s', 'Y-m-d H:i:s', '!Y-m-d'] as $format) {
+            $parsed = \DateTimeImmutable::createFromFormat($format, $value);
+            if ($parsed instanceof \DateTimeImmutable) {
+                return $parsed;
+            }
+        }
+
+        return null;
     }
 
     private function optionalTriStateInt(?string $value): ?int

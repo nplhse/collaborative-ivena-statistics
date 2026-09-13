@@ -38,6 +38,7 @@ final class StatisticsDrawerFilterFactory
             isWorkAccident: $this->parseOptionalBoolean($query, 'isWorkAccident'),
             isInfectious: $this->parseInfectiousPresence($query),
             infection: $this->parseInfectiousId($query),
+            departmentWasClosed: $this->parseOptionalBoolean($query, 'departmentWasClosed'),
         );
     }
 

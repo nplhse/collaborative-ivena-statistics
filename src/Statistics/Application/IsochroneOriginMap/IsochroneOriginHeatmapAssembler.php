@@ -34,6 +34,7 @@ final readonly class IsochroneOriginHeatmapAssembler
         StatisticsScopeCriteria $scope,
         StatisticsPeriodBounds $period,
         ?array $indicationIds = null,
+        ?bool $departmentWasClosed = null,
     ): ?IsochroneOriginHeatmapView {
         if (StatisticsFilterScope::Hospital !== $filter->scope || null === $filter->hospitalId) {
             return null;
@@ -60,7 +61,13 @@ final readonly class IsochroneOriginHeatmapAssembler
             return null;
         }
 
-        $counts = $this->bandQuery->fetch($period->from, $period->toExclusive, $scope, $indicationIds);
+        $counts = $this->bandQuery->fetch(
+            $period->from,
+            $period->toExclusive,
+            $scope,
+            $indicationIds,
+            $departmentWasClosed,
+        );
         $total = $counts->total();
         $maxBandCount = 0;
         foreach (IsochroneOriginBandSql::DISPLAY_BAND_MINUTES as $minutes) {

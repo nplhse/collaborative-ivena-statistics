@@ -34,6 +34,8 @@ final readonly class AllocationListFilterCriteria
         public ?string $transportType = null,
         /** @var list<int>|null */
         public ?array $hospitalIds = null,
+        public ?\DateTimeImmutable $createdFrom = null,
+        public ?\DateTimeImmutable $createdToExclusive = null,
     ) {
     }
 }

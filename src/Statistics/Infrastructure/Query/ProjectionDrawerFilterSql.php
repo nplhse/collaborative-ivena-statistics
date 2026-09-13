@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
+use App\Statistics\Application\Mapping\DepartmentWasClosedSql;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupFilter;
 
 /**
@@ -92,6 +93,12 @@ final class ProjectionDrawerFilterSql
         if (null !== $filter->infection) {
             $conditions[] = sprintf('%sinfection_id = :drawer_infection_id', $prefix);
             $params['drawer_infection_id'] = $filter->infection;
+        }
+
+        if (true === $filter->departmentWasClosed) {
+            $conditions[] = DepartmentWasClosedSql::closed('' === $prefix ? null : rtrim($prefix, '.'));
+        } elseif (false === $filter->departmentWasClosed) {
+            $conditions[] = DepartmentWasClosedSql::regular('' === $prefix ? null : rtrim($prefix, '.'));
         }
 
         return [$conditions, $params];

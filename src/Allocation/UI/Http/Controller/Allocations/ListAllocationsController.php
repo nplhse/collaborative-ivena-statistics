@@ -91,6 +91,8 @@ final class ListAllocationsController extends AbstractController
             'isWorkAccident',
             'isInfectious',
             'infection',
+            'createdFrom',
+            'createdToExclusive',
         ];
 
         foreach ($filterFields as $field) {

@@ -17,5 +17,6 @@ interface IsochroneOriginBandQueryInterface
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
         ?array $indicationIds = null,
+        ?bool $departmentWasClosed = null,
     ): IsochroneOriginBandQueryResult;
 }

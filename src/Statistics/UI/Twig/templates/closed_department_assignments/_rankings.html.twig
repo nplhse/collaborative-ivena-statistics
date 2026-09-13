@@ -1,0 +1,12 @@
+<div class="row row-cards g-3" data-testid="stats-closed-department-rankings">
+    {% for card in rankingCards %}
+        <div class="col-md-6">
+            {{ include('@Statistics/closed_department_assignments/_named_share_list.html.twig', {
+                rows: card.rows,
+                titleKey: card.titleKey,
+                testId: card.testId,
+                topListUrl: card.topListUrl,
+            }) }}
+        </div>
+    {% endfor %}
+</div>

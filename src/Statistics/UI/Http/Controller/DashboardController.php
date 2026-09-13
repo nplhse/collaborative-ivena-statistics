@@ -64,11 +64,31 @@ final class DashboardController extends AbstractController
 
         if (!$request->query->has('period')) {
             $contextForPeriod = $this->statisticsContextFactory->create($user, $filter);
-            if (StatisticsFilterPeriod::All === $this->overviewDefaultPeriodResolver->resolveDefaultPeriod($contextForPeriod)) {
+            $defaultPeriod = $this->overviewDefaultPeriodResolver->resolveDefaultPeriod($contextForPeriod);
+            if (StatisticsFilterPeriod::All === $defaultPeriod) {
                 $query = $request->query->all();
                 $query['period'] = StatisticsFilterPeriod::All->value;
 
                 return $this->redirectToRoute('app_stats_dashboard', $query);
+            }
+
+            // Shared factory defaults to rolling 12 months. Overview keeps all_time
+            // when that window has too little monthly coverage, without putting
+            // period on the URL.
+            if (StatisticsFilterPeriod::AllTime !== $filter->period) {
+                $filter = new StatisticsFilter(
+                    $filter->scope,
+                    $filter->hospitalId,
+                    $filter->cohortType,
+                    StatisticsFilterPeriod::AllTime,
+                    $filter->referenceYear,
+                    $filter->referenceMonth,
+                    $filter->referenceQuarter,
+                    $filter->notice,
+                    $filter->requiresPublicRedirect,
+                    $filter->stateId,
+                    $filter->dispatchAreaId,
+                );
             }
         }
 

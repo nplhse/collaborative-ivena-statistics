@@ -43,6 +43,12 @@ Tests: `tests/Statistics/Unit/Application/TimeSeries/TimeSeriesGrainResolverTest
 
 Admins can still select `my_hospitals` explicitly via `?scope=my_hospitals`.
 
+## Default period (no `period` query parameter)
+
+`StatisticsFilterInputFactory` defaults to `all` (rolling 12 months from `StatisticsPeriod::overviewPeriodStart()`). Explicit `?period=all_time` remains the full-history window. Invalid period strings already fall back to `all` in `StatisticsFilterFactory::parsePeriod()`.
+
+Overview (`GET /statistics/`) is the exception: `OverviewDefaultPeriodResolver` uses `all` only when at least 7 months in that window have data; otherwise it keeps `all_time`. When the resolver chooses `all` and the URL has no `period`, `DashboardController` redirects to `?period=all`.
+
 ## Resolution and fallbacks
 
 `StatisticsFilterFactory` normalizes URL input and applies access rules:
@@ -78,7 +84,7 @@ Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::B
 
 ## Code locations
 
-- `src/Statistics/UI/Http/Controller/StatisticsFilterInputFactory.php` (default scope)
+- `src/Statistics/UI/Http/Controller/StatisticsFilterInputFactory.php` (default scope and period)
 - `src/Statistics/UI/Application/StatisticsFilterFormChoiceProvider.php` (scope/period choice lists)
 - `src/Statistics/Application/StatisticsFilterFactory.php`
 - `src/Statistics/Application/StatisticsScopeResolver.php`

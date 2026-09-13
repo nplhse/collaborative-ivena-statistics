@@ -81,6 +81,17 @@
         {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: filters.departmentWasClosed ? 'Yes' : 'No'}]) %}
     {% endif %}
 
+    {% if filters.createdFrom is not empty or filters.createdToExclusive is not empty %}
+        {% set createdRange = [] %}
+        {% if filters.createdFrom is not empty %}
+            {% set createdRange = createdRange|merge([filters.createdFrom]) %}
+        {% endif %}
+        {% if filters.createdToExclusive is not empty %}
+            {% set createdRange = createdRange|merge([filters.createdToExclusive]) %}
+        {% endif %}
+        {% set rawFilters = rawFilters|merge([{key: 'field.createdAtRange', value: createdRange|join(' – ')}]) %}
+    {% endif %}
+
     {# --- Lookup: State (id → name) --- #}
     {% if filters.state is not null %}
         {% set stateName = null %}

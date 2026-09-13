@@ -209,6 +209,10 @@
         <source>link.stats.case_flow</source>
         <target>Fallverlauf</target>
       </trans-unit>
+      <trans-unit id="lnkStatsCdaDe" resname="link.stats.closed_department_assignments">
+        <source>link.stats.closed_department_assignments</source>
+        <target>Notzuweisungen</target>
+      </trans-unit>
       <trans-unit id="lnkStatsDashDe" resname="link.stats.dashboard">
         <source>link.stats.dashboard</source>
         <target>Übersicht</target>

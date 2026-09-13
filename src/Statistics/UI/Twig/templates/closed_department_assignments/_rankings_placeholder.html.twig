@@ -1,0 +1,26 @@
+{# Skeleton for the six lazy-loaded ranking cards. #}
+<div class="row row-cards g-3" data-testid="stats-closed-department-rankings-placeholder" aria-busy="true" aria-live="polite">
+    {% for i in 1..6 %}
+        <div class="col-md-6">
+            <div class="card h-100 placeholder-glow">
+                <div class="card-header py-2">
+                    <div class="placeholder placeholder-xs col-7"></div>
+                </div>
+                <div class="card-body">
+                    {% for row in 1..5 %}
+                        <div class="{% if not loop.last %}mb-2{% endif %}">
+                            <div class="d-flex justify-content-between mb-1">
+                                <div class="placeholder placeholder-xs col-5"></div>
+                                <div class="placeholder placeholder-xs col-2"></div>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    <span class="visually-hidden">{{ 'stats.closed_department.rankings.loading'|trans({}, 'statistics') }}</span>
+</div>

@@ -44,6 +44,7 @@ final class IsochroneOriginHeatmapController extends AbstractController
             $scope,
             $period,
             $this->resolveIndicationIds($request),
+            $this->resolveDepartmentWasClosed($request),
         );
 
         return $this->render('@Statistics/isochrone_origin_map/_frame.html.twig', [
@@ -74,6 +75,24 @@ final class IsochroneOriginHeatmapController extends AbstractController
             }
 
             return $subject->indicationIds;
+        }
+
+        return null;
+    }
+
+    private function resolveDepartmentWasClosed(Request $request): ?bool
+    {
+        $raw = $request->query->get('departmentWasClosed');
+        if (null === $raw || '' === $raw) {
+            return null;
+        }
+
+        if ('1' === (string) $raw || 'true' === (string) $raw) {
+            return true;
+        }
+
+        if ('0' === (string) $raw || 'false' === (string) $raw) {
+            return false;
         }
 
         return null;

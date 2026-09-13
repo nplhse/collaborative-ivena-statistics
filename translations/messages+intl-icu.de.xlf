@@ -73,6 +73,10 @@
         <source>field.dateTo</source>
         <target>Datum bis</target>
       </trans-unit>
+      <trans-unit id="ExpFldDeCreatedRange" resname="field.createdAtRange">
+        <source>field.createdAtRange</source>
+        <target>Zuweisungszeitraum</target>
+      </trans-unit>
       <trans-unit id="ExpFldDe02" resname="field.departmentWasClosed">
         <source>field.departmentWasClosed</source>
         <target>Fachbereich war abgemeldet</target>

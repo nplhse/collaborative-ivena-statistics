@@ -15,7 +15,9 @@
     or filters.assignment is not null
     or filters.occasion is not empty
     or filters.departmentWasClosed is not null
-    or filters.transportType is not empty %}
+    or filters.transportType is not empty
+    or filters.createdFrom is not empty
+    or filters.createdToExclusive is not empty %}
 {% set clinicalActive = filters.requiresResus is not null
     or filters.requiresCathlab is not null
     or filters.isVentilated is not null
@@ -43,6 +45,22 @@
 
     <div class="offcanvas-body">
         <form method="get" action="{{ path('app_explore_allocation_list') }}" id="allocation-filter-form">
+            {% if filters.createdFrom is not empty %}
+                <input type="hidden" name="createdFrom" value="{{ filters.createdFrom }}">
+            {% endif %}
+            {% if filters.createdToExclusive is not empty %}
+                <input type="hidden" name="createdToExclusive" value="{{ filters.createdToExclusive }}">
+            {% endif %}
+            {% if filters.createdFrom is not empty or filters.createdToExclusive is not empty %}
+                <div class="alert alert-info py-2 px-3 mb-3" data-testid="allocation-filter-created-at-range">
+                    <div class="small fw-medium mb-1">{{ 'field.createdAtRange'|trans({}, 'messages') }}</div>
+                    <div class="small mb-0">
+                        {% if filters.createdFrom is not empty %}{{ filters.createdFrom }}{% endif %}
+                        {% if filters.createdFrom is not empty and filters.createdToExclusive is not empty %} – {% endif %}
+                        {% if filters.createdToExclusive is not empty %}{{ filters.createdToExclusive }}{% endif %}
+                    </div>
+                </div>
+            {% endif %}
             <div class="accordion accordion-flush" id="allocation-filter-drawer-accordion">
                 <div class="accordion-item">
                     {{ editAccordion.header(

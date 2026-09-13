@@ -45,6 +45,14 @@
                             </span>
                         </a>
                     </li>
+                    <li class="nav-item {{ route == 'app_stats_closed_department_assignments' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_stats_closed_department_assignments') }}">
+                            <span class="nav-link-title">
+                                <twig:ux:icon name="tabler:door-off" style="height: 1.2em;" />
+                                {{ 'link.stats.closed_department_assignments'|trans({}, 'shared') }}
+                            </span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ route == 'app_stats_benchmarking' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_benchmarking') }}">
                             <span class="nav-link-title">
