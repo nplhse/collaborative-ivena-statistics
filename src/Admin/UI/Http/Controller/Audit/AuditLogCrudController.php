@@ -212,11 +212,11 @@ final class AuditLogCrudController extends AbstractCrudController
                 .'<div class="card-header py-2 px-3 font-monospace small fw-semibold bg-body-tertiary border-bottom">'.$fieldEsc.'</div>'
                 .'<div class="card-body p-0">'
                 .'<div class="border-bottom bg-body-secondary bg-opacity-25 px-3 py-2">'
-                .'<div class="text-body-secondary text-uppercase fw-semibold small mb-2" style="letter-spacing: .03em;">Previous</div>'
+                .'<div class="text-body-secondary text-uppercase fw-semibold small mb-2 ea-audit-diff-label">Previous</div>'
                 .'<div class="small">'.self::formatAuditScalarOrStructured($delta['old']).'</div>'
                 .'</div>'
                 .'<div class="px-3 py-2">'
-                .'<div class="text-body-secondary text-uppercase fw-semibold small mb-2" style="letter-spacing: .03em;">New</div>'
+                .'<div class="text-body-secondary text-uppercase fw-semibold small mb-2 ea-audit-diff-label">New</div>'
                 .'<div class="small">'.self::formatAuditScalarOrStructured($delta['new']).'</div>'
                 .'</div>'
                 .'</div></div>';
@@ -337,8 +337,10 @@ final class AuditLogCrudController extends AbstractCrudController
             return '<p class="text-warning mb-0">'.self::h($json).'</p>';
         }
 
-        return '<pre class="mb-0 small font-monospace rounded border bg-white p-3 overflow-auto shadow-sm user-select-all text-break" '
-            .'style="max-height: '.$maxHeight.'; white-space: pre-wrap; word-break: break-word;">'.self::h($json).'</pre>';
+        $heightClass = '12rem' === $maxHeight ? 'ea-audit-json-panel--12rem' : 'ea-audit-json-panel--28rem';
+
+        return '<pre class="mb-0 small font-monospace rounded border bg-white p-3 overflow-auto shadow-sm user-select-all text-break ea-audit-json-panel '.$heightClass.'">'
+            .self::h($json).'</pre>';
     }
 
     private static function h(string $s): string

@@ -17,7 +17,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CodeEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -103,10 +102,10 @@ final class ImportRejectCrudController extends AbstractCrudController
 
         yield ArrayField::new('messages', 'Messages')
             ->onlyOnDetail();
-        yield CodeEditorField::new('import', 'Row JSON')
+        yield TextField::new('import', 'Row JSON')
             ->onlyOnDetail()
             ->setSortable(false)
-            ->setNumOfRows(20)
+            ->setTemplatePath('@Admin/crud/field/json_pre.html.twig')
             ->formatValue(static fn (mixed $value, ImportReject $reject): string => json_encode(
                 $reject->getRow(),
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
