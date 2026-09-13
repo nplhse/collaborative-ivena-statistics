@@ -8,7 +8,7 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 
 | Entity | CRUD controller | Mode | Notes |
 |--------|-----------------|------|-------|
-| User | `UserCrudController` | Create/edit (no delete) | locale, reminder preference, owned hospitals; disable instead of delete |
+| User | `UserCrudController` | Full | locale, reminder preference, owned hospitals; [conditional delete](#user-accounts) |
 | Hospital | `HospitalCrudController` | Full | coordinates, access grants on detail |
 | HospitalAccessGrant | `HospitalAccessGrantCrudController` | Full | permission mask UI |
 | Allocation | `AllocationCrudController` | Full | secondary transport/indications, notes |
@@ -48,3 +48,11 @@ AuditEntry, CookieConsent, Feedback (no manual create).
 | Dashboard ops panel | `DashboardController` | Messenger, health, storage |
 | Failed messages | `DashboardController` (`operations_failed_messages`) | Inspect `messenger_messages` failed queue |
 | Usage analytics | `DashboardController` (`operations_usage_analytics_*`) | Overview, adoption, journeys, filters, performance |
+
+## User accounts
+
+Take an account out of use with **disable** (`isEnabled`) unless it is unused and has no blocking references.
+
+**Delete** is offered on index, detail, and edit when the user does not own hospitals and is not the signed-in admin. Batch delete stays disabled.
+
+Do **not** cascade-remove hospitals or allocations. Reassign (or clear) `Hospital.owner` in Hospital CRUD first. Users are also referenced from many non-nullable `createdBy` columns; a delete that still hits a foreign key flashes an error instead of a 500. Disable remains available in every case.

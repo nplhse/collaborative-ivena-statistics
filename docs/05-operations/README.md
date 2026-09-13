@@ -17,6 +17,7 @@
 | [health-check.md](health-check.md) | Reference | `GET /health` endpoint |
 | [troubleshooting.md](troubleshooting.md) | Guide | Symptom → cause → fix |
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
+| [admin-entity-coverage.md](admin-entity-coverage.md) | Reference | EasyAdmin entity matrix; user disable vs delete |
 | [hospital-geodata.md](hospital-geodata.md) | Guide | Geocode hospital coordinates and fetch destination isochrones |
 | [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md) | Runbook | One-time issue 521 repair on production (CSV quotes, stubs, STEMI leftover) |
 
