@@ -60,6 +60,29 @@ final class MediaCrudControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'detail-test.png');
+        self::assertSelectorExists('[data-controller="copy-to-clipboard"]');
+        $html = (string) $client->getResponse()->getContent();
+        self::assertStringNotContainsString("document.getElementById('media-snippet-copy')", $html);
+        self::assertStringNotContainsString('id="media-snippet-copy"', $html);
+    }
+
+    public function testMediaNewFormHasNoInlineOnchangeOnFileInput(): void
+    {
+        $client = self::createClient();
+
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create(['username' => 'media-new-'.bin2hex(random_bytes(4))]);
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/media/new');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-controller="vich-file-preview"]');
+        $fileInput = $crawler->filter('input[type="file"]');
+        self::assertGreaterThan(0, $fileInput->count());
+        self::assertNull($fileInput->attr('onchange'));
+        self::assertStringContainsString('vich-file-preview#preview', (string) $fileInput->attr('data-action'));
     }
 
     public function testNonAdminGetsForbiddenOnMediaIndex(): void

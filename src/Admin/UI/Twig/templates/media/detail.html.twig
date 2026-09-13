@@ -23,20 +23,26 @@
                         </div>
                     </div>
                     <div class="form-fieldset-body show">
-                        <div class="media-detail-usage__snippet">
+                        <div class="media-detail-usage__snippet" data-controller="copy-to-clipboard">
                             <div class="media-detail-usage__toolbar">
                                 <label for="media-snippet">{{ 'label.html_snippet'|trans({}, 'messages') }}</label>
                                 <button type="button"
                                         class="btn btn-sm btn-outline-secondary media-detail-usage__copy"
-                                        id="media-snippet-copy"
+                                        data-copy-to-clipboard-target="button"
+                                        data-action="copy-to-clipboard#copy"
                                         title="{{ 'action.copy_snippet'|trans({}, 'messages') }}"
                                         aria-label="{{ 'action.copy_snippet'|trans({}, 'messages') }}">
-                                    <twig:ux:icon name="tabler:clipboard" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--default w-4 h-4" />
-                                    <twig:ux:icon name="tabler:check" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--success w-4 h-4 d-none" />
+                                    <span data-copy-to-clipboard-target="defaultIcon">
+                                        <twig:ux:icon name="tabler:clipboard" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--default w-4 h-4" />
+                                    </span>
+                                    <span class="d-none" data-copy-to-clipboard-target="successIcon">
+                                        <twig:ux:icon name="tabler:check" class="media-detail-usage__copy-icon media-detail-usage__copy-icon--success w-4 h-4" />
+                                    </span>
                                 </button>
                             </div>
                             <textarea id="media-snippet"
                                       class="media-detail-usage__code form-control font-monospace"
+                                      data-copy-to-clipboard-target="source"
                                       rows="6"
                                       readonly>{{ media_snippet }}</textarea>
                         </div>
@@ -55,40 +61,5 @@
                 </fieldset>
             </div>
         </section>
-
-        <script>
-            (function () {
-                const button = document.getElementById('media-snippet-copy');
-                const textarea = document.getElementById('media-snippet');
-                if (!button || !textarea) {
-                    return;
-                }
-
-                button.addEventListener('click', async function () {
-                    textarea.focus();
-                    textarea.select();
-
-                    try {
-                        await navigator.clipboard.writeText(textarea.value);
-                    } catch (error) {
-                        document.execCommand('copy');
-                    }
-
-                    const defaultIcon = button.querySelector('.media-detail-usage__copy-icon--default');
-                    const successIcon = button.querySelector('.media-detail-usage__copy-icon--success');
-                    defaultIcon?.classList.add('d-none');
-                    successIcon?.classList.remove('d-none');
-                    button.classList.remove('btn-outline-secondary');
-                    button.classList.add('btn-outline-success');
-
-                    window.setTimeout(function () {
-                        defaultIcon?.classList.remove('d-none');
-                        successIcon?.classList.add('d-none');
-                        button.classList.remove('btn-outline-success');
-                        button.classList.add('btn-outline-secondary');
-                    }, 1800);
-                });
-            })();
-        </script>
     {% endif %}
 {% endblock %}
