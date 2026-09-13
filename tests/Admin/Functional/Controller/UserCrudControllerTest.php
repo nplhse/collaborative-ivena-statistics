@@ -71,34 +71,77 @@ final class UserCrudControllerTest extends WebTestCase
         self::assertTrue($target->isEnabled());
     }
 
-    public function testUserIndexAndDetailDoNotOfferDelete(): void
+    public function testUserIndexAndDetailOfferDeleteOnlyWithoutOwnedHospitals(): void
     {
         $client = self::createClient();
 
-        $target = UserFactory::createOne([
-            'username' => 'no-delete-target-'.bin2hex(random_bytes(4)),
+        $deletable = UserFactory::createOne([
+            'username' => 'deletable-user-'.bin2hex(random_bytes(4)),
+        ]);
+        $owner = UserFactory::createOne([
+            'username' => 'owner-user-'.bin2hex(random_bytes(4)),
+        ]);
+        HospitalFactory::createOne([
+            'owner' => $owner,
+            'name' => 'Owned Hospital '.bin2hex(random_bytes(4)),
         ]);
         $admin = UserFactory::new()
             ->asAdmin()
             ->create([
-                'username' => 'no-delete-admin-'.bin2hex(random_bytes(4)),
+                'username' => 'delete-ui-admin-'.bin2hex(random_bytes(4)),
             ])
         ;
 
+        $deletableId = $deletable->getId();
+        $ownerId = $owner->getId();
+        self::assertNotNull($deletableId);
+        self::assertNotNull($ownerId);
+
         $client->loginUser($admin);
 
-        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
-        self::assertResponseIsSuccessful();
-        self::assertCount(0, $crawler->filter('.action-delete'));
-        self::assertCount(0, $crawler->filter('form[action$="/delete"]'));
+        foreach (['/admin/user/'.$deletableId, '/admin/user/'.$deletableId.'/edit'] as $url) {
+            $crawler = $client->request(Request::METHOD_GET, $url);
+            self::assertResponseIsSuccessful();
+            self::assertNotCount(0, $crawler->filter('a.action-delete, button.action-delete'));
+        }
+
+        foreach (['/admin/user/'.$ownerId, '/admin/user/'.$ownerId.'/edit'] as $url) {
+            $crawler = $client->request(Request::METHOD_GET, $url);
+            self::assertResponseIsSuccessful();
+            self::assertCount(0, $crawler->filter('a.action-delete, button.action-delete'));
+        }
+    }
+
+    public function testAdminCanDeleteUserWithoutBlockingReferences(): void
+    {
+        $client = self::createClient();
+
+        $target = UserFactory::createOne([
+            'username' => 'unused-user-'.bin2hex(random_bytes(4)),
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'unused-delete-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
 
         $targetId = $target->getId();
         self::assertNotNull($targetId);
 
-        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$targetId);
+        $client->loginUser($admin);
+        $token = $this->csrfTokenAfterVisit($client, 'ea-delete');
+
+        $client->request(Request::METHOD_POST, '/admin/user/'.$targetId.'/delete', [
+            'token' => $token,
+        ]);
+
+        self::assertResponseStatusCodeSame(302);
+        $client->followRedirect();
         self::assertResponseIsSuccessful();
-        self::assertCount(0, $crawler->filter('.action-delete'));
-        self::assertCount(0, $crawler->filter('form[action$="/delete"]'));
+
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+        self::assertNull(self::getContainer()->get(UserRepository::class)->find($targetId));
     }
 
     public function testDeletingUserWhoOwnsHospitalDoesNotRemoveUserOrHospital(): void
