@@ -25,6 +25,7 @@ final readonly class StatisticsDrawerFilterBadgePresenter
         'isWorkAccident' => 'label.is_work_accident',
         'isInfectious' => 'label.is_infectious',
         'infection' => 'label.infection',
+        'departmentWasClosed' => 'field.departmentWasClosed',
     ];
 
     /** @var list<string> */
@@ -37,6 +38,7 @@ final readonly class StatisticsDrawerFilterBadgePresenter
         'isPregnant',
         'isWorkAccident',
         'isInfectious',
+        'departmentWasClosed',
     ];
 
     /** @var list<string> */

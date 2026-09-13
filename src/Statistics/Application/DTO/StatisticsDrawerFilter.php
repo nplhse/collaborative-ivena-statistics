@@ -21,6 +21,7 @@ final readonly class StatisticsDrawerFilter
         public ?bool $isWorkAccident = null,
         public ?bool $isInfectious = null,
         public ?int $infection = null,
+        public ?bool $departmentWasClosed = null,
     ) {
     }
 
@@ -39,6 +40,7 @@ final readonly class StatisticsDrawerFilter
             || null !== $this->isPregnant
             || null !== $this->isWorkAccident
             || null !== $this->isInfectious
-            || null !== $this->infection;
+            || null !== $this->infection
+            || null !== $this->departmentWasClosed;
     }
 }

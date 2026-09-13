@@ -18,6 +18,7 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
             'label.urgency' => 'Urgency',
             'label.requires_resus' => 'Requires resus',
             'label.yes' => 'Yes',
+            'field.departmentWasClosed' => 'Department was closed',
             default => $key,
         });
 
@@ -28,6 +29,7 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
                 'gender' => '2',
                 'urgency' => '1',
                 'requiresResus' => '1',
+                'departmentWasClosed' => '1',
                 'department' => '',
             ],
             [
@@ -37,6 +39,7 @@ final class StatisticsDrawerFilterBadgePresenterTest extends TestCase
         );
 
         self::assertSame([
+            ['label' => 'Department was closed', 'value' => 'Yes'],
             ['label' => 'Gender', 'value' => 'Female'],
             ['label' => 'Requires resus', 'value' => 'Yes'],
             ['label' => 'Urgency', 'value' => 'Emergency Care'],

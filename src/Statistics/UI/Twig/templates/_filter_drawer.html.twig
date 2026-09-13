@@ -5,11 +5,12 @@
 {% set drawerFilterKeys = statsFilterDrawer.filterKeys|default([
     'gender', 'urgency', 'age_group', 'department', 'speciality',
     'requiresResus', 'requiresCathlab', 'isVentilated', 'isShock', 'isCPR',
-    'isPregnant', 'isWorkAccident', 'isInfectious', 'infection',
+    'isPregnant', 'isWorkAccident', 'isInfectious', 'infection', 'departmentWasClosed',
 ]) %}
 {% set allocationActive = drawerValues.urgency is not empty
     or drawerValues.department is not empty
-    or drawerValues.speciality is not empty %}
+    or drawerValues.speciality is not empty
+    or drawerValues.departmentWasClosed is not empty %}
 {% set clinicalActive = drawerValues.requiresResus is not empty
     or drawerValues.requiresCathlab is not empty
     or drawerValues.isVentilated is not empty
@@ -117,6 +118,18 @@
                                             <option value="{{ value }}" {{ drawerValues.speciality == value ? 'selected' }}>{{ label }}</option>
                                         {% endfor %}
                                     </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="departmentWasClosed"
+                                               value="1"
+                                               id="statistics-filter-department-was-closed"
+                                               data-testid="statistics-filter-department-was-closed"
+                                               {{ drawerValues.departmentWasClosed ? 'checked' }}>
+                                        <span class="form-check-label">{{ 'field.departmentWasClosed'|trans({}, 'messages') }}</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
