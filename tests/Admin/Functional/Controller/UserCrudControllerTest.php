@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Admin\Functional\Controller;
 
 use App\Admin\UI\Http\Controller\User\UserCrudController;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
@@ -65,6 +69,82 @@ final class UserCrudControllerTest extends WebTestCase
 
         \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertTrue($target->isEnabled());
+    }
+
+    public function testUserIndexAndDetailDoNotOfferDelete(): void
+    {
+        $client = self::createClient();
+
+        $target = UserFactory::createOne([
+            'username' => 'no-delete-target-'.bin2hex(random_bytes(4)),
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'no-delete-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('.action-delete'));
+        self::assertCount(0, $crawler->filter('form[action$="/delete"]'));
+
+        $targetId = $target->getId();
+        self::assertNotNull($targetId);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$targetId);
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('.action-delete'));
+        self::assertCount(0, $crawler->filter('form[action$="/delete"]'));
+    }
+
+    public function testDeletingUserWhoOwnsHospitalDoesNotRemoveUserOrHospital(): void
+    {
+        $client = self::createClient();
+
+        $target = UserFactory::createOne([
+            'username' => 'owner-user-'.bin2hex(random_bytes(4)),
+        ]);
+        $hospital = HospitalFactory::createOne([
+            'owner' => $target,
+            'name' => 'Owned Hospital '.bin2hex(random_bytes(4)),
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'delete-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $targetId = $target->getId();
+        $hospitalId = $hospital->getId();
+        self::assertNotNull($targetId);
+        self::assertNotNull($hospitalId);
+
+        $client->loginUser($admin);
+        $token = $this->csrfTokenAfterVisit($client, 'ea-delete');
+
+        $client->request(Request::METHOD_POST, '/admin/user/'.$targetId.'/delete', [
+            'token' => $token,
+        ]);
+
+        self::assertResponseStatusCodeSame(302);
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString(
+            'This account cannot be deleted while hospitals or other records still reference it.',
+            (string) $client->getResponse()->getContent(),
+        );
+
+        self::getContainer()->get(EntityManagerInterface::class)->clear();
+        $reloadedUser = self::getContainer()->get(UserRepository::class)->find($targetId);
+        self::assertInstanceOf(User::class, $reloadedUser);
+        $reloadedHospital = self::getContainer()->get(HospitalRepository::class)->find($hospitalId);
+        self::assertInstanceOf(Hospital::class, $reloadedHospital);
+        self::assertSame($targetId, $reloadedHospital->getOwner()?->getId());
     }
 
     public function testAdminCannotDisableOwnAccount(): void
@@ -379,5 +459,22 @@ final class UserCrudControllerTest extends WebTestCase
         }
 
         return $messages;
+    }
+
+    private function csrfTokenAfterVisit(KernelBrowser $client, string $tokenId): string
+    {
+        $client->request(Request::METHOD_GET, '/admin/user');
+        self::assertResponseIsSuccessful();
+
+        $requestStack = $client->getContainer()->get('request_stack');
+        $request = $client->getRequest();
+        $requestStack->push($request);
+        try {
+            $token = $client->getContainer()->get('security.csrf.token_manager')->getToken($tokenId);
+        } finally {
+            $requestStack->pop();
+        }
+
+        return (string) $token->getValue();
     }
 }

@@ -8,7 +8,7 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 
 | Entity | CRUD controller | Mode | Notes |
 |--------|-----------------|------|-------|
-| User | `UserCrudController` | Full | locale, reminder preference, owned hospitals |
+| User | `UserCrudController` | Create/edit (no delete) | locale, reminder preference, owned hospitals; disable instead of delete |
 | Hospital | `HospitalCrudController` | Full | coordinates, access grants on detail |
 | HospitalAccessGrant | `HospitalAccessGrantCrudController` | Full | permission mask UI |
 | Allocation | `AllocationCrudController` | Full | secondary transport/indications, notes |
