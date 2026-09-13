@@ -16,6 +16,7 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 /** @psalm-suppress UnusedClass */
 final readonly class AuthenticationEntryPoint implements AuthenticationEntryPointInterface
 {
+    /** @psalm-suppress PossiblyUnusedMethod Wired by Symfony DI as the firewall entry point. */
     public function __construct(
         #[Autowire(service: 'security.authentication.trust_resolver')]
         private AuthenticationTrustResolverInterface $trustResolver,
