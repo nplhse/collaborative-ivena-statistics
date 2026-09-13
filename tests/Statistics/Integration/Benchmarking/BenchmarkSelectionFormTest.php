@@ -386,4 +386,39 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=state:'.$stateId, $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_STATE.'='.$stateId, $location);
     }
+
+    public function testApplyWithInvalidPeriodReRendersWithoutUnprocessable(): void
+    {
+        $user = UserFactory::createOne(['username' => 'live-benchmark-invalid-'.bin2hex(random_bytes(4))]);
+
+        $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
+            'initialData' => new BenchmarkSelectionFormData(
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
+                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+            ),
+            'preservedQuery' => [],
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $testComponent
+            ->submitForm([
+                $formName => [
+                    'primary' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'not-a-period',
+                    ],
+                    'comparison' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'all_time',
+                    ],
+                ],
+            ])
+            ->call('apply');
+
+        self::assertSame(200, $testComponent->response()->getStatusCode());
+        self::assertNull($testComponent->response()->headers->get('Location'));
+    }
 }

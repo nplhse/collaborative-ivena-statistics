@@ -10,7 +10,9 @@ use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Tests\Statistics\Support\Benchmarking\EligibleBenchmarkScopeTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Form\FormConfigInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -226,6 +228,69 @@ final class BenchmarkSelectionSideTypeTest extends KernelTestCase
         self::assertNull($data->scopeDetail);
         self::assertNull($data->periodYear);
         self::assertNull($data->periodQuarter);
+    }
+
+    public function testPreSubmitRemapsNonScalarScopeDetailToFirstValidChoice(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'SideTypeNonScalarDetail');
+        $this->loginUser($user);
+        $stateId = $scope['state']->getId();
+        self::assertNotNull($stateId);
+
+        $form = $this->formFactory->create(BenchmarkSelectionSideType::class, new BenchmarkSelectionSideFormData(
+            'public',
+            null,
+            'all',
+        ), [
+            'side' => StatisticsFilterSide::Comparison,
+            'locale' => 'en',
+            'csrf_protection' => false,
+        ]);
+
+        $form->submit([
+            'scopeGroup' => 'state',
+            'period' => 'all',
+            'scopeDetail' => ['leftover'],
+        ]);
+
+        self::assertTrue($form->isSynchronized());
+        self::assertTrue($form->isValid());
+        $data = $form->getData();
+        self::assertInstanceOf(BenchmarkSelectionSideFormData::class, $data);
+        self::assertSame((string) $stateId, $data->scopeDetail);
+    }
+
+    public function testPostSubmitIgnoresNonObjectFormData(): void
+    {
+        $form = $this->formFactory->create(BenchmarkSelectionSideType::class, null, [
+            'data_class' => null,
+            'empty_data' => null,
+            'side' => StatisticsFilterSide::Primary,
+            'locale' => 'en',
+            'csrf_protection' => false,
+        ]);
+
+        $form->submit([
+            'scopeGroup' => 'public',
+            'period' => 'all_time',
+        ]);
+
+        self::assertTrue($form->isSubmitted());
+        self::assertNull($form->getData());
+    }
+
+    public function testChoiceValuesReturnsEmptyListWhenChoicesAreNotAnArray(): void
+    {
+        $type = self::getContainer()->get(BenchmarkSelectionSideType::class);
+        $config = $this->createStub(FormConfigInterface::class);
+        $config->method('getOption')->willReturn(null);
+        $field = $this->createStub(FormInterface::class);
+        $field->method('getConfig')->willReturn($config);
+
+        $method = new \ReflectionMethod($type, 'choiceValues');
+
+        self::assertSame([], $method->invoke($type, $field));
     }
 
     private function loginUser(\App\User\Domain\Entity\User $user): void
