@@ -1,0 +1,18 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% set json = field.formattedValue %}
+{% if json is empty or json == '—' %}
+    <span class="text-body-secondary">{{ json|default('—') }}</span>
+{% else %}
+    <div class="ea-json-pre-wrap" data-controller="copy-to-clipboard">
+        <div class="d-flex justify-content-end mb-2">
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    data-copy-to-clipboard-target="button"
+                    data-action="copy-to-clipboard#copy">
+                <twig:ux:icon name="tabler:copy" class="w-3 h-3" />
+                <span class="ms-1">{{ 'label.copy'|trans({}, 'admin') }}</span>
+            </button>
+        </div>
+        <pre class="ea-json-pre mb-0" data-copy-to-clipboard-target="source">{{ json }}</pre>
+    </div>
+{% endif %}

@@ -7,6 +7,7 @@ namespace App\Statistics\Infrastructure\Query\IsochroneOriginMap;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandQueryResult;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginBandQueryInterface;
+use App\Statistics\Application\Mapping\DepartmentWasClosedSql;
 use App\Statistics\Application\Mapping\IsochroneOriginBandSql;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
 use Doctrine\DBAL\ArrayParameterType;
@@ -31,6 +32,7 @@ final readonly class IsochroneOriginBandQuery implements IsochroneOriginBandQuer
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
         ?array $indicationIds = null,
+        ?bool $departmentWasClosed = null,
     ): IsochroneOriginBandQueryResult {
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return IsochroneOriginBandQueryResult::empty();
@@ -46,6 +48,12 @@ final readonly class IsochroneOriginBandQuery implements IsochroneOriginBandQuer
             $where .= ' AND indication_normalized_id IN (:indication_ids)';
             $params['indication_ids'] = array_map(static fn (int $id): int => $id, $indicationIds);
             $types['indication_ids'] = ArrayParameterType::INTEGER;
+        }
+
+        if (true === $departmentWasClosed) {
+            $where .= ' AND '.DepartmentWasClosedSql::closed();
+        } elseif (false === $departmentWasClosed) {
+            $where .= ' AND '.DepartmentWasClosedSql::regular();
         }
 
         $bandCase = IsochroneOriginBandSql::CASE_EXPRESSION;

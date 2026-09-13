@@ -38,4 +38,13 @@ final class StatisticsTransportTimeSql
     {
         return sprintf('AVG(%s)', self::preciseMinutesExpression($tableAlias));
     }
+
+    public static function percentilePreciseMinutes(float $percentile, ?string $tableAlias = null): string
+    {
+        return sprintf(
+            'PERCENTILE_CONT(%s) WITHIN GROUP (ORDER BY %s)',
+            rtrim(rtrim(sprintf('%.4F', $percentile), '0'), '.'),
+            self::preciseMinutesExpression($tableAlias),
+        );
+    }
 }

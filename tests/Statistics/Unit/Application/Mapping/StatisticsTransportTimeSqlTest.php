@@ -39,5 +39,9 @@ final class StatisticsTransportTimeSqlTest extends TestCase
             'AVG(EXTRACT(EPOCH FROM (arrival_at - created_at))',
             StatisticsTransportTimeSql::meanPreciseMinutes(),
         );
+        self::assertStringContainsString(
+            'PERCENTILE_CONT(0.25)',
+            StatisticsTransportTimeSql::percentilePreciseMinutes(0.25),
+        );
     }
 }

@@ -79,6 +79,12 @@ final class ProjectionDrawerFilterApplier
             $qb->andWhere('p.infectionId = :drawerInfectionId')
                 ->setParameter('drawerInfectionId', $filter->infection);
         }
+
+        if (true === $filter->departmentWasClosed) {
+            $qb->andWhere('p.departmentWasClosed = TRUE');
+        } elseif (false === $filter->departmentWasClosed) {
+            $qb->andWhere('p.departmentWasClosed IS NULL OR p.departmentWasClosed = FALSE');
+        }
     }
 
     private function applyAgeGroup(QueryBuilder $qb, string $ageGroup): void

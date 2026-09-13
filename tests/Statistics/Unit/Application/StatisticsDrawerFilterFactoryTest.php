@@ -64,6 +64,16 @@ final class StatisticsDrawerFilterFactoryTest extends TestCase
         self::assertTrue($filter->isInfectious);
     }
 
+    public function testParsesDepartmentWasClosedFilter(): void
+    {
+        $filter = $this->factory->fromQuery($this->queryBag([
+            'departmentWasClosed' => '1',
+        ]));
+
+        self::assertTrue($filter->isActive());
+        self::assertTrue($filter->departmentWasClosed);
+    }
+
     public function testParsesInfectiousAbsence(): void
     {
         $legacy = $this->factory->fromQuery($this->queryBag([

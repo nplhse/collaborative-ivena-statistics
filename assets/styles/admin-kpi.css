@@ -73,3 +73,32 @@
 .ea-failed-messages-pre-body {
     max-height: 28rem;
 }
+
+.ea-json-pre {
+    font-size: 0.85rem;
+    max-height: 28rem;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ea-audit-diff-label {
+    letter-spacing: 0.03em;
+}
+
+.ea-audit-json-panel {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ea-audit-json-panel--12rem {
+    max-height: 12rem;
+}
+
+.ea-audit-json-panel--28rem {
+    max-height: 28rem;
+}
+
+.ea-vich-image-static {
+    cursor: initial;
+}

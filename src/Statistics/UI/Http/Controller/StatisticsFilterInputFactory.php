@@ -38,7 +38,7 @@ final readonly class StatisticsFilterInputFactory
             cohort: $query->getString('cohort'),
             state: $query->getString('state'),
             dispatchArea: $query->getString(StatisticsQueryKeys::DISPATCH_AREA),
-            period: $query->getString('period', StatisticsFilterPeriod::AllTime->value),
+            period: $query->getString('period', StatisticsFilterPeriod::All->value),
             year: $query->get('year'),
             month: $query->get('month'),
             quarter: $query->get(StatisticsQueryKeys::QUARTER),

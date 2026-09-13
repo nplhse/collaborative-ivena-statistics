@@ -166,6 +166,7 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
                 self::isNull(),
                 self::isInstanceOf(StatisticsScopeCriteria::class),
                 [7, 8],
+                null,
             )
             ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
 
@@ -175,6 +176,33 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
             new StatisticsScopeCriteria([42]),
             new StatisticsPeriodBounds(null),
             [7, 8],
+        );
+
+        self::assertNotNull($view);
+        self::assertSame(2, $view->bands[0]->count);
+    }
+
+    public function testForwardsDepartmentWasClosedToTheBandQuery(): void
+    {
+        $query = $this->createMock(IsochroneOriginBandQueryInterface::class);
+        $query->expects(self::once())
+            ->method('fetch')
+            ->with(
+                self::isNull(),
+                self::isNull(),
+                self::isInstanceOf(StatisticsScopeCriteria::class),
+                null,
+                true,
+            )
+            ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
+
+        $assembler = $this->assembler($query, catalog: $this->catalog());
+        $view = $assembler->build(
+            $this->hospitalFilter(),
+            new StatisticsScopeCriteria([42]),
+            new StatisticsPeriodBounds(null),
+            null,
+            true,
         );
 
         self::assertNotNull($view);

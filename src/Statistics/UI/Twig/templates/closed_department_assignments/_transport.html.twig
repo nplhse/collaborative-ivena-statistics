@@ -1,0 +1,40 @@
+<div class="card" data-testid="stats-closed-department-transport">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.closed_department.section.transport'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 mb-3">
+            <div class="col-6">
+                <div class="subheader">{{ 'stats.closed_department.compare.closed'|trans({}, 'statistics') }}</div>
+                <div>
+                    {% if dashboard.transport.closedMeanMinutes is not null %}
+                        {{ dashboard.transport.closedMeanMinutes|number_format(1, ',', '.') }}
+                        {{ 'stats.closed_department.kpi.minutes'|trans({}, 'statistics') }}
+                        {% if dashboard.transport.meanDeltaMinutes is not null and dashboard.transport.meanDeltaMinutes != 0 %}
+                            <span class="small text-secondary ms-1">
+                                {% if dashboard.transport.meanDeltaMinutes > 0 %}+{% endif %}{{ dashboard.transport.meanDeltaMinutes|number_format(1, ',', '.') }}
+                                {{ 'stats.closed_department.kpi.minutes'|trans({}, 'statistics') }}
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="subheader">{{ 'stats.closed_department.compare.regular'|trans({}, 'statistics') }}</div>
+                <div>
+                    {% if dashboard.transport.regularMeanMinutes is not null %}
+                        {{ dashboard.transport.regularMeanMinutes|number_format(1, ',', '.') }}
+                        {{ 'stats.closed_department.kpi.minutes'|trans({}, 'statistics') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="chart-sm" data-closed-department-assignments-charts-target="transportChart"></div>
+    </div>
+</div>
+
+{{ include('@Statistics/isochrone_origin_map/_embed.html.twig') }}

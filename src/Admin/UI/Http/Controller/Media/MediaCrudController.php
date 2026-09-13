@@ -54,7 +54,8 @@ final class MediaCrudController extends AbstractCrudController
             ->setEntityLabelInPlural(new TranslatableMessage('label.media_library', domain: 'content'))
             ->setDefaultSort(['createdAt' => 'DESC'])
             ->setSearchFields(['originalFilename', 'title', 'altText', 'filename'])
-            ->overrideTemplate('crud/detail', '@Admin/media/detail.html.twig');
+            ->overrideTemplate('crud/detail', '@Admin/media/detail.html.twig')
+            ->addFormTheme('@Admin/form/vich_file_theme.html.twig');
     }
 
     #[\Override]

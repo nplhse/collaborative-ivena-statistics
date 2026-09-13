@@ -113,6 +113,16 @@ final class ProjectionDrawerFilterApplierTest extends TestCase
         ));
     }
 
+    public function testAppliesDepartmentWasClosedFilter(): void
+    {
+        $qb = $this->createQueryBuilderMock();
+        $qb->expects(self::once())
+            ->method('andWhere')
+            ->with('p.departmentWasClosed = TRUE');
+
+        $this->applier->apply($qb, new StatisticsDrawerFilter(departmentWasClosed: true));
+    }
+
     /**
      * @return QueryBuilder&MockObject
      */

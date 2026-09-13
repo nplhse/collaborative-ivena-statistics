@@ -180,6 +180,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
 
         $this->assertResponseIsSuccessful();
         self::assertStringNotContainsString('period=all', $client->getRequest()->getUri());
+        $this->assertSelectorTextContains('[data-testid="stats-period-primary"]', 'All time');
     }
 
     private function seedDefaultPeriodScenario(int $monthCount): void

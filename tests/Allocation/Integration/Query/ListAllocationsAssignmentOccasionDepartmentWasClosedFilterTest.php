@@ -79,6 +79,26 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
         self::assertCount(1, $combinedResults);
     }
 
+    public function testFiltersByCreatedAtRange(): void
+    {
+        $shared = $this->seedAllocationGraph();
+        AssignmentFactory::createOne();
+
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('2026-03-15 10:00:00'),
+        ] + $shared);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('2026-05-15 10:00:00'),
+        ] + $shared);
+
+        $results = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+            createdFrom: '2026-03-01T00:00:00',
+            createdToExclusive: '2026-04-01T00:00:00',
+        ))->getResults());
+
+        self::assertCount(1, $results);
+    }
+
     /**
      * @return array<string, object>
      */

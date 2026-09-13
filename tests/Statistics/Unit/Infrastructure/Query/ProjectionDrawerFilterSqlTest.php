@@ -84,4 +84,18 @@ final class ProjectionDrawerFilterSqlTest extends TestCase
         self::assertSame(['infection_id IS NULL'], $notInfectious);
         self::assertSame([], $unknownAge);
     }
+
+    public function testAppliesDepartmentWasClosedPredicate(): void
+    {
+        [$closed] = new ProjectionDrawerFilterSql()->apply(
+            new StatisticsDrawerFilter(departmentWasClosed: true),
+        );
+        [$regular] = new ProjectionDrawerFilterSql()->apply(
+            new StatisticsDrawerFilter(departmentWasClosed: false),
+            'p',
+        );
+
+        self::assertSame(['department_was_closed IS TRUE'], $closed);
+        self::assertSame(['p.department_was_closed IS NOT TRUE'], $regular);
+    }
 }

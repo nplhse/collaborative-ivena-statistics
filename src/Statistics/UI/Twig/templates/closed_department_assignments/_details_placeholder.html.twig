@@ -1,0 +1,21 @@
+{# Skeleton for lazy-loaded context and transport cards. #}
+<div class="d-flex flex-column gap-3" data-testid="stats-closed-department-details-placeholder" aria-busy="true" aria-live="polite">
+    {% for i in 1..5 %}
+        <div class="card placeholder-glow">
+            <div class="card-header py-2">
+                <div class="placeholder placeholder-xs col-6"></div>
+            </div>
+            <div class="card-body">
+                {% for row in 1..4 %}
+                    <div class="{% if not loop.last %}mb-2{% endif %}">
+                        <div class="placeholder placeholder-xs col-8 mb-1"></div>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+    <span class="visually-hidden">{{ 'stats.closed_department.details.loading'|trans({}, 'statistics') }}</span>
+</div>

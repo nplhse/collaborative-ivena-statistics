@@ -65,6 +65,10 @@
         <source>field.dateTo</source>
         <target>Date to</target>
       </trans-unit>
+      <trans-unit id="ExpFldEnCreatedRange" resname="field.createdAtRange">
+        <source>field.createdAtRange</source>
+        <target>Assignment period</target>
+      </trans-unit>
       <trans-unit id="G2hTjTe" resname="field.infection">
         <source>field.infection</source>
         <target>Is infectious?</target>

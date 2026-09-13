@@ -14,7 +14,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\CodeEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -132,11 +131,10 @@ final class FeedbackCrudController extends AbstractCrudController
                 return $value;
             });
 
-        yield CodeEditorField::new('context', 'Context')
+        yield TextField::new('context', 'Context')
             ->onlyOnDetail()
-            ->setLanguage('javascript')
-            ->setNumOfRows(14)
             ->setSortable(false)
+            ->setTemplatePath('@Admin/crud/field/json_pre.html.twig')
             ->formatValue(static function (mixed $_, Feedback $feedback): string {
                 $ctx = $feedback->getContext();
                 if (null === $ctx || [] === $ctx) {

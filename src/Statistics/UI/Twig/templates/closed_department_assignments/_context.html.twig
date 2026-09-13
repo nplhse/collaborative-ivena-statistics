@@ -1,0 +1,45 @@
+<div class="text-muted small" data-testid="stats-closed-department-inline-compare-hint">
+    {{ 'stats.closed_department.inline_compare_hint'|trans({}, 'statistics') }}
+</div>
+
+<div class="card" data-testid="stats-closed-department-gender">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.indication.summary.gender_title'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        {{ include('@Statistics/closed_department_assignments/_feature_progress.html.twig', {
+            rows: dashboard.gender,
+            showSwatch: true,
+        }) }}
+    </div>
+</div>
+
+<div class="card" data-testid="stats-closed-department-urgency">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.closed_department.section.urgency'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        {{ include('@Statistics/closed_department_assignments/_feature_progress.html.twig', {
+            rows: dashboard.urgency,
+            showSwatch: true,
+        }) }}
+    </div>
+</div>
+
+<div class="card" data-testid="stats-closed-department-resources">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.closed_department.section.resources'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        {{ include('@Statistics/closed_department_assignments/_feature_progress.html.twig', {rows: dashboard.resources}) }}
+    </div>
+</div>
+
+<div class="card" data-testid="stats-closed-department-clinical">
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">{{ 'stats.closed_department.section.clinical'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        {{ include('@Statistics/closed_department_assignments/_feature_progress.html.twig', {rows: dashboard.clinicalFeatures}) }}
+    </div>
+</div>

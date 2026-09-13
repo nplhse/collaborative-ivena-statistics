@@ -13,8 +13,9 @@
 | Benchmarking | `/statistics/benchmarking` | Hospital comparison |
 | DataQuality | Dashboard badges | Traffic-light data quality indicator |
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
+| ClosedDepartmentAssignments | `/statistics/closed-department-assignments` | Notzuweisungen / forced assignments (one lazy rankings frame for the six cards; KPI + grouping-sets slice on first paint) |
 | HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
-| Isochrone origin heatmap | Overview / Indication Insights (hospital scope) | Lazy travel-time isochrone map |
+| Isochrone origin heatmap | Overview / Indication Insights / closed-department analysis (hospital scope) | Lazy travel-time isochrone map |
 
 ## Documents
 
@@ -28,6 +29,7 @@
 | [indication-dashboard-performance.md](indication-dashboard-performance.md) | Indication detail SQL optimisation notes |
 | [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
 | [case-flow.md](case-flow.md) | Case flow dashboard |
+| [closed-department-assignments.md](closed-department-assignments.md) | Notzuweisungen / forced assignments |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
 | [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md) | Hospital-scope travel-time isochrone heatmap |
 

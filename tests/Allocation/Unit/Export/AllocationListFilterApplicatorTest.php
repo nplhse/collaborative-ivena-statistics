@@ -100,6 +100,25 @@ final class AllocationListFilterApplicatorTest extends TestCase
         $this->applicator->apply($qb, new AllocationListFilterCriteria(isInfectious: 0));
     }
 
+    public function testAppliesCreatedAtRange(): void
+    {
+        $from = new \DateTimeImmutable('2026-03-01 00:00:00');
+        $toExclusive = new \DateTimeImmutable('2026-04-01 00:00:00');
+        $qb = $this->createQueryBuilderMock();
+        $qb->expects(self::exactly(2))
+            ->method('andWhere')
+            ->willReturnCallback(static function (string $where) use ($qb): QueryBuilder {
+                self::assertContains($where, ['a.createdAt >= :createdFrom', 'a.createdAt < :createdToExclusive']);
+
+                return $qb;
+            });
+
+        $this->applicator->apply($qb, new AllocationListFilterCriteria(
+            createdFrom: $from,
+            createdToExclusive: $toExclusive,
+        ));
+    }
+
     /**
      * @return QueryBuilder&MockObject
      */
