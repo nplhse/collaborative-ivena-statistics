@@ -124,7 +124,7 @@ final class SitemapProviderTest extends KernelTestCase
         self::assertSame(['Activity', 'Blog'], $contentLabels);
 
         $statisticsSection = $this->findSection('statistics');
-        self::assertCount(8, $statisticsSection->links);
+        self::assertCount(9, $statisticsSection->links);
         $statisticsLabels = array_map(
             static fn (\App\Shared\Application\Navigation\DTO\SitemapLink $link): string => $link->label,
             $statisticsSection->links,
@@ -133,6 +133,7 @@ final class SitemapProviderTest extends KernelTestCase
         $this->assertLabelsAreAlphabetical(array_slice($statisticsLabels, 1));
         self::assertContains('Top Lists', $statisticsLabels);
         self::assertContains('Reports', $statisticsLabels);
+        self::assertContains('Forced assignments', $statisticsLabels);
     }
 
     public function testParticipantSeesExploreDataExchangeAndMyHospitalsInAccount(): void

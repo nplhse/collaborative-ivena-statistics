@@ -21,15 +21,15 @@ This is a **read-side transparency feature**. It does not block access to statis
 | Top Lists | `/statistics/top-lists`, `/statistics/top-lists/{report}` | — |
 | Reports | `/statistics/reports` | Report catalog; open a type e.g. `/statistics/reports/monthly` |
 | Analysis library / explorer | `/statistics/analysis/*` | — |
-| Benchmarking | `/statistics/benchmarking` | — (primary scope) |
+| Closed-department assignments | `/statistics/closed-department-assignments` | — |
 
 **Excluded:** Hospital Population (`/statistics/hospital-population` and section URLs under that path) — no scope/period filter context.
 
 Pages with extra filters (comparison scope in benchmarking, analytics dimensions) still show **scope + period** quality only, not filter-specific quality.
 
-## Overview progressive loading
+## Progressive loading
 
-The overview dashboard (`/statistics/`) does **not** compute the data-quality report in the initial HTML response. Instead:
+The overview dashboard (`/statistics/`) and closed-department assignments (`/statistics/closed-department-assignments`) do **not** compute the data-quality report in the initial HTML response. Instead:
 
 1. The page renders a placeholder indicator button and an empty offcanvas drawer shell.
 2. A Stimulus controller (`data-quality-indicator`) prefetches `/statistics/data-quality/drawer` in the background via `requestIdleCallback` (with a short `setTimeout` fallback).

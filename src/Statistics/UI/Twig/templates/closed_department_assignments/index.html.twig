@@ -1,0 +1,87 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.closed_department.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'stats.closed_department.title' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-closed-department-heading-subtitle">
+                        {{ 'stats.closed_department.pretitle'|trans({}, 'statistics') }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-closed-department-heading-title">
+                        {{ 'stats.closed_department.title'|trans({}, 'statistics') }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
+    <div data-controller="closed-department-assignments-charts"
+         data-closed-department-assignments-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+
+        {{ include('@Statistics/closed_department_assignments/_summary_deck.html.twig') }}
+
+        {% if not dashboard.hasClosedCases %}
+            <div class="alert alert-info mt-3" data-testid="stats-closed-department-empty">
+                {{ 'stats.closed_department.empty'|trans({}, 'statistics') }}
+            </div>
+        {% else %}
+            <div class="row g-3 align-items-start mt-1">
+                <div class="col-lg-8 d-flex flex-column gap-3">
+                    {{ include('@Statistics/closed_department_assignments/_time_series.html.twig') }}
+                    <turbo-frame id="stats-closed-department-rankings"
+                                 src="{{ rankingsFrameUrl }}"
+                                 loading="lazy"
+                                 target="_top"
+                                 data-testid="stats-closed-department-rankings-frame">
+                        {{ include('@Statistics/closed_department_assignments/_rankings_placeholder.html.twig') }}
+                    </turbo-frame>
+                </div>
+                <div class="col-lg-4 d-flex flex-column gap-3">
+                    <turbo-frame id="stats-closed-department-details"
+                                 src="{{ detailsFrameUrl }}"
+                                 loading="lazy"
+                                 target="_top"
+                                 data-testid="stats-closed-department-details-frame">
+                        {{ include('@Statistics/closed_department_assignments/_details_placeholder.html.twig') }}
+                    </turbo-frame>
+                    <turbo-frame id="{{ dispatchCardFrame.frameId }}"
+                                 src="{{ dispatchCardFrame.url }}"
+                                 loading="lazy"
+                                 target="_top"
+                                 data-testid="{{ dispatchCardFrame.testId }}-frame">
+                        {{ include('@Statistics/closed_department_assignments/_named_card_placeholder.html.twig', {
+                            testId: dispatchCardFrame.testId,
+                        }) }}
+                    </turbo-frame>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

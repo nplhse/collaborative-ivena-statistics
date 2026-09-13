@@ -2621,6 +2621,202 @@
         <source>stats.case_flow.urgency.unknown</source>
         <target>Unbekannt</target>
       </trans-unit>
+      <trans-unit id="CdaDe01" resname="stats.closed_department.title">
+        <source>stats.closed_department.title</source>
+        <target>Notzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe02" resname="stats.closed_department.pretitle">
+        <source>stats.closed_department.pretitle</source>
+        <target>Zuweisungen trotz Abmeldung eines Fachbereiches</target>
+      </trans-unit>
+      <trans-unit id="CdaDe03" resname="stats.closed_department.empty">
+        <source>stats.closed_department.empty</source>
+        <target>In der gewählten Auswahl gibt es keine Notzuweisungen.</target>
+      </trans-unit>
+      <trans-unit id="CdaDe04" resname="stats.closed_department.empty_section">
+        <source>stats.closed_department.empty_section</source>
+        <target>Keine Daten für diese Auswahl.</target>
+      </trans-unit>
+      <trans-unit id="CdaDe05" resname="stats.closed_department.kpi.closed_count">
+        <source>stats.closed_department.kpi.closed_count</source>
+        <target>Notzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe06" resname="stats.closed_department.kpi.share">
+        <source>stats.closed_department.kpi.share</source>
+        <target>Anteil aller Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe07" resname="stats.closed_department.kpi.share_hint">
+        <source>stats.closed_department.kpi.share_hint</source>
+        <target>von {total} Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe08" resname="stats.closed_department.kpi.departments">
+        <source>stats.closed_department.kpi.departments</source>
+        <target>Betroffene Fachbereiche</target>
+      </trans-unit>
+      <trans-unit id="CdaDe08b" resname="stats.closed_department.kpi.departments_hint">
+        <source>stats.closed_department.kpi.departments_hint</source>
+        <target>von {total} Fachbereichen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe10" resname="stats.closed_department.kpi.mean_transport">
+        <source>stats.closed_department.kpi.mean_transport</source>
+        <target>Mittlere Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="CdaDe11" resname="stats.closed_department.kpi.minutes">
+        <source>stats.closed_department.kpi.minutes</source>
+        <target>min</target>
+      </trans-unit>
+      <trans-unit id="CdaDe12" resname="stats.closed_department.explore.cases">
+        <source>stats.closed_department.explore.cases</source>
+        <target>Diese Zuweisungen anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe12b" resname="stats.closed_department.rankings.loading">
+        <source>stats.closed_department.rankings.loading</source>
+        <target>Ranglisten werden geladen…</target>
+      </trans-unit>
+      <trans-unit id="CdaDe12c" resname="stats.closed_department.details.loading">
+        <source>stats.closed_department.details.loading</source>
+        <target>Details werden geladen…</target>
+      </trans-unit>
+      <trans-unit id="CdaDe13" resname="stats.closed_department.section.when">
+        <source>stats.closed_department.section.when</source>
+        <target>Zeitreihe der Notzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe15" resname="stats.closed_department.series.mode.label">
+        <source>stats.closed_department.series.mode.label</source>
+        <target>Darstellung der Zeitreihe</target>
+      </trans-unit>
+      <trans-unit id="CdaDe16" resname="stats.closed_department.series.mode.count">
+        <source>stats.closed_department.series.mode.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="CdaDe17" resname="stats.closed_department.series.mode.share">
+        <source>stats.closed_department.series.mode.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="CdaDe18" resname="stats.closed_department.section.heatmap">
+        <source>stats.closed_department.section.heatmap</source>
+        <target>Verteilung nach Tageszeit und Wochentag</target>
+      </trans-unit>
+      <trans-unit id="CdaDe20" resname="stats.closed_department.section.who">
+        <source>stats.closed_department.section.who</source>
+        <target>Betroffene Fachbereiche</target>
+      </trans-unit>
+      <trans-unit id="CdaDe22" resname="stats.closed_department.table.department">
+        <source>stats.closed_department.table.department</source>
+        <target>Fachbereich</target>
+      </trans-unit>
+      <trans-unit id="CdaDe23" resname="stats.closed_department.table.count">
+        <source>stats.closed_department.table.count</source>
+        <target>Fälle</target>
+      </trans-unit>
+      <trans-unit id="CdaDe25" resname="stats.closed_department.section.indications">
+        <source>stats.closed_department.section.indications</source>
+        <target>Betroffene Indikationen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe26" resname="stats.closed_department.section.urgency">
+        <source>stats.closed_department.section.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="CdaDe27" resname="stats.closed_department.section.occasions">
+        <source>stats.closed_department.section.occasions</source>
+        <target>Betroffene Anlässe</target>
+      </trans-unit>
+      <trans-unit id="CdaDe27b" resname="stats.closed_department.list.show_more">
+        <source>stats.closed_department.list.show_more</source>
+        <target>Weitere anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe27c" resname="stats.closed_department.list.show_less">
+        <source>stats.closed_department.list.show_less</source>
+        <target>Auf Top 10 reduzieren</target>
+      </trans-unit>
+      <trans-unit id="CdaDe28" resname="stats.closed_department.section.clinical">
+        <source>stats.closed_department.section.clinical</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="CdaDe28b" resname="stats.closed_department.section.resources">
+        <source>stats.closed_department.section.resources</source>
+        <target>Ressourcenanforderungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe29" resname="stats.closed_department.section.compare">
+        <source>stats.closed_department.section.compare</source>
+        <target>Was unterscheidet diese Fälle?</target>
+      </trans-unit>
+      <trans-unit id="CdaDe30" resname="stats.closed_department.section.compare_hint">
+        <source>stats.closed_department.section.compare_hint</source>
+        <target>Gegenüberstellung mit regulären Zuweisungen im selben Bereich und Zeitraum. Anteile in Prozentpunkten (PP).</target>
+      </trans-unit>
+      <trans-unit id="CdaDe30b" resname="stats.closed_department.inline_compare_hint">
+        <source>stats.closed_department.inline_compare_hint</source>
+        <target>Farbige Leiste und Anteil visualisieren Notzuweisungen, die graue Leiste reguläre Zuweisungen. Die Prozentangabe den Unterschied.</target>
+      </trans-unit>
+      <trans-unit id="CdaDe31" resname="stats.closed_department.compare.feature">
+        <source>stats.closed_department.compare.feature</source>
+        <target>Merkmal</target>
+      </trans-unit>
+      <trans-unit id="CdaDe32" resname="stats.closed_department.compare.closed">
+        <source>stats.closed_department.compare.closed</source>
+        <target>Notzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe33" resname="stats.closed_department.compare.regular">
+        <source>stats.closed_department.compare.regular</source>
+        <target>Regulär</target>
+      </trans-unit>
+      <trans-unit id="CdaDe33b" resname="stats.closed_department.compare.total">
+        <source>stats.closed_department.compare.total</source>
+        <target>Alle Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe34" resname="stats.closed_department.compare.delta">
+        <source>stats.closed_department.compare.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="CdaDe35" resname="stats.closed_department.compare.pp">
+        <source>stats.closed_department.compare.pp</source>
+        <target>PP</target>
+      </trans-unit>
+      <trans-unit id="CdaDe36" resname="stats.closed_department.compare.median_transport">
+        <source>stats.closed_department.compare.median_transport</source>
+        <target>Transportzeit Median</target>
+      </trans-unit>
+      <trans-unit id="CdaDe37" resname="stats.closed_department.section.transport">
+        <source>stats.closed_department.section.transport</source>
+        <target>Transportzeiten</target>
+      </trans-unit>
+      <trans-unit id="CdaDe38" resname="stats.closed_department.section.transport_hint">
+        <source>stats.closed_department.section.transport_hint</source>
+        <target>Mittlere Transportzeit der Notzuweisungen im Vergleich zur regulären Referenzgruppe.</target>
+      </trans-unit>
+      <trans-unit id="CdaDe38b" resname="stats.closed_department.section.specialities">
+        <source>stats.closed_department.section.specialities</source>
+        <target>Betroffene Fachabteilungen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe38d" resname="stats.closed_department.section.assignments">
+        <source>stats.closed_department.section.assignments</source>
+        <target>Betroffene Zuweisungstypen</target>
+      </trans-unit>
+      <trans-unit id="CdaDe38e" resname="stats.closed_department.section.infections">
+        <source>stats.closed_department.section.infections</source>
+        <target>Betroffene Infektionskrankheiten</target>
+      </trans-unit>
+      <trans-unit id="CdaDe39" resname="stats.closed_department.section.dispatch_areas">
+        <source>stats.closed_department.section.dispatch_areas</source>
+        <target>Herkunft nach Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="CdaDe41" resname="stats.closed_department.urgency.sk1">
+        <source>stats.closed_department.urgency.sk1</source>
+        <target>SK1</target>
+      </trans-unit>
+      <trans-unit id="CdaDe42" resname="stats.closed_department.urgency.sk2">
+        <source>stats.closed_department.urgency.sk2</source>
+        <target>SK2</target>
+      </trans-unit>
+      <trans-unit id="CdaDe43" resname="stats.closed_department.urgency.sk3">
+        <source>stats.closed_department.urgency.sk3</source>
+        <target>SK3</target>
+      </trans-unit>
+      <trans-unit id="CdaDe44" resname="stats.closed_department.label.unknown">
+        <source>stats.closed_department.label.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
       <trans-unit id="De0a3833cf" resname="stats.dashboard.heading.quarter">
         <source>stats.dashboard.heading.quarter</source>
         <target>Q{quarter} {year}</target>

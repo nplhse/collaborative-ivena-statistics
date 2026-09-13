@@ -261,6 +261,10 @@
         <source>link.stats.case_flow</source>
         <target>Case flow</target>
       </trans-unit>
+      <trans-unit id="statsCdaNav01" resname="link.stats.closed_department_assignments">
+        <source>link.stats.closed_department_assignments</source>
+        <target>Forced assignments</target>
+      </trans-unit>
       <trans-unit id="statsHp01" resname="link.stats.hospital_population">
         <source>link.stats.hospital_population</source>
         <target>Hospitals</target>

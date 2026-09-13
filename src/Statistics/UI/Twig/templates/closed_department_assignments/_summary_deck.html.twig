@@ -1,0 +1,58 @@
+<div class="row row-deck row-cards g-3 mb-0" data-testid="stats-closed-department-kpis">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.closed_department.kpi.closed_count'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0">{{ dashboard.kpis.closedCount|number_format(0, ',', '.') }}</div>
+                {% if dashboard.allClosedExploreUrl %}
+                    <a class="small" href="{{ dashboard.allClosedExploreUrl }}" data-testid="stats-closed-department-explore-all">
+                        {{ 'stats.closed_department.explore.cases'|trans({}, 'statistics') }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.closed_department.kpi.share'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0" data-testid="stats-closed-department-kpi-share">
+                    {% if dashboard.kpis.sharePercent is not null %}
+                        {{ dashboard.kpis.sharePercent|number_format(1, ',', '.') }} %
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+                <div class="text-muted small">
+                    {{ 'stats.closed_department.kpi.share_hint'|trans({total: dashboard.kpis.totalCount|number_format(0, ',', '.')}, 'statistics') }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.closed_department.kpi.departments'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0" data-testid="stats-closed-department-kpi-departments">{{ dashboard.kpis.departmentCount|number_format(0, ',', '.') }}</div>
+                <div class="text-muted small">
+                    {{ 'stats.closed_department.kpi.departments_hint'|trans({total: dashboard.kpis.totalDepartmentCount|number_format(0, ',', '.')}, 'statistics') }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card" data-testid="stats-closed-department-kpi-mean-transport">
+            <div class="card-body">
+                <div class="subheader">{{ 'stats.closed_department.kpi.mean_transport'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0">
+                    {% if dashboard.kpis.meanTransportMinutes is not null %}
+                        {{ dashboard.kpis.meanTransportMinutes|number_format(1, ',', '.') }}
+                        {{ 'stats.closed_department.kpi.minutes'|trans({}, 'statistics') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

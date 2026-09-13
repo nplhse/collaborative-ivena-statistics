@@ -3169,6 +3169,202 @@
         <source>stats.case_flow.insight.urgency_concentration_origin</source>
         <target>Emergency cases are geographically concentrated: {share, number}% originate from {origin}.</target>
       </trans-unit>
+      <trans-unit id="statsCda01" resname="stats.closed_department.title">
+        <source>stats.closed_department.title</source>
+        <target>Forced assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda02" resname="stats.closed_department.pretitle">
+        <source>stats.closed_department.pretitle</source>
+        <target>Assignments despite a closed department</target>
+      </trans-unit>
+      <trans-unit id="statsCda03" resname="stats.closed_department.empty">
+        <source>stats.closed_department.empty</source>
+        <target>There are no forced assignments in the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsCda04" resname="stats.closed_department.empty_section">
+        <source>stats.closed_department.empty_section</source>
+        <target>No data for this selection.</target>
+      </trans-unit>
+      <trans-unit id="statsCda05" resname="stats.closed_department.kpi.closed_count">
+        <source>stats.closed_department.kpi.closed_count</source>
+        <target>Forced assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda06" resname="stats.closed_department.kpi.share">
+        <source>stats.closed_department.kpi.share</source>
+        <target>Share of all assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda07" resname="stats.closed_department.kpi.share_hint">
+        <source>stats.closed_department.kpi.share_hint</source>
+        <target>of {total} assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda08" resname="stats.closed_department.kpi.departments">
+        <source>stats.closed_department.kpi.departments</source>
+        <target>Affected departments</target>
+      </trans-unit>
+      <trans-unit id="statsCda08b" resname="stats.closed_department.kpi.departments_hint">
+        <source>stats.closed_department.kpi.departments_hint</source>
+        <target>of {total} departments</target>
+      </trans-unit>
+      <trans-unit id="statsCda10" resname="stats.closed_department.kpi.mean_transport">
+        <source>stats.closed_department.kpi.mean_transport</source>
+        <target>Mean transport time</target>
+      </trans-unit>
+      <trans-unit id="statsCda11" resname="stats.closed_department.kpi.minutes">
+        <source>stats.closed_department.kpi.minutes</source>
+        <target>min</target>
+      </trans-unit>
+      <trans-unit id="statsCda12" resname="stats.closed_department.explore.cases">
+        <source>stats.closed_department.explore.cases</source>
+        <target>View these assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda12b" resname="stats.closed_department.rankings.loading">
+        <source>stats.closed_department.rankings.loading</source>
+        <target>Loading rankings…</target>
+      </trans-unit>
+      <trans-unit id="statsCda12c" resname="stats.closed_department.details.loading">
+        <source>stats.closed_department.details.loading</source>
+        <target>Loading details…</target>
+      </trans-unit>
+      <trans-unit id="statsCda13" resname="stats.closed_department.section.when">
+        <source>stats.closed_department.section.when</source>
+        <target>Time series of forced assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda15" resname="stats.closed_department.series.mode.label">
+        <source>stats.closed_department.series.mode.label</source>
+        <target>Time series display</target>
+      </trans-unit>
+      <trans-unit id="statsCda16" resname="stats.closed_department.series.mode.count">
+        <source>stats.closed_department.series.mode.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsCda17" resname="stats.closed_department.series.mode.share">
+        <source>stats.closed_department.series.mode.share</source>
+        <target>Share</target>
+      </trans-unit>
+      <trans-unit id="statsCda18" resname="stats.closed_department.section.heatmap">
+        <source>stats.closed_department.section.heatmap</source>
+        <target>Distribution by time of day and weekday</target>
+      </trans-unit>
+      <trans-unit id="statsCda20" resname="stats.closed_department.section.who">
+        <source>stats.closed_department.section.who</source>
+        <target>Affected departments</target>
+      </trans-unit>
+      <trans-unit id="statsCda22" resname="stats.closed_department.table.department">
+        <source>stats.closed_department.table.department</source>
+        <target>Department</target>
+      </trans-unit>
+      <trans-unit id="statsCda23" resname="stats.closed_department.table.count">
+        <source>stats.closed_department.table.count</source>
+        <target>Cases</target>
+      </trans-unit>
+      <trans-unit id="statsCda25" resname="stats.closed_department.section.indications">
+        <source>stats.closed_department.section.indications</source>
+        <target>Affected indications</target>
+      </trans-unit>
+      <trans-unit id="statsCda26" resname="stats.closed_department.section.urgency">
+        <source>stats.closed_department.section.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsCda27" resname="stats.closed_department.section.occasions">
+        <source>stats.closed_department.section.occasions</source>
+        <target>Affected occasions</target>
+      </trans-unit>
+      <trans-unit id="statsCda27b" resname="stats.closed_department.list.show_more">
+        <source>stats.closed_department.list.show_more</source>
+        <target>Show more</target>
+      </trans-unit>
+      <trans-unit id="statsCda27c" resname="stats.closed_department.list.show_less">
+        <source>stats.closed_department.list.show_less</source>
+        <target>Show top 10</target>
+      </trans-unit>
+      <trans-unit id="statsCda28" resname="stats.closed_department.section.clinical">
+        <source>stats.closed_department.section.clinical</source>
+        <target>Clinical features</target>
+      </trans-unit>
+      <trans-unit id="statsCda28b" resname="stats.closed_department.section.resources">
+        <source>stats.closed_department.section.resources</source>
+        <target>Resource requirements</target>
+      </trans-unit>
+      <trans-unit id="statsCda29" resname="stats.closed_department.section.compare">
+        <source>stats.closed_department.section.compare</source>
+        <target>How do these cases differ?</target>
+      </trans-unit>
+      <trans-unit id="statsCda30" resname="stats.closed_department.section.compare_hint">
+        <source>stats.closed_department.section.compare_hint</source>
+        <target>Comparison with regular assignments in the same scope and period. Categorical deltas in percentage points (PP).</target>
+      </trans-unit>
+      <trans-unit id="statsCda30b" resname="stats.closed_department.inline_compare_hint">
+        <source>stats.closed_department.inline_compare_hint</source>
+        <target>Coloured bar and share visualise forced assignments, the grey bar regular assignments. The percentage shows the difference.</target>
+      </trans-unit>
+      <trans-unit id="statsCda31" resname="stats.closed_department.compare.feature">
+        <source>stats.closed_department.compare.feature</source>
+        <target>Feature</target>
+      </trans-unit>
+      <trans-unit id="statsCda32" resname="stats.closed_department.compare.closed">
+        <source>stats.closed_department.compare.closed</source>
+        <target>Forced</target>
+      </trans-unit>
+      <trans-unit id="statsCda33" resname="stats.closed_department.compare.regular">
+        <source>stats.closed_department.compare.regular</source>
+        <target>Regular</target>
+      </trans-unit>
+      <trans-unit id="statsCda33b" resname="stats.closed_department.compare.total">
+        <source>stats.closed_department.compare.total</source>
+        <target>All assignments</target>
+      </trans-unit>
+      <trans-unit id="statsCda34" resname="stats.closed_department.compare.delta">
+        <source>stats.closed_department.compare.delta</source>
+        <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="statsCda35" resname="stats.closed_department.compare.pp">
+        <source>stats.closed_department.compare.pp</source>
+        <target>PP</target>
+      </trans-unit>
+      <trans-unit id="statsCda36" resname="stats.closed_department.compare.median_transport">
+        <source>stats.closed_department.compare.median_transport</source>
+        <target>Median transport time</target>
+      </trans-unit>
+      <trans-unit id="statsCda37" resname="stats.closed_department.section.transport">
+        <source>stats.closed_department.section.transport</source>
+        <target>Transport times</target>
+      </trans-unit>
+      <trans-unit id="statsCda38" resname="stats.closed_department.section.transport_hint">
+        <source>stats.closed_department.section.transport_hint</source>
+        <target>Mean transport time of forced assignments compared with the regular reference group.</target>
+      </trans-unit>
+      <trans-unit id="statsCda38b" resname="stats.closed_department.section.specialities">
+        <source>stats.closed_department.section.specialities</source>
+        <target>Affected specialities</target>
+      </trans-unit>
+      <trans-unit id="statsCda38d" resname="stats.closed_department.section.assignments">
+        <source>stats.closed_department.section.assignments</source>
+        <target>Affected assignment types</target>
+      </trans-unit>
+      <trans-unit id="statsCda38e" resname="stats.closed_department.section.infections">
+        <source>stats.closed_department.section.infections</source>
+        <target>Affected infectious diseases</target>
+      </trans-unit>
+      <trans-unit id="statsCda39" resname="stats.closed_department.section.dispatch_areas">
+        <source>stats.closed_department.section.dispatch_areas</source>
+        <target>Origin by dispatch area</target>
+      </trans-unit>
+      <trans-unit id="statsCda41" resname="stats.closed_department.urgency.sk1">
+        <source>stats.closed_department.urgency.sk1</source>
+        <target>SK1</target>
+      </trans-unit>
+      <trans-unit id="statsCda42" resname="stats.closed_department.urgency.sk2">
+        <source>stats.closed_department.urgency.sk2</source>
+        <target>SK2</target>
+      </trans-unit>
+      <trans-unit id="statsCda43" resname="stats.closed_department.urgency.sk3">
+        <source>stats.closed_department.urgency.sk3</source>
+        <target>SK3</target>
+      </trans-unit>
+      <trans-unit id="statsCda44" resname="stats.closed_department.label.unknown">
+        <source>stats.closed_department.label.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
       <trans-unit id="statsEv01" resname="stats.data_quality.indicator.label">
         <source>stats.data_quality.indicator.label</source>
         <target>Data quality</target>
