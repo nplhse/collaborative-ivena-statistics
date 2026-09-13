@@ -14,22 +14,26 @@
     : (periodFieldCount == 2 ? 'col-12 col-sm-6' : (periodFieldCount == 3 ? 'col-12 col-sm-4' : 'col-12 col-sm-3')) %}
 {% set scopeFieldCount = 1 + (hasScopeDetail and not isHospitalScope ? 1 : 0) %}
 {% set scopeColClass = scopeFieldCount == 1 ? 'col-12' : 'col-12 col-sm-6' %}
+{% set refreshAttrs = {
+    'data-action': 'change->live#action',
+    'data-live-action-param': 'refreshSelection',
+} %}
 
 <div class="d-flex flex-column gap-3" data-testid="{{ testId }}">
     <div class="row g-3 align-items-end">
         <div class="{{ scopeColClass }}">
-            {{ form_row(sideForm.scopeGroup) }}
+            {{ form_row(sideForm.scopeGroup, {attr: refreshAttrs}) }}
         </div>
         {% if hasScopeDetail %}
             <div class="col-12{% if not isHospitalScope %} col-sm-6{% endif %}">
-                {{ form_row(sideForm.scopeDetail) }}
+                {{ form_row(sideForm.scopeDetail, {attr: refreshAttrs}) }}
             </div>
         {% endif %}
     </div>
 
     <div class="row g-3 align-items-end">
         <div class="{{ periodColClass }}">
-            {{ form_row(sideForm.period) }}
+            {{ form_row(sideForm.period, {attr: refreshAttrs}) }}
         </div>
         {% if hasPeriodYear %}
             <div class="{{ periodColClass }}">

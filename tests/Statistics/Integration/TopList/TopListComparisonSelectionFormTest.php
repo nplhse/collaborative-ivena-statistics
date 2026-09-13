@@ -6,6 +6,7 @@ namespace App\Tests\Statistics\Integration\TopList;
 
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use App\Tests\Statistics\Support\Benchmarking\EligibleBenchmarkScopeTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\UX\LiveComponent\Test\InteractsWithLiveComponents;
@@ -15,6 +16,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class TopListComparisonSelectionFormTest extends WebTestCase
 {
+    use EligibleBenchmarkScopeTrait;
     use Factories;
     use InteractsWithLiveComponents;
 
@@ -101,5 +103,109 @@ final class TopListComparisonSelectionFormTest extends WebTestCase
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=public', $location);
         self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_PERIOD.'=all_time', $location);
         self::assertStringNotContainsString('page=', $location);
+    }
+
+    public function testApplyRemapsStaleScopeDetailAndRedirects(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'TopListStaleDetail');
+        $stateId = (string) $scope['state']->getId();
+
+        $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
+            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'all'),
+            'preservedQuery' => [
+                'report' => 'top_diagnoses',
+                StatisticsQueryKeys::SCOPE => 'public',
+                StatisticsQueryKeys::PERIOD => 'all',
+            ],
+            'locale' => 'en',
+            'side' => 'comparison',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $testComponent
+            ->submitForm([
+                $formName => [
+                    'scopeGroup' => 'state',
+                    'period' => 'all_time',
+                    'scopeDetail' => '999999',
+                ],
+            ])
+            ->call('apply');
+
+        self::assertSame(302, $testComponent->response()->getStatusCode());
+        $location = (string) $testComponent->response()->headers->get('Location');
+        self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=state:'.$stateId, $location);
+        self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_STATE.'='.$stateId, $location);
+    }
+
+    public function testRefreshSelectionReRendersAfterScopeChange(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'TopListRefresh');
+        $stateId = (string) $scope['state']->getId();
+
+        $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
+            'initialData' => new BenchmarkSelectionSideFormData('state', $stateId, 'quarter', 2025, 2),
+            'preservedQuery' => [
+                'report' => 'top_diagnoses',
+                StatisticsQueryKeys::SCOPE => 'public',
+                StatisticsQueryKeys::PERIOD => 'all',
+            ],
+            'locale' => 'en',
+            'side' => 'comparison',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $updatedRender = $testComponent
+            ->submitForm([
+                $formName => [
+                    'scopeGroup' => 'public',
+                    'period' => 'all_time',
+                    'scopeDetail' => $stateId,
+                    'periodYear' => '2025',
+                    'periodQuarter' => '2',
+                ],
+            ])
+            ->call('refreshSelection')
+            ->render();
+
+        self::assertSame(200, $testComponent->response()->getStatusCode());
+        self::assertCount(0, $updatedRender->crawler()->filter('select[name$="[scopeDetail]"]'));
+    }
+
+    public function testApplyWithInvalidPeriodReRendersWithoutUnprocessable(): void
+    {
+        $user = UserFactory::createOne(['username' => 'top-list-invalid-'.bin2hex(random_bytes(4))]);
+
+        $testComponent = $this->createLiveComponent('TopListComparisonSelectionForm', [
+            'initialData' => new BenchmarkSelectionSideFormData('public', null, 'all'),
+            'preservedQuery' => [
+                'report' => 'top_diagnoses',
+                StatisticsQueryKeys::SCOPE => 'public',
+                StatisticsQueryKeys::PERIOD => 'all',
+            ],
+            'locale' => 'en',
+            'side' => 'comparison',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $testComponent
+            ->submitForm([
+                $formName => [
+                    'scopeGroup' => 'public',
+                    'period' => 'not-a-period',
+                ],
+            ])
+            ->call('apply');
+
+        self::assertSame(200, $testComponent->response()->getStatusCode());
+        self::assertNull($testComponent->response()->headers->get('Location'));
     }
 }

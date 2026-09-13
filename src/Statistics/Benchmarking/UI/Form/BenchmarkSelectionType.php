@@ -46,6 +46,9 @@ final class BenchmarkSelectionType extends AbstractType
             // CSRF is disabled because Live Component POST actions (apply) do not trigger the
             // csrf-protection Stimulus controller, which breaks SameOriginCsrfTokenManager after login.
             'csrf_protection' => false,
+            // Live formValues keep leftover keys after scope/period morphs (and may nest the
+            // form name). Extra fields must not 422 the re-render.
+            'allow_extra_fields' => true,
         ]);
 
         $resolver->setAllowedTypes('locale', 'string');

@@ -59,6 +59,7 @@ final class BenchmarkSelectionFormTest extends WebTestCase
 
         $initialRender = $testComponent->render();
         self::assertGreaterThan(0, $initialRender->crawler()->filter('[data-controller="live"]')->count());
+        self::assertGreaterThan(0, $initialRender->crawler()->filter('[data-live-action-param="refreshSelection"]')->count());
         self::assertCount(0, $initialRender->crawler()->filter('[data-testid="stats-benchmark-primary-form"] select[name$="[periodYear]"]'));
 
         $formName = $initialRender->crawler()->filter('form[name]')->attr('name');
@@ -289,5 +290,135 @@ final class BenchmarkSelectionFormTest extends WebTestCase
         $testComponent->call('apply');
 
         self::assertSame(302, $testComponent->response()->getStatusCode());
+    }
+
+    public function testLiveReRenderIgnoresLeftoverComparisonDynamicKeys(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'LiveDropExtra');
+        $stateId = (string) $scope['state']->getId();
+
+        $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
+            'initialData' => new BenchmarkSelectionFormData(
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
+                new BenchmarkSelectionSideFormData('state', $stateId, 'quarter', 2025, 2),
+            ),
+            'preservedQuery' => [],
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $updatedRender = $testComponent
+            ->submitForm([
+                $formName => [
+                    'primary' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'all',
+                    ],
+                    'comparison' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'all_time',
+                        'scopeDetail' => $stateId,
+                        'periodYear' => '2025',
+                        'periodQuarter' => '2',
+                    ],
+                    'scopeDetail' => $stateId,
+                    $formName => [
+                        'primary' => [
+                            'scopeGroup' => 'public',
+                            'period' => 'all',
+                        ],
+                        'comparison' => [
+                            'scopeGroup' => 'public',
+                            'period' => 'all_time',
+                        ],
+                    ],
+                ],
+            ])
+            ->call('refreshSelection')
+            ->render();
+
+        self::assertSame(200, $testComponent->response()->getStatusCode());
+        self::assertCount(
+            0,
+            $updatedRender->crawler()->filter('[data-testid="stats-benchmark-comparison-form"] select[name$="[scopeDetail]"]'),
+        );
+    }
+
+    public function testApplyRemapsStaleComparisonScopeDetailAndRedirects(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $scope = $this->seedEligibleBenchmarkScope($user, 'LiveApplyStale');
+        $stateId = (string) $scope['state']->getId();
+
+        $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
+            'initialData' => new BenchmarkSelectionFormData(
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
+                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+            ),
+            'preservedQuery' => [],
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $testComponent
+            ->submitForm([
+                $formName => [
+                    'primary' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'all',
+                    ],
+                    'comparison' => [
+                        'scopeGroup' => 'state',
+                        'period' => 'all_time',
+                        'scopeDetail' => '999999',
+                    ],
+                ],
+            ])
+            ->call('apply');
+
+        self::assertSame(302, $testComponent->response()->getStatusCode());
+        $location = (string) $testComponent->response()->headers->get('Location');
+        self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_SCOPE.'=state:'.$stateId, $location);
+        self::assertStringContainsString(StatisticsQueryKeys::COMPARISON_STATE.'='.$stateId, $location);
+    }
+
+    public function testApplyWithInvalidPeriodReRendersWithoutUnprocessable(): void
+    {
+        $user = UserFactory::createOne(['username' => 'live-benchmark-invalid-'.bin2hex(random_bytes(4))]);
+
+        $testComponent = $this->createLiveComponent('BenchmarkSelectionForm', [
+            'initialData' => new BenchmarkSelectionFormData(
+                new BenchmarkSelectionSideFormData('public', null, 'all'),
+                new BenchmarkSelectionSideFormData('public', null, 'all_time'),
+            ),
+            'preservedQuery' => [],
+            'locale' => 'en',
+        ])->actingAs($user);
+
+        $formName = $testComponent->render()->crawler()->filter('form[name]')->attr('name');
+        self::assertNotNull($formName);
+
+        $testComponent
+            ->submitForm([
+                $formName => [
+                    'primary' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'not-a-period',
+                    ],
+                    'comparison' => [
+                        'scopeGroup' => 'public',
+                        'period' => 'all_time',
+                    ],
+                ],
+            ])
+            ->call('apply');
+
+        self::assertSame(200, $testComponent->response()->getStatusCode());
+        self::assertNull($testComponent->response()->headers->get('Location'));
     }
 }
