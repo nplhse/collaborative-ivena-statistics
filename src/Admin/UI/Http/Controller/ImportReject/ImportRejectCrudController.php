@@ -73,7 +73,7 @@ final class ImportRejectCrudController extends AbstractCrudController
         $searchTerm = trim($searchDto->getQuery());
         if ('' !== $searchTerm) {
             // Keep search behavior close to legacy backend: free-text match on reject messages JSON.
-            $qb->orWhere("LOWER(FUNCTION('CAST', entity.messages, 'text')) LIKE :messagesSearch")
+            $qb->orWhere('LOWER(CAST_TEXT(entity.messages)) LIKE :messagesSearch')
                 ->setParameter('messagesSearch', '%'.mb_strtolower($searchTerm).'%');
         }
 
