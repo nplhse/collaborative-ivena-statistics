@@ -52,6 +52,8 @@ final readonly class AllocationListFilterCriteriaFactory
             departmentWasClosed: $base->departmentWasClosed,
             transportType: $base->transportType,
             hospitalIds: $hospitalIds,
+            createdFrom: $base->createdFrom,
+            createdToExclusive: $base->createdToExclusive,
         );
     }
 }

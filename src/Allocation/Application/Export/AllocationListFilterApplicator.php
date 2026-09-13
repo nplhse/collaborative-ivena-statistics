@@ -13,6 +13,7 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\QueryBuilder;
 
 final class AllocationListFilterApplicator
@@ -163,6 +164,16 @@ final class AllocationListFilterApplicator
         if (null !== $criteria->transportType && '' !== $criteria->transportType) {
             $qb->andWhere('a.transportType = :transportType')
                 ->setParameter('transportType', AllocationTransportType::from($criteria->transportType));
+        }
+
+        if ($criteria->createdFrom instanceof \DateTimeImmutable) {
+            $qb->andWhere('a.createdAt >= :createdFrom')
+                ->setParameter('createdFrom', $criteria->createdFrom, Types::DATETIME_IMMUTABLE);
+        }
+
+        if ($criteria->createdToExclusive instanceof \DateTimeImmutable) {
+            $qb->andWhere('a.createdAt < :createdToExclusive')
+                ->setParameter('createdToExclusive', $criteria->createdToExclusive, Types::DATETIME_IMMUTABLE);
         }
     }
 
