@@ -1079,3 +1079,22 @@ body.geo-map-expand-open {
 .activity-post-preview p {
     margin-bottom: 0;
 }
+
+.navbar-username {
+    max-width: 12rem;
+}
+
+header.navbar .navbar-brand {
+    min-width: 0;
+}
+
+header.navbar .navbar-nav.flex-row {
+    flex-shrink: 0;
+}
+
+@media (max-width: 767.98px) {
+    header.navbar .navbar-brand {
+        flex: 1 1 auto;
+        max-width: calc(100% - 9rem);
+    }
+}

@@ -1,10 +1,10 @@
 {% if is_granted('IS_IMPERSONATOR') %}
-    <div class="d-none d-xl-block ps-2">
-        <div class="text-warning small">{{ 'label.impersonation_active'|trans({}, 'messages') }}</div>
-        <div id="user_name" class="fw-bold text-warning">{{ app.user.userIdentifier }}</div>
+    <div class="navbar-username d-none d-xl-block ps-2 min-w-0">
+        <div class="text-warning small text-truncate">{{ 'label.impersonation_active'|trans({}, 'messages') }}</div>
+        <div id="user_name" class="fw-bold text-warning text-truncate">{{ app.user.userIdentifier }}</div>
     </div>
 {% else %}
-    <div class="d-none d-xl-block ps-2">
-        <div id="user_name">{{ app.user.userIdentifier }}</div>
+    <div class="navbar-username d-none d-xl-block ps-2 min-w-0">
+        <div id="user_name" class="text-truncate">{{ app.user.userIdentifier }}</div>
     </div>
 {% endif %}
