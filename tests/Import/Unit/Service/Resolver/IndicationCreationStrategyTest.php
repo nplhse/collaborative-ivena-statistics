@@ -13,6 +13,7 @@ use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Domain\Entity\Import;
+use App\Import\Infrastructure\ImportCreatedById;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy;
 use App\User\Domain\Entity\User;
@@ -51,7 +52,7 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em);
         $strategy->warm();
 
         $dto = new MciCaseRowDTO();
@@ -63,6 +64,22 @@ final class IndicationCreationStrategyTest extends TestCase
 
         self::assertSame($rawRef, $mciCase->getIndicationRaw());
         self::assertSame($normRef, $mciCase->getIndicationNormalized());
+    }
+
+    public function testSkipsWhenIndicationCodeOrTextMissing(): void
+    {
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('persist');
+        $em->expects(self::never())->method('getReference');
+
+        $strategy = $this->createStrategy($repo, $em);
+
+        $dto = new AllocationRowDTO();
+        $allocation = new Allocation();
+        $strategy->apply($allocation, $dto);
+
+        self::assertNull($allocation->getIndicationRaw());
     }
 
     public function testSkipsSecondaryWhenOnlySecondaryCodeProvided(): void
@@ -138,12 +155,7 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $createdBy = $this->createStub(User::class);
-        $createdBy->method('getId')->willReturn(99);
-        $import = $this->createStub(Import::class);
-        $import->method('getCreatedBy')->willReturn($createdBy);
-
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em, createdBy: $this->holderWithUserId(99));
         $strategy->warm();
 
         $dto = new AllocationRowDTO();
@@ -153,7 +165,6 @@ final class IndicationCreationStrategyTest extends TestCase
         $dto->secondaryIndication = 'Covid';
 
         $allocation = new Allocation();
-        $allocation->setImport($import);
         $strategy->apply($allocation, $dto);
 
         self::assertSame($rawRef1, $allocation->getIndicationRaw());
@@ -163,7 +174,7 @@ final class IndicationCreationStrategyTest extends TestCase
         self::assertSame(456, $secondaryRaw->getCode());
     }
 
-    public function testDoesNotPersistSecondaryWhenImportHasNoCreatedBy(): void
+    public function testDoesNotPersistSecondaryWhenCreatedByIdIsMissing(): void
     {
         $hash1 = IndicationKey::hashFrom('123', 'Brustschmerz');
 
@@ -186,10 +197,7 @@ final class IndicationCreationStrategyTest extends TestCase
                     : $this->fail("Unexpected getReference: {$class}#{$id}")
             );
 
-        $import = $this->createStub(Import::class);
-        $import->method('getCreatedBy')->willReturn(null);
-
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em);
         $strategy->warm();
 
         $dto = new AllocationRowDTO();
@@ -199,10 +207,68 @@ final class IndicationCreationStrategyTest extends TestCase
         $dto->secondaryIndication = 'Covid';
 
         $allocation = new Allocation();
-        $allocation->setImport($import);
         $strategy->apply($allocation, $dto);
 
         self::assertNull($allocation->getSecondaryIndicationRaw());
+    }
+
+    public function testDoesNotPersistPrimaryWhenCreatedByIdIsMissing(): void
+    {
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')->willReturn([]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::never())->method('persist');
+        $em->expects(self::never())->method('getReference');
+
+        $strategy = $this->createStrategy($repo, $em);
+        $strategy->warm();
+
+        $dto = new AllocationRowDTO();
+        $dto->indicationCode = 559;
+        $dto->indication = 'Hüft-/Schenkelhalsfraktur';
+
+        $allocation = new Allocation();
+        $strategy->apply($allocation, $dto);
+
+        self::assertNull($allocation->getIndicationRaw());
+    }
+
+    public function testPersistsPrimaryIndicationFromHolderWithoutReadingEntityImport(): void
+    {
+        $repo = $this->createStub(IndicationRawRepository::class);
+        $repo->method('preloadAllLight')->willReturn([]);
+
+        $userRef = $this->createStub(User::class);
+
+        /** @var EntityManagerInterface|MockObject $em */
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects(self::once())
+            ->method('persist')
+            ->with(self::callback(static fn ($arg): bool => $arg instanceof IndicationRaw && 559 === $arg->getCode() && 'Hüft-/Schenkelhalsfraktur' === $arg->getName()));
+        $em->expects(self::once())
+            ->method('getReference')
+            ->willReturnCallback(
+                fn (string $class, int $id): User => User::class === $class && 99 === $id
+                    ? $userRef
+                    : $this->fail("Unexpected getReference: {$class}#{$id}")
+            );
+
+        $strategy = $this->createStrategy($repo, $em, createdBy: $this->holderWithUserId(99));
+        $strategy->warm();
+
+        $dto = new AllocationRowDTO();
+        $dto->indicationCode = 559;
+        $dto->indication = 'Hüft-/Schenkelhalsfraktur';
+
+        $allocation = new Allocation();
+        $strategy->apply($allocation, $dto);
+
+        $raw = $allocation->getIndicationRaw();
+        self::assertNotNull($raw);
+        self::assertSame(559, $raw->getCode());
+        self::assertSame('Hüft-/Schenkelhalsfraktur', $raw->getName());
+        self::assertSame($userRef, $raw->getCreatedBy());
     }
 
     public function testSkipsLoadingSecondaryNormalizedWhenAlreadySet(): void
@@ -239,7 +305,7 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em);
         $strategy->warm();
 
         $dto = new AllocationRowDTO();
@@ -291,7 +357,7 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em);
         $strategy->warm();
 
         $dto = new AllocationRowDTO();
@@ -332,7 +398,7 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em);
         $strategy->warm();
 
         $dto = new AllocationRowDTO();
@@ -374,10 +440,35 @@ final class IndicationCreationStrategyTest extends TestCase
                 }
             );
 
-        $strategy = new IndicationCreationStrategy($repo, new IndicationCache(), $em);
+        $strategy = $this->createStrategy($repo, $em, cache: new IndicationCache());
         $strategy->warm();
 
         return $strategy;
+    }
+
+    private function createStrategy(
+        IndicationRawRepository $repo,
+        EntityManagerInterface $em,
+        ?IndicationCache $cache = null,
+        ?ImportCreatedById $createdBy = null,
+    ): IndicationCreationStrategy {
+        return new IndicationCreationStrategy(
+            $repo,
+            $cache ?? new IndicationCache(),
+            $em,
+            $createdBy ?? new ImportCreatedById(),
+        );
+    }
+
+    private function holderWithUserId(int $userId): ImportCreatedById
+    {
+        $createdBy = $this->createStub(User::class);
+        $createdBy->method('getId')->willReturn($userId);
+        $import = new Import()->setCreatedBy($createdBy);
+        $holder = new ImportCreatedById();
+        $holder->captureFrom($import);
+
+        return $holder;
     }
 
     private function setId(object $entity, int $id): void

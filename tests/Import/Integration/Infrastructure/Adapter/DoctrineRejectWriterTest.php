@@ -9,6 +9,7 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Infrastructure\Adapter\DoctrineRejectWriter;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Import\Infrastructure\ReadOnlyAssociationReferencer;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -28,7 +29,7 @@ final class DoctrineRejectWriterTest extends DatabaseKernelTestCase
         $hospital = HospitalFactory::createOne();
         $import = ImportFactory::createOne(['hospital' => $hospital]);
 
-        $writer = new DoctrineRejectWriter($this->em);
+        $writer = new DoctrineRejectWriter($this->em, new ReadOnlyAssociationReferencer($this->em));
 
         $writer->start($import);
         $writer->write(['age' => 'not-a-number'], ['age: Invalid age'], 3);
@@ -48,7 +49,7 @@ final class DoctrineRejectWriterTest extends DatabaseKernelTestCase
 
     public function testWriteBeforeStartThrowsLogicException(): void
     {
-        $writer = new DoctrineRejectWriter($this->em);
+        $writer = new DoctrineRejectWriter($this->em, new ReadOnlyAssociationReferencer($this->em));
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Reject writer not started. Call start() before write().');
@@ -58,7 +59,7 @@ final class DoctrineRejectWriterTest extends DatabaseKernelTestCase
 
     public function testStartWithUnpersistedImportThrowsLogicException(): void
     {
-        $writer = new DoctrineRejectWriter($this->em);
+        $writer = new DoctrineRejectWriter($this->em, new ReadOnlyAssociationReferencer($this->em));
 
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Import has no id assigned yet.');

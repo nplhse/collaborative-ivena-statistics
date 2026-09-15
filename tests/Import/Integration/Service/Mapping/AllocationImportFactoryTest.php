@@ -120,6 +120,17 @@ final class AllocationImportFactoryTest extends KernelTestCase
         self::assertSame('Kapazitätsengpass', $allocation->getSecondaryTransport()->getName());
     }
 
+    public function testImportAndHospitalReferencesAreMarkedReadOnly(): void
+    {
+        $allocation = $this->factory->fromDto($this->makeDto(), $this->import);
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $uow = $em->getUnitOfWork();
+
+        self::assertTrue($uow->isReadOnly($allocation->getImport()));
+        self::assertTrue($uow->isReadOnly($allocation->getHospital()));
+    }
+
     public function testSupplementaryFieldsAreMappedFromDto(): void
     {
         $allocation = $this->factory->fromDto($this->makeDto([
