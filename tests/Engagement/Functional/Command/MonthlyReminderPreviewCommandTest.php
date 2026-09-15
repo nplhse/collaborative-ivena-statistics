@@ -73,6 +73,10 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $output = $tester->getDisplay();
         self::assertStringContainsString('Monatsübersicht: Deutsches Testkrankenhaus', $output);
         self::assertStringContainsString('Mai 2026', $output);
+        self::assertStringContainsString('data-testid="monthly-reminder-closed-department"', $output);
+        self::assertStringContainsString('Notzuweisungen', $output);
+        self::assertStringContainsString('/statistics/reports/monthly', $output);
+        self::assertStringContainsString('Im Monatsbericht ansehen', $output);
     }
 
     public function testSendFailsForOptedOutOwnerAndShowsHint(): void
