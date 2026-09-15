@@ -6,6 +6,7 @@ namespace App\Tests\Admin\Functional\Controller;
 
 use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Infrastructure\Factory\HospitalAccessGrantFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\User\Domain\Entity\User;
@@ -460,6 +461,92 @@ final class UserCrudControllerTest extends WebTestCase
         $hasher = self::getContainer()->get(UserPasswordHasherInterface::class);
         self::assertFalse($hasher->isPasswordValid($target, $originalPassword));
         self::assertTrue($hasher->isPasswordValid($target, $newPassword));
+    }
+
+    public function testUserIndexOmitsSecondaryColumns(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'index-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user');
+        self::assertResponseIsSuccessful();
+
+        $headers = $crawler->filter('table thead th')->each(static fn ($node): string => trim($node->text()));
+        $headerText = implode(' | ', $headers);
+
+        self::assertStringContainsString('Username', $headerText);
+        self::assertStringContainsString('Email', $headerText);
+        self::assertStringContainsString('Roles', $headerText);
+        self::assertStringNotContainsString('Locale', $headerText);
+        self::assertStringNotContainsString('Monthly submission reminder', $headerText);
+        self::assertStringNotContainsString('Owned hospitals', $headerText);
+        self::assertStringNotContainsString('Is Verified', $headerText);
+        self::assertStringNotContainsString('Credentials Expired', $headerText);
+    }
+
+    public function testUserDetailShowsTimestampsOwnedHospitalsAndAccessGrants(): void
+    {
+        $client = self::createClient();
+        $target = UserFactory::createOne([
+            'username' => 'detail-user-'.bin2hex(random_bytes(4)),
+        ]);
+        $ownedHospital = HospitalFactory::createOne([
+            'owner' => $target,
+            'name' => 'Owned Detail Hospital '.bin2hex(random_bytes(4)),
+        ]);
+        $grantedHospital = HospitalFactory::createOne([
+            'name' => 'Granted Detail Hospital '.bin2hex(random_bytes(4)),
+            'owner' => UserFactory::createOne(),
+        ]);
+        HospitalAccessGrantFactory::createOne([
+            'user' => $target,
+            'hospital' => $grantedHospital,
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'detail-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId());
+        self::assertResponseIsSuccessful();
+
+        $body = $crawler->text();
+        self::assertStringContainsString($target->getCreatedAt()->format('d.m.Y H:i'), $body);
+        self::assertStringContainsString((string) $ownedHospital->getName(), $body);
+        self::assertStringContainsString((string) $grantedHospital->getName(), $body);
+        self::assertStringContainsString('Access grants', $body);
+        self::assertSelectorExists('a.action-accessGrants');
+    }
+
+    public function testUserEditDoesNotExposeTimestampInputs(): void
+    {
+        $client = self::createClient();
+        $target = UserFactory::createOne([
+            'username' => 'edit-meta-'.bin2hex(random_bytes(4)),
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'edit-meta-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/user/'.$target->getId().'/edit');
+        self::assertResponseIsSuccessful();
+
+        self::assertCount(0, $crawler->filter('[name="User[createdAt]"]'));
+        self::assertCount(0, $crawler->filter('[name="User[updatedAt]"]'));
+        self::assertSelectorExists('input[name="User[username]"]');
     }
 
     private function setCheckboxValue(Form $form, string $name, bool $checked): void

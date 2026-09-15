@@ -15,12 +15,13 @@ use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
-final class ImportCrudControllerTest extends KernelTestCase
+final class ImportCrudControllerTest extends WebTestCase
 {
     use Factories;
 
@@ -56,5 +57,59 @@ final class ImportCrudControllerTest extends KernelTestCase
         $controller->deleteEntity($em, $entity);
 
         self::assertNull($container->get(ImportRepository::class)->find($importId));
+    }
+
+    public function testImportIndexDoesNotOfferNewAction(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'import-index-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import');
+        self::assertResponseIsSuccessful();
+        self::assertCount(0, $crawler->filter('a.action-new'));
+
+        $client->request(Request::METHOD_GET, '/admin/import/new');
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testImportDetailShowsCreatedBy(): void
+    {
+        $client = self::createClient();
+        $owner = UserFactory::createOne([
+            'username' => 'import-owner-'.bin2hex(random_bytes(4)),
+        ]);
+        $hospital = HospitalFactory::createOne([
+            'owner' => $owner,
+        ]);
+        $import = ImportFactory::createOne([
+            'name' => 'Admin Detail Import',
+            'hospital' => $hospital,
+            'createdBy' => $owner,
+            'type' => ImportType::ALLOCATION,
+            'status' => ImportStatus::COMPLETED,
+            'filePath' => '/tmp/admin-detail.csv',
+        ]);
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'import-detail-admin-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/import/'.$import->getId());
+        self::assertResponseIsSuccessful();
+
+        $body = $crawler->text();
+        self::assertStringContainsString((string) $owner->getUsername(), $body);
+        self::assertStringContainsString('Created by', $body);
+        self::assertSelectorExists('a.action-importRejects');
+        self::assertSelectorExists('a.action-importBatchItems');
     }
 }

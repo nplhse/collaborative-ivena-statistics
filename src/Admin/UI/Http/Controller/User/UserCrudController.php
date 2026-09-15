@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\User;
 
+use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
+use App\Admin\UI\Http\Controller\Hospital\HospitalAccessGrantCrudController;
+use App\Admin\UI\Http\Controller\Hospital\HospitalCrudController;
+use App\Allocation\Infrastructure\Repository\HospitalAccessGrantRepository;
 use App\Shared\Application\Locale\SupportedLocales;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Application\Event\UserBecameParticipant;
@@ -23,8 +27,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Exception\EntityRemoveException;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -50,6 +57,7 @@ final class UserCrudController extends AbstractCrudController
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly HospitalAccessGrantRepository $hospitalAccessGrantRepository,
     ) {
     }
 
@@ -77,6 +85,7 @@ final class UserCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $this->createImpersonateAction())
             ->add(Crud::PAGE_DETAIL, $this->createImpersonateAction())
+            ->add(Crud::PAGE_DETAIL, $this->createAccessGrantsAction())
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_EDIT, Action::DELETE)
             ->update(Crud::PAGE_INDEX, Action::DELETE, $this->withUserDeleteVisibility(...))
@@ -165,6 +174,26 @@ final class UserCrudController extends AbstractCrudController
         );
     }
 
+    private function createAccessGrantsAction(): Action
+    {
+        return Action::new(
+            'accessGrants',
+            new TranslatableMessage('admin.user.action.access_grants', domain: 'admin'),
+            'fas fa-hospital-user',
+        )
+            ->linkToUrl(fn (User $user): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(HospitalAccessGrantCrudController::class)
+                ->setAction(Action::INDEX)
+                ->set(EA::FILTERS, [
+                    'user' => [
+                        'comparison' => ComparisonType::EQ,
+                        'value' => $user->getId(),
+                    ],
+                ])
+                ->generateUrl());
+    }
+
     private function createImpersonateAction(): Action
     {
         return Action::new('impersonate', 'label.impersonate', 'fas fa-user-secret')
@@ -192,25 +221,36 @@ final class UserCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.account', domain: 'admin'));
         yield TextField::new('username');
         yield TextField::new('email');
-        yield BooleanField::new('isVerified');
-        yield BooleanField::new('credentialsExpired');
-        yield BooleanField::new('isEnabled')
-            ->setHelp(new TranslatableMessage('help.admin.user.is_enabled', domain: 'admin'))
-            ->renderAsSwitch();
         yield ChoiceField::new('locale', 'Locale')
             ->setChoices([
                 'English' => SupportedLocales::DEFAULT,
                 'German' => SupportedLocales::GERMAN,
             ])
-            ->setRequired(false);
-        yield BooleanField::new('receivesMonthlySubmissionReminder', 'Monthly submission reminder')
+            ->setRequired(false)
+            ->hideOnIndex();
+        yield TextField::new('password')
+            ->setFormType(PasswordType::class)
+            ->setRequired(Crud::PAGE_NEW === $pageName)
+            ->setHelp('On edit leave empty to keep the current password.')
+            ->setFormTypeOption('empty_data', '')
+            ->setFormTypeOption('mapped', Crud::PAGE_NEW === $pageName)
+            ->setFormTypeOption('attr', ['autocomplete' => 'new-password'])
+            ->onlyOnForms();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.permissions', domain: 'admin'));
+        yield BooleanField::new('isEnabled')
+            ->setHelp(new TranslatableMessage('help.admin.user.is_enabled', domain: 'admin'))
             ->renderAsSwitch();
-        yield AssociationField::new('hospitals', 'Owned hospitals')
-            ->hideOnForm();
+        yield BooleanField::new('isVerified')
+            ->hideOnIndex();
+        yield BooleanField::new('credentialsExpired')
+            ->hideOnIndex();
+        yield BooleanField::new('receivesMonthlySubmissionReminder', 'Monthly submission reminder')
+            ->renderAsSwitch()
+            ->hideOnIndex();
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => UserRole::ADMIN,
@@ -231,14 +271,81 @@ final class UserCrudController extends AbstractCrudController
                 UserRole::RECEIVES_NOTIFICATION => 'info',
                 UserRole::REVIEW_INDICATIONS => 'secondary',
             ]);
-        yield TextField::new('password')
-            ->setFormType(PasswordType::class)
-            ->setRequired(Crud::PAGE_NEW === $pageName)
-            ->setHelp('On edit leave empty to keep the current password.')
-            ->setFormTypeOption('empty_data', '')
-            ->setFormTypeOption('mapped', Crud::PAGE_NEW === $pageName)
-            ->setFormTypeOption('attr', ['autocomplete' => 'new-password'])
-            ->onlyOnForms();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.hospitals', domain: 'admin'));
+        yield AssociationField::new('hospitals', 'Owned hospitals')
+            ->onlyOnDetail()
+            ->setSortable(false)
+            ->renderAsHtml()
+            ->formatValue(fn (mixed $_, User $user): string => $this->formatOwnedHospitalsHtml($user));
+        yield TextField::new('accessGrantsSummary', new TranslatableMessage('admin.user.field.access_grants', domain: 'admin'))
+            ->onlyOnDetail()
+            ->setVirtual(true)
+            ->setSortable(false)
+            ->renderAsHtml()
+            ->setValue('')
+            ->formatValue(fn (mixed $_, User $user): string => $this->formatAccessGrantsHtml($user));
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')
+            ->onlyOnDetail();
+        yield DateTimeField::new('createdAt', 'Created')
+            ->setFormat('dd.MM.yyyy HH:mm')
+            ->onlyOnDetail();
+        yield DateTimeField::new('updatedAt', 'Updated')
+            ->setFormat('dd.MM.yyyy HH:mm')
+            ->onlyOnDetail();
+    }
+
+    private function formatOwnedHospitalsHtml(User $user): string
+    {
+        $parts = [];
+        foreach ($user->getHospitals() as $hospital) {
+            $hospitalId = $hospital->getId();
+            if (null === $hospitalId) {
+                continue;
+            }
+
+            $url = $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(HospitalCrudController::class)
+                ->setAction(Action::DETAIL)
+                ->setEntityId($hospitalId)
+                ->generateUrl();
+            $name = htmlspecialchars((string) $hospital->getName(), ENT_QUOTES);
+            $parts[] = sprintf('<a href="%s">%s</a>', htmlspecialchars($url, ENT_QUOTES), $name);
+        }
+
+        return [] === $parts ? '—' : implode('<br>', $parts);
+    }
+
+    private function formatAccessGrantsHtml(User $user): string
+    {
+        $grants = $this->hospitalAccessGrantRepository->findForUser($user);
+        if ([] === $grants) {
+            return '—';
+        }
+
+        $parts = [];
+        foreach ($grants as $grant) {
+            $hospital = $grant->getHospital();
+            $hospitalId = $hospital?->getId();
+            if (null === $hospital || null === $hospitalId) {
+                continue;
+            }
+
+            $url = $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(HospitalCrudController::class)
+                ->setAction(Action::DETAIL)
+                ->setEntityId($hospitalId)
+                ->generateUrl();
+            $name = htmlspecialchars((string) $hospital->getName(), ENT_QUOTES);
+            $permissions = htmlspecialchars(HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()), ENT_QUOTES);
+            $parts[] = sprintf('<a href="%s">%s</a> (%s)', htmlspecialchars($url, ENT_QUOTES), $name, $permissions);
+        }
+
+        return [] === $parts ? '—' : implode('<br>', $parts);
     }
 
     #[\Override]
