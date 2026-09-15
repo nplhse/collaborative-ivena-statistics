@@ -179,6 +179,8 @@ final class AnalysisDimensionLabelResolver
 
         if (
             str_starts_with($key, 'hospital.size.')
+            || str_starts_with($key, 'hospital.tier.')
+            || str_starts_with($key, 'hospital.location.')
             || str_starts_with($key, 'allocation.')
             || str_starts_with($key, 'allocations.')
             || str_starts_with($key, 'indication.')

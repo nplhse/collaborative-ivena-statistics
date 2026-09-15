@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Statistics\AnalysisExplorer\Application\AnalysisDimensionLabelResolver;
 use App\Statistics\Application\Cohort\HospitalCohortLabelResolver;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
@@ -125,6 +126,25 @@ final class AnalysisDimensionLabelResolverTest extends TestCase
         $label = $resolver->labelFor($day, '2026-09-03');
         self::assertNotSame('', $label);
         self::assertNotSame('2026-09-03', $label);
+    }
+
+    public function testHospitalTierLabelsUseAllocationDomain(): void
+    {
+        $seenDomain = null;
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(
+            static function (string $id, array $parameters = [], ?string $domain = null) use (&$seenDomain): string {
+                $seenDomain = $domain;
+
+                return $id;
+            },
+        );
+
+        $resolver = $this->resolver($translator);
+        $tier = new DimensionRegistry()->get('hospital_tier');
+
+        self::assertSame('hospital.tier.Full', $resolver->labelFor($tier, HospitalTier::FULL->value));
+        self::assertSame('allocation', $seenDomain);
     }
 
     private function resolver(TranslatorInterface $translator): AnalysisDimensionLabelResolver
