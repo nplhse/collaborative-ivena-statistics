@@ -32,6 +32,7 @@ final readonly class AllocationImporter implements AllocationImporterInterface
     {
         $this->processorRegistry->warmAll();
         // Detach Import→Hospital→DispatchArea so native lazy objects cannot flush catalog rows as NULL.
+        // Ghosts are also marked read-only; createdBy is captured from this Import, never from the ghost.
         $this->persister->clear();
 
         $total = $ok = $rejected = 0;

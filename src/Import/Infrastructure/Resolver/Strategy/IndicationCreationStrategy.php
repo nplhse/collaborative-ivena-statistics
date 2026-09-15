@@ -10,7 +10,9 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\IndicationKey;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Application\DTO\AllocationRowDTO;
+use App\Import\Infrastructure\ImportCreatedById;
 use App\Import\Infrastructure\Indication\IndicationCache;
+use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class IndicationCreationStrategy
@@ -19,6 +21,7 @@ final readonly class IndicationCreationStrategy
         private IndicationRawRepository $indicationRawRepository,
         private IndicationCache $indicationCache,
         private EntityManagerInterface $em,
+        private ImportCreatedById $importCreatedById,
     ) {
     }
 
@@ -34,7 +37,7 @@ final readonly class IndicationCreationStrategy
     }
 
     /**
-     * @param object $entity must expose getImport(), setIndicationRaw(), getIndicationNormalized(), setIndicationNormalized()
+     * @param object $entity must expose setIndicationRaw(), getIndicationNormalized(), setIndicationNormalized()
      * @param object $dto    must expose indicationCode, indication; Allocation imports may also expose secondaryIndicationCode, secondaryIndication
      */
     public function apply(object $entity, object $dto): void
@@ -43,35 +46,15 @@ final readonly class IndicationCreationStrategy
             return;
         }
 
-        $hash = IndicationKey::hashFrom((string) $dto->indicationCode, $dto->indication);
-
-        if (!$this->indicationCache->has($hash)) {
-            $raw = new IndicationRaw()
-                ->setCode($dto->indicationCode)
-                ->setName($dto->indication)
-                ->setHash($hash)
-                ->setCreatedAt(new \DateTimeImmutable());
-
-            $import = $entity->getImport();
-            $createdById = $import?->getCreatedBy()?->getId();
-            if (null === $createdById) {
-                return;
-            }
-
-            /** @var \App\User\Domain\Entity\User $createdByRef */
-            $createdByRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $createdById);
-            $raw->setCreatedBy($createdByRef);
-
-            $this->em->persist($raw);
-            $this->indicationCache->putNew($hash, $raw);
+        $hash = $this->ensureRawInCache((int) $dto->indicationCode, $dto->indication);
+        if (null === $hash) {
+            return;
         }
 
         $rawRef = $this->indicationCache->getRawRef($this->em, $hash);
         $entity->setIndicationRaw($rawRef);
 
-        if (null !== $entity->getIndicationNormalized()) {
-            // primary normalized already set — skip auto from cache
-        } else {
+        if (null === $entity->getIndicationNormalized()) {
             $normalizedRefOrNull = $this->indicationCache->getNormalizedRefOrNull($this->em, $hash);
             if ($normalizedRefOrNull instanceof IndicationNormalized) {
                 $entity->setIndicationNormalized($normalizedRefOrNull);
@@ -93,27 +76,9 @@ final readonly class IndicationCreationStrategy
             return;
         }
 
-        $hash = IndicationKey::hashFrom((string) $secCode, $secText);
-
-        if (!$this->indicationCache->has($hash)) {
-            $raw = new IndicationRaw()
-                ->setCode($secCode)
-                ->setName($secText)
-                ->setHash($hash)
-                ->setCreatedAt(new \DateTimeImmutable());
-
-            $import = $entity->getImport();
-            $createdById = $import?->getCreatedBy()?->getId();
-            if (null === $createdById) {
-                return;
-            }
-
-            /** @var \App\User\Domain\Entity\User $createdByRef */
-            $createdByRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $createdById);
-            $raw->setCreatedBy($createdByRef);
-
-            $this->em->persist($raw);
-            $this->indicationCache->putNew($hash, $raw);
+        $hash = $this->ensureRawInCache($secCode, $secText);
+        if (null === $hash) {
+            return;
         }
 
         $rawRef = $this->indicationCache->getRawRef($this->em, $hash);
@@ -127,5 +92,36 @@ final readonly class IndicationCreationStrategy
         if ($normalizedRefOrNull instanceof IndicationNormalized) {
             $entity->setSecondaryIndicationNormalized($normalizedRefOrNull);
         }
+    }
+
+    /**
+     * @return string|null hash when a raw indication is available, null when createdBy is missing on a catalog miss
+     */
+    private function ensureRawInCache(int $code, string $name): ?string
+    {
+        $hash = IndicationKey::hashFrom((string) $code, $name);
+        if ($this->indicationCache->has($hash)) {
+            return $hash;
+        }
+
+        $createdById = $this->importCreatedById->userId();
+        if (null === $createdById) {
+            return null;
+        }
+
+        $raw = new IndicationRaw()
+            ->setCode($code)
+            ->setName($name)
+            ->setHash($hash)
+            ->setCreatedAt(new \DateTimeImmutable());
+
+        /** @var User $createdByRef */
+        $createdByRef = $this->em->getReference(User::class, $createdById);
+        $raw->setCreatedBy($createdByRef);
+
+        $this->em->persist($raw);
+        $this->indicationCache->putNew($hash, $raw);
+
+        return $hash;
     }
 }

@@ -7,6 +7,7 @@ namespace App\Import\Infrastructure\Adapter;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
+use App\Import\Infrastructure\ReadOnlyAssociationReferencer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
@@ -18,6 +19,7 @@ final class DoctrineRejectWriter implements RejectWriterInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly ReadOnlyAssociationReferencer $referencer,
     ) {
     }
 
@@ -52,9 +54,7 @@ final class DoctrineRejectWriter implements RejectWriterInterface
         }
 
         $reject = new ImportReject();
-        /** @var Import $managedImport */
-        $managedImport = $this->em->getReference(Import::class, $this->importId);
-        $reject->setImport($managedImport);
+        $reject->setImport($this->referencer->readOnlyReference(Import::class, $this->importId));
         $reject->setLineNumber($line);
         $reject->setMessages($messages);
         $reject->setRow($normRow);

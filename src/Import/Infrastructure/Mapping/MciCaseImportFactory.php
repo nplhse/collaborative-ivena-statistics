@@ -9,7 +9,8 @@ use App\Allocation\Domain\Entity\MciCase;
 use App\Import\Application\Contracts\MciCaseEntityResolverInterface;
 use App\Import\Application\DTO\MciCaseRowDTO;
 use App\Import\Domain\Entity\Import;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Import\Infrastructure\ImportCreatedById;
+use App\Import\Infrastructure\ReadOnlyAssociationReferencer;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**
@@ -25,7 +26,8 @@ final readonly class MciCaseImportFactory
      * @param iterable<MciCaseEntityResolverInterface> $resolvers
      */
     public function __construct(
-        private EntityManagerInterface $em,
+        private ReadOnlyAssociationReferencer $referencer,
+        private ImportCreatedById $importCreatedById,
         #[AutowireIterator(tag: 'mci_case.import_resolver')]
         private iterable $resolvers,
     ) {
@@ -40,6 +42,8 @@ final readonly class MciCaseImportFactory
 
     public function fromDto(MciCaseRowDTO $dto, Import $import): MciCase
     {
+        $this->importCreatedById->captureFrom($import);
+
         $mciCase = new MciCase();
 
         $hospitalRef = $this->refHospital($import);
@@ -64,10 +68,7 @@ final readonly class MciCaseImportFactory
             throw new \LogicException('Import has no id assigned');
         }
 
-        /** @var Import $ref */
-        $ref = $this->em->getReference(Import::class, $importId);
-
-        return $ref;
+        return $this->referencer->readOnlyReference(Import::class, $importId);
     }
 
     private function refHospital(Import $import): Hospital
@@ -83,9 +84,6 @@ final readonly class MciCaseImportFactory
             throw new \LogicException('Import hospital has no id assigned');
         }
 
-        /** @var Hospital $ref */
-        $ref = $this->em->getReference(Hospital::class, $hospitalId);
-
-        return $ref;
+        return $this->referencer->readOnlyReference(Hospital::class, $hospitalId);
     }
 }
