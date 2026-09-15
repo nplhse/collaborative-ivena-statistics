@@ -11,11 +11,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<IndicationRaw>
@@ -51,34 +53,38 @@ final class IndicationRawCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.overview', domain: 'admin'));
         yield IntegerField::new('code', 'Code');
         yield TextField::new('name', 'Name');
-        yield TextField::new('hash', 'Hash')
-            ->hideOnIndex();
         yield AssociationField::new('normalized', 'Normalized');
-        yield AssociationField::new('target', 'Target')
-            ->hideOnIndex();
         yield TextField::new('reviewStatus', 'Review status')
             ->hideOnForm();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.review', domain: 'admin'));
+        yield TextField::new('hash', 'Hash')
+            ->onlyOnDetail();
+        yield AssociationField::new('target', 'Target')
+            ->onlyOnDetail();
         yield TextareaField::new('reviewComment', 'Review comment')
-            ->hideOnIndex()
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield DateTimeField::new('reviewedAt', 'Reviewed at')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield AssociationField::new('reviewedBy', 'Reviewed by')
             ->onlyOnDetail();
         yield AssociationField::new('firstMatchedBy', 'First matched by')
             ->onlyOnDetail();
         yield DateTimeField::new('firstMatchedAt', 'First matched at')
             ->onlyOnDetail();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt', 'Created')
             ->setFormat('dd.MM.yyyy HH:mm')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Updated')
             ->setFormat('dd.MM.yyyy HH:mm')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield AssociationField::new('createdBy', 'Created by')
             ->onlyOnDetail();
         yield AssociationField::new('updatedBy', 'Updated by')
