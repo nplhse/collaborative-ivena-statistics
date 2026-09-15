@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\Controller;
 
 use App\Statistics\Application\Contract\ProjectionEarliestDateProviderInterface;
+use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportClosedDepartmentView;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportView;
 use App\Statistics\Application\SummarizedReport\ReportBuildResult;
 use App\Statistics\Application\SummarizedReport\ReportTypeInterface;
@@ -121,6 +122,15 @@ final class SummarizedReportsPagePresenterTest extends TestCase
             topDiagnoses: [],
             topOccasions: [],
             topDepartments: [],
+            closedDepartment: new MonthlyReportClosedDepartmentView(
+                0,
+                0.0,
+                null,
+                0,
+                0,
+                [],
+                '/statistics/closed-department-assignments',
+            ),
             insights: [],
             dailyChart: [
                 'chartType' => 'bar',

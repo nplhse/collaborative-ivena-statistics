@@ -1,0 +1,14 @@
+{# @var segments \App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportSegment[] #}
+<div class="d-flex flex-column gap-1">
+    {% for segment in segments %}
+        <div class="d-flex flex-wrap align-items-baseline column-gap-2">
+            <span>
+                <span class="legend me-2 {{ segment.barClass }}"></span>{{ segment.label }}
+            </span>
+            <span class="text-muted text-nowrap">
+                {{ segment.count|number_format(0, ',', '.') }}
+                ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %}, <span class="{% if segment.percentDeltaPp > 0 %}text-success{% elseif segment.percentDeltaPp < 0 %}text-danger{% else %}text-muted{% endif %}">{{ segment.percentDeltaPp >= 0 ? '+' : '' }}{{ segment.percentDeltaPp|number_format(1, ',', '.') }}%</span>{% endif %})
+            </span>
+        </div>
+    {% endfor %}
+</div>
