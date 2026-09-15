@@ -40,6 +40,11 @@ final class MediaCrudControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Media library');
         self::assertSelectorTextContains('body', 'List test image');
+
+        $crawler = $client->getCrawler();
+        $headerText = implode(' | ', $crawler->filter('table thead th')->each(static fn ($node): string => trim($node->text())));
+        self::assertStringNotContainsString('Created', $headerText);
+        self::assertStringNotContainsString('Updated', $headerText);
     }
 
     public function testAdminCanOpenMediaDetailWithEnumType(): void

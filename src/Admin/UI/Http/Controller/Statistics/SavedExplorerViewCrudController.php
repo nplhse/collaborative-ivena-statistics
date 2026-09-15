@@ -12,10 +12,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<SavedExplorerView>
@@ -50,12 +52,13 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield TextField::new('slug', 'Slug');
         yield TextField::new('title', 'Title');
         yield TextField::new('category', 'Category');
         yield BooleanField::new('isSystem', 'System view');
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.config', domain: 'admin'));
         yield TextareaField::new('description', 'Description')
             ->onlyOnDetail();
         yield TextField::new('configJsonPreview', 'Config JSON')
@@ -69,10 +72,14 @@ final class SavedExplorerViewCrudController extends AbstractCrudController
 
                 return \is_string($encoded) ? $encoded : '';
             });
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt', 'Created')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Updated')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield AssociationField::new('createdBy', 'Created by')
             ->onlyOnDetail();
         yield AssociationField::new('updatedBy', 'Updated by')

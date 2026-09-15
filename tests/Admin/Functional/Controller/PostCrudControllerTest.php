@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Admin\Functional\Controller;
 
+use App\Content\Infrastructure\Factory\PostFactory;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +32,29 @@ final class PostCrudControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Blog posts');
+    }
+
+    public function testPostIndexOmitsTimestampColumns(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'blog-index-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+        PostFactory::createOne([
+            'title' => 'Index Post '.bin2hex(random_bytes(4)),
+        ]);
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/post');
+        self::assertResponseIsSuccessful();
+
+        $headerText = implode(' | ', $crawler->filter('table thead th')->each(static fn ($node): string => trim($node->text())));
+        self::assertStringContainsString('Title', $headerText);
+        self::assertStringNotContainsString('Created', $headerText);
+        self::assertStringNotContainsString('Updated', $headerText);
     }
 
     public function testNonAdminUserGetsForbiddenOnBlogPostIndex(): void

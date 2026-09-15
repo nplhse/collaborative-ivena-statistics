@@ -8,29 +8,43 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 
 | Entity | CRUD controller | Mode | Notes |
 |--------|-----------------|------|-------|
-| User | `UserCrudController` | Full | locale, reminder preference, owned hospitals; [conditional delete](#user-accounts) |
-| Hospital | `HospitalCrudController` | Full | coordinates, access grants on detail |
+| User | `UserCrudController` | Full | concise index; detail has locale, reminder preference, owned hospitals, access grants, timestamps; [conditional delete](#user-accounts) |
+| Hospital | `HospitalCrudController` | Full | coordinates, access grants and timestamps on detail |
 | HospitalAccessGrant | `HospitalAccessGrantCrudController` | Full | permission mask UI |
 | Allocation | `AllocationCrudController` | Full | secondary transport/indications, notes |
-| Import | `ImportCrudController` | Full | file metadata on detail |
+| Import | `ImportCrudController` | Limited edit | no NEW (pipeline-created); file metadata and blame on detail; links to rejects and batch items |
 | ImportReject | `ImportRejectCrudController` | Read | |
 | ImportBatchRun | `ImportBatchRunCrudController` | Read | |
 | ImportBatchRunItem | `ImportBatchRunItemCrudController` | Read | |
-| MonthlyReminderDispatch | `MonthlyReminderDispatchCrudController` | Read | scheduler sends only |
-| SavedExplorerView | `SavedExplorerViewCrudController` | Read | |
-| UserOnboardingStep | `UserOnboardingStepCrudController` | Read | |
+| MonthlyReminderDispatch | `MonthlyReminderDispatchCrudController` | Read | recipient and delivery on detail; send reminder from index/detail |
+| SavedExplorerView | `SavedExplorerViewCrudController` | Read | timestamps and config JSON on detail |
+| UserOnboardingStep | `UserOnboardingStepCrudController` | Read | three-column index; no fieldsets |
 
 ## Reference data (full CRUD)
 
 Allocation, Assignment, Department, DispatchArea, IndicationNormalized, IndicationGroup, IndicationRaw (read-only forms), Infection, MciCase, Occasion, SecondaryTransport, Speciality, State.
 
-## Content (full CRUD)
+## Content
 
-Post, PostCategory, PostTag, PostComment (read-only create), Page, Media.
+| Entity | CRUD controller | Mode | Notes |
+|--------|-----------------|------|-------|
+| Page | `PageCrudController` | Full | structural identity; translations panel on detail; timestamps on detail |
+| PageTranslation | `PageTranslationCrudController` | Full | block editor only on forms; detail shows a block summary; path/timestamps read-only |
+| Post | `PostCrudController` | Full | Trix content off index; timestamps and blame on detail |
+| PostCategory | `PostCategoryCrudController` | Full | slug is generated and disabled |
+| PostTag | `PostTagCrudController` | Full | slug is generated and disabled |
+| PostComment | `PostCommentCrudController` | Read | no create/edit; content on detail |
+| Media | `MediaCrudController` | Full | file metadata and usage snippet on detail |
 
 ## System (read-only)
 
-AuditEntry, CookieConsent, Feedback (no manual create).
+| Entity | CRUD controller | Mode | Notes |
+|--------|-----------------|------|-------|
+| AuditEntry | `AuditLogCrudController` | Read | concise index (time, intent, action, entity, changed fields, actor); origin, request ID and diffs on detail; time-range and notification actions kept |
+| CookieConsent | `CookieConsentCrudController` | Read | version and `updatedAt` on detail; no `createdAt` getter |
+| Feedback | `FeedbackCrudController` | Limited | no manual create |
+
+Failed messages stay a custom list/detail Twig view, not EasyAdmin CRUD.
 
 ## Intentionally not in admin
 

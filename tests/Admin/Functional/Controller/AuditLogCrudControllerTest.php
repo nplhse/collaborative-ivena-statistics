@@ -88,5 +88,52 @@ final class AuditLogCrudControllerTest extends WebTestCase
         self::assertStringContainsString('ea-audit-json-panel', $html);
         self::assertStringNotContainsString('style="letter-spacing', $html);
         self::assertStringNotContainsString('style="max-height', $html);
+        self::assertStringContainsString('user.update', $html);
+        self::assertStringContainsString($entry->getRequestId(), $html);
+        self::assertStringContainsString('Request ID', $html);
+    }
+
+    public function testAuditLogIndexOmitsSecondaryColumns(): void
+    {
+        $client = self::createClient();
+
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'audit-index-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $entry = new AuditEntry(
+            new \DateTimeImmutable('2026-09-15 12:00:00'),
+            'audit-index-'.bin2hex(random_bytes(4)),
+            $admin,
+            'http',
+            'update',
+            User::class,
+            (string) $admin->getId(),
+            [
+                'username' => ['old' => 'before', 'new' => 'after'],
+            ],
+            ['intent' => 'user.update'],
+        );
+        $em->persist($entry);
+        $em->flush();
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/audit-log');
+        self::assertResponseIsSuccessful();
+
+        $headerText = implode(' | ', $crawler->filter('table thead th')->each(static fn ($node): string => trim($node->text())));
+        self::assertStringContainsString('Time', $headerText);
+        self::assertStringContainsString('Intent', $headerText);
+        self::assertStringContainsString('Action', $headerText);
+        self::assertStringContainsString('Entity', $headerText);
+        self::assertStringContainsString('Changed fields', $headerText);
+        self::assertStringContainsString('Actor', $headerText);
+        self::assertStringNotContainsString('Origin', $headerText);
+        self::assertStringNotContainsString('Request ID', $headerText);
+        self::assertStringNotContainsString('Entity ID', $headerText);
     }
 }

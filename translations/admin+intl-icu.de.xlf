@@ -721,6 +721,158 @@
         <source>ops.reminder_dispatch.help</source>
         <target>Nur Scheduler-Versände werden hier erfasst. Admin- und CLI-Versände stehen im Audit-Log.</target>
       </trans-unit>
+      <trans-unit id="admFsAccountDe" resname="admin.fieldset.account">
+        <source>admin.fieldset.account</source>
+        <target>Konto</target>
+      </trans-unit>
+      <trans-unit id="admFsPermissionsDe" resname="admin.fieldset.permissions">
+        <source>admin.fieldset.permissions</source>
+        <target>Berechtigungen &amp; Status</target>
+      </trans-unit>
+      <trans-unit id="admFsHospitalsDe" resname="admin.fieldset.hospitals">
+        <source>admin.fieldset.hospitals</source>
+        <target>Krankenhaus-Zuordnungen</target>
+      </trans-unit>
+      <trans-unit id="admFsMetadataDe" resname="admin.fieldset.metadata">
+        <source>admin.fieldset.metadata</source>
+        <target>Metadaten</target>
+      </trans-unit>
+      <trans-unit id="admFsIdentityDe" resname="admin.fieldset.identity">
+        <source>admin.fieldset.identity</source>
+        <target>Identität</target>
+      </trans-unit>
+      <trans-unit id="admFsAddressDe" resname="admin.fieldset.address">
+        <source>admin.fieldset.address</source>
+        <target>Adresse</target>
+      </trans-unit>
+      <trans-unit id="admFsClassificationDe" resname="admin.fieldset.classification">
+        <source>admin.fieldset.classification</source>
+        <target>Klassifikation</target>
+      </trans-unit>
+      <trans-unit id="admFsParticipationDe" resname="admin.fieldset.participation">
+        <source>admin.fieldset.participation</source>
+        <target>Teilnahme</target>
+      </trans-unit>
+      <trans-unit id="admFsAccessDe" resname="admin.fieldset.access">
+        <source>admin.fieldset.access</source>
+        <target>Zugriff</target>
+      </trans-unit>
+      <trans-unit id="admFsOverviewDe" resname="admin.fieldset.overview">
+        <source>admin.fieldset.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="admFsRowStatsDe" resname="admin.fieldset.row_stats">
+        <source>admin.fieldset.row_stats</source>
+        <target>Zeilenstatistik</target>
+      </trans-unit>
+      <trans-unit id="admFsFileDe" resname="admin.fieldset.file">
+        <source>admin.fieldset.file</source>
+        <target>Datei</target>
+      </trans-unit>
+      <trans-unit id="admFsPatientDe" resname="admin.fieldset.patient">
+        <source>admin.fieldset.patient</source>
+        <target>Patient</target>
+      </trans-unit>
+      <trans-unit id="admFsClinicalDe" resname="admin.fieldset.clinical">
+        <source>admin.fieldset.clinical</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="admFsTransportDe" resname="admin.fieldset.transport">
+        <source>admin.fieldset.transport</source>
+        <target>Transport</target>
+      </trans-unit>
+      <trans-unit id="admFsIndicationsDe" resname="admin.fieldset.indications">
+        <source>admin.fieldset.indications</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="admFsSecondaryDe" resname="admin.fieldset.secondary">
+        <source>admin.fieldset.secondary</source>
+        <target>Sekundärtransport</target>
+      </trans-unit>
+      <trans-unit id="admFsIncidentDe" resname="admin.fieldset.incident">
+        <source>admin.fieldset.incident</source>
+        <target>Ereignis</target>
+      </trans-unit>
+      <trans-unit id="admFsReviewDe" resname="admin.fieldset.review">
+        <source>admin.fieldset.review</source>
+        <target>Prüfung</target>
+      </trans-unit>
+      <trans-unit id="admFsStatusDe" resname="admin.fieldset.status">
+        <source>admin.fieldset.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admFsSubmissionDe" resname="admin.fieldset.submission">
+        <source>admin.fieldset.submission</source>
+        <target>Eingabe</target>
+      </trans-unit>
+      <trans-unit id="admFsContextDe" resname="admin.fieldset.context">
+        <source>admin.fieldset.context</source>
+        <target>Kontext</target>
+      </trans-unit>
+      <trans-unit id="admUserGrantsFieldDe" resname="admin.user.field.access_grants">
+        <source>admin.user.field.access_grants</source>
+        <target>Zugriffsberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="admUserGrantsActionDe" resname="admin.user.action.access_grants">
+        <source>admin.user.action.access_grants</source>
+        <target>Zugriffsberechtigungen</target>
+      </trans-unit>
+      <trans-unit id="admImportRejectsDe" resname="admin.import.action.rejects">
+        <source>admin.import.action.rejects</source>
+        <target>Zurückweisungen</target>
+      </trans-unit>
+      <trans-unit id="admImportBatchItemsDe" resname="admin.import.action.batch_items">
+        <source>admin.import.action.batch_items</source>
+        <target>Batch-Lauf-Einträge</target>
+      </trans-unit>
+      <trans-unit id="admFsContentDe" resname="admin.fieldset.content">
+        <source>admin.fieldset.content</source>
+        <target>Inhalt</target>
+      </trans-unit>
+      <trans-unit id="admFsTranslationsDe" resname="admin.fieldset.translations">
+        <source>admin.fieldset.translations</source>
+        <target>Übersetzungen</target>
+      </trans-unit>
+      <trans-unit id="admFsPublishingDe" resname="admin.fieldset.publishing">
+        <source>admin.fieldset.publishing</source>
+        <target>Veröffentlichung</target>
+      </trans-unit>
+      <trans-unit id="admFsDescriptionDe" resname="admin.fieldset.description">
+        <source>admin.fieldset.description</source>
+        <target>Beschreibung</target>
+      </trans-unit>
+      <trans-unit id="admFsRelationsDe" resname="admin.fieldset.relations">
+        <source>admin.fieldset.relations</source>
+        <target>Beziehungen</target>
+      </trans-unit>
+      <trans-unit id="admFsEventDe" resname="admin.fieldset.event">
+        <source>admin.fieldset.event</source>
+        <target>Ereignis</target>
+      </trans-unit>
+      <trans-unit id="admFsRecordDe" resname="admin.fieldset.record">
+        <source>admin.fieldset.record</source>
+        <target>Datensatz</target>
+      </trans-unit>
+      <trans-unit id="admFsChangesDe" resname="admin.fieldset.changes">
+        <source>admin.fieldset.changes</source>
+        <target>Änderungen</target>
+      </trans-unit>
+      <trans-unit id="admFsConsentDe" resname="admin.fieldset.consent">
+        <source>admin.fieldset.consent</source>
+        <target>Einwilligung</target>
+      </trans-unit>
+      <trans-unit id="admFsDispatchDe" resname="admin.fieldset.dispatch">
+        <source>admin.fieldset.dispatch</source>
+        <target>Versand</target>
+      </trans-unit>
+      <trans-unit id="admFsConfigDe" resname="admin.fieldset.config">
+        <source>admin.fieldset.config</source>
+        <target>Konfiguration</target>
+      </trans-unit>
+      <trans-unit id="admPageContentSummaryDe" resname="admin.page_translation.field.content_summary">
+        <source>admin.page_translation.field.content_summary</source>
+        <target>Inhaltsblöcke</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

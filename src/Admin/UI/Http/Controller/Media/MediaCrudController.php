@@ -18,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -69,7 +70,7 @@ final class MediaCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.file', domain: 'admin'));
         yield TextField::new('file', new TranslatableMessage('label.media_file', domain: 'content'))
             ->setFormType(VichFileType::class)
             ->setFormTypeOptions([
@@ -83,7 +84,7 @@ final class MediaCrudController extends AbstractCrudController
             ->onlyOnDetail()
             ->hideOnForm()
             ->formatValue(static fn (?string $filename, Media $media): ?string => MediaType::IMAGE === $media->getType() ? $filename : null);
-        yield TextField::new('originalFilename', 'label.original_filename')->hideOnForm()->hideOnIndex();
+        yield TextField::new('originalFilename', 'label.original_filename')->onlyOnDetail();
         yield TextField::new('filename', 'label.filename')->onlyOnDetail();
         yield TextField::new('mimeType', 'label.mime_type')->onlyOnDetail();
         yield IntegerField::new('size', 'label.file_size')->onlyOnDetail();
@@ -93,13 +94,18 @@ final class MediaCrudController extends AbstractCrudController
             ->setChoices($this->mediaTypeChoices())
             ->renderAsBadges()
             ->hideOnForm();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.description', domain: 'admin'));
         yield TextField::new('title', 'label.title');
         yield TextField::new('altText', new TranslatableMessage('label.image_alt', domain: 'content'))
             ->setHelp(new TranslatableMessage('help.media.alt_text', domain: 'content'))
             ->hideOnIndex();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')->onlyOnDetail();
         yield AssociationField::new('createdBy', 'label.uploaded_by')->hideOnForm();
-        yield DateTimeField::new('createdAt', 'label.created')->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'label.updated')->hideOnForm();
+        yield DateTimeField::new('createdAt', 'label.created')->onlyOnDetail();
+        yield DateTimeField::new('updatedAt', 'label.updated')->onlyOnDetail();
     }
 
     #[\Override]

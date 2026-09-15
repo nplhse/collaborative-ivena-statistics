@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Option\EA;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
@@ -24,6 +25,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<AuditEntry>
@@ -129,15 +131,12 @@ final class AuditLogCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnDetail();
-
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.event', domain: 'admin'));
         yield DateTimeField::new('occurredAt', 'Time')
             ->setFormat('yyyy-MM-dd HH:mm:ss')
             ->setSortable(true);
 
-        yield TextField::new('intentForIndex', 'Intent')
-            ->onlyOnIndex()
+        yield TextField::new('intentForAdminDisplay', 'Intent')
             ->setValue('')
             ->formatValue(static function (mixed $_, AuditEntry $entity): string {
                 $meta = $entity->getMetadata();
@@ -148,20 +147,13 @@ final class AuditLogCrudController extends AbstractCrudController
                 return $meta['intent'];
             });
 
-        yield TextField::new('changedFieldsSummaryForIndex', 'Changed fields')
-            ->onlyOnIndex()
-            ->setValue('')
-            ->formatValue(static fn (mixed $_, AuditEntry $entity): string => self::summarizeChangesForIndex($entity));
-
         yield TextField::new('action', 'Action')
             ->setSortable(true);
-
         yield TextField::new('origin', 'Origin')
-            ->setSortable(true);
+            ->setSortable(true)
+            ->hideOnIndex();
 
-        yield TextField::new('requestId', 'Request ID')
-            ->setSortable(true);
-
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.record', domain: 'admin'));
         yield TextField::new('entityClass', 'Entity')
             ->formatValue(static function (mixed $value): string {
                 if (!\is_string($value) || '' === $value) {
@@ -172,12 +164,18 @@ final class AuditLogCrudController extends AbstractCrudController
 
                 return false === $pos ? $value : substr($value, $pos + 1);
             });
-
-        yield TextField::new('entityId', 'Entity ID');
-
+        yield TextField::new('entityId', 'Entity ID')
+            ->hideOnIndex();
+        yield TextField::new('changedFieldsSummaryForIndex', 'Changed fields')
+            ->onlyOnIndex()
+            ->setValue('')
+            ->formatValue(static fn (mixed $_, AuditEntry $entity): string => self::summarizeChangesForIndex($entity));
         yield AssociationField::new('actor', 'Actor');
+        yield TextField::new('requestId', 'Request ID')
+            ->setSortable(true)
+            ->hideOnIndex();
 
-        // Virtual fields: JSON arrays are rejected by EasyAdmin TextField before formatValue; empty string avoids the "inaccessible" template.
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.changes', domain: 'admin'));
         yield TextField::new('changesForAdminDisplay', 'Changes')
             ->onlyOnDetail()
             ->renderAsHtml()
@@ -185,6 +183,9 @@ final class AuditLogCrudController extends AbstractCrudController
             ->setValue('')
             ->formatValue(static fn (mixed $_, AuditEntry $entity): string => self::formatChangesBlock($entity));
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')
+            ->onlyOnDetail();
         yield TextField::new('metadataForAdminDisplay', 'Metadata')
             ->onlyOnDetail()
             ->renderAsHtml()

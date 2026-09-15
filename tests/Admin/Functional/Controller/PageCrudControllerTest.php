@@ -259,4 +259,69 @@ final class PageCrudControllerTest extends WebTestCase
         $pageDetailLinks = $crawler->filter(sprintf('a[href*="/admin/page/%d"]', $page->getId()));
         self::assertGreaterThan(0, $pageDetailLinks->count());
     }
+
+    public function testPageIndexOmitsTimestampColumns(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'page-index-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+        PageFactory::createOne([
+            'title' => 'Index Page',
+            'slug' => 'index-page-admin',
+            'path' => '/index-page-admin',
+            'status' => PageTranslation::STATUS_DRAFT,
+        ]);
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/page');
+        self::assertResponseIsSuccessful();
+
+        $headerText = implode(' | ', $crawler->filter('table thead th')->each(static fn ($node): string => trim($node->text())));
+        self::assertStringNotContainsString('Created', $headerText);
+        self::assertStringNotContainsString('Updated', $headerText);
+    }
+
+    public function testPageTranslationIndexOmitsSecondaryColumnsAndDetailSummarizesBlocks(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()
+            ->asAdmin()
+            ->create([
+                'username' => 'page-tr-index-'.bin2hex(random_bytes(4)),
+            ])
+        ;
+        $page = PageFactory::createOne([
+            'title' => 'Blocks Page',
+            'slug' => 'blocks-page-admin',
+            'path' => '/blocks-page-admin',
+            'status' => PageTranslation::STATUS_DRAFT,
+            'content' => [
+                [
+                    'type' => 'headline',
+                    'enabled' => true,
+                    'data' => ['text' => 'Headline block', 'level' => 'h2'],
+                ],
+            ],
+        ]);
+        $translation = $page->translation('en');
+        self::assertInstanceOf(PageTranslation::class, $translation);
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin/page-translation');
+        self::assertResponseIsSuccessful();
+
+        $headerText = implode(' | ', $crawler->filter('table thead th')->each(static fn ($node): string => trim($node->text())));
+        self::assertStringContainsString('Title', $headerText);
+        self::assertStringNotContainsString('Show table of contents', $headerText);
+        self::assertStringNotContainsString('Created', $headerText);
+
+        $crawler = $client->request(Request::METHOD_GET, sprintf('/admin/page-translation/%d', $translation->getId()));
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Headline', $crawler->text());
+        self::assertCount(0, $crawler->filter('[name^="PageTranslation[content]"]'));
+    }
 }

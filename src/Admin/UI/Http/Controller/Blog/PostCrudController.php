@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -81,7 +82,7 @@ final class PostCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield TextField::new('title', 'label.title');
         yield TextField::new('slug', 'label.slug')
             ->setRequired(false)
@@ -89,6 +90,8 @@ final class PostCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield AssociationField::new('category', 'label.category');
         yield AssociationField::new('tags', 'label.tags')->autocomplete()->hideOnIndex();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.publishing', domain: 'admin'));
         yield ChoiceField::new('status', 'label.status')
             ->setChoices([
                 'label.draft' => PostStatus::DRAFT,
@@ -97,6 +100,8 @@ final class PostCrudController extends AbstractCrudController
             ->renderAsBadges();
         yield DateTimeField::new('publishedAt', 'label.published_at')
             ->setHelp(new TranslatableMessage('help.blog.published_at', domain: 'content'));
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.content', domain: 'admin'));
         yield TextEditorField::new('content', 'label.content')
             ->setNumOfRows(20)
             ->setTrixEditorConfig([
@@ -108,8 +113,13 @@ final class PostCrudController extends AbstractCrudController
             ->setHelp($this->buildContentHelp())
             ->setFormTypeOption('help_html', true)
             ->hideOnIndex();
-        yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'label.updated')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')->onlyOnDetail();
+        yield AssociationField::new('createdBy', 'label.created_by')->onlyOnDetail();
+        yield AssociationField::new('updatedBy', 'label.updated_by')->onlyOnDetail();
+        yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm')->onlyOnDetail();
+        yield DateTimeField::new('updatedAt', 'label.updated')->setFormat('dd.MM.yy HH:mm')->onlyOnDetail();
     }
 
     /**

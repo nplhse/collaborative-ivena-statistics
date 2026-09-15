@@ -16,10 +16,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<MciCase>
@@ -54,34 +56,28 @@ final class MciCaseCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnDetail();
-
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.overview', domain: 'admin'));
         yield AssociationField::new('import', 'Import');
-
         yield AssociationField::new('hospital', 'Hospital')
             ->hideOnIndex();
-
         yield DateTimeField::new('createdAt', 'Created')
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-
         yield DateTimeField::new('arrivalAt', 'Arrival')
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnForm();
-
         yield AssociationField::new('dispatchArea', 'Dispatch Area')
             ->hideOnIndex();
-
         yield AssociationField::new('state', 'State')
             ->hideOnIndex();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.incident', domain: 'admin'));
         yield TextField::new('mciId', 'MANV (Hash)')
             ->hideOnIndex();
-
         yield TextField::new('mciTitle', 'MANV-ID (Title)')
             ->hideOnIndex();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.patient', domain: 'admin'));
         yield ChoiceField::new('gender', 'Gender')
             ->setChoices([
                 'Male' => AllocationGender::MALE,
@@ -89,15 +85,14 @@ final class MciCaseCrudController extends AbstractCrudController
                 'Other' => AllocationGender::OTHER,
             ])
             ->hideOnIndex();
-
         yield IntegerField::new('age', 'Age')
             ->hideOnIndex();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.clinical', domain: 'admin'));
         yield BooleanField::new('requiresResus', 'Requires Resus')
             ->hideOnIndex();
         yield BooleanField::new('requiresCathlab', 'Requires Cathlab')
             ->hideOnIndex();
-
         yield BooleanField::new('isCPR', 'CPR')
             ->hideOnIndex();
         yield BooleanField::new('isVentilated', 'Ventilated')
@@ -109,13 +104,13 @@ final class MciCaseCrudController extends AbstractCrudController
         yield BooleanField::new('isWithPhysician', 'With Physician')
             ->hideOnIndex();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.transport', domain: 'admin'));
         yield ChoiceField::new('transportType', 'Transport Type')
             ->setChoices([
                 'Ground' => AllocationTransportType::GROUND,
                 'Air' => AllocationTransportType::AIR,
             ])
             ->hideOnIndex();
-
         yield ChoiceField::new('urgency', 'Urgency')
             ->setChoices([
                 'Emergency' => AllocationUrgency::EMERGENCY,
@@ -123,7 +118,6 @@ final class MciCaseCrudController extends AbstractCrudController
                 'Outpatient' => AllocationUrgency::OUTPATIENT,
             ])
             ->hideOnIndex();
-
         yield AssociationField::new('speciality', 'Speciality')
             ->hideOnIndex();
         yield AssociationField::new('department', 'Department')
@@ -131,14 +125,18 @@ final class MciCaseCrudController extends AbstractCrudController
         yield BooleanField::new('departmentWasClosed', 'Department Was Closed')
             ->hideOnIndex();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.indications', domain: 'admin'));
         yield AssociationField::new('occasion', 'Occasion')
             ->hideOnIndex();
         yield AssociationField::new('infection', 'Infection')
             ->hideOnIndex();
-
         yield AssociationField::new('indicationRaw', 'Indication Raw')
             ->hideOnIndex();
         yield AssociationField::new('indicationNormalized', 'Indication Normalized')
             ->hideOnIndex();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')
+            ->onlyOnDetail();
     }
 }

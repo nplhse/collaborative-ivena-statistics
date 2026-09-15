@@ -15,10 +15,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<Feedback>
@@ -67,6 +69,18 @@ final class FeedbackCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.status', domain: 'admin'));
+        yield ChoiceField::new('status', 'Status')
+            ->setChoices([
+                'Open' => FeedbackStatus::NEW,
+                'Done' => FeedbackStatus::DONE,
+            ])
+            ->renderAsBadges([
+                FeedbackStatus::NEW->value => 'warning',
+                FeedbackStatus::DONE->value => 'success',
+            ]);
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.submission', domain: 'admin'));
         yield IdField::new('id')->onlyOnDetail();
 
         yield ChoiceField::new('category', 'Category')
@@ -78,16 +92,6 @@ final class FeedbackCrudController extends AbstractCrudController
             ])
             ->renderAsBadges()
             ->hideOnForm();
-
-        yield ChoiceField::new('status', 'Status')
-            ->setChoices([
-                'Open' => FeedbackStatus::NEW,
-                'Done' => FeedbackStatus::DONE,
-            ])
-            ->renderAsBadges([
-                FeedbackStatus::NEW->value => 'warning',
-                FeedbackStatus::DONE->value => 'success',
-            ]);
 
         yield TextField::new('guestEmail', 'Guest email')
             ->hideOnForm();
@@ -112,6 +116,11 @@ final class FeedbackCrudController extends AbstractCrudController
             yield TextareaField::new('message', 'Message')->setNumOfRows(12);
         }
 
+        yield DateTimeField::new('createdAt', 'Created')
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+            ->hideOnForm();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.context', domain: 'admin'));
         if (Crud::PAGE_DETAIL === $pageName) {
             yield TextField::new('pageUrl', 'Page URL')
                 ->hideOnForm();
@@ -149,9 +158,5 @@ final class FeedbackCrudController extends AbstractCrudController
 
         yield TextField::new('userAgent', 'User agent')->hideOnIndex()->hideOnForm();
         yield TextField::new('appVersion', 'App version')->hideOnForm();
-
-        yield DateTimeField::new('createdAt', 'Created')
-            ->setFormat('yyyy-MM-dd HH:mm:ss')
-            ->hideOnForm();
     }
 }

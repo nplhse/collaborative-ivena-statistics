@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller\Hospital;
 
+use App\Admin\Application\Service\HospitalPermissionLabelFormatter;
 use App\Admin\UI\Http\Controller\Engagement\MonthlyReminderDispatchCrudController;
+use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Allocation\Application\Hospital\HospitalRelationNotifier;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
@@ -25,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
@@ -155,13 +158,13 @@ final class HospitalCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')
-            ->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield TextField::new('name', 'Name');
         yield AssociationField::new('owner', 'Owner');
         yield AssociationField::new('dispatchArea', 'Dispatch Area');
         yield AssociationField::new('state', 'State');
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.address', domain: 'admin'));
         yield TextField::new('address.street', 'Street')
             ->hideOnIndex();
         yield TextField::new('address.postalCode', 'Postal code')
@@ -173,6 +176,7 @@ final class HospitalCrudController extends AbstractCrudController
         yield TextField::new('address.country', 'Country')
             ->hideOnIndex();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.classification', domain: 'admin'));
         yield ChoiceField::new('location', 'Location')
             ->setChoices([
                 'Urban' => HospitalLocation::URBAN,
@@ -200,22 +204,56 @@ final class HospitalCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield NumberField::new('longitude', 'Longitude')
             ->hideOnIndex();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.participation', domain: 'admin'));
         yield BooleanField::new('isParticipating', 'Participating');
         yield DateTimeField::new('participatingSince', 'Participating since')
             ->setFormat('dd.MM.yyyy HH:mm')
             ->hideOnIndex();
-        yield AssociationField::new('accessGrants', 'Access grants')
-            ->onlyOnDetail();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.access', domain: 'admin'));
+        yield AssociationField::new('accessGrants', 'Access grants')
+            ->onlyOnDetail()
+            ->setSortable(false)
+            ->renderAsHtml()
+            ->formatValue(fn (mixed $_, Hospital $hospital): string => $this->formatAccessGrantsHtml($hospital));
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')
+            ->onlyOnDetail();
         yield DateTimeField::new('createdAt', 'Created')
             ->setFormat('dd.MM.yyyy HH:mm')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Updated')
             ->setFormat('dd.MM.yyyy HH:mm')
-            ->hideOnForm();
+            ->onlyOnDetail();
         yield AssociationField::new('createdBy', 'Created by')
             ->onlyOnDetail();
         yield AssociationField::new('updatedBy', 'Updated by')
             ->onlyOnDetail();
+    }
+
+    private function formatAccessGrantsHtml(Hospital $hospital): string
+    {
+        $parts = [];
+        foreach ($hospital->getAccessGrants() as $grant) {
+            $user = $grant->getUser();
+            $userId = $user?->getId();
+            if (null === $user || null === $userId) {
+                continue;
+            }
+
+            $url = $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(UserCrudController::class)
+                ->setAction(Action::DETAIL)
+                ->setEntityId($userId)
+                ->generateUrl();
+            $name = htmlspecialchars((string) $user->getUsername(), ENT_QUOTES);
+            $permissions = htmlspecialchars(HospitalPermissionLabelFormatter::formatMask($grant->getPermissions()), ENT_QUOTES);
+            $parts[] = sprintf('<a href="%s">%s</a> (%s)', htmlspecialchars($url, ENT_QUOTES), $name, $permissions);
+        }
+
+        return [] === $parts ? '—' : implode('<br>', $parts);
     }
 }

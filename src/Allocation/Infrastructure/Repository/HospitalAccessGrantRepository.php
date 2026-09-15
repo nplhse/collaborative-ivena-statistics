@@ -41,6 +41,29 @@ final class HospitalAccessGrantRepository extends ServiceEntityRepository
         return $grants;
     }
 
+    /**
+     * @return list<HospitalAccessGrant>
+     */
+    public function findForUser(User $user): array
+    {
+        $userId = $user->getId();
+        if (null === $userId) {
+            return [];
+        }
+
+        /** @var list<HospitalAccessGrant> $grants */
+        $grants = $this->createQueryBuilder('g')
+            ->innerJoin('g.hospital', 'h')
+            ->addSelect('h')
+            ->andWhere('IDENTITY(g.user) = :userId')
+            ->setParameter('userId', $userId, Types::INTEGER)
+            ->orderBy('h.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $grants;
+    }
+
     public function findForUserAndHospital(User $user, Hospital $hospital): ?HospitalAccessGrant
     {
         $userId = $user->getId();
