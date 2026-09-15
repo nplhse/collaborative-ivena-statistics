@@ -32,6 +32,8 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
             'scope' => 'hospital',
             'hospital' => '5',
             'period' => 'all',
+            'geo_segment' => 'origin:15',
+            'geo_profile' => 'urgency',
         ]);
 
         $params = $builder->buildParams(
@@ -44,6 +46,8 @@ final class StatisticsNavigationUrlBuilderTest extends TestCase
         self::assertSame('public', $params['scope']);
         self::assertSame('all', $params['period']);
         self::assertArrayNotHasKey('hospital', $params);
+        self::assertArrayNotHasKey('geo_segment', $params);
+        self::assertArrayNotHasKey('geo_profile', $params);
     }
 
     public function testBuildFromTargetPassesExplorerViewSlugToRouter(): void

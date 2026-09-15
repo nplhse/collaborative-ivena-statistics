@@ -207,7 +207,7 @@
       </trans-unit>
       <trans-unit id="lnkStatsCfDe" resname="link.stats.case_flow">
         <source>link.stats.case_flow</source>
-        <target>Fallverlauf</target>
+        <target>Geografischer Fluss</target>
       </trans-unit>
       <trans-unit id="lnkStatsCdaDe" resname="link.stats.closed_department_assignments">
         <source>link.stats.closed_department_assignments</source>

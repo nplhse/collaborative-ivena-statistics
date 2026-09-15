@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
 use Doctrine\DBAL\Connection;
@@ -22,12 +23,23 @@ final readonly class CaseFlowOriginDistributionQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
+        CaseFlowDispatchAreaMatch $dispatchAreaMatch = CaseFlowDispatchAreaMatch::Related,
     ): array {
-        if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
+        if (CaseFlowSqlFilter::isImpossibleScope($scope, $originStateId)) {
             return [];
         }
 
-        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            $from,
+            $toExclusive,
+            $scope,
+            'asp',
+            $originStateId,
+            $drawerFilter,
+            $dispatchAreaMatch,
+        );
 
         $sql = <<<SQL
 SELECT

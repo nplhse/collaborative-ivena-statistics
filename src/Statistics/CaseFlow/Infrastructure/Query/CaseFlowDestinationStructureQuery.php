@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowDestinationPoolRow;
 use Doctrine\DBAL\Connection;
@@ -22,8 +23,10 @@ final readonly class CaseFlowDestinationStructureQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        return $this->fetchGrouped($from, $toExclusive, $scope, 'asp.hospital_tier_code::TEXT', false);
+        return $this->fetchGrouped($from, $toExclusive, $scope, 'asp.hospital_tier_code::TEXT', false, $originStateId, $drawerFilter);
     }
 
     /**
@@ -33,8 +36,10 @@ final readonly class CaseFlowDestinationStructureQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        return $this->fetchGrouped($from, $toExclusive, $scope, 'asp.hospital_location_code::TEXT', false);
+        return $this->fetchGrouped($from, $toExclusive, $scope, 'asp.hospital_location_code::TEXT', false, $originStateId, $drawerFilter);
     }
 
     /**
@@ -44,8 +49,10 @@ final readonly class CaseFlowDestinationStructureQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        return $this->fetchGrouped($from, $toExclusive, $scope, 'h.size', true);
+        return $this->fetchGrouped($from, $toExclusive, $scope, 'h.size', true, $originStateId, $drawerFilter);
     }
 
     /**
@@ -57,12 +64,21 @@ final readonly class CaseFlowDestinationStructureQuery
         StatisticsScopeCriteria $scope,
         string $column,
         bool $joinHospital,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
+        if (CaseFlowSqlFilter::isImpossibleScope($scope, $originStateId)) {
             return [];
         }
 
-        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            $from,
+            $toExclusive,
+            $scope,
+            'asp',
+            $originStateId,
+            $drawerFilter,
+        );
         $join = $joinHospital ? 'INNER JOIN hospital h ON h.id = asp.hospital_id' : '';
 
         $sql = <<<SQL

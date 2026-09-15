@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query\IsochroneOriginMap;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandQueryResult;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginBandQueryInterface;
 use App\Statistics\Application\Mapping\DepartmentWasClosedSql;
 use App\Statistics\Application\Mapping\IsochroneOriginBandSql;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
+use App\Statistics\Infrastructure\Query\ProjectionDrawerFilterSql;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
@@ -20,6 +22,7 @@ final readonly class IsochroneOriginBandQuery implements IsochroneOriginBandQuer
 {
     public function __construct(
         private Connection $connection,
+        private ProjectionDrawerFilterSql $drawerFilterSql,
     ) {
     }
 
@@ -33,6 +36,7 @@ final readonly class IsochroneOriginBandQuery implements IsochroneOriginBandQuer
         StatisticsScopeCriteria $scope,
         ?array $indicationIds = null,
         ?bool $departmentWasClosed = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): IsochroneOriginBandQueryResult {
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return IsochroneOriginBandQueryResult::empty();
@@ -50,7 +54,13 @@ final readonly class IsochroneOriginBandQuery implements IsochroneOriginBandQuer
             $types['indication_ids'] = ArrayParameterType::INTEGER;
         }
 
-        if (true === $departmentWasClosed) {
+        if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {
+            [$drawerConditions, $drawerParams] = $this->drawerFilterSql->apply($drawerFilter);
+            if ([] !== $drawerConditions) {
+                $where .= ' AND '.implode(' AND ', $drawerConditions);
+                $params = [...$params, ...$drawerParams];
+            }
+        } elseif (true === $departmentWasClosed) {
             $where .= ' AND '.DepartmentWasClosedSql::closed();
         } elseif (false === $departmentWasClosed) {
             $where .= ' AND '.DepartmentWasClosedSql::regular();

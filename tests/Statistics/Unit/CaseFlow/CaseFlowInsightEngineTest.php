@@ -34,6 +34,20 @@ final class CaseFlowInsightEngineTest extends TestCase
         self::assertSame('predominantly_regional', $insights[0]->id);
     }
 
+    public function testBuildAddsInflowInsightWhenShareIsHigh(): void
+    {
+        $metrics = new CaseFlowRegionalMetricsRow(200, 80, 40, 30, 30.0, 29.0, 50, 70);
+        $insights = $this->engine->build(
+            CaseFlowMode::SystemFlow,
+            $metrics,
+            [],
+            ['meanTransport' => 30.0, 'medianTransport' => 30.0, 'fullTierPercent' => 20.0],
+        );
+
+        $ids = array_map(static fn (\App\Statistics\CaseFlow\Application\DTO\CaseFlowInsight $i): string => $i->id, $insights);
+        self::assertContains('significant_inflow', $ids);
+    }
+
     public function testBuildReturnsEmptyWhenBelowMinimumCases(): void
     {
         $metrics = new CaseFlowRegionalMetricsRow(10, 8, 2, 1, 20.0, 19.0);

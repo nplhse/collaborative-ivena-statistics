@@ -12,14 +12,6 @@ use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowBucketRow;
 
 final class CaseFlowDistributionBuilder
 {
-    /** @var array<string, string> */
-    private const array URGENCY_LABEL_KEYS = [
-        'emergency' => 'stats.case_flow.urgency.emergency',
-        'inpatient' => 'stats.case_flow.urgency.inpatient',
-        'outpatient' => 'stats.case_flow.urgency.outpatient',
-        'unknown' => 'stats.case_flow.urgency.unknown',
-    ];
-
     /**
      * @param list<CaseFlowBucketRow> $rows
      *
@@ -28,33 +20,6 @@ final class CaseFlowDistributionBuilder
     public function buildTransportTime(array $rows, int $totalCases): array
     {
         return $this->buildFromBuckets($rows, $totalCases, static fn (string $key): string => 'stats.distribution.transport_time_bucket.'.$key);
-    }
-
-    /**
-     * @param list<CaseFlowBucketRow> $rows
-     *
-     * @return list<CaseFlowDistributionSlice>
-     */
-    public function buildUrgency(array $rows, int $totalCases): array
-    {
-        if ($totalCases <= 0) {
-            return [];
-        }
-
-        $slices = [];
-        foreach ($rows as $row) {
-            if ('unknown' === $row->bucketKey) {
-                continue;
-            }
-            $slices[] = new CaseFlowDistributionSlice(
-                $row->bucketKey,
-                self::URGENCY_LABEL_KEYS[$row->bucketKey] ?? 'stats.case_flow.urgency.unknown',
-                $row->caseCount,
-                round(((float) $row->caseCount / (float) $totalCases) * 100.0, 1),
-            );
-        }
-
-        return $slices;
     }
 
     /**
@@ -93,9 +58,9 @@ final class CaseFlowDistributionBuilder
     public function sizeLabelKeys(): array
     {
         return [
-            'Small' => 'hospital.size.Small',
-            'Medium' => 'hospital.size.Medium',
-            'Large' => 'hospital.size.Large',
+            'Small' => 'stats.case_flow.size.small',
+            'Medium' => 'stats.case_flow.size.medium',
+            'Large' => 'stats.case_flow.size.large',
         ];
     }
 

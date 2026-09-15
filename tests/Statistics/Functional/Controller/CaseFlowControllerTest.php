@@ -18,7 +18,9 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -31,6 +33,8 @@ final class CaseFlowControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
+    use RefreshesStatisticsFunctionalDataTrait;
+    use RefreshesStatisticsMaterializedViewsTrait;
 
     public function testCaseFlowPageShowsAggregatedKpisWithSeededData(): void
     {
@@ -80,6 +84,12 @@ final class CaseFlowControllerTest extends WebTestCase
         self::assertSame('system_flow', $payload['mode']);
         self::assertNotEmpty($payload['mapFeatures']);
         self::assertSame('caseflowctrldispatch', $payload['mapFeatures'][0]['geoKey']);
+        self::assertArrayHasKey('geographicMap', $payload);
+        self::assertContains('originChoropleth', $payload['geographicMap']['layers']);
+        self::assertArrayNotHasKey('flowStackedBar', $payload);
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-optgroup-origin"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-transport"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
     }
 
     public function testCaseFlowPageIsDisplayedForPublicScope(): void
@@ -91,15 +101,39 @@ final class CaseFlowControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-case-flow-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-case-flow-kpis"]');
         $this->assertSelectorExists('[data-testid="stats-case-flow-map"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-profile"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-transport"]');
+        $this->assertSelectorExists('[data-testid="stats-geo-map-expand"]');
+        $this->assertSelectorExists('[data-testid="stats-geo-map-share-legend"]');
+        $this->assertSelectorExists('details summary');
+        $this->assertSelectorExists('[data-testid="statistics-filter-department"]');
     }
 
-    public function testCaseFlowSystemModeShowsStackedBar(): void
+    public function testStackedBarIsHiddenForPublicScope(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-case-flow-stacked-bar"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
+    }
+
+    public function testStackedBarIsHiddenForHospitalCohortScope(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedEligibleUrbanBasicCohort($client);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/case-flow?scope=hospital_cohort:urban_basic&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
+
+        $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
+        $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('system_flow', $payload['mode']);
+        self::assertArrayNotHasKey('flowStackedBar', $payload);
     }
 
     public function testCaseFlowPageDoesNotExposeForeignHospitalNames(): void
@@ -162,6 +196,166 @@ final class CaseFlowControllerTest extends WebTestCase
         $location = (string) $client->getResponse()->headers->get('Location');
         self::assertStringContainsString('scope=public', $location);
         self::assertStringNotContainsString('my_hospitals', $location);
+    }
+
+    public function testHospitalScopeShowsInflowDiagramWithoutOutflowStage(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::new()->asAdmin()->create();
+        $client->loginUser($user);
+
+        $state = StateFactory::createOne(['name' => 'CaseFlowHospitalState']);
+        $homeArea = DispatchAreaFactory::createOne(['name' => 'CaseFlowHospitalHome', 'state' => $state]);
+        $otherArea = DispatchAreaFactory::createOne(['name' => 'CaseFlowHospitalOther', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'CaseFlowHospitalKlinik',
+            'state' => $state,
+            'dispatchArea' => $homeArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+            'owner' => $user,
+            'createdBy' => $user,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'CaseFlowHospitalSpec']);
+        DepartmentFactory::createOne(['name' => 'CaseFlowHospitalDept']);
+        AssignmentFactory::createOne(['name' => 'CaseFlowHospitalAssign']);
+        IndicationRawFactory::createOne(['name' => 'CaseFlowHospitalRaw', 'code' => 912_503]);
+
+        $import = ImportFactory::createOne(['name' => 'CaseFlowHospitalImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        AllocationFactory::createMany(7, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $homeArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-04-01 09:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 09:20:00'),
+        ]);
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $otherArea,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'createdAt' => new \DateTimeImmutable('2026-04-02 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-02 10:25:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $client->request(Request::METHOD_GET, '/statistics/case-flow', [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-case-flow-dispatch-flow"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-dispatch-flow-outflow"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-urgency-structure"]');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-inflow-count"]', '3');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-local-count"]', '7');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-total-count"]', '10');
+    }
+
+    public function testDispatchAreaScopeShowsInflowAndOutflowDiagram(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::new()->asAdmin()->create();
+        $client->loginUser($user);
+
+        $state = StateFactory::createOne(['name' => 'CaseFlowDaState']);
+        $areaA = DispatchAreaFactory::createOne(['name' => 'CaseFlowDaHome', 'state' => $state]);
+        $areaB = DispatchAreaFactory::createOne(['name' => 'CaseFlowDaOther', 'state' => $state]);
+        $hospitalA = HospitalFactory::createOne([
+            'name' => 'CaseFlowDaKlinikA',
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+            'owner' => $user,
+            'createdBy' => $user,
+            'latitude' => 51.31,
+            'longitude' => 9.49,
+        ]);
+        $hospitalB = HospitalFactory::createOne([
+            'name' => 'CaseFlowDaKlinikB',
+            'state' => $state,
+            'dispatchArea' => $areaB,
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::RURAL,
+            'owner' => $user,
+            'createdBy' => $user,
+            'latitude' => 50.80,
+            'longitude' => 8.77,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'CaseFlowDaSpec']);
+        DepartmentFactory::createOne(['name' => 'CaseFlowDaDept']);
+        AssignmentFactory::createOne(['name' => 'CaseFlowDaAssign']);
+        IndicationRawFactory::createOne(['name' => 'CaseFlowDaRaw', 'code' => 912_604]);
+
+        $importA = ImportFactory::createOne(['name' => 'CaseFlowDaImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
+        $importB = ImportFactory::createOne(['name' => 'CaseFlowDaImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(7, [
+            'import' => $importA,
+            'hospital' => $hospitalA,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-04-01 09:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 09:20:00'),
+        ]);
+        AllocationFactory::createMany(3, [
+            'import' => $importA,
+            'hospital' => $hospitalA,
+            'state' => $state,
+            'dispatchArea' => $areaB,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'createdAt' => new \DateTimeImmutable('2026-04-02 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-02 10:25:00'),
+        ]);
+        AllocationFactory::createMany(4, [
+            'import' => $importB,
+            'hospital' => $hospitalB,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-04-03 11:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-03 11:22:00'),
+        ]);
+
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+        $rebuilder->rebuildForImport($importA->getId());
+        $rebuilder->rebuildForImport($importB->getId());
+        $this->refreshStatisticsMaterializedViews();
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/case-flow', [
+            'scope' => 'dispatch_area:'.$areaA->getId(),
+            'period' => 'all',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-case-flow-dispatch-flow"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-dispatch-flow-outflow"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-urgency-structure"]');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-inflow-count"]', '3');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-local-count"]', '11');
+        $this->assertSelectorTextSame('[data-testid="stats-case-flow-flow-total-count"]', '14');
+
+        $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
+        $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+
+        self::assertSame($areaA->getId(), $payload['geographicMap']['selectedDispatchAreaId']);
+        self::assertContains('destinationHospitals', $payload['geographicMap']['compactLayers']);
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
     }
 
     /**

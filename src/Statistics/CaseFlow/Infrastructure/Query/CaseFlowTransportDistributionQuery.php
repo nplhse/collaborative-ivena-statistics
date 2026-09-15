@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowBucketRow;
@@ -23,24 +24,10 @@ final readonly class CaseFlowTransportDistributionQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        return $this->fetchBucketed($from, $toExclusive, $scope, StatisticsTransportTimeBucketSql::CASE_EXPRESSION);
-    }
-
-    /**
-     * @return list<CaseFlowBucketRow>
-     */
-    public function fetchUrgency(
-        ?\DateTimeImmutable $from,
-        ?\DateTimeImmutable $toExclusive,
-        StatisticsScopeCriteria $scope,
-    ): array {
-        return $this->fetchBucketed(
-            $from,
-            $toExclusive,
-            $scope,
-            "CASE asp.urgency_code WHEN 1 THEN 'emergency' WHEN 2 THEN 'inpatient' WHEN 3 THEN 'outpatient' ELSE 'unknown' END",
-        );
+        return $this->fetchBucketed($from, $toExclusive, $scope, StatisticsTransportTimeBucketSql::CASE_EXPRESSION, $originStateId, $drawerFilter);
     }
 
     /**
@@ -51,12 +38,21 @@ final readonly class CaseFlowTransportDistributionQuery
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
         string $bucketExpression,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
+        if (CaseFlowSqlFilter::isImpossibleScope($scope, $originStateId)) {
             return [];
         }
 
-        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            $from,
+            $toExclusive,
+            $scope,
+            'asp',
+            $originStateId,
+            $drawerFilter,
+        );
 
         $sql = <<<SQL
 SELECT

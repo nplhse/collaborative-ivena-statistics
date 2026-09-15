@@ -19,6 +19,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDispatchAreaMatch;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowOriginDistributionQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowRegionalMetricsQuery;
 use App\Tests\Statistics\Support\PreciseTransportTimeScenarios;
@@ -170,5 +171,89 @@ final class CaseFlowRegionalMetricsQueryTest extends KernelTestCase
             PreciseTransportTimeScenarios::ROUNDED_MINUTES_MEDIAN,
             $metrics->medianTransportMinutes,
         );
+    }
+
+    public function testDispatchAreaScopeCountsInflowAndOutflow(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'case-flow-da-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'CaseFlowDaState']);
+        $areaA = DispatchAreaFactory::createOne(['name' => 'CaseFlowDaAreaA', 'state' => $state]);
+        $areaB = DispatchAreaFactory::createOne(['name' => 'CaseFlowDaAreaB', 'state' => $state]);
+        $hospitalA = HospitalFactory::createOne([
+            'name' => 'CaseFlowDaHospitalA',
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+        $hospitalB = HospitalFactory::createOne([
+            'name' => 'CaseFlowDaHospitalB',
+            'state' => $state,
+            'dispatchArea' => $areaB,
+            'tier' => HospitalTier::BASIC,
+            'location' => HospitalLocation::RURAL,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'CaseFlowDaSpec']);
+        DepartmentFactory::createOne(['name' => 'CaseFlowDaDept']);
+        AssignmentFactory::createOne(['name' => 'CaseFlowDaAssign']);
+        IndicationRawFactory::createOne(['name' => 'CaseFlowDaRaw', 'code' => 912_503]);
+
+        $importA = ImportFactory::createOne(['name' => 'CaseFlowDaImportA', 'hospital' => $hospitalA, 'createdBy' => $user]);
+        $importB = ImportFactory::createOne(['name' => 'CaseFlowDaImportB', 'hospital' => $hospitalB, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(7, [
+            'import' => $importA,
+            'hospital' => $hospitalA,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'createdAt' => new \DateTimeImmutable('2026-03-01 08:00:00'),
+        ]);
+        AllocationFactory::createMany(3, [
+            'import' => $importA,
+            'hospital' => $hospitalA,
+            'state' => $state,
+            'dispatchArea' => $areaB,
+            'createdAt' => new \DateTimeImmutable('2026-03-02 10:00:00'),
+        ]);
+        AllocationFactory::createMany(4, [
+            'import' => $importB,
+            'hospital' => $hospitalB,
+            'state' => $state,
+            'dispatchArea' => $areaA,
+            'createdAt' => new \DateTimeImmutable('2026-03-03 11:00:00'),
+        ]);
+
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+        $rebuilder->rebuildForImport($importA->getId());
+        $rebuilder->rebuildForImport($importB->getId());
+
+        $scope = new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: $areaA->getId());
+        $metricsQuery = self::getContainer()->get(CaseFlowRegionalMetricsQuery::class);
+        $originQuery = self::getContainer()->get(CaseFlowOriginDistributionQuery::class);
+
+        $metrics = $metricsQuery->fetch(null, null, $scope);
+        $catchmentOrigins = $originQuery->fetch(
+            null,
+            null,
+            $scope,
+            null,
+            null,
+            CaseFlowDispatchAreaMatch::Catchment,
+        );
+
+        self::assertSame(14, $metrics->totalCases);
+        self::assertSame(7, $metrics->regionalCases);
+        self::assertSame(3, $metrics->inflowCases);
+        self::assertSame(4, $metrics->outflowCases);
+
+        $catchmentByName = [];
+        foreach ($catchmentOrigins as $row) {
+            $catchmentByName[$row->originName] = $row->caseCount;
+        }
+        self::assertSame(7, $catchmentByName['CaseFlowDaAreaA']);
+        self::assertSame(3, $catchmentByName['CaseFlowDaAreaB']);
     }
 }

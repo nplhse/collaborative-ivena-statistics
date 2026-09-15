@@ -29,7 +29,11 @@ final readonly class StatisticsNavigationExtension
             return 'shared';
         }
 
-        if (str_starts_with($key, 'hospital.size.')) {
+        if (
+            str_starts_with($key, 'hospital.size.')
+            || str_starts_with($key, 'hospital.tier.')
+            || str_starts_with($key, 'hospital.location.')
+        ) {
             return 'allocation';
         }
 

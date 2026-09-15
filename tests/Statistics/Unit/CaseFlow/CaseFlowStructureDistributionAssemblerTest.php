@@ -40,12 +40,12 @@ final class CaseFlowStructureDistributionAssemblerTest extends TestCase
     public function testSizeCardSkipsZeroCountSegmentsExceptSuppressed(): void
     {
         $card = $this->assembler->sizeCard([
-            new CaseFlowDestinationPoolSlice('Large', 'hospital.size.Large', 50, 2, false),
+            new CaseFlowDestinationPoolSlice('Large', 'stats.case_flow.size.large', 50, 2, false),
             new CaseFlowDestinationPoolSlice(CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY, 'stats.case_flow.pool.suppressed', 0, 0, true),
         ]);
 
         self::assertCount(2, $card->segments);
-        self::assertSame('hospital.size.Large', $card->segments[0]->labelTranslationKey);
+        self::assertSame('stats.case_flow.size.large', $card->segments[0]->labelTranslationKey);
         self::assertSame(0, $card->segments[1]->count);
     }
 }

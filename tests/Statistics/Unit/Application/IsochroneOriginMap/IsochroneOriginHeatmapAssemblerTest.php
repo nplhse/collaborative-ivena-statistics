@@ -167,6 +167,7 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
                 self::isInstanceOf(StatisticsScopeCriteria::class),
                 [7, 8],
                 null,
+                null,
             )
             ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
 
@@ -193,6 +194,7 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
                 self::isInstanceOf(StatisticsScopeCriteria::class),
                 null,
                 true,
+                null,
             )
             ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
 

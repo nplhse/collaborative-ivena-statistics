@@ -24,6 +24,23 @@
             </p>
         {% endif %}
 
+        {% if report.geographicMapPayload %}
+            <div class="mb-3" data-testid="stats-ttp-geographic-map">
+                {{ include('@Statistics/geographic_map/_map.html.twig', {
+                    payload: report.geographicMapPayload,
+                    testId: 'stats-ttp-geo-map',
+                    geoUrl: null,
+                    showValueModes: false,
+                    showExpand: true,
+                    showIsochroneLegend: true,
+                    frameClass: 'isochrone-origin-map-frame',
+                    unknownCount: report.geographicMapPayload.isochrone.unknownCount|default(0),
+                    beyondMaxCount: report.geographicMapPayload.isochrone.beyondMaxCount|default(0),
+                    titleKey: 'stats.case_flow.section.map',
+                }) }}
+            </div>
+        {% endif %}
+
         <div class="row g-3 mb-3 align-items-stretch">
             <div class="{% if report.insights is not empty %}col-lg-8{% else %}col-12{% endif %}">
                 <div class="card h-100" data-testid="stats-ttp-chart-card"

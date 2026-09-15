@@ -15,6 +15,8 @@ final readonly class CaseFlowKpiSet
         public ?float $dominantOriginSharePercent,
         public ?float $overregionalSharePercent,
         public ?float $emergencySharePercent,
+        public ?float $inflowSharePercent = null,
+        public ?float $outflowSharePercent = null,
     ) {
     }
 }

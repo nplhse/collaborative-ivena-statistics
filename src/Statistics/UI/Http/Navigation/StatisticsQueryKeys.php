@@ -58,6 +58,9 @@ final class StatisticsQueryKeys
         self::COMPARISON_MONTH,
     ];
 
+    public const string GEO_SEGMENT = 'geo_segment';
+    public const string GEO_PROFILE = 'geo_profile';
+
     public const string REPORT = 'report';
     public const string LIMIT = 'limit';
     public const string PER_PAGE = 'per_page';
@@ -111,6 +114,8 @@ final class StatisticsQueryKeys
         self::STATE,
         self::DISPATCH_AREA,
         self::PAGE,
+        self::GEO_SEGMENT,
+        self::GEO_PROFILE,
     ];
 
     /** @var list<string> */

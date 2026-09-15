@@ -19,23 +19,6 @@ final class CaseFlowDistributionBuilderTest extends TestCase
         $this->builder = new CaseFlowDistributionBuilder();
     }
 
-    public function testBuildUrgencySkipsUnknownBucket(): void
-    {
-        $rows = [
-            new CaseFlowBucketRow('emergency', 30),
-            new CaseFlowBucketRow('unknown', 5),
-            new CaseFlowBucketRow('inpatient', 10),
-        ];
-
-        $slices = $this->builder->buildUrgency($rows, 40);
-
-        self::assertCount(2, $slices);
-        self::assertSame('emergency', $slices[0]->key);
-        self::assertSame(30, $slices[0]->count);
-        self::assertSame(75.0, $slices[0]->percent);
-        self::assertSame('inpatient', $slices[1]->key);
-    }
-
     public function testBuildTransportTimeOrdersDisplayBucketsAndAggregatesDuplicates(): void
     {
         $rows = [

@@ -137,6 +137,18 @@
         <source>hospital.location.Urban</source>
         <target>Urban Location</target>
       </trans-unit>
+      <trans-unit id="2GXLZcX" resname="hospital.size.Large">
+        <source>hospital.size.Large</source>
+        <target>Large Size</target>
+      </trans-unit>
+      <trans-unit id="b8NtI4L" resname="hospital.size.Medium">
+        <source>hospital.size.Medium</source>
+        <target>Medium Size</target>
+      </trans-unit>
+      <trans-unit id="7pO0v2a" resname="hospital.size.Small">
+        <source>hospital.size.Small</source>
+        <target>Small Size</target>
+      </trans-unit>
       <trans-unit id="brJg_gq" resname="hospital.tier.Basic">
         <source>hospital.tier.Basic</source>
         <target>Basic Tier</target>

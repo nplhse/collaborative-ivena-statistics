@@ -2535,11 +2535,11 @@
       </trans-unit>
       <trans-unit id="Debbb78026" resname="stats.case_flow.mode.hospital_origin">
         <source>stats.case_flow.mode.hospital_origin</source>
-        <target>Herkunftsanalyse</target>
+        <target>Einzugsgebiet des Krankenhauses</target>
       </trans-unit>
       <trans-unit id="Dedff096cd" resname="stats.case_flow.mode.system_flow">
         <source>stats.case_flow.mode.system_flow</source>
-        <target>Systemflussanalyse</target>
+        <target>Regionalanalyse</target>
       </trans-unit>
       <trans-unit id="De5951ac56" resname="stats.case_flow.pool.suppressed">
         <source>stats.case_flow.pool.suppressed</source>
@@ -2551,7 +2551,7 @@
       </trans-unit>
       <trans-unit id="De94283df9" resname="stats.case_flow.pretitle">
         <source>stats.case_flow.pretitle</source>
-        <target>Versorgungsstruktur</target>
+        <target>Herkunft, Ziel und Transportzeit</target>
       </trans-unit>
       <trans-unit id="De885cc5ab" resname="stats.case_flow.section.destination_location">
         <source>stats.case_flow.section.destination_location</source>
@@ -2565,10 +2565,6 @@
         <source>stats.case_flow.section.destination_tier</source>
         <target>Ziel nach Versorgungsstufe</target>
       </trans-unit>
-      <trans-unit id="De9fb6aa9f" resname="stats.case_flow.section.flow_matrix">
-        <source>stats.case_flow.section.flow_matrix</source>
-        <target>Herkunft zu Ziel-Versorgungsstufe</target>
-      </trans-unit>
       <trans-unit id="De06abf92a" resname="stats.case_flow.section.map">
         <source>stats.case_flow.section.map</source>
         <target>Leitstellenkarte Hessen</target>
@@ -2581,13 +2577,21 @@
         <source>stats.case_flow.section.transport_time</source>
         <target>Transportzeitverteilung</target>
       </trans-unit>
-      <trans-unit id="Deda45e1e7" resname="stats.case_flow.section.urgency">
-        <source>stats.case_flow.section.urgency</source>
-        <target>Dringlichkeitsverteilung</target>
-      </trans-unit>
       <trans-unit id="De72ec3252" resname="stats.case_flow.structure.empty">
         <source>stats.case_flow.structure.empty</source>
         <target>Keine Daten für diese Auswahl verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="DeCfSize01" resname="stats.case_flow.size.large">
+        <source>stats.case_flow.size.large</source>
+        <target>Groß</target>
+      </trans-unit>
+      <trans-unit id="DeCfSize02" resname="stats.case_flow.size.medium">
+        <source>stats.case_flow.size.medium</source>
+        <target>Mittel</target>
+      </trans-unit>
+      <trans-unit id="DeCfSize03" resname="stats.case_flow.size.small">
+        <source>stats.case_flow.size.small</source>
+        <target>Klein</target>
       </trans-unit>
       <trans-unit id="Deefd9663b" resname="stats.case_flow.tier.basic">
         <source>stats.case_flow.tier.basic</source>
@@ -2603,23 +2607,7 @@
       </trans-unit>
       <trans-unit id="De65c51eb7" resname="stats.case_flow.title">
         <source>stats.case_flow.title</source>
-        <target>Patientenfluss</target>
-      </trans-unit>
-      <trans-unit id="De6378172c" resname="stats.case_flow.urgency.emergency">
-        <source>stats.case_flow.urgency.emergency</source>
-        <target>Notfall</target>
-      </trans-unit>
-      <trans-unit id="De11bb9f7c" resname="stats.case_flow.urgency.inpatient">
-        <source>stats.case_flow.urgency.inpatient</source>
-        <target>Stationär</target>
-      </trans-unit>
-      <trans-unit id="De876583d2" resname="stats.case_flow.urgency.outpatient">
-        <source>stats.case_flow.urgency.outpatient</source>
-        <target>Ambulant</target>
-      </trans-unit>
-      <trans-unit id="De9d38224c" resname="stats.case_flow.urgency.unknown">
-        <source>stats.case_flow.urgency.unknown</source>
-        <target>Unbekannt</target>
+        <target>Geografische Flussanalyse</target>
       </trans-unit>
       <trans-unit id="CdaDe01" resname="stats.closed_department.title">
         <source>stats.closed_department.title</source>
@@ -6016,6 +6004,234 @@
       <trans-unit id="statsIsoMapDe11" resname="stats.isochrone_origin_map.unmapped_separator">
         <source>stats.isochrone_origin_map.unmapped_separator</source>
         <target> · </target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe01" resname="stats.case_flow.map.expand">
+        <source>stats.case_flow.map.expand</source>
+        <target>Karte vergrößern</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe02" resname="stats.case_flow.map.collapse">
+        <source>stats.case_flow.map.collapse</source>
+        <target>Schließen</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe03" resname="stats.case_flow.map.layer.origin">
+        <source>stats.case_flow.map.layer.origin</source>
+        <target>Herkunftsregionen</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe04" resname="stats.case_flow.map.layer.destinations">
+        <source>stats.case_flow.map.layer.destinations</source>
+        <target>Zielkrankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe05" resname="stats.case_flow.map.layer.isochrones">
+        <source>stats.case_flow.map.layer.isochrones</source>
+        <target>Geschätzte Fahrzeit (Isochronen)</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe06" resname="stats.case_flow.map.layer.hospital">
+        <source>stats.case_flow.map.layer.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe07" resname="stats.case_flow.map.estimated_vs_observed">
+        <source>stats.case_flow.map.estimated_vs_observed</source>
+        <target>Isochronen-Bänder zeigen geschätzte Fahrzeit-Geografie. Farben und Diagramme nutzen beobachtete Transportzeiten aus Zuweisungsdaten; beides sind keine gleichwertigen Messungen.</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe09" resname="stats.case_flow.map.legend.share_low">
+        <source>stats.case_flow.map.legend.share_low</source>
+        <target>0 %</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe10" resname="stats.case_flow.map.legend.share_high">
+        <source>stats.case_flow.map.legend.share_high</source>
+        <target>100 %</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe11" resname="stats.case_flow.map.legend.count_low">
+        <source>stats.case_flow.map.legend.count_low</source>
+        <target>Weniger Fälle</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe12" resname="stats.case_flow.map.legend.count_high">
+        <source>stats.case_flow.map.legend.count_high</source>
+        <target>Mehr Fälle</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe13" resname="stats.case_flow.mode.dispatch_area">
+        <source>stats.case_flow.mode.dispatch_area</source>
+        <target>Leitstellen-Fluss</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe14" resname="stats.case_flow.section.dispatch_flow">
+        <source>stats.case_flow.section.dispatch_flow</source>
+        <target>Zufluss und Abfluss</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe15" resname="stats.case_flow.dispatch_flow.intro">
+        <source>stats.case_flow.dispatch_flow.intro</source>
+        <target>Einsätze von anderen Leitstellen zu Häusern dieser Leitstelle, alle zugehörigen Zuweisungen, dann Ziel im Landkreis oder außerhalb (Abfluss).</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe16" resname="stats.case_flow.dispatch_flow.inflow">
+        <source>stats.case_flow.dispatch_flow.inflow</source>
+        <target>Zufluss von außerhalb</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe17" resname="stats.case_flow.dispatch_flow.local_origin">
+        <source>stats.case_flow.dispatch_flow.local_origin</source>
+        <target>Herkunft in dieser Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe18" resname="stats.case_flow.dispatch_flow.all_assignments">
+        <source>stats.case_flow.dispatch_flow.all_assignments</source>
+        <target>Alle zugehörigen Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe19" resname="stats.case_flow.dispatch_flow.inside">
+        <source>stats.case_flow.dispatch_flow.inside</source>
+        <target>Ziel im Landkreis</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe20" resname="stats.case_flow.dispatch_flow.outflow">
+        <source>stats.case_flow.dispatch_flow.outflow</source>
+        <target>Abfluss (Ziel außerhalb)</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe21" resname="stats.case_flow.kpi.inflow">
+        <source>stats.case_flow.kpi.inflow</source>
+        <target>Zufluss</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe22" resname="stats.case_flow.kpi.outflow">
+        <source>stats.case_flow.kpi.outflow</source>
+        <target>Abfluss</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe23" resname="stats.case_flow.section.map.catchment">
+        <source>stats.case_flow.section.map.catchment</source>
+        <target>Herkunft der Zuweisungen an Krankenhäuser dieser Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe24" resname="stats.case_flow.map.pin.inside">
+        <source>stats.case_flow.map.pin.inside</source>
+        <target>Krankenhaus in dieser Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe25" resname="stats.case_flow.map.pin.outside">
+        <source>stats.case_flow.map.pin.outside</source>
+        <target>Krankenhaus außerhalb (Abfluss)</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe26" resname="stats.case_flow.insight.significant_inflow">
+        <source>stats.case_flow.insight.significant_inflow</source>
+        <target>{share} % der zugehörigen Zuweisungen stammen aus anderen Leitstellen.</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe27" resname="stats.case_flow.map.omitted_outside">
+        <source>stats.case_flow.map.omitted_outside</source>
+        <target>{count, plural, one {# weiteres Krankenhaus außerhalb des Landkreises ist nicht einzeln dargestellt (n &lt; 10 oder ohne Koordinaten).} other {# weitere Krankenhäuser außerhalb des Landkreises sind nicht einzeln dargestellt (n &lt; 10 oder ohne Koordinaten).}}</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe28" resname="stats.case_flow.map.omitted_inside">
+        <source>stats.case_flow.map.omitted_inside</source>
+        <target>{count, plural, one {# weiteres Krankenhaus im Landkreis ist nicht einzeln dargestellt (n &lt; 10 oder ohne Koordinaten).} other {# weitere Krankenhäuser im Landkreis sind nicht einzeln dargestellt (n &lt; 10 oder ohne Koordinaten).}}</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe29" resname="stats.case_flow.section.hospital_flow">
+        <source>stats.case_flow.section.hospital_flow</source>
+        <target>Zufluss</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe30" resname="stats.case_flow.dispatch_flow.intro_hospital">
+        <source>stats.case_flow.dispatch_flow.intro_hospital</source>
+        <target>Einsätze aus anderen Leitstellen und aus der Leitstelle dieses Hauses, die hier zugewiesen wurden.</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe31" resname="stats.case_flow.dispatch_flow.local_origin_hospital">
+        <source>stats.case_flow.dispatch_flow.local_origin_hospital</source>
+        <target>Herkunft in der Leitstelle des Hauses</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe32" resname="stats.case_flow.dispatch_flow.all_assignments_hospital">
+        <source>stats.case_flow.dispatch_flow.all_assignments_hospital</source>
+        <target>Zuweisungen an dieses Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe33" resname="stats.case_flow.map.legend.share_title">
+        <source>stats.case_flow.map.legend.share_title</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe34" resname="stats.case_flow.map.legend.count_title">
+        <source>stats.case_flow.map.legend.count_title</source>
+        <target>Fälle</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe35" resname="stats.case_flow.map.legend.travel_title">
+        <source>stats.case_flow.map.legend.travel_title</source>
+        <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe36" resname="stats.case_flow.map.notes">
+        <source>stats.case_flow.map.notes</source>
+        <target>Hinweise</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe37" resname="stats.case_flow.map.chip.unknown">
+        <source>stats.case_flow.map.chip.unknown</source>
+        <target>{count, plural, one {# ohne Zeit} other {# ohne Zeit}}</target>
+      </trans-unit>
+      <trans-unit id="GeoFlowDe38" resname="stats.case_flow.map.chip.beyond_max">
+        <source>stats.case_flow.map.chip.beyond_max</source>
+        <target>{count, plural, one {# ≥ 50 Min.} other {# ≥ 50 Min.}}</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe01" resname="stats.case_flow.segment.title">
+        <source>stats.case_flow.segment.title</source>
+        <target>Geografisches Segmentprofil</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe02" resname="stats.case_flow.segment.picker">
+        <source>stats.case_flow.segment.picker</source>
+        <target>Segment auswählen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe03" resname="stats.case_flow.segment.picker.empty">
+        <source>stats.case_flow.segment.picker.empty</source>
+        <target>Gesamter Bereich</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe04" resname="stats.case_flow.segment.empty">
+        <source>stats.case_flow.segment.empty</source>
+        <target>Wählen Sie ein Herkunftsgebiet oder ein Transportzeitband, um die Zuweisungen dieses Segments zu charakterisieren.</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe05" resname="stats.case_flow.segment.suppressed">
+        <source>stats.case_flow.segment.suppressed</source>
+        <target>Für dieses Segment liegen zu wenige Fälle vor (n &lt; 10).</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe06" resname="stats.case_flow.segment.allocations">
+        <source>stats.case_flow.segment.allocations</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe07" resname="stats.case_flow.segment.loading">
+        <source>stats.case_flow.segment.loading</source>
+        <target>Segmentprofil wird geladen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe08" resname="stats.case_flow.segment.distribution_empty">
+        <source>stats.case_flow.segment.distribution_empty</source>
+        <target>Keine Merkmalswerte in diesem Segment.</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe09" resname="stats.case_flow.segment.tab.overview">
+        <source>stats.case_flow.segment.tab.overview</source>
+        <target>Überblick</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe10" resname="stats.case_flow.segment.tab.urgency">
+        <source>stats.case_flow.segment.tab.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe11" resname="stats.case_flow.segment.tab.demographics">
+        <source>stats.case_flow.segment.tab.demographics</source>
+        <target>Demografie</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe12" resname="stats.case_flow.segment.tab.resources">
+        <source>stats.case_flow.segment.tab.resources</source>
+        <target>Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe13" resname="stats.case_flow.segment.group.urgency">
+        <source>stats.case_flow.segment.group.urgency</source>
+        <target>Dringlichkeitsstufen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe14" resname="stats.case_flow.segment.group.gender">
+        <source>stats.case_flow.segment.group.gender</source>
+        <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe15" resname="stats.case_flow.segment.group.age">
+        <source>stats.case_flow.segment.group.age</source>
+        <target>Altersgruppen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe16" resname="stats.case_flow.segment.group.resources">
+        <source>stats.case_flow.segment.group.resources</source>
+        <target>Klinische Merkmale</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe17" resname="stats.case_flow.segment.travel.beyond_max">
+        <source>stats.case_flow.segment.travel.beyond_max</source>
+        <target>≥ 50 Min.</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe18" resname="stats.case_flow.segment.entire_area">
+        <source>stats.case_flow.segment.entire_area</source>
+        <target>Gesamter Bereich</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe19" resname="stats.case_flow.segment.picker.group.origin">
+        <source>stats.case_flow.segment.picker.group.origin</source>
+        <target>Leitstelle</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe20" resname="stats.case_flow.segment.picker.group.travel">
+        <source>stats.case_flow.segment.picker.group.travel</source>
+        <target>Transportzeit</target>
       </trans-unit>
     </body>
   </file>

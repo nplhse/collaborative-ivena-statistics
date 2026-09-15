@@ -203,7 +203,7 @@ Boolean flags and explorer metrics — largely established.
 | Projection | Projektion | table `allocation_stats_projection` |
 | Materialized view | Materialized view | mostly admin/docs |
 | Generic analysis | Generische Analyse | |
-| Case flow | **Patientenfluss** | module `stats.case_flow.*` |
+| Case flow / Geographic flow | **Geografische Flussanalyse** | module `stats.case_flow.*` |
 | Centralization | Zentralisierung | case flow KPI |
 | Regional share | Regionalanteil | |
 | Overregional share | Überregionaler Anteil | |
@@ -230,14 +230,15 @@ Boolean flags and explorer metrics — largely established.
 | Prevalence rate | Prävalenzrate | |
 | Top 5 / Top 10 | Top 5 / Top 10 | keep as-is |
 
-### Cohort attributes (`hospital.location.*`, `hospital.size.*`) — **no DE yet**
+### Cohort attributes (`hospital.location.*`, `hospital.size.*`, `hospital.tier.*`)
+
+Owned by the `allocation` domain; duplicated in `messages` for default-domain templates. Case Flow uses `stats.case_flow.location.*`, `stats.case_flow.size.*`, `stats.case_flow.tier.*`.
 
 | EN | DE |
 |---|---|
-| Urban | Städtisch |
-| Rural | Ländlich |
-| Mixed | Gemischt |
+| Urban / Rural / Mixed | Städtisch / Ländlich / Gemischt |
 | Small / Medium / Large | Klein / Mittel / Groß |
+| Basic / Extended / Full | Basisversorgung / Erweiterte Versorgung / Umfassende Versorgung |
 
 ---
 
@@ -300,7 +301,7 @@ Boolean flags and explorer metrics — largely established.
 | 6 | MCI cases | MANV-Fälle | MCI-Fälle | MANV-Fälle |
 | 7 | Raw indication | Roh-Indikation | Unverarbeitete Indikation | Indikation (original) |
 | 8 | Assignment (label) | Zuweisungstyp | Verlegungsart | Zuweisungstyp |
-| 9 | Case flow (module title) | Patientenfluss | Fallfluss | Patientenfluss |
+| 9 | Case flow / Geographic flow (module title) | Geografische Flussanalyse | Fallfluss | Geografische Flussanalyse |
 | 10 | Address form Du/Sie | Sie (formal) | Du (informal) | Sie (formal) |
 | 11 | Worklist | Worklist | Arbeitsliste | Arbeitsliste |
 | 12 | Reject (import) | Abweisung | Fehlerhafte Zeile | Zurückgewiesene Zeile |

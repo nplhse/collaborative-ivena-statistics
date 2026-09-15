@@ -1,0 +1,178 @@
+{#
+  payload: array
+  testId: string
+  geoUrl: string|null
+  showValueModes: bool
+  showExpand: bool
+  showIsochroneLegend: bool
+  frameClass: string
+  unknownCount: int
+  beyondMaxCount: int
+  titleKey: string
+#}
+{% set geoUrl = geoUrl|default(null) %}
+{% set showValueModes = showValueModes|default(false) %}
+{% set showExpand = showExpand|default(false) %}
+{% set showIsochroneLegend = showIsochroneLegend|default(false) %}
+{% set frameClass = frameClass|default('case-flow-map-square') %}
+{% set unknownCount = unknownCount|default(0) %}
+{% set beyondMaxCount = beyondMaxCount|default(0) %}
+{% set titleKey = titleKey|default('stats.case_flow.section.map') %}
+{% set layers = payload.layers|default([]) %}
+
+<div class="card"
+     data-controller="geo-map"
+     data-geo-map-payload-value="{{ payload|json_encode|e('html_attr') }}"
+     {% if geoUrl %}data-geo-map-geo-url-value="{{ geoUrl }}"{% endif %}
+     data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"
+     data-testid="{{ testId }}">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            {% if showValueModes %}
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans({}, 'statistics') }}">
+                    <button type="button"
+                            class="btn"
+                            data-geo-map-target="modeAbsolute"
+                            data-action="geo-map#setAbsoluteMode"
+                            aria-pressed="false">
+                        {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
+                    </button>
+                    <button type="button"
+                            class="btn active"
+                            data-geo-map-target="modeRelative"
+                            data-action="geo-map#setRelativeMode"
+                            aria-pressed="true">
+                        {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
+                    </button>
+                </div>
+            {% endif %}
+            {% if showExpand %}
+                <button type="button"
+                        class="btn btn-sm"
+                        data-action="geo-map#expand"
+                        data-testid="stats-geo-map-expand">
+                    <twig:ux:icon name="tabler:arrows-maximize" class="icon icon-sm" />
+                    {{ 'stats.case_flow.map.expand'|trans({}, 'statistics') }}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body pt-2">
+        <div class="{{ frameClass }} geo-map-frame">
+            <div class="case-flow-map-container"
+                 data-geo-map-target="mapContainer"></div>
+        </div>
+
+        {{ include('@Statistics/geographic_map/_legend.html.twig', {
+            payload: payload,
+            showValueModes: showValueModes,
+            showIsochroneLegend: showIsochroneLegend,
+            unknownCount: unknownCount,
+            beyondMaxCount: beyondMaxCount,
+            withTestIds: true,
+            notesOpen: false,
+        }) }}
+    </div>
+
+    {% if showExpand %}
+        <div class="geo-map-expand-overlay"
+             data-geo-map-target="expandOverlay"
+             aria-hidden="true"
+             data-testid="stats-geo-map-expand-overlay">
+            <div class="geo-map-expand-header">
+                <h3 class="mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    {% if showValueModes %}
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button"
+                                    class="btn"
+                                    data-geo-map-target="expandModeAbsolute"
+                                    data-action="geo-map#setAbsoluteMode">
+                                {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
+                            </button>
+                            <button type="button"
+                                    class="btn active"
+                                    data-geo-map-target="expandModeRelative"
+                                    data-action="geo-map#setRelativeMode">
+                                {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
+                            </button>
+                        </div>
+                    {% endif %}
+                    <button type="button"
+                            class="btn btn-sm"
+                            data-action="geo-map#collapse"
+                            data-testid="stats-geo-map-collapse">
+                        <twig:ux:icon name="tabler:x" class="icon icon-sm" />
+                        {{ 'stats.case_flow.map.collapse'|trans({}, 'statistics') }}
+                    </button>
+                </div>
+            </div>
+            <div class="geo-map-expand-toolbar">
+                {% if 'originChoropleth' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="originChoropleth"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.origin'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+                {% if 'destinationHospitals' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="destinationHospitals"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.destinations'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+                {% if 'isochroneBands' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="isochroneBands"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.isochrones'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+                {% if 'hospitalPin' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="hospitalPin"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.hospital'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+            </div>
+            <div class="geo-map-expand-canvas">
+                <div class="case-flow-map-container"
+                     data-geo-map-target="expandMapContainer"></div>
+            </div>
+            <div class="geo-map-expand-footer">
+                {{ include('@Statistics/geographic_map/_legend.html.twig', {
+                    payload: payload,
+                    showValueModes: showValueModes,
+                    showIsochroneLegend: showIsochroneLegend,
+                    unknownCount: unknownCount,
+                    beyondMaxCount: beyondMaxCount,
+                    withTestIds: false,
+                    notesOpen: true,
+                }) }}
+            </div>
+        </div>
+    {% endif %}
+</div>

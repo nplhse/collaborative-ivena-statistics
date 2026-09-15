@@ -1,0 +1,112 @@
+{# Compact map legend: scales + chips visible, method notes collapsed. #}
+{% set notesOpen = notesOpen|default(false) %}
+{% set withTestIds = withTestIds|default(false) %}
+{% set omittedOutside = payload.omittedOutsideDestinationHospitals|default(0) %}
+{% set omittedInside = payload.omittedInsideDestinationHospitals|default(0) %}
+{% set showPins = payload.selectedDispatchAreaId|default(null) %}
+{% set showUnmapped = unknownCount > 0 or beyondMaxCount > 0 %}
+{% set showNotes = showValueModes or showIsochroneLegend or omittedOutside > 0 or omittedInside > 0 %}
+{% set shareSwatches = ['#deebf7', '#9ecae1', '#4292c6', '#2171b5', '#08306b'] %}
+{% set travelSwatches = ['#2f9e44', '#74b816', '#fab005', '#fd7e14', '#e03131'] %}
+
+<div class="geo-map-legend mt-2">
+    <div class="d-flex flex-wrap align-items-center column-gap-4 row-gap-2">
+        {% if showValueModes %}
+            <div class="d-none d-flex align-items-center gap-2"
+                 data-geo-map-target="absoluteLegend"
+                 {% if withTestIds %}data-testid="stats-geo-map-count-legend"{% endif %}>
+                <span class="text-secondary small fw-medium">{{ 'stats.case_flow.map.legend.count_title'|trans({}, 'statistics') }}</span>
+                <span class="text-secondary small">{{ 'stats.case_flow.map.legend.count_low'|trans({}, 'statistics') }}</span>
+                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                    {% for color in shareSwatches %}
+                        <span class="isochrone-origin-map-legend-swatch" style="background:{{ color }};"></span>
+                    {% endfor %}
+                </span>
+                <span class="text-secondary small">{{ 'stats.case_flow.map.legend.count_high'|trans({}, 'statistics') }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2"
+                 data-geo-map-target="relativeLegend"
+                 {% if withTestIds %}data-testid="stats-geo-map-share-legend"{% endif %}>
+                <span class="text-secondary small fw-medium">{{ 'stats.case_flow.map.legend.share_title'|trans({}, 'statistics') }}</span>
+                <span class="text-secondary small">{{ 'stats.case_flow.map.legend.share_low'|trans({}, 'statistics') }}</span>
+                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                    {% for color in shareSwatches %}
+                        <span class="isochrone-origin-map-legend-swatch" style="background:{{ color }};"></span>
+                    {% endfor %}
+                </span>
+                <span class="text-secondary small">{{ 'stats.case_flow.map.legend.share_high'|trans({}, 'statistics') }}</span>
+            </div>
+        {% endif %}
+
+        {% if showIsochroneLegend %}
+            <div class="d-flex align-items-center gap-2"
+                 {% if withTestIds %}data-testid="stats-isochrone-origin-map-legend"{% endif %}
+                 role="img"
+                 aria-label="{{ 'stats.isochrone_origin_map.legend.fewer'|trans({}, 'statistics') }} – {{ 'stats.isochrone_origin_map.legend.more'|trans({}, 'statistics') }}">
+                <span class="text-secondary small fw-medium">{{ 'stats.case_flow.map.legend.travel_title'|trans({}, 'statistics') }}</span>
+                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                    {% for color in travelSwatches %}
+                        <span class="isochrone-origin-map-legend-swatch" style="background:{{ color }};"></span>
+                    {% endfor %}
+                </span>
+            </div>
+        {% endif %}
+
+        {% if showPins %}
+            <div class="d-flex flex-wrap align-items-center gap-3"
+                 {% if withTestIds %}data-testid="stats-geo-map-pin-legend"{% endif %}>
+                <span class="d-inline-flex align-items-center gap-1 text-secondary small">
+                    <span class="geo-map-pin-legend-dot" style="background:#1864ab;"></span>
+                    {{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics') }}
+                </span>
+                <span class="d-inline-flex align-items-center gap-1 text-secondary small">
+                    <span class="geo-map-pin-legend-dot" style="background:#e8590c;"></span>
+                    {{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics') }}
+                </span>
+            </div>
+        {% endif %}
+
+        {% if showUnmapped %}
+            <div class="d-flex flex-wrap align-items-center gap-1"
+                 {% if withTestIds %}data-testid="stats-isochrone-origin-map-unmapped"{% endif %}>
+                {% if unknownCount > 0 %}
+                    <span class="badge bg-secondary-lt text-secondary fw-normal">
+                        {{ 'stats.case_flow.map.chip.unknown'|trans({count: unknownCount}, 'statistics') }}
+                    </span>
+                {% endif %}
+                {% if beyondMaxCount > 0 %}
+                    <span class="badge bg-secondary-lt text-secondary fw-normal">
+                        {{ 'stats.case_flow.map.chip.beyond_max'|trans({count: beyondMaxCount}, 'statistics') }}
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    {% if showNotes %}
+        <details class="mt-1"{% if notesOpen %} open{% endif %}>
+            <summary class="text-secondary small">{{ 'stats.case_flow.map.notes'|trans({}, 'statistics') }}</summary>
+            <div class="text-secondary small mt-1 d-flex flex-column gap-1">
+                {% if showValueModes %}
+                    <p class="mb-0">{{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}</p>
+                {% endif %}
+                {% if showIsochroneLegend %}
+                    <p class="mb-0">{{ 'stats.case_flow.map.estimated_vs_observed'|trans({}, 'statistics') }}</p>
+                {% endif %}
+                {% if omittedOutside > 0 or omittedInside > 0 %}
+                    <p class="mb-0"{% if withTestIds %} data-testid="stats-geo-map-omitted-destinations"{% endif %}>
+                        {% if omittedOutside > 0 %}
+                            {{ 'stats.case_flow.map.omitted_outside'|trans({count: omittedOutside}, 'statistics') }}
+                        {% endif %}
+                        {% if omittedOutside > 0 and omittedInside > 0 %}
+                            {{ 'stats.isochrone_origin_map.unmapped_separator'|trans({}, 'statistics') }}
+                        {% endif %}
+                        {% if omittedInside > 0 %}
+                            {{ 'stats.case_flow.map.omitted_inside'|trans({count: omittedInside}, 'statistics') }}
+                        {% endif %}
+                    </p>
+                {% endif %}
+            </div>
+        </details>
+    {% endif %}
+</div>

@@ -7,7 +7,7 @@ export default class extends Controller {
         payload: Object,
     };
 
-    static targets = ['flowStackedBarChart', 'originBarChart', 'transportTimeChart'];
+    static targets = ['originBarChart', 'transportTimeChart'];
 
     connect() {
         this.instances = [];
@@ -29,15 +29,6 @@ export default class extends Controller {
 
         const payload = this.payloadValue ?? {};
 
-        if (this.hasFlowStackedBarChartTarget && payload.flowStackedBar?.categories?.length) {
-            this.renderStackedBar(
-                ApexCharts,
-                this.flowStackedBarChartTarget,
-                payload.flowStackedBar,
-                generation,
-            );
-        }
-
         if (this.hasOriginBarChartTarget && payload.originBar?.labels?.length) {
             this.renderHorizontalBar(
                 ApexCharts,
@@ -55,36 +46,6 @@ export default class extends Controller {
                 generation,
             );
         }
-    }
-
-    renderStackedBar(ApexCharts, element, data, generation) {
-        if (generation !== this._renderGeneration || !element) {
-            return;
-        }
-
-        const chart = new ApexCharts(element, {
-            chart: {
-                type: 'bar',
-                height: 320,
-                stacked: true,
-                toolbar: { show: false },
-                fontFamily: 'inherit',
-            },
-            series: data.series ?? [],
-            colors: ['#74c0fc', '#339af0', '#1864ab', '#adb5bd'],
-            xaxis: {
-                categories: data.categories ?? [],
-                labels: { rotate: -35, trim: true, maxHeight: 80 },
-            },
-            plotOptions: {
-                bar: { horizontal: false, columnWidth: '55%' },
-            },
-            legend: { position: 'top', horizontalAlign: 'right' },
-            dataLabels: { enabled: false },
-        });
-
-        chart.render();
-        this.instances.push(chart);
     }
 
     renderTransportTimeChart(ApexCharts, element, data, generation) {
@@ -127,18 +88,40 @@ export default class extends Controller {
             return;
         }
 
+        const percents = Array.isArray(data.percents) ? data.percents : [];
+        const percentFormatter = (value) => `${Math.round(Number(value) * 10) / 10}%`;
+
         const chart = new ApexCharts(element, {
             chart: {
                 type: 'bar',
-                height: Math.max(260, (data.labels?.length ?? 0) * 32),
+                height: Math.max(220, (data.labels?.length ?? 0) * 28),
                 toolbar: { show: false },
                 fontFamily: 'inherit',
             },
-            series: [{ name: 'Cases', data: data.values ?? [] }],
+            series: [{ name: '', data: percents }],
             colors: ['#206bc4'],
-            xaxis: { categories: data.labels ?? [] },
+            xaxis: {
+                categories: data.labels ?? [],
+                min: 0,
+                max: 100,
+                tickAmount: 4,
+                labels: { formatter: percentFormatter },
+            },
             plotOptions: {
                 bar: { horizontal: true, barHeight: '70%' },
+            },
+            yaxis: {
+                labels: {
+                    maxWidth: 96,
+                    trim: true,
+                    style: { fontSize: '11px' },
+                },
+            },
+            tooltip: {
+                y: { formatter: percentFormatter },
+            },
+            grid: {
+                padding: { left: 4, right: 8 },
             },
             dataLabels: { enabled: false },
         });

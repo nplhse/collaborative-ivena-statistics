@@ -101,7 +101,7 @@
                                         <option value="">{{ 'label.all_tiers'|trans({}, 'messages') }}</option>
                                         {% for tier in tiers %}
                                             <option value="{{ tier.value }}" {{ filters.tier == tier.value ? 'selected' }}>
-                                                {{ ('hospital.tier.' ~ tier.value)|trans }}
+                                                {{ ('hospital.tier.' ~ tier.value)|trans({}, 'allocation') }}
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -112,7 +112,7 @@
                                         <option value="">{{ 'label.all_locations'|trans({}, 'messages') }}</option>
                                         {% for location in locations %}
                                             <option value="{{ location.value }}" {{ filters.location == location.value ? 'selected' }}>
-                                                {{ ('hospital.location.' ~ location.value)|trans }}
+                                                {{ ('hospital.location.' ~ location.value)|trans({}, 'allocation') }}
                                             </option>
                                         {% endfor %}
                                     </select>
@@ -123,7 +123,7 @@
                                         <option value="">{{ 'label.all_sizes'|trans({}, 'messages') }}</option>
                                         {% for size in sizes %}
                                             <option value="{{ size.value }}" {{ filters.size == size.value ? 'selected' }}>
-                                                {{ ('hospital.size.' ~ size.value)|trans }}
+                                                {{ ('hospital.size.' ~ size.value)|trans({}, 'allocation') }}
                                             </option>
                                         {% endfor %}
                                     </select>

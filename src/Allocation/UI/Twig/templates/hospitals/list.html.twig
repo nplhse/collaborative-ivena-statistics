@@ -334,7 +334,7 @@
                                 value="{{ tier.value }}"
                                 {{ filters.tier == tier.value ? 'selected' }}
                             >
-                                {{ ('hospital.tier.' ~ tier.value)|trans }}
+                                {{ ('hospital.tier.' ~ tier.value)|trans({}, 'allocation') }}
                             </option>
                         {% endfor %}
                     </select>
@@ -349,7 +349,7 @@
                                 value="{{ location.value }}"
                                 {{ filters.location == location.value ? 'selected' }}
                             >
-                                {{ ('hospital.location.' ~ location.value)|trans }}
+                                {{ ('hospital.location.' ~ location.value)|trans({}, 'allocation') }}
                             </option>
                         {% endfor %}
                     </select>
@@ -364,7 +364,7 @@
                                 value="{{ size.value }}"
                                 {{ filters.size == size.value ? 'selected' }}
                             >
-                                {{ ('hospital.size.' ~ size.value)|trans }}
+                                {{ ('hospital.size.' ~ size.value)|trans({}, 'allocation') }}
                             </option>
                         {% endfor %}
                     </select>

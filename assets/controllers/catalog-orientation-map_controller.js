@@ -1,7 +1,16 @@
 import { Controller } from '@hotwired/stimulus';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import intersect from '@turf/intersect';
+import {
+    createLeafletMap,
+    destroyLeafletMap,
+    ensureContainerSize,
+    invalidateMapSize,
+    layerBounds as leafletLayerBounds,
+    prepareMapContainer,
+} from '../js/geo-map/createMap.js';
+import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { hospitalPinIcon } from '../js/geo-map/hospitalPin.js';
 
 const MUTED_STYLE = {
     color: '#868e96',
@@ -118,20 +127,11 @@ export default class extends Controller {
             }
 
             this.destroyMap();
-            this.prepareMapContainer();
-            this.ensureMapContainerSize();
+            prepareMapContainer(this.mapContainerTarget);
+            ensureContainerSize(this.mapContainerTarget, '.catalog-orientation-map-frame');
 
-            this.map = L.map(this.mapContainerTarget, {
-                scrollWheelZoom: true,
-                attributionControl: true,
-            });
+            this.map = createLeafletMap(this.mapContainerTarget, { scrollWheelZoom: true });
             this.map.setView([50.55, 9.0], 8);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            }).addTo(this.map);
 
             let highlightLayer = null;
             let destinationLayer = null;
@@ -300,9 +300,7 @@ export default class extends Controller {
     }
 
     layerBounds(layer) {
-        const bounds = layer?.getBounds?.();
-
-        return bounds?.isValid?.() ? bounds : null;
+        return leafletLayerBounds(layer);
     }
 
     fitMapToContents() {
@@ -351,22 +349,18 @@ export default class extends Controller {
     hospitalPinIcon() {
         const fill = this.showRouteValue ? '#d9480f' : '#1864ab';
 
-        return L.divIcon({
+        return hospitalPinIcon({
+            color: fill,
             className: 'catalog-orientation-map-pin',
-            html: `<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="${fill}" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle fill="#ffffff" cx="12" cy="9" r="2.5"/></svg>`,
-            iconSize: [26, 26],
-            iconAnchor: [13, 26],
-            tooltipAnchor: [0, -20],
+            size: 26,
         });
     }
 
     contextHospitalPinIcon() {
-        return L.divIcon({
+        return hospitalPinIcon({
+            color: '#1864ab',
             className: 'catalog-orientation-map-pin catalog-orientation-map-pin-context',
-            html: '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#1864ab" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle fill="#ffffff" cx="12" cy="9" r="2.5"/></svg>',
-            iconSize: [22, 22],
-            iconAnchor: [11, 22],
-            tooltipAnchor: [0, -18],
+            size: 22,
         });
     }
 
@@ -405,48 +399,9 @@ export default class extends Controller {
             return this.geoJsonCache;
         }
 
-        const response = await fetch(this.geoUrlValue, {
-            headers: { Accept: 'application/geo+json, application/json' },
-        });
-        if (!response.ok) {
-            throw new Error(`GeoJSON request failed (${response.status})`);
-        }
-
-        this.geoJsonCache = await response.json();
+        this.geoJsonCache = await loadGeoJson(this.geoUrlValue);
 
         return this.geoJsonCache;
-    }
-
-    prepareMapContainer() {
-        this.mapContainerTarget.innerHTML = '';
-        this.mapContainerTarget.classList.add('case-flow-map-container');
-    }
-
-    ensureMapContainerSize() {
-        if (!this.hasMapContainerTarget) {
-            return;
-        }
-
-        const frame =
-            this.mapContainerTarget.closest('.catalog-orientation-map-frame') ??
-            this.mapContainerTarget;
-        let { width, height } = frame.getBoundingClientRect();
-
-        if (width > 0 && height <= 0) {
-            height = Math.min(width * 0.75, 420);
-        }
-
-        if (width <= 0) {
-            width = frame.clientWidth || this.element.clientWidth || 640;
-        }
-
-        if (height <= 0) {
-            height = 220;
-        }
-
-        this.mapContainerTarget.style.width = `${width}px`;
-        this.mapContainerTarget.style.height = `${height}px`;
-        void this.mapContainerTarget.offsetWidth;
     }
 
     scheduleInvalidateSize() {
@@ -480,12 +435,10 @@ export default class extends Controller {
             return;
         }
 
-        this.ensureMapContainerSize();
-        try {
-            map.invalidateSize({ animate: false });
-        } catch {
-            // Safari can throw if Leaflet panes were already torn down.
+        if (this.hasMapContainerTarget) {
+            ensureContainerSize(this.mapContainerTarget, '.catalog-orientation-map-frame');
         }
+        invalidateMapSize(map);
     }
 
     destroyMap() {
@@ -496,17 +449,7 @@ export default class extends Controller {
         this.highlightLayer = null;
         this.destinationLayer = null;
         this.isochroneHighlightLayer = null;
-
-        if (!map) {
-            return;
-        }
-
-        try {
-            map.remove();
-        } catch {
-            // Leaflet 1.9 can throw in Safari when removing a map whose layers
-            // never fully attached (no view / zero-size container).
-        }
+        destroyLeafletMap(map);
     }
 
     showMapError(error) {

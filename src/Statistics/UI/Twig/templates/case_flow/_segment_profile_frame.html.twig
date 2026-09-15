@@ -1,0 +1,43 @@
+{# @var profile \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileView #}
+<turbo-frame id="stats-case-flow-segment-profile-frame">
+    {% if not profile.hasSelection %}
+        <p class="text-secondary small mb-0" data-testid="stats-case-flow-segment-empty">
+            {{ 'stats.case_flow.segment.empty'|trans({}, 'statistics') }}
+        </p>
+    {% elseif profile.suppressed %}
+        <p class="text-secondary small mb-0" data-testid="stats-case-flow-segment-suppressed">
+            {{ 'stats.case_flow.segment.suppressed'|trans({}, 'statistics') }}
+        </p>
+    {% else %}
+        <div class="mb-3" data-testid="stats-case-flow-segment-overview">
+            <div class="fw-medium" data-testid="stats-case-flow-segment-label">
+                {% if profile.label %}
+                    {% if profile.translateLabel %}
+                        {{ profile.label|trans({}, statistics_label_domain(profile.label)) }}
+                    {% else %}
+                        {{ profile.label }}
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="text-secondary small">
+                <span data-testid="stats-case-flow-segment-count">{{ profile.segmentCases|number_format(0, ',', '.') }}</span>
+                {{ 'stats.case_flow.segment.allocations'|trans({}, 'statistics') }}
+                {% if profile.sharePercent is not null %}
+                    · <span data-testid="stats-case-flow-segment-share">{{ profile.sharePercent }}%</span>
+                {% endif %}
+                {% if profile.showMedianTransport and profile.medianTransportMinutes is not null %}
+                    · {{ 'stats.case_flow.kpi.median_transport'|trans({}, 'statistics') }}
+                    <span data-testid="stats-case-flow-segment-median">{{ profile.medianTransportMinutes|number_format(1, ',', '.') }}</span>
+                    {{ 'stats.case_flow.kpi.minutes'|trans({}, 'statistics') }}
+                {% endif %}
+            </div>
+        </div>
+
+        {% for group in profile.groups %}
+            <div class="{% if not loop.last %}mb-3{% endif %}" data-testid="stats-case-flow-segment-group-{{ group.titleTranslationKey|split('.')|last }}">
+                <p class="small text-secondary mb-2">{{ group.titleTranslationKey|trans({}, 'statistics') }}</p>
+                {{ include('@Statistics/case_flow/_segment_profile_progress.html.twig', {rows: group.rows}) }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</turbo-frame>
