@@ -39,7 +39,10 @@ See [console-commands.md](console-commands.md) for the full list and conventions
 | `app:reminder:preview` | Preview monthly submission reminder email |
 | `app:content:analyze-page-images` | Analyze and migrate CMS page images |
 | `app:env:check` | Validate deployment environment |
-| `app:install` | Bootstrap initial admin user |
+| `app:user:create` | Create a user from the CLI (first admin after production setup) |
+| `app:user:promote-admin` | Grant `ROLE_ADMIN` to an existing user by username |
+| `app:user:demote-admin` | Remove `ROLE_ADMIN` from an existing user by username |
+| `app:user:delete` | Delete an existing user by username |
 | `app:fixtures:validate-patterns` | Validate distribution pattern YAML files |
 | `app:fixtures:export-patterns` | Export distribution patterns from statistics |
 | `doctrine:fixtures:load --group=dev` | Load full local demo dataset |

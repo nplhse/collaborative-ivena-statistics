@@ -116,6 +116,18 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
             ->getSingleScalarResult();
     }
 
+    public function countUsersWithRole(string $role): int
+    {
+        $count = 0;
+        foreach ($this->findAll() as $user) {
+            if (\in_array($role, $user->getRoles(), true)) {
+                ++$count;
+            }
+        }
+
+        return $count;
+    }
+
     #[\Override]
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {

@@ -12,7 +12,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Admin` | EasyAdmin back office |
 | `Kpi` | Daily KPI aggregation into `kpi_daily` |
 | `Analytics` | Server-side usage analytics (request tracking, consent-gated visitor keys) |
-| `Install` | `app:install`, `app:env:check` |
+| `Install` | `app:env:check` |
 | `Shared` | Cross-cutting concerns (audit, monitoring, mail, infrastructure) |
 | `Content` | Content pages, blog, and the authenticated home dashboard (composition of project metrics and activity) |
 | `Onboarding` | Participant dashboard onboarding steps and progress |

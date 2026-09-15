@@ -23,6 +23,8 @@ make setup-dev
 
 `make install` is an alias for `make setup-dev`.
 
+Local `setup-dev` loads demo users via fixtures. An empty database (`make setup-prod` or a new server) has no default administrator — create one with `php bin/console app:user:create`. See [../05-operations/deployment.md](../05-operations/deployment.md).
+
 ### Make targets
 
 | Target | Use when |
