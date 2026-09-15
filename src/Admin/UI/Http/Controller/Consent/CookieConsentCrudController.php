@@ -11,9 +11,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @extends AbstractCrudController<CookieConsent>
@@ -50,10 +52,13 @@ final class CookieConsentCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield TextField::new('subjectId', 'Subject ID');
         yield AssociationField::new('user', 'User');
-        yield TextField::new('consentVersion', 'Version');
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.consent', domain: 'admin'));
+        yield TextField::new('consentVersion', 'Version')
+            ->hideOnIndex();
         yield TextField::new('consentMode', 'Mode')
             ->setHelp('Legend: shield = essential only, chart = analytics.')
             ->setTemplatePath('@Admin/crud/field/consent_mode_icon.html.twig')
@@ -66,7 +71,11 @@ final class CookieConsentCrudController extends AbstractCrudController
             });
         yield DateTimeField::new('decidedAt', 'Decided at')
             ->setFormat('yyyy-MM-dd HH:mm:ss');
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')->onlyOnDetail();
         yield DateTimeField::new('updatedAt', 'Updated at')
-            ->setFormat('yyyy-MM-dd HH:mm:ss');
+            ->setFormat('yyyy-MM-dd HH:mm:ss')
+            ->onlyOnDetail();
     }
 }
