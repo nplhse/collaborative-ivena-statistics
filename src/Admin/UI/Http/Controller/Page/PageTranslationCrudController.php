@@ -30,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -167,7 +168,7 @@ final class PageTranslationCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield AssociationField::new('page', new TranslatableMessage('label.page', domain: 'content'))
             ->setCrudController(PageCrudController::class)
             ->setRequired(true);
@@ -186,13 +187,12 @@ final class PageTranslationCrudController extends AbstractCrudController
             ])
             ->renderAsBadges();
         yield BooleanField::new('showToc', new TranslatableMessage('label.show_toc', domain: 'content'))
-            ->setHelp(new TranslatableMessage('help.page.show_toc', domain: 'content'));
-        yield TextField::new('path', 'label.path')
-            ->hideOnForm()
+            ->setHelp(new TranslatableMessage('help.page.show_toc', domain: 'content'))
             ->hideOnIndex();
-        yield AssociationField::new('page.translations', new TranslatableMessage('admin.page_translation.relations', domain: 'admin'))
-            ->setTemplatePath('@Admin/page_translation/relations_panel.html.twig')
+        yield TextField::new('path', 'label.path')
             ->onlyOnDetail();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.content', domain: 'admin'));
         yield CollectionField::new('content', 'label.content_blocks')
             ->setHelp($this->buildMediaLibraryHelp().' '.$this->translator->trans('help.page.content_blocks_reorder', [], 'content'))
             ->setFormTypeOption('help_html', true)
@@ -216,8 +216,23 @@ final class PageTranslationCrudController extends AbstractCrudController
             })
             ->showEntryLabel()
             ->onlyOnForms();
-        yield DateTimeField::new('createdAt', 'label.created')->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'label.updated')->hideOnForm();
+        yield TextField::new('contentSummary', new TranslatableMessage('admin.page_translation.field.content_summary', domain: 'admin'))
+            ->onlyOnDetail()
+            ->setVirtual(true)
+            ->setSortable(false)
+            ->renderAsHtml()
+            ->setValue('')
+            ->formatValue(fn (mixed $_, PageTranslation $translation): string => $this->formatContentBlocksSummary($translation));
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.relations', domain: 'admin'));
+        yield AssociationField::new('page.translations', new TranslatableMessage('admin.page_translation.relations', domain: 'admin'))
+            ->setTemplatePath('@Admin/page_translation/relations_panel.html.twig')
+            ->onlyOnDetail();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')->onlyOnDetail();
+        yield DateTimeField::new('createdAt', 'label.created')->onlyOnDetail();
+        yield DateTimeField::new('updatedAt', 'label.updated')->onlyOnDetail();
     }
 
     /**
@@ -317,6 +332,26 @@ final class PageTranslationCrudController extends AbstractCrudController
         }
 
         return $this->translator->trans('label.block_type.richtext', [], 'content');
+    }
+
+    private function formatContentBlocksSummary(PageTranslation $translation): string
+    {
+        $blocks = $translation->getContent();
+        if ([] === $blocks) {
+            return '—';
+        }
+
+        $parts = [];
+        foreach ($blocks as $index => $block) {
+            $type = (string) ($block['type'] ?? 'block');
+            $enabled = (bool) ($block['enabled'] ?? true);
+            $state = $this->translator->trans($enabled ? 'label.enabled' : 'label.disabled', [], 'messages');
+            $label = htmlspecialchars($this->formatBlockTypeLabel($type), ENT_QUOTES);
+            $stateLabel = htmlspecialchars($state, ENT_QUOTES);
+            $parts[] = sprintf('%d. %s (%s)', $index + 1, $label, $stateLabel);
+        }
+
+        return implode('<br>', $parts);
     }
 
     private function buildMediaLibraryHelp(): string

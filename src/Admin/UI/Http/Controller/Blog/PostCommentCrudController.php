@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -49,11 +50,16 @@ final class PostCommentCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield AssociationField::new('post', 'label.post')->setDisabled();
         yield AssociationField::new('author', 'label.author')->setDisabled();
-        yield AssociationField::new('parent', 'label.parent')->setDisabled()->hideOnIndex();
-        yield TextareaField::new('content', 'label.content')->setDisabled();
-        yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm');
+        yield AssociationField::new('parent', 'label.parent')->setDisabled()->onlyOnDetail();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.content', domain: 'admin'));
+        yield TextareaField::new('content', 'label.content')->setDisabled()->hideOnIndex();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')->onlyOnDetail();
+        yield DateTimeField::new('createdAt', 'label.created')->setFormat('dd.MM.yy HH:mm')->hideOnForm();
     }
 }

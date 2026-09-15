@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
@@ -84,7 +85,7 @@ final class PageCrudController extends AbstractCrudController
     #[\Override]
     public function configureFields(string $pageName): iterable
     {
-        yield IdField::new('id')->onlyOnDetail();
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.identity', domain: 'admin'));
         yield ChoiceField::new('key', new TranslatableMessage('label.page_key', domain: 'content'))
             ->setChoices($this->buildPageKeyChoices())
             ->setRequired(false)
@@ -97,11 +98,16 @@ final class PageCrudController extends AbstractCrudController
                 'label.authenticated' => Page::VISIBILITY_AUTHENTICATED,
             ]);
         yield IntegerField::new('sortOrder', 'label.sort_order')->hideOnIndex();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.translations', domain: 'admin'));
         yield AssociationField::new('translations', new TranslatableMessage('label.page_translations', domain: 'content'))
             ->setTemplatePath('@Admin/page/translations_panel.html.twig')
             ->onlyOnDetail();
-        yield DateTimeField::new('createdAt', 'label.created')->hideOnForm();
-        yield DateTimeField::new('updatedAt', 'label.updated')->hideOnForm();
+
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.metadata', domain: 'admin'));
+        yield IdField::new('id')->onlyOnDetail();
+        yield DateTimeField::new('createdAt', 'label.created')->onlyOnDetail();
+        yield DateTimeField::new('updatedAt', 'label.updated')->onlyOnDetail();
     }
 
     /**
