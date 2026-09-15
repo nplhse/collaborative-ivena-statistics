@@ -1,0 +1,276 @@
+{#
+  payload: array
+  testId: string
+  geoUrl: string|null
+  showValueModes: bool
+  showExpand: bool
+  showIsochroneLegend: bool
+  frameClass: string
+  unknownCount: int
+  beyondMaxCount: int
+  titleKey: string
+#}
+{% set geoUrl = geoUrl|default(null) %}
+{% set showValueModes = showValueModes|default(false) %}
+{% set showExpand = showExpand|default(false) %}
+{% set showIsochroneLegend = showIsochroneLegend|default(false) %}
+{% set frameClass = frameClass|default('case-flow-map-square') %}
+{% set unknownCount = unknownCount|default(0) %}
+{% set beyondMaxCount = beyondMaxCount|default(0) %}
+{% set titleKey = titleKey|default('stats.case_flow.section.map') %}
+{% set layers = payload.layers|default([]) %}
+{% set analysisLevel = payload.analysisLevel|default('regional') %}
+
+<div class="card"
+     data-controller="geo-map"
+     data-geo-map-payload-value="{{ payload|json_encode|e('html_attr') }}"
+     {% if geoUrl %}data-geo-map-geo-url-value="{{ geoUrl }}"{% endif %}
+     data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"
+     data-testid="{{ testId }}">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            {% if showValueModes %}
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans({}, 'statistics') }}">
+                    <button type="button"
+                            class="btn"
+                            data-geo-map-target="modeAbsolute"
+                            data-action="geo-map#setAbsoluteMode"
+                            aria-pressed="false">
+                        {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
+                    </button>
+                    <button type="button"
+                            class="btn active"
+                            data-geo-map-target="modeRelative"
+                            data-action="geo-map#setRelativeMode"
+                            aria-pressed="true">
+                        {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
+                    </button>
+                </div>
+            {% endif %}
+            {% if showExpand %}
+                <button type="button"
+                        class="btn btn-sm"
+                        data-action="geo-map#expand"
+                        data-testid="stats-geo-map-expand">
+                    <twig:ux:icon name="tabler:arrows-maximize" class="icon icon-sm" />
+                    {{ 'stats.case_flow.map.expand'|trans({}, 'statistics') }}
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body pt-2">
+        <div class="{{ frameClass }} geo-map-frame">
+            <div class="case-flow-map-container"
+                 data-geo-map-target="mapContainer"></div>
+        </div>
+
+        {% if showValueModes %}
+            <div class="d-none d-flex flex-wrap align-items-center gap-2 mt-2"
+                 data-geo-map-target="absoluteLegend"
+                 data-testid="stats-geo-map-count-legend">
+                <span class="text-muted small">{{ 'stats.case_flow.map.legend.count_low'|trans({}, 'statistics') }}</span>
+                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
+                </span>
+                <span class="text-muted small">{{ 'stats.case_flow.map.legend.count_high'|trans({}, 'statistics') }}</span>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2"
+                 data-geo-map-target="relativeLegend"
+                 data-testid="stats-geo-map-share-legend">
+                <span class="text-muted small">{{ 'stats.case_flow.map.legend.share_low'|trans({}, 'statistics') }}</span>
+                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
+                </span>
+                <span class="text-muted small">{{ 'stats.case_flow.map.legend.share_high'|trans({}, 'statistics') }}</span>
+            </div>
+            <div class="text-muted small mt-1">{{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}</div>
+        {% endif %}
+
+        {% if payload.selectedDispatchAreaId|default(null) %}
+            <div class="d-flex flex-wrap align-items-center gap-3 mt-2" data-testid="stats-geo-map-pin-legend">
+                <span class="d-inline-flex align-items-center gap-1 text-muted small">
+                    <span class="geo-map-pin-legend-dot" style="background:#1864ab;"></span>
+                    {{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics') }}
+                </span>
+                <span class="d-inline-flex align-items-center gap-1 text-muted small">
+                    <span class="geo-map-pin-legend-dot" style="background:#e8590c;"></span>
+                    {{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics') }}
+                </span>
+            </div>
+            {% if payload.omittedOutsideDestinationHospitals|default(0) > 0 or payload.omittedInsideDestinationHospitals|default(0) > 0 %}
+                <p class="text-muted small mb-0 mt-1" data-testid="stats-geo-map-omitted-destinations">
+                    {% if payload.omittedOutsideDestinationHospitals|default(0) > 0 %}
+                        {{ 'stats.case_flow.map.omitted_outside'|trans({count: payload.omittedOutsideDestinationHospitals}, 'statistics') }}
+                    {% endif %}
+                    {% if payload.omittedOutsideDestinationHospitals|default(0) > 0 and payload.omittedInsideDestinationHospitals|default(0) > 0 %}
+                        {{ 'stats.isochrone_origin_map.unmapped_separator'|trans({}, 'statistics') }}
+                    {% endif %}
+                    {% if payload.omittedInsideDestinationHospitals|default(0) > 0 %}
+                        {{ 'stats.case_flow.map.omitted_inside'|trans({count: payload.omittedInsideDestinationHospitals}, 'statistics') }}
+                    {% endif %}
+                </p>
+            {% endif %}
+        {% endif %}
+
+        {% if showIsochroneLegend %}
+            <div class="d-flex align-items-center gap-2 mt-2" data-testid="stats-isochrone-origin-map-legend">
+                <span class="text-muted small">{{ 'stats.isochrone_origin_map.legend.fewer'|trans({}, 'statistics') }}</span>
+                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#2f9e44;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#74b816;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#fab005;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#fd7e14;"></span>
+                    <span class="isochrone-origin-map-legend-swatch" style="background:#e03131;"></span>
+                </span>
+                <span class="text-muted small">{{ 'stats.isochrone_origin_map.legend.more'|trans({}, 'statistics') }}</span>
+            </div>
+            <p class="text-muted small mb-0 mt-2">{{ 'stats.case_flow.map.estimated_vs_observed'|trans({}, 'statistics') }}</p>
+        {% endif %}
+
+        {% if unknownCount > 0 or beyondMaxCount > 0 %}
+            <p class="text-muted small mb-0 mt-2" data-testid="stats-isochrone-origin-map-unmapped">
+                {% if unknownCount > 0 %}
+                    {{ 'stats.isochrone_origin_map.unknown'|trans({count: unknownCount}, 'statistics') }}
+                {% endif %}
+                {% if unknownCount > 0 and beyondMaxCount > 0 %}
+                    {{ 'stats.isochrone_origin_map.unmapped_separator'|trans({}, 'statistics') }}
+                {% endif %}
+                {% if beyondMaxCount > 0 %}
+                    {{ 'stats.isochrone_origin_map.beyond_max'|trans({count: beyondMaxCount}, 'statistics') }}
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    {% if showExpand %}
+        <div class="geo-map-expand-overlay"
+             data-geo-map-target="expandOverlay"
+             aria-hidden="true"
+             data-testid="stats-geo-map-expand-overlay">
+            <div class="geo-map-expand-header">
+                <h3 class="mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    {% if showValueModes %}
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button"
+                                    class="btn"
+                                    data-geo-map-target="expandModeAbsolute"
+                                    data-action="geo-map#setAbsoluteMode">
+                                {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
+                            </button>
+                            <button type="button"
+                                    class="btn active"
+                                    data-geo-map-target="expandModeRelative"
+                                    data-action="geo-map#setRelativeMode">
+                                {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
+                            </button>
+                        </div>
+                    {% endif %}
+                    <button type="button"
+                            class="btn btn-sm"
+                            data-action="geo-map#collapse"
+                            data-testid="stats-geo-map-collapse">
+                        <twig:ux:icon name="tabler:x" class="icon icon-sm" />
+                        {{ 'stats.case_flow.map.collapse'|trans({}, 'statistics') }}
+                    </button>
+                </div>
+            </div>
+            <div class="geo-map-expand-toolbar">
+                {% if 'originChoropleth' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="originChoropleth"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.origin'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+                {% if 'destinationHospitals' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="destinationHospitals"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.destinations'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+                {% if 'isochroneBands' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="isochroneBands"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.isochrones'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+                {% if 'hospitalPin' in layers %}
+                    <label class="form-check form-check-inline mb-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               data-geo-map-target="layerToggle"
+                               data-layer="hospitalPin"
+                               data-action="geo-map#toggleLayer"
+                               checked>
+                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.hospital'|trans({}, 'statistics') }}</span>
+                    </label>
+                {% endif %}
+            </div>
+            <div class="geo-map-expand-canvas">
+                <div class="case-flow-map-container"
+                     data-geo-map-target="expandMapContainer"></div>
+            </div>
+            <div class="geo-map-expand-footer text-muted small">
+                {% if showValueModes %}
+                    <div class="d-none d-flex flex-wrap align-items-center gap-2 mb-1"
+                         data-geo-map-target="absoluteLegend">
+                        <span>{{ 'stats.case_flow.map.legend.count_low'|trans({}, 'statistics') }}</span>
+                        <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
+                        </span>
+                        <span>{{ 'stats.case_flow.map.legend.count_high'|trans({}, 'statistics') }}</span>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1"
+                         data-geo-map-target="relativeLegend">
+                        <span>{{ 'stats.case_flow.map.legend.share_low'|trans({}, 'statistics') }}</span>
+                        <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
+                            <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
+                        </span>
+                        <span>{{ 'stats.case_flow.map.legend.share_high'|trans({}, 'statistics') }}</span>
+                    </div>
+                {% endif %}
+                {% if analysisLevel == 'hospital' %}
+                    {{ 'stats.case_flow.map.estimated_vs_observed'|trans({}, 'statistics') }}
+                {% else %}
+                    {{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>

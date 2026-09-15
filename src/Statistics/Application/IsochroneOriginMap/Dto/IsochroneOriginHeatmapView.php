@@ -23,6 +23,10 @@ final readonly class IsochroneOriginHeatmapView
 
     /**
      * @return array{
+     *     analysisLevel: 'hospital',
+     *     layers: list<'isochroneBands'|'hospitalPin'>,
+     *     compactLayers: list<'isochroneBands'|'hospitalPin'>,
+     *     expandedLayers: list<'isochroneBands'|'hospitalPin'>,
      *     hospital: array{name: string, lat: float, lng: float},
      *     bands: list<array{
      *         minutes: int,
@@ -31,7 +35,19 @@ final readonly class IsochroneOriginHeatmapView
      *         intensity: float,
      *         geometry: array<string, mixed>,
      *         label: string
-     *     }>
+     *     }>,
+     *     isochrone: array{
+     *         bands: list<array{
+     *             minutes: int,
+     *             count: int,
+     *             share: float,
+     *             intensity: float,
+     *             geometry: array<string, mixed>,
+     *             label: string
+     *         }>,
+     *         unknownCount: int,
+     *         beyondMaxCount: int
+     *     }
      * }
      */
     public function mapPayload(): array
@@ -42,12 +58,21 @@ final readonly class IsochroneOriginHeatmapView
         }
 
         return [
+            'analysisLevel' => 'hospital',
+            'layers' => ['isochroneBands', 'hospitalPin'],
+            'compactLayers' => ['isochroneBands', 'hospitalPin'],
+            'expandedLayers' => ['isochroneBands', 'hospitalPin'],
             'hospital' => [
                 'name' => $this->hospitalName,
                 'lat' => $this->latitude,
                 'lng' => $this->longitude,
             ],
             'bands' => $bands,
+            'isochrone' => [
+                'bands' => $bands,
+                'unknownCount' => $this->unknownCount,
+                'beyondMaxCount' => $this->beyondMaxCount,
+            ],
         ];
     }
 }

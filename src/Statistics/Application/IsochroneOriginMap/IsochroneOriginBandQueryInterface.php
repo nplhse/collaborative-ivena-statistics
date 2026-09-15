@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\IsochroneOriginMap;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandQueryResult;
 
@@ -18,5 +19,6 @@ interface IsochroneOriginBandQueryInterface
         StatisticsScopeCriteria $scope,
         ?array $indicationIds = null,
         ?bool $departmentWasClosed = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): IsochroneOriginBandQueryResult;
 }

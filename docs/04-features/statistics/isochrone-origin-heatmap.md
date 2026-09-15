@@ -2,7 +2,11 @@
 
 **Audience:** Developers extending the Statistics Overview or Indication Insights map widget.
 
-A Leaflet map of destination isochrones around a single hospital, coloured as a heatmap by how many allocations fall into each 10-minute travel-time band (the same grouping as the transport-time chart). Fill opacity is the same on every ring so the basemap stays readable. It is a lazily loaded widget in the main charts column — not a GIS origin model.
+A Leaflet map of destination isochrones around a single hospital, coloured as a heatmap by how many allocations fall into each 10-minute travel-time band (the same grouping as the transport-time chart). Fill opacity is the same on every ring so the basemap stays readable.
+
+On the Geographic / Case Flow dashboard, the same isochrone data is a **layer** of hospital-focused analysis (together with origin choropleth and the hospital pin), not a separate map stack. Compact Overview and Indication widgets reuse `geo-map_controller.js`.
+
+Treat estimated isochrone travel times (OpenRouteService polygons) and observed `transport_time_minutes` as complementary, not equivalent.
 
 ## Where it appears
 
@@ -40,13 +44,14 @@ The sync Overview path does not run the band query (see [overview-dashboard-perf
 | Query | `IsochroneOriginBandQuery` |
 | Route | `app_stats_isochrone_origin_map` |
 | Twig | `src/Statistics/UI/Twig/templates/isochrone_origin_map/` |
-| Stimulus | `assets/controllers/isochrone-origin-map_controller.js` |
+| Stimulus | `assets/controllers/geo-map_controller.js` (shared kernel in `assets/js/geo-map/`) |
 | Isochrone files | `HospitalIsochroneProviderInterface` / `var/geo/hospital-isochrones` |
 
 Rings are derived client-side with `@turf/difference` because stored OpenRouteService polygons are cumulative. Empty bands are omitted. The viewport fits the largest populated isochrone. Fill colour is a green→red heatmap by allocation count; stroke matches the fill; every ring uses the same fill opacity.
 
 ## Related
 
+- [case-flow.md](case-flow.md)
 - [../../05-operations/hospital-geodata.md](../../05-operations/hospital-geodata.md)
 - [../allocation/orientation-map.md](../allocation/orientation-map.md)
 - [statistics-filter-and-scope.md](statistics-filter-and-scope.md)

@@ -19,12 +19,12 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 | Controller | Area |
 |------------|------|
 | `dashboard-charts` | Statistics dashboards |
-| `case-flow-charts`, `case-flow-map` | Case flow |
+| `geo-map`, `case-flow-charts`, `case-flow-map` | Geographic / case flow (shared Leaflet kernel in `assets/js/geo-map/`) |
 | `hospital-population-charts`, `hospital-population-map` | Hospital population |
 | `benchmarking-charts` | Benchmarking |
 | `analysis-chart`, `generic-analysis-chart` | Analysis views |
 | `catalog-orientation-map` | Explore allocation/hospital orientation map (Leaflet, Turf) |
-| `isochrone-origin-map` | Statistics hospital-scope travel-time isochrone heatmap (Leaflet, Turf) |
+| `geo-map`, `isochrone-origin-map` | Statistics hospital-scope travel-time isochrone heatmap (Leaflet, Turf); widgets use `geo-map` |
 
 `assets/controllers.json` enables `@symfony/ux-live-component` and `@symfony/ux-turbo`.
 

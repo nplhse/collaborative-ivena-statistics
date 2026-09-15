@@ -12,6 +12,7 @@ final readonly class TransportTimeProfileView
      * @param list<TransportTimeProfileInsight>       $insights
      * @param list<TransportTimeProfileMatrixSection> $matrixSections
      * @param list<TransportTimeProfileMatrixSection> $rankedSections
+     * @param array<string, mixed>|null               $geographicMapPayload
      */
     public function __construct(
         public bool $hasData,
@@ -30,6 +31,7 @@ final readonly class TransportTimeProfileView
         public array $matrixSections,
         public array $rankedSections,
         public bool $drawerFilterActive,
+        public ?array $geographicMapPayload = null,
     ) {
     }
 }

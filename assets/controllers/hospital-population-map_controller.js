@@ -1,6 +1,15 @@
 import { Controller } from '@hotwired/stimulus';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import {
+    createLeafletMap,
+    destroyLeafletMap,
+    ensureContainerSize,
+    invalidateMapSize,
+    prepareMapContainer,
+    scheduleInvalidateSize,
+} from '../js/geo-map/createMap.js';
+import { loadGeoJson } from '../js/geo-map/loadGeoJson.js';
+import { hospitalPinIcon } from '../js/geo-map/hospitalPin.js';
 
 const PARTICIPATING_PIN_COLOR = '#1864ab';
 const REFERENCE_PIN_COLOR = '#868e96';
@@ -46,19 +55,13 @@ export default class extends Controller {
             }
 
             this.destroyMap();
-            this.prepareMapContainer();
-            this.ensureMapContainerSize();
+            prepareMapContainer(this.mapContainerTarget);
+            ensureContainerSize(
+                this.mapContainerTarget,
+                '.hospital-population-map-frame, .case-flow-map-square',
+            );
 
-            this.map = L.map(this.mapContainerTarget, {
-                scrollWheelZoom: true,
-                attributionControl: true,
-            });
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution:
-                    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            }).addTo(this.map);
+            this.map = createLeafletMap(this.mapContainerTarget, { scrollWheelZoom: true });
 
             this.geoLayer = L.geoJSON(geojson, {
                 style: (feature) => this.styleForFeature(feature),
@@ -105,12 +108,10 @@ export default class extends Controller {
             return this.cachedHospitalPinIcons.get(color);
         }
 
-        const icon = L.divIcon({
+        const icon = hospitalPinIcon({
+            color,
             className: 'hospital-population-map-pin',
-            html: `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="${color}" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle fill="#ffffff" cx="12" cy="9" r="2.5"/></svg>`,
-            iconSize: [22, 22],
-            iconAnchor: [11, 22],
-            tooltipAnchor: [0, -18],
+            size: 22,
         });
 
         this.cachedHospitalPinIcons.set(color, icon);
@@ -197,57 +198,24 @@ export default class extends Controller {
             return this.geoJsonCache;
         }
 
-        const response = await fetch(this.geoUrlValue, {
-            headers: { Accept: 'application/geo+json, application/json' },
-        });
-        if (!response.ok) {
-            throw new Error(`GeoJSON request failed (${response.status})`);
-        }
-
-        this.geoJsonCache = await response.json();
+        this.geoJsonCache = await loadGeoJson(this.geoUrlValue);
 
         return this.geoJsonCache;
     }
 
-    prepareMapContainer() {
-        this.mapContainerTarget.innerHTML = '';
-        this.mapContainerTarget.classList.add('case-flow-map-container');
-    }
-
-    ensureMapContainerSize() {
-        const square = this.mapContainerTarget.closest('.case-flow-map-square');
-        if (!square) {
-            return;
-        }
-
-        const { width, height } = square.getBoundingClientRect();
-        if (width > 0 && height > 0) {
-            this.mapContainerTarget.style.width = `${width}px`;
-            this.mapContainerTarget.style.height = `${height}px`;
-        }
-    }
-
     scheduleInvalidateSize() {
-        window.requestAnimationFrame(() => {
-            this.invalidateMapSize();
-            window.setTimeout(() => this.invalidateMapSize(), 150);
-        });
+        scheduleInvalidateSize(this.map);
     }
 
     invalidateMapSize() {
-        if (this.map) {
-            this.map.invalidateSize({ animate: false });
-        }
+        invalidateMapSize(this.map);
     }
 
     destroyMap() {
-        if (this.map) {
-            this.map.remove();
-            this.map = null;
-            this.geoLayer = null;
-            this.markerLayer = null;
-        }
-
+        destroyLeafletMap(this.map);
+        this.map = null;
+        this.geoLayer = null;
+        this.markerLayer = null;
         this.cachedHospitalPinIcons = null;
     }
 

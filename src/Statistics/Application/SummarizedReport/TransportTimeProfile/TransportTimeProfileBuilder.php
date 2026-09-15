@@ -7,6 +7,8 @@ namespace App\Statistics\Application\SummarizedReport\TransportTimeProfile;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginHeatmapAssembler;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
@@ -28,6 +30,7 @@ final readonly class TransportTimeProfileBuilder
         private ExplorerAnalysisSummaryLabelResolverInterface $summaryLabelResolver,
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
+        private IsochroneOriginHeatmapAssembler $isochroneAssembler,
     ) {
     }
 
@@ -106,6 +109,19 @@ final readonly class TransportTimeProfileBuilder
             : [];
         [$matrixSections, $rankedSections] = $this->partitionMatrix($matrix);
 
+        $geographicMapPayload = null;
+        if (StatisticsFilterScope::Hospital === $context->filter->scope) {
+            $heatmap = $this->isochroneAssembler->build(
+                $context->filter,
+                $scopeCriteria,
+                $periodBounds,
+                null,
+                $context->drawerFilter?->departmentWasClosed,
+                $context->drawerFilter,
+            );
+            $geographicMapPayload = $heatmap?->mapPayload();
+        }
+
         return new TransportTimeProfileView(
             hasData: $hasData,
             allocationCount: $allocationCount,
@@ -123,6 +139,7 @@ final readonly class TransportTimeProfileBuilder
             matrixSections: $matrixSections,
             rankedSections: $rankedSections,
             drawerFilterActive: false,
+            geographicMapPayload: $geographicMapPayload,
         );
     }
 

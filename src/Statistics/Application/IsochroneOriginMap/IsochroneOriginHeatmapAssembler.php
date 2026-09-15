@@ -7,6 +7,7 @@ namespace App\Statistics\Application\IsochroneOriginMap;
 use App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface;
 use App\Allocation\Application\Contracts\HospitalLookupInterface;
 use App\Allocation\Domain\Entity\Hospital;
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
@@ -35,6 +36,7 @@ final readonly class IsochroneOriginHeatmapAssembler
         StatisticsPeriodBounds $period,
         ?array $indicationIds = null,
         ?bool $departmentWasClosed = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): ?IsochroneOriginHeatmapView {
         if (StatisticsFilterScope::Hospital !== $filter->scope || null === $filter->hospitalId) {
             return null;
@@ -67,6 +69,7 @@ final readonly class IsochroneOriginHeatmapAssembler
             $scope,
             $indicationIds,
             $departmentWasClosed,
+            $drawerFilter,
         );
         $total = $counts->total();
         $maxBandCount = 0;
