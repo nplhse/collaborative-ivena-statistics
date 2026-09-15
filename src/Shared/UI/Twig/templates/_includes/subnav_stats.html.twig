@@ -1,10 +1,8 @@
 {% set route = app.request.attributes.get('_route') %}
 
-<header class="navbar-expand-md">
-    <div class="collapse navbar-collapse" id="navbar-menu">
-        <div class="navbar">
-            <div class="container-xl">
-                <ul class="navbar-nav">
+<nav class="navbar navbar-expand d-print-none" id="stats-subnav" aria-label="{{ 'link.statistics'|trans({}, 'shared') }}">
+    <div class="container-xl overflow-x-auto">
+        <ul class="navbar-nav flex-nowrap">
                     <li class="nav-item {{ route == 'app_stats_dashboard' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_dashboard') }}">
                             <span class="nav-link-title">
@@ -79,6 +77,4 @@
                     </li>
                 </ul>
             </div>
-        </div>
-    </div>
-</header>
+        </nav>
