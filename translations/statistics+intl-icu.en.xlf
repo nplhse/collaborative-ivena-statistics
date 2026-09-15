@@ -1241,6 +1241,38 @@
         <source>stats.reports.monthly.top.empty</source>
         <target>No entries</target>
       </trans-unit>
+      <trans-unit id="statsMonthlyCdaTitle" resname="stats.reports.monthly.closed_department.title">
+        <source>stats.reports.monthly.closed_department.title</source>
+        <target>Forced assignments</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaCount" resname="stats.reports.monthly.closed_department.count">
+        <source>stats.reports.monthly.closed_department.count</source>
+        <target>Count</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaShareHint" resname="stats.reports.monthly.closed_department.share_hint">
+        <source>stats.reports.monthly.closed_department.share_hint</source>
+        <target>of all assignments</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaDepts" resname="stats.reports.monthly.closed_department.departments">
+        <source>stats.reports.monthly.closed_department.departments</source>
+        <target>Affected departments</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaDeptsHint" resname="stats.reports.monthly.closed_department.departments_hint">
+        <source>stats.reports.monthly.closed_department.departments_hint</source>
+        <target>of {total} departments</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaUrgency" resname="stats.reports.monthly.closed_department.urgency">
+        <source>stats.reports.monthly.closed_department.urgency</source>
+        <target>Urgency</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaEmpty" resname="stats.reports.monthly.closed_department.empty">
+        <source>stats.reports.monthly.closed_department.empty</source>
+        <target>There were no forced assignments this month.</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaLink" resname="stats.reports.monthly.closed_department.link">
+        <source>stats.reports.monthly.closed_department.link</source>
+        <target>Open detailed analysis</target>
+      </trans-unit>
       <trans-unit id="statsRpSel00" resname="stats.top_lists.select_label">
         <source>stats.top_lists.select_label</source>
         <target>Top list</target>

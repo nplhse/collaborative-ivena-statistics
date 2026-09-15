@@ -53,6 +53,12 @@ Department, speciality, indication, occasion, assignment-type, and infection ran
 
 The first paint loads KPIs (`ClosedDepartmentMetricsQuery::fetchKpis`: counts, distinct departments, closed mean transport) and a single `GROUPING SETS` scan for time series plus heatmap (`ClosedDepartmentSliceQuery::fetchSummary`). Gender, urgency, resources, clinical flags, and both transport means stay on `GET /statistics/closed-department-assignments/details`. The six ranking cards (department, speciality, indication, occasion, assignment, infection) load together in one lazy Turbo Frame (`GET /statistics/closed-department-assignments/rankings`), same pattern as Overview top reports. The dispatch-area list stays a separate lazy frame (`GET /statistics/closed-department-assignments/cards/dispatch-area`). Data quality uses the same lazy drawer as Overview (`dataQualityLazyLoad`, `GET /statistics/data-quality/drawer`) and is not queried on first paint. Scope/period query parameters are forwarded via `StatisticsNavigationUrlBuilder`. Empty states skip the frames.
 
+## Monthly Report
+
+The Monthly Report (`/statistics/reports/monthly`) includes a compact summary of the same metrics: closed count, share of all assignments, month-over-month change, affected departments, and urgency of closed assignments. It reuses `ClosedDepartmentMetricsQuery` and `DepartmentWasClosedSql` rather than a second definition. A link forwards the report's Hospital Scope and month to this detailed analysis. Months with allocations but no closed cases still show the section with zeros.
+
+The monthly submission reminder email repeats the headline count/share and links to the Monthly Report for the same reporting month.
+
 ## Isochrones
 
 The existing hospital-scope isochrone widget is reused with `departmentWasClosed=1`. Bands still approximate origin from recorded transport time; allocations have no incident coordinates.

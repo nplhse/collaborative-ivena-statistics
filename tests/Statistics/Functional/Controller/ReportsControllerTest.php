@@ -61,6 +61,7 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-reports-content"]');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-empty"]');
+        $this->assertSelectorNotExists('[data-testid="stats-monthly-report-closed-department"]');
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-heading-title"] .ps-2');
         $this->assertSelectorNotExists('[data-testid="stats-reports-print"]');
@@ -266,5 +267,118 @@ final class ReportsControllerTest extends WebTestCase
             'generic-analysis-chart',
             (string) $crawler->filter('[data-testid="stats-ttp-chart-card"]')->attr('data-controller'),
         );
+    }
+
+    public function testMonthlyReportRendersClosedDepartmentSection(): void
+    {
+        $client = self::createClient();
+
+        $user = UserFactory::createOne(['username' => 'monthly-cda-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'MonthlyCdaState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'MonthlyCdaDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'MonthlyCdaHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+        $department = DepartmentFactory::createOne(['name' => 'MonthlyCdaDept']);
+        SpecialityFactory::createOne(['name' => 'MonthlyCdaSpec']);
+        AssignmentFactory::createOne(['name' => 'MonthlyCdaAssign']);
+        IndicationRawFactory::createOne(['name' => 'MonthlyCdaRaw', 'code' => 912_801]);
+        IndicationNormalizedFactory::createOne(['name' => 'MonthlyCdaNorm']);
+        $import = ImportFactory::createOne(['name' => 'MonthlyCdaImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'department' => $department,
+            'departmentWasClosed' => true,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-03-10 10:00:00'),
+        ]);
+        AllocationFactory::createMany(7, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'department' => $department,
+            'departmentWasClosed' => false,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'createdAt' => new \DateTimeImmutable('2026-03-11 10:00:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)
+            ->rebuildForImport($import->getId());
+
+        $this->loginAsRoleUser($client);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports/monthly?scope=public&year=2026&month=3',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department"]');
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-count"]');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"]', '3');
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-share"]');
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-link"]');
+        $link = $crawler->filter('[data-testid="stats-monthly-report-closed-department-link"]')->attr('href');
+        $this->assertNotNull($link);
+        $this->assertStringContainsString('/statistics/closed-department-assignments', (string) $link);
+        $this->assertStringContainsString('period=month', (string) $link);
+        $this->assertStringContainsString('year=2026', (string) $link);
+        $this->assertStringContainsString('month=3', (string) $link);
+        $this->assertSelectorNotExists('[data-testid="stats-monthly-report-closed-department-empty"]');
+    }
+
+    public function testMonthlyReportShowsClosedDepartmentZeroStateWhenNoClosedAllocations(): void
+    {
+        $client = self::createClient();
+
+        $user = UserFactory::createOne(['username' => 'monthly-cda-zero-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'MonthlyCdaZeroState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'MonthlyCdaZeroDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'MonthlyCdaZeroHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+        $department = DepartmentFactory::createOne(['name' => 'MonthlyCdaZeroDept']);
+        SpecialityFactory::createOne(['name' => 'MonthlyCdaZeroSpec']);
+        AssignmentFactory::createOne(['name' => 'MonthlyCdaZeroAssign']);
+        IndicationRawFactory::createOne(['name' => 'MonthlyCdaZeroRaw', 'code' => 912_802]);
+        IndicationNormalizedFactory::createOne(['name' => 'MonthlyCdaZeroNorm']);
+        $import = ImportFactory::createOne(['name' => 'MonthlyCdaZeroImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createMany(5, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'department' => $department,
+            'departmentWasClosed' => false,
+            'createdAt' => new \DateTimeImmutable('2026-03-10 10:00:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)
+            ->rebuildForImport($import->getId());
+
+        $this->loginAsRoleUser($client);
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports/monthly?scope=public&year=2026&month=3',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department"]');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-closed-department-count"]', '0');
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-empty"]');
+        $this->assertSelectorExists('[data-testid="stats-monthly-report-closed-department-link"]');
     }
 }

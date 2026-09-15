@@ -13,11 +13,15 @@ use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use App\Statistics\Application\ChartBucketMapper;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Insights\HospitalInsight;
 use App\Statistics\Application\Insights\HospitalInsightSelector;
 use App\Statistics\Application\Insights\HospitalInsightTrend;
+use App\Statistics\Application\Overview\OverviewPeriodComparisonService;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
+use App\Statistics\ClosedDepartmentAssignments\Application\ClosedDepartmentShareMath;
+use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\ClosedDepartmentMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
@@ -38,6 +42,7 @@ final readonly class MonthlyReminderContentBuilder
         private ProjectionTimeSeriesQuery $timeSeriesQuery,
         private ImportRepository $importRepository,
         private GetOverviewDashboardMetricsQuery $overviewMetricsQuery,
+        private ClosedDepartmentMetricsQuery $closedDepartmentMetricsQuery,
         private MonthlyReminderChartBuilder $chartBuilder,
         private HospitalInsightSelector $insightSelector,
         private MonthlyReminderDistributionSegments $distributionSegments,
@@ -98,6 +103,17 @@ final readonly class MonthlyReminderContentBuilder
                 $hospitalIds,
             ),
         );
+        $closedDepartmentScope = new StatisticsScopeCriteria($hospitalIds);
+        $closedDepartmentMetrics = $this->closedDepartmentMetricsQuery->fetchKpis(
+            $period['reportingMonthStart'],
+            $period['reportingMonthEnd'],
+            $closedDepartmentScope,
+        );
+        $previousClosedDepartmentMetrics = $this->closedDepartmentMetricsQuery->fetchKpis(
+            $previousMonthStart,
+            $period['reportingMonthStart'],
+            $closedDepartmentScope,
+        );
 
         $withPhysicianPercent = $overviewMetrics->scopedTotal > 0
             ? round(100 * $overviewMetrics->withPhysician / $overviewMetrics->scopedTotal, 1)
@@ -143,6 +159,9 @@ final readonly class MonthlyReminderContentBuilder
             'type' => 'monthly',
             'scope' => StatisticsFilterScope::Hospital->value,
             'hospital' => $hospitalId,
+            'period' => StatisticsFilterPeriod::Month->value,
+            'year' => $period['reportingYear'],
+            'month' => $period['reportingMonth'],
         ], UrlGeneratorInterface::ABSOLUTE_URL);
         $selfBenchmarkUrl = $this->urlGenerator->generate('app_stats_benchmarking', [
             'scope' => StatisticsFilterScope::Hospital->value,
@@ -240,6 +259,15 @@ final readonly class MonthlyReminderContentBuilder
             benchmarkingUrl: $benchmarkingUrl,
             notificationsSettingsUrl: $notificationsSettingsUrl,
             monthlyReportUrl: $monthlyReportUrl,
+            closedDepartmentCount: $closedDepartmentMetrics->closedCount,
+            closedDepartmentSharePercent: ClosedDepartmentShareMath::percent(
+                $closedDepartmentMetrics->closedCount,
+                $closedDepartmentMetrics->totalCount,
+            ),
+            closedDepartmentMomPercent: OverviewPeriodComparisonService::relativePercentChange(
+                $closedDepartmentMetrics->closedCount,
+                $previousClosedDepartmentMetrics->closedCount,
+            ),
             platformAllocationCount: $platformData['allocationCount'] ?? null,
             platformAllocationMomPercent: $platformData['allocationMomPercent'] ?? null,
             platformActiveHospitals: $platformData['activeHospitals'] ?? null,

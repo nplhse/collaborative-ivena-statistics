@@ -89,7 +89,7 @@ The reminder distinguishes two periods:
 - **Upload month** — the calendar month before the send date (the data users are asked to upload).
 - **Insights month** — one month before the upload month (the last complete reporting period used for KPIs and personalized statistics).
 
-Example: a reminder sent on 1 July requests a June upload but shows statistics for May.
+Example: a reminder sent on 1 July requests a June upload but shows statistics for May. Personalized reminders include a Notzuweisungen teaser that links to the Monthly Report for that insights month.
 
 Dispatch history is stored in `monthly_reminder_dispatch` (keyed by upload month).
 

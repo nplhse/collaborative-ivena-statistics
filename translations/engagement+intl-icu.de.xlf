@@ -25,6 +25,30 @@
         <source>monthly_reminder.cta.monthly_report</source>
         <target>Monatsbericht ansehen</target>
       </trans-unit>
+      <trans-unit id="mrCdaTitleDe" resname="monthly_reminder.closed_department.title">
+        <source>monthly_reminder.closed_department.title</source>
+        <target>Notzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="mrCdaBodyDe" resname="monthly_reminder.closed_department.body">
+        <source>monthly_reminder.closed_department.body</source>
+        <target>{count} Zuweisungen trotz Abmeldung ({share} % aller Zuweisungen).</target>
+      </trans-unit>
+      <trans-unit id="mrCdaMomDe" resname="monthly_reminder.closed_department.mom">
+        <source>monthly_reminder.closed_department.mom</source>
+        <target>zum Vormonat</target>
+      </trans-unit>
+      <trans-unit id="mrCdaEmptyDe" resname="monthly_reminder.closed_department.empty">
+        <source>monthly_reminder.closed_department.empty</source>
+        <target>In diesem Monat gab es keine Notzuweisungen. Der Monatsbericht fasst diese Kennzahl trotzdem zusammen.</target>
+      </trans-unit>
+      <trans-unit id="mrCdaLinkDe" resname="monthly_reminder.closed_department.link">
+        <source>monthly_reminder.closed_department.link</source>
+        <target>Im Monatsbericht ansehen</target>
+      </trans-unit>
+      <trans-unit id="mrLinkReportDe" resname="monthly_reminder.link.monthly_report">
+        <source>monthly_reminder.link.monthly_report</source>
+        <target>Monatsbericht öffnen</target>
+      </trans-unit>
       <trans-unit id="Def4661db9" resname="monthly_reminder.email.manage_notifications">
         <source>monthly_reminder.email.manage_notifications</source>
         <target>Benachrichtigungseinstellungen verwalten</target>

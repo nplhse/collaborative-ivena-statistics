@@ -43,6 +43,7 @@ final readonly class MonthlyReportView
         public array $topDiagnoses,
         public array $topOccasions,
         public array $topDepartments,
+        public MonthlyReportClosedDepartmentView $closedDepartment,
         public array $insights,
         public array $dailyChart,
         public string $importCreateUrl,

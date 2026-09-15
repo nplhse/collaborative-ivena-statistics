@@ -73,6 +73,7 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
                 'dispatchArea' => $seed['dispatchArea'],
                 'indicationRaw' => $seed['raw'],
                 'indicationNormalized' => $seed['normalized'],
+                'departmentWasClosed' => false,
                 'createdAt' => new \DateTimeImmutable('2026-05-15'),
             ]);
         }
@@ -103,6 +104,67 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         self::assertNull($content->platformAllocationCount);
         self::assertStringContainsString('/statistics/reports/monthly', $content->monthlyReportUrl);
         self::assertStringNotContainsString('type=monthly', $content->monthlyReportUrl);
+        self::assertStringContainsString('year=2026', $content->monthlyReportUrl);
+        self::assertStringContainsString('month=5', $content->monthlyReportUrl);
+        self::assertSame(0, $content->closedDepartmentCount);
+        self::assertSame(0.0, $content->closedDepartmentSharePercent);
+    }
+
+    public function testBuildIncludesClosedDepartmentMetricsForReportingMonth(): void
+    {
+        $referenceDate = new \DateTimeImmutable('2026-07-01', new \DateTimeZone('Europe/Berlin'));
+        $seed = $this->seedHospitalGraph();
+        $hospital = $seed['hospital'];
+        $import = ImportFactory::createOne([
+            'hospital' => $hospital,
+            'createdBy' => $seed['user'],
+            'createdAt' => new \DateTimeImmutable('2026-05-10'),
+            'status' => ImportStatus::COMPLETED,
+        ]);
+
+        AllocationFactory::createMany(4, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $seed['state'],
+            'dispatchArea' => $seed['dispatchArea'],
+            'indicationRaw' => $seed['raw'],
+            'indicationNormalized' => $seed['normalized'],
+            'departmentWasClosed' => true,
+            'createdAt' => new \DateTimeImmutable('2026-05-15'),
+        ]);
+        AllocationFactory::createMany(16, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $seed['state'],
+            'dispatchArea' => $seed['dispatchArea'],
+            'indicationRaw' => $seed['raw'],
+            'indicationNormalized' => $seed['normalized'],
+            'departmentWasClosed' => false,
+            'createdAt' => new \DateTimeImmutable('2026-05-16'),
+        ]);
+        AllocationFactory::createMany(2, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $seed['state'],
+            'dispatchArea' => $seed['dispatchArea'],
+            'indicationRaw' => $seed['raw'],
+            'indicationNormalized' => $seed['normalized'],
+            'departmentWasClosed' => true,
+            'createdAt' => new \DateTimeImmutable('2026-04-15'),
+        ]);
+
+        $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
+        $rebuilder->rebuildForImport((int) $import->getId());
+
+        $content = $this->builder->build($hospital, $referenceDate, 'en');
+
+        self::assertTrue($content->isPersonalized);
+        self::assertSame(4, $content->closedDepartmentCount);
+        self::assertSame(20.0, $content->closedDepartmentSharePercent);
+        self::assertSame(100.0, $content->closedDepartmentMomPercent);
+        self::assertStringContainsString('/statistics/reports/monthly', $content->monthlyReportUrl);
+        self::assertStringContainsString('year=2026', $content->monthlyReportUrl);
+        self::assertStringContainsString('month=5', $content->monthlyReportUrl);
     }
 
     public function testBuildUsesGermanPeriodLabelsForGermanLocale(): void

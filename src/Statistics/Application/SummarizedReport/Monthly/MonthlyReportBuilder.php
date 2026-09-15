@@ -12,11 +12,13 @@ use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Insights\HospitalInsight;
 use App\Statistics\Application\Insights\HospitalInsightSelector;
 use App\Statistics\Application\Overview\OverviewPeriodComparisonService;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportClosedDepartmentView;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportSegment;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportTopRow;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportView;
@@ -26,6 +28,9 @@ use App\Statistics\Benchmarking\Application\BenchmarkCriteriaFactory;
 use App\Statistics\Benchmarking\Application\BenchmarkReportService;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
+use App\Statistics\ClosedDepartmentAssignments\Application\ClosedDepartmentShareMath;
+use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\ClosedDepartmentMetricsQuery;
+use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDepartmentMetricsRow;
 use App\Statistics\Infrastructure\Query\Overview\GetOverviewDashboardMetricsQuery;
 use App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
@@ -58,6 +63,7 @@ final readonly class MonthlyReportBuilder
         private GetOverviewDashboardMetricsQuery $overviewMetricsQuery,
         private TopDiagnosesQuery $topDiagnosesQuery,
         private TopEntityQuery $topEntityQuery,
+        private ClosedDepartmentMetricsQuery $closedDepartmentMetricsQuery,
         private BenchmarkCriteriaFactory $benchmarkCriteriaFactory,
         private BenchmarkReportService $benchmarkReportService,
         private HospitalInsightSelector $insightSelector,
@@ -222,6 +228,21 @@ final readonly class MonthlyReportBuilder
 
         $dashboardParams = $this->periodQueryParams($monthFilter, $period['year'], $period['month']);
         $dashboardUrl = $this->urlGenerator->generate('app_stats_dashboard', $dashboardParams);
+        $closedDepartmentDetailUrl = $this->urlGenerator->generate(
+            'app_stats_closed_department_assignments',
+            $dashboardParams,
+        );
+        $closedDepartment = $hasData
+            ? $this->closedDepartmentSection(
+                $period['monthStart'],
+                $period['monthEndExclusive'],
+                $period['previousMonthStart'],
+                $period['previousMonthEndExclusive'],
+                $scopeCriteria,
+                $closedDepartmentDetailUrl,
+                $locale,
+            )
+            : MonthlyReportClosedDepartmentView::empty($closedDepartmentDetailUrl);
 
         return new MonthlyReportView(
             periodLabel: $periodLabel,
@@ -242,6 +263,7 @@ final readonly class MonthlyReportBuilder
             topDiagnoses: $topDiagnoses,
             topOccasions: $topOccasions,
             topDepartments: $topDepartments,
+            closedDepartment: $closedDepartment,
             insights: $insights,
             dailyChart: $this->buildDailyChart(
                 $period['monthStart'],
@@ -427,6 +449,58 @@ final readonly class MonthlyReportBuilder
             $filter->requiresPublicRedirect,
             $filter->stateId,
             $filter->dispatchAreaId,
+        );
+    }
+
+    private function closedDepartmentSection(
+        \DateTimeImmutable $monthStart,
+        \DateTimeImmutable $monthEndExclusive,
+        \DateTimeImmutable $previousMonthStart,
+        \DateTimeImmutable $previousMonthEndExclusive,
+        StatisticsScopeCriteria $scopeCriteria,
+        string $detailUrl,
+        string $locale,
+    ): MonthlyReportClosedDepartmentView {
+        $metrics = $this->closedDepartmentMetricsQuery->fetch($monthStart, $monthEndExclusive, $scopeCriteria);
+        $previousMetrics = $this->closedDepartmentMetricsQuery->fetchKpis(
+            $previousMonthStart,
+            $previousMonthEndExclusive,
+            $scopeCriteria,
+        );
+
+        return new MonthlyReportClosedDepartmentView(
+            $metrics->closedCount,
+            ClosedDepartmentShareMath::percent($metrics->closedCount, $metrics->totalCount),
+            OverviewPeriodComparisonService::relativePercentChange(
+                $metrics->closedCount,
+                $previousMetrics->closedCount,
+            ),
+            $metrics->closedDepartmentCount,
+            $metrics->totalDepartmentCount,
+            $this->closedUrgencySegments($metrics, $locale),
+            $detailUrl,
+        );
+    }
+
+    /**
+     * @return list<MonthlyReportSegment>
+     */
+    private function closedUrgencySegments(ClosedDepartmentMetricsRow $metrics, string $locale): array
+    {
+        if ($metrics->closedCount <= 0) {
+            return [];
+        }
+
+        return $this->urgencySegments(
+            [
+                AllocationUrgency::EMERGENCY->value => $metrics->closedSk1,
+                AllocationUrgency::INPATIENT->value => $metrics->closedSk2,
+                AllocationUrgency::OUTPATIENT->value => $metrics->closedSk3,
+            ],
+            $metrics->closedCount,
+            [],
+            0,
+            $locale,
         );
     }
 

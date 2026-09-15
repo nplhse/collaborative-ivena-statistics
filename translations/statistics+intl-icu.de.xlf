@@ -4973,6 +4973,38 @@
         <source>stats.reports.monthly.top.empty</source>
         <target>Keine Einträge</target>
       </trans-unit>
+      <trans-unit id="statsMonthlyCdaTitle" resname="stats.reports.monthly.closed_department.title">
+        <source>stats.reports.monthly.closed_department.title</source>
+        <target>Notzuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaCount" resname="stats.reports.monthly.closed_department.count">
+        <source>stats.reports.monthly.closed_department.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaShareHint" resname="stats.reports.monthly.closed_department.share_hint">
+        <source>stats.reports.monthly.closed_department.share_hint</source>
+        <target>aller Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaDepts" resname="stats.reports.monthly.closed_department.departments">
+        <source>stats.reports.monthly.closed_department.departments</source>
+        <target>Betroffene Fachbereiche</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaDeptsHint" resname="stats.reports.monthly.closed_department.departments_hint">
+        <source>stats.reports.monthly.closed_department.departments_hint</source>
+        <target>von {total} Fachbereichen</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaUrgency" resname="stats.reports.monthly.closed_department.urgency">
+        <source>stats.reports.monthly.closed_department.urgency</source>
+        <target>Dringlichkeit</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaEmpty" resname="stats.reports.monthly.closed_department.empty">
+        <source>stats.reports.monthly.closed_department.empty</source>
+        <target>In diesem Monat gab es keine Notzuweisungen.</target>
+      </trans-unit>
+      <trans-unit id="statsMonthlyCdaLink" resname="stats.reports.monthly.closed_department.link">
+        <source>stats.reports.monthly.closed_department.link</source>
+        <target>Zur Detailanalyse</target>
+      </trans-unit>
       <trans-unit id="De262b7e71" resname="stats.top_lists.select_label">
         <source>stats.top_lists.select_label</source>
         <target>Top-Liste</target>
