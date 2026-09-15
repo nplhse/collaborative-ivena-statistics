@@ -7,11 +7,14 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             {% block navbar_logo %}
-                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                    <a class="text-black" href="{{ path('app_default') }}">
+                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3 min-w-0 flex-shrink-1 overflow-hidden">
+                    <a class="text-black text-truncate d-block" href="{{ path('app_default') }}">
                         {{ app_title }}
                     </a>
                 </h1>
+            {% endblock %}
+            {% block navbar_user %}
+                {{ include('@Shared/_includes/navbar_user.html.twig') }}
             {% endblock %}
             <div class="collapse navbar-collapse" id="navbar-menu">
                 <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
@@ -75,13 +78,26 @@
                                     </a>
                                 </li>
                             {% endfor %}
+                            {% if not is_granted('ROLE_USER') %}
+                                <li class="nav-item d-md-none">
+                                    <a class="nav-link" href="{{ path('app_register') }}">
+                                        <span class="nav-link-title">
+                                            {{ 'label.register'|trans({}, 'messages') }}
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item d-md-none">
+                                    <a class="nav-link" href="{{ path('app_login') }}">
+                                        <span class="nav-link-title">
+                                            {{ 'label.login'|trans({}, 'messages') }}
+                                        </span>
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% endblock %}
                     </ul>
                 </div>
             </div>
-            {% block navbar_user %}
-                {{ include('@Shared/_includes/navbar_user.html.twig') }}
-            {% endblock %}
         </div>
     </header>
 {% endblock %}

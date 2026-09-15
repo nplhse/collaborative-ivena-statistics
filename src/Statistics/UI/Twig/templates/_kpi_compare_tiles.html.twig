@@ -7,7 +7,7 @@
             {% set ratioTone = metric.ratio > 1 ? 'success' : (metric.ratio < 1 ? 'danger' : 'primary') %}
             {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
             {% set labelKey = metricLabelKeys[metric.key.value]|default('stats.benchmark.metric.' ~ metric.key.value) %}
-            {% set tileColumnClass = columnClass|default('col-sm-6 col-lg-4') %}
+            {% set tileColumnClass = columnClass|default('col-12 col-md-6 col-lg-4') %}
 
             {% if metric.format.value == 'percent' %}
                 {% set primaryLabel = metric.primaryValue|number_format(1, ',', '.') ~ '%' %}
@@ -54,7 +54,7 @@
                             </div>
                         {% endif %}
 
-                        <div class="mt-auto d-flex justify-content-between small">
+                        <div class="mt-auto d-flex justify-content-between flex-wrap gap-2 small min-w-0">
                             <span>
                                 <span class="badge bg-primary-lt me-1">{{ sideAShortKey|trans({}, 'statistics') }}</span>
                                 <span class="text-muted">{{ primaryLabel }}</span>

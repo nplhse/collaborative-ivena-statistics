@@ -1,7 +1,7 @@
 <div class="row row-cards" data-testid="dashboard-metrics">
     {% for metric in metrics.items %}
         {% set canLink = is_granted('ROLE_PARTICIPANT') and metric.routeName %}
-        <div class="col-6 col-lg-3">
+        <div class="col-12 col-md-6 col-lg-3">
             {% if canLink %}
                 <a href="{{ path(metric.routeName, metric.routeParams) }}" class="card card-link h-100 text-reset text-decoration-none" data-testid="dashboard-metric-{{ metric.key }}">
             {% else %}

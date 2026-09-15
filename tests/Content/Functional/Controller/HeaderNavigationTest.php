@@ -27,9 +27,12 @@ final class HeaderNavigationTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/login');
 
         self::assertResponseIsSuccessful();
+        self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
         self::assertSelectorExists('#navbar-menu a[href="/nav-about"]');
         self::assertSelectorExists('#navbar-menu a[href="/nav-features"]');
         self::assertSelectorExists('#navbar-menu a[href="/nav-faq"]');
+        self::assertSelectorExists('#navbar-menu a[href="/register"]');
+        self::assertSelectorExists('#navbar-menu a[href="/login"]');
     }
 
     public function testAuthenticatedUserSeesOnlyFaqInHeaderNavigation(): void
@@ -42,9 +45,33 @@ final class HeaderNavigationTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/');
 
         self::assertResponseIsSuccessful();
+        self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
+        self::assertSelectorExists('#stats-subnav');
+        self::assertSelectorNotExists('#explore-subnav');
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-about"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-features"]');
         self::assertSelectorExists('#navbar-menu a[href="/nav-faq"]');
+        self::assertSelectorExists('[aria-label="Open user menu"][data-bs-display="static"]');
+    }
+
+    public function testParticipantSeesUniqueNavbarAndExploreSubnav(): void
+    {
+        $client = self::createClient();
+
+        $user = UserFactory::createOne([
+            'username' => 'header-nav-participant',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $client->loginUser($user);
+        $client->request(Request::METHOD_GET, '/explore');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $client->getCrawler()->filter('#navbar-menu'));
+        self::assertSelectorExists('#explore-subnav');
+        self::assertSelectorExists('[data-testid="explore-subnav"]');
+        self::assertSelectorNotExists('#stats-subnav');
+        self::assertSelectorNotExists('#navbar-menu a[href="/login"]');
+        self::assertSelectorNotExists('#navbar-menu a[href="/register"]');
     }
 
     private function createHeaderNavigationPages(): void

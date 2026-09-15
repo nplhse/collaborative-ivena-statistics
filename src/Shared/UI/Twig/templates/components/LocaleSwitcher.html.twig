@@ -1,17 +1,20 @@
-<div class="nav-item dropdown me-3">
+<div class="nav-item dropdown me-1 me-md-3">
     <button
         type="button"
         class="btn btn-sm dropdown-toggle d-inline-flex align-items-center px-2 py-1"
         data-bs-toggle="dropdown"
+        data-bs-display="static"
         aria-expanded="false"
         aria-label="{{ 'locale.switch'|trans({}, 'shared') }}"
     >
         <twig:ux:icon name="tabler:world" class="icon icon-sm" />
-        {% if app.request.locale == 'de' %}
-            {{ 'locale.german_short'|trans({}, 'shared') }}
-        {% else %}
-            {{ 'locale.english_short'|trans({}, 'shared') }}
-        {% endif %}
+        <span class="d-none d-md-inline">
+            {% if app.request.locale == 'de' %}
+                {{ 'locale.german_short'|trans({}, 'shared') }}
+            {% else %}
+                {{ 'locale.english_short'|trans({}, 'shared') }}
+            {% endif %}
+        </span>
     </button>
     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
         {% for locale in supportedLocales %}
