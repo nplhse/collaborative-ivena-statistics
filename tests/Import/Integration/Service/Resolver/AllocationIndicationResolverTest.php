@@ -10,6 +10,7 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\IndicationKey;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Import\Application\DTO\AllocationRowDTO;
+use App\Import\Infrastructure\ImportCreatedById;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\Import\Infrastructure\Resolver\AllocationIndicationResolver;
 use App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy;
@@ -60,7 +61,7 @@ final class AllocationIndicationResolverTest extends TestCase
 
         $cache = new IndicationCache();
 
-        $strategy = new IndicationCreationStrategy($repo, $cache, $em);
+        $strategy = new IndicationCreationStrategy($repo, $cache, $em, new ImportCreatedById());
         $resolver = new AllocationIndicationResolver($strategy);
 
         $resolver->warm();
@@ -129,7 +130,7 @@ final class AllocationIndicationResolverTest extends TestCase
             });
 
         $cache = new IndicationCache();
-        $strategy = new IndicationCreationStrategy($repo, $cache, $em);
+        $strategy = new IndicationCreationStrategy($repo, $cache, $em, new ImportCreatedById());
         $resolver = new AllocationIndicationResolver($strategy);
         $resolver->warm();
 

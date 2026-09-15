@@ -9,7 +9,8 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Domain\Entity\Import;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Import\Infrastructure\ImportCreatedById;
+use App\Import\Infrastructure\ReadOnlyAssociationReferencer;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 /**
@@ -29,7 +30,8 @@ final readonly class AllocationImportFactory
      * @param iterable<AllocationEntityResolverInterface> $resolvers
      */
     public function __construct(
-        private EntityManagerInterface $em,
+        private ReadOnlyAssociationReferencer $referencer,
+        private ImportCreatedById $importCreatedById,
         #[AutowireIterator(tag: 'allocation.import_resolver')]
         private iterable $resolvers,
     ) {
@@ -44,6 +46,8 @@ final readonly class AllocationImportFactory
 
     public function fromDto(AllocationRowDTO $dto, Import $import): Allocation
     {
+        $this->importCreatedById->captureFrom($import);
+
         $allocation = new Allocation();
 
         $hospitalRef = $this->refHospital($import);
@@ -63,10 +67,12 @@ final readonly class AllocationImportFactory
 
     private function refImport(Import $import): Import
     {
-        /** @var Import $ref */
-        $ref = $this->em->getReference(Import::class, $import->getId());
+        $importId = $import->getId();
+        if (null === $importId) {
+            throw new \LogicException('Import has no id assigned');
+        }
 
-        return $ref;
+        return $this->referencer->readOnlyReference(Import::class, $importId);
     }
 
     private function refHospital(Import $import): Hospital
@@ -77,9 +83,11 @@ final readonly class AllocationImportFactory
             throw new \LogicException('Import has no hospital assigned');
         }
 
-        /** @var Hospital $ref */
-        $ref = $this->em->getReference(Hospital::class, $hospital->getId());
+        $hospitalId = $hospital->getId();
+        if (null === $hospitalId) {
+            throw new \LogicException('Import hospital has no id assigned');
+        }
 
-        return $ref;
+        return $this->referencer->readOnlyReference(Hospital::class, $hospitalId);
     }
 }

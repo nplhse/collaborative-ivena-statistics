@@ -144,6 +144,17 @@ final class MciCaseImportFactoryTest extends KernelTestCase
         self::assertSame('mci-title-1', $mciCase->getMciTitle());
     }
 
+    public function testImportAndHospitalReferencesAreMarkedReadOnly(): void
+    {
+        $mciCase = $this->factory->fromDto($this->makeDto(), $this->import);
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $uow = $em->getUnitOfWork();
+
+        self::assertTrue($uow->isReadOnly($mciCase->getImport()));
+        self::assertTrue($uow->isReadOnly($mciCase->getHospital()));
+    }
+
     public function testUnknownDispatchAreaThrows(): void
     {
         $this->expectException(ReferenceNotFoundException::class);

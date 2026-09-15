@@ -15,8 +15,11 @@ use App\Import\Application\Exception\RowRejectException;
 use App\Import\Application\Service\AllocationRowProcessor;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\AllocationRowType;
+use App\Import\Infrastructure\ImportCreatedById;
 use App\Import\Infrastructure\Mapping\AllocationImportFactory;
+use App\Import\Infrastructure\ReadOnlyAssociationReferencer;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\UnitOfWork;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -29,12 +32,20 @@ final class AllocationRowProcessorTest extends TestCase
      */
     private function createFactory(EntityManagerInterface $em, iterable $resolvers = []): AllocationImportFactory
     {
-        return new AllocationImportFactory($em, $resolvers);
+        return new AllocationImportFactory(
+            new ReadOnlyAssociationReferencer($em),
+            new ImportCreatedById(),
+            $resolvers,
+        );
     }
 
     private function createEmStub(): EntityManagerInterface
     {
-        return $this->createStub(EntityManagerInterface::class);
+        $uow = $this->createStub(UnitOfWork::class);
+        $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('getUnitOfWork')->willReturn($uow);
+
+        return $em;
     }
 
     public function testTypeReturnsAllocation(): void
@@ -123,10 +134,14 @@ final class AllocationRowProcessorTest extends TestCase
     public function testImportExceptionFromFactoryIsMappedToRowRejectException(): void
     {
         $hospital = new Hospital();
+        $this->setId($hospital, 1);
         $import = new Import();
+        $this->setId($import, 10);
         $import->setHospital($hospital);
 
+        $uow = $this->createStub(UnitOfWork::class);
         $em = $this->createStub(EntityManagerInterface::class);
+        $em->method('getUnitOfWork')->willReturn($uow);
         $em->method('getReference')->willReturnCallback(
             static fn (string $class, mixed $id): object => match ($class) {
                 Hospital::class => $hospital,
@@ -184,5 +199,22 @@ final class AllocationRowProcessorTest extends TestCase
                 'message' => 'Reference not found for "dispatchArea"',
             ], $e->context());
         }
+    }
+
+    private function setId(object $entity, int $id): void
+    {
+        $ref = new \ReflectionObject($entity);
+
+        do {
+            if ($ref->hasProperty('id')) {
+                $prop = $ref->getProperty('id');
+                $prop->setValue($entity, $id);
+
+                return;
+            }
+            $ref = $ref->getParentClass();
+        } while ($ref instanceof \ReflectionObject);
+
+        self::fail('Entity has no id property.');
     }
 }
