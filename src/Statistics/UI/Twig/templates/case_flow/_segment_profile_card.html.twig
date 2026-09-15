@@ -1,0 +1,82 @@
+{# @var dashboard \App\Statistics\CaseFlow\Application\DTO\CaseFlowDashboardResult #}
+{# @var segmentCatalog \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentCatalog #}
+{# @var selectedSegment \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegment|null #}
+{# @var segmentProfileDimension \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileDimension #}
+
+<div class="card" data-testid="stats-case-flow-segment-profile">
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+        <h3 class="card-title mb-0">{{ 'stats.case_flow.segment.title'|trans({}, 'statistics') }}</h3>
+        <form method="get"
+              action="{{ path('app_stats_case_flow') }}"
+              class="case-flow-segment-header-picker"
+              data-testid="stats-case-flow-segment-picker-form">
+            {% for key, value in app.request.query.all %}
+                {% if key != 'geo_segment' and value is not iterable %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <label class="visually-hidden" for="stats-case-flow-segment-picker">{{ 'stats.case_flow.segment.picker'|trans({}, 'statistics') }}</label>
+            <select id="stats-case-flow-segment-picker"
+                    name="geo_segment"
+                    class="form-select form-select-sm"
+                    data-testid="stats-case-flow-segment-picker"
+                    onchange="this.form.requestSubmit()">
+                <option value="">{{ 'stats.case_flow.segment.entire_area'|trans({}, 'statistics') }}</option>
+                {% set originOptions = segmentCatalog.pickerOriginOptions() %}
+                {% set travelOptions = segmentCatalog.pickerTravelOptions() %}
+                {% if originOptions %}
+                    <optgroup label="{{ 'stats.case_flow.segment.picker.group.origin'|trans({}, 'statistics') }}"
+                              data-testid="stats-case-flow-segment-optgroup-origin">
+                        {% for option in originOptions %}
+                            <option value="{{ option.segment.toQueryValue() }}"
+                                    {% if selectedSegment and selectedSegment.toQueryValue() == option.segment.toQueryValue() %}selected{% endif %}>
+                                {% if option.translateLabel %}
+                                    {{ option.label|trans({}, statistics_label_domain(option.label)) }}
+                                {% else %}
+                                    {{ option.label }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                {% endif %}
+                {% if travelOptions %}
+                    <optgroup label="{{ 'stats.case_flow.segment.picker.group.travel'|trans({}, 'statistics') }}"
+                              data-testid="stats-case-flow-segment-optgroup-travel">
+                        {% for option in travelOptions %}
+                            <option value="{{ option.segment.toQueryValue() }}"
+                                    {% if selectedSegment and selectedSegment.toQueryValue() == option.segment.toQueryValue() %}selected{% endif %}>
+                                {% if option.translateLabel %}
+                                    {{ option.label|trans({}, statistics_label_domain(option.label)) }}
+                                {% else %}
+                                    {{ option.label }}
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </optgroup>
+                {% endif %}
+            </select>
+        </form>
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs analytics-library-tabs mb-3" role="tablist" data-testid="stats-case-flow-segment-tabs">
+            {% for dimension in segmentProfileDimensions %}
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link{% if segmentProfileDimension == dimension %} active{% endif %}"
+                       href="{{ path('app_stats_case_flow_segment_profile', app.request.query.all|merge({geo_profile: dimension.value})) }}"
+                       {% if segmentProfileDimension == dimension %}aria-current="page"{% endif %}
+                       data-turbo-frame="stats-case-flow-segment-profile-frame"
+                       data-testid="stats-case-flow-segment-tab-{{ dimension.value }}">
+                        {{ dimension.titleTranslationKey()|trans({}, 'statistics') }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <turbo-frame id="stats-case-flow-segment-profile-frame"
+                     src="{{ path('app_stats_case_flow_segment_profile', app.request.query.all) }}"
+                     loading="lazy"
+                     data-testid="stats-case-flow-segment-profile-frame">
+            {{ include('@Statistics/case_flow/_segment_profile_placeholder.html.twig') }}
+        </turbo-frame>
+    </div>
+</div>

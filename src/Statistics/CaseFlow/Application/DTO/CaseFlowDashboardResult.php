@@ -13,7 +13,6 @@ final readonly class CaseFlowDashboardResult
     /**
      * @param list<CaseFlowInsight>              $insights
      * @param list<CaseFlowOriginSlice>          $originSlices
-     * @param list<CaseFlowFlowMatrixRow>        $flowMatrix
      * @param list<CaseFlowDestinationPoolSlice> $destinationTierSlices
      * @param list<CaseFlowDestinationPoolSlice> $destinationLocationSlices
      * @param list<CaseFlowDestinationPoolSlice> $destinationSizeSlices
@@ -26,7 +25,6 @@ final readonly class CaseFlowDashboardResult
         public CaseFlowKpiSet $kpis,
         public array $insights,
         public array $originSlices,
-        public array $flowMatrix,
         public array $destinationTierSlices,
         public array $destinationLocationSlices,
         public array $destinationSizeSlices,

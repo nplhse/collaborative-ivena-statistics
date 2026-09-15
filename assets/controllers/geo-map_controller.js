@@ -23,10 +23,10 @@ import {
     outflowPinColor,
 } from '../js/geo-map/hospitalPin.js';
 import {
-    asFeature,
     buildIsochroneRings,
     isochroneStyle,
     isochroneTooltip,
+    travelBandIdFromMinutes,
 } from '../js/geo-map/isochroneRings.js';
 import { escapeHtml } from '../js/geo-map/escapeHtml.js';
 
@@ -197,7 +197,12 @@ export default class extends Controller {
                 const values = this.choroplethValues();
                 context.geoLayer = L.geoJSON(geojson, {
                     style: (feature) =>
-                        choroplethStyleForFeature(feature, values, this.selectedDispatchAreaId()),
+                        choroplethStyleForFeature(
+                            feature,
+                            values,
+                            this.selectedDispatchAreaId(),
+                            this.selectedOriginDispatchAreaId(),
+                        ),
                     onEachFeature: (feature, layer) => {
                         layer.bindTooltip(
                             choroplethTooltip(
@@ -208,6 +213,16 @@ export default class extends Controller {
                             ),
                             { sticky: true },
                         );
+                        if (this.segmentSelectionEnabled()) {
+                            layer.on('click', () => {
+                                const entry = values.get(feature.properties?.key ?? '');
+                                const dispatchAreaId = Number(entry?.dispatchAreaId);
+                                if (!Number.isFinite(dispatchAreaId) || dispatchAreaId <= 0) {
+                                    return;
+                                }
+                                this.visitSegment(`origin:${dispatchAreaId}`);
+                            });
+                        }
                     },
                 }).addTo(map);
                 context.labelLayer = syncChoroplethLabels(map, context.geoLayer, values, null, {
@@ -255,11 +270,20 @@ export default class extends Controller {
             }
 
             const layer = L.geoJSON(ring.feature, {
-                style: () => isochroneStyle(ring),
+                style: () => isochroneStyle(ring, this.isSelectedTravelBand(ring.minutes)),
             });
             layer.bindTooltip(isochroneTooltip(ring, this.casesLabelValue, this.shareLabelValue), {
                 sticky: true,
             });
+            if (this.segmentSelectionEnabled()) {
+                layer.on('click', () => {
+                    const bandId = travelBandIdFromMinutes(ring.minutes);
+                    if (!bandId) {
+                        return;
+                    }
+                    this.visitSegment(`travel:${bandId}`);
+                });
+            }
             context.ringLayer.addLayer(layer);
         }
     }
@@ -341,6 +365,48 @@ export default class extends Controller {
         return id;
     }
 
+    selectedOriginDispatchAreaId() {
+        const selected = this.payloadValue?.selectedSegment;
+        if (!selected || selected.type !== 'origin_area') {
+            return null;
+        }
+
+        const id = Number(selected.id);
+        if (!Number.isFinite(id) || id <= 0) {
+            return null;
+        }
+
+        return id;
+    }
+
+    isSelectedTravelBand(minutes) {
+        const selected = this.payloadValue?.selectedSegment;
+        if (!selected || selected.type !== 'travel_time_band') {
+            return false;
+        }
+
+        return travelBandIdFromMinutes(minutes) === selected.id;
+    }
+
+    segmentSelectionEnabled() {
+        return this.payloadValue?.segmentSelectionEnabled === true;
+    }
+
+    visitSegment(token) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('geo_segment', token);
+        if (!url.searchParams.get('geo_profile')) {
+            url.searchParams.set('geo_profile', 'overview');
+        }
+
+        if (window.Turbo && typeof window.Turbo.visit === 'function') {
+            window.Turbo.visit(url.toString());
+            return;
+        }
+
+        window.location.assign(url.toString());
+    }
+
     fitMap(mapOrContext, expanded) {
         const map = mapOrContext?.map ?? mapOrContext;
         if (!map) {
@@ -362,11 +428,9 @@ export default class extends Controller {
             return;
         }
 
-        const hospital = this.payloadValue?.hospital;
-        const lat = Number(hospital?.lat);
-        const lng = Number(hospital?.lng);
-        if (Number.isFinite(lat) && Number.isFinite(lng)) {
-            map.setView([lat, lng], 12);
+        const hospital = this.hospitalLatLng();
+        if (hospital) {
+            map.setView([hospital.lat, hospital.lng], 12);
             return;
         }
 
@@ -376,19 +440,11 @@ export default class extends Controller {
     focusBounds(context, expanded) {
         const corners = [];
 
-        if (this.isHospitalAnalysis()) {
-            this.pushBounds(
-                corners,
-                this.clinicIsochroneBounds() ?? layerBounds(context?.ringLayer),
-            );
-            this.pushHospitalPoint(corners, expanded);
-            if (corners.length > 0) {
-                return L.latLngBounds(corners);
-            }
-        }
-
         this.pushBounds(corners, this.choroplethFocusBounds(context?.geoLayer));
-        if (this.selectedDispatchAreaId() === null) {
+        if (this.isHospitalAnalysis()) {
+            this.pushBounds(corners, layerBounds(context?.ringLayer));
+            this.pushHospitalPoint(corners, expanded);
+        } else if (this.selectedDispatchAreaId() === null) {
             this.pushBounds(corners, layerBounds(context?.pinLayer));
         }
 
@@ -401,26 +457,15 @@ export default class extends Controller {
         return corners.length > 0 ? L.latLngBounds(corners) : null;
     }
 
-    clinicIsochroneBounds() {
-        const bands = this.isochroneBands()
-            .filter((band) => band?.geometry && Number(band.count) > 0)
-            .sort((left, right) => Number(left.minutes) - Number(right.minutes));
-        if (bands.length === 0) {
+    hospitalLatLng() {
+        const hospital = this.payloadValue?.hospital;
+        const lat = Number(hospital?.lat);
+        const lng = Number(hospital?.lng);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
             return null;
         }
 
-        const total = bands.reduce((sum, band) => sum + Number(band.count), 0);
-        let cumulative = 0;
-        let core = bands[bands.length - 1];
-        for (const band of bands) {
-            cumulative += Number(band.count);
-            core = band;
-            if (total > 0 && cumulative / total >= 0.8) {
-                break;
-            }
-        }
-
-        return layerBounds(L.geoJSON(asFeature(core.geometry, {})));
+        return { lat, lng };
     }
 
     choroplethFocusBounds(geoLayer) {
@@ -453,7 +498,7 @@ export default class extends Controller {
     }
 
     isHospitalAnalysis() {
-        return this.payloadValue?.analysisLevel === 'hospital';
+        return this.payloadValue?.analysisLevel === 'hospital' || this.hospitalLatLng() !== null;
     }
 
     selectedGeoKey(values) {
@@ -516,7 +561,12 @@ export default class extends Controller {
                 return;
             }
             layer.setStyle(
-                choroplethStyleForFeature(feature, values, this.selectedDispatchAreaId()),
+                choroplethStyleForFeature(
+                    feature,
+                    values,
+                    this.selectedDispatchAreaId(),
+                    this.selectedOriginDispatchAreaId(),
+                ),
             );
             layer.unbindTooltip();
             layer.bindTooltip(

@@ -8,7 +8,6 @@ use App\Statistics\Application\Mapping\AllocationStatsHospitalTierProjectionCode
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacyPolicy;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacySuppressor;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowDestinationPoolRow;
-use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowFlowMatrixCell;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
 use PHPUnit\Framework\TestCase;
 
@@ -36,24 +35,6 @@ final class CaseFlowPrivacySuppressorTest extends TestCase
         self::assertSame('Frankfurt', $slices[0]->originName);
         self::assertSame(CaseFlowPrivacyPolicy::OTHER_ORIGIN_KEY, $slices[1]->originName);
         self::assertSame(13, $slices[1]->caseCount);
-    }
-
-    public function testSuppressFlowMatrixHidesUnderThresholdPools(): void
-    {
-        $cells = [
-            new CaseFlowFlowMatrixCell(1, 'Frankfurt', 3, 50, 3),
-            new CaseFlowFlowMatrixCell(1, 'Frankfurt', 1, 5, 1),
-            new CaseFlowFlowMatrixCell(2, 'Kassel', 3, 20, 2),
-        ];
-
-        $matrix = $this->suppressor->suppressFlowMatrix($cells);
-
-        self::assertCount(2, $matrix);
-        self::assertSame(55, $matrix[0]->totalCases);
-        self::assertCount(2, $matrix[0]->destinationCounts);
-        self::assertContains(50, array_values($matrix[0]->destinationCounts));
-        self::assertContains(5, array_values($matrix[0]->destinationCounts));
-        self::assertArrayHasKey(CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY, $matrix[0]->destinationCounts);
     }
 
     public function testBuildMapFeaturesSuppressesSmallCells(): void

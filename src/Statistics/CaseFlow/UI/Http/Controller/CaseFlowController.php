@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace App\Statistics\CaseFlow\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\StatisticsContextFactory;
-use App\Statistics\Application\StatisticsDrawerFilterFactory;
-use App\Statistics\Application\StatisticsPeriodResolver;
-use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\CaseFlow\Application\CaseFlowCriteriaFactory;
 use App\Statistics\CaseFlow\Application\CaseFlowDashboardService;
-use App\Statistics\CaseFlow\Application\CaseFlowModeResolver;
-use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
+use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegment;
+use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentCatalogFactory;
+use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileDimension;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,15 +30,13 @@ final class CaseFlowController extends AbstractController
 {
     public function __construct(
         private readonly CaseFlowDashboardService $dashboardService,
-        private readonly CaseFlowModeResolver $modeResolver,
-        private readonly StatisticsContextFactory $statisticsContextFactory,
-        private readonly StatisticsScopeResolver $statisticsScopeResolver,
+        private readonly CaseFlowCriteriaFactory $criteriaFactory,
+        private readonly GeographicSegmentCatalogFactory $segmentCatalogFactory,
         private readonly StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly CaseFlowChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
-        private readonly StatisticsDrawerFilterFactory $statisticsDrawerFilterFactory,
         private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
     ) {
     }
@@ -59,20 +56,13 @@ final class CaseFlowController extends AbstractController
             return $this->redirectToRoute('app_stats_case_flow', $publicRedirect['query']);
         }
 
-        $drawerFilter = $this->statisticsDrawerFilterFactory->fromRequest($request);
-        $context = $this->statisticsContextFactory->create($user, $filter, drawerFilter: $drawerFilter);
-
-        $scope = $this->statisticsScopeResolver->resolveCriteria($context);
-        $period = StatisticsPeriodResolver::resolve($filter);
-        $mode = $this->modeResolver->resolve($filter);
-
-        $result = $this->dashboardService->build(new CaseFlowCriteria(
-            $filter,
-            $scope,
-            $period,
-            $mode,
-            $drawerFilter,
-        ));
+        $criteria = $this->criteriaFactory->create($user, $filter, $request);
+        $result = $this->dashboardService->build($criteria);
+        $catalog = $this->segmentCatalogFactory->fromDashboardResult($result);
+        $selectedSegment = GeographicSegment::tryFromQueryValue($request->query->getString(StatisticsQueryKeys::GEO_SEGMENT));
+        $profileDimension = GeographicSegmentProfileDimension::fromQueryValue(
+            $request->query->getString(StatisticsQueryKeys::GEO_PROFILE),
+        );
 
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
             $request,
@@ -95,7 +85,11 @@ final class CaseFlowController extends AbstractController
         return $this->render('@Statistics/case_flow/index.html.twig', [
             'dataQualityReport' => $dataQualityReport,
             'dashboard' => $result,
-            'chartPayload' => $this->chartPayloadFactory->create($result),
+            'chartPayload' => $this->chartPayloadFactory->create($result, $selectedSegment),
+            'segmentCatalog' => $catalog,
+            'selectedSegment' => $selectedSegment,
+            'segmentProfileDimension' => $profileDimension,
+            'segmentProfileDimensions' => GeographicSegmentProfileDimension::cases(),
             'statisticsFilter' => $pageViewModel->filter,
             'statsScopeUrls' => $pageViewModel->scopeUrls,
             'statsHospitalUrls' => $pageViewModel->hospitalUrls,

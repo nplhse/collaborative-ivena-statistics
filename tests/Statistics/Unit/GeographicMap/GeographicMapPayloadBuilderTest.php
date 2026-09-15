@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\GeographicMap;
 
+use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandView;
+use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginHeatmapView;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMapFeature;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMode;
 use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPin;
@@ -83,5 +85,60 @@ final class GeographicMapPayloadBuilderTest extends TestCase
         self::assertSame(1, $payload['omittedInsideDestinationHospitals']);
         self::assertSame(2, $payload['omittedOutsideDestinationHospitals']);
         self::assertContains('destinationHospitals', $payload['compactLayers']);
+    }
+
+    public function testPayloadForwardsSelectedGeographicSegment(): void
+    {
+        $payload = new GeographicMapPayloadBuilder()->build(
+            CaseFlowMode::HospitalOrigin,
+            [],
+            [],
+            null,
+            true,
+            false,
+            null,
+            0,
+            0,
+            ['type' => 'travel_time_band', 'id' => '10_20'],
+            true,
+        );
+
+        self::assertSame(['type' => 'travel_time_band', 'id' => '10_20'], $payload['selectedSegment']);
+        self::assertTrue($payload['segmentSelectionEnabled']);
+    }
+
+    public function testHospitalIsochroneCompactLayersIncludeBandsAndPin(): void
+    {
+        $isochrone = new IsochroneOriginHeatmapView(
+            'Klinik',
+            51.31,
+            9.49,
+            [new IsochroneOriginBandView(20, 12, 0.5, 1.0, ['type' => 'Polygon', 'coordinates' => []], '10–20 Min.')],
+            0,
+            0,
+            12,
+            12,
+        );
+
+        $payload = new GeographicMapPayloadBuilder()->build(
+            CaseFlowMode::HospitalOrigin,
+            [new CaseFlowMapFeature(1, 'Kassel', 'kassel', 12, 100.0, false)],
+            [],
+            $isochrone,
+            true,
+            false,
+            null,
+            0,
+            0,
+            ['type' => 'origin_area', 'id' => '1'],
+            true,
+        );
+
+        self::assertSame('hospital', $payload['analysisLevel']);
+        self::assertSame(['originChoropleth', 'isochroneBands', 'hospitalPin'], $payload['compactLayers']);
+        self::assertSame(['originChoropleth', 'hospitalPin', 'isochroneBands'], $payload['layers']);
+        self::assertSame(51.31, $payload['hospital']['lat']);
+        self::assertSame(['type' => 'origin_area', 'id' => '1'], $payload['selectedSegment']);
+        self::assertCount(1, $payload['isochrone']['bands']);
     }
 }

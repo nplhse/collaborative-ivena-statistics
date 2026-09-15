@@ -25,7 +25,7 @@ Public, my-hospitals, state, dispatch-area, and cohort scopes never include the 
 
 Allocations have no incident coordinates. Bands come from recorded `transport_time_minutes` on `allocation_stats_projection`, using the same half-open 10-minute buckets as [`StatisticsTransportTimeBucketSql`](../../../src/Statistics/Application/Mapping/StatisticsTransportTimeBucketSql.php) (`0–10`, `10–20`, … `40–50`). The map draws the stored 10/20/30/40/50-minute destination polygons; stored 5-minute contours in between are unused here.
 
-Times of 50 minutes and above (`50–60` and `>60` in the transport-time chart) are **not** folded into the outer ring; they appear only in the footnote. Missing or negative durations are likewise unmapped. Zero minutes maps into the innermost `0–10` ring.
+Times of 50 minutes and above (`50–60` and `>60` in the transport-time chart) are **not** folded into the outer ring; they appear as compact count chips under the map. Missing or negative durations are likewise unmapped. Method notes sit behind a collapsed **Notes** disclosure. Zero minutes maps into the innermost `0–10` ring.
 
 Treat the visualisation as an approximation of travel-time share, not of geographic origin.
 

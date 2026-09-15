@@ -41,19 +41,27 @@ export function choroplethScaleMax(valueByKey) {
     return maxVisibleChoroplethValue(valueByKey);
 }
 
-export function choroplethStyleForFeature(feature, valueByKey, selectedDispatchAreaId = null) {
+export function choroplethStyleForFeature(
+    feature,
+    valueByKey,
+    selectedDispatchAreaId = null,
+    selectedOriginDispatchAreaId = null,
+) {
     const key = feature.properties?.key ?? '';
     const entry = valueByKey.get(key);
     const scaleMax = choroplethScaleMax(valueByKey);
     const suppressed = !entry || entry.suppressed || entry.value <= 0;
-    const selected = isSelectedDispatchArea(entry, selectedDispatchAreaId);
+    const selectedOrigin = isSelectedDispatchArea(entry, selectedOriginDispatchAreaId);
+    const selectedScope = isSelectedDispatchArea(entry, selectedDispatchAreaId);
+    const selected = selectedOrigin || selectedScope;
+    const outline = selectedOrigin ? '#0ca678' : '#e8590c';
 
     if (suppressed) {
         return {
             fillColor: '#ced4da',
             weight: selected ? 3 : 1,
             opacity: 1,
-            color: selected ? '#e8590c' : '#868e96',
+            color: selected ? outline : '#868e96',
             fillOpacity: 0.28,
         };
     }
@@ -64,7 +72,7 @@ export function choroplethStyleForFeature(feature, valueByKey, selectedDispatchA
         fillColor: colorForValue(entry.value, scaleMax),
         weight: selected ? 3 : 1.4 + intensity * 1.6,
         opacity: 1,
-        color: selected ? '#e8590c' : intensity > 0.55 ? '#08306b' : '#345e7d',
+        color: selected ? outline : intensity > 0.55 ? '#08306b' : '#345e7d',
         fillOpacity: 0.58 + intensity * 0.32,
     };
 }

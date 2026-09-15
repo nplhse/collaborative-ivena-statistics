@@ -1,0 +1,13 @@
+<div class="placeholder-glow" data-testid="stats-case-flow-segment-profile-placeholder" aria-busy="true">
+    <div class="placeholder placeholder-xs col-6 mb-2"></div>
+    <div class="placeholder placeholder-xs col-4 mb-3"></div>
+    {% for row in 1..4 %}
+        <div class="{% if not loop.last %}mb-2{% endif %}">
+            <div class="placeholder placeholder-xs col-8 mb-1"></div>
+            <div class="progress progress-sm">
+                <div class="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    {% endfor %}
+    <span class="visually-hidden">{{ 'stats.case_flow.segment.loading'|trans({}, 'statistics') }}</span>
+</div>

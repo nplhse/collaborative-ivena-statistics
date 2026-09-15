@@ -46,17 +46,29 @@ export function buildIsochroneRings(bands) {
     return rings.reverse();
 }
 
-export function isochroneStyle(ring) {
+export function isochroneStyle(ring, selected = false) {
     const fillColor = heatColor(Math.min(1, Math.max(0, ring.intensity)));
 
     return {
-        color: fillColor,
-        weight: ISOCHRONE_STROKE_WEIGHT,
+        color: selected ? '#0ca678' : fillColor,
+        weight: selected ? ISOCHRONE_STROKE_WEIGHT + 2 : ISOCHRONE_STROKE_WEIGHT,
         opacity: ISOCHRONE_STROKE_OPACITY,
         fillColor,
-        fillOpacity: ISOCHRONE_FILL_OPACITY,
+        fillOpacity: selected ? ISOCHRONE_FILL_OPACITY + 0.12 : ISOCHRONE_FILL_OPACITY,
         interactive: true,
     };
+}
+
+export function travelBandIdFromMinutes(minutes) {
+    const map = {
+        10: 'under_10',
+        20: '10_20',
+        30: '20_30',
+        40: '30_40',
+        50: '40_50',
+    };
+
+    return map[Number(minutes)] ?? null;
 }
 
 export function isochroneTooltip(ring, casesLabel, shareLabel) {

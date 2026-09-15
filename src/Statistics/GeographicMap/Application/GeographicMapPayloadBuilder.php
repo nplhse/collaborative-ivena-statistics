@@ -13,8 +13,9 @@ use App\Statistics\GeographicMap\Application\DTO\GeographicMapLayer;
 final readonly class GeographicMapPayloadBuilder
 {
     /**
-     * @param list<CaseFlowMapFeature>    $mapFeatures
-     * @param list<GeographicHospitalPin> $destinationHospitals
+     * @param list<CaseFlowMapFeature>             $mapFeatures
+     * @param list<GeographicHospitalPin>          $destinationHospitals
+     * @param array{type: string, id: string}|null $selectedSegment
      *
      * @return array<string, mixed>
      */
@@ -28,6 +29,8 @@ final readonly class GeographicMapPayloadBuilder
         ?int $selectedDispatchAreaId = null,
         int $omittedInsideDestinationHospitals = 0,
         int $omittedOutsideDestinationHospitals = 0,
+        ?array $selectedSegment = null,
+        bool $segmentSelectionEnabled = false,
     ): array {
         $featurePayload = array_map(
             static fn (CaseFlowMapFeature $feature): array => [
@@ -61,6 +64,8 @@ final readonly class GeographicMapPayloadBuilder
             'selectedDispatchAreaId' => $selectedDispatchAreaId,
             'omittedInsideDestinationHospitals' => $omittedInsideDestinationHospitals,
             'omittedOutsideDestinationHospitals' => $omittedOutsideDestinationHospitals,
+            'selectedSegment' => $selectedSegment,
+            'segmentSelectionEnabled' => $segmentSelectionEnabled,
         ];
 
         if ($isochrone instanceof IsochroneOriginHeatmapView && \is_array($isochronePayload)) {

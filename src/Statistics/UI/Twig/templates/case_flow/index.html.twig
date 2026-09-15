@@ -61,31 +61,23 @@
         <div class="row g-3 align-items-start mt-1">
             <div class="col-lg-8 d-flex flex-column gap-3">
                 {{ include('@Statistics/case_flow/_map_card.html.twig') }}
-
-                {% if dashboard.mode.value == 'system_flow' %}
-                    <div class="card" data-testid="stats-case-flow-stacked-bar">
-                        <div class="card-header py-2">
-                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.flow_matrix'|trans({}, 'statistics') }}</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-lg" data-case-flow-charts-target="flowStackedBarChart"></div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="card" data-testid="stats-case-flow-origin-bar">
-                        <div class="card-header py-2">
-                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.origin_distribution'|trans({}, 'statistics') }}</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-lg" data-case-flow-charts-target="originBarChart"></div>
-                        </div>
-                    </div>
-                {% endif %}
+                {{ include('@Statistics/case_flow/_segment_profile_card.html.twig') }}
             </div>
 
             <div class="col-lg-4 d-flex flex-column gap-3">
                 {{ include('@Statistics/case_flow/_insight_highlights.html.twig') }}
                 {{ include('@Statistics/case_flow/_dispatch_flow_card.html.twig') }}
+
+                {% if dashboard.mode.value != 'system_flow' %}
+                    <div class="card" data-testid="stats-case-flow-origin-bar">
+                        <div class="card-header py-2">
+                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.origin_distribution'|trans({}, 'statistics') }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-sm" data-case-flow-charts-target="originBarChart"></div>
+                        </div>
+                    </div>
+                {% endif %}
 
                 {% if dashboard.mode.value == 'system_flow' %}
                     {% if dashboard.destinationTierCard %}
@@ -107,8 +99,6 @@
                         }) }}
                     {% endif %}
                 {% endif %}
-
-                {{ include('@Statistics/case_flow/_transport_time_card.html.twig') }}
             </div>
         </div>
     </div>

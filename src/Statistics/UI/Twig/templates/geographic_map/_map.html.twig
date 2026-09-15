@@ -19,7 +19,6 @@
 {% set beyondMaxCount = beyondMaxCount|default(0) %}
 {% set titleKey = titleKey|default('stats.case_flow.section.map') %}
 {% set layers = payload.layers|default([]) %}
-{% set analysisLevel = payload.analysisLevel|default('regional') %}
 
 <div class="card"
      data-controller="geo-map"
@@ -69,90 +68,15 @@
                  data-geo-map-target="mapContainer"></div>
         </div>
 
-        {% if showValueModes %}
-            <div class="d-none d-flex flex-wrap align-items-center gap-2 mt-2"
-                 data-geo-map-target="absoluteLegend"
-                 data-testid="stats-geo-map-count-legend">
-                <span class="text-muted small">{{ 'stats.case_flow.map.legend.count_low'|trans({}, 'statistics') }}</span>
-                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
-                </span>
-                <span class="text-muted small">{{ 'stats.case_flow.map.legend.count_high'|trans({}, 'statistics') }}</span>
-            </div>
-            <div class="d-flex flex-wrap align-items-center gap-2 mt-2"
-                 data-geo-map-target="relativeLegend"
-                 data-testid="stats-geo-map-share-legend">
-                <span class="text-muted small">{{ 'stats.case_flow.map.legend.share_low'|trans({}, 'statistics') }}</span>
-                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
-                </span>
-                <span class="text-muted small">{{ 'stats.case_flow.map.legend.share_high'|trans({}, 'statistics') }}</span>
-            </div>
-            <div class="text-muted small mt-1">{{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}</div>
-        {% endif %}
-
-        {% if payload.selectedDispatchAreaId|default(null) %}
-            <div class="d-flex flex-wrap align-items-center gap-3 mt-2" data-testid="stats-geo-map-pin-legend">
-                <span class="d-inline-flex align-items-center gap-1 text-muted small">
-                    <span class="geo-map-pin-legend-dot" style="background:#1864ab;"></span>
-                    {{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics') }}
-                </span>
-                <span class="d-inline-flex align-items-center gap-1 text-muted small">
-                    <span class="geo-map-pin-legend-dot" style="background:#e8590c;"></span>
-                    {{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics') }}
-                </span>
-            </div>
-            {% if payload.omittedOutsideDestinationHospitals|default(0) > 0 or payload.omittedInsideDestinationHospitals|default(0) > 0 %}
-                <p class="text-muted small mb-0 mt-1" data-testid="stats-geo-map-omitted-destinations">
-                    {% if payload.omittedOutsideDestinationHospitals|default(0) > 0 %}
-                        {{ 'stats.case_flow.map.omitted_outside'|trans({count: payload.omittedOutsideDestinationHospitals}, 'statistics') }}
-                    {% endif %}
-                    {% if payload.omittedOutsideDestinationHospitals|default(0) > 0 and payload.omittedInsideDestinationHospitals|default(0) > 0 %}
-                        {{ 'stats.isochrone_origin_map.unmapped_separator'|trans({}, 'statistics') }}
-                    {% endif %}
-                    {% if payload.omittedInsideDestinationHospitals|default(0) > 0 %}
-                        {{ 'stats.case_flow.map.omitted_inside'|trans({count: payload.omittedInsideDestinationHospitals}, 'statistics') }}
-                    {% endif %}
-                </p>
-            {% endif %}
-        {% endif %}
-
-        {% if showIsochroneLegend %}
-            <div class="d-flex align-items-center gap-2 mt-2" data-testid="stats-isochrone-origin-map-legend">
-                <span class="text-muted small">{{ 'stats.isochrone_origin_map.legend.fewer'|trans({}, 'statistics') }}</span>
-                <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#2f9e44;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#74b816;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#fab005;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#fd7e14;"></span>
-                    <span class="isochrone-origin-map-legend-swatch" style="background:#e03131;"></span>
-                </span>
-                <span class="text-muted small">{{ 'stats.isochrone_origin_map.legend.more'|trans({}, 'statistics') }}</span>
-            </div>
-            <p class="text-muted small mb-0 mt-2">{{ 'stats.case_flow.map.estimated_vs_observed'|trans({}, 'statistics') }}</p>
-        {% endif %}
-
-        {% if unknownCount > 0 or beyondMaxCount > 0 %}
-            <p class="text-muted small mb-0 mt-2" data-testid="stats-isochrone-origin-map-unmapped">
-                {% if unknownCount > 0 %}
-                    {{ 'stats.isochrone_origin_map.unknown'|trans({count: unknownCount}, 'statistics') }}
-                {% endif %}
-                {% if unknownCount > 0 and beyondMaxCount > 0 %}
-                    {{ 'stats.isochrone_origin_map.unmapped_separator'|trans({}, 'statistics') }}
-                {% endif %}
-                {% if beyondMaxCount > 0 %}
-                    {{ 'stats.isochrone_origin_map.beyond_max'|trans({count: beyondMaxCount}, 'statistics') }}
-                {% endif %}
-            </p>
-        {% endif %}
+        {{ include('@Statistics/geographic_map/_legend.html.twig', {
+            payload: payload,
+            showValueModes: showValueModes,
+            showIsochroneLegend: showIsochroneLegend,
+            unknownCount: unknownCount,
+            beyondMaxCount: beyondMaxCount,
+            withTestIds: true,
+            notesOpen: false,
+        }) }}
     </div>
 
     {% if showExpand %}
@@ -238,38 +162,16 @@
                 <div class="case-flow-map-container"
                      data-geo-map-target="expandMapContainer"></div>
             </div>
-            <div class="geo-map-expand-footer text-muted small">
-                {% if showValueModes %}
-                    <div class="d-none d-flex flex-wrap align-items-center gap-2 mb-1"
-                         data-geo-map-target="absoluteLegend">
-                        <span>{{ 'stats.case_flow.map.legend.count_low'|trans({}, 'statistics') }}</span>
-                        <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
-                        </span>
-                        <span>{{ 'stats.case_flow.map.legend.count_high'|trans({}, 'statistics') }}</span>
-                    </div>
-                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1"
-                         data-geo-map-target="relativeLegend">
-                        <span>{{ 'stats.case_flow.map.legend.share_low'|trans({}, 'statistics') }}</span>
-                        <span class="isochrone-origin-map-legend-scale" aria-hidden="true">
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#deebf7;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#9ecae1;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#4292c6;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#2171b5;"></span>
-                            <span class="isochrone-origin-map-legend-swatch" style="background:#08306b;"></span>
-                        </span>
-                        <span>{{ 'stats.case_flow.map.legend.share_high'|trans({}, 'statistics') }}</span>
-                    </div>
-                {% endif %}
-                {% if analysisLevel == 'hospital' %}
-                    {{ 'stats.case_flow.map.estimated_vs_observed'|trans({}, 'statistics') }}
-                {% else %}
-                    {{ 'stats.case_flow.map.legend_hint'|trans({}, 'statistics') }}
-                {% endif %}
+            <div class="geo-map-expand-footer">
+                {{ include('@Statistics/geographic_map/_legend.html.twig', {
+                    payload: payload,
+                    showValueModes: showValueModes,
+                    showIsochroneLegend: showIsochroneLegend,
+                    unknownCount: unknownCount,
+                    beyondMaxCount: beyondMaxCount,
+                    withTestIds: false,
+                    notesOpen: true,
+                }) }}
             </div>
         </div>
     {% endif %}

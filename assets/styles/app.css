@@ -647,6 +647,11 @@
     color: var(--tblr-secondary, #667382);
 }
 
+.case-flow-segment-header-picker {
+    flex: 0 1 14rem;
+    min-width: 10rem;
+}
+
 .hospital-population-map-frame {
     position: relative;
     width: 100%;
@@ -695,6 +700,11 @@ body.geo-map-expand-open {
     border-bottom: 1px solid var(--tblr-border-color, #dee2e6);
 }
 
+.geo-map-expand-footer {
+    border-bottom: 0;
+    border-top: 1px solid var(--tblr-border-color, #dee2e6);
+}
+
 .geo-map-expand-header {
     display: flex;
     flex-wrap: wrap;
@@ -709,9 +719,47 @@ body.geo-map-expand-open {
     gap: 0.75rem 1rem;
 }
 
-.geo-map-expand-footer {
-    border-bottom: 0;
-    border-top: 1px solid var(--tblr-border-color, #dee2e6);
+.geo-map-legend [data-geo-map-target].d-none {
+    display: none !important;
+}
+
+.geo-map-legend details > summary {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-inline-start: 0;
+    list-style: none;
+}
+
+.geo-map-legend details > summary::-webkit-details-marker,
+.geo-map-legend details > summary::marker {
+    display: none;
+    content: none;
+}
+
+.geo-map-legend details > summary::before {
+    content: '';
+    width: 0.35rem;
+    height: 0.35rem;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-0.05rem) rotate(-45deg);
+    transition: transform 0.15s ease;
+}
+
+.geo-map-legend details[open] > summary::before {
+    transform: translateY(-0.12rem) rotate(45deg);
+}
+
+.geo-map-legend details > summary:hover {
+    color: var(--tblr-body-color, inherit);
+}
+
+.geo-map-expand-footer .geo-map-legend {
+    margin-top: 0;
 }
 
 .geo-map-expand-canvas {

@@ -13,7 +13,6 @@ use App\Statistics\CaseFlow\Application\DTO\CaseFlowMode;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowBaselineQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDestinationStructureQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDispatchAreaMatch;
-use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowFlowMatrixQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowOriginDistributionQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowRegionalMetricsQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowTransportDistributionQuery;
@@ -26,7 +25,6 @@ final readonly class CaseFlowDashboardService
     public function __construct(
         private CaseFlowRegionalMetricsQuery $regionalMetricsQuery,
         private CaseFlowOriginDistributionQuery $originDistributionQuery,
-        private CaseFlowFlowMatrixQuery $flowMatrixQuery,
         private CaseFlowDestinationStructureQuery $destinationStructureQuery,
         private CaseFlowTransportDistributionQuery $transportDistributionQuery,
         private CaseFlowBaselineQuery $baselineQuery,
@@ -76,7 +74,6 @@ final readonly class CaseFlowDashboardService
 
         $transportRows = $this->transportDistributionQuery->fetchTransportTime($from, $toExclusive, $scope, $originStateId, $drawerFilter);
 
-        $flowMatrix = [];
         $destinationTierSlices = [];
         $destinationLocationSlices = [];
         $destinationSizeSlices = [];
@@ -88,9 +85,6 @@ final readonly class CaseFlowDashboardService
         $omittedOutsideDestinationHospitals = 0;
 
         if (CaseFlowMode::SystemFlow === $criteria->mode) {
-            $flowMatrix = $this->privacySuppressor->suppressFlowMatrix(
-                $this->flowMatrixQuery->fetch($from, $toExclusive, $scope, $originStateId, $drawerFilter),
-            );
             $destinationTierSlices = $this->privacySuppressor->suppressDestinationPools(
                 $this->destinationStructureQuery->fetchByTier($from, $toExclusive, $scope, $originStateId, $drawerFilter),
                 $this->distributionBuilder->tierLabelKeys(),
@@ -141,7 +135,6 @@ final readonly class CaseFlowDashboardService
             $kpis,
             $this->insightEngine->build($criteria->mode, $metrics, $originRows, $baseline),
             $originSlices,
-            $flowMatrix,
             $destinationTierSlices,
             $destinationLocationSlices,
             $destinationSizeSlices,

@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Statistics\CaseFlow\Application;
 
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowDestinationPoolSlice;
-use App\Statistics\CaseFlow\Application\DTO\CaseFlowFlowMatrixRow;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMapFeature;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowOriginSlice;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowDestinationPoolRow;
-use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowFlowMatrixCell;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
 use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPin;
 use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPinSet;
@@ -95,62 +93,6 @@ final class CaseFlowPrivacySuppressor
         }
 
         return $features;
-    }
-
-    /**
-     * @param list<CaseFlowFlowMatrixCell> $cells
-     *
-     * @return list<CaseFlowFlowMatrixRow>
-     */
-    public function suppressFlowMatrix(array $cells): array
-    {
-        /** @var array<int, array{originName: string, cells: list<CaseFlowFlowMatrixCell>}> $byOrigin */
-        $byOrigin = [];
-        foreach ($cells as $cell) {
-            $byOrigin[$cell->dispatchAreaId]['originName'] = $cell->originName;
-            $byOrigin[$cell->dispatchAreaId]['cells'][] = $cell;
-        }
-
-        $rows = [];
-        foreach ($byOrigin as $dispatchAreaId => $group) {
-            $originTotal = 0;
-            $destinationCounts = [];
-            $hasVisibleCell = false;
-
-            foreach ($group['cells'] as $cell) {
-                $poolKey = null === $cell->destinationPoolCode
-                    ? 'unknown'
-                    : (string) $cell->destinationPoolCode;
-
-                $visible = $cell->caseCount >= CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL
-                    && $cell->hospitalCount >= CaseFlowPrivacyPolicy::MIN_HOSPITALS_PER_DESTINATION_POOL;
-
-                if (!$visible) {
-                    $poolKey = CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY;
-                } else {
-                    $hasVisibleCell = true;
-                }
-
-                $destinationCounts[$poolKey] = ($destinationCounts[$poolKey] ?? 0) + $cell->caseCount;
-                $originTotal += $cell->caseCount;
-            }
-
-            if ($originTotal < CaseFlowPrivacyPolicy::MIN_CASES_PER_ORIGIN_BAR) {
-                continue;
-            }
-
-            $rows[] = new CaseFlowFlowMatrixRow(
-                $dispatchAreaId,
-                $group['originName'],
-                $originTotal,
-                $destinationCounts,
-                !$hasVisibleCell,
-            );
-        }
-
-        usort($rows, static fn (CaseFlowFlowMatrixRow $a, CaseFlowFlowMatrixRow $b): int => $b->totalCases <=> $a->totalCases);
-
-        return \array_slice($rows, 0, CaseFlowPrivacyPolicy::MAX_VISIBLE_ORIGINS);
     }
 
     /**

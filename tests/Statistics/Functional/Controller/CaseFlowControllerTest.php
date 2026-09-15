@@ -20,6 +20,7 @@ use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Tests\Support\MaterializedView\RefreshesStatisticsMaterializedViewsTrait;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -32,6 +33,7 @@ final class CaseFlowControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
+    use RefreshesStatisticsFunctionalDataTrait;
     use RefreshesStatisticsMaterializedViewsTrait;
 
     public function testCaseFlowPageShowsAggregatedKpisWithSeededData(): void
@@ -84,6 +86,10 @@ final class CaseFlowControllerTest extends WebTestCase
         self::assertSame('caseflowctrldispatch', $payload['mapFeatures'][0]['geoKey']);
         self::assertArrayHasKey('geographicMap', $payload);
         self::assertContains('originChoropleth', $payload['geographicMap']['layers']);
+        self::assertArrayNotHasKey('flowStackedBar', $payload);
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-optgroup-origin"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-transport"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
     }
 
     public function testCaseFlowPageIsDisplayedForPublicScope(): void
@@ -95,18 +101,39 @@ final class CaseFlowControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-case-flow-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-case-flow-kpis"]');
         $this->assertSelectorExists('[data-testid="stats-case-flow-map"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-profile"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-transport"]');
         $this->assertSelectorExists('[data-testid="stats-geo-map-expand"]');
         $this->assertSelectorExists('[data-testid="stats-geo-map-share-legend"]');
+        $this->assertSelectorExists('details summary');
         $this->assertSelectorExists('[data-testid="statistics-filter-department"]');
     }
 
-    public function testCaseFlowSystemModeShowsStackedBar(): void
+    public function testStackedBarIsHiddenForPublicScope(): void
     {
         $client = $this->createClientAsRoleUser();
         $client->request(Request::METHOD_GET, '/statistics/case-flow?scope=public&period=all');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-case-flow-stacked-bar"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
+    }
+
+    public function testStackedBarIsHiddenForHospitalCohortScope(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedEligibleUrbanBasicCohort($client);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/case-flow?scope=hospital_cohort:urban_basic&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
+
+        $payloadJson = (string) $crawler->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
+        $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('system_flow', $payload['mode']);
+        self::assertArrayNotHasKey('flowStackedBar', $payload);
     }
 
     public function testCaseFlowPageDoesNotExposeForeignHospitalNames(): void
@@ -328,6 +355,7 @@ final class CaseFlowControllerTest extends WebTestCase
 
         self::assertSame($areaA->getId(), $payload['geographicMap']['selectedDispatchAreaId']);
         self::assertContains('destinationHospitals', $payload['geographicMap']['compactLayers']);
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-stacked-bar"]');
     }
 
     /**
