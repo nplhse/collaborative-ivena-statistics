@@ -46,10 +46,9 @@ final class EnvCheckCommandTest extends KernelTestCase
         self::assertStringContainsString('FAIL', $tester->getDisplay());
     }
 
-    public function testCommandIsRegisteredNextToInstallCommand(): void
+    public function testCommandIsRegistered(): void
     {
         self::assertTrue(self::getContainer()->has(EnvCheckCommand::class));
-        self::assertTrue(self::getContainer()->has(\App\Install\UI\Console\Command\InstallCommand::class));
     }
 
     private function createCommandTester(): CommandTester

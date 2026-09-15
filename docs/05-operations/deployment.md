@@ -126,10 +126,12 @@ Manual checks that `app:env:check` cannot perform:
 1. Configure `shared/.env.local`
 2. `php bin/console app:env:check --check-profile=prod`
 3. Deploy / migrate database
-4. Optionally `php bin/console app:install` (bootstrap admin)
+4. Create the first administrative user: `php bin/console app:user:create` (interactive; grant administrator privileges when prompted)
 5. Start Messenger worker — see [messenger-workers.md](messenger-workers.md)
 
-`app:install` creates data; `app:env:check` only validates configuration.
+Do not use demo-fixture accounts in production. After setup, existing users can be granted or stripped of `ROLE_ADMIN` with `php bin/console app:user:promote-admin` and `php bin/console app:user:demote-admin`, or removed with `php bin/console app:user:delete` (all identify the user by **username** and ask for confirmation). The last remaining administrator cannot be demoted or deleted. A user who still owns hospitals cannot be deleted until ownership is reassigned.
+
+`app:user:create` writes a user; `app:env:check` only validates configuration.
 
 ## Local Deployer setup
 

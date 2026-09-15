@@ -46,7 +46,6 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:env:check` | Validate required environment variables. See [configuration.md](configuration.md), [../05-operations/deployment.md](../05-operations/deployment.md). |
-| `app:install` | One-time server bootstrap (initial admin user). Run after `app:env:check`. |
 
 ### Import
 
@@ -109,6 +108,10 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
+| `app:user:create` | Interactively create an enabled, email-verified user. Optionally grant `ROLE_ADMIN`. No default credentials. See [../05-operations/deployment.md](../05-operations/deployment.md). |
+| `app:user:promote-admin` | Grant `ROLE_ADMIN` to an existing user identified by **username**. Asks for confirmation. |
+| `app:user:demote-admin` | Remove `ROLE_ADMIN` from an existing user identified by **username**. Asks for confirmation. Refuses to demote the last remaining administrator. |
+| `app:user:delete` | Delete an existing user identified by **username**. Asks for confirmation. Refuses when the user is the last administrator, still owns hospitals, or other records still reference the account. |
 | `app:user:backfill-created-at` | One-time legacy tool: reconstruct `User.createdAt` from the earliest successful own import, otherwise the earliest successful import of an **owned** hospital. Access-grant users are not backfilled from hospital imports. Default: dry-run preview. Writes only with `--apply`. Removable after the production run. |
 | `app:user-activity:backfill` | One-time backfill of the `user_activity` profile projection from historical imports, posts, comments, and hospital relations. Default: dry-run preview. Writes only with `--apply`. Idempotent via unique deduplication keys. See [ADR 014](../02-architecture/decisions/014-persisted-user-activity-projection.md). |
 
