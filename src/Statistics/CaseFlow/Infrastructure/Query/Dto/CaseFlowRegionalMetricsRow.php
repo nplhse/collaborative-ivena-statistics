@@ -13,6 +13,8 @@ final readonly class CaseFlowRegionalMetricsRow
         public int $emergencyCases,
         public ?float $meanTransportMinutes,
         public ?float $medianTransportMinutes,
+        public int $inflowCases = 0,
+        public int $outflowCases = 0,
     ) {
     }
 }

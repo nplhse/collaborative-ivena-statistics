@@ -1,0 +1,80 @@
+{% set flow = dashboard.dispatchAreaFlow ?? dashboard.hospitalFlow %}
+{% if flow %}
+    {% set hospitalCatchment = dashboard.hospitalFlow is not null %}
+    <div class="card" data-testid="stats-case-flow-dispatch-flow">
+        <div class="card-header py-2">
+            <h3 class="card-title mb-0">
+                {% if hospitalCatchment %}
+                    {{ 'stats.case_flow.section.hospital_flow'|trans({}, 'statistics') }}
+                {% else %}
+                    {{ 'stats.case_flow.section.dispatch_flow'|trans({}, 'statistics') }}
+                {% endif %}
+            </h3>
+        </div>
+        <div class="card-body">
+            <p class="text-secondary small mb-3">
+                {% if hospitalCatchment %}
+                    {{ 'stats.case_flow.dispatch_flow.intro_hospital'|trans({}, 'statistics') }}
+                {% else %}
+                    {{ 'stats.case_flow.dispatch_flow.intro'|trans({}, 'statistics') }}
+                {% endif %}
+            </p>
+            <div class="case-flow-dispatch-sankey">
+                <div class="case-flow-dispatch-sankey-stage">
+                    <div class="case-flow-dispatch-sankey-node is-inflow">
+                        <div class="small text-secondary">{{ 'stats.case_flow.dispatch_flow.inflow'|trans({}, 'statistics') }}</div>
+                        <div class="h3 mb-0" data-testid="stats-case-flow-flow-inflow-count">{{ flow.inflowCases|number_format(0, ',', '.') }}</div>
+                        {% if flow.inflowSharePercent is not null %}
+                            <div class="small">{{ flow.inflowSharePercent }}%</div>
+                        {% endif %}
+                    </div>
+                    <div class="case-flow-dispatch-sankey-node is-local-origin">
+                        <div class="small text-secondary">
+                            {% if hospitalCatchment %}
+                                {{ 'stats.case_flow.dispatch_flow.local_origin_hospital'|trans({}, 'statistics') }}
+                            {% else %}
+                                {{ 'stats.case_flow.dispatch_flow.local_origin'|trans({}, 'statistics') }}
+                            {% endif %}
+                        </div>
+                        <div class="h3 mb-0" data-testid="stats-case-flow-flow-local-count">{{ flow.localOriginCases()|number_format(0, ',', '.') }}</div>
+                        {% if flow.localOriginSharePercent is not null %}
+                            <div class="small">{{ flow.localOriginSharePercent }}%</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="case-flow-dispatch-sankey-arrow" aria-hidden="true">↓</div>
+                <div class="case-flow-dispatch-sankey-stage">
+                    <div class="case-flow-dispatch-sankey-node is-total">
+                        <div class="small text-secondary">
+                            {% if hospitalCatchment %}
+                                {{ 'stats.case_flow.dispatch_flow.all_assignments_hospital'|trans({}, 'statistics') }}
+                            {% else %}
+                                {{ 'stats.case_flow.dispatch_flow.all_assignments'|trans({}, 'statistics') }}
+                            {% endif %}
+                        </div>
+                        <div class="h3 mb-0" data-testid="stats-case-flow-flow-total-count">{{ flow.totalCases|number_format(0, ',', '.') }}</div>
+                    </div>
+                </div>
+                {% if flow.showDestinationSplit %}
+                    <div class="case-flow-dispatch-sankey-arrow" aria-hidden="true">↓</div>
+                    <div class="case-flow-dispatch-sankey-stage" data-testid="stats-case-flow-dispatch-flow-outflow">
+                        <div class="case-flow-dispatch-sankey-node is-inside">
+                            <div class="small text-secondary">{{ 'stats.case_flow.dispatch_flow.inside'|trans({}, 'statistics') }}</div>
+                            <div class="h3 mb-0">{{ flow.insideDestinationCases()|number_format(0, ',', '.') }}</div>
+                            {% if flow.insideDestinationSharePercent is not null %}
+                                <div class="small">{{ flow.insideDestinationSharePercent }}%</div>
+                            {% endif %}
+                        </div>
+                        <div class="case-flow-dispatch-sankey-node is-outflow">
+                            <div class="small text-secondary">{{ 'stats.case_flow.dispatch_flow.outflow'|trans({}, 'statistics') }}</div>
+                            <div class="h3 mb-0">{{ flow.outflowCases|number_format(0, ',', '.') }}</div>
+                            {% if flow.outflowSharePercent is not null %}
+                                <div class="small">{{ flow.outflowSharePercent }}%</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}

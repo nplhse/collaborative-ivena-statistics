@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\CaseFlow;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDispatchAreaMatch;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowSqlFilter;
 use Doctrine\DBAL\ArrayParameterType;
 use PHPUnit\Framework\TestCase;
@@ -65,7 +66,7 @@ final class CaseFlowSqlFilterTest extends TestCase
         self::assertSame([], $types);
     }
 
-    public function testDispatchAreaScopeFiltersByOriginId(): void
+    public function testDispatchAreaScopeUsesRelatedOriginOrHospitalPredicate(): void
     {
         [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
             null,
@@ -75,8 +76,74 @@ final class CaseFlowSqlFilterTest extends TestCase
         );
 
         self::assertStringContainsString('asp.dispatch_area_id = :dispatch_area_id', $where);
-        self::assertStringNotContainsString('hospital_id', $where);
+        self::assertStringContainsString('h_scope.dispatch_area_id = :dispatch_area_id', $where);
+        self::assertStringContainsString(' OR ', $where);
         self::assertSame(55, $params['dispatch_area_id']);
         self::assertSame([], $types);
+    }
+
+    public function testDispatchAreaCatchmentMatchFiltersHospitalsInArea(): void
+    {
+        [$where] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            null,
+            null,
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 55),
+            'asp',
+            null,
+            null,
+            CaseFlowDispatchAreaMatch::Catchment,
+        );
+
+        self::assertStringContainsString('h_scope.dispatch_area_id = :dispatch_area_id', $where);
+        self::assertStringNotContainsString('asp.dispatch_area_id = :dispatch_area_id OR', $where);
+    }
+
+    public function testDispatchAreaOriginMatchFiltersOriginLeitstelleOnly(): void
+    {
+        [$where] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            null,
+            null,
+            new StatisticsScopeCriteria(hospitalIds: null, dispatchAreaId: 55),
+            'asp',
+            null,
+            null,
+            CaseFlowDispatchAreaMatch::Origin,
+        );
+
+        self::assertStringContainsString('asp.dispatch_area_id = :dispatch_area_id', $where);
+        self::assertStringNotContainsString('h_scope.dispatch_area_id', $where);
+    }
+
+    public function testOriginStateFilterIgnoresDestinationHospitalIds(): void
+    {
+        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            null,
+            null,
+            new StatisticsScopeCriteria([10, 20]),
+            'asp',
+            7,
+        );
+
+        self::assertStringContainsString('asp.state_id = :origin_state_id', $where);
+        self::assertStringNotContainsString('hospital_id', $where);
+        self::assertSame(7, $params['origin_state_id']);
+        self::assertArrayNotHasKey('hospital_ids', $params);
+        self::assertSame([], $types);
+        self::assertFalse(CaseFlowSqlFilter::isImpossibleScope(new StatisticsScopeCriteria([]), 7));
+    }
+
+    public function testDrawerFilterAddsUrgencyPredicate(): void
+    {
+        [$where, $params] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            null,
+            null,
+            StatisticsScopeCriteria::public(),
+            'asp',
+            null,
+            new \App\Statistics\Application\DTO\StatisticsDrawerFilter(urgency: 1),
+        );
+
+        self::assertStringContainsString('asp.urgency_code = :drawer_urgency', $where);
+        self::assertSame(1, $params['drawer_urgency']);
     }
 }

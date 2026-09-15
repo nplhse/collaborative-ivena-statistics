@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowFlowMatrixCell;
 use Doctrine\DBAL\Connection;
@@ -22,12 +23,21 @@ final readonly class CaseFlowFlowMatrixQuery
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
     ): array {
-        if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
+        if (CaseFlowSqlFilter::isImpossibleScope($scope, $originStateId)) {
             return [];
         }
 
-        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
+        [$where, $params, $types] = CaseFlowSqlFilter::buildScopePeriodWhere(
+            $from,
+            $toExclusive,
+            $scope,
+            'asp',
+            $originStateId,
+            $drawerFilter,
+        );
 
         $sql = <<<SQL
 SELECT

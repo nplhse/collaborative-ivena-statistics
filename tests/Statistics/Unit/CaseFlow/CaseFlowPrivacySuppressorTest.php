@@ -97,4 +97,115 @@ final class CaseFlowPrivacySuppressorTest extends TestCase
         self::assertSame((string) AllocationStatsHospitalTierProjectionCode::Full->value, $slices[0]->poolKey);
         self::assertSame(CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY, $slices[1]->poolKey);
     }
+
+    public function testSuppressDestinationHospitalsDropsSmallNPins(): void
+    {
+        $rows = [
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                1,
+                'Large Hospital',
+                50.1,
+                8.6,
+                20,
+                3,
+                1,
+            ),
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                2,
+                'Small Hospital',
+                50.2,
+                8.7,
+                4,
+                1,
+                1,
+            ),
+        ];
+
+        $pinSet = $this->suppressor->suppressDestinationHospitals($rows, 24);
+
+        self::assertCount(1, $pinSet->pins);
+        self::assertSame('Large Hospital', $pinSet->pins[0]->name);
+        self::assertSame(20, $pinSet->pins[0]->caseCount);
+        self::assertFalse($pinSet->pins[0]->suppressed);
+        self::assertTrue($pinSet->pins[0]->insideSelectedArea);
+        self::assertSame(1, $pinSet->omittedInsideCount);
+        self::assertSame(0, $pinSet->omittedOutsideCount);
+    }
+
+    public function testSuppressDestinationHospitalsMarksOutflowPins(): void
+    {
+        $rows = [
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                1,
+                'Inside Hospital',
+                50.1,
+                8.6,
+                20,
+                3,
+                1,
+                10,
+            ),
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                2,
+                'Outside Hospital',
+                50.2,
+                8.7,
+                12,
+                3,
+                1,
+                99,
+            ),
+        ];
+
+        $pinSet = $this->suppressor->suppressDestinationHospitals($rows, 32, 10);
+
+        self::assertCount(2, $pinSet->pins);
+        self::assertTrue($pinSet->pins[0]->insideSelectedArea);
+        self::assertFalse($pinSet->pins[1]->insideSelectedArea);
+        self::assertSame(0, $pinSet->omittedInsideCount);
+        self::assertSame(0, $pinSet->omittedOutsideCount);
+    }
+
+    public function testSuppressDestinationHospitalsCountsOmittedOutflowPins(): void
+    {
+        $rows = [
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                1,
+                'Inside Hospital',
+                50.1,
+                8.6,
+                20,
+                3,
+                1,
+                10,
+            ),
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                2,
+                'Small Outside Hospital',
+                50.2,
+                8.7,
+                4,
+                3,
+                1,
+                99,
+            ),
+            new \App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow(
+                3,
+                'No Coordinates Outside',
+                null,
+                null,
+                40,
+                3,
+                1,
+                99,
+            ),
+        ];
+
+        $pinSet = $this->suppressor->suppressDestinationHospitals($rows, 64, 10);
+
+        self::assertCount(1, $pinSet->pins);
+        self::assertTrue($pinSet->pins[0]->insideSelectedArea);
+        self::assertSame(0, $pinSet->omittedInsideCount);
+        self::assertSame(2, $pinSet->omittedOutsideCount);
+    }
 }

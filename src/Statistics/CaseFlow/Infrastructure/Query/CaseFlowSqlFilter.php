@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
+use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Infrastructure\Query\ProjectionDrawerFilterSql;
 use Doctrine\DBAL\ArrayParameterType;
 
 /**
@@ -20,6 +22,9 @@ final class CaseFlowSqlFilter
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
         string $tableAlias = 'asp',
+        ?int $originStateId = null,
+        ?StatisticsDrawerFilter $drawerFilter = null,
+        CaseFlowDispatchAreaMatch $dispatchAreaMatch = CaseFlowDispatchAreaMatch::Related,
     ): array {
         $prefix = '' === $tableAlias ? '' : $tableAlias.'.';
         $conditions = ['1 = 1'];
@@ -37,7 +42,10 @@ final class CaseFlowSqlFilter
             $params['to_exclusive'] = $toExclusive->format('Y-m-d H:i:s');
         }
 
-        if (\is_array($scope->hospitalIds)) {
+        if (null !== $originStateId) {
+            $conditions[] = sprintf('%sstate_id = :origin_state_id', $prefix);
+            $params['origin_state_id'] = $originStateId;
+        } elseif (\is_array($scope->hospitalIds)) {
             $ids = array_map(static fn (int $id): int => $id, $scope->hospitalIds);
             if ([] === $ids) {
                 $conditions[] = '1 = 0';
@@ -49,7 +57,7 @@ final class CaseFlowSqlFilter
         }
 
         if (null !== $scope->dispatchAreaId) {
-            $conditions[] = sprintf('%sdispatch_area_id = :dispatch_area_id', $prefix);
+            $conditions[] = self::dispatchAreaPredicate($prefix, $dispatchAreaMatch);
             $params['dispatch_area_id'] = $scope->dispatchAreaId;
         }
 
@@ -67,6 +75,36 @@ final class CaseFlowSqlFilter
             $types['tier_codes'] = ArrayParameterType::INTEGER;
         }
 
+        if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {
+            [$drawerConditions, $drawerParams] = new ProjectionDrawerFilterSql()->apply($drawerFilter, $tableAlias);
+            $conditions = [...$conditions, ...$drawerConditions];
+            $params = [...$params, ...$drawerParams];
+        }
+
         return [implode(' AND ', $conditions), $params, $types];
+    }
+
+    public static function isImpossibleScope(StatisticsScopeCriteria $scope, ?int $originStateId = null): bool
+    {
+        if (null !== $originStateId) {
+            return false;
+        }
+
+        return \is_array($scope->hospitalIds) && [] === $scope->hospitalIds;
+    }
+
+    private static function dispatchAreaPredicate(string $prefix, CaseFlowDispatchAreaMatch $match): string
+    {
+        $origin = sprintf('%sdispatch_area_id = :dispatch_area_id', $prefix);
+        $catchment = sprintf(
+            '%shospital_id IN (SELECT h_scope.id FROM hospital h_scope WHERE h_scope.dispatch_area_id = :dispatch_area_id)',
+            $prefix,
+        );
+
+        return match ($match) {
+            CaseFlowDispatchAreaMatch::Origin => $origin,
+            CaseFlowDispatchAreaMatch::Catchment => $catchment,
+            CaseFlowDispatchAreaMatch::Related => sprintf('(%s OR %s)', $origin, $catchment),
+        };
     }
 }

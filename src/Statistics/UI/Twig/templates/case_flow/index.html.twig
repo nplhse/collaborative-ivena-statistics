@@ -32,6 +32,15 @@
                     <h2 class="page-title mb-0" data-testid="stats-case-flow-heading-title">
                         {{ 'stats.case_flow.title'|trans({}, 'statistics') }}
                     </h2>
+                    <p class="text-secondary mt-1 mb-0" data-testid="stats-case-flow-mode-label">
+                        {% if dashboard.dispatchAreaFlow %}
+                            {{ 'stats.case_flow.mode.dispatch_area'|trans({}, 'statistics') }}
+                        {% elseif dashboard.mode.value == 'system_flow' %}
+                            {{ 'stats.case_flow.mode.system_flow'|trans({}, 'statistics') }}
+                        {% else %}
+                            {{ 'stats.case_flow.mode.hospital_origin'|trans({}, 'statistics') }}
+                        {% endif %}
+                    </p>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}
             </div>
@@ -41,6 +50,8 @@
 
 {% block page_content %}
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+    {{ include('@Statistics/_filter_drawer.html.twig') }}
+    {{ include('@Statistics/_filter_active_badges.html.twig') }}
 
     <div data-controller="case-flow-charts"
          data-case-flow-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
@@ -74,6 +85,7 @@
 
             <div class="col-lg-4 d-flex flex-column gap-3">
                 {{ include('@Statistics/case_flow/_insight_highlights.html.twig') }}
+                {{ include('@Statistics/case_flow/_dispatch_flow_card.html.twig') }}
 
                 {% if dashboard.mode.value == 'system_flow' %}
                     {% if dashboard.destinationTierCard %}
@@ -94,8 +106,6 @@
                             testId: 'stats-case-flow-size-structure',
                         }) }}
                     {% endif %}
-                {% else %}
-                    {{ include('@Statistics/case_flow/_urgency_distribution_card.html.twig') }}
                 {% endif %}
 
                 {{ include('@Statistics/case_flow/_transport_time_card.html.twig') }}

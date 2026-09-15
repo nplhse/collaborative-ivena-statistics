@@ -37,6 +37,7 @@ final class CaseFlowInsightEngine
         $candidates = [];
 
         $this->addRegionalInsight($candidates, $metrics);
+        $this->addInflowInsight($candidates, $metrics);
         $this->addCentralizationInsight($candidates, $metrics, $baseline);
         $this->addTransportInsight($candidates, $metrics, $baseline);
         $this->addUrgencyConcentrationInsight($candidates, $metrics, $originRows);
@@ -66,6 +67,30 @@ final class CaseFlowInsightEngine
             'stats.case_flow.insight.predominantly_regional',
             ['share' => round($share, 1)],
             (int) round($share),
+            sprintf('%.0f%%', round($share, 0)),
+        );
+    }
+
+    /**
+     * @param list<CaseFlowInsight> $candidates
+     */
+    private function addInflowInsight(array &$candidates, CaseFlowRegionalMetricsRow $metrics): void
+    {
+        if ($metrics->totalCases <= 0 || $metrics->inflowCases <= 0) {
+            return;
+        }
+
+        $share = ((float) $metrics->inflowCases / (float) $metrics->totalCases) * 100.0;
+        if ($share < 15.0) {
+            return;
+        }
+
+        $candidates[] = new CaseFlowInsight(
+            'significant_inflow',
+            CaseFlowInsightSeverity::Info,
+            'stats.case_flow.insight.significant_inflow',
+            ['share' => round($share, 1)],
+            (int) round($share + 10.0),
             sprintf('%.0f%%', round($share, 0)),
         );
     }

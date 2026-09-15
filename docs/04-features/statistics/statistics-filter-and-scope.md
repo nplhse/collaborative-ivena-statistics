@@ -17,9 +17,13 @@ Most statistics pages share a common filter model resolved by `StatisticsFilterF
 
 Hospital and dispatch area are orthogonal: destination hospital ≠ origin dispatch area. A hospital can receive cases from multiple Leitstellen; dispatch-area scope always filters projection rows by origin `dispatch_area_id`, never by expanding a 1:1 hospital portfolio.
 
+**Exception:** Geographic / Case Flow analysis treats dispatch-area scope as related assignments (origin in the Leitstelle **or** hospital in the Leitstelle). See [case-flow.md](case-flow.md). Do not copy that into `StatisticsScopeResolver`.
+
 ### State scope note
 
-`state` currently expands to hospital IDs via `mv_projection_hospital_dimensions` (`MIN(state_id)` per hospital), then applies `hospital_id IN (...)`. Whether state should mean allocation origin (`state_id` on the projection) like dispatch area is an open follow-up; do not assume the same semantics as `dispatch_area`.
+`state` currently expands to hospital IDs via `mv_projection_hospital_dimensions` (`MIN(state_id)` per hospital), then applies `hospital_id IN (...)`. Whether state should mean allocation origin (`state_id` on the projection) like dispatch area is an open follow-up for most statistics pages; do not assume the same semantics as `dispatch_area`.
+
+**Exception:** Geographic / Case Flow analysis (`CaseFlowSqlFilter`) interprets `state` as origin `allocation_stats_projection.state_id` and does not apply the destination hospital-ID expansion. That exception is local to this analysis and must not be copied into `StatisticsScopeResolver`.
 
 ## Periods
 

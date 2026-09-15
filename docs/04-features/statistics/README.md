@@ -28,7 +28,7 @@
 | [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md) | Product standards and dashboard alignment |
 | [indication-dashboard-performance.md](indication-dashboard-performance.md) | Indication detail SQL optimisation notes |
 | [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
-| [case-flow.md](case-flow.md) | Case flow dashboard |
+| [case-flow.md](case-flow.md) | Geographic / case flow analysis |
 | [closed-department-assignments.md](closed-department-assignments.md) | Notzuweisungen / forced assignments |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
 | [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md) | Hospital-scope travel-time isochrone heatmap |

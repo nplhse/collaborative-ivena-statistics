@@ -6,6 +6,7 @@ namespace App\Statistics\CaseFlow\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\StatisticsContextFactory;
+use App\Statistics\Application\StatisticsDrawerFilterFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\CaseFlow\Application\CaseFlowDashboardService;
@@ -13,6 +14,7 @@ use App\Statistics\CaseFlow\Application\CaseFlowModeResolver;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
+use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
@@ -37,6 +39,8 @@ final class CaseFlowController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly CaseFlowChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private readonly StatisticsDrawerFilterFactory $statisticsDrawerFilterFactory,
+        private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
     ) {
     }
 
@@ -55,15 +59,19 @@ final class CaseFlowController extends AbstractController
             return $this->redirectToRoute('app_stats_case_flow', $publicRedirect['query']);
         }
 
-        $context = $this->statisticsContextFactory->create($user, $filter);
+        $drawerFilter = $this->statisticsDrawerFilterFactory->fromRequest($request);
+        $context = $this->statisticsContextFactory->create($user, $filter, drawerFilter: $drawerFilter);
+
         $scope = $this->statisticsScopeResolver->resolveCriteria($context);
         $period = StatisticsPeriodResolver::resolve($filter);
         $mode = $this->modeResolver->resolve($filter);
 
         $result = $this->dashboardService->build(new CaseFlowCriteria(
+            $filter,
             $scope,
             $period,
             $mode,
+            $drawerFilter,
         ));
 
         $pageViewModel = $this->statisticsPageViewModelFactory->create(
@@ -106,6 +114,8 @@ final class CaseFlowController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
+            'statsShowFilterDrawer' => true,
+            'statsFilterDrawer' => $this->statisticsFilterDrawerViewModelFactory->create($request),
         ]);
     }
 }

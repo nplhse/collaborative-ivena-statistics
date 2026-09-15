@@ -14,9 +14,9 @@ final class CaseFlowStructureDistributionAssembler
 {
     /** @var array<string, array{barClass: string, labelKey: string}> */
     private const array SIZE_SEGMENTS = [
-        'Small' => ['barClass' => 'bg-cyan', 'labelKey' => 'hospital.size.Small'],
-        'Medium' => ['barClass' => 'bg-blue', 'labelKey' => 'hospital.size.Medium'],
-        'Large' => ['barClass' => 'bg-indigo', 'labelKey' => 'hospital.size.Large'],
+        'Small' => ['barClass' => 'bg-cyan', 'labelKey' => 'stats.case_flow.size.small'],
+        'Medium' => ['barClass' => 'bg-blue', 'labelKey' => 'stats.case_flow.size.medium'],
+        'Large' => ['barClass' => 'bg-indigo', 'labelKey' => 'stats.case_flow.size.large'],
         CaseFlowPrivacyPolicy::SUPPRESSED_POOL_KEY => ['barClass' => 'bg-secondary-lt', 'labelKey' => 'stats.case_flow.pool.suppressed'],
         'unknown' => ['barClass' => 'bg-secondary', 'labelKey' => 'stats.case_flow.pool.unknown'],
     ];

@@ -11,6 +11,9 @@ use App\Statistics\CaseFlow\Application\DTO\CaseFlowOriginSlice;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowDestinationPoolRow;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowFlowMatrixCell;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
+use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPin;
+use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPinSet;
+use App\Statistics\GeographicMap\Infrastructure\Query\GeographicDestinationHospitalRow;
 
 final class CaseFlowPrivacySuppressor
 {
@@ -194,5 +197,51 @@ final class CaseFlowPrivacySuppressor
         }
 
         return $slices;
+    }
+
+    /**
+     * @param list<GeographicDestinationHospitalRow> $rows
+     */
+    public function suppressDestinationHospitals(
+        array $rows,
+        int $totalCases,
+        ?int $selectedDispatchAreaId = null,
+    ): GeographicHospitalPinSet {
+        if ($totalCases <= 0) {
+            return new GeographicHospitalPinSet([]);
+        }
+
+        $pins = [];
+        $omittedInside = 0;
+        $omittedOutside = 0;
+        foreach ($rows as $row) {
+            $inside = null === $selectedDispatchAreaId || $row->hospitalDispatchAreaId === $selectedDispatchAreaId;
+            $lat = $row->lat;
+            $lng = $row->lng;
+            if ($row->caseCount < CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL || null === $lat || null === $lng) {
+                if ($inside) {
+                    ++$omittedInside;
+                } else {
+                    ++$omittedOutside;
+                }
+
+                continue;
+            }
+
+            $pins[] = new GeographicHospitalPin(
+                $row->hospitalId,
+                $row->name,
+                $lat,
+                $lng,
+                $row->caseCount,
+                round(((float) $row->caseCount / (float) $totalCases) * 100.0, 1),
+                $row->tierCode,
+                $row->locationCode,
+                false,
+                $inside,
+            );
+        }
+
+        return new GeographicHospitalPinSet($pins, $omittedInside, $omittedOutside);
     }
 }

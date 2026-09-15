@@ -259,7 +259,7 @@
       </trans-unit>
       <trans-unit id="statsPf01" resname="link.stats.case_flow">
         <source>link.stats.case_flow</source>
-        <target>Case flow</target>
+        <target>Geographic flow</target>
       </trans-unit>
       <trans-unit id="statsCdaNav01" resname="link.stats.closed_department_assignments">
         <source>link.stats.closed_department_assignments</source>
