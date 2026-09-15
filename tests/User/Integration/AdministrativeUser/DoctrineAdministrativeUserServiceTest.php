@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\User\Integration\AdministrativeUser;
 
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Tests\User\Support\AlwaysAvailableRegistrationIdentityChecker;
 use App\User\Application\AdministrativeUser\AdministrativeUserService;
 use App\User\Application\AdministrativeUser\AdministrativeUserValidationException;
 use App\User\Application\AdministrativeUser\CreateUserInput;
@@ -14,7 +16,14 @@ use App\User\Application\AdministrativeUser\UserNotDeletableException;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
+use App\User\Infrastructure\AdministrativeUser\DoctrineAdministrativeUserService;
+use App\User\Infrastructure\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -72,6 +81,29 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
             plainPassword: 'super-secret-password',
             grantAdmin: false,
         ));
+    }
+
+    public function testCreateMapsUniqueConstraintRaceToIdentityTaken(): void
+    {
+        UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+        ]);
+
+        try {
+            $this->serviceWithAlwaysAvailableIdentity()->create(new CreateUserInput(
+                username: 'alice',
+                email: 'other@example.test',
+                plainPassword: 'super-secret-password',
+                grantAdmin: false,
+            ));
+            self::fail('Expected IdentityTakenException when the unique constraint races.');
+        } catch (IdentityTakenException) {
+        }
+
+        $repository = self::getContainer()->get(UserRepository::class);
+        self::assertInstanceOf(UserRepository::class, $repository);
+        self::assertSame(1, $repository->count(['username' => 'alice']));
     }
 
     public function testFindByUsernameTrimsAndReturnsNullForBlank(): void
@@ -159,5 +191,20 @@ final class DoctrineAdministrativeUserServiceTest extends KernelTestCase
         $service = self::getContainer()->get(AdministrativeUserService::class);
 
         return $service;
+    }
+
+    private function serviceWithAlwaysAvailableIdentity(): DoctrineAdministrativeUserService
+    {
+        $container = self::getContainer();
+
+        return new DoctrineAdministrativeUserService(
+            $container->get(EntityManagerInterface::class),
+            $container->get(UserRepository::class),
+            $container->get(UserPasswordHasherInterface::class),
+            $container->get(ValidatorInterface::class),
+            new AlwaysAvailableRegistrationIdentityChecker($container->get(TranslatorInterface::class)),
+            $container->get(AuditContext::class),
+            $container->get(EventDispatcherInterface::class),
+        );
     }
 }

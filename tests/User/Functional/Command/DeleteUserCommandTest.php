@@ -44,6 +44,22 @@ final class DeleteUserCommandTest extends KernelTestCase
         self::assertNull($this->getUserRepository()->findOneBy(['username' => 'alice']));
     }
 
+    public function testRetriesInvalidUsernameThenDeletes(): void
+    {
+        UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+        ]);
+
+        $tester = $this->createCommandTester();
+        $tester->setInputs(['ab', 'alice', 'yes']);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Deleted user "alice"', $tester->getDisplay());
+        self::assertNull($this->getUserRepository()->findOneBy(['username' => 'alice']));
+    }
+
     public function testUnknownUsernameFails(): void
     {
         $tester = $this->createCommandTester();

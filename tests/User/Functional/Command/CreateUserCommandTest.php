@@ -117,6 +117,44 @@ final class CreateUserCommandTest extends KernelTestCase
         self::assertStringNotContainsString(self::PLAIN_PASSWORD, $tester->getDisplay());
     }
 
+    public function testRetriesInvalidUsernameAndEmailThenCreatesUser(): void
+    {
+        $tester = $this->createCommandTester();
+        $tester->setInputs([
+            'ab',
+            'dave',
+            'not-an-email',
+            'dave@example.test',
+            self::PLAIN_PASSWORD,
+            self::PLAIN_PASSWORD,
+            'no',
+        ]);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertInstanceOf(User::class, $this->getUserRepository()->findOneBy(['username' => 'dave']));
+    }
+
+    public function testRetriesWhenPasswordConfirmationDoesNotMatch(): void
+    {
+        $tester = $this->createCommandTester();
+        $tester->setInputs([
+            'erin',
+            'erin@example.test',
+            self::PLAIN_PASSWORD,
+            'does-not-match-password',
+            self::PLAIN_PASSWORD,
+            self::PLAIN_PASSWORD,
+            'no',
+        ]);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('do not match', $tester->getDisplay());
+        self::assertStringNotContainsString(self::PLAIN_PASSWORD, $tester->getDisplay());
+        self::assertInstanceOf(User::class, $this->getUserRepository()->findOneBy(['username' => 'erin']));
+    }
+
     public function testFailsWhenNotInteractive(): void
     {
         $tester = $this->createCommandTester();

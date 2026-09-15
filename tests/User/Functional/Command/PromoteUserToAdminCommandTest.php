@@ -71,6 +71,33 @@ final class PromoteUserToAdminCommandTest extends KernelTestCase
         self::assertStringContainsString('No user found with username "unknown-user"', $tester->getDisplay());
     }
 
+    public function testRetriesInvalidUsernameThenPromotes(): void
+    {
+        $user = UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+        ]);
+
+        $tester = $this->createCommandTester();
+        $tester->setInputs(['ab', 'alice', 'yes']);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Granted ROLE_ADMIN to "alice"', $tester->getDisplay());
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertContains(UserRole::ADMIN, $user->getRoles());
+    }
+
+    public function testFailsWhenNotInteractive(): void
+    {
+        $tester = $this->createCommandTester();
+        $status = $tester->execute([], ['interactive' => false]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('must be run interactively', $tester->getDisplay());
+    }
+
     public function testAbortLeavesRolesUnchanged(): void
     {
         $user = UserFactory::createOne([

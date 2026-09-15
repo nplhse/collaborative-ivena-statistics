@@ -75,6 +75,61 @@ final class DemoteUserFromAdminCommandTest extends KernelTestCase
         self::assertStringContainsString('No user found with username "unknown-user"', $tester->getDisplay());
     }
 
+    public function testRetriesInvalidUsernameThenDemotes(): void
+    {
+        UserFactory::new()->asAdmin()->create([
+            'username' => 'other-admin',
+            'email' => 'other-admin@example.test',
+        ]);
+        $user = UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+            'roles' => [UserRole::USER, UserRole::ADMIN],
+        ]);
+
+        $tester = $this->createCommandTester();
+        $tester->setInputs(['ab', 'alice', 'yes']);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Removed ROLE_ADMIN from "alice"', $tester->getDisplay());
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertNotContains(UserRole::ADMIN, $user->getRoles());
+    }
+
+    public function testAbortLeavesRolesUnchanged(): void
+    {
+        UserFactory::new()->asAdmin()->create([
+            'username' => 'other-admin',
+            'email' => 'other-admin@example.test',
+        ]);
+        $user = UserFactory::createOne([
+            'username' => 'alice',
+            'email' => 'alice@example.test',
+            'roles' => [UserRole::USER, UserRole::ADMIN],
+        ]);
+
+        $tester = $this->createCommandTester();
+        $tester->setInputs(['alice', 'no']);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Aborted', $tester->getDisplay());
+
+        \Zenstruck\Foundry\Persistence\refresh($user);
+        self::assertContains(UserRole::ADMIN, $user->getRoles());
+    }
+
+    public function testFailsWhenNotInteractive(): void
+    {
+        $tester = $this->createCommandTester();
+        $status = $tester->execute([], ['interactive' => false]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertStringContainsString('must be run interactively', $tester->getDisplay());
+    }
+
     public function testRefusesToDemoteTheLastAdministrator(): void
     {
         UserFactory::new()->asAdmin()->create([
