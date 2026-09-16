@@ -34,7 +34,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td align="center" style="padding:24px 48px 16px;">
+                            <td align="center" style="padding:24px 48px 32px;">
                                 <a href="{{ content.importCreateUrl }}" style="display:inline-block;background-color:{{ link }};color:#ffffff;text-decoration:none;font-weight:500;font-size:15px;border-radius:4px;padding:12px 24px;">
                                     {{ 'monthly_reminder.cta.upload'|trans(({month: content.uploadMonthLabel}), 'engagement') }}
                                 </a>
@@ -43,34 +43,6 @@
                                         {{ 'monthly_reminder.cta.monthly_report'|trans({}, 'engagement') }}
                                     </a>
                                 </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding:0 48px 32px;">
-                                <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;background:#f6f7f9;border:1px solid {{ border }};border-radius:4px;">
-                                    <tr>
-                                        <td style="padding:16px 20px;" data-testid="monthly-reminder-closed-department">
-                                            <div style="font-weight:600;color:{{ fgHeading }};margin-bottom:4px;">{{ 'monthly_reminder.closed_department.title'|trans({}, 'engagement') }}</div>
-                                            {% if content.closedDepartmentCount > 0 %}
-                                                <p style="color:{{ muted }};margin:0 0 8px;font-size:13px;">
-                                                    {{ 'monthly_reminder.closed_department.body'|trans(({
-                                                        count: content.closedDepartmentCount|number_format(0, ',', '.'),
-                                                        share: content.closedDepartmentSharePercent is not null ? content.closedDepartmentSharePercent|number_format(1, ',', '.') : '—',
-                                                    }), 'engagement') }}
-                                                    {% if content.closedDepartmentMomPercent is not null %}
-                                                        <span style="color:{{ content.closedDepartmentMomPercent > 0 ? '#d63939' : (content.closedDepartmentMomPercent < 0 ? '#2fb344' : muted) }};">
-                                                            {{ content.closedDepartmentMomPercent >= 0 ? '+' : '' }}{{ content.closedDepartmentMomPercent|number_format(1, ',', '.') }}%
-                                                        </span>
-                                                        {{ 'monthly_reminder.closed_department.mom'|trans({}, 'engagement') }}
-                                                    {% endif %}
-                                                </p>
-                                            {% else %}
-                                                <p style="color:{{ muted }};margin:0 0 8px;font-size:13px;">{{ 'monthly_reminder.closed_department.empty'|trans({}, 'engagement') }}</p>
-                                            {% endif %}
-                                            <a href="{{ content.monthlyReportUrl }}" style="color:{{ link }};text-decoration:none;font-size:13px;">{{ 'monthly_reminder.closed_department.link'|trans({}, 'engagement') }}</a>
-                                        </td>
-                                    </tr>
-                                </table>
                             </td>
                         </tr>
                         <tr>
@@ -101,6 +73,7 @@
                                             </td>
                                         </tr>
                                     </table>
+                                    {{ include('@Engagement/email/_monthly_reminder_closed_department.html.twig') }}
                                 </td>
                             </tr>
                         {% else %}
