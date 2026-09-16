@@ -9,6 +9,7 @@ use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginHeatmapView
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMapFeature;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowMode;
 use App\Statistics\GeographicMap\Application\DTO\GeographicHospitalPin;
+use App\Statistics\GeographicMap\Application\DTO\GeographicMapLayer;
 use App\Statistics\GeographicMap\Application\GeographicMapPayloadBuilder;
 use PHPUnit\Framework\TestCase;
 
@@ -140,5 +141,35 @@ final class GeographicMapPayloadBuilderTest extends TestCase
         self::assertSame(51.31, $payload['hospital']['lat']);
         self::assertSame(['type' => 'origin_area', 'id' => '1'], $payload['selectedSegment']);
         self::assertCount(1, $payload['isochrone']['bands']);
+    }
+
+    public function testInsightsDefaultEnablesIsochronesWithoutOriginChoropleth(): void
+    {
+        $isochrone = new IsochroneOriginHeatmapView(
+            'Klinik',
+            51.31,
+            9.49,
+            [new IsochroneOriginBandView(20, 12, 0.5, 1.0, ['type' => 'Polygon', 'coordinates' => []], '10–20 Min.')],
+            0,
+            0,
+            12,
+            12,
+        );
+
+        $payload = new GeographicMapPayloadBuilder()->build(
+            CaseFlowMode::HospitalOrigin,
+            [new CaseFlowMapFeature(1, 'Kassel', 'kassel', 12, 100.0, false)],
+            [],
+            $isochrone,
+            true,
+            compactEnabledLayers: [
+                GeographicMapLayer::IsochroneBands,
+                GeographicMapLayer::HospitalPin,
+            ],
+        );
+
+        self::assertSame(['originChoropleth', 'isochroneBands', 'hospitalPin'], $payload['compactLayers']);
+        self::assertSame(['isochroneBands', 'hospitalPin'], $payload['compactEnabledLayers']);
+        self::assertSame(['isochroneBands', 'hospitalPin'], $payload['expandedLayers']);
     }
 }

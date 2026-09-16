@@ -1,10 +1,12 @@
 {#
   layers: list of originChoropleth|destinationHospitals|isochroneBands|hospitalPin
+  checkedLayers: list of layers that start enabled
   withTestIds: bool
   compact: bool
 #}
 {% set withTestIds = withTestIds|default(false) %}
 {% set compact = compact|default(false) %}
+{% set checkedLayers = checkedLayers|default(layers) %}
 {% for layer in layers %}
     {% set labelKey = null %}
     {% set testId = null %}
@@ -29,7 +31,7 @@
                    data-layer="{{ layer }}"
                    data-action="geo-map#toggleLayer"
                    {% if withTestIds %}data-testid="{{ testId }}"{% endif %}
-                   checked>
+                   {% if layer in checkedLayers %}checked{% endif %}>
             <span class="form-check-label">{{ labelKey|trans({}, 'statistics') }}</span>
         </label>
     {% endif %}

@@ -16,6 +16,7 @@ final readonly class GeographicMapPayloadBuilder
      * @param list<CaseFlowMapFeature>             $mapFeatures
      * @param list<GeographicHospitalPin>          $destinationHospitals
      * @param array{type: string, id: string}|null $selectedSegment
+     * @param list<GeographicMapLayer>|null        $compactEnabledLayers
      *
      * @return array<string, mixed>
      */
@@ -31,6 +32,7 @@ final readonly class GeographicMapPayloadBuilder
         int $omittedOutsideDestinationHospitals = 0,
         ?array $selectedSegment = null,
         bool $segmentSelectionEnabled = false,
+        ?array $compactEnabledLayers = null,
     ): array {
         $featurePayload = array_map(
             static fn (CaseFlowMapFeature $feature): array => [
@@ -76,6 +78,12 @@ final readonly class GeographicMapPayloadBuilder
                 'beyondMaxCount' => $isochrone->beyondMaxCount,
             ];
             $payload['bands'] = $isochronePayload['bands'];
+        }
+
+        if (null !== $compactEnabledLayers) {
+            $enabled = array_map(static fn (GeographicMapLayer $layer): string => $layer->value, $compactEnabledLayers);
+            $payload['compactEnabledLayers'] = $enabled;
+            $payload['expandedLayers'] = $enabled;
         }
 
         return $payload;

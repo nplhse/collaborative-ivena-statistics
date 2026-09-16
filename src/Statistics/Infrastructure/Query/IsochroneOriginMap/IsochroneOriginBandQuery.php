@@ -6,6 +6,7 @@ namespace App\Statistics\Infrastructure\Query\IsochroneOriginMap;
 
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandQueryResult;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginBandQueryInterface;
 use App\Statistics\Application\Mapping\DepartmentWasClosedSql;
@@ -37,21 +38,23 @@ final readonly class IsochroneOriginBandQuery implements IsochroneOriginBandQuer
         ?array $indicationIds = null,
         ?bool $departmentWasClosed = null,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?InsightPopulationFilter $population = null,
     ): IsochroneOriginBandQueryResult {
         if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
             return IsochroneOriginBandQueryResult::empty();
         }
 
-        if (\is_array($indicationIds) && [] === $indicationIds) {
+        $effectivePopulation = $population ?? (\is_array($indicationIds) ? InsightPopulationFilter::indications($indicationIds) : null);
+        if ($effectivePopulation instanceof InsightPopulationFilter && $effectivePopulation->isEmpty()) {
             return IsochroneOriginBandQueryResult::empty();
         }
 
         [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
 
-        if (\is_array($indicationIds)) {
-            $where .= ' AND indication_normalized_id IN (:indication_ids)';
-            $params['indication_ids'] = array_map(static fn (int $id): int => $id, $indicationIds);
-            $types['indication_ids'] = ArrayParameterType::INTEGER;
+        if ($effectivePopulation instanceof InsightPopulationFilter) {
+            $where .= ' AND '.$effectivePopulation->sqlInPredicate();
+            $params['subject_ids'] = $effectivePopulation->ids;
+            $types['subject_ids'] = ArrayParameterType::INTEGER;
         }
 
         if ($drawerFilter instanceof StatisticsDrawerFilter && $drawerFilter->isActive()) {

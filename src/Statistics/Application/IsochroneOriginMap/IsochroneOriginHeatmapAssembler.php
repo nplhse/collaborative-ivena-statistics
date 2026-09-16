@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandView;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginHeatmapView;
 use App\Statistics\Application\Mapping\IsochroneOriginBandSql;
@@ -37,6 +38,7 @@ final readonly class IsochroneOriginHeatmapAssembler
         ?array $indicationIds = null,
         ?bool $departmentWasClosed = null,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?InsightPopulationFilter $population = null,
     ): ?IsochroneOriginHeatmapView {
         if (StatisticsFilterScope::Hospital !== $filter->scope || null === $filter->hospitalId) {
             return null;
@@ -70,6 +72,7 @@ final readonly class IsochroneOriginHeatmapAssembler
             $indicationIds,
             $departmentWasClosed,
             $drawerFilter,
+            $population,
         );
         $total = $counts->total();
         $maxBandCount = 0;

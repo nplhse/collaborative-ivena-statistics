@@ -20,6 +20,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginBandQueryInterface;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -47,6 +48,8 @@ final class IsochroneOriginBandQueryTest extends KernelTestCase
         ]);
 
         SpecialityFactory::createOne(['name' => 'IsoBandSpec']);
+        $targetSpeciality = SpecialityFactory::createOne(['name' => 'IsoBand Target Spec']);
+        $otherSpeciality = SpecialityFactory::createOne(['name' => 'IsoBand Other Spec']);
         DepartmentFactory::createOne(['name' => 'IsoBandDept']);
         AssignmentFactory::createOne(['name' => 'IsoBandAssign']);
         IndicationRawFactory::createOne(['name' => 'IsoBandRaw', 'code' => 912_360]);
@@ -68,26 +71,31 @@ final class IsochroneOriginBandQueryTest extends KernelTestCase
         $created = new \DateTimeImmutable('2026-04-01 08:00:00');
         AllocationFactory::createOne($base + [
             'indicationNormalized' => $targetIndication,
+            'speciality' => $targetSpeciality,
             'createdAt' => $created,
             'arrivalAt' => $created->modify('+4 minutes'),
         ]);
         AllocationFactory::createOne($base + [
             'indicationNormalized' => $targetIndication,
+            'speciality' => $targetSpeciality,
             'createdAt' => $created,
             'arrivalAt' => $created->modify('+15 minutes'),
         ]);
         AllocationFactory::createOne($base + [
             'indicationNormalized' => $targetIndication,
+            'speciality' => $targetSpeciality,
             'createdAt' => $created,
             'arrivalAt' => $created,
         ]);
         AllocationFactory::createOne($base + [
             'indicationNormalized' => $targetIndication,
+            'speciality' => $targetSpeciality,
             'createdAt' => $created,
             'arrivalAt' => $created->modify('+55 minutes'),
         ]);
         AllocationFactory::createOne($base + [
             'indicationNormalized' => $otherIndication,
+            'speciality' => $otherSpeciality,
             'createdAt' => $created,
             'arrivalAt' => $created->modify('+8 minutes'),
         ]);
@@ -115,6 +123,20 @@ final class IsochroneOriginBandQueryTest extends KernelTestCase
 
         $empty = $query->fetch($from, $toExclusive, $scope, []);
         self::assertSame(0, $empty->total());
+
+        $bySpeciality = $query->fetch(
+            $from,
+            $toExclusive,
+            $scope,
+            null,
+            null,
+            null,
+            InsightPopulationFilter::of('speciality_id', [$targetSpeciality->getId()]),
+        );
+        self::assertSame(4, $bySpeciality->total());
+        self::assertSame(2, $bySpeciality->countFor('10'));
+        self::assertSame(1, $bySpeciality->countFor('20'));
+        self::assertSame(1, $bySpeciality->countFor('beyond_max'));
 
         $noHospitals = $query->fetch($from, $toExclusive, new StatisticsScopeCriteria([]));
         self::assertSame(0, $noHospitals->total());

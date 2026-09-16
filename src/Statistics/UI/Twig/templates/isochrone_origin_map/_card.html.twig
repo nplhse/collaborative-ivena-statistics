@@ -1,8 +1,10 @@
+{% set mapPayload = mapPayload ?? heatmap.mapPayload %}
+{% set showOriginLayers = showOriginLayers|default(false) %}
 {{ include('@Statistics/geographic_map/_map.html.twig', {
-    payload: heatmap.mapPayload,
+    payload: mapPayload,
     testId: 'stats-isochrone-origin-map',
-    geoUrl: null,
-    showValueModes: false,
+    geoUrl: showOriginLayers ? asset('geo/hessen-landkreise.geojson') : null,
+    showValueModes: showOriginLayers,
     showExpand: true,
     showIsochroneLegend: true,
     frameClass: 'isochrone-origin-map-frame',
