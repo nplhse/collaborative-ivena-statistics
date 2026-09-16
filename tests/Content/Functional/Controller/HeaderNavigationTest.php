@@ -33,6 +33,7 @@ final class HeaderNavigationTest extends WebTestCase
         self::assertSelectorExists('#navbar-menu a[href="/nav-faq"]');
         self::assertSelectorExists('#navbar-menu a[href="/register"]');
         self::assertSelectorExists('#navbar-menu a[href="/login"]');
+        $this->assertLocaleSwitcherPlacement();
     }
 
     public function testAuthenticatedUserSeesOnlyFaqInHeaderNavigation(): void
@@ -52,6 +53,8 @@ final class HeaderNavigationTest extends WebTestCase
         self::assertSelectorNotExists('#navbar-menu a[href="/nav-features"]');
         self::assertSelectorExists('#navbar-menu a[href="/nav-faq"]');
         self::assertSelectorExists('[aria-label="Open user menu"][data-bs-display="static"]');
+        self::assertSelectorNotExists('#navbar-menu [aria-label="Open user menu"]');
+        $this->assertLocaleSwitcherPlacement();
     }
 
     public function testParticipantSeesUniqueNavbarAndExploreSubnav(): void
@@ -72,6 +75,16 @@ final class HeaderNavigationTest extends WebTestCase
         self::assertSelectorNotExists('#stats-subnav');
         self::assertSelectorNotExists('#navbar-menu a[href="/login"]');
         self::assertSelectorNotExists('#navbar-menu a[href="/register"]');
+        self::assertSelectorExists('[aria-label="Open user menu"][data-bs-display="static"]');
+        self::assertSelectorNotExists('#navbar-menu [aria-label="Open user menu"]');
+        $this->assertLocaleSwitcherPlacement();
+    }
+
+    private function assertLocaleSwitcherPlacement(): void
+    {
+        self::assertSelectorExists('#navbar-menu [data-testid="locale-switcher-menu"].d-md-none');
+        self::assertSelectorExists('header.navbar [data-testid="locale-switcher-toolbar"].d-none.d-md-flex');
+        self::assertSelectorNotExists('#navbar-menu [data-testid="locale-switcher-toolbar"]');
     }
 
     private function createHeaderNavigationPages(): void
