@@ -160,7 +160,7 @@ final class OverviewBenchmarkSummaryFactoryTest extends TestCase
         self::assertSame('Low D', $deviations['negative'][0]->label);
         self::assertSame('above', $deviations['positive'][0]->direction);
         self::assertSame('below', $deviations['negative'][0]->direction);
-        self::assertSame('https://example.test/indication/101', $deviations['positive'][0]->url);
+        self::assertSame('https://example.test/insights/indications/101', $deviations['positive'][0]->url);
     }
 
     private function factory(): OverviewBenchmarkSummaryFactory
@@ -168,8 +168,9 @@ final class OverviewBenchmarkSummaryFactoryTest extends TestCase
         $router = $this->createStub(UrlGeneratorInterface::class);
         $router->method('generate')->willReturnCallback(
             static fn (string $routeName, array $parameters = []): string => sprintf(
-                'https://example.test/indication/%s',
-                $parameters['indicationId'] ?? '0',
+                'https://example.test/insights/%s/%s',
+                $parameters['dimension'] ?? 'unknown',
+                $parameters['id'] ?? '0',
             ),
         );
 
