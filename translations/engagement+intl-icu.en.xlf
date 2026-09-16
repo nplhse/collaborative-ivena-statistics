@@ -35,7 +35,7 @@
       </trans-unit>
       <trans-unit id="mrCdaBodyEn" resname="monthly_reminder.closed_department.body">
         <source>monthly_reminder.closed_department.body</source>
-        <target>{count} assignments despite unavailability ({share}% of all assignments).</target>
+        <target>{count} assignments</target>
       </trans-unit>
       <trans-unit id="mrCdaMomEn" resname="monthly_reminder.closed_department.mom">
         <source>monthly_reminder.closed_department.mom</source>
@@ -43,7 +43,7 @@
       </trans-unit>
       <trans-unit id="mrCdaEmptyEn" resname="monthly_reminder.closed_department.empty">
         <source>monthly_reminder.closed_department.empty</source>
-        <target>There were no forced assignments this month. The monthly report still summarises this metric.</target>
+        <target>None this month.</target>
       </trans-unit>
       <trans-unit id="mrCdaLinkEn" resname="monthly_reminder.closed_department.link">
         <source>monthly_reminder.closed_department.link</source>

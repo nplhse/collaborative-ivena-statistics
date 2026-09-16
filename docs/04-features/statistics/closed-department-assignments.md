@@ -57,7 +57,7 @@ The first paint loads KPIs (`ClosedDepartmentMetricsQuery::fetchKpis`: counts, d
 
 The Monthly Report (`/statistics/reports/monthly`) includes a compact summary of the same metrics: closed count, share of all assignments, month-over-month change, affected departments, and urgency of closed assignments. It reuses `ClosedDepartmentMetricsQuery` and `DepartmentWasClosedSql` rather than a second definition. A link forwards the report's Hospital Scope and month to this detailed analysis. Months with allocations but no closed cases still show the section with zeros.
 
-The monthly submission reminder email repeats the headline count/share and links to the Monthly Report for the same reporting month.
+Personalized monthly submission reminder emails include a compact count/share/MoM card in the clinical profile (not among the headline KPIs) and link to the Monthly Report for the same reporting month.
 
 ## Isochrones
 

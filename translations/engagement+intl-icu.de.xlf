@@ -31,7 +31,7 @@
       </trans-unit>
       <trans-unit id="mrCdaBodyDe" resname="monthly_reminder.closed_department.body">
         <source>monthly_reminder.closed_department.body</source>
-        <target>{count} Zuweisungen trotz Abmeldung ({share} % aller Zuweisungen).</target>
+        <target>{count} Zuweisungen</target>
       </trans-unit>
       <trans-unit id="mrCdaMomDe" resname="monthly_reminder.closed_department.mom">
         <source>monthly_reminder.closed_department.mom</source>
@@ -39,7 +39,7 @@
       </trans-unit>
       <trans-unit id="mrCdaEmptyDe" resname="monthly_reminder.closed_department.empty">
         <source>monthly_reminder.closed_department.empty</source>
-        <target>In diesem Monat gab es keine Notzuweisungen. Der Monatsbericht fasst diese Kennzahl trotzdem zusammen.</target>
+        <target>Keine in diesem Monat.</target>
       </trans-unit>
       <trans-unit id="mrCdaLinkDe" resname="monthly_reminder.closed_department.link">
         <source>monthly_reminder.closed_department.link</source>
