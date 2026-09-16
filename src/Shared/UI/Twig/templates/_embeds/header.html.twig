@@ -82,6 +82,7 @@
                                 <li class="nav-item d-md-none">
                                     <a class="nav-link" href="{{ path('app_register') }}">
                                         <span class="nav-link-title">
+                                            <twig:ux:icon name="tabler:user-plus" style="height: 1.5em;" />
                                             {{ 'label.register'|trans({}, 'messages') }}
                                         </span>
                                     </a>
@@ -89,12 +90,14 @@
                                 <li class="nav-item d-md-none">
                                     <a class="nav-link" href="{{ path('app_login') }}">
                                         <span class="nav-link-title">
+                                            <twig:ux:icon name="tabler:login" style="height: 1.5em;" />
                                             {{ 'label.login'|trans({}, 'messages') }}
                                         </span>
                                     </a>
                                 </li>
                             {% endif %}
                         {% endblock %}
+                        <twig:LocaleSwitcher variant="menu" class="d-md-none" />
                     </ul>
                 </div>
             </div>

@@ -1,33 +1,58 @@
-<div class="nav-item dropdown me-1 me-md-3">
-    <button
-        type="button"
-        class="btn btn-sm dropdown-toggle d-inline-flex align-items-center px-2 py-1"
-        data-bs-toggle="dropdown"
-        data-bs-display="static"
-        aria-expanded="false"
-        aria-label="{{ 'locale.switch'|trans({}, 'shared') }}"
-    >
-        <twig:ux:icon name="tabler:world" class="icon icon-sm" />
-        <span class="d-none d-md-inline">
-            {% if app.request.locale == 'de' %}
-                {{ 'locale.german_short'|trans({}, 'shared') }}
+{% set locale_options %}
+    {% for locale in supportedLocales %}
+        <a
+            class="dropdown-item{% if app.request.locale == locale %} active{% endif %}"
+            href="{{ path('app_locale_switch', {locale: locale, _target_path: this.targetPathFor(locale)}) }}"
+        >
+            {% if locale == 'de' %}
+                🇩🇪 {{ 'locale.german'|trans({}, 'shared') }}
             {% else %}
-                {{ 'locale.english_short'|trans({}, 'shared') }}
+                🇬🇧 {{ 'locale.english'|trans({}, 'shared') }}
             {% endif %}
-        </span>
-    </button>
-    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-        {% for locale in supportedLocales %}
-            <a
-                class="dropdown-item{% if app.request.locale == locale %} active{% endif %}"
-                href="{{ path('app_locale_switch', {locale: locale, _target_path: this.targetPathFor(locale)}) }}"
-            >
-                {% if locale == 'de' %}
-                    🇩🇪 {{ 'locale.german'|trans({}, 'shared') }}
+        </a>
+    {% endfor %}
+{% endset %}
+
+{% if variant == 'menu' %}
+    <li {{ attributes.defaults({class: 'nav-item dropdown', 'data-testid': 'locale-switcher-menu'}) }}>
+        <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            data-bs-toggle="dropdown"
+            data-bs-auto-close="outside"
+            aria-expanded="false"
+            aria-label="{{ 'locale.switch'|trans({}, 'shared') }}"
+        >
+            <span class="nav-link-title">
+                <twig:ux:icon name="tabler:world" style="height: 1.5em;" />
+                {{ 'locale.switch'|trans({}, 'shared') }}
+            </span>
+        </a>
+        <div class="dropdown-menu">
+            {{ locale_options }}
+        </div>
+    </li>
+{% else %}
+    <div {{ attributes.defaults({class: 'nav-item dropdown me-1 me-md-3', 'data-testid': 'locale-switcher-toolbar'}) }}>
+        <button
+            type="button"
+            class="btn btn-sm dropdown-toggle d-inline-flex align-items-center px-2 py-1"
+            data-bs-toggle="dropdown"
+            data-bs-display="static"
+            aria-expanded="false"
+            aria-label="{{ 'locale.switch'|trans({}, 'shared') }}"
+        >
+            <twig:ux:icon name="tabler:world" class="icon icon-sm" />
+            <span class="d-none d-md-inline">
+                {% if app.request.locale == 'de' %}
+                    {{ 'locale.german_short'|trans({}, 'shared') }}
                 {% else %}
-                    🇬🇧 {{ 'locale.english'|trans({}, 'shared') }}
+                    {{ 'locale.english_short'|trans({}, 'shared') }}
                 {% endif %}
-            </a>
-        {% endfor %}
+            </span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+            {{ locale_options }}
+        </div>
     </div>
-</div>
+{% endif %}

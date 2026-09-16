@@ -1136,12 +1136,22 @@ body.geo-map-expand-open {
     max-width: 12rem;
 }
 
+header.navbar {
+    overflow: visible;
+}
+
 header.navbar .navbar-brand {
     min-width: 0;
 }
 
 header.navbar .navbar-nav.flex-row {
     flex-shrink: 0;
+}
+
+header.navbar .navbar-nav.flex-row .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
 }
 
 .insights-directory-card .card-header-tabs {
@@ -1163,8 +1173,22 @@ header.navbar .navbar-nav.flex-row {
 }
 
 @media (max-width: 767.98px) {
+    header.navbar > .container-xl {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    header.navbar .navbar-toggler {
+        flex-shrink: 0;
+    }
+
     header.navbar .navbar-brand {
-        flex: 1 1 auto;
-        max-width: calc(100% - 9rem);
+        flex: 1 1 0%;
+        min-width: 0;
+    }
+
+    header.navbar .navbar-collapse {
+        flex-basis: 100%;
+        width: 100%;
     }
 }

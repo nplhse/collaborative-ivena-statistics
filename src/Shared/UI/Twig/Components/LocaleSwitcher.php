@@ -14,6 +14,8 @@ final class LocaleSwitcher
     /** @var list<string> */
     public array $supportedLocales = SupportedLocales::ALL;
 
+    public string $variant = 'toolbar';
+
     public function __construct(
         private readonly RequestStack $requestStack,
     ) {
