@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Engagement\Integration\Application;
 
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
@@ -65,18 +66,28 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
             'status' => ImportStatus::COMPLETED,
         ]);
 
-        for ($i = 0; $i < 20; ++$i) {
-            AllocationFactory::createOne([
-                'import' => $import,
-                'hospital' => $hospital,
-                'state' => $seed['state'],
-                'dispatchArea' => $seed['dispatchArea'],
-                'indicationRaw' => $seed['raw'],
-                'indicationNormalized' => $seed['normalized'],
-                'departmentWasClosed' => false,
-                'createdAt' => new \DateTimeImmutable('2026-05-15'),
-            ]);
-        }
+        AllocationFactory::createMany(20, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $seed['state'],
+            'dispatchArea' => $seed['dispatchArea'],
+            'indicationRaw' => $seed['raw'],
+            'indicationNormalized' => $seed['normalized'],
+            'departmentWasClosed' => false,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'createdAt' => new \DateTimeImmutable('2026-05-15'),
+        ]);
+        AllocationFactory::createMany(20, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $seed['state'],
+            'dispatchArea' => $seed['dispatchArea'],
+            'indicationRaw' => $seed['raw'],
+            'indicationNormalized' => $seed['normalized'],
+            'departmentWasClosed' => false,
+            'urgency' => AllocationUrgency::INPATIENT,
+            'createdAt' => new \DateTimeImmutable('2026-04-15'),
+        ]);
 
         $rebuilder = self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->rebuildForImport((int) $import->getId());
@@ -108,6 +119,9 @@ final class MonthlyReminderContentBuilderTest extends DatabaseKernelTestCase
         self::assertStringContainsString('month=5', $content->monthlyReportUrl);
         self::assertSame(0, $content->closedDepartmentCount);
         self::assertSame(0.0, $content->closedDepartmentSharePercent);
+        self::assertNotNull($content->urgencyBenchmarkNote);
+        self::assertStringNotContainsString('label.urgency.', $content->urgencyBenchmarkNote);
+        self::assertStringContainsString('Emergency Care', $content->urgencyBenchmarkNote);
     }
 
     public function testBuildIncludesClosedDepartmentMetricsForReportingMonth(): void

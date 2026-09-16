@@ -374,7 +374,7 @@ final readonly class MonthlyReminderContentBuilder
             }
 
             return $this->trans('monthly_reminder.urgency.benchmark', [
-                'urgency' => $this->trans(AllocationUrgency::EMERGENCY->label(), [], $locale),
+                'urgency' => $this->translator->trans(AllocationUrgency::EMERGENCY->label(), [], 'messages', $locale),
                 'percent' => number_format($bucket->primaryShare, 1, '.', ''),
                 'delta' => $this->formatSignedPercent($bucket->primaryShare - $bucket->comparisonShare),
                 'baseline' => $baselinePeriodLabel,
