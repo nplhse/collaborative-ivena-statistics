@@ -32,15 +32,6 @@
                     <h2 class="page-title mb-0" data-testid="stats-case-flow-heading-title">
                         {{ 'stats.case_flow.title'|trans({}, 'statistics') }}
                     </h2>
-                    <p class="text-secondary mt-1 mb-0" data-testid="stats-case-flow-mode-label">
-                        {% if dashboard.dispatchAreaFlow %}
-                            {{ 'stats.case_flow.mode.dispatch_area'|trans({}, 'statistics') }}
-                        {% elseif dashboard.mode.value == 'system_flow' %}
-                            {{ 'stats.case_flow.mode.system_flow'|trans({}, 'statistics') }}
-                        {% else %}
-                            {{ 'stats.case_flow.mode.hospital_origin'|trans({}, 'statistics') }}
-                        {% endif %}
-                    </p>
                 </div>
                 {{ include('@Statistics/_header_controls.html.twig') }}
             </div>

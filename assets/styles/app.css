@@ -652,6 +652,35 @@
     min-width: 10rem;
 }
 
+.stats-case-flow-segment-dimension-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.stats-case-flow-segment-col-label {
+    width: 34%;
+}
+
+.stats-case-flow-segment-col-metric {
+    min-width: 4.25rem;
+}
+
+.stats-case-flow-segment-dimension-table .stats-top-lists-share-col {
+    width: auto;
+    min-width: 0;
+}
+
+.stats-case-flow-segment-dimension-table th,
+.stats-case-flow-segment-dimension-table td {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.stats-case-flow-segment-dimension-table td.text-nowrap {
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
 .hospital-population-map-frame {
     position: relative;
     width: 100%;
@@ -717,6 +746,24 @@ body.geo-map-expand-open {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem 1rem;
+}
+
+.geo-map-compact-layer-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.6rem;
+    row-gap: 0.1rem;
+}
+
+.geo-map-layer-toggle--compact {
+    min-height: 0;
+    padding: 0;
+    margin-right: 0;
+}
+
+.geo-map-layer-toggle--compact .form-check-input {
+    margin-top: 0.12em;
 }
 
 .geo-map-legend [data-geo-map-target].d-none {

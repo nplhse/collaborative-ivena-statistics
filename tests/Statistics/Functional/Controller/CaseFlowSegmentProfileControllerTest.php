@@ -88,13 +88,23 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('turbo-frame#stats-case-flow-segment-profile-frame');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-tab-overview"].active');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-tab-urgency"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-tab-gender"]');
         $this->assertSelectorTextSame('[data-testid="stats-case-flow-segment-count"]', '12');
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-gender"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-dimension-table"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-dimension-table"] colgroup');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-reference-col"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-delta-col"]');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Emergency Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Inpatient Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Outpatient Care');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4');
+        $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'pp');
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'U1');
-        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-gender"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-kpis"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-median"]');
 
@@ -107,11 +117,11 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         parse_str((string) parse_url($frameSrc, PHP_URL_QUERY), $frameQuery);
         self::assertSame('travel:10_20', $frameQuery['geo_segment'] ?? null);
         self::assertSame('urgency', $frameQuery['geo_profile'] ?? null);
-        $urgencyTabHref = (string) $page->filter('[data-testid="stats-case-flow-segment-tab-urgency"]')->attr('href');
-        self::assertStringContainsString('geo_profile=urgency', $urgencyTabHref);
+        $overviewTabHref = (string) $page->filter('[data-testid="stats-case-flow-segment-tab-overview"]')->attr('href');
+        self::assertStringContainsString('geo_profile=overview', $overviewTabHref);
         self::assertSame(
             'stats-case-flow-segment-profile-frame',
-            $page->filter('[data-testid="stats-case-flow-segment-tab-urgency"]')->attr('data-turbo-frame'),
+            $page->filter('[data-testid="stats-case-flow-segment-tab-overview"]')->attr('data-turbo-frame'),
         );
         $payloadJson = (string) $page->filter('[data-controller="case-flow-charts"]')->attr('data-case-flow-charts-payload-value');
         $payload = json_decode(html_entity_decode($payloadJson, ENT_QUOTES), true, 512, JSON_THROW_ON_ERROR);
@@ -187,7 +197,9 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextSame('[data-testid="stats-case-flow-segment-count"]', '12');
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-overview"]');
-        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-urgency"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-gender"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-age"]');
 
         $page = $client->request(Request::METHOD_GET, '/statistics/case-flow', $query);
         $this->assertResponseIsSuccessful();
@@ -253,7 +265,15 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-median"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-share"]');
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-gender"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-dimension-table"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-dimension-table"] colgroup');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-reference-col"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-delta-col"]');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-empty"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-tab-overview"].active');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-tab-urgency"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-tab-gender"]');
 
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
@@ -262,8 +282,21 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
             'geo_profile' => 'demographics',
         ]);
         $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"]');
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-gender"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-age"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-tab-overview"].active');
+
+        $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+            'geo_profile' => 'age',
+        ]);
+        $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-age"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-gender"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-tab-age"].active');
 
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
@@ -273,6 +306,22 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-resources"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-tab-resources"]');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-features"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+            'geo_profile' => 'features',
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-features"]');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-tab-features"].active');
+        $this->assertSelectorNotExists('[data-testid="stats-case-flow-segment-group-resources"]');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-features"]', 'Pregnant');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-features"]', 'Work accident');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-features"]', 'infectious');
 
         $client->request(Request::METHOD_GET, '/statistics/case-flow/segment-profile', [
             'scope' => 'hospital',
@@ -331,7 +380,7 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
             'hospital' => (string) $hospital->getId(),
             'period' => 'all',
             'geo_segment' => 'origin:'.$area->getId(),
-            'geo_profile' => 'demographics',
+            'geo_profile' => 'gender',
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-case-flow-segment-suppressed"]');

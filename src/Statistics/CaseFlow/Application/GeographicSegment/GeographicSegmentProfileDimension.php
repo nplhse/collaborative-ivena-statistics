@@ -7,12 +7,16 @@ namespace App\Statistics\CaseFlow\Application\GeographicSegment;
 enum GeographicSegmentProfileDimension: string
 {
     case Overview = 'overview';
-    case Urgency = 'urgency';
-    case Demographics = 'demographics';
+    case Age = 'age';
     case Resources = 'resources';
+    case Features = 'features';
 
     public static function fromQueryValue(?string $raw): self
     {
+        if (\in_array($raw, ['demographics', 'urgency', 'gender'], true)) {
+            return self::Overview;
+        }
+
         return self::tryFrom((string) $raw) ?? self::Overview;
     }
 

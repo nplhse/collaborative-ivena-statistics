@@ -42,4 +42,9 @@ final readonly class GeographicSegmentProfileView
             [],
         );
     }
+
+    public function showsReferenceComparison(): bool
+    {
+        return $this->segment instanceof GeographicSegment && !$this->suppressed;
+    }
 }

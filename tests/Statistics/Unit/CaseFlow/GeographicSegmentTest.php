@@ -92,8 +92,11 @@ final class GeographicSegmentTest extends TestCase
     public function testProfileDimensionTitleKeys(): void
     {
         self::assertSame('stats.case_flow.segment.tab.overview', GeographicSegmentProfileDimension::Overview->titleTranslationKey());
+        self::assertSame('stats.case_flow.segment.tab.age', GeographicSegmentProfileDimension::Age->titleTranslationKey());
         self::assertSame('stats.case_flow.segment.tab.resources', GeographicSegmentProfileDimension::Resources->titleTranslationKey());
-        self::assertSame(GeographicSegmentProfileDimension::Demographics, GeographicSegmentProfileDimension::fromQueryValue('demographics'));
+        self::assertSame('stats.case_flow.segment.tab.features', GeographicSegmentProfileDimension::Features->titleTranslationKey());
+        self::assertSame(GeographicSegmentProfileDimension::Overview, GeographicSegmentProfileDimension::fromQueryValue('demographics'));
+        self::assertSame(GeographicSegmentProfileDimension::Age, GeographicSegmentProfileDimension::fromQueryValue('age'));
     }
 
     public function testOriginSqlUsesDedicatedParameter(): void
@@ -135,7 +138,8 @@ final class GeographicSegmentTest extends TestCase
 
     public function testProfileDimensionFallsBackToOverview(): void
     {
-        self::assertSame(GeographicSegmentProfileDimension::Urgency, GeographicSegmentProfileDimension::fromQueryValue('urgency'));
+        self::assertSame(GeographicSegmentProfileDimension::Overview, GeographicSegmentProfileDimension::fromQueryValue('urgency'));
+        self::assertSame(GeographicSegmentProfileDimension::Overview, GeographicSegmentProfileDimension::fromQueryValue('gender'));
         self::assertSame(GeographicSegmentProfileDimension::Overview, GeographicSegmentProfileDimension::fromQueryValue('unknown'));
         self::assertSame(GeographicSegmentProfileDimension::Overview, GeographicSegmentProfileDimension::fromQueryValue(null));
     }

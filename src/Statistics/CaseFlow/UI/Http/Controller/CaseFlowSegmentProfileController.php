@@ -47,6 +47,7 @@ final class CaseFlowSegmentProfileController extends AbstractController
         return $this->render('@Statistics/case_flow/_segment_profile_frame.html.twig', [
             'profile' => $profile,
             'segmentProfileDimension' => $dimension,
+            'segmentProfileDimensions' => GeographicSegmentProfileDimension::cases(),
         ]);
     }
 }

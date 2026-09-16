@@ -1,0 +1,62 @@
+{# @var rows \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentDistributionRow[] #}
+{# @var titleTranslationKey string #}
+{# @var showComparison bool #}
+{% if rows is empty %}
+    <p class="text-muted small mb-0">{{ 'stats.case_flow.segment.distribution_empty'|trans({}, 'statistics') }}</p>
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-sm table-vcenter card-table table-striped mb-0 stats-case-flow-segment-dimension-table"
+               data-testid="stats-case-flow-segment-dimension-table">
+            <colgroup>
+                <col class="stats-case-flow-segment-col-label">
+                <col span="{{ showComparison ? 5 : 3 }}" class="stats-case-flow-segment-col-metric">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>{{ titleTranslationKey|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.case_flow.segment.table.count'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.case_flow.segment.table.share'|trans({}, 'statistics') }}</th>
+                    <th class="stats-top-lists-share-col" aria-hidden="true"></th>
+                    {% if showComparison %}
+                        <th class="text-end" data-testid="stats-case-flow-segment-reference-col">{{ 'stats.case_flow.segment.table.reference'|trans({}, 'statistics') }}</th>
+                        <th class="text-end" data-testid="stats-case-flow-segment-delta-col">{{ 'stats.case_flow.segment.table.delta'|trans({}, 'statistics') }}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{{ row.labelTranslationKey|trans({}, statistics_label_domain(row.labelTranslationKey)) }}</td>
+                        <td class="text-end text-nowrap">{{ row.count|number_format(0, ',', '.') }}</td>
+                        <td class="text-end text-nowrap">{{ row.segmentPercent|number_format(1, ',', '.') }}&nbsp;%</td>
+                        <td class="stats-top-lists-share-col">
+                            {{ include('@Statistics/top_lists/_share_bar.html.twig', {
+                                share: row.segmentPercent,
+                                barClass: row.barClass,
+                                testId: 'stats-case-flow-segment-share-bar',
+                            }) }}
+                        </td>
+                        {% if showComparison %}
+                            <td class="text-end text-nowrap">
+                                {% if row.referencePercent is null %}
+                                    —
+                                {% else %}
+                                    {{ row.referencePercent|number_format(1, ',', '.') }}&nbsp;%
+                                {% endif %}
+                            </td>
+                            <td class="text-end text-nowrap">
+                                {% if row.deltaPp is null %}
+                                    —
+                                {% else %}
+                                    {% set deltaClass = row.deltaPp > 0 ? 'text-green' : (row.deltaPp < 0 ? 'text-red' : 'text-secondary') %}
+                                    {% set deltaSign = row.deltaPp > 0 ? '+' : '' %}
+                                    <span class="{{ deltaClass }}">{{ deltaSign }}{{ row.deltaPp|number_format(1, ',', '.') }}&nbsp;%</span>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

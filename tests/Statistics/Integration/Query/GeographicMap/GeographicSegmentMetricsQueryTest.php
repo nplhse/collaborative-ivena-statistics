@@ -20,6 +20,7 @@ use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterfac
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegment;
+use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentCategoryCount;
 use App\Statistics\CaseFlow\Infrastructure\Query\CaseFlowDispatchAreaMatch;
 use App\Statistics\CaseFlow\Infrastructure\Query\GeographicSegmentDistributionQuery;
 use App\Statistics\CaseFlow\Infrastructure\Query\GeographicSegmentMetricsQuery;
@@ -131,6 +132,17 @@ final class GeographicSegmentMetricsQueryTest extends KernelTestCase
         $entireArea = $query->fetch(null, null, $scope, null);
         self::assertSame(20, $entireArea->populationCases);
         self::assertSame(20, $entireArea->segmentCases);
+
+        $distribution = self::getContainer()->get(GeographicSegmentDistributionQuery::class);
+        $travelUrgency = $distribution->fetchUrgencyCounts(null, null, $scope, $travel);
+        self::assertSame(12, $travelUrgency[3]->segmentCount);
+        self::assertSame(20, $travelUrgency[3]->referenceCount);
+        self::assertSame(0, $travelUrgency[1]->segmentCount);
+        self::assertSame(0, $travelUrgency[1]->referenceCount);
+
+        $entireUrgency = $distribution->fetchUrgencyCounts(null, null, $scope, null);
+        self::assertSame(20, $entireUrgency[3]->segmentCount);
+        self::assertSame(20, $entireUrgency[3]->referenceCount);
     }
 
     public function testDispatchAreaCatchmentOriginDoesNotIncludeOutflow(): void
@@ -208,12 +220,28 @@ final class GeographicSegmentMetricsQueryTest extends KernelTestCase
         self::assertNull($metrics->medianTransportMinutes);
 
         $distribution = self::getContainer()->get(GeographicSegmentDistributionQuery::class);
-        self::assertSame([1 => 0, 2 => 0, 3 => 0], $distribution->fetchUrgencyCounts(null, null, $scope, null));
-        self::assertSame([1 => 0, 2 => 0, 3 => 0], $distribution->fetchGenderCounts(null, null, $scope, null));
+        $empty = GeographicSegmentCategoryCount::empty();
+        self::assertEquals([1 => $empty, 2 => $empty, 3 => $empty], $distribution->fetchUrgencyCounts(null, null, $scope, null));
+        self::assertEquals([1 => $empty, 2 => $empty, 3 => $empty], $distribution->fetchGenderCounts(null, null, $scope, null));
         self::assertSame([], $distribution->fetchAgeCounts(null, null, $scope, null));
-        self::assertSame(
-            ['resus' => 0, 'cathlab' => 0, 'with_physician' => 0, 'cpr' => 0, 'ventilation' => 0, 'shock' => 0],
+        self::assertEquals(
+            [
+                'resus' => $empty,
+                'cathlab' => $empty,
+            ],
             $distribution->fetchResourceCounts(null, null, $scope, null),
+        );
+        self::assertEquals(
+            [
+                'with_physician' => $empty,
+                'cpr' => $empty,
+                'ventilation' => $empty,
+                'shock' => $empty,
+                'pregnancy' => $empty,
+                'work_accident' => $empty,
+                'infection' => $empty,
+            ],
+            $distribution->fetchClinicalFeatureCounts(null, null, $scope, null),
         );
     }
 }

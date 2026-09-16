@@ -19,6 +19,7 @@ final class GeographicSegmentProfileViewTest extends TestCase
         self::assertFalse($view->suppressed);
         self::assertSame([], $view->groups);
         self::assertNull($view->segment);
+        self::assertFalse($view->showsReferenceComparison());
     }
 
     public function testSuppressedViewHidesShareAndDimensionRows(): void
@@ -34,7 +35,7 @@ final class GeographicSegmentProfileViewTest extends TestCase
             null,
             null,
             false,
-            GeographicSegmentProfileDimension::Urgency,
+            GeographicSegmentProfileDimension::Overview,
             [],
         );
 
@@ -42,5 +43,26 @@ final class GeographicSegmentProfileViewTest extends TestCase
         self::assertNull($view->sharePercent);
         self::assertSame([], $view->groups);
         self::assertSame('Kassel', $view->label);
+        self::assertFalse($view->showsReferenceComparison());
+    }
+
+    public function testSelectedSegmentShowsReferenceComparison(): void
+    {
+        $view = new GeographicSegmentProfileView(
+            GeographicSegment::travelTimeBand('10_20'),
+            'statistics.distribution.transport_time_bucket.10_20',
+            true,
+            true,
+            false,
+            12,
+            20,
+            60.0,
+            null,
+            false,
+            GeographicSegmentProfileDimension::Overview,
+            [],
+        );
+
+        self::assertTrue($view->showsReferenceComparison());
     }
 }

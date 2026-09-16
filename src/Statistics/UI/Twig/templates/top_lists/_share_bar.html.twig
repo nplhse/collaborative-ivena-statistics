@@ -6,6 +6,6 @@
 {% endif %}
 <div class="progress progress-sm stats-top-lists-share-bar"
      aria-hidden="true"
-     data-testid="stats-top-lists-share-bar">
-    <div class="progress-bar" style="width: {{ shareWidth }}%"></div>
+     data-testid="{{ testId|default('stats-top-lists-share-bar') }}">
+    <div class="progress-bar{% if barClass|default('') %} {{ barClass }}{% endif %}" style="width: {{ shareWidth }}%"></div>
 </div>
