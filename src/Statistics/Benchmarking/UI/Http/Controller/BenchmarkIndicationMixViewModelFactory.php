@@ -49,8 +49,11 @@ final readonly class BenchmarkIndicationMixViewModelFactory
 
         return $this->navigationUrlBuilder->build(
             $request,
-            'app_stats_indication_dashboard',
-            ['indicationId' => (int) $bucket->key],
+            'app_stats_insights_show',
+            [
+                'dimension' => 'indications',
+                'id' => (int) $bucket->key,
+            ],
         );
     }
 }

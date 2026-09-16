@@ -60,8 +60,8 @@
                 >
                     <div class="department-line">
                         <div class="d-flex align-items-center">
-                            <span class="fw-bold me-1">{{ explore_entity_link(allocation.department) }}</span>
-                            <span class="text-muted">({{ explore_entity_link(allocation.speciality) }})</span>
+                            <span class="fw-bold me-1">{{ explore_entity_link(allocation.department) }}{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.department, testId: 'allocation-insight-department'}) }}</span>
+                            <span class="text-muted">({{ explore_entity_link(allocation.speciality) }}{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.speciality, testId: 'allocation-insight-speciality'}) }})</span>
 
                             {% if allocation.departmentWasClosed %}
                                 {{ include('@Allocation/allocations/_department_was_closed_indicator.html.twig') }}
@@ -81,7 +81,7 @@
                         <p>
                             {{ 'label.indication.normalized'|trans({}, 'messages') }}:
                             {% if allocation.indicationNormalized is not null %}
-                                <strong>{{ explore_entity_link(allocation.indicationNormalized) }}</strong> <span class="badge">{{ allocation.indicationNormalized.code }}</span>
+                                <strong>{{ explore_entity_link(allocation.indicationNormalized) }}</strong>{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.indicationNormalized, testId: 'allocation-insight-indication'}) }} <span class="badge">{{ allocation.indicationNormalized.code }}</span>
                             {% else %}
                                 <strong>{{ 'label.no_indication'|trans({}, 'messages') }}</strong>
                             {% endif %}
@@ -111,12 +111,12 @@
                 >
                     <div class="allocation-assignment row">
                         <div class="col-6">
-                            {{ 'label.assignment'|trans({}, 'messages') }}: <strong>{{ explore_entity_link(allocation.assignment) }}</strong>
+                            {{ 'label.assignment'|trans({}, 'messages') }}: <strong>{{ explore_entity_link(allocation.assignment) }}</strong>{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.assignment, testId: 'allocation-insight-assignment'}) }}
                         </div>
                         <div class="col-6">
                             {{ 'label.occasion'|trans({}, 'messages') }}:
                             {% if allocation.occasion is not null %}
-                                <strong>{{ explore_entity_link(allocation.occasion) }}</strong>
+                                <strong>{{ explore_entity_link(allocation.occasion) }}</strong>{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.occasion, testId: 'allocation-insight-occasion'}) }}
                             {% else %}
                                 <strong>{{ 'label.no_occasion'|trans({}, 'messages') }}</strong>
                             {% endif %}
@@ -124,7 +124,7 @@
                         <div class="col-6 mt-2">
                             {{ 'label.secondary_transport'|trans({}, 'messages') }}:
                             {% if allocation.secondaryTransport is not null %}
-                                <strong>{{ explore_entity_link(allocation.secondaryTransport) }}</strong>
+                                <strong>{{ explore_entity_link(allocation.secondaryTransport) }}</strong>{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.secondaryTransport, testId: 'allocation-insight-secondary-transport'}) }}
                             {% else %}
                                 <strong>{{ 'label.no_secondary_transport'|trans({}, 'messages') }}</strong>
                             {% endif %}
@@ -248,7 +248,7 @@
                             <twig:ux:icon name="tabler:biohazard" class="w-3 h-3" />
                             {{ 'field.infection'|trans({}, 'messages') }}
                             {% if allocation.infection is not null %}
-                                {{ explore_entity_link(allocation.infection, {class: 'badge bg-orange text-orange-fg'}) }}
+                                {{ explore_entity_link(allocation.infection, {class: 'badge bg-orange text-orange-fg'}) }}{{ include('@Statistics/insights/_entity_icon_link.html.twig', {entity: allocation.infection, testId: 'allocation-insight-infection'}) }}
                             {% else %}
                                 <strong>{{ 'label.no_infection'|trans({}, 'messages') }}</strong>
                             {% endif %}

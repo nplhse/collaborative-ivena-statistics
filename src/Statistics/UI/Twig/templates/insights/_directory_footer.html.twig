@@ -1,0 +1,18 @@
+{% import '@Shared/_macros/pagination.html.twig' as pagination %}
+
+<div class="card-footer d-flex align-items-center gap-2 flex-wrap">
+    <form method="get" data-controller="autosubmit" class="d-flex align-items-center gap-2 me-2" data-testid="stats-insights-directory-sort">
+        {{ include('@Statistics/insights/_directory_query_hidden.html.twig', {exclude: ['sort', 'page']}) }}
+        <label class="visually-hidden" for="stats-insights-directory-sort">{{ 'stats.insights.directory.sort'|trans({}, 'statistics') }}</label>
+        <select id="stats-insights-directory-sort"
+                name="sort"
+                class="form-select w-auto"
+                data-action="change->autosubmit#submit">
+            <option value="frequency" {{ sort == 'frequency' ? 'selected' }}>{{ 'stats.insights.directory.sort.frequency'|trans({}, 'statistics') }}</option>
+            <option value="alpha" {{ sort == 'alpha' ? 'selected' }}>{{ 'stats.insights.directory.sort.alpha'|trans({}, 'statistics') }}</option>
+        </select>
+    </form>
+
+    {{ pagination.results(directory.numResults, directory.pageSize) }}
+    {{ pagination.navbar(directory, app.request.attributes.get('_route')) }}
+</div>

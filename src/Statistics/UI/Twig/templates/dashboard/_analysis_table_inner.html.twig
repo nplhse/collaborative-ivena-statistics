@@ -34,6 +34,10 @@
                     {% if p.labelRowTargets is defined %}
                         {% set labelRowTarget = p.labelRowTargets[loop.index0]|default(null) %}
                     {% endif %}
+                    {% set insightRowTarget = null %}
+                    {% if p.insightRowTargets is defined %}
+                        {% set insightRowTarget = p.insightRowTargets[loop.index0]|default(null) %}
+                    {% endif %}
                     {% set shareBar = null %}
                     {% if p.shareBars is defined and p.shareBars[loop.index0] is defined %}
                         {% set shareBar = p.shareBars[loop.index0] %}
@@ -45,6 +49,14 @@
                                     <a href="{{ statistics_nav_url(monthRowTarget) }}" class="text-reset">{{ cell }}</a>
                                 {% elseif loop.index == 2 and labelRowTarget is not null %}
                                     <a href="{{ statistics_nav_url(labelRowTarget) }}">{{ cell }}</a>
+                                    {% if insightRowTarget is not null %}
+                                        <a href="{{ statistics_nav_url(insightRowTarget) }}"
+                                           class="ms-1 text-secondary"
+                                           title="{{ 'stats.insights.open'|trans({}, 'statistics') }}"
+                                           aria-label="{{ 'stats.insights.open'|trans({}, 'statistics') }}">
+                                            <twig:ux:icon name="tabler:chart-bar" class="icon icon-sm" />
+                                        </a>
+                                    {% endif %}
                                 {% else %}
                                     {{ cell }}
                                 {% endif %}

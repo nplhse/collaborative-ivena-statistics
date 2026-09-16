@@ -17,9 +17,11 @@ final readonly class IndicationInsightEngine
     private const int MAX_VISIBLE = 6;
 
     /**
+     * @param list<string> $disabledInsightIds
+     *
      * @return list<IndicationInsight>
      */
-    public function build(IndicationDashboardMetricsRow $metrics): array
+    public function build(IndicationDashboardMetricsRow $metrics, array $disabledInsightIds = []): array
     {
         if ($metrics->totalIndication < self::MIN_INDICATION_CASES || $metrics->totalBaseline < self::MIN_BASELINE_CASES) {
             return [];
@@ -42,6 +44,18 @@ final readonly class IndicationInsightEngine
         $this->addGenderDominanceInsight($candidates, $metrics);
         $this->addMedianAgeInsights($candidates, $metrics);
         $this->addTransportTimeInsights($candidates, $metrics);
+
+        if ([] !== $disabledInsightIds) {
+            $disabled = array_fill_keys($disabledInsightIds, true);
+            $candidates = array_values(array_filter(
+                $candidates,
+                static function (IndicationInsight $insight) use ($disabled): bool {
+                    $baseId = preg_replace('/_neutral$/', '', $insight->id) ?? $insight->id;
+
+                    return !isset($disabled[$insight->id]) && !isset($disabled[$baseId]);
+                },
+            ));
+        }
 
         usort($candidates, static fn (IndicationInsight $a, IndicationInsight $b): int => $b->sortScore <=> $a->sortScore);
 

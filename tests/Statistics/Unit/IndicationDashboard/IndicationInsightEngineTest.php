@@ -51,6 +51,21 @@ final class IndicationInsightEngineTest extends TestCase
         self::assertContains('physician_neutral', $ids);
     }
 
+    public function testOmitsDisabledInsightIdsIncludingNeutralVariants(): void
+    {
+        $metrics = $this->metricsRow(
+            withPhysicianIndication: 50,
+            withPhysicianBaseline: 250,
+            infectiousIndication: 40,
+            infectiousBaseline: 20,
+        );
+
+        $ids = $this->insightIds($this->engine->build($metrics, ['infectious', 'physician']));
+        self::assertNotContains('infectious', $ids);
+        self::assertNotContains('physician', $ids);
+        self::assertNotContains('physician_neutral', $ids);
+    }
+
     public function testBuildsClinicalOperationalAndDemographicInsights(): void
     {
         $metrics = $this->metricsRow(

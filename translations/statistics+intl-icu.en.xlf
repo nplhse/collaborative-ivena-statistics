@@ -6237,6 +6237,186 @@
         <source>stats.case_flow.segment.table.delta</source>
         <target>Δ</target>
       </trans-unit>
+      <trans-unit id="StatsIns01" resname="stats.insights.open">
+        <source>stats.insights.open</source>
+        <target>Open insight</target>
+      </trans-unit>
+      <trans-unit id="StatsIns02" resname="stats.insights.overview.pretitle">
+        <source>stats.insights.overview.pretitle</source>
+        <target>Dimension analysis</target>
+      </trans-unit>
+      <trans-unit id="StatsIns03" resname="stats.insights.empty.title">
+        <source>stats.insights.empty.title</source>
+        <target>No values in this scope</target>
+      </trans-unit>
+      <trans-unit id="StatsIns04" resname="stats.insights.empty.subtitle">
+        <source>stats.insights.empty.subtitle</source>
+        <target>Try a wider scope or period, or pick another dimension.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns05" resname="stats.insights.empty.teaser">
+        <source>stats.insights.empty.teaser</source>
+        <target>No frequent values in the current scope.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns06" resname="stats.insights.subnav.label">
+        <source>stats.insights.subnav.label</source>
+        <target>Insight dimensions</target>
+      </trans-unit>
+      <trans-unit id="StatsIns07" resname="stats.insights.subnav.overview">
+        <source>stats.insights.subnav.overview</source>
+        <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="StatsIns09" resname="stats.insights.dimension.pretitle">
+        <source>stats.insights.dimension.pretitle</source>
+        <target>Insights</target>
+      </trans-unit>
+      <trans-unit id="StatsIns10" resname="stats.insights.dimension.indications.label">
+        <source>stats.insights.dimension.indications.label</source>
+        <target>Indications</target>
+      </trans-unit>
+      <trans-unit id="StatsIns11" resname="stats.insights.dimension.indications.description">
+        <source>stats.insights.dimension.indications.description</source>
+        <target>Analyse a normalised indication against the remaining caseload in the current scope and period.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns12" resname="stats.insights.dimension.indications.all">
+        <source>stats.insights.dimension.indications.all</source>
+        <target>All indications</target>
+      </trans-unit>
+      <trans-unit id="StatsIns13" resname="stats.insights.dimension.indication_groups.label">
+        <source>stats.insights.dimension.indication_groups.label</source>
+        <target>Indication groups</target>
+      </trans-unit>
+      <trans-unit id="StatsIns14" resname="stats.insights.dimension.indication_groups.description">
+        <source>stats.insights.dimension.indication_groups.description</source>
+        <target>Analyse a curated group of indications as one population.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns15" resname="stats.insights.dimension.indication_groups.all">
+        <source>stats.insights.dimension.indication_groups.all</source>
+        <target>All indication groups</target>
+      </trans-unit>
+      <trans-unit id="StatsIns16" resname="stats.insights.dimension.specialities.label">
+        <source>stats.insights.dimension.specialities.label</source>
+        <target>Specialities</target>
+      </trans-unit>
+      <trans-unit id="StatsIns17" resname="stats.insights.dimension.specialities.description">
+        <source>stats.insights.dimension.specialities.description</source>
+        <target>Analyse allocations by receiving speciality.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns18" resname="stats.insights.dimension.specialities.all">
+        <source>stats.insights.dimension.specialities.all</source>
+        <target>All specialities</target>
+      </trans-unit>
+      <trans-unit id="StatsIns19" resname="stats.insights.dimension.assignments.label">
+        <source>stats.insights.dimension.assignments.label</source>
+        <target>Assignment</target>
+      </trans-unit>
+      <trans-unit id="StatsIns20" resname="stats.insights.dimension.assignments.description">
+        <source>stats.insights.dimension.assignments.description</source>
+        <target>Analyse allocations by assignment type.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns21" resname="stats.insights.dimension.assignments.all">
+        <source>stats.insights.dimension.assignments.all</source>
+        <target>All assignments</target>
+      </trans-unit>
+      <trans-unit id="StatsIns22" resname="stats.insights.dimension.departments.label">
+        <source>stats.insights.dimension.departments.label</source>
+        <target>Departments</target>
+      </trans-unit>
+      <trans-unit id="StatsIns23" resname="stats.insights.dimension.departments.description">
+        <source>stats.insights.dimension.departments.description</source>
+        <target>Analyse allocations by destination department.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns24" resname="stats.insights.dimension.departments.all">
+        <source>stats.insights.dimension.departments.all</source>
+        <target>All departments</target>
+      </trans-unit>
+      <trans-unit id="StatsIns25" resname="stats.insights.dimension.occasions.label">
+        <source>stats.insights.dimension.occasions.label</source>
+        <target>Occasions</target>
+      </trans-unit>
+      <trans-unit id="StatsIns26" resname="stats.insights.dimension.occasions.description">
+        <source>stats.insights.dimension.occasions.description</source>
+        <target>Analyse allocations by occasion.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns27" resname="stats.insights.dimension.occasions.all">
+        <source>stats.insights.dimension.occasions.all</source>
+        <target>All occasions</target>
+      </trans-unit>
+      <trans-unit id="StatsIns28" resname="stats.insights.dimension.infections.label">
+        <source>stats.insights.dimension.infections.label</source>
+        <target>Infections</target>
+      </trans-unit>
+      <trans-unit id="StatsIns29" resname="stats.insights.dimension.infections.description">
+        <source>stats.insights.dimension.infections.description</source>
+        <target>Analyse allocations by infection status.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns30" resname="stats.insights.dimension.infections.all">
+        <source>stats.insights.dimension.infections.all</source>
+        <target>All infections</target>
+      </trans-unit>
+      <trans-unit id="StatsIns31" resname="stats.insights.dimension.secondary_transports.label">
+        <source>stats.insights.dimension.secondary_transports.label</source>
+        <target>Secondary transports</target>
+      </trans-unit>
+      <trans-unit id="StatsIns32" resname="stats.insights.dimension.secondary_transports.description">
+        <source>stats.insights.dimension.secondary_transports.description</source>
+        <target>Analyse allocations by secondary transport type.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns33" resname="stats.insights.dimension.secondary_transports.all">
+        <source>stats.insights.dimension.secondary_transports.all</source>
+        <target>All secondary transports</target>
+      </trans-unit>
+      <trans-unit id="StatsIns34" resname="stats.insights.directory.title">
+        <source>stats.insights.directory.title</source>
+        <target>Values</target>
+      </trans-unit>
+      <trans-unit id="StatsIns35" resname="stats.insights.directory.search">
+        <source>stats.insights.directory.search</source>
+        <target>Search</target>
+      </trans-unit>
+      <trans-unit id="StatsIns36" resname="stats.insights.directory.search_placeholder">
+        <source>stats.insights.directory.search_placeholder</source>
+        <target>Name or code</target>
+      </trans-unit>
+      <trans-unit id="StatsIns37" resname="stats.insights.directory.sort">
+        <source>stats.insights.directory.sort</source>
+        <target>Sort</target>
+      </trans-unit>
+      <trans-unit id="StatsIns38" resname="stats.insights.directory.sort.frequency">
+        <source>stats.insights.directory.sort.frequency</source>
+        <target>Frequency</target>
+      </trans-unit>
+      <trans-unit id="StatsIns39" resname="stats.insights.directory.sort.alpha">
+        <source>stats.insights.directory.sort.alpha</source>
+        <target>Alphabetical</target>
+      </trans-unit>
+      <trans-unit id="StatsIns40" resname="stats.insights.directory.no_results">
+        <source>stats.insights.directory.no_results</source>
+        <target>No matching values</target>
+      </trans-unit>
+      <trans-unit id="StatsIns41" resname="stats.insights.directory.no_results_help">
+        <source>stats.insights.directory.no_results_help</source>
+        <target>Change the search term or clear it to see the full directory.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns42" resname="stats.insights.search.label">
+        <source>stats.insights.search.label</source>
+        <target>Search insights</target>
+      </trans-unit>
+      <trans-unit id="StatsIns43" resname="stats.insights.search.placeholder">
+        <source>stats.insights.search.placeholder</source>
+        <target>Indication, speciality, department…</target>
+      </trans-unit>
+      <trans-unit id="StatsIns44" resname="stats.insights.search.help">
+        <source>stats.insights.search.help</source>
+        <target>Type at least two characters. Results do not include case counts.</target>
+      </trans-unit>
+      <trans-unit id="StatsIns45" resname="stats.insights.search.loading">
+        <source>stats.insights.search.loading</source>
+        <target>Searching…</target>
+      </trans-unit>
+      <trans-unit id="StatsIns46" resname="stats.insights.search.no_results">
+        <source>stats.insights.search.no_results</source>
+        <target>No matching insights</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

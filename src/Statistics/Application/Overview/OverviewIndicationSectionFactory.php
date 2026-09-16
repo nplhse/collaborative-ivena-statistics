@@ -67,8 +67,11 @@ final readonly class OverviewIndicationSectionFactory
                 isset($row['indicationId'])
                     ? $this->navigationUrlBuilder->build(
                         $request,
-                        'app_stats_indication_dashboard',
-                        ['indicationId' => $row['indicationId']],
+                        'app_stats_insights_show',
+                        [
+                            'dimension' => 'indications',
+                            'id' => $row['indicationId'],
+                        ],
                     )
                     : null,
             );
@@ -93,7 +96,7 @@ final readonly class OverviewIndicationSectionFactory
                 'labels' => $donutLabels,
                 'values' => $donutValues,
             ],
-            'insightsUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_indication_insights'),
+            'insightsUrl' => $this->navigationUrlBuilder->build($request, 'app_stats_insights'),
         ];
     }
 

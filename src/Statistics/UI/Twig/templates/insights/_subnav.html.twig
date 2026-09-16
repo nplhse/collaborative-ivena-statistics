@@ -1,0 +1,23 @@
+{% set subnav = insightsSubnav %}
+<nav class="insights-subnav overflow-x-auto mb-4" aria-label="{{ 'stats.insights.subnav.label'|trans({}, 'statistics') }}" data-testid="stats-insights-subnav">
+    <ul class="nav nav-tabs analytics-library-tabs flex-nowrap" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link{% if subnav.overviewActive %} active{% endif %}"
+               href="{{ subnav.overviewUrl }}"
+               {% if subnav.overviewActive %}aria-current="page"{% endif %}
+               data-testid="stats-insights-tab-overview">
+                {{ 'stats.insights.subnav.overview'|trans({}, 'statistics') }}
+            </a>
+        </li>
+        {% for tab in subnav.tabs %}
+            <li class="nav-item" role="presentation">
+                <a class="nav-link{% if tab.active %} active{% endif %}"
+                   href="{{ tab.url }}"
+                   {% if tab.active %}aria-current="page"{% endif %}
+                   data-testid="stats-insights-tab-{{ tab.key }}">
+                    {{ tab.labelKey|trans({}, 'statistics') }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>

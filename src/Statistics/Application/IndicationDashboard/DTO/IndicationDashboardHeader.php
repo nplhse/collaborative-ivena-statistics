@@ -12,6 +12,8 @@ final readonly class IndicationDashboardHeader
         public ?int $indicationCode,
         public int $caseCount,
         public ?string $publicId = null,
+        public string $dimension = 'indications',
+        public ?string $dimensionLabelKey = 'stats.insights.dimension.indications.label',
     ) {
     }
 }

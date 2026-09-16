@@ -7,7 +7,8 @@
 | Submodule | Route / area | Description |
 |-----------|--------------|-------------|
 | Projection & MVs | (background) | Denormalized `allocation_stats_projection` and materialized views |
-| Top Lists | `/statistics/top-lists` | Catalog of ranked tables; detail routes under `/statistics/top-lists/{report}` (ranking depth Top 10–100 or All, page size 25/50/100, optional Scope/Period comparison, CSV export of the current ranking or merged comparison). Comparison mode is one card: A/B selection, side-by-side tables, shared pagination, swap of the two sides, and continue with A or B as the regular Top List. Catalogue list/detail pages for indications, departments, specialities, assignments, occasions, infections, and secondary transports link here; rows link to Explore show pages. Secondary diagnoses share the indication catalogue. No top list exists for groups, hospitals, states, dispatch areas, or glossary terms. |
+| Top Lists | `/statistics/top-lists` | Catalog of ranked tables; detail routes under `/statistics/top-lists/{report}` (ranking depth Top 10–100 or All, page size 25/50/100, optional Scope/Period comparison, CSV export of the current ranking or merged comparison). Comparison mode is one card: A/B selection, side-by-side tables, shared pagination, swap of the two sides, and continue with A or B as the regular Top List. Catalogue list/detail pages for indications, departments, specialities, assignments, occasions, infections, and secondary transports link here; rows link to Explore show pages and to Insights. Secondary diagnoses share the indication catalogue. No top list exists for groups, hospitals, states, dispatch areas, or glossary terms. |
+| Insights | `/statistics/insights` | Dimension analysis: overview, searchable directories, and detail/compare dashboards for indications (including groups), specialities, assignment, departments, occasions, infections, and secondary transports. Legacy Indication Insights URLs redirect here. |
 | Reports | `/statistics/reports` | Report catalog; detail routes under `/statistics/reports/{type}` (Monthly Report including a compact Notzuweisungen summary, Transport Time Profile) |
 | AnalysisExplorer | `/statistics/explorer` | Interactive saved-view analytics |
 | Benchmarking | `/statistics/benchmarking` | Hospital comparison |
@@ -15,7 +16,7 @@
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
 | ClosedDepartmentAssignments | `/statistics/closed-department-assignments` | Notzuweisungen / forced assignments (one lazy rankings frame for the six cards; KPI + grouping-sets slice on first paint) |
 | HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
-| Isochrone origin heatmap | Overview / Indication Insights / closed-department analysis (hospital scope) | Lazy travel-time isochrone map |
+| Isochrone origin heatmap | Overview / Insights / closed-department analysis (hospital scope) | Lazy travel-time isochrone map |
 
 ## Documents
 
@@ -26,7 +27,8 @@
 | [data-quality-indicator.md](data-quality-indicator.md) | Traffic-light badge dimensions |
 | [analysis-explorer.md](analysis-explorer.md) | Explorer V2 architecture and schema |
 | [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md) | Product standards and dashboard alignment |
-| [indication-dashboard-performance.md](indication-dashboard-performance.md) | Indication detail SQL optimisation notes |
+| [insights.md](insights.md) | Dimension Insights (directories, detail, compare, search) |
+| [indication-dashboard-performance.md](indication-dashboard-performance.md) | Insight detail SQL optimisation notes |
 | [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
 | [case-flow.md](case-flow.md) | Geographic / case flow analysis |
 | [closed-department-assignments.md](closed-department-assignments.md) | Notzuweisungen / forced assignments |

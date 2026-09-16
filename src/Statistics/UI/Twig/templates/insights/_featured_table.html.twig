@@ -1,0 +1,29 @@
+{% if rows is empty %}
+    <div class="empty py-4" data-testid="{{ emptyTestId }}">
+        <p class="empty-title">{{ 'stats.insights.empty.title'|trans({}, 'statistics') }}</p>
+        <p class="empty-subtitle text-secondary">{{ 'stats.insights.empty.subtitle'|trans({}, 'statistics') }}</p>
+    </div>
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>{{ 'stats.top_lists.table.rank'|trans({}, 'statistics') }}</th>
+                    <th>{{ labelKey|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{{ row.rank }}</td>
+                        <td><a href="{{ row.url }}">{{ row.label }}</a></td>
+                        <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
+                        <td class="text-end">{{ row.shareDisplay }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

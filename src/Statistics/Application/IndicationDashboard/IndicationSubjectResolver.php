@@ -8,6 +8,9 @@ use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Infrastructure\Repository\IndicationGroupRepository;
 use App\Allocation\Infrastructure\Repository\IndicationNormalizedRepository;
+use App\Statistics\Application\Insights\InsightDimensionKey;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
+use App\Statistics\Application\Insights\InsightSubject;
 
 final readonly class IndicationSubjectResolver
 {
@@ -57,5 +60,31 @@ final readonly class IndicationSubjectResolver
             IndicationSubjectType::Single => $this->resolveSingle($id),
             IndicationSubjectType::Group => $this->resolveGroup($id),
         };
+    }
+
+    public function toInsightSubject(IndicationSubject $subject): InsightSubject
+    {
+        $dimension = IndicationSubjectType::Group === $subject->type
+            ? InsightDimensionKey::IndicationGroups
+            : InsightDimensionKey::Indications;
+
+        $code = null;
+        if (IndicationSubjectType::Single === $subject->type) {
+            $indication = $this->indicationRepository->find($subject->id);
+            $code = $indication?->getCode();
+            $publicId = $indication?->getPublicId()?->toRfc4122();
+        } else {
+            $group = $this->groupRepository->find($subject->id);
+            $publicId = $group?->getPublicId()?->toRfc4122();
+        }
+
+        return new InsightSubject(
+            $dimension,
+            $subject->id,
+            $subject->label,
+            InsightPopulationFilter::indications($subject->indicationIds),
+            $code,
+            $publicId,
+        );
     }
 }

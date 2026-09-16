@@ -247,4 +247,62 @@ final class IndicationDashboardMetricsQueryTest extends KernelTestCase
         );
         self::assertSame(20.0, $row->meanTransportMinutesBaseline);
     }
+
+    public function testCountsSubjectAndBaselineForSpecialityColumn(): void
+    {
+        self::bootKernel();
+
+        $user = UserFactory::createOne(['username' => 'speciality-metrics-'.bin2hex(random_bytes(4))]);
+        $state = StateFactory::createOne(['name' => 'SpecialityMetricsState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'SpecialityMetricsDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'SpecialityMetricsHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        $targetSpeciality = SpecialityFactory::createOne(['name' => 'Cardiology Target']);
+        $otherSpeciality = SpecialityFactory::createOne(['name' => 'Other Speciality']);
+        DepartmentFactory::createOne(['name' => 'SpecialityMetricsDept']);
+        AssignmentFactory::createOne(['name' => 'SpecialityMetricsAssign']);
+        IndicationRawFactory::createOne(['name' => 'SpecialityMetricsRaw', 'code' => 912_381]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Speciality Metrics Indication']);
+
+        $import = ImportFactory::createOne(['name' => 'SpecialityMetricsImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        AllocationFactory::createMany(3, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'speciality' => $targetSpeciality,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-03-01 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-03-01 10:20:00'),
+        ]);
+        AllocationFactory::createMany(7, [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'speciality' => $otherSpeciality,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-03-02 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-03-02 10:20:00'),
+        ]);
+
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $scope = new StatisticsScopeCriteria([$hospital->getId()]);
+        $row = self::getContainer()->get(IndicationDashboardMetricsQuery::class)->fetch(
+            \App\Statistics\Application\Insights\InsightPopulationFilter::of('speciality_id', [$targetSpeciality->getId()]),
+            null,
+            null,
+            $scope,
+        );
+
+        self::assertSame(3, $row->totalIndication);
+        self::assertSame(7, $row->totalBaseline);
+    }
 }

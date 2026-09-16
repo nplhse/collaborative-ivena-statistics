@@ -68,7 +68,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/'.$indication->getId(), [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/'.$indication->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
             'period' => 'all',
@@ -76,8 +76,8 @@ final class IndicationDashboardControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
-        self::assertSelectorTextContains('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Indication');
-        self::assertSelectorTextContains('[data-testid="stats-indication-heading-title"]', '(1001)');
+        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorTextSame('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Indication (1001)');
         self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
         self::assertSelectorExists('[data-testid="stats-indication-gender"]');
         self::assertSelectorExists('[data-testid="stats-indication-urgency"]');
@@ -117,11 +117,62 @@ final class IndicationDashboardControllerTest extends WebTestCase
         $user = UserFactory::createOne(['username' => 'indication-dash-404-'.bin2hex(random_bytes(4))]);
         $client->loginUser($user);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/999999', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/999999', [
             'scope' => 'public',
             'period' => 'all',
         ]);
 
         self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testDashboardRendersForAssignmentDimension(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-dash-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $state = StateFactory::createOne(['name' => 'AssignmentDashState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'AssignmentDashDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'AssignmentDashHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'AssignmentDashSpec']);
+        DepartmentFactory::createOne(['name' => 'AssignmentDashDept']);
+        $assignment = AssignmentFactory::createOne(['name' => 'Dashboard Test Assignment']);
+        IndicationRawFactory::createOne(['name' => 'AssignmentDashRaw', 'code' => 912_380]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Assignment Dash Indication', 'code' => 5101]);
+
+        $import = ImportFactory::createOne(['name' => 'AssignmentDashImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'age' => 55,
+            'assignment' => $assignment,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-04-01 14:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 14:25:00'),
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/'.$assignment->getId(), [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Assignment');
+        self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
+        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
     }
 }

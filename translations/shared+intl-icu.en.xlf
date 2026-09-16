@@ -201,6 +201,10 @@
         <source>link.stats.indication_insights</source>
         <target>Indication Insights</target>
       </trans-unit>
+      <trans-unit id="statsLnkIn01" resname="link.stats.insights">
+        <source>link.stats.insights</source>
+        <target>Insights</target>
+      </trans-unit>
       <trans-unit id="statsLnkBm01" resname="link.stats.benchmarking">
         <source>link.stats.benchmarking</source>
         <target>Benchmarking</target>

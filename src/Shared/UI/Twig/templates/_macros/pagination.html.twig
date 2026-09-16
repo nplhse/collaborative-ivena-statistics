@@ -11,6 +11,7 @@
 {% endmacro %}
 
 {% macro results(numResults, pageSize) %}
+    {% set query = (app.request.attributes.get('_route_params')|default({}))|merge(app.request.query.all) %}
     <div class="dropdown">
         <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="me-1">
@@ -19,18 +20,15 @@
         </a>
         <div class="dropdown-menu">
             <a class="dropdown-item"
-               href="{{ path(app.request.attributes.get('_route'),
-                   app.request.query.all|merge({limit: 25, page: 1})) }}">
+               href="{{ path(app.request.attributes.get('_route'), query|merge({limit: 25, page: 1})) }}">
                 {{ 'label.pagination_results'|trans(({pageSize: 25}), 'messages') }}
             </a>
             <a class="dropdown-item"
-               href="{{ path(app.request.attributes.get('_route'),
-                   app.request.query.all|merge({limit: 50, page: 1})) }}">
+               href="{{ path(app.request.attributes.get('_route'), query|merge({limit: 50, page: 1})) }}">
                 {{ 'label.pagination_results'|trans(({pageSize: 50}), 'messages') }}
             </a>
             <a class="dropdown-item"
-               href="{{ path(app.request.attributes.get('_route'),
-                   app.request.query.all|merge({limit: 100, page: 1})) }}">
+               href="{{ path(app.request.attributes.get('_route'), query|merge({limit: 100, page: 1})) }}">
                 {{ 'label.pagination_results'|trans(({pageSize: 100}), 'messages') }}
             </a>
         </div>

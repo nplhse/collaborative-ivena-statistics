@@ -70,6 +70,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
     {
         $rows = [];
         $labelRowTargets = [];
+        $insightRowTargets = [];
         $shareBars = [];
         foreach ($ranking->rows as $row) {
             $rows[] = [
@@ -81,6 +82,10 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
             $labelRowTargets[] = $this->catalogCrossReference->labelRowTarget(
                 $this->key(),
                 $row->publicId,
+            );
+            $insightRowTargets[] = $this->catalogCrossReference->insightRowTarget(
+                $this->key(),
+                $row->entityId,
             );
             $shareBars[] = $row->share;
         }
@@ -96,6 +101,7 @@ abstract readonly class AbstractTopNTableReport implements TopListDefinitionInte
             [
                 'numericColumnStartIndex' => 3,
                 'labelRowTargets' => $labelRowTargets,
+                'insightRowTargets' => $insightRowTargets,
                 'shareBars' => $shareBars,
             ],
         );

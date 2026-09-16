@@ -1,0 +1,31 @@
+{% extends '@Statistics/indication_compare/index.html.twig' %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'link.stats.insights', path: path('app_stats_insights') },
+                { label: 'stats.indication.compare.title' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-indication-compare-subtitle">
+                        {{ 'stats.indication.compare.subtitle'|trans({}, 'statistics') }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-indication-compare-title">
+                        {{ 'stats.indication.compare.title'|trans({}, 'statistics') }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

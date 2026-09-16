@@ -1,6 +1,6 @@
 # Analysis Explorer — Library standards & chart alignment
 
-This document records product decisions from the chart inventory (Overview, Indication Insights, Benchmarking, Hospitals) and defines how predefined library views relate to legacy dashboard charts.
+This document records product decisions from the chart inventory (Overview, Insights, Benchmarking, Hospitals) and defines how predefined library views relate to legacy dashboard charts.
 
 ## Priority decision (phased)
 
@@ -78,7 +78,7 @@ Legend: **Link** = replace chart with library deep-link; **Keep** = stay bespoke
 | Executive KPIs, hospital insights | — | **Keep** |
 | Hospital summary (own hospital) | — | **Keep** until allocations compare mode |
 
-### Indication Insights
+### Insights
 
 | Dashboard visual | Library approach | Phase 2 action |
 |------------------|------------------|----------------|

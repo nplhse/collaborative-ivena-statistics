@@ -207,7 +207,7 @@ Boolean flags and explorer metrics — largely established.
 | Centralization | Zentralisierung | case flow KPI |
 | Regional share | Regionalanteil | |
 | Overregional share | Überregionaler Anteil | |
-| Indication insights | Indikationen | |
+| Insights | Insights | product name, like Benchmarking |
 | Indication dashboard | Indikations-Dashboard | |
 | Reports | Berichte | |
 | Hospital population | Krankenhaus-Population | partly established |

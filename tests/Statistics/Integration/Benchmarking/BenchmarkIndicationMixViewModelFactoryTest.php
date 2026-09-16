@@ -31,7 +31,7 @@ final class BenchmarkIndicationMixViewModelFactoryTest extends KernelTestCase
 
         self::assertCount(1, $viewModel->overRepresented);
         self::assertSame('42', $viewModel->overRepresented[0]->bucket->key);
-        self::assertStringContainsString('/statistics/indication/42', (string) $viewModel->overRepresented[0]->insightsUrl);
+        self::assertStringContainsString('/statistics/insights/indications/42', (string) $viewModel->overRepresented[0]->insightsUrl);
         self::assertStringContainsString('scope=public', (string) $viewModel->overRepresented[0]->insightsUrl);
 
         self::assertCount(2, $viewModel->underRepresented);
