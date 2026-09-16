@@ -36,7 +36,19 @@ To add a new CSV row type, extend `AllocationRowType` and implement `AllocationR
 
 Definitions expose `icon()` for the hub catalog (same Tabler names as Explore), `catalogDimension()` for Explore catalogue cross-references, `fetchRanking()` for reusable ranked datasets (single table, ranking depth, page size, and comparison). `build()` remains the table widget used by the Top Lists page.
 
-`TopListCatalogCrossReference` maps catalogue dimensions to top-list keys and row destinations (Explore show pages for diagnoses, secondary diagnoses, departments, specialities, assignments, occasions, infections, and secondary transports). Secondary diagnoses share the indication catalogue; the catalogue action opens `top_diagnoses`. There is no top list for indication groups, hospitals, states, dispatch areas, glossary terms, users, or cases.
+`TopListCatalogCrossReference` maps catalogue dimensions to top-list keys and row destinations (Explore show pages for diagnoses, secondary diagnoses, departments, specialities, assignments, occasions, infections, and secondary transports, plus Insight dashboards for the same entity dimensions). Secondary diagnoses share the indication catalogue; the catalogue action opens `top_diagnoses`. There is no top list for indication groups, hospitals, states, dispatch areas, glossary terms, users, or cases.
+
+## Statistics Insights
+
+**Tag:** `app.statistics.insight_dimension`
+
+**Interface:** `InsightDimensionProviderInterface`
+
+**Registry:** `InsightDimensionRegistry`
+
+**Implementations:** Indications, Indication groups, Specialities, Assignments, Departments, Occasions, Infections, Secondary transports.
+
+To add a dimension, follow [../04-features/statistics/insights.md](../04-features/statistics/insights.md). Do not invent grouping models; nested groups require existing domain membership.
 
 ## Statistics summarized reports
 

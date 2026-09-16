@@ -1,0 +1,156 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'link.stats.insights'|trans({}, 'shared') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'link.stats.insights' }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-insights-overview-subtitle">
+                        {{ 'stats.insights.overview.pretitle'|trans({}, 'statistics') }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="stats-insights-overview-title">
+                        {{ 'link.stats.insights'|trans({}, 'shared') }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+    {{ include('@Statistics/insights/_subnav.html.twig') }}
+
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    {{ include('@Statistics/insights/_search.html.twig') }}
+                </div>
+            </div>
+
+            <div class="card" data-testid="stats-insights-featured">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active"
+                               id="stats-insights-featured-indications-tab"
+                               href="#stats-insights-featured-indications"
+                               data-bs-toggle="tab"
+                               role="tab"
+                               aria-controls="stats-insights-featured-indications"
+                               aria-selected="true"
+                               data-testid="stats-insights-featured-indications-tab">
+                                {{ featured.labelKey|trans({}, 'statistics') }}
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link"
+                               id="stats-insights-featured-groups-tab"
+                               href="#stats-insights-featured-groups"
+                               data-bs-toggle="tab"
+                               role="tab"
+                               aria-controls="stats-insights-featured-groups"
+                               aria-selected="false"
+                               data-testid="stats-insights-featured-groups">
+                                {{ featured.groups.labelKey|trans({}, 'statistics') }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane active show"
+                         id="stats-insights-featured-indications"
+                         role="tabpanel"
+                         aria-labelledby="stats-insights-featured-indications-tab">
+                        {{ include('@Statistics/insights/_featured_table.html.twig', {
+                            rows: featured.rows,
+                            labelKey: featured.labelKey,
+                            emptyTestId: 'stats-insights-featured-empty',
+                        }) }}
+                        <div class="card-footer d-flex flex-wrap gap-2">
+                            <a href="{{ featured.url }}" class="btn" data-testid="stats-insights-featured-all">
+                                {{ featured.allLinkKey|trans({}, 'statistics') }}
+                            </a>
+                            {% if featured.topListUrl %}
+                                <a href="{{ featured.topListUrl }}" class="btn" data-testid="stats-insights-featured-top-list">
+                                    {{ 'stats.indication.nav.top_list'|trans({}, 'statistics') }}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane"
+                         id="stats-insights-featured-groups"
+                         role="tabpanel"
+                         aria-labelledby="stats-insights-featured-groups-tab">
+                        {{ include('@Statistics/insights/_featured_table.html.twig', {
+                            rows: featured.groups.rows,
+                            labelKey: featured.groups.labelKey,
+                            emptyTestId: 'stats-insights-featured-groups-empty',
+                        }) }}
+                        <div class="card-footer">
+                            <a href="{{ featured.groups.url }}" class="btn" data-testid="stats-insights-featured-groups-all">
+                                {{ featured.groups.allLinkKey|trans({}, 'statistics') }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4" data-testid="stats-insights-teasers">
+            {% for teaser in teasers %}
+                <div class="card{% if not loop.last %} mb-3{% endif %}" data-testid="stats-insights-teaser-{{ teaser.key }}">
+                    <div class="card-header bg-light">
+                        <h3 class="card-title mb-0">
+                            <a href="{{ teaser.url }}" class="link-primary" data-testid="stats-insights-teaser-title-{{ teaser.key }}">
+                                <twig:ux:icon name="{{ teaser.icon }}" class="icon me-1" />
+                                {{ teaser.labelKey|trans({}, 'statistics') }}
+                            </a>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% if teaser.rows is empty %}
+                            <p class="text-secondary mb-0">{{ 'stats.insights.empty.teaser'|trans({}, 'statistics') }}</p>
+                        {% else %}
+                            <ul class="list-unstyled mb-0">
+                                {% for row in teaser.rows %}
+                                    <li class="d-flex justify-content-between gap-2 py-1">
+                                        <a href="{{ row.url }}" class="text-truncate">{{ row.label }}</a>
+                                        <span class="text-secondary text-nowrap">{{ row.count|number_format(0, ',', '.') }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if overviewPeriodViewModel is defined %}
+        {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+    {% endif %}
+{% endblock %}

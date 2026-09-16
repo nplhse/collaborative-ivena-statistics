@@ -16,20 +16,22 @@ final class CatalogActionFactoryTest extends TestCase
     public function testSecondaryTransportActionLinksToAllocationListFilter(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects(self::exactly(2))
+        $urlGenerator->expects(self::exactly(3))
             ->method('generate')
             ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
                 'app_explore_allocation_list' === $route && ($params['secondaryTransport'] ?? null) === 42 => '/explore/allocation?secondaryTransport=42',
+                'app_stats_insights_show' === $route && ($params['dimension'] ?? null) === 'secondary-transports' && ($params['id'] ?? null) === 42 => '/statistics/insights/secondary-transports/42',
                 'app_stats_top_lists_show' === $route && ($params['report'] ?? null) === 'top_secondary_transports' => '/statistics/top-lists/top_secondary_transports',
                 default => throw new \InvalidArgumentException($route),
             });
 
         $actions = $this->factory($urlGenerator)->forSecondaryTransport(42);
 
-        self::assertCount(2, $actions);
+        self::assertCount(3, $actions);
         self::assertTrue($actions[0]->primary);
         self::assertSame('/explore/allocation?secondaryTransport=42', $actions[0]->url);
-        self::assertSame('/statistics/top-lists/top_secondary_transports', $actions[1]->url);
+        self::assertSame('/statistics/insights/secondary-transports/42', $actions[1]->url);
+        self::assertSame('/statistics/top-lists/top_secondary_transports', $actions[2]->url);
     }
 
     public function testIndicationActionsIncludeInsightsAndTopList(): void
@@ -39,7 +41,7 @@ final class CatalogActionFactoryTest extends TestCase
             ->method('generate')
             ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
                 'app_explore_allocation_list' === $route && ($params['indication'] ?? null) === 101 => '/explore/allocation?indication=101',
-                'app_stats_indication_dashboard' === $route && ($params['indicationId'] ?? null) === 7 => '/statistics/indication/7',
+                'app_stats_insights_show' === $route && ($params['dimension'] ?? null) === 'indications' && ($params['id'] ?? null) === 7 => '/statistics/insights/indications/7',
                 'app_stats_top_lists_show' === $route && ($params['report'] ?? null) === 'top_diagnoses' => '/statistics/top-lists/top_diagnoses',
                 default => throw new \InvalidArgumentException($route),
             });
@@ -48,7 +50,7 @@ final class CatalogActionFactoryTest extends TestCase
 
         self::assertCount(3, $actions);
         self::assertSame('/explore/allocation?indication=101', $actions[0]->url);
-        self::assertSame('/statistics/indication/7', $actions[1]->url);
+        self::assertSame('/statistics/insights/indications/7', $actions[1]->url);
         self::assertSame('/statistics/top-lists/top_diagnoses', $actions[2]->url);
         self::assertSame('tabler:list-numbers', $actions[2]->icon);
     }
@@ -60,7 +62,7 @@ final class CatalogActionFactoryTest extends TestCase
             ->method('generate')
             ->willReturnCallback(static fn (string $route, array $params = []): string => match ($route) {
                 'app_explore_allocation_list' => '/explore/allocation',
-                'app_stats_indication_dashboard' => '/statistics/indication/7',
+                'app_stats_insights_show' => '/statistics/insights/indications/7',
                 'app_explore_indication_raw_review_worklist' => '/explore/indication/raw/review',
                 'app_stats_top_lists_show' => '/statistics/top-lists/top_diagnoses',
                 default => throw new \InvalidArgumentException($route),
@@ -76,19 +78,21 @@ final class CatalogActionFactoryTest extends TestCase
     public function testDepartmentActionLinksToAllocationListFilterAndTopList(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects(self::exactly(2))
+        $urlGenerator->expects(self::exactly(3))
             ->method('generate')
             ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
                 'app_explore_allocation_list' === $route && ($params['department'] ?? null) === 9 => '/explore/allocation?department=9',
+                'app_stats_insights_show' === $route && ($params['dimension'] ?? null) === 'departments' && ($params['id'] ?? null) === 9 => '/statistics/insights/departments/9',
                 'app_stats_top_lists_show' === $route && ($params['report'] ?? null) === 'top_departments' => '/statistics/top-lists/top_departments',
                 default => throw new \InvalidArgumentException($route),
             });
 
         $actions = $this->factory($urlGenerator)->forDepartment(9);
 
-        self::assertCount(2, $actions);
+        self::assertCount(3, $actions);
         self::assertSame('/explore/allocation?department=9', $actions[0]->url);
-        self::assertSame('/statistics/top-lists/top_departments', $actions[1]->url);
+        self::assertSame('/statistics/insights/departments/9', $actions[1]->url);
+        self::assertSame('/statistics/top-lists/top_departments', $actions[2]->url);
     }
 
     public function testIndicationGroupActionLinksToStatisticsDashboard(): void
@@ -96,14 +100,14 @@ final class CatalogActionFactoryTest extends TestCase
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator->expects(self::once())
             ->method('generate')
-            ->with('app_stats_indication_group_dashboard', ['groupId' => 3])
-            ->willReturn('/statistics/indication-group/3');
+            ->with('app_stats_insights_show', ['dimension' => 'indication-groups', 'id' => 3])
+            ->willReturn('/statistics/insights/indication-groups/3');
 
         $actions = $this->factory($urlGenerator)->forIndicationGroup(3);
 
         self::assertCount(1, $actions);
         self::assertTrue($actions[0]->primary);
-        self::assertSame('/statistics/indication-group/3', $actions[0]->url);
+        self::assertSame('/statistics/insights/indication-groups/3', $actions[0]->url);
     }
 
     public function testStateActionsIncludeAllocationsHospitalsAndDispatchAreas(): void
@@ -143,19 +147,21 @@ final class CatalogActionFactoryTest extends TestCase
     public function testInfectionActionLinksToAllocationListFilterAndTopList(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->expects(self::exactly(2))
+        $urlGenerator->expects(self::exactly(3))
             ->method('generate')
             ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
                 'app_explore_allocation_list' === $route && ($params['infection'] ?? null) === 8 => '/explore/allocation?infection=8',
+                'app_stats_insights_show' === $route && ($params['dimension'] ?? null) === 'infections' && ($params['id'] ?? null) === 8 => '/statistics/insights/infections/8',
                 'app_stats_top_lists_show' === $route && ($params['report'] ?? null) === 'top_infections' => '/statistics/top-lists/top_infections',
                 default => throw new \InvalidArgumentException($route),
             });
 
         $actions = $this->factory($urlGenerator)->forInfection(8);
 
-        self::assertCount(2, $actions);
+        self::assertCount(3, $actions);
         self::assertSame('/explore/allocation?infection=8', $actions[0]->url);
-        self::assertSame('/statistics/top-lists/top_infections', $actions[1]->url);
+        self::assertSame('/statistics/insights/infections/8', $actions[1]->url);
+        self::assertSame('/statistics/top-lists/top_infections', $actions[2]->url);
     }
 
     public function testCatalogListActionForMappedDimension(): void

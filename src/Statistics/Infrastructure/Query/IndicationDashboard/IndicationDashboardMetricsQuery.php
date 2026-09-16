@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query\IndicationDashboard;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
@@ -16,9 +17,9 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
- * Fetches indication vs. baseline metrics using two targeted scans:
- * 1) scope totals (full scope filter), 2) indication slice (scope + indication id).
- * Additive baseline counts are derived as scope - indication.
+ * Fetches subject vs. baseline metrics using two targeted scans:
+ * 1) scope totals (full scope filter), 2) subject slice (scope + population filter).
+ * Additive baseline counts are derived as scope - subject.
  *
  * @see docs/04-features/statistics/indication-dashboard-performance.md
  */
@@ -31,15 +32,19 @@ final readonly class IndicationDashboardMetricsQuery
     }
 
     /**
-     * @param list<int> $indicationIds
+     * @param list<int>|InsightPopulationFilter $indicationIds
      */
     public function fetch(
-        array $indicationIds,
+        array|InsightPopulationFilter $indicationIds,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
     ): IndicationDashboardMetricsRow {
-        if ([] === $indicationIds) {
+        $population = $indicationIds instanceof InsightPopulationFilter
+            ? $indicationIds
+            : InsightPopulationFilter::indications($indicationIds);
+
+        if ($population->isEmpty()) {
             return $this->emptyRow();
         }
 
@@ -53,8 +58,8 @@ final readonly class IndicationDashboardMetricsQuery
         $workAccidentFilter = $hasExtended ? 'is_work_accident = true' : 'false';
 
         [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
-        $types['indication_ids'] = ArrayParameterType::INTEGER;
-        $params['indication_ids'] = array_map(static fn (int $id): int => $id, $indicationIds);
+        $types['subject_ids'] = ArrayParameterType::INTEGER;
+        $params['subject_ids'] = $population->ids;
 
         $countSelect = $this->countMetricSelectSql(
             $shockFilter,
@@ -62,7 +67,8 @@ final readonly class IndicationDashboardMetricsQuery
             $workAccidentFilter,
         );
 
-        $baselineMeanFilter = '(indication_normalized_id IS NULL OR indication_normalized_id NOT IN (:indication_ids))';
+        $baselineMeanFilter = $population->sqlBaselinePredicate();
+        $subjectPredicate = $population->sqlInPredicate();
         $meanTransport = StatisticsTransportTimeSql::meanPreciseMinutes();
 
         $scopeSql = <<<SQL
@@ -83,7 +89,7 @@ SQL;
             return $this->emptyRow();
         }
 
-        $indicationWhere = $where.' AND indication_normalized_id IN (:indication_ids)';
+        $indicationWhere = $where.' AND '.$subjectPredicate;
         $indicationSql = <<<SQL
 SELECT
     {$countSelect},

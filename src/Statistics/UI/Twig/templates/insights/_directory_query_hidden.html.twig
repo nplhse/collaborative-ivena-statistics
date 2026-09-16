@@ -1,0 +1,11 @@
+{% for key, value in app.request.query.all %}
+    {% if key not in exclude %}
+        {% if value is iterable %}
+            {% for nested in value %}
+                <input type="hidden" name="{{ key }}[]" value="{{ nested }}">
+            {% endfor %}
+        {% else %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endif %}
+    {% endif %}
+{% endfor %}

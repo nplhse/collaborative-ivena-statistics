@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query\IndicationCompare;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
@@ -24,19 +25,26 @@ final readonly class IndicationCompareSliceQuery
     }
 
     /**
-     * @param list<int> $indicationIdsA
-     * @param list<int> $indicationIdsB
+     * @param list<int>|InsightPopulationFilter $indicationIdsA
+     * @param list<int>|InsightPopulationFilter $indicationIdsB
      *
      * @return list<IndicationCompareDistributionRow>
      */
     public function fetch(
-        array $indicationIdsA,
-        array $indicationIdsB,
+        array|InsightPopulationFilter $indicationIdsA,
+        array|InsightPopulationFilter $indicationIdsB,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
     ): array {
-        if ([] === $indicationIdsA || [] === $indicationIdsB) {
+        $sideA = $indicationIdsA instanceof InsightPopulationFilter
+            ? $indicationIdsA
+            : InsightPopulationFilter::indications($indicationIdsA);
+        $sideB = $indicationIdsB instanceof InsightPopulationFilter
+            ? $indicationIdsB
+            : InsightPopulationFilter::indications($indicationIdsB);
+
+        if ($sideA->isEmpty() || $sideB->isEmpty()) {
             return [];
         }
 
@@ -44,15 +52,15 @@ final readonly class IndicationCompareSliceQuery
             return [];
         }
 
-        $predA = 'indication_normalized_id IN (:ids_a)';
-        $predB = 'indication_normalized_id IN (:ids_b)';
+        $predA = $sideA->sqlInPredicate('ids_a');
+        $predB = $sideB->sqlInPredicate('ids_b');
 
         [$scopeWhere, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
         $where = sprintf('(%s) AND (%s OR %s)', $scopeWhere, $predA, $predB);
         $types['ids_a'] = ArrayParameterType::INTEGER;
         $types['ids_b'] = ArrayParameterType::INTEGER;
-        $params['ids_a'] = array_map(static fn (int $id): int => $id, $indicationIdsA);
-        $params['ids_b'] = array_map(static fn (int $id): int => $id, $indicationIdsB);
+        $params['ids_a'] = $sideA->ids;
+        $params['ids_b'] = $sideB->ids;
 
         $ageBucketCase = StatisticsAgeGroupBucketSql::CASE_EXPRESSION;
         $transportBucketCase = StatisticsTransportTimeBucketSql::CASE_EXPRESSION;

@@ -84,7 +84,7 @@ final class IndicationCompareControllerTest extends WebTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
             'period' => 'all',
@@ -93,16 +93,17 @@ final class IndicationCompareControllerTest extends WebTestCase
         ]);
 
         self::assertResponseIsSuccessful();
+        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
         self::assertSelectorExists('[data-testid="stats-indication-compare-kpi-tiles"]');
         self::assertSelectorExists('[data-testid="stats-indication-compare-edit-button"]');
         self::assertSelectorExists('[data-testid="stats-indication-compare-edit-modal"]');
         $crawler = $client->getCrawler();
         self::assertStringContainsString(
-            '/statistics/indication/'.$indicationA->getId(),
+            '/statistics/insights/indications/'.$indicationA->getId(),
             (string) $crawler->filter('[data-testid="stats-indication-compare-label-a"]')->attr('href'),
         );
         self::assertStringContainsString(
-            '/statistics/indication/'.$indicationB->getId(),
+            '/statistics/insights/indications/'.$indicationB->getId(),
             (string) $crawler->filter('[data-testid="stats-indication-compare-label-b"]')->attr('href'),
         );
         self::assertSelectorExists('[data-testid="stats-indication-compare-case-distribution"]');
@@ -183,7 +184,7 @@ final class IndicationCompareControllerTest extends WebTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
             'period' => 'all',
@@ -204,7 +205,7 @@ final class IndicationCompareControllerTest extends WebTestCase
 
         $indication = IndicationNormalizedFactory::createOne(['name' => 'Same Indication']);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'public',
             'period' => 'all',
             'indication_a' => (string) $indication->getId(),
@@ -219,7 +220,7 @@ final class IndicationCompareControllerTest extends WebTestCase
         $client = self::createClient();
         $fixture = $this->seedGroupCompareFixture($client);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
             'period' => 'all',
@@ -237,11 +238,11 @@ final class IndicationCompareControllerTest extends WebTestCase
 
         $crawler = $client->getCrawler();
         self::assertStringContainsString(
-            '/statistics/indication/'.$fixture['indicationCId'],
+            '/statistics/insights/indications/'.$fixture['indicationCId'],
             (string) $crawler->filter('[data-testid="stats-indication-compare-label-a"]')->attr('href'),
         );
         self::assertStringContainsString(
-            '/statistics/indication-group/'.$fixture['groupId'],
+            '/statistics/insights/indication-groups/'.$fixture['groupId'],
             (string) $crawler->filter('[data-testid="stats-indication-compare-label-b"]')->attr('href'),
         );
     }
@@ -251,7 +252,7 @@ final class IndicationCompareControllerTest extends WebTestCase
         $client = self::createClient();
         $fixture = $this->seedGroupCompareFixture($client);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
             'period' => 'all',
@@ -273,7 +274,7 @@ final class IndicationCompareControllerTest extends WebTestCase
         $client = self::createClient();
         $fixture = $this->seedGroupCompareFixture($client);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
             'period' => 'all',
@@ -296,7 +297,7 @@ final class IndicationCompareControllerTest extends WebTestCase
         $indication = IndicationNormalizedFactory::createOne(['name' => 'Non Group Indication']);
         $emptyGroup = IndicationGroupFactory::createOne(['name' => 'Empty Compare Group', 'createdBy' => $user]);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'public',
             'period' => 'all',
             'subject_a_type' => 'single',
@@ -306,7 +307,7 @@ final class IndicationCompareControllerTest extends WebTestCase
         ]);
 
         self::assertResponseRedirects();
-        self::assertStringContainsString('/statistics/indication-insights', (string) $client->getResponse()->headers->get('Location'));
+        self::assertStringContainsString('/statistics/insights', (string) $client->getResponse()->headers->get('Location'));
     }
 
     public function testRedirectsWhenSameGroupSelected(): void
@@ -317,7 +318,7 @@ final class IndicationCompareControllerTest extends WebTestCase
 
         $group = IndicationGroupFactory::createOne(['name' => 'Same Group', 'createdBy' => $user]);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication/compare', [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/compare', [
             'scope' => 'public',
             'period' => 'all',
             'subject_a_type' => 'group',
@@ -428,5 +429,158 @@ final class IndicationCompareControllerTest extends WebTestCase
             'indicationBId' => (int) $indicationB->getId(),
             'indicationCId' => (int) $indicationC->getId(),
         ];
+    }
+
+    public function testCompareWithoutSubjectsRedirectsToDirectory(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'indication-compare-empty-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            '/statistics/insights/assignments',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testCompareRendersForAssignments(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $state = StateFactory::createOne(['name' => 'AssignCompareState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'AssignCompareDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'AssignCompareHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'AssignCompareSpec']);
+        DepartmentFactory::createOne(['name' => 'AssignCompareDept']);
+        $assignmentA = AssignmentFactory::createOne(['name' => 'Compare Assignment A']);
+        $assignmentB = AssignmentFactory::createOne(['name' => 'Compare Assignment B']);
+        IndicationRawFactory::createOne(['name' => 'AssignCompareRaw', 'code' => 912_381]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Assign Compare Indication', 'code' => 5101]);
+        $import = ImportFactory::createOne(['name' => 'AssignCompareImport', 'hospital' => $hospital, 'createdBy' => $user]);
+
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'assignment' => $assignmentA,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-04-01 14:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 14:25:00'),
+        ]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'assignment' => $assignmentB,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-04-02 14:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-02 14:25:00'),
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+            'subject_a_id' => (string) $assignmentA->getId(),
+            'subject_b_id' => (string) $assignmentB->getId(),
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Compare Assignment A');
+        self::assertSelectorTextContains('body', 'Compare Assignment B');
+    }
+
+    public function testCompareSameAssignmentRedirectsToDirectory(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-same-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $assignment = AssignmentFactory::createOne(['name' => 'Same Assignment']);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_id' => (string) $assignment->getId(),
+            'subject_b_id' => (string) $assignment->getId(),
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            '/statistics/insights/assignments',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testCompareUnknownAssignmentIdsRedirectToDirectory(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-unknown-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_id' => '999999',
+            'subject_b_id' => '888888',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            '/statistics/insights/assignments',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testCompareRejectsNonNumericSubjectIds(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-nan-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_id' => 'abc',
+            'subject_b_id' => '12',
+        ]);
+
+        self::assertResponseRedirects();
+    }
+
+    public function testUndersizedHospitalCohortRedirectsCompareToPublic(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'compare-cohort-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'hospital_cohort',
+            'cohort' => 'urban_basic',
+            'period' => 'all',
+            'subject_a_id' => '1',
+            'subject_b_id' => '2',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('scope=public', (string) $client->getResponse()->headers->get('Location'));
     }
 }

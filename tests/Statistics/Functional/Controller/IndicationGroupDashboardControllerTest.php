@@ -37,7 +37,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $client = self::createClient();
         $fixture = $this->seedGroupDashboardFixture($client);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-group/'.$fixture['groupId'], [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$fixture['groupId'], [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
             'period' => 'all',
@@ -46,24 +46,21 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="stats-indication-group-heading-title"]', 'Cardiology Group');
         self::assertSelectorExists('[data-testid="stats-indication-group-members"]');
-        self::assertSelectorExists('[data-testid="stats-indication-group-picker-input"]');
-        self::assertSelectorExists('[data-testid="stats-indication-group-picker-submit"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-input"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
+        self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
         self::assertSelectorExists('[data-testid="stats-indication-compare-launch-button"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-modal"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-presets"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-members-show-more"]');
-        self::assertSelectorExists('[data-testid="stats-indication-group-picker-card"] .col-md-6');
+        self::assertSelectorExists('[data-testid="stats-indication-group-members-card"]');
 
         $crawler = $client->getCrawler();
-        self::assertStringContainsString(
-            'Cardiology Group',
-            (string) $crawler->filter('[data-testid="stats-indication-group-picker-input"]')->attr('value'),
-        );
 
         $memberLinks = $crawler->filter('[data-testid="stats-indication-group-members"] a.text-reset');
         self::assertGreaterThanOrEqual(2, $memberLinks->count());
         self::assertStringContainsString(
-            '/statistics/indication/'.$fixture['indicationAId'],
+            '/statistics/insights/indications/'.$fixture['indicationAId'],
             (string) $memberLinks->first()->attr('href'),
         );
         self::assertStringContainsString('Group Member A', $memberLinks->first()->text());
@@ -135,7 +132,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-group/'.$group->getId(), [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
             'period' => 'all',
@@ -159,7 +156,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
 
         $group = IndicationGroupFactory::createOne(['name' => 'Empty Group', 'createdBy' => $user]);
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-group/'.$group->getId(), [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'public',
             'period' => 'all',
         ]);
@@ -172,7 +169,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         );
         self::assertSelectorNotExists('[data-testid="stats-indication-group-heading-title"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-card"]');
-        self::assertSelectorExists('a[href*="/statistics/indication-insights"]');
+        self::assertSelectorExists('a[href*="/statistics/insights"]');
     }
 
     public function testGroupDashboardRendersWithZeroAllocationsInPeriod(): void
@@ -206,7 +203,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         $groupEntity->addIndication($indicationB);
         $entityManager->flush();
 
-        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/indication-group/'.$group->getId(), [
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups/'.$group->getId(), [
             'scope' => 'hospital',
             'hospital' => (string) $hospital->getId(),
             'period' => 'all',
@@ -216,7 +213,8 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-indication-group-empty"]');
         self::assertSelectorTextContains('[data-testid="stats-indication-group-heading-title"]', 'Zero Allocation Group');
         self::assertSelectorTextContains('[data-testid="stats-indication-case-count"]', '0');
-        self::assertSelectorExists('[data-testid="stats-indication-group-picker-card"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-card"]');
+        self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-input"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-members"]');
         self::assertSelectorExists('[data-testid="stats-indication-compare-launch-button"]');
     }

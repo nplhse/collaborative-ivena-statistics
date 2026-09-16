@@ -233,6 +233,10 @@
         <source>link.stats.indication_insights</source>
         <target>Indikationen</target>
       </trans-unit>
+      <trans-unit id="lnkStatsInDe" resname="link.stats.insights">
+        <source>link.stats.insights</source>
+        <target>Insights</target>
+      </trans-unit>
       <trans-unit id="lnkStatsRepDe" resname="link.stats.top_lists">
         <source>link.stats.top_lists</source>
         <target>Top-Listen</target>

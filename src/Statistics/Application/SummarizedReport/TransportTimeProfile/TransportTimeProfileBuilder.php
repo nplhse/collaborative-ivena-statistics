@@ -70,8 +70,8 @@ final readonly class TransportTimeProfileBuilder
         $indicationUrls = [];
         foreach ($indicationIds as $id) {
             $indicationUrls[$id] = $this->urlGenerator->generate(
-                'app_stats_indication_dashboard',
-                ['indicationId' => $id] + $filterParams,
+                'app_stats_insights_show',
+                ['dimension' => 'indications', 'id' => $id] + $filterParams,
             );
         }
 

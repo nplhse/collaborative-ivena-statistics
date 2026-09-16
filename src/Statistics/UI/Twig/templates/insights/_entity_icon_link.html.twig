@@ -1,0 +1,10 @@
+{% set insightUrl = insight_entity_url(entity) %}
+{% if insightUrl %}
+    <a href="{{ insightUrl }}"
+       class="ms-1 text-secondary"
+       title="{{ 'stats.insights.open'|trans({}, 'statistics') }}"
+       aria-label="{{ 'stats.insights.open'|trans({}, 'statistics') }}"
+       data-testid="{{ testId|default('insight-entity-link') }}">
+        <twig:ux:icon name="tabler:chart-bar" class="icon icon-sm" />
+    </a>
+{% endif %}

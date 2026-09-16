@@ -1,0 +1,21 @@
+{% if topListUrl %}
+    <a href="{{ topListUrl }}" class="btn btn-sm" data-testid="stats-insights-directory-top-list">
+        {{ 'stats.indication.nav.top_list'|trans({}, 'statistics') }}
+    </a>
+{% endif %}
+<form method="get" data-controller="autosubmit" class="mb-0" data-testid="stats-insights-directory-search">
+    {{ include('@Statistics/insights/_directory_query_hidden.html.twig', {exclude: ['q', 'page']}) }}
+    <label class="visually-hidden" for="stats-insights-directory-q">{{ 'stats.insights.directory.search'|trans({}, 'statistics') }}</label>
+    <div class="input-icon">
+        <span class="input-icon-addon">
+            <twig:ux:icon name="tabler:search" class="icon" />
+        </span>
+        <input type="search"
+               id="stats-insights-directory-q"
+               name="q"
+               value="{{ searchQuery }}"
+               class="form-control form-control-sm"
+               placeholder="{{ 'stats.insights.directory.search_placeholder'|trans({}, 'statistics') }}"
+               data-action="input->autosubmit#debouncedSubmit">
+    </div>
+</form>

@@ -91,3 +91,26 @@ export function layerBounds(layer) {
 
     return bounds?.isValid?.() ? bounds : null;
 }
+
+export function boundsCenteredOn(bounds, center) {
+    if (!bounds?.isValid?.()) {
+        return null;
+    }
+
+    const lat = Number(center?.lat);
+    const lng = Number(center?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return bounds;
+    }
+
+    const southWest = bounds.getSouthWest();
+    const northEast = bounds.getNorthEast();
+    const latDelta = Math.max(Math.abs(northEast.lat - lat), Math.abs(lat - southWest.lat));
+    const lngDelta = Math.max(Math.abs(northEast.lng - lng), Math.abs(lng - southWest.lng));
+
+    if (latDelta === 0 && lngDelta === 0) {
+        return bounds;
+    }
+
+    return L.latLngBounds([lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]);
+}

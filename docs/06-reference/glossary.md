@@ -10,7 +10,8 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[glossary-i
 | Requeue | Re-dispatching existing imports to the queue |
 | Reject | A rejected import row with error context |
 | Projection | Denormalized statistics table (`allocation_stats_projection`) |
-| Data quality indicator | Traffic-light badge on statistics pages with scope and period filters; summarises coverage, representativeness, subgroup support, and allocation volume (indication-specific on the indication dashboard) |
+| Insights | Dimension analysis of a catalog value (or indication group) versus the remaining caseload in the current scope and period; see [../04-features/statistics/insights.md](../04-features/statistics/insights.md) |
+| Data quality indicator | Traffic-light badge on statistics pages with scope and period filters; summarises coverage, representativeness, subgroup support, and allocation volume (indication-specific on the Insights indication dashboard) |
 | Materialized view | Pre-aggregated database view for fast reads |
 | Fixture group | Named subset of Doctrine fixtures (`reference`, `dev`, `allocations`, …) |
 | Reference fixture | Versioned master data from `fixtures/reference/catalog.yaml` |

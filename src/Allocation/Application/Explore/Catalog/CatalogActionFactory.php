@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Explore\Catalog;
 
 use App\Allocation\Application\DTO\CatalogAction;
+use App\Statistics\Application\Insights\InsightDimensionKey;
 use App\Statistics\Application\TopList\TopListCatalogCrossReference;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -23,7 +24,10 @@ final readonly class CatalogActionFactory
      */
     public function forSecondaryTransport(int $id): array
     {
-        return $this->withTopListAction([$this->viewAllocationsAction('secondaryTransport', $id)], CatalogDimensionKey::SecondaryTransport);
+        return $this->withTopListAction([
+            $this->viewAllocationsAction('secondaryTransport', $id),
+            $this->insightAction(InsightDimensionKey::SecondaryTransports, $id),
+        ], CatalogDimensionKey::SecondaryTransport);
     }
 
     /**
@@ -43,9 +47,10 @@ final readonly class CatalogActionFactory
                 primary: true,
             ),
             new CatalogAction(
-                label: $this->translator->trans('catalog.action.indication_insights', [], 'allocation'),
-                url: $this->urlGenerator->generate('app_stats_indication_dashboard', [
-                    'indicationId' => $id,
+                label: $this->translator->trans('catalog.action.open_insight', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_stats_insights_show', [
+                    'dimension' => InsightDimensionKey::Indications->value,
+                    'id' => $id,
                 ]),
                 icon: 'tabler:chart-bar',
             ),
@@ -67,7 +72,10 @@ final readonly class CatalogActionFactory
      */
     public function forDepartment(int $id): array
     {
-        return $this->withTopListAction([$this->viewAllocationsAction('department', $id)], CatalogDimensionKey::Department);
+        return $this->withTopListAction([
+            $this->viewAllocationsAction('department', $id),
+            $this->insightAction(InsightDimensionKey::Departments, $id),
+        ], CatalogDimensionKey::Department);
     }
 
     /**
@@ -75,7 +83,10 @@ final readonly class CatalogActionFactory
      */
     public function forSpeciality(int $id): array
     {
-        return $this->withTopListAction([$this->viewAllocationsAction('speciality', $id)], CatalogDimensionKey::Speciality);
+        return $this->withTopListAction([
+            $this->viewAllocationsAction('speciality', $id),
+            $this->insightAction(InsightDimensionKey::Specialities, $id),
+        ], CatalogDimensionKey::Speciality);
     }
 
     /**
@@ -83,7 +94,10 @@ final readonly class CatalogActionFactory
      */
     public function forAssignment(int $id): array
     {
-        return $this->withTopListAction([$this->viewAllocationsAction('assignment', $id)], CatalogDimensionKey::Assignment);
+        return $this->withTopListAction([
+            $this->viewAllocationsAction('assignment', $id),
+            $this->insightAction(InsightDimensionKey::Assignments, $id),
+        ], CatalogDimensionKey::Assignment);
     }
 
     /**
@@ -91,7 +105,10 @@ final readonly class CatalogActionFactory
      */
     public function forOccasion(int $id): array
     {
-        return $this->withTopListAction([$this->viewAllocationsAction('occasion', $id)], CatalogDimensionKey::Occasion);
+        return $this->withTopListAction([
+            $this->viewAllocationsAction('occasion', $id),
+            $this->insightAction(InsightDimensionKey::Occasions, $id),
+        ], CatalogDimensionKey::Occasion);
     }
 
     /**
@@ -99,7 +116,10 @@ final readonly class CatalogActionFactory
      */
     public function forInfection(int $id): array
     {
-        return $this->withTopListAction([$this->viewAllocationsAction('infection', $id)], CatalogDimensionKey::Infection);
+        return $this->withTopListAction([
+            $this->viewAllocationsAction('infection', $id),
+            $this->insightAction(InsightDimensionKey::Infections, $id),
+        ], CatalogDimensionKey::Infection);
     }
 
     /**
@@ -143,9 +163,10 @@ final readonly class CatalogActionFactory
     {
         return [
             new CatalogAction(
-                label: $this->translator->trans('catalog.action.indication_group_insights', [], 'allocation'),
-                url: $this->urlGenerator->generate('app_stats_indication_group_dashboard', [
-                    'groupId' => $id,
+                label: $this->translator->trans('catalog.action.open_insight', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_stats_insights_show', [
+                    'dimension' => InsightDimensionKey::IndicationGroups->value,
+                    'id' => $id,
                 ]),
                 icon: 'tabler:chart-bar',
                 primary: true,
@@ -156,6 +177,18 @@ final readonly class CatalogActionFactory
     public function forCatalogList(CatalogDimensionKey $dimension): ?CatalogAction
     {
         return $this->viewTopListAction($dimension);
+    }
+
+    private function insightAction(InsightDimensionKey $dimension, int $id): CatalogAction
+    {
+        return new CatalogAction(
+            label: $this->translator->trans('catalog.action.open_insight', [], 'allocation'),
+            url: $this->urlGenerator->generate('app_stats_insights_show', [
+                'dimension' => $dimension->value,
+                'id' => $id,
+            ]),
+            icon: 'tabler:chart-bar',
+        );
     }
 
     private function viewAllocationsAction(string $filterParam, int $id): CatalogAction

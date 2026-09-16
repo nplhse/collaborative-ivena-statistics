@@ -1,5 +1,9 @@
 <turbo-frame id="stats-isochrone-origin-map">
     {% if heatmap is not null %}
-        {{ include('@Statistics/isochrone_origin_map/_card.html.twig', {heatmap: heatmap}) }}
+        {{ include('@Statistics/isochrone_origin_map/_card.html.twig', {
+            heatmap: heatmap,
+            mapPayload: mapPayload|default(null),
+            showOriginLayers: showOriginLayers|default(false),
+        }) }}
     {% endif %}
 </turbo-frame>

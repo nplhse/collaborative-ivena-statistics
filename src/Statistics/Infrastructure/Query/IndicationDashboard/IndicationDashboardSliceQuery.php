@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Query\IndicationDashboard;
 
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
@@ -14,7 +15,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
- * Single-scan aggregation for all indication-only dashboard dimensions.
+ * Single-scan aggregation for dashboard slice dimensions of a selected population.
  *
  * @see docs/04-features/statistics/indication-dashboard-performance.md
  */
@@ -26,16 +27,20 @@ final readonly class IndicationDashboardSliceQuery
     }
 
     /**
-     * @param list<int> $indicationIds
+     * @param list<int>|InsightPopulationFilter $indicationIds
      */
     public function fetch(
-        array $indicationIds,
+        array|InsightPopulationFilter $indicationIds,
         ?\DateTimeImmutable $from,
         ?\DateTimeImmutable $toExclusive,
         StatisticsScopeCriteria $scope,
         TimeSeriesGrain $timeSeriesGrain = TimeSeriesGrain::Month,
     ): IndicationDashboardSliceData {
-        if ([] === $indicationIds) {
+        $population = $indicationIds instanceof InsightPopulationFilter
+            ? $indicationIds
+            : InsightPopulationFilter::indications($indicationIds);
+
+        if ($population->isEmpty()) {
             return IndicationDashboardSliceData::empty();
         }
 
@@ -44,8 +49,9 @@ final readonly class IndicationDashboardSliceQuery
         }
 
         [$where, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
-        $types['indication_ids'] = ArrayParameterType::INTEGER;
-        $params['indication_ids'] = array_map(static fn (int $id): int => $id, $indicationIds);
+        $types['subject_ids'] = ArrayParameterType::INTEGER;
+        $params['subject_ids'] = $population->ids;
+        $subjectPredicate = $population->sqlInPredicate();
 
         $ageBucketCase = StatisticsAgeGroupBucketSql::CASE_EXPRESSION;
         $transportBucketCase = StatisticsTransportTimeBucketSql::CASE_EXPRESSION;
@@ -72,7 +78,7 @@ WITH slice AS (
         day_time_bucket_code,
         shift_bucket_code
     FROM allocation_stats_projection
-    WHERE {$where} AND indication_normalized_id IN (:indication_ids)
+    WHERE {$where} AND {$subjectPredicate}
 )
 SELECT 'gender' AS slice_kind, 'male' AS dim1, NULL::text AS dim2, NULL::text AS dim3, COUNT(*)::int AS count
 FROM slice WHERE gender_code = {$maleCode}

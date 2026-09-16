@@ -40,6 +40,34 @@ final readonly class TopListCatalogCrossReference
         };
     }
 
+    public function insightDimensionSlug(string $topListKey): ?string
+    {
+        return match ($topListKey) {
+            'top_diagnoses' => 'indications',
+            'top_departments' => 'departments',
+            'top_specialities' => 'specialities',
+            'top_assignments' => 'assignments',
+            'top_occasions' => 'occasions',
+            'top_infections' => 'infections',
+            'top_secondary_transports' => 'secondary-transports',
+            default => null,
+        };
+    }
+
+    public function insightRowTarget(string $topListKey, ?int $entityId): ?StatisticWidgetNavigationTarget
+    {
+        $slug = $this->insightDimensionSlug($topListKey);
+        if (null === $slug || null === $entityId) {
+            return null;
+        }
+
+        return new StatisticWidgetNavigationTarget(
+            'stats.insights.open',
+            'app_stats_insights_show',
+            ['dimension' => $slug, 'id' => $entityId],
+        );
+    }
+
     public function labelRowTarget(string $topListKey, ?string $publicId): ?StatisticWidgetNavigationTarget
     {
         return match ($topListKey) {

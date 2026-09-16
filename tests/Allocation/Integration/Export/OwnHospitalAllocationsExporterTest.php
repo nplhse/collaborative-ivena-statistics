@@ -166,6 +166,7 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
         AllocationFactory::createOne([
             'hospital' => $hospital,
             'arrivalAt' => new \DateTimeImmutable('2026-01-15 10:00:00'),
+            'age' => 45,
             'assignment' => $assignment,
             'occasion' => $occasion,
             'departmentWasClosed' => true,
@@ -186,8 +187,10 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
         self::assertStringContainsString('Occasion', $csv);
         self::assertStringContainsString('Emergency assignment', $csv);
         self::assertStringContainsString('Holiday occasion', $csv);
-        self::assertStringContainsString('True', $csv);
-        self::assertStringNotContainsString(',1,', $csv);
+
+        $row = $this->csvAssocRows($csv)[0];
+        self::assertSame('True', $row['Department was closed']);
+        self::assertSame('45', $row['Age']);
     }
 
     public function testWriteCsvUsesSequentialRowNumbers(): void
@@ -278,6 +281,7 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
         AllocationFactory::createOne([
             'hospital' => $hospital,
             'arrivalAt' => new \DateTimeImmutable('2026-01-15 10:00:00'),
+            'age' => 45,
             'departmentWasClosed' => true,
             'requiresResus' => false,
         ]);
@@ -298,10 +302,9 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
 
         $csv = $this->exportCsv($exporter, $owner, $filter);
 
-        self::assertStringContainsString('Wahr', $csv);
-        self::assertStringContainsString('Falsch', $csv);
-        self::assertStringNotContainsString(',1,', $csv);
-        self::assertStringNotContainsString(',0,', $csv);
+        $row = $this->csvAssocRows($csv)[0];
+        self::assertSame('Wahr', $row['Fachbereich war abgemeldet']);
+        self::assertSame('Falsch', $row['Schockraum angefordert']);
     }
 
     public function testWriteCsvRespectsSelectedHospitalIds(): void
@@ -394,6 +397,29 @@ final class OwnHospitalAllocationsExporterTest extends KernelTestCase
 
         $this->expectException(\Symfony\Component\Security\Core\Exception\AccessDeniedException::class);
         $exporter->assertCanExport($user);
+    }
+
+    /**
+     * @return list<array<string, string>>
+     */
+    private function csvAssocRows(string $csv): array
+    {
+        $lines = array_values(array_filter(
+            explode("\n", trim($csv)),
+            static fn (string $line): bool => '' !== $line,
+        ));
+        self::assertNotEmpty($lines);
+        $header = str_getcsv($lines[0], escape: '\\');
+        $rows = [];
+        foreach (array_slice($lines, 1) as $line) {
+            $cells = str_getcsv($line, escape: '\\');
+            self::assertCount(\count($header), $cells);
+            $combined = array_combine($header, $cells);
+            self::assertIsArray($combined);
+            $rows[] = $combined;
+        }
+
+        return $rows;
     }
 
     private function exportCsv(OwnHospitalAllocationsExporter $exporter, object $user, OwnHospitalAllocationsExportFilter $filter): string

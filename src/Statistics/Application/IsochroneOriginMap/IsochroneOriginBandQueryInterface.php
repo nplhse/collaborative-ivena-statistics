@@ -6,6 +6,7 @@ namespace App\Statistics\Application\IsochroneOriginMap;
 
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandQueryResult;
 
 interface IsochroneOriginBandQueryInterface
@@ -20,5 +21,6 @@ interface IsochroneOriginBandQueryInterface
         ?array $indicationIds = null,
         ?bool $departmentWasClosed = null,
         ?StatisticsDrawerFilter $drawerFilter = null,
+        ?InsightPopulationFilter $population = null,
     ): IsochroneOriginBandQueryResult;
 }

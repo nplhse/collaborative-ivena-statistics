@@ -1,0 +1,73 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set isGroup = dimensionKey.value == 'indication-groups' %}
+
+{% block title %}{{ dashboard.header.indicationName }} – {{ 'link.stats.insights'|trans({}, 'shared') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'link.stats.insights', path: path('app_stats_insights') },
+                { label: provider.labelTranslationKey, path: path('app_stats_insights_dimension', {dimension: isGroup ? 'indications' : dimensionKey.value}) },
+                { label: dashboard.header.indicationName }
+            ]" />
+
+            <div class="flex-shrink-0 d-print-none mt-2">
+                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+            </div>
+        </div>
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle" data-testid="stats-indication-heading-subtitle">
+                        {{ provider.labelTranslationKey|trans({}, 'statistics') }}
+                    </div>
+                    <h2 class="page-title mb-0" data-testid="{{ isGroup ? 'stats-indication-group-heading-title' : 'stats-indication-heading-title' }}">
+                        {{ dashboard.header.indicationName }}
+                    </h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
+    {% if memberRows is defined and memberRows is not empty %}
+        <div class="card mb-3 d-print-none" data-testid="stats-indication-group-members-card">
+            <div class="card-body py-3">
+                {{ include('@Statistics/indication_group/_group_members_list.html.twig') }}
+            </div>
+        </div>
+    {% endif %}
+
+    <div data-controller="indication-dashboard-charts"
+         data-indication-dashboard-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+
+        {{ include('@Statistics/indication_dashboard/_summary_deck.html.twig') }}
+        {{ include('@Statistics/indication_dashboard/_dashboard_charts.html.twig') }}
+    </div>
+
+    {% if statsShowCompareLaunchButton|default(false) and comparePicker is not null %}
+        {{ include('@Statistics/indication_compare/_compare_modal.html.twig', {
+            compareModalId: isGroup ? 'stats-indication-group-compare-launch-modal' : 'stats-indication-compare-launch-modal',
+            compareModalTitleKey: 'stats.indication.compare.launch_modal.title',
+            compareModalInputIdPrefix: isGroup ? 'stats-indication-group-compare-launch' : 'stats-indication-compare-launch',
+            compareModalTestIdPrefix: isGroup ? 'stats-indication-group-compare-launch' : 'stats-indication-compare-launch',
+            comparePresets: comparePresets|default([]),
+        }) }}
+    {% endif %}
+{% endblock %}

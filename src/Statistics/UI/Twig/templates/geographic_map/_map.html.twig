@@ -22,6 +22,7 @@
 {% set showTitle = showTitle ?? true %}
 {% set layers = payload.layers|default([]) %}
 {% set compactLayers = payload.compactLayers|default([]) %}
+{% set compactEnabledLayers = payload.compactEnabledLayers|default(compactLayers) %}
 {% set showCompactLayerToggles = 'originChoropleth' in compactLayers and 'isochroneBands' in compactLayers %}
 {% set overlayLayers = [] %}
 {% for layer in ['originChoropleth', 'destinationHospitals', 'isochroneBands', 'hospitalPin'] %}
@@ -29,6 +30,14 @@
         {% set overlayLayers = overlayLayers|merge([layer]) %}
     {% endif %}
 {% endfor %}
+{% set compactLayerToggles %}
+    {{ include('@Statistics/geographic_map/_layer_toggles.html.twig', {
+        layers: ['originChoropleth', 'isochroneBands'],
+        checkedLayers: compactEnabledLayers,
+        withTestIds: true,
+        compact: true,
+    }) }}
+{% endset %}
 
 <div class="card"
      data-controller="geo-map"
@@ -40,52 +49,50 @@
      data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics')|e('html_attr') }}"
      data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"
      data-testid="{{ testId }}">
-    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-        {% if showTitle or showCompactLayerToggles %}
-            <div class="d-flex flex-wrap align-items-center gap-2 min-w-0">
-                {% if showTitle %}
-                    <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
-                {% endif %}
-                {% if showCompactLayerToggles %}
-                    <div class="geo-map-compact-layer-toggles">
-                        {{ include('@Statistics/geographic_map/_layer_toggles.html.twig', {
-                            layers: ['originChoropleth', 'isochroneBands'],
-                            withTestIds: true,
-                            compact: true,
-                        }) }}
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
-        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-            {% if showValueModes %}
-                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans({}, 'statistics') }}">
-                    <button type="button"
-                            class="btn"
-                            data-geo-map-target="modeAbsolute"
-                            data-action="geo-map#setAbsoluteMode"
-                            aria-pressed="false">
-                        {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
-                    </button>
-                    <button type="button"
-                            class="btn active"
-                            data-geo-map-target="modeRelative"
-                            data-action="geo-map#setRelativeMode"
-                            aria-pressed="true">
-                        {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
-                    </button>
+    <div class="card-header py-2 d-flex flex-column align-items-stretch gap-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 w-100">
+            {% if showTitle %}
+                <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
+            {% elseif showCompactLayerToggles %}
+                <div class="geo-map-compact-layer-toggles">
+                    {{ compactLayerToggles }}
                 </div>
             {% endif %}
-            {% if showExpand %}
-                <button type="button"
-                        class="btn btn-sm"
-                        data-action="geo-map#expand"
-                        data-testid="stats-geo-map-expand">
-                    <twig:ux:icon name="tabler:arrows-maximize" class="icon icon-sm" />
-                    {{ 'stats.case_flow.map.expand'|trans({}, 'statistics') }}
-                </button>
-            {% endif %}
+            <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                {% if showValueModes %}
+                    <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans({}, 'statistics') }}">
+                        <button type="button"
+                                class="btn"
+                                data-geo-map-target="modeAbsolute"
+                                data-action="geo-map#setAbsoluteMode"
+                                aria-pressed="false">
+                            {{ 'stats.case_flow.map.mode.absolute'|trans({}, 'statistics') }}
+                        </button>
+                        <button type="button"
+                                class="btn active"
+                                data-geo-map-target="modeRelative"
+                                data-action="geo-map#setRelativeMode"
+                                aria-pressed="true">
+                            {{ 'stats.case_flow.map.mode.relative'|trans({}, 'statistics') }}
+                        </button>
+                    </div>
+                {% endif %}
+                {% if showExpand %}
+                    <button type="button"
+                            class="btn btn-sm"
+                            data-action="geo-map#expand"
+                            data-testid="stats-geo-map-expand">
+                        <twig:ux:icon name="tabler:arrows-maximize" class="icon icon-sm" />
+                        {{ 'stats.case_flow.map.expand'|trans({}, 'statistics') }}
+                    </button>
+                {% endif %}
+            </div>
         </div>
+        {% if showTitle and showCompactLayerToggles %}
+            <div class="geo-map-compact-layer-toggles">
+                {{ compactLayerToggles }}
+            </div>
+        {% endif %}
     </div>
     <div class="card-body pt-2">
         <div class="{{ frameClass }} geo-map-frame">
@@ -140,6 +147,7 @@
             <div class="geo-map-expand-toolbar">
                 {{ include('@Statistics/geographic_map/_layer_toggles.html.twig', {
                     layers: overlayLayers,
+                    checkedLayers: payload.expandedLayers|default(overlayLayers),
                     withTestIds: false,
                 }) }}
             </div>

@@ -16,8 +16,10 @@ With `period=all` and a wide hospital scope, that forces a large heap scan per r
 
 Two targeted queries:
 
-1. **Scope totals** — one pass over the scope filter; plain `COUNT(*) FILTER (...)` columns plus baseline medians (`PERCENTILE_CONT` with `indication_normalized_id IS DISTINCT FROM :id`).
-2. **Indication slice** — `WHERE indication_normalized_id = :id` plus scope; same count columns and indication medians on a small row set.
+1. **Scope totals** — one pass over the scope filter; plain `COUNT(*) FILTER (...)` columns plus baseline medians (`PERCENTILE_CONT` with the population baseline predicate).
+2. **Subject slice** — `WHERE {column} IN (:ids)` plus scope; same count columns and subject medians on a small row set.
+
+The queries accept `InsightPopulationFilter` (or a legacy indication-id list). Indication groups pass member IDs on `indication_normalized_id`; other dimensions use their own projection column from the whitelist.
 
 Additive baseline counts: `baseline_metric = scope_metric - indication_metric`.
 

@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\IsochroneOriginMap\Dto\IsochroneOriginBandQueryResult;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginBandQueryInterface;
 use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginHeatmapAssembler;
@@ -168,6 +169,7 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
                 [7, 8],
                 null,
                 null,
+                null,
             )
             ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
 
@@ -195,6 +197,7 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
                 null,
                 true,
                 null,
+                null,
             )
             ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
 
@@ -205,6 +208,38 @@ final class IsochroneOriginHeatmapAssemblerTest extends TestCase
             new StatisticsPeriodBounds(null),
             null,
             true,
+        );
+
+        self::assertNotNull($view);
+        self::assertSame(2, $view->bands[0]->count);
+    }
+
+    public function testForwardsPopulationFilterToTheBandQuery(): void
+    {
+        $population = InsightPopulationFilter::of('speciality_id', [11]);
+        $query = $this->createMock(IsochroneOriginBandQueryInterface::class);
+        $query->expects(self::once())
+            ->method('fetch')
+            ->with(
+                self::isNull(),
+                self::isNull(),
+                self::isInstanceOf(StatisticsScopeCriteria::class),
+                null,
+                null,
+                null,
+                $population,
+            )
+            ->willReturn(new IsochroneOriginBandQueryResult(['10' => 2]));
+
+        $assembler = $this->assembler($query, catalog: $this->catalog());
+        $view = $assembler->build(
+            $this->hospitalFilter(),
+            new StatisticsScopeCriteria([42]),
+            new StatisticsPeriodBounds(null),
+            null,
+            null,
+            null,
+            $population,
         );
 
         self::assertNotNull($view);

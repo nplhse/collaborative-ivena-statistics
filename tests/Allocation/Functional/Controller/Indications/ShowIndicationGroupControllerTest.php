@@ -55,7 +55,7 @@ final class ShowIndicationGroupControllerTest extends WebTestCase
 
         $href = $crawler->filter('[data-testid="catalog-action"]')->first()->attr('href');
         self::assertNotNull($href);
-        self::assertStringContainsString('/statistics/indication-group/', $href);
+        self::assertStringContainsString('/statistics/insights/indication-groups/', $href);
         self::assertStringContainsString((string) $group->getId(), $href);
     }
 }

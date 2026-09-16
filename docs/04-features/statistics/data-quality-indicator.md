@@ -4,7 +4,7 @@ Statistics pages with **scope** and **period** filters show a **Data Quality** b
 
 > How trustworthy are the deployment statistics for the active scope and period?
 
-On the indication dashboard, evaluation is additionally limited to the route **indication**. Everywhere else, all allocations in the scope and period are considered.
+On the Insights indication dashboard, evaluation is additionally limited to the selected indication. Everywhere else, all allocations in the scope and period are considered.
 
 The badge uses a three-level traffic light (`LOW` / `MEDIUM` / `HIGH`). Clicking it opens an offcanvas drawer with per-dimension scores, short explanations, and optional detail panels.
 
@@ -15,8 +15,9 @@ This is a **read-side transparency feature**. It does not block access to statis
 | Page | Route | `indicationId` |
 |---|---|---|
 | Overview | `/statistics/` | — (scope-wide) |
-| Indication Insights index | `/statistics/indication-insights` | — |
-| Indication dashboard | `/statistics/indication/{id}` | route parameter |
+| Insights overview | `/statistics/insights` | — |
+| Insights dimension directory | `/statistics/insights/{dimension}` | — |
+| Insights detail | `/statistics/insights/{dimension}/{id}` | indication id only for the indications dimension |
 | Case Flow | `/statistics/case-flow` | — |
 | Top Lists | `/statistics/top-lists`, `/statistics/top-lists/{report}` | — |
 | Reports | `/statistics/reports` | Report catalog; open a type e.g. `/statistics/reports/monthly` |

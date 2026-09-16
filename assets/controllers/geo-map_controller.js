@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import L from 'leaflet';
 import {
+    boundsCenteredOn,
     createLeafletMap,
     destroyLeafletMap,
     ensureContainerSize,
@@ -23,6 +24,7 @@ import {
     outflowPinColor,
 } from '../js/geo-map/hospitalPin.js';
 import {
+    asFeature,
     buildIsochroneRings,
     isochroneStyle,
     isochroneTooltip,
@@ -417,6 +419,15 @@ export default class extends Controller {
             : expanded
               ? this.expandMap
               : this.compactMap;
+
+        if (this.shouldFitDisplayedIsochrones(expanded)) {
+            const isochroneBounds = this.hospitalCenteredIsochroneBounds();
+            if (isochroneBounds?.isValid?.()) {
+                map.fitBounds(isochroneBounds, { padding: [28, 28], animate: false });
+                return;
+            }
+        }
+
         const bounds = this.focusBounds(context, expanded);
         if (bounds?.isValid?.()) {
             map.fitBounds(bounds, {
@@ -434,6 +445,42 @@ export default class extends Controller {
         }
 
         map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+    }
+
+    shouldFitDisplayedIsochrones(expanded) {
+        return (
+            this.isHospitalAnalysis() &&
+            this.layerEnabled('isochroneBands', expanded) &&
+            !this.layerEnabled('originChoropleth', expanded)
+        );
+    }
+
+    hospitalCenteredIsochroneBounds() {
+        const isochroneBounds = this.largestPopulatedIsochroneBounds();
+        if (!isochroneBounds?.isValid?.()) {
+            return null;
+        }
+
+        return boundsCenteredOn(isochroneBounds, this.hospitalLatLng());
+    }
+
+    largestPopulatedIsochroneBounds() {
+        const bands = this.isochroneBands();
+        let largest = null;
+        for (const band of bands) {
+            if (!band?.geometry || Number(band.count) <= 0) {
+                continue;
+            }
+            if (largest === null || Number(band.minutes) > Number(largest.minutes)) {
+                largest = band;
+            }
+        }
+
+        if (largest === null) {
+            return null;
+        }
+
+        return layerBounds(L.geoJSON(asFeature(largest.geometry, {})));
     }
 
     focusBounds(context, expanded) {
@@ -606,7 +653,10 @@ export default class extends Controller {
         const payload = this.payloadValue ?? {};
         const listed = expanded
             ? (payload.expandedLayers ?? payload.layers ?? [])
-            : (payload.compactLayers ?? payload.layers ?? this.defaultCompactLayers());
+            : (payload.compactEnabledLayers ??
+              payload.compactLayers ??
+              payload.layers ??
+              this.defaultCompactLayers());
 
         if (Array.isArray(listed) && listed.length > 0) {
             return new Set(listed);

@@ -7,6 +7,8 @@ namespace App\Statistics\Application\IndicationCompare;
 use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareCriteria;
 use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareHeader;
 use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareReport;
+use App\Statistics\Application\IndicationDashboard\IndicationSubjectType;
+use App\Statistics\Application\Insights\InsightDimensionKey;
 use App\Statistics\Benchmarking\Application\BenchmarkHeatmapBuilder;
 use App\Statistics\Benchmarking\Application\BenchmarkMetricBuilder;
 use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult;
@@ -36,16 +38,16 @@ final readonly class IndicationCompareReportService
         $scope = $criteria->scope;
 
         $metricsResult = $this->metricsQuery->fetch(
-            $criteria->subjectA->indicationIds,
-            $criteria->subjectB->indicationIds,
+            $criteria->subjectA->population,
+            $criteria->subjectB->population,
             $from,
             $toExclusive,
             $scope,
         );
 
         $sliceRows = $this->sliceQuery->fetch(
-            $criteria->subjectA->indicationIds,
-            $criteria->subjectB->indicationIds,
+            $criteria->subjectA->population,
+            $criteria->subjectB->population,
             $from,
             $toExclusive,
             $scope,
@@ -69,10 +71,14 @@ final readonly class IndicationCompareReportService
 
         return new IndicationCompareReport(
             new IndicationCompareHeader(
-                $criteria->subjectA->type,
+                InsightDimensionKey::IndicationGroups === $criteria->subjectA->dimension
+                    ? IndicationSubjectType::Group
+                    : IndicationSubjectType::Single,
                 $criteria->subjectA->id,
                 $criteria->subjectA->label,
-                $criteria->subjectB->type,
+                InsightDimensionKey::IndicationGroups === $criteria->subjectB->dimension
+                    ? IndicationSubjectType::Group
+                    : IndicationSubjectType::Single,
                 $criteria->subjectB->id,
                 $criteria->subjectB->label,
                 $totalA,

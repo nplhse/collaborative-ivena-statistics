@@ -6237,6 +6237,186 @@
         <source>stats.case_flow.segment.table.delta</source>
         <target>Δ</target>
       </trans-unit>
+      <trans-unit id="StatsInsDe01" resname="stats.insights.open">
+        <source>stats.insights.open</source>
+        <target>Insight öffnen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe02" resname="stats.insights.overview.pretitle">
+        <source>stats.insights.overview.pretitle</source>
+        <target>Dimensionsanalyse</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe03" resname="stats.insights.empty.title">
+        <source>stats.insights.empty.title</source>
+        <target>Keine Werte in diesem Bereich</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe04" resname="stats.insights.empty.subtitle">
+        <source>stats.insights.empty.subtitle</source>
+        <target>Wählen Sie einen weiteren Scope oder Zeitraum oder eine andere Dimension.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe05" resname="stats.insights.empty.teaser">
+        <source>stats.insights.empty.teaser</source>
+        <target>Keine häufigen Werte im aktuellen Scope.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe06" resname="stats.insights.subnav.label">
+        <source>stats.insights.subnav.label</source>
+        <target>Insight-Dimensionen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe07" resname="stats.insights.subnav.overview">
+        <source>stats.insights.subnav.overview</source>
+        <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe09" resname="stats.insights.dimension.pretitle">
+        <source>stats.insights.dimension.pretitle</source>
+        <target>Insights</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe10" resname="stats.insights.dimension.indications.label">
+        <source>stats.insights.dimension.indications.label</source>
+        <target>Indikationen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe11" resname="stats.insights.dimension.indications.description">
+        <source>stats.insights.dimension.indications.description</source>
+        <target>Analysieren Sie eine normalisierte Indikation gegenüber dem restlichen Einsatzaufkommen im aktuellen Scope und Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe12" resname="stats.insights.dimension.indications.all">
+        <source>stats.insights.dimension.indications.all</source>
+        <target>Alle Indikationen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe13" resname="stats.insights.dimension.indication_groups.label">
+        <source>stats.insights.dimension.indication_groups.label</source>
+        <target>Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe14" resname="stats.insights.dimension.indication_groups.description">
+        <source>stats.insights.dimension.indication_groups.description</source>
+        <target>Analysieren Sie eine kuratierte Gruppe von Indikationen als eine Population.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe15" resname="stats.insights.dimension.indication_groups.all">
+        <source>stats.insights.dimension.indication_groups.all</source>
+        <target>Alle Indikationsgruppen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe16" resname="stats.insights.dimension.specialities.label">
+        <source>stats.insights.dimension.specialities.label</source>
+        <target>Fachbereiche</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe17" resname="stats.insights.dimension.specialities.description">
+        <source>stats.insights.dimension.specialities.description</source>
+        <target>Analysieren Sie Einsätze nach aufnehmendem Fachbereich.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe18" resname="stats.insights.dimension.specialities.all">
+        <source>stats.insights.dimension.specialities.all</source>
+        <target>Alle Fachbereiche</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe19" resname="stats.insights.dimension.assignments.label">
+        <source>stats.insights.dimension.assignments.label</source>
+        <target>Zuweisung</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe20" resname="stats.insights.dimension.assignments.description">
+        <source>stats.insights.dimension.assignments.description</source>
+        <target>Analysieren Sie Einsätze nach Zuweisung.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe21" resname="stats.insights.dimension.assignments.all">
+        <source>stats.insights.dimension.assignments.all</source>
+        <target>Alle Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe22" resname="stats.insights.dimension.departments.label">
+        <source>stats.insights.dimension.departments.label</source>
+        <target>Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe23" resname="stats.insights.dimension.departments.description">
+        <source>stats.insights.dimension.departments.description</source>
+        <target>Analysieren Sie Einsätze nach Zielabteilung.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe24" resname="stats.insights.dimension.departments.all">
+        <source>stats.insights.dimension.departments.all</source>
+        <target>Alle Abteilungen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe25" resname="stats.insights.dimension.occasions.label">
+        <source>stats.insights.dimension.occasions.label</source>
+        <target>Anlässe</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe26" resname="stats.insights.dimension.occasions.description">
+        <source>stats.insights.dimension.occasions.description</source>
+        <target>Analysieren Sie Einsätze nach Anlass.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe27" resname="stats.insights.dimension.occasions.all">
+        <source>stats.insights.dimension.occasions.all</source>
+        <target>Alle Anlässe</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe28" resname="stats.insights.dimension.infections.label">
+        <source>stats.insights.dimension.infections.label</source>
+        <target>Infektionen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe29" resname="stats.insights.dimension.infections.description">
+        <source>stats.insights.dimension.infections.description</source>
+        <target>Analysieren Sie Einsätze nach Infektionsstatus.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe30" resname="stats.insights.dimension.infections.all">
+        <source>stats.insights.dimension.infections.all</source>
+        <target>Alle Infektionen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe31" resname="stats.insights.dimension.secondary_transports.label">
+        <source>stats.insights.dimension.secondary_transports.label</source>
+        <target>Sekundärverlegungen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe32" resname="stats.insights.dimension.secondary_transports.description">
+        <source>stats.insights.dimension.secondary_transports.description</source>
+        <target>Analysieren Sie Einsätze nach Art der Sekundärverlegung.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe33" resname="stats.insights.dimension.secondary_transports.all">
+        <source>stats.insights.dimension.secondary_transports.all</source>
+        <target>Alle Sekundärverlegungen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe34" resname="stats.insights.directory.title">
+        <source>stats.insights.directory.title</source>
+        <target>Werte</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe35" resname="stats.insights.directory.search">
+        <source>stats.insights.directory.search</source>
+        <target>Suche</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe36" resname="stats.insights.directory.search_placeholder">
+        <source>stats.insights.directory.search_placeholder</source>
+        <target>Name oder Code</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe37" resname="stats.insights.directory.sort">
+        <source>stats.insights.directory.sort</source>
+        <target>Sortierung</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe38" resname="stats.insights.directory.sort.frequency">
+        <source>stats.insights.directory.sort.frequency</source>
+        <target>Häufigkeit</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe39" resname="stats.insights.directory.sort.alpha">
+        <source>stats.insights.directory.sort.alpha</source>
+        <target>Alphabetisch</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe40" resname="stats.insights.directory.no_results">
+        <source>stats.insights.directory.no_results</source>
+        <target>Keine passenden Werte</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe41" resname="stats.insights.directory.no_results_help">
+        <source>stats.insights.directory.no_results_help</source>
+        <target>Ändern Sie den Suchbegriff oder leeren Sie ihn, um das vollständige Verzeichnis zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe42" resname="stats.insights.search.label">
+        <source>stats.insights.search.label</source>
+        <target>Insights durchsuchen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe43" resname="stats.insights.search.placeholder">
+        <source>stats.insights.search.placeholder</source>
+        <target>Indikation, Fachbereich, Abteilung…</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe44" resname="stats.insights.search.help">
+        <source>stats.insights.search.help</source>
+        <target>Mindestens zwei Zeichen eingeben. Treffer enthalten keine Fallzahlen.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe45" resname="stats.insights.search.loading">
+        <source>stats.insights.search.loading</source>
+        <target>Suche…</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe46" resname="stats.insights.search.no_results">
+        <source>stats.insights.search.no_results</source>
+        <target>Keine passenden Insights</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

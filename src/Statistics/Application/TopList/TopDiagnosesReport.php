@@ -85,6 +85,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
     {
         $rows = [];
         $labelRowTargets = [];
+        $insightRowTargets = [];
         $shareBars = [];
 
         foreach ($ranking->rows as $row) {
@@ -97,6 +98,10 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
             $labelRowTargets[] = $this->catalogCrossReference->labelRowTarget(
                 $this->key(),
                 $row->publicId,
+            );
+            $insightRowTargets[] = $this->catalogCrossReference->insightRowTarget(
+                $this->key(),
+                $row->entityId,
             );
             $shareBars[] = $row->share;
         }
@@ -112,6 +117,7 @@ final readonly class TopDiagnosesReport implements TopListDefinitionInterface
             [
                 'numericColumnStartIndex' => 3,
                 'labelRowTargets' => $labelRowTargets,
+                'insightRowTargets' => $insightRowTargets,
                 'shareBars' => $shareBars,
             ],
         );

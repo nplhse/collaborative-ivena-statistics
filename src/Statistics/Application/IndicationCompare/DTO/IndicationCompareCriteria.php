@@ -6,13 +6,13 @@ namespace App\Statistics\Application\IndicationCompare\DTO;
 
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
-use App\Statistics\Application\IndicationDashboard\IndicationSubject;
+use App\Statistics\Application\Insights\InsightSubject;
 
 final readonly class IndicationCompareCriteria
 {
     public function __construct(
-        public IndicationSubject $subjectA,
-        public IndicationSubject $subjectB,
+        public InsightSubject $subjectA,
+        public InsightSubject $subjectB,
         public StatisticsScopeCriteria $scope,
         public StatisticsPeriodBounds $period,
     ) {

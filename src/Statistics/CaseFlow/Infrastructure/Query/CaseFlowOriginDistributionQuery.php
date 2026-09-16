@@ -6,7 +6,9 @@ namespace App\Statistics\CaseFlow\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\StatisticsDrawerFilter;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
+use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\CaseFlow\Infrastructure\Query\Dto\CaseFlowOriginRow;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 final readonly class CaseFlowOriginDistributionQuery
@@ -26,8 +28,13 @@ final readonly class CaseFlowOriginDistributionQuery
         ?int $originStateId = null,
         ?StatisticsDrawerFilter $drawerFilter = null,
         CaseFlowDispatchAreaMatch $dispatchAreaMatch = CaseFlowDispatchAreaMatch::Related,
+        ?InsightPopulationFilter $population = null,
     ): array {
         if (CaseFlowSqlFilter::isImpossibleScope($scope, $originStateId)) {
+            return [];
+        }
+
+        if ($population instanceof InsightPopulationFilter && $population->isEmpty()) {
             return [];
         }
 
@@ -40,6 +47,12 @@ final readonly class CaseFlowOriginDistributionQuery
             $drawerFilter,
             $dispatchAreaMatch,
         );
+
+        if ($population instanceof InsightPopulationFilter) {
+            $where .= ' AND '.$population->sqlInPredicate('subject_ids', 'asp');
+            $params['subject_ids'] = $population->ids;
+            $types['subject_ids'] = ArrayParameterType::INTEGER;
+        }
 
         $sql = <<<SQL
 SELECT

@@ -115,4 +115,16 @@ final class TopListCatalogCrossReferenceTest extends TestCase
     {
         self::assertNull(new TopListCatalogCrossReference()->labelRowTarget('unknown', '33333333-3333-4333-8333-333333333333'));
     }
+
+    public function testInsightRowTargetUsesCanonicalShowRoute(): void
+    {
+        $target = new TopListCatalogCrossReference()->insightRowTarget('top_assignments', 9);
+
+        self::assertNotNull($target);
+        self::assertSame('stats.insights.open', $target->labelTranslationKey);
+        self::assertSame('app_stats_insights_show', $target->route);
+        self::assertSame(['dimension' => 'assignments', 'id' => 9], $target->params);
+        self::assertNull(new TopListCatalogCrossReference()->insightRowTarget('top_secondary_diagnoses', 9));
+        self::assertNull(new TopListCatalogCrossReference()->insightRowTarget('top_assignments', null));
+    }
 }

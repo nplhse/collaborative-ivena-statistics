@@ -669,6 +669,10 @@
         <source>catalog.action.view_top_list</source>
         <target>Open top list</target>
       </trans-unit>
+      <trans-unit id="CatActOpenInEn" resname="catalog.action.open_insight">
+        <source>catalog.action.open_insight</source>
+        <target>Open insight</target>
+      </trans-unit>
       <trans-unit id="CatActInsEn" resname="catalog.action.indication_insights">
         <source>catalog.action.indication_insights</source>
         <target>Open indication insights</target>

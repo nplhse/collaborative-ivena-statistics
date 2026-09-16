@@ -122,6 +122,46 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         }
     }
 
+    public function testInsightsWidgetShowsOriginToggleWithIsochronesEnabledByDefault(): void
+    {
+        $client = self::createClient();
+        $fixture = $this->seedHospitalFixture($client, writeIsochrones: true);
+
+        try {
+            $crawler = $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
+                'scope' => 'hospital',
+                'hospital' => (string) $fixture['hospitalId'],
+                'period' => 'all',
+                'dimension' => 'specialities',
+                'id' => (string) $fixture['specialityId'],
+            ]);
+
+            $this->assertResponseIsSuccessful();
+            $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map"]');
+            $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map"] .card-header h3.card-title');
+            $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map"] .card-header > .geo-map-compact-layer-toggles');
+            $this->assertSelectorExists('[data-testid="stats-geo-map-layer-origin"]');
+            $this->assertSelectorExists('[data-testid="stats-geo-map-layer-isochrones"]');
+            self::assertNull($crawler->filter('[data-testid="stats-geo-map-layer-origin"]')->attr('checked'));
+            self::assertNotNull($crawler->filter('[data-testid="stats-geo-map-layer-isochrones"]')->attr('checked'));
+            $geoUrl = $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-geo-url-value');
+            self::assertNotNull($geoUrl);
+            self::assertStringContainsString('hessen-landkreise', $geoUrl);
+            $payloadJson = (string) $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-payload-value');
+            $payload = json_decode(html_entity_decode($payloadJson), true);
+            self::assertIsArray($payload);
+            self::assertSame(['isochroneBands', 'hospitalPin'], $payload['compactEnabledLayers']);
+            self::assertContains('originChoropleth', $payload['compactLayers']);
+            $bandCount = 0;
+            foreach ($payload['bands'] as $band) {
+                $bandCount += (int) $band['count'];
+            }
+            self::assertSame(2, $bandCount);
+        } finally {
+            $this->removeIsochroneFile($fixture['isochronePath']);
+        }
+    }
+
     public function testIndicationDashboardFrameKeepsIndicationFilter(): void
     {
         $client = self::createClient();
@@ -129,7 +169,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/indication/'.$fixture['indicationId'],
+            '/statistics/insights/indications/'.$fixture['indicationId'],
             [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
@@ -141,7 +181,9 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map-frame"]');
         $src = (string) $crawler->filter('[data-testid="stats-isochrone-origin-map-frame"]')->attr('src');
         self::assertStringContainsString('/statistics/widgets/isochrone-origin-map', $src);
-        self::assertStringContainsString('indicationId='.$fixture['indicationId'], $src);
+        self::assertStringContainsString('dimension=indications', $src);
+        self::assertStringContainsString('id='.$fixture['indicationId'], $src);
+        self::assertStringNotContainsString('indicationId=', $src);
     }
 
     public function testWidgetAppliesIndicationFilterWhenIsochronesExist(): void
@@ -210,7 +252,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
 
         $crawler = $client->request(
             Request::METHOD_GET,
-            '/statistics/indication-group/'.$group->getId(),
+            '/statistics/insights/indication-groups/'.$group->getId(),
             [
                 'scope' => 'hospital',
                 'hospital' => (string) $fixture['hospitalId'],
@@ -222,19 +264,22 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map-frame"]');
         $src = (string) $crawler->filter('[data-testid="stats-isochrone-origin-map-frame"]')->attr('src');
         self::assertStringContainsString('/statistics/widgets/isochrone-origin-map', $src);
-        self::assertStringContainsString('groupId='.$group->getId(), $src);
+        self::assertStringContainsString('dimension=indication-groups', $src);
+        self::assertStringContainsString('id='.$group->getId(), $src);
+        self::assertStringNotContainsString('groupId=', $src);
 
         $client->request(Request::METHOD_GET, '/statistics/widgets/isochrone-origin-map', [
             'scope' => 'hospital',
             'hospital' => (string) $fixture['hospitalId'],
             'period' => 'all',
-            'groupId' => (string) $group->getId(),
+            'dimension' => 'indication-groups',
+            'id' => (string) $group->getId(),
         ]);
         $this->assertResponseIsSuccessful();
     }
 
     /**
-     * @return array{hospitalId: int, indicationId: int, isochronePath: ?string}
+     * @return array{hospitalId: int, indicationId: int, specialityId: int, isochronePath: ?string}
      */
     private function seedHospitalFixture(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client, bool $writeIsochrones): array
     {
@@ -255,7 +300,8 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             'longitude' => 8.6821,
         ]);
 
-        SpecialityFactory::createOne(['name' => 'IsoMapSpec']);
+        $speciality = SpecialityFactory::createOne(['name' => 'IsoMapSpec']);
+        $otherSpeciality = SpecialityFactory::createOne(['name' => 'IsoMapOtherSpec']);
         DepartmentFactory::createOne(['name' => 'IsoMapDept']);
         AssignmentFactory::createOne(['name' => 'IsoMapAssign']);
         IndicationRawFactory::createOne(['name' => 'IsoMapRaw', 'code' => 912_361]);
@@ -268,6 +314,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             'hospital' => $hospital,
             'state' => $state,
             'dispatchArea' => $dispatchArea,
+            'speciality' => $speciality,
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::EMERGENCY,
             'age' => 40,
@@ -280,6 +327,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             'hospital' => $hospital,
             'state' => $state,
             'dispatchArea' => $dispatchArea,
+            'speciality' => $speciality,
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::EMERGENCY,
             'age' => 41,
@@ -292,12 +340,26 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             'hospital' => $hospital,
             'state' => $state,
             'dispatchArea' => $dispatchArea,
+            'speciality' => $speciality,
             'gender' => AllocationGender::MALE,
             'urgency' => AllocationUrgency::EMERGENCY,
             'age' => 42,
             'indicationNormalized' => $indication,
             'createdAt' => $created,
             'arrivalAt' => $created->modify('+55 minutes'),
+        ]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'speciality' => $otherSpeciality,
+            'gender' => AllocationGender::FEMALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'age' => 43,
+            'indicationNormalized' => $indication,
+            'createdAt' => $created,
+            'arrivalAt' => $created->modify('+6 minutes'),
         ]);
 
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
@@ -312,6 +374,7 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
         return [
             'hospitalId' => $hospital->getId(),
             'indicationId' => $indication->getId(),
+            'specialityId' => $speciality->getId(),
             'isochronePath' => $isochronePath,
         ];
     }
