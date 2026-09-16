@@ -343,8 +343,8 @@ final class PageTranslationCrudController extends AbstractCrudController
 
         $parts = [];
         foreach ($blocks as $index => $block) {
-            $type = (string) ($block['type'] ?? 'block');
-            $enabled = (bool) ($block['enabled'] ?? true);
+            $type = $block['type'] ?? 'block';
+            $enabled = $block['enabled'] ?? true;
             $state = $this->translator->trans($enabled ? 'label.enabled' : 'label.disabled', [], 'messages');
             $label = htmlspecialchars($this->formatBlockTypeLabel($type), ENT_QUOTES);
             $stateLabel = htmlspecialchars($state, ENT_QUOTES);
