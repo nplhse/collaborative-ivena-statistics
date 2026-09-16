@@ -7,6 +7,8 @@ namespace App\Statistics\CaseFlow\Application\GeographicSegment;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
+use App\Statistics\Application\Mapping\ClinicalIndicatorDefinition;
+use App\Statistics\Application\Mapping\ClinicalIndicatorDefinitions;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\CaseFlow\Application\CaseFlowPrivacyPolicy;
 use App\Statistics\CaseFlow\Application\DTO\CaseFlowCriteria;
@@ -30,16 +32,6 @@ final readonly class GeographicSegmentProfileService
         1 => 'bg-primary',
         2 => 'bg-pink',
         3 => 'bg-purple',
-    ];
-
-    /** @var array<string, string> */
-    private const array RESOURCE_LABELS = [
-        'resus' => 'statistics.distribution.dim.requires_resus',
-        'cathlab' => 'statistics.distribution.dim.requires_cathlab',
-        'with_physician' => 'statistics.distribution.dim.is_with_physician',
-        'cpr' => 'statistics.distribution.dim.is_cpr',
-        'ventilation' => 'statistics.distribution.dim.is_ventilated',
-        'shock' => 'stats.analysis.feature.is_shock',
     ];
 
     public function __construct(
@@ -103,7 +95,15 @@ final readonly class GeographicSegmentProfileService
             );
         }
 
-        $groups = $this->groupsForDimension($criteria, $segment, $dimension, $dispatchAreaMatch, $metrics->segmentCases);
+        $groups = $this->groupsForDimension(
+            $criteria,
+            $segment,
+            $dimension,
+            $dispatchAreaMatch,
+            $metrics->segmentCases,
+            $metrics->populationCases,
+            !$entireArea,
+        );
 
         return new GeographicSegmentProfileView(
             $segment,
@@ -130,6 +130,8 @@ final readonly class GeographicSegmentProfileService
         GeographicSegmentProfileDimension $dimension,
         CaseFlowDispatchAreaMatch $dispatchAreaMatch,
         int $segmentCases,
+        int $populationCases,
+        bool $compareToReference,
     ): array {
         $from = $criteria->period->from;
         $toExclusive = $criteria->period->toExclusive;
@@ -138,8 +140,7 @@ final readonly class GeographicSegmentProfileService
         $drawerFilter = $criteria->drawerFilter;
 
         return match ($dimension) {
-            GeographicSegmentProfileDimension::Overview => [],
-            GeographicSegmentProfileDimension::Urgency => [
+            GeographicSegmentProfileDimension::Overview => [
                 new GeographicSegmentDistributionGroup(
                     'stats.case_flow.segment.group.urgency',
                     $this->urgencyRows(
@@ -153,10 +154,10 @@ final readonly class GeographicSegmentProfileService
                             $dispatchAreaMatch,
                         ),
                         $segmentCases,
+                        $populationCases,
+                        $compareToReference,
                     ),
                 ),
-            ],
-            GeographicSegmentProfileDimension::Demographics => [
                 new GeographicSegmentDistributionGroup(
                     'stats.case_flow.segment.group.gender',
                     $this->genderRows(
@@ -170,8 +171,12 @@ final readonly class GeographicSegmentProfileService
                             $dispatchAreaMatch,
                         ),
                         $segmentCases,
+                        $populationCases,
+                        $compareToReference,
                     ),
                 ),
+            ],
+            GeographicSegmentProfileDimension::Age => [
                 new GeographicSegmentDistributionGroup(
                     'stats.case_flow.segment.group.age',
                     $this->ageRows(
@@ -185,13 +190,15 @@ final readonly class GeographicSegmentProfileService
                             $dispatchAreaMatch,
                         ),
                         $segmentCases,
+                        $populationCases,
+                        $compareToReference,
                     ),
                 ),
             ],
             GeographicSegmentProfileDimension::Resources => [
                 new GeographicSegmentDistributionGroup(
-                    'stats.case_flow.segment.group.resources',
-                    $this->resourceRows(
+                    'stats.analysis.dimension.resources',
+                    $this->indicatorRows(
                         $this->distributionQuery->fetchResourceCounts(
                             $from,
                             $toExclusive,
@@ -201,7 +208,30 @@ final readonly class GeographicSegmentProfileService
                             $drawerFilter,
                             $dispatchAreaMatch,
                         ),
+                        ClinicalIndicatorDefinitions::forDimension(ClinicalIndicatorDefinitions::DIMENSION_RESOURCES),
                         $segmentCases,
+                        $populationCases,
+                        $compareToReference,
+                    ),
+                ),
+            ],
+            GeographicSegmentProfileDimension::Features => [
+                new GeographicSegmentDistributionGroup(
+                    'stats.analysis.dimension.features',
+                    $this->indicatorRows(
+                        $this->distributionQuery->fetchClinicalFeatureCounts(
+                            $from,
+                            $toExclusive,
+                            $scope,
+                            $segment,
+                            $originStateId,
+                            $drawerFilter,
+                            $dispatchAreaMatch,
+                        ),
+                        ClinicalIndicatorDefinitions::forDimension(ClinicalIndicatorDefinitions::DIMENSION_FEATURES),
+                        $segmentCases,
+                        $populationCases,
+                        $compareToReference,
                     ),
                 ),
             ],
@@ -209,19 +239,24 @@ final readonly class GeographicSegmentProfileService
     }
 
     /**
-     * @param array<int, int> $counts
+     * @param array<int, GeographicSegmentCategoryCount> $counts
      *
      * @return list<GeographicSegmentDistributionRow>
      */
-    private function urgencyRows(array $counts, int $total): array
-    {
+    private function urgencyRows(
+        array $counts,
+        int $segmentTotal,
+        int $referenceTotal,
+        bool $compareToReference,
+    ): array {
         $rows = [];
         foreach (AllocationStatsUrgencyProjectionCode::cases() as $code) {
-            $count = $counts[$code->value] ?? 0;
-            $rows[] = new GeographicSegmentDistributionRow(
+            $rows[] = GeographicSegmentDistributionRow::fromCategory(
                 AllocationUrgency::from($code->value)->label(),
-                $count,
-                $this->percent($count, $total),
+                $counts[$code->value] ?? GeographicSegmentCategoryCount::empty(),
+                $segmentTotal,
+                $referenceTotal,
+                $compareToReference,
                 self::URGENCY_BAR_CLASSES[$code->value] ?? 'bg-secondary',
             );
         }
@@ -230,19 +265,24 @@ final readonly class GeographicSegmentProfileService
     }
 
     /**
-     * @param array<int, int> $counts
+     * @param array<int, GeographicSegmentCategoryCount> $counts
      *
      * @return list<GeographicSegmentDistributionRow>
      */
-    private function genderRows(array $counts, int $total): array
-    {
+    private function genderRows(
+        array $counts,
+        int $segmentTotal,
+        int $referenceTotal,
+        bool $compareToReference,
+    ): array {
         $rows = [];
         foreach (AllocationStatsGenderProjectionCode::cases() as $code) {
-            $count = $counts[$code->value] ?? 0;
-            $rows[] = new GeographicSegmentDistributionRow(
+            $rows[] = GeographicSegmentDistributionRow::fromCategory(
                 $code->labelTranslationKey(),
-                $count,
-                $this->percent($count, $total),
+                $counts[$code->value] ?? GeographicSegmentCategoryCount::empty(),
+                $segmentTotal,
+                $referenceTotal,
+                $compareToReference,
                 self::GENDER_BAR_CLASSES[$code->value] ?? 'bg-secondary',
             );
         }
@@ -251,19 +291,24 @@ final readonly class GeographicSegmentProfileService
     }
 
     /**
-     * @param array<string, int> $counts
+     * @param array<string, GeographicSegmentCategoryCount> $counts
      *
      * @return list<GeographicSegmentDistributionRow>
      */
-    private function ageRows(array $counts, int $total): array
-    {
+    private function ageRows(
+        array $counts,
+        int $segmentTotal,
+        int $referenceTotal,
+        bool $compareToReference,
+    ): array {
         $rows = [];
         foreach (StatisticsAgeGroupBucketSql::DISPLAY_BUCKET_KEYS as $key) {
-            $count = $counts[$key] ?? 0;
-            $rows[] = new GeographicSegmentDistributionRow(
+            $rows[] = GeographicSegmentDistributionRow::fromCategory(
                 'stats.benchmark.age_group.'.$key,
-                $count,
-                $this->percent($count, $total),
+                $counts[$key] ?? GeographicSegmentCategoryCount::empty(),
+                $segmentTotal,
+                $referenceTotal,
+                $compareToReference,
             );
         }
 
@@ -271,27 +316,29 @@ final readonly class GeographicSegmentProfileService
     }
 
     /**
-     * @param array<string, int> $counts
+     * @param array<string, GeographicSegmentCategoryCount> $counts
+     * @param list<ClinicalIndicatorDefinition>             $definitions
      *
      * @return list<GeographicSegmentDistributionRow>
      */
-    private function resourceRows(array $counts, int $total): array
-    {
+    private function indicatorRows(
+        array $counts,
+        array $definitions,
+        int $segmentTotal,
+        int $referenceTotal,
+        bool $compareToReference,
+    ): array {
         $rows = [];
-        foreach (self::RESOURCE_LABELS as $key => $labelKey) {
-            $count = $counts[$key] ?? 0;
-            $rows[] = new GeographicSegmentDistributionRow(
-                $labelKey,
-                $count,
-                $this->percent($count, $total),
+        foreach ($definitions as $definition) {
+            $rows[] = GeographicSegmentDistributionRow::fromCategory(
+                $definition->labelTranslationKey,
+                $counts[$definition->bucketKey] ?? GeographicSegmentCategoryCount::empty(),
+                $segmentTotal,
+                $referenceTotal,
+                $compareToReference,
             );
         }
 
         return $rows;
-    }
-
-    private function percent(int $count, int $total): float
-    {
-        return $total > 0 ? round(100.0 * (float) $count / (float) $total, 1) : 0.0;
     }
 }

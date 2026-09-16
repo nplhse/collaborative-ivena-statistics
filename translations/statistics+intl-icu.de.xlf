@@ -2533,14 +2533,6 @@
         <source>stats.case_flow.map.mode.relative</source>
         <target>Relativ (%)</target>
       </trans-unit>
-      <trans-unit id="Debbb78026" resname="stats.case_flow.mode.hospital_origin">
-        <source>stats.case_flow.mode.hospital_origin</source>
-        <target>Einzugsgebiet des Krankenhauses</target>
-      </trans-unit>
-      <trans-unit id="Dedff096cd" resname="stats.case_flow.mode.system_flow">
-        <source>stats.case_flow.mode.system_flow</source>
-        <target>Regionalanalyse</target>
-      </trans-unit>
       <trans-unit id="De5951ac56" resname="stats.case_flow.pool.suppressed">
         <source>stats.case_flow.pool.suppressed</source>
         <target>Unterdrückt</target>
@@ -6049,10 +6041,6 @@
         <source>stats.case_flow.map.legend.count_high</source>
         <target>Mehr Fälle</target>
       </trans-unit>
-      <trans-unit id="GeoFlowDe13" resname="stats.case_flow.mode.dispatch_area">
-        <source>stats.case_flow.mode.dispatch_area</source>
-        <target>Leitstellen-Fluss</target>
-      </trans-unit>
       <trans-unit id="GeoFlowDe14" resname="stats.case_flow.section.dispatch_flow">
         <source>stats.case_flow.section.dispatch_flow</source>
         <target>Zufluss und Abfluss</target>
@@ -6189,17 +6177,17 @@
         <source>stats.case_flow.segment.tab.overview</source>
         <target>Überblick</target>
       </trans-unit>
-      <trans-unit id="GeoSegDe10" resname="stats.case_flow.segment.tab.urgency">
-        <source>stats.case_flow.segment.tab.urgency</source>
-        <target>Dringlichkeit</target>
-      </trans-unit>
-      <trans-unit id="GeoSegDe11" resname="stats.case_flow.segment.tab.demographics">
-        <source>stats.case_flow.segment.tab.demographics</source>
-        <target>Demografie</target>
+      <trans-unit id="GeoSegDe26" resname="stats.case_flow.segment.tab.age">
+        <source>stats.case_flow.segment.tab.age</source>
+        <target>Alter</target>
       </trans-unit>
       <trans-unit id="GeoSegDe12" resname="stats.case_flow.segment.tab.resources">
         <source>stats.case_flow.segment.tab.resources</source>
         <target>Ressourcen</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe27" resname="stats.case_flow.segment.tab.features">
+        <source>stats.case_flow.segment.tab.features</source>
+        <target>Klinische Merkmale</target>
       </trans-unit>
       <trans-unit id="GeoSegDe13" resname="stats.case_flow.segment.group.urgency">
         <source>stats.case_flow.segment.group.urgency</source>
@@ -6232,6 +6220,22 @@
       <trans-unit id="GeoSegDe20" resname="stats.case_flow.segment.picker.group.travel">
         <source>stats.case_flow.segment.picker.group.travel</source>
         <target>Transportzeit</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe21" resname="stats.case_flow.segment.table.count">
+        <source>stats.case_flow.segment.table.count</source>
+        <target>Anzahl</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe22" resname="stats.case_flow.segment.table.share">
+        <source>stats.case_flow.segment.table.share</source>
+        <target>Anteil Segment</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe23" resname="stats.case_flow.segment.table.reference">
+        <source>stats.case_flow.segment.table.reference</source>
+        <target>Grundgesamtheit</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe24" resname="stats.case_flow.segment.table.delta">
+        <source>stats.case_flow.segment.table.delta</source>
+        <target>Δ</target>
       </trans-unit>
     </body>
   </file>

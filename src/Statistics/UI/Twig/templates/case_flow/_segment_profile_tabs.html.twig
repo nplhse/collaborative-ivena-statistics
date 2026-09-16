@@ -1,0 +1,14 @@
+{# @var segmentProfileDimension \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileDimension #}
+<ul class="nav nav-tabs analytics-library-tabs mb-3" role="tablist" data-testid="stats-case-flow-segment-tabs">
+    {% for dimension in segmentProfileDimensions %}
+        <li class="nav-item" role="presentation">
+            <a class="nav-link{% if segmentProfileDimension == dimension %} active{% endif %}"
+               href="{{ path('app_stats_case_flow_segment_profile', app.request.query.all|merge({geo_profile: dimension.value})) }}"
+               {% if segmentProfileDimension == dimension %}aria-current="page"{% endif %}
+               data-turbo-frame="stats-case-flow-segment-profile-frame"
+               data-testid="stats-case-flow-segment-tab-{{ dimension.value }}">
+                {{ dimension.titleTranslationKey()|trans({}, 'statistics') }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>

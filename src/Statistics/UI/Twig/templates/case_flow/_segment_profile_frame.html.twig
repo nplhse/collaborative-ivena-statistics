@@ -1,5 +1,6 @@
 {# @var profile \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileView #}
 <turbo-frame id="stats-case-flow-segment-profile-frame">
+    {{ include('@Statistics/case_flow/_segment_profile_tabs.html.twig') }}
     {% if not profile.hasSelection %}
         <p class="text-secondary small mb-0" data-testid="stats-case-flow-segment-empty">
             {{ 'stats.case_flow.segment.empty'|trans({}, 'statistics') }}
@@ -35,8 +36,11 @@
 
         {% for group in profile.groups %}
             <div class="{% if not loop.last %}mb-3{% endif %}" data-testid="stats-case-flow-segment-group-{{ group.titleTranslationKey|split('.')|last }}">
-                <p class="small text-secondary mb-2">{{ group.titleTranslationKey|trans({}, 'statistics') }}</p>
-                {{ include('@Statistics/case_flow/_segment_profile_progress.html.twig', {rows: group.rows}) }}
+                {{ include('@Statistics/case_flow/_segment_dimension_table.html.twig', {
+                    rows: group.rows,
+                    titleTranslationKey: group.titleTranslationKey,
+                    showComparison: profile.showsReferenceComparison(),
+                }) }}
             </div>
         {% endfor %}
     {% endif %}

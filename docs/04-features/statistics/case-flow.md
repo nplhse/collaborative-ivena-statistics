@@ -45,7 +45,7 @@ Layers (selected per mode):
 
 - Origin choropleth (Hessen dispatch-area GeoJSON): sequential blue scale with square-root contrast. **Relative (%)** (default) colours each region by its share of all mapped cases on a 0–100 % scale and labels the share. **Absolute** stretches colour to the highest case count in the current selection and labels the counts. Because share is count ÷ total, region ranking stays the same; the scale and labels are what change.
 - Destination hospital pins (regional, expanded)
-- Hospital pin + isochrone bands (single-hospital scope)
+- Hospital pin + isochrone bands (single-hospital scope). Compact and expanded views share origin/isochrone checkboxes when both layers are present; destination pins and the hospital pin stay overlay-only.
 - Observed transport-time intensity colours the isochrone rings. The compact legend puts share/count and travel-time scales on one row with pin keys and unmapped-count chips; method text (share vs count, estimated vs observed, omitted destinations) sits behind a **Notes** disclosure.
 
 ## Components
@@ -70,20 +70,23 @@ The picker splits options into **Dispatch area** and **Travel time** `<optgroup>
 - Privacy: `CaseFlowPrivacyPolicy::MIN_CASES_PER_CELL` (n < 10). No second privacy engine
 - Age slices: `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, … — not Explorer `0_18`)
 - Travel bands: same exclusive 10-minute rings as the isochrone layer (`[0,10)`, `[10,20)`, … `[40,50)`, `≥50`). Allocations have no incident coordinates, so segments never intersect GeoJSON
-- UI: progress rows like Indication, tabs like Hospital Population, Turbo frame like Closed Department details
+- UI: compact dimension tables like Top Lists (`table-sm` + share bar), tabs like Hospital Population, Turbo frame like Closed Department details
+- Reference population: the current Scope **AND** Period **AND** Drawer without the geographic segment. Dimension shares of a selected segment are compared with that parent population; Δ is the difference in percentage points, computed from unrounded shares
 
 ### New pieces
 
 - `GeographicSegment` / `GeographicSegmentType` (`origin_area` | `travel_time_band`)
 - Catalog from already-loaded map features and isochrone bands (`GeographicSegmentCatalogFactory`); the frame reloads origins only via `GeographicSegmentCatalogService`
-- `GeographicSegmentMetricsQuery` and `GeographicSegmentDistributionQuery` (one selected dimension per request)
+- `GeographicSegmentMetricsQuery` and `GeographicSegmentDistributionQuery` (one selected tab per request; overview loads urgency and gender groups together). Distributions use `COUNT(*) FILTER` so segment and reference counts come from a single scan of the parent population
+- `GeographicSegmentShareMath` / `GeographicSegmentDistributionRow`: unrounded shares and Δ, rounded only for display
+- Compact tables in `_segment_dimension_table.html.twig` reuse the Top-List share bar
 - `GET /statistics/case-flow/segment-profile` (`app_stats_case_flow_segment_profile`) as Turbo frame so tab changes do not remount Leaflet
 - Map payload `selectedSegment` + `segmentSelectionEnabled`; choropleth/isochrone click → `Turbo.visit` with `geo_segment`. Destination pins are not segments
 
 ### URL and types
 
 - `geo_segment=origin:15` or `geo_segment=travel:10_20`
-- `geo_profile=overview|urgency|demographics|resources` (default `overview`)
+- `geo_profile=overview|age|resources|features` (default `overview`). Legacy `urgency`, `gender`, and `demographics` map to `overview`.
 - Both keys are in `StatisticsQueryKeys::REMOVE_SCOPE_DEPENDENT` and drop on scope change
 
 | Context | Origin area | Travel-time band |
@@ -98,28 +101,30 @@ MVP bands: `under_10`, `10_20`, `20_30`, `30_40`, `40_50`, `beyond_max`. Optiona
 
 | Tab | Content |
 |---|---|
-| Overview | n, share of the current population, median transport (hidden for travel bands) |
-| Urgency | SK1/SK2/SK3 |
-| Demographics | Gender 1–3 + age groups |
-| Resources | resus, cathlab, with_physician, cpr, ventilation, shock |
+| Overview | n, share of the current population, median transport (hidden for travel bands), plus urgency (SK1–SK3) and gender tables |
+| Age | Age groups |
+| Resources | resus, cathlab |
+| Clinical features | with_physician, cpr, ventilation, shock, pregnancy, work accident, infectious |
 
-Not in MVP: department, indication, assignment, transport type, pregnancy/work accident/infection, segment-vs-segment comparison.
+Entire area omits the population and Δ columns because segment and reference are identical. A selected origin or travel band always shows the comparison, including categories with 0 cases in the segment.
+
+Not in MVP: department, indication, assignment, transport type, segment-vs-segment comparison.
 
 ### Filter chain and privacy
 
-Population is always Scope **AND** Period **AND** Drawer, plus Segment when one is selected. There is no all-data fallback. If the drawer already sets `urgency=1`, the Urgency tab is correspondingly degenerate. The picker lists unsuppressed origins (n ≥ 10) and travel bands with count > 0; a click on a suppressed polygon shows the same suppressed empty state as n < 10.
+Population is always Scope **AND** Period **AND** Drawer. A selected segment is an extra AND for the profile counts; the reference shares stay on that parent population. There is no all-data fallback. If the drawer already sets `urgency=1`, the overview urgency table is correspondingly degenerate. The picker lists unsuppressed origins (n ≥ 10) and travel bands with count > 0; a click on a suppressed polygon shows the same suppressed empty state as n < 10.
 
 Share for a dispatch-area origin is against the **catchment** population (assignments to hospitals of that Leitstelle), not against Related KPI totals that include outflow.
 
 ### Tests
 
-- Unit: segment parse/SQL (origin vs half-open travel band), catalog per scope, privacy threshold, payload `selectedSegment`, scope change drops `geo_segment`
-- Integration: metrics with scope+period+drawer+segment (no leak outside the hospital); travel `[10,20)` excludes 20; dispatch-area origin excludes outflow
-- Functional: hospital + travel band; dispatch area + origin; entire area when `geo_segment` is omitted; tab switch loads only the frame; small population; drawer stays in the frame URL; scope change removes `geo_segment`
+- Unit: segment parse/SQL (origin vs half-open travel band), catalog per scope, privacy threshold, payload `selectedSegment`, scope change drops `geo_segment`, unrounded share/Δ rounding
+- Integration: metrics with scope+period+drawer+segment (no leak outside the hospital); travel `[10,20)` excludes 20; dispatch-area origin excludes outflow; dimension counts return segment and reference in one aggregation; travel-band urgency Δ vs hospital population
+- Functional: hospital + travel band comparison table; dispatch area + origin; entire area without reference/Δ columns; tab switch loads only the frame; small population; drawer stays in the frame URL; scope change removes `geo_segment`
 
 ### Deferred
 
-Comparison of two segments, deltas, department/indication/assignment, 5-minute isochrones, geometry rings, destination segments.
+Comparison of two segments, department/indication/assignment, 5-minute isochrones, geometry rings, destination segments.
 
 ## Frontend
 

@@ -115,6 +115,8 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map"]');
             $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map-legend"]');
             $this->assertSelectorExists('[data-testid="stats-isochrone-origin-map-unmapped"]');
+            $this->assertSelectorNotExists('[data-testid="stats-geo-map-layer-origin"]');
+            $this->assertSelectorNotExists('[data-testid="stats-geo-map-layer-isochrones"]');
         } finally {
             $this->removeIsochroneFile($fixture['isochronePath']);
         }

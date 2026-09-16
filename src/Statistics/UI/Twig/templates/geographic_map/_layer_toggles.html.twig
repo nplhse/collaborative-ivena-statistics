@@ -1,0 +1,36 @@
+{#
+  layers: list of originChoropleth|destinationHospitals|isochroneBands|hospitalPin
+  withTestIds: bool
+  compact: bool
+#}
+{% set withTestIds = withTestIds|default(false) %}
+{% set compact = compact|default(false) %}
+{% for layer in layers %}
+    {% set labelKey = null %}
+    {% set testId = null %}
+    {% if layer == 'originChoropleth' %}
+        {% set labelKey = 'stats.case_flow.map.layer.origin' %}
+        {% set testId = 'stats-geo-map-layer-origin' %}
+    {% elseif layer == 'destinationHospitals' %}
+        {% set labelKey = 'stats.case_flow.map.layer.destinations' %}
+        {% set testId = 'stats-geo-map-layer-destinations' %}
+    {% elseif layer == 'isochroneBands' %}
+        {% set labelKey = 'stats.case_flow.map.layer.isochrones' %}
+        {% set testId = 'stats-geo-map-layer-isochrones' %}
+    {% elseif layer == 'hospitalPin' %}
+        {% set labelKey = 'stats.case_flow.map.layer.hospital' %}
+        {% set testId = 'stats-geo-map-layer-hospital' %}
+    {% endif %}
+    {% if labelKey %}
+        <label class="form-check form-check-inline mb-0{% if compact %} geo-map-layer-toggle geo-map-layer-toggle--compact{% endif %}">
+            <input class="form-check-input"
+                   type="checkbox"
+                   data-geo-map-target="layerToggle"
+                   data-layer="{{ layer }}"
+                   data-action="geo-map#toggleLayer"
+                   {% if withTestIds %}data-testid="{{ testId }}"{% endif %}
+                   checked>
+            <span class="form-check-label">{{ labelKey|trans({}, 'statistics') }}</span>
+        </label>
+    {% endif %}
+{% endfor %}
