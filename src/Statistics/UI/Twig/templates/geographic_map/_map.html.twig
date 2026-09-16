@@ -9,6 +9,7 @@
   unknownCount: int
   beyondMaxCount: int
   titleKey: string
+  showTitle: bool
 #}
 {% set geoUrl = geoUrl|default(null) %}
 {% set showValueModes = showValueModes|default(false) %}
@@ -18,7 +19,16 @@
 {% set unknownCount = unknownCount|default(0) %}
 {% set beyondMaxCount = beyondMaxCount|default(0) %}
 {% set titleKey = titleKey|default('stats.case_flow.section.map') %}
+{% set showTitle = showTitle ?? true %}
 {% set layers = payload.layers|default([]) %}
+{% set compactLayers = payload.compactLayers|default([]) %}
+{% set showCompactLayerToggles = 'originChoropleth' in compactLayers and 'isochroneBands' in compactLayers %}
+{% set overlayLayers = [] %}
+{% for layer in ['originChoropleth', 'destinationHospitals', 'isochroneBands', 'hospitalPin'] %}
+    {% if layer in layers %}
+        {% set overlayLayers = overlayLayers|merge([layer]) %}
+    {% endif %}
+{% endfor %}
 
 <div class="card"
      data-controller="geo-map"
@@ -31,8 +41,23 @@
      data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"
      data-testid="{{ testId }}">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-        <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
-        <div class="d-flex flex-wrap align-items-center gap-2">
+        {% if showTitle or showCompactLayerToggles %}
+            <div class="d-flex flex-wrap align-items-center gap-2 min-w-0">
+                {% if showTitle %}
+                    <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
+                {% endif %}
+                {% if showCompactLayerToggles %}
+                    <div class="geo-map-compact-layer-toggles">
+                        {{ include('@Statistics/geographic_map/_layer_toggles.html.twig', {
+                            layers: ['originChoropleth', 'isochroneBands'],
+                            withTestIds: true,
+                            compact: true,
+                        }) }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
             {% if showValueModes %}
                 <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.case_flow.map.mode.label'|trans({}, 'statistics') }}">
                     <button type="button"
@@ -113,50 +138,10 @@
                 </div>
             </div>
             <div class="geo-map-expand-toolbar">
-                {% if 'originChoropleth' in layers %}
-                    <label class="form-check form-check-inline mb-0">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               data-geo-map-target="layerToggle"
-                               data-layer="originChoropleth"
-                               data-action="geo-map#toggleLayer"
-                               checked>
-                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.origin'|trans({}, 'statistics') }}</span>
-                    </label>
-                {% endif %}
-                {% if 'destinationHospitals' in layers %}
-                    <label class="form-check form-check-inline mb-0">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               data-geo-map-target="layerToggle"
-                               data-layer="destinationHospitals"
-                               data-action="geo-map#toggleLayer"
-                               checked>
-                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.destinations'|trans({}, 'statistics') }}</span>
-                    </label>
-                {% endif %}
-                {% if 'isochroneBands' in layers %}
-                    <label class="form-check form-check-inline mb-0">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               data-geo-map-target="layerToggle"
-                               data-layer="isochroneBands"
-                               data-action="geo-map#toggleLayer"
-                               checked>
-                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.isochrones'|trans({}, 'statistics') }}</span>
-                    </label>
-                {% endif %}
-                {% if 'hospitalPin' in layers %}
-                    <label class="form-check form-check-inline mb-0">
-                        <input class="form-check-input"
-                               type="checkbox"
-                               data-geo-map-target="layerToggle"
-                               data-layer="hospitalPin"
-                               data-action="geo-map#toggleLayer"
-                               checked>
-                        <span class="form-check-label">{{ 'stats.case_flow.map.layer.hospital'|trans({}, 'statistics') }}</span>
-                    </label>
-                {% endif %}
+                {{ include('@Statistics/geographic_map/_layer_toggles.html.twig', {
+                    layers: overlayLayers,
+                    withTestIds: false,
+                }) }}
             </div>
             <div class="geo-map-expand-canvas">
                 <div class="case-flow-map-container"

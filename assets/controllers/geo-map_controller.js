@@ -64,7 +64,7 @@ export default class extends Controller {
 
     connect() {
         this.mapMode = 'relative';
-        this.expandedLayerOverrides = null;
+        this.layerOverrides = new Map();
         this.compactMap = null;
         this.expandMap = null;
         this._renderGeneration = (this._renderGeneration ?? 0) + 1;
@@ -103,14 +103,14 @@ export default class extends Controller {
             return;
         }
 
-        const enabled = this.enabledLayers(true);
-        if (event.currentTarget.checked) {
-            enabled.add(layer);
-        } else {
-            enabled.delete(layer);
+        this.layerOverrides.set(layer, Boolean(event.currentTarget.checked));
+        this.syncLayerToggles();
+        this._renderGeneration += 1;
+        const generation = this._renderGeneration;
+        void this.renderCompact(generation);
+        if (this.isExpanded()) {
+            void this.renderExpand(generation);
         }
-        this.expandedLayerOverrides = enabled;
-        void this.renderExpand(this._renderGeneration);
     }
 
     expand() {
@@ -118,7 +118,6 @@ export default class extends Controller {
             return;
         }
 
-        this.expandedLayerOverrides = null;
         this.expandOverlayTarget.classList.add('is-open');
         this.expandOverlayTarget.setAttribute('aria-hidden', 'false');
         document.body.classList.add('geo-map-expand-open');
@@ -596,14 +595,14 @@ export default class extends Controller {
     }
 
     layerEnabled(layer, expanded) {
-        return this.enabledLayers(expanded).has(layer);
-    }
-
-    enabledLayers(expanded) {
-        if (expanded && this.expandedLayerOverrides instanceof Set) {
-            return new Set(this.expandedLayerOverrides);
+        if (this.layerOverrides instanceof Map && this.layerOverrides.has(layer)) {
+            return this.layerOverrides.get(layer) === true;
         }
 
+        return this.payloadEnabledLayers(expanded).has(layer);
+    }
+
+    payloadEnabledLayers(expanded) {
         const payload = this.payloadValue ?? {};
         const listed = expanded
             ? (payload.expandedLayers ?? payload.layers ?? [])
@@ -674,9 +673,10 @@ export default class extends Controller {
             return;
         }
 
-        const enabled = this.enabledLayers(true);
         this.layerToggleTargets.forEach((input) => {
-            input.checked = enabled.has(input.dataset.layer);
+            const expanded =
+                this.hasExpandOverlayTarget && this.expandOverlayTarget.contains(input);
+            input.checked = this.layerEnabled(input.dataset.layer, expanded);
         });
     }
 
@@ -693,7 +693,6 @@ export default class extends Controller {
         }
         document.body.classList.remove('geo-map-expand-open');
         this.destroyExpand();
-        this.expandedLayerOverrides = null;
         if (!skipRender && this.compactMap) {
             ensureContainerSize(this.mapContainerTarget, this.frameSelectorValue);
             invalidateMapSize(this.compactMap.map);
