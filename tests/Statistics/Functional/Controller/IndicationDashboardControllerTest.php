@@ -15,6 +15,7 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
+use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -174,5 +175,75 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
         self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
+    }
+
+    public function testDashboardRendersForInfectionDimension(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'infection-dash-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $state = StateFactory::createOne(['name' => 'InfectionDashState']);
+        $dispatchArea = DispatchAreaFactory::createOne(['name' => 'InfectionDashDispatch', 'state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'InfectionDashHospital',
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+        ]);
+
+        SpecialityFactory::createOne(['name' => 'InfectionDashSpec']);
+        DepartmentFactory::createOne(['name' => 'InfectionDashDept']);
+        AssignmentFactory::createOne(['name' => 'InfectionDashAssign']);
+        $infection = InfectionFactory::createOne(['name' => 'Dashboard Test Infection']);
+        IndicationRawFactory::createOne(['name' => 'InfectionDashRaw', 'code' => 912_390]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Infection Dash Indication', 'code' => 6101]);
+
+        $import = ImportFactory::createOne(['name' => 'InfectionDashImport', 'hospital' => $hospital, 'createdBy' => $user]);
+        AllocationFactory::createOne([
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $state,
+            'dispatchArea' => $dispatchArea,
+            'gender' => AllocationGender::MALE,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'age' => 55,
+            'infection' => $infection,
+            'indicationNormalized' => $indication,
+            'createdAt' => new \DateTimeImmutable('2026-04-01 14:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2026-04-01 14:25:00'),
+        ]);
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($import->getId());
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/infections/'.$infection->getId(), [
+            'scope' => 'hospital',
+            'hospital' => (string) $hospital->getId(),
+            'period' => 'all',
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="stats-indication-heading-title"]', 'Dashboard Test Infection');
+        self::assertSelectorExists('[data-testid="stats-indication-kpi"]');
+        self::assertSelectorExists('[data-testid="stats-indication-top-list-link"]');
+    }
+
+    public function testUndersizedHospitalCohortRedirectsDashboardToPublic(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'indication-dash-cohort-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'Cohort Redirect Indication']);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications/'.$indication->getId(), [
+            'scope' => 'hospital_cohort',
+            'cohort' => 'urban_basic',
+            'period' => 'all',
+        ]);
+
+        self::assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('scope=public', $location);
+        self::assertStringContainsString('/statistics/insights/indications/'.$indication->getId(), $location);
     }
 }

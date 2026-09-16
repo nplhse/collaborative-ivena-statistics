@@ -135,4 +135,20 @@ final class InsightsOverviewControllerTest extends WebTestCase
         self::assertStringContainsString('/statistics/insights/indications', $groupsHref);
         self::assertStringContainsString('view=groups', $groupsHref);
     }
+
+    public function testUndersizedHospitalCohortRedirectsOverviewToPublic(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'insights-overview-cohort-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights', [
+            'scope' => 'hospital_cohort',
+            'cohort' => 'urban_basic',
+            'period' => 'all',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('scope=public', (string) $client->getResponse()->headers->get('Location'));
+    }
 }

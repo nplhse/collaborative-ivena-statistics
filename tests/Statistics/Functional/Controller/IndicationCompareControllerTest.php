@@ -507,4 +507,80 @@ final class IndicationCompareControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'Compare Assignment A');
         self::assertSelectorTextContains('body', 'Compare Assignment B');
     }
+
+    public function testCompareSameAssignmentRedirectsToDirectory(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-same-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $assignment = AssignmentFactory::createOne(['name' => 'Same Assignment']);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_id' => (string) $assignment->getId(),
+            'subject_b_id' => (string) $assignment->getId(),
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            '/statistics/insights/assignments',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testCompareUnknownAssignmentIdsRedirectToDirectory(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-unknown-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_id' => '999999',
+            'subject_b_id' => '888888',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString(
+            '/statistics/insights/assignments',
+            (string) $client->getResponse()->headers->get('Location'),
+        );
+    }
+
+    public function testCompareRejectsNonNumericSubjectIds(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'assignment-compare-nan-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'public',
+            'period' => 'all',
+            'subject_a_id' => 'abc',
+            'subject_b_id' => '12',
+        ]);
+
+        self::assertResponseRedirects();
+    }
+
+    public function testUndersizedHospitalCohortRedirectsCompareToPublic(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'compare-cohort-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments/compare', [
+            'scope' => 'hospital_cohort',
+            'cohort' => 'urban_basic',
+            'period' => 'all',
+            'subject_a_id' => '1',
+            'subject_b_id' => '2',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('scope=public', (string) $client->getResponse()->headers->get('Location'));
+    }
 }

@@ -230,4 +230,59 @@ final class InsightsDimensionControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(404);
     }
+
+    public function testIndicationGroupsSlugRedirectsToIndicationsGroupsView(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'insights-groups-slug-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indication-groups', [
+            'scope' => 'public',
+            'period' => 'all',
+            'q' => 'cardio',
+        ]);
+
+        self::assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('/statistics/insights/indications', $location);
+        self::assertStringContainsString('view=groups', $location);
+        self::assertStringContainsString('q=cardio', $location);
+    }
+
+    public function testDirectorySearchFiltersResultsByQuery(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'insights-dir-search-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        AssignmentFactory::createOne(['name' => 'Searchable Assignment']);
+        AssignmentFactory::createOne(['name' => 'Other Assignment']);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments', [
+            'scope' => 'public',
+            'period' => 'all',
+            'q' => 'Searchable',
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="stats-insights-directory"]', 'Searchable Assignment');
+        self::assertSelectorTextNotContains('[data-testid="stats-insights-directory"]', 'Other Assignment');
+    }
+
+    public function testUndersizedHospitalCohortRedirectsDimensionToPublic(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['username' => 'insights-dimension-cohort-'.bin2hex(random_bytes(4))]);
+        $client->loginUser($user);
+
+        $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/assignments', [
+            'scope' => 'hospital_cohort',
+            'cohort' => 'urban_basic',
+            'period' => 'all',
+        ]);
+
+        self::assertResponseRedirects();
+        self::assertStringContainsString('scope=public', (string) $client->getResponse()->headers->get('Location'));
+    }
 }
