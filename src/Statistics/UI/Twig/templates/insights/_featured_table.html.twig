@@ -12,6 +12,7 @@
                     <th>{{ labelKey|trans({}, 'statistics') }}</th>
                     <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
                     <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
+                    <th class="w-1" aria-label="{{ 'stats.insights.table.actions'|trans({}, 'statistics') }}"></th>
                 </tr>
             </thead>
             <tbody>
@@ -21,6 +22,14 @@
                         <td><a href="{{ row.url }}">{{ row.label }}</a></td>
                         <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
                         <td class="text-end">{{ row.shareDisplay }}</td>
+                        <td class="w-1">
+                            {{ include('@Statistics/insights/_table_icon_action.html.twig', {
+                                href: row.exploreUrl,
+                                icon: 'tabler:book-2',
+                                labelKey: 'stats.indication.nav.catalog',
+                                testId: 'stats-insights-featured-row-explore',
+                            }) }}
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

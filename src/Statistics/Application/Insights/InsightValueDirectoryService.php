@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\Insights;
 
+use App\Allocation\Application\Explore\ExploreShowUrlResolver;
 use App\Statistics\Application\DTO\StatisticsContext;
 use App\Statistics\Application\TopEntityQuery;
 use App\Statistics\Application\TopIndicationGroupsQuery;
@@ -18,6 +19,7 @@ final readonly class InsightValueDirectoryService
         private TopEntityQuery $topEntityQuery,
         private TopIndicationGroupsQuery $topIndicationGroupsQuery,
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private ExploreShowUrlResolver $exploreShowUrlResolver,
     ) {
     }
 
@@ -80,6 +82,10 @@ final readonly class InsightValueDirectoryService
                 $shareDisplay,
                 null,
                 $entity['contextLabel'],
+                $this->exploreShowUrlResolver->resolveUrlForClass(
+                    $provider->entityFqcn(),
+                    $entity['publicId'],
+                ),
             );
         }
 
@@ -120,6 +126,7 @@ final readonly class InsightValueDirectoryService
                 $row->shareDisplay,
                 $rankStart + $index,
                 $row->contextLabel,
+                $row->exploreUrl,
             );
         }
 

@@ -2,6 +2,7 @@
 {% set p = tablePayload %}
 {% set numericStart = p.numericColumnStartIndex ?? 2 %}
 {% set summaryTestId = tableSummaryTestId|default('stats-analysis-table-summary') %}
+{% set showInsightActions = p.insightRowTargets is defined %}
 {% if p.rows is defined and p.rows is not empty %}
     {% if p.summaryStats is defined %}
         <p class="text-secondary small mb-3" data-testid="{{ summaryTestId }}">
@@ -21,6 +22,9 @@
                     {% endfor %}
                     {% if p.shareBars is defined %}
                         <th class="stats-top-lists-share-col" aria-hidden="true"></th>
+                    {% endif %}
+                    {% if showInsightActions %}
+                        <th class="w-1" aria-label="{{ 'stats.insights.table.actions'|trans({}, 'statistics') }}"></th>
                     {% endif %}
                 </tr>
             </thead>
@@ -49,14 +53,6 @@
                                     <a href="{{ statistics_nav_url(monthRowTarget) }}" class="text-reset">{{ cell }}</a>
                                 {% elseif loop.index == 2 and labelRowTarget is not null %}
                                     <a href="{{ statistics_nav_url(labelRowTarget) }}">{{ cell }}</a>
-                                    {% if insightRowTarget is not null %}
-                                        <a href="{{ statistics_nav_url(insightRowTarget) }}"
-                                           class="ms-1 text-secondary"
-                                           title="{{ 'stats.insights.open'|trans({}, 'statistics') }}"
-                                           aria-label="{{ 'stats.insights.open'|trans({}, 'statistics') }}">
-                                            <twig:ux:icon name="tabler:chart-bar" class="icon icon-sm" />
-                                        </a>
-                                    {% endif %}
                                 {% else %}
                                     {{ cell }}
                                 {% endif %}
@@ -65,6 +61,18 @@
                         {% if p.shareBars is defined %}
                             <td class="stats-top-lists-share-col">
                                 {{ include('@Statistics/top_lists/_share_bar.html.twig', {share: shareBar|default(0)}) }}
+                            </td>
+                        {% endif %}
+                        {% if showInsightActions %}
+                            <td class="w-1">
+                                {% if insightRowTarget is not null %}
+                                    {{ include('@Statistics/insights/_table_icon_action.html.twig', {
+                                        href: statistics_nav_url(insightRowTarget),
+                                        icon: 'tabler:chart-bar',
+                                        labelKey: 'stats.insights.open',
+                                        testId: 'stats-top-lists-row-insight',
+                                    }) }}
+                                {% endif %}
                             </td>
                         {% endif %}
                     </tr>
@@ -78,12 +86,18 @@
                             {% for c in p.footerRow.counts %}
                                 <th class="text-end">{{ c }}</th>
                             {% endfor %}
+                            {% if showInsightActions %}
+                                <th></th>
+                            {% endif %}
                         </tr>
                     {% else %}
                         <tr>
                             <th>{{ p.footerRow.labelTranslationKey|trans({}, 'statistics') }}</th>
                             <th class="text-end">{{ p.footerRow.count }}</th>
                             <th class="text-end">{{ p.footerRow.percentDisplay }}</th>
+                            {% if showInsightActions %}
+                                <th></th>
+                            {% endif %}
                         </tr>
                     {% endif %}
                 </tfoot>

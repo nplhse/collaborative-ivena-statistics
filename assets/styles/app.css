@@ -1172,6 +1172,18 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     width: 13rem;
 }
 
+.insights-table-icon-action.btn-icon {
+    --tblr-btn-padding-y: 0.125rem;
+    --tblr-btn-padding-x: 0.125rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+}
+
+.insights-table-icon-action .icon {
+    width: 1rem;
+    height: 1rem;
+}
+
 @media (max-width: 767.98px) {
     header.navbar > .container-xl {
         justify-content: flex-start;

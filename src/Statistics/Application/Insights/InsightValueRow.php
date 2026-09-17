@@ -16,6 +16,7 @@ final readonly class InsightValueRow
         public ?string $shareDisplay = null,
         public ?int $rank = null,
         public ?string $contextLabel = null,
+        public ?string $exploreUrl = null,
     ) {
     }
 }

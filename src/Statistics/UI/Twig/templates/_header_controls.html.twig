@@ -14,7 +14,7 @@
                     <a class="btn"
                        href="{{ statsTopListCatalogUrl }}"
                        data-testid="stats-top-lists-catalog-link">
-                        <twig:ux:icon name="tabler:book-2" class="icon icon-sm" />
+                        <twig:ux:icon name="tabler:compass" class="icon icon-sm" />
                         {{ 'stats.top_lists.nav.catalog_list'|trans({}, 'statistics') }}
                     </a>
                 {% endif %}
@@ -59,7 +59,7 @@
                             data-bs-target="#{{ statsCompareLaunchModalId|default('stats-insights-compare-launch-modal') }}"
                             data-testid="stats-insights-compare-launch-button">
                         <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
-                        {{ 'stats.insights.compare.with'|trans({}, 'statistics') }}
+                        {{ 'stats.insights.nav.compare'|trans({}, 'statistics') }}
                     </button>
                 {% endif %}
             </div>

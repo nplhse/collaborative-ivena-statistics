@@ -92,6 +92,9 @@ final class InsightsDimensionController extends AbstractController
         );
 
         $topListKey = $provider->key()->topListKey();
+        $topListUrl = null !== $topListKey
+            ? $this->navigationUrlBuilder->build($request, 'app_stats_top_lists_show', ['report' => $topListKey])
+            : null;
         $navDimension = $groupsView ? InsightDimensionKey::Indications : $dimensionKey;
 
         return $this->render('@Statistics/insights/dimension.html.twig', array_merge(
@@ -117,9 +120,7 @@ final class InsightsDimensionController extends AbstractController
                     ['dimension' => InsightDimensionKey::Indications->value, 'view' => 'groups'],
                     ['q', 'sort', 'page', 'limit'],
                 ),
-                'topListUrl' => null !== $topListKey
-                    ? $this->navigationUrlBuilder->build($request, 'app_stats_top_lists_show', ['report' => $topListKey])
-                    : null,
+                'statsIndicationTopListUrl' => $topListUrl,
             ],
         ));
     }

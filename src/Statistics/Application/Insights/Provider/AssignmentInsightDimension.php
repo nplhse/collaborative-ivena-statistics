@@ -55,6 +55,6 @@ final readonly class AssignmentInsightDimension extends AbstractEntityInsightDim
     #[\Override]
     public function navOrder(): int
     {
-        return 30;
+        return 40;
     }
 }

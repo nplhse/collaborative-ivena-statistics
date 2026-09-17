@@ -2575,15 +2575,15 @@
       </trans-unit>
       <trans-unit id="statsTlNavCatListEn" resname="stats.top_lists.nav.catalog_list">
         <source>stats.top_lists.nav.catalog_list</source>
-        <target>Explore</target>
+        <target>Overview</target>
       </trans-unit>
       <trans-unit id="statsIndNavCatEn" resname="stats.indication.nav.catalog">
         <source>stats.indication.nav.catalog</source>
-        <target>Explore</target>
+        <target>Details</target>
       </trans-unit>
       <trans-unit id="statsIndNavTlEn" resname="stats.indication.nav.top_list">
         <source>stats.indication.nav.top_list</source>
-        <target>Open top list</target>
+        <target>Top list</target>
       </trans-unit>
       <trans-unit id="statsBm01" resname="stats.benchmark.title">
         <source>stats.benchmark.title</source>
@@ -6416,6 +6416,14 @@
       <trans-unit id="StatsIns46" resname="stats.insights.search.no_results">
         <source>stats.insights.search.no_results</source>
         <target>No matching insights</target>
+      </trans-unit>
+      <trans-unit id="StatsIns47" resname="stats.insights.nav.compare">
+        <source>stats.insights.nav.compare</source>
+        <target>Compare</target>
+      </trans-unit>
+      <trans-unit id="StatsIns48" resname="stats.insights.table.actions">
+        <source>stats.insights.table.actions</source>
+        <target>Actions</target>
       </trans-unit>
       <trans-unit id="StatsInsCmp01" resname="stats.insights.compare.title">
         <source>stats.insights.compare.title</source>
