@@ -1,13 +1,16 @@
 {% set searchMode = searchMode|default('navigate') %}
 {% set searchIdPrefix = searchIdPrefix|default('stats-insights-search') %}
 {% set searchLabelKey = searchLabelKey|default('stats.insights.search.label') %}
+{% set searchHelpKey = searchHelpKey|default('stats.insights.search.help') %}
 {% set searchInputSize = searchInputSize|default('form-control-lg') %}
 {% set searchTestId = searchTestId|default('stats-insights-search') %}
 {% set searchHelpEnabled = searchHelp is defined ? searchHelp : true %}
+{% set searchMaxResults = searchMaxResults|default(0) %}
 <div data-controller="insights-search"
      data-insights-search-url-value="{{ searchUrl }}"
      data-insights-search-min-length-value="2"
      data-insights-search-mode-value="{{ searchMode }}"
+     data-insights-search-max-results-value="{{ searchMaxResults }}"
      data-insights-search-option-id-prefix-value="{{ searchIdPrefix }}-option"
      data-insights-search-loading-value="{{ 'stats.insights.search.loading'|trans({}, 'statistics') }}"
      data-insights-search-empty-value="{{ 'stats.insights.search.no_results'|trans({}, 'statistics') }}"
@@ -35,7 +38,7 @@
                data-action="input->insights-search#onInput keydown->insights-search#onKeydown">
     </div>
     {% if searchHelpEnabled %}
-        <div class="text-secondary small mt-1">{{ 'stats.insights.search.help'|trans({}, 'statistics') }}</div>
+        <div class="text-secondary small mt-1">{{ searchHelpKey|trans({}, 'statistics') }}</div>
     {% endif %}
     <div id="{{ searchIdPrefix }}-results"
          class="list-group mt-2 d-none"

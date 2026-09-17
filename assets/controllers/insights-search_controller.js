@@ -8,6 +8,7 @@ export default class extends Controller {
         url: String,
         minLength: { type: Number, default: 2 },
         mode: { type: String, default: 'navigate' },
+        maxResults: { type: Number, default: 0 },
         optionIdPrefix: { type: String, default: 'stats-insights-search-option' },
     };
 
@@ -74,17 +75,27 @@ export default class extends Controller {
             url.searchParams.set('q', query);
             url.searchParams.delete('dimension');
             url.searchParams.delete('id');
+            url.searchParams.delete('limit');
             window.location.search
                 .replace(/^\?/, '')
                 .split('&')
                 .filter(Boolean)
                 .forEach((pair) => {
                     const [key, value] = pair.split('=');
-                    if (!key || 'q' === key || 'dimension' === key || 'id' === key) {
+                    if (
+                        !key ||
+                        'q' === key ||
+                        'dimension' === key ||
+                        'id' === key ||
+                        'limit' === key
+                    ) {
                         return;
                     }
                     url.searchParams.set(decodeURIComponent(key), decodeURIComponent(value || ''));
                 });
+            if (this.maxResultsValue > 0) {
+                url.searchParams.set('limit', String(this.maxResultsValue));
+            }
 
             const response = await fetch(url.toString(), {
                 headers: { Accept: 'application/json' },
@@ -96,7 +107,10 @@ export default class extends Controller {
             }
 
             const payload = await response.json();
-            this.renderResults(payload.results ?? []);
+            const results = payload.results ?? [];
+            this.renderResults(
+                this.maxResultsValue > 0 ? results.slice(0, this.maxResultsValue) : results,
+            );
         } catch (error) {
             if ('AbortError' !== error.name) {
                 this.hideResults();

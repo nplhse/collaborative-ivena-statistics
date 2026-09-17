@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\LiveComponent;
 
+use App\Statistics\Application\Insights\InsightSearchService;
 use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
 use App\Statistics\UI\Application\StatisticsFilterSide;
@@ -69,6 +70,11 @@ final class InsightCompareSelectionForm
         private readonly BenchmarkSelectionQueryBuilder $queryBuilder,
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
+    }
+
+    public function getSearchMaxResults(): int
+    {
+        return InsightSearchService::COMPARE_MAX_RESULTS;
     }
 
     /**

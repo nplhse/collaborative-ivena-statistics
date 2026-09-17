@@ -94,7 +94,7 @@ final class InsightSearchServiceTest extends TestCase
             $hits,
         );
 
-        self::assertCount(8, $hits);
+        self::assertCount(5, $hits);
         self::assertSame(InsightDimensionKey::Indications, $hits[0]->dimension);
         self::assertSame(InsightDimensionKey::Departments, $hits[1]->dimension);
         self::assertSame(InsightDimensionKey::Occasions, $hits[2]->dimension);
@@ -102,6 +102,100 @@ final class InsightSearchServiceTest extends TestCase
         self::assertContains(InsightDimensionKey::Occasions, $dimensions);
         self::assertSame('Innere Medizin', $hits[1]->label);
         self::assertSame('Notfall', $hits[2]->label);
+    }
+
+    public function testCapsDefaultSearchAtFiveInterleavedHits(): void
+    {
+        $indicationHits = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $indicationHits[] = [
+                'id' => $i,
+                'label' => 'Indication '.$i,
+                'code' => null,
+                'publicId' => null,
+                'contextLabel' => null,
+            ];
+        }
+        $departmentHits = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $departmentHits[] = [
+                'id' => 100 + $i,
+                'label' => 'Department '.$i,
+                'code' => null,
+                'publicId' => null,
+                'contextLabel' => null,
+            ];
+        }
+        $occasionHits = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $occasionHits[] = [
+                'id' => 200 + $i,
+                'label' => 'Occasion '.$i,
+                'code' => null,
+                'publicId' => null,
+                'contextLabel' => null,
+            ];
+        }
+
+        $service = new InsightSearchService(
+            new InsightDimensionRegistry([
+                $this->provider(InsightDimensionKey::Indications, $indicationHits, 10),
+                $this->provider(InsightDimensionKey::Departments, $departmentHits, 40),
+                $this->provider(InsightDimensionKey::Occasions, $occasionHits, 50),
+            ]),
+            new StatisticsNavigationUrlBuilder($this->createStub(UrlGeneratorInterface::class)),
+        );
+
+        $hits = $service->search('in', new Request());
+
+        self::assertCount(InsightSearchService::MAX_RESULTS, $hits);
+        self::assertSame(InsightDimensionKey::Indications, $hits[0]->dimension);
+        self::assertSame(InsightDimensionKey::Departments, $hits[1]->dimension);
+        self::assertSame(InsightDimensionKey::Occasions, $hits[2]->dimension);
+        self::assertSame(InsightDimensionKey::Departments, $hits[4]->dimension);
+    }
+
+    public function testCapsCompareSearchAtFiveInterleavedHits(): void
+    {
+        $indicationHits = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $indicationHits[] = [
+                'id' => $i,
+                'label' => 'Indication '.$i,
+                'code' => null,
+                'publicId' => null,
+                'contextLabel' => null,
+            ];
+        }
+
+        $indications = $this->provider(InsightDimensionKey::Indications, $indicationHits, 10);
+        $departments = $this->provider(InsightDimensionKey::Departments, [
+            ['id' => 101, 'label' => 'Innere Medizin', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+            ['id' => 102, 'label' => 'Chirurgie', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+        ], 40);
+        $occasions = $this->provider(InsightDimensionKey::Occasions, [
+            ['id' => 201, 'label' => 'Notfall', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+        ], 50);
+        $assignments = $this->provider(InsightDimensionKey::Assignments, [
+            ['id' => 301, 'label' => 'Primär', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+        ], 30);
+
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/statistics/insights/x/1');
+
+        $service = new InsightSearchService(
+            new InsightDimensionRegistry([$indications, $departments, $occasions, $assignments]),
+            new StatisticsNavigationUrlBuilder($urlGenerator),
+        );
+
+        $hits = $service->search('in', new Request(), maxResults: InsightSearchService::COMPARE_MAX_RESULTS);
+
+        self::assertCount(5, $hits);
+        self::assertSame(InsightDimensionKey::Indications, $hits[0]->dimension);
+        self::assertSame(InsightDimensionKey::Assignments, $hits[1]->dimension);
+        self::assertSame(InsightDimensionKey::Departments, $hits[2]->dimension);
+        self::assertSame(InsightDimensionKey::Occasions, $hits[3]->dimension);
+        self::assertSame(InsightDimensionKey::Indications, $hits[4]->dimension);
     }
 
     public function testCanRestrictSearchToOneDimension(): void

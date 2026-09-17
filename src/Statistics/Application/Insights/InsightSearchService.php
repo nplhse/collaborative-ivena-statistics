@@ -13,7 +13,9 @@ final readonly class InsightSearchService
 
     public const int PER_DIMENSION_LIMIT = 5;
 
-    public const int MAX_RESULTS = 40;
+    public const int MAX_RESULTS = 5;
+
+    public const int COMPARE_MAX_RESULTS = self::MAX_RESULTS;
 
     public function __construct(
         private InsightDimensionRegistry $registry,
@@ -24,12 +26,15 @@ final readonly class InsightSearchService
     /**
      * @return list<InsightSearchHit>
      */
-    public function search(string $query, Request $request, ?InsightDimensionKey $onlyDimension = null): array
+    public function search(string $query, Request $request, ?InsightDimensionKey $onlyDimension = null, ?int $maxResults = null): array
     {
         $term = trim($query);
         if (mb_strlen($term) < self::MIN_QUERY_LENGTH) {
             return [];
         }
+
+        $maxResults = $this->clampMaxResults($maxResults);
+        $perDimensionLimit = min(self::PER_DIMENSION_LIMIT, $maxResults);
 
         $providers = $onlyDimension instanceof InsightDimensionKey
             ? [$this->registry->get($onlyDimension)]
@@ -38,7 +43,7 @@ final readonly class InsightSearchService
         $buckets = [];
         foreach ($providers as $provider) {
             $bucket = [];
-            foreach ($provider->searchEntities($term, self::PER_DIMENSION_LIMIT) as $entity) {
+            foreach ($provider->searchEntities($term, $perDimensionLimit) as $entity) {
                 $bucket[] = new InsightSearchHit(
                     $provider->key(),
                     $entity['id'],
@@ -60,7 +65,16 @@ final readonly class InsightSearchService
             }
         }
 
-        return \array_slice($this->interleave($buckets), 0, self::MAX_RESULTS);
+        return \array_slice($this->interleave($buckets), 0, $maxResults);
+    }
+
+    private function clampMaxResults(?int $maxResults): int
+    {
+        if (null === $maxResults || $maxResults < 1) {
+            return self::MAX_RESULTS;
+        }
+
+        return min(self::MAX_RESULTS, $maxResults);
     }
 
     /**

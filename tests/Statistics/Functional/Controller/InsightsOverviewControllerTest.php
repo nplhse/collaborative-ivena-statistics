@@ -77,6 +77,7 @@ final class InsightsOverviewControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="stats-insights-overview-title"]');
         self::assertSelectorExists('[data-testid="stats-insights-search"]');
+        self::assertSame('5', $client->getCrawler()->filter('[data-testid="stats-insights-search"]')->attr('data-insights-search-max-results-value'));
         self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
         self::assertSelectorExists('[data-testid="stats-insights-tab-overview"]');
         self::assertSelectorExists('[data-testid="stats-insights-tab-indications"]');

@@ -47,7 +47,9 @@
         <div class="col-lg-8">
             <div class="card mb-3">
                 <div class="card-body">
-                    {{ include('@Statistics/insights/_search.html.twig') }}
+                    {{ include('@Statistics/insights/_search.html.twig', {
+                        searchMaxResults: constant('App\\Statistics\\Application\\Insights\\InsightSearchService::MAX_RESULTS'),
+                    }) }}
                 </div>
             </div>
 

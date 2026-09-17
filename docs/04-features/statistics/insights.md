@@ -55,7 +55,7 @@ Tagged providers implement `InsightDimensionProviderInterface` (`#[Autoconfigure
 
 Hospital-scope detail pages embed the isochrone origin map below Age groups. The widget receives `dimension` + `id`, colours travel-time rings by the subject population, and offers the Case Flow origin choropleth as an off-by-default layer. See [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md).
 
-Search is provider `ILIKE` (name/code), minimum two characters, no projection table and no case counts. The Stimulus combobox (`insights-search`) debounces ~300 ms and preserves the current scope/period query. Hits are interleaved across dimensions (up to five per provider) so later catalogs are not crowded out. Compare uses the same widget in `select` mode and must not pass query `dimension=` (that would restrict the search to the current Insight page).
+Search is provider `ILIKE` (name/code), minimum two characters, no projection table and no case counts. The Stimulus combobox (`insights-search`) debounces ~300 ms and preserves the current scope/period query. Hits are interleaved across dimensions (up to five per provider, **five** overall) so later catalogs are not crowded out. Compare uses the same widget in `select` mode with the same cap. Do not pass query `dimension=` on compare (that would restrict the search to the current Insight page). Narrow the query if the target is missing.
 
 ## Compare query
 
@@ -83,7 +83,7 @@ GET /statistics/insights/compare
 
 The compare dialog edits **side B only**. Side A stays the current Insight page (subject plus the header scope/period pickers).
 
-- Search reuses the overview combobox in Stimulus `select` mode (`InsightCompareSelectionForm`). The search URL must not include `dimension`, `id`, or `subject_*`, otherwise later catalogs disappear behind the current page dimension.
+- Search reuses the overview combobox in Stimulus `select` mode (`InsightCompareSelectionForm`). The search URL must not include `dimension`, `id`, or `subject_*`, otherwise later catalogs disappear behind the current page dimension. Results are capped at five interleaved hits (`limit=5`); refine the query if the needed object is missing.
 - Scope/period for B reuse the Top Lists comparison side fields and write `comparison_*`.
 - Indication-group member presets set B to the largest (or smallest) member; A stays the group.
 - Apply navigates to the canonical compare URL. Missing B shows `stats.insights.compare.error.missing_subject_b`.

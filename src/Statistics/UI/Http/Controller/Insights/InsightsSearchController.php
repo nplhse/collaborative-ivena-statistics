@@ -32,8 +32,11 @@ final class InsightsSearchController extends AbstractController
         $query = trim($request->query->getString('q'));
         $dimensionSlug = $request->query->get('dimension');
         $onlyDimension = \is_string($dimensionSlug) ? InsightDimensionKey::tryFrom($dimensionSlug) : null;
+        $maxResults = $request->query->has('limit') && is_numeric($request->query->get('limit'))
+            ? $request->query->getInt('limit')
+            : null;
 
-        $hits = $this->searchService->search($query, $request, $onlyDimension);
+        $hits = $this->searchService->search($query, $request, $onlyDimension, $maxResults);
         unset($filter);
         $results = [];
         foreach ($hits as $hit) {

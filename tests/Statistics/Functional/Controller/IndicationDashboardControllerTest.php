@@ -108,6 +108,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertNotNull($compareSearchUrl);
         self::assertStringContainsString('/statistics/insights/search', $compareSearchUrl);
         self::assertStringNotContainsString('dimension=', $compareSearchUrl);
+        self::assertSame('5', $crawler->filter('[data-testid="stats-insights-compare-search"]')->attr('data-insights-search-max-results-value'));
         $catalogHref = $crawler->filter('[data-testid="stats-indication-catalog-link"]')->attr('href');
         self::assertNotNull($catalogHref);
         self::assertStringContainsString('/explore/indication/'.$indication->getPublicIdString(), $catalogHref);
