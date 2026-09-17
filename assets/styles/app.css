@@ -1140,6 +1140,15 @@ header.navbar {
     overflow: visible;
 }
 
+#explore-subnav > .container-xl {
+    overflow-x: auto;
+}
+
+/* overflow-x: auto computes overflow-y to auto and clips nested dropdowns */
+#explore-subnav:has(.dropdown-menu.show) > .container-xl {
+    overflow: visible;
+}
+
 header.navbar .navbar-brand {
     min-width: 0;
 }
