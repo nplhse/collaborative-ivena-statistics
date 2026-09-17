@@ -6407,7 +6407,7 @@
       </trans-unit>
       <trans-unit id="StatsInsDe44" resname="stats.insights.search.help">
         <source>stats.insights.search.help</source>
-        <target>Mindestens zwei Zeichen eingeben. Treffer enthalten keine Fallzahlen.</target>
+        <target>Mindestens zwei Zeichen eingeben. Es werden höchstens fünf Treffer angezeigt. Verengen Sie die Suche bei Bedarf.</target>
       </trans-unit>
       <trans-unit id="StatsInsDe45" resname="stats.insights.search.loading">
         <source>stats.insights.search.loading</source>
@@ -6492,6 +6492,10 @@
       <trans-unit id="StatsInsCmpDe19" resname="stats.insights.compare.search_label">
         <source>stats.insights.compare.search_label</source>
         <target>Vergleichsobjekt</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe39" resname="stats.insights.compare.search_help">
+        <source>stats.insights.compare.search_help</source>
+        <target>Es werden höchstens fünf Treffer angezeigt. Verengen Sie die Suche, falls das gewünschte Objekt fehlt.</target>
       </trans-unit>
       <trans-unit id="StatsInsCmpDe20" resname="stats.insights.compare.filter_b">
         <source>stats.insights.compare.filter_b</source>

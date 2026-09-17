@@ -6407,7 +6407,7 @@
       </trans-unit>
       <trans-unit id="StatsIns44" resname="stats.insights.search.help">
         <source>stats.insights.search.help</source>
-        <target>Type at least two characters. Results do not include case counts.</target>
+        <target>Type at least two characters. At most five matches are shown. Narrow the search if needed.</target>
       </trans-unit>
       <trans-unit id="StatsIns45" resname="stats.insights.search.loading">
         <source>stats.insights.search.loading</source>
@@ -6492,6 +6492,10 @@
       <trans-unit id="StatsInsCmp19" resname="stats.insights.compare.search_label">
         <source>stats.insights.compare.search_label</source>
         <target>Comparison object</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmp39" resname="stats.insights.compare.search_help">
+        <source>stats.insights.compare.search_help</source>
+        <target>At most five matches are shown. Narrow the search if the object you need is missing.</target>
       </trans-unit>
       <trans-unit id="StatsInsCmp20" resname="stats.insights.compare.filter_b">
         <source>stats.insights.compare.filter_b</source>
