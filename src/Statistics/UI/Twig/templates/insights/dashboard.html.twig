@@ -1,6 +1,7 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
 {% set isGroup = dimensionKey.value == 'indication-groups' %}
+{% set statsCompareLaunchModalId = isGroup ? 'stats-indication-group-compare-launch-modal' : 'stats-insights-compare-launch-modal' %}
 
 {% block title %}{{ dashboard.header.indicationName }} – {{ 'link.stats.insights'|trans({}, 'shared') }} – {{ parent() }}{% endblock %}
 
@@ -50,6 +51,19 @@
         <div class="card mb-3 d-print-none" data-testid="stats-indication-group-members-card">
             <div class="card-body py-3">
                 {{ include('@Statistics/indication_group/_group_members_list.html.twig') }}
+                {% if comparePresets is defined and comparePresets is not empty %}
+                    <div class="mt-3" data-testid="stats-indication-group-compare-launch-presets">
+                        <div class="form-label mb-2">{{ 'stats.indication.group.compare_presets_label'|trans({}, 'statistics') }}</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for preset in comparePresets %}
+                                <a class="btn btn-sm" href="{{ preset.url }}" data-testid="stats-indication-group-compare-preset">
+                                    {{ 'stats.insights.compare.with'|trans({}, 'statistics') }}
+                                    {{ preset.label }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     {% endif %}
@@ -62,12 +76,10 @@
     </div>
 
     {% if statsShowCompareLaunchButton|default(false) and comparePicker is not null %}
-        {{ include('@Statistics/indication_compare/_compare_modal.html.twig', {
-            compareModalId: isGroup ? 'stats-indication-group-compare-launch-modal' : 'stats-indication-compare-launch-modal',
-            compareModalTitleKey: 'stats.indication.compare.launch_modal.title',
-            compareModalInputIdPrefix: isGroup ? 'stats-indication-group-compare-launch' : 'stats-indication-compare-launch',
-            compareModalTestIdPrefix: isGroup ? 'stats-indication-group-compare-launch' : 'stats-indication-compare-launch',
-            comparePresets: comparePresets|default([]),
+        {{ include('@Statistics/insights/_compare_modal.html.twig', {
+            compareModalId: isGroup ? 'stats-indication-group-compare-launch-modal' : 'stats-insights-compare-launch-modal',
+            compareModalTitleKey: 'stats.insights.compare.launch_modal.title',
+            compareModalTestIdPrefix: isGroup ? 'stats-indication-group-compare-launch' : 'stats-insights-compare-launch',
         }) }}
     {% endif %}
 {% endblock %}

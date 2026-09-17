@@ -94,15 +94,21 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"].btn-group');
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-catalog-link"].btn');
-        self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-compare-launch-button"].btn');
-        self::assertSelectorNotExists('[data-testid="stats-indication-compare-launch-button"].btn-outline-primary');
-        self::assertSelectorExists('[data-testid="stats-indication-compare-launch-modal"]');
-        self::assertSelectorNotExists('[data-testid="stats-indication-compare-cta"]');
+        self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-insights-compare-launch-button"].btn');
+        self::assertSelectorNotExists('[data-testid="stats-insights-compare-launch-button"].btn-outline-primary');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-launch-modal"]');
+        self::assertSelectorNotExists('[data-testid="stats-insights-compare-cta"]');
         $crawler = $client->getCrawler();
         self::assertStringContainsString(
             'Dashboard Test Indication',
-            (string) $crawler->filter('#stats-indication-compare-launch-a')->attr('value'),
+            (string) $crawler->filter('[data-testid="stats-insights-compare-reference-a"]')->text(),
         );
+        self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');
+        $compareSearchUrl = $crawler->filter('[data-testid="stats-insights-compare-search"]')->attr('data-insights-search-url-value');
+        self::assertNotNull($compareSearchUrl);
+        self::assertStringContainsString('/statistics/insights/search', $compareSearchUrl);
+        self::assertStringNotContainsString('dimension=', $compareSearchUrl);
+        self::assertSame('5', $crawler->filter('[data-testid="stats-insights-compare-search"]')->attr('data-insights-search-max-results-value'));
         $catalogHref = $crawler->filter('[data-testid="stats-indication-catalog-link"]')->attr('href');
         self::assertNotNull($catalogHref);
         self::assertStringContainsString('/explore/indication/'.$indication->getPublicIdString(), $catalogHref);

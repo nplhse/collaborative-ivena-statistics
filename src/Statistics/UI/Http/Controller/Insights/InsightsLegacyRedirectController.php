@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller\Insights;
 
+use App\Statistics\Application\InsightCompare\InsightCompareSubjectRequestParser;
 use App\Statistics\Application\Insights\InsightDimensionKey;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,6 +12,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class InsightsLegacyRedirectController extends AbstractController
 {
+    public function __construct(
+        private readonly InsightCompareSubjectRequestParser $subjectRequestParser,
+    ) {
+    }
+
     #[Route('/statistics/indication-insights', name: 'app_stats_indication_insights', methods: ['GET'])]
     public function index(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
@@ -44,9 +50,9 @@ final class InsightsLegacyRedirectController extends AbstractController
     #[Route('/statistics/indication/compare', name: 'app_stats_indication_compare', methods: ['GET'], priority: 10)]
     public function compare(Request $request): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        return $this->redirectToRoute('app_stats_insights_compare', array_merge(
-            $request->query->all(),
-            ['dimension' => InsightDimensionKey::Indications->value],
-        ));
+        return $this->redirectToRoute(
+            'app_stats_insights_compare',
+            $this->subjectRequestParser->canonicalizeQuery($request->query->all(), InsightDimensionKey::Indications),
+        );
     }
 }

@@ -58,7 +58,7 @@ final readonly class BenchmarkReportService
         BenchmarkAggregationResult $aggregation,
         bool $overview = false,
     ): BenchmarkReport {
-        $kpiMetrics = $this->metricBuilder->buildIndicationCompareKpiMetrics($aggregation);
+        $kpiMetrics = $this->metricBuilder->buildCompareKpiMetrics($aggregation);
         $insights = $overview ? [] : $this->insightProvider->build($aggregation, $kpiMetrics);
         $suppressRatios = $aggregation->primary->total < self::MIN_CASES_RATIOS
             || $aggregation->comparison->total < self::MIN_CASES_RATIOS;

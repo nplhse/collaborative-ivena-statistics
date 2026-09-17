@@ -83,8 +83,10 @@ final class InsightsLegacyRedirectControllerTest extends WebTestCase
 
         self::assertResponseRedirects();
         $location = (string) $client->getResponse()->headers->get('Location');
-        self::assertStringContainsString('/statistics/insights/indications/compare', $location);
-        self::assertStringContainsString('indication_a=1', $location);
-        self::assertStringContainsString('indication_b=2', $location);
+        self::assertStringContainsString('/statistics/insights/compare', $location);
+        self::assertStringContainsString('subject_a_dimension=indications', $location);
+        self::assertStringContainsString('subject_a_id=1', $location);
+        self::assertStringContainsString('subject_b_id=2', $location);
+        self::assertStringNotContainsString('indication_a=', $location);
     }
 }

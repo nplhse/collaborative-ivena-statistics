@@ -1,35 +1,49 @@
+{% set searchMode = searchMode|default('navigate') %}
+{% set searchIdPrefix = searchIdPrefix|default('stats-insights-search') %}
+{% set searchLabelKey = searchLabelKey|default('stats.insights.search.label') %}
+{% set searchHelpKey = searchHelpKey|default('stats.insights.search.help') %}
+{% set searchInputSize = searchInputSize|default('form-control-lg') %}
+{% set searchTestId = searchTestId|default('stats-insights-search') %}
+{% set searchHelpEnabled = searchHelp is defined ? searchHelp : true %}
+{% set searchMaxResults = searchMaxResults|default(0) %}
 <div data-controller="insights-search"
      data-insights-search-url-value="{{ searchUrl }}"
      data-insights-search-min-length-value="2"
+     data-insights-search-mode-value="{{ searchMode }}"
+     data-insights-search-max-results-value="{{ searchMaxResults }}"
+     data-insights-search-option-id-prefix-value="{{ searchIdPrefix }}-option"
      data-insights-search-loading-value="{{ 'stats.insights.search.loading'|trans({}, 'statistics') }}"
      data-insights-search-empty-value="{{ 'stats.insights.search.no_results'|trans({}, 'statistics') }}"
      class="insights-search"
-     data-testid="stats-insights-search">
-    <label class="form-label" for="stats-insights-search-input">
-        {{ 'stats.insights.search.label'|trans({}, 'statistics') }}
+     data-testid="{{ searchTestId }}">
+    <label class="form-label" for="{{ searchIdPrefix }}-input">
+        {{ searchLabelKey|trans({}, 'statistics') }}
     </label>
     <div class="input-icon">
         <span class="input-icon-addon">
             <twig:ux:icon name="tabler:search" class="icon" />
         </span>
         <input type="search"
-               id="stats-insights-search-input"
-               class="form-control form-control-lg"
+               id="{{ searchIdPrefix }}-input"
+               class="form-control {{ searchInputSize }}"
                placeholder="{{ 'stats.insights.search.placeholder'|trans({}, 'statistics') }}"
                autocomplete="off"
                role="combobox"
                aria-autocomplete="list"
                aria-expanded="false"
-               aria-controls="stats-insights-search-results"
+               aria-controls="{{ searchIdPrefix }}-results"
                aria-haspopup="listbox"
+               value="{{ searchInputValue|default('') }}"
                data-insights-search-target="input"
                data-action="input->insights-search#onInput keydown->insights-search#onKeydown">
     </div>
-    <div class="text-secondary small mt-1">{{ 'stats.insights.search.help'|trans({}, 'statistics') }}</div>
-    <div id="stats-insights-search-results"
+    {% if searchHelpEnabled %}
+        <div class="text-secondary small mt-1">{{ searchHelpKey|trans({}, 'statistics') }}</div>
+    {% endif %}
+    <div id="{{ searchIdPrefix }}-results"
          class="list-group mt-2 d-none"
          role="listbox"
          data-insights-search-target="results"
-         data-testid="stats-insights-search-results"></div>
-    <div class="text-secondary small mt-2 d-none" data-insights-search-target="status" data-testid="stats-insights-search-status"></div>
+         data-testid="{{ searchTestId }}-results"></div>
+    <div class="text-secondary small mt-2 d-none" data-insights-search-target="status" data-testid="{{ searchTestId }}-status"></div>
 </div>

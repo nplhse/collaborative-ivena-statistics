@@ -1,0 +1,67 @@
+<div {{ attributes }}>
+    <div class="modal-body">
+        <p class="text-muted small mb-3">{{ 'stats.insights.compare.picker_help'|trans({}, 'statistics') }}</p>
+
+        <div class="mb-3" data-testid="stats-insights-compare-reference-a">
+            <div class="form-label">{{ 'stats.insights.compare.side_a'|trans({}, 'statistics') }}</div>
+            <div class="form-control-plaintext">{{ referenceSummaryA }}</div>
+        </div>
+
+        <div class="mb-3" data-live-ignore>
+            {{ include('@Statistics/insights/_search.html.twig', {
+                searchUrl: searchUrl,
+                searchMode: 'select',
+                searchIdPrefix: 'stats-insights-compare-search-' ~ this.subjectAId,
+                searchLabelKey: 'stats.insights.compare.search_label',
+                searchHelp: true,
+                searchHelpKey: 'stats.insights.compare.search_help',
+                searchMaxResults: this.searchMaxResults,
+                searchInputValue: subjectBLabel,
+                searchDimension: subjectBDimension,
+                searchSelectedId: subjectBId,
+                searchTestId: 'stats-insights-compare-search',
+                searchInputSize: '',
+            }) }}
+        </div>
+        {% if missingSubjectB and subjectBId is empty %}
+            <div class="alert alert-danger" role="alert" data-testid="stats-insights-compare-missing-b">
+                {{ 'stats.insights.compare.error.missing_subject_b'|trans({}, 'statistics') }}
+            </div>
+        {% endif %}
+        <input type="hidden"
+               data-model="subjectBDimension"
+               data-insight-compare-picker-target="dimension"
+               value="{{ subjectBDimension }}">
+        <input type="hidden"
+               data-model="subjectBId"
+               data-insight-compare-picker-target="id"
+               value="{{ subjectBId }}">
+        <input type="hidden"
+               data-model="subjectBLabel"
+               data-insight-compare-picker-target="label"
+               value="{{ subjectBLabel }}">
+
+        {{ form_start(form) }}
+            <p class="form-label mb-2">{{ 'stats.insights.compare.filter_b'|trans({}, 'statistics') }}</p>
+            {{ include('@Statistics/benchmarking/_selection_side_fields.html.twig', {
+                sideForm: form,
+                testId: 'stats-insights-compare-form-b',
+            }) }}
+        {{ form_end(form) }}
+    </div>
+
+    <div class="modal-footer">
+        <button type="button"
+                class="btn btn-link link-secondary"
+                data-bs-dismiss="modal">
+            {{ 'action.cancel'|trans({}, 'messages') }}
+        </button>
+        <button type="button"
+                class="btn btn-primary"
+                data-action="live#action"
+                data-live-action-param="apply"
+                data-testid="stats-insights-compare-submit">
+            {{ 'stats.insights.compare.submit'|trans({}, 'statistics') }}
+        </button>
+    </div>
+</div>

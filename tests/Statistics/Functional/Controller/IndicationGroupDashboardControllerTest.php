@@ -49,7 +49,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-input"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
         self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-indication-compare-launch-button"]');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-launch-button"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-modal"]');
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-presets"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-members-show-more"]');
@@ -69,17 +69,9 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
 
         self::assertStringContainsString(
             'Cardiology Group',
-            (string) $crawler->filter('#stats-indication-group-compare-launch-a')->attr('value'),
+            (string) $crawler->filter('[data-testid="stats-insights-compare-reference-a"]')->text(),
         );
-        self::assertStringContainsString(
-            '[Group]',
-            (string) $crawler->filter('#stats-indication-group-compare-launch-a')->attr('value'),
-        );
-        self::assertStringEndsWith(
-            '[Group]',
-            trim((string) $crawler->filter('#stats-indication-group-compare-launch-a')->attr('value')),
-        );
-        self::assertSame('', (string) $crawler->filter('#stats-indication-group-compare-launch-b')->attr('value'));
+        self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');
     }
 
     public function testGroupMembersListShowsExpandControlWhenMoreThanThreeMembers(): void
@@ -216,7 +208,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-card"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-picker-input"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-group-members"]');
-        self::assertSelectorExists('[data-testid="stats-indication-compare-launch-button"]');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-launch-button"]');
     }
 
     /**

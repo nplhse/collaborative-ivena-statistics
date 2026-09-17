@@ -14,12 +14,12 @@ final readonly class BenchmarkSelectionFormDataFactory
     public function fromFilters(StatisticsFilter $primaryFilter, StatisticsFilter $comparisonFilter): BenchmarkSelectionFormData
     {
         return new BenchmarkSelectionFormData(
-            $this->sideFromFilter($primaryFilter),
-            $this->sideFromFilter($comparisonFilter),
+            $this->fromFilter($primaryFilter),
+            $this->fromFilter($comparisonFilter),
         );
     }
 
-    private function sideFromFilter(StatisticsFilter $filter): BenchmarkSelectionSideFormData
+    public function fromFilter(StatisticsFilter $filter): BenchmarkSelectionSideFormData
     {
         [$scopeGroup, $scopeDetail] = $this->scopeGroupFromFilter($filter);
         $now = new \DateTimeImmutable();
