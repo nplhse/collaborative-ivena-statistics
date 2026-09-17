@@ -1,8 +1,3 @@
-{% if topListUrl %}
-    <a href="{{ topListUrl }}" class="btn btn-sm" data-testid="stats-insights-directory-top-list">
-        {{ 'stats.indication.nav.top_list'|trans({}, 'statistics') }}
-    </a>
-{% endif %}
 <form method="get" data-controller="autosubmit" class="mb-0" data-testid="stats-insights-directory-search">
     {{ include('@Statistics/insights/_directory_query_hidden.html.twig', {exclude: ['q', 'page']}) }}
     <label class="visually-hidden" for="stats-insights-directory-q">{{ 'stats.insights.directory.search'|trans({}, 'statistics') }}</label>

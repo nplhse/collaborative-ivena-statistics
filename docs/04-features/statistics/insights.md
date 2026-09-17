@@ -24,9 +24,9 @@ Legacy Indication Insights URLs redirect while keeping scope/period query parame
 
 The overview does **not** open a default value. Detail pages require an explicit selection.
 
-The overview uses a two-column layout (2/3 + 1/3): search and a tabbed Indications / Indication groups card on the left, stacked Top-5 teasers on the right. Teaser titles open the dimension directory. The Insights subnav lives on the overview and on dimension directories. Detail dashboards and compare show only the chosen subject; breadcrumbs return to Insights. Compare can be launched from a detail page: side A is the current subject plus the header scope/period; the dialog chooses side B (Insights search plus independent scope/period).
+The overview uses a two-column layout (2/3 + 1/3): search and a tabbed Indications / Indication groups card on the left, stacked Top-5 teasers on the right. Teaser titles open the dimension directory. The Insights subnav lives on the overview and on dimension directories; the active tab uses a surface background and a primary underline. The Statistics subnav uses `tabler:chart-bar` as the Insights icon. Detail dashboards and compare show only the chosen subject; breadcrumbs return to Insights. Compare can be launched from a detail page: side A is the current subject plus the header scope/period; the dialog chooses side B (Insights search plus independent scope/period).
 
-Directories are a DataTable-style card: search and optional Top List button in the card header (top right), sort next to page-size in the footer. Indications use a tabbed card to switch to indication groups.
+Directories are a DataTable-style card: search in a compact toolbar (Indications keep the groups tabs in the card header), sort next to page-size in the footer. The Top List action lives in the page header with the standard `list-numbers` icon. Table rows keep the name as the Insight detail link and add a final icon-only action to the Explore catalog show page.
 
 ## Supported dimensions (wave 1)
 
@@ -35,8 +35,8 @@ Directories are a DataTable-style card: search and optional Top List button in t
 | Indications | `indications` | primary, featured | `indication_normalized_id` |
 | Indication groups | `indication-groups` | nested under Indications (`?view=groups`) | member `indication_normalized_id` values |
 | Specialities | `specialities` | primary | `speciality_id` |
-| Assignment | `assignments` | primary | `assignment_id` |
 | Departments | `departments` | primary | `department_id` |
+| Assignment | `assignments` | primary | `assignment_id` |
 | Occasions | `occasions` | primary | `occasion_id` |
 | Infections | `infections` | primary | `infection_id` |
 | Secondary transports | `secondary-transports` | primary | `secondary_transport_id` |
@@ -102,8 +102,10 @@ Do not invent grouping models. Nested groups are only appropriate when membershi
 
 ## Cross-links
 
-- Catalog actions: “Open insight” for every Insight dimension
-- Top Lists: compact chart-bar link beside catalog labels (`insightRowTargets`)
+- Catalog actions: “Open insight” (`tabler:chart-bar`) for every Insight dimension
+- Insights directories and the overview featured table: final icon-only Explore action (`tabler:book-2`, Details)
+- Top Lists: Insight link in the final actions column (`tabler:chart-bar`, `insightRowTargets`); row labels stay Explore show links
+- Top List header: Overview (`tabler:compass`) returns to the Explore catalog list
 - Overview indication mix / Benchmark indication mix / Transport Time Profile: canonical show URLs
 - Allocation show: compact Insight icon next to indication, speciality, department, assignment, occasion, infection, and secondary transport
 

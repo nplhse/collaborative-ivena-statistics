@@ -8,7 +8,7 @@
 {% set glossaryActive = route starts with 'app_explore_glossary' %}
 
 <nav class="navbar navbar-expand d-print-none" id="explore-subnav" aria-label="{{ 'link.explore'|trans({}, 'shared') }}">
-    <div class="container-xl overflow-x-auto">
+    <div class="container-xl">
         <ul class="navbar-nav flex-nowrap" data-testid="explore-subnav">
                     <li class="nav-item {{ overviewActive ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_explore_index') }}">

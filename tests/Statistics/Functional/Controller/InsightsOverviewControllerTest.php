@@ -79,7 +79,23 @@ final class InsightsOverviewControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-insights-search"]');
         self::assertSame('5', $client->getCrawler()->filter('[data-testid="stats-insights-search"]')->attr('data-insights-search-max-results-value'));
         self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-overview"]');
+        self::assertSelectorExists('[data-testid="stats-insights-tab-overview"].active');
+        self::assertSame('page', $client->getCrawler()->filter('[data-testid="stats-insights-tab-overview"]')->attr('aria-current'));
+        self::assertSame(
+            [
+                'stats-insights-tab-overview',
+                'stats-insights-tab-indications',
+                'stats-insights-tab-specialities',
+                'stats-insights-tab-departments',
+                'stats-insights-tab-assignments',
+                'stats-insights-tab-occasions',
+                'stats-insights-tab-infections',
+                'stats-insights-tab-secondary-transports',
+            ],
+            $client->getCrawler()->filter('[data-testid="stats-insights-subnav"] [data-testid^="stats-insights-tab-"]')->each(
+                static fn ($node): string => (string) $node->attr('data-testid'),
+            ),
+        );
         self::assertSelectorExists('[data-testid="stats-insights-tab-indications"]');
         self::assertSelectorExists('[data-testid="stats-insights-tab-specialities"]');
         self::assertSelectorExists('[data-testid="stats-insights-tab-assignments"]');
@@ -93,6 +109,12 @@ final class InsightsOverviewControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-indication-heading-title"]');
         self::assertSelectorTextContains('[data-testid="stats-insights-featured"]', 'Overview Test Indication');
         self::assertSelectorExists(sprintf('a[href*="/statistics/insights/indications/%d"]', $indication->getId()));
+        self::assertSelectorExists('[data-testid="stats-insights-featured-row-explore"].btn.btn-icon.btn-sm.btn-ghost-secondary');
+        self::assertSame(
+            '/explore/indication/'.$indication->getPublicIdString(),
+            $client->getCrawler()->filter('[data-testid="stats-insights-featured-row-explore"]')->attr('href'),
+        );
+        self::assertCount(0, $client->getCrawler()->filter('[data-testid="stats-insights-search"] input[autofocus]'));
         self::assertSelectorExists('[data-testid="stats-insights-featured-groups"]');
         self::assertSelectorExists('[data-testid="stats-insights-featured-all"]');
         self::assertSelectorExists('[data-testid="stats-insights-featured"] .card-footer .btn');
@@ -101,6 +123,20 @@ final class InsightsOverviewControllerTest extends WebTestCase
         self::assertStringContainsString('/statistics/top-lists/top_diagnoses', $topListHref);
         self::assertStringContainsString('scope=hospital', $topListHref);
         self::assertSelectorExists('[data-testid="stats-insights-teaser-title-specialities"]');
+        $teaserIds = $client->getCrawler()->filter('[data-testid="stats-insights-teasers"] > .card')->each(
+            static fn ($node): string => (string) $node->attr('data-testid'),
+        );
+        self::assertSame(
+            [
+                'stats-insights-teaser-specialities',
+                'stats-insights-teaser-departments',
+                'stats-insights-teaser-assignments',
+                'stats-insights-teaser-occasions',
+                'stats-insights-teaser-infections',
+                'stats-insights-teaser-secondary-transports',
+            ],
+            $teaserIds,
+        );
         $specialityTitle = $client->getCrawler()->filter('[data-testid="stats-insights-teaser-title-specialities"]');
         $specialityHref = $specialityTitle->attr('href');
         self::assertNotNull($specialityHref);

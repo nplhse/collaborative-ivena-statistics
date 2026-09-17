@@ -85,15 +85,22 @@ final class InsightsDimensionControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-insights-indication-toggle"]');
         self::assertSelectorExists('[data-testid="stats-insights-directory"] .nav-tabs.card-header-tabs');
         self::assertSelectorExists('[data-testid="stats-insights-directory"] .card-header [data-testid="stats-insights-directory-search"]');
-        self::assertSelectorExists('[data-testid="stats-insights-directory"] .card-header [data-testid="stats-insights-directory-top-list"]');
+        self::assertSelectorNotExists('[data-testid="stats-insights-directory"] .card-header [data-testid="stats-insights-directory-top-list"]');
+        self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-top-list-link"]');
+        self::assertCount(0, $client->getCrawler()->filter('[data-testid="stats-insights-directory-search"] input[autofocus]'));
         self::assertSelectorExists('[data-testid="stats-insights-directory-sort"]');
         self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-indications"]');
+        self::assertSelectorExists('[data-testid="stats-insights-tab-indications"].active');
         self::assertSelectorExists('[data-testid="stats-insights-tab-departments"]');
         self::assertSelectorNotExists('[data-testid="stats-insights-tab-more"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
         self::assertSelectorTextContains('[data-testid="stats-insights-directory"]', 'Directory Indication');
         self::assertSelectorExists(sprintf('a[href*="/statistics/insights/indications/%d"]', $indication->getId()));
+        self::assertSelectorExists('[data-testid="stats-insights-row-explore"].btn.btn-icon.btn-sm.btn-ghost-secondary');
+        self::assertSame(
+            '/explore/indication/'.$indication->getPublicIdString(),
+            $client->getCrawler()->filter('[data-testid="stats-insights-row-explore"]')->attr('href'),
+        );
 
         $client->request(\Symfony\Component\HttpFoundation\Request::METHOD_GET, '/statistics/insights/indications', [
             'scope' => 'hospital',
@@ -155,13 +162,20 @@ final class InsightsDimensionControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-insights-directory"]');
         self::assertSelectorNotExists('[data-testid="stats-insights-indication-toggle"]');
         self::assertSelectorNotExists('[data-testid="stats-insights-directory"] .nav-tabs');
-        self::assertSelectorExists('[data-testid="stats-insights-directory"] .card-header [data-testid="stats-insights-directory-search"]');
-        self::assertSelectorExists('[data-testid="stats-insights-directory"] .card-header [data-testid="stats-insights-directory-top-list"]');
+        self::assertSelectorNotExists('[data-testid="stats-insights-directory"] .card-header');
+        self::assertSelectorExists('[data-testid="stats-insights-directory-toolbar"] [data-testid="stats-insights-directory-search"]');
+        self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-top-list-link"]');
+        self::assertCount(0, $client->getCrawler()->filter('[data-testid="stats-insights-directory-search"] input[autofocus]'));
         self::assertSelectorExists('[data-testid="stats-insights-directory-sort"]');
         self::assertSelectorTextContains('[data-testid="stats-insights-directory"]', 'Directory Assignment');
         self::assertSelectorExists(sprintf('a[href*="/statistics/insights/assignments/%d"]', $assignment->getId()));
+        self::assertSelectorExists('[data-testid="stats-insights-row-explore"].btn.btn-icon.btn-sm.btn-ghost-secondary');
+        self::assertSame(
+            '/explore/assignment/'.$assignment->getPublicIdString(),
+            $client->getCrawler()->filter('[data-testid="stats-insights-row-explore"]')->attr('href'),
+        );
         self::assertSelectorExists('[data-testid="stats-insights-subnav"]');
-        self::assertSelectorExists('[data-testid="stats-insights-tab-assignments"]');
+        self::assertSelectorExists('[data-testid="stats-insights-tab-assignments"].active');
         self::assertSelectorNotExists('[data-testid="stats-insights-tab-more"]');
         self::assertSelectorNotExists('[data-testid="stats-indication-picker"]');
     }

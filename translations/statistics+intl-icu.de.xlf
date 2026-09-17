@@ -4811,15 +4811,15 @@
       </trans-unit>
       <trans-unit id="statsTlNavCatListDe" resname="stats.top_lists.nav.catalog_list">
         <source>stats.top_lists.nav.catalog_list</source>
-        <target>Erkunden</target>
+        <target>Übersicht</target>
       </trans-unit>
       <trans-unit id="statsIndNavCatDe" resname="stats.indication.nav.catalog">
         <source>stats.indication.nav.catalog</source>
-        <target>Erkunden</target>
+        <target>Details</target>
       </trans-unit>
       <trans-unit id="statsIndNavTlDe" resname="stats.indication.nav.top_list">
         <source>stats.indication.nav.top_list</source>
-        <target>Top-Liste öffnen</target>
+        <target>Top-Liste</target>
       </trans-unit>
       <trans-unit id="De3d88ff8d" resname="stats.top_lists.page_title">
         <source>stats.top_lists.page_title</source>
@@ -6416,6 +6416,14 @@
       <trans-unit id="StatsInsDe46" resname="stats.insights.search.no_results">
         <source>stats.insights.search.no_results</source>
         <target>Keine passenden Insights</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe47" resname="stats.insights.nav.compare">
+        <source>stats.insights.nav.compare</source>
+        <target>Vergleichen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsDe48" resname="stats.insights.table.actions">
+        <source>stats.insights.table.actions</source>
+        <target>Aktionen</target>
       </trans-unit>
       <trans-unit id="StatsInsCmpDe01" resname="stats.insights.compare.title">
         <source>stats.insights.compare.title</source>

@@ -14,6 +14,7 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Statistics\Application\Insights\InsightDimensionKey;
+use App\Statistics\Application\Insights\InsightDimensionProviderInterface;
 use App\Statistics\Application\Insights\InsightDimensionRegistry;
 use App\Statistics\Application\Insights\InsightNavPlacement;
 use App\User\Domain\Factory\UserFactory;
@@ -62,6 +63,36 @@ final class InsightDimensionProviderTest extends KernelTestCase
 
         $infections = $registry->get(InsightDimensionKey::Infections);
         self::assertSame(['infectious'], $infections->disabledInsightIds());
+
+        self::assertSame(
+            [
+                InsightDimensionKey::Indications,
+                InsightDimensionKey::Specialities,
+                InsightDimensionKey::Departments,
+                InsightDimensionKey::Assignments,
+                InsightDimensionKey::Occasions,
+                InsightDimensionKey::Infections,
+                InsightDimensionKey::SecondaryTransports,
+            ],
+            array_map(
+                static fn (InsightDimensionProviderInterface $provider): InsightDimensionKey => $provider->key(),
+                $registry->primaryNav(),
+            ),
+        );
+        self::assertSame(
+            [
+                InsightDimensionKey::Specialities,
+                InsightDimensionKey::Departments,
+                InsightDimensionKey::Assignments,
+                InsightDimensionKey::Occasions,
+                InsightDimensionKey::Infections,
+                InsightDimensionKey::SecondaryTransports,
+            ],
+            array_map(
+                static fn (InsightDimensionProviderInterface $provider): InsightDimensionKey => $provider->key(),
+                $registry->overviewTeasers(),
+            ),
+        );
     }
 
     public function testIndicationProviderResolvesCodesAndSearchesByNumericCode(): void

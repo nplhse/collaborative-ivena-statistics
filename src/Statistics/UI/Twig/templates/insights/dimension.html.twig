@@ -43,8 +43,8 @@
     {{ include('@Statistics/insights/_subnav.html.twig') }}
 
     <div class="card insights-directory-card" data-testid="stats-insights-directory">
-        <div class="card-header">
-            {% if showGroupsToggle %}
+        {% if showGroupsToggle %}
+            <div class="card-header">
                 <ul class="nav nav-tabs card-header-tabs align-items-center" role="tablist" data-testid="stats-insights-indication-toggle">
                     <li class="nav-item" role="presentation">
                         <a class="nav-link{% if not groupsView %} active{% endif %}"
@@ -67,14 +67,14 @@
                         </div>
                     </li>
                 </ul>
-            {% else %}
-                <div class="card-actions">
-                    <div class="insights-directory-header-tools d-flex align-items-center gap-2">
-                        {{ include('@Statistics/insights/_directory_toolbar.html.twig') }}
-                    </div>
+            </div>
+        {% else %}
+            <div class="card-body py-2 border-bottom" data-testid="stats-insights-directory-toolbar">
+                <div class="insights-directory-header-tools d-flex align-items-center justify-content-end">
+                    {{ include('@Statistics/insights/_directory_toolbar.html.twig') }}
                 </div>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
 
         {% if directory.rows is empty %}
             <div class="card-body" data-testid="stats-insights-directory-empty">
@@ -100,6 +100,7 @@
                             <th>{{ provider.labelTranslationKey|trans({}, 'statistics') }}</th>
                             <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
                             <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
+                            <th class="w-1" aria-label="{{ 'stats.insights.table.actions'|trans({}, 'statistics') }}"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,6 +115,14 @@
                                 </td>
                                 <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
                                 <td class="text-end">{{ row.shareDisplay }}</td>
+                                <td class="w-1">
+                                    {{ include('@Statistics/insights/_table_icon_action.html.twig', {
+                                        href: row.exploreUrl,
+                                        icon: 'tabler:book-2',
+                                        labelKey: 'stats.indication.nav.catalog',
+                                        testId: 'stats-insights-row-explore',
+                                    }) }}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

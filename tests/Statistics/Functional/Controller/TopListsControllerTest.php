@@ -153,6 +153,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"]', 'Share');
         $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"].btn-group');
         $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-catalog-link"].btn');
+        $this->assertSelectorTextContains('[data-testid="stats-top-lists-catalog-link"]', 'Overview');
         $this->assertSelectorExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-compare-enable"].btn');
         $this->assertSelectorExists('[data-testid="stats-analysis-table-card"] [data-testid="stats-top-lists-export-csv"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-export-csv"]');
@@ -177,10 +178,15 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertMatchesRegularExpression('/width:\s*100(\.0)?%/', $shareBarStyle);
         $this->assertSelectorTextContains('[data-testid="stats-analysis-table-card"] tbody', '100.0%');
         $firstRowCells = $crawler->filter('[data-testid="stats-analysis-table-card"] tbody tr')->first()->filter('td');
-        $this->assertCount(5, $firstRowCells);
+        $this->assertCount(6, $firstRowCells);
         $this->assertStringContainsString('100.0%', $firstRowCells->eq(3)->text());
         $this->assertGreaterThan(0, $firstRowCells->eq(4)->filter('[data-testid="stats-top-lists-share-bar"]')->count());
         $this->assertStringNotContainsString('100.0%', $firstRowCells->eq(4)->text());
+        $this->assertSelectorExists('[data-testid="stats-top-lists-row-insight"].btn.btn-icon.btn-sm.btn-ghost-secondary');
+        $this->assertStringContainsString(
+            '/statistics/insights/indications/'.$normalized->getId(),
+            (string) $crawler->filter('[data-testid="stats-top-lists-row-insight"]')->attr('href'),
+        );
     }
 
     public function testTopDepartmentsReportIsDisplayedWithTable(): void

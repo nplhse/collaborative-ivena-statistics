@@ -1140,6 +1140,15 @@ header.navbar {
     overflow: visible;
 }
 
+#explore-subnav > .container-xl {
+    overflow-x: auto;
+}
+
+/* overflow-x: auto computes overflow-y to auto and clips nested dropdowns */
+#explore-subnav:has(.dropdown-menu.show) > .container-xl {
+    overflow: visible;
+}
+
 header.navbar .navbar-brand {
     min-width: 0;
 }
@@ -1170,6 +1179,18 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
 
 .insights-directory-header-tools .form-control {
     width: 13rem;
+}
+
+.insights-table-icon-action.btn-icon {
+    --tblr-btn-padding-y: 0.125rem;
+    --tblr-btn-padding-x: 0.125rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+}
+
+.insights-table-icon-action .icon {
+    width: 1rem;
+    height: 1rem;
 }
 
 @media (max-width: 767.98px) {

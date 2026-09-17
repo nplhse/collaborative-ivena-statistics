@@ -111,6 +111,9 @@ compile: ## Execute some tasks before deployment
 consume: ## Consume messages from symfony messenger
 	@$(CONSOLE) messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv
 
+asset: ## Recompile local assets
+	@$(CONSOLE) asset-map:compile
+
 ## —— Backups 💾 ———————————————————————————————————————————————————————————————
 backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)
 	@./bin/ops/backup-database.sh

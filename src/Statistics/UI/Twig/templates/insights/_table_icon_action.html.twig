@@ -1,0 +1,9 @@
+{% if href %}
+    <a href="{{ href }}"
+       class="btn btn-ghost-secondary btn-icon btn-sm insights-table-icon-action"
+       title="{{ labelKey|trans({}, 'statistics') }}"
+       aria-label="{{ labelKey|trans({}, 'statistics') }}"
+       data-testid="{{ testId }}">
+        <twig:ux:icon name="{{ icon }}" class="icon icon-sm" />
+    </a>
+{% endif %}
