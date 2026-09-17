@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
+use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
@@ -33,9 +34,10 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class NewImportControllerTest extends WebTestCase
 {
+    use CookieConsentTestHelper;
     use DeniesRateLimiter;
-    use HasBrowser;
     use Factories;
+    use HasBrowser;
 
     private string $fixturesDir;
 
@@ -103,6 +105,68 @@ final class NewImportControllerTest extends WebTestCase
             })
             ->assertSee('View import details')
             ->assertSeeElement('[data-import-status-target="detailLink"]:not(.d-none)');
+    }
+
+    public function testRememberMeParticipantCanCreateImportWithoutPasswordConfirmation(): void
+    {
+        [$owner, $hospitalId] = $this->createOwnerWithHospital();
+        $username = $owner->getUsername();
+        self::assertNotNull($username);
+
+        $client = $this->browser()->client();
+        $client->followRedirects(false);
+        $this->loginWithRememberMe($client, $username);
+        $cookies = $this->extractRememberMeSessionCookies($client);
+        $this->useRememberMeSessionOnly($client, $cookies['rememberMe'], $cookies['consentSubject']);
+
+        $csvPath = $this->fixturesDir.'/allocation_import_sample.csv';
+        self::assertFileExists($csvPath, 'Fixture allocation_import_sample.csv fehlt');
+        $uploadPath = sys_get_temp_dir().'/allocation_import_sample_'.bin2hex(random_bytes(4)).'.csv';
+        self::assertTrue(copy($csvPath, $uploadPath));
+
+        $crawler = $client->request(Request::METHOD_GET, '/import/new');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('form');
+        self::assertSelectorExists('input[name="import_create[name]"]');
+        self::assertStringNotContainsString('Confirm your password', (string) $client->getResponse()->getContent());
+
+        $client->disableReboot();
+        $form = $crawler->filter('form')->form();
+        $client->request(
+            Request::METHOD_POST,
+            '/import/new',
+            [
+                'import_create' => [
+                    'name' => 'Remember Me Import',
+                    'hospital' => (string) $hospitalId,
+                    '_token' => $form['import_create[_token]']->getValue(),
+                ],
+            ],
+            [
+                'import_create' => [
+                    'file' => new UploadedFile($uploadPath, 'allocation_import_sample.csv', 'text/csv', null, true),
+                ],
+            ],
+        );
+
+        self::assertResponseRedirects();
+        $location = $client->getResponse()->headers->get('Location');
+        self::assertNotNull($location);
+        self::assertStringNotContainsString('/login/confirm', $location);
+        self::assertMatchesRegularExpression('#/import/\d+/processing$#', $location);
+
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Remember Me Import');
+        self::assertSelectorTextContains('body', 'New Import has been created successfully!');
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+
+        /** @var Import|null $import */
+        $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Remember Me Import']);
+        self::assertNotNull($import, 'Import has been persisted.');
+        @\unlink($import->getFilePath());
     }
 
     public function testSubmitIsRateLimited(): void
