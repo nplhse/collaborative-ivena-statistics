@@ -12,18 +12,19 @@ Canonical routes:
 | Search (JSON) | `/statistics/insights/search` | `app_stats_insights_search` |
 | Dimension directory | `/statistics/insights/{dimension}` | `app_stats_insights_dimension` |
 | Detail | `/statistics/insights/{dimension}/{id}` | `app_stats_insights_show` |
-| Compare | `/statistics/insights/{dimension}/compare` | `app_stats_insights_compare` |
+| Compare | `/statistics/insights/compare` | `app_stats_insights_compare` |
 
 Legacy Indication Insights URLs redirect while keeping scope/period query parameters:
 
 - `/statistics/indication-insights` → overview
 - `/statistics/indication/{id}` → `indications/{id}`
 - `/statistics/indication-group/{id}` → `indication-groups/{id}`
-- `/statistics/indication/compare` → `indications/compare`
+- `/statistics/indication/compare` → `/statistics/insights/compare` (`indication_a` / `subject_*_type` mapped to `subject_*_dimension`)
+- `/statistics/insights/{dimension}/compare` → `/statistics/insights/compare` (path dimension used when `subject_*_dimension` is absent)
 
 The overview does **not** open a default value. Detail pages require an explicit selection.
 
-The overview uses a two-column layout (2/3 + 1/3): search and a tabbed Indications / Indication groups card on the left, stacked Top-5 teasers on the right. Teaser titles open the dimension directory. The Insights subnav lives on the overview and on dimension directories. Detail dashboards and compare show only the chosen subject; breadcrumbs return to Insights. Compare can be launched from a detail page.
+The overview uses a two-column layout (2/3 + 1/3): search and a tabbed Indications / Indication groups card on the left, stacked Top-5 teasers on the right. Teaser titles open the dimension directory. The Insights subnav lives on the overview and on dimension directories. Detail dashboards and compare show only the chosen subject; breadcrumbs return to Insights. Compare can be launched from a detail page: side A is the current subject plus the header scope/period; the dialog chooses side B (Insights search plus independent scope/period).
 
 Directories are a DataTable-style card: search and optional Top List button in the card header (top right), sort next to page-size in the footer. Indications use a tabbed card to switch to indication groups.
 
@@ -40,7 +41,7 @@ Directories are a DataTable-style card: search and optional Top List button in t
 | Infections | `infections` | primary | `infection_id` |
 | Secondary transports | `secondary-transports` | primary | `secondary_transport_id` |
 
-Indication groups stay a provider that resolves member IDs. Mixed compare Indication ↔ group remains indication-specific because both use the same projection column. Other dimensions compare only within the same dimension.
+Indication groups stay a provider that resolves member IDs. Compare is cross-dimensional: each side is resolved independently via `InsightDimensionRegistry`. Mixed Indication ↔ group still shares the indication projection column; other pairs (e.g. indication vs department) use their own population columns. The same catalog value may be compared across two periods or scopes (ACS 2025 vs ACS 2024). Identity is rejected only when subject **and** scope/period are the same.
 
 Out of wave 1: Zuweiser (not in the model), assignment mode, secondary indication as its own Insight dimension, recents, and case counts in global search.
 
@@ -54,7 +55,39 @@ Tagged providers implement `InsightDimensionProviderInterface` (`#[Autoconfigure
 
 Hospital-scope detail pages embed the isochrone origin map below Age groups. The widget receives `dimension` + `id`, colours travel-time rings by the subject population, and offers the Case Flow origin choropleth as an off-by-default layer. See [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md).
 
-Search is provider `ILIKE` (name/code), minimum two characters, no projection table and no case counts. The Stimulus combobox (`insights-search`) debounces ~300 ms and preserves the current scope/period query.
+Search is provider `ILIKE` (name/code), minimum two characters, no projection table and no case counts. The Stimulus combobox (`insights-search`) debounces ~300 ms and preserves the current scope/period query. Hits are interleaved across dimensions (up to five per provider) so later catalogs are not crowded out. Compare uses the same widget in `select` mode and must not pass query `dimension=` (that would restrict the search to the current Insight page).
+
+## Compare query
+
+Canonical URL:
+
+```
+GET /statistics/insights/compare
+  ?subject_a_dimension=indications
+  &subject_a_id=123
+  &subject_b_dimension=departments
+  &subject_b_id=45
+  &scope=...&period=...                 # side A (header pickers)
+  &comparison_scope=...&comparison_period=...  # side B, only when set
+```
+
+- Do not use query `dimension=` on compare (it collides with the search API).
+- Missing `comparison_*` falls back to the **primary** filter (not the Top Lists / `ComparisonScopeResolver` default cohort). After Apply, `comparison_*` is written explicitly so later header changes do not silently move B.
+- Header chrome and data quality stay on the primary filter. Navigation preserves `subject_*` and `comparison_*`.
+- Swap A/B exchanges subjects **and** primary ↔ `comparison_*` filters when B has its own filter; if B still followed primary, only the subjects swap.
+- **Stop comparing** leaves the compare page for side A’s Insight dashboard with the primary filter; `subject_*` and `comparison_*` are dropped.
+- Metrics/slice SQL builds an independent `BenchmarkSqlFilter` side predicate per side plus `InsightPopulationFilter`.
+- `disabledInsightIds()` from both dimension providers are united before the compare insight engine runs.
+
+## Compare UI
+
+The compare dialog edits **side B only**. Side A stays the current Insight page (subject plus the header scope/period pickers).
+
+- Search reuses the overview combobox in Stimulus `select` mode (`InsightCompareSelectionForm`). The search URL must not include `dimension`, `id`, or `subject_*`, otherwise later catalogs disappear behind the current page dimension.
+- Scope/period for B reuse the Top Lists comparison side fields and write `comparison_*`.
+- Indication-group member presets set B to the largest (or smallest) member; A stays the group.
+- Apply navigates to the canonical compare URL. Missing B shows `stats.insights.compare.error.missing_subject_b`.
+- Header actions: swap A/B (query rules above) and **Stop comparing**, which opens side A’s Insight dashboard.
 
 ## How to add a dimension
 

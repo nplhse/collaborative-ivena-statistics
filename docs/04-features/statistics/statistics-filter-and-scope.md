@@ -67,7 +67,9 @@ Dispatch-area eligibility uses distinct hospitals that appear with that origin `
 
 ## Comparison scope
 
-`ComparisonScopeResolver` builds a secondary filter for benchmarking and comparison views. It derives a default cohort from the primary scope's dominant location/tier via `AllocationStatsProjectionScopeQuery`.
+`ComparisonScopeResolver` builds a secondary filter for benchmarking and Top Lists comparison views. It derives a default cohort from the primary scope's dominant location/tier via `AllocationStatsProjectionScopeQuery`.
+
+Insights Compare does **not** use that default cohort. Side A uses the header/primary filter (`scope`, `period`, …). Side B uses existing `comparison_*` query keys when present and otherwise copies the primary filter. After the compare dialog is applied, `comparison_*` is stored explicitly.
 
 Permission checks use `HospitalPermission::Statistics` or `HospitalPermission::Benchmarking` depending on the page.
 
