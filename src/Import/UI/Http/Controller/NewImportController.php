@@ -62,9 +62,9 @@ final class NewImportController extends AbstractController
         $form = $this->createForm(ImportCreateType::class);
         $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        }
+        // Remember-Me sessions are enough to start an import; do not re-add
+        // IS_AUTHENTICATED_FULLY here (see #568). ROLE_PARTICIPANT and
+        // HospitalPermission::Import remain the authorization boundary.
 
         if ($form->isSubmitted()) {
             $this->rejectUnsupportedImportFile($form);
