@@ -56,7 +56,7 @@ final readonly class BenchmarkMetricBuilder
     /**
      * @return list<BenchmarkMetric>
      */
-    public function buildIndicationCompareKpiMetrics(BenchmarkAggregationResult $result): array
+    public function buildCompareKpiMetrics(BenchmarkAggregationResult $result): array
     {
         $metricsByKey = [];
         foreach ($this->buildKpiMetrics($result) as $metric) {

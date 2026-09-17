@@ -88,6 +88,14 @@ final readonly class BenchmarkSelectionQueryBuilder
     }
 
     /**
+     * @return array<string, bool|float|int|string>
+     */
+    public function sideFilterParams(BenchmarkSelectionSideFormData $side, bool $isComparison): array
+    {
+        return $this->sideQueryParams($side, $isComparison);
+    }
+
+    /**
      * @param array<string, bool|float|int|string> $preservedQuery
      *
      * @return array<string, bool|float|int|string>

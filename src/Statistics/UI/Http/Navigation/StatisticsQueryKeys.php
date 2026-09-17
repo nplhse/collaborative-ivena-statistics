@@ -104,8 +104,22 @@ final class StatisticsQueryKeys
     public const string INDICATION_B = 'indication_b';
     public const string SUBJECT_A_TYPE = 'subject_a_type';
     public const string SUBJECT_A_ID = 'subject_a_id';
+    public const string SUBJECT_A_DIMENSION = 'subject_a_dimension';
     public const string SUBJECT_B_TYPE = 'subject_b_type';
     public const string SUBJECT_B_ID = 'subject_b_id';
+    public const string SUBJECT_B_DIMENSION = 'subject_b_dimension';
+
+    /** @var list<string> */
+    public const array INSIGHT_COMPARE_SUBJECT_KEYS = [
+        self::INDICATION_A,
+        self::INDICATION_B,
+        self::SUBJECT_A_TYPE,
+        self::SUBJECT_A_ID,
+        self::SUBJECT_A_DIMENSION,
+        self::SUBJECT_B_TYPE,
+        self::SUBJECT_B_ID,
+        self::SUBJECT_B_DIMENSION,
+    ];
 
     /** @var list<string> */
     public const array REMOVE_SCOPE_DEPENDENT = [

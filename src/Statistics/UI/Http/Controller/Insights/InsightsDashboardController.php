@@ -15,12 +15,13 @@ use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
-use App\Statistics\UI\Http\Controller\IndicationComparePickerViewModelFactory;
 use App\Statistics\UI\Http\Controller\IndicationDashboardChartPayloadFactory;
 use App\Statistics\UI\Http\Controller\IndicationGroupComparePickerViewModelFactory;
+use App\Statistics\UI\Http\Controller\InsightComparePickerViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class InsightsDashboardController extends AbstractController
 {
@@ -42,10 +44,11 @@ final class InsightsDashboardController extends AbstractController
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly InsightsPageChromeFactory $chromeFactory,
         private readonly IndicationDashboardChartPayloadFactory $chartPayloadFactory,
-        private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
+        private readonly InsightComparePickerViewModelFactory $comparePickerViewModelFactory,
         private readonly IndicationGroupComparePickerViewModelFactory $groupComparePickerViewModelFactory,
         private readonly ExploreShowUrlResolver $exploreShowUrlResolver,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -125,9 +128,22 @@ final class InsightsDashboardController extends AbstractController
 
                     return $row;
                 }, $memberRows);
-                $comparePresets = \count($compareMemberRows) >= 2
-                    ? $this->groupComparePickerViewModelFactory->createPresets($compareMemberRows)
-                    : [];
+                foreach ($this->groupComparePickerViewModelFactory->createPresets($compareMemberRows) as $preset) {
+                    $comparePresets[] = [
+                        'label' => $preset['labelB'],
+                        'url' => $this->navigationUrlBuilder->build(
+                            $request,
+                            'app_stats_insights_compare',
+                            [
+                                StatisticsQueryKeys::SUBJECT_A_DIMENSION => $subject->dimension->value,
+                                StatisticsQueryKeys::SUBJECT_A_ID => $subject->id,
+                                StatisticsQueryKeys::SUBJECT_B_DIMENSION => InsightDimensionKey::Indications->value,
+                                StatisticsQueryKeys::SUBJECT_B_ID => $preset['indicationId'],
+                            ],
+                            ['dimension', 'id'],
+                        ),
+                    ];
+                }
             }
         }
 
@@ -138,9 +154,12 @@ final class InsightsDashboardController extends AbstractController
         $topListKey = $dimensionKey->topListKey();
 
         $indicationIdForQuality = InsightDimensionKey::Indications === $dimensionKey ? $id : null;
+        $chrome = $this->chromeFactory->templateVars($request, 'app_stats_insights_show', $user, $filter, $indicationIdForQuality);
+        $dimensionLabel = $this->translator->trans($provider->labelTranslationKey(), [], 'statistics');
+        $referenceSummaryA = $subject->label.' · '.$dimensionLabel.' · '.$chrome['statisticsHeadingScope'].' · '.$chrome['statisticsHeadingPeriod'];
 
         return $this->render('@Statistics/insights/dashboard.html.twig', array_merge(
-            $this->chromeFactory->templateVars($request, 'app_stats_insights_show', $user, $filter, $indicationIdForQuality),
+            $chrome,
             [
                 'dashboard' => $result,
                 'chartPayload' => $this->chartPayloadFactory->create($result),
@@ -150,7 +169,13 @@ final class InsightsDashboardController extends AbstractController
                 'memberRows' => $memberRows,
                 'comparePresets' => $comparePresets,
                 'comparePicker' => $provider->supportsCompare()
-                    ? $this->comparePickerViewModelFactory->create($request, $subject)
+                    ? $this->comparePickerViewModelFactory->create(
+                        $request,
+                        $subject,
+                        null,
+                        $filter,
+                        $referenceSummaryA,
+                    )
                     : null,
                 'statsShowCompareLaunchButton' => $provider->supportsCompare(),
                 'statsIndicationCatalogUrl' => $catalogUrl,

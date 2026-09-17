@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Http\Controller;
 
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareReport;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareReport;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkHeatmapData;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class IndicationCompareChartPayloadFactory
+final readonly class InsightCompareChartPayloadFactory
 {
     public function __construct(
         private TranslatorInterface $translator,
@@ -19,7 +19,7 @@ final readonly class IndicationCompareChartPayloadFactory
     /**
      * @return array<string, mixed>
      */
-    public function create(IndicationCompareReport $report): array
+    public function create(InsightCompareReport $report): array
     {
         return [
             'ageGroups' => $this->distributionPayload($report->ageGroupDistribution),

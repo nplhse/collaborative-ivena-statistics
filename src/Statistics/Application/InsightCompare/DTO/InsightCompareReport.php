@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\IndicationCompare\DTO;
+namespace App\Statistics\Application\InsightCompare\DTO;
 
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkHeatmapData;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetric;
 
-final readonly class IndicationCompareReport
+final readonly class InsightCompareReport
 {
     /**
-     * @param list<BenchmarkMetric>          $kpiMetrics
-     * @param list<IndicationCompareInsight> $insights
+     * @param list<BenchmarkMetric>       $kpiMetrics
+     * @param list<InsightCompareInsight> $insights
      */
     public function __construct(
-        public IndicationCompareHeader $header,
+        public InsightCompareHeader $header,
         public array $kpiMetrics,
         public BenchmarkDistribution $genderDistribution,
         public BenchmarkDistribution $urgencyDistribution,

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\IndicationCompare\DTO;
+namespace App\Statistics\Application\InsightCompare\DTO;
 
-enum IndicationCompareInsightSeverity: string
+enum InsightCompareInsightSeverity: string
 {
     case Critical = 'critical';
     case Elevated = 'elevated';

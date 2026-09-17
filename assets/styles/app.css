@@ -843,28 +843,28 @@ body.geo-map-expand-open {
     padding-top: 0;
 }
 
-.stats-indication-compare-side-a {
+.stats-compare-side-a {
     border-left-color: var(--tblr-primary) !important;
 }
 
-.stats-indication-compare-side-b {
+.stats-compare-side-b {
     border-left-color: var(--tblr-secondary, #667382) !important;
 }
 
-.stats-indication-compare-indication-link {
+.stats-compare-subject-link {
     text-decoration-line: underline;
     text-decoration-color: transparent;
     text-underline-offset: 0.2em;
 }
 
-.stats-indication-compare-side-a .stats-indication-compare-indication-link:hover,
-.stats-indication-compare-side-a .stats-indication-compare-indication-link:focus-visible {
+.stats-compare-side-a .stats-compare-subject-link:hover,
+.stats-compare-side-a .stats-compare-subject-link:focus-visible {
     color: inherit;
     text-decoration-color: var(--tblr-primary);
 }
 
-.stats-indication-compare-side-b .stats-indication-compare-indication-link:hover,
-.stats-indication-compare-side-b .stats-indication-compare-indication-link:focus-visible {
+.stats-compare-side-b .stats-compare-subject-link:hover,
+.stats-compare-side-b .stats-compare-subject-link:focus-visible {
     color: inherit;
     text-decoration-color: var(--tblr-secondary, #667382);
 }

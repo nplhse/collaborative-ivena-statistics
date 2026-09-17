@@ -64,12 +64,10 @@
     </div>
 
     {% if statsShowCompareLaunchButton|default(false) and comparePicker is not null %}
-        {{ include('@Statistics/indication_compare/_compare_modal.html.twig', {
+        {{ include('@Statistics/insights/_compare_modal.html.twig', {
             compareModalId: 'stats-indication-group-compare-launch-modal',
-            compareModalTitleKey: 'stats.indication.compare.launch_modal.title',
-            compareModalInputIdPrefix: 'stats-indication-group-compare-launch',
+            compareModalTitleKey: 'stats.insights.compare.launch_modal.title',
             compareModalTestIdPrefix: 'stats-indication-group-compare-launch',
-            comparePresets: comparePresets|default([]),
         }) }}
     {% endif %}
 {% endblock %}

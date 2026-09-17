@@ -5,22 +5,21 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller\Insights;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareCriteria;
-use App\Statistics\Application\IndicationCompare\IndicationCompareReportService;
-use App\Statistics\Application\IndicationCompare\IndicationCompareSubjectRequestParser;
-use App\Statistics\Application\IndicationDashboard\IndicationSubjectResolver;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareCriteria;
+use App\Statistics\Application\InsightCompare\InsightCompareFilterResolver;
+use App\Statistics\Application\InsightCompare\InsightCompareReportService;
+use App\Statistics\Application\InsightCompare\InsightCompareSubjectRequestParser;
 use App\Statistics\Application\Insights\InsightDimensionKey;
 use App\Statistics\Application\Insights\InsightDimensionRegistry;
 use App\Statistics\Application\Insights\InsightSubject;
 use App\Statistics\Application\StatisticsContextFactory;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
-use App\Statistics\UI\Http\Controller\IndicationCompareChartPayloadFactory;
-use App\Statistics\UI\Http\Controller\IndicationComparePickerViewModelFactory;
-use App\Statistics\UI\Http\Controller\IndicationCompareUrlHelper;
+use App\Statistics\UI\Http\Controller\InsightCompareChartPayloadFactory;
+use App\Statistics\UI\Http\Controller\InsightComparePickerViewModelFactory;
+use App\Statistics\UI\Http\Controller\InsightCompareUrlHelper;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
-use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,163 +33,157 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class InsightsCompareController extends AbstractController
 {
     public function __construct(
-        private readonly IndicationCompareReportService $reportService,
-        private readonly IndicationCompareSubjectRequestParser $subjectRequestParser,
-        private readonly IndicationSubjectResolver $subjectResolver,
+        private readonly InsightCompareReportService $reportService,
+        private readonly InsightCompareSubjectRequestParser $subjectRequestParser,
         private readonly InsightDimensionRegistry $registry,
         private readonly StatisticsContextFactory $statisticsContextFactory,
         private readonly StatisticsScopeResolver $statisticsScopeResolver,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
         private readonly InsightsPageChromeFactory $chromeFactory,
-        private readonly IndicationComparePickerViewModelFactory $comparePickerViewModelFactory,
-        private readonly IndicationCompareChartPayloadFactory $chartPayloadFactory,
-        private readonly IndicationCompareUrlHelper $compareUrlHelper,
+        private readonly InsightComparePickerViewModelFactory $comparePickerViewModelFactory,
+        private readonly InsightCompareChartPayloadFactory $chartPayloadFactory,
+        private readonly InsightCompareUrlHelper $compareUrlHelper,
+        private readonly InsightCompareFilterResolver $comparisonFilterResolver,
         private readonly TranslatorInterface $translator,
     ) {
     }
 
     #[Route(
-        '/statistics/insights/{dimension}/compare',
+        '/statistics/insights/compare',
         name: 'app_stats_insights_compare',
-        requirements: ['dimension' => 'indications|indication-groups|specialities|assignments|departments|occasions|infections|secondary-transports'],
         methods: ['GET'],
-        priority: 10,
+        priority: 20,
     )]
     public function __invoke(
         Request $request,
-        string $dimension,
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        $dimensionKey = InsightDimensionKey::tryFrom($dimension);
-        if (!$dimensionKey instanceof InsightDimensionKey) {
-            throw $this->createNotFoundException('Insight dimension not found.');
-        }
-
         $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
         if (null !== $publicRedirect) {
             if (null !== $publicRedirect['notice']) {
                 $this->addFlash('error', new TranslatableMessage($publicRedirect['notice']->value, domain: 'statistics'));
             }
 
-            return $this->redirectToRoute('app_stats_insights_compare', array_merge(
-                $publicRedirect['query'],
-                ['dimension' => $dimensionKey->value],
-            ));
+            return $this->redirectToRoute('app_stats_insights_compare', $publicRedirect['query']);
         }
 
-        $subjects = $this->resolveSubjects($request, $dimensionKey);
-        if (null === $subjects) {
-            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.missing_selection', [], 'statistics'));
+        $pair = $this->subjectRequestParser->parse($request);
+        if (!$pair instanceof \App\Statistics\Application\InsightCompare\DTO\InsightCompareSubjectPair) {
+            $this->addFlash('error', $this->translator->trans('stats.insights.compare.error.missing_selection', [], 'statistics'));
 
-            return $this->redirectToRoute('app_stats_insights_dimension', array_merge(
-                $request->query->all(),
-                ['dimension' => $dimensionKey->compareFamily()->value],
-            ));
+            return $this->redirectToRoute('app_stats_insights', $request->query->all());
         }
 
-        [$subjectA, $subjectB] = $subjects;
+        $subjectA = $this->registry->get($pair->dimensionA)->resolve($pair->idA);
+        $subjectB = $this->registry->get($pair->dimensionB)->resolve($pair->idB);
+        if (!$subjectA instanceof InsightSubject || !$subjectB instanceof InsightSubject) {
+            $this->addFlash('error', $this->translator->trans('stats.insights.compare.error.missing_selection', [], 'statistics'));
 
-        if ($subjectA->dimension === $subjectB->dimension && $subjectA->id === $subjectB->id) {
-            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.same_indication', [], 'statistics'));
+            return $this->redirectToRoute('app_stats_insights', $request->query->all());
+        }
 
-            return $this->redirectToRoute('app_stats_insights_dimension', array_merge(
+        $comparisonFilter = $this->comparisonFilterResolver->resolve($request, $user, $filter);
+        if ($pair->isSameSubject() && InsightCompareUrlHelper::filtersEqual($filter, $comparisonFilter)) {
+            $this->addFlash('error', $this->translator->trans('stats.insights.compare.error.same_subject', [], 'statistics'));
+
+            return $this->redirectToRoute('app_stats_insights_show', array_merge(
                 $request->query->all(),
-                ['dimension' => $dimensionKey->compareFamily()->value],
+                ['dimension' => $subjectA->dimension->value, 'id' => $subjectA->id],
             ));
         }
 
         if ($subjectA->population->isEmpty() || $subjectB->population->isEmpty()) {
-            $this->addFlash('error', $this->translator->trans('stats.indication.compare.error.empty_group', [], 'statistics'));
+            $this->addFlash('error', $this->translator->trans('stats.insights.compare.error.empty_group', [], 'statistics'));
 
-            return $this->redirectToRoute('app_stats_insights_dimension', array_merge(
+            return $this->redirectToRoute('app_stats_insights_show', array_merge(
                 $request->query->all(),
-                ['dimension' => $dimensionKey->compareFamily()->value],
+                ['dimension' => $subjectA->dimension->value, 'id' => $subjectA->id],
             ));
         }
 
-        $context = $this->statisticsContextFactory->create($user, $filter);
-        $scope = $this->statisticsScopeResolver->resolveCriteria($context);
-        $period = StatisticsPeriodResolver::resolve($filter);
+        $contextA = $this->statisticsContextFactory->create($user, $filter);
+        $contextB = $this->statisticsContextFactory->create($user, $comparisonFilter);
+        $scopeA = $this->statisticsScopeResolver->resolveCriteria($contextA);
+        $scopeB = $this->statisticsScopeResolver->resolveCriteria($contextB);
+        $periodA = StatisticsPeriodResolver::resolve($filter);
+        $periodB = StatisticsPeriodResolver::resolve($comparisonFilter);
 
-        $report = $this->reportService->build(new IndicationCompareCriteria(
-            $subjectA,
-            $subjectB,
-            $scope,
-            $period,
-        ));
+        $chrome = $this->chromeFactory->templateVars($request, 'app_stats_insights_compare', $user, $filter);
+        $comparisonChrome = $this->chromeFactory->templateVars($request, 'app_stats_insights_compare', $user, $comparisonFilter);
+        $filterLabelA = $chrome['statisticsHeadingScope'].' · '.$chrome['statisticsHeadingPeriod'];
+        $filterLabelB = $comparisonChrome['statisticsHeadingScope'].' · '.$comparisonChrome['statisticsHeadingPeriod'];
 
+        $disabledInsightIds = array_values(array_unique(array_merge(
+            $this->registry->get($subjectA->dimension)->disabledInsightIds(),
+            $this->registry->get($subjectB->dimension)->disabledInsightIds(),
+        )));
+
+        $report = $this->reportService->build(
+            new InsightCompareCriteria(
+                $subjectA,
+                $subjectB,
+                $scopeA,
+                $periodA,
+                $scopeB,
+                $periodB,
+            ),
+            $filterLabelA,
+            $filterLabelB,
+            $disabledInsightIds,
+        );
+
+        $sameScopePeriod = InsightCompareUrlHelper::filtersEqual($filter, $comparisonFilter);
         $overlapIds = [];
-        if ($subjectA->population->column === $subjectB->population->column) {
+        if ($sameScopePeriod && $subjectA->population->column === $subjectB->population->column) {
             $overlapIds = array_values(array_intersect($subjectA->population->ids, $subjectB->population->ids));
         }
 
+        $referenceSummaryA = $subjectA->label.' · '.$report->header->dimensionLabelA.' · '.$filterLabelA;
+        $comparePicker = $this->comparePickerViewModelFactory->create(
+            $request,
+            $subjectA,
+            $subjectB,
+            $comparisonFilter,
+            $referenceSummaryA,
+        );
+
         return $this->render('@Statistics/insights/compare.html.twig', array_merge(
-            $this->chromeFactory->templateVars($request, 'app_stats_insights_compare', $user, $filter),
+            $chrome,
             [
                 'report' => $report,
                 'chartPayload' => $this->chartPayloadFactory->create($report),
-                'comparePicker' => $this->comparePickerViewModelFactory->create($request, $subjectA, $subjectB),
-                'indicationDashboardUrlA' => $this->compareUrlHelper->buildDashboardUrl($request, $subjectA),
-                'indicationDashboardUrlB' => $this->compareUrlHelper->buildDashboardUrl($request, $subjectB),
-                'hasOverlappingIndications' => [] !== $overlapIds,
+                'comparePicker' => $comparePicker,
+                'insightDashboardUrlA' => $this->compareUrlHelper->buildDashboardUrl($request, $subjectA),
+                'insightDashboardUrlB' => $this->compareUrlHelper->buildDashboardUrl($request, $subjectB),
+                'compareSwapUrl' => $this->compareUrlHelper->buildSwapUrl(
+                    $request,
+                    $subjectA,
+                    $subjectB,
+                    $filter,
+                    $comparisonFilter,
+                ),
+                'hasOverlappingPopulations' => [] !== $overlapIds,
                 'statsShowCompareEditButton' => true,
-                'dimensionKey' => $dimensionKey,
+                'statsInsightsCompareDisableUrl' => $this->compareUrlHelper->buildDashboardUrl($request, $subjectA),
             ],
         ));
     }
 
-    /**
-     * @return array{0: InsightSubject, 1: InsightSubject}|null
-     */
-    private function resolveSubjects(Request $request, InsightDimensionKey $dimension): ?array
+    #[Route(
+        '/statistics/insights/{dimension}/compare',
+        name: 'app_stats_insights_compare_legacy',
+        requirements: ['dimension' => 'indications|indication-groups|specialities|assignments|departments|occasions|infections|secondary-transports'],
+        methods: ['GET'],
+        priority: 10,
+    )]
+    public function legacyDimension(Request $request, string $dimension): \Symfony\Component\HttpFoundation\RedirectResponse
     {
-        $family = $dimension->compareFamily();
-        if (InsightDimensionKey::Indications === $family) {
-            $pair = $this->subjectRequestParser->parse($request);
-            if (!$pair instanceof \App\Statistics\Application\IndicationCompare\DTO\IndicationCompareSubjectPair) {
-                return null;
-            }
+        $dimensionKey = InsightDimensionKey::tryFrom($dimension);
 
-            $subjectA = $this->subjectResolver->resolve($pair->typeA, $pair->idA);
-            $subjectB = $this->subjectResolver->resolve($pair->typeB, $pair->idB);
-            if (!$subjectA instanceof \App\Statistics\Application\IndicationDashboard\IndicationSubject || !$subjectB instanceof \App\Statistics\Application\IndicationDashboard\IndicationSubject) {
-                return null;
-            }
-
-            return [
-                $this->subjectResolver->toInsightSubject($subjectA),
-                $this->subjectResolver->toInsightSubject($subjectB),
-            ];
-        }
-
-        $idA = $this->parseId($request->query->get(StatisticsQueryKeys::SUBJECT_A_ID));
-        $idB = $this->parseId($request->query->get(StatisticsQueryKeys::SUBJECT_B_ID));
-        if (null === $idA || null === $idB) {
-            return null;
-        }
-
-        $provider = $this->registry->get($family);
-        $subjectA = $provider->resolve($idA);
-        $subjectB = $provider->resolve($idB);
-        if (!$subjectA instanceof InsightSubject || !$subjectB instanceof InsightSubject) {
-            return null;
-        }
-
-        return [$subjectA, $subjectB];
-    }
-
-    private function parseId(mixed $value): ?int
-    {
-        if (!\is_string($value) && !\is_int($value)) {
-            return null;
-        }
-
-        $stringValue = (string) $value;
-        if ('' === $stringValue || !ctype_digit($stringValue)) {
-            return null;
-        }
-
-        return (int) $stringValue;
+        return $this->redirectToRoute(
+            'app_stats_insights_compare',
+            $this->subjectRequestParser->canonicalizeQuery($request->query->all(), $dimensionKey),
+        );
     }
 }

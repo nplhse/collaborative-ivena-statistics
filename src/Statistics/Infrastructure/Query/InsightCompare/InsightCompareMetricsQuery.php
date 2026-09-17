@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Infrastructure\Query\IndicationCompare;
+namespace App\Statistics\Infrastructure\Query\InsightCompare;
 
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\Mapping\AllocationStatsDayTimeBucketProjectionCode;
@@ -11,17 +12,17 @@ use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsTransportTypeProjectionCode;
 use App\Statistics\Application\Mapping\AllocationStatsUrgencyProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeSql;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
-use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
+use App\Statistics\Benchmarking\Infrastructure\Query\BenchmarkSqlFilter;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts;
 use App\Statistics\Infrastructure\Query\ProjectionFeatureQuery;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
- * Dual-indication metrics in a single scan on allocation_stats_projection.
+ * Dual-side metrics in a single scan on allocation_stats_projection.
  */
-final readonly class IndicationCompareMetricsQuery
+final readonly class InsightCompareMetricsQuery
 {
     public function __construct(
         private Connection $connection,
@@ -36,10 +37,11 @@ final readonly class IndicationCompareMetricsQuery
     public function fetch(
         array|InsightPopulationFilter $indicationIdsA,
         array|InsightPopulationFilter $indicationIdsB,
-        ?\DateTimeImmutable $from,
-        ?\DateTimeImmutable $toExclusive,
-        StatisticsScopeCriteria $scope,
-    ): IndicationCompareAggregationResult {
+        StatisticsScopeCriteria $scopeA,
+        StatisticsPeriodBounds $periodA,
+        StatisticsScopeCriteria $scopeB,
+        StatisticsPeriodBounds $periodB,
+    ): InsightCompareAggregationResult {
         $sideA = $indicationIdsA instanceof InsightPopulationFilter
             ? $indicationIdsA
             : InsightPopulationFilter::indications($indicationIdsA);
@@ -48,18 +50,19 @@ final readonly class IndicationCompareMetricsQuery
             : InsightPopulationFilter::indications($indicationIdsB);
 
         if ($sideA->isEmpty() || $sideB->isEmpty()) {
-            return IndicationCompareAggregationResult::empty();
+            return InsightCompareAggregationResult::empty();
         }
 
-        if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
-            return IndicationCompareAggregationResult::empty();
-        }
+        [$scopePredA, $paramsA, $typesA] = BenchmarkSqlFilter::buildSidePredicate($scopeA, $periodA, 'a');
+        [$scopePredB, $paramsB, $typesB] = BenchmarkSqlFilter::buildSidePredicate($scopeB, $periodB, 'b');
+        $popA = $sideA->sqlInPredicate('ids_a');
+        $popB = $sideB->sqlInPredicate('ids_b');
+        $predA = sprintf('(%s AND %s)', $scopePredA, $popA);
+        $predB = sprintf('(%s AND %s)', $scopePredB, $popB);
 
-        $predA = $sideA->sqlInPredicate('ids_a');
-        $predB = $sideB->sqlInPredicate('ids_b');
-
-        [$scopeWhere, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
-        $where = sprintf('(%s) AND (%s OR %s)', $scopeWhere, $predA, $predB);
+        $params = array_merge($paramsA, $paramsB);
+        $types = array_merge($typesA, $typesB);
+        $where = sprintf('(%s OR %s)', $predA, $predB);
         $types['ids_a'] = ArrayParameterType::INTEGER;
         $types['ids_b'] = ArrayParameterType::INTEGER;
         $params['ids_a'] = $sideA->ids;
@@ -90,10 +93,10 @@ SQL;
 
         $row = $this->connection->fetchAssociative($sql, $params, $types);
         if (false === $row) {
-            return IndicationCompareAggregationResult::empty();
+            return InsightCompareAggregationResult::empty();
         }
 
-        return new IndicationCompareAggregationResult(
+        return new InsightCompareAggregationResult(
             $this->mapSideCounts($row, 'a'),
             $this->mapSideCounts($row, 'b'),
         );
@@ -162,11 +165,11 @@ SQL;
     /**
      * @param array<string, mixed> $row
      */
-    private function mapSideCounts(array $row, string $side): IndicationCompareSideCounts
+    private function mapSideCounts(array $row, string $side): InsightCompareSideCounts
     {
         $prefix = 'side_'.$side.'_';
 
-        return new IndicationCompareSideCounts(
+        return new InsightCompareSideCounts(
             (int) ($row[$prefix.'total'] ?? 0),
             (int) ($row[$prefix.'with_physician'] ?? 0),
             (int) ($row[$prefix.'resus'] ?? 0),

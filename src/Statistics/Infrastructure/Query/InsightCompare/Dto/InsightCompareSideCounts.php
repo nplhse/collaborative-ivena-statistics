@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Infrastructure\Query\IndicationCompare\Dto;
+namespace App\Statistics\Infrastructure\Query\InsightCompare\Dto;
 
-final readonly class IndicationCompareSideCounts
+final readonly class InsightCompareSideCounts
 {
     public function __construct(
         public int $total,

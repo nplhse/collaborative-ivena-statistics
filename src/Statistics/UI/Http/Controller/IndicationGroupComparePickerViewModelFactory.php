@@ -7,30 +7,32 @@ namespace App\Statistics\UI\Http\Controller;
 final readonly class IndicationGroupComparePickerViewModelFactory
 {
     /**
+     * Group-detail presets choose side B only; A stays the current group.
+     *
      * @param list<array{indicationId: int, label: string, total?: int}> $memberRows
      *
-     * @return list<array{label: string, labelA: string, labelB: string}>
+     * @return list<array{label: string, labelB: string, indicationId: int}>
      */
     public function createPresets(array $memberRows): array
     {
-        if (\count($memberRows) < 2) {
+        if ([] === $memberRows) {
             return [];
         }
 
         $presets = [
             [
                 'label' => 'stats.indication.group.compare_preset_top_two',
-                'labelA' => $memberRows[0]['label'],
-                'labelB' => $memberRows[1]['label'],
+                'labelB' => $memberRows[0]['label'],
+                'indicationId' => $memberRows[0]['indicationId'],
             ],
         ];
 
-        if (\count($memberRows) >= 3) {
-            $lastIndex = \count($memberRows) - 1;
+        $lastIndex = \count($memberRows) - 1;
+        if ($lastIndex > 0) {
             $presets[] = [
                 'label' => 'stats.indication.group.compare_preset_largest_smallest',
-                'labelA' => $memberRows[0]['label'],
                 'labelB' => $memberRows[$lastIndex]['label'],
+                'indicationId' => $memberRows[$lastIndex]['indicationId'],
             ];
         }
 

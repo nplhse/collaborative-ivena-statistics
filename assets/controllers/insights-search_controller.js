@@ -7,6 +7,8 @@ export default class extends Controller {
     static values = {
         url: String,
         minLength: { type: Number, default: 2 },
+        mode: { type: String, default: 'navigate' },
+        optionIdPrefix: { type: String, default: 'stats-insights-search-option' },
     };
 
     connect() {
@@ -51,7 +53,7 @@ export default class extends Controller {
         if ('Enter' === event.key) {
             if (this.activeIndex >= 0 && this.items[this.activeIndex]) {
                 event.preventDefault();
-                window.location.assign(this.items[this.activeIndex].url);
+                this.choose(this.items[this.activeIndex]);
             }
         }
     }
@@ -70,13 +72,15 @@ export default class extends Controller {
         try {
             const url = new URL(this.urlValue, window.location.origin);
             url.searchParams.set('q', query);
+            url.searchParams.delete('dimension');
+            url.searchParams.delete('id');
             window.location.search
                 .replace(/^\?/, '')
                 .split('&')
                 .filter(Boolean)
                 .forEach((pair) => {
                     const [key, value] = pair.split('=');
-                    if (!key || 'q' === key) {
+                    if (!key || 'q' === key || 'dimension' === key || 'id' === key) {
                         return;
                     }
                     url.searchParams.set(decodeURIComponent(key), decodeURIComponent(value || ''));
@@ -117,7 +121,7 @@ export default class extends Controller {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'list-group-item list-group-item-action';
-            button.id = `stats-insights-search-option-${index}`;
+            button.id = `${this.optionIdPrefixValue}-${index}`;
             button.setAttribute('role', 'option');
             button.setAttribute('aria-selected', 'false');
             button.dataset.index = String(index);
@@ -133,12 +137,30 @@ export default class extends Controller {
                 : item.dimensionLabel;
 
             button.append(label, meta);
-            button.addEventListener('click', () => window.location.assign(item.url));
+            button.addEventListener('click', () => this.choose(item));
             this.resultsTarget.append(button);
         });
 
         this.resultsTarget.classList.remove('d-none');
         this.inputTarget.setAttribute('aria-expanded', 'true');
+    }
+
+    choose(item) {
+        if ('select' === this.modeValue) {
+            this.inputTarget.value = item.label ?? '';
+            this.dispatch('selected', {
+                detail: {
+                    dimension: item.dimension,
+                    id: item.id,
+                    label: item.label,
+                    dimensionLabel: item.dimensionLabel,
+                },
+            });
+            this.hideResults();
+            return;
+        }
+
+        window.location.assign(item.url);
     }
 
     moveActive(delta) {
@@ -156,7 +178,7 @@ export default class extends Controller {
         });
         this.inputTarget.setAttribute(
             'aria-activedescendant',
-            `stats-insights-search-option-${next}`,
+            `${this.optionIdPrefixValue}-${next}`,
         );
     }
 

@@ -6417,6 +6417,158 @@
         <source>stats.insights.search.no_results</source>
         <target>Keine passenden Insights</target>
       </trans-unit>
+      <trans-unit id="StatsInsCmpDe01" resname="stats.insights.compare.title">
+        <source>stats.insights.compare.title</source>
+        <target>Insights-Vergleich</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe02" resname="stats.insights.compare.subtitle">
+        <source>stats.insights.compare.subtitle</source>
+        <target>Zwei Insight-Objekte im aktuellen Bereich vergleichen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe03" resname="stats.insights.compare.side_a">
+        <source>stats.insights.compare.side_a</source>
+        <target>A</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe04" resname="stats.insights.compare.side_b">
+        <source>stats.insights.compare.side_b</source>
+        <target>B</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe05" resname="stats.insights.compare.section.insights">
+        <source>stats.insights.compare.section.insights</source>
+        <target>Auffällige Unterschiede</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe06" resname="stats.insights.compare.insufficient_data">
+        <source>stats.insights.compare.insufficient_data</source>
+        <target>Eine oder beide Auswahlen haben sehr wenige Fälle. Unterschiede mit Vorsicht interpretieren.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe07" resname="stats.insights.compare.picker_help">
+        <source>stats.insights.compare.picker_help</source>
+        <target>A ist das aktuelle Insight und der Seitenbereich. Suchen Sie ein Vergleichsobjekt und wählen Sie optional einen anderen Bereich oder Zeitraum für B.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe08" resname="stats.insights.compare.submit">
+        <source>stats.insights.compare.submit</source>
+        <target>Vergleichen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe09" resname="stats.insights.compare.error.missing_selection">
+        <source>stats.insights.compare.error.missing_selection</source>
+        <target>Bitte zwei Insight-Objekte zum Vergleich auswählen.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe10" resname="stats.insights.compare.error.same_subject">
+        <source>stats.insights.compare.error.same_subject</source>
+        <target>Bitte zwei unterschiedliche Objekte wählen oder Bereich bzw. Zeitraum für B ändern.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe11" resname="stats.insights.compare.error.empty_group">
+        <source>stats.insights.compare.error.empty_group</source>
+        <target>Der ausgewählten Gruppe sind noch keine Mitglieder zugeordnet.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe12" resname="stats.insights.compare.overlap_notice">
+        <source>stats.insights.compare.overlap_notice</source>
+        <target>Diese Auswahlen teilen sich Populationsmitglieder. Zuweisungen gemeinsamer Mitglieder werden auf beiden Seiten gezählt.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe13" resname="stats.insights.compare.edit">
+        <source>stats.insights.compare.edit</source>
+        <target>Vergleich bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe14" resname="stats.insights.compare.edit_modal.title">
+        <source>stats.insights.compare.edit_modal.title</source>
+        <target>Vergleich bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe15" resname="stats.insights.compare.side_a_short">
+        <source>stats.insights.compare.side_a_short</source>
+        <target>A</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe16" resname="stats.insights.compare.side_b_short">
+        <source>stats.insights.compare.side_b_short</source>
+        <target>B</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe17" resname="stats.insights.compare.with">
+        <source>stats.insights.compare.with</source>
+        <target>Vergleichen mit</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe18" resname="stats.insights.compare.launch_modal.title">
+        <source>stats.insights.compare.launch_modal.title</source>
+        <target>Mit einem anderen Insight vergleichen</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe19" resname="stats.insights.compare.search_label">
+        <source>stats.insights.compare.search_label</source>
+        <target>Vergleichsobjekt</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe20" resname="stats.insights.compare.filter_b">
+        <source>stats.insights.compare.filter_b</source>
+        <target>Bereich und Zeitraum für B</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe21" resname="stats.insights.compare.insight.physician">
+        <source>stats.insights.compare.insight.physician</source>
+        <target>Notarztbegleitung kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe22" resname="stats.insights.compare.insight.physician_neutral">
+        <source>stats.insights.compare.insight.physician_neutral</source>
+        <target>Die Notarztquote liegt bei beiden Auswahlen auf ähnlichem Niveau ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe23" resname="stats.insights.compare.insight.resus">
+        <source>stats.insights.compare.insight.resus</source>
+        <target>Schockraumaufnahme kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe24" resname="stats.insights.compare.insight.cathlab">
+        <source>stats.insights.compare.insight.cathlab</source>
+        <target>Herzkatheter-Indikation kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe25" resname="stats.insights.compare.insight.urgency_emergency">
+        <source>stats.insights.compare.insight.urgency_emergency</source>
+        <target>Notfalldringlichkeit kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe26" resname="stats.insights.compare.insight.age_80_plus">
+        <source>stats.insights.compare.insight.age_80_plus</source>
+        <target>Patienten ab 80 Jahren kommen bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe27" resname="stats.insights.compare.insight.night_daytime">
+        <source>stats.insights.compare.insight.night_daytime</source>
+        <target>Nachtfälle kommen bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe28" resname="stats.insights.compare.insight.weekend">
+        <source>stats.insights.compare.insight.weekend</source>
+        <target>Wochenendfälle kommen bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe29" resname="stats.insights.compare.insight.infectious">
+        <source>stats.insights.compare.insight.infectious</source>
+        <target>Infektiöse Patienten kommen bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe30" resname="stats.insights.compare.insight.cpr">
+        <source>stats.insights.compare.insight.cpr</source>
+        <target>Reanimation kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe31" resname="stats.insights.compare.insight.ventilation">
+        <source>stats.insights.compare.insight.ventilation</source>
+        <target>Beatmung kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe32" resname="stats.insights.compare.insight.shock">
+        <source>stats.insights.compare.insight.shock</source>
+        <target>Schock kommt bei A {ratio, number, :: .#}× häufiger vor ({percentA, number}% vs. {percentB, number}%).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe33" resname="stats.insights.compare.insight.age_old">
+        <source>stats.insights.compare.insight.age_old</source>
+        <target>A hat ein deutlich höheres Medianalter ({percentA, number} vs. {percentB, number} Jahre).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe34" resname="stats.insights.compare.insight.age_young">
+        <source>stats.insights.compare.insight.age_young</source>
+        <target>A hat ein deutlich niedrigeres Medianalter ({percentA, number} vs. {percentB, number} Jahre).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe35" resname="stats.insights.compare.insight.transport_time_long">
+        <source>stats.insights.compare.insight.transport_time_long</source>
+        <target>Die mittlere Transportzeit ist bei A länger ({percentA, number} vs. {percentB, number} Minuten).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe36" resname="stats.insights.compare.insight.transport_time_short">
+        <source>stats.insights.compare.insight.transport_time_short</source>
+        <target>Die mittlere Transportzeit ist bei A kürzer ({percentA, number} vs. {percentB, number} Minuten).</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe37" resname="stats.insights.compare.error.missing_subject_b">
+        <source>stats.insights.compare.error.missing_subject_b</source>
+        <target>Bitte ein Insight-Objekt für B auswählen.</target>
+      </trans-unit>
+      <trans-unit id="StatsInsCmpDe38" resname="stats.insights.compare.disable">
+        <source>stats.insights.compare.disable</source>
+        <target>Vergleich beenden</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

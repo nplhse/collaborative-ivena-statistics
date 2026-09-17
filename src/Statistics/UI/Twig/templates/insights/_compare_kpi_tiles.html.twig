@@ -1,0 +1,7 @@
+{{ include('@Statistics/_kpi_compare_tiles.html.twig', {
+    metrics: report.kpiMetrics,
+    suppressRatios: report.suppressRatios,
+    sideAShortKey: 'stats.insights.compare.side_a_short',
+    sideBShortKey: 'stats.insights.compare.side_b_short',
+    testIdPrefix: 'stats-insights-compare-kpi',
+}) }}

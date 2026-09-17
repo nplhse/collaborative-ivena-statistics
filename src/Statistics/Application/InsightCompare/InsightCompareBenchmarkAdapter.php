@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\IndicationCompare;
+namespace App\Statistics\Application\InsightCompare;
 
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistribution;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkDistributionBucket;
@@ -10,16 +10,16 @@ use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkAggregationResult;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkDistributionRow;
 use App\Statistics\Benchmarking\Infrastructure\Query\Dto\BenchmarkSideCounts;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareDistributionRow;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareDistributionRow;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts;
 
-final readonly class IndicationCompareBenchmarkAdapter
+final readonly class InsightCompareBenchmarkAdapter
 {
-    public function toBenchmarkAggregation(IndicationCompareAggregationResult $result): BenchmarkAggregationResult
+    public function toBenchmarkAggregation(InsightCompareAggregationResult $result): BenchmarkAggregationResult
     {
         $distributionRows = array_map(
-            static fn (IndicationCompareDistributionRow $row): BenchmarkDistributionRow => new BenchmarkDistributionRow(
+            static fn (InsightCompareDistributionRow $row): BenchmarkDistributionRow => new BenchmarkDistributionRow(
                 $row->dimension,
                 $row->bucketKey,
                 $row->bucketLabel,
@@ -37,8 +37,8 @@ final readonly class IndicationCompareBenchmarkAdapter
     }
 
     public function buildUrgencyDistribution(
-        IndicationCompareSideCounts $sideA,
-        IndicationCompareSideCounts $sideB,
+        InsightCompareSideCounts $sideA,
+        InsightCompareSideCounts $sideB,
     ): BenchmarkDistribution {
         return $this->buildCountShareDistribution(
             BenchmarkMetricKey::Urgency,
@@ -57,8 +57,8 @@ final readonly class IndicationCompareBenchmarkAdapter
      */
     private function buildCountShareDistribution(
         BenchmarkMetricKey $dimension,
-        IndicationCompareSideCounts $sideA,
-        IndicationCompareSideCounts $sideB,
+        InsightCompareSideCounts $sideA,
+        InsightCompareSideCounts $sideB,
         array $items,
     ): BenchmarkDistribution {
         $buckets = [];
@@ -88,7 +88,7 @@ final readonly class IndicationCompareBenchmarkAdapter
         return ((float) $numerator / (float) $total) * 100.0;
     }
 
-    private function toBenchmarkSideCounts(IndicationCompareSideCounts $side): BenchmarkSideCounts
+    private function toBenchmarkSideCounts(InsightCompareSideCounts $side): BenchmarkSideCounts
     {
         return new BenchmarkSideCounts(
             $side->total,

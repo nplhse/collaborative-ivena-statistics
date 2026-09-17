@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\IndicationCompare\DTO;
+namespace App\Statistics\Application\InsightCompare\DTO;
 
-final readonly class IndicationCompareInsight
+final readonly class InsightCompareInsight
 {
     public function __construct(
         public string $id,
-        public IndicationCompareInsightSeverity $severity,
+        public InsightCompareInsightSeverity $severity,
         public string $translationKey,
         public float $ratio,
         public float $percentA,

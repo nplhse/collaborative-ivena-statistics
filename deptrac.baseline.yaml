@@ -319,17 +319,17 @@ deptrac:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
     App\Statistics\Application\HospitalSummaryQuery:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
-    App\Statistics\Application\IndicationCompare\IndicationCompareBenchmarkAdapter:
-      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult
-      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareDistributionRow
-      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts
-    App\Statistics\Application\IndicationCompare\IndicationCompareInsightEngine:
-      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts
-    App\Statistics\Application\IndicationCompare\IndicationCompareReportService:
-      - App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult
-      - App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareMetricsQuery
-      - App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareSliceQuery
-    App\Statistics\Application\IndicationCompare\IndicationCompareSubjectRequestParser:
+    App\Statistics\Application\InsightCompare\InsightCompareBenchmarkAdapter:
+      - App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult
+      - App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareDistributionRow
+      - App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts
+    App\Statistics\Application\InsightCompare\InsightCompareInsightEngine:
+      - App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts
+    App\Statistics\Application\InsightCompare\InsightCompareReportService:
+      - App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult
+      - App\Statistics\Infrastructure\Query\InsightCompare\InsightCompareMetricsQuery
+      - App\Statistics\Infrastructure\Query\InsightCompare\InsightCompareSliceQuery
+    App\Statistics\Application\InsightCompare\InsightCompareSubjectRequestParser:
       - App\Statistics\UI\Http\Navigation\StatisticsQueryKeys
     App\Statistics\Application\IndicationDashboard\DTO\IndicationDashboardResult:
       - App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow

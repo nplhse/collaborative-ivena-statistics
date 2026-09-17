@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Infrastructure\Query\IndicationCompare;
+namespace App\Statistics\Infrastructure\Query\InsightCompare;
 
+use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\Insights\InsightPopulationFilter;
 use App\Statistics\Application\Mapping\AllocationStatsGenderProjectionCode;
 use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareDistributionRow;
-use App\Statistics\Infrastructure\Query\IndicationDashboard\IndicationDashboardSqlFilter;
+use App\Statistics\Benchmarking\Infrastructure\Query\BenchmarkSqlFilter;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareDistributionRow;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
- * Single-scan slice dimensions for two indications in one scope.
+ * Single-scan slice dimensions for two Insight populations.
  */
-final readonly class IndicationCompareSliceQuery
+final readonly class InsightCompareSliceQuery
 {
     public function __construct(
         private Connection $connection,
@@ -28,14 +29,15 @@ final readonly class IndicationCompareSliceQuery
      * @param list<int>|InsightPopulationFilter $indicationIdsA
      * @param list<int>|InsightPopulationFilter $indicationIdsB
      *
-     * @return list<IndicationCompareDistributionRow>
+     * @return list<InsightCompareDistributionRow>
      */
     public function fetch(
         array|InsightPopulationFilter $indicationIdsA,
         array|InsightPopulationFilter $indicationIdsB,
-        ?\DateTimeImmutable $from,
-        ?\DateTimeImmutable $toExclusive,
-        StatisticsScopeCriteria $scope,
+        StatisticsScopeCriteria $scopeA,
+        StatisticsPeriodBounds $periodA,
+        StatisticsScopeCriteria $scopeB,
+        StatisticsPeriodBounds $periodB,
     ): array {
         $sideA = $indicationIdsA instanceof InsightPopulationFilter
             ? $indicationIdsA
@@ -48,15 +50,16 @@ final readonly class IndicationCompareSliceQuery
             return [];
         }
 
-        if (\is_array($scope->hospitalIds) && [] === $scope->hospitalIds) {
-            return [];
-        }
+        [$scopePredA, $paramsA, $typesA] = BenchmarkSqlFilter::buildSidePredicate($scopeA, $periodA, 'a');
+        [$scopePredB, $paramsB, $typesB] = BenchmarkSqlFilter::buildSidePredicate($scopeB, $periodB, 'b');
+        $popA = $sideA->sqlInPredicate('ids_a');
+        $popB = $sideB->sqlInPredicate('ids_b');
+        $predA = sprintf('(%s AND %s)', $scopePredA, $popA);
+        $predB = sprintf('(%s AND %s)', $scopePredB, $popB);
 
-        $predA = $sideA->sqlInPredicate('ids_a');
-        $predB = $sideB->sqlInPredicate('ids_b');
-
-        [$scopeWhere, $params, $types] = IndicationDashboardSqlFilter::buildScopePeriodWhere($from, $toExclusive, $scope);
-        $where = sprintf('(%s) AND (%s OR %s)', $scopeWhere, $predA, $predB);
+        $params = array_merge($paramsA, $paramsB);
+        $types = array_merge($typesA, $typesB);
+        $where = sprintf('(%s OR %s)', $predA, $predB);
         $types['ids_a'] = ArrayParameterType::INTEGER;
         $types['ids_b'] = ArrayParameterType::INTEGER;
         $params['ids_a'] = $sideA->ids;
@@ -155,7 +158,7 @@ SQL;
                 continue;
             }
 
-            $result[] = new IndicationCompareDistributionRow(
+            $result[] = new InsightCompareDistributionRow(
                 $row['dimension'],
                 $bucketKey,
                 $row['bucket_label'] ?? null,

@@ -2,58 +2,64 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\IndicationCompare;
+namespace App\Statistics\Application\InsightCompare;
 
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareCriteria;
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareHeader;
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareReport;
-use App\Statistics\Application\IndicationDashboard\IndicationSubjectType;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareCriteria;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareHeader;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareReport;
 use App\Statistics\Application\Insights\InsightDimensionKey;
 use App\Statistics\Benchmarking\Application\BenchmarkHeatmapBuilder;
 use App\Statistics\Benchmarking\Application\BenchmarkMetricBuilder;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult;
-use App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareMetricsQuery;
-use App\Statistics\Infrastructure\Query\IndicationCompare\IndicationCompareSliceQuery;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult;
+use App\Statistics\Infrastructure\Query\InsightCompare\InsightCompareMetricsQuery;
+use App\Statistics\Infrastructure\Query\InsightCompare\InsightCompareSliceQuery;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-final readonly class IndicationCompareReportService
+final readonly class InsightCompareReportService
 {
     private const int MIN_CASES_WARNING = 10;
 
     private const int MIN_CASES_RATIOS = 20;
 
     public function __construct(
-        private IndicationCompareMetricsQuery $metricsQuery,
-        private IndicationCompareSliceQuery $sliceQuery,
-        private IndicationCompareBenchmarkAdapter $benchmarkAdapter,
+        private InsightCompareMetricsQuery $metricsQuery,
+        private InsightCompareSliceQuery $sliceQuery,
+        private InsightCompareBenchmarkAdapter $benchmarkAdapter,
         private BenchmarkMetricBuilder $benchmarkMetricBuilder,
         private BenchmarkHeatmapBuilder $heatmapBuilder,
-        private IndicationCompareInsightEngine $insightEngine,
+        private InsightCompareInsightEngine $insightEngine,
+        private TranslatorInterface $translator,
     ) {
     }
 
-    public function build(IndicationCompareCriteria $criteria): IndicationCompareReport
-    {
-        $from = $criteria->period->from;
-        $toExclusive = $criteria->period->toExclusive;
-        $scope = $criteria->scope;
-
+    /**
+     * @param list<string> $disabledInsightIds
+     */
+    public function build(
+        InsightCompareCriteria $criteria,
+        string $filterLabelA,
+        string $filterLabelB,
+        array $disabledInsightIds = [],
+    ): InsightCompareReport {
         $metricsResult = $this->metricsQuery->fetch(
             $criteria->subjectA->population,
             $criteria->subjectB->population,
-            $from,
-            $toExclusive,
-            $scope,
+            $criteria->scopeA,
+            $criteria->periodA,
+            $criteria->scopeB,
+            $criteria->periodB,
         );
 
         $sliceRows = $this->sliceQuery->fetch(
             $criteria->subjectA->population,
             $criteria->subjectB->population,
-            $from,
-            $toExclusive,
-            $scope,
+            $criteria->scopeA,
+            $criteria->periodA,
+            $criteria->scopeB,
+            $criteria->periodB,
         );
 
-        $aggregation = new IndicationCompareAggregationResult(
+        $aggregation = new InsightCompareAggregationResult(
             $metricsResult->sideA,
             $metricsResult->sideB,
             $sliceRows,
@@ -69,22 +75,22 @@ final readonly class IndicationCompareReportService
         $dayTimeHeatmap = $this->heatmapBuilder->buildDayTimeCaseDistribution($benchmark);
         $shiftHeatmap = $this->heatmapBuilder->buildShiftCaseDistribution($benchmark);
 
-        return new IndicationCompareReport(
-            new IndicationCompareHeader(
-                InsightDimensionKey::IndicationGroups === $criteria->subjectA->dimension
-                    ? IndicationSubjectType::Group
-                    : IndicationSubjectType::Single,
+        return new InsightCompareReport(
+            new InsightCompareHeader(
+                $criteria->subjectA->dimension,
                 $criteria->subjectA->id,
                 $criteria->subjectA->label,
-                InsightDimensionKey::IndicationGroups === $criteria->subjectB->dimension
-                    ? IndicationSubjectType::Group
-                    : IndicationSubjectType::Single,
+                $this->dimensionLabel($criteria->subjectA->dimension),
+                $filterLabelA,
+                $criteria->subjectB->dimension,
                 $criteria->subjectB->id,
                 $criteria->subjectB->label,
+                $this->dimensionLabel($criteria->subjectB->dimension),
+                $filterLabelB,
                 $totalA,
                 $totalB,
             ),
-            $this->benchmarkMetricBuilder->buildIndicationCompareKpiMetrics($benchmark),
+            $this->benchmarkMetricBuilder->buildCompareKpiMetrics($benchmark),
             $this->benchmarkMetricBuilder->buildGenderDistribution($benchmark),
             $this->benchmarkAdapter->buildUrgencyDistribution($metricsResult->sideA, $metricsResult->sideB),
             $this->benchmarkMetricBuilder->buildResourcesDistribution($benchmark),
@@ -94,9 +100,18 @@ final readonly class IndicationCompareReportService
             $this->benchmarkMetricBuilder->buildTransportTimeDistribution($benchmark),
             $dayTimeHeatmap,
             $shiftHeatmap,
-            $this->insightEngine->build($metricsResult->sideA, $metricsResult->sideB),
+            $this->insightEngine->build($metricsResult->sideA, $metricsResult->sideB, $disabledInsightIds),
             $hasInsufficientData,
             $suppressRatios,
+        );
+    }
+
+    private function dimensionLabel(InsightDimensionKey $dimension): string
+    {
+        return $this->translator->trans(
+            'stats.insights.dimension.'.str_replace('-', '_', $dimension->value).'.label',
+            [],
+            'statistics',
         );
     }
 }

@@ -1,7 +1,7 @@
 <div class="{{ wrapperClass|default('mb-3') }}" data-testid="{{ testId|default('stats-compare-selection') }}">
     <div class="row g-3 align-items-stretch">
         <div class="col-md">
-            <div class="rounded-3 p-3 h-100 bg-primary-lt border-start border-4 stats-indication-compare-side-a">
+            <div class="rounded-3 p-3 h-100 bg-primary-lt border-start border-4 stats-compare-side-a">
                 <div class="d-flex align-items-start gap-3">
                     <span class="avatar avatar-md bg-primary text-white fw-bold flex-shrink-0">{{ sideAAvatar|default('A') }}</span>
                     <div class="min-w-0 flex-grow-1">
@@ -37,7 +37,7 @@
                         <h3 class="h2 mb-{% if sideASubheading is defined and sideASubheading %}1{% else %}2{% endif %}">
                             {% if sideAUrl is defined and sideAUrl %}
                                 <a href="{{ sideAUrl }}"
-                                   class="text-reset stats-indication-compare-indication-link"
+                                   class="text-reset stats-compare-subject-link"
                                    data-testid="{{ sideATestId|default(testId ~ '-a') }}">
                                     {{ sideAHeading }}
                                 </a>
@@ -76,7 +76,7 @@
         {% endif %}
 
         <div class="col-md">
-            <div class="rounded-3 p-3 h-100 bg-secondary-lt border-start border-4 stats-indication-compare-side-b">
+            <div class="rounded-3 p-3 h-100 bg-secondary-lt border-start border-4 stats-compare-side-b">
                 <div class="d-flex align-items-start gap-3">
                     <span class="avatar avatar-md bg-secondary text-secondary-fg fw-bold flex-shrink-0">{{ sideBAvatar|default('B') }}</span>
                     <div class="min-w-0 flex-grow-1">
@@ -112,7 +112,7 @@
                         <h3 class="h2 mb-{% if sideBSubheading is defined and sideBSubheading %}1{% else %}2{% endif %}">
                             {% if sideBUrl is defined and sideBUrl %}
                                 <a href="{{ sideBUrl }}"
-                                   class="text-reset stats-indication-compare-indication-link"
+                                   class="text-reset stats-compare-subject-link"
                                    data-testid="{{ sideBTestId|default(testId ~ '-b') }}">
                                     {{ sideBHeading }}
                                 </a>

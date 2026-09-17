@@ -4,7 +4,7 @@
 {% set showTopListCompareEnable = statsTopListCompareEnableUrl is defined and not topListCompareEnabled %}
 {% set showIndicationCatalog = statsIndicationCatalogUrl|default(null) %}
 {% set showIndicationTopList = statsIndicationTopListUrl|default(null) %}
-{% set showIndicationCompareLaunch = statsShowCompareLaunchButton|default(false) %}
+{% set showInsightCompareLaunch = statsShowCompareLaunchButton|default(false) %}
 
 <div class="col-auto ms-auto d-print-none">
     <div class="btn-list">
@@ -32,7 +32,7 @@
             </div>
         {% endif %}
 
-        {% if showIndicationCatalog or showIndicationTopList or showIndicationCompareLaunch %}
+        {% if showIndicationCatalog or showIndicationTopList or showInsightCompareLaunch %}
             <div class="btn-group" role="group" data-testid="stats-indication-header-actions">
                 {% if showIndicationCatalog %}
                     <a class="btn"
@@ -52,14 +52,14 @@
                     </a>
                 {% endif %}
 
-                {% if showIndicationCompareLaunch %}
+                {% if showInsightCompareLaunch %}
                     <button type="button"
                             class="btn"
                             data-bs-toggle="modal"
-                            data-bs-target="#{{ statsCompareLaunchModalId|default('stats-indication-compare-launch-modal') }}"
-                            data-testid="stats-indication-compare-launch-button">
+                            data-bs-target="#{{ statsCompareLaunchModalId|default('stats-insights-compare-launch-modal') }}"
+                            data-testid="stats-insights-compare-launch-button">
                         <twig:ux:icon name="tabler:git-compare" class="icon icon-sm" />
-                        {{ 'stats.indication.compare.with'|trans({}, 'statistics') }}
+                        {{ 'stats.insights.compare.with'|trans({}, 'statistics') }}
                     </button>
                 {% endif %}
             </div>
@@ -82,11 +82,20 @@
             <button type="button"
                     class="btn"
                     data-bs-toggle="modal"
-                    data-bs-target="#stats-indication-compare-edit-modal"
-                    data-testid="stats-indication-compare-edit-button">
+                    data-bs-target="#stats-insights-compare-edit-modal"
+                    data-testid="stats-insights-compare-edit-button">
                 <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                {{ 'stats.indication.compare.edit'|trans({}, 'statistics') }}
+                {{ 'stats.insights.compare.edit'|trans({}, 'statistics') }}
             </button>
+        {% endif %}
+
+        {% if statsInsightsCompareDisableUrl|default(null) %}
+            <a class="btn btn-outline-danger"
+               href="{{ statsInsightsCompareDisableUrl }}"
+               data-testid="stats-insights-compare-disable">
+                <twig:ux:icon name="tabler:x" class="icon icon-sm" />
+                {{ 'stats.insights.compare.disable'|trans({}, 'statistics') }}
+            </a>
         {% endif %}
 
         {% if statsTtpExplorerUrl|default(null) %}

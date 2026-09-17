@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Statistics\Application\IndicationCompare;
+namespace App\Statistics\Application\InsightCompare;
 
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareInsight;
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareInsightSeverity;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareInsight;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareInsightSeverity;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts;
 
-final readonly class IndicationCompareInsightEngine
+final readonly class InsightCompareInsightEngine
 {
     private const int MIN_CASES_PER_SIDE = 30;
 
@@ -21,10 +21,15 @@ final readonly class IndicationCompareInsightEngine
     private const float NEUTRAL_RATIO_HIGH = 1.15;
 
     /**
-     * @return list<IndicationCompareInsight>
+     * @param list<string> $disabledInsightIds
+     *
+     * @return list<InsightCompareInsight>
      */
-    public function build(IndicationCompareSideCounts $sideA, IndicationCompareSideCounts $sideB): array
-    {
+    public function build(
+        InsightCompareSideCounts $sideA,
+        InsightCompareSideCounts $sideB,
+        array $disabledInsightIds = [],
+    ): array {
         if ($sideA->total < self::MIN_CASES_PER_SIDE || $sideB->total < self::MIN_CASES_PER_SIDE) {
             return [];
         }
@@ -46,11 +51,23 @@ final readonly class IndicationCompareInsightEngine
         $this->addMedianAgeInsights($candidates, $sideA, $sideB);
         $this->addTransportTimeInsights($candidates, $sideA, $sideB);
 
-        usort($candidates, static fn (IndicationCompareInsight $a, IndicationCompareInsight $b): int => $b->sortScore <=> $a->sortScore);
+        if ([] !== $disabledInsightIds) {
+            $disabled = array_fill_keys($disabledInsightIds, true);
+            $candidates = array_values(array_filter(
+                $candidates,
+                static function (InsightCompareInsight $insight) use ($disabled): bool {
+                    $baseId = preg_replace('/_neutral$/', '', $insight->id) ?? $insight->id;
+
+                    return !isset($disabled[$insight->id]) && !isset($disabled[$baseId]);
+                },
+            ));
+        }
+
+        usort($candidates, static fn (InsightCompareInsight $a, InsightCompareInsight $b): int => $b->sortScore <=> $a->sortScore);
 
         $notable = array_values(array_filter(
             $candidates,
-            static fn (IndicationCompareInsight $insight): bool => !str_ends_with($insight->id, '_neutral'),
+            static fn (InsightCompareInsight $insight): bool => !str_ends_with($insight->id, '_neutral'),
         ));
 
         if ([] !== $notable) {
@@ -61,7 +78,7 @@ final readonly class IndicationCompareInsightEngine
     }
 
     /**
-     * @param list<IndicationCompareInsight> $candidates
+     * @param list<InsightCompareInsight> $candidates
      */
     private function addRateInsight(
         array &$candidates,
@@ -89,8 +106,8 @@ final readonly class IndicationCompareInsightEngine
             if ('physician' === $id) {
                 $candidates[] = $this->buildInsight(
                     'physician_neutral',
-                    IndicationCompareInsightSeverity::Neutral,
-                    'stats.indication.compare.insight.physician_neutral',
+                    InsightCompareInsightSeverity::Neutral,
+                    'stats.insights.compare.insight.physician_neutral',
                     round($ratio, 1),
                     $percentA,
                     $percentB,
@@ -112,7 +129,7 @@ final readonly class IndicationCompareInsightEngine
         $candidates[] = $this->buildInsight(
             $id,
             $this->resolveHighSeverity($ratio, $medicallyCritical),
-            'stats.indication.compare.insight.'.$id,
+            'stats.insights.compare.insight.'.$id,
             round($ratio, 1),
             $percentA,
             $percentB,
@@ -121,9 +138,9 @@ final readonly class IndicationCompareInsightEngine
     }
 
     /**
-     * @param list<IndicationCompareInsight> $candidates
+     * @param list<InsightCompareInsight> $candidates
      */
-    private function addMedianAgeInsights(array &$candidates, IndicationCompareSideCounts $sideA, IndicationCompareSideCounts $sideB): void
+    private function addMedianAgeInsights(array &$candidates, InsightCompareSideCounts $sideA, InsightCompareSideCounts $sideB): void
     {
         if (null === $sideA->medianAge || null === $sideB->medianAge) {
             return;
@@ -134,8 +151,8 @@ final readonly class IndicationCompareInsightEngine
         if ($diff <= -10.0) {
             $candidates[] = $this->buildInsight(
                 'age_young',
-                IndicationCompareInsightSeverity::Elevated,
-                'stats.indication.compare.insight.age_young',
+                InsightCompareInsightSeverity::Elevated,
+                'stats.insights.compare.insight.age_young',
                 round(abs($diff), 1),
                 $sideA->medianAge,
                 $sideB->medianAge,
@@ -146,8 +163,8 @@ final readonly class IndicationCompareInsightEngine
         if ($diff >= 10.0) {
             $candidates[] = $this->buildInsight(
                 'age_old',
-                IndicationCompareInsightSeverity::Elevated,
-                'stats.indication.compare.insight.age_old',
+                InsightCompareInsightSeverity::Elevated,
+                'stats.insights.compare.insight.age_old',
                 round($diff / max($sideB->medianAge, 1.0), 1),
                 $sideA->medianAge,
                 $sideB->medianAge,
@@ -157,9 +174,9 @@ final readonly class IndicationCompareInsightEngine
     }
 
     /**
-     * @param list<IndicationCompareInsight> $candidates
+     * @param list<InsightCompareInsight> $candidates
      */
-    private function addTransportTimeInsights(array &$candidates, IndicationCompareSideCounts $sideA, IndicationCompareSideCounts $sideB): void
+    private function addTransportTimeInsights(array &$candidates, InsightCompareSideCounts $sideA, InsightCompareSideCounts $sideB): void
     {
         if (null === $sideA->meanTransportMinutes || null === $sideB->meanTransportMinutes || $sideB->meanTransportMinutes <= 0.0) {
             return;
@@ -170,8 +187,8 @@ final readonly class IndicationCompareInsightEngine
         if ($ratio >= 1.2) {
             $candidates[] = $this->buildInsight(
                 'transport_time_long',
-                IndicationCompareInsightSeverity::Elevated,
-                'stats.indication.compare.insight.transport_time_long',
+                InsightCompareInsightSeverity::Elevated,
+                'stats.insights.compare.insight.transport_time_long',
                 round($ratio, 1),
                 $sideA->meanTransportMinutes,
                 $sideB->meanTransportMinutes,
@@ -180,8 +197,8 @@ final readonly class IndicationCompareInsightEngine
         } elseif ($ratio <= 0.8) {
             $candidates[] = $this->buildInsight(
                 'transport_time_short',
-                IndicationCompareInsightSeverity::Elevated,
-                'stats.indication.compare.insight.transport_time_short',
+                InsightCompareInsightSeverity::Elevated,
+                'stats.insights.compare.insight.transport_time_short',
                 round($ratio, 1),
                 $sideA->meanTransportMinutes,
                 $sideB->meanTransportMinutes,
@@ -192,14 +209,14 @@ final readonly class IndicationCompareInsightEngine
 
     private function buildInsight(
         string $id,
-        IndicationCompareInsightSeverity $severity,
+        InsightCompareInsightSeverity $severity,
         string $translationKey,
         float $ratio,
         float $percentA,
         float $percentB,
         int $sortScore,
-    ): IndicationCompareInsight {
-        return new IndicationCompareInsight(
+    ): InsightCompareInsight {
+        return new InsightCompareInsight(
             $id,
             $severity,
             $translationKey,
@@ -224,16 +241,16 @@ final readonly class IndicationCompareInsightEngine
         return (int) round((float) $priority * min($ratio, 5.0) * log((float) max($totalA, 2)));
     }
 
-    private function resolveHighSeverity(float $ratio, bool $medicallyCritical): IndicationCompareInsightSeverity
+    private function resolveHighSeverity(float $ratio, bool $medicallyCritical): InsightCompareInsightSeverity
     {
         if ($ratio >= 2.5 || ($medicallyCritical && $ratio >= 2.0)) {
-            return IndicationCompareInsightSeverity::Critical;
+            return InsightCompareInsightSeverity::Critical;
         }
 
         if ($ratio >= 1.5) {
-            return IndicationCompareInsightSeverity::Elevated;
+            return InsightCompareInsightSeverity::Elevated;
         }
 
-        return IndicationCompareInsightSeverity::Neutral;
+        return InsightCompareInsightSeverity::Neutral;
     }
 }

@@ -13,7 +13,7 @@ final readonly class InsightSearchService
 
     public const int PER_DIMENSION_LIMIT = 5;
 
-    public const int MAX_RESULTS = 20;
+    public const int MAX_RESULTS = 40;
 
     public function __construct(
         private InsightDimensionRegistry $registry,
@@ -35,10 +35,11 @@ final readonly class InsightSearchService
             ? [$this->registry->get($onlyDimension)]
             : $this->registry->all();
 
-        $hits = [];
+        $buckets = [];
         foreach ($providers as $provider) {
+            $bucket = [];
             foreach ($provider->searchEntities($term, self::PER_DIMENSION_LIMIT) as $entity) {
-                $hits[] = new InsightSearchHit(
+                $bucket[] = new InsightSearchHit(
                     $provider->key(),
                     $entity['id'],
                     $entity['label'],
@@ -53,11 +54,35 @@ final readonly class InsightSearchService
                     ),
                     $entity['contextLabel'],
                 );
-
-                if (\count($hits) >= self::MAX_RESULTS) {
-                    return $hits;
-                }
             }
+            if ([] !== $bucket) {
+                $buckets[] = $bucket;
+            }
+        }
+
+        return \array_slice($this->interleave($buckets), 0, self::MAX_RESULTS);
+    }
+
+    /**
+     * @param list<list<InsightSearchHit>> $buckets
+     *
+     * @return list<InsightSearchHit>
+     */
+    private function interleave(array $buckets): array
+    {
+        $hits = [];
+        $index = 0;
+        $added = true;
+        while ($added) {
+            $added = false;
+            foreach ($buckets as $bucket) {
+                if (!isset($bucket[$index])) {
+                    continue;
+                }
+                $hits[] = $bucket[$index];
+                $added = true;
+            }
+            ++$index;
         }
 
         return $hits;
