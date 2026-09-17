@@ -94,7 +94,10 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-data-quality-drawer"]');
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"].btn-group');
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-indication-catalog-link"].btn');
+        self::assertSelectorTextContains('[data-testid="stats-indication-catalog-link"]', 'Details');
+        self::assertSelectorTextContains('[data-testid="stats-indication-top-list-link"]', 'Top list');
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-insights-compare-launch-button"].btn');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-launch-button"]', 'Compare');
         self::assertSelectorNotExists('[data-testid="stats-insights-compare-launch-button"].btn-outline-primary');
         self::assertSelectorExists('[data-testid="stats-insights-compare-launch-modal"]');
         self::assertSelectorNotExists('[data-testid="stats-insights-compare-cta"]');
