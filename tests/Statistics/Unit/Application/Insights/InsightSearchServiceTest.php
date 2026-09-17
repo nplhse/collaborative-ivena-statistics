@@ -26,7 +26,7 @@ final class InsightSearchServiceTest extends TestCase
         self::assertSame([], $service->search('S', new Request()));
     }
 
-    public function testAggregatesProviderHitsAndStopsAtMaxResults(): void
+    public function testAggregatesProviderHitsAcrossDimensions(): void
     {
         $indications = $this->provider(InsightDimensionKey::Indications, [
             ['id' => 1, 'label' => 'STEMI (1001)', 'code' => 1001, 'publicId' => null, 'contextLabel' => null],
@@ -58,6 +58,52 @@ final class InsightSearchServiceTest extends TestCase
         self::assertSame('Assignment', $hits[1]->contextLabel);
     }
 
+    public function testInterleavesHitsSoLaterDimensionsAreNotStarved(): void
+    {
+        $indicationHits = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $indicationHits[] = [
+                'id' => $i,
+                'label' => 'Indication '.$i,
+                'code' => null,
+                'publicId' => null,
+                'contextLabel' => null,
+            ];
+        }
+
+        $indications = $this->provider(InsightDimensionKey::Indications, $indicationHits, 10);
+        $departments = $this->provider(InsightDimensionKey::Departments, [
+            ['id' => 101, 'label' => 'Innere Medizin', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+            ['id' => 102, 'label' => 'Chirurgie', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+        ], 40);
+        $occasions = $this->provider(InsightDimensionKey::Occasions, [
+            ['id' => 201, 'label' => 'Notfall', 'code' => null, 'publicId' => null, 'contextLabel' => null],
+        ], 50);
+
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/statistics/insights/x/1');
+
+        $service = new InsightSearchService(
+            new InsightDimensionRegistry([$indications, $departments, $occasions]),
+            new StatisticsNavigationUrlBuilder($urlGenerator),
+        );
+
+        $hits = $service->search('in', new Request());
+        $dimensions = array_map(
+            static fn (\App\Statistics\Application\Insights\InsightSearchHit $hit): InsightDimensionKey => $hit->dimension,
+            $hits,
+        );
+
+        self::assertCount(8, $hits);
+        self::assertSame(InsightDimensionKey::Indications, $hits[0]->dimension);
+        self::assertSame(InsightDimensionKey::Departments, $hits[1]->dimension);
+        self::assertSame(InsightDimensionKey::Occasions, $hits[2]->dimension);
+        self::assertContains(InsightDimensionKey::Departments, $dimensions);
+        self::assertContains(InsightDimensionKey::Occasions, $dimensions);
+        self::assertSame('Innere Medizin', $hits[1]->label);
+        self::assertSame('Notfall', $hits[2]->label);
+    }
+
     public function testCanRestrictSearchToOneDimension(): void
     {
         $indications = $this->provider(InsightDimensionKey::Indications, [
@@ -85,11 +131,11 @@ final class InsightSearchServiceTest extends TestCase
     /**
      * @param list<array{id: int, label: string, code: ?int, publicId: ?string, contextLabel: ?string}> $hits
      */
-    private function provider(InsightDimensionKey $key, array $hits): InsightDimensionProviderInterface
+    private function provider(InsightDimensionKey $key, array $hits, ?int $navOrder = null): InsightDimensionProviderInterface
     {
         $provider = $this->createStub(InsightDimensionProviderInterface::class);
         $provider->method('key')->willReturn($key);
-        $provider->method('navOrder')->willReturn(InsightDimensionKey::Indications === $key ? 10 : 30);
+        $provider->method('navOrder')->willReturn($navOrder ?? (InsightDimensionKey::Indications === $key ? 10 : 30));
         $provider->method('navPlacement')->willReturn(InsightNavPlacement::Primary);
         $provider->method('featuredOnOverview')->willReturn(InsightDimensionKey::Indications === $key);
         $provider->method('searchEntities')->willReturn($hits);

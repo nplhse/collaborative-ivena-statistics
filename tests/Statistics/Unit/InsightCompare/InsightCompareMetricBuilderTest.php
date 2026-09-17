@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Statistics\Unit\IndicationCompare;
+namespace App\Tests\Statistics\Unit\InsightCompare;
 
-use App\Statistics\Application\IndicationCompare\IndicationCompareBenchmarkAdapter;
-use App\Statistics\Application\IndicationCompare\IndicationCompareInsightEngine;
+use App\Statistics\Application\InsightCompare\InsightCompareBenchmarkAdapter;
+use App\Statistics\Application\InsightCompare\InsightCompareInsightEngine;
 use App\Statistics\Benchmarking\Application\BenchmarkMetricBuilder;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkMetricKey;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareAggregationResult;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareAggregationResult;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts;
 use PHPUnit\Framework\TestCase;
 
-final class IndicationCompareMetricBuilderTest extends TestCase
+final class InsightCompareMetricBuilderTest extends TestCase
 {
     public function testBuildsKpiMetricsFromSideCounts(): void
     {
-        $aggregation = new IndicationCompareAggregationResult(
-            new IndicationCompareSideCounts(100, 50, 10, 5, 0, 0, 0, 0, 0, 0, 40, 20, 10, 0, 0, 0, 60, 40, 0, 0, 0, 70.0, 30.0),
-            new IndicationCompareSideCounts(50, 10, 2, 1, 0, 0, 0, 0, 0, 0, 10, 5, 5, 0, 0, 0, 20, 30, 0, 0, 0, 55.0, 20.0),
+        $aggregation = new InsightCompareAggregationResult(
+            new InsightCompareSideCounts(100, 50, 10, 5, 0, 0, 0, 0, 0, 0, 40, 20, 10, 0, 0, 0, 60, 40, 0, 0, 0, 70.0, 30.0),
+            new InsightCompareSideCounts(50, 10, 2, 1, 0, 0, 0, 0, 0, 0, 10, 5, 5, 0, 0, 0, 20, 30, 0, 0, 0, 55.0, 20.0),
         );
 
-        $benchmark = new IndicationCompareBenchmarkAdapter()->toBenchmarkAggregation($aggregation);
-        $metrics = new BenchmarkMetricBuilder()->buildIndicationCompareKpiMetrics($benchmark);
+        $benchmark = new InsightCompareBenchmarkAdapter()->toBenchmarkAggregation($aggregation);
+        $metrics = new BenchmarkMetricBuilder()->buildCompareKpiMetrics($benchmark);
         $totalMetric = array_find($metrics, fn ($metric): bool => BenchmarkMetricKey::Total === $metric->key);
 
         self::assertNotNull($totalMetric);
@@ -48,19 +48,19 @@ final class IndicationCompareMetricBuilderTest extends TestCase
 
     public function testInsightEngineRequiresMinimumCases(): void
     {
-        $engine = new IndicationCompareInsightEngine();
-        $lowA = IndicationCompareSideCounts::empty();
-        $enoughB = new IndicationCompareSideCounts(50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
+        $engine = new InsightCompareInsightEngine();
+        $lowA = InsightCompareSideCounts::empty();
+        $enoughB = new InsightCompareSideCounts(50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
 
         self::assertSame([], $engine->build($lowA, $enoughB));
     }
 
     public function testBuildsUrgencyDistributionFromSideCounts(): void
     {
-        $sideA = new IndicationCompareSideCounts(10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
-        $sideB = new IndicationCompareSideCounts(8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
+        $sideA = new InsightCompareSideCounts(10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
+        $sideB = new InsightCompareSideCounts(8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
 
-        $distribution = new IndicationCompareBenchmarkAdapter()->buildUrgencyDistribution($sideA, $sideB);
+        $distribution = new InsightCompareBenchmarkAdapter()->buildUrgencyDistribution($sideA, $sideB);
 
         self::assertCount(3, $distribution->buckets);
         self::assertSame('1', $distribution->buckets[0]->key);

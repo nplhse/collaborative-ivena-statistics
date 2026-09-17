@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Statistics\Unit\IndicationCompare;
+namespace App\Tests\Statistics\Unit\InsightCompare;
 
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareInsight;
-use App\Statistics\Application\IndicationCompare\DTO\IndicationCompareInsightSeverity;
-use App\Statistics\Application\IndicationCompare\IndicationCompareInsightEngine;
-use App\Statistics\Infrastructure\Query\IndicationCompare\Dto\IndicationCompareSideCounts;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareInsight;
+use App\Statistics\Application\InsightCompare\DTO\InsightCompareInsightSeverity;
+use App\Statistics\Application\InsightCompare\InsightCompareInsightEngine;
+use App\Statistics\Infrastructure\Query\InsightCompare\Dto\InsightCompareSideCounts;
 use PHPUnit\Framework\TestCase;
 
-final class IndicationCompareInsightEngineTest extends TestCase
+final class InsightCompareInsightEngineTest extends TestCase
 {
-    private IndicationCompareInsightEngine $engine;
+    private InsightCompareInsightEngine $engine;
 
     protected function setUp(): void
     {
-        $this->engine = new IndicationCompareInsightEngine();
+        $this->engine = new InsightCompareInsightEngine();
     }
 
     public function testReturnsEmptyWhenSampleSizeTooSmall(): void
@@ -49,7 +49,7 @@ final class IndicationCompareInsightEngineTest extends TestCase
         self::assertNotEmpty($insights);
         self::assertSame('physician', $insights[0]->id);
         self::assertGreaterThanOrEqual(1.5, $insights[0]->ratio);
-        self::assertSame(IndicationCompareInsightSeverity::Critical, $insights[0]->severity);
+        self::assertSame(InsightCompareInsightSeverity::Critical, $insights[0]->severity);
     }
 
     public function testDoesNotEmitLowDirectionRateInsights(): void
@@ -61,6 +61,18 @@ final class IndicationCompareInsightEngineTest extends TestCase
 
         self::assertNotContains('physician_low', $ids);
         self::assertNotContains('physician', $ids);
+    }
+
+    public function testOmitsDisabledInsightIdsFromBothSides(): void
+    {
+        $ids = $this->insightIds($this->engine->build(
+            $this->sideCounts(total: 100, withPhysician: 81, infectious: 40),
+            $this->sideCounts(total: 100, withPhysician: 40, infectious: 5),
+            ['physician', 'infectious'],
+        ));
+
+        self::assertNotContains('physician', $ids);
+        self::assertNotContains('infectious', $ids);
     }
 
     public function testSuppressesFloodingWhenIndicationAMuchLower(): void
@@ -173,13 +185,13 @@ final class IndicationCompareInsightEngineTest extends TestCase
     }
 
     /**
-     * @param list<IndicationCompareInsight> $insights
+     * @param list<InsightCompareInsight> $insights
      *
      * @return list<string>
      */
     private function insightIds(array $insights): array
     {
-        return array_map(static fn (IndicationCompareInsight $insight): string => $insight->id, $insights);
+        return array_map(static fn (InsightCompareInsight $insight): string => $insight->id, $insights);
     }
 
     private function sideCounts(
@@ -197,8 +209,8 @@ final class IndicationCompareInsightEngineTest extends TestCase
         int $infectious = 0,
         ?float $medianAge = null,
         ?float $meanTransportMinutes = null,
-    ): IndicationCompareSideCounts {
-        return new IndicationCompareSideCounts(
+    ): InsightCompareSideCounts {
+        return new InsightCompareSideCounts(
             $total,
             $withPhysician,
             $resus,
