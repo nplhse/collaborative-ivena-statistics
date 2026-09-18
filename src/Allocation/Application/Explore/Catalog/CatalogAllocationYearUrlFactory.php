@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final readonly class CatalogAllocationYearUrlFactory
 {
-    public const string DATE_QUERY_FORMAT = 'Y-m-d\TH:i:s';
+    public const string DATE_QUERY_FORMAT = 'Y-m-d';
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
@@ -44,11 +44,9 @@ final readonly class CatalogAllocationYearUrlFactory
      */
     public function forYear(array $entityFilters, int $year): string
     {
-        $from = new \DateTimeImmutable(sprintf('%d-01-01 00:00:00', $year));
-
         return $this->urlGenerator->generate('app_explore_allocation_list', array_merge($entityFilters, [
-            'createdFrom' => $from->format(self::DATE_QUERY_FORMAT),
-            'createdToExclusive' => $from->modify('+1 year')->format(self::DATE_QUERY_FORMAT),
+            'createdFrom' => new \DateTimeImmutable(sprintf('%d-01-01', $year))->format(self::DATE_QUERY_FORMAT),
+            'createdUntil' => new \DateTimeImmutable(sprintf('%d-12-31', $year))->format(self::DATE_QUERY_FORMAT),
         ]));
     }
 }

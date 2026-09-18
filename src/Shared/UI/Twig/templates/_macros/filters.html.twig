@@ -81,13 +81,13 @@
         {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: filters.departmentWasClosed ? 'Yes' : 'No'}]) %}
     {% endif %}
 
-    {% if filters.createdFrom is not empty or filters.createdToExclusive is not empty %}
+    {% if filters.hasCreatedAtRange %}
         {% set createdRange = [] %}
-        {% if filters.createdFrom is not empty %}
-            {% set createdRange = createdRange|merge([filters.createdFrom]) %}
+        {% if filters.createdFromDate is not empty %}
+            {% set createdRange = createdRange|merge([filters.createdFromDate|date('d.m.Y')]) %}
         {% endif %}
-        {% if filters.createdToExclusive is not empty %}
-            {% set createdRange = createdRange|merge([filters.createdToExclusive]) %}
+        {% if filters.createdUntilDate is not empty %}
+            {% set createdRange = createdRange|merge([filters.createdUntilDate|date('d.m.Y')]) %}
         {% endif %}
         {% set rawFilters = rawFilters|merge([{key: 'field.createdAtRange', value: createdRange|join(' – ')}]) %}
     {% endif %}
