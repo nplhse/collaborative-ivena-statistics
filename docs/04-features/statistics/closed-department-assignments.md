@@ -47,7 +47,7 @@ Closed vs regular uses the **same** `StatisticsScopeCriteria` and `StatisticsPer
 
 ## Drilldown
 
-Explore links require `ROLE_PARTICIPANT`. They always include `departmentWasClosed=1` and, when the stats period has bounds, `createdFrom` / `createdToExclusive` (`created_at`, half-open). Hospital, my-hospitals, state, and dispatch-area scopes map to existing Explore filters. Public and hospital-cohort scopes do not add extra Explore hospital filters.
+Explore links require `ROLE_PARTICIPANT`. They always include `departmentWasClosed=1` and, when the stats period has bounds, inclusive `createdFrom` / `createdUntil` dates (`created_at`). Hospital, my-hospitals, state, and dispatch-area scopes map to existing Explore filters. Public and hospital-cohort scopes do not add extra Explore hospital filters.
 
 Department, speciality, indication, occasion, assignment-type, and infection rankings link to Top Lists with the current scope/period plus the statistics drawer filter `departmentWasClosed=1`. The page lists up to 40 rows and shows the first 10 until expanded. The layout is one 2/3–1/3 split: time series, heatmap, and a 2×3 ranking grid on the left; context cards, transport times, dispatch areas, and isochrones on the right.
 
