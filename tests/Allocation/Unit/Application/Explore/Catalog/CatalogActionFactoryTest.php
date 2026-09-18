@@ -144,6 +144,69 @@ final class CatalogActionFactoryTest extends TestCase
         self::assertSame('/explore/allocation?dispatchArea=11', $actions[0]->url);
     }
 
+    public function testDispatchAreaAddsImportActionWhenExactlyOneHospitalIsAccessible(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::exactly(2))
+            ->method('generate')
+            ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
+                'app_explore_allocation_list' === $route && ($params['dispatchArea'] ?? null) === 11 => '/explore/allocation?dispatchArea=11',
+                'app_import_index' === $route && ($params['hospitalId'] ?? null) === 77 => '/import?hospitalId=77',
+                default => throw new \InvalidArgumentException($route),
+            });
+
+        $actions = $this->factory($urlGenerator)->forDispatchArea(11, 77);
+
+        self::assertCount(2, $actions);
+        self::assertSame('/explore/allocation?dispatchArea=11', $actions[0]->url);
+        self::assertSame('/import?hospitalId=77', $actions[1]->url);
+        self::assertSame('tabler:file-import', $actions[1]->icon);
+    }
+
+    public function testHospitalActionsFollowPermissions(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::exactly(4))
+            ->method('generate')
+            ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
+                'app_explore_allocation_list' === $route && ($params['hospitalFilter'] ?? null) === '9' => '/explore/allocation?hospitalFilter=9',
+                'app_import_index' === $route && ($params['hospitalId'] ?? null) === 9 => '/import?hospitalId=9',
+                'app_explore_dispatch_area_show' === $route && ($params['publicId'] ?? null) === 'da-public-id' => '/explore/dispatch_area/da-public-id',
+                'app_stats_benchmarking' === $route
+                    && ($params['scope'] ?? null) === 'hospital'
+                    && ($params['hospital'] ?? null) === 9
+                    && ($params['period'] ?? null) === 'all'
+                    && ($params['comparison_scope'] ?? null) === 'hospital_cohort'
+                    && ($params['comparison_period'] ?? null) === 'all_time' => '/statistics/benchmarking?scope=hospital',
+                default => throw new \InvalidArgumentException($route.' '.json_encode($params)),
+            });
+
+        $actions = $this->factory($urlGenerator)->forHospital(9, 'da-public-id', true, true, true);
+
+        self::assertCount(4, $actions);
+        self::assertTrue($actions[0]->primary);
+        self::assertSame('/explore/allocation?hospitalFilter=9', $actions[0]->url);
+        self::assertSame('/import?hospitalId=9', $actions[1]->url);
+        self::assertSame('/explore/dispatch_area/da-public-id', $actions[2]->url);
+        self::assertSame('/statistics/benchmarking?scope=hospital', $actions[3]->url);
+        self::assertSame('tabler:scale', $actions[3]->icon);
+    }
+
+    public function testHospitalActionsOmitRestrictedLinks(): void
+    {
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
+        $urlGenerator->expects(self::once())
+            ->method('generate')
+            ->with('app_explore_dispatch_area_show', ['publicId' => 'da-public-id'])
+            ->willReturn('/explore/dispatch_area/da-public-id');
+
+        $actions = $this->factory($urlGenerator)->forHospital(9, 'da-public-id', false, false, false);
+
+        self::assertCount(1, $actions);
+        self::assertFalse($actions[0]->primary);
+        self::assertSame('/explore/dispatch_area/da-public-id', $actions[0]->url);
+    }
+
     public function testInfectionActionLinksToAllocationListFilterAndTopList(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);

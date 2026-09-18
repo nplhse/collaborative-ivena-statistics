@@ -196,10 +196,10 @@ final class ShowAllocationControllerTest extends WebTestCase
         self::assertSelectorTextContains('#allocation-gender', 'Male');
         self::assertSelectorTextContains('.department-line', 'Test Department');
         self::assertSelectorTextContains('.department-line', 'Test Speciality');
-        self::assertSelectorExists('[data-testid="allocation-insight-department"]');
-        self::assertSelectorExists('[data-testid="allocation-insight-speciality"]');
-        self::assertSelectorExists('[data-testid="allocation-insight-indication"]');
-        self::assertSelectorExists('[data-testid="allocation-insight-assignment"]');
+        self::assertSelectorNotExists('[data-testid="allocation-insight-department"]');
+        self::assertSelectorNotExists('[data-testid="allocation-insight-speciality"]');
+        self::assertSelectorNotExists('[data-testid="allocation-insight-indication"]');
+        self::assertSelectorNotExists('[data-testid="allocation-insight-assignment"]');
 
         $pageText = $client->getCrawler()->text();
         self::assertStringContainsString('St. Test Hospital', $pageText);
