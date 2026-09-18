@@ -139,8 +139,9 @@ final class ShowHospitalControllerTest extends WebTestCase
         $href = $crawler->filter('[data-testid="catalog-coverage-year-link"]')->first()->attr('href');
         self::assertNotNull($href);
         self::assertStringContainsString('hospitalFilter='.$hospital->getId(), $href);
-        self::assertStringContainsString('createdFrom=2024-01-01T00:00:00', $href);
-        self::assertStringContainsString('createdToExclusive=2025-01-01T00:00:00', $href);
+        self::assertStringContainsString('createdFrom=2024-01-01', $href);
+        self::assertStringContainsString('createdUntil=2024-12-31', $href);
+        self::assertStringNotContainsString('createdToExclusive', $href);
     }
 
     public function testParticipantDoesNotSeeHospitalYearDrillDownLinks(): void

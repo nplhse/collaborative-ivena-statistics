@@ -19,16 +19,16 @@ final class CatalogAllocationYearUrlFactoryTest extends TestCase
                 'app_explore_allocation_list',
                 [
                     'occasion' => 12,
-                    'createdFrom' => '2024-01-01T00:00:00',
-                    'createdToExclusive' => '2025-01-01T00:00:00',
+                    'createdFrom' => '2024-01-01',
+                    'createdUntil' => '2024-12-31',
                 ],
             )
-            ->willReturn('/explore/allocation?occasion=12&createdFrom=2024-01-01T00:00:00&createdToExclusive=2025-01-01T00:00:00');
+            ->willReturn('/explore/allocation?occasion=12&createdFrom=2024-01-01&createdUntil=2024-12-31');
 
         $factory = new CatalogAllocationYearUrlFactory($urlGenerator);
 
         self::assertSame(
-            '/explore/allocation?occasion=12&createdFrom=2024-01-01T00:00:00&createdToExclusive=2025-01-01T00:00:00',
+            '/explore/allocation?occasion=12&createdFrom=2024-01-01&createdUntil=2024-12-31',
             $factory->forYear(['occasion' => 12], 2024),
         );
     }
@@ -41,12 +41,12 @@ final class CatalogAllocationYearUrlFactoryTest extends TestCase
             ->willReturnCallback(static fn (string $route, array $params = []): string => match (true) {
                 'app_explore_allocation_list' === $route
                     && ($params['indication'] ?? null) === 101
-                    && '2023-01-01T00:00:00' === ($params['createdFrom'] ?? null)
-                    && '2024-01-01T00:00:00' === ($params['createdToExclusive'] ?? null) => '/explore/allocation?y=2023',
+                    && '2023-01-01' === ($params['createdFrom'] ?? null)
+                    && '2023-12-31' === ($params['createdUntil'] ?? null) => '/explore/allocation?y=2023',
                 'app_explore_allocation_list' === $route
                     && ($params['indication'] ?? null) === 101
-                    && '2024-01-01T00:00:00' === ($params['createdFrom'] ?? null)
-                    && '2025-01-01T00:00:00' === ($params['createdToExclusive'] ?? null) => '/explore/allocation?y=2024',
+                    && '2024-01-01' === ($params['createdFrom'] ?? null)
+                    && '2024-12-31' === ($params['createdUntil'] ?? null) => '/explore/allocation?y=2024',
                 default => throw new \InvalidArgumentException($route),
             });
 
@@ -75,8 +75,8 @@ final class CatalogAllocationYearUrlFactoryTest extends TestCase
                 'app_explore_allocation_list',
                 [
                     'hospitalFilter' => '42',
-                    'createdFrom' => '2025-01-01T00:00:00',
-                    'createdToExclusive' => '2026-01-01T00:00:00',
+                    'createdFrom' => '2025-01-01',
+                    'createdUntil' => '2025-12-31',
                 ],
             )
             ->willReturn('/explore/allocation?hospitalFilter=42');

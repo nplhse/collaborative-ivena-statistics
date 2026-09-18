@@ -23,8 +23,8 @@ final class ClosedDepartmentExploreUrlFactoryTest extends TestCase
                 'app_explore_allocation_list',
                 self::callback(static fn (array $params): bool => 1 === $params['departmentWasClosed']
                     && '42' === $params['hospitalFilter']
-                    && '2026-03-01T00:00:00' === $params['createdFrom']
-                    && '2026-04-01T00:00:00' === $params['createdToExclusive']
+                    && '2026-03-01' === $params['createdFrom']
+                    && '2026-03-31' === $params['createdUntil']
                     && 9 === $params['department']),
             )
             ->willReturn('/explore/allocation');
