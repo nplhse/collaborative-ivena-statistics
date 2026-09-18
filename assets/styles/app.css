@@ -208,15 +208,37 @@
 
 .catalog-year-heatmap-cell {
     --catalog-heat: 0;
+    --catalog-cell-fg: var(--tblr-body-color, #1e293b);
+    display: block;
     border-radius: var(--tblr-border-radius, 4px);
     padding: 0.5rem 0.35rem;
     text-align: center;
+    color: var(--catalog-cell-fg);
+    text-decoration: none;
     background: color-mix(
         in srgb,
         var(--tblr-primary, #206bc4) calc(var(--catalog-heat) * 85%),
         var(--tblr-bg-surface-secondary, #f1f5f9)
     );
     border: 1px solid var(--tblr-border-color, rgba(0, 0, 0, 0.08));
+}
+
+.catalog-year-heatmap-cell.is-hot {
+    --catalog-cell-fg: #fff;
+}
+
+a.catalog-year-heatmap-cell:any-link,
+a.catalog-year-heatmap-cell:hover,
+a.catalog-year-heatmap-cell:focus-visible,
+a.catalog-year-heatmap-cell:active {
+    color: var(--catalog-cell-fg);
+    text-decoration: none;
+}
+
+a.catalog-year-heatmap-cell:hover,
+a.catalog-year-heatmap-cell:focus-visible {
+    outline: 2px solid var(--tblr-primary, #206bc4);
+    outline-offset: 1px;
 }
 
 .catalog-year-heatmap-cell.is-empty {

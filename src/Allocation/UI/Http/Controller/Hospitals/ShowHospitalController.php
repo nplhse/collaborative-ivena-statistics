@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\Controller\Hospitals;
 
+use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Entity\Hospital;
@@ -24,6 +26,8 @@ final class ShowHospitalController extends AbstractController
     public function __construct(
         private readonly CatalogOrientationMapFactory $orientationMapFactory,
         private readonly CatalogCoverageQuery $coverageQuery,
+        private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly UsageAnalytics $usageAnalytics,
     ) {
@@ -47,6 +51,10 @@ final class ShowHospitalController extends AbstractController
         $user = $this->getUser();
         $revealSensitiveMetrics = $user instanceof User
             && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::View);
+        $canViewImports = $user instanceof User
+            && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::Import);
+        $canViewBenchmarking = $user instanceof User
+            && $this->hospitalPermissionAccess->hasPermission($user, $id, HospitalPermission::Benchmarking);
 
         $this->usageAnalytics->record(
             UsageEventName::EXPLORE_HOSPITAL_OPENED,
@@ -54,9 +62,21 @@ final class ShowHospitalController extends AbstractController
             ['entity' => 'hospital'],
         );
 
+        $coverage = $this->coverageQuery->forHospital($id, $revealSensitiveMetrics);
+
         return $this->render('@Allocation/hospitals/show.html.twig', [
             'hospital' => $hospital,
-            'coverage' => $this->coverageQuery->forHospital($id, $revealSensitiveMetrics),
+            'coverage' => $coverage,
+            'actions' => $this->actionFactory->forHospital(
+                $id,
+                $dispatchArea?->getPublicId()?->toRfc4122(),
+                $revealSensitiveMetrics,
+                $canViewImports,
+                $canViewBenchmarking,
+            ),
+            'yearExploreUrls' => $revealSensitiveMetrics
+                ? $this->yearUrlFactory->forYears(['hospitalFilter' => (string) $id], $coverage->years)
+                : [],
             'orientationMap' => $this->orientationMapFactory->forHospital(
                 $dispatchArea?->getName(),
                 $hospital->getLatitude(),

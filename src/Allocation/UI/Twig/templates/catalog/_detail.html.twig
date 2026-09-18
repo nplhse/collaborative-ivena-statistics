@@ -9,7 +9,11 @@
     <div class="col-lg-8">
         {{ include('@Allocation/catalog/_quality_warnings.html.twig', {qualityWarnings: qualityWarnings}) }}
 
-        {{ include('@Allocation/catalog/_coverage.html.twig', {coverage: coverage}) }}
+        {{ include('@Allocation/catalog/_coverage.html.twig', {
+            coverage: coverage,
+            yearExploreUrls: yearExploreUrls|default({}),
+            coverageLayout: coverageLayout|default(null),
+        }) }}
 
         {{ include('@Allocation/catalog/_normalization.html.twig', {normalization: normalization}) }}
 

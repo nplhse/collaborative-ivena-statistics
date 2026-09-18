@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Specialities;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
@@ -19,6 +20,7 @@ final class ShowDepartmentController extends AbstractController
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
     ) {
     }
 
@@ -43,6 +45,7 @@ final class ShowDepartmentController extends AbstractController
             'department' => $department,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forDepartment($id),
+            'yearExploreUrls' => $this->yearUrlFactory->forYears(['department' => $id], $coverage->years),
         ]);
     }
 }

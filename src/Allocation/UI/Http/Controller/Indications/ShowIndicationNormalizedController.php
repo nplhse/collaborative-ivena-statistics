@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Indications;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDefinitionChangeFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\IndicationNormalized;
@@ -25,6 +26,7 @@ final class ShowIndicationNormalizedController extends AbstractController
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly CatalogIndicationNormalizationQuery $normalizationQuery,
         private readonly CatalogDefinitionChangeFactory $definitionChangeFactory,
         private readonly UsageAnalytics $usageAnalytics,
@@ -64,6 +66,7 @@ final class ShowIndicationNormalizedController extends AbstractController
             'indication' => $indication,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forIndication($id, $code, $canViewNormalization),
+            'yearExploreUrls' => $this->yearUrlFactory->forYears(['indication' => $code], $coverage->years),
             'normalization' => $normalization,
             'qualityWarnings' => $normalization instanceof \App\Allocation\Application\DTO\CatalogNormalizationSummary ? $normalization->warnings : [],
             'definitionChanges' => $this->definitionChangeFactory->forIndicationNormalized($indication),
