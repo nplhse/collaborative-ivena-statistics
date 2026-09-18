@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\DTO;
 
+use App\Allocation\Application\Allocations\AllocationCreatedAtRange;
+use App\Allocation\Application\Allocations\AllocationCreatedAtRangeParser;
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver;
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
@@ -96,6 +98,9 @@ final readonly class AllocationQueryParametersDTO
         public ?string $createdFrom = null,
 
         #[Assert\Length(max: 32)]
+        public ?string $createdUntil = null,
+
+        #[Assert\Length(max: 32)]
         public ?string $createdToExclusive = null,
     ) {
     }
@@ -120,6 +125,7 @@ final readonly class AllocationQueryParametersDTO
     public function toListFilterCriteria(): AllocationListFilterCriteria
     {
         [$infectionPresence, $infectionId] = $this->resolveInfectionFilter();
+        $createdAtRange = $this->createdAtRange();
 
         return new AllocationListFilterCriteria(
             importId: $this->importId,
@@ -147,25 +153,33 @@ final readonly class AllocationQueryParametersDTO
             occasion: $this->occasion,
             departmentWasClosed: $this->departmentWasClosed,
             transportType: $this->transportType,
-            createdFrom: $this->parseDateTime($this->createdFrom),
-            createdToExclusive: $this->parseDateTime($this->createdToExclusive),
+            createdFrom: $createdAtRange->from,
+            createdToExclusive: $createdAtRange->toExclusive,
         );
     }
 
-    private function parseDateTime(?string $value): ?\DateTimeImmutable
+    public function createdFromDate(): ?string
     {
-        if (null === $value || '' === $value) {
-            return null;
-        }
+        return $this->createdAtRange()->fromDate;
+    }
 
-        foreach (['Y-m-d\TH:i:s', 'Y-m-d H:i:s', '!Y-m-d'] as $format) {
-            $parsed = \DateTimeImmutable::createFromFormat($format, $value);
-            if ($parsed instanceof \DateTimeImmutable) {
-                return $parsed;
-            }
-        }
+    public function createdUntilDate(): ?string
+    {
+        return $this->createdAtRange()->untilDate;
+    }
 
-        return null;
+    public function hasCreatedAtRange(): bool
+    {
+        return $this->createdAtRange()->isActive();
+    }
+
+    private function createdAtRange(): AllocationCreatedAtRange
+    {
+        return new AllocationCreatedAtRangeParser()->parse(
+            $this->createdFrom,
+            $this->createdUntil,
+            $this->createdToExclusive,
+        );
     }
 
     private function optionalTriStateInt(?string $value): ?int

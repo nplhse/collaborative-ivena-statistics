@@ -665,6 +665,18 @@
         <source>catalog.action.view_allocations</source>
         <target>View allocations</target>
       </trans-unit>
+      <trans-unit id="CatActImpEn" resname="catalog.action.view_imports">
+        <source>catalog.action.view_imports</source>
+        <target>View imports</target>
+      </trans-unit>
+      <trans-unit id="CatActDaOneEn" resname="catalog.action.view_dispatch_area">
+        <source>catalog.action.view_dispatch_area</source>
+        <target>View dispatch area</target>
+      </trans-unit>
+      <trans-unit id="CatActBenchEn" resname="catalog.action.open_benchmarking">
+        <source>catalog.action.open_benchmarking</source>
+        <target>Open benchmarking</target>
+      </trans-unit>
       <trans-unit id="CatActTlEn" resname="catalog.action.view_top_list">
         <source>catalog.action.view_top_list</source>
         <target>Open top list</target>

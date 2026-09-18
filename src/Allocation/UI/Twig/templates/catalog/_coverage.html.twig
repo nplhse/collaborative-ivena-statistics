@@ -59,6 +59,7 @@
                 {% endif %}
 
                 {% set yearHeatmap = coverage.yearHeatmap %}
+                {% set yearExploreUrls = yearExploreUrls|default({}) %}
                 {% if yearHeatmap is not empty %}
                     <div class="mt-3" data-testid="catalog-coverage-years">
                         <div class="text-muted mb-2">{{ 'catalog.metric.years'|trans({}, 'allocation') }}</div>
@@ -66,8 +67,15 @@
                             {% for row in yearHeatmap %}
                                 <div class="catalog-year-heatmap-row">
                                     {% for cell in row %}
-                                        <div
-                                            class="catalog-year-heatmap-cell{{ cell.future ? ' is-future' : (not cell.hasData ? ' is-empty' : (cell.countHidden ? ' is-sensitive' : '')) }}"
+                                        {% set yearUrl = yearExploreUrls[cell.year]|default(null) %}
+                                        {% set yearLinked = yearUrl and cell.hasData and not cell.future and not cell.countHidden %}
+                                        {% set cellTag = yearLinked ? 'a' : 'div' %}
+                                        <{{ cellTag }}
+                                            {% if yearLinked %}
+                                                href="{{ yearUrl }}"
+                                                data-testid="catalog-coverage-year-link"
+                                            {% endif %}
+                                            class="catalog-year-heatmap-cell{{ cell.future ? ' is-future' : (not cell.hasData ? ' is-empty' : (cell.countHidden ? ' is-sensitive' : '')) }}{{ cell.intensity >= 0.45 ? ' is-hot' : '' }}"
                                             style="--catalog-heat: {{ cell.intensity }}"
                                             {% if cell.future %}
                                                 title="{{ cell.year }}: —"
@@ -87,7 +95,7 @@
                                                     {{ cell.count|number_format(0, ',', '.') }}
                                                 {% endif %}
                                             </div>
-                                        </div>
+                                        </{{ cellTag }}>
                                     {% endfor %}
                                 </div>
                             {% endfor %}

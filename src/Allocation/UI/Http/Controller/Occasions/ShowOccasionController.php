@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Occasions;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
@@ -19,6 +20,7 @@ final class ShowOccasionController extends AbstractController
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
     ) {
     }
 
@@ -43,6 +45,7 @@ final class ShowOccasionController extends AbstractController
             'occasion' => $occasion,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forOccasion($id),
+            'yearExploreUrls' => $this->yearUrlFactory->forYears(['occasion' => $id], $coverage->years),
         ]);
     }
 }

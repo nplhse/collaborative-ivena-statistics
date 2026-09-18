@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Allocation\Application\Explore\Catalog;
 
 use App\Allocation\Application\DTO\CatalogAction;
+use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\Insights\InsightDimensionKey;
 use App\Statistics\Application\TopList\TopListCatalogCrossReference;
+use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -149,9 +152,69 @@ final readonly class CatalogActionFactory
     /**
      * @return list<CatalogAction>
      */
-    public function forDispatchArea(int $id): array
+    public function forDispatchArea(int $id, ?int $singleImportHospitalId = null): array
     {
-        return [$this->viewAllocationsAction('dispatchArea', $id)];
+        $actions = [$this->viewAllocationsAction('dispatchArea', $id)];
+
+        if (null !== $singleImportHospitalId) {
+            $actions[] = $this->viewImportsAction($singleImportHospitalId);
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    public function forHospital(
+        int $id,
+        ?string $dispatchAreaPublicId,
+        bool $canViewAllocations,
+        bool $canViewImports,
+        bool $canViewBenchmarking,
+    ): array {
+        $actions = [];
+
+        if ($canViewAllocations) {
+            $actions[] = new CatalogAction(
+                label: $this->translator->trans('catalog.action.view_allocations', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_explore_allocation_list', [
+                    'hospitalFilter' => (string) $id,
+                ]),
+                icon: 'tabler:list',
+                primary: true,
+            );
+        }
+
+        if ($canViewImports) {
+            $actions[] = $this->viewImportsAction($id);
+        }
+
+        if (null !== $dispatchAreaPublicId && '' !== $dispatchAreaPublicId) {
+            $actions[] = new CatalogAction(
+                label: $this->translator->trans('catalog.action.view_dispatch_area', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_explore_dispatch_area_show', [
+                    'publicId' => $dispatchAreaPublicId,
+                ]),
+                icon: 'tabler:map-pin',
+            );
+        }
+
+        if ($canViewBenchmarking) {
+            $actions[] = new CatalogAction(
+                label: $this->translator->trans('catalog.action.open_benchmarking', [], 'allocation'),
+                url: $this->urlGenerator->generate('app_stats_benchmarking', [
+                    StatisticsQueryKeys::SCOPE => StatisticsFilterScope::Hospital->value,
+                    StatisticsQueryKeys::HOSPITAL => $id,
+                    StatisticsQueryKeys::PERIOD => StatisticsFilterPeriod::All->value,
+                    StatisticsQueryKeys::COMPARISON_SCOPE => StatisticsFilterScope::HospitalCohort->value,
+                    StatisticsQueryKeys::COMPARISON_PERIOD => StatisticsFilterPeriod::AllTime->value,
+                ]),
+                icon: 'tabler:scale',
+            );
+        }
+
+        return $actions;
     }
 
     /**
@@ -200,6 +263,17 @@ final readonly class CatalogActionFactory
             ]),
             icon: 'tabler:list',
             primary: true,
+        );
+    }
+
+    private function viewImportsAction(int $hospitalId): CatalogAction
+    {
+        return new CatalogAction(
+            label: $this->translator->trans('catalog.action.view_imports', [], 'allocation'),
+            url: $this->urlGenerator->generate('app_import_index', [
+                'hospitalId' => $hospitalId,
+            ]),
+            icon: 'tabler:file-import',
         );
     }
 

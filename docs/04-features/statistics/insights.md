@@ -95,19 +95,18 @@ The compare dialog edits **side B only**. Side A stays the current Insight page 
 2. Implement a provider (usually extend `AbstractEntityInsightDimension`) with labels, icon, `navPlacement` / `navOrder`, optional `disabledInsightIds()`, and search/list queries.
 3. Extend the route `requirements` for `{dimension}` (or use `InsightDimensionKey::routeRequirement()`).
 4. Add `stats.insights.dimension.{slug}.label|description|all` translations (hyphens in the slug become underscores in the key).
-5. Wire catalog/top-list/allocation show links through `CatalogActionFactory`, `TopListCatalogCrossReference`, and `InsightEntityUrlResolver` when the dimension has a catalog entity.
+5. Wire catalog/top-list links through `CatalogActionFactory` and `TopListCatalogCrossReference` when the dimension has a catalog entity.
 6. Cover directory + detail with a functional test; add an integration assertion if the projection column is new.
 
 Do not invent grouping models. Nested groups are only appropriate when membership already exists in the domain (as with indication groups).
 
 ## Cross-links
 
-- Catalog actions: “Open insight” (`tabler:chart-bar`) for every Insight dimension
+- Catalog actions: “Open insight” (`tabler:chart-bar`) for every Insight dimension. Allocation case files link only to Explorer entity details; Insights stay on catalog detail pages.
 - Insights directories and the overview featured table: final icon-only Explore action (`tabler:book-2`, Details)
 - Top Lists: Insight link in the final actions column (`tabler:chart-bar`, `insightRowTargets`); row labels stay Explore show links
 - Top List header: Overview (`tabler:compass`) returns to the Explore catalog list
 - Overview indication mix / Benchmark indication mix / Transport Time Profile: canonical show URLs
-- Allocation show: compact Insight icon next to indication, speciality, department, assignment, occasion, infection, and secondary transport
 
 Analysis Explorer deep-links stay backlog except where a concrete catalog entity already exists; see [analysis-explorer-library-standards.md](analysis-explorer-library-standards.md).
 

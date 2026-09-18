@@ -91,8 +91,6 @@ final class ListAllocationsController extends AbstractController
             'isWorkAccident',
             'isInfectious',
             'infection',
-            'createdFrom',
-            'createdToExclusive',
         ];
 
         foreach ($filterFields as $field) {
@@ -100,6 +98,10 @@ final class ListAllocationsController extends AbstractController
             if (null !== $value && '' !== $value) {
                 ++$activeFilterCount;
             }
+        }
+
+        if ($queryParametersDTO->hasCreatedAtRange()) {
+            ++$activeFilterCount;
         }
 
         if ('' !== $queryParametersDTO->resolvedHospitalFilter()) {

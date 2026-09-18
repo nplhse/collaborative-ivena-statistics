@@ -753,6 +753,18 @@
         <source>catalog.action.view_allocations</source>
         <target>Einsätze anzeigen</target>
       </trans-unit>
+      <trans-unit id="CatActImpDe" resname="catalog.action.view_imports">
+        <source>catalog.action.view_imports</source>
+        <target>Importe anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatActDaOneDe" resname="catalog.action.view_dispatch_area">
+        <source>catalog.action.view_dispatch_area</source>
+        <target>Leitstelle anzeigen</target>
+      </trans-unit>
+      <trans-unit id="CatActBenchDe" resname="catalog.action.open_benchmarking">
+        <source>catalog.action.open_benchmarking</source>
+        <target>Benchmarking öffnen</target>
+      </trans-unit>
       <trans-unit id="CatActTlDe" resname="catalog.action.view_top_list">
         <source>catalog.action.view_top_list</source>
         <target>Top-Liste öffnen</target>

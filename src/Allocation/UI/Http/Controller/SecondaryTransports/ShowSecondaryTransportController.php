@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\SecondaryTransports;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
@@ -19,6 +20,7 @@ final class ShowSecondaryTransportController extends AbstractController
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
     ) {
     }
 
@@ -42,6 +44,7 @@ final class ShowSecondaryTransportController extends AbstractController
             'secondaryTransport' => $secondaryTransport,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forSecondaryTransport($id),
+            'yearExploreUrls' => $this->yearUrlFactory->forYears(['secondaryTransport' => $id], $coverage->years),
         ]);
     }
 }

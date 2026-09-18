@@ -74,11 +74,33 @@
             {{ include('@Allocation/catalog/_coverage.html.twig', {
                 coverage: coverage,
                 coverageLayout: 'hospital',
+                yearExploreUrls: yearExploreUrls|default({}),
             }) }}
             {{ include('@Allocation/catalog/_orientation_map.html.twig', {orientationMap: orientationMap}) }}
         </div>
         <div class="col-lg-4">
             <div class="row row-cards">
+                {% if actions is defined and actions is not empty %}
+                    <div class="col-12">
+                        <div class="card" data-testid="catalog-actions">
+                            <div class="card-body">
+                                <div class="card-title">{{ 'catalog.section.actions'|trans({}, 'allocation') }}</div>
+                                <div class="btn-list flex-column">
+                                    {% for action in actions %}
+                                        <a
+                                            href="{{ action.url }}"
+                                            class="btn{{ action.primary ? ' btn-primary' : '' }}"
+                                            data-testid="catalog-action"
+                                        >
+                                            <twig:ux:icon name="{{ action.icon }}" class="me-2" width="1em" height="1em" />
+                                            {{ action.label }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">

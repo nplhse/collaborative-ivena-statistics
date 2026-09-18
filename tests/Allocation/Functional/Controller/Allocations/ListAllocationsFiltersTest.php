@@ -202,6 +202,37 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         self::assertSelectorTextContains('.alert.alert-info', 'Test Occasion');
     }
 
+    public function testCreatedAtDateFilterShowsInclusiveRangeAndFiltersList(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+
+        $matchingAllocation = AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('2025-06-15 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2025-06-15 10:20:00'),
+        ]);
+        AllocationFactory::createOne([
+            'createdAt' => new \DateTimeImmutable('2024-06-15 10:00:00'),
+            'arrivalAt' => new \DateTimeImmutable('2024-06-15 10:20:00'),
+        ]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?createdFrom=2025-01-01&createdUntil=2025-12-31&limit=50',
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="allocation-filter-created-from"]');
+        self::assertSelectorExists('[data-testid="allocation-filter-created-until"]');
+        self::assertSame('2025-01-01', $crawler->filter('[data-testid="allocation-filter-created-from"]')->attr('value'));
+        self::assertSame('2025-12-31', $crawler->filter('[data-testid="allocation-filter-created-until"]')->attr('value'));
+        self::assertSelectorTextContains('.alert.alert-info', '01.01.2025');
+        self::assertSelectorTextContains('.alert.alert-info', '31.12.2025');
+        self::assertSelectorTextNotContains('.alert.alert-info', 'T00:00:00');
+        self::assertSelectorNotExists('[data-testid="allocation-filter-created-at-range"]');
+        self::assertSame([$matchingAllocation->getPublicIdString()], $this->extractAllocationIds($crawler));
+    }
+
     public function testDepartmentWasClosedAllocationShowsRowHighlightAndIndicator(): void
     {
         $client = $this->createClientAsParticipant();

@@ -99,8 +99,17 @@
                                     <div class="text-muted mb-1">{{ 'catalog.relation.hospitals'|trans({}, 'allocation') }}</div>
                                     <ul class="list-unstyled mb-0">
                                         {% for hospital in dispatchArea.hospitals|sort((a, b) => a.name <=> b.name) %}
-                                            <li class="mb-1">
+                                            <li class="mb-1 d-flex align-items-center justify-content-between gap-2">
                                                 {{ explore_entity_link(hospital) }}
+                                                {% if hospital.id in importHospitalIds|default([]) %}
+                                                    <a
+                                                        href="{{ path('app_import_index', {hospitalId: hospital.id}) }}"
+                                                        class="small link-secondary text-nowrap"
+                                                        data-testid="catalog-hospital-imports-link"
+                                                    >
+                                                        {{ 'catalog.action.view_imports'|trans({}, 'allocation') }}
+                                                    </a>
+                                                {% endif %}
                                             </li>
                                         {% endfor %}
                                     </ul>

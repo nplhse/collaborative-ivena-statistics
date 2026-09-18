@@ -25,6 +25,18 @@ Query parameter: `hospitalFilter`
 
 Legacy URLs with `hospitalScope=my_hospitals` and optional `hospital={id}` remain supported.
 
+## Created-at date filter
+
+The filter drawer offers inclusive calendar dates (`createdFrom`, `createdUntil` as `Y-m-d`) on `created_at`. Times are not part of the public filter: from is start of day, until is the last included calendar day (SQL stays half-open via `createdToExclusive` = until + 1 day). Either bound may be omitted. Legacy query values `createdToExclusive` and `Y-m-d\TH:i:s` timestamps still parse so older bookmarks keep working.
+
+## Catalog year drill-down
+
+Explorer catalog detail pages (occasions, indications, hospitals, dispatch areas, …) show yearly allocation counts as a heatmap. Cells with a visible count link to this list with the catalog entity filter **and** the same created-at date filter for that calendar year:
+
+`createdFrom={year}-01-01` and `createdUntil={year}-12-31`
+
+The linked list is the same unscoped collaborative population as the catalog coverage cell (no extra user Scope). Hospital year cells additionally set `hospitalFilter={id}` and are only linked when the viewer has `HospitalPermission::View`. Indication groups have coverage years but no allocation-list filter, so those cells stay unlinked.
+
 ## Optional relation filters
 
 Some Explore filters distinguish **no filter**, a **concrete value**, and an explicit **absence** (and sometimes **any present value**). Empty select = no filter; this is not the same as “none”.
@@ -51,5 +63,6 @@ Labels: `label.all_allocations` (empty infection option), `label.all_secondary_i
 | Filter reference cache | `src/Allocation/Application/Explore/ExploreFilterOptionsProvider.php` (see [explore-filter-reference-cache.md](explore-filter-reference-cache.md)) |
 | Scope resolution | `src/Allocation/Application/Allocations/AllocationListHospitalScopeResolver.php` |
 | Filter criteria | `src/Allocation/Application/Allocations/AllocationListFilterCriteriaFactory.php` |
+| Created-at range | `src/Allocation/Application/Allocations/AllocationCreatedAtRangeParser.php` |
 | SQL filter | `src/Allocation/Application/Export/AllocationListFilterApplicator.php` |
 | UI | `src/Allocation/UI/Twig/templates/allocations/_allocation_filter_drawer.html.twig` |

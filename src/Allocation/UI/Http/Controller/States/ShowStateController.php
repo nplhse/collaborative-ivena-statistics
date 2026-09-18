@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\States;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Application\Explore\Catalog\CatalogOrientationMapFactory;
 use App\Allocation\Domain\Entity\State;
@@ -20,6 +21,7 @@ final class ShowStateController extends AbstractController
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
         private readonly CatalogOrientationMapFactory $orientationMapFactory,
     ) {
     }
@@ -46,6 +48,7 @@ final class ShowStateController extends AbstractController
             'state' => $state,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forState($id),
+            'yearExploreUrls' => $this->yearUrlFactory->forYears(['state' => $id], $coverage->years),
             'orientationMap' => $this->orientationMapFactory->forState($name),
         ]);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\UI\Http\Controller\Infections;
 
 use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
+use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
@@ -19,6 +20,7 @@ final class ShowInfectionController extends AbstractController
     public function __construct(
         private readonly CatalogCoverageQuery $coverageQuery,
         private readonly CatalogActionFactory $actionFactory,
+        private readonly CatalogAllocationYearUrlFactory $yearUrlFactory,
     ) {
     }
 
@@ -43,6 +45,7 @@ final class ShowInfectionController extends AbstractController
             'infection' => $infection,
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forInfection($id),
+            'yearExploreUrls' => $this->yearUrlFactory->forYears(['infection' => $id], $coverage->years),
         ]);
     }
 }

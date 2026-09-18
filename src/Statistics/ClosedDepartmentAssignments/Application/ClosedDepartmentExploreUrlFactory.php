@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final readonly class ClosedDepartmentExploreUrlFactory
 {
-    public const string DATE_QUERY_FORMAT = 'Y-m-d\TH:i:s';
+    public const string DATE_QUERY_FORMAT = 'Y-m-d';
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
@@ -72,7 +72,7 @@ final readonly class ClosedDepartmentExploreUrlFactory
             $params['createdFrom'] = $period->from->format(self::DATE_QUERY_FORMAT);
         }
         if ($period->toExclusive instanceof \DateTimeImmutable) {
-            $params['createdToExclusive'] = $period->toExclusive->format(self::DATE_QUERY_FORMAT);
+            $params['createdUntil'] = $period->toExclusive->modify('-1 day')->format(self::DATE_QUERY_FORMAT);
         }
 
         return $params;
