@@ -25,6 +25,14 @@ Query parameter: `hospitalFilter`
 
 Legacy URLs with `hospitalScope=my_hospitals` and optional `hospital={id}` remain supported.
 
+## Catalog year drill-down
+
+Explorer catalog detail pages (occasions, indications, hospitals, dispatch areas, …) show yearly allocation counts as a heatmap. Cells with a visible count link to this list with the catalog entity filter **and** a calendar-year period:
+
+`createdFrom={year}-01-01T00:00:00` and `createdToExclusive={year+1}-01-01T00:00:00`
+
+The linked list is the same unscoped collaborative population as the catalog coverage cell (no extra user Scope). Hospital year cells additionally set `hospitalFilter={id}` and are only linked when the viewer has `HospitalPermission::View`. Indication groups have coverage years but no allocation-list filter, so those cells stay unlinked.
+
 ## Optional relation filters
 
 Some Explore filters distinguish **no filter**, a **concrete value**, and an explicit **absence** (and sometimes **any present value**). Empty select = no filter; this is not the same as “none”.

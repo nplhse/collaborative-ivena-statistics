@@ -22,7 +22,7 @@ We needed a shared product and technical model for a scientific **data catalog**
    - **Reference catalog detail** — normalized indications, groups, departments, specialities, assignments, occasions, infections, secondary transports, states, dispatch areas
    - **Glossary / definition pages** — enum-like classifications (urgency, transport type, hospital profile enums, clinical indicator groups)
    - **Special case files** — Allocation and MCI Case keep their existing show pages; they are not forced into the reference catalog layout
-   - **Deferred enrichment** — Hospital (and optionally Allocation) catalog modules are revisited after the reference catalog is stable; do not rewrite those pages prematurely
+   - **Deferred enrichment** — Hospital catalog modules (coverage, actions, year drill-downs) now follow the same cross-reference hierarchy as other catalog details; Allocation case files stay a special layout
    - **No separate “Landkreis” object** — `DispatchArea` is the geographic catalog object; UI labels that say “Landkreis” refer to the same concept
 
 5. **Coverage metrics and privacy.** Catalog KPIs aggregate from `allocation_stats_projection` for the collaborative Explore scope ([ADR 011](011-collaborative-explore-allocation-visibility.md)). Apply small-cell suppression when allocation counts fall below `CatalogPrivacyPolicy::MIN_ALLOCATIONS` (currently 5).
@@ -43,7 +43,7 @@ We needed a shared product and technical model for a scientific **data catalog**
 
 **Negative / follow-ups:**
 
-- Allocation and Hospital shows remain intentionally uneven until a later enrichment pass
+- Allocation and Hospital shows remain intentionally uneven: Hospitals gained catalog actions and year drill-downs; Allocation case files stay a dense case layout without Insights shortcuts
 - Public-ID backfill must complete before detail pages resolve for older rows
 - Geo orientation maps stay regional (e.g. Hessen pilot) until licence and coverage are clear nationwide
 - Indication review (`IndicationRaw`) stays a workflow, not a public catalog entry
