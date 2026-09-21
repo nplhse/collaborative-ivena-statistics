@@ -45,11 +45,11 @@
      headerClass="py-2 d-flex flex-column align-items-stretch gap-2"
      {{ ...geoUrlAttributes }}
      data-controller="geo-map"
-     data-geo-map-payload-value="{{ payload|json_encode|e('html_attr') }}"
-     data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics')|e('html_attr') }}"
-     data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics')|e('html_attr') }}"
-     data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics')|e('html_attr') }}"
-     data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-payload-value="{{ payload|json_encode }}"
+     data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics') }}"
+     data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics') }}"
+     data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics') }}"
+     data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics') }}"
      data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"
      data-testid="{{ testId }}"
 >
