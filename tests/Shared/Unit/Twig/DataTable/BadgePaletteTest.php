@@ -44,4 +44,15 @@ final class BadgePaletteTest extends TestCase
         self::assertSame('Emergency Care', $view->label);
         self::assertSame('bg-red text-red-fg', $view->cssClass);
     }
+
+    public function testStringableAndUnknownValuesNormalizeToLabel(): void
+    {
+        $urban = new BadgePalette()->resolve('hospital_location', new DataTableBadgePaletteStringable('Urban'));
+        self::assertSame('Urban', $urban->label);
+        self::assertSame('bg-indigo text-indigo-fg', $urban->cssClass);
+
+        $empty = new BadgePalette()->resolve('hospital_location', false);
+        self::assertSame('', $empty->label);
+        self::assertSame('bg-secondary text-secondary-fg', $empty->cssClass);
+    }
 }

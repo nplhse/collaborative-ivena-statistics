@@ -44,6 +44,30 @@ final class DataTableColumnTest extends TestCase
         self::assertSame('name', $column->property);
     }
 
+    public function testNonEnumTypeAndNonArrayOptionsAreIgnored(): void
+    {
+        $column = DataTableColumn::fromArray([
+            'key' => 'name',
+            'type' => 12,
+            'options' => 'invalid',
+            'fallback' => 'createdAt',
+        ]);
+
+        self::assertSame(DataTableColumnType::Text, $column->type);
+        self::assertSame('createdAt', $column->fallbackProperty);
+        self::assertNull($column->option('route'));
+    }
+
+    public function testTypedColumnInstanceIsKept(): void
+    {
+        $column = DataTableColumn::fromArray([
+            'key' => 'hospital',
+            'type' => DataTableColumnType::Link,
+        ]);
+
+        self::assertSame(DataTableColumnType::Link, $column->type);
+    }
+
     public function testFromMixedReturnsExistingColumn(): void
     {
         $column = new DataTableColumn('name', 'Name');
