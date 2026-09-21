@@ -3,8 +3,11 @@
 {# @var selectedSegment \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegment|null #}
 {# @var segmentProfileDimension \App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileDimension #}
 
-<div class="card" data-testid="stats-case-flow-segment-profile">
-    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
+<twig:Card
+    headerClass="d-flex flex-wrap justify-content-between align-items-center gap-2 py-2"
+    data-testid="stats-case-flow-segment-profile"
+>
+    <twig:block name="header">
         <h3 class="card-title mb-0">{{ 'stats.case_flow.segment.title'|trans({}, 'statistics') }}</h3>
         <form method="get"
               action="{{ path('app_stats_case_flow') }}"
@@ -56,8 +59,7 @@
                 {% endif %}
             </select>
         </form>
-    </div>
-    <div class="card-body">
+    </twig:block>
         <turbo-frame id="stats-case-flow-segment-profile-frame"
                      src="{{ path('app_stats_case_flow_segment_profile', app.request.query.all) }}"
                      loading="lazy"
@@ -65,5 +67,4 @@
             {{ include('@Statistics/case_flow/_segment_profile_tabs.html.twig') }}
             {{ include('@Statistics/case_flow/_segment_profile_placeholder.html.twig') }}
         </turbo-frame>
-    </div>
-</div>
+</twig:Card>

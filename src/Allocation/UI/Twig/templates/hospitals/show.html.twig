@@ -83,8 +83,7 @@
             <div class="row row-cards">
                 {% if actions is defined and actions is not empty %}
                     <div class="col-12">
-                        <div class="card" data-testid="catalog-actions">
-                            <div class="card-body">
+                        <twig:Card data-testid="catalog-actions">
                                 <div class="card-title">{{ 'catalog.section.actions'|trans({}, 'allocation') }}</div>
                                 <div class="btn-list flex-column">
                                     {% for action in actions %}
@@ -98,13 +97,12 @@
                                         </a>
                                     {% endfor %}
                                 </div>
-                            </div>
-                        </div>
+                        </twig:Card>
                     </div>
                 {% endif %}
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
+                    <twig:Card>
+                            {% import '@Shared/_macros/users.html.twig' as users %}
                             <div class="card-title">
                                 {{ 'label.basic_info'|trans({}, 'messages') }}
                             </div>
@@ -139,12 +137,10 @@
                                     {{ 'label.is_participating'|trans({}, 'messages') }} <strong>{{ 'label.is_participating.not'|trans({}, 'messages') }}</strong>
                                 </div>
                             {% endif %}
-                        </div>
-                    </div>
+                    </twig:Card>
                 </div>
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
+                    <twig:Card>
                             <div class="card-title">
                                 {{ 'label.address'|trans({}, 'messages') }}
                             </div>
@@ -155,12 +151,11 @@
                                     {{ hospital.address.state }}, {{ hospital.address.country }}
                                 </em>
                             </div>
-                        </div>
-                    </div>
+                    </twig:Card>
                 </div>
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
+                    <twig:Card>
+                            {% import '@Shared/_macros/badges.html.twig' as badges %}
                             <div class="card-title">
                                 {{ 'label.properties'|trans({}, 'messages') }}
                             </div>
@@ -195,8 +190,7 @@
                                     <span class="text-muted">-</span>
                                 {% endif %}
                             </div>
-                        </div>
-                    </div>
+                    </twig:Card>
                 </div>
             </div>
         </div>

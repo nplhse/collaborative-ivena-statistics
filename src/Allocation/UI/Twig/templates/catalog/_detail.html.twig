@@ -24,8 +24,7 @@
 
     <div class="col-lg-4">
         {% if actions is not empty %}
-            <div class="card mb-3" data-testid="catalog-actions">
-                <div class="card-body">
+            <twig:Card class="mb-3" data-testid="catalog-actions">
                     <div class="card-title">{{ 'catalog.section.actions'|trans({}, 'allocation') }}</div>
                     <div class="btn-list flex-column">
                         {% for action in actions %}
@@ -39,8 +38,7 @@
                             </a>
                         {% endfor %}
                     </div>
-                </div>
-            </div>
+            </twig:Card>
         {% endif %}
 
         {% block catalog_sidebar_extra %}{% endblock %}

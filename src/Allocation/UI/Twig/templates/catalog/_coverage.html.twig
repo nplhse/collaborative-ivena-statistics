@@ -1,6 +1,5 @@
 {% if coverage %}
-    <div class="card mb-3" data-testid="catalog-coverage">
-        <div class="card-body">
+    <twig:Card class="mb-3" data-testid="catalog-coverage">
             <div class="card-title">{{ 'catalog.section.coverage'|trans({}, 'allocation') }}</div>
 
             {% if coverage.suppressed %}
@@ -114,6 +113,5 @@
                     </div>
                 {% endif %}
             {% endif %}
-        </div>
-    </div>
+    </twig:Card>
 {% endif %}

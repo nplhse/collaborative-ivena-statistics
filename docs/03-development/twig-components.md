@@ -2,7 +2,7 @@
 
 Shared UI primitives live in `src/Shared/UI/Twig/Components/` with templates under `src/Shared/UI/Twig/templates/components/`.
 
-Use these instead of copying Tabler page-header, modal, badge, alert, filter-badge, filter-offcanvas, or table markup. Card is a separate overhaul (#573) and is not composed by DataTable.
+Use these instead of copying Tabler page-header, card, modal, badge, alert, filter-badge, filter-offcanvas, or table markup. DataTable renders its own card chrome and does not compose `Card`.
 
 | Need | Use |
 |------|-----|
@@ -164,6 +164,83 @@ Slots: `breadcrumbs`, `meta`, `context`, `actions`. The breadcrumbs/meta row is 
 </twig:PageHeader>
 ```
 
+## Card
+
+Canonical content section. Markup follows Tabler’s card: optional `.card-status-top`, a header with `.card-title` and `.card-actions`, an optional second header for a toolbar, `.card-body`, and an optional `.card-footer`.
+
+Use for detail sections, forms, analysis cards, linked metric tiles, flush lists, and chart or map sections. Do **not** copy `.card` markup for those. Cards that have not moved yet — DataTable, split settings and edit shells, placeholders, KPI decks, and the orientation map — stay as they are until a page is rewritten.
+
+`DataTable` does not wrap this component. Pagination belongs to `DataTable`, not to `Card`. The footer slot is generic content (a hint, an action, metadata). It does not render page numbers or a result count.
+
+### API
+
+| Property | Default | Notes |
+|----------|---------|--------|
+| `title` | `null` | Optional `h3.card-title.mb-0`. The header is omitted when `title`, the `actions` slot, and the `header` slot are all empty. |
+| `size` | `null` | `sm`, `md`, `lg` (`card-sm`, `card-md`, `card-lg`). Unknown values add no size class. |
+| `padding` | `default` | `none` adds `p-0` on the body, for flush tables or nested cards. Unknown values stay padded. Ignored when `body` is false. |
+| `status` | `null` | `primary`, `success`, `info`, `warning`, `danger`, `secondary`. Renders `card-status-top bg-{status}`. Unknown values render no stripe. |
+| `class` | `null` | Extra classes on the root |
+| `headerClass` | `null` | Extra classes on `.card-header`, for example `py-2` |
+| `bodyClass` | `null` | Extra classes on `.card-body`, for example `pt-2` |
+| `footerClass` | `null` | Extra classes on `.card-footer`, for example `mt-auto` |
+| `href` | `null` | Renders an `<a class="card card-link">`. Blank values stay a `div`. Do not put further links or buttons inside a linked card. |
+| `body` | `true` | `false` skips `.card-body` and prints the content directly, for a `list-group-flush` or a frame that owns the body |
+
+Slots: `content` (default body), `header` (replaces the generated title row; slot markup is the direct content of `.card-header`), `actions` (`.card-actions` in the generated header), `toolbar` (second `.card-header` between the title row and the body), `footer` (`.card-footer`). Empty slots are omitted. A filled `header` slot ignores `title` and `actions`. Extra HTML attributes (`class`, `data-testid`) merge onto the root element.
+
+Login and other auth forms keep their heading inside the body. A card header would change that centered layout.
+
+Nested cards need no extra API: put an inner `Card` in the body. Use `padding="none"` when the inner content should sit flush.
+
+### KPI composition
+
+There is no separate KPI component. A status stripe plus the body slot is enough:
+
+```twig
+<twig:Card status="primary">
+    <div class="subheader">{{ 'stats.case_flow.kpi.total_cases'|trans({}, 'statistics') }}</div>
+    <div class="h1 mb-0">1.240</div>
+    <div class="text-secondary">in the selected period</div>
+</twig:Card>
+```
+
+Build new analysis KPI and status tiles this way instead of copying `.card` / `.subheader` markup.
+
+```twig
+<twig:Card title="Imports" status="warning" data-testid="import-run">
+    <twig:block name="actions">
+        <a class="btn btn-sm" href="{{ path('app_import_new') }}">New</a>
+    </twig:block>
+    <twig:block name="toolbar">
+        <div class="btn-list">…</div>
+    </twig:block>
+    …content…
+    <twig:block name="footer">
+        <span class="text-secondary">As of today</span>
+    </twig:block>
+</twig:Card>
+```
+
+A statistics header that is only a title uses `headerClass`. A title that is itself a link goes in the `header` slot. A linked tile sets `href`. A flush list sets `body` to false:
+
+```twig
+<twig:Card title="Gender" headerClass="py-2" data-testid="stats-indication-gender">
+    …
+</twig:Card>
+
+<twig:Card :href="path('app_explore_allocation_list')" class="h-100 text-reset text-decoration-none">
+    …
+</twig:Card>
+
+<twig:Card title="Recent posts" :body="false">
+    <twig:block name="actions">
+        <a class="btn btn-sm" href="{{ path('app_blog_index') }}">Blog</a>
+    </twig:block>
+    <div class="list-group list-group-flush">…</div>
+</twig:Card>
+```
+
 ## Modal and ConfirmModal
 
 `Modal` is Tabler’s dialog shell: `modal modal-blur fade`, a centered dialog, and a header with a close button (`action.cancel`). The default slot is the content after the header, so a Live Component can still render its own body and footer.
@@ -258,7 +335,7 @@ Left: page-size 25/50/100, then the result range (`#result-count`) to its right.
 
 List pages also show the same range in the PageHeader `context` slot (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 
-`pagination.results` / `pagination.navbar` / `pagination.sortArrow` keep their signatures for Card, Insights, and Top Lists.
+`pagination.results` / `pagination.navbar` / `pagination.sortArrow` keep their signatures for Insights and Top Lists. `Card` does not paginate.
 
 ## EmptyState
 

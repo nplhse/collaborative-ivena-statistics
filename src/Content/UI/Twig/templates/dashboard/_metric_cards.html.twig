@@ -2,33 +2,27 @@
     {% for metric in metrics.items %}
         {% set canLink = is_granted('ROLE_PARTICIPANT') and metric.routeName %}
         <div class="col-12 col-md-6 col-lg-3">
-            {% if canLink %}
-                <a href="{{ path(metric.routeName, metric.routeParams) }}" class="card card-link h-100 text-reset text-decoration-none" data-testid="dashboard-metric-{{ metric.key }}">
-            {% else %}
-                <div class="card" data-testid="dashboard-metric-{{ metric.key }}">
-            {% endif %}
-                <div class="card-body">
-                    <div class="d-flex align-items-start gap-2">
-                        <span class="avatar avatar-sm bg-primary-lt text-primary flex-shrink-0">
-                            {{ ux_icon(metric.icon, {style: 'height: 1.25em;'}) }}
-                        </span>
-                        <div class="min-w-0">
-                            <div class="subheader">{{ metric.labelTranslationKey|trans({}, 'content') }}</div>
-                            <div class="h1 mb-1">{{ metric.value|number_format(0, ',', '.') }}</div>
-                            {% if metric.deltaLast30Days > 0 %}
-                                <div class="text-secondary small d-flex align-items-center gap-1">
-                                    <twig:ux:icon name="tabler:plus" class="flex-shrink-0" style="height: 1em;" />
-                                    <span>{{ metric.deltaLast30Days|number_format(0, ',', '.') }} {{ 'dashboard.metrics.last_30_days'|trans({}, 'content') }}</span>
-                                </div>
-                            {% endif %}
-                        </div>
+            <twig:Card
+                :href="canLink ? path(metric.routeName, metric.routeParams) : null"
+                :class="canLink ? 'h-100 text-reset text-decoration-none' : null"
+                data-testid="dashboard-metric-{{ metric.key }}"
+            >
+                <div class="d-flex align-items-start gap-2">
+                    <span class="avatar avatar-sm bg-primary-lt text-primary flex-shrink-0">
+                        {{ ux_icon(metric.icon, {style: 'height: 1.25em;'}) }}
+                    </span>
+                    <div class="min-w-0">
+                        <div class="subheader">{{ metric.labelTranslationKey|trans({}, 'content') }}</div>
+                        <div class="h1 mb-1">{{ metric.value|number_format(0, ',', '.') }}</div>
+                        {% if metric.deltaLast30Days > 0 %}
+                            <div class="text-secondary small d-flex align-items-center gap-1">
+                                <twig:ux:icon name="tabler:plus" class="flex-shrink-0" style="height: 1em;" />
+                                <span>{{ metric.deltaLast30Days|number_format(0, ',', '.') }} {{ 'dashboard.metrics.last_30_days'|trans({}, 'content') }}</span>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-            {% if canLink %}
-                </a>
-            {% else %}
-                </div>
-            {% endif %}
+            </twig:Card>
         </div>
     {% endfor %}
 </div>

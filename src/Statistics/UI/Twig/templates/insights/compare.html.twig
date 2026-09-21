@@ -66,9 +66,12 @@
             <div class="col-lg-8 d-flex flex-column gap-3">
                 {{ include('@Statistics/insights/_compare_kpi_tiles.html.twig') }}
 
-                <div class="card" data-testid="stats-insights-compare-case-distribution">
-                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.benchmark.section.case_distribution'|trans({}, 'statistics') }}</h3>
+                <twig:Card
+                    title="{{ 'stats.benchmark.section.case_distribution'|trans({}, 'statistics') }}"
+                    headerClass="d-flex flex-wrap justify-content-between align-items-center gap-2 py-2"
+                    data-testid="stats-insights-compare-case-distribution"
+                >
+                    <twig:block name="actions">
                         <div class="btn-group btn-group-sm" role="group">
                             <button type="button"
                                     class="btn active"
@@ -85,80 +88,71 @@
                                 {{ 'stats.benchmark.heatmap.mode.shift'|trans({}, 'statistics') }}
                             </button>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-lg"
-                             data-benchmarking-charts-target="caseDistributionHeatmap"
-                             data-testid="stats-insights-compare-heatmap"></div>
-                    </div>
-                </div>
+                    </twig:block>
+                    <div class="chart-lg"
+                         data-benchmarking-charts-target="caseDistributionHeatmap"
+                         data-testid="stats-insights-compare-heatmap"></div>
+                </twig:Card>
 
-                <div class="card" data-testid="stats-insights-compare-age-groups">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-lg" data-benchmarking-charts-target="ageGroupsChart"></div>
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.section.age_groups'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-age-groups"
+                >
+                    <div class="chart-lg" data-benchmarking-charts-target="ageGroupsChart"></div>
+                </twig:Card>
 
-                <div class="card" data-testid="stats-insights-compare-transport-time">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-lg" data-benchmarking-charts-target="transportTimesChart"></div>
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.section.transport_time'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-transport-time"
+                >
+                    <div class="chart-lg" data-benchmarking-charts-target="transportTimesChart"></div>
+                </twig:Card>
             </div>
 
             <div class="col-lg-4 d-flex flex-column gap-3">
                 {{ include('@Statistics/insights/_compare_insights.html.twig') }}
 
-                <div class="card" data-testid="stats-insights-compare-gender">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.gender_title'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.genderDistribution}) }}
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.summary.gender_title'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-gender"
+                >
+                    {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.genderDistribution}) }}
+                </twig:Card>
 
-                <div class="card" data-testid="stats-insights-compare-urgency">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.summary.urgency_title'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.urgencyDistribution}) }}
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.summary.urgency_title'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-urgency"
+                >
+                    {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.urgencyDistribution}) }}
+                </twig:Card>
 
-                <div class="card" data-testid="stats-insights-compare-resources">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.resources'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.resourcesDistribution}) }}
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.section.resources'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-resources"
+                >
+                    {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.resourcesDistribution}) }}
+                </twig:Card>
 
-                <div class="card" data-testid="stats-insights-compare-clinical">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.clinical'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.clinicalFeaturesDistribution}) }}
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.section.clinical'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-clinical"
+                >
+                    {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.clinicalFeaturesDistribution}) }}
+                </twig:Card>
 
-                <div class="card" data-testid="stats-insights-compare-transport">
-                    <div class="card-header py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.indication.section.transport'|trans({}, 'statistics') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.transportTypeDistribution}) }}
-                    </div>
-                </div>
+                <twig:Card
+                    title="{{ 'stats.indication.section.transport'|trans({}, 'statistics') }}"
+                    headerClass="py-2"
+                    data-testid="stats-insights-compare-transport"
+                >
+                    {{ include('@Statistics/benchmarking/_distribution_compare.html.twig', {distribution: report.transportTypeDistribution}) }}
+                </twig:Card>
             </div>
         </div>
     </div>
