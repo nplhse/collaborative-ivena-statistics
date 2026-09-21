@@ -24,9 +24,9 @@
             }) }}
         </div>
         {% if missingSubjectB and subjectBId is empty %}
-            <div class="alert alert-danger" role="alert" data-testid="stats-insights-compare-missing-b">
+            <twig:Alert type="danger" data-testid="stats-insights-compare-missing-b">
                 {{ 'stats.insights.compare.error.missing_subject_b'|trans({}, 'statistics') }}
-            </div>
+            </twig:Alert>
         {% endif %}
         <input type="hidden"
                data-model="subjectBDimension"

@@ -95,9 +95,12 @@
                                         </div>
                                     </div>
 
-                                    <div data-import-status-target="error" class="alert alert-warning d-none mb-3" role="alert">
-                                        {{ 'import.processing.error'|trans({}, 'import') }}
-                                    </div>
+                                    <twig:Alert
+                                        type="warning"
+                                        class="d-none mb-3"
+                                        data-import-status-target="error"
+                                        :message="'import.processing.error'|trans({}, 'import')"
+                                    />
 
                                     <a
                                         data-import-status-target="detailLink"

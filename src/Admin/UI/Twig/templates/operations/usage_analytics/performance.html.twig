@@ -6,14 +6,13 @@
     {{ include('@Admin/operations/usage_analytics/_privacy_note.html.twig') }}
 
     {% if performance.performanceInsights is not empty %}
-        <div class="alert alert-info mb-3">
-            <strong>Prioritization hints</strong>
-            <ul class="mb-0 mt-2">
+        <twig:Alert type="info" class="mb-3" title="Prioritization hints">
+            <ul class="alert-list">
                 {% for insight in performance.performanceInsights %}
                     <li>{{ insight }}</li>
                 {% endfor %}
             </ul>
-        </div>
+        </twig:Alert>
     {% endif %}
 
     <div class="card mb-4">

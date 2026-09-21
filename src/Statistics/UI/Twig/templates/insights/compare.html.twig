@@ -51,15 +51,15 @@
         {{ include('@Statistics/insights/_compare_selection_card.html.twig') }}
 
         {% if hasOverlappingPopulations|default(false) %}
-            <div class="alert alert-info" data-testid="stats-insights-compare-overlap-notice">
+            <twig:Alert type="info" data-testid="stats-insights-compare-overlap-notice">
                 {{ 'stats.insights.compare.overlap_notice'|trans({}, 'statistics') }}
-            </div>
+            </twig:Alert>
         {% endif %}
 
         {% if report.hasInsufficientData %}
-            <div class="alert alert-warning" data-testid="stats-insights-compare-insufficient-data">
+            <twig:Alert type="warning" data-testid="stats-insights-compare-insufficient-data">
                 {{ 'stats.insights.compare.insufficient_data'|trans({}, 'statistics') }}
-            </div>
+            </twig:Alert>
         {% endif %}
 
         <div class="row g-3 align-items-start mt-1">
