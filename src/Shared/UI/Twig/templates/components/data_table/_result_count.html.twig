@@ -1,0 +1,16 @@
+{% if paginator.estimatedNumResults is defined %}
+    {% if paginator.estimatedNumResults %}
+        {{ 'label.pagination_numbers_estimated'|trans({
+            total: paginator.estimatedNumResults|number_format(0, ',', '.'),
+            pages: paginator.estimatedLastPage|number_format(0, ',', '.'),
+        }, 'messages') }}
+    {% else %}
+        {{ 'label.pagination_showing_results'|trans({}, 'messages') }}
+    {% endif %}
+{% else %}
+    {{ 'label.pagination_numbers'|trans({
+        first: paginator.firstResultNumber,
+        last: paginator.lastResultNumber,
+        total: paginator.numResults,
+    }, 'messages') }}
+{% endif %}
