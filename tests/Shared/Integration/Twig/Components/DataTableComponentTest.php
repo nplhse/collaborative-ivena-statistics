@@ -43,6 +43,31 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('Sorry, no results found.', $html);
         self::assertStringNotContainsString('card-footer', $html);
         self::assertStringNotContainsString('id="result-count"', $html);
+        self::assertStringNotContainsString('empty-action', $html);
+    }
+
+    public function testForwardsEmptyActionsIntoEmptyState(): void
+    {
+        $html = (string) $this->renderTwigComponent(
+            'DataTable',
+            [
+                'columns' => [
+                    ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+                ],
+                'rows' => [],
+                'emptyTitle' => 'No imports yet',
+                'emptyDescription' => 'Import your first dataset.',
+                'emptyIcon' => 'tabler:database-off',
+            ],
+            '',
+            ['empty_actions' => '<a class="btn btn-primary" href="/import/new">Import data</a>'],
+        );
+
+        self::assertStringContainsString('No imports yet', $html);
+        self::assertStringContainsString('Import your first dataset.', $html);
+        self::assertStringContainsString('empty-action', $html);
+        self::assertStringContainsString('Import data', $html);
+        self::assertStringContainsString('href="/import/new"', $html);
     }
 
     public function testEmptyTableKeepsHiddenResultCountForHeaderMirror(): void

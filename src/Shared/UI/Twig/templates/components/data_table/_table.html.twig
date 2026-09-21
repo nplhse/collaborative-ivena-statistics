@@ -38,7 +38,9 @@
                             title="{{ emptyTitle ?? 'label.search_no_results'|trans({}, 'messages') }}"
                             description="{{ emptyDescription ?? 'help.search_no_results'|trans({}, 'shared') }}"
                             icon="{{ emptyIcon ?? 'tabler:mood-sad' }}"
-                        />
+                        >
+                            <twig:block name="actions">{{ emptyActions|default('')|raw }}</twig:block>
+                        </twig:EmptyState>
                     </td>
                 </tr>
             {% endfor %}
