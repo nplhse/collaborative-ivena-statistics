@@ -39,7 +39,7 @@ Slots: `content` (default renders `message`) and `actions`. Extra HTML attribute
 </twig:Alert>
 ```
 
-Flash mapping lives in `@Shared/_includes/flash_messages.html.twig`. Controllers may flash `error`; the component maps that to `danger`.
+Flash mapping lives in `@Shared/_includes/flash_messages.html.twig`. Controllers may flash `error`; the component maps that to `danger`. Pass the body with `:message` — the default slot is rendered in the component context, so a parent variable named `message` is shadowed by the empty prop.
 
 ## ActiveFilters
 

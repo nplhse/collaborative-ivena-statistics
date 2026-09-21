@@ -3,11 +3,9 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="messages">
-                    {% for type, messages in app.flashes %}
-                        {% for message in messages %}
-                            <twig:Alert type="{{ type }}" :dismissible="true" :important="true">
-                                {{ message|trans }}
-                            </twig:Alert>
+                    {% for type, flashMessages in app.flashes %}
+                        {% for flashMessage in flashMessages %}
+                            <twig:Alert type="{{ type }}" :message="flashMessage|trans" :dismissible="true" :important="true" />
                         {% endfor %}
                     {% endfor %}
                 </div>
