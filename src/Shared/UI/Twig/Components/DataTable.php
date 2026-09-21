@@ -264,7 +264,7 @@ final class DataTable
         }
 
         $cursor = $request->query->get('cursor');
-        if (null === $cursor || '' === (string) $cursor) {
+        if (!\is_string($cursor) || '' === $cursor) {
             return null;
         }
 
@@ -352,9 +352,7 @@ final class DataTable
 
         $normalized = [];
         foreach ($this->columns as $column) {
-            if ($column instanceof DataTableColumn || \is_array($column)) {
-                $normalized[] = DataTableColumn::fromMixed($column);
-            }
+            $normalized[] = DataTableColumn::fromMixed($column);
         }
 
         return $normalized;

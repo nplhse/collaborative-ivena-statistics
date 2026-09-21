@@ -10,10 +10,11 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Uid\Uuid;
 
-final class DataTableValueResolver
+final readonly class DataTableValueResolver
 {
-    private readonly PropertyAccessorInterface $accessor;
+    private PropertyAccessorInterface $accessor;
 
+    /** @psalm-suppress PossiblyUnusedMethod Wired by Symfony DI and unit tests. */
     public function __construct(?PropertyAccessorInterface $accessor = null)
     {
         $this->accessor = $accessor ?? PropertyAccess::createPropertyAccessor();

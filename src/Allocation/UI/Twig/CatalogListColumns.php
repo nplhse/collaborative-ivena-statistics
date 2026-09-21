@@ -62,11 +62,13 @@ final class CatalogListColumns
      * @param list<array<string, mixed>> $extra
      *
      * @return list<DataTableColumn>
+     *
+     * @psalm-suppress PossiblyUnusedMethod Used by unit tests to assert hydrated columns.
      */
     public static function standardColumns(string $showRoute, array $extra = []): array
     {
         return array_map(
-            static fn (array $column): DataTableColumn => DataTableColumn::fromArray($column),
+            DataTableColumn::fromArray(...),
             self::standard($showRoute, $extra),
         );
     }

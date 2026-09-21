@@ -20,7 +20,7 @@ final class DataTableValueResolverTest extends TestCase
             'fallbackProperty' => 'createdAt',
         ]);
 
-        $value = (new DataTableValueResolver())->resolve($row, $column);
+        $value = new DataTableValueResolver()->resolve($row, $column);
 
         self::assertInstanceOf(\DateTimeImmutable::class, $value);
         self::assertSame('2024-01-02', $value->format('Y-m-d'));
@@ -56,7 +56,7 @@ final class DataTableValueResolverTest extends TestCase
             'fallbackProperty' => 'name',
         ]);
 
-        $value = (new DataTableValueResolver())->resolve(
+        $value = new DataTableValueResolver()->resolve(
             ['participating' => false, 'name' => 'fallback'],
             $column,
         );

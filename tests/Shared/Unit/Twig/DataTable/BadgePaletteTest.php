@@ -17,7 +17,7 @@ final class BadgePaletteTest extends TestCase
 {
     public function testResolvesNamedPaletteAndEnumValue(): void
     {
-        $view = (new BadgePalette())->resolve('hospital_location', DataTableBadgePaletteTestEnum::Urban);
+        $view = new BadgePalette()->resolve('hospital_location', DataTableBadgePaletteTestEnum::Urban);
 
         self::assertSame('Urban', $view->label);
         self::assertSame('bg-indigo text-indigo-fg', $view->cssClass);
@@ -26,7 +26,7 @@ final class BadgePaletteTest extends TestCase
 
     public function testUnknownValueFallsBackToSecondaryBadge(): void
     {
-        $view = (new BadgePalette())->resolve('hospital_location', 'Unknown');
+        $view = new BadgePalette()->resolve('hospital_location', 'Unknown');
 
         self::assertSame('Unknown', $view->label);
         self::assertSame('bg-secondary text-secondary-fg', $view->cssClass);
@@ -34,7 +34,7 @@ final class BadgePaletteTest extends TestCase
 
     public function testImportStatusUsesStatusPresentationAndAnimatedDot(): void
     {
-        $view = (new BadgePalette())->resolve('import_status', 'Running');
+        $view = new BadgePalette()->resolve('import_status', 'Running');
 
         self::assertSame(BadgePresentation::Status, $view->presentation);
         self::assertSame('status status-lime', $view->cssClass);
@@ -44,7 +44,7 @@ final class BadgePaletteTest extends TestCase
 
     public function testAllocationUrgencyAcceptsIntegerKeys(): void
     {
-        $view = (new BadgePalette())->resolve('allocation_urgency', 1);
+        $view = new BadgePalette()->resolve('allocation_urgency', 1);
 
         self::assertSame('Emergency Care', $view->label);
         self::assertSame('bg-red text-red-fg', $view->cssClass);

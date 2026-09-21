@@ -69,8 +69,7 @@ final class DataTableTest extends TestCase
 
     private function table(Request $request): DataTable
     {
-        $stack = new RequestStack();
-        $stack->push($request);
+        $stack = new RequestStack([$request]);
 
         return new DataTable($stack, new DataTableTestUrlGenerator(), new DataTableValueResolver(), new BadgePalette());
     }
