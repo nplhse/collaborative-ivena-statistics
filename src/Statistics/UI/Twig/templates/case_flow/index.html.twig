@@ -11,32 +11,25 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <div class="d-flex align-items-start justify-content-between gap-3">
+    <twig:PageHeader
+        :pretitle="'stats.case_flow.pretitle'|trans({}, 'statistics')"
+        :title="'stats.case_flow.title'|trans({}, 'statistics')"
+        pretitleTestId="stats-case-flow-heading-subtitle"
+        titleTestId="stats-case-flow-heading-title"
+    >
+        <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
                 { label: 'link.statistics', path: path('app_stats_dashboard') },
                 { label: 'stats.case_flow.title' }
             ]" />
-
-            <div class="flex-shrink-0 d-print-none mt-2">
-                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
-            </div>
-        </div>
-
-        <div class="page-header d-print-none">
-            <div class="row g-2 align-items-center">
-                <div class="col min-w-0">
-                    <div class="page-pretitle" data-testid="stats-case-flow-heading-subtitle">
-                        {{ 'stats.case_flow.pretitle'|trans({}, 'statistics') }}
-                    </div>
-                    <h2 class="page-title mb-0" data-testid="stats-case-flow-heading-title">
-                        {{ 'stats.case_flow.title'|trans({}, 'statistics') }}
-                    </h2>
-                </div>
-                {{ include('@Statistics/_header_controls.html.twig') }}
-            </div>
-        </div>
-    </div>
+        </twig:block>
+        <twig:block name="meta">
+            {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            {{ include('@Statistics/_header_actions.html.twig') }}
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}

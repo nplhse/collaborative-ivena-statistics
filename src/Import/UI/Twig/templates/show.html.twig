@@ -2,8 +2,6 @@
 
 {% block title %}{{ 'title.import.show'|trans({}, 'import') }}: {{ import.name ?? ('#' ~ import.id) }} - {{ parent() }}{% endblock %}
 
-{% import '@Shared/_macros/badges.html.twig' as badges %}
-
 {% block page_header %}
         <div class="container-xl">
             <twig:Breadcrumbs
@@ -35,14 +33,18 @@
                         </div>
                         <div class="list-inline-item">
                             <twig:ux:icon name="tabler:tag" class="w-3 h-3" />
-                            {% autoescape false %}
-                                {{ badges.render('import_type', import.type.value) }}
-                            {% endautoescape %}
+                            <twig:Badge variant="secondary">{{ import.type.value }}</twig:Badge>
                         </div>
                         <div class="list-inline-item">
-                            {% autoescape false %}
-                                {{ badges.render('import_status', import.status.value) }}
-                            {% endautoescape %}
+                            {% set importStatusVariant = {
+                                Completed: 'green',
+                                Partial: 'yellow',
+                                Failed: 'red',
+                                Cancelled: 'red',
+                                Running: 'blue',
+                                Pending: 'secondary',
+                            }[import.status.value]|default('secondary') %}
+                            <twig:Badge :variant="importStatusVariant">{{ import.status.value }}</twig:Badge>
                         </div>
                     </div>
                 </div>
@@ -290,26 +292,15 @@
     </div>
 
     {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) and import.status.value != 'Running' %}
-        <div class="modal modal-blur fade" id="import-delete-modal" tabindex="-1" aria-labelledby="import-delete-modal-label" aria-hidden="true">
-            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <form method="post" action="{{ path('app_import_delete', {id: import.id}) }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token('import_delete_' ~ import.id) }}">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="import-delete-modal-label">{{ 'import.delete.modal.title'|trans({}, 'import') }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="mb-0">{{ 'import.delete.modal.body'|trans(({'%name%': import.name ?? ('#' ~ import.id)}), 'import') }}</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
-                            <button type="submit" class="btn btn-danger">{{ 'import.delete.modal.confirm'|trans({}, 'import') }}</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <twig:ConfirmModal
+            id="import-delete-modal"
+            :title="'import.delete.modal.title'|trans({}, 'import')"
+            :message="'import.delete.modal.body'|trans({'%name%': import.name ?? ('#' ~ import.id)}, 'import')"
+            :action="path('app_import_delete', {id: import.id})"
+            :csrfToken="csrf_token('import_delete_' ~ import.id)"
+            :confirmLabel="'import.delete.modal.confirm'|trans({}, 'import')"
+            :cancelLabel="'action.cancel'|trans({}, 'messages')"
+        />
     {% endif %}
 
 {% endblock %}

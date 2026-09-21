@@ -1,0 +1,12 @@
+<twig:Modal :id="id" :title="title" :size="size" :scrollable="false">
+    <form method="post" action="{{ action }}">
+        <input type="hidden" name="_token" value="{{ csrfToken }}">
+        <div class="modal-body">
+            <p class="mb-0">{{ message }}</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ cancelLabel }}</button>
+            <button type="submit" class="btn btn-danger">{{ confirmLabel }}</button>
+        </div>
+    </form>
+</twig:Modal>
