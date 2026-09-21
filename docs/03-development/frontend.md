@@ -56,4 +56,5 @@ No separate `npm run build` — Asset Mapper serves files directly.
 ## Related
 
 - [translations.md](translations.md) — UI string domains
+- [twig-components.md](twig-components.md) — shared Alert and ActiveFilters
 - [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md)
