@@ -8,11 +8,6 @@ use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\BadgePresentation;
 use PHPUnit\Framework\TestCase;
 
-enum DataTableBadgePaletteTestEnum: string
-{
-    case Urban = 'Urban';
-}
-
 final class BadgePaletteTest extends TestCase
 {
     public function testResolvesNamedPaletteAndEnumValue(): void
