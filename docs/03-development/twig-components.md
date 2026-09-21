@@ -2,7 +2,7 @@
 
 Shared UI primitives live in `src/Shared/UI/Twig/Components/` with templates under `src/Shared/UI/Twig/templates/components/`.
 
-Use these instead of copying Tabler alert or filter-badge markup. Card and DataTable exist in the same folder but are separate overhauls and are not specified here.
+Use these instead of copying Tabler alert, filter-badge, or filter-offcanvas markup. Card and DataTable exist in the same folder but are separate overhauls and are not specified here.
 
 ## Alert
 
@@ -43,7 +43,7 @@ Flash mapping lives in `@Shared/_includes/flash_messages.html.twig`. Controllers
 
 ## ActiveFilters
 
-Reusable bar for **currently applied filters**. It composes `Alert` (`type="info"`) and is not a second notice primitive.
+Reusable bar for **currently applied filters**. It composes `Alert` (`type="info"`) and is not a second notice primitive. Selecting filters is `FilterDrawer` / `FilterDrawerTrigger`.
 
 Pass already translated `{label, value}` pairs. Domain mapping stays outside the component:
 
@@ -60,6 +60,43 @@ Do **not** put reset-filter CTAs here (empty-state work, #482). Do **not** reuse
 ```
 
 Empty `badges` renders nothing.
+
+## FilterDrawer and FilterDrawerTrigger
+
+Bootstrap Offcanvas for **selecting** filters. Not a Live Component: Apply is a GET form, so filter state stays on the URL. `FilterDrawerTrigger` is the header button (optional clear). `FilterDrawer` is the shell (sticky Apply / Cancel / Reset footer). Page-specific fields go in the default content block.
+
+Use for Explore lists, Import, Users, and Statistics. Do **not** add a second table or drawer implementation; DataTable work belongs to a separate issue. Reset is a consumer-provided URL, not a component default.
+
+Do **not** use for:
+
+- Showing currently applied filters — use `ActiveFilters`
+- Empty-state CTAs (#482) or status chips (#576)
+
+### Query keys on Apply
+
+Three groups:
+
+1. **Drawer fields** — named inputs in the content block (the selected filters).
+2. **`keepQueryKeys`** — whitelist of outer state copied as hidden inputs (typically `search`, `sortBy`, `orderBy`). Use this on list pages.
+3. **Always dropped** — `page`, `cursor`, `after`, `before`. Applying filters always returns to the first page.
+
+`preserveQuery` + `omitQueryKeys` is the Statistics shortcut: copy every remaining scalar query key except the drawer fields (and except the always-dropped pagination keys). Do not use `preserveQuery` on paginated lists.
+
+```twig
+<twig:FilterDrawerTrigger
+    drawerId="hospital-filters"
+    :activeCount="activeFilterCount"
+/>
+
+<twig:FilterDrawer
+    id="hospital-filters"
+    formId="hospital-filter-form"
+    formAction="{{ path('app_explore_hospital_list') }}"
+    :keepQueryKeys="['search', 'sortBy', 'orderBy']"
+>
+    {# page-specific selects #}
+</twig:FilterDrawer>
+```
 
 ## Related
 
