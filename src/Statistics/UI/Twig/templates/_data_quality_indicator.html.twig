@@ -24,7 +24,7 @@
             data-testid="stats-data-quality-indicator">
         <span class="text-nowrap">
             {{ 'stats.data_quality.indicator.label'|trans({}, 'statistics') }}:
-            <span class="badge {{ dataQualityReport.overallLevel.badgeClass }}">{{ dataQualityReport.overallLevel.labelKey|trans({}, 'statistics') }}</span>
+            <twig:Badge :variant="dataQualityReport.overallLevel.badgeVariant">{{ dataQualityReport.overallLevel.labelKey|trans({}, 'statistics') }}</twig:Badge>
         </span>
     </button>
 {% endif %}

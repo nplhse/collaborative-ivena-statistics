@@ -33,27 +33,27 @@
                 <div class="list-inline list-inline-dots text-muted">
                     {% if profile.isSelf %}
                         <div class="list-inline-item">
-                            <span class="badge bg-green-lt text-green-lt-fg" data-testid="user-badge-self">{{ 'label.user.self_profile'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="green" data-testid="user-badge-self">{{ 'label.user.self_profile'|trans({}, 'user') }}</twig:Badge>
                         </div>
                     {% endif %}
                     {% if profile.isAdmin %}
                         <div class="list-inline-item">
-                            <span class="badge bg-red-lt text-red-lt-fg" data-testid="user-badge-admin">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="red" data-testid="user-badge-admin">{{ 'label.user.badge.admin'|trans({}, 'user') }}</twig:Badge>
                         </div>
                     {% endif %}
                     {% if profile.isParticipant %}
                         <div class="list-inline-item">
-                            <span class="badge bg-azure-lt text-azure-lt-fg" data-testid="user-badge-participant">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="azure" data-testid="user-badge-participant">{{ 'label.user.badge.participant'|trans({}, 'user') }}</twig:Badge>
                         </div>
                     {% endif %}
                     {% if profile.isBoardMember %}
                         <div class="list-inline-item">
-                            <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="purple" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</twig:Badge>
                         </div>
                     {% endif %}
                     {% if profile.isUserOnly %}
                         <div class="list-inline-item">
-                            <span class="badge bg-secondary-lt text-secondary-lt-fg" data-testid="user-badge-user">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="secondary" data-testid="user-badge-user">{{ 'label.user.badge.user'|trans({}, 'user') }}</twig:Badge>
                         </div>
                     {% endif %}
                     {% for hospital in profile.hospitals %}
@@ -110,16 +110,16 @@
                     <div class="card-title">{{ 'label.user.profile'|trans({}, 'user') }}</div>
                     <div class="mb-2">
                         {% if profile.isParticipant %}
-                            <span class="badge bg-azure-lt text-azure-lt-fg">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="azure">{{ 'label.user.badge.participant'|trans({}, 'user') }}</twig:Badge>
                         {% endif %}
                         {% if profile.isBoardMember %}
-                            <span class="badge bg-purple-lt text-purple-lt-fg">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="purple">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</twig:Badge>
                         {% endif %}
                         {% if profile.isAdmin %}
-                            <span class="badge bg-red-lt text-red-lt-fg">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="red">{{ 'label.user.badge.admin'|trans({}, 'user') }}</twig:Badge>
                         {% endif %}
                         {% if profile.isUserOnly %}
-                            <span class="badge bg-secondary-lt text-secondary-lt-fg">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
+                            <twig:Badge variant="secondary">{{ 'label.user.badge.user'|trans({}, 'user') }}</twig:Badge>
                         {% endif %}
                     </div>
                     <div class="mb-2" data-testid="user-member-since">
@@ -155,13 +155,13 @@
                                     <div class="col min-w-0">
                                         <div class="d-flex justify-content-between align-items-start gap-2">
                                             <span class="fw-medium text-truncate">{{ hospital.name }}</span>
-                                            <span class="badge bg-secondary-lt text-nowrap">
+                                            <twig:Badge variant="secondary" class="text-nowrap">
                                                 {% if hospital.relation == 'owner' %}
                                                     {{ 'label.user.hospital.owner'|trans({}, 'user') }}
                                                 {% else %}
                                                     {{ 'label.user.hospital.access'|trans({}, 'user') }}
                                                 {% endif %}
-                                            </span>
+                                            </twig:Badge>
                                         </div>
                                         {% if hospital.dispatchAreaName or hospital.stateName %}
                                             <div class="text-secondary small text-truncate">

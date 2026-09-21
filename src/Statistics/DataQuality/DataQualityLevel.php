@@ -30,10 +30,15 @@ enum DataQualityLevel: string
 
     public function badgeClass(): string
     {
+        return 'bg-'.$this->badgeVariant().'-lt';
+    }
+
+    public function badgeVariant(): string
+    {
         return match ($this) {
-            self::Low => 'bg-red-lt',
-            self::Medium => 'bg-yellow-lt',
-            self::High => 'bg-green-lt',
+            self::Low => 'red',
+            self::Medium => 'yellow',
+            self::High => 'green',
         };
     }
 
