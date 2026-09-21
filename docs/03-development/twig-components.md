@@ -2,12 +2,14 @@
 
 Shared UI primitives live in `src/Shared/UI/Twig/Components/` with templates under `src/Shared/UI/Twig/templates/components/`.
 
-Use these instead of copying Tabler page-header, modal, badge, alert, filter-badge, or filter-offcanvas markup. Card and DataTable exist in the same folder but are separate overhauls and are not specified here.
+Use these instead of copying Tabler page-header, modal, badge, alert, filter-badge, filter-offcanvas, or table markup. Card is a separate overhaul (#573) and is not composed by DataTable.
 
 | Need | Use |
 |------|-----|
 | Page title, scope or period context, and primary actions | `PageHeader` |
 | A content section | `Card` |
+| A tabular list | `DataTable` |
+| An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |
 | Currently applied filters | `ActiveFilters` |
@@ -75,7 +77,7 @@ Empty `badges` renders nothing.
 
 Bootstrap Offcanvas for **selecting** filters. Not a Live Component: Apply is a GET form, so filter state stays on the URL. `FilterDrawerTrigger` is the header button (optional clear). `FilterDrawer` is the shell (sticky Apply / Cancel / Reset footer). Page-specific fields go in the default content block.
 
-Use for Explore lists, Import, Users, and Statistics. Do **not** add a second table or drawer implementation; DataTable work belongs to a separate issue. Reset is a consumer-provided URL, not a component default.
+Use for Explore lists, Import, Users, and Statistics. Reset is a consumer-provided URL, not a component default.
 
 Do **not** use for:
 
@@ -203,6 +205,51 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 <twig:Badge variant="green" data-testid="user-badge-self">
     {{ 'label.user.self_profile'|trans({}, 'user') }}
 </twig:Badge>
+```
+
+## DataTable
+
+Declarative table card for Explore/Import lists. It renders Tabler `.card` chrome itself and does **not** wrap `<twig:Card>`. Pass `columns` plus `rows` (or a `paginator`) and the component draws headers, cells, empty state, and the footer.
+
+Without `columns`, the `content` block is still the escape hatch (Admin Import-Rejects, Analysis Explorer). Pagination still uses the DataTable footer when a paginator has rows.
+
+Not a Live Component: sort, page size, and page links are GET URLs so list state stays shareable.
+
+### Column config
+
+`property + label + type + options`. Types: `text`, `number`, `datetime`, `link`, `user`, `badge`, `boolean`, `actions`, `custom` (`cellTemplate` with `row` / `column` / `context`).
+
+Available vs visible columns: each column has a stable `key` and `visible` (default true). Column picker UI is later.
+
+Badge palettes live in `BadgePalette` (hospital location/tier/size, allocation urgency, import type/status). The `badges.render` and `import_status` macros use the same source.
+
+```twig
+<twig:DataTable
+    :paginator="paginator"
+    :paginationRoute="pagination_route"
+    :sortBy="sortBy"
+    :orderBy="orderBy"
+    :columns="catalog_list_columns('app_explore_state_show')"
+/>
+```
+
+Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom cells for composed markup (indication blocks, user roles) stay as `type: custom`.
+
+### Footer
+
+Left: result range (`#result-count`) and page-size 25/50/100. Right: offset page numbers or cursor previous/next. Hidden when there are no rows. Offset vs cursor is detected from the paginator type.
+
+`pagination.results` / `pagination.navbar` / `pagination.sortArrow` keep their signatures for Card, Insights, and Top Lists.
+
+## EmptyState
+
+Minimal Tabler `.empty` block (`icon` + `title` + `description` + `actions` slot). DataTable uses it for empty result sets. Full first-use vs filtered vs permission CTAs remain #482.
+
+```twig
+<twig:EmptyState
+    title="{{ 'label.search_no_results'|trans }}"
+    description="{{ 'help.search_no_results'|trans({}, 'shared') }}"
+/>
 ```
 
 ## Related
