@@ -1,0 +1,41 @@
+<div{{ attributes.defaults({class: 'container-xl'}) }}>
+    {% set breadcrumbsHtml %}{% block breadcrumbs %}{% endblock %}{% endset %}
+    {% set metaHtml %}{% block meta %}{% endblock %}{% endset %}
+    {% if breadcrumbsHtml|trim is not empty or metaHtml|trim is not empty %}
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            {% if breadcrumbsHtml|trim is not empty %}
+                {{ breadcrumbsHtml|raw }}
+            {% endif %}
+            {% if metaHtml|trim is not empty %}
+                <div class="flex-shrink-0 d-print-none mt-2">
+                    {{ metaHtml|raw }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="{{ this.pageHeaderClass }}">
+        <div class="row g-2 align-items-center">
+            <div class="col min-w-0">
+                {% if pretitle %}
+                    <div class="page-pretitle"{% if pretitleTestId %} data-testid="{{ pretitleTestId }}"{% endif %}>{{ pretitle }}</div>
+                {% endif %}
+                {% if title %}
+                    <h2 class="page-title mb-0"{% if titleTestId %} data-testid="{{ titleTestId }}"{% endif %}>{{ title }}</h2>
+                {% endif %}
+                {% set contextHtml %}{% block context %}{% endblock %}{% endset %}
+                {% if contextHtml|trim is not empty %}
+                    {{ contextHtml|raw }}
+                {% endif %}
+            </div>
+            {% set actionsHtml %}{% block actions %}{% endblock %}{% endset %}
+            {% if actionsHtml|trim is not empty %}
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="{{ actionsClass }}"{% if actionsTestId %} data-testid="{{ actionsTestId }}"{% endif %}>
+                        {{ actionsHtml|raw }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

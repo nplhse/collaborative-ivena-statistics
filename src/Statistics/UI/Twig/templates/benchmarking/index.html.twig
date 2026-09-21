@@ -11,37 +11,31 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <div class="d-flex align-items-start justify-content-between gap-3">
+    <twig:PageHeader
+        :pretitle="'stats.benchmark.subtitle'|trans({}, 'statistics')"
+        :title="'stats.benchmark.title'|trans({}, 'statistics')"
+        titleTestId="stats-benchmark-heading"
+    >
+        <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="[
                 { label: 'link.statistics', path: path('app_stats_dashboard') },
                 { label: 'stats.benchmark.title' }
             ]" />
-
-            <div class="flex-shrink-0 d-print-none mt-2">
-                {{ include('@Statistics/_data_quality_indicator.html.twig') }}
-            </div>
-        </div>
-
-        <div class="page-header d-print-none">
-            <div class="row g-2 align-items-center">
-                <div class="col min-w-0">
-                    <div class="page-pretitle">{{ 'stats.benchmark.subtitle'|trans({}, 'statistics') }}</div>
-                    <h2 class="page-title mb-0" data-testid="stats-benchmark-heading">{{ 'stats.benchmark.title'|trans({}, 'statistics') }}</h2>
-                </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <button type="button"
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#stats-benchmark-selection-modal"
-                            data-testid="stats-benchmark-selection-edit-button">
-                        <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                        {{ 'stats.benchmark.selection.edit'|trans({}, 'statistics') }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+        </twig:block>
+        <twig:block name="meta">
+            {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <button type="button"
+                    class="btn btn-outline-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#stats-benchmark-selection-modal"
+                    data-testid="stats-benchmark-selection-edit-button">
+                <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
+                {{ 'stats.benchmark.selection.edit'|trans({}, 'statistics') }}
+            </button>
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
