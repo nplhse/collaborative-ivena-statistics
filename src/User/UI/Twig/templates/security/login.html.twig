@@ -13,12 +13,12 @@
                 {% set consentRequiredKey = 'flash.security.cookie_consent_required' %}
                 {% set isConsentError = error and error.messageKey == consentRequiredKey %}
                 {% if isConsentError or (not hasConsentDecision and showConsentHint) %}
-                    <div class="alert {{ isConsentError ? 'alert-danger' : 'alert-warning' }}" role="alert">
+                    <twig:Alert type="{{ isConsentError ? 'danger' : 'warning' }}">
                         {{ consentRequiredKey|trans({}, 'security') }}
                         <a class="alert-link" href="{{ path('app_cookie_preferences') }}">{{ 'cookie.banner.settings'|trans({}, 'shared') }}</a>
-                    </div>
+                    </twig:Alert>
                 {% elseif error %}
-                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    <twig:Alert type="danger" :message="error.messageKey|trans(error.messageData, 'security')" />
                 {% endif %}
 
                 {{ form_row(form.username) }}

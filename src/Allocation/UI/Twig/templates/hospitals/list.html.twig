@@ -149,10 +149,7 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            <div class="alert alert-info" role="alert">
-                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
-                {{ activeFilters.hospital_filter_badges(filters, states, dispatchAreas) }}
-            </div>
+            {{ activeFilters.hospital_filter_badges(filters, states, dispatchAreas) }}
         {% endif %}
 
         <twig:DataTable

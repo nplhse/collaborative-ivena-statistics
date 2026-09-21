@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Controller\Hospitals;
 
+use App\Allocation\Domain\Enum\HospitalLocation;
+use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
@@ -133,5 +136,37 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.badge.bg-blue-lt', 'Teilnahme: Nimmt teil');
         self::assertSelectorTextNotContains('.badge.bg-blue-lt', 'Yes');
+    }
+
+    public function testHospitalAttributeFilterBadgesAreTranslatedForGermanLocale(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'username' => 'hospital-attribute-filter-de',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'locale' => 'de',
+        ]);
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne([
+            'name' => 'Großstadt Klinik',
+            'tier' => HospitalTier::FULL,
+            'location' => HospitalLocation::URBAN,
+            'size' => HospitalSize::LARGE,
+        ]);
+
+        $client->loginUser($user);
+        $crawler = $client->request(Request::METHOD_GET, sprintf(
+            '/explore/hospital?tier=%s&location=%s&size=%s',
+            HospitalTier::FULL->value,
+            HospitalLocation::URBAN->value,
+            HospitalSize::LARGE->value,
+        ));
+
+        self::assertResponseIsSuccessful();
+        $filterAlert = $crawler->filter('.alert.alert-info')->text();
+        self::assertStringContainsString('Versorgungsstufe: Umfassende Versorgung', $filterAlert);
+        self::assertStringContainsString('Standort: Städtischer Standort', $filterAlert);
+        self::assertStringContainsString('Größe: Groß', $filterAlert);
     }
 }

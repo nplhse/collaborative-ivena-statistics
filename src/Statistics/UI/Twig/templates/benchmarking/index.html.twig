@@ -55,9 +55,9 @@
         {{ include('@Statistics/benchmarking/_selection_card.html.twig') }}
 
         {% if report.hasInsufficientData %}
-            <div class="alert alert-warning" data-testid="stats-benchmark-insufficient-data">
+            <twig:Alert type="warning" data-testid="stats-benchmark-insufficient-data">
                 {{ 'stats.benchmark.insufficient_data'|trans({}, 'statistics') }}
-            </div>
+            </twig:Alert>
         {% endif %}
 
         <div class="row g-3 align-items-start mt-1">

@@ -1,3 +1,22 @@
-<div class="alert alert-{{ type }}">
-    {{ message }}
+<div{{ attributes.defaults({class: this.cssClass, role: this.role}) }}>
+    {% if this.iconName %}
+        <div class="alert-icon">
+            <twig:ux:icon name="{{ this.iconName }}" class="icon alert-icon" />
+        </div>
+    {% endif %}
+    <div>
+        {% if title %}
+            <h4 class="alert-heading">{{ title }}</h4>
+        {% endif %}
+        {% block content %}
+            {{ message }}
+        {% endblock %}
+        {% set actionsHtml %}{% block actions %}{% endblock %}{% endset %}
+        {% if actionsHtml|trim is not empty %}
+            <div>{{ actionsHtml|raw }}</div>
+        {% endif %}
+    </div>
+    {% if dismissible %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
+    {% endif %}
 </div>

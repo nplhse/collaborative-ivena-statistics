@@ -4,9 +4,9 @@
             <div class="card-title">{{ 'catalog.section.coverage'|trans({}, 'allocation') }}</div>
 
             {% if coverage.suppressed %}
-                <div class="alert alert-warning mb-0" data-testid="catalog-coverage-suppressed">
+                <twig:Alert type="warning" class="mb-0" data-testid="catalog-coverage-suppressed">
                     {{ 'catalog.coverage.suppressed'|trans({threshold: constant('App\\Allocation\\Application\\Explore\\Catalog\\CatalogPrivacyPolicy::MIN_ALLOCATIONS')}, 'allocation') }}
-                </div>
+                </twig:Alert>
             {% elseif not coverage.hasData %}
                 <p class="text-muted mb-0" data-testid="catalog-coverage-empty">
                     {{ 'catalog.coverage.empty'|trans({}, 'allocation') }}
@@ -53,9 +53,9 @@
                 </div>
 
                 {% if not coverage.revealSensitiveMetrics %}
-                    <div class="alert alert-info mt-3 mb-0" data-testid="catalog-coverage-sensitive-hidden">
+                    <twig:Alert type="info" class="mt-3 mb-0" data-testid="catalog-coverage-sensitive-hidden">
                         {{ 'catalog.coverage.sensitive_hidden'|trans({}, 'allocation') }}
-                    </div>
+                    </twig:Alert>
                 {% endif %}
 
                 {% set yearHeatmap = coverage.yearHeatmap %}
