@@ -146,7 +146,7 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         $crawler = $client->request(
             Request::METHOD_GET,
             sprintf(
-                '/explore/allocation?department=%d&speciality=%d&transportType=G&limit=50',
+                '/explore/allocation?department=%d&speciality=%d&transportType=G&limit=50&sortBy=age&orderBy=asc&cursor=abc&page=2',
                 $department->getId(),
                 $speciality->getId(),
             )
@@ -161,6 +161,10 @@ final class ListAllocationsFiltersTest extends ListAllocationsControllerTestCase
         self::assertSelectorExists('[data-testid="allocation-filters-apply"]');
         self::assertSelectorExists('[data-testid="allocation-filters-reset"].btn');
         self::assertSelectorNotExists('[data-testid="allocation-filters-reset"].btn-outline-secondary');
+        self::assertSelectorExists('#allocation-filter-form input[type="hidden"][name="sortBy"][value="age"]');
+        self::assertSelectorExists('#allocation-filter-form input[type="hidden"][name="orderBy"][value="asc"]');
+        self::assertSelectorNotExists('#allocation-filter-form input[type="hidden"][name="cursor"]');
+        self::assertSelectorNotExists('#allocation-filter-form input[type="hidden"][name="page"]');
         $ids = $this->extractAllocationIds($crawler);
         self::assertSame([$matchingAllocation->getPublicIdString()], $ids);
     }

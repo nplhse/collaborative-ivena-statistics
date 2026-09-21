@@ -215,6 +215,30 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('[data-testid="user-directory-list"]', 'plain-user-only');
     }
 
+    public function testFilterDrawerRendersTriggerAndFooter(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $client->request(Request::METHOD_GET, '/explore/user', [
+            'search' => 'alpha',
+            'sortBy' => 'username',
+            'orderBy' => 'desc',
+            'page' => '2',
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="user-directory-filters-toggle"]');
+        self::assertSelectorExists('[data-testid="user-directory-filters"]');
+        self::assertSelectorExists('#user-filters .offcanvas-footer');
+        self::assertSelectorExists('[data-testid="user-directory-filters-cancel"]');
+        self::assertSelectorExists('[data-testid="user-directory-filters-apply"]');
+        self::assertSelectorExists('[data-testid="user-directory-filters-reset-drawer"]');
+        self::assertSelectorExists('[data-testid="user-directory-filter-form"] input[type="hidden"][name="search"][value="alpha"]');
+        self::assertSelectorExists('[data-testid="user-directory-filter-form"] input[type="hidden"][name="sortBy"][value="username"]');
+        self::assertSelectorExists('[data-testid="user-directory-filter-form"] input[type="hidden"][name="orderBy"][value="desc"]');
+        self::assertSelectorNotExists('[data-testid="user-directory-filter-form"] input[type="hidden"][name="page"]');
+    }
+
     public function testListFiltersByHospital(): void
     {
         $client = $this->createClientAsParticipant();

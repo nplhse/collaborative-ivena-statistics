@@ -114,6 +114,29 @@ final class ListImportControllerTest extends WebTestCase
         );
     }
 
+    public function testFilterDrawerRendersTriggerAndFooter(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedImportsWithFactory(1);
+
+        $this->requestAsUser(
+            $client,
+            $owner,
+            '/import?search=klinik&sortBy=name&orderBy=desc&page=2',
+        );
+
+        self::assertSelectorExists('[data-testid="import-filters-drawer-trigger"]');
+        self::assertSelectorExists('[data-testid="import-filters-drawer"]');
+        self::assertSelectorExists('#import-filters .offcanvas-footer');
+        self::assertSelectorExists('[data-testid="import-filters-cancel"]');
+        self::assertSelectorExists('[data-testid="import-filters-apply"]');
+        self::assertSelectorExists('[data-testid="import-filters-reset"]');
+        self::assertSelectorExists('#import-filter-form input[type="hidden"][name="search"][value="klinik"]');
+        self::assertSelectorExists('#import-filter-form input[type="hidden"][name="sortBy"][value="name"]');
+        self::assertSelectorExists('#import-filter-form input[type="hidden"][name="orderBy"][value="desc"]');
+        self::assertSelectorNotExists('#import-filter-form input[type="hidden"][name="page"]');
+    }
+
     public function testActiveFilterBadgesShowHospitalName(): void
     {
         $client = self::createClient();

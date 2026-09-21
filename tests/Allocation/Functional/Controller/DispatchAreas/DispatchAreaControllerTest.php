@@ -93,4 +93,25 @@ final class DispatchAreaControllerTest extends WebTestCase
         self::assertCount(10, $rows, 'We should see 10 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 26-35 of 35 results.');
     }
+
+    public function testFilterDrawerRendersTriggerAndFooter(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+
+        $client->request(Request::METHOD_GET, '/explore/dispatch_area?search=nord&sortBy=name&orderBy=desc&page=2');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="area-filters-drawer-trigger"]');
+        self::assertSelectorExists('[data-testid="area-filters-drawer"]');
+        self::assertSelectorExists('#area-filters .offcanvas-footer');
+        self::assertSelectorExists('[data-testid="area-filters-cancel"]');
+        self::assertSelectorExists('[data-testid="area-filters-apply"]');
+        self::assertSelectorExists('[data-testid="area-filters-reset"]');
+        self::assertSelectorExists('#area-filter-form input[type="hidden"][name="search"][value="nord"]');
+        self::assertSelectorExists('#area-filter-form input[type="hidden"][name="sortBy"][value="name"]');
+        self::assertSelectorExists('#area-filter-form input[type="hidden"][name="orderBy"][value="desc"]');
+        self::assertSelectorNotExists('#area-filter-form input[type="hidden"][name="page"]');
+    }
 }
