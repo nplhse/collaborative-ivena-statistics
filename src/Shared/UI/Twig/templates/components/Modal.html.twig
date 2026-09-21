@@ -1,0 +1,20 @@
+<div{{ attributes.defaults({
+    class: 'modal modal-blur fade',
+    id: id,
+    tabindex: '-1',
+    'aria-labelledby': this.labelId,
+    'aria-hidden': 'true',
+}) }}>
+    <div class="{{ this.dialogClass }}" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ this.labelId }}">{{ title }}</h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
+            </div>
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
