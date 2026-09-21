@@ -145,7 +145,7 @@ final class ClosedDepartmentAssignmentsControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/closed-department-assignments?scope=public');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('[data-testid="stats-period-primary"]', 'Last 12 months');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', 'Last 12 months');
         $this->assertSelectorTextContains('[data-testid="stats-closed-department-kpis"]', '4');
     }
 

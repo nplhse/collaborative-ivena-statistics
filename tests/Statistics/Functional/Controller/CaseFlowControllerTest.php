@@ -161,7 +161,7 @@ final class CaseFlowControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $labels = $this->scopePrimaryMenuLabels($crawler);
-        self::assertContains('Public', $labels);
+        self::assertContains('All assignments', $labels);
         self::assertNotContains('My hospitals', $labels);
         self::assertNotContains('Hospitals', $labels);
     }
@@ -459,7 +459,7 @@ final class CaseFlowControllerTest extends WebTestCase
     private function scopePrimaryMenuLabels(Crawler $crawler): array
     {
         return $crawler
-            ->filter('.page-header .dropdown-menu .dropdown-item')
+            ->filter('[data-testid="stats-analysis-context-scope-group"] option')
             ->each(static fn (Crawler $node): string => trim($node->text()));
     }
 }

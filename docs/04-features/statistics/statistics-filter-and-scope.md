@@ -8,7 +8,7 @@ Most statistics pages share a common filter model resolved by `StatisticsFilterF
 
 | Scope | Meaning |
 |-------|---------|
-| `public` | Aggregated public view (anonymous or fallback) |
+| `public` | All assignments (unscoped aggregation; anonymous or fallback). UI label: *All assignments* / *Alle Zuweisungen*. |
 | `my_hospitals` | Hospitals the current user can access |
 | `hospital` | Allocations **to** a single hospital (`scope=hospital:ID` → `hospital_id = ID`) |
 | `hospital_cohort` | Cohort of hospitals |

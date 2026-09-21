@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller\Insights;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
+use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
@@ -17,6 +18,7 @@ final readonly class InsightsPageChromeFactory
         private StatisticsPageViewModelFactory $statisticsPageViewModelFactory,
         private OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private AnalysisContextViewModelFactory $analysisContextViewModelFactory,
     ) {
     }
 
@@ -60,6 +62,14 @@ final readonly class InsightsPageChromeFactory
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
+            'statsAnalysisContext' => $this->analysisContextViewModelFactory->create(
+                $request,
+                $routeName,
+                $user,
+                $filter,
+                $pageViewModel->headingScope,
+                $overviewPeriodViewModel->headingLabel,
+            ),
         ];
     }
 }

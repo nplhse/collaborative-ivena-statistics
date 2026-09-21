@@ -3119,7 +3119,7 @@
       </trans-unit>
       <trans-unit id="De45f6dc1e" resname="stats.filter.scope.cohort_too_small">
         <source>stats.filter.scope.cohort_too_small</source>
-        <target>Die gewählte Kohorte umfasst weniger als 2 teilnehmende Krankenhäuser. Es werden stattdessen öffentliche Statistiken angezeigt.</target>
+        <target>Die gewählte Kohorte umfasst weniger als 2 teilnehmende Krankenhäuser. Es werden stattdessen alle Zuweisungen angezeigt.</target>
       </trans-unit>
       <trans-unit id="De6ed671b9" resname="stats.filter.scope.dispatch_area">
         <source>stats.filter.scope.dispatch_area</source>
@@ -3127,7 +3127,7 @@
       </trans-unit>
       <trans-unit id="Deee12bbf0" resname="stats.filter.scope.dispatch_area_invalid">
         <source>stats.filter.scope.dispatch_area_invalid</source>
-        <target>Die gewählte Leitstelle hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen öffentliche Statistiken angezeigt.</target>
+        <target>Die gewählte Leitstelle hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen alle Zuweisungen angezeigt.</target>
       </trans-unit>
       <trans-unit id="De99b9a4a7" resname="stats.filter.scope.hospital_cohort">
         <source>stats.filter.scope.hospital_cohort</source>
@@ -3147,7 +3147,7 @@
       </trans-unit>
       <trans-unit id="Deca1dcd6a" resname="stats.filter.scope.public">
         <source>stats.filter.scope.public</source>
-        <target>Öffentlich</target>
+        <target>Alle Zuweisungen</target>
       </trans-unit>
       <trans-unit id="Dede92e72a" resname="stats.filter.scope.state">
         <source>stats.filter.scope.state</source>
@@ -3155,11 +3155,27 @@
       </trans-unit>
       <trans-unit id="De470b0b8a" resname="stats.filter.scope.state_invalid">
         <source>stats.filter.scope.state_invalid</source>
-        <target>Das gewählte Bundesland hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen öffentliche Statistiken angezeigt.</target>
+        <target>Das gewählte Bundesland hat nicht genügend Krankenhäuser in den Statistikdaten. Es werden stattdessen alle Zuweisungen angezeigt.</target>
       </trans-unit>
       <trans-unit id="Deb3d8bb5d" resname="stats.filter.scope_label">
         <source>stats.filter.scope_label</source>
         <target>Bereich</target>
+      </trans-unit>
+      <trans-unit id="DeAcTitle01" resname="stats.analysis_context.title">
+        <source>stats.analysis_context.title</source>
+        <target>Analysekontext</target>
+      </trans-unit>
+      <trans-unit id="DeAcApply01" resname="stats.analysis_context.apply">
+        <source>stats.analysis_context.apply</source>
+        <target>Anwenden</target>
+      </trans-unit>
+      <trans-unit id="DeAcReset01" resname="stats.analysis_context.reset">
+        <source>stats.analysis_context.reset</source>
+        <target>Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="DeAcQuarter01" resname="stats.analysis_context.quarter_option">
+        <source>stats.analysis_context.quarter_option</source>
+        <target>Q{quarter}</target>
       </trans-unit>
       <trans-unit id="Ded2900385" resname="stats.generic_analysis.apply">
         <source>stats.generic_analysis.apply</source>

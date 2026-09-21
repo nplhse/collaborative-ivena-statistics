@@ -1,0 +1,290 @@
+{% import _self as fields %}
+
+{% set modalId = 'statistics-analysis-context-modal' %}
+{% set triggerId = 'statistics-analysis-context-trigger' %}
+{% set formId = 'statistics-analysis-context-form' %}
+{% set showYear = context.monthOnlyPeriod or context.appliedPeriod in ['year', 'quarter', 'month'] %}
+{% set showQuarter = not context.monthOnlyPeriod and context.appliedPeriod == 'quarter' %}
+{% set showMonth = context.monthOnlyPeriod or context.appliedPeriod == 'month' %}
+
+<div class="d-inline-flex"
+     data-controller="statistics-analysis-context"
+     data-statistics-analysis-context-applied-scope-value="{{ context.appliedScope }}"
+     data-statistics-analysis-context-applied-scope-group-value="{{ context.appliedScopeGroup }}"
+     data-statistics-analysis-context-applied-scope-detail-value="{{ context.appliedScopeDetail|default('') }}"
+     data-statistics-analysis-context-default-scope-group-value="{{ context.defaultScopeGroup }}"
+     data-statistics-analysis-context-default-period-value="{{ context.defaultPeriod }}"
+     data-statistics-analysis-context-default-year-value="{{ context.defaultYear }}"
+     data-statistics-analysis-context-default-quarter-value="{{ context.defaultQuarter }}"
+     data-statistics-analysis-context-default-month-value="{{ context.defaultMonth }}"
+     data-statistics-analysis-context-hide-period-value="{{ context.hidePeriod ? 'true' : 'false' }}"
+     data-statistics-analysis-context-month-only-value="{{ context.monthOnlyPeriod ? 'true' : 'false' }}">
+    <div class="btn-group analysis-context-triggers"
+         role="group"
+         aria-label="{{ 'stats.analysis_context.title'|trans({}, 'statistics') }}: {{ context.summary }}"
+         data-testid="stats-analysis-context-trigger">
+        <button type="button"
+                class="btn analysis-context-location d-inline-flex align-items-center"
+                id="{{ triggerId }}"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ modalId }}"
+                data-statistics-analysis-context-target="locationTrigger"
+                data-action="click->statistics-analysis-context#openAtLocation"
+                data-testid="stats-analysis-context-location"
+                aria-haspopup="dialog"
+                aria-controls="{{ modalId }}"
+                aria-expanded="false"
+                title="{{ context.locationLabel }}">
+            <twig:ux:icon name="tabler:map-pin" class="icon icon-sm flex-shrink-0" />
+            <span class="ms-2 text-truncate analysis-context-location-label">
+                {{ context.locationLabel }}
+            </span>
+        </button>
+        {% if not context.hidePeriod %}
+            <button type="button"
+                    class="btn analysis-context-period d-inline-flex align-items-center"
+                    id="{{ triggerId }}-period"
+                    data-bs-toggle="modal"
+                    data-bs-target="#{{ modalId }}"
+                    data-statistics-analysis-context-target="periodTrigger"
+                    data-action="click->statistics-analysis-context#openAtPeriod"
+                    data-testid="stats-analysis-context-period-summary"
+                    aria-haspopup="dialog"
+                    aria-controls="{{ modalId }}"
+                    aria-expanded="false"
+                    title="{{ context.headingPeriod }}">
+                <twig:ux:icon name="tabler:calendar" class="icon icon-sm flex-shrink-0" />
+                <span class="ms-2">
+                    {{ context.headingPeriod }}
+                </span>
+            </button>
+        {% endif %}
+    </div>
+
+    <div class="modal modal-blur fade"
+         id="{{ modalId }}"
+         tabindex="-1"
+         aria-labelledby="{{ modalId }}-label"
+         aria-hidden="true"
+         data-statistics-analysis-context-target="modal"
+         data-testid="stats-analysis-context-modal">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="{{ modalId }}-label">
+                        {{ 'stats.analysis_context.title'|trans({}, 'statistics') }}
+                    </h2>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
+                </div>
+
+                <form method="get"
+                      action="{{ context.formAction }}"
+                      id="{{ formId }}"
+                      data-statistics-analysis-context-target="form"
+                      data-action="submit->statistics-analysis-context#prepareSubmit"
+                      data-testid="stats-analysis-context-form">
+                    <div class="modal-body">
+                        {% for key, value in context.preservedQuery %}
+                            <input type="hidden"
+                                   name="{{ key }}"
+                                   value="{{ value }}"
+                                   data-statistics-analysis-context-target="preserved"
+                                   {% if key in ['geo_segment', 'geo_profile'] %}data-analysis-context-geo="1"{% endif %}>
+                        {% endfor %}
+
+                        <input type="hidden"
+                               name="scope"
+                               value="{{ context.appliedScope }}"
+                               data-statistics-analysis-context-target="scope">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="analysis-context-scope-group">
+                                {{ 'stats.filter.scope_label'|trans({}, 'statistics') }}
+                            </label>
+                            <select id="analysis-context-scope-group"
+                                    class="form-select"
+                                    data-statistics-analysis-context-target="scopeGroup"
+                                    data-action="change->statistics-analysis-context#onScopeGroupChange"
+                                    data-testid="stats-analysis-context-scope-group">
+                                {% for value, label in context.scopeGroupChoices %}
+                                    <option value="{{ value }}" {{ context.appliedScopeGroup == value ? 'selected' }}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {{ fields.detail_select(
+                            'state',
+                            'stats.filter.scope.state',
+                            'state',
+                            context.stateChoices,
+                            context.appliedScopeGroup == 'state' ? context.appliedScopeDetail : null,
+                            'stateGroup',
+                            'stateSelect',
+                            context.appliedScopeGroup == 'state',
+                        ) }}
+                        {{ fields.detail_select(
+                            'dispatch_area',
+                            'stats.filter.scope.dispatch_area',
+                            'dispatch_area',
+                            context.dispatchAreaChoices,
+                            context.appliedScopeGroup == 'dispatch_area' ? context.appliedScopeDetail : null,
+                            'dispatchGroup',
+                            'dispatchSelect',
+                            context.appliedScopeGroup == 'dispatch_area',
+                        ) }}
+                        {{ fields.detail_select(
+                            'cohort',
+                            'stats.filter.scope.hospital_cohort',
+                            'hospital_cohort',
+                            context.cohortChoices,
+                            context.appliedScopeGroup == 'hospital_cohort' ? context.appliedScopeDetail : null,
+                            'cohortGroup',
+                            'cohortSelect',
+                            context.appliedScopeGroup == 'hospital_cohort',
+                        ) }}
+                        {{ fields.detail_select(
+                            'hospital',
+                            'stats.filter.hospital_label',
+                            'my_hospitals',
+                            context.hospitalChoices,
+                            context.appliedScopeGroup == 'my_hospitals' ? context.appliedScopeDetail : '',
+                            'hospitalGroup',
+                            'hospitalSelect',
+                            context.appliedScopeGroup == 'my_hospitals',
+                        ) }}
+
+                        {% if not context.hidePeriod %}
+                            <hr class="my-3">
+
+                            {% if not context.monthOnlyPeriod %}
+                                <div class="mb-3">
+                                    <label class="form-label" for="analysis-context-period">
+                                        {{ 'stats.filter.period_label'|trans({}, 'statistics') }}
+                                    </label>
+                                    <select id="analysis-context-period"
+                                            name="period"
+                                            class="form-select"
+                                            data-statistics-analysis-context-target="periodSelect"
+                                            data-action="change->statistics-analysis-context#onPeriodChange"
+                                            data-testid="stats-analysis-context-period">
+                                        {% for value, label in context.periodChoices %}
+                                            <option value="{{ value }}" {{ context.appliedPeriod == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endif %}
+
+                            <div class="mb-3{{ showYear ? '' : ' d-none' }}"
+                                 {% if not showYear %}hidden{% endif %}
+                                 data-statistics-analysis-context-target="yearGroup"
+                                 data-testid="stats-analysis-context-year-group">
+                                <label class="form-label" for="analysis-context-year">
+                                    {{ 'stats.filter.period.year'|trans({}, 'statistics') }}
+                                </label>
+                                <select id="analysis-context-year"
+                                        name="year"
+                                        class="form-select"
+                                        {% if not showYear %}disabled{% endif %}
+                                        data-statistics-analysis-context-target="yearSelect"
+                                        data-testid="stats-analysis-context-year">
+                                    {% for value, label in context.yearChoices %}
+                                        <option value="{{ value }}" {{ context.appliedYear == value ? 'selected' }}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            {% if not context.monthOnlyPeriod %}
+                                <div class="mb-3{{ showQuarter ? '' : ' d-none' }}"
+                                     {% if not showQuarter %}hidden{% endif %}
+                                     data-statistics-analysis-context-target="quarterGroup"
+                                     data-testid="stats-analysis-context-quarter-group">
+                                    <label class="form-label" for="analysis-context-quarter">
+                                        {{ 'stats.filter.period.quarter'|trans({}, 'statistics') }}
+                                    </label>
+                                    <select id="analysis-context-quarter"
+                                            name="quarter"
+                                            class="form-select"
+                                            {% if not showQuarter %}disabled{% endif %}
+                                            data-statistics-analysis-context-target="quarterSelect"
+                                            data-testid="stats-analysis-context-quarter">
+                                        {% for value, label in context.quarterChoices %}
+                                            <option value="{{ value }}" {{ context.appliedQuarter == value ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% endif %}
+
+                            <div class="mb-3{{ showMonth ? '' : ' d-none' }}"
+                                 {% if not showMonth %}hidden{% endif %}
+                                 data-statistics-analysis-context-target="monthGroup"
+                                 data-testid="stats-analysis-context-month-group">
+                                <label class="form-label" for="analysis-context-month">
+                                    {{ 'stats.filter.period.month'|trans({}, 'statistics') }}
+                                </label>
+                                <select id="analysis-context-month"
+                                        name="month"
+                                        class="form-select"
+                                        {% if not showMonth %}disabled{% endif %}
+                                        data-statistics-analysis-context-target="monthSelect"
+                                        data-testid="stats-analysis-context-month">
+                                    {% for value, label in context.monthChoices %}
+                                        <option value="{{ value }}" {{ context.appliedMonth == value ? 'selected' }}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-between align-items-center">
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                data-action="statistics-analysis-context#resetToDefault"
+                                data-testid="stats-analysis-context-reset">
+                            {{ 'stats.analysis_context.reset'|trans({}, 'statistics') }}
+                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                    class="btn btn-link link-secondary"
+                                    data-bs-dismiss="modal"
+                                    data-testid="stats-analysis-context-cancel">
+                                {{ 'action.cancel'|trans({}, 'messages') }}
+                            </button>
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    data-testid="stats-analysis-context-apply">
+                                {{ 'stats.analysis_context.apply'|trans({}, 'statistics') }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% macro detail_select(name, labelKey, scopeGroup, choices, selected, groupTarget, selectTarget, visible) %}
+    {% if choices is not empty %}
+        <div class="mb-3{{ visible ? '' : ' d-none' }}"
+             {% if not visible %}hidden{% endif %}
+             data-statistics-analysis-context-target="{{ groupTarget }}"
+             data-scope-group="{{ scopeGroup }}"
+             data-testid="stats-analysis-context-{{ name }}-group">
+            <label class="form-label" for="analysis-context-{{ name }}">
+                {{ labelKey|trans({}, 'statistics') }}
+            </label>
+            <select id="analysis-context-{{ name }}"
+                    name="{{ name }}"
+                    class="form-select"
+                    {% if not visible %}disabled{% endif %}
+                    data-statistics-analysis-context-target="{{ selectTarget }}"
+                    data-testid="stats-analysis-context-{{ name }}">
+                {% for value, label in choices %}
+                    <option value="{{ value }}" {{ selected == value ? 'selected' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+{% endmacro %}

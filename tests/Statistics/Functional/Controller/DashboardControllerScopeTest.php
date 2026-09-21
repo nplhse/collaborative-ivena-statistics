@@ -20,6 +20,9 @@ final class DashboardControllerScopeTest extends DashboardControllerTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-filter-bar"]');
         $this->assertSelectorTextContains('[data-testid="stats-heading-title"]', 'Overview');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-scope-group"] option[value="public"][selected]');
+        $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
     }
 
     public function testHospitalCohortWithTooFewHospitalsRedirectsToPublic(): void

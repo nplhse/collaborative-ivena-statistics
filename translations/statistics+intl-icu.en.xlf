@@ -833,9 +833,25 @@
         <source>stats.filter.scope_label</source>
         <target>Scope</target>
       </trans-unit>
+      <trans-unit id="statsAcTitle" resname="stats.analysis_context.title">
+        <source>stats.analysis_context.title</source>
+        <target>Analysis context</target>
+      </trans-unit>
+      <trans-unit id="statsAcApply" resname="stats.analysis_context.apply">
+        <source>stats.analysis_context.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="statsAcReset" resname="stats.analysis_context.reset">
+        <source>stats.analysis_context.reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="statsAcQuarter" resname="stats.analysis_context.quarter_option">
+        <source>stats.analysis_context.quarter_option</source>
+        <target>Q{quarter}</target>
+      </trans-unit>
       <trans-unit id="statsFlt02" resname="stats.filter.scope.public">
         <source>stats.filter.scope.public</source>
-        <target>Public</target>
+        <target>All assignments</target>
       </trans-unit>
       <trans-unit id="statsFlt03" resname="stats.filter.scope.my_hospitals">
         <source>stats.filter.scope.my_hospitals</source>
@@ -875,11 +891,11 @@
       </trans-unit>
       <trans-unit id="statsFlt13b" resname="stats.filter.scope.state_invalid">
         <source>stats.filter.scope.state_invalid</source>
-        <target>The selected state does not have enough hospitals in the statistics data. Showing public statistics instead.</target>
+        <target>The selected state does not have enough hospitals in the statistics data. Showing all assignments instead.</target>
       </trans-unit>
       <trans-unit id="statsFlt13c" resname="stats.filter.scope.dispatch_area_invalid">
         <source>stats.filter.scope.dispatch_area_invalid</source>
-        <target>The selected dispatch area does not have enough hospitals in the statistics data. Showing public statistics instead.</target>
+        <target>The selected dispatch area does not have enough hospitals in the statistics data. Showing all assignments instead.</target>
       </trans-unit>
       <trans-unit id="statsCohortLabel" resname="stats.filter.cohort.label">
         <source>stats.filter.cohort.label</source>
@@ -955,7 +971,7 @@
       </trans-unit>
       <trans-unit id="statsFlt13" resname="stats.filter.scope.cohort_too_small">
         <source>stats.filter.scope.cohort_too_small</source>
-        <target>The selected cohort has fewer than 2 participating hospitals. Showing public statistics instead.</target>
+        <target>The selected cohort has fewer than 2 participating hospitals. Showing all assignments instead.</target>
       </trans-unit>
       <trans-unit id="statsAnPg01" resname="stats.analysis.page_title">
         <source>stats.analysis.page_title</source>

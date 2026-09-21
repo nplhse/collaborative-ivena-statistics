@@ -9,6 +9,7 @@ use App\Statistics\ClosedDepartmentAssignments\Application\ClosedDepartmentAssig
 use App\Statistics\ClosedDepartmentAssignments\Application\ClosedDepartmentAssignmentsService;
 use App\Statistics\ClosedDepartmentAssignments\Application\ClosedDepartmentNamedCard;
 use App\Statistics\ClosedDepartmentAssignments\Application\DTO\ClosedDepartmentNamedCardFrame;
+use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
@@ -33,6 +34,7 @@ final class ClosedDepartmentAssignmentsController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly ClosedDepartmentChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private readonly AnalysisContextViewModelFactory $analysisContextViewModelFactory,
     ) {
     }
 
@@ -89,6 +91,14 @@ final class ClosedDepartmentAssignmentsController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
+            'statsAnalysisContext' => $this->analysisContextViewModelFactory->create(
+                $request,
+                'app_stats_closed_department_assignments',
+                $user,
+                $filter,
+                $pageViewModel->headingScope,
+                $overviewPeriodViewModel->headingLabel,
+            ),
             'rankingsFrameUrl' => $this->navigationUrlBuilder->build(
                 $request,
                 'app_stats_closed_department_assignments_rankings',

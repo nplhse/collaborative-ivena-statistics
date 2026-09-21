@@ -28,14 +28,14 @@ final class TopListExportBuilderTest extends TestCase
                 new TopListRankedRow('2', 'Stroke', 8, 50.0, 2, 2),
             ], 16),
             null,
-            'Public',
+            'All assignments',
             'Last 12 months',
         ));
 
         $lines = $this->csvLines($csv);
         self::assertSame(['Scope', 'Period', 'Rank', 'Indication', 'Count', 'Share'], $lines[0]);
-        self::assertSame(['Public', 'Last 12 months', '1', 'STEMI', '8', '50'], $lines[1]);
-        self::assertSame(['Public', 'Last 12 months', '2', 'Stroke', '8', '50'], $lines[2]);
+        self::assertSame(['All assignments', 'Last 12 months', '1', 'STEMI', '8', '50'], $lines[1]);
+        self::assertSame(['All assignments', 'Last 12 months', '2', 'Stroke', '8', '50'], $lines[2]);
         self::assertCount(3, $lines);
     }
 
@@ -45,7 +45,7 @@ final class TopListExportBuilderTest extends TestCase
             $this->definition(),
             new TopListRanking([], 0),
             null,
-            'Public',
+            'All assignments',
             '2024',
         ));
 
@@ -72,9 +72,9 @@ final class TopListExportBuilderTest extends TestCase
             $this->definition(),
             $rankingA,
             $comparison,
-            'Public',
+            'All assignments',
             '2024',
-            'Public',
+            'All assignments',
             'Last 12 months',
         ));
 
@@ -138,9 +138,9 @@ final class TopListExportBuilderTest extends TestCase
             $this->definition(),
             new TopListRanking([], 0),
             $comparison,
-            'Public',
+            'All assignments',
             '2024',
-            'Public',
+            'All assignments',
             'Last 12 months',
         ));
 

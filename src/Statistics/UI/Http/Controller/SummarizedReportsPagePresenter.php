@@ -42,7 +42,7 @@ final readonly class SummarizedReportsPagePresenter
             $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 'app_stats_reports',
-                removeKeys: ['type', 'year', 'month'],
+                removeKeys: ['type'],
             ),
             $periodNavigation,
         );

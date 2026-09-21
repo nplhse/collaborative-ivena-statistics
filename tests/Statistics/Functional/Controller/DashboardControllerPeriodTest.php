@@ -67,8 +67,8 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-period-navigation"]');
-        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
-        $this->assertSelectorTextContains('[data-testid="stats-period-secondary"]', '2021');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', '2021');
         $this->assertSelectorTextContains('[data-testid="stats-period-nav-previous"] .page-item-title', '2020');
         $this->assertSelectorTextContains('[data-testid="stats-period-nav-next"] .page-item-title', '2022');
     }
@@ -82,23 +82,23 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-period-secondary"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-quarter"] option[value="2"][selected]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', 'Q2');
     }
 
     public function testOverviewYearModeSecondaryListsYearsOnly(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(
+        $client->request(
             Request::METHOD_GET,
             '/statistics/?scope=public&period=year&year=2021',
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-period-secondary"]');
-        $this->assertCount(
-            0,
-            $crawler->filter('[data-testid="stats-period-secondary"] + .dropdown-menu a[href*="period=month"]'),
-        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-year"] option[value="2021"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="year"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-year-group"]:not([hidden])');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-month-group"][hidden]');
     }
 
     public function testOverviewAllTimeHidesPeriodNavigation(): void
@@ -150,7 +150,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
         $this->assertResponseIsSuccessful();
         $this->assertGreaterThan(
             0,
-            $crawler->filter('[data-testid="stats-period-primary"] + .dropdown-menu a[href*="period=all"]')->count(),
+            $crawler->filter('[data-testid="stats-analysis-context-period"] option[value="all"]')->count(),
         );
     }
 
@@ -180,7 +180,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
 
         $this->assertResponseIsSuccessful();
         self::assertStringNotContainsString('period=all', $client->getRequest()->getUri());
-        $this->assertSelectorTextContains('[data-testid="stats-period-primary"]', 'All time');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', 'All time');
     }
 
     private function seedDefaultPeriodScenario(int $monthCount): void

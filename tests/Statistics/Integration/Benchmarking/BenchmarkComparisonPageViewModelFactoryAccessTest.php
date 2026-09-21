@@ -87,7 +87,7 @@ final class BenchmarkComparisonPageViewModelFactoryAccessTest extends KernelTest
         );
 
         self::assertTrue($model->showUnscopedHint);
-        self::assertSame('Public', $model->headingScope);
+        self::assertSame('All assignments', $model->headingScope);
     }
 
     public function testBuildsStateAndDispatchSecondaryMenusAfterMaterializedViewRefresh(): void

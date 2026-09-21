@@ -63,6 +63,10 @@ final class SummarizedReportsPagePresenterTest extends TestCase
         self::assertStringContainsString('year=2024', (string) $model->periodNavigation->previousUrl);
         self::assertStringContainsString('month=2', (string) $model->periodNavigation->previousUrl);
         self::assertStringContainsString('app_stats_reports_show', (string) $model->periodNavigation->previousUrl);
+        self::assertStringContainsString('scope=public', $model->indexUrl);
+        self::assertStringContainsString('year=2024', $model->indexUrl);
+        self::assertStringContainsString('month=3', $model->indexUrl);
+        self::assertStringNotContainsString('type=', $model->indexUrl);
         foreach ($model->periodNavigation->primaryMenu as $item) {
             self::assertArrayHasKey('url', $item);
             self::assertStringNotContainsString('period=all', (string) $item['url']);

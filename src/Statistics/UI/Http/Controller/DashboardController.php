@@ -44,6 +44,7 @@ final class DashboardController extends AbstractController
         private readonly OverviewPortalNavigationFactory $overviewPortalNavigationFactory,
         private readonly OverviewKpiPresentationFactory $overviewKpiPresentationFactory,
         private readonly StatisticsNavigationUrlBuilder $navigationUrlBuilder,
+        private readonly AnalysisContextViewModelFactory $analysisContextViewModelFactory,
     ) {
     }
 
@@ -145,6 +146,14 @@ final class DashboardController extends AbstractController
             'statisticsHeadingPeriod' => $overviewPeriodViewModel->headingLabel,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => true,
+            'statsAnalysisContext' => $this->analysisContextViewModelFactory->create(
+                $request,
+                'app_stats_dashboard',
+                $user,
+                $filter,
+                $pageViewModel->headingScope,
+                $overviewPeriodViewModel->headingLabel,
+            ),
             'statsExplorerSections' => $this->statisticsExplorerViewModelFactory->create($request, 'dashboard'),
         ]);
     }
