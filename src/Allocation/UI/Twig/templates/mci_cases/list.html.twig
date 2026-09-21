@@ -24,17 +24,75 @@
             {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
         </twig:block>
         <twig:block name="actions">
-            {% if importId is not null %}
-                <a class="btn" href="{{ path('app_explore_mci_case_list') }}">
-                    {{ 'label.filters.reset'|trans({}, 'messages') }}
-                </a>
-            {% endif %}
+            <twig:FilterDrawerTrigger
+                drawerId="mci-case-filters"
+                :activeCount="activeFilterCount"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_mci_case_list') : null }}"
+                openTestId="mci-case-filters-drawer-trigger"
+                clearTestId="mci-case-filters-clear"
+            />
+            <form
+                method="GET"
+                action="{{ path('app_explore_mci_case_list') }}"
+                data-controller="autosubmit"
+                data-turbo-frame="mci_case-list"
+            >
+                {% for key, value in app.request.query.all %}
+                    {% if key not in ['search', 'page', 'cursor'] and value is not iterable and value is not same as(null) and value != '' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                <div class="input-icon">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ filters.normalizedSearch }}"
+                        aria-label="{{ 'label.mci_case.search'|trans({}, 'allocation') }}"
+                        placeholder="{{ 'label.mci_case.search'|trans({}, 'allocation') }}"
+                        class="form-control d-inline-block w-9 me-3"
+                        data-action="autosubmit#debouncedSubmit"
+                    >
+                    <span class="input-icon-addon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="icon"
+                            width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor"
+                            fill="none"
+                            stroke-linecap="round" stroke-linejoin="round"
+                        >
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <circle cx="10" cy="10" r="7" />
+                            <line x1="21" y1="21" x2="15" y2="15" />
+                        </svg>
+                    </span>
+                </div>
+            </form>
         </twig:block>
     </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
     <turbo-frame id="mci_case-list" data-turbo-action="advance">
+        {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
+
+        {% if activeFilterCount > 0 %}
+            {{ activeFilters.mci_case_filter_badges(
+                filters,
+                states,
+                dispatchAreas,
+                hospitals,
+                indications,
+                infections,
+                departments,
+                specialities,
+                occasions,
+                transportTypes,
+                importName,
+                'mci-case-filters-active',
+            ) }}
+        {% endif %}
+
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
@@ -48,5 +106,7 @@
                 { key: 'actions', type: 'actions', label: '', width: 'col-1', route: 'app_explore_mci_case_show', routeParams: {publicId: 'publicId'} },
             ]"
         />
-</turbo-frame>
+    </turbo-frame>
+
+    {{ include('@Allocation/mci_cases/_filter_drawer.html.twig') }}
 {% endblock %}

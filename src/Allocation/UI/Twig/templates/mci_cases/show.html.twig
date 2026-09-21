@@ -199,7 +199,10 @@
 
                         <div id="mci-case-mci-title" class="mb-2">
                             <twig:ux:icon name="tabler:tag" class="w-3 h-3" />
-                            MCI-ID: <strong>{{ mciCase.mciId }}</strong>
+                            MCI-ID:
+                            <strong>
+                                <a href="{{ path('app_explore_mci_case_list', {mciId: mciCase.mciId}) }}">{{ mciCase.mciId }}</a>
+                            </strong>
                         </div>
 
                         <div id="mci-case-created-at" class="mb-2">

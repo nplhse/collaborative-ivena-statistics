@@ -56,6 +56,7 @@ Role-based reading orders live in each section's README:
 - [Analysis Explorer](04-features/statistics/analysis-explorer.md)
 - [Participant onboarding](04-features/onboarding/participant-onboarding.md)
 - [Explore allocation list](04-features/allocation/explore-allocation-list.md)
+- [Explore MCI cases](04-features/allocation/explore-mci-cases.md)
 - [Allocation orientation map](04-features/allocation/orientation-map.md)
 - [Sentry observability](05-operations/observability-sentry.md)
 - [Content Security Policy (report-only)](05-operations/content-security-policy.md)

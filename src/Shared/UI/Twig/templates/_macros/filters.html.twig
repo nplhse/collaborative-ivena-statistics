@@ -500,6 +500,197 @@
     {{ _self.render_active_filters(rawFilters, testId) }}
 {% endmacro %}
 
+{% macro mci_case_filter_badges(filters, states, dispatchAreas, hospitals, indications, infections, departments, specialities, occasions, transportTypes, importName, testId = null) %}
+    {% set rawFilters = [] %}
+
+    {% if filters.normalizedSearch is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.search',
+            value: filters.normalizedSearch,
+        }]) %}
+    {% endif %}
+
+    {% if filters.normalizedMciId is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.mci_id',
+            domain: 'allocation',
+            value: filters.normalizedMciId,
+        }]) %}
+    {% endif %}
+
+    {% if filters.importId is not null %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.import_id',
+            domain: 'allocation',
+            value: importName is not empty ? importName : filters.importId,
+        }]) %}
+    {% endif %}
+
+    {% if filters.hospital is not null %}
+        {% set hospitalName = null %}
+        {% for hospital in hospitals %}
+            {% if hospitalName is null and hospital.id == filters.hospital %}
+                {% set hospitalName = hospital.name %}
+            {% endif %}
+        {% endfor %}
+        {% if hospitalName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.hospital', value: hospitalName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.state is not null %}
+        {% set stateName = null %}
+        {% for state in states %}
+            {% if stateName is null and state.id == filters.state %}
+                {% set stateName = state.name %}
+            {% endif %}
+        {% endfor %}
+        {% if stateName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.state', value: stateName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.dispatchArea is not null %}
+        {% set areaName = null %}
+        {% for area in dispatchAreas %}
+            {% if areaName is null and area.id == filters.dispatchArea %}
+                {% set areaName = area.name %}
+            {% endif %}
+        {% endfor %}
+        {% if areaName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.dispatch_area', value: areaName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.hasArrivalAtRange %}
+        {% set arrivalRange = [] %}
+        {% if filters.arrivalFromDate is not empty %}
+            {% set arrivalRange = arrivalRange|merge([filters.arrivalFromDate|date('d.m.Y')]) %}
+        {% endif %}
+        {% if filters.arrivalUntilDate is not empty %}
+            {% set arrivalRange = arrivalRange|merge([filters.arrivalUntilDate|date('d.m.Y')]) %}
+        {% endif %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.arrival_at', value: arrivalRange|join(' – ')}]) %}
+    {% endif %}
+
+    {% if filters.urgency is not empty %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.urgency',
+            value: ('allocation.urgency.' ~ filters.urgency)|trans({}, 'allocation'),
+        }]) %}
+    {% endif %}
+
+    {% if filters.transportType is not empty and transportTypes is defined %}
+        {% set transportTypeLabel = null %}
+        {% for transportType in transportTypes %}
+            {% if transportTypeLabel is null and transportType.value == filters.transportType %}
+                {% set transportTypeLabel = transportType.label()|trans({}, 'messages') %}
+            {% endif %}
+        {% endfor %}
+        {% if transportTypeLabel is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'stats.analysis_explorer.dimension.transport_type', value: transportTypeLabel}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.speciality is not null %}
+        {% set specialityName = null %}
+        {% for speciality in specialities %}
+            {% if specialityName is null and speciality.id == filters.speciality %}
+                {% set specialityName = speciality.name %}
+            {% endif %}
+        {% endfor %}
+        {% if specialityName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.speciality', value: specialityName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.department is not null %}
+        {% set departmentName = null %}
+        {% for department in departments %}
+            {% if departmentName is null and department.id == filters.department %}
+                {% set departmentName = department.name %}
+            {% endif %}
+        {% endfor %}
+        {% if departmentName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.department', value: departmentName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.departmentWasClosed is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: _self.boolean_value(filters.departmentWasClosed)}]) %}
+    {% endif %}
+
+    {% if filters.indication is not null %}
+        {% set indicationName = null %}
+        {% for indication in indications %}
+            {% if indicationName is null and indication.code == filters.indication %}
+                {% set indicationName = indication.name %}
+            {% endif %}
+        {% endfor %}
+        {% if indicationName is not null %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.indication', value: indicationName}]) %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.occasion is not null and filters.occasion != '' %}
+        {% if filters.occasion == 'none' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.occasion', value: 'label.no_occasion'|trans({}, 'messages')}]) %}
+        {% else %}
+            {% set occasionName = null %}
+            {% for occasion in occasions %}
+                {% if occasionName is null and occasion.id == filters.occasion %}
+                    {% set occasionName = occasion.name %}
+                {% endif %}
+            {% endfor %}
+            {% if occasionName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.occasion', value: occasionName}]) %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% if filters.requiresResus is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requires_resus', value: _self.boolean_value(filters.requiresResus)}]) %}
+    {% endif %}
+    {% if filters.requiresCathlab is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requires_cathlab', value: _self.boolean_value(filters.requiresCathlab)}]) %}
+    {% endif %}
+    {% if filters.isVentilated is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_ventilated', value: _self.boolean_value(filters.isVentilated)}]) %}
+    {% endif %}
+    {% if filters.isShock is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_shock', value: _self.boolean_value(filters.isShock)}]) %}
+    {% endif %}
+    {% if filters.isCPR is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_cpr', value: _self.boolean_value(filters.isCPR)}]) %}
+    {% endif %}
+    {% if filters.isPregnant is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_pregnant', value: _self.boolean_value(filters.isPregnant)}]) %}
+    {% endif %}
+    {% if filters.isWithPhysician is not null %}
+        {% set rawFilters = rawFilters|merge([{key: 'field.isWithPhysician', value: _self.boolean_value(filters.isWithPhysician)}]) %}
+    {% endif %}
+
+    {% if filters.infection is not null and filters.infection != '' %}
+        {% if filters.infection == 'none' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: 'label.no_infection'|trans({}, 'messages')}]) %}
+        {% elseif filters.infection == 'any' %}
+            {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: 'label.any_infection'|trans({}, 'messages')}]) %}
+        {% else %}
+            {% set infectionName = null %}
+            {% for infection in infections %}
+                {% if infectionName is null and infection.id == filters.infection %}
+                    {% set infectionName = infection.name %}
+                {% endif %}
+            {% endfor %}
+            {% if infectionName is not null %}
+                {% set rawFilters = rawFilters|merge([{key: 'label.infection', value: infectionName}]) %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {{ _self.render_active_filters(rawFilters, testId) }}
+{% endmacro %}
+
 {% macro boolean_value(flag) %}
     {{- (flag ? 'label.yes' : 'label.no')|trans({}, 'messages') -}}
 {% endmacro %}

@@ -39,6 +39,9 @@ final class ShowMciCaseControllerTest extends WebTestCase
         self::assertSelectorTextContains('h1.fw-bold', 'Mass casualty incident alpha');
         self::assertSelectorTextContains('#mci-case-mci-title', $mciCase->getMciId() ?? '');
         self::assertSelectorTextContains('a.btn', 'Back to list');
+        $mciId = $mciCase->getMciId();
+        self::assertNotNull($mciId);
+        self::assertSelectorExists('#mci-case-mci-title a[href="/explore/mci_case?mciId='.rawurlencode($mciId).'"]');
 
         $hospital = $mciCase->getHospital();
         $dispatchArea = $mciCase->getDispatchArea();
