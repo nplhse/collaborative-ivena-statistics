@@ -48,6 +48,8 @@ final class ListHospitalsControllerTest extends WebTestCase
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(10, $rows, 'We should see 10 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 1-10 of 10 results.');
+        self::assertSelectorTextContains('#page-result-count', 'Showing 1-10 of 10 results.');
+        self::assertSelectorExists('#page-result-count[data-controller="result-count-mirror"]');
 
         $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
         self::assertNotEmpty($nameRowText);
@@ -99,6 +101,7 @@ final class ListHospitalsControllerTest extends WebTestCase
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(10, $rows, 'We should see 10 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 26-35 of 35 results.');
+        self::assertSelectorTextContains('#page-result-count', 'Showing 26-35 of 35 results.');
     }
 
     public function testParticipatingFilterBadgeUsesTranslatedValue(): void

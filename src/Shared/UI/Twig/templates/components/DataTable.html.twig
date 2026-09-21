@@ -35,6 +35,10 @@
 
         {% if this.shouldShowFooter %}
             {{ include('@Shared/components/data_table/_footer.html.twig') }}
+        {% elseif paginator is not null %}
+            <div id="result-count" class="visually-hidden" aria-hidden="true">
+                {{ include('@Shared/components/data_table/_result_count.html.twig') }}
+            </div>
         {% endif %}
     </div>
 </div>

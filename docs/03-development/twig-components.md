@@ -237,7 +237,9 @@ Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom c
 
 ### Footer
 
-Left: result range (`#result-count`) and page-size 25/50/100. Right: offset page numbers or cursor previous/next. Hidden when there are no rows. Offset vs cursor is detected from the paginator type.
+Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type.
+
+List pages also show the same range under the title (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 
 `pagination.results` / `pagination.navbar` / `pagination.sortArrow` keep their signatures for Card, Insights, and Top Lists.
 

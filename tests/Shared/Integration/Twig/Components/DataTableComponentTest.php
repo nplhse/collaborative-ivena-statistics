@@ -42,6 +42,24 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('empty-title', $html);
         self::assertStringContainsString('Sorry, no results found.', $html);
         self::assertStringNotContainsString('card-footer', $html);
+        self::assertStringNotContainsString('id="result-count"', $html);
+    }
+
+    public function testEmptyTableKeepsHiddenResultCountForHeaderMirror(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'paginator' => $this->offsetPaginator([], 0, 25),
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+            ],
+        ]);
+
+        self::assertStringContainsString('Sorry, no results found.', $html);
+        self::assertStringNotContainsString('card-footer', $html);
+        self::assertStringContainsString('id="result-count"', $html);
+        self::assertStringContainsString('visually-hidden', $html);
+        self::assertStringContainsString('aria-hidden="true"', $html);
+        self::assertStringContainsString('Showing 0-0 of 0 results.', $html);
     }
 
     public function testRendersBadgeCustomCellAndCursorFooter(): void
@@ -88,6 +106,50 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('id="result-count"', $html);
         self::assertStringContainsString('card-footer', $html);
         self::assertStringContainsString('Next', $html);
+        self::assertStringContainsString('Showing approx.', $html);
+    }
+
+    public function testCursorFooterWithoutEstimateShowsGenericCopy(): void
+    {
+        $requestStack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $requestStack);
+        $requestStack->push(Request::create('/explore/allocation', 'GET', [
+            '_route' => 'app_explore_allocation_list',
+        ]));
+
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'paginationRoute' => 'app_explore_allocation_list',
+            'paginator' => new CursorPaginator(
+                [['name' => 'Kiel']],
+                25,
+                'next',
+            ),
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+            ],
+        ]);
+
+        self::assertStringContainsString('Showing results.', $html);
+        self::assertStringNotContainsString('Showing approx.', $html);
+        self::assertStringContainsString('id="result-count"', $html);
+        self::assertStringContainsString('card-footer', $html);
+    }
+
+    public function testEmptyCursorTableKeepsHiddenResultCountForHeaderMirror(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'paginator' => new CursorPaginator([], 25, null),
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+            ],
+        ]);
+
+        self::assertStringContainsString('Sorry, no results found.', $html);
+        self::assertStringNotContainsString('card-footer', $html);
+        self::assertStringContainsString('id="result-count"', $html);
+        self::assertStringContainsString('visually-hidden', $html);
+        self::assertStringContainsString('aria-hidden="true"', $html);
+        self::assertStringContainsString('Showing results.', $html);
     }
 
     public function testRendersOffsetFooterWithRangeAndPageSize(): void
@@ -111,6 +173,12 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('25 records', $html);
         self::assertStringContainsString('limit=50', $html);
         self::assertStringContainsString('id="result-count"', $html);
+        $pageSizePos = strpos($html, '25 records');
+        $countPos = strpos($html, 'Showing 1-10 of 10 results.');
+        self::assertNotFalse($pageSizePos);
+        self::assertNotFalse($countPos);
+        self::assertLessThan($countPos, $pageSizePos);
+        self::assertStringContainsString('flex-wrap gap-3', $html);
     }
 
     public function testMountedComponentExposesVisibleColumns(): void

@@ -1,0 +1,9 @@
+{% if paginator is defined and paginator %}
+    <div
+        id="page-result-count"
+        class="text-body-secondary mt-1"
+        data-controller="result-count-mirror"
+    >
+        {{ include('@Shared/components/data_table/_result_count.html.twig') }}
+    </div>
+{% endif %}

@@ -26,6 +26,7 @@
                         <h2 class="page-title">
                             {% block page_title %}{{ 'title.hospital.list'|trans({}, 'allocation') }}{% endblock %}
                         </h2>
+                        {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
                     {% endblock %}
                 </div>
 
