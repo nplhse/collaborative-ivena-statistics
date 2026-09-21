@@ -78,18 +78,19 @@
 
         {% if directory.rows is empty %}
             <div class="card-body" data-testid="stats-insights-directory-empty">
-                <div class="empty">
-                    <p class="empty-title">
-                        {{ searchQuery is not empty
-                            ? 'stats.insights.directory.no_results'|trans({}, 'statistics')
-                            : 'stats.insights.empty.title'|trans({}, 'statistics') }}
-                    </p>
-                    <p class="empty-subtitle text-secondary">
-                        {{ searchQuery is not empty
-                            ? 'stats.insights.directory.no_results_help'|trans({}, 'statistics')
-                            : 'stats.insights.empty.subtitle'|trans({}, 'statistics') }}
-                    </p>
-                </div>
+                <twig:EmptyState
+                    title="{{ (searchQuery is not empty ? 'stats.insights.directory.no_results' : 'stats.insights.empty.title')|trans({}, 'statistics') }}"
+                    description="{{ (searchQuery is not empty ? 'stats.insights.directory.no_results_help' : 'stats.insights.empty.subtitle')|trans({}, 'statistics') }}"
+                    icon="{{ searchQuery is not empty ? 'tabler:filter-off' : 'tabler:chart-bar-off' }}"
+                >
+                    <twig:block name="actions">
+                        {% if searchQuery is not empty %}
+                            <a class="btn btn-primary" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all|filter((value, key) => key != 'search'))) }}" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                        {% else %}
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+                        {% endif %}
+                    </twig:block>
+                </twig:EmptyState>
             </div>
         {% else %}
             <div class="table-responsive">

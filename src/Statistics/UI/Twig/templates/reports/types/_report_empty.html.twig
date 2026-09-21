@@ -1,0 +1,34 @@
+{% set filterActive = statsFilterDrawer.activeCount|default(0) > 0 %}
+{% if not hasSourceData %}
+    {% set emptyTitle = 'stats.reports.empty.no_source.title'|trans({}, 'statistics') %}
+    {% set emptyDescription = 'stats.reports.empty.no_source.body'|trans({}, 'statistics') %}
+{% elseif filterActive %}
+    {% set emptyTitle = 'empty.filtered.title'|trans({}, 'shared') %}
+    {% set emptyDescription = 'empty.filtered.description'|trans({}, 'shared') %}
+{% else %}
+    {% set emptyTitle = contextTitle %}
+    {% set emptyDescription = contextDescription %}
+{% endif %}
+{% if contextLine|default('') is not empty and emptyDescription != contextDescription and not filterActive %}
+    {% set emptyDescription = emptyDescription ~ ' ' ~ contextLine %}
+{% endif %}
+<div data-testid="{{ testId }}">
+    <twig:EmptyState
+        title="{{ emptyTitle }}"
+        description="{{ emptyDescription }}"
+        icon="{{ icon }}"
+    >
+        <twig:block name="actions">
+            {% if not hasSourceData and canImport %}
+                <a href="{{ importUrl }}" class="btn btn-primary" target="_top">{{ 'stats.reports.monthly.empty.cta_import'|trans({}, 'statistics') }}</a>
+            {% elseif not hasSourceData %}
+                <a href="{{ path('app_default') }}" class="btn btn-outline-secondary" target="_top">{{ 'empty.onboarding.cta'|trans({}, 'shared') }}</a>
+            {% elseif filterActive and statsFilterDrawerResetUrl|default('') is not empty %}
+                <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-primary" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+            {% else %}
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+            {% endif %}
+            <a href="{{ dashboardUrl }}" class="btn btn-outline-secondary" target="_top">{{ 'stats.reports.monthly.empty.cta_dashboard'|trans({}, 'statistics') }}</a>
+        </twig:block>
+    </twig:EmptyState>
+</div>

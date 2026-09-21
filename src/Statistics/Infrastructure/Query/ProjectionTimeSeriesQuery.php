@@ -49,6 +49,20 @@ final class ProjectionTimeSeriesQuery
             ->getSingleScalarResult();
     }
 
+    /**
+     * @param list<int>|null $hospitalIds
+     */
+    public function hasAnyInScope(?array $hospitalIds, ?int $dispatchAreaId = null): bool
+    {
+        $row = $this->createBaseCountQb(null, null, $hospitalIds, null, $dispatchAreaId)
+            ->select('p.id AS id')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return null !== $row;
+    }
+
     public function countBefore(\DateTimeImmutable $before): int
     {
         return (int) $this->entityManager->createQueryBuilder()

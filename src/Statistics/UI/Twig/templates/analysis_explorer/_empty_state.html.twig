@@ -1,0 +1,27 @@
+{% set reason = emptyReason|default('no_data') %}
+{% if reason == 'filtered' %}
+    {% set emptyDescription = 'empty.filtered.description'|trans({}, 'shared') %}
+{% elseif reason == 'no_source' %}
+    {% set emptyDescription = 'stats.analysis_explorer.empty_state.no_source_help'|trans({}, 'statistics') %}
+{% elseif reason == 'no_data' %}
+    {% set emptyDescription = 'stats.analysis_explorer.empty_state.no_data_help'|trans({}, 'statistics') %}
+{% else %}
+    {% set emptyDescription = null %}
+{% endif %}
+<twig:EmptyState
+    title="{{ ('stats.analysis_explorer.empty_state.' ~ reason)|trans({}, 'statistics') }}"
+    description="{{ emptyDescription }}"
+    icon="{{ reason == 'filtered' ? 'tabler:search' : (reason == 'no_source' ? 'tabler:database' : 'tabler:chart-grid-dots-filled') }}"
+>
+    <twig:block name="actions">
+        {% if reason == 'no_source' and canImport|default(false) %}
+            <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.import.initial.cta'|trans({}, 'import') }}</a>
+        {% elseif reason == 'no_source' %}
+            <a class="btn btn-outline-secondary" href="{{ path('app_default') }}" target="_top">{{ 'empty.onboarding.cta'|trans({}, 'shared') }}</a>
+        {% elseif reason == 'filtered' %}
+            <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="clearAnalysisFilters">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</button>
+        {% elseif reason == 'no_data' %}
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+        {% endif %}
+    </twig:block>
+</twig:EmptyState>

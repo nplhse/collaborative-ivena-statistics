@@ -48,8 +48,18 @@
         {{ include('@Statistics/closed_department_assignments/_summary_deck.html.twig') }}
 
         {% if not dashboard.hasClosedCases %}
-            <div class="alert alert-info mt-3" data-testid="stats-closed-department-empty">
-                {{ 'stats.closed_department.empty'|trans({}, 'statistics') }}
+            <div class="mt-3" data-testid="stats-closed-department-empty">
+                <twig:EmptyState
+                    title="{{ 'stats.closed_department.empty'|trans({}, 'statistics') }}"
+                    icon="tabler:database"
+                >
+                    <twig:block name="actions">
+                        {% if statsFilterDrawer.activeCount|default(0) > 0 and statsFilterDrawerResetUrl|default('') is not empty %}
+                            <a href="{{ statsFilterDrawerResetUrl }}" class="btn btn-primary" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+                    </twig:block>
+                </twig:EmptyState>
             </div>
         {% else %}
             <div class="row g-3 align-items-start mt-1">

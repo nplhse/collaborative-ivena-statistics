@@ -1,21 +1,17 @@
 <div class="stats-ttp-report" data-testid="stats-ttp-report">
     {% if not report.hasData %}
-        <div class="empty" data-testid="stats-ttp-empty">
-            <div class="empty-icon">
-                <twig:ux:icon name="tabler:clock-bolt" class="icon icon-lg text-secondary" />
-            </div>
-            <p class="empty-title">{{ 'stats.reports.transport_time_profile.empty.title'|trans({}, 'statistics') }}</p>
-            <p class="empty-subtitle text-secondary" data-testid="stats-ttp-context">
-                {{ 'stats.reports.transport_time_profile.empty.body'|trans({context: report.contextLine}, 'statistics') }}
-            </p>
-            <div class="empty-action">
-                <a href="{{ report.importCreateUrl }}" class="btn btn-primary">
-                    {{ 'stats.reports.monthly.empty.cta_import'|trans({}, 'statistics') }}
-                </a>
-                <a href="{{ report.dashboardUrl }}" class="btn btn-outline-secondary">
-                    {{ 'stats.reports.monthly.empty.cta_dashboard'|trans({}, 'statistics') }}
-                </a>
-            </div>
+        <div data-testid="stats-ttp-context">
+            {{ include('@Statistics/reports/types/_report_empty.html.twig', {
+                testId: 'stats-ttp-empty',
+                icon: 'tabler:clock-bolt',
+                contextTitle: 'stats.reports.transport_time_profile.empty.title'|trans({}, 'statistics'),
+                contextDescription: 'stats.reports.transport_time_profile.empty.body'|trans({context: report.contextLine}, 'statistics'),
+                hasSourceData: report.hasSourceData,
+                canImport: report.canImport,
+                importUrl: report.importCreateUrl,
+                dashboardUrl: report.dashboardUrl,
+                contextLine: 'stats.reports.transport_time_profile.empty.body'|trans({context: report.contextLine}, 'statistics'),
+            }) }}
         </div>
     {% else %}
         {% if report.unknownTransportCount > 0 %}

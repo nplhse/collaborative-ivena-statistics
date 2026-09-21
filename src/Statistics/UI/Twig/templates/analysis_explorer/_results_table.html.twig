@@ -147,23 +147,21 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="{{ table.columnCount() }}" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
-                                    {% if emptyReason %}
-                                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans({}, 'statistics') }}
-                                    {% else %}
-                                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
-                                    {% endif %}
+                                <td colspan="{{ table.columnCount() }}" class="p-3" data-testid="stats-analysis-explorer-table-empty">
+                                    {{ include('@Statistics/analysis_explorer/_empty_state.html.twig', {
+                                        emptyReason: emptyReason,
+                                        canImport: canImport|default(false),
+                                    }) }}
                                 </td>
                             </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
-                            <td colspan="2" class="text-muted p-3" data-testid="stats-analysis-explorer-table-empty">
-                                {% if emptyReason %}
-                                    {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans({}, 'statistics') }}
-                                {% else %}
-                                    {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
-                                {% endif %}
+                            <td colspan="2" class="p-3" data-testid="stats-analysis-explorer-table-empty">
+                                {{ include('@Statistics/analysis_explorer/_empty_state.html.twig', {
+                                    emptyReason: emptyReason,
+                                    canImport: canImport|default(false),
+                                }) }}
                             </td>
                         </tr>
                     {% endif %}

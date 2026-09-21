@@ -126,19 +126,18 @@
                 </div>
             {% else %}
                 <div class="col-12">
-                    <div class="empty" data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
-                        <p class="empty-title">{{ 'stats.analysis_explorer.library.empty_title'|trans({}, 'statistics') }}</p>
-                        <p class="empty-subtitle text-secondary">
-                            {% if page.searchQuery %}
-                                {{ 'stats.analysis_explorer.library.empty.search'|trans({}, 'statistics') }}
-                            {% elseif page.activeTab == 'favorites' %}
-                                {{ 'stats.analysis_explorer.library.empty.favorites'|trans({}, 'statistics') }}
-                            {% elseif page.activeTab == 'my_views' %}
-                                {{ 'stats.analysis_explorer.library.empty.my_views'|trans({}, 'statistics') }}
-                            {% else %}
-                                {{ 'stats.analysis_explorer.library.empty'|trans({}, 'statistics') }}
-                            {% endif %}
-                        </p>
+                    <div data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
+                        <twig:EmptyState
+                            title="{{ 'stats.analysis_explorer.library.empty_title'|trans({}, 'statistics') }}"
+                            description="{{ (page.searchQuery ? 'stats.analysis_explorer.library.empty.search' : (page.activeTab == 'favorites' ? 'stats.analysis_explorer.library.empty.favorites' : (page.activeTab == 'my_views' ? 'stats.analysis_explorer.library.empty.my_views' : 'stats.analysis_explorer.library.empty')))|trans({}, 'statistics') }}"
+                            icon="{{ page.searchQuery ? 'tabler:filter-off' : 'tabler:books' }}"
+                        >
+                            <twig:block name="actions">
+                                {% if page.searchQuery %}
+                                    <a class="btn btn-primary" href="{{ path('app_stats_analysis_library', app.request.query.all|filter((value, key) => key != 'search')) }}" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                                {% endif %}
+                            </twig:block>
+                        </twig:EmptyState>
                     </div>
                 </div>
             {% endfor %}

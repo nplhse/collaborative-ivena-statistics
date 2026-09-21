@@ -27,7 +27,7 @@ Use for:
 
 Do **not** use for:
 
-- Empty states and empty-state CTAs (see GitHub #482)
+- Empty states and empty-state calls to action — use `EmptyState`
 - Confirmations and dialogs — use `Modal` or `ConfirmModal`
 - Status chips — use `Badge`
 - Active filter bars — use `ActiveFilters`
@@ -62,7 +62,7 @@ Pass already translated `{label, value}` pairs. Domain mapping stays outside the
 - Explore / Import / User lists: `@Shared/_macros/filters.html.twig`
 - Statistics drawer: `StatisticsDrawerFilterBadgePresenter`
 
-Do **not** put reset-filter CTAs here (empty-state work, #482). Do **not** reuse these chips as status badges — use `Badge`. Explore DataTable cells keep their existing markup, including `@Shared/_macros/badges.html.twig`.
+Do **not** put reset-filter calls to action here — those belong on `EmptyState`. Do **not** reuse these chips as status badges — use `Badge`. Explore DataTable cells keep their existing markup, including `@Shared/_macros/badges.html.twig`.
 
 ```twig
 <twig:ActiveFilters
@@ -82,7 +82,7 @@ Use for Explore lists, Import, Users, and Statistics. Reset is a consumer-provid
 Do **not** use for:
 
 - Showing currently applied filters — use `ActiveFilters`
-- Empty-state CTAs (#482) or status chips (#576)
+- Empty-state calls to action — use `EmptyState` — or status chips (#576)
 
 ### Query keys on Apply
 
@@ -262,14 +262,29 @@ List pages also show the same range in the PageHeader `context` slot (`#page-res
 
 ## EmptyState
 
-Minimal Tabler `.empty` block (`icon` + `title` + `description` + `actions` slot). DataTable uses it for empty result sets. Full first-use vs filtered vs permission CTAs remain #482.
+Tabler `.empty` block: `icon`, `title`, `description`, and an `actions` slot. The component stays presentational. Pages choose the copy and the links.
+
+Distinguish three reasons when a list or report has no rows:
+
+- **Filtered.** Search or filters are active. Primary action resets them with the list's existing reset URL. Shared copy: `empty.filtered.*`.
+- **First use.** Nothing has been imported or created, and no filter is active. Offer the next existing action only when the user is allowed to take it. Import links require `HospitalPermission::Import` (`canImport` from the controller).
+- **Association.** The account is not linked to a hospital or user. Explain that, and link only to an action that already exists (dashboard onboarding, add access grant).
+
+`DataTable` renders `EmptyState` for an empty declarative table. Pass `emptyTitle`, `emptyDescription`, and `emptyIcon`. Forward buttons through the `empty_actions` block. Without that block, the table keeps the generic "no results" fallback. Links that leave a surrounding `<turbo-frame>` need `target="_top"`. Reset links that stay on the same list should remain inside the frame. Search terms that already appear in `ActiveFilters` do not get a second search alert.
 
 ```twig
-<twig:EmptyState
-    title="{{ 'label.search_no_results'|trans }}"
-    description="{{ 'help.search_no_results'|trans({}, 'shared') }}"
-/>
+<twig:DataTable
+    emptyTitle="{{ 'empty.import.initial.title'|trans({}, 'import') }}"
+    emptyDescription="{{ 'empty.import.initial.description'|trans({}, 'import') }}"
+    emptyIcon="tabler:database-import"
+>
+    <twig:block name="empty_actions">
+        <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.import.initial.cta'|trans({}, 'import') }}</a>
+    </twig:block>
+</twig:DataTable>
 ```
+
+Statistics reports and the Analysis Explorer split "no source data" from "this scope or period is empty" and from extra filters. An import button appears only for the first of those, and only with import permission.
 
 ## Related
 
