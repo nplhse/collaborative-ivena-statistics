@@ -1,0 +1,12 @@
+{% set gender = row.gender %}
+{% if gender.value is defined %}
+    {% set gender = gender.value %}
+{% endif %}
+{% if gender == 'M' %}
+    <twig:ux:icon name="tabler:gender-male" class="w-3 h-3" />
+{% elseif gender == 'F' %}
+    <twig:ux:icon name="tabler:gender-female" class="w-3 h-3" />
+{% else %}
+    <twig:ux:icon name="tabler:gender-agender" class="w-3 h-3" />
+{% endif %}
+{{ row.age }}

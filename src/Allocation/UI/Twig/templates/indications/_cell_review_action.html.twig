@@ -1,0 +1,4 @@
+{% set query = context.query %}
+<a class="btn btn-sm btn-outline-primary" href="{{ path('app_explore_indication_raw_review', {publicId: row.publicId, segment: query.segment.value, search: query.search}) }}" target="_top">
+    {{ 'btn.indication.review'|trans({}, 'allocation') }}
+</a>

@@ -26,13 +26,6 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">{{ 'title.indication.review_worklist'|trans({}, 'allocation') }}</h2>
-                    <p class="text-secondary mt-1">
-                        {{ 'label.pagination_numbers'|trans(({
-                            first: paginator.firstResultNumber,
-                            last: paginator.lastResultNumber,
-                            total: num_results,
-                        }), 'messages') }}
-                    </p>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
@@ -104,68 +97,20 @@
 
         <twig:DataTable
             :paginator="paginator"
-            :paginationRoute="'app_explore_indication_raw_review_worklist'"
+            :rows="results"
+            paginationRoute="app_explore_indication_raw_review_worklist"
+            :sortBy="query.sortBy"
+            :orderBy="query.orderBy"
             :tabs="segment_tabs"
-        >
-            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
-
-            <table class="table table-vcenter card-table">
-                <thead>
-                <tr>
-                    <th>{{ 'label.indication.code'|trans({}, 'messages') }}</th>
-                    <th>{{ 'label.name'|trans({}, 'messages') }}</th>
-                    <th>{{ 'label.indication.review_status'|trans({}, 'messages') }}</th>
-                    <th>
-                        <a class="text-muted" href="{{ path('app_explore_indication_raw_review_worklist', {
-                            segment: query.segment.value,
-                            search: query.search,
-                            sortBy: 'occurrence',
-                            orderBy: query.sortBy == 'occurrence' and query.orderBy == 'desc' ? 'asc' : 'desc',
-                        }) }}">
-                            {{ 'label.indication.occurrences'|trans({}, 'messages') }}
-                            {{ pagination.sortArrow('occurrence', query.sortBy, query.orderBy) }}
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-muted" href="{{ path('app_explore_indication_raw_review_worklist', {
-                            segment: query.segment.value,
-                            search: query.search,
-                            sortBy: 'createdAt',
-                            orderBy: query.sortBy == 'createdAt' and query.orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.created_at'|trans({}, 'messages') }}
-                            {{ pagination.sortArrow('createdAt', query.sortBy, query.orderBy) }}
-                        </a>
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for raw in results %}
-                    {% set counts = occurrence_counts[raw.id]|default({occurrence_count: 0}) %}
-                    <tr>
-                        <td><span class="badge">{{ raw.code }}</span></td>
-                        <td>{{ raw.name }}</td>
-                        <td>
-                            <span class="badge bg-{{ raw.reviewStatus.value == 'needs_review' ? 'warning' : (raw.reviewStatus.value == 'matched' ? 'success' : 'secondary') }}-lt">
-                                {{ ('indication.review.status.' ~ raw.reviewStatus.value)|trans({}, 'allocation') }}
-                            </span>
-                        </td>
-                        <td>{{ counts.occurrence_count }}</td>
-                        <td>{{ raw.createdAt|date('d.m.Y H:i') }}</td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-outline-primary" href="{{ path('app_explore_indication_raw_review', {publicId: raw.publicId, segment: query.segment.value, search: query.search}) }}" target="_top">
-                                {{ 'btn.indication.review'|trans({}, 'allocation') }}
-                            </a>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="6" class="text-secondary text-center py-4">{{ 'label.search_no_results'|trans({}, 'messages') }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </twig:DataTable>
+            :cellContext="{ occurrence_counts: occurrence_counts, query: query }"
+            :columns="[
+                { key: 'code', type: 'badge', label: 'label.indication.code', property: 'code' },
+                { key: 'name', type: 'text', label: 'label.name', property: 'name' },
+                { key: 'reviewStatus', type: 'custom', label: 'label.indication.review_status', cellTemplate: '@Allocation/indications/_cell_worklist_status.html.twig' },
+                { key: 'occurrence', type: 'custom', label: 'label.indication.occurrences', sortable: true, sortKey: 'occurrence', cellTemplate: '@Allocation/indications/_cell_occurrence.html.twig' },
+                { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt' },
+                { key: 'actions', type: 'custom', label: '', align: 'end', cellTemplate: '@Allocation/indications/_cell_review_action.html.twig' },
+            ]"
+        />
     </turbo-frame>
 {% endblock %}

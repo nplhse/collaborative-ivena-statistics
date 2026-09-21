@@ -1,0 +1,2 @@
+{% set counts = context.occurrence_counts[row.id]|default({occurrence_count: 0}) %}
+{{ counts.occurrence_count }}
