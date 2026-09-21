@@ -13,7 +13,7 @@
 | [testing.md](testing.md) | Guide | PHPUnit suites, CI, test doubles, static analysis |
 | [translations.md](translations.md) | Guide | Symfony domains, extract/lint workflow |
 | [frontend.md](frontend.md) | Concept | Stimulus, Asset Mapper, Live Components |
-| [twig-components.md](twig-components.md) | Concept | Shared Alert and ActiveFilters primitives |
+| [twig-components.md](twig-components.md) | Concept | Shared Alert, ActiveFilters, and FilterDrawer primitives |
 
 ## Reading order
 

@@ -49,11 +49,11 @@
                 <!-- Page title actions -->
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
-                        {{ include('@Shared/_includes/_filter_drawer_trigger.html.twig', {
-                            activeFilterCount: activeFilterCount,
-                            drawerId: 'allocation-filters',
-                            resetUrl: activeFilterCount > 0 ? path('app_explore_allocation_list') : null,
-                        }) }}
+                        <twig:FilterDrawerTrigger
+                            drawerId="allocation-filters"
+                            :activeCount="activeFilterCount"
+                            resetUrl="{{ activeFilterCount > 0 ? path('app_explore_allocation_list') : null }}"
+                        />
                     </div>
                 </div>
             </div>

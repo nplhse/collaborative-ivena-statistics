@@ -1,13 +1,11 @@
-{% set activeFilterCount = activeFilterCount|default(0) %}
-
 <div class="btn-group">
     <button type="button"
             class="btn"
             data-bs-toggle="offcanvas"
             data-bs-target="#{{ drawerId }}"
             aria-controls="{{ drawerId }}"
-            {% if openTestId is defined and openTestId %}data-testid="{{ openTestId }}"{% endif %}>
-        {% if activeFilterCount < 1 %}
+            {% if openTestId %}data-testid="{{ openTestId }}"{% endif %}>
+        {% if activeCount < 1 %}
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="icon"
                  width="24"
@@ -28,17 +26,17 @@
             </svg>
         {% endif %}
         <span class="ms-2">{{ 'label.filters'|trans({}, 'messages') }}</span>
-        {% if activeFilterCount > 0 %}
-            <span class="badge text-primary ms-2">{{ activeFilterCount }}</span>
+        {% if activeCount > 0 %}
+            <span class="badge text-primary ms-2"{% if countTestId %} data-testid="{{ countTestId }}"{% endif %}>{{ activeCount }}</span>
         {% endif %}
     </button>
 
-    {% if activeFilterCount > 0 and resetUrl is defined and resetUrl %}
+    {% if this.shouldShowClearButton %}
         <a href="{{ resetUrl }}"
            class="btn btn-icon btn-outline"
            title="{{ 'label.filters.reset'|trans({}, 'messages') }}"
            aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
-           {% if clearTestId is defined and clearTestId %}data-testid="{{ clearTestId }}"{% endif %}>
+           {% if clearTestId %}data-testid="{{ clearTestId }}"{% endif %}>
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="icon"
                  width="24"

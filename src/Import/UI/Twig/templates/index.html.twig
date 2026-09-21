@@ -27,58 +27,13 @@
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a class="btn btn-primary" href="{{ path('app_import_new') }}">{{ 'label.import.new'|trans({}, 'import') }}</a>
-                        <div class="btn-group">
-                            <button
-                                class="btn"
-                                type="button"
-                                data-bs-toggle="offcanvas"
-                                data-bs-target="#import-filters"
-                                aria-controls="import-filters"
-                            >
-                                {% if activeFilterCount < 1 %}
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="icon"
-                                        width="24" height="24" viewBox="0 0 24 24"
-                                        stroke-width="2" stroke="currentColor"
-                                        fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                    >
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M4 4h16l-6 8v6l-4 -2v-4z" />
-                                    </svg>
-                                {% else %}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M20 3H4a1 1 0 0 0-1 1v2.227l.008.223a3 3 0 0 0 .772 1.795L8 12.886V21a1 1 0 0 0 1.316.949l6-2l.108-.043A1 1 0 0 0 16 19v-6.586l4.121-4.12A3 3 0 0 0 21 6.171V4a1 1 0 0 0-1-1"/>
-                                    </svg>
-                                {% endif %}
-                                <span class="ms-2">{{ 'label.filters'|trans({}, 'messages') }}</span>
-                                {% if activeFilterCount > 0 %}
-                                    <span class="badge text-primary ms-2">{{ activeFilterCount }}</span>
-                                {% endif %}
-                            </button>
-                            {% if activeFilterCount > 0 %}
-                                <a
-                                    href="{{ path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) }}"
-                                    class="btn btn-icon btn-outline"
-                                    title="{{ 'label.filters.reset'|trans({}, 'messages') }}"
-                                    aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="icon"
-                                        width="24" height="24" viewBox="0 0 24 24"
-                                        stroke-width="2" stroke="currentColor"
-                                        fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                    >
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M18 6l-12 12" />
-                                        <path d="M6 6l12 12" />
-                                    </svg>
-                                </a>
-                            {% endif %}
-                        </div>
+                        <twig:FilterDrawerTrigger
+                            drawerId="import-filters"
+                            :activeCount="activeFilterCount"
+                            resetUrl="{{ activeFilterCount > 0 ? path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) : null }}"
+                            openTestId="import-filters-drawer-trigger"
+                            clearTestId="import-filters-clear"
+                        />
 
                         <form
                             method="GET"
@@ -262,31 +217,17 @@
         </turbo-stream>
     </turbo-frame>
 
-    <div
-        class="offcanvas offcanvas-end"
-        tabindex="-1"
+    <twig:FilterDrawer
         id="import-filters"
-        aria-labelledby="import-filters-label"
+        formId="import-filter-form"
+        formAction="{{ path('app_import_index') }}"
+        resetUrl="{{ path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) }}"
+        testId="import-filters-drawer"
+        cancelTestId="import-filters-cancel"
+        applyTestId="import-filters-apply"
+        resetTestId="import-filters-reset"
+        :keepQueryKeys="['search', 'sortBy', 'orderBy']"
     >
-        <div class="offcanvas-header">
-            <h2 class="offcanvas-title" id="import-filters-label">
-                {{ 'label.filter.results'|trans({}, 'messages') }}
-            </h2>
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-            ></button>
-        </div>
-        <div class="offcanvas-body">
-            <form method="get" action="{{ path('app_import_index') }}">
-                {% for key, value in app.request.query.all %}
-                    {% if key not in ['hospitalId', 'ownerId', 'status', 'createdFrom', 'createdUntil'] and value is not iterable %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
-
                 <div class="mb-3">
                     <label class="form-label" for="import-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>
                     <select name="hospitalId" id="import-filter-hospital" class="form-select">
@@ -353,21 +294,5 @@
                         value="{{ filters.createdUntil }}"
                     >
                 </div>
-
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary w-100">
-                        {{ 'label.filters.apply'|trans({}, 'messages') }}
-                    </button>
-                    {% if activeFilterCount > 0 %}
-                        <a
-                            href="{{ path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) }}"
-                            class="btn btn-link w-100"
-                        >
-                            {{ 'label.filters.reset'|trans({}, 'messages') }}
-                        </a>
-                    {% endif %}
-                </div>
-            </form>
-        </div>
-    </div>
+    </twig:FilterDrawer>
 {% endblock %}

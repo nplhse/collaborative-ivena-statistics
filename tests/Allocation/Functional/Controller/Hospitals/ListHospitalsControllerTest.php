@@ -169,4 +169,26 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertStringContainsString('Standort: Städtischer Standort', $filterAlert);
         self::assertStringContainsString('Größe: Groß', $filterAlert);
     }
+
+    public function testFilterDrawerRendersTriggerAndFooter(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne();
+
+        $client->request(Request::METHOD_GET, '/explore/hospital?search=klinik&sortBy=name&orderBy=desc&page=2');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="hospital-filters-drawer-trigger"]');
+        self::assertSelectorExists('[data-testid="hospital-filters-drawer"]');
+        self::assertSelectorExists('#hospital-filters .offcanvas-footer');
+        self::assertSelectorExists('[data-testid="hospital-filters-cancel"]');
+        self::assertSelectorExists('[data-testid="hospital-filters-apply"]');
+        self::assertSelectorExists('[data-testid="hospital-filters-reset"]');
+        self::assertSelectorExists('#hospital-filter-form input[type="hidden"][name="search"][value="klinik"]');
+        self::assertSelectorExists('#hospital-filter-form input[type="hidden"][name="sortBy"][value="name"]');
+        self::assertSelectorExists('#hospital-filter-form input[type="hidden"][name="orderBy"][value="desc"]');
+        self::assertSelectorNotExists('#hospital-filter-form input[type="hidden"][name="page"]');
+    }
 }

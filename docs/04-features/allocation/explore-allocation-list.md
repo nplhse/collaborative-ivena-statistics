@@ -65,4 +65,4 @@ Labels: `label.all_allocations` (empty infection option), `label.all_secondary_i
 | Filter criteria | `src/Allocation/Application/Allocations/AllocationListFilterCriteriaFactory.php` |
 | Created-at range | `src/Allocation/Application/Allocations/AllocationCreatedAtRangeParser.php` |
 | SQL filter | `src/Allocation/Application/Export/AllocationListFilterApplicator.php` |
-| UI | `src/Allocation/UI/Twig/templates/allocations/_allocation_filter_drawer.html.twig` |
+| UI | Shared `FilterDrawer` / `FilterDrawerTrigger` Twig components (`src/Shared/UI/Twig/Components/`); allocation-specific fields in `src/Allocation/UI/Twig/templates/allocations/_allocation_filter_drawer.html.twig` |

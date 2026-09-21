@@ -828,7 +828,7 @@ final class TopListsControllerTest extends WebTestCase
         $client = $this->createClientAsRoleUser();
         $client->request(
             Request::METHOD_GET,
-            '/statistics/top-lists/top_diagnoses?scope=public&period=all&gender=2&age_group=30_39',
+            '/statistics/top-lists/top_diagnoses?scope=public&period=all&gender=2&age_group=30_39&page=2',
         );
 
         $this->assertResponseIsSuccessful();
@@ -850,6 +850,10 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="statistics-filter-requires-resus"]');
         $this->assertSelectorNotExists('[data-testid="statistics-filter-feature"]');
         $this->assertSelectorNotExists('#statistics-filter-form input.form-control');
+        $this->assertSelectorExists('#statistics-filter-form input[type="hidden"][name="scope"][value="public"]');
+        $this->assertSelectorExists('#statistics-filter-form input[type="hidden"][name="period"][value="all"]');
+        $this->assertSelectorNotExists('#statistics-filter-form input[type="hidden"][name="gender"]');
+        $this->assertSelectorNotExists('#statistics-filter-form input[type="hidden"][name="page"]');
         $this->assertSelectorExists('#statistics-filters-drawer .offcanvas-footer');
         $this->assertSelectorExists('[data-testid="statistics-filters-cancel"]');
         $this->assertSelectorExists('[data-testid="statistics-filters-apply"]');

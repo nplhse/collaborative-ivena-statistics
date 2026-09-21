@@ -1,50 +1,40 @@
-{% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
-
-{% set drawerValues = statsFilterDrawer.values|default(statsFilterDrawerValues|default({})) %}
-{% set drawerChoices = statsFilterDrawer.choices|default({}) %}
 {% set drawerFilterKeys = statsFilterDrawer.filterKeys|default([
     'gender', 'urgency', 'age_group', 'department', 'speciality',
     'requiresResus', 'requiresCathlab', 'isVentilated', 'isShock', 'isCPR',
     'isPregnant', 'isWorkAccident', 'isInfectious', 'infection', 'departmentWasClosed',
 ]) %}
-{% set allocationActive = drawerValues.urgency is not empty
-    or drawerValues.department is not empty
-    or drawerValues.speciality is not empty
-    or drawerValues.departmentWasClosed is not empty %}
-{% set clinicalActive = drawerValues.requiresResus is not empty
-    or drawerValues.requiresCathlab is not empty
-    or drawerValues.isVentilated is not empty
-    or drawerValues.isShock is not empty
-    or drawerValues.isCPR is not empty
-    or drawerValues.isPregnant is not empty
-    or drawerValues.isWorkAccident != ''
-    or drawerValues.isInfectious != ''
-    or drawerValues.infection != '' %}
-{% set demographicsActive = drawerValues.gender is not empty
-    or drawerValues.age_group is not empty %}
 
-<div class="offcanvas offcanvas-end filter-drawer"
-     tabindex="-1"
-     id="statistics-filters-drawer"
-     aria-labelledby="statistics-filters-drawer-label"
-     data-testid="statistics-filters-drawer">
-    <div class="offcanvas-header">
-        <h2 class="offcanvas-title" id="statistics-filters-drawer-label">{{ 'label.filter.results'|trans({}, 'messages') }}</h2>
-        <button type="button"
-                class="btn-close"
-                data-bs-dismiss="offcanvas"
-                aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
-    </div>
+<twig:FilterDrawer
+    id="statistics-filters-drawer"
+    formId="statistics-filter-form"
+    formAction="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|default({})) }}"
+    :preserveQuery="true"
+    :omitQueryKeys="drawerFilterKeys"
+    resetUrl="{{ statsFilterDrawerResetUrl|default('') }}"
+    testId="statistics-filters-drawer"
+    cancelTestId="statistics-filters-cancel"
+    applyTestId="statistics-filters-apply"
+    resetTestId="statistics-filters-reset"
+>
+    {% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
 
-    <div class="offcanvas-body">
-        <form method="get"
-              action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|default({})) }}"
-              id="statistics-filter-form">
-            {% for key, value in app.request.query.all %}
-                {% if key not in drawerFilterKeys and value is not iterable %}
-                    <input type="hidden" name="{{ key }}" value="{{ value }}">
-                {% endif %}
-            {% endfor %}
+    {% set drawerValues = statsFilterDrawer.values|default(statsFilterDrawerValues|default({})) %}
+    {% set drawerChoices = statsFilterDrawer.choices|default({}) %}
+    {% set allocationActive = drawerValues.urgency is not empty
+        or drawerValues.department is not empty
+        or drawerValues.speciality is not empty
+        or drawerValues.departmentWasClosed is not empty %}
+    {% set clinicalActive = drawerValues.requiresResus is not empty
+        or drawerValues.requiresCathlab is not empty
+        or drawerValues.isVentilated is not empty
+        or drawerValues.isShock is not empty
+        or drawerValues.isCPR is not empty
+        or drawerValues.isPregnant is not empty
+        or drawerValues.isWorkAccident != ''
+        or drawerValues.isInfectious != ''
+        or drawerValues.infection != '' %}
+    {% set demographicsActive = drawerValues.gender is not empty
+        or drawerValues.age_group is not empty %}
 
             <div class="accordion accordion-flush" id="statistics-filter-drawer-accordion">
                 <div class="accordion-item">
@@ -156,16 +146,4 @@
                     {{ editAccordion.panel_end() }}
                 </div>
             </div>
-        </form>
-    </div>
-
-    {% set activeFilterCount = statsFilterDrawer.activeCount|default(0) %}
-    {{ include('@Statistics/_filter_drawer_footer.html.twig', {
-        formId: 'statistics-filter-form',
-        showReset: statsFilterDrawerResetUrl is defined and statsFilterDrawerResetUrl,
-        resetUrl: statsFilterDrawerResetUrl|default(null),
-        cancelTestId: 'statistics-filters-cancel',
-        applyTestId: 'statistics-filters-apply',
-        resetTestId: 'statistics-filters-reset',
-    }) }}
-</div>
+</twig:FilterDrawer>

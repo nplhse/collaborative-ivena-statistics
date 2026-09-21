@@ -65,7 +65,13 @@
         {% endif %}
 
         {% if statsShowFilterDrawer|default(false) %}
-            {{ include('@Statistics/_filter_drawer_trigger.html.twig') }}
+            <twig:FilterDrawerTrigger
+                drawerId="statistics-filters-drawer"
+                :activeCount="statsFilterDrawer.activeCount|default(0)"
+                resetUrl="{{ statsFilterDrawer.activeCount|default(0) > 0 and statsFilterDrawerResetUrl is defined ? statsFilterDrawerResetUrl : null }}"
+                openTestId="statistics-filters-drawer-trigger"
+                clearTestId="statistics-filters-clear"
+            />
         {% endif %}
 
         {% if statsTopListCompareEnableUrl is defined and topListCompareEnabled %}
