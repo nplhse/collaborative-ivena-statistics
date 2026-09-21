@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: MciCaseRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[ORM\Index(name: 'idx_mci_case_mci_id', columns: ['mci_id'])]
 class MciCase
 {
     use HasPublicId;

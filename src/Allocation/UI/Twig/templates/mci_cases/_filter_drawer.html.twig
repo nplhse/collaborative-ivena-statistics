@@ -1,0 +1,286 @@
+<twig:FilterDrawer
+    id="mci-case-filters"
+    formId="mci-case-filter-form"
+    formAction="{{ path('app_explore_mci_case_list') }}"
+    resetUrl="{{ path('app_explore_mci_case_list') }}"
+    testId="mci-case-filters-drawer"
+    cancelTestId="mci-case-filters-cancel"
+    applyTestId="mci-case-filters-apply"
+    resetTestId="mci-case-filters-reset"
+    :keepQueryKeys="['search', 'mciId', 'importId', 'sortBy', 'orderBy']"
+>
+    {% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
+
+    {% set hospitalActive = filters.hospital is not null %}
+    {% set geographyActive = filters.state is not null or filters.dispatchArea is not null %}
+    {% set arrivalActive = filters.hasArrivalAtRange %}
+    {% set careActive = filters.urgency is not empty
+        or filters.transportType is not empty
+        or filters.department is not null
+        or filters.speciality is not null
+        or filters.departmentWasClosed is not null %}
+    {% set clinicalActive = filters.requiresResus is not null
+        or filters.requiresCathlab is not null
+        or filters.isVentilated is not null
+        or filters.isShock is not null
+        or filters.isCPR is not null
+        or filters.isPregnant is not null
+        or filters.isWithPhysician is not null
+        or filters.indication is not null
+        or filters.occasion is not empty
+        or filters.infection is not empty %}
+
+    <div class="accordion accordion-flush" id="mci-case-filter-drawer-accordion">
+        <div class="accordion-item">
+            {{ editAccordion.header(
+                'mci-case-filter-hospital-heading',
+                'mci-case-filter-hospital-panel',
+                'label.hospital'|trans({}, 'messages'),
+                'mci-case-filter-section-hospital',
+                hospitalActive,
+            ) }}
+            {{ editAccordion.panel_start('mci-case-filter-hospital-panel', 'mci-case-filter-hospital-heading', hospitalActive) }}
+                <div class="accordion-body">
+                    <label class="form-label" for="mci-case-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>
+                    <select name="hospital" id="mci-case-filter-hospital" class="form-select" data-testid="mci-case-filter-hospital">
+                        <option value="">{{ 'label.import.filter.all_hospitals'|trans({}, 'import') }}</option>
+                        {% for hospital in hospitals %}
+                            <option value="{{ hospital.id }}" {{ filters.hospital == hospital.id ? 'selected' }}>
+                                {{ hospital.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {{ editAccordion.panel_end() }}
+        </div>
+
+        <div class="accordion-item">
+            {{ editAccordion.header(
+                'mci-case-filter-geography-heading',
+                'mci-case-filter-geography-panel',
+                'stats.analysis_explorer.dimension_group.geography'|trans({}, 'statistics'),
+                'mci-case-filter-section-geography',
+                geographyActive,
+            ) }}
+            {{ editAccordion.panel_start('mci-case-filter-geography-panel', 'mci-case-filter-geography-heading', geographyActive) }}
+                <div class="accordion-body">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-state">{{ 'label.state'|trans({}, 'messages') }}</label>
+                            <select name="state" id="mci-case-filter-state" class="form-select">
+                                <option value="">{{ 'label.all_states'|trans({}, 'messages') }}</option>
+                                {% for state in states %}
+                                    <option value="{{ state.id }}" {{ filters.state == state.id ? 'selected' }}>
+                                        {{ state.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-dispatch-area">{{ 'label.dispatch_area'|trans({}, 'messages') }}</label>
+                            <select name="dispatchArea" id="mci-case-filter-dispatch-area" class="form-select" data-testid="mci-case-filter-dispatch-area">
+                                <option value="">{{ 'label.all_dispatch_areas'|trans({}, 'messages') }}</option>
+                                {% for area in dispatchAreas %}
+                                    <option value="{{ area.id }}" {{ filters.dispatchArea == area.id ? 'selected' }}>
+                                        {{ area.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            {{ editAccordion.panel_end() }}
+        </div>
+
+        <div class="accordion-item">
+            {{ editAccordion.header(
+                'mci-case-filter-arrival-heading',
+                'mci-case-filter-arrival-panel',
+                'label.arrival_at'|trans({}, 'messages'),
+                'mci-case-filter-section-arrival',
+                arrivalActive,
+            ) }}
+            {{ editAccordion.panel_start('mci-case-filter-arrival-panel', 'mci-case-filter-arrival-heading', arrivalActive) }}
+                <div class="accordion-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label" for="mci-case-filter-arrival-from">{{ 'field.dateFrom'|trans({}, 'messages') }}</label>
+                            <input type="date"
+                                   name="arrivalFrom"
+                                   id="mci-case-filter-arrival-from"
+                                   class="form-control"
+                                   value="{{ filters.arrivalFromDate }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" for="mci-case-filter-arrival-until">{{ 'field.dateTo'|trans({}, 'messages') }}</label>
+                            <input type="date"
+                                   name="arrivalUntil"
+                                   id="mci-case-filter-arrival-until"
+                                   class="form-control"
+                                   value="{{ filters.arrivalUntilDate }}">
+                        </div>
+                    </div>
+                </div>
+            {{ editAccordion.panel_end() }}
+        </div>
+
+        <div class="accordion-item">
+            {{ editAccordion.header(
+                'mci-case-filter-care-heading',
+                'mci-case-filter-care-panel',
+                'label.mci_case.filter.care'|trans({}, 'allocation'),
+                'mci-case-filter-section-care',
+                careActive,
+            ) }}
+            {{ editAccordion.panel_start('mci-case-filter-care-panel', 'mci-case-filter-care-heading', careActive) }}
+                <div class="accordion-body">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-urgency">{{ 'label.urgency'|trans({}, 'messages') }}</label>
+                            <select name="urgency" id="mci-case-filter-urgency" class="form-select">
+                                <option value="">{{ 'label.all_urgencies'|trans({}, 'messages') }}</option>
+                                {% for urgency in urgencies %}
+                                    <option value="{{ urgency.value }}" {{ filters.urgency == urgency.value ? 'selected' }}>
+                                        {{ ('allocation.urgency.' ~ urgency.value)|trans({}, 'allocation') }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-transport-type">{{ 'stats.analysis_explorer.dimension.transport_type'|trans({}, 'statistics') }}</label>
+                            <select name="transportType" id="mci-case-filter-transport-type" class="form-select">
+                                <option value="">{{ 'label.all_transport_types'|trans({}, 'messages') }}</option>
+                                {% for transportType in transportTypes %}
+                                    <option value="{{ transportType.value }}" {{ filters.transportType == transportType.value ? 'selected' }}>
+                                        {{ transportType.label()|trans }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-speciality">{{ 'label.speciality'|trans({}, 'messages') }}</label>
+                            <select name="speciality" id="mci-case-filter-speciality" class="form-select">
+                                <option value="">{{ 'label.all_specialities'|trans({}, 'messages') }}</option>
+                                {% for speciality in specialities %}
+                                    <option value="{{ speciality.id }}" {{ filters.speciality == speciality.id ? 'selected' }}>
+                                        {{ speciality.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-department">{{ 'label.department'|trans({}, 'messages') }}</label>
+                            <select name="department" id="mci-case-filter-department" class="form-select">
+                                <option value="">{{ 'label.all_departments'|trans({}, 'messages') }}</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}" {{ filters.department == department.id ? 'selected' }}>
+                                        {{ department.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-check form-switch mb-0">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="departmentWasClosed"
+                                       value="1"
+                                       {{ filters.departmentWasClosed ? 'checked' }}>
+                                <span class="form-check-label">{{ 'field.departmentWasClosed'|trans({}, 'messages') }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            {{ editAccordion.panel_end() }}
+        </div>
+
+        <div class="accordion-item">
+            {{ editAccordion.header(
+                'mci-case-filter-clinical-heading',
+                'mci-case-filter-clinical-panel',
+                'stats.analysis_explorer.dimension_group.clinical_care'|trans({}, 'statistics'),
+                'mci-case-filter-section-clinical',
+                clinicalActive,
+            ) }}
+            {{ editAccordion.panel_start('mci-case-filter-clinical-panel', 'mci-case-filter-clinical-heading', clinicalActive) }}
+                <div class="accordion-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-indication">{{ 'label.indication.normalized'|trans({}, 'messages') }}</label>
+                            <select name="indication" id="mci-case-filter-indication" class="form-select">
+                                <option value="">{{ 'label.all_indications'|trans({}, 'messages') }}</option>
+                                {% for indication in indications %}
+                                    {% if indication.code > 0 %}
+                                        <option value="{{ indication.code }}" {{ filters.indication == indication.code ? 'selected' }}>
+                                            {{ indication.name }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="mci-case-filter-occasion">{{ 'label.occasion'|trans({}, 'messages') }}</label>
+                            <select name="occasion" id="mci-case-filter-occasion" class="form-select">
+                                <option value="">{{ 'label.all_occasions'|trans({}, 'messages') }}</option>
+                                <option value="none" {{ filters.occasion == 'none' ? 'selected' }}>{{ 'label.no_occasion'|trans({}, 'messages') }}</option>
+                                {% for occasion in occasions %}
+                                    <option value="{{ occasion.id }}" {{ filters.occasion == occasion.id ? 'selected' }}>
+                                        {{ occasion.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="allocation-filter-checkboxes">
+                        <div class="allocation-filter-checkbox-group">
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="requiresResus" value="1" {{ filters.requiresResus ? 'checked' }}>
+                                <span class="form-check-label">{{ 'label.requires_resus'|trans({}, 'messages') }}</span>
+                            </label>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="requiresCathlab" value="1" {{ filters.requiresCathlab ? 'checked' }}>
+                                <span class="form-check-label">{{ 'label.requires_cathlab'|trans({}, 'messages') }}</span>
+                            </label>
+                        </div>
+                        <div class="allocation-filter-checkbox-group">
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="isVentilated" value="1" {{ filters.isVentilated ? 'checked' }}>
+                                <span class="form-check-label">{{ 'label.is_ventilated'|trans({}, 'messages') }}</span>
+                            </label>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="isShock" value="1" {{ filters.isShock ? 'checked' }}>
+                                <span class="form-check-label">{{ 'label.is_shock'|trans({}, 'messages') }}</span>
+                            </label>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="isCPR" value="1" {{ filters.isCPR ? 'checked' }}>
+                                <span class="form-check-label">{{ 'label.is_cpr'|trans({}, 'messages') }}</span>
+                            </label>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="isPregnant" value="1" {{ filters.isPregnant ? 'checked' }}>
+                                <span class="form-check-label">{{ 'label.is_pregnant'|trans({}, 'messages') }}</span>
+                            </label>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="isWithPhysician" value="1" {{ filters.isWithPhysician ? 'checked' }}>
+                                <span class="form-check-label">{{ 'field.isWithPhysician'|trans({}, 'messages') }}</span>
+                            </label>
+                        </div>
+                        <div class="allocation-filter-checkbox-group">
+                            <label class="form-label" for="mci-case-filter-infection">{{ 'label.infection'|trans({}, 'messages') }}</label>
+                            <select id="mci-case-filter-infection" name="infection" class="form-select">
+                                <option value="">{{ 'label.all_allocations'|trans({}, 'messages') }}</option>
+                                <option value="none" {{ filters.infection == 'none' ? 'selected' }}>{{ 'label.no_infection'|trans({}, 'messages') }}</option>
+                                <option value="any" {{ filters.infection == 'any' ? 'selected' }}>{{ 'label.any_infection'|trans({}, 'messages') }}</option>
+                                {% if infections is not empty %}
+                                    <option disabled>────────────</option>
+                                {% endif %}
+                                {% for infection in infections %}
+                                    <option value="{{ infection.id }}" {{ filters.infection == infection.id ? 'selected' }}>{{ infection.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            {{ editAccordion.panel_end() }}
+        </div>
+    </div>
+</twig:FilterDrawer>

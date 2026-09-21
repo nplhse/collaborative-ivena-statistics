@@ -485,6 +485,22 @@
         <source>title.mci_case.show</source>
         <target>MANV-Falldetails</target>
       </trans-unit>
+      <trans-unit id="MciSearchDe" resname="label.mci_case.search">
+        <source>label.mci_case.search</source>
+        <target>MCI-ID oder Titel</target>
+      </trans-unit>
+      <trans-unit id="MciIdLabelDe" resname="label.mci_id">
+        <source>label.mci_id</source>
+        <target>MCI-ID</target>
+      </trans-unit>
+      <trans-unit id="MciImportIdDe" resname="label.import_id">
+        <source>label.import_id</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="MciFilterCareDe" resname="label.mci_case.filter.care">
+        <source>label.mci_case.filter.care</source>
+        <target>Versorgung</target>
+      </trans-unit>
       <trans-unit id="Def0bf1778" resname="title.secondary_transport.list">
         <source>title.secondary_transport.list</source>
         <target>Sekundärtransporte</target>

@@ -1,2 +1,2 @@
 <strong>{{ row.mciTitle }}</strong><br/>
-<span class="text-muted">{{ row.mciId }}</span>
+<a class="text-muted" href="{{ path('app_explore_mci_case_list', {mciId: row.mciId}) }}" target="_top">{{ row.mciId }}</a>

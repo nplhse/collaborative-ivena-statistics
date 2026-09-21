@@ -397,6 +397,22 @@
         <source>title.mci_case.show</source>
         <target>Show MCI Case Detail</target>
       </trans-unit>
+      <trans-unit id="MciSearchEn" resname="label.mci_case.search">
+        <source>label.mci_case.search</source>
+        <target>MCI ID or title</target>
+      </trans-unit>
+      <trans-unit id="MciIdLabelEn" resname="label.mci_id">
+        <source>label.mci_id</source>
+        <target>MCI ID</target>
+      </trans-unit>
+      <trans-unit id="MciImportIdEn" resname="label.import_id">
+        <source>label.import_id</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="MciFilterCareEn" resname="label.mci_case.filter.care">
+        <source>label.mci_case.filter.care</source>
+        <target>Care</target>
+      </trans-unit>
       <trans-unit id="W5KBPlI" resname="title.secondary_transport.list">
         <source>title.secondary_transport.list</source>
         <target>Listing Secondary Transports</target>
