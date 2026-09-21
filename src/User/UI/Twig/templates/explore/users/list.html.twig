@@ -156,10 +156,7 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            <div class="alert alert-info" role="alert" data-testid="user-directory-active-filters">
-                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
-                {{ activeFilters.user_filter_badges(filters, hospitalChoices) }}
-            </div>
+            {{ activeFilters.user_filter_badges(filters, hospitalChoices, 'user-directory-active-filters') }}
         {% elseif search is not empty %}
             <twig:Alert type="info" :message="'label.searching_for'|trans(({term: search}), 'allocation')" />
         {% endif %}

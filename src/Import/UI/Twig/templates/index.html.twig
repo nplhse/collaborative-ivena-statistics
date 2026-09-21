@@ -130,10 +130,7 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            <div class="alert alert-info" role="alert">
-                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
-                {{ activeFilters.import_filter_badges(filters, hospitals, owners) }}
-            </div>
+            {{ activeFilters.import_filter_badges(filters, hospitals, owners) }}
         {% endif %}
 
         {% if search is not empty %}
@@ -329,7 +326,7 @@
                                 value="{{ status.value }}"
                                 {{ filters.status == status.value ? 'selected' }}
                             >
-                                {{ status.value }}
+                                {{ ('import.status.label.' ~ status.value|lower)|trans({}, 'import') }}
                             </option>
                         {% endfor %}
                     </select>

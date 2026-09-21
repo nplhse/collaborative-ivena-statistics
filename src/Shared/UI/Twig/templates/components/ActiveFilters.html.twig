@@ -1,0 +1,13 @@
+{% if this.hasBadges %}
+    <div{{ attributes }}>
+        <twig:Alert type="info" :title="'label.filters.active'|trans({}, 'messages')">
+            <div class="d-flex flex-wrap gap-1">
+                {% for badge in badges %}
+                    <span class="badge bg-blue-lt">
+                        <strong>{{ badge.label }}:</strong> {{ badge.value }}
+                    </span>
+                {% endfor %}
+            </div>
+        </twig:Alert>
+    </div>
+{% endif %}

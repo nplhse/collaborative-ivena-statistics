@@ -1,3 +1,29 @@
+{% macro render_active_filters(rawFilters, testId = null) %}
+    {% set byKey = {} %}
+    {% set domainsByKey = {} %}
+    {% for f in rawFilters %}
+        {% set byKey = byKey|merge({(f.key): f.value}) %}
+        {% set domainsByKey = domainsByKey|merge({(f.key): f.domain|default('messages')}) %}
+    {% endfor %}
+
+    {% set sortedKeys = byKey|keys|sort %}
+    {% set badgeItems = [] %}
+    {% for key in sortedKeys %}
+        {% set badgeItems = badgeItems|merge([{
+            label: key|trans({}, domainsByKey[key]),
+            value: byKey[key],
+        }]) %}
+    {% endfor %}
+
+    {% if badgeItems is not empty %}
+        {% if testId %}
+            <twig:ActiveFilters :badges="badgeItems" data-testid="{{ testId }}" />
+        {% else %}
+            <twig:ActiveFilters :badges="badgeItems" />
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
 {% macro allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions = null) %}
     {% set rawFilters = [] %}
 
@@ -18,26 +44,33 @@
         {% endif %}
     {% endif %}
 
-    {# --- Simple string filters --- #}
+    {# --- Enum filters --- #}
     {% if filters.urgency is not empty %}
-        {% set urgencyKey = 'allocation.urgency.' ~ filters.urgency %}
-
         {% set rawFilters = rawFilters|merge([{
             key: 'label.urgency',
-            value: urgencyKey|trans,
-            }]) %}
+            value: ('allocation.urgency.' ~ filters.urgency)|trans({}, 'allocation'),
+        }]) %}
     {% endif %}
 
     {% if filters.size is not empty %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.size', value: filters.size}]) %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.size',
+            value: ('hospital.size.' ~ filters.size)|trans({}, 'allocation'),
+        }]) %}
     {% endif %}
 
     {% if filters.location is not empty %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.location', value: filters.location}]) %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.location',
+            value: ('hospital.location.' ~ filters.location)|trans({}, 'allocation'),
+        }]) %}
     {% endif %}
 
     {% if filters.tier is not empty %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.tier', value: filters.tier}]) %}
+        {% set rawFilters = rawFilters|merge([{
+            key: 'label.tier',
+            value: ('hospital.tier.' ~ filters.tier)|trans({}, 'allocation'),
+        }]) %}
     {% endif %}
 
     {% if filters.importId is not null %}
@@ -46,39 +79,39 @@
 
     {# --- Boolean-like filters --- #}
     {% if filters.requiresResus is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.requires_resus', value: filters.requiresResus ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requires_resus', value: _self.boolean_value(filters.requiresResus)}]) %}
     {% endif %}
 
     {% if filters.requiresCathlab is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.requires_cathlab', value: filters.requiresCathlab ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.requires_cathlab', value: _self.boolean_value(filters.requiresCathlab)}]) %}
     {% endif %}
 
     {% if filters.isVentilated is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_ventilated', value: filters.isVentilated ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_ventilated', value: _self.boolean_value(filters.isVentilated)}]) %}
     {% endif %}
 
     {% if filters.isShock is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_shock', value: filters.isShock ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_shock', value: _self.boolean_value(filters.isShock)}]) %}
     {% endif %}
 
     {% if filters.isCPR is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_cpr', value: filters.isCPR ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_cpr', value: _self.boolean_value(filters.isCPR)}]) %}
     {% endif %}
 
     {% if filters.isPregnant is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_pregnant', value: filters.isPregnant ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_pregnant', value: _self.boolean_value(filters.isPregnant)}]) %}
     {% endif %}
 
     {% if filters.isWorkAccident is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_work_accident', value: filters.isWorkAccident ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_work_accident', value: _self.boolean_value(filters.isWorkAccident)}]) %}
     {% endif %}
 
     {% if filters.isInfectious is not null and filters.isInfectious != '' %}
-        {% set rawFilters = rawFilters|merge([{key: 'label.is_infectious', value: filters.isInfectious == '1' or filters.isInfectious == 1 ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'label.is_infectious', value: _self.boolean_value(filters.isInfectious == '1' or filters.isInfectious == 1)}]) %}
     {% endif %}
 
     {% if filters.departmentWasClosed is not null %}
-        {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: filters.departmentWasClosed ? 'Yes' : 'No'}]) %}
+        {% set rawFilters = rawFilters|merge([{key: 'field.departmentWasClosed', value: _self.boolean_value(filters.departmentWasClosed)}]) %}
     {% endif %}
 
     {% if filters.hasCreatedAtRange %}
@@ -228,7 +261,7 @@
         {% set transportTypeLabel = null %}
         {% for transportType in transportTypes %}
             {% if transportTypeLabel is null and transportType.value == filters.transportType %}
-                {% set transportTypeLabel = transportType.label()|trans %}
+                {% set transportTypeLabel = transportType.label()|trans({}, 'messages') %}
             {% endif %}
         {% endfor %}
         {% if transportTypeLabel is not null %}
@@ -255,24 +288,7 @@
         {% endif %}
     {% endif %}
 
-    {# 2. Manual alphabetical sort #}
-    {% set byKey = {} %}
-    {% for f in rawFilters %}
-        {% set byKey = byKey|merge({(f.key): f.value}) %}
-    {% endfor %}
-
-    {% set sortedKeys = byKey|keys|sort %}
-
-    {# 3. Render badges #}
-    {% if sortedKeys is not empty %}
-        <div class="d-flex flex-wrap gap-1">
-            {% for key in sortedKeys %}
-                <span class="badge bg-blue-lt">
-                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
-                </span>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {{ _self.render_active_filters(rawFilters) }}
 {% endmacro %}
 
 {% macro area_filter_badges(filters, states) %}
@@ -302,24 +318,7 @@
         {% endif %}
     {% endif %}
 
-    {# 2. Manual alphabetical sort (same pattern as before) #}
-    {% set byKey = {} %}
-    {% for f in rawFilters %}
-        {% set byKey = byKey|merge({(f.key): f.value}) %}
-    {% endfor %}
-
-    {% set sortedKeys = byKey|keys|sort %}
-
-    {# 3. Render badges #}
-    {% if sortedKeys is not empty %}
-        <div class="d-flex flex-wrap gap-1">
-            {% for key in sortedKeys %}
-                <span class="badge bg-blue-lt">
-                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
-                </span>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {{ _self.render_active_filters(rawFilters) }}
 {% endmacro %}
 
 {% macro import_filter_badges(filters, hospitals, owners) %}
@@ -365,7 +364,7 @@
     {% if filters.status is not empty %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.status',
-            value: filters.status,
+            value: ('import.status.label.' ~ filters.status|lower)|trans({}, 'import'),
         }]) %}
     {% endif %}
 
@@ -383,22 +382,7 @@
         }]) %}
     {% endif %}
 
-    {% set byKey = {} %}
-    {% for f in rawFilters %}
-        {% set byKey = byKey|merge({(f.key): f.value}) %}
-    {% endfor %}
-
-    {% set sortedKeys = byKey|keys|sort %}
-
-    {% if sortedKeys is not empty %}
-        <div class="d-flex flex-wrap gap-1">
-            {% for key in sortedKeys %}
-                <span class="badge bg-blue-lt">
-                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
-                </span>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {{ _self.render_active_filters(rawFilters) }}
 {% endmacro %}
 
 {% macro hospital_filter_badges(filters, states, dispatchAreas) %}
@@ -416,21 +400,21 @@
     {% if filters.tier is not empty %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.tier',
-            value: filters.tier,
+            value: ('hospital.tier.' ~ filters.tier)|trans({}, 'allocation'),
         }]) %}
     {% endif %}
 
     {% if filters.location is not empty %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.location',
-            value: filters.location,
+            value: ('hospital.location.' ~ filters.location)|trans({}, 'allocation'),
         }]) %}
     {% endif %}
 
     {% if filters.size is not empty %}
         {% set rawFilters = rawFilters|merge([{
             key: 'label.size',
-            value: filters.size,
+            value: ('hospital.size.' ~ filters.size)|trans({}, 'allocation'),
         }]) %}
     {% endif %}
 
@@ -475,27 +459,10 @@
         }]) %}
     {% endif %}
 
-    {# 2. Manual alphabetical sort by label-translation-key #}
-    {% set byKey = {} %}
-    {% for f in rawFilters %}
-        {% set byKey = byKey|merge({(f.key): f.value}) %}
-    {% endfor %}
-
-    {% set sortedKeys = byKey|keys|sort %}
-
-    {# 3. Render badges #}
-    {% if sortedKeys is not empty %}
-        <div class="d-flex flex-wrap gap-1">
-            {% for key in sortedKeys %}
-                <span class="badge bg-blue-lt">
-                    <strong>{{ key|trans }}:</strong> {{ byKey[key] }}
-                </span>
-            {% endfor %}
-        </div>
-    {% endif %}
+    {{ _self.render_active_filters(rawFilters) }}
 {% endmacro %}
 
-{% macro user_filter_badges(filters, hospitals) %}
+{% macro user_filter_badges(filters, hospitals, testId = null) %}
     {% set rawFilters = [] %}
 
     {% if filters.hospitalId is not null %}
@@ -530,22 +497,9 @@
         }]) %}
     {% endif %}
 
-    {% set byKey = {} %}
-    {% set domainsByKey = {} %}
-    {% for f in rawFilters %}
-        {% set byKey = byKey|merge({(f.key): f.value}) %}
-        {% set domainsByKey = domainsByKey|merge({(f.key): f.domain}) %}
-    {% endfor %}
+    {{ _self.render_active_filters(rawFilters, testId) }}
+{% endmacro %}
 
-    {% set sortedKeys = byKey|keys|sort %}
-
-    {% if sortedKeys is not empty %}
-        <div class="d-flex flex-wrap gap-1">
-            {% for key in sortedKeys %}
-                <span class="badge bg-blue-lt">
-                    <strong>{{ key|trans({}, domainsByKey[key]) }}:</strong> {{ byKey[key] }}
-                </span>
-            {% endfor %}
-        </div>
-    {% endif %}
+{% macro boolean_value(flag) %}
+    {{- (flag ? 'label.yes' : 'label.no')|trans({}, 'messages') -}}
 {% endmacro %}

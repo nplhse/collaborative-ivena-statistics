@@ -65,21 +65,20 @@
     </div>
 
     {% if activeFilterCount > 0 %}
-        <div class="alert alert-info" role="alert">
-            <strong class="text-info">{{ 'label.filters.active'|trans({}, 'admin') }}:</strong>
-
-            {% if filters.hospitalId %}
-                <span class="badge bg-azure text-azure-fg ms-1">
-                    {{ 'label.hospital'|trans({}, 'admin') }}: {{ filters.hospitalId }}
-                </span>
-            {% endif %}
-
-            {% if filters.importId %}
-                <span class="badge bg-indigo text-indigo-fg ms-1">
-                    {{ 'label.import'|trans({}, 'admin') }}: {{ filters.importId }}
-                </span>
-            {% endif %}
-        </div>
+        {% set rejectFilterBadges = [] %}
+        {% if filters.hospitalId %}
+            {% set rejectFilterBadges = rejectFilterBadges|merge([{
+                label: 'label.hospital'|trans({}, 'admin'),
+                value: filters.hospitalId,
+            }]) %}
+        {% endif %}
+        {% if filters.importId %}
+            {% set rejectFilterBadges = rejectFilterBadges|merge([{
+                label: 'label.import'|trans({}, 'admin'),
+                value: filters.importId,
+            }]) %}
+        {% endif %}
+        <twig:ActiveFilters :badges="rejectFilterBadges" />
     {% endif %}
 
     <twig:DataTable

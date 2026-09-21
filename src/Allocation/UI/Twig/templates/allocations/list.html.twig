@@ -66,10 +66,7 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            <div class="alert alert-info" role="alert">
-                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
-                {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions) }}
-            </div>
+            {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions) }}
         {% endif %}
 
         <twig:DataTable

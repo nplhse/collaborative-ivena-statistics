@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTestCase
@@ -61,6 +62,10 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
         self::assertResponseIsSuccessful();
         self::assertSame([$matchingAllocation->getPublicIdString()], $this->extractAllocationIds($crawler));
+        $filterAlert = $crawler->filter('.alert.alert-info')->text();
+        self::assertStringContainsString('Tier: Full Tier', $filterAlert);
+        self::assertStringContainsString('Location: Urban Location', $filterAlert);
+        self::assertStringContainsString('Size (Beds): Large Size', $filterAlert);
     }
 
     public function testUrgencyAndGeographyFiltersOnlyReturnMatchingAllocations(): void
@@ -96,6 +101,33 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
         self::assertResponseIsSuccessful();
         self::assertSame([$matchingAllocation->getPublicIdString()], $this->extractAllocationIds($crawler));
+        $filterAlert = $crawler->filter('.alert.alert-info')->text();
+        self::assertStringContainsString('Urgency: Emergency Care', $filterAlert);
+        self::assertStringNotContainsString('allocation.urgency.', $filterAlert);
+    }
+
+    public function testUrgencyFilterBadgeIsTranslatedForGermanLocale(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'username' => 'allocation-filter-de',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'locale' => 'de',
+        ]);
+        $this->seedDependencies();
+
+        AllocationFactory::createOne(['urgency' => AllocationUrgency::EMERGENCY]);
+
+        $client->loginUser($user);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/explore/allocation?urgency=%d&limit=50', AllocationUrgency::EMERGENCY->value),
+        );
+
+        self::assertResponseIsSuccessful();
+        $filterAlert = $crawler->filter('.alert.alert-info')->text();
+        self::assertStringContainsString('Dringlichkeit: Notfallversorgung', $filterAlert);
+        self::assertStringNotContainsString('allocation.urgency.', $filterAlert);
     }
 
     public function testClinicalFlagFiltersOnlyReturnMatchingAllocations(): void
@@ -127,6 +159,7 @@ final class ListAllocationsFilterEdgesTest extends ListAllocationsControllerTest
 
         self::assertResponseIsSuccessful();
         self::assertSame([$matchingAllocation->getPublicIdString()], $this->extractAllocationIds($crawler));
+        self::assertStringContainsString('Requires Resus: Yes', $crawler->filter('.alert.alert-info')->text());
     }
 
     public function testIndicationAndSecondaryTransportFiltersOnlyReturnMatchingAllocations(): void

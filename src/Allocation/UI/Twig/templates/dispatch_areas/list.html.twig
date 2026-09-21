@@ -150,10 +150,7 @@
         {% import '@Shared/_macros/filters.html.twig' as activeFilters %}
 
         {% if activeFilterCount > 0 %}
-            <div class="alert alert-info" role="alert">
-                <strong class="text-info">{{ 'label.filters.active'|trans({}, 'messages') }}:</strong>
-                {{ activeFilters.area_filter_badges(filters, states) }}
-            </div>
+            {{ activeFilters.area_filter_badges(filters, states) }}
         {% endif %}
 
         <twig:DataTable

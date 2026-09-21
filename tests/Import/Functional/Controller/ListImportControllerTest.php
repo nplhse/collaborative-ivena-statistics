@@ -127,6 +127,25 @@ final class ListImportControllerTest extends WebTestCase
         self::assertStringContainsString('St. Test Hospital', $crawler->text());
     }
 
+    public function testActiveFilterBadgesTranslateStatusForGermanLocale(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospital, $createdBy] = $this->seedBaseActors();
+        $owner->setLocale('de');
+
+        $this->createImportForList('Status Filtered Import', $hospital, $createdBy, [
+            'filePath' => '/tmp/status-filtered.csv',
+            'status' => ImportStatus::COMPLETED,
+        ]);
+
+        $crawler = $this->requestAsUser($client, $owner, '/import?status=Completed');
+
+        $filterAlert = $crawler->filter('.alert.alert-info')->text();
+        self::assertStringContainsString('Aktive Filter', $filterAlert);
+        self::assertStringContainsString('Abgeschlossen', $filterAlert);
+        self::assertStringNotContainsString('Completed', $filterAlert);
+    }
+
     public function testParticipantDoesNotSeeForeignHospitalImports(): void
     {
         $client = self::createClient();
