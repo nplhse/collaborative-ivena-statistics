@@ -120,7 +120,7 @@ final class StatisticsPageViewModelFactoryAccessTest extends DatabaseKernelTestC
         );
 
         self::assertTrue($model->showUnscopedHint);
-        self::assertSame('Public', $model->headingScope);
+        self::assertSame('All assignments', $model->headingScope);
     }
 
     public function testParticipantSeesOnlyParticipatingHospitalsInAccessibleList(): void

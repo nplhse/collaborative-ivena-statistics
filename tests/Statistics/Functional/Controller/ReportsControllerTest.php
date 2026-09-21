@@ -47,6 +47,12 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertStringContainsString('Monthly report', $crawler->filter('[data-testid="stats-reports-card-title-monthly"]')->text());
         $this->assertStringContainsString('Concise summary of a completed calendar month', $crawler->filter('[data-testid="stats-reports-card-monthly"]')->text());
         $this->assertStringContainsString('Transport Time Profile', $crawler->filter('[data-testid="stats-reports-card-title-transport_time_profile"]')->text());
+        $href = $crawler->filter('[data-testid="stats-reports-card-monthly"]')->attr('href');
+        $this->assertStringContainsString('/statistics/reports/monthly', (string) $href);
+        $this->assertStringContainsString('scope=public', (string) $href);
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period-summary"]');
         $this->assertSelectorNotExists('[data-testid="stats-reports-content"]');
     }
 
@@ -116,22 +122,17 @@ final class ReportsControllerTest extends WebTestCase
     public function testMonthlyReportUsesMonthOnlyPeriodControls(): void
     {
         $client = $this->createClientAsRoleUser();
-        $crawler = $client->request(
+        $client->request(
             Request::METHOD_GET,
             '/statistics/reports/monthly?scope=public&year=2024&month=3',
         );
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
-        $this->assertSelectorExists('[data-testid="stats-period-secondary"]');
-        $this->assertSelectorTextContains('[data-testid="stats-period-primary"]', '2024');
-        $this->assertSelectorNotExists('.dropdown-menu a.dropdown-item[href*="period=all"]');
-        $this->assertSelectorNotExists('.dropdown-menu a.dropdown-item[href*="period=year"]');
-        $this->assertSelectorNotExists('.dropdown-menu a.dropdown-item[href*="period=quarter"]');
-        $monthHref = $crawler->filter('[data-testid="stats-period-secondary"]')->closest('.btn-group')->filter('.dropdown-menu a.dropdown-item[href*="month=2"]')->attr('href');
-        $this->assertNotNull($monthHref);
-        $this->assertStringContainsString('year=2024', (string) $monthHref);
-        $this->assertStringContainsString('/statistics/reports/monthly', (string) $monthHref);
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-year"] option[value="2024"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-month"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-context-period"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', '2024');
     }
 
     public function testTransportTimeProfileUsesDashboardPeriodControls(): void
@@ -147,9 +148,9 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-report"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-empty"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-context"]');
-        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
-        $this->assertSelectorExists('.dropdown-menu a.dropdown-item[href*="period=all"]');
-        $this->assertSelectorExists('.dropdown-menu a.dropdown-item[href*="period=year"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="year"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertSelectorExists('.page-header [data-testid="stats-ttp-explorer-link"].btn');
         $this->assertSelectorNotExists('[data-testid="stats-reports-print"]');
@@ -171,14 +172,31 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertResponseRedirects('/login');
     }
 
-    public function testReportsIndexHidesPeriodControls(): void
+    public function testReportsIndexShowsFullAnalysisContextAndForwardsItOnCards(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/reports?scope=public');
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/reports?scope=public&period=year&year=2024',
+        );
 
         $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="year"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-year"] option[value="2024"][selected]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-context-period-summary"]', '2024');
         $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
-        $this->assertSelectorNotExists('.dropdown-menu a.dropdown-item[href*="period=all"]');
+
+        $monthlyHref = $crawler->filter('[data-testid="stats-reports-card-monthly"]')->attr('href');
+        $this->assertStringContainsString('/statistics/reports/monthly', (string) $monthlyHref);
+        $this->assertStringContainsString('scope=public', (string) $monthlyHref);
+        $this->assertStringContainsString('period=year', (string) $monthlyHref);
+        $this->assertStringContainsString('year=2024', (string) $monthlyHref);
+
+        $ttpHref = $crawler->filter('[data-testid="stats-reports-card-transport_time_profile"]')->attr('href');
+        $this->assertStringContainsString('/statistics/reports/transport_time_profile', (string) $ttpHref);
+        $this->assertStringContainsString('period=year', (string) $ttpHref);
+        $this->assertStringContainsString('year=2024', (string) $ttpHref);
     }
 
     public function testTransportTimeProfileRendersMatrixForSeededAllocations(): void

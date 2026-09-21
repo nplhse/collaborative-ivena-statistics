@@ -102,7 +102,7 @@ final class TopListsPagePresenterTest extends TestCase
             $comparison,
             $primaryFilter,
             $comparisonFilter,
-            'Public',
+            'All assignments',
             'Last 12 months',
             'Hessen',
             '2024',

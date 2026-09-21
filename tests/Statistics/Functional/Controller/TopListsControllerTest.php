@@ -49,9 +49,14 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertStringContainsString('Top Lists', $crawler->filter('[data-testid="stats-heading-title"]')->text());
         $href = $crawler->filter('[data-testid="stats-top-lists-card-top_diagnoses"]')->attr('href');
         $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', $href);
+        $this->assertStringContainsString('scope=public', (string) $href);
+        $this->assertStringContainsString('period=all', (string) $href);
         $this->assertSelectorNotExists('[data-testid="stats-scope"]');
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"] option[value="all"][selected]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period-summary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
         $this->assertSelectorTextContains(
             '[data-testid="stats-top-lists-card-top_diagnoses"]',
@@ -644,6 +649,7 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-scope"]');
         $this->assertSelectorNotExists('[data-testid="stats-scope-primary"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-context-trigger"]');
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-ranking-depth"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-page-size-trigger"]');
@@ -772,8 +778,8 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-heading-subtitle"]');
-        $this->assertSelectorExists('[data-testid="stats-scope"]');
-        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"][data-bs-toggle="modal"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-enable"][data-bs-target="#stats-top-lists-comparison-modal-b"]');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
@@ -798,7 +804,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-period-navigation"]');
-        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
         $previousHref = $crawler->filter('[data-testid="stats-period-nav-previous"] a.page-link[href]')->attr('href');
         $this->assertStringContainsString('/statistics/top-lists/top_diagnoses', $previousHref);
         $this->assertStringContainsString('year=2020', $previousHref);
@@ -814,7 +820,7 @@ final class TopListsControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-period-navigation"]');
-        $this->assertSelectorExists('[data-testid="stats-period-primary"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-trigger"]');
     }
 
     public function testReportsFilterDrawerRendersAccordionAndTrigger(): void

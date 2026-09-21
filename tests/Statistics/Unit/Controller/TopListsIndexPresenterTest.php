@@ -31,6 +31,9 @@ final class TopListsIndexPresenterTest extends TestCase
         self::assertSame('tabler:id', $index->cards[0]->icon);
         self::assertStringContainsString('app_stats_top_lists_show', $index->cards[0]->url);
         self::assertStringContainsString('report=top_diagnoses', $index->cards[0]->url);
+        self::assertStringContainsString('scope=public', $index->cards[0]->url);
+        self::assertStringContainsString('period=year', $index->cards[0]->url);
+        self::assertStringContainsString('year=2024', $index->cards[0]->url);
     }
 
     public function testSortsCardsByTranslatedLabel(): void
@@ -85,6 +88,6 @@ final class TopListsIndexPresenterTest extends TestCase
             new TopListDefinitionRegistry($definitions),
             new StatisticsNavigationUrlBuilder($router),
             $translator,
-        )->present(new Request(query: ['scope' => 'public']));
+        )->present(new Request(query: ['scope' => 'public', 'period' => 'year', 'year' => '2024']));
     }
 }

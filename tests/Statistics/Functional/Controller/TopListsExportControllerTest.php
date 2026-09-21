@@ -53,7 +53,7 @@ final class TopListsExportControllerTest extends WebTestCase
         self::assertSame('Scope', $lines[0][0]);
         self::assertSame('Rank', $lines[0][2]);
         self::assertSame('Indication', $lines[0][3]);
-        self::assertSame('Public', $lines[1][0]);
+        self::assertSame('All assignments', $lines[1][0]);
         self::assertSame('Last 12 months', $lines[1][1]);
         self::assertTrue($this->csvContainsLabel($lines, 'Export Current 01'));
         self::assertFalse($this->csvContainsLabel($lines, 'Export Historic Only'));
@@ -144,7 +144,7 @@ final class TopListsExportControllerTest extends WebTestCase
         self::assertSame('Indikation', $lines[0][3]);
         self::assertSame('Anzahl', $lines[0][4]);
         self::assertSame('Anteil', $lines[0][5]);
-        self::assertSame('Öffentlich', $lines[1][0]);
+        self::assertSame('Alle Zuweisungen', $lines[1][0]);
         self::assertSame('Letzte 12 Monate', $lines[1][1]);
     }
 

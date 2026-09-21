@@ -211,12 +211,12 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         self::assertSame('1', (string) ($frameQuery['urgency'] ?? ''));
         self::assertSame('origin:'.$areaA->getId(), $frameQuery['geo_segment'] ?? null);
 
-        $publicHref = (string) $page->filter('.page-header .dropdown-menu .dropdown-item')->reduce(
-            static fn ($node): bool => str_contains($node->text(), 'Public'),
-        )->attr('href');
-        self::assertStringContainsString('scope=public', $publicHref);
-        self::assertStringNotContainsString('geo_segment', $publicHref);
-        self::assertStringNotContainsString('geo_profile', $publicHref);
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-scope-group"] option[value="public"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-context-scope-group"] option[value="public"]',
+            'All assignments',
+        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-form"] input[data-analysis-context-geo]');
     }
 
     public function testEntireAreaFrameShowsPopulationWhenNoSegmentIsSelected(): void
