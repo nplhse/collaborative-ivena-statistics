@@ -13,37 +13,24 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'title.allocation.list' }
-                ]"
-        />
-
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    {% block page_intro %}
-                        <h2 class="page-title">
-                            {% block page_title %}{{ 'title.allocation.list'|trans({}, 'allocation') }}{% endblock %}
-                        </h2>
-                        {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
-                    {% endblock %}
-                </div>
-                <!-- Page title actions -->
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <twig:FilterDrawerTrigger
-                            drawerId="allocation-filters"
-                            :activeCount="activeFilterCount"
-                            resetUrl="{{ activeFilterCount > 0 ? path('app_explore_allocation_list') : null }}"
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <twig:PageHeader :title="'title.allocation.list'|trans({}, 'allocation')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'title.allocation.list' }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <twig:FilterDrawerTrigger
+                drawerId="allocation-filters"
+                :activeCount="activeFilterCount"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_allocation_list') : null }}"
+            />
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}

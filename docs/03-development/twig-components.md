@@ -112,9 +112,9 @@ Three groups:
 
 ## PageHeader
 
-Canonical page title row for analysis pages: title, optional pretitle, optional context, and primary actions. Markup follows Tabler’s `.page-header` inside `container-xl`. Breadcrumbs and a trailing meta slot (for example the data-quality indicator) sit above the title row. The site navbar is a different header and stays outside this component.
+Canonical page title row: title, optional pretitle, optional context, and primary actions. Markup follows Tabler’s `.page-header` inside `container-xl`. Breadcrumbs and a trailing meta slot (for example the data-quality indicator) sit above the title row. The site navbar is a different header and stays outside this component.
 
-Use for new analysis pages instead of copying the Statistics chrome. Explore list pages keep their own search and filter toolbar.
+Use for analysis pages and Explore/Import DataTable lists instead of copying `.page-header` chrome. Put the list result count in `context` (`#page-result-count`) and search, filters, or other toolbar controls in `actions`.
 
 The `actions` slot contains only the buttons. The component wraps them in `col-auto ms-auto d-print-none` and `btn-list`. Set `actionsClass` when the toolbar needs a different layout, as the Analysis Explorer does.
 
@@ -143,6 +143,23 @@ Slots: `breadcrumbs`, `meta`, `context`, `actions`. The breadcrumbs/meta row is 
     </twig:block>
     <twig:block name="actions">
         {{ include('@Statistics/_header_actions.html.twig') }}
+    </twig:block>
+</twig:PageHeader>
+```
+
+```twig
+<twig:PageHeader :title="'title.state.list'|trans({}, 'allocation')">
+    <twig:block name="breadcrumbs">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.explore', path: path('app_explore_index') },
+            { label: 'title.state.list' }
+        ]" />
+    </twig:block>
+    <twig:block name="context">
+        {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+    </twig:block>
+    <twig:block name="actions">
+        {# search and FilterDrawerTrigger #}
     </twig:block>
 </twig:PageHeader>
 ```
@@ -239,7 +256,7 @@ Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom c
 
 Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type.
 
-List pages also show the same range under the title (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
+List pages also show the same range in the PageHeader `context` slot (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 
 `pagination.results` / `pagination.navbar` / `pagination.sortArrow` keep their signatures for Card, Insights, and Top Lists.
 

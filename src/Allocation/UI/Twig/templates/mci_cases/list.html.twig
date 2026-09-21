@@ -13,37 +13,24 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
+    <twig:PageHeader :title="'title.mci_case.list'|trans({}, 'allocation')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
                 { label: 'link.explore', path: path('app_explore_index') },
                 { label: 'title.mci_case.list' }
-            ]"
-        />
-
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    {% block page_intro %}
-                        <h2 class="page-title">
-                            {% block page_title %}{{ 'title.mci_case.list'|trans({}, 'allocation') }}{% endblock %}
-                        </h2>
-                        {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
-                    {% endblock %}
-                </div>
-
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        {% if importId is not null %}
-                            <a class="btn" href="{{ path('app_explore_mci_case_list') }}">
-                                {{ 'label.filters.reset'|trans({}, 'messages') }}
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            {% if importId is not null %}
+                <a class="btn" href="{{ path('app_explore_mci_case_list') }}">
+                    {{ 'label.filters.reset'|trans({}, 'messages') }}
+                </a>
+            {% endif %}
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}

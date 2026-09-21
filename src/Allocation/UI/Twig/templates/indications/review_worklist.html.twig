@@ -13,77 +13,69 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
+    <twig:PageHeader :title="'title.indication.review_worklist'|trans({}, 'allocation')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
                 { label: 'link.explore', path: path('app_explore_index') },
                 { label: 'title.indication.list', path: path('app_explore_indication_list') },
                 { label: 'title.indication.review_worklist' }
-            ]"
-        />
-
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">{{ 'title.indication.review_worklist'|trans({}, 'allocation') }}</h2>
-                    {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
-                </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        {% if can_edit_match %}
-                            <a href="{{ path('app_explore_indication_raw_review_start_matching') }}" class="btn" target="_top">
-                                {{ 'btn.indication.start_matching'|trans({}, 'allocation') }}
-                            </a>
-                        {% endif %}
-                        {% if can_review %}
-                            <a href="{{ path('app_explore_indication_raw_review_start_reviewing') }}" class="btn" target="_top">
-                                {{ 'btn.indication.start_reviewing'|trans({}, 'allocation') }}
-                            </a>
-                        {% endif %}
-                        <form
-                            method="GET"
-                            action="{{ path('app_explore_indication_raw_review_worklist') }}"
-                            data-controller="autosubmit"
-                            data-turbo-frame="indication-review-list"
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            {% if can_edit_match %}
+                <a href="{{ path('app_explore_indication_raw_review_start_matching') }}" class="btn" target="_top">
+                    {{ 'btn.indication.start_matching'|trans({}, 'allocation') }}
+                </a>
+            {% endif %}
+            {% if can_review %}
+                <a href="{{ path('app_explore_indication_raw_review_start_reviewing') }}" class="btn" target="_top">
+                    {{ 'btn.indication.start_reviewing'|trans({}, 'allocation') }}
+                </a>
+            {% endif %}
+            <form
+                method="GET"
+                action="{{ path('app_explore_indication_raw_review_worklist') }}"
+                data-controller="autosubmit"
+                data-turbo-frame="indication-review-list"
+            >
+                <div class="input-icon">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ query.search }}"
+                        aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                        placeholder="{{ 'label.search'|trans({}, 'messages') }}"
+                        class="form-control d-inline-block w-9"
+                        data-action="autosubmit#debouncedSubmit"
+                    >
+                    <span class="input-icon-addon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="icon"
+                            width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor"
+                            fill="none"
+                            stroke-linecap="round" stroke-linejoin="round"
                         >
-                            <div class="input-icon">
-                                <input
-                                    type="search"
-                                    name="search"
-                                    value="{{ query.search }}"
-                                    aria-label="{{ 'label.search'|trans({}, 'messages') }}"
-                                    placeholder="{{ 'label.search'|trans({}, 'messages') }}"
-                                    class="form-control d-inline-block w-9"
-                                    data-action="autosubmit#debouncedSubmit"
-                                >
-                                <span class="input-icon-addon">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="icon"
-                                        width="24" height="24" viewBox="0 0 24 24"
-                                        stroke-width="2" stroke="currentColor"
-                                        fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                    >
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="10" cy="10" r="7" />
-                                        <line x1="21" y1="21" x2="15" y2="15" />
-                                    </svg>
-                                </span>
-                            </div>
-                            <input type="hidden" name="segment" value="{{ query.segment.value }}">
-                            {% if query.sortBy != 'createdAt' %}
-                                <input type="hidden" name="sortBy" value="{{ query.sortBy }}">
-                            {% endif %}
-                            {% if query.orderBy != 'asc' %}
-                                <input type="hidden" name="orderBy" value="{{ query.orderBy }}">
-                            {% endif %}
-                        </form>
-                    </div>
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <circle cx="10" cy="10" r="7" />
+                            <line x1="21" y1="21" x2="15" y2="15" />
+                        </svg>
+                    </span>
                 </div>
-            </div>
-        </div>
-    </div>
+                <input type="hidden" name="segment" value="{{ query.segment.value }}">
+                {% if query.sortBy != 'createdAt' %}
+                    <input type="hidden" name="sortBy" value="{{ query.sortBy }}">
+                {% endif %}
+                {% if query.orderBy != 'asc' %}
+                    <input type="hidden" name="orderBy" value="{{ query.orderBy }}">
+                {% endif %}
+            </form>
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}

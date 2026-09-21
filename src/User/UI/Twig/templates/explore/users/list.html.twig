@@ -13,74 +13,62 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'link.users' }
-                ]"
-        />
+    <twig:PageHeader :title="'title.user.list'|trans({}, 'user')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'link.users' }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <twig:FilterDrawerTrigger
+                drawerId="user-filters"
+                :activeCount="activeFilterCount"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_user_list', {search: search, sortBy: sortBy, orderBy: orderBy}) : null }}"
+                openTestId="user-directory-filters-toggle"
+                clearTestId="user-directory-filters-reset"
+                countTestId="user-directory-active-filter-count"
+            />
 
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    {% block page_intro %}
-                        <h2 class="page-title">
-                            {% block page_title %}{{ 'title.user.list'|trans({}, 'user') }}{% endblock %}
-                        </h2>
-                        {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
-                    {% endblock %}
+            <form
+                method="GET"
+                action="{{ path('app_explore_user_list') }}"
+                data-controller="autosubmit"
+                data-turbo-frame="user-list"
+                data-testid="user-directory-search"
+            >
+                <input type="hidden" name="sortBy" value="{{ sortBy }}">
+                <input type="hidden" name="orderBy" value="{{ orderBy }}">
+                {% if filters.hospitalId %}
+                    <input type="hidden" name="hospitalId" value="{{ filters.hospitalId }}">
+                {% endif %}
+                {% if filters.wantsParticipant %}
+                    <input type="hidden" name="participant" value="1">
+                {% endif %}
+                {% if filters.wantsBoardMember %}
+                    <input type="hidden" name="boardMember" value="1">
+                {% endif %}
+                <div class="input-icon">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ app.request.query.get('search') }}"
+                        aria-label="{{ 'label.user.search'|trans({}, 'user') }}"
+                        placeholder="{{ 'label.user.search'|trans({}, 'user') }}"
+                        class="form-control d-inline-block w-9 me-3"
+                        data-action="autosubmit#debouncedSubmit"
+                        autofocus
+                    >
+                    <span class="input-icon-addon">
+                        <twig:ux:icon name="tabler:search" width="1em" height="1em" />
+                    </span>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <twig:FilterDrawerTrigger
-                            drawerId="user-filters"
-                            :activeCount="activeFilterCount"
-                            resetUrl="{{ activeFilterCount > 0 ? path('app_explore_user_list', {search: search, sortBy: sortBy, orderBy: orderBy}) : null }}"
-                            openTestId="user-directory-filters-toggle"
-                            clearTestId="user-directory-filters-reset"
-                            countTestId="user-directory-active-filter-count"
-                        />
-
-                        <form
-                            method="GET"
-                            action="{{ path('app_explore_user_list') }}"
-                            data-controller="autosubmit"
-                            data-turbo-frame="user-list"
-                            data-testid="user-directory-search"
-                        >
-                            <input type="hidden" name="sortBy" value="{{ sortBy }}">
-                            <input type="hidden" name="orderBy" value="{{ orderBy }}">
-                            {% if filters.hospitalId %}
-                                <input type="hidden" name="hospitalId" value="{{ filters.hospitalId }}">
-                            {% endif %}
-                            {% if filters.wantsParticipant %}
-                                <input type="hidden" name="participant" value="1">
-                            {% endif %}
-                            {% if filters.wantsBoardMember %}
-                                <input type="hidden" name="boardMember" value="1">
-                            {% endif %}
-                            <div class="input-icon">
-                                <input
-                                    type="search"
-                                    name="search"
-                                    value="{{ app.request.query.get('search') }}"
-                                    aria-label="{{ 'label.user.search'|trans({}, 'user') }}"
-                                    placeholder="{{ 'label.user.search'|trans({}, 'user') }}"
-                                    class="form-control d-inline-block w-9 me-3"
-                                    data-action="autosubmit#debouncedSubmit"
-                                    autofocus
-                                >
-                                <span class="input-icon-addon">
-                                    <twig:ux:icon name="tabler:search" width="1em" height="1em" />
-                                </span>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </form>
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}

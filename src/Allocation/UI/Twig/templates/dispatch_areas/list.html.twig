@@ -13,73 +13,60 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'title.dispatch_area.list' }
-                ]"
-        />
+    <twig:PageHeader :title="'title.dispatch_area.list'|trans({}, 'allocation')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'title.dispatch_area.list' }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <twig:FilterDrawerTrigger
+                drawerId="area-filters"
+                :activeCount="activeFilterCount"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_dispatch_area_list') : null }}"
+                openTestId="area-filters-drawer-trigger"
+                clearTestId="area-filters-clear"
+            />
 
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    {% block page_intro %}
-                        <h2 class="page-title">
-                            {% block page_title %}{{ 'title.dispatch_area.list'|trans({}, 'allocation') }}{% endblock %}
-                        </h2>
-                        {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
-                    {% endblock %}
-                    </div>
-                <!-- Page title actions -->
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <twig:FilterDrawerTrigger
-                            drawerId="area-filters"
-                            :activeCount="activeFilterCount"
-                            resetUrl="{{ activeFilterCount > 0 ? path('app_explore_dispatch_area_list') : null }}"
-                            openTestId="area-filters-drawer-trigger"
-                            clearTestId="area-filters-clear"
-                        />
-
-                        <form
-                            method="GET"
-                            action="{{ path('app_explore_dispatch_area_list') }}"
-                            data-controller="autosubmit"
-                            data-turbo-frame="area-list"
+            <form
+                method="GET"
+                action="{{ path('app_explore_dispatch_area_list') }}"
+                data-controller="autosubmit"
+                data-turbo-frame="area-list"
+            >
+                <div class="input-icon">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ app.request.query.get('search') }}"
+                        aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                        placeholder="{{ 'label.search'|trans({}, 'messages') }}"
+                        class="form-control d-inline-block w-9 me-3"
+                        data-action="autosubmit#debouncedSubmit"
+                        autofocus
+                    >
+                    <span class="input-icon-addon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="icon"
+                            width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor"
+                            fill="none"
+                            stroke-linecap="round" stroke-linejoin="round"
                         >
-                            <div class="input-icon">
-                                <input
-                                    type="search"
-                                    name="search"
-                                    value="{{ app.request.query.get('search') }}"
-                                    aria-label="{{ 'label.search'|trans({}, 'messages') }}"
-                                    placeholder="{{ 'label.search'|trans({}, 'messages') }}"
-                                    class="form-control d-inline-block w-9 me-3"
-                                    data-action="autosubmit#debouncedSubmit"
-                                    autofocus
-                                >
-                                <span class="input-icon-addon">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="icon"
-                                        width="24" height="24" viewBox="0 0 24 24"
-                                        stroke-width="2" stroke="currentColor"
-                                        fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                    >
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="10" cy="10" r="7" />
-                                        <line x1="21" y1="21" x2="15" y2="15" />
-                                    </svg>
-                                </span>
-                            </div>
-                        </form>
-                    </div>
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <circle cx="10" cy="10" r="7" />
+                            <line x1="21" y1="21" x2="15" y2="15" />
+                        </svg>
+                    </span>
                 </div>
-            </div>
-        </div>
-    </div>
+            </form>
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
