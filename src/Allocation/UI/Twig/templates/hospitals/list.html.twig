@@ -26,13 +26,6 @@
                         <h2 class="page-title">
                             {% block page_title %}{{ 'title.hospital.list'|trans({}, 'allocation') }}{% endblock %}
                         </h2>
-                        {% block page_subtitle %}
-                            {% block result_count %}
-                                <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}), 'messages') }}
-                                </div>
-                            {% endblock %}
-                        {% endblock %}
                     {% endblock %}
                 </div>
 
@@ -98,152 +91,20 @@
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
-        >
-            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
-            {% import '@Shared/_macros/users.html.twig' as users %}
-
-            <table class="table data-table-card">
-                <thead>
-                <tr>
-                    <th></th>
-                    <th class="col-3">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'name',
-                            orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.name'|trans({}, 'messages') }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-2">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'dispatchArea',
-                            orderBy: sortBy == 'dispatchArea' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.dispatch_area'|trans({}, 'messages') }} {{ pagination.sortArrow('dispatchArea', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-2">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'state',
-                            orderBy: sortBy == 'state' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.state'|trans({}, 'messages') }} {{ pagination.sortArrow('state', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'location',
-                            orderBy: sortBy == 'location' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.location'|trans({}, 'messages') }} {{ pagination.sortArrow('location', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'tier',
-                            orderBy: sortBy == 'tier' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.tier'|trans({}, 'messages') }} {{ pagination.sortArrow('tier', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'size',
-                            orderBy: sortBy == 'size' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.size'|trans({}, 'messages') }} {{ pagination.sortArrow('size', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-2">
-                        <a class="text-muted" href="{{ path('app_explore_hospital_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'lastChange',
-                            orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.last_change'|trans({}, 'messages') }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}<br/>
-                        </a>
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for hospital in paginator.results %}
-                    {% import '@Shared/_macros/badges.html.twig' as badges %}
-                    <tr>
-                        <td class="text-center text-muted">
-                            {% if hospital.isParticipating %}
-                                <div class="text-success">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                                        <path fill="currentColor" d="M18.333 2c1.96 0 3.56 1.537 3.662 3.472l.005.195v12.666c0 1.96-1.537 3.56-3.472 3.662l-.195.005H5.667a3.667 3.667 0 0 1-3.662-3.472L2 18.333V5.667c0-1.96 1.537-3.56 3.472-3.662L5.667 2zm-2.626 7.293a1 1 0 0 0-1.414 0L11 12.585l-1.293-1.292l-.094-.083a1 1 0 0 0-1.32 1.497l2 2l.094.083a1 1 0 0 0 1.32-.083l4-4l.083-.094a1 1 0 0 0-.083-1.32"/>
-                                    </svg>
-                                </div>
-                            {% else %}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3M9.613 8.21l.094.083L12 10.585l2.293-2.292a1 1 0 0 1 1.497 1.32l-.083.094L13.415 12l2.292 2.293a1 1 0 0 1-1.32 1.497l-.094-.083L12 13.415l-2.293 2.292a1 1 0 0 1-1.497-1.32l.083-.094L10.585 12L8.293 9.707a1 1 0 0 1 1.32-1.497"/>
-                                </svg>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" target="_top">{{ hospital.name }}</a>
-                        </td>
-                        <td>
-                            {{ hospital.dispatchArea }}
-                        </td>
-                        <td>
-                            {{ hospital.state }}
-                        </td>
-                        <td>
-                            {{ badges.render('hospital_location', hospital.location.value) }}
-                        </td>
-                        <td>
-                            {% if hospital.tier %}
-                                {{ badges.render('hospital_tier', hospital.tier.value) }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {{ badges.render('hospital_size', hospital.size.value, hospital.beds) }}
-                        </td>
-                        <td>
-                            {{ hospital.updatedAt ? hospital.updatedAt|date('d.m.Y H:i') : hospital.createdAt|date('d.m.Y H:i') }}<br/>
-                            {{ users.link(hospital.updatedBy ?? hospital.createdBy) }}
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty">
-                                <div class="empty-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="12" cy="12" r="9" />
-                                        <line x1="9" y1="10" x2="9.01" y2="10" />
-                                        <line x1="15" y1="10" x2="15.01" y2="10" />
-                                        <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
-                                    </svg>
-                                </div>
-                                <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'messages') }}</p>
-                                <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </twig:DataTable>
-
-        <turbo-stream action="replace" target="result-count">
-            <template>
-                {{ block('result_count') }}
-            </template>
-        </turbo-stream>
-    </turbo-frame>
+            :sortBy="sortBy"
+            :orderBy="orderBy"
+            :columns="[
+                { key: 'participating', type: 'boolean', label: '', property: 'participating' },
+                { key: 'name', type: 'link', label: 'label.name', property: 'name', sortable: true, sortKey: 'name', width: 'col-3', route: 'app_explore_hospital_show', routeParams: {publicId: 'publicId'} },
+                { key: 'dispatchArea', type: 'text', label: 'label.dispatch_area', property: 'dispatchArea', sortable: true, sortKey: 'dispatchArea', width: 'col-2' },
+                { key: 'state', type: 'text', label: 'label.state', property: 'state', sortable: true, sortKey: 'state', width: 'col-2' },
+                { key: 'location', type: 'badge', label: 'label.location', property: 'location', sortable: true, sortKey: 'location', width: 'col-1', badgePalette: 'hospital_location' },
+                { key: 'tier', type: 'badge', label: 'label.tier', property: 'tier', sortable: true, sortKey: 'tier', width: 'col-1', badgePalette: 'hospital_tier' },
+                { key: 'size', type: 'badge', label: 'label.size', property: 'size', sortable: true, sortKey: 'size', width: 'col-1', badgePalette: 'hospital_size', numberProperty: 'beds' },
+                { key: 'lastChange', type: 'custom', label: 'label.last_change', sortable: true, sortKey: 'lastChange', width: 'col-2', cellTemplate: '@Allocation/hospitals/_cell_last_change.html.twig' },
+            ]"
+        />
+</turbo-frame>
 
     <twig:FilterDrawer
         id="hospital-filters"

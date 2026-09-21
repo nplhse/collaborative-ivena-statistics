@@ -1,0 +1,9 @@
+{% if row.hospitals is empty %}
+    <span class="text-secondary">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</span>
+{% else %}
+    {% for hospital in row.hospitals %}
+        <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" target="_top" class="d-inline-block me-1">
+            {{ hospital.name }}
+        </a>{% if not loop.last %}<span class="text-secondary">·</span>{% endif %}
+    {% endfor %}
+{% endif %}

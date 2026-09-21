@@ -1,0 +1,5 @@
+{% if row.target is not null %}
+    {{ row.target.name }} ({{ row.target.code }})
+{% else %}
+    <span class="badge">null</span>
+{% endif %}
