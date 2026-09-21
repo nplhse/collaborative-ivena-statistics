@@ -1,7 +1,14 @@
 {% if rows is empty %}
-    <div class="empty py-4" data-testid="{{ emptyTestId }}">
-        <p class="empty-title">{{ 'stats.insights.empty.title'|trans({}, 'statistics') }}</p>
-        <p class="empty-subtitle text-secondary">{{ 'stats.insights.empty.subtitle'|trans({}, 'statistics') }}</p>
+    <div data-testid="{{ emptyTestId }}">
+        <twig:EmptyState
+            title="{{ 'stats.insights.empty.title'|trans({}, 'statistics') }}"
+            description="{{ 'stats.insights.empty.subtitle'|trans({}, 'statistics') }}"
+            icon="tabler:chart-bar-off"
+        >
+            <twig:block name="actions">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">{{ 'empty.context.cta'|trans({}, 'shared') }}</button>
+            </twig:block>
+        </twig:EmptyState>
     </div>
 {% else %}
     <div class="table-responsive">

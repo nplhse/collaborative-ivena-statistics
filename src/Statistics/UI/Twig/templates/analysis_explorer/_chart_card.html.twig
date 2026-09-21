@@ -72,14 +72,11 @@
                  data-generic-analysis-chart-target="chart"
                  data-testid="stats-analysis-explorer-chart"></div>
         {% else %}
-            <div class="text-center text-secondary py-5" data-testid="stats-analysis-explorer-chart-empty">
-                <p class="mb-0">
-                    {% if emptyReason %}
-                        {{ ('stats.analysis_explorer.empty_state.' ~ emptyReason)|trans({}, 'statistics') }}
-                    {% else %}
-                        {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
-                    {% endif %}
-                </p>
+            <div data-testid="stats-analysis-explorer-chart-empty">
+                {{ include('@Statistics/analysis_explorer/_empty_state.html.twig', {
+                    emptyReason: emptyReason,
+                    canImport: canImport|default(false),
+                }) }}
             </div>
         {% endif %}
     </div>

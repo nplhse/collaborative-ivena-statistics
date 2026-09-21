@@ -441,6 +441,10 @@
         <source>label.user.hospitals.empty</source>
         <target>Keine Krankenhäuser zugeordnet</target>
       </trans-unit>
+      <trans-unit id="usrLblHospitalsEmptyDescDe" resname="label.user.hospitals.empty_description">
+        <source>label.user.hospitals.empty_description</source>
+        <target>Klinikzugänge vergibt eine Klinikadministration. Diesem Konto ist noch keine Klinik zugeordnet.</target>
+      </trans-unit>
       <trans-unit id="usrLblHospitalOwnerDe" resname="label.user.hospital.owner">
         <source>label.user.hospital.owner</source>
         <target>Eigentümer</target>
@@ -517,6 +521,10 @@
         <source>label.user.empty.list</source>
         <target>Keine Benutzer gefunden</target>
       </trans-unit>
+      <trans-unit id="usrLblEmptyListDescDe" resname="label.user.empty.list_description">
+        <source>label.user.empty.list_description</source>
+        <target>Benutzer erscheinen hier, sobald sie ein Konto haben.</target>
+      </trans-unit>
       <trans-unit id="usrLblAccountDe" resname="label.user.account">
         <source>label.user.account</source>
         <target>Konto</target>
@@ -540,6 +548,10 @@
       <trans-unit id="usrLblActivityEmptyDe" resname="label.user.activity.empty">
         <source>label.user.activity.empty</source>
         <target>Noch keine Aktivität</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityEmptyDescDe" resname="label.user.activity.empty_description">
+        <source>label.user.activity.empty_description</source>
+        <target>Kommentare und andere Aktivitäten dieses Kontos erscheinen hier.</target>
       </trans-unit>
       <trans-unit id="usrLblActivityLoadMoreDe" resname="label.user.activity.load_more">
         <source>label.user.activity.load_more</source>

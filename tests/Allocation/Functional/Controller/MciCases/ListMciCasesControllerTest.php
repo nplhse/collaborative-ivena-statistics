@@ -167,6 +167,20 @@ final class ListMciCasesControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('table', 'Hospital Gamma');
     }
 
+    public function testEmptySearchOffersResetWithoutASeparateSearchAlert(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->createSharedAndOtherCases();
+
+        $client->request(Request::METHOD_GET, '/explore/mci_case?search=nothing-matches-this');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="mci-case-filters-active"]', 'nothing-matches-this');
+        self::assertSelectorTextContains('.empty-title', 'No results for the current filters');
+        self::assertSelectorExists('.empty-action a[href="/explore/mci_case"]:not([target])');
+        self::assertStringNotContainsString('Searching for:', (string) $client->getResponse()->getContent());
+    }
+
     private function createSharedAndOtherCases(): void
     {
         $this->createMciCase(self::SHARED_MCI_ID, 'Bridge collapse west', 'Hospital Alpha');

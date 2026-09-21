@@ -81,6 +81,7 @@
             <twig:Alert type="info" :message="'label.searching_for'|trans(({term: search}), 'allocation')" />
         {% endif %}
 
+        {% set listIsFiltered = activeFilterCount > 0 or search is not empty %}
         <twig:DataTable
             :paginator="paginator"
             :rows="items"
@@ -88,15 +89,22 @@
             :sortBy="sortBy"
             :orderBy="orderBy"
             rowTestId="user-directory-row"
-            emptyTitle="{{ 'label.user.empty.list'|trans({}, 'user') }}"
-            emptyIcon="tabler:users"
+            emptyTitle="{{ (listIsFiltered ? 'empty.filtered.title' : 'label.user.empty.list')|trans({}, listIsFiltered ? 'shared' : 'user') }}"
+            emptyDescription="{{ (listIsFiltered ? 'empty.filtered.description' : 'label.user.empty.list_description')|trans({}, listIsFiltered ? 'shared' : 'user') }}"
+            emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : 'tabler:users' }}"
             :columns="[
                 { key: 'username', type: 'link', label: 'label.user.username', labelDomain: 'user', property: 'username', sortable: true, sortKey: 'username', width: 'col-3', route: 'app_explore_user_show', routeParams: {publicId: 'publicId'} },
                 { key: 'roles', type: 'custom', label: 'label.user.roles', labelDomain: 'user', width: 'col-3', cellTemplate: '@User/explore/users/_cell_roles.html.twig' },
                 { key: 'hospitals', type: 'custom', label: 'label.user.hospitals', labelDomain: 'user', width: 'col-4', cellTemplate: '@User/explore/users/_cell_hospitals.html.twig' },
                 { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt', width: 'col-2', format: 'd.m.Y' },
             ]"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if listIsFiltered %}
+                    <a class="btn btn-primary" href="{{ path('app_explore_user_list', {sortBy: sortBy, orderBy: orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
 </turbo-frame>
 
     <twig:FilterDrawer

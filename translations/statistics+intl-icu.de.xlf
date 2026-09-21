@@ -1337,6 +1337,30 @@
         <source>stats.analysis_explorer.empty_state.no_data</source>
         <target>Keine Daten für den gewählten Bereich und Zeitraum verfügbar.</target>
       </trans-unit>
+      <trans-unit id="statsAex36h" resname="stats.analysis_explorer.empty_state.no_data_help">
+        <source>stats.analysis_explorer.empty_state.no_data_help</source>
+        <target>Ändere Zeitraum oder Umfang. Ein weiterer Import füllt keinen Zeitraum, in dem schlicht keine Zuweisungen liegen.</target>
+      </trans-unit>
+      <trans-unit id="statsAexNs" resname="stats.analysis_explorer.empty_state.no_source">
+        <source>stats.analysis_explorer.empty_state.no_source</source>
+        <target>Noch keine Zuweisungen importiert</target>
+      </trans-unit>
+      <trans-unit id="statsAexNsh" resname="stats.analysis_explorer.empty_state.no_source_help">
+        <source>stats.analysis_explorer.empty_state.no_source_help</source>
+        <target>Importiere den ersten IVENA-Datensatz, um diese Auswertung zu starten.</target>
+      </trans-unit>
+      <trans-unit id="statsAexFlt" resname="stats.analysis_explorer.empty_state.filtered">
+        <source>stats.analysis_explorer.empty_state.filtered</source>
+        <target>Keine Ergebnisse für die aktuellen Filter</target>
+      </trans-unit>
+      <trans-unit id="statsRepNsTi" resname="stats.reports.empty.no_source.title">
+        <source>stats.reports.empty.no_source.title</source>
+        <target>Noch keine Zuweisungen importiert</target>
+      </trans-unit>
+      <trans-unit id="statsRepNsBo" resname="stats.reports.empty.no_source.body">
+        <source>stats.reports.empty.no_source.body</source>
+        <target>Berichte erscheinen, nachdem der erste IVENA-Datensatz für diesen Umfang importiert wurde.</target>
+      </trans-unit>
       <trans-unit id="statsAex38" resname="stats.analysis_explorer.empty_state.query_error">
         <source>stats.analysis_explorer.empty_state.query_error</source>
         <target>Die Analyse konnte nicht geladen werden. Bitte versuchen Sie es erneut oder passen Sie die Filter an.</target>

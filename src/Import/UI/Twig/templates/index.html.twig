@@ -13,7 +13,9 @@
             {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
         </twig:block>
         <twig:block name="actions">
-            <a class="btn btn-primary" href="{{ path('app_import_new') }}">{{ 'label.import.new'|trans({}, 'import') }}</a>
+            {% if canImport %}
+                <a class="btn btn-primary" href="{{ path('app_import_new') }}">{{ 'label.import.new'|trans({}, 'import') }}</a>
+            {% endif %}
             <twig:FilterDrawerTrigger
                 drawerId="import-filters"
                 :activeCount="activeFilterCount"
@@ -72,15 +74,15 @@
             {{ activeFilters.import_filter_badges(filters, hospitals, owners) }}
         {% endif %}
 
-        {% if search is not empty %}
-            <twig:Alert type="info" :message="'label.search_for'|trans(({term: search}), 'messages')" />
-        {% endif %}
-
+        {% set listIsFiltered = activeFilterCount > 0 %}
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
             :orderBy="orderBy"
+            emptyTitle="{{ (listIsFiltered ? 'empty.filtered.title' : (canImport ? 'empty.import.initial.title' : 'empty.import.no_permission.title'))|trans({}, listIsFiltered ? 'shared' : 'import') }}"
+            emptyDescription="{{ (listIsFiltered ? 'empty.filtered.description' : (canImport ? 'empty.import.initial.description' : 'empty.import.no_permission.description'))|trans({}, listIsFiltered ? 'shared' : 'import') }}"
+            emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : 'tabler:database-import' }}"
             :columns="[
                 { key: 'type', type: 'badge', label: 'label.type', property: 'type', sortable: true, sortKey: 'type', width: 'col-1', badgePalette: 'import_type' },
                 { key: 'name', type: 'link', label: 'label.name', property: 'name', sortable: true, sortKey: 'name', width: 'col-3', route: 'app_import_show', routeParams: {id: 'id'} },
@@ -90,7 +92,17 @@
                 { key: 'lastChange', type: 'datetime', label: 'label.last_changed_at', property: 'updatedAt', fallbackProperty: 'createdAt', sortable: true, sortKey: 'lastChange', width: 'col-2' },
                 { key: 'lastChangedBy', type: 'user', label: 'label.last_changed_by', property: 'updatedBy', fallbackProperty: 'createdBy', width: 'col-2' },
             ]"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if listIsFiltered %}
+                    <a class="btn btn-primary" href="{{ path('app_import_index', {sortBy: sortBy, orderBy: orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% elseif canImport %}
+                    <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.import.initial.cta'|trans({}, 'import') }}</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="{{ path('app_default') }}" target="_top">{{ 'empty.onboarding.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
 </turbo-frame>
 
     <twig:FilterDrawer

@@ -1129,6 +1129,62 @@
         <source>export.boolean.false</source>
         <target>False</target>
       </trans-unit>
+      <trans-unit id="emptyAlcTiEn" resname="empty.allocation.initial.title">
+        <source>empty.allocation.initial.title</source>
+        <target>No allocations yet</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcDeEn" resname="empty.allocation.initial.description">
+        <source>empty.allocation.initial.description</source>
+        <target>Import your first IVENA dataset to start exploring allocation data.</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcCtaEn" resname="empty.allocation.initial.cta">
+        <source>empty.allocation.initial.cta</source>
+        <target>Import data</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNpTiEn" resname="empty.allocation.no_permission.title">
+        <source>empty.allocation.no_permission.title</source>
+        <target>No allocations yet</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNpDeEn" resname="empty.allocation.no_permission.description">
+        <source>empty.allocation.no_permission.description</source>
+        <target>Allocations appear after an IVENA dataset is imported. Import access is granted per hospital.</target>
+      </trans-unit>
+      <trans-unit id="emptyCovTiEn" resname="empty.hospital.coverage.title">
+        <source>empty.hospital.coverage.title</source>
+        <target>No allocations for this hospital yet</target>
+      </trans-unit>
+      <trans-unit id="emptyCovDeEn" resname="empty.hospital.coverage.description">
+        <source>empty.hospital.coverage.description</source>
+        <target>Import the first IVENA dataset for this hospital to see coverage.</target>
+      </trans-unit>
+      <trans-unit id="emptyCovCtaEn" resname="empty.hospital.coverage.cta">
+        <source>empty.hospital.coverage.cta</source>
+        <target>Import data</target>
+      </trans-unit>
+      <trans-unit id="emptyCovNpDeEn" resname="empty.hospital.coverage.no_permission.description">
+        <source>empty.hospital.coverage.no_permission.description</source>
+        <target>Coverage appears after an IVENA dataset is imported for this hospital.</target>
+      </trans-unit>
+      <trans-unit id="emptyOwnTiEn" resname="empty.owned.title">
+        <source>empty.owned.title</source>
+        <target>No hospitals associated with your account</target>
+      </trans-unit>
+      <trans-unit id="emptyOwnDeEn" resname="empty.owned.description">
+        <source>empty.owned.description</source>
+        <target>Hospital access is granted by a hospital administrator. Onboarding on the dashboard explains how to request access.</target>
+      </trans-unit>
+      <trans-unit id="emptyOwnCtaEn" resname="empty.owned.cta">
+        <source>empty.owned.cta</source>
+        <target>Go to dashboard</target>
+      </trans-unit>
+      <trans-unit id="emptyGrnTiEn" resname="empty.access_grants.title">
+        <source>empty.access_grants.title</source>
+        <target>No users associated yet</target>
+      </trans-unit>
+      <trans-unit id="emptyGrnDeEn" resname="empty.access_grants.description">
+        <source>empty.access_grants.description</source>
+        <target>Associate a user to grant them access to this hospital.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

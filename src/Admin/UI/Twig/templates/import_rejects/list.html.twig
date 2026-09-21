@@ -220,15 +220,11 @@
             {% else %}
                 <tr>
                     <td colspan="6">
-                        <div class="empty">
-                            <div class="empty-icon">
-                                <twig:ux:icon name="tabler:mood-sad" class="w-3 h-3" />
-                            </div>
-                            <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'admin') }}</p>
-                            <p class="empty-subtitle text-secondary">
-                                {{ 'help.search_no_results'|trans({}, 'admin') }}
-                            </p>
-                        </div>
+                        <twig:EmptyState
+                            title="{{ 'label.search_no_results'|trans({}, 'admin') }}"
+                            description="{{ 'help.search_no_results'|trans({}, 'admin') }}"
+                            icon="tabler:mood-sad"
+                        />
                     </td>
                 </tr>
             {% endfor %}

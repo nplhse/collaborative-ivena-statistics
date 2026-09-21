@@ -82,6 +82,9 @@
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
             :orderBy="orderBy"
+            emptyTitle="{{ (activeFilterCount > 0 ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
+            emptyDescription="{{ (activeFilterCount > 0 ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
+            emptyIcon="{{ activeFilterCount > 0 ? 'tabler:filter-off' : 'tabler:inbox' }}"
             :columns="catalog_list_columns('app_explore_dispatch_area_show', [{
                 key: 'state',
                 type: 'text',
@@ -91,7 +94,13 @@
                 sortKey: 'state',
                 width: 'col-2',
             }])"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if activeFilterCount > 0 %}
+                    <a class="btn btn-primary" href="{{ path('app_explore_dispatch_area_list') }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
 </turbo-frame>
 
     <twig:FilterDrawer

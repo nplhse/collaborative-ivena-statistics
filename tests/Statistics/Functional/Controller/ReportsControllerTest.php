@@ -67,6 +67,9 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-reports-content"]');
         $this->assertSelectorExists('[data-testid="stats-monthly-report-empty"]');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-empty"]', 'No allocations imported yet');
+        $this->assertSelectorTextContains('[data-testid="stats-monthly-report-empty"]', 'Open onboarding');
+        $this->assertSelectorNotExists('[data-testid="stats-monthly-report-empty"] a[href="/import/new"]');
         $this->assertSelectorNotExists('[data-testid="stats-monthly-report-closed-department"]');
         $this->assertSelectorExists('[data-testid="stats-heading-title"]');
         $this->assertSelectorExists('[data-testid="stats-heading-title"] .ps-2');

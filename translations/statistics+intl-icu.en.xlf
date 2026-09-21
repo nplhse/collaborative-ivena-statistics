@@ -4261,6 +4261,30 @@
         <source>stats.analysis_explorer.empty_state.no_data</source>
         <target>No data available for the selected scope and period.</target>
       </trans-unit>
+      <trans-unit id="statsAex36h" resname="stats.analysis_explorer.empty_state.no_data_help">
+        <source>stats.analysis_explorer.empty_state.no_data_help</source>
+        <target>Change the period or scope. Importing more data will not fill a period that simply has no allocations.</target>
+      </trans-unit>
+      <trans-unit id="statsAexNs" resname="stats.analysis_explorer.empty_state.no_source">
+        <source>stats.analysis_explorer.empty_state.no_source</source>
+        <target>No allocations have been imported yet</target>
+      </trans-unit>
+      <trans-unit id="statsAexNsh" resname="stats.analysis_explorer.empty_state.no_source_help">
+        <source>stats.analysis_explorer.empty_state.no_source_help</source>
+        <target>Import the first IVENA dataset to run this analysis.</target>
+      </trans-unit>
+      <trans-unit id="statsAexFlt" resname="stats.analysis_explorer.empty_state.filtered">
+        <source>stats.analysis_explorer.empty_state.filtered</source>
+        <target>No results for the current filters</target>
+      </trans-unit>
+      <trans-unit id="statsRepNsTi" resname="stats.reports.empty.no_source.title">
+        <source>stats.reports.empty.no_source.title</source>
+        <target>No allocations imported yet</target>
+      </trans-unit>
+      <trans-unit id="statsRepNsBo" resname="stats.reports.empty.no_source.body">
+        <source>stats.reports.empty.no_source.body</source>
+        <target>Reports appear after the first IVENA dataset is imported for this scope.</target>
+      </trans-unit>
       <trans-unit id="statsAex37" resname="stats.analysis_explorer.empty_state.unsupported">
         <source>stats.analysis_explorer.empty_state.unsupported</source>
         <target>This analysis configuration cannot be displayed.</target>

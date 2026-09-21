@@ -8,9 +8,20 @@
                     {{ 'catalog.coverage.suppressed'|trans({threshold: constant('App\\Allocation\\Application\\Explore\\Catalog\\CatalogPrivacyPolicy::MIN_ALLOCATIONS')}, 'allocation') }}
                 </twig:Alert>
             {% elseif not coverage.hasData %}
-                <p class="text-muted mb-0" data-testid="catalog-coverage-empty">
-                    {{ 'catalog.coverage.empty'|trans({}, 'allocation') }}
-                </p>
+                {% set hospitalCoverage = coverageLayout is defined and coverageLayout == 'hospital' %}
+                <div data-testid="catalog-coverage-empty">
+                    <twig:EmptyState
+                        title="{{ (hospitalCoverage ? 'empty.hospital.coverage.title' : 'catalog.section.coverage')|trans({}, 'allocation') }}"
+                        description="{{ (hospitalCoverage ? (canImport|default(false) ? 'empty.hospital.coverage.description' : 'empty.hospital.coverage.no_permission.description') : 'catalog.coverage.empty')|trans({}, 'allocation') }}"
+                        icon="tabler:database-off"
+                    >
+                        <twig:block name="actions">
+                            {% if hospitalCoverage and canImport|default(false) %}
+                                <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.hospital.coverage.cta'|trans({}, 'allocation') }}</a>
+                            {% endif %}
+                        </twig:block>
+                    </twig:EmptyState>
+                </div>
             {% else %}
                 {% set hospitalLayout = coverageLayout is defined and coverageLayout == 'hospital' %}
                 <div class="datagrid" data-testid="catalog-coverage-metrics">

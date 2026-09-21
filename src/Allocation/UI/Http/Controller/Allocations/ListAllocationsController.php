@@ -13,6 +13,7 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Query\ListAllocationsQuery;
 use App\Allocation\UI\Http\DTO\AllocationQueryParametersDTO;
+use App\Import\Application\Service\ImportListAccess;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +27,7 @@ final class ListAllocationsController extends AbstractController
         private readonly ListAllocationsQuery $allocationsQuery,
         private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
         private readonly AllocationListHospitalScopeOptionsProvider $hospitalScopeOptionsProvider,
+        private readonly ImportListAccess $importListAccess,
     ) {
     }
 
@@ -59,6 +61,7 @@ final class ListAllocationsController extends AbstractController
             ...$filterOptions,
             'transportTypes' => AllocationTransportType::cases(),
             'hospitalScopeOptions' => $hospitalScopeOptions,
+            'canImport' => $participant instanceof User && [] !== $this->importListAccess->resolveAccessibleHospitalIds($participant),
         ]);
     }
 

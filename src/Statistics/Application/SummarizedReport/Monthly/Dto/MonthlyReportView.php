@@ -56,6 +56,8 @@ final readonly class MonthlyReportView
         public ?int $nextYear,
         public ?int $nextMonth,
         public bool $nextEnabled,
+        public bool $hasSourceData = false,
+        public bool $canImport = false,
     ) {
     }
 }

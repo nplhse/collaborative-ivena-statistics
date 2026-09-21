@@ -27,7 +27,8 @@
             {% endif %}
 
             {% if this.declarative %}
-                {{ include('@Shared/components/data_table/_table.html.twig') }}
+                {% set emptyActions %}{% block empty_actions %}{% endblock %}{% endset %}
+                {{ include('@Shared/components/data_table/_table.html.twig', {emptyActions: emptyActions}) }}
             {% else %}
                 {% block content %}{% endblock %}
             {% endif %}

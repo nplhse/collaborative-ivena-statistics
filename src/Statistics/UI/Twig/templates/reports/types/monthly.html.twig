@@ -1,23 +1,16 @@
 {% set report = report %}
 
 {% if not report.hasData %}
-    <div class="empty" data-testid="stats-monthly-report-empty">
-        <div class="empty-icon">
-            <twig:ux:icon name="tabler:file-analytics" class="icon icon-lg text-secondary" />
-        </div>
-        <p class="empty-title">{{ 'stats.reports.monthly.empty.title'|trans({}, 'statistics') }}</p>
-        <p class="empty-subtitle text-secondary">
-            {{ 'stats.reports.monthly.empty.body'|trans({period: report.periodLabel}, 'statistics') }}
-        </p>
-        <div class="empty-action">
-            <a href="{{ report.importCreateUrl }}" class="btn btn-primary">
-                {{ 'stats.reports.monthly.empty.cta_import'|trans({}, 'statistics') }}
-            </a>
-            <a href="{{ report.dashboardUrl }}" class="btn btn-outline-secondary">
-                {{ 'stats.reports.monthly.empty.cta_dashboard'|trans({}, 'statistics') }}
-            </a>
-        </div>
-    </div>
+    {{ include('@Statistics/reports/types/_report_empty.html.twig', {
+        testId: 'stats-monthly-report-empty',
+        icon: 'tabler:file-analytics',
+        contextTitle: 'stats.reports.monthly.empty.title'|trans({}, 'statistics'),
+        contextDescription: 'stats.reports.monthly.empty.body'|trans({period: report.periodLabel}, 'statistics'),
+        hasSourceData: report.hasSourceData,
+        canImport: report.canImport,
+        importUrl: report.importCreateUrl,
+        dashboardUrl: report.dashboardUrl,
+    }) }}
 {% else %}
     <div class="row row-deck row-cards mb-3" data-testid="stats-monthly-report-summary">
         <div class="col-12 col-md-6 col-lg-4">

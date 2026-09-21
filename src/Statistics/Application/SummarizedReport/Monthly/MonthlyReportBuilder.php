@@ -18,6 +18,7 @@ use App\Statistics\Application\Insights\HospitalInsightSelector;
 use App\Statistics\Application\Overview\OverviewPeriodComparisonService;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportClosedDepartmentView;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportSegment;
 use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportTopRow;
@@ -70,6 +71,7 @@ final readonly class MonthlyReportBuilder
         private KpiDailyRepository $kpiDailyRepository,
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
+        private StatisticsSourceDataProbe $sourceDataProbe,
     ) {
     }
 
@@ -283,6 +285,8 @@ final readonly class MonthlyReportBuilder
             nextYear: $period['navigationNextYear'],
             nextMonth: $period['navigationNextMonth'],
             nextEnabled: $period['navigationNextEnabled'],
+            hasSourceData: $this->sourceDataProbe->hasSourceData($context->user, $monthFilter),
+            canImport: $this->sourceDataProbe->canImport($context->user),
         );
     }
 

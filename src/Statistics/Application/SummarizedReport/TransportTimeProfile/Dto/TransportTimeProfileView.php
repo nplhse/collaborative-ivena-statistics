@@ -32,6 +32,8 @@ final readonly class TransportTimeProfileView
         public array $rankedSections,
         public bool $drawerFilterActive,
         public ?array $geographicMapPayload = null,
+        public bool $hasSourceData = false,
+        public bool $canImport = false,
     ) {
     }
 }

@@ -65,8 +65,16 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
-                                {{ 'help.no_hospitals_assigned'|trans({}, 'allocation') }}
+                            <td colspan="7">
+                                <twig:EmptyState
+                                    title="{{ 'empty.owned.title'|trans({}, 'allocation') }}"
+                                    description="{{ 'empty.owned.description'|trans({}, 'allocation') }}"
+                                    icon="tabler:building-hospital"
+                                >
+                                    <twig:block name="actions">
+                                        <a class="btn btn-primary" href="{{ path('app_default') }}" target="_top">{{ 'empty.owned.cta'|trans({}, 'allocation') }}</a>
+                                    </twig:block>
+                                </twig:EmptyState>
                             </td>
                         </tr>
                     {% endfor %}

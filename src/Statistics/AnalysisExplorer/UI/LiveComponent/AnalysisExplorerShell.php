@@ -33,6 +33,7 @@ use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenE
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
+use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
@@ -185,6 +186,8 @@ final class AnalysisExplorerShell
 
     public ?string $emptyReason = null;
 
+    public bool $canImport = false;
+
     private ?ExplorerEditFormData $editFormData = null;
 
     public function __construct(
@@ -209,6 +212,7 @@ final class AnalysisExplorerShell
         private readonly ExplorerAnalysisSummaryFactory $analysisSummaryFactory,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly UsageAnalytics $usageAnalytics,
+        private readonly StatisticsSourceDataProbe $sourceDataProbe,
     ) {
     }
 
@@ -275,9 +279,25 @@ final class AnalysisExplorerShell
     #[PreReRender(priority: -100)]
     public function ensureAnalysisResult(): void
     {
+        $this->canImport = $this->sourceDataProbe->canImport($this->resolveUser());
         if (!$this->result instanceof AnalysisRunResult) {
             $this->rerunAnalysis();
         }
+    }
+
+    #[LiveAction]
+    public function clearAnalysisFilters(): void
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig || [] === $config->filters) {
+            return;
+        }
+
+        $this->appliedConfigState = $this->configMapper->toStateArray($config->withFilters([]));
+        $this->editFormData = null;
+        $this->result = null;
+        $this->rerunAnalysis();
+        $this->syncUnsavedChangeState();
     }
 
     private function resolveUser(): ?User
@@ -713,8 +733,17 @@ final class AnalysisExplorerShell
         }
 
         if ([] === $this->result->rows && null === $this->emptyReason) {
-            $this->emptyReason = 'no_data';
+            $user = $this->resolveUser();
+            if ([] !== $currentConfig->filters) {
+                $this->emptyReason = 'filtered';
+            } elseif (!$this->sourceDataProbe->hasSourceData($user, $currentConfig->statisticsFilter)) {
+                $this->emptyReason = 'no_source';
+            } else {
+                $this->emptyReason = 'no_data';
+            }
         }
+
+        $this->canImport = $this->sourceDataProbe->canImport($this->resolveUser());
 
         $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $currentConfig->presentation);
         $this->defaultChartType = $this->chartPresenter->defaultChartType($currentConfig->presentation);

@@ -12,6 +12,7 @@ use App\Statistics\Application\IsochroneOriginMap\IsochroneOriginHeatmapAssemble
 use App\Statistics\Application\Mapping\StatisticsTransportTimeBucketSql;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
+use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileMatrixSection;
 use App\Statistics\Application\SummarizedReport\TransportTimeProfile\Dto\TransportTimeProfileView;
 use App\Statistics\GenericAnalysis\Application\Contract\GenericAnalysisEntityLabelResolverInterface;
@@ -31,6 +32,7 @@ final readonly class TransportTimeProfileBuilder
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
         private IsochroneOriginHeatmapAssembler $isochroneAssembler,
+        private StatisticsSourceDataProbe $sourceDataProbe,
     ) {
     }
 
@@ -140,6 +142,8 @@ final readonly class TransportTimeProfileBuilder
             rankedSections: $rankedSections,
             drawerFilterActive: false,
             geographicMapPayload: $geographicMapPayload,
+            hasSourceData: $this->sourceDataProbe->hasSourceData($context->user, $context->filter),
+            canImport: $this->sourceDataProbe->canImport($context->user),
         );
     }
 
