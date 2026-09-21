@@ -58,9 +58,8 @@
             definitionChanges: definitionChanges,
         } %}
             {% block catalog_sidebar_extra %}
-                {% import '@Shared/_macros/users.html.twig' as users %}
-                <div class="card mb-3" data-testid="catalog-basic-info">
-                    <div class="card-body">
+                <twig:Card class="mb-3" data-testid="catalog-basic-info">
+                    {% import '@Shared/_macros/users.html.twig' as users %}
                         <div class="card-title">
                             {{ 'label.basic_info'|trans({}, 'messages') }}
                         </div>
@@ -88,12 +87,10 @@
                                 <div>{{ indication.note }}</div>
                             </div>
                         {% endif %}
-                    </div>
-                </div>
+                </twig:Card>
 
                 {% if indication.groups is not empty %}
-                    <div class="card mb-3" data-testid="catalog-related-entities">
-                        <div class="card-body">
+                    <twig:Card class="mb-3" data-testid="catalog-related-entities">
                             <div class="card-title">
                                 {{ 'catalog.section.related_entities'|trans({}, 'allocation') }}
                             </div>
@@ -105,8 +102,7 @@
                                     </li>
                                 {% endfor %}
                             </ul>
-                        </div>
-                    </div>
+                    </twig:Card>
                 {% endif %}
             {% endblock %}
         {% endembed %}

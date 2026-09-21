@@ -1,14 +1,47 @@
-<div class="{{ this.cssClass }}">
-    {% if title %}
-        <div class="card-header">
-            <h3 class="card-title">{{ title }}</h3>
+<{{ this.rootTag }}{{ attributes.defaults(this.rootAttributes) }}>
+    {% if this.statusClass %}
+        <div class="{{ this.statusClass }}"></div>
+    {% endif %}
+
+    {% set headerHtml %}{% block header %}{% endblock %}{% endset %}
+    {% set actionsHtml %}{% block actions %}{% endblock %}{% endset %}
+    {% if headerHtml|trim is not empty %}
+        <div class="{{ this.headerCssClass }}">
+            {{ headerHtml|raw }}
+        </div>
+    {% elseif title or actionsHtml|trim is not empty %}
+        <div class="{{ this.headerCssClass }}">
+            {% if title %}
+                <h3 class="card-title mb-0">{{ title }}</h3>
+            {% endif %}
+            {% if actionsHtml|trim is not empty %}
+                <div class="card-actions">
+                    {{ actionsHtml|raw }}
+                </div>
+            {% endif %}
         </div>
     {% endif %}
-    <div class="card-body {% if noPadding %}p-0{% endif %}">
-        {% block content %}{% endblock %}
-    </div>
 
-    {% if paginator is not null %}
-        {{ include('@Shared/_includes/card_pagination_footer.html.twig') }}
+    {% set toolbarHtml %}{% block toolbar %}{% endblock %}{% endset %}
+    {% if toolbarHtml|trim is not empty %}
+        <div class="card-header">
+            {{ toolbarHtml|raw }}
+        </div>
     {% endif %}
-</div>
+
+    {% set contentHtml %}{% block content %}{% endblock %}{% endset %}
+    {% if body %}
+        <div class="{{ this.bodyCssClass }}">
+            {{ contentHtml|raw }}
+        </div>
+    {% else %}
+        {{ contentHtml|raw }}
+    {% endif %}
+
+    {% set footerHtml %}{% block footer %}{% endblock %}{% endset %}
+    {% if footerHtml|trim is not empty %}
+        <div class="{{ this.footerCssClass }}">
+            {{ footerHtml|raw }}
+        </div>
+    {% endif %}
+</{{ this.rootTag }}>

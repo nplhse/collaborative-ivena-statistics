@@ -1,11 +1,10 @@
-<div class="card" data-testid="{{ testId }}">
-    <div class="card-header py-2">
-        <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
-    </div>
-    <div class="card-body">
-        {{ include('@Statistics/indication_dashboard/_distribution_progress.html.twig', {
-            rows: rows,
-            labelClass: labelClass|default('small'),
-        }) }}
-    </div>
-</div>
+<twig:Card
+    title="{{ titleKey|trans({}, 'statistics') }}"
+    headerClass="py-2"
+    data-testid="{{ testId }}"
+>
+    {{ include('@Statistics/indication_dashboard/_distribution_progress.html.twig', {
+        rows: rows,
+        labelClass: labelClass|default('small'),
+    }) }}
+</twig:Card>

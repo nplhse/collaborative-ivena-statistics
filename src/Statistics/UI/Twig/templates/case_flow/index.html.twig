@@ -53,14 +53,13 @@
                 {{ include('@Statistics/case_flow/_dispatch_flow_card.html.twig') }}
 
                 {% if dashboard.mode.value != 'system_flow' %}
-                    <div class="card" data-testid="stats-case-flow-origin-bar">
-                        <div class="card-header py-2">
-                            <h3 class="card-title mb-0">{{ 'stats.case_flow.section.origin_distribution'|trans({}, 'statistics') }}</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-sm" data-case-flow-charts-target="originBarChart"></div>
-                        </div>
-                    </div>
+                    <twig:Card
+                        title="{{ 'stats.case_flow.section.origin_distribution'|trans({}, 'statistics') }}"
+                        headerClass="py-2"
+                        data-testid="stats-case-flow-origin-bar"
+                    >
+                        <div class="chart-sm" data-case-flow-charts-target="originBarChart"></div>
+                    </twig:Card>
                 {% endif %}
 
                 {% if dashboard.mode.value == 'system_flow' %}

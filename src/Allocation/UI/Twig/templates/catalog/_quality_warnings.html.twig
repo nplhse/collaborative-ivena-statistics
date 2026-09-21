@@ -1,6 +1,5 @@
 {% if qualityWarnings is not empty %}
-    <div class="card mb-3" data-testid="catalog-quality-warnings">
-        <div class="card-body">
+    <twig:Card class="mb-3" data-testid="catalog-quality-warnings">
             <div class="card-title">{{ 'catalog.section.quality_warnings'|trans({}, 'allocation') }}</div>
             <div class="list-group list-group-flush">
                 {% for warning in qualityWarnings %}
@@ -27,6 +26,5 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
-    </div>
+    </twig:Card>
 {% endif %}

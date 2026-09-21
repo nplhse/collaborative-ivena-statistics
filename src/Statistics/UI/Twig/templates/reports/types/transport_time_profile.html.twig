@@ -39,14 +39,19 @@
 
         <div class="row g-3 mb-3 align-items-stretch">
             <div class="{% if report.insights is not empty %}col-lg-8{% else %}col-12{% endif %}">
-                <div class="card h-100" data-testid="stats-ttp-chart-card"
-                     {% if report.chartSpecs %}
-                     data-controller="generic-analysis-chart"
-                     data-generic-analysis-chart-specs-value="{{ report.chartSpecs|json_encode|e('html_attr') }}"
-                     data-generic-analysis-chart-default-type-value="cases"
-                     {% endif %}>
-                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-                        <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.chart.title'|trans({}, 'statistics') }}</h3>
+                {% set chartAttributes = report.chartSpecs ? {
+                    'data-controller': 'generic-analysis-chart',
+                    'data-generic-analysis-chart-specs-value': report.chartSpecs|json_encode,
+                    'data-generic-analysis-chart-default-type-value': 'cases',
+                } : {} %}
+                <twig:Card
+                    class="h-100"
+                    title="{{ 'stats.reports.transport_time_profile.chart.title'|trans({}, 'statistics') }}"
+                    headerClass="d-flex flex-wrap justify-content-between align-items-center gap-2 py-2"
+                    data-testid="stats-ttp-chart-card"
+                    {{ ...chartAttributes }}
+                >
+                    <twig:block name="actions">
                         {% if report.chartSpecs %}
                             <div class="btn-group btn-group-sm"
                                  role="group"
@@ -81,20 +86,21 @@
                                 </button>
                             </div>
                         {% endif %}
-                    </div>
-                    <div class="card-body">
-                        {% if report.chartSpecs %}
-                            <div class="chart-lg" data-generic-analysis-chart-target="chart" data-testid="stats-ttp-chart"></div>
-                        {% endif %}
-                    </div>
-                </div>
+                    </twig:block>
+                    {% if report.chartSpecs %}
+                        <div class="chart-lg" data-generic-analysis-chart-target="chart" data-testid="stats-ttp-chart"></div>
+                    {% endif %}
+                </twig:Card>
             </div>
             {% if report.insights is not empty %}
                 <div class="col-lg-4">
-                    <div class="card h-100 stats-ttp-insights" data-testid="stats-ttp-insights">
-                        <div class="card-header py-2">
-                            <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.insights.title'|trans({}, 'statistics') }}</h3>
-                        </div>
+                    <twig:Card
+                        class="h-100 stats-ttp-insights"
+                        title="{{ 'stats.reports.transport_time_profile.insights.title'|trans({}, 'statistics') }}"
+                        headerClass="py-2"
+                        :body="false"
+                        data-testid="stats-ttp-insights"
+                    >
                         <div class="list-group list-group-flush">
                             {% for insight in report.insights %}
                                 <div class="list-group-item stats-ttp-insight d-flex align-items-start gap-2" data-testid="stats-ttp-insight">
@@ -116,35 +122,40 @@
                                 </div>
                             {% endfor %}
                         </div>
-                    </div>
+                    </twig:Card>
                 </div>
             {% endif %}
         </div>
 
-        <div class="card" data-testid="stats-ttp-matrix-card">
-            <div class="card-header d-flex flex-column align-items-stretch gap-2">
+        <twig:Card
+            headerClass="d-flex flex-column align-items-stretch gap-2"
+            padding="none"
+            data-testid="stats-ttp-matrix-card"
+        >
+            <twig:block name="header">
                 <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.matrix.title'|trans({}, 'statistics') }}</h3>
                 <p class="text-secondary small mb-0" data-testid="stats-ttp-matrix-legend">
                     {{ 'stats.reports.transport_time_profile.matrix.legend'|trans({}, 'statistics') }}
                 </p>
-            </div>
-            <div class="card-body p-0">
-                {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.matrixSections}) }}
-            </div>
-        </div>
+            </twig:block>
+            {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.matrixSections}) }}
+        </twig:Card>
 
         {% if report.rankedSections is not empty %}
-            <div class="card mt-3" data-testid="stats-ttp-ranked-card">
-                <div class="card-header d-flex flex-column align-items-stretch gap-2">
+            <twig:Card
+                class="mt-3"
+                headerClass="d-flex flex-column align-items-stretch gap-2"
+                padding="none"
+                data-testid="stats-ttp-ranked-card"
+            >
+                <twig:block name="header">
                     <h3 class="card-title mb-0">{{ 'stats.reports.transport_time_profile.ranked.title'|trans({}, 'statistics') }}</h3>
                     <p class="text-secondary small mb-0" data-testid="stats-ttp-ranked-legend">
                         {{ 'stats.reports.transport_time_profile.ranked.legend'|trans({}, 'statistics') }}
                     </p>
-                </div>
-                <div class="card-body p-0">
-                    {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.rankedSections}) }}
-                </div>
-            </div>
+                </twig:block>
+                {{ include('@Statistics/reports/types/_transport_time_profile_table.html.twig', {sections: report.rankedSections}) }}
+            </twig:Card>
         {% endif %}
     {% endif %}
 </div>

@@ -81,14 +81,18 @@
                     {% endfor %}
                 </div>
 
-                <div class="card" data-testid="dashboard-activity-feed">
-                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
-                        <h3 class="card-title mb-0">{{ 'dashboard.activity.title'|trans({}, 'content') }}</h3>
+                <twig:Card
+                    title="{{ 'dashboard.activity.title'|trans({}, 'content') }}"
+                    headerClass="d-flex flex-wrap align-items-center justify-content-between gap-2"
+                    :body="false"
+                    data-testid="dashboard-activity-feed"
+                >
+                    <twig:block name="actions">
                         <a href="{{ path('app_activity_timeline') }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2" data-testid="dashboard-activity-view-all">
                             <twig:ux:icon name="tabler:activity" style="height: 1.25em;" />
                             {{ 'dashboard.activity.view_all'|trans({}, 'content') }}
                         </a>
-                    </div>
+                    </twig:block>
                     <turbo-frame
                         id="dashboard-activity"
                         src="{{ path('app_dashboard_activity') }}"
@@ -100,7 +104,7 @@
                             <span class="visually-hidden">{{ 'dashboard.activity.loading'|trans({}, 'content') }}</span>
                         </div>
                     </turbo-frame>
-                </div>
+                </twig:Card>
             </div>
 
             <div class="col-12 col-lg-4 d-flex flex-column gap-3">
@@ -110,14 +114,17 @@
                 {% if onboardingCard is defined and onboardingCard is not null %}
                     {{ include('@Content/dashboard/_onboarding_card.html.twig') }}
                 {% endif %}
-                <div class="card">
-                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
-                        <h3 class="card-title mb-0">{{ 'dashboard.blog.recent_title'|trans({}, 'content') }}</h3>
+                <twig:Card
+                    title="{{ 'dashboard.blog.recent_title'|trans({}, 'content') }}"
+                    headerClass="d-flex flex-wrap align-items-center justify-content-between gap-2"
+                    :body="false"
+                >
+                    <twig:block name="actions">
                         <a href="{{ path('app_blog_index') }}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-2">
                             <twig:ux:icon name="tabler:notes" style="height: 1.25em;" />
                             {{ 'dashboard.blog.visit'|trans({}, 'content') }}
                         </a>
-                    </div>
+                    </twig:block>
                     <div class="list-group list-group-flush">
                         {% for post in recentPosts %}
                             <a href="{{ path('app_blog_show', {slug: post.slug}) }}" class="list-group-item list-group-item-action">
@@ -130,21 +137,16 @@
                             </div>
                         {% endfor %}
                     </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title mb-0">{{ 'dashboard.pages.card_title'|trans({}, 'content') }}</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if pageTree is empty %}
-                            <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
-                        {% else %}
-                            <ul class="list-unstyled mb-0">
-                                {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree}, false) }}
-                            </ul>
-                        {% endif %}
-                    </div>
-                </div>
+                </twig:Card>
+                <twig:Card title="{{ 'dashboard.pages.card_title'|trans({}, 'content') }}">
+                    {% if pageTree is empty %}
+                        <p class="text-secondary mb-0">{{ 'dashboard.pages.empty'|trans({}, 'content') }}</p>
+                    {% else %}
+                        <ul class="list-unstyled mb-0">
+                            {{ include('@Content/page/_page_tree_nodes.html.twig', {nodes: pageTree}, false) }}
+                        </ul>
+                    {% endif %}
+                </twig:Card>
             </div>
         </div>
     </div>

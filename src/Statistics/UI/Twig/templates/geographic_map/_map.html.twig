@@ -38,18 +38,22 @@
         compact: true,
     }) }}
 {% endset %}
+{% set geoUrlAttributes = geoUrl ? {'data-geo-map-geo-url-value': geoUrl} : {} %}
 
-<div class="card"
+<twig:Card
+     :body="false"
+     headerClass="py-2 d-flex flex-column align-items-stretch gap-2"
+     {{ ...geoUrlAttributes }}
      data-controller="geo-map"
-     data-geo-map-payload-value="{{ payload|json_encode|e('html_attr') }}"
-     {% if geoUrl %}data-geo-map-geo-url-value="{{ geoUrl }}"{% endif %}
-     data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics')|e('html_attr') }}"
-     data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics')|e('html_attr') }}"
-     data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics')|e('html_attr') }}"
-     data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics')|e('html_attr') }}"
+     data-geo-map-payload-value="{{ payload|json_encode }}"
+     data-geo-map-cases-label-value="{{ 'stats.isochrone_origin_map.cases'|trans({}, 'statistics') }}"
+     data-geo-map-share-label-value="{{ 'stats.isochrone_origin_map.share'|trans({}, 'statistics') }}"
+     data-geo-map-inside-label-value="{{ 'stats.case_flow.map.pin.inside'|trans({}, 'statistics') }}"
+     data-geo-map-outside-label-value="{{ 'stats.case_flow.map.pin.outside'|trans({}, 'statistics') }}"
      data-geo-map-scroll-wheel-zoom-value="{{ showValueModes ? 'true' : 'false' }}"
-     data-testid="{{ testId }}">
-    <div class="card-header py-2 d-flex flex-column align-items-stretch gap-2">
+     data-testid="{{ testId }}"
+>
+    <twig:block name="header">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 w-100">
             {% if showTitle %}
                 <h3 class="card-title mb-0">{{ titleKey|trans({}, 'statistics') }}</h3>
@@ -93,7 +97,7 @@
                 {{ compactLayerToggles }}
             </div>
         {% endif %}
-    </div>
+    </twig:block>
     <div class="card-body pt-2">
         <div class="{{ frameClass }} geo-map-frame">
             <div class="case-flow-map-container"
@@ -168,4 +172,4 @@
             </div>
         </div>
     {% endif %}
-</div>
+</twig:Card>

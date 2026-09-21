@@ -148,7 +148,8 @@ final class IsochroneOriginHeatmapControllerTest extends WebTestCase
             self::assertNotNull($geoUrl);
             self::assertStringContainsString('hessen-landkreise', $geoUrl);
             $payloadJson = (string) $crawler->filter('[data-testid="stats-isochrone-origin-map"]')->attr('data-geo-map-payload-value');
-            $payload = json_decode(html_entity_decode($payloadJson), true);
+            self::assertStringStartsWith('{', $payloadJson);
+            $payload = json_decode($payloadJson, true);
             self::assertIsArray($payload);
             self::assertSame(['isochroneBands', 'hospitalPin'], $payload['compactEnabledLayers']);
             self::assertContains('originChoropleth', $payload['compactLayers']);

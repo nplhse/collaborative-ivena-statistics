@@ -52,9 +52,8 @@
             actions: actions,
         } %}
             {% block catalog_sidebar_extra %}
-                {% import '@Shared/_macros/users.html.twig' as users %}
-                <div class="card mb-3" data-testid="catalog-basic-info">
-                    <div class="card-body">
+                <twig:Card class="mb-3" data-testid="catalog-basic-info">
+                    {% import '@Shared/_macros/users.html.twig' as users %}
                         <div class="card-title">
                             {{ 'label.basic_info'|trans({}, 'messages') }}
                         </div>
@@ -76,8 +75,7 @@
                                 {{ 'label.updated_by'|trans({}, 'messages') }} <strong>{{ users.link(assignment.updatedBy) }}</strong>
                             </div>
                         {% endif %}
-                    </div>
-                </div>
+                </twig:Card>
             {% endblock %}
         {% endembed %}
 {% endblock %}
