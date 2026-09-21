@@ -166,7 +166,17 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="{{ assignablePermissions|length + 2 }}" class="text-center text-muted py-4">{{ 'help.hospital_access_grants.empty'|trans({}, 'messages') }}</td>
+                <td colspan="{{ assignablePermissions|length + 2 }}">
+                    <twig:EmptyState
+                        title="{{ 'empty.access_grants.title'|trans({}, 'allocation') }}"
+                        description="{{ 'empty.access_grants.description'|trans({}, 'allocation') }}"
+                        icon="tabler:users"
+                    >
+                        <twig:block name="actions">
+                            <a class="btn btn-primary" href="{{ path('app_hospitals_edit_access_new', {id: hospital.id}) }}" target="_top">{{ 'label.hospital_access_grants.add'|trans({}, 'messages') }}</a>
+                        </twig:block>
+                    </twig:EmptyState>
+                </td>
             </tr>
         {% endfor %}
         </tbody>

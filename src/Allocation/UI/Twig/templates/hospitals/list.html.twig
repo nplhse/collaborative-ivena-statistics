@@ -80,6 +80,9 @@
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
             :orderBy="orderBy"
+            emptyTitle="{{ (activeFilterCount > 0 ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
+            emptyDescription="{{ (activeFilterCount > 0 ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
+            emptyIcon="{{ activeFilterCount > 0 ? 'tabler:filter-off' : 'tabler:building-hospital' }}"
             :columns="[
                 { key: 'participating', type: 'boolean', label: '', property: 'participating' },
                 { key: 'name', type: 'link', label: 'label.name', property: 'name', sortable: true, sortKey: 'name', width: 'col-3', route: 'app_explore_hospital_show', routeParams: {publicId: 'publicId'} },
@@ -90,7 +93,13 @@
                 { key: 'size', type: 'badge', label: 'label.size', property: 'size', sortable: true, sortKey: 'size', width: 'col-1', badgePalette: 'hospital_size', numberProperty: 'beds' },
                 { key: 'lastChange', type: 'custom', label: 'label.last_change', sortable: true, sortKey: 'lastChange', width: 'col-2', cellTemplate: '@Allocation/hospitals/_cell_last_change.html.twig' },
             ]"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if activeFilterCount > 0 %}
+                    <a class="btn btn-primary" href="{{ path('app_explore_hospital_list') }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
 </turbo-frame>
 
     <twig:FilterDrawer

@@ -75,6 +75,7 @@
                 coverage: coverage,
                 coverageLayout: 'hospital',
                 yearExploreUrls: yearExploreUrls|default({}),
+                canImport: canImport|default(false),
             }) }}
             {{ include('@Allocation/catalog/_orientation_map.html.twig', {orientationMap: orientationMap}) }}
         </div>

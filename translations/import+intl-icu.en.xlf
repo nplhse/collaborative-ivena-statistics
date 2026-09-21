@@ -289,6 +289,26 @@
         <source>label.export.period</source>
         <target>Period</target>
       </trans-unit>
+      <trans-unit id="emptyImpTiEn" resname="empty.import.initial.title">
+        <source>empty.import.initial.title</source>
+        <target>No imports yet</target>
+      </trans-unit>
+      <trans-unit id="emptyImpDeEn" resname="empty.import.initial.description">
+        <source>empty.import.initial.description</source>
+        <target>Import your first IVENA dataset to start exploring allocation data.</target>
+      </trans-unit>
+      <trans-unit id="emptyImpCtaEn" resname="empty.import.initial.cta">
+        <source>empty.import.initial.cta</source>
+        <target>Import data</target>
+      </trans-unit>
+      <trans-unit id="emptyImpNpTiEn" resname="empty.import.no_permission.title">
+        <source>empty.import.no_permission.title</source>
+        <target>No imports yet</target>
+      </trans-unit>
+      <trans-unit id="emptyImpNpDeEn" resname="empty.import.no_permission.description">
+        <source>empty.import.no_permission.description</source>
+        <target>Importing a dataset requires permission for a hospital. Someone with import access can start the first import.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

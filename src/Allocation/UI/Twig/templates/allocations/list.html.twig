@@ -41,11 +41,15 @@
             {{ activeFilters.allocation_filter_badges(filters, states, dispatchAreas, indications, secondaryTransports, infections, departments, specialities, transportTypes, assignments, occasions, hospitalScopeOptions) }}
         {% endif %}
 
+        {% set listIsFiltered = activeFilterCount > 0 %}
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
             :orderBy="orderBy"
+            emptyTitle="{{ (listIsFiltered ? 'empty.filtered.title' : (canImport ? 'empty.allocation.initial.title' : 'empty.allocation.no_permission.title'))|trans({}, listIsFiltered ? 'shared' : 'allocation') }}"
+            emptyDescription="{{ (listIsFiltered ? 'empty.filtered.description' : (canImport ? 'empty.allocation.initial.description' : 'empty.allocation.no_permission.description'))|trans({}, listIsFiltered ? 'shared' : 'allocation') }}"
+            emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : 'tabler:ambulance' }}"
             rowClassProperty="departmentWasClosed"
             rowClass="allocation-row-department-closed"
             :columns="[
@@ -57,7 +61,17 @@
                 { key: 'properties', type: 'custom', label: 'label.properties', width: 'col-1', cellTemplate: '@Allocation/allocations/_cell_properties.html.twig' },
                 { key: 'actions', type: 'actions', label: '', width: 'col-1', route: 'app_explore_allocation_show', routeParams: {publicId: 'publicId'} },
             ]"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if listIsFiltered %}
+                    <a class="btn btn-primary" href="{{ path('app_explore_allocation_list') }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% elseif canImport %}
+                    <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.allocation.initial.cta'|trans({}, 'allocation') }}</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="{{ path('app_default') }}" target="_top">{{ 'empty.onboarding.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
 </turbo-frame>
 
     {{ include('@Allocation/allocations/_allocation_filter_drawer.html.twig') }}

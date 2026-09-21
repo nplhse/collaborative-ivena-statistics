@@ -98,6 +98,9 @@
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
             :orderBy="orderBy"
+            emptyTitle="{{ (activeFilterCount > 0 ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
+            emptyDescription="{{ (activeFilterCount > 0 ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
+            emptyIcon="{{ activeFilterCount > 0 ? 'tabler:filter-off' : 'tabler:inbox' }}"
             :columns="[
                 { key: 'timestamps', type: 'custom', label: 'label.timestamps', sortable: true, sortKey: 'createdAt', width: 'col-2', cellTemplate: '@Allocation/allocations/_cell_timestamps.html.twig' },
                 { key: 'hospital', type: 'custom', label: 'label.hospital', width: 'col-3', cellTemplate: '@Allocation/allocations/_cell_hospital.html.twig' },
@@ -105,7 +108,13 @@
                 { key: 'properties', type: 'custom', label: 'label.properties', width: 'col-2', cellTemplate: '@Allocation/mci_cases/_cell_properties.html.twig' },
                 { key: 'actions', type: 'actions', label: '', width: 'col-1', route: 'app_explore_mci_case_show', routeParams: {publicId: 'publicId'} },
             ]"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if activeFilterCount > 0 %}
+                    <a class="btn btn-primary" href="{{ path('app_explore_mci_case_list') }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
     </turbo-frame>
 
     {{ include('@Allocation/mci_cases/_filter_drawer.html.twig') }}

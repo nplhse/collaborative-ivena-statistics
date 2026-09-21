@@ -83,9 +83,11 @@
                     <h2 class="card-title">{{ 'label.user.activity'|trans({}, 'user') }}</h2>
                 </div>
                 {% if profile.activities is empty %}
-                    <div class="empty py-4">
-                        <p class="empty-title">{{ 'label.user.activity.empty'|trans({}, 'user') }}</p>
-                    </div>
+                    <twig:EmptyState
+                        title="{{ 'label.user.activity.empty'|trans({}, 'user') }}"
+                        description="{{ 'label.user.activity.empty_description'|trans({}, 'user') }}"
+                        icon="tabler:activity"
+                    />
                 {% else %}
                     <div class="list-group list-group-flush">
                         {{ include('@User/explore/users/_activity_items.html.twig', {
@@ -135,9 +137,11 @@
                     <h2 class="card-title">{{ 'label.user.hospitals'|trans({}, 'user') }}</h2>
                 </div>
                 {% if profile.hospitals is empty %}
-                    <div class="empty py-4">
-                        <p class="empty-title">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</p>
-                    </div>
+                    <twig:EmptyState
+                        title="{{ 'label.user.hospitals.empty'|trans({}, 'user') }}"
+                        description="{{ 'label.user.hospitals.empty_description'|trans({}, 'user') }}"
+                        icon="tabler:building-hospital"
+                    />
                 {% else %}
                     <div class="list-group list-group-flush">
                         {% for hospital in profile.hospitals %}

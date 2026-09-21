@@ -95,6 +95,9 @@
             :sortBy="query.sortBy"
             :orderBy="query.orderBy"
             :tabs="segment_tabs"
+            emptyTitle="{{ (query.search is not empty ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
+            emptyDescription="{{ (query.search is not empty ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
+            emptyIcon="{{ query.search is not empty ? 'tabler:filter-off' : 'tabler:inbox' }}"
             :cellContext="{ occurrence_counts: occurrence_counts, query: query }"
             :columns="[
                 { key: 'code', type: 'badge', label: 'label.indication.code', property: 'code' },
@@ -104,6 +107,12 @@
                 { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt' },
                 { key: 'actions', type: 'custom', label: '', align: 'end', cellTemplate: '@Allocation/indications/_cell_review_action.html.twig' },
             ]"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if query.search is not empty %}
+                    <a class="btn btn-primary" href="{{ path('app_explore_indication_raw_review_worklist', {segment: query.segment.value, sortBy: query.sortBy, orderBy: query.orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
     </turbo-frame>
 {% endblock %}

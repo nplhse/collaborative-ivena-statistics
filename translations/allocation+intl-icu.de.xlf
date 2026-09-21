@@ -1129,6 +1129,62 @@
         <source>catalog.quality.hint.target_without_first_matcher</source>
         <target>Erwartet, wenn updated_by bei Migration fehlte.</target>
       </trans-unit>
+      <trans-unit id="emptyAlcTiDe" resname="empty.allocation.initial.title">
+        <source>empty.allocation.initial.title</source>
+        <target>Noch keine Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcDeDe" resname="empty.allocation.initial.description">
+        <source>empty.allocation.initial.description</source>
+        <target>Importiere den ersten IVENA-Datensatz, um Zuweisungen auszuwerten.</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcCtaDe" resname="empty.allocation.initial.cta">
+        <source>empty.allocation.initial.cta</source>
+        <target>Daten importieren</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNpTiDe" resname="empty.allocation.no_permission.title">
+        <source>empty.allocation.no_permission.title</source>
+        <target>Noch keine Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="emptyAlcNpDeDe" resname="empty.allocation.no_permission.description">
+        <source>empty.allocation.no_permission.description</source>
+        <target>Zuweisungen erscheinen, nachdem ein IVENA-Datensatz importiert wurde. Die Importberechtigung wird je Klinik vergeben.</target>
+      </trans-unit>
+      <trans-unit id="emptyCovTiDe" resname="empty.hospital.coverage.title">
+        <source>empty.hospital.coverage.title</source>
+        <target>Noch keine Zuweisungen für diese Klinik</target>
+      </trans-unit>
+      <trans-unit id="emptyCovDeDe" resname="empty.hospital.coverage.description">
+        <source>empty.hospital.coverage.description</source>
+        <target>Importiere den ersten IVENA-Datensatz dieser Klinik, um die Abdeckung zu sehen.</target>
+      </trans-unit>
+      <trans-unit id="emptyCovCtaDe" resname="empty.hospital.coverage.cta">
+        <source>empty.hospital.coverage.cta</source>
+        <target>Daten importieren</target>
+      </trans-unit>
+      <trans-unit id="emptyCovNpDeDe" resname="empty.hospital.coverage.no_permission.description">
+        <source>empty.hospital.coverage.no_permission.description</source>
+        <target>Die Abdeckung erscheint, nachdem für diese Klinik ein IVENA-Datensatz importiert wurde.</target>
+      </trans-unit>
+      <trans-unit id="emptyOwnTiDe" resname="empty.owned.title">
+        <source>empty.owned.title</source>
+        <target>Deinem Konto ist keine Klinik zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="emptyOwnDeDe" resname="empty.owned.description">
+        <source>empty.owned.description</source>
+        <target>Klinikzugänge vergibt eine Klinikadministration. Das Onboarding auf dem Dashboard erklärt, wie du Zugang anfragen kannst.</target>
+      </trans-unit>
+      <trans-unit id="emptyOwnCtaDe" resname="empty.owned.cta">
+        <source>empty.owned.cta</source>
+        <target>Zum Dashboard</target>
+      </trans-unit>
+      <trans-unit id="emptyGrnTiDe" resname="empty.access_grants.title">
+        <source>empty.access_grants.title</source>
+        <target>Noch keine Benutzer zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="emptyGrnDeDe" resname="empty.access_grants.description">
+        <source>empty.access_grants.description</source>
+        <target>Ordne eine Person zu, um ihr Zugang zu dieser Klinik zu geben.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

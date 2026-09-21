@@ -397,6 +397,34 @@
         <source>time.relative.year</source>
         <target>{count, plural, =1 {vor einem Jahr} other {vor # Jahren}}</target>
       </trans-unit>
+      <trans-unit id="emptyFltTitleDe" resname="empty.filtered.title">
+        <source>empty.filtered.title</source>
+        <target>Keine Ergebnisse für die aktuellen Filter</target>
+      </trans-unit>
+      <trans-unit id="emptyFltDescDe" resname="empty.filtered.description">
+        <source>empty.filtered.description</source>
+        <target>Passe die Suche an oder entferne einige Filter.</target>
+      </trans-unit>
+      <trans-unit id="emptyFltCtaDe" resname="empty.filtered.cta">
+        <source>empty.filtered.cta</source>
+        <target>Filter zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="emptyCatTitleDe" resname="empty.catalog.title">
+        <source>empty.catalog.title</source>
+        <target>Hier ist noch nichts</target>
+      </trans-unit>
+      <trans-unit id="emptyCatDescDe" resname="empty.catalog.description">
+        <source>empty.catalog.description</source>
+        <target>In dieser Liste gibt es derzeit keine Einträge.</target>
+      </trans-unit>
+      <trans-unit id="emptyOnbCtaDe" resname="empty.onboarding.cta">
+        <source>empty.onboarding.cta</source>
+        <target>Zum Onboarding</target>
+      </trans-unit>
+      <trans-unit id="emptyCtxCtaDe" resname="empty.context.cta">
+        <source>empty.context.cta</source>
+        <target>Zeitraum oder Umfang ändern</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

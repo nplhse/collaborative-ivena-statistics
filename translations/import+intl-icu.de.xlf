@@ -289,6 +289,26 @@
         <source>title.import.show</source>
         <target>Importdetails</target>
       </trans-unit>
+      <trans-unit id="emptyImpTiDe" resname="empty.import.initial.title">
+        <source>empty.import.initial.title</source>
+        <target>Noch keine Importe</target>
+      </trans-unit>
+      <trans-unit id="emptyImpDeDe" resname="empty.import.initial.description">
+        <source>empty.import.initial.description</source>
+        <target>Importiere den ersten IVENA-Datensatz, um Zuweisungen auszuwerten.</target>
+      </trans-unit>
+      <trans-unit id="emptyImpCtaDe" resname="empty.import.initial.cta">
+        <source>empty.import.initial.cta</source>
+        <target>Daten importieren</target>
+      </trans-unit>
+      <trans-unit id="emptyImpNpTiDe" resname="empty.import.no_permission.title">
+        <source>empty.import.no_permission.title</source>
+        <target>Noch keine Importe</target>
+      </trans-unit>
+      <trans-unit id="emptyImpNpDeDe" resname="empty.import.no_permission.description">
+        <source>empty.import.no_permission.description</source>
+        <target>Ein Import setzt eine Berechtigung für eine Klinik voraus. Eine berechtigte Person kann den ersten Import starten.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

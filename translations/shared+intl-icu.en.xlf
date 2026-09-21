@@ -397,6 +397,34 @@
         <source>time.relative.year</source>
         <target>{count, plural, =1 {a year ago} other {# years ago}}</target>
       </trans-unit>
+      <trans-unit id="emptyFltTitle" resname="empty.filtered.title">
+        <source>empty.filtered.title</source>
+        <target>No results for the current filters</target>
+      </trans-unit>
+      <trans-unit id="emptyFltDesc" resname="empty.filtered.description">
+        <source>empty.filtered.description</source>
+        <target>Try adjusting your search or removing some filters.</target>
+      </trans-unit>
+      <trans-unit id="emptyFltCta" resname="empty.filtered.cta">
+        <source>empty.filtered.cta</source>
+        <target>Reset filters</target>
+      </trans-unit>
+      <trans-unit id="emptyCatTitle" resname="empty.catalog.title">
+        <source>empty.catalog.title</source>
+        <target>Nothing here yet</target>
+      </trans-unit>
+      <trans-unit id="emptyCatDesc" resname="empty.catalog.description">
+        <source>empty.catalog.description</source>
+        <target>This list has no entries to show.</target>
+      </trans-unit>
+      <trans-unit id="emptyOnbCta" resname="empty.onboarding.cta">
+        <source>empty.onboarding.cta</source>
+        <target>Open onboarding</target>
+      </trans-unit>
+      <trans-unit id="emptyCtxCta" resname="empty.context.cta">
+        <source>empty.context.cta</source>
+        <target>Change period or scope</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

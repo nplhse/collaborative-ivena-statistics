@@ -74,6 +74,7 @@ final class ShowHospitalController extends AbstractController
                 $canViewImports,
                 $canViewBenchmarking,
             ),
+            'canImport' => $canViewImports,
             'yearExploreUrls' => $revealSensitiveMetrics
                 ? $this->yearUrlFactory->forYears(['hospitalFilter' => (string) $id], $coverage->years)
                 : [],

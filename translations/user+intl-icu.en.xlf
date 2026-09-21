@@ -441,6 +441,10 @@
         <source>label.user.hospitals.empty</source>
         <target>No hospitals linked</target>
       </trans-unit>
+      <trans-unit id="usrLblHospitalsEmptyDescEn" resname="label.user.hospitals.empty_description">
+        <source>label.user.hospitals.empty_description</source>
+        <target>Hospital access is granted by a hospital administrator. This account is not associated with a hospital yet.</target>
+      </trans-unit>
       <trans-unit id="usrLblHospitalOwnerEn" resname="label.user.hospital.owner">
         <source>label.user.hospital.owner</source>
         <target>Owner</target>
@@ -517,6 +521,10 @@
         <source>label.user.empty.list</source>
         <target>No users found</target>
       </trans-unit>
+      <trans-unit id="usrLblEmptyListDescEn" resname="label.user.empty.list_description">
+        <source>label.user.empty.list_description</source>
+        <target>Users appear here once they have an account.</target>
+      </trans-unit>
       <trans-unit id="usrLblAccountEn" resname="label.user.account">
         <source>label.user.account</source>
         <target>Account</target>
@@ -540,6 +548,10 @@
       <trans-unit id="usrLblActivityEmptyEn" resname="label.user.activity.empty">
         <source>label.user.activity.empty</source>
         <target>No activity yet</target>
+      </trans-unit>
+      <trans-unit id="usrLblActivityEmptyDescEn" resname="label.user.activity.empty_description">
+        <source>label.user.activity.empty_description</source>
+        <target>Comments and other activity from this account will show up here.</target>
       </trans-unit>
       <trans-unit id="usrLblActivityLoadMoreEn" resname="label.user.activity.load_more">
         <source>label.user.activity.load_more</source>

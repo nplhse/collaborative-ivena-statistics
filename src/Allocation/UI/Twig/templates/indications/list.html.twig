@@ -97,7 +97,16 @@
             :sortBy="sortBy"
             :orderBy="orderBy"
             :tabs="tabs"
+            emptyTitle="{{ (search is not empty ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
+            emptyDescription="{{ (search is not empty ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
+            emptyIcon="{{ search is not empty ? 'tabler:filter-off' : 'tabler:inbox' }}"
             :columns="indication_columns"
-        />
+        >
+            <twig:block name="empty_actions">
+                {% if search is not empty %}
+                    <a class="btn btn-primary" href="{{ path(pagination_route, {type: active_type, sortBy: sortBy, orderBy: orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% endif %}
+            </twig:block>
+        </twig:DataTable>
 </turbo-frame>
 {% endblock %}

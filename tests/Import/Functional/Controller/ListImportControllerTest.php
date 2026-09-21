@@ -26,6 +26,54 @@ final class ListImportControllerTest extends WebTestCase
 {
     use Factories;
 
+    public function testEmptyListOffersImportWhenTheUserCanImport(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedBaseActors();
+
+        $crawler = $this->requestAsUser($client, $owner, '/import');
+
+        self::assertSame('No imports yet', trim($crawler->filter('.empty-title')->text('')));
+        self::assertStringContainsString('Import your first IVENA dataset', $crawler->filter('.empty-subtitle')->text(''));
+        $importLink = $crawler->filter('.empty-action a[href="/import/new"]');
+        self::assertGreaterThan(0, $importLink->count());
+        self::assertSame('_top', $importLink->attr('target'));
+    }
+
+    public function testEmptyListDoesNotOfferImportWithoutPermission(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne([
+            'username' => 'no-import-'.bin2hex(random_bytes(3)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+
+        $crawler = $this->requestAsUser($client, $user, '/import');
+
+        self::assertStringContainsString('requires permission', $crawler->filter('.empty-subtitle')->text(''));
+        self::assertCount(0, $crawler->filter('a[href="/import/new"]'));
+        $onboarding = $crawler->filter('.empty-action a[href="/"]');
+        self::assertGreaterThan(0, $onboarding->count());
+        self::assertSame('_top', $onboarding->attr('target'));
+    }
+
+    public function testFilteredEmptyListOffersResetInsteadOfImport(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->seedBaseActors();
+
+        $crawler = $this->requestAsUser($client, $owner, '/import?search=nothing-matches-this');
+
+        self::assertSame('No results for the current filters', trim($crawler->filter('.empty-title')->text('')));
+        self::assertStringContainsString('nothing-matches-this', $crawler->filter('.alert-info')->text());
+        self::assertStringNotContainsString('Searching for:', $crawler->text());
+        $reset = $crawler->filter('.empty-action a');
+        self::assertGreaterThan(0, $reset->count());
+        self::assertNull($reset->attr('target'));
+        self::assertStringContainsString('Reset filters', $crawler->filter('.empty-action')->text(''));
+        self::assertCount(0, $crawler->filter('.empty-action a[href="/import/new"]'));
+    }
+
     public function testTableWithResultsIsShown(): void
     {
         $client = self::createClient();

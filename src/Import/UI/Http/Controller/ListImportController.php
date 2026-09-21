@@ -49,6 +49,7 @@ final class ListImportController extends AbstractController
             'hospitals' => $this->hospitalRepository->findAccessibleHospitalSummaries($user),
             'owners' => $this->importListAccess->resolveOwnerChoices($user),
             'statuses' => ImportStatus::cases(),
+            'canImport' => [] !== $this->importListAccess->resolveAccessibleHospitalIds($user),
         ]);
     }
 
