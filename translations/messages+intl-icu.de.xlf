@@ -5,6 +5,10 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="actApply01" resname="action.apply">
+        <source>action.apply</source>
+        <target>Anwenden</target>
+      </trans-unit>
       <trans-unit id="actCancel01" resname="action.cancel">
         <source>action.cancel</source>
         <target>Abbrechen</target>
@@ -24,6 +28,10 @@
       <trans-unit id="actNo01" resname="action.no">
         <source>action.no</source>
         <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="actReset01" resname="action.reset">
+        <source>action.reset</source>
+        <target>Zurücksetzen</target>
       </trans-unit>
       <trans-unit id="actCopySnipDe" resname="action.copy_snippet">
         <source>action.copy_snippet</source>
