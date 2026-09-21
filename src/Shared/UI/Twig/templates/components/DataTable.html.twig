@@ -17,16 +17,24 @@
             </div>
         {% endif %}
 
-        <div class="card-body p-0">
-            {% block content %}{% endblock %}
+        <div class="card-body p-0{% if loading %} position-relative{% endif %}">
+            {% if loading %}
+                <div class="data-table-loading" aria-busy="true">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">{{ 'label.loading'|trans({}, 'messages') }}</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if this.declarative %}
+                {{ include('@Shared/components/data_table/_table.html.twig') }}
+            {% else %}
+                {% block content %}{% endblock %}
+            {% endif %}
         </div>
 
-        {% if paginator is not null and showPaginationFooter %}
-            {% if paginationTemplate %}
-                {{ include(paginationTemplate) }}
-            {% else %}
-                {{ include('@Shared/_includes/card_pagination_footer.html.twig') }}
-            {% endif %}
+        {% if this.shouldShowFooter %}
+            {{ include('@Shared/components/data_table/_footer.html.twig') }}
         {% endif %}
     </div>
 </div>

@@ -1,0 +1,8 @@
+{% if column.options.cellTemplate is defined %}
+    {{ include(column.options.cellTemplate, {
+        row: row,
+        column: column,
+        value: value,
+        context: this.cellContext,
+    }) }}
+{% endif %}

@@ -4,6 +4,16 @@
     border-bottom: none !important;
 }
 
+.data-table-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--tblr-bg-surface) 75%, transparent);
+}
+
 .allocation-row-department-closed > td,
 .allocation-row-department-closed > th {
     background-color: var(--tblr-red-lt) !important;

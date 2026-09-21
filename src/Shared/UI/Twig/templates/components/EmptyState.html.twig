@@ -1,0 +1,15 @@
+<div class="empty">
+    <div class="empty-icon">
+        <twig:ux:icon name="{{ icon }}" class="icon" width="24" height="24" />
+    </div>
+    {% if title %}
+        <p class="empty-title">{{ title }}</p>
+    {% endif %}
+    {% if description %}
+        <p class="empty-subtitle text-secondary">{{ description }}</p>
+    {% endif %}
+    {% set actionsHtml %}{% block actions %}{% endblock %}{% endset %}
+    {% if actionsHtml|trim is not empty %}
+        <div class="empty-action">{{ actionsHtml|raw }}</div>
+    {% endif %}
+</div>

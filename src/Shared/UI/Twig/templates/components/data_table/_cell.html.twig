@@ -1,0 +1,10 @@
+{% if column.type.value == 'custom' and column.options.cellTemplate is defined %}
+    {{ include(column.options.cellTemplate, {
+        row: row,
+        column: column,
+        value: value,
+        context: this.cellContext,
+    }) }}
+{% else %}
+    {{ include('@Shared/components/data_table/_cell_' ~ column.type.value ~ '.html.twig') }}
+{% endif %}

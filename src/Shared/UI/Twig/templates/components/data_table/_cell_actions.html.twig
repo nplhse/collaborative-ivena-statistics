@@ -1,0 +1,14 @@
+{% set href = this.cellHref(row, column) %}
+{% set target = column.options.target|default('_top') %}
+{% set actionClass = column.options.actionClass|default('btn btn-action') %}
+{% if href %}
+    <div class="btn-actions">
+        <a href="{{ href }}" class="{{ actionClass }}" target="{{ target }}">
+            {% if column.options.actionLabel is defined and column.options.actionLabel %}
+                {{ column.options.actionLabel|trans({}, column.labelDomain) }}
+            {% else %}
+                <twig:ux:icon name="tabler:eye" class="w-4 h-4" />
+            {% endif %}
+        </a>
+    </div>
+{% endif %}

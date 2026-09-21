@@ -765,6 +765,18 @@
         <source>label.pagination_results</source>
         <target>{pageSize} records</target>
       </trans-unit>
+      <trans-unit id="dtPagEstEn" resname="label.pagination_numbers_estimated">
+        <source>label.pagination_numbers_estimated</source>
+        <target>Showing approx. {total} results across {pages} pages.</target>
+      </trans-unit>
+      <trans-unit id="dtPagShowEn" resname="label.pagination_showing_results">
+        <source>label.pagination_showing_results</source>
+        <target>Showing results.</target>
+      </trans-unit>
+      <trans-unit id="dtLoadingEn" resname="label.loading">
+        <source>label.loading</source>
+        <target>Loading</target>
+      </trans-unit>
       <trans-unit id="wwkgz5d" resname="label.participation">
         <source>label.participation</source>
         <target>Participation</target>
