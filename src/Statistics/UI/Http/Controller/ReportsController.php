@@ -37,6 +37,7 @@ final class ReportsController extends AbstractController
         private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
+        private readonly AnalysisContextViewModelFactory $analysisContextViewModelFactory,
     ) {
     }
 
@@ -75,7 +76,11 @@ final class ReportsController extends AbstractController
         }
 
         $indexPage = $this->reportsIndexPresenter->present($request);
-        $overviewPeriodViewModel = $this->fixedPeriodViewModel('');
+        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
+            $request,
+            'app_stats_reports',
+            $filter,
+        );
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
             $user,
@@ -88,12 +93,11 @@ final class ReportsController extends AbstractController
             $overviewPeriodViewModel,
             $dataQualityReport,
             $request,
+            $user,
             'app_stats_reports',
             [
                 'indexPage' => $indexPage,
-                'statisticsHeadingPeriod' => '',
                 'statsShowFilterDrawer' => false,
-                'statsHidePeriodControls' => true,
             ],
         ));
     }
@@ -174,6 +178,7 @@ final class ReportsController extends AbstractController
             $overviewPeriodViewModel,
             $dataQualityReport,
             $request,
+            $user,
             'app_stats_reports_show',
             [
                 'reportsPage' => $reportsPage,
@@ -182,6 +187,7 @@ final class ReportsController extends AbstractController
                 'statsFilterDrawer' => $statsFilterDrawer,
                 'statsUseOverviewPeriodControls' => true,
                 'statsHidePeriodControls' => false,
+                'statsMonthOnlyPeriod' => $isMonthly,
             ],
         ));
     }
@@ -196,9 +202,19 @@ final class ReportsController extends AbstractController
         OverviewPeriodViewModel $overviewPeriodViewModel,
         mixed $dataQualityReport,
         Request $request,
+        ?User $user,
         string $routeName,
         array $extra,
     ): array {
+        $hidePeriod = (bool) ($extra['statsHidePeriodControls'] ?? false);
+        $monthOnly = (bool) ($extra['statsMonthOnlyPeriod'] ?? false);
+        $periodMode = match (true) {
+            $hidePeriod => AnalysisContextPeriodMode::Hidden,
+            $monthOnly => AnalysisContextPeriodMode::MonthOnly,
+            default => AnalysisContextPeriodMode::Full,
+        };
+        $headingPeriod = (string) ($extra['statisticsHeadingPeriod'] ?? $overviewPeriodViewModel->headingLabel);
+
         return [
             'dataQualityReport' => $dataQualityReport,
             'statisticsFilter' => $pageViewModel->filter,
@@ -218,6 +234,16 @@ final class ReportsController extends AbstractController
             'statisticsHeadingScope' => $pageViewModel->headingScope,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
             'statsUseOverviewPeriodControls' => false,
+            'statsAnalysisContext' => $this->analysisContextViewModelFactory->create(
+                $request,
+                $routeName,
+                $user,
+                $pageViewModel->filter,
+                $pageViewModel->headingScope,
+                $headingPeriod,
+                $periodMode,
+                AnalysisContextPeriodMode::MonthOnly === $periodMode ? $overviewPeriodViewModel : null,
+            ),
             'statsFilterDrawerResetUrl' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,

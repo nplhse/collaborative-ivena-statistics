@@ -35,6 +35,7 @@ final class TopListsController extends AbstractController
         private readonly StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
+        private readonly AnalysisContextViewModelFactory $analysisContextViewModelFactory,
     ) {
     }
 
@@ -73,7 +74,11 @@ final class TopListsController extends AbstractController
         }
 
         $indexPage = $this->topListsIndexPresenter->present($request);
-        $overviewPeriodViewModel = $this->emptyPeriodViewModel();
+        $overviewPeriodViewModel = $this->overviewPeriodViewModelFactory->create(
+            $request,
+            'app_stats_top_lists',
+            $filter,
+        );
         $dataQualityReport = $this->dataQualityReportFactory->create(
             $filter,
             $user,
@@ -86,10 +91,10 @@ final class TopListsController extends AbstractController
             $overviewPeriodViewModel,
             $dataQualityReport,
             $request,
+            $user,
             'app_stats_top_lists',
             [
                 'indexPage' => $indexPage,
-                'statisticsHeadingPeriod' => '',
             ],
         ));
     }
@@ -180,6 +185,7 @@ final class TopListsController extends AbstractController
             $overviewPeriodViewModel,
             $dataQualityReport,
             $request,
+            $user,
             'app_stats_top_lists_show',
             [
                 'topListsPage' => $topListsPage,
@@ -209,9 +215,13 @@ final class TopListsController extends AbstractController
         OverviewPeriodViewModel $overviewPeriodViewModel,
         mixed $dataQualityReport,
         Request $request,
+        ?User $user,
         string $routeName,
         array $extra,
     ): array {
+        $hideControls = (bool) ($extra['statsHideScopeControls'] ?? false);
+        $headingPeriod = (string) ($extra['statisticsHeadingPeriod'] ?? $overviewPeriodViewModel->headingLabel);
+
         return [
             'dataQualityReport' => $dataQualityReport,
             'statisticsFilter' => $pageViewModel->filter,
@@ -230,6 +240,14 @@ final class TopListsController extends AbstractController
             'isLoggedIn' => $pageViewModel->isLoggedIn,
             'statisticsHeadingScope' => $pageViewModel->headingScope,
             'overviewPeriodViewModel' => $overviewPeriodViewModel,
+            'statsAnalysisContext' => $hideControls ? null : $this->analysisContextViewModelFactory->create(
+                $request,
+                $routeName,
+                $user,
+                $pageViewModel->filter,
+                $pageViewModel->headingScope,
+                $headingPeriod,
+            ),
             'statsFilterDrawerResetUrl' => $this->statisticsNavigationUrlBuilder->build(
                 $request,
                 $routeName,
@@ -237,24 +255,5 @@ final class TopListsController extends AbstractController
             ),
             ...$extra,
         ];
-    }
-
-    private function emptyPeriodViewModel(): OverviewPeriodViewModel
-    {
-        return new OverviewPeriodViewModel(
-            '',
-            '',
-            null,
-            false,
-            [],
-            [],
-            null,
-            null,
-            null,
-            null,
-            false,
-            false,
-            false,
-        );
     }
 }

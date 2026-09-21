@@ -4,3 +4,4 @@ twig_component:
         # Namespace & directory for components
         App\Twig\Components\: 'components/'
         App\Shared\UI\Twig\Components\: 'components/'
+        App\Statistics\UI\Twig\Components\: '@Statistics/components/'

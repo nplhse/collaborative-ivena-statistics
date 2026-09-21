@@ -10,6 +10,7 @@ use App\Statistics\CaseFlow\Application\CaseFlowDashboardService;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegment;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentCatalogFactory;
 use App\Statistics\CaseFlow\Application\GeographicSegment\GeographicSegmentProfileDimension;
+use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterDrawerViewModelFactory;
@@ -38,6 +39,7 @@ final class CaseFlowController extends AbstractController
         private readonly CaseFlowChartPayloadFactory $chartPayloadFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly StatisticsFilterDrawerViewModelFactory $statisticsFilterDrawerViewModelFactory,
+        private readonly AnalysisContextViewModelFactory $analysisContextViewModelFactory,
     ) {
     }
 
@@ -110,6 +112,14 @@ final class CaseFlowController extends AbstractController
             'statsUseOverviewPeriodControls' => true,
             'statsShowFilterDrawer' => true,
             'statsFilterDrawer' => $this->statisticsFilterDrawerViewModelFactory->create($request),
+            'statsAnalysisContext' => $this->analysisContextViewModelFactory->create(
+                $request,
+                'app_stats_case_flow',
+                $user,
+                $filter,
+                $pageViewModel->headingScope,
+                $overviewPeriodViewModel->headingLabel,
+            ),
         ]);
     }
 }

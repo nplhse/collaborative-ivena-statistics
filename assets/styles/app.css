@@ -1235,3 +1235,21 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
         width: 100%;
     }
 }
+
+.analysis-context-triggers {
+    max-width: min(100%, 28rem);
+}
+
+.analysis-context-location {
+    min-width: 0;
+    max-width: min(46vw, 16rem);
+}
+
+.analysis-context-location-label {
+    min-width: 0;
+}
+
+.analysis-context-period {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}

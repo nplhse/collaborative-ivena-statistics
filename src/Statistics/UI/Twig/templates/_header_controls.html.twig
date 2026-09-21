@@ -1,4 +1,3 @@
-{% set activePeriodLabel = statisticsHeadingPeriod %}
 {% set topListCompareEnabled = statsTopListCompareEnabled|default(false) %}
 {% set showTopListCatalog = statsTopListCatalogUrl|default(null) %}
 {% set showTopListCompareEnable = statsTopListCompareEnableUrl is defined and not topListCompareEnabled %}
@@ -106,35 +105,8 @@
             </a>
         {% endif %}
 
-        {% if not statsHideScopeControls|default(false) %}
-            {{ include('@Statistics/_scope_controls.html.twig', {
-                pageViewModel: {
-                    showScopeSecondaryPicker: statsShowScopeSecondaryPicker|default(false),
-                    scopePrimaryMenu: statsScopePrimaryMenu|default([]),
-                    scopeSecondaryMenu: statsScopeSecondaryMenu|default([]),
-                    scopePrimaryDropdownLabel: statsScopePrimaryDropdownLabel|default(statisticsHeadingScope),
-                    scopeSecondaryDropdownLabel: statsScopeSecondaryDropdownLabel|default(''),
-                },
-            }) }}
-        {% endif %}
-
-        {% if not statsHidePeriodControls|default(false) %}
-            {% if statsUseOverviewPeriodControls|default(false) %}
-                {{ include('@Statistics/dashboard/_overview_period_controls.html.twig') }}
-            {% else %}
-                <div class="btn-group">
-                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        {{ activePeriodLabel }}
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item{% if statisticsFilter.period.value == 'all' %} active{% endif %}" href="{{ statsPeriodUrls.all }}">{{ 'stats.filter.period.all'|trans({}, 'statistics') }}</a>
-                        <a class="dropdown-item{% if statisticsFilter.period.value == 'all_time' %} active{% endif %}" href="{{ statsPeriodUrls.all_time }}">{{ 'stats.filter.period.all_time'|trans({}, 'statistics') }}</a>
-                        <a class="dropdown-item{% if statisticsFilter.period.value == 'year' %} active{% endif %}" href="{{ statsPeriodUrls.year }}">{{ 'stats.filter.period.year'|trans({}, 'statistics') }}</a>
-                        <a class="dropdown-item{% if statisticsFilter.period.value == 'quarter' %} active{% endif %}" href="{{ statsPeriodUrls.quarter|default('#') }}">{{ 'stats.filter.period.quarter'|trans({}, 'statistics') }}</a>
-                        <a class="dropdown-item{% if statisticsFilter.period.value == 'month' %} active{% endif %}" href="{{ statsPeriodUrls.month }}">{{ 'stats.filter.period.month'|trans({}, 'statistics') }}</a>
-                    </div>
-                </div>
-            {% endif %}
+        {% if not statsHideScopeControls|default(false) and statsAnalysisContext|default(null) %}
+            {{ component('Statistics:AnalysisContext', {context: statsAnalysisContext}) }}
         {% endif %}
     </div>
 </div>
