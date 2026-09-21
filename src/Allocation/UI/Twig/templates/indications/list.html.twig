@@ -13,78 +13,59 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'title.indication.list' }
-                ]"
-        />
-
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    {% block page_intro %}
-                        <h2 class="page-title">
-                            {% block page_title %}{{ 'title.indication.list'|trans({}, 'allocation') }}{% endblock %}
-                        </h2>
-                        {% block page_subtitle %}
-                            {% block result_count %}
-                                <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}), 'messages') }}
-                                </div>
-                            {% endblock %}
-                        {% endblock %}
-                    {% endblock %}
-                    </div>
-                <!-- Page title actions -->
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        {{ include('@Allocation/catalog/_list_top_list_action.html.twig', {dimension: 'indication'}) }}
-                        <a href="{{ path('app_explore_indication_raw_review_worklist') }}" class="btn" target="_top">
-                            <twig:ux:icon name="tabler:clipboard-check" class="w-3 h-3 me-1" />
-                            {{ 'btn.indication.review_worklist'|trans({}, 'allocation') }}
-                        </a>
-                        <form
-                            method="GET"
-                            action="{{ path('app_explore_indication_list') }}"
-                            data-controller="autosubmit"
-                            data-turbo-frame="indication-list"
+    <twig:PageHeader :title="'title.indication.list'|trans({}, 'allocation')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'title.indication.list' }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            {{ include('@Allocation/catalog/_list_top_list_action.html.twig', {dimension: 'indication'}) }}
+            <a href="{{ path('app_explore_indication_raw_review_worklist') }}" class="btn" target="_top">
+                <twig:ux:icon name="tabler:clipboard-check" class="w-3 h-3 me-1" />
+                {{ 'btn.indication.review_worklist'|trans({}, 'allocation') }}
+            </a>
+            <form
+                method="GET"
+                action="{{ path('app_explore_indication_list') }}"
+                data-controller="autosubmit"
+                data-turbo-frame="indication-list"
+            >
+                <div class="input-icon">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ app.request.query.get('search') }}"
+                        aria-label="{{ 'label.search'|trans({}, 'messages') }}"
+                        placeholder="{{ 'label.search'|trans({}, 'messages') }}"
+                        class="form-control d-inline-block w-9 me-3"
+                        data-action="autosubmit#debouncedSubmit"
+                        autofocus
+                    >
+                    <span class="input-icon-addon">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="icon"
+                            width="24" height="24" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor"
+                            fill="none"
+                            stroke-linecap="round" stroke-linejoin="round"
                         >
-                            <div class="input-icon">
-                                <input
-                                    type="search"
-                                    name="search"
-                                    value="{{ app.request.query.get('search') }}"
-                                    aria-label="{{ 'label.search'|trans({}, 'messages') }}"
-                                    placeholder="{{ 'label.search'|trans({}, 'messages') }}"
-                                    class="form-control d-inline-block w-9 me-3"
-                                    data-action="autosubmit#debouncedSubmit"
-                                    autofocus
-                                >
-                                <span class="input-icon-addon">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="icon"
-                                        width="24" height="24" viewBox="0 0 24 24"
-                                        stroke-width="2" stroke="currentColor"
-                                        fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round"
-                                    >
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="10" cy="10" r="7" />
-                                        <line x1="21" y1="21" x2="15" y2="15" />
-                                    </svg>
-                                </span>
-                            </div>
-
-                            <input type="hidden" name="type" value="{{ type }}">
-                        </form>
-                    </div>
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <circle cx="10" cy="10" r="7" />
+                            <line x1="21" y1="21" x2="15" y2="15" />
+                        </svg>
+                    </span>
                 </div>
-            </div>
-        </div>
-    </div>
+
+                <input type="hidden" name="type" value="{{ type }}">
+            </form>
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
@@ -93,136 +74,30 @@
             <twig:Alert type="info" :message="'label.searching_for'|trans(({term: search}), 'messages')" />
         {% endif %}
 
+        {% if active_type == 'raw' %}
+            {% set indication_columns = [
+                {key: 'code', type: 'badge', label: 'label.indication.code', property: 'code', sortable: true, sortKey: 'code', width: 'col-1'},
+                {key: 'name', type: 'custom', label: 'label.name', sortable: true, sortKey: 'name', width: 'col-3', cellTemplate: '@Allocation/indications/_cell_raw_name.html.twig'},
+                {key: 'reviewStatus', type: 'custom', label: 'label.indication.review_status', width: 'col-2', cellTemplate: '@Allocation/indications/_cell_review_status.html.twig'},
+                {key: 'normalized', type: 'custom', label: 'label.normalized', width: 'col-2', cellTemplate: '@Allocation/indications/_cell_normalized_target.html.twig'},
+                {key: 'lastChange', type: 'datetime', label: 'label.last_changed_at', property: 'updatedAt', fallbackProperty: 'createdAt', sortable: true, sortKey: 'lastChange', width: 'col-2'},
+                {key: 'lastChangedBy', type: 'user', label: 'label.last_changed_by', property: 'updatedBy', fallbackProperty: 'createdBy', width: 'col-2'},
+            ] %}
+        {% else %}
+            {% set indication_columns = [
+                {key: 'code', type: 'badge', label: 'label.indication.code', property: 'code', sortable: true, sortKey: 'code', width: 'col-1'},
+                {key: 'name', type: 'custom', label: 'label.name', sortable: true, sortKey: 'name', width: 'col-7', cellTemplate: '@Allocation/indications/_cell_normalized_name.html.twig'},
+                {key: 'lastChange', type: 'datetime', label: 'label.last_changed_at', property: 'updatedAt', fallbackProperty: 'createdAt', sortable: true, sortKey: 'lastChange', width: 'col-2'},
+                {key: 'lastChangedBy', type: 'user', label: 'label.last_changed_by', property: 'updatedBy', fallbackProperty: 'createdBy', width: 'col-2'},
+            ] %}
+        {% endif %}
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
+            :sortBy="sortBy"
+            :orderBy="orderBy"
             :tabs="tabs"
-        >
-            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
-            {% import '@Shared/_macros/users.html.twig' as users %}
-
-            <table class="table data-table-card">
-                <thead>
-                <tr>
-                    <th class="col-1">
-                        <a class="text-muted" href="{{ path('app_explore_indication_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'code',
-                            orderBy: sortBy == 'code' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.indication.code'|trans({}, 'messages') }} {{ pagination.sortArrow('code', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    {% if active_type == 'raw' %}
-                        <th class="col-3">
-                            <a class="text-muted" href="{{ path('app_explore_indication_list', {
-                                ...app.request.query.all(),
-                                sortBy: 'name',
-                                orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
-                            }) }}">
-                                {{ 'label.name'|trans({}, 'messages') }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
-                            </a>
-                        </th>
-                        <th class="col-2">
-                            {{ 'label.indication.review_status'|trans({}, 'messages') }}
-                        </th>
-                        <th class="col-2">
-                            <a class="text-muted">
-                                {{ 'label.normalized'|trans({}, 'messages') }}
-                            </a>
-                        </th>
-                    {% else %}
-                        <th class="col-7">
-                            <a class="text-muted" href="{{ path('app_explore_indication_list', {
-                                ...app.request.query.all(),
-                                sortBy: 'name',
-                                orderBy: sortBy == 'name' and orderBy == 'asc' ? 'desc' : 'asc',
-                            }) }}">
-                                {{ 'label.name'|trans({}, 'messages') }} {{ pagination.sortArrow('name', sortBy, orderBy) }}
-                            </a>
-                        </th>
-                    {% endif %}
-                    <th class="col-2">
-                        <a class="text-muted" href="{{ path('app_explore_indication_list', {
-                            ...app.request.query.all(),
-                            sortBy: 'lastChange',
-                            orderBy: sortBy == 'lastChange' and orderBy == 'asc' ? 'desc' : 'asc',
-                        }) }}">
-                            {{ 'label.last_changed_at'|trans({}, 'messages') }} {{ pagination.sortArrow('lastChange', sortBy, orderBy) }}
-                        </a>
-                    </th>
-                    <th class="col-2">
-                        {{ 'label.last_changed_by'|trans({}, 'messages') }}
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for indication in paginator.results %}
-                    <tr>
-                        <td>
-                            <span class="badge">{{ indication.code }}</span>
-                        </td>
-                        {% if active_type == 'raw' %}
-                            <td>
-                                {% if indication.publicId %}
-                                    <a href="{{ path('app_explore_indication_raw_review', {publicId: indication.publicId}) }}" target="_top">
-                                        {{ indication.name }}
-                                    </a>
-                                {% else %}
-                                    {{ indication.name }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary-lt">{{ ('indication.review.status.' ~ indication.reviewStatus.value)|trans({}, 'allocation') }}</span>
-                            </td>
-                            <td>
-                                {% if indication.target is not null %}
-                                    {{ indication.target.name }} ({{ indication.target.code }})
-                                {% else %}
-                                    <span class="badge">null</span>
-                                {% endif %}
-                            </td>
-                        {% else %}
-                            <td>
-                                {{ explore_entity_link(indication, {target: '_top'}) }}
-                            </td>
-                        {% endif %}
-                        <td>
-                            {{ indication.updatedAt ? indication.updatedAt|date('d.m.Y H:i') : indication.createdAt|date('d.m.Y H:i') }}
-                        </td>
-                        <td>
-                            {{ users.link(indication.updatedBy ?? indication.createdBy) }}
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty">
-                                <div class="empty-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="12" cy="12" r="9" />
-                                        <line x1="9" y1="10" x2="9.01" y2="10" />
-                                        <line x1="15" y1="10" x2="15.01" y2="10" />
-                                        <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
-                                    </svg>
-                                </div>
-                                <p class="empty-title">{{ 'label.search_no_results'|trans({}, 'messages') }}</p>
-                                <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </twig:DataTable>
-
-        <turbo-stream action="replace" target="result-count">
-            <template>
-                {{ block('result_count') }}
-            </template>
-        </turbo-stream>
-    </turbo-frame>
+            :columns="indication_columns"
+        />
+</turbo-frame>
 {% endblock %}

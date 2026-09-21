@@ -1,0 +1,29 @@
+<span class="text-danger fw-bold">
+    {% if row.departmentWasClosed %}
+        {{ include('@Allocation/allocations/_department_was_closed_indicator.html.twig', {compact: true}) }}
+    {% endif %}
+    {% if row.infection is not null %}
+        <span class="badge bg-orange text-orange-fg">{{ row.infection }}</span>
+    {% endif %}
+    {% if row.requiresResus %}
+        {{ 'S+'|trans({}, 'allocation') }}
+    {% endif %}
+    {% if row.requiresCathlab %}
+        {{ 'H+'|trans({}, 'allocation') }}
+    {% endif %}
+    {% if row.isCPR %}
+        {{ 'R+'|trans({}, 'allocation') }}
+    {% endif %}
+    {% if row.isVentilated %}
+        {{ 'B+'|trans({}, 'allocation') }}
+    {% endif %}
+    {% if row.isWithPhysician %}
+        {{ 'N+'|trans({}, 'allocation') }}
+    {% endif %}
+    {% if row.isPregnant %}
+        {{ 'label.pregnant'|trans({}, 'messages') }}
+    {% endif %}
+    {% if row.isWorkAccident %}
+        {{ 'BG+'|trans }}
+    {% endif %}
+</span>

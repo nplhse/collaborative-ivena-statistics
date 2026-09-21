@@ -1,0 +1,7 @@
+{% set href = this.cellHref(row, column) %}
+{% set target = column.options.target|default('_top') %}
+{% if href %}
+    <a href="{{ href }}"{% if target %} target="{{ target }}"{% endif %}>{{ value }}</a>
+{% else %}
+    {{ value }}
+{% endif %}

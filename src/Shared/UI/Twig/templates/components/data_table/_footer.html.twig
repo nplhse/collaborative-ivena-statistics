@@ -1,0 +1,30 @@
+{% import '@Shared/_macros/pagination.html.twig' as pagination %}
+
+<div class="card-footer d-flex align-items-center flex-wrap gap-2">
+    <div class="d-flex align-items-center flex-wrap gap-3">
+        <div class="dropdown">
+            <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="me-1">
+                    {{ 'label.pagination_results'|trans({pageSize: paginator.pageSize}, 'messages') }}
+                </span>
+            </a>
+            <div class="dropdown-menu">
+                {% for link in this.pageSizeLinks %}
+                    <a class="dropdown-item{% if link.active %} active{% endif %}" href="{{ link.url }}">
+                        {{ 'label.pagination_results'|trans({pageSize: link.size}, 'messages') }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="text-secondary" id="result-count">
+            {{ include('@Shared/components/data_table/_result_count.html.twig') }}
+        </div>
+    </div>
+
+    {% if this.cursorPaginator %}
+        {{ include('@Shared/components/data_table/_cursor_nav.html.twig') }}
+    {% elseif this.resolvedPaginationRoute %}
+        {{ pagination.navbar(paginator, this.resolvedPaginationRoute) }}
+    {% endif %}
+</div>

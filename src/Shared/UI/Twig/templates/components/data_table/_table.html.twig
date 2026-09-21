@@ -1,0 +1,47 @@
+{% import '@Shared/_macros/pagination.html.twig' as pagination %}
+
+<div class="table-responsive">
+    <table class="table data-table-card">
+        <thead>
+            <tr>
+                {% for column in this.visibleColumns %}
+                    <th{% if column.width %} class="{{ column.width }}"{% endif %}>
+                        {% if column.sortable %}
+                            <a class="text-muted" href="{{ this.sortUrl(column) }}">
+                                {{ column.label|trans({}, column.labelDomain) }}
+                                {{ pagination.sortArrow(column.resolvedSortKey(), sortBy, orderBy) }}
+                            </a>
+                        {% elseif column.label %}
+                            {{ column.label|trans({}, column.labelDomain) }}
+                        {% endif %}
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in this.rowItems %}
+                <tr{% if this.rowCssClass(row) %} class="{{ this.rowCssClass(row) }}"{% endif %}{% if rowTestId %} data-testid="{{ rowTestId }}"{% endif %}>
+                    {% for column in this.visibleColumns %}
+                        <td{% if column.align %} class="text-{{ column.align }}"{% endif %}>
+                            {{ include('@Shared/components/data_table/_cell.html.twig', {
+                                row: row,
+                                column: column,
+                                value: this.cellValue(row, column),
+                            }) }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="{{ this.visibleColumns|length }}">
+                        <twig:EmptyState
+                            title="{{ emptyTitle ?? 'label.search_no_results'|trans({}, 'messages') }}"
+                            description="{{ emptyDescription ?? 'help.search_no_results'|trans({}, 'shared') }}"
+                            icon="{{ emptyIcon ?? 'tabler:mood-sad' }}"
+                        />
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

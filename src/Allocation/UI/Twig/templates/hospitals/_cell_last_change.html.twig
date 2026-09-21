@@ -1,0 +1,3 @@
+{% import '@Shared/_macros/users.html.twig' as users %}
+{{ row.updatedAt ? row.updatedAt|date('d.m.Y H:i') : row.createdAt|date('d.m.Y H:i') }}<br/>
+{{ users.link(row.updatedBy ?? row.createdBy) }}

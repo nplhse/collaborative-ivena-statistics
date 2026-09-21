@@ -24,6 +24,8 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
         self::assertResponseIsSuccessful();
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows);
+        self::assertSelectorExists('#result-count');
+        self::assertSelectorExists('#page-result-count');
         self::assertSelectorExists('ul.pagination a.page-link');
 
         $firstPageIds = $this->extractAllocationIds($crawler);

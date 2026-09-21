@@ -13,80 +13,62 @@
 {% endblock %}
 
 {% block page_header %}
-    <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'link.users' }
-                ]"
-        />
+    <twig:PageHeader :title="'title.user.list'|trans({}, 'user')">
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.explore', path: path('app_explore_index') },
+                { label: 'link.users' }
+            ]" />
+        </twig:block>
+        <twig:block name="context">
+            {{ include('@Shared/components/data_table/_page_result_count.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            <twig:FilterDrawerTrigger
+                drawerId="user-filters"
+                :activeCount="activeFilterCount"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_user_list', {search: search, sortBy: sortBy, orderBy: orderBy}) : null }}"
+                openTestId="user-directory-filters-toggle"
+                clearTestId="user-directory-filters-reset"
+                countTestId="user-directory-active-filter-count"
+            />
 
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    {% block page_intro %}
-                        <h2 class="page-title">
-                            {% block page_title %}{{ 'title.user.list'|trans({}, 'user') }}{% endblock %}
-                        </h2>
-                        {% block page_subtitle %}
-                            {% block result_count %}
-                                <div id="result-count" class="text-body-secondary mt-1">
-                                    {{ 'label.pagination_numbers'|trans(({first: paginator.firstResultNumber, last: paginator.lastResultNumber, total: paginator.numResults}), 'messages') }}
-                                </div>
-                            {% endblock %}
-                        {% endblock %}
-                    {% endblock %}
+            <form
+                method="GET"
+                action="{{ path('app_explore_user_list') }}"
+                data-controller="autosubmit"
+                data-turbo-frame="user-list"
+                data-testid="user-directory-search"
+            >
+                <input type="hidden" name="sortBy" value="{{ sortBy }}">
+                <input type="hidden" name="orderBy" value="{{ orderBy }}">
+                {% if filters.hospitalId %}
+                    <input type="hidden" name="hospitalId" value="{{ filters.hospitalId }}">
+                {% endif %}
+                {% if filters.wantsParticipant %}
+                    <input type="hidden" name="participant" value="1">
+                {% endif %}
+                {% if filters.wantsBoardMember %}
+                    <input type="hidden" name="boardMember" value="1">
+                {% endif %}
+                <div class="input-icon">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ app.request.query.get('search') }}"
+                        aria-label="{{ 'label.user.search'|trans({}, 'user') }}"
+                        placeholder="{{ 'label.user.search'|trans({}, 'user') }}"
+                        class="form-control d-inline-block w-9 me-3"
+                        data-action="autosubmit#debouncedSubmit"
+                        autofocus
+                    >
+                    <span class="input-icon-addon">
+                        <twig:ux:icon name="tabler:search" width="1em" height="1em" />
+                    </span>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <twig:FilterDrawerTrigger
-                            drawerId="user-filters"
-                            :activeCount="activeFilterCount"
-                            resetUrl="{{ activeFilterCount > 0 ? path('app_explore_user_list', {search: search, sortBy: sortBy, orderBy: orderBy}) : null }}"
-                            openTestId="user-directory-filters-toggle"
-                            clearTestId="user-directory-filters-reset"
-                            countTestId="user-directory-active-filter-count"
-                        />
-
-                        <form
-                            method="GET"
-                            action="{{ path('app_explore_user_list') }}"
-                            data-controller="autosubmit"
-                            data-turbo-frame="user-list"
-                            data-testid="user-directory-search"
-                        >
-                            <input type="hidden" name="sortBy" value="{{ sortBy }}">
-                            <input type="hidden" name="orderBy" value="{{ orderBy }}">
-                            {% if filters.hospitalId %}
-                                <input type="hidden" name="hospitalId" value="{{ filters.hospitalId }}">
-                            {% endif %}
-                            {% if filters.wantsParticipant %}
-                                <input type="hidden" name="participant" value="1">
-                            {% endif %}
-                            {% if filters.wantsBoardMember %}
-                                <input type="hidden" name="boardMember" value="1">
-                            {% endif %}
-                            <div class="input-icon">
-                                <input
-                                    type="search"
-                                    name="search"
-                                    value="{{ app.request.query.get('search') }}"
-                                    aria-label="{{ 'label.user.search'|trans({}, 'user') }}"
-                                    placeholder="{{ 'label.user.search'|trans({}, 'user') }}"
-                                    class="form-control d-inline-block w-9 me-3"
-                                    data-action="autosubmit#debouncedSubmit"
-                                    autofocus
-                                >
-                                <span class="input-icon-addon">
-                                    <twig:ux:icon name="tabler:search" width="1em" height="1em" />
-                                </span>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            </form>
+        </twig:block>
+    </twig:PageHeader>
 {% endblock %}
 
 {% block page_content %}
@@ -101,97 +83,21 @@
 
         <twig:DataTable
             :paginator="paginator"
+            :rows="items"
             :paginationRoute="pagination_route"
-        >
-            {% import '@Shared/_macros/pagination.html.twig' as pagination %}
-
-            <table class="table data-table-card">
-                <thead>
-                    <tr>
-                        <th class="col-3">
-                            <a class="text-muted" href="{{ path('app_explore_user_list', {
-                                ...app.request.query.all(),
-                                sortBy: 'username',
-                                orderBy: sortBy == 'username' and orderBy == 'asc' ? 'desc' : 'asc',
-                            }) }}">
-                                {{ 'label.user.username'|trans({}, 'user') }} {{ pagination.sortArrow('username', sortBy, orderBy) }}
-                            </a>
-                        </th>
-                        <th class="col-3">{{ 'label.user.roles'|trans({}, 'user') }}</th>
-                        <th class="col-4">{{ 'label.user.hospitals'|trans({}, 'user') }}</th>
-                        <th class="col-2">
-                            <a class="text-muted" href="{{ path('app_explore_user_list', {
-                                ...app.request.query.all(),
-                                sortBy: 'createdAt',
-                                orderBy: sortBy == 'createdAt' and orderBy == 'asc' ? 'desc' : 'asc',
-                            }) }}">
-                                {{ 'label.created_at'|trans({}, 'messages') }} {{ pagination.sortArrow('createdAt', sortBy, orderBy) }}
-                            </a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for item in items %}
-                    <tr data-testid="user-directory-row">
-                        <td>
-                            <a href="{{ path('app_explore_user_show', {publicId: item.publicId}) }}" target="_top">
-                                {{ item.username }}
-                            </a>
-                        </td>
-                        <td>
-                            {% if item.isAdmin %}
-                                <span class="badge bg-red-lt text-red-lt-fg" data-testid="user-badge-admin">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
-                            {% endif %}
-                            {% if item.isParticipant %}
-                                <span class="badge bg-azure-lt text-azure-lt-fg" data-testid="user-badge-participant">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
-                            {% endif %}
-                            {% if item.isBoardMember %}
-                                <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
-                            {% endif %}
-                            {% if item.isUserOnly %}
-                                <span class="badge bg-secondary-lt text-secondary-lt-fg" data-testid="user-badge-user">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if item.hospitals is empty %}
-                                <span class="text-secondary">{{ 'label.user.hospitals.empty'|trans({}, 'user') }}</span>
-                            {% else %}
-                                {% for hospital in item.hospitals %}
-                                    <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" target="_top" class="d-inline-block me-1">
-                                        {{ hospital.name }}
-                                    </a>{% if not loop.last %}<span class="text-secondary">·</span>{% endif %}
-                                {% endfor %}
-                            {% endif %}
-                        </td>
-                        <td data-testid="user-directory-created-at">
-                            {{ item.createdAt|date('d.m.Y') }}
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="4">
-                            <div class="empty">
-                                <div class="empty-icon">
-                                    <twig:ux:icon name="tabler:users" width="24" height="24" />
-                                </div>
-                                <p class="empty-title">{{ 'label.user.empty.list'|trans({}, 'user') }}</p>
-                                <p class="empty-subtitle text-secondary">
-                                    {{ 'help.search_no_results'|trans({}, 'shared') }}
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </twig:DataTable>
-
-        <turbo-stream action="replace" target="result-count">
-            <template>
-                {{ block('result_count') }}
-            </template>
-        </turbo-stream>
-    </turbo-frame>
+            :sortBy="sortBy"
+            :orderBy="orderBy"
+            rowTestId="user-directory-row"
+            emptyTitle="{{ 'label.user.empty.list'|trans({}, 'user') }}"
+            emptyIcon="tabler:users"
+            :columns="[
+                { key: 'username', type: 'link', label: 'label.user.username', labelDomain: 'user', property: 'username', sortable: true, sortKey: 'username', width: 'col-3', route: 'app_explore_user_show', routeParams: {publicId: 'publicId'} },
+                { key: 'roles', type: 'custom', label: 'label.user.roles', labelDomain: 'user', width: 'col-3', cellTemplate: '@User/explore/users/_cell_roles.html.twig' },
+                { key: 'hospitals', type: 'custom', label: 'label.user.hospitals', labelDomain: 'user', width: 'col-4', cellTemplate: '@User/explore/users/_cell_hospitals.html.twig' },
+                { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt', width: 'col-2', format: 'd.m.Y' },
+            ]"
+        />
+</turbo-frame>
 
     <twig:FilterDrawer
         id="user-filters"

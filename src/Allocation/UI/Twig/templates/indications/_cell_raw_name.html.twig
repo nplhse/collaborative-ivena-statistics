@@ -1,0 +1,7 @@
+{% if row.publicId %}
+    <a href="{{ path('app_explore_indication_raw_review', {publicId: row.publicId}) }}" target="_top">
+        {{ row.name }}
+    </a>
+{% else %}
+    {{ row.name }}
+{% endif %}

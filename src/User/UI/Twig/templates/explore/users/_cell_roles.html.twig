@@ -1,0 +1,12 @@
+{% if row.isAdmin %}
+    <span class="badge bg-red-lt text-red-lt-fg" data-testid="user-badge-admin">{{ 'label.user.badge.admin'|trans({}, 'user') }}</span>
+{% endif %}
+{% if row.isParticipant %}
+    <span class="badge bg-azure-lt text-azure-lt-fg" data-testid="user-badge-participant">{{ 'label.user.badge.participant'|trans({}, 'user') }}</span>
+{% endif %}
+{% if row.isBoardMember %}
+    <span class="badge bg-purple-lt text-purple-lt-fg" data-testid="user-badge-board-member">{{ 'label.user.badge.board_member'|trans({}, 'user') }}</span>
+{% endif %}
+{% if row.isUserOnly %}
+    <span class="badge bg-secondary-lt text-secondary-lt-fg" data-testid="user-badge-user">{{ 'label.user.badge.user'|trans({}, 'user') }}</span>
+{% endif %}

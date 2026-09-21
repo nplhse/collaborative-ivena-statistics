@@ -1,0 +1,11 @@
+{% set flags = [] %}
+{% if row.requiresResus is same as true %}{% set flags = flags|merge(['S+'|trans({}, 'allocation')]) %}{% endif %}
+{% if row.requiresCathlab is same as true %}{% set flags = flags|merge(['H+'|trans({}, 'allocation')]) %}{% endif %}
+{% if row.isCPR is same as true %}{% set flags = flags|merge(['R+'|trans({}, 'allocation')]) %}{% endif %}
+{% if row.isVentilated is same as true %}{% set flags = flags|merge(['B+'|trans({}, 'allocation')]) %}{% endif %}
+{% if row.isShock is same as true %}{% set flags = flags|merge(['Shock']) %}{% endif %}
+{% if row.isWithPhysician is same as true %}{% set flags = flags|merge(['N+'|trans({}, 'allocation')]) %}{% endif %}
+{% if row.isPregnant is same as true %}{% set flags = flags|merge(['label.pregnant'|trans({}, 'messages')]) %}{% endif %}
+<span class="text-danger fw-bold">
+    {% if flags is empty %}—{% else %}{{ flags|join(' ') }}{% endif %}
+</span>

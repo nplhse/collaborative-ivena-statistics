@@ -1,0 +1,13 @@
+{% set iconTrue = column.options.iconTrue|default('tabler:square-rounded-check-filled') %}
+{% set iconFalse = column.options.iconFalse|default('tabler:square-rounded-x') %}
+{% set trueClass = column.options.trueClass|default('text-success') %}
+{% set falseClass = column.options.falseClass|default('text-muted') %}
+{% if value %}
+    <div class="text-center {{ trueClass }}">
+        <twig:ux:icon name="{{ iconTrue }}" class="w-4 h-4" />
+    </div>
+{% else %}
+    <div class="text-center {{ falseClass }}">
+        <twig:ux:icon name="{{ iconFalse }}" class="w-4 h-4" />
+    </div>
+{% endif %}

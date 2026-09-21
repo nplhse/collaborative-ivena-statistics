@@ -1005,6 +1005,18 @@
         <source>label.pagination_results</source>
         <target>{pageSize} Einträge</target>
       </trans-unit>
+      <trans-unit id="DePaginationEst" resname="label.pagination_numbers_estimated">
+        <source>label.pagination_numbers_estimated</source>
+        <target>Etwa {total} Ergebnisse auf {pages} Seiten.</target>
+      </trans-unit>
+      <trans-unit id="DePaginationShow" resname="label.pagination_showing_results">
+        <source>label.pagination_showing_results</source>
+        <target>Ergebnisse werden angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="DeLabelLoading" resname="label.loading">
+        <source>label.loading</source>
+        <target>Wird geladen</target>
+      </trans-unit>
       <trans-unit id="De90bb8861" resname="label.parent">
         <source>label.parent</source>
         <target>Übergeordnet</target>

@@ -1,0 +1,14 @@
+{% set view = this.badgeView(row, column) %}
+{% set number = this.badgeNumber(row, column) %}
+{% if view.presentation.value == 'status' %}
+    <span class="{{ view.cssClass }}">
+        {% if view.animatedDot %}
+            <span class="status-dot status-dot-animated"></span>
+        {% elseif view.icon %}
+            <twig:ux:icon name="{{ view.icon }}" width="12" height="12" />
+        {% endif %}
+        {{ view.label }}
+    </span>
+{% elseif view.label or number is not null %}
+    <span class="badge {{ view.cssClass }}">{{ view.label }}{% if number is not null %} ({{ number }}){% endif %}</span>
+{% endif %}

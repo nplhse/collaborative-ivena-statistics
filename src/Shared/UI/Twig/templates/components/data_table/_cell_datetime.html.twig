@@ -1,0 +1,4 @@
+{% set format = column.options.format|default('d.m.Y H:i') %}
+{% if value %}
+    {{ value|date(format) }}
+{% endif %}

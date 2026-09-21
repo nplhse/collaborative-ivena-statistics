@@ -1,0 +1,18 @@
+<div class="d-flex flex-column gap-1">
+    <div>
+        {% if row.indicationNormalizedName is not null %}
+            <span class="badge">{{ row.indicationNormalizedCode }}</span> <strong>{{ row.indicationNormalizedName }}</strong>
+        {% else %}
+            <span class="badge">{{ row.indicationRawCode }}</span> {{ row.indicationRawName }}
+        {% endif %}
+    </div>
+    {% if row.secondaryIndicationRawName is not null %}
+        <div>
+            {% if row.indicationNormalizedName is not null and row.secondaryIndicationNormalizedName is not null %}
+                <span class="badge">{{ row.secondaryIndicationNormalizedCode }}</span> <strong class="fst-italic">{{ row.secondaryIndicationNormalizedName }}</strong>
+            {% else %}
+                <span class="badge bg-gray-500 text-white">{{ row.secondaryIndicationRawCode }}</span> <span class="fst-italic">{{ row.secondaryIndicationRawName }}</span>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
