@@ -42,6 +42,20 @@ final class ExplorerCatalogGroupOrderTest extends TestCase
         );
     }
 
+    public function testHospitalsDimensionGroupsSeparateGeographyAndParticipation(): void
+    {
+        $catalog = new ExplorerDimensionCatalog();
+
+        self::assertSame(
+            [
+                'stats.analysis_explorer.dimension_group.hospital_profile',
+                'stats.analysis_explorer.dimension_group.geography',
+                'stats.analysis_explorer.dimension_group.participation',
+            ],
+            $catalog->categoryGroupOrderFor(AnalysisDataSourceKey::Hospitals),
+        );
+    }
+
     public function testDimensionCategoryGroupOrderMatchesCategoryLabels(): void
     {
         $catalog = new ExplorerDimensionCatalog();

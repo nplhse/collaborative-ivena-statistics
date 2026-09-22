@@ -5085,6 +5085,10 @@
         <source>stats.analysis_explorer.dimension_group.geography</source>
         <target>Geography</target>
       </trans-unit>
+      <trans-unit id="statsAexDg10" resname="stats.analysis_explorer.dimension_group.participation">
+        <source>stats.analysis_explorer.dimension_group.participation</source>
+        <target>Participation</target>
+      </trans-unit>
       <trans-unit id="statsAexBx01" resname="stats.analysis_explorer.box_plot.column.distribution_count">
         <source>stats.analysis_explorer.box_plot.column.distribution_count</source>
         <target>n</target>
@@ -5111,7 +5115,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd01" resname="stats.analysis_explorer.dimension.hospital_master_cohort">
         <source>stats.analysis_explorer.dimension.hospital_master_cohort</source>
-        <target>Hospital cohort (master data)</target>
+        <target>Hospital cohort</target>
       </trans-unit>
       <trans-unit id="statsAexHd02" resname="stats.analysis_explorer.dimension.hospital_tier">
         <source>stats.analysis_explorer.dimension.hospital_tier</source>
@@ -5119,7 +5123,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd03" resname="stats.analysis_explorer.dimension.hospital_size">
         <source>stats.analysis_explorer.dimension.hospital_size</source>
-        <target>Size class</target>
+        <target>Size</target>
       </trans-unit>
       <trans-unit id="statsAexHd04" resname="stats.analysis_explorer.dimension.hospital_location">
         <source>stats.analysis_explorer.dimension.hospital_location</source>
@@ -5415,11 +5419,11 @@
       </trans-unit>
       <trans-unit id="statsSv8bb57528" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.title">
         <source>stats.analysis_explorer.system_view.hospitals-by-cohort.title</source>
-        <target>Hospitals by master cohort</target>
+        <target>Hospitals by hospital cohort</target>
       </trans-unit>
       <trans-unit id="statsSva2c79a3c" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-cohort.description</source>
-        <target>Participating hospital counts grouped by master cohort.</target>
+        <target>Participating hospital counts grouped by hospital cohort.</target>
       </trans-unit>
       <trans-unit id="statsSv0be85ed4" resname="stats.analysis_explorer.system_view.hospitals-by-tier.title">
         <source>stats.analysis_explorer.system_view.hospitals-by-tier.title</source>
@@ -5443,15 +5447,15 @@
       </trans-unit>
       <trans-unit id="statsSv50459702" resname="stats.analysis_explorer.system_view.hospitals-by-size.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-size.description</source>
-        <target>Participating hospital counts and average beds grouped by size class.</target>
+        <target>Participating hospital counts and average beds grouped by size.</target>
       </trans-unit>
       <trans-unit id="statsSv5f7809dc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.title">
         <source>stats.analysis_explorer.system_view.hospital-tier-by-location.title</source>
-        <target>Hospital tier by location</target>
+        <target>Care tier by location</target>
       </trans-unit>
       <trans-unit id="statsSvb9c925cc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.description">
         <source>stats.analysis_explorer.system_view.hospital-tier-by-location.description</source>
-        <target>Participating hospital counts in a tier-by-location matrix.</target>
+        <target>Participating hospital counts in a care-tier-by-location matrix.</target>
       </trans-unit>
       <trans-unit id="statsSvf4ba0449" resname="stats.analysis_explorer.system_view.allocations-per-hospital-tier.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-tier.title</source>
@@ -5491,7 +5495,7 @@
       </trans-unit>
       <trans-unit id="statsSvccd56425" resname="stats.analysis_explorer.system_view.hospitals-by-location.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-location.description</source>
-        <target>Participating hospital counts grouped by location type.</target>
+        <target>Participating hospital counts grouped by location.</target>
       </trans-unit>
       <trans-unit id="statsSv3c1801c2" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.title">
         <source>stats.analysis_explorer.system_view.beds-distribution-by-location.title</source>
@@ -5499,7 +5503,7 @@
       </trans-unit>
       <trans-unit id="statsSv0b410d6e" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.description">
         <source>stats.analysis_explorer.system_view.beds-distribution-by-location.description</source>
-        <target>Distribution of hospital bed counts per location type as a box plot.</target>
+        <target>Distribution of hospital bed counts per location as a box plot.</target>
       </trans-unit>
       <trans-unit id="statsSv66da63ca" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.title</source>
@@ -5507,15 +5511,15 @@
       </trans-unit>
       <trans-unit id="statsSv7e8a70e5" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.description">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.description</source>
-        <target>How many allocations participating hospitals handle per size class.</target>
+        <target>How many allocations participating hospitals handle per size.</target>
       </trans-unit>
       <trans-unit id="statsSv56532599" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.title</source>
-        <target>Allocations per hospital location</target>
+        <target>Allocations per location</target>
       </trans-unit>
       <trans-unit id="statsSvf1c4b376" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.description">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.description</source>
-        <target>How many allocations participating hospitals handle per location type.</target>
+        <target>How many allocations participating hospitals handle per location.</target>
       </trans-unit>
       <trans-unit id="statsAexSum01" resname="stats.analysis_explorer.summary.temporal">
         <source>stats.analysis_explorer.summary.temporal</source>

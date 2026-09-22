@@ -935,7 +935,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd01" resname="stats.analysis_explorer.dimension.hospital_master_cohort">
         <source>stats.analysis_explorer.dimension.hospital_master_cohort</source>
-        <target>Master-Kohorte</target>
+        <target>Krankenhauskohorte</target>
       </trans-unit>
       <trans-unit id="statsAexHd08" resname="stats.analysis_explorer.dimension.hospital_population_group">
         <source>stats.analysis_explorer.dimension.hospital_population_group</source>
@@ -943,7 +943,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd03" resname="stats.analysis_explorer.dimension.hospital_size">
         <source>stats.analysis_explorer.dimension.hospital_size</source>
-        <target>Größenklasse</target>
+        <target>Größe</target>
       </trans-unit>
       <trans-unit id="statsAexHd05" resname="stats.analysis_explorer.dimension.hospital_state">
         <source>stats.analysis_explorer.dimension.hospital_state</source>
@@ -1056,6 +1056,10 @@
       <trans-unit id="statsAexDg09" resname="stats.analysis_explorer.dimension_group.geography">
         <source>stats.analysis_explorer.dimension_group.geography</source>
         <target>Geografie</target>
+      </trans-unit>
+      <trans-unit id="statsAexDg10" resname="stats.analysis_explorer.dimension_group.participation">
+        <source>stats.analysis_explorer.dimension_group.participation</source>
+        <target>Teilnahme</target>
       </trans-unit>
       <trans-unit id="Deacd6097f" resname="stats.analysis_explorer.dimension_group.geography_and_participation">
         <source>stats.analysis_explorer.dimension_group.geography_and_participation</source>
@@ -5415,11 +5419,11 @@
       </trans-unit>
       <trans-unit id="statsSv8bb57528" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.title">
         <source>stats.analysis_explorer.system_view.hospitals-by-cohort.title</source>
-        <target>Krankenhäuser nach Master-Kohorte</target>
+        <target>Krankenhäuser nach Krankenhauskohorte</target>
       </trans-unit>
       <trans-unit id="statsSva2c79a3c" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-cohort.description</source>
-        <target>Zahlen teilnehmender Krankenhäuser nach Master-Kohorte.</target>
+        <target>Zahlen teilnehmender Krankenhäuser nach Krankenhauskohorte.</target>
       </trans-unit>
       <trans-unit id="statsSv0be85ed4" resname="stats.analysis_explorer.system_view.hospitals-by-tier.title">
         <source>stats.analysis_explorer.system_view.hospitals-by-tier.title</source>
@@ -5443,11 +5447,11 @@
       </trans-unit>
       <trans-unit id="statsSv50459702" resname="stats.analysis_explorer.system_view.hospitals-by-size.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-size.description</source>
-        <target>Zahlen teilnehmender Krankenhäuser und durchschnittliche Betten nach Größenklasse.</target>
+        <target>Zahlen teilnehmender Krankenhäuser und durchschnittliche Betten nach Größe.</target>
       </trans-unit>
       <trans-unit id="statsSv5f7809dc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.title">
         <source>stats.analysis_explorer.system_view.hospital-tier-by-location.title</source>
-        <target>Krankenhausstufe nach Standort</target>
+        <target>Versorgungsstufe nach Standort</target>
       </trans-unit>
       <trans-unit id="statsSvb9c925cc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.description">
         <source>stats.analysis_explorer.system_view.hospital-tier-by-location.description</source>
@@ -5491,7 +5495,7 @@
       </trans-unit>
       <trans-unit id="statsSvccd56425" resname="stats.analysis_explorer.system_view.hospitals-by-location.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-location.description</source>
-        <target>Zahlen teilnehmender Krankenhäuser nach Standorttyp.</target>
+        <target>Zahlen teilnehmender Krankenhäuser nach Standort.</target>
       </trans-unit>
       <trans-unit id="statsSv3c1801c2" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.title">
         <source>stats.analysis_explorer.system_view.beds-distribution-by-location.title</source>
@@ -5499,7 +5503,7 @@
       </trans-unit>
       <trans-unit id="statsSv0b410d6e" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.description">
         <source>stats.analysis_explorer.system_view.beds-distribution-by-location.description</source>
-        <target>Verteilung der Krankenhausbetten pro Standorttyp als Boxplot.</target>
+        <target>Verteilung der Krankenhausbetten pro Standort als Boxplot.</target>
       </trans-unit>
       <trans-unit id="statsSv66da63ca" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.title</source>
@@ -5507,15 +5511,15 @@
       </trans-unit>
       <trans-unit id="statsSv7e8a70e5" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.description">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.description</source>
-        <target>Wie viele Zuweisungen teilnehmende Krankenhäuser pro Größenklasse bearbeiten.</target>
+        <target>Wie viele Zuweisungen teilnehmende Krankenhäuser pro Größe bearbeiten.</target>
       </trans-unit>
       <trans-unit id="statsSv56532599" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.title</source>
-        <target>Zuweisungen pro Krankenhausstandort</target>
+        <target>Zuweisungen pro Standort</target>
       </trans-unit>
       <trans-unit id="statsSvf1c4b376" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.description">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.description</source>
-        <target>Wie viele Zuweisungen teilnehmende Krankenhäuser pro Standorttyp bearbeiten.</target>
+        <target>Wie viele Zuweisungen teilnehmende Krankenhäuser pro Standort bearbeiten.</target>
       </trans-unit>
       <trans-unit id="statsAexSum01" resname="stats.analysis_explorer.summary.temporal">
         <source>stats.analysis_explorer.summary.temporal</source>

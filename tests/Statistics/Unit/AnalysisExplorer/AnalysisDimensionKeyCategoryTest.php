@@ -41,12 +41,17 @@ final class AnalysisDimensionKeyCategoryTest extends TestCase
     {
         self::assertSame(
             ExplorerDimensionCategory::HospitalProfile,
-            AnalysisDimensionKey::HospitalEntity->explorerCategory(AnalysisDataSourceKey::Hospitals),
+            AnalysisDimensionKey::HospitalSize->explorerCategory(AnalysisDataSourceKey::Hospitals),
         );
         self::assertSame(
-            ExplorerDimensionCategory::GeographyAndParticipation,
+            ExplorerDimensionCategory::Geography,
             AnalysisDimensionKey::HospitalState->explorerCategory(AnalysisDataSourceKey::Hospitals),
         );
+        self::assertSame(
+            ExplorerDimensionCategory::Participation,
+            AnalysisDimensionKey::HospitalPopulationGroup->explorerCategory(AnalysisDataSourceKey::Hospitals),
+        );
+        self::assertNotContains(AnalysisDimensionKey::HospitalEntity, AnalysisDimensionKey::hospitalsCatalog());
     }
 
     public function testAllAllocationsCatalogDimensionsHaveExplorerCategory(): void

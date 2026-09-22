@@ -240,7 +240,7 @@ v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper
     "tableLayout": "flat",
     "chartRowLimit": "all"
   },
-  "title": "Hospitals by master cohort"
+  "title": "Hospitals by hospital cohort"
 }
 ```
 
