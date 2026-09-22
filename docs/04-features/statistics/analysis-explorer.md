@@ -37,7 +37,7 @@ The seeder assigns `createdBy` to the admin user (`username: admin`).
 | View type | `isSystem` | `createdBy` | Read | Save | Save As |
 |---|---|---|---|---|---|
 | System view | `true` | admin | everyone | no | yes (participants) |
-| User view | `false` | creator | creator only | yes (creator) | yes (creator) |
+| User view | `false` | creator | creator, or `public` and `ROLE_PARTICIPANT` | yes (creator) | yes (creator); the copy is private |
 
 User views are referenced by **numeric id** in URLs (`/statistics/analysis/explorer/{id}`). System views keep legacy slugs for seeding and backward-compatible URLs.
 
@@ -47,7 +47,7 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Overview** (44 system views with category filters), **Favorites**, and **My views** for signed-in users.
+The analysis library page lists **Overview** (44 system views with category filters), **Favorites**, and **My views** for signed-in users. Participants also see **Public**, the public views of other users. New user views are private. Only the creator can switch a view to public.
 
 ### System view labels (i18n)
 
@@ -62,7 +62,7 @@ Loading flow:
 ```text
 AnalysisExplorerController (saved view route)
   └─ SavedExplorerViewLoader (id or legacy slug)
-       └─ ExplorerConfigMapper + URL scope/period overlay
+       └─ ExplorerConfigMapper (stored scope and period; `usePageScope=1` copies the page filter once)
             └─ AnalysisExplorerShell
 ```
 
@@ -70,7 +70,7 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 
 ## Current limitations (intentional)
 
-- No sharing, dashboards, or recommended views.
+- Public user views are readable by `ROLE_PARTICIPANT`. Guests do not see them. There is no organization-wide audience.
 - Two data sources: `allocations` (default blank explorer) and `hospitals` (master-data snapshot). The active source is fixed per saved view via `configJson.dataSource`; hospital analyses are opened from the library or via `?dataSource=hospitals` on the blank explorer route only.
 - Hospital time-series views are not a default focus; temporal axes are reserved for allocation-derived hospital metrics in system views.
 - CSV/table export (Alpha): results table as CSV with raw values (server-side `StreamedResponse`) and chart as PNG (client-side via ApexCharts `dataURI`).
@@ -188,7 +188,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "dataSource": "allocations",
   "query": {
     "scope": { "group": "public", "detail": null },
@@ -199,7 +199,6 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
     "columns": { "dimension": "gender", "grain": "total" }
   },
   "presentation": {
-    "mode": "chart",
     "chartType": "grouped_bar",
     "tableLayout": "matrix",
     "chartRowLimit": "all"
@@ -208,7 +207,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 }
 ```
 
-v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Serialisation always writes v3.
+v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Unknown catalog keys fail. Serialisation always writes v4. `presentation.mode` is not part of v4.
 
 ### Hospitals data source
 
@@ -225,7 +224,7 @@ v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpg
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "dataSource": "hospitals",
   "query": {
     "scope": { "group": "public", "detail": null },
@@ -237,7 +236,6 @@ v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpg
     "columns": null
   },
   "presentation": {
-    "mode": "chart",
     "chartType": "bar",
     "tableLayout": "flat",
     "chartRowLimit": "all"
@@ -250,7 +248,7 @@ Saved views are bound to `configJson.dataSource`. When opening a saved view with
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 
-## Config state format (schema version 3)
+## Config state format (schema version 4)
 
 Legacy v1/v2 examples are upgraded on load. Current serialisation format:
 

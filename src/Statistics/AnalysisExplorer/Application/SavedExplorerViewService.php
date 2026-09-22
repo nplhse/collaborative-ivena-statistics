@@ -10,6 +10,7 @@ use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
 
@@ -80,6 +81,21 @@ final readonly class SavedExplorerViewService
             configJson: $configJson,
             description: $description,
         );
+        $this->repository->save($view);
+
+        return $view;
+    }
+
+    /**
+     * @psalm-suppress PossiblyUnusedReturnValue
+     */
+    public function setVisibility(SavedExplorerView $view, User $user, AnalysisViewVisibility $visibility): SavedExplorerView
+    {
+        if (!$view->isEditableBy($user)) {
+            throw new SavedExplorerViewForbiddenException('User cannot update this explorer view.');
+        }
+
+        $view->setVisibility($visibility);
         $this->repository->save($view);
 
         return $view;

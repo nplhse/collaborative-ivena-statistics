@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Domain\Entity;
 
 use App\Shared\Domain\Traits\Blamable;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -41,6 +42,9 @@ class SavedExplorerView
     #[ORM\Column]
     private bool $isSystem = false;
 
+    #[ORM\Column(length: 20, enumType: AnalysisViewVisibility::class, options: ['default' => 'private'])]
+    private AnalysisViewVisibility $visibility = AnalysisViewVisibility::Private;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -66,6 +70,7 @@ class SavedExplorerView
         array $configJson,
         ?string $description = null,
         bool $isSystem = false,
+        AnalysisViewVisibility $visibility = AnalysisViewVisibility::Private,
     ) {
         $this->slug = $slug;
         $this->title = $title;
@@ -73,6 +78,7 @@ class SavedExplorerView
         $this->configJson = $configJson;
         $this->description = $description;
         $this->isSystem = $isSystem;
+        $this->visibility = $visibility;
         $now = new \DateTimeImmutable();
         $this->createdAt = $now;
         $this->updatedAt = $now;
@@ -116,6 +122,21 @@ class SavedExplorerView
         return $this->isSystem;
     }
 
+    public function getVisibility(): AnalysisViewVisibility
+    {
+        return $this->visibility;
+    }
+
+    public function isPublic(): bool
+    {
+        return AnalysisViewVisibility::Public === $this->visibility;
+    }
+
+    public function setVisibility(AnalysisViewVisibility $visibility): void
+    {
+        $this->visibility = $visibility;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -143,13 +164,19 @@ class SavedExplorerView
             && $this->wasCreatedBy($user);
     }
 
-    public function isAccessibleBy(?User $user): bool
+    public function isAccessibleBy(?User $user, bool $viewerIsParticipant = false): bool
     {
         if ($this->isSystem) {
             return true;
         }
 
-        return $user instanceof User && $this->wasCreatedBy($user);
+        if ($user instanceof User && $this->wasCreatedBy($user)) {
+            return true;
+        }
+
+        return $this->isPublic()
+            && $viewerIsParticipant
+            && $user instanceof User;
     }
 
     /**

@@ -23,6 +23,8 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
 
     private const string TAB_MY_VIEWS = 'my_views';
 
+    private const string TAB_PUBLIC = 'public';
+
     public function __construct(
         private SavedExplorerViewRepository $repository,
         private SavedExplorerViewFavoriteService $favoriteService,
@@ -32,10 +34,12 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     ) {
     }
 
-    public function create(Request $request, ?User $user): AnalysisExplorerLibraryPageViewModel
+    public function create(Request $request, ?User $user, bool $viewerIsParticipant = false): AnalysisExplorerLibraryPageViewModel
     {
         $isLoggedIn = $user instanceof User;
-        $activeTab = $this->resolveActiveTab($request, $isLoggedIn);
+        $viewerIsParticipant = $viewerIsParticipant
+            || ($user instanceof User && \in_array('ROLE_PARTICIPANT', $user->getRoles(), true));
+        $activeTab = $this->resolveActiveTab($request, $isLoggedIn, $viewerIsParticipant);
         $activeCategory = self::TAB_ALL === $activeTab
             ? $this->normalizeCategoryFilter($request->query->getString(ExplorerLibraryQueryKeys::CATEGORY))
             : null;
@@ -44,11 +48,11 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         return new AnalysisExplorerLibraryPageViewModel(
             activeTab: $activeTab,
             activeCategory: $activeCategory,
-            tabs: $this->tabs($request, $activeTab, $isLoggedIn, $user),
+            tabs: $this->tabs($request, $activeTab, $isLoggedIn, $viewerIsParticipant, $user),
             categoryFilters: self::TAB_ALL === $activeTab
                 ? $this->categoryFilters($request, $activeCategory)
                 : [],
-            cards: $this->cardsForTab($request, $user, $activeTab, $activeCategory, $searchQuery),
+            cards: $this->cardsForTab($request, $user, $activeTab, $activeCategory, $searchQuery, $viewerIsParticipant),
             isLoggedIn: $isLoggedIn,
             searchQuery: $searchQuery ?? '',
         );
@@ -61,15 +65,19 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         return '' === $search ? null : $search;
     }
 
-    private function resolveActiveTab(Request $request, bool $isLoggedIn): string
+    private function resolveActiveTab(Request $request, bool $isLoggedIn, bool $viewerIsParticipant): string
     {
         $tab = $request->query->getString(ExplorerLibraryQueryKeys::TAB, self::TAB_ALL);
+        $allowed = [self::TAB_ALL, self::TAB_FAVORITES, self::TAB_MY_VIEWS];
+        if ($viewerIsParticipant) {
+            $allowed[] = self::TAB_PUBLIC;
+        }
 
-        if (!\in_array($tab, [self::TAB_ALL, self::TAB_FAVORITES, self::TAB_MY_VIEWS], true)) {
+        if (!\in_array($tab, $allowed, true)) {
             return self::TAB_ALL;
         }
 
-        if (!$isLoggedIn && \in_array($tab, [self::TAB_FAVORITES, self::TAB_MY_VIEWS], true)) {
+        if (!$isLoggedIn && self::TAB_ALL !== $tab) {
             return self::TAB_ALL;
         }
 
@@ -92,6 +100,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         string $activeTab,
         ?string $activeCategory,
         ?string $searchQuery,
+        bool $viewerIsParticipant,
     ): array {
         $views = match ($activeTab) {
             self::TAB_FAVORITES => $user instanceof User
@@ -99,6 +108,9 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
                 : [],
             self::TAB_MY_VIEWS => $user instanceof User
                 ? $this->repository->findByCreatorOrdered($user)
+                : [],
+            self::TAB_PUBLIC => $user instanceof User && $viewerIsParticipant
+                ? $this->repository->findPublicByOthers($user)
                 : [],
             default => $this->systemViewsForCategory($activeCategory),
         };
@@ -189,7 +201,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     /**
      * @return list<array<string, mixed>>
      */
-    private function tabs(Request $request, string $activeTab, bool $isLoggedIn, ?User $user): array
+    private function tabs(Request $request, string $activeTab, bool $isLoggedIn, bool $viewerIsParticipant, ?User $user): array
     {
         $definitions = [
             self::TAB_ALL => 'stats.analysis_explorer.library.tab.overview',
@@ -197,6 +209,9 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         if ($isLoggedIn) {
             $definitions[self::TAB_FAVORITES] = 'stats.analysis_explorer.library.tab.favorites';
             $definitions[self::TAB_MY_VIEWS] = 'stats.analysis_explorer.library.tab.my_views';
+        }
+        if ($isLoggedIn && $viewerIsParticipant) {
+            $definitions[self::TAB_PUBLIC] = 'stats.analysis_explorer.library.tab.public';
         }
 
         $tabs = [];
@@ -223,6 +238,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         return match ($tabKey) {
             self::TAB_FAVORITES => \count($this->favoriteService->listViewsForUser($user)),
             self::TAB_MY_VIEWS => \count($this->repository->findByCreatorOrdered($user)),
+            self::TAB_PUBLIC => \count($this->repository->findPublicByOthers($user)),
             default => null,
         };
     }
@@ -316,6 +332,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             'grain' => $this->grainLabel($grain),
             'chartType' => $this->chartTypeLabel((string) ($presentation['chartType'] ?? '')),
             'isSystem' => $view->isSystem(),
+            'isPublic' => $view->isPublic(),
             'viewTypeLabel' => $view->isSystem()
                 ? $this->translator->trans('stats.analysis_explorer.view_type.system', [], 'statistics')
                 : $this->translator->trans('stats.analysis_explorer.view_type.user', [], 'statistics'),

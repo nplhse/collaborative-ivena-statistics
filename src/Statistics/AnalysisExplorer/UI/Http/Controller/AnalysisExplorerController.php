@@ -17,6 +17,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
@@ -97,7 +98,14 @@ final class AnalysisExplorerController extends AbstractController
 
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer_view');
         $requestedDataSource = $this->resolveExplicitDataSource($request);
-        $loadResult = $this->savedExplorerViewLoader->load($view, $pageContext->filter, $user, $requestedDataSource);
+        $loadResult = $this->savedExplorerViewLoader->load(
+            $view,
+            $pageContext->filter,
+            $user,
+            $requestedDataSource,
+            $this->isGranted('ROLE_PARTICIPANT'),
+            $request->query->getBoolean(ExplorerQueryKeys::USE_PAGE_SCOPE),
+        );
         if ($loadResult->notFound) {
             throw new NotFoundHttpException(sprintf('Explorer view "%s" was not found.', $view));
         }
@@ -143,6 +151,8 @@ final class AnalysisExplorerController extends AbstractController
             'canSaveAs' => $canSaveAs,
             'canFavorite' => $canFavorite,
             'isFavorite' => $isFavorite,
+            'viewVisibility' => $view?->getVisibility()->value ?? AnalysisViewVisibility::Private->value,
+            'canChangeVisibility' => $view instanceof SavedExplorerView && $view->isEditableBy($user),
             'favoriteUrl' => $canFavorite
                 ? $this->generateUrl('app_stats_analysis_explorer_favorite_toggle', ['id' => $savedViewId])
                 : null,

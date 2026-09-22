@@ -40,6 +40,8 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-tab-count-favorites"]', '0');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-tab-my_views"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-tab-count-my_views"]', '0');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-tab-public"]');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-tab-count-public"]', '0');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-all"].btn-primary');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-filters"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-category-allocations"]');

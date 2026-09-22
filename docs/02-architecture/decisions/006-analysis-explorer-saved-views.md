@@ -1,4 +1,4 @@
-# ADR 006: Analysis Explorer saved views (JSON schema v3)
+# ADR 006: Analysis Explorer saved views (JSON schema v4)
 
 **Status:** accepted
 
@@ -8,7 +8,7 @@ The Analysis Explorer allows users to save analysis configurations (metrics, dim
 
 ## Decision
 
-Store saved view configuration as versioned JSON (`SavedExplorerView`) with schema version 3. System demo views are seeded via `app:statistics:explorer-views:sync`. The `AnalysisExplorerShell` Live Component loads and executes views against tagged query mappers.
+Store saved view configuration as versioned JSON (`SavedExplorerView`) with schema version 4. Versions 1–3 with known fields are upgraded on load. Unknown catalog keys and schema versions above 4 fail. `presentation.mode` is ignored and no longer written. Scope and period belong to the view; `my_hospitals` is resolved for the current user. User views default to `private` and can be set `public` for `ROLE_PARTICIPANT`. System demo views are seeded via `app:statistics:explorer-views:sync`. The `AnalysisExplorerShell` Live Component loads and executes views against tagged query mappers.
 
 ## Consequences
 

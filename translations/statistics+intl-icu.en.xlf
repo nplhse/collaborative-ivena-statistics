@@ -4265,6 +4265,10 @@
         <source>stats.analysis_explorer.empty_state.no_data</source>
         <target>No data available for the selected scope and period.</target>
       </trans-unit>
+      <trans-unit id="statsAex36sf" resname="stats.analysis_explorer.empty_state.scope_forbidden">
+        <source>stats.analysis_explorer.empty_state.scope_forbidden</source>
+        <target>You cannot open this analysis for the saved hospital.</target>
+      </trans-unit>
       <trans-unit id="statsAex36h" resname="stats.analysis_explorer.empty_state.no_data_help">
         <source>stats.analysis_explorer.empty_state.no_data_help</source>
         <target>Change the period or scope. Importing more data will not fill a period that simply has no allocations.</target>
@@ -4413,6 +4417,10 @@
         <source>stats.analysis_explorer.library.tab.my_views</source>
         <target>My views</target>
       </trans-unit>
+      <trans-unit id="statsAex54p" resname="stats.analysis_explorer.library.tab.public">
+        <source>stats.analysis_explorer.library.tab.public</source>
+        <target>Public</target>
+      </trans-unit>
       <trans-unit id="statsAex54e" resname="stats.analysis_explorer.library.category.all">
         <source>stats.analysis_explorer.library.category.all</source>
         <target>All</target>
@@ -4444,6 +4452,14 @@
       <trans-unit id="statsAex61" resname="stats.analysis_explorer.save">
         <source>stats.analysis_explorer.save</source>
         <target>Save</target>
+      </trans-unit>
+      <trans-unit id="statsAex61p" resname="stats.analysis_explorer.visibility.private">
+        <source>stats.analysis_explorer.visibility.private</source>
+        <target>Private</target>
+      </trans-unit>
+      <trans-unit id="statsAex61u" resname="stats.analysis_explorer.visibility.public">
+        <source>stats.analysis_explorer.visibility.public</source>
+        <target>Public</target>
       </trans-unit>
       <trans-unit id="statsAex62" resname="stats.analysis_explorer.save_as">
         <source>stats.analysis_explorer.save_as</source>
@@ -4520,6 +4536,10 @@
       <trans-unit id="statsAex78" resname="stats.analysis_explorer.library.empty.my_views">
         <source>stats.analysis_explorer.library.empty.my_views</source>
         <target>You have not saved any personal views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex78p" resname="stats.analysis_explorer.library.empty.public">
+        <source>stats.analysis_explorer.library.empty.public</source>
+        <target>No public views from other participants yet.</target>
       </trans-unit>
       <trans-unit id="statsAex78a" resname="stats.analysis_explorer.library.empty.search">
         <source>stats.analysis_explorer.library.empty.search</source>

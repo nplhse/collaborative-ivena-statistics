@@ -83,7 +83,7 @@
                 {% endif %}
             </div>
 
-            {% if (canFavorite and favoriteUrl) or canSave or showSaveAs %}
+            {% if (canFavorite and favoriteUrl) or canSave or showSaveAs or canChangeVisibility %}
                 <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.save'|trans({}, 'statistics') }}">
                     {% if canFavorite and favoriteUrl %}
                         <button type="submit"
@@ -94,6 +94,17 @@
                                 {% if hasUnsavedChanges %}disabled{% endif %}
                                 data-testid="stats-analysis-explorer-favorite-toggle">
                             <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" class="icon" />
+                        </button>
+                    {% endif %}
+
+                    {% if canChangeVisibility %}
+                        <button type="button"
+                                class="btn d-inline-flex align-items-center gap-1"
+                                data-action="live#action"
+                                data-live-action-param="toggleVisibility"
+                                data-testid="stats-analysis-explorer-visibility-toggle">
+                            <twig:ux:icon name="{{ viewVisibility == 'public' ? 'tabler:world' : 'tabler:lock' }}" class="icon" />
+                            {{ (viewVisibility == 'public' ? 'stats.analysis_explorer.visibility.public' : 'stats.analysis_explorer.visibility.private')|trans({}, 'statistics') }}
                         </button>
                     {% endif %}
 

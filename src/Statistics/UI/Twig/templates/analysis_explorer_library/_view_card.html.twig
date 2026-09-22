@@ -12,6 +12,11 @@
                     <span class="badge bg-blue-lt text-blue-lt-fg">
                         {{ card.viewTypeLabel }}
                     </span>
+                    {% if card.isPublic|default(false) %}
+                        <span class="badge bg-green-lt text-green-lt-fg" data-testid="stats-analysis-explorer-visibility-badge-{{ card.id }}">
+                            {{ 'stats.analysis_explorer.visibility.public'|trans({}, 'statistics') }}
+                        </span>
+                    {% endif %}
                 {% endif %}
             </div>
             {% if card.canFavorite and card.favoriteUrl %}

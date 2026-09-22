@@ -7,13 +7,12 @@ namespace App\Statistics\AnalysisExplorer\UI\LiveComponent;
 use App\Analytics\Application\UsageEvents\UsageAnalytics;
 use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Domain\UsageEventName;
-use App\Statistics\AnalysisExplorer\Application\AnalysisRunnerRegistry;
+use App\Statistics\AnalysisExplorer\Application\AnalysisExecution;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigValidator;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisMatrix;
 use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisSummaryViewModel;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
-use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
@@ -28,21 +27,19 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisRunResult;
-use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisTotals;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
-use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
 use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -128,6 +125,12 @@ final class AnalysisExplorerShell
     public bool $hasUnsavedChanges = false;
 
     #[LiveProp(writable: false)]
+    public string $viewVisibility = 'private';
+
+    #[LiveProp(writable: false)]
+    public bool $canChangeVisibility = false;
+
+    #[LiveProp(writable: false)]
     public bool $canFavorite = false;
 
     #[LiveProp(writable: false)]
@@ -199,8 +202,7 @@ final class AnalysisExplorerShell
 
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
-        private readonly AnalysisRunnerRegistry $runnerRegistry,
-        private readonly ExplorerAnalysisQueryFactory $queryFactory,
+        private readonly AnalysisExecution $analysisExecution,
         private readonly ExplorerChartPresenter $chartPresenter,
         private readonly ExplorerResultsTablePresenter $tablePresenter,
         private readonly ExplorerConfigMapper $configMapper,
@@ -210,7 +212,6 @@ final class AnalysisExplorerShell
         private readonly ExplorerEditFormFilterFieldMapper $editFormFilterFieldMapper,
         private readonly TranslatorInterface $translator,
         private readonly Security $security,
-        private readonly LoggerInterface $logger,
         private readonly SavedExplorerViewService $savedViewService,
         private readonly SavedExplorerViewRepository $savedViewRepository,
         private readonly ExplorerDescriptionFactory $descriptionFactory,
@@ -244,6 +245,8 @@ final class AnalysisExplorerShell
         bool $isFavorite = false,
         ?string $favoriteUrl = null,
         ?string $favoriteToken = null,
+        string $viewVisibility = 'private',
+        bool $canChangeVisibility = false,
     ): void {
         $this->locale = $locale;
         $this->libraryUrl = $libraryUrl;
@@ -257,6 +260,8 @@ final class AnalysisExplorerShell
         $this->isFavorite = $isFavorite;
         $this->favoriteUrl = $favoriteUrl;
         $this->favoriteToken = $favoriteToken;
+        $this->viewVisibility = $viewVisibility;
+        $this->canChangeVisibility = $canChangeVisibility;
 
         if ([] !== $appliedConfigState) {
             $this->appliedConfigState = $appliedConfigState;
@@ -744,6 +749,34 @@ final class AnalysisExplorerShell
         $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
     }
 
+    #[LiveAction]
+    public function toggleVisibility(): void
+    {
+        if (!$this->canChangeVisibility || null === $this->savedViewId) {
+            return;
+        }
+
+        $user = $this->requireParticipant();
+        $view = $this->savedViewRepository->find($this->savedViewId);
+        if (!$view instanceof SavedExplorerView) {
+            return;
+        }
+
+        $next = AnalysisViewVisibility::Public === $view->getVisibility()
+            ? AnalysisViewVisibility::Private
+            : AnalysisViewVisibility::Public;
+
+        try {
+            $this->savedViewService->setVisibility($view, $user, $next);
+        } catch (SavedExplorerViewForbiddenException) {
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden', [], 'statistics');
+
+            return;
+        }
+
+        $this->viewVisibility = $view->getVisibility()->value;
+    }
+
     private function syncUnsavedChangeState(): void
     {
         $configDirty = $this->configStatesDiffer(
@@ -867,49 +900,30 @@ final class AnalysisExplorerShell
         }
 
         $originalConfig = $currentConfig;
-        $normalizedConfig = $this->configNormalizer->normalize($currentConfig);
-        $this->setNormalizationWarning($originalConfig, $normalizedConfig);
-        if ([] !== $this->configNormalizer->diffWarnings($originalConfig, $normalizedConfig)) {
-            $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
+        $execution = $this->analysisExecution->execute($currentConfig, $this->resolveUser());
+        $currentConfig = $execution->config;
+        $this->setNormalizationWarning($originalConfig, $currentConfig);
+        if ($execution->configRewritten) {
+            $this->appliedConfigState = $this->configMapper->toStateArray($currentConfig);
         }
-        $currentConfig = $normalizedConfig;
+        if (null !== $execution->warningKey) {
+            $this->configWarning = $this->translator->trans($execution->warningKey, $execution->warningParameters, 'statistics');
+        }
 
-        try {
-            $query = $this->queryFactory->create($currentConfig, $this->resolveUser());
-            $this->result = $this->runnerRegistry->run($currentConfig, $query);
+        $this->emptyReason = $execution->emptyReason;
+        $this->result = $execution->result;
+        if (null === $execution->warningKey && 'scope_forbidden' !== $execution->emptyReason) {
             $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_RUN, FeatureArea::Analysis);
-        } catch (UnsupportedAnalysisException) {
-            $this->configWarning ??= $this->translator->trans('stats.analysis_explorer.unsupported_config', [], 'statistics');
-            $this->emptyReason = 'unsupported';
-            $this->result = $this->emptyResult($currentConfig);
-        } catch (\Throwable $exception) {
-            $this->logger->error('Analysis Explorer query failed.', [
-                'exception' => $exception,
-            ]);
-            $this->configWarning = $this->translator->trans('stats.analysis_explorer.query_failed', [], 'statistics');
-            $this->emptyReason = 'query_error';
-            $this->result = $this->emptyResult($currentConfig);
-        }
-
-        if ([] === $this->result->rows && null === $this->emptyReason) {
-            $user = $this->resolveUser();
-            if ([] !== $currentConfig->filters) {
-                $this->emptyReason = 'filtered';
-            } elseif (!$this->sourceDataProbe->hasSourceData($user, $currentConfig->statisticsFilter)) {
-                $this->emptyReason = 'no_source';
-            } else {
-                $this->emptyReason = 'no_data';
-            }
         }
 
         $this->canImport = $this->sourceDataProbe->canImport($this->resolveUser());
 
-        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $currentConfig->presentation);
-        $this->defaultChartType = $this->chartPresenter->defaultChartType($currentConfig->presentation);
-        $this->hasChart = $this->chartPresenter->hasChart($this->result);
+        $this->chartSpecs = $execution->chartSpecs;
+        $this->defaultChartType = $execution->defaultChartType;
+        $this->hasChart = $execution->hasChart;
         $this->chartRowLimit = $currentConfig->presentation->chartRowLimit->value;
         $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($currentConfig);
-        $this->table = $this->tablePresenter->create($currentConfig, $this->result);
+        $this->table = $execution->table;
         $this->analysisSummary = $this->analysisSummaryFactory->create(
             $currentConfig,
             $this->resolveUser(),
@@ -1157,19 +1171,6 @@ final class AnalysisExplorerShell
         }
 
         return $fallback;
-    }
-
-    private function emptyResult(AnalysisViewConfig $config): AnalysisRunResult
-    {
-        return new AnalysisRunResult(
-            title: $config->title,
-            metricKeys: $config->metricKeys,
-            visualMetricKey: $config->visualMetricKey,
-            rowAxis: $config->rowAxis,
-            columnAxis: $config->columnAxis,
-            rows: [],
-            totals: new AnalysisTotals(grand: []),
-        );
     }
 
     private function clearPresentation(): void

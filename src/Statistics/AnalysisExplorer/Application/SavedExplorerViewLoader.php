@@ -27,6 +27,8 @@ final readonly class SavedExplorerViewLoader
         StatisticsFilter $filter,
         ?User $user,
         ?AnalysisDataSourceKey $requestedDataSource = null,
+        bool $viewerIsParticipant = false,
+        bool $applyPageScope = false,
     ): SavedExplorerViewLoadResult {
         $defaultSource = $requestedDataSource ?? AnalysisDataSourceKey::Allocations;
 
@@ -38,7 +40,7 @@ final readonly class SavedExplorerViewLoader
             );
         }
 
-        if (!$savedView->isAccessibleBy($user)) {
+        if (!$savedView->isAccessibleBy($user, $viewerIsParticipant)) {
             return new SavedExplorerViewLoadResult(
                 state: $this->configMapper->toStateArray($this->defaultAnalysisViewFactory->createDefault($defaultSource, $filter)),
                 notFound: true,
@@ -68,7 +70,9 @@ final readonly class SavedExplorerViewLoader
 
         try {
             $state = $configJson;
-            $this->applyFilterOverlay($state, $filter);
+            if ($applyPageScope) {
+                $this->applyFilterOverlay($state, $filter);
+            }
             $config = $this->configMapper->viewConfigFromState($state, $user);
             $state = $this->configMapper->toStateArray($config);
             if ($savedView->isSystem()) {

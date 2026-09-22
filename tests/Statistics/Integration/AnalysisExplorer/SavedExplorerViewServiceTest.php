@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\User\Domain\Factory\UserFactory;
@@ -52,6 +53,7 @@ final class SavedExplorerViewServiceTest extends KernelTestCase
         self::assertSame('My allocations view', $view->getTitle());
         self::assertSame('allocation_count', $view->getConfigJson()['query']['visualMetric'] ?? null);
         self::assertSame(['allocation_count'], $view->getConfigJson()['query']['metrics'] ?? null);
+        self::assertSame(AnalysisViewVisibility::Private, $view->getVisibility());
     }
 
     public function testUpdateAllowsCreatorToPersistChanges(): void
@@ -78,6 +80,24 @@ final class SavedExplorerViewServiceTest extends KernelTestCase
 
         $this->expectException(SavedExplorerViewForbiddenException::class);
         $this->service->update($systemView, $user, 'Nope', $this->defaultState());
+    }
+
+    public function testSetVisibilityIsOwnerOnlyAndSaveAsStaysPrivate(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $other = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $view = $this->service->create($owner, 'Shared later', $this->defaultState());
+        $view->setCreatedBy($owner);
+        $this->repository->save($view);
+
+        $this->service->setVisibility($view, $owner, AnalysisViewVisibility::Public);
+        self::assertTrue($view->isPublic());
+
+        $copy = $this->service->create($other, 'Private copy', $view->getConfigJson());
+        self::assertSame(AnalysisViewVisibility::Private, $copy->getVisibility());
+
+        $this->expectException(SavedExplorerViewForbiddenException::class);
+        $this->service->setVisibility($view, $other, AnalysisViewVisibility::Private);
     }
 
     /**

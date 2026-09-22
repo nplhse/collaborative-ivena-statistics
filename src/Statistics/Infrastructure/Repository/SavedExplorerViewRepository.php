@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\Infrastructure\Repository;
 
 use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -81,6 +82,26 @@ final class SavedExplorerViewRepository extends ServiceEntityRepository
         $items = $this->createQueryBuilder('v')
             ->andWhere('v.isSystem = :isSystem')
             ->setParameter('isSystem', true)
+            ->orderBy('v.title', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $items;
+    }
+
+    /**
+     * @return list<SavedExplorerView>
+     */
+    public function findPublicByOthers(User $user): array
+    {
+        /** @var list<SavedExplorerView> $items */
+        $items = $this->createQueryBuilder('v')
+            ->andWhere('v.isSystem = :isSystem')
+            ->andWhere('v.visibility = :visibility')
+            ->andWhere('IDENTITY(v.createdBy) != :userId')
+            ->setParameter('isSystem', false)
+            ->setParameter('visibility', AnalysisViewVisibility::Public)
+            ->setParameter('userId', $user->getId(), Types::INTEGER)
             ->orderBy('v.title', 'ASC')
             ->getQuery()
             ->getResult();

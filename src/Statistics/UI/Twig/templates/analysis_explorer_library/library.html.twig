@@ -129,7 +129,7 @@
                     <div data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
                         <twig:EmptyState
                             title="{{ 'stats.analysis_explorer.library.empty_title'|trans({}, 'statistics') }}"
-                            description="{{ (page.searchQuery ? 'stats.analysis_explorer.library.empty.search' : (page.activeTab == 'favorites' ? 'stats.analysis_explorer.library.empty.favorites' : (page.activeTab == 'my_views' ? 'stats.analysis_explorer.library.empty.my_views' : 'stats.analysis_explorer.library.empty')))|trans({}, 'statistics') }}"
+                            description="{{ (page.searchQuery ? 'stats.analysis_explorer.library.empty.search' : (page.activeTab == 'favorites' ? 'stats.analysis_explorer.library.empty.favorites' : (page.activeTab == 'my_views' ? 'stats.analysis_explorer.library.empty.my_views' : (page.activeTab == 'public' ? 'stats.analysis_explorer.library.empty.public' : 'stats.analysis_explorer.library.empty'))))|trans({}, 'statistics') }}"
                             icon="{{ page.searchQuery ? 'tabler:filter-off' : 'tabler:books' }}"
                         >
                             <twig:block name="actions">

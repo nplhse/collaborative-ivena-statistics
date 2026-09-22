@@ -1337,6 +1337,10 @@
         <source>stats.analysis_explorer.empty_state.no_data</source>
         <target>Keine Daten für den gewählten Bereich und Zeitraum verfügbar.</target>
       </trans-unit>
+      <trans-unit id="statsAex36sf" resname="stats.analysis_explorer.empty_state.scope_forbidden">
+        <source>stats.analysis_explorer.empty_state.scope_forbidden</source>
+        <target>Diese Analyse lässt sich für die gespeicherte Klinik nicht öffnen.</target>
+      </trans-unit>
       <trans-unit id="statsAex36h" resname="stats.analysis_explorer.empty_state.no_data_help">
         <source>stats.analysis_explorer.empty_state.no_data_help</source>
         <target>Ändere Zeitraum oder Umfang. Ein weiterer Import füllt keinen Zeitraum, in dem schlicht keine Zuweisungen liegen.</target>
@@ -1457,6 +1461,10 @@
         <source>stats.analysis_explorer.library.empty.my_views</source>
         <target>Sie haben noch keine persönlichen Ansichten gespeichert.</target>
       </trans-unit>
+      <trans-unit id="statsAex78p" resname="stats.analysis_explorer.library.empty.public">
+        <source>stats.analysis_explorer.library.empty.public</source>
+        <target>Noch keine öffentlichen Ansichten anderer Teilnehmender.</target>
+      </trans-unit>
       <trans-unit id="statsAex78a" resname="stats.analysis_explorer.library.empty.search">
         <source>stats.analysis_explorer.library.empty.search</source>
         <target>Keine Ansichten passen zu Ihrer Suche.</target>
@@ -1496,6 +1504,10 @@
       <trans-unit id="statsAex54d" resname="stats.analysis_explorer.library.tab.my_views">
         <source>stats.analysis_explorer.library.tab.my_views</source>
         <target>Meine Views</target>
+      </trans-unit>
+      <trans-unit id="statsAex54p" resname="stats.analysis_explorer.library.tab.public">
+        <source>stats.analysis_explorer.library.tab.public</source>
+        <target>Öffentlich</target>
       </trans-unit>
       <trans-unit id="statsAex54b" resname="stats.analysis_explorer.library.tab.overview">
         <source>stats.analysis_explorer.library.tab.overview</source>
@@ -1644,6 +1656,14 @@
       <trans-unit id="statsAex61" resname="stats.analysis_explorer.save">
         <source>stats.analysis_explorer.save</source>
         <target>Speichern</target>
+      </trans-unit>
+      <trans-unit id="statsAex61p" resname="stats.analysis_explorer.visibility.private">
+        <source>stats.analysis_explorer.visibility.private</source>
+        <target>Privat</target>
+      </trans-unit>
+      <trans-unit id="statsAex61u" resname="stats.analysis_explorer.visibility.public">
+        <source>stats.analysis_explorer.visibility.public</source>
+        <target>Öffentlich</target>
       </trans-unit>
       <trans-unit id="statsAex80" resname="stats.analysis_explorer.save.forbidden">
         <source>stats.analysis_explorer.save.forbidden</source>
