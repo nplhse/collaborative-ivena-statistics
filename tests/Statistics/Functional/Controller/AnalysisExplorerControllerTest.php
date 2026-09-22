@@ -194,8 +194,8 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-table-scroll"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-actions"]');
-        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-link"]');
-        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-library-link"]', 'Open library');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-library-link"]');
+        $this->assertSelectorExists('a[href*="/statistics/analysis/library"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-open"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-drawer"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-edit-section-scope"]');

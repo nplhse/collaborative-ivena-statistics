@@ -1,0 +1,81 @@
+{% set applyAttrs = {
+    'data-action': 'change->live#action',
+    'data-live-action-param': 'applyEdit',
+} %}
+{% set shelfSelect = {attr: applyAttrs|merge({class: 'form-select'})} %}
+{% set structure = this.editFormSummary %}
+{% set showRowGrain = form.rowGrain.vars.choices|length > 1 %}
+{% set showColumnGrain = not form.columnGrain.vars.disabled %}
+
+<div class="offcanvas offcanvas-bottom analysis-explorer-shelf"
+     tabindex="-1"
+     id="analysisExplorerShelf"
+     aria-labelledby="analysisExplorerShelfLabel"
+     data-testid="stats-analysis-explorer-edit-section-analysis">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="analysisExplorerShelfLabel">
+            {{ 'stats.analysis_explorer.edit.section.analysis'|trans({}, 'statistics') }}
+        </h2>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
+    </div>
+    <div class="offcanvas-body" data-testid="stats-analysis-explorer-shelf">
+        <div class="row g-3 align-items-end"
+             data-testid="stats-analysis-explorer-structure-preview">
+            <div class="col-md" data-testid="stats-analysis-explorer-structure-row">
+                <label class="form-label" for="{{ form.rowDimension.vars.id }}">
+                    {{ 'stats.analysis_explorer.edit.section.rows'|trans({}, 'statistics') }}
+                </label>
+                <div class="{% if showRowGrain %}input-group{% endif %}">
+                    {{ form_widget(form.rowDimension, shelfSelect) }}
+                    <div class="{% if not showRowGrain %}d-none{% endif %}" data-testid="stats-analysis-explorer-row-grain-field">
+                        {{ form_widget(form.rowGrain, {attr: applyAttrs|merge({
+                            class: 'form-select',
+                            'aria-label': form.rowGrain.vars.label|trans({}, 'statistics'),
+                        })}) }}
+                    </div>
+                </div>
+            </div>
+
+            {% if this.canSwapEditAxes %}
+                <div class="col-auto">
+                    <button type="button"
+                            class="btn btn-icon"
+                            data-action="live#action"
+                            data-live-action-param="swapAxes"
+                            data-testid="stats-analysis-explorer-swap-axes"
+                            title="{{ 'stats.analysis_explorer.edit.swap_axes'|trans({}, 'statistics') }}"
+                            aria-label="{{ 'stats.analysis_explorer.edit.swap_axes'|trans({}, 'statistics') }}">
+                        <twig:ux:icon name="tabler:arrows-exchange" class="icon" />
+                    </button>
+                </div>
+            {% endif %}
+
+            <div class="col-md" data-testid="stats-analysis-explorer-structure-column">
+                <label class="form-label" for="{{ form.columnDimension.vars.id }}">
+                    {{ 'stats.analysis_explorer.edit.section.columns'|trans({}, 'statistics') }}
+                </label>
+                <div class="{% if showColumnGrain %}input-group{% endif %}">
+                    {{ form_widget(form.columnDimension, shelfSelect) }}
+                    <div class="{% if not showColumnGrain %}d-none{% endif %}"
+                         data-testid="stats-analysis-explorer-column-grain-field">
+                        {{ form_widget(form.columnGrain, {attr: applyAttrs|merge({
+                            class: 'form-select',
+                            'aria-label': form.columnGrain.vars.label|trans({}, 'statistics'),
+                        })}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md" data-testid="stats-analysis-explorer-structure-metric">
+                <label class="form-label" for="{{ form.metric.vars.id }}">
+                    {{ 'stats.analysis_explorer.edit.section.metric'|trans({}, 'statistics') }}
+                </label>
+                {{ form_widget(form.metric, shelfSelect) }}
+            </div>
+        </div>
+        <p class="visually-hidden">{{ structure.row }} {{ structure.column }} {{ structure.metric }}</p>
+    </div>
+</div>

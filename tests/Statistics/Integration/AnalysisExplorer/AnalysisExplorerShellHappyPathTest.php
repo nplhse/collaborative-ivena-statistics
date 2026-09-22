@@ -75,26 +75,22 @@ final class AnalysisExplorerShellHappyPathTest extends AnalysisExplorerShellTest
         $testComponent->call('openEdit');
 
         $render = $testComponent->render();
-        self::assertGreaterThan(
-            0,
-            $render->crawler()->filter('[data-testid="stats-analysis-explorer-show-percent-field"]')->count(),
-        );
+        $percentField = $render->crawler()->filter('[data-testid="stats-analysis-explorer-show-percent-field"]');
+        self::assertGreaterThan(0, $percentField->count());
+        self::assertSame(1, substr_count($percentField->text(), 'Show shares'));
     }
 
-    public function testOpenEditKeepsLibraryLinkVisible(): void
+    public function testOpenEditKeepsLibraryBreadcrumb(): void
     {
         $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
 
         $render = $testComponent->render();
+        self::assertCount(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-library-link"]'));
         self::assertGreaterThan(
             0,
-            $render->crawler()->filter('[data-testid="stats-analysis-explorer-library-link"]')->count(),
-        );
-        self::assertSame(
-            '/statistics/analysis/library',
-            $testComponent->component()->libraryUrl,
+            $render->crawler()->filter('a[href="/statistics/analysis/library"]')->count(),
         );
     }
 
@@ -280,56 +276,129 @@ final class AnalysisExplorerShellHappyPathTest extends AnalysisExplorerShellTest
             ->render();
 
         self::assertGreaterThan(0, $render->crawler()->filter('[data-testid="stats-analysis-explorer-row-grain-field"]')->count());
+        self::assertStringNotContainsString(
+            'd-none',
+            (string) $render->crawler()->filter('[data-testid="stats-analysis-explorer-row-grain-field"]')->attr('class'),
+        );
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-row-grain-field"] option[value="total"]')->count(),
+        );
+
+        $genderRender = $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'gender',
+                'rowGrain' => 'total',
+            ]))
+            ->call('refreshEditForm')
+            ->render();
+
+        self::assertStringContainsString(
+            'd-none',
+            (string) $genderRender->crawler()->filter('[data-testid="stats-analysis-explorer-row-grain-field"]')->attr('class'),
+        );
     }
 
-    public function testEditDrawerAnalysisAndPresentationExpandedByDefault(): void
+    public function testAddingAColumnDefaultsTheTableLayoutToMatrix(): void
     {
         $testComponent = $this->createShellComponent();
         $testComponent->render();
         $testComponent->call('openEdit');
 
+        $formName = $this->formName($testComponent->render());
+        $render = $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'age_group',
+                'rowGrain' => 'total',
+                'columnDimension' => 'urgency',
+                'columnGrain' => 'total',
+            ]))
+            ->call('applyEdit')
+            ->render();
+
+        self::assertSame('matrix', $testComponent->component()->appliedConfigState['presentation']['tableLayout'] ?? null);
+        $layout = $render->crawler()->filter('[data-testid="stats-analysis-explorer-table-layout-field"] option[selected]');
+        self::assertGreaterThan(0, $layout->count());
+        self::assertSame('matrix', $layout->attr('value'));
+
+        $flatRender = $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'age_group',
+                'rowGrain' => 'total',
+                'columnDimension' => 'urgency',
+                'columnGrain' => 'total',
+                'chartType' => 'grouped_bar',
+                'tableLayout' => 'flat',
+            ]))
+            ->call('applyEdit')
+            ->render();
+
+        self::assertSame('flat', $testComponent->component()->appliedConfigState['presentation']['tableLayout'] ?? null);
+        $flatLayout = $flatRender->crawler()->filter('[data-testid="stats-analysis-explorer-table-layout-field"] option[selected]');
+        self::assertGreaterThan(0, $flatLayout->count());
+        self::assertSame('flat', $flatLayout->attr('value'));
+    }
+
+    public function testTimeColumnsOfferAllAllocationsGrain(): void
+    {
+        $testComponent = $this->createShellComponent();
+        $testComponent->render();
+        $testComponent->call('openEdit');
+
+        $formName = $this->formName($testComponent->render());
+        $render = $testComponent
+            ->submitForm($this->formPayload($formName, [
+                'rowDimension' => 'urgency',
+                'rowGrain' => 'total',
+                'columnDimension' => 'time',
+                'columnGrain' => 'total',
+            ]))
+            ->call('refreshEditForm')
+            ->render();
+
+        self::assertStringNotContainsString(
+            'd-none',
+            (string) $render->crawler()->filter('[data-testid="stats-analysis-explorer-column-grain-field"]')->attr('class'),
+        );
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-column-grain-field"] option[value="total"]')->count(),
+        );
+        self::assertGreaterThan(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-column-grain-field"] option[value="total"][selected]')->count(),
+        );
+    }
+
+    public function testPageSeparatesContextShelfAndFilters(): void
+    {
+        $testComponent = $this->createShellComponent();
         $render = $testComponent->render();
         $crawler = $render->crawler();
 
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analysis-explorer-context-location"]')->count());
         self::assertStringContainsString(
-            'collapsed',
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-scope"]')->attr('class') ?? '',
+            'All assignments',
+            (string) $crawler->filter('[data-testid="stats-analysis-explorer-context-location"]')->text(),
         );
-        self::assertStringContainsString(
-            'collapsed',
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-period"]')->attr('class') ?? '',
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analysis-explorer-context-period"]')->count());
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analysis-explorer-shelf"]')->count());
+        self::assertGreaterThan(0, $crawler->filter('[data-testid="stats-analysis-explorer-chart-type"]')->count());
+        self::assertCount(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-drawer"] select[name*="rowDimension"]'),
         );
-        self::assertStringNotContainsString(
-            'collapsed',
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-analysis"]')->attr('class') ?? '',
-        );
-        self::assertStringNotContainsString(
-            'collapsed',
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-presentation"]')->attr('class') ?? '',
-        );
-        self::assertStringNotContainsString(
-            ' show',
-            ' '.$crawler->filter('#analysisExplorerEditScopePanel')->attr('class'),
-        );
-        self::assertStringNotContainsString(
-            ' show',
-            ' '.$crawler->filter('#analysisExplorerEditPeriodPanel')->attr('class'),
-        );
-        self::assertStringContainsString(
-            'show',
-            $crawler->filter('#analysisExplorerEditAnalysisPanel')->attr('class') ?? '',
-        );
-        self::assertStringContainsString(
-            'show',
-            $crawler->filter('#analysisExplorerEditPresentationPanel')->attr('class') ?? '',
+        self::assertCount(
+            0,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-drawer"] select[name*="chartType"]'),
         );
         self::assertGreaterThan(
             0,
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-analysis"] .analysis-explorer-accordion-state-icon--expanded')->count(),
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-scope"]')->count(),
         );
         self::assertGreaterThan(
             0,
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-scope"] .analysis-explorer-accordion-state-icon--collapsed')->count(),
+            $crawler->filter('[data-testid="stats-analysis-explorer-filter-section-demographics"]')->count(),
         );
     }
 

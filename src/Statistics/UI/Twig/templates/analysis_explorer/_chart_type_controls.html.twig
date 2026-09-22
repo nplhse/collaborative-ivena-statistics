@@ -1,0 +1,36 @@
+{% set chartTypes = [
+    {value: 'bar', icon: 'tabler:chart-bar'},
+    {value: 'line', icon: 'tabler:chart-line'},
+    {value: 'grouped_bar', icon: 'tabler:chart-bar'},
+    {value: 'stacked_bar', icon: 'tabler:chart-histogram'},
+    {value: 'heatmap', icon: 'tabler:layout-grid'},
+    {value: 'box_plot', icon: 'tabler:chart-dots'},
+] %}
+{% set allowedChartTypes = [] %}
+{% for choice in form.chartType.vars.choices %}
+    {% set allowedChartTypes = allowedChartTypes|merge([choice.value]) %}
+{% endfor %}
+{% set chartTypeLocked = form.chartType.vars.disabled %}
+
+<div class="{{ groupClass|default('btn-group btn-group-sm') }}"
+     role="group"
+     aria-label="{{ 'stats.analysis_explorer.edit.chart_type'|trans({}, 'statistics') }}"
+     {% if withTestIds|default(true) %}data-testid="stats-analysis-explorer-chart-type"{% endif %}>
+    {% for chartType in chartTypes %}
+        {% set enabled = not chartTypeLocked and chartType.value in allowedChartTypes %}
+        <button type="button"
+                class="btn{% if form.chartType.vars.value == chartType.value %} active{% endif %}"
+                {% if enabled %}
+                    data-action="live#action"
+                    data-live-action-param="setChartType"
+                    data-live-chart-type-param="{{ chartType.value }}"
+                {% endif %}
+                {% if not enabled %}disabled{% endif %}
+                aria-pressed="{{ form.chartType.vars.value == chartType.value ? 'true' : 'false' }}"
+                title="{{ ('stats.analysis_explorer.chart.' ~ chartType.value)|trans({}, 'statistics') }}"
+                {% if withTestIds|default(true) %}data-testid="stats-analysis-explorer-chart-type-{{ chartType.value }}"{% endif %}>
+            <twig:ux:icon name="{{ chartType.icon }}" class="icon" />
+            <span class="visually-hidden">{{ ('stats.analysis_explorer.chart.' ~ chartType.value)|trans({}, 'statistics') }}</span>
+        </button>
+    {% endfor %}
+</div>

@@ -63,7 +63,7 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         self::assertNotNull($overTime?->getId());
         $card = $cardsById[$overTime->getId()];
 
-        self::assertSame('Time period', $card['dimension']);
+        self::assertSame('Allocations', $card['dimension']);
         self::assertSame('Month', $card['grain']);
         self::assertSame('Line chart', $card['chartType']);
         self::assertSame('Allocations over time', $card['title']);

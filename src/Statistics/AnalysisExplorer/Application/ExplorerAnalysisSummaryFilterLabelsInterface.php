@@ -9,7 +9,7 @@ use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 interface ExplorerAnalysisSummaryFilterLabelsInterface
 {
     /**
-     * @return list<array{label: string, value: string}>
+     * @return list<array{key: string, label: string, value: string}>
      */
     public function present(AnalysisViewConfig $config, ?string $locale = null): array;
 }

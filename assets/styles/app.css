@@ -282,6 +282,78 @@ a.catalog-year-heatmap-cell:focus-visible {
     --bs-offcanvas-width: min(28rem, 100vw);
 }
 
+@media (min-width: 992px) {
+    #analysisExplorerShelf.offcanvas {
+        position: static;
+        transform: none;
+        visibility: visible;
+        height: auto;
+        width: auto;
+        max-height: none;
+        border: 0;
+        border-bottom: var(--tblr-border-width) solid var(--tblr-border-color);
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+        z-index: auto;
+    }
+
+    #analysisExplorerShelf .offcanvas-header {
+        display: none;
+    }
+
+    #analysisExplorerShelf .offcanvas-body {
+        display: block;
+        padding: 1rem 1.25rem;
+        overflow: visible;
+    }
+}
+
+#analysisExplorerShelf .input-group > .d-none {
+    display: none;
+}
+
+.stats-aex-chart-toolbar .btn {
+    --tblr-btn-line-height: 1rem;
+    --tblr-btn-icon-size: 1rem;
+    height: 2rem;
+}
+
+.stats-aex-chart-toolbar .btn .icon {
+    width: 1rem;
+    height: 1rem;
+    min-width: 1rem;
+    margin: 0;
+}
+
+.stats-aex-table-card .card-header .form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+}
+
+.stats-aex-table-card .card-header .form-check .form-check-input {
+    float: none;
+    margin: 0;
+}
+
+#analysisExplorerShelf .input-group > [data-testid="stats-analysis-explorer-row-grain-field"]:not(.d-none),
+#analysisExplorerShelf .input-group > [data-testid="stats-analysis-explorer-column-grain-field"]:not(.d-none) {
+    display: flex;
+    flex: 0 0 42%;
+    max-width: 42%;
+}
+
+#analysisExplorerShelf .input-group > [data-testid="stats-analysis-explorer-row-grain-field"] .form-select,
+#analysisExplorerShelf .input-group > [data-testid="stats-analysis-explorer-column-grain-field"] .form-select {
+    width: 100%;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 .analysis-explorer-edit-drawer .offcanvas-body {
     padding: 0.5rem 0.75rem;
 }

@@ -1,4 +1,7 @@
 <div {{ attributes }}>
+    {% set contextLocationLabel = this.contextLocationLabel %}
+    {% set contextPeriodLabel = this.contextPeriodLabel %}
+    {% set activeFilters = this.activeFilterBadges %}
     {% set breadcrumbItems = [
         {label: 'link.statistics', path: path('app_stats_dashboard')},
         {label: 'link.stats.analysis_explorer_library', path: libraryUrl},
@@ -29,42 +32,71 @@
             {% endif %}
         </twig:block>
         <twig:block name="actions">
-            {% if libraryUrl %}
-                <a href="{{ libraryUrl }}"
-                   class="btn d-inline-flex align-items-center gap-1"
-                   data-testid="stats-analysis-explorer-library-link">
-                    <twig:ux:icon name="tabler:books" style="height: 1.2em;" />
-                    {{ 'stats.analysis_explorer.open_library'|trans({}, 'statistics') }}
-                </a>
-            {% endif %}
-
-            <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.view'|trans({}, 'statistics') }}">
-                {% if canFavorite and favoriteUrl %}
-                    <button type="submit"
-                            form="analysis-explorer-favorite-form"
-                            class="btn btn-icon{% if isFavorite %} text-yellow{% endif %}"
-                            title="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
-                            aria-label="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
-                            {% if hasUnsavedChanges %}disabled{% endif %}
-                            data-testid="stats-analysis-explorer-favorite-toggle">
-                        <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
-                    </button>
-                {% endif %}
-
+            <div class="btn-group analysis-context-triggers"
+                 role="group"
+                 aria-label="{{ 'stats.analysis_context.title'|trans({}, 'statistics') }}"
+                 data-testid="stats-analysis-explorer-context">
                 <button type="button"
-                        class="btn d-inline-flex align-items-center gap-1"
+                        class="btn analysis-context-location d-inline-flex align-items-center"
+                        data-action="live#action"
+                        data-live-action-param="openContext"
+                        data-testid="stats-analysis-explorer-context-location"
+                        title="{{ contextLocationLabel }}">
+                    <twig:ux:icon name="tabler:map-pin" class="icon icon-sm flex-shrink-0" />
+                    <span class="ms-2 text-truncate analysis-context-location-label">{{ contextLocationLabel }}</span>
+                </button>
+                <button type="button"
+                        class="btn analysis-context-period d-inline-flex align-items-center"
+                        data-action="live#action"
+                        data-live-action-param="openContext"
+                        data-testid="stats-analysis-explorer-context-period"
+                        title="{{ contextPeriodLabel }}">
+                    <twig:ux:icon name="tabler:calendar" class="icon icon-sm flex-shrink-0" />
+                    <span class="ms-2">{{ contextPeriodLabel }}</span>
+                </button>
+            </div>
+
+            <div class="btn-group" role="group">
+                <button type="button"
+                        class="btn"
                         data-bs-toggle="offcanvas"
                         data-bs-target="#analysisExplorerEditDrawer"
                         data-action="live#action"
                         data-live-action-param="openEdit"
                         data-testid="stats-analysis-explorer-edit-open">
-                    <twig:ux:icon name="tabler:pencil" class="icon icon-sm" />
-                    {{ 'stats.analysis_explorer.edit.button'|trans({}, 'statistics') }}
+                    <twig:ux:icon name="tabler:filter" class="icon icon-sm" />
+                    <span class="ms-2">{{ 'label.filters'|trans({}, 'messages') }}</span>
+                    {% if activeFilters is not empty %}
+                        <span class="badge text-primary ms-2" data-testid="stats-analysis-explorer-filter-count">{{ activeFilters|length }}</span>
+                    {% endif %}
                 </button>
+                {% if activeFilters is not empty %}
+                    <button type="button"
+                            class="btn btn-icon"
+                            data-action="live#action"
+                            data-live-action-param="clearAnalysisFilters"
+                            title="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+                            aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+                            data-testid="stats-analysis-explorer-filter-clear">
+                        <twig:ux:icon name="tabler:x" class="icon" />
+                    </button>
+                {% endif %}
             </div>
 
-            {% if canSave or showSaveAs %}
+            {% if (canFavorite and favoriteUrl) or canSave or showSaveAs %}
                 <div class="btn-group" role="group" aria-label="{{ 'stats.analysis_explorer.actions.save'|trans({}, 'statistics') }}">
+                    {% if canFavorite and favoriteUrl %}
+                        <button type="submit"
+                                form="analysis-explorer-favorite-form"
+                                class="btn btn-icon{% if isFavorite %} text-yellow{% endif %}"
+                                title="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
+                                aria-label="{{ isFavorite ? 'stats.analysis_explorer.favorite.remove'|trans({}, 'statistics') : 'stats.analysis_explorer.favorite.add'|trans({}, 'statistics') }}"
+                                {% if hasUnsavedChanges %}disabled{% endif %}
+                                data-testid="stats-analysis-explorer-favorite-toggle">
+                            <twig:ux:icon name="{{ isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" class="icon" />
+                        </button>
+                    {% endif %}
+
                     {% if canSave %}
                         <button type="button"
                                 class="btn d-inline-flex align-items-center gap-1"
@@ -72,21 +104,22 @@
                                 data-live-action-param="save"
                                 {% if not hasUnsavedChanges %}disabled{% endif %}
                                 data-testid="stats-analysis-explorer-save">
-                            <twig:ux:icon name="tabler:device-floppy" style="height: 1.2em;" />
+                            <twig:ux:icon name="tabler:device-floppy" class="icon" />
                             {{ 'stats.analysis_explorer.save'|trans({}, 'statistics') }}
                         </button>
                     {% endif %}
 
                     {% if showSaveAs %}
                         <button type="button"
-                                class="btn d-inline-flex align-items-center gap-1"
+                                class="btn btn-icon"
                                 data-bs-toggle="modal"
                                 data-bs-target="#analysisExplorerSaveAsModal"
                                 data-action="live#action"
                                 data-live-action-param="openSaveAs"
+                                title="{{ 'stats.analysis_explorer.save_as'|trans({}, 'statistics') }}"
+                                aria-label="{{ 'stats.analysis_explorer.save_as'|trans({}, 'statistics') }}"
                                 data-testid="stats-analysis-explorer-save-as-open">
-                            <twig:ux:icon name="tabler:copy" style="height: 1.2em;" />
-                            {{ 'stats.analysis_explorer.save_as'|trans({}, 'statistics') }}
+                            <twig:ux:icon name="tabler:device-floppy" class="icon" />
                         </button>
                     {% endif %}
                 </div>
@@ -107,13 +140,45 @@
         <div class="container-xl">
             <section class="content">
                 {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+                {% if activeFilters is not empty %}
+                    <div class="d-flex flex-wrap gap-1 mb-3" data-testid="stats-analysis-explorer-filter-badges">
+                        {% for badge in activeFilters %}
+                            <span class="badge bg-blue-lt d-inline-flex align-items-center gap-1">
+                                <strong>{{ badge.label }}:</strong> {{ badge.value }}
+                                <button type="button"
+                                        class="btn-close btn-close-sm"
+                                        data-action="live#action"
+                                        data-live-action-param="removeAnalysisFilter"
+                                        data-live-dimension-param="{{ badge.key }}"
+                                        aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
+                                        data-testid="stats-analysis-explorer-filter-badge-{{ badge.key }}"></button>
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {{ form_start(form, {attr: {
+                    'data-testid': 'stats-analysis-explorer-edit-form',
+                    'data-model': 'norender|on(change)|*',
+                }}) }}
                 {{ include('@Statistics/analysis_explorer/_config_alert.html.twig') }}
                 {{ include('@Statistics/analysis_explorer/_chart_card.html.twig') }}
                 {{ include('@Statistics/analysis_explorer/_results_table.html.twig') }}
+                {{ include('@Statistics/analysis_explorer/_context_modal.html.twig') }}
+                {{ include('@Statistics/analysis_explorer/_edit_drawer.html.twig') }}
+                {{ form_end(form, {render_rest: false}) }}
+                {% if exportCsvUrl %}
+                    <form id="analysis-explorer-export-csv-form"
+                          method="post"
+                          action="{{ exportCsvUrl }}"
+                          class="d-none"
+                          data-testid="stats-analysis-explorer-export-csv-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('explorer_export_csv') }}">
+                        <input type="hidden" name="appliedConfigState" value="{{ appliedConfigState|json_encode|e('html_attr') }}">
+                    </form>
+                {% endif %}
             </section>
         </div>
     </div>
 
-    {{ include('@Statistics/analysis_explorer/_edit_drawer.html.twig') }}
     {{ include('@Statistics/analysis_explorer/_save_as_modal.html.twig') }}
 </div>

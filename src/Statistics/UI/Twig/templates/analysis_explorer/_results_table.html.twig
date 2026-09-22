@@ -5,22 +5,74 @@
         <div>
             <h3 class="card-title mb-0">{{ 'stats.analysis_explorer.table.title'|trans({}, 'statistics') }}</h3>
         </div>
-        {% if exportCsvUrl %}
-            <form method="post"
-                  action="{{ exportCsvUrl }}"
-                  class="m-0 d-print-none"
-                  data-testid="stats-analysis-explorer-export-csv-form">
-                <input type="hidden" name="_token" value="{{ csrf_token('explorer_export_csv') }}">
-                <input type="hidden" name="appliedConfigState" value="{{ appliedConfigState|json_encode|e('html_attr') }}">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            {% if not form.showPercentOfTotal.vars.disabled %}
+                <div class="mb-0" data-testid="stats-analysis-explorer-show-percent-field">
+                    {{ form_widget(form.showPercentOfTotal, {
+                        label_attr: {class: 'checkbox-switch'},
+                        attr: {
+                            class: 'form-check-input',
+                            'data-action': 'change->live#action',
+                            'data-live-action-param': 'applyEdit',
+                        },
+                    }) }}
+                </div>
+            {% endif %}
+            {% if not form.tableLayout.vars.disabled %}
+                <div data-testid="stats-analysis-explorer-table-layout-field">
+                    <label class="visually-hidden" for="{{ form.tableLayout.vars.id }}">
+                        {{ 'stats.analysis_explorer.edit.table_layout'|trans({}, 'statistics') }}
+                    </label>
+                    {{ form_widget(form.tableLayout, {attr: {
+                        class: 'form-select form-select-sm',
+                        'data-action': 'change->live#action',
+                        'data-live-action-param': 'applyEdit',
+                    }}) }}
+                </div>
+            {% endif %}
+            {% if not form.additionalTableMetrics.vars.disabled %}
+                <div class="dropdown" data-testid="stats-analysis-explorer-additional-table-metrics-field">
+                    <button type="button"
+                            class="btn btn-sm dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            aria-expanded="false">
+                        {{ 'stats.analysis_explorer.edit.section.columns'|trans({}, 'statistics') }}
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 18rem;">
+                        {% if form.additionalTableMetrics.vars.help is not empty %}
+                            <p class="form-text mt-0 mb-2">{{ form.additionalTableMetrics.vars.help|trans({}, 'statistics') }}</p>
+                        {% endif %}
+                        {% for groupLabel, groupChoices in form.additionalTableMetrics.vars.explorer_metric_groups %}
+                            <fieldset class="border-0 p-0 mb-2">
+                                <legend class="fs-6 fw-semibold mb-1">{{ groupLabel }}</legend>
+                                {% for label, value in groupChoices %}
+                                    {% for child in form.additionalTableMetrics %}
+                                        {% if child.vars.value == value %}
+                                            {{ form_row(child, {row_attr: {class: 'mb-0'}, attr: {
+                                                'data-action': 'change->live#action',
+                                                'data-live-action-param': 'applyEdit',
+                                            }}) }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </fieldset>
+                        {% endfor %}
+                        {{ form_errors(form.additionalTableMetrics) }}
+                    </div>
+                </div>
+            {% endif %}
+            {% if exportCsvUrl %}
                 <button type="submit"
-                        class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
+                        form="analysis-explorer-export-csv-form"
+                        class="btn btn-sm d-inline-flex align-items-center gap-1 d-print-none"
                         {% if not table or not table.hasData %}disabled{% endif %}
                         data-testid="stats-analysis-explorer-export-csv">
-                    <twig:ux:icon name="tabler:download" style="height: 1.1em;" />
+                    <twig:ux:icon name="tabler:download" class="icon" />
                     {{ 'stats.analysis_explorer.export.csv_table'|trans({}, 'statistics') }}
                 </button>
-            </form>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
     <div class="card-body p-0 stats-aex-table-card-body">
         <div class="stats-aex-table-scroll"

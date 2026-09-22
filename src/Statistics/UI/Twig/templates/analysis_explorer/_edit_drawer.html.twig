@@ -1,11 +1,18 @@
-{% set compactRow = {label: false, row_attr: {class: 'mb-0'}} %}
 {% set filterRow = {row_attr: {class: 'mb-0'}, label_attr: {class: 'form-label small mb-1'}} %}
-{% set refreshAttrs = {
-    'data-action': 'change->live#action',
-    'data-live-action-param': 'refreshEditForm',
-} %}
-{% set structure = this.editFormSummary %}
+{% set compactRow = {label: false, row_attr: {class: 'mb-0'}} %}
 {% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
+{% set demographicsActive = form.filterGender.vars.data is not empty or form.filterAgeGroup.vars.data is not empty %}
+{% set allocationActive = form.filterDepartmentId.vars.data is not empty
+    or form.filterSpecialityId.vars.data is not empty
+    or form.filterIndicationId.vars.data is not empty
+    or form.filterSecondaryIndicationId.vars.data is not empty
+    or form.filterIndicationGroupId.vars.data is not empty
+    or form.filterUrgency.vars.data is not empty
+    or form.filterTransportType.vars.data is not empty
+    or form.filterAssignmentId.vars.data is not empty %}
+{% set clinicalActive = form.filterResus.vars.data is not null
+    or form.filterCpr.vars.data is not null
+    or form.filterVentilation.vars.data is not null %}
 
 <div class="offcanvas offcanvas-end analysis-explorer-edit-drawer{% if isEditOpen %} show{% endif %}"
      tabindex="-1"
@@ -14,7 +21,7 @@
      data-testid="stats-analysis-explorer-edit-drawer">
     <div class="offcanvas-header">
         <h2 class="offcanvas-title" id="analysisExplorerEditDrawerLabel">
-            {{ 'stats.analysis_explorer.edit.title'|trans({}, 'statistics') }}
+            {{ 'label.filters'|trans({}, 'messages') }}
         </h2>
         <button type="button"
                 class="btn-close"
@@ -26,267 +33,102 @@
     </div>
     <div class="offcanvas-body">
         {{ include('@Statistics/analysis_explorer/_config_alert.html.twig') }}
-        {{ form_start(form, {attr: {
-            'data-testid': 'stats-analysis-explorer-edit-form',
-            'data-model': 'norender|on(change)|*',
-        }}) }}
-        <div class="accordion accordion-flush" id="analysisExplorerEditAccordion">
-            {% if this.showViewMetadataSection %}
-                <div class="accordion-item">
-                    {{ editAccordion.header(
-                        'analysisExplorerEditViewMetadataHeading',
-                        'analysisExplorerEditViewMetadataPanel',
-                        'stats.analysis_explorer.edit.section.view_metadata'|trans({}, 'statistics'),
-                        'stats-analysis-explorer-edit-section-view-metadata',
-                        false,
-                    ) }}
-                    {{ editAccordion.panel_start('analysisExplorerEditViewMetadataPanel', 'analysisExplorerEditViewMetadataHeading', false) }}
-                        <div class="accordion-body">
-                            <div class="mb-3">
-                                <label class="form-label" for="analysisExplorerEditViewTitle">
-                                    {{ 'stats.analysis_explorer.save_as.title_label'|trans({}, 'statistics') }}
-                                </label>
-                                <input type="text"
-                                       id="analysisExplorerEditViewTitle"
-                                       class="form-control"
-                                       data-model="editViewTitle"
-                                       value="{{ editViewTitle }}"
-                                       data-testid="stats-analysis-explorer-edit-view-title">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="analysisExplorerEditViewDescription">
-                                    {{ 'stats.analysis_explorer.save_as.description_label'|trans({}, 'statistics') }}
-                                </label>
-                                <textarea id="analysisExplorerEditViewDescription"
-                                          class="form-control"
-                                          rows="3"
-                                          data-model="editViewDescription"
-                                          data-testid="stats-analysis-explorer-edit-view-description">{{ editViewDescription }}</textarea>
-                            </div>
-                        </div>
-                    {{ editAccordion.panel_end() }}
-                </div>
-            {% endif %}
-            <div class="accordion-item">
-                {{ editAccordion.header(
-                    'analysisExplorerEditScopeHeading',
-                    'analysisExplorerEditScopePanel',
-                    'stats.analysis_explorer.edit.section.scope'|trans({}, 'statistics'),
-                    'stats-analysis-explorer-edit-section-scope',
-                    false,
-                ) }}
-                {{ editAccordion.panel_start('analysisExplorerEditScopePanel', 'analysisExplorerEditScopeHeading', false) }}
-                    <div class="accordion-body">
-                            {{ include('@Statistics/analysis_explorer/_explorer_edit_scope_fields.html.twig', {
-                                sideForm: form.scopePeriod,
-                                testId: 'stats-analysis-explorer-scope-form',
-                            }) }}
-                    </div>
-                {{ editAccordion.panel_end() }}
-            </div>
+        <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.section.filters_help'|trans({}, 'statistics') }}</p>
 
-            <div class="accordion-item">
-                {{ editAccordion.header(
-                    'analysisExplorerEditPeriodHeading',
-                    'analysisExplorerEditPeriodPanel',
-                    'stats.analysis_explorer.edit.section.period'|trans({}, 'statistics'),
-                    'stats-analysis-explorer-edit-section-period',
-                    false,
-                ) }}
-                {{ editAccordion.panel_start('analysisExplorerEditPeriodPanel', 'analysisExplorerEditPeriodHeading', false) }}
-                    <div class="accordion-body">
-                            {{ include('@Statistics/analysis_explorer/_explorer_edit_period_fields.html.twig', {
-                                sideForm: form.scopePeriod,
-                                testId: 'stats-analysis-explorer-period-form',
-                            }) }}
-                            {% if not form.hospitalPopulation.vars.disabled %}
-                                {% set allocationDerivedMetrics = [
-                                    'total_allocations',
-                                    'avg_allocations_per_hospital',
-                                    'min_allocations',
-                                    'max_allocations',
-                                ] %}
-                                {% set selectedMetrics = [form.metric.vars.data]|merge(form.additionalTableMetrics.vars.data|default([])) %}
-                                {% if selectedMetrics|filter(metric => metric in allocationDerivedMetrics)|length > 0 %}
-                                    <p class="text-secondary small mb-0 mt-2" data-testid="stats-analysis-explorer-allocation-derived-period-hint">
-                                        {{ 'stats.generic_analysis.period.allocation_derived_hint'|trans({}, 'statistics') }}
-                                    </p>
-                                {% endif %}
-                            {% endif %}
-                    </div>
-                {{ editAccordion.panel_end() }}
-            </div>
+        {% if not form.hospitalPopulation.vars.disabled %}
+            <fieldset class="border-0 p-0 mb-4" data-testid="stats-analysis-explorer-hospital-population-field">
+                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.hospital_population'|trans({}, 'statistics') }}</legend>
+                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.hospital_population_help'|trans({}, 'statistics') }}</p>
+                {{ form_row(form.hospitalPopulation, compactRow) }}
+            </fieldset>
+        {% endif %}
 
+        <div class="accordion accordion-flush" id="analysisExplorerFilterAccordion" data-testid="stats-analysis-explorer-edit-section-filters">
             <div class="accordion-item">
                 {{ editAccordion.header(
-                    'analysisExplorerEditFiltersHeading',
-                    'analysisExplorerEditFiltersPanel',
-                    'stats.analysis_explorer.edit.section.filters'|trans({}, 'statistics'),
-                    'stats-analysis-explorer-edit-section-filters',
-                    false,
+                    'analysisExplorerFilterDemographicsHeading',
+                    'analysisExplorerFilterDemographicsPanel',
+                    'stats.indication.section.demographics'|trans({}, 'statistics'),
+                    'stats-analysis-explorer-filter-section-demographics',
+                    demographicsActive,
                 ) }}
-                {{ editAccordion.panel_start('analysisExplorerEditFiltersPanel', 'analysisExplorerEditFiltersHeading', false) }}
+                {{ editAccordion.panel_start('analysisExplorerFilterDemographicsPanel', 'analysisExplorerFilterDemographicsHeading', demographicsActive) }}
                     <div class="accordion-body">
-                        <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.section.filters_help'|trans({}, 'statistics') }}</p>
                         <div class="row g-3">
-                            <div class="col-12">{{ form_row(form.filterDepartmentId, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-12">{{ form_row(form.filterSpecialityId, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-12">{{ form_row(form.filterIndicationId, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-12">{{ form_row(form.filterSecondaryIndicationId, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-12">{{ form_row(form.filterIndicationGroupId, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-6">{{ form_row(form.filterUrgency, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-6">{{ form_row(form.filterTransportType, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-6">{{ form_row(form.filterGender, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-6">{{ form_row(form.filterAgeGroup, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-4">{{ form_row(form.filterResus, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-4">{{ form_row(form.filterCpr, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-md-4">{{ form_row(form.filterVentilation, filterRow|merge({attr: refreshAttrs})) }}</div>
-                            <div class="col-12">{{ form_row(form.filterAssignmentId, filterRow|merge({attr: refreshAttrs})) }}</div>
+                            <div class="col-12">{{ form_row(form.filterGender, filterRow) }}</div>
+                            <div class="col-12">{{ form_row(form.filterAgeGroup, filterRow) }}</div>
                         </div>
                     </div>
                 {{ editAccordion.panel_end() }}
             </div>
-
             <div class="accordion-item">
                 {{ editAccordion.header(
-                    'analysisExplorerEditAnalysisHeading',
-                    'analysisExplorerEditAnalysisPanel',
-                    'stats.analysis_explorer.edit.section.matrix'|trans({}, 'statistics'),
-                    'stats-analysis-explorer-edit-section-analysis',
-                    true,
+                    'analysisExplorerFilterAllocationHeading',
+                    'analysisExplorerFilterAllocationPanel',
+                    'label.allocation'|trans({}, 'messages'),
+                    'stats-analysis-explorer-filter-section-allocation',
+                    allocationActive,
                 ) }}
-                {{ editAccordion.panel_start('analysisExplorerEditAnalysisPanel', 'analysisExplorerEditAnalysisHeading', true) }}
+                {{ editAccordion.panel_start('analysisExplorerFilterAllocationPanel', 'analysisExplorerFilterAllocationHeading', allocationActive) }}
                     <div class="accordion-body">
-                            <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.matrix_intro'|trans({}, 'statistics') }}</p>
-
-                            {% if not form.hospitalPopulation.vars.disabled %}
-                                <fieldset class="border-0 p-0 mb-4" data-testid="stats-analysis-explorer-hospital-population-field">
-                                    <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.hospital_population'|trans({}, 'statistics') }}</legend>
-                                    <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.hospital_population_help'|trans({}, 'statistics') }}</p>
-                                    {{ form_row(form.hospitalPopulation, compactRow|merge({attr: refreshAttrs})) }}
-                                </fieldset>
-                            {% endif %}
-
-                            <div class="border rounded p-3 mb-4 bg-body-secondary position-relative pb-5"
-                                 data-testid="stats-analysis-explorer-structure-preview">
-                                <div class="small text-secondary mb-2">{{ 'stats.analysis_explorer.edit.structure_preview_label'|trans({}, 'statistics') }}</div>
-                                <dl class="row g-2 mb-0 small">
-                                    <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_rows'|trans({}, 'statistics') }}</dt>
-                                    <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-row">{{ structure.row }}</dd>
-                                    <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_columns'|trans({}, 'statistics') }}</dt>
-                                    <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-column">{{ structure.column }}</dd>
-                                    <dt class="col-sm-3 mb-0">{{ 'stats.analysis_explorer.edit.structure_metric'|trans({}, 'statistics') }}</dt>
-                                    <dd class="col-sm-9 mb-0" data-testid="stats-analysis-explorer-structure-metric">{{ structure.metric }}</dd>
-                                </dl>
-                                {% if this.canSwapEditAxes %}
-                                    <div class="position-absolute bottom-0 end-0 p-2">
-                                        <button type="button"
-                                                class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1"
-                                                data-action="live#action"
-                                                data-live-action-param="swapEditAxes"
-                                                data-testid="stats-analysis-explorer-swap-axes"
-                                                aria-label="{{ 'stats.analysis_explorer.edit.swap_axes'|trans({}, 'statistics') }}">
-                                            <twig:ux:icon name="tabler:arrows-exchange" class="icon" />
-                                            {{ 'stats.analysis_explorer.edit.swap_axes'|trans({}, 'statistics') }}
-                                        </button>
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <fieldset class="border-0 p-0 mb-4">
-                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.rows'|trans({}, 'statistics') }}</legend>
-                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.rows_help'|trans({}, 'statistics') }}</p>
-                                {{ form_row(form.rowDimension, compactRow|merge({attr: refreshAttrs})) }}
-                                <div data-testid="stats-analysis-explorer-row-grain-field">
-                                    {{ form_row(form.rowGrain, compactRow|merge({attr: refreshAttrs})) }}
-                                </div>
-                            </fieldset>
-
-                            <fieldset class="border-0 p-0 mb-4">
-                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.columns'|trans({}, 'statistics') }}</legend>
-                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.columns_help'|trans({}, 'statistics') }}</p>
-                                <div data-testid="stats-analysis-explorer-column-fields">
-                                    {{ form_row(form.columnDimension, compactRow|merge({attr: refreshAttrs})) }}
-                                    <div class="{% if form.columnGrain.vars.disabled %}d-none{% endif %}"
-                                         data-testid="stats-analysis-explorer-column-grain-field">
-                                        {{ form_row(form.columnGrain, compactRow|merge({attr: refreshAttrs})) }}
-                                    </div>
-                                </div>
-                            </fieldset>
-
-                            <fieldset class="border-0 p-0 mb-0">
-                                <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.metric'|trans({}, 'statistics') }}</legend>
-                                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.metric_help'|trans({}, 'statistics') }}</p>
-                                {{ form_row(form.metric, compactRow|merge({attr: refreshAttrs})) }}
-                                {% if not form.showPercentOfTotal.vars.disabled %}
-                                    <div data-testid="stats-analysis-explorer-show-percent-field">
-                                        {{ form_row(form.showPercentOfTotal) }}
-                                    </div>
-                                {% endif %}
-                                {% if not form.additionalTableMetrics.vars.disabled %}
-                                    <div class="mt-3" data-testid="stats-analysis-explorer-additional-table-metrics-field">
-                                        {{ form_label(form.additionalTableMetrics) }}
-                                        {% if form.additionalTableMetrics.vars.help is not empty %}
-                                            <p class="form-text mt-0 mb-2">{{ form.additionalTableMetrics.vars.help|trans({}, 'statistics') }}</p>
-                                        {% endif %}
-                                        {% for groupLabel, groupChoices in form.additionalTableMetrics.vars.explorer_metric_groups %}
-                                            <fieldset class="border-0 p-0 mb-2">
-                                                <legend class="fs-6 fw-semibold mb-1">{{ groupLabel }}</legend>
-                                                {% for label, value in groupChoices %}
-                                                    {% for child in form.additionalTableMetrics %}
-                                                        {% if child.vars.value == value %}
-                                                            {{ form_row(child, compactRow|merge({attr: refreshAttrs})) }}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endfor %}
-                                            </fieldset>
-                                        {% endfor %}
-                                        {{ form_errors(form.additionalTableMetrics) }}
-                                    </div>
-                                {% endif %}
-                            </fieldset>
+                        <div class="row g-3">
+                            <div class="col-12">{{ form_row(form.filterDepartmentId, filterRow) }}</div>
+                            <div class="col-12">{{ form_row(form.filterSpecialityId, filterRow) }}</div>
+                            <div class="col-12">{{ form_row(form.filterIndicationId, filterRow) }}</div>
+                            <div class="col-12">{{ form_row(form.filterSecondaryIndicationId, filterRow) }}</div>
+                            <div class="col-12">{{ form_row(form.filterIndicationGroupId, filterRow) }}</div>
+                            <div class="col-md-6">{{ form_row(form.filterUrgency, filterRow) }}</div>
+                            <div class="col-md-6">{{ form_row(form.filterTransportType, filterRow) }}</div>
+                            <div class="col-12">{{ form_row(form.filterAssignmentId, filterRow) }}</div>
+                        </div>
                     </div>
                 {{ editAccordion.panel_end() }}
             </div>
-
             <div class="accordion-item">
                 {{ editAccordion.header(
-                    'analysisExplorerEditPresentationHeading',
-                    'analysisExplorerEditPresentationPanel',
-                    'stats.analysis_explorer.edit.section.presentation'|trans({}, 'statistics'),
-                    'stats-analysis-explorer-edit-section-presentation',
-                    true,
+                    'analysisExplorerFilterClinicalHeading',
+                    'analysisExplorerFilterClinicalPanel',
+                    'stats.analysis_explorer.dimension_group.clinical_care'|trans({}, 'statistics'),
+                    'stats-analysis-explorer-filter-section-clinical',
+                    clinicalActive,
                 ) }}
-                {{ editAccordion.panel_start('analysisExplorerEditPresentationPanel', 'analysisExplorerEditPresentationHeading', true) }}
+                {{ editAccordion.panel_start('analysisExplorerFilterClinicalPanel', 'analysisExplorerFilterClinicalHeading', clinicalActive) }}
                     <div class="accordion-body">
-                            <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.section.presentation_help'|trans({}, 'statistics') }}</p>
-                            {{ form_row(form.tableLayout, compactRow|merge({attr: refreshAttrs})) }}
-                            {{ form_row(form.chartType, {row_attr: {class: 'mb-3'}, attr: refreshAttrs}) }}
-                            <div data-testid="stats-analysis-explorer-edit-chart-row-limit-field">
-                                {{ form_row(form.chartRowLimit, compactRow) }}
-                            </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">{{ form_row(form.filterResus, filterRow) }}</div>
+                            <div class="col-md-4">{{ form_row(form.filterCpr, filterRow) }}</div>
+                            <div class="col-md-4">{{ form_row(form.filterVentilation, filterRow) }}</div>
+                        </div>
                     </div>
                 {{ editAccordion.panel_end() }}
             </div>
         </div>
-        {{ form_end(form, {render_rest: false}) }}
     </div>
-    <div class="offcanvas-footer border-top p-3 d-flex justify-content-end gap-2">
+    <div class="offcanvas-footer border-top p-3 d-flex justify-content-between gap-2">
         <button type="button"
-                class="btn btn-link link-secondary"
-                data-bs-dismiss="offcanvas"
+                class="btn"
                 data-action="live#action"
-                data-live-action-param="cancelEdit"
-                data-testid="stats-analysis-explorer-edit-cancel">
-            {{ 'action.cancel'|trans({}, 'messages') }}
+                data-live-action-param="clearAnalysisFilters"
+                data-testid="stats-analysis-explorer-filter-reset">
+            {{ 'label.filters.reset'|trans({}, 'messages') }}
         </button>
-        <button type="button"
-                class="btn btn-primary"
-                data-bs-dismiss="offcanvas"
-                data-action="live#action"
-                data-live-action-param="applyEdit"
-                data-testid="stats-analysis-explorer-edit-apply">
-            {{ 'stats.analysis_explorer.edit.apply'|trans({}, 'statistics') }}
-        </button>
+        <div class="d-flex gap-2">
+            <button type="button"
+                    class="btn btn-link link-secondary"
+                    data-bs-dismiss="offcanvas"
+                    data-action="live#action"
+                    data-live-action-param="cancelEdit"
+                    data-testid="stats-analysis-explorer-edit-cancel">
+                {{ 'action.cancel'|trans({}, 'messages') }}
+            </button>
+            <button type="button"
+                    class="btn btn-primary"
+                    data-bs-dismiss="offcanvas"
+                    data-action="live#action"
+                    data-live-action-param="applyEdit"
+                    data-testid="stats-analysis-explorer-edit-apply">
+                {{ 'stats.analysis_explorer.edit.apply'|trans({}, 'statistics') }}
+            </button>
+        </div>
     </div>
 </div>

@@ -15,6 +15,7 @@ use App\Statistics\AnalysisExplorer\Application\DTO\AnalysisSummaryViewModel;
 use App\Statistics\AnalysisExplorer\Application\DTO\ExplorerResultsTableViewModel;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisQueryFactory;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface;
 use App\Statistics\AnalysisExplorer\Application\ExplorerChartPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerDescriptionFactory;
@@ -22,6 +23,7 @@ use App\Statistics\AnalysisExplorer\Application\ExplorerEditAxisSwapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormFilterFieldMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerEditFormSummaryFactory;
+use App\Statistics\AnalysisExplorer\Application\ExplorerFilterBadgePresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerResultsTablePresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewService;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
@@ -33,6 +35,8 @@ use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenE
 use App\Statistics\AnalysisExplorer\Domain\Exception\UnsupportedAnalysisException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\AnalysisExplorer\UI\Form\ExplorerEditFormType;
+use App\Statistics\Application\Contract\HospitalAccessInterface;
+use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsSourceDataProbe;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
@@ -75,6 +79,9 @@ final class AnalysisExplorerShell
 
     #[LiveProp]
     public bool $isEditOpen = false;
+
+    #[LiveProp]
+    public bool $isContextOpen = false;
 
     #[LiveProp]
     public int $analysisRevision = 0;
@@ -210,6 +217,9 @@ final class AnalysisExplorerShell
         private readonly ExplorerEditFormSummaryFactory $editFormSummaryFactory,
         private readonly ExplorerEditAxisSwapper $editAxisSwapper,
         private readonly ExplorerAnalysisSummaryFactory $analysisSummaryFactory,
+        private readonly ExplorerAnalysisSummaryLabelResolverInterface $summaryLabelResolver,
+        private readonly ExplorerFilterBadgePresenter $filterBadgePresenter,
+        private readonly HospitalAccessInterface $hospitalAccess,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly UsageAnalytics $usageAnalytics,
         private readonly StatisticsSourceDataProbe $sourceDataProbe,
@@ -296,8 +306,52 @@ final class AnalysisExplorerShell
         $this->appliedConfigState = $this->configMapper->toStateArray($config->withFilters([]));
         $this->editFormData = null;
         $this->result = null;
+        $this->resetForm();
         $this->rerunAnalysis();
         $this->syncUnsavedChangeState();
+    }
+
+    public function contextLocationLabel(): string
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return '';
+        }
+
+        $filter = $config->statisticsFilter;
+        $user = $this->resolveUser();
+        if (StatisticsFilterScope::Public === $filter->scope
+            || (StatisticsFilterScope::MyHospitals === $filter->scope
+                && $user instanceof User
+                && 0 === $this->hospitalAccess->countAccessibleHospitals($user))
+        ) {
+            return $this->translator->trans('stats.filter.scope.public', [], 'statistics', $this->locale);
+        }
+
+        return $this->summaryLabelResolver->scopeLabel($filter, $user, $this->locale);
+    }
+
+    public function contextPeriodLabel(): string
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return '';
+        }
+
+        return $this->summaryLabelResolver->periodLabel($config->statisticsFilter, $this->locale);
+    }
+
+    /**
+     * @return list<array{key: string, label: string, value: string}>
+     */
+    public function activeFilterBadges(): array
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return [];
+        }
+
+        return $this->filterBadgePresenter->present($config, $this->locale);
     }
 
     private function resolveUser(): ?User
@@ -337,11 +391,16 @@ final class AnalysisExplorerShell
 
     public function canSwapEditAxes(): bool
     {
-        if (!$this->isEditOpen) {
-            return false;
-        }
+        if ($this->isEditOpen || $this->isContextOpen) {
+            $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+        } else {
+            $config = $this->appliedConfig();
+            if (!$config instanceof AnalysisViewConfig) {
+                return false;
+            }
 
-        $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+            $formData = $this->configMapper->toFormData($config);
+        }
 
         return $this->editAxisSwapper->canSwap($formData);
     }
@@ -384,8 +443,48 @@ final class AnalysisExplorerShell
         $this->editViewTitleAtOpen = $this->editViewTitle;
         $this->editViewDescriptionAtOpen = $this->editViewDescription;
         $this->isEditOpen = true;
+        $this->isContextOpen = false;
         $this->configWarning = null;
         $this->resetForm();
+    }
+
+    #[LiveAction]
+    public function openContext(): void
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return;
+        }
+
+        $this->editFormData = $this->configMapper->toFormData($config);
+        $this->isContextOpen = true;
+        $this->isEditOpen = false;
+        $this->configWarning = null;
+        $this->resetForm();
+    }
+
+    #[LiveAction]
+    public function resetContext(): void
+    {
+        if (!$this->isContextOpen) {
+            return;
+        }
+
+        $this->submitForm(false);
+        $formData = $this->editFormNormalizer->normalize($this->syncFormDataFromForm());
+        $user = $this->resolveUser();
+        $scopeGroup = 'public';
+        if ($user instanceof User
+            && !$this->hospitalAccess->isAdminHospitalScopeUser($user)
+            && $this->hospitalAccess->canUseMyHospitalsScope($user)
+        ) {
+            $scopeGroup = 'my_hospitals';
+        }
+
+        $formData->scopePeriod = new StatisticsScopePeriodFormData(scopeGroup: $scopeGroup, period: 'all');
+        $this->editFormData = $this->editFormNormalizer->normalize($formData);
+        $this->resetForm();
+        $this->submitForm(false);
     }
 
     #[LiveAction]
@@ -400,6 +499,7 @@ final class AnalysisExplorerShell
             $this->editViewDescription = $this->savedViewDescription ?? '';
         }
         $this->isEditOpen = false;
+        $this->isContextOpen = false;
         $this->configWarning = null;
         $this->resetForm();
     }
@@ -407,7 +507,7 @@ final class AnalysisExplorerShell
     #[LiveAction]
     public function refreshEditForm(): void
     {
-        if (!$this->isEditOpen) {
+        if (!$this->isEditOpen && !$this->isContextOpen) {
             return;
         }
 
@@ -465,13 +565,72 @@ final class AnalysisExplorerShell
             return;
         }
 
+        $previousState = $this->appliedConfigState;
         $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
         $this->editFormData = null;
         $this->isEditOpen = false;
-        $this->configWarning = null;
+        $this->isContextOpen = false;
+        if ([] === $this->configNormalizer->diffWarnings($newConfig, $normalizedConfig)) {
+            $this->configWarning = null;
+        }
         $this->resetForm();
-        $this->rerunAnalysis();
+        $this->refreshAfterCommit($previousState);
         $this->syncUnsavedChangeState();
+    }
+
+    #[LiveAction]
+    public function swapAxes(): void
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return;
+        }
+
+        $formData = $this->editFormNormalizer->normalize($this->configMapper->toFormData($config));
+        if (!$this->editAxisSwapper->canSwap($formData)) {
+            return;
+        }
+
+        $this->commitFormData($this->editAxisSwapper->swap($formData));
+    }
+
+    #[LiveAction]
+    public function setChartType(#[LiveArg] string $chartType): void
+    {
+        $this->patchApplied(static function (ExplorerEditFormData $formData) use ($chartType): void {
+            $formData->chartType = $chartType;
+        });
+    }
+
+    #[LiveAction]
+    public function setTableLayout(#[LiveArg] string $tableLayout): void
+    {
+        $this->patchApplied(static function (ExplorerEditFormData $formData) use ($tableLayout): void {
+            $formData->tableLayout = $tableLayout;
+        });
+    }
+
+    #[LiveAction]
+    public function removeAnalysisFilter(#[LiveArg] string $dimension): void
+    {
+        $this->patchApplied(static function (ExplorerEditFormData $formData) use ($dimension): void {
+            match ($dimension) {
+                'department' => $formData->filterDepartmentId = null,
+                'speciality' => $formData->filterSpecialityId = null,
+                'urgency' => $formData->filterUrgency = null,
+                'transport_type' => $formData->filterTransportType = null,
+                'gender' => $formData->filterGender = null,
+                'age_group' => $formData->filterAgeGroup = null,
+                'resus' => $formData->filterResus = null,
+                'cpr' => $formData->filterCpr = null,
+                'ventilation' => $formData->filterVentilation = null,
+                'assignment' => $formData->filterAssignmentId = null,
+                'indication' => $formData->filterIndicationId = null,
+                'secondary_indication' => $formData->filterSecondaryIndicationId = null,
+                'indication_group' => $formData->filterIndicationGroupId = null,
+                default => null,
+            };
+        });
     }
 
     #[LiveAction]
@@ -753,6 +912,99 @@ final class AnalysisExplorerShell
         $this->table = $this->tablePresenter->create($currentConfig, $this->result);
         $this->analysisSummary = $this->analysisSummaryFactory->create(
             $currentConfig,
+            $this->resolveUser(),
+            $this->locale,
+        );
+        ++$this->analysisRevision;
+    }
+
+    private function patchApplied(\Closure $patch): void
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig) {
+            return;
+        }
+
+        $formData = $this->configMapper->toFormData($config);
+        $patch($formData);
+        $this->commitFormData($formData);
+    }
+
+    private function commitFormData(ExplorerEditFormData $formData): void
+    {
+        $currentConfig = $this->appliedConfig();
+        if (!$currentConfig instanceof AnalysisViewConfig) {
+            return;
+        }
+
+        $formData = $this->editFormNormalizer->normalize($formData);
+        $newConfig = $this->configMapper->toViewConfig($formData, $currentConfig, $this->resolveUser());
+        $normalizedConfig = $this->configNormalizer->normalize($newConfig);
+        $this->setNormalizationWarning($newConfig, $normalizedConfig);
+
+        try {
+            $this->configValidator->validate($normalizedConfig);
+        } catch (InvalidExplorerConfigException $exception) {
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
+
+            return;
+        }
+
+        $previousState = $this->appliedConfigState;
+        $this->appliedConfigState = $this->configMapper->toStateArray($normalizedConfig);
+        $this->editFormData = null;
+        $this->isEditOpen = false;
+        $this->isContextOpen = false;
+        if ([] === $this->configNormalizer->diffWarnings($newConfig, $normalizedConfig)) {
+            $this->configWarning = null;
+        }
+        $this->resetForm();
+        $this->refreshAfterCommit($previousState);
+        $this->syncUnsavedChangeState();
+    }
+
+    /**
+     * @param array<string, mixed> $previousState
+     */
+    private function refreshAfterCommit(array $previousState): void
+    {
+        if ($this->isPresentationOnlyChange($previousState, $this->appliedConfigState) && $this->result instanceof AnalysisRunResult) {
+            $this->refreshPresentation();
+
+            return;
+        }
+
+        $this->rerunAnalysis();
+    }
+
+    /**
+     * @param array<string, mixed> $before
+     * @param array<string, mixed> $after
+     */
+    private function isPresentationOnlyChange(array $before, array $after): bool
+    {
+        unset($before['presentation'], $before['title'], $after['presentation'], $after['title']);
+
+        return json_encode($before, \JSON_THROW_ON_ERROR) === json_encode($after, \JSON_THROW_ON_ERROR);
+    }
+
+    private function refreshPresentation(): void
+    {
+        $config = $this->appliedConfig();
+        if (!$config instanceof AnalysisViewConfig || !$this->result instanceof AnalysisRunResult) {
+            $this->rerunAnalysis();
+
+            return;
+        }
+
+        $this->chartSpecs = $this->chartPresenter->buildSpecs($this->result, $config->presentation);
+        $this->defaultChartType = $this->chartPresenter->defaultChartType($config->presentation);
+        $this->hasChart = $this->chartPresenter->hasChart($this->result);
+        $this->chartRowLimit = $config->presentation->chartRowLimit->value;
+        $this->showChartRowLimitControl = $this->shouldShowChartRowLimitControl($config);
+        $this->table = $this->tablePresenter->create($config, $this->result);
+        $this->analysisSummary = $this->analysisSummaryFactory->create(
+            $config,
             $this->resolveUser(),
             $this->locale,
         );

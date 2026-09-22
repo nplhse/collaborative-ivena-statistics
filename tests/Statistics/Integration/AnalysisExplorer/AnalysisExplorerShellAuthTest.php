@@ -162,12 +162,16 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
         ])->actingAs($user);
 
         $testComponent->render();
-        $testComponent->call('openEdit');
+        $testComponent->call('openSaveAs');
 
         $render = $testComponent->render();
+        self::assertCount(
+            0,
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]'),
+        );
         self::assertGreaterThan(
             0,
-            $render->crawler()->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]')->count(),
+            $render->crawler()->filter('[data-testid="stats-analysis-explorer-save-as-title"]')->count(),
         );
     }
 
@@ -207,16 +211,12 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
         $render = $testComponent->render();
         $crawler = $render->crawler();
 
-        self::assertGreaterThan(
-            0,
-            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]')->count(),
-        );
         self::assertCount(
             0,
-            $crawler->filter('[data-testid="stats-analysis-explorer-view-metadata-dirty-hint"]'),
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-section-view-metadata"]'),
         );
-        self::assertNull($crawler->filter('[data-testid="stats-analysis-explorer-edit-view-title"]')->attr('disabled'));
-        self::assertNull($crawler->filter('[data-testid="stats-analysis-explorer-edit-view-description"]')->attr('disabled'));
+        self::assertTrue($testComponent->component()->hasUnsavedChanges);
+        self::assertNull($crawler->filter('[data-testid="stats-analysis-explorer-save"]')->attr('disabled'));
     }
 
     public function testApplyEditUpdatesMetadataAndEnablesSave(): void
