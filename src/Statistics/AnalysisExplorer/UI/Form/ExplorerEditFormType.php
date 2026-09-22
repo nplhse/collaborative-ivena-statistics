@@ -133,13 +133,15 @@ final class ExplorerEditFormType extends AbstractType
             }
 
             $submitted = $this->withDefaultMatrixLayout($submitted, $current);
-            $event->setData($submitted);
-
             $preview = $this->previewFromSubmitted($submitted, $current);
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
             $form = $event->getForm();
-            $this->configureDynamicChoices($form, $preview, $locale);
+            $adjusted = $this->configureDynamicChoices($form, $preview, $locale);
+            if ($adjusted->hospitalPopulation !== $preview->hospitalPopulation) {
+                $submitted['hospitalPopulation'] = $adjusted->hospitalPopulation;
+            }
+            $event->setData($submitted);
         });
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($locale): void {
@@ -270,6 +272,12 @@ final class ExplorerEditFormType extends AbstractType
         }
         $formData = $this->withResolvedColumnGrain($formData, $rowAxis, $capabilities);
         $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities, $filter->period);
+        $compareChoiceBlocked = $this->compareChoiceBlocked($dataSourceKey, $rowAxis, $columnAxis);
+        if ($compareChoiceBlocked && ExplorerHospitalPopulationMode::Compare->value === $formData->hospitalPopulation) {
+            $formData = $this->rebuildFormData($formData, [
+                'hospitalPopulation' => ExplorerHospitalPopulationMode::Participating->value,
+            ]);
+        }
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::defaultFor($dataSourceKey);
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
         $compatibleMetrics = array_values(array_filter(
@@ -408,8 +416,17 @@ final class ExplorerEditFormType extends AbstractType
 
         $form->add('hospitalPopulation', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.hospital_population',
-            'help' => 'stats.analysis_explorer.edit.hospital_population_help',
+            'help' => $compareChoiceBlocked
+                ? null
+                : 'stats.analysis_explorer.edit.hospital_population_help',
             'choices' => $this->hospitalPopulationChoices(),
+            'choice_attr' => static function (mixed $choice, string $key, mixed $value) use ($compareChoiceBlocked): array {
+                if ($compareChoiceBlocked && ExplorerHospitalPopulationMode::Compare->value === (string) $value) {
+                    return ['disabled' => true];
+                }
+
+                return [];
+            },
             'disabled' => AnalysisDataSourceKey::Hospitals !== $dataSourceKey,
         ]);
 
@@ -561,6 +578,19 @@ final class ExplorerEditFormType extends AbstractType
         }
 
         return $choices;
+    }
+
+    private function compareChoiceBlocked(
+        AnalysisDataSourceKey $dataSourceKey,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
+    ): bool {
+        if (AnalysisDataSourceKey::Hospitals !== $dataSourceKey || !$columnAxis instanceof AnalysisAxisRef) {
+            return false;
+        }
+
+        return AnalysisDimensionKey::HospitalPopulationGroup !== $rowAxis->dimensionKey
+            && AnalysisDimensionKey::HospitalPopulationGroup !== $columnAxis->dimensionKey;
     }
 
     /**

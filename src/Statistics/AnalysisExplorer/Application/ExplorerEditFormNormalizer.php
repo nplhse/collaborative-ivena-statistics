@@ -83,6 +83,12 @@ final readonly class ExplorerEditFormNormalizer
             }
         }
 
+        if ($this->columnBlocksCompare($dataSourceKey, $rowAxis, $columnAxis)
+            && ExplorerHospitalPopulationMode::Compare === (ExplorerHospitalPopulationMode::tryFrom($formData->hospitalPopulation) ?? ExplorerHospitalPopulationMode::Participating)) {
+            $formData = clone $formData;
+            $formData->hospitalPopulation = ExplorerHospitalPopulationMode::Participating->value;
+        }
+
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? $capabilities->defaultMetric;
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
         $compatibleMetrics = $this->metricCapabilityPolicy->metricsForConfig($previewConfig);
@@ -169,5 +175,18 @@ final readonly class ExplorerEditFormNormalizer
             filterSecondaryIndicationId: $formData->filterSecondaryIndicationId,
             filterIndicationGroupId: $formData->filterIndicationGroupId,
         );
+    }
+
+    private function columnBlocksCompare(
+        AnalysisDataSourceKey $dataSourceKey,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
+    ): bool {
+        if (AnalysisDataSourceKey::Hospitals !== $dataSourceKey || !$columnAxis instanceof AnalysisAxisRef) {
+            return false;
+        }
+
+        return AnalysisDimensionKey::HospitalPopulationGroup !== $rowAxis->dimensionKey
+            && AnalysisDimensionKey::HospitalPopulationGroup !== $columnAxis->dimensionKey;
     }
 }

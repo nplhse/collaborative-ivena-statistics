@@ -36,9 +36,18 @@
         <p class="text-secondary small mb-3">{{ 'stats.analysis_explorer.edit.section.filters_help'|trans({}, 'statistics') }}</p>
 
         {% if not form.hospitalPopulation.vars.disabled %}
+            {% set compareBlocked = form.columnDimension.vars.data is not empty
+                and form.columnDimension.vars.data != 'hospital_population_group'
+                and form.rowDimension.vars.data != 'hospital_population_group' %}
             <fieldset class="border-0 p-0 mb-4" data-testid="stats-analysis-explorer-hospital-population-field">
                 <legend class="fs-6 fw-semibold mb-1">{{ 'stats.analysis_explorer.edit.section.hospital_population'|trans({}, 'statistics') }}</legend>
-                <p class="form-text mt-0 mb-2">{{ 'stats.analysis_explorer.edit.section.hospital_population_help'|trans({}, 'statistics') }}</p>
+                <p class="form-text mt-0 mb-2">
+                    {% if compareBlocked %}
+                        {{ 'stats.analysis_explorer.edit.hospital_population_help_column'|trans({}, 'statistics') }}
+                    {% else %}
+                        {{ 'stats.analysis_explorer.edit.section.hospital_population_help'|trans({}, 'statistics') }}
+                    {% endif %}
+                </p>
                 {{ form_row(form.hospitalPopulation, compactRow) }}
             </fieldset>
         {% endif %}

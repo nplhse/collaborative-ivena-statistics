@@ -1225,6 +1225,10 @@
         <source>stats.analysis_explorer.edit.section.hospital_population_help</source>
         <target>Nach Teilnahmestatus filtern oder beide Gruppen nebeneinander vergleichen.</target>
       </trans-unit>
+      <trans-unit id="statsAexHp10" resname="stats.analysis_explorer.edit.hospital_population_help_column">
+        <source>stats.analysis_explorer.edit.hospital_population_help_column</source>
+        <target>Solange eine Spalte gewählt ist, steht der Vergleich teilnehmender und nicht teilnehmender Krankenhäuser nicht zur Verfügung. Die Spalte legt bereits die Serien fest.</target>
+      </trans-unit>
       <trans-unit id="statsAex137" resname="stats.analysis_explorer.edit.section.matrix">
         <source>stats.analysis_explorer.edit.section.matrix</source>
         <target>Datenauswahl</target>

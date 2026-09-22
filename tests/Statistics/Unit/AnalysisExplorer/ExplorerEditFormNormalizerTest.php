@@ -227,6 +227,74 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame(3, $normalized->filterIndicationGroupId);
     }
 
+    public function testHospitalColumnClearsComparePopulation(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            columnDimension: 'hospital_location',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertSame('hospital_location', $normalized->columnDimension);
+        self::assertSame('participating', $normalized->hospitalPopulation);
+    }
+
+    public function testHospitalCompareStaysWhenPopulationGroupIsAnAxis(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_population_group',
+            rowGrain: 'total',
+            columnDimension: 'hospital_tier',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertSame('compare', $normalized->hospitalPopulation);
+    }
+
+    public function testHospitalCompareStaysWithoutAColumn(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertNull($normalized->columnDimension);
+        self::assertSame('compare', $normalized->hospitalPopulation);
+    }
+
+    public function testHospitalCompareStaysWhenPopulationGroupIsTheColumn(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            columnDimension: 'hospital_population_group',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertSame('compare', $normalized->hospitalPopulation);
+    }
+
     private function formData(
         string $rowDimension,
         ?string $rowGrain,

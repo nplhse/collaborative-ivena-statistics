@@ -6,6 +6,10 @@
 {% set structure = this.editFormSummary %}
 {% set showRowGrain = form.rowGrain.vars.choices|length > 1 %}
 {% set showColumnGrain = not form.columnGrain.vars.disabled %}
+{% set compareBlocked = not form.hospitalPopulation.vars.disabled
+    and form.columnDimension.vars.data is not empty
+    and form.columnDimension.vars.data != 'hospital_population_group'
+    and form.rowDimension.vars.data != 'hospital_population_group' %}
 
 <div class="offcanvas offcanvas-bottom analysis-explorer-shelf"
      tabindex="-1"
@@ -76,6 +80,11 @@
                 {{ form_widget(form.metric, shelfSelect) }}
             </div>
         </div>
+        {% if compareBlocked %}
+            <p class="form-text mb-0 mt-2" data-testid="stats-analysis-explorer-compare-blocked-hint">
+                {{ 'stats.analysis_explorer.edit.hospital_population_help_column'|trans({}, 'statistics') }}
+            </p>
+        {% endif %}
         <p class="visually-hidden">{{ structure.row }} {{ structure.column }} {{ structure.metric }}</p>
     </div>
 </div>

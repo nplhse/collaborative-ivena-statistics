@@ -4965,6 +4965,10 @@
         <source>stats.analysis_explorer.edit.section.hospital_population_help</source>
         <target>Filter hospitals by participation status or compare both groups side by side.</target>
       </trans-unit>
+      <trans-unit id="statsAexHp10" resname="stats.analysis_explorer.edit.hospital_population_help_column">
+        <source>stats.analysis_explorer.edit.hospital_population_help_column</source>
+        <target>While a column is selected, comparing participating and non-participating hospitals is unavailable. The column already defines the series.</target>
+      </trans-unit>
       <trans-unit id="statsAexFlt01" resname="stats.analysis_explorer.edit.section.filters">
         <source>stats.analysis_explorer.edit.section.filters</source>
         <target>Filters</target>
