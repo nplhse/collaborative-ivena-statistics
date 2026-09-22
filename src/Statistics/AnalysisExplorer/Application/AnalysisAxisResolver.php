@@ -20,7 +20,7 @@ final readonly class AnalysisAxisResolver
     ): AnalysisAxisRef {
         $grain = $axis->dimensionKey->isTemporalPrimary()
             ? $this->resolveTemporalGrain($axis->grain, $capabilities, $period)
-            : $this->resolveBreakdownGrain($axis->grain);
+            : $this->resolveBreakdownGrain();
 
         return new AnalysisAxisRef($axis->dimensionKey, $grain);
     }
@@ -42,9 +42,11 @@ final readonly class AnalysisAxisResolver
         DataSourceCapabilities $capabilities,
         ?StatisticsFilterPeriod $period,
     ): AnalysisDimensionGrain {
-        if ($grain instanceof AnalysisDimensionGrain
-            && \in_array($grain, $capabilities->timeGrains, true)
-            && AnalysisDimensionGrain::Total !== $grain) {
+        if (AnalysisDimensionGrain::Total === $grain) {
+            return AnalysisDimensionGrain::Total;
+        }
+
+        if ($grain instanceof AnalysisDimensionGrain && \in_array($grain, $capabilities->timeGrains, true)) {
             $resolved = $grain;
         } else {
             $resolved = $capabilities->defaultTimeGrain;
@@ -66,12 +68,8 @@ final readonly class AnalysisAxisResolver
         return $resolved;
     }
 
-    private function resolveBreakdownGrain(?AnalysisDimensionGrain $grain): AnalysisDimensionGrain
+    private function resolveBreakdownGrain(): AnalysisDimensionGrain
     {
-        if ($grain instanceof AnalysisDimensionGrain) {
-            return $grain;
-        }
-
         return AnalysisDimensionGrain::Total;
     }
 }

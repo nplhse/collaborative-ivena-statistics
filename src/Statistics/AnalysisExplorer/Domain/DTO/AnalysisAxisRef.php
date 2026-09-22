@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Domain\DTO;
 
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 
 final readonly class AnalysisAxisRef
 {
@@ -27,7 +28,12 @@ final readonly class AnalysisAxisRef
     public function toRegistryKey(): string
     {
         if ($this->dimensionKey->isTemporalPrimary()) {
-            return $this->resolvedGrain()->registryTemporalKey();
+            $grain = $this->resolvedGrain();
+            if (AnalysisDimensionGrain::Total === $grain) {
+                return AnalysisDimension::ALLOCATION_TOTAL_KEY;
+            }
+
+            return $grain->registryTemporalKey();
         }
 
         return $this->dimensionKey->registryKey();

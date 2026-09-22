@@ -129,6 +129,8 @@ final readonly class ExplorerEditFormNormalizer
         $tableLayout = TableLayout::tryFrom($formData->tableLayout) ?? TableLayout::Flat;
         if ($isDistributionProfile || !$columnAxis instanceof AnalysisAxisRef) {
             $tableLayout = TableLayout::Flat;
+        } elseif (TableLayout::MatrixMetricsAsRows === $tableLayout && [] === $additionalTableMetrics) {
+            $tableLayout = TableLayout::Matrix;
         }
 
         $chartRowLimit = ExplorerChartRowLimit::fromValue($formData->chartRowLimit);

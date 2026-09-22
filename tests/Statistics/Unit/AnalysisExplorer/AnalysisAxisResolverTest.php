@@ -90,7 +90,7 @@ final class AnalysisAxisResolverTest extends TestCase
         self::assertSame(AnalysisDimensionGrain::Year, $resolved->resolvedGrain());
     }
 
-    public function testDoesNotClampBreakdownAxes(): void
+    public function testForcesBreakdownAxesToTotal(): void
     {
         $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
         $resolver = new AnalysisAxisResolver();
@@ -101,7 +101,22 @@ final class AnalysisAxisResolverTest extends TestCase
             StatisticsFilterPeriod::Month,
         );
 
-        self::assertSame(AnalysisDimensionGrain::Month, $resolved->resolvedGrain());
+        self::assertSame(AnalysisDimensionGrain::Total, $resolved->resolvedGrain());
+    }
+
+    public function testKeepsTotalGrainOnTimeAxis(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $resolver = new AnalysisAxisResolver();
+
+        $resolved = $resolver->resolve(
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Total),
+            $capabilities,
+            StatisticsFilterPeriod::AllTime,
+        );
+
+        self::assertSame(AnalysisDimensionGrain::Total, $resolved->resolvedGrain());
+        self::assertSame('allocation_total', $resolved->toRegistryKey());
     }
 
     public function testKeepsRequestedGrainWhenPeriodIsOmitted(): void

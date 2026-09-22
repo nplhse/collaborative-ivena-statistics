@@ -44,11 +44,7 @@ final readonly class DataSourceCapabilities
             return $this->timeGrains;
         }
 
-        return [
-            AnalysisDimensionGrain::Total,
-            AnalysisDimensionGrain::Month,
-            AnalysisDimensionGrain::Year,
-        ];
+        return [AnalysisDimensionGrain::Total];
     }
 
     /**
@@ -130,11 +126,11 @@ final readonly class DataSourceCapabilities
 
         $grain = $axis->resolvedGrain();
 
-        if (!\in_array($grain, $this->timeGrainsFor($axis->dimensionKey), true)) {
-            return false;
+        if (AnalysisDimensionKey::Time === $axis->dimensionKey && AnalysisDimensionGrain::Total === $grain) {
+            return true;
         }
 
-        return AnalysisDimensionKey::Time !== $axis->dimensionKey || AnalysisDimensionGrain::Total !== $grain;
+        return \in_array($grain, $this->timeGrainsFor($axis->dimensionKey), true);
     }
 
     public function supportsColumnAxis(AnalysisAxisRef $rowAxis, AnalysisAxisRef $columnAxis): bool

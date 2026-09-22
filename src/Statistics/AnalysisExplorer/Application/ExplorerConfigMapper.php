@@ -37,7 +37,6 @@ final readonly class ExplorerConfigMapper
         private AnalysisAxisUpgradeMapper $axisUpgradeMapper,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
-        private ExplorerTableLayoutResolver $tableLayoutResolver,
         private ExplorerAnalysisFilterMapper $analysisFilterMapper,
         private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
     ) {
@@ -92,10 +91,6 @@ final readonly class ExplorerConfigMapper
         $metricKeys = $this->metricCapabilityPolicy->normalizeMetricKeys($preview->metricKeys, $preview->withStatisticsFilter($filter));
         if (!\in_array($visualMetricKey, $metricKeys, true)) {
             $visualMetricKey = $metricKeys[0];
-        }
-
-        if (TableLayout::Flat === $tableLayout && $columnAxis instanceof AnalysisAxisRef) {
-            $tableLayout = $this->tableLayoutResolver->resolveForConfig($preview);
         }
 
         $chartRowLimit = ExplorerChartRowLimit::fromValue($formData->chartRowLimit);

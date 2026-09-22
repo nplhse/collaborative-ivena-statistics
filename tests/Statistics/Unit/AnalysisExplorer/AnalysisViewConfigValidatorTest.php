@@ -107,7 +107,7 @@ final class AnalysisViewConfigValidatorTest extends TestCase
         }
     }
 
-    public function testTimeRowsWithTotalGrainRejectsConfig(): void
+    public function testTimeRowsWithTotalGrainIsSupported(): void
     {
         $validator = new AnalysisViewConfigValidator(
             $this->createDataSourceCapabilitiesRegistry(),
@@ -115,26 +115,25 @@ final class AnalysisViewConfigValidatorTest extends TestCase
             $this->createSecurityWithoutUser(),
         );
 
-        try {
-            $validator->validate(new AnalysisViewConfig(
-                dataSourceKey: AnalysisDataSourceKey::Allocations,
-                metricKeys: [AnalysisMetricKey::AllocationCount],
-                visualMetricKey: AnalysisMetricKey::AllocationCount,
-                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Total),
-                columnAxis: null,
-                statisticsFilter: new StatisticsFilter(
-                    scope: StatisticsFilterScope::Public,
-                    hospitalId: null,
-                    cohortType: null,
-                    period: StatisticsFilterPeriod::AllTime,
-                ),
-                presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
-                title: 'Allocations over time',
-            ));
-            self::fail('Expected InvalidExplorerConfigException');
-        } catch (InvalidExplorerConfigException $exception) {
-            self::assertSame('stats.analysis_explorer.validation.unsupported_dimension', $exception->translationKey);
-        }
+        $config = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Total),
+            columnAxis: null,
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::AllTime,
+            ),
+            presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+            title: 'Allocations over time',
+        );
+
+        $validator->validate($config);
+
+        self::assertSame(AnalysisDimensionGrain::Total, $config->rowAxis->resolvedGrain());
     }
 
     public function testRateAndDistributionMetricsRejectConfig(): void

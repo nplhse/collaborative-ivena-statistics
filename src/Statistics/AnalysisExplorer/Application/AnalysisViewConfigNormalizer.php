@@ -18,7 +18,6 @@ final readonly class AnalysisViewConfigNormalizer
         private AnalysisAxisResolver $axisResolver,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
-        private ExplorerTableLayoutResolver $tableLayoutResolver,
         private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
         private Security $security,
     ) {
@@ -31,18 +30,18 @@ final readonly class AnalysisViewConfigNormalizer
             ? $config->visualMetricKey
             : null;
 
-        $rowAxis = $capabilities->supportsAxis($config->rowAxis)
-            ? $this->axisResolver->resolve($config->rowAxis, $capabilities, $config->statisticsFilter->period)
-            : ('hospitals' === $config->dataSourceKey->value
+        $rowAxis = $this->axisResolver->resolve($config->rowAxis, $capabilities, $config->statisticsFilter->period);
+        if (!$capabilities->supportsAxis($rowAxis)) {
+            $rowAxis = 'hospitals' === $config->dataSourceKey->value
                 ? \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::breakdown($capabilities->defaultDimension)
-                : \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::time($capabilities->defaultTimeGrain));
+                : \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef::time($capabilities->defaultTimeGrain);
+        }
 
         $columnAxis = $config->columnAxis;
         if ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef) {
+            $columnAxis = $this->axisResolver->resolve($columnAxis, $capabilities, $config->statisticsFilter->period);
             if (!$capabilities->supportsColumnAxis($rowAxis, $columnAxis)) {
                 $columnAxis = null;
-            } else {
-                $columnAxis = $this->axisResolver->resolve($columnAxis, $capabilities, $config->statisticsFilter->period);
             }
         }
 
@@ -80,12 +79,20 @@ final readonly class AnalysisViewConfigNormalizer
         }
 
         $tableLayout = $config->presentation->tableLayout;
+        $comparableMetricCount = \count(array_filter(
+            $metricKeys,
+            static fn (\App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey $metricKey): bool => \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey::PercentOfTotal !== $metricKey,
+        ));
         if ($visualMetricKey->isDistributionProfile() || $requestedDistributionProfile instanceof \App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey) {
             $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat;
         } elseif (!$columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat !== $tableLayout) {
             $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat;
-        } elseif ($columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat === $tableLayout) {
-            $tableLayout = $this->tableLayoutResolver->resolveForConfig($previewConfig);
+        } elseif (
+            $columnAxis instanceof \App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef
+            && \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::MatrixMetricsAsRows === $tableLayout
+            && $comparableMetricCount < 2
+        ) {
+            $tableLayout = \App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Matrix;
         }
 
         return new AnalysisViewConfig(

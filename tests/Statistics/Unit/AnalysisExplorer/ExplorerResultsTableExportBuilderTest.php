@@ -61,6 +61,35 @@ final class ExplorerResultsTableExportBuilderTest extends TestCase
         self::assertStringContainsString("Total,20\n", $csv);
     }
 
+    public function testFlatLayoutWithColumnAxisExportsOneRowPerCombination(): void
+    {
+        $builder = $this->createBuilder();
+        $viewConfig = $this->viewConfig(columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency));
+
+        $document = $builder->build(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Allocations',
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
+                rowAxis: AnalysisAxisRef::time(AnalysisDimensionGrain::Month),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+                rows: [
+                    new AnalysisResultRow('2024-06', 'Jun 2024', 'u1', 'U1', ['allocation_count' => 12]),
+                    new AnalysisResultRow('2024-06', 'Jun 2024', 'u2', 'U2', ['allocation_count' => 8]),
+                ],
+                totals: new AnalysisTotals(grand: ['allocation_count' => 20]),
+            ),
+        );
+
+        $csv = $this->exportToString($document);
+
+        self::assertStringContainsString("Month,Urgency,Allocations\n", $csv);
+        self::assertStringContainsString('"Jun 2024",U1,12'."\n", $csv);
+        self::assertStringContainsString('"Jun 2024",U2,8'."\n", $csv);
+        self::assertStringContainsString("Total,,20\n", $csv);
+    }
+
     public function testFlatLayoutWithPercentExportsAdditionalColumn(): void
     {
         $builder = $this->createBuilder();

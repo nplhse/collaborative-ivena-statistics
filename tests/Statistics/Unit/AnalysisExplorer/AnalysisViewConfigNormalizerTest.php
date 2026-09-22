@@ -8,7 +8,6 @@ use App\Statistics\AnalysisExplorer\Application\AnalysisAxisResolver;
 use App\Statistics\AnalysisExplorer\Application\AnalysisViewConfigNormalizer;
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisFilterPolicy;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigPreviewFactory;
-use App\Statistics\AnalysisExplorer\Application\ExplorerTableLayoutResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerTitleFactory;
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
@@ -17,6 +16,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
@@ -40,7 +40,6 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
-            new ExplorerTableLayoutResolver(),
             new ExplorerAnalysisFilterPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -68,7 +67,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         self::assertSame(ChartPresentationType::GroupedBar, $normalized->presentation->chartType);
     }
 
-    public function testNormalizesGenderRowsWithoutGrainToTotal(): void
+    public function testNormalizesCategoryRowGrainToTotal(): void
     {
         $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturn('Title');
@@ -79,7 +78,6 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
-            new ExplorerTableLayoutResolver(),
             new ExplorerAnalysisFilterPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -88,7 +86,7 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             dataSourceKey: AnalysisDataSourceKey::Allocations,
             metricKeys: [AnalysisMetricKey::AllocationCount],
             visualMetricKey: AnalysisMetricKey::AllocationCount,
-            rowAxis: new AnalysisAxisRef(AnalysisDimensionKey::Gender, null),
+            rowAxis: new AnalysisAxisRef(AnalysisDimensionKey::Gender, AnalysisDimensionGrain::Month),
             columnAxis: null,
             statisticsFilter: new StatisticsFilter(
                 scope: StatisticsFilterScope::Public,
@@ -116,7 +114,6 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
             new AnalysisAxisResolver(),
             new ExplorerConfigPreviewFactory(),
             $this->createExplorerMetricCapabilityPolicy(),
-            new ExplorerTableLayoutResolver(),
             new ExplorerAnalysisFilterPolicy(),
             $this->createSecurityWithoutUser(),
         );
@@ -142,6 +139,85 @@ final class AnalysisViewConfigNormalizerTest extends TestCase
         self::assertSame(ChartPresentationType::BoxPlot, $normalized->presentation->chartType);
         self::assertSame([AnalysisMetricKey::BedsDistribution], $normalized->metricKeys);
         self::assertSame(AnalysisDimensionKey::HospitalLocation, $normalized->columnAxis?->dimensionKey);
-        self::assertSame(\App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout::Flat, $normalized->presentation->tableLayout);
+        self::assertSame(TableLayout::Flat, $normalized->presentation->tableLayout);
+    }
+
+    public function testKeepsFlatLayoutWhenAColumnAxisIsPresent(): void
+    {
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Title');
+
+        $normalizer = new AnalysisViewConfigNormalizer(
+            $this->createDataSourceCapabilitiesRegistry(),
+            new ExplorerTitleFactory($translator),
+            new AnalysisAxisResolver(),
+            new ExplorerConfigPreviewFactory(),
+            $this->createExplorerMetricCapabilityPolicy(),
+            new ExplorerAnalysisFilterPolicy(),
+            $this->createSecurityWithoutUser(),
+        );
+
+        $config = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::AgeGroup),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::Bar,
+                tableLayout: TableLayout::Flat,
+            ),
+            title: 'Age group distribution',
+        );
+
+        $normalized = $normalizer->normalize($config);
+
+        self::assertSame(TableLayout::Flat, $normalized->presentation->tableLayout);
+        self::assertSame(AnalysisDimensionKey::Urgency, $normalized->columnAxis?->dimensionKey);
+    }
+
+    public function testMetricsAsRowsFallsBackToMatrixForASingleMetric(): void
+    {
+        $translator = $this->createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturn('Title');
+
+        $normalizer = new AnalysisViewConfigNormalizer(
+            $this->createDataSourceCapabilitiesRegistry(),
+            new ExplorerTitleFactory($translator),
+            new AnalysisAxisResolver(),
+            new ExplorerConfigPreviewFactory(),
+            $this->createExplorerMetricCapabilityPolicy(),
+            new ExplorerAnalysisFilterPolicy(),
+            $this->createSecurityWithoutUser(),
+        );
+
+        $config = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::AgeGroup),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            statisticsFilter: new StatisticsFilter(
+                scope: StatisticsFilterScope::Public,
+                hospitalId: null,
+                cohortType: null,
+                period: StatisticsFilterPeriod::All,
+            ),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::Bar,
+                tableLayout: TableLayout::MatrixMetricsAsRows,
+            ),
+            title: 'Age group distribution',
+        );
+
+        $normalized = $normalizer->normalize($config);
+
+        self::assertSame(TableLayout::Matrix, $normalized->presentation->tableLayout);
     }
 }
