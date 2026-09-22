@@ -7,8 +7,8 @@
      data-generic-analysis-chart-export-filename-value="{{ result ? result.title : 'analysis-chart' }}"
      data-generic-analysis-chart-chart-height-profile-value="explorer"
      {% endif %}>
-    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
-        <div class="min-w-0 flex-grow-1">
+    <div class="card-header d-flex flex-nowrap justify-content-between align-items-center gap-2 py-2">
+        <div class="stats-aex-chart-summary min-w-0">
             {% if analysisSummary is not null and analysisSummary.hasParts %}
                 <p class="text-secondary small mb-0"
                    data-testid="stats-analysis-explorer-summary">{%- for part in analysisSummary.parts -%}
@@ -20,7 +20,7 @@
                     {%- endfor -%}</p>
             {% endif %}
         </div>
-        <div class="stats-aex-chart-toolbar d-flex flex-wrap gap-2 align-items-center flex-shrink-0">
+        <div class="stats-aex-chart-toolbar d-flex flex-nowrap gap-2 align-items-center flex-shrink-0">
             <div class="d-none d-lg-block">
                 {{ include('@Statistics/analysis_explorer/_chart_type_controls.html.twig') }}
             </div>

@@ -313,6 +313,11 @@ a.catalog-year-heatmap-cell:focus-visible {
     display: none;
 }
 
+.stats-aex-chart-summary {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
 .stats-aex-chart-toolbar .btn {
     --tblr-btn-line-height: 1rem;
     --tblr-btn-icon-size: 1rem;
