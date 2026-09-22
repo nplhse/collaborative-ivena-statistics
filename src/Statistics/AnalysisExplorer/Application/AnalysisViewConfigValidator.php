@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\User\Domain\Entity\User;
@@ -26,6 +27,10 @@ final readonly class AnalysisViewConfigValidator
 
         if (!$capabilities->supports($config)) {
             throw new InvalidExplorerConfigException($this->buildMessageKey($config, $capabilities), $this->buildParameters($config));
+        }
+
+        if (AnalysisDataSourceKey::Hospitals === $config->dataSourceKey && [] !== $config->filters) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid', $this->buildParameters($config));
         }
 
         if ($this->hasRateAndDistribution($config->metricKeys)) {

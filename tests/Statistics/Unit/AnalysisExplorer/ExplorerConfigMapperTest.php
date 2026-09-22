@@ -14,6 +14,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -377,5 +378,62 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         self::assertSame(AnalysisDimensionGrain::Day, $config->rowAxis->resolvedGrain());
         self::assertSame(AnalysisDimensionKey::Gender, $config->columnAxis?->dimensionKey);
         self::assertSame(StatisticsFilterPeriod::Month, $config->statisticsFilter->period);
+    }
+
+    public function testSerializationOmitsPresentationMode(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $state = $mapper->toStateArray(self::getContainer()->get(DefaultAnalysisViewFactory::class)->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        )));
+
+        self::assertArrayNotHasKey('mode', $state['presentation']);
+    }
+
+    public function testUnknownCatalogKeysFail(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+
+        $state = [
+            'schemaVersion' => 4,
+            'dataSource' => 'allocations',
+            'query' => [
+                'scope' => ['group' => 'public', 'detail' => null],
+                'period' => ['type' => 'all', 'year' => null, 'quarter' => null, 'month' => null],
+                'metrics' => ['allocation_count'],
+                'visualMetric' => 'allocation_count',
+                'rows' => ['dimension' => 'not_a_dimension', 'grain' => 'total'],
+            ],
+            'presentation' => ['chartType' => 'bar'],
+            'title' => 'Broken',
+        ];
+
+        try {
+            $mapper->viewConfigFromState($state, null);
+            self::fail('Unknown dimension must fail.');
+        } catch (InvalidExplorerConfigException) {
+        }
+
+        $state['query']['rows']['dimension'] = 'time';
+        $state['query']['metrics'] = ['not_a_metric'];
+        $state['query']['visualMetric'] = 'not_a_metric';
+
+        try {
+            $mapper->viewConfigFromState($state, null);
+            self::fail('Unknown metric must fail.');
+        } catch (InvalidExplorerConfigException) {
+        }
+
+        $state['schemaVersion'] = 5;
+        $state['query']['metrics'] = ['allocation_count'];
+        $state['query']['visualMetric'] = 'allocation_count';
+
+        $this->expectException(InvalidExplorerConfigException::class);
+        $mapper->viewConfigFromState($state, null);
     }
 }

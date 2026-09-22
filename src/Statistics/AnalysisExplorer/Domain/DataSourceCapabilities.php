@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisShape;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 
@@ -74,11 +75,13 @@ final readonly class DataSourceCapabilities
             return ChartPresentationType::BoxPlot;
         }
 
-        if ($this->usesMultiSeriesChart($config)) {
-            return ChartPresentationType::GroupedBar;
-        }
-
-        return ChartPresentationType::Bar;
+        return match (AnalysisShape::fromConfig($config)) {
+            AnalysisShape::Matrix => ChartPresentationType::GroupedBar,
+            AnalysisShape::TimeSeries => $this->usesMultiSeriesChart($config)
+                ? ChartPresentationType::GroupedBar
+                : ChartPresentationType::Bar,
+            AnalysisShape::Distribution => ChartPresentationType::Bar,
+        };
     }
 
     public function supports(AnalysisViewConfig $config): bool

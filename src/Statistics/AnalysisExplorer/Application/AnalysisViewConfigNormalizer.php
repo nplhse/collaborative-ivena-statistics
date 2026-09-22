@@ -104,7 +104,6 @@ final readonly class AnalysisViewConfigNormalizer
             statisticsFilter: $config->statisticsFilter,
             presentation: new \App\Statistics\AnalysisExplorer\Domain\PresentationConfig(
                 chartType: $chartType,
-                mode: $config->presentation->mode,
                 tableLayout: $tableLayout,
                 chartRowLimit: $config->presentation->chartRowLimit,
             ),

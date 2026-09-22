@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\AnalysisExplorer\Application;
 
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\ExplorerAnalysisFilterCatalog;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
@@ -146,11 +147,16 @@ final readonly class ExplorerAnalysisFilterMapper
 
             $dimensionKey = (string) ($row['dimensionKey'] ?? '');
             if (!ExplorerAnalysisFilterCatalog::isAllowed($dimensionKey)) {
-                continue;
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid', ['filter' => $dimensionKey]);
             }
 
-            $operator = AnalysisFilterOperator::tryFrom((string) ($row['operator'] ?? ''))
-                ?? AnalysisFilterOperator::Equals;
+            $operatorValue = (string) ($row['operator'] ?? '');
+            $operator = '' === $operatorValue
+                ? AnalysisFilterOperator::Equals
+                : AnalysisFilterOperator::tryFrom($operatorValue);
+            if (!$operator instanceof AnalysisFilterOperator) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid', ['operator' => $operatorValue]);
+            }
 
             $filters[] = new AnalysisFilter(
                 dimensionKey: $dimensionKey,

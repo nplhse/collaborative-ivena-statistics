@@ -17,6 +17,8 @@ use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator;
 use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
 
@@ -167,6 +169,39 @@ final class AnalysisViewConfigValidatorTest extends TestCase
             self::fail('Expected InvalidExplorerConfigException');
         } catch (InvalidExplorerConfigException $exception) {
             self::assertSame('stats.analysis_explorer.validation.incompatible_metrics', $exception->translationKey);
+        }
+    }
+
+    public function testHospitalAnalysisRejectsFilters(): void
+    {
+        $validator = new AnalysisViewConfigValidator(
+            $this->createDataSourceCapabilitiesRegistry(),
+            $this->createExplorerMetricCapabilityPolicy(),
+            $this->createSecurityWithoutUser(),
+        );
+
+        try {
+            $validator->validate(new AnalysisViewConfig(
+                dataSourceKey: AnalysisDataSourceKey::Hospitals,
+                metricKeys: [AnalysisMetricKey::HospitalCount],
+                visualMetricKey: AnalysisMetricKey::HospitalCount,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+                columnAxis: null,
+                statisticsFilter: new StatisticsFilter(
+                    scope: StatisticsFilterScope::Public,
+                    hospitalId: null,
+                    cohortType: null,
+                    period: StatisticsFilterPeriod::AllTime,
+                ),
+                presentation: new PresentationConfig(chartType: ChartPresentationType::Bar),
+                title: 'Hospitals by tier',
+                filters: [
+                    new AnalysisFilter('hospital_tier', AnalysisFilterOperator::Equals, 'basic'),
+                ],
+            ));
+            self::fail('Expected InvalidExplorerConfigException');
+        } catch (InvalidExplorerConfigException $exception) {
+            self::assertSame('stats.analysis_explorer.validation.invalid', $exception->translationKey);
         }
     }
 }

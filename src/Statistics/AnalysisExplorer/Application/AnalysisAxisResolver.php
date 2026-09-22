@@ -8,6 +8,7 @@ use App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
 
@@ -31,8 +32,22 @@ final readonly class AnalysisAxisResolver
         DataSourceCapabilities $capabilities,
         ?StatisticsFilterPeriod $period = null,
     ): AnalysisAxisRef {
-        $dimensionKey = AnalysisDimensionKey::tryFrom($dimension) ?? AnalysisDimensionKey::Time;
-        $grain = \is_string($grainValue) ? AnalysisDimensionGrain::tryFrom($grainValue) : null;
+        if ('' === $dimension) {
+            $dimensionKey = AnalysisDimensionKey::Time;
+        } else {
+            $dimensionKey = AnalysisDimensionKey::tryFrom($dimension);
+            if (!$dimensionKey instanceof AnalysisDimensionKey) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_dimension', ['rows' => $dimension]);
+            }
+        }
+
+        $grain = null;
+        if (\is_string($grainValue) && '' !== $grainValue) {
+            $grain = AnalysisDimensionGrain::tryFrom($grainValue);
+            if (!$grain instanceof AnalysisDimensionGrain) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_dimension', ['grain' => $grainValue]);
+            }
+        }
 
         return $this->resolve(new AnalysisAxisRef($dimensionKey, $grain), $capabilities, $period);
     }

@@ -8,6 +8,7 @@ use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisShape;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class ExplorerTitleFactory
@@ -50,7 +51,11 @@ final readonly class ExplorerTitleFactory
 
     public function titleForConfig(AnalysisViewConfig $config): string
     {
-        return $this->titleForAxes($config->rowAxis, $config->columnAxis);
+        return match (AnalysisShape::fromConfig($config)) {
+            AnalysisShape::TimeSeries,
+            AnalysisShape::Distribution,
+            AnalysisShape::Matrix => $this->titleForAxes($config->rowAxis, $config->columnAxis),
+        };
     }
 
     private function dimensionLabel(AnalysisDimensionKey $dimensionKey): string
