@@ -98,7 +98,7 @@ abstract class AnalysisExplorerShellTestCase extends WebTestCase
     /**
      * @return array{0: \Symfony\UX\LiveComponent\Test\TestLiveComponent, 1: SavedExplorerView, 2: array<string, mixed>}
      */
-    protected function createUserViewShellComponent(): array
+    protected function createUserViewShellComponent(bool $canChangeVisibility = false): array
     {
         $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
@@ -124,6 +124,7 @@ abstract class AnalysisExplorerShellTestCase extends WebTestCase
             'savedViewDescription' => 'Original description',
             'canSave' => true,
             'canSaveAs' => true,
+            'canChangeVisibility' => $canChangeVisibility,
         ])->actingAs($user);
 
         return [$testComponent, $view, $state];

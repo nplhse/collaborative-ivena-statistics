@@ -436,4 +436,75 @@ final class ExplorerConfigMapperTest extends KernelTestCase
         $this->expectException(InvalidExplorerConfigException::class);
         $mapper->viewConfigFromState($state, null);
     }
+
+    public function testOmittedSchemaAndDataSourceStayReadable(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $state = $mapper->toStateArray(self::getContainer()->get(DefaultAnalysisViewFactory::class)->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        )));
+        unset($state['schemaVersion']);
+        $state['dataSource'] = '';
+
+        $restored = $mapper->viewConfigFromState($state, null);
+
+        self::assertSame(AnalysisDataSourceKey::Allocations, $restored->dataSourceKey);
+    }
+
+    public function testUnknownPresentationPopulationAndHospitalFiltersFail(): void
+    {
+        self::bootKernel();
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $state = $mapper->toStateArray(self::getContainer()->get(DefaultAnalysisViewFactory::class)->createDefault(new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        )));
+
+        $invalidStates = [];
+        $chart = $state;
+        $chart['presentation']['chartType'] = 'not_a_chart';
+        $invalidStates[] = $chart;
+
+        $layout = $state;
+        $layout['presentation']['tableLayout'] = 'not_a_layout';
+        $invalidStates[] = $layout;
+
+        $population = $state;
+        $population['query']['hospitalPopulation'] = 'not_a_population';
+        $invalidStates[] = $population;
+
+        $source = $state;
+        $source['dataSource'] = 'not_a_source';
+        $invalidStates[] = $source;
+
+        $grain = $state;
+        $grain['query']['rows']['grain'] = 'not_a_grain';
+        $invalidStates[] = $grain;
+
+        $hospitals = $state;
+        $hospitals['dataSource'] = 'hospitals';
+        $hospitals['query']['filters'] = [['dimensionKey' => 'urgency', 'operator' => 'equals', 'value' => 1]];
+        $invalidStates[] = $hospitals;
+
+        $visual = $state;
+        $visual['query']['visualMetric'] = 'percent_of_total';
+        $invalidStates[] = $visual;
+
+        $failures = 0;
+        foreach ($invalidStates as $invalid) {
+            try {
+                $mapper->viewConfigFromState($invalid, null);
+            } catch (InvalidExplorerConfigException) {
+                ++$failures;
+            }
+        }
+
+        self::assertSame(\count($invalidStates), $failures);
+    }
 }

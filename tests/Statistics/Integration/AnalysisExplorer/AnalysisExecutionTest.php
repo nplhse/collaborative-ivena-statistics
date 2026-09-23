@@ -81,5 +81,6 @@ final class AnalysisExecutionTest extends KernelTestCase
         self::assertStringContainsString('age-group-distribution', $view['explorerUrl']);
         self::assertStringContainsString('usePageScope=1', $view['explorerUrl']);
         self::assertSame('bar', $view['defaultChartType']);
+        self::assertSame($view, $component->view());
     }
 }

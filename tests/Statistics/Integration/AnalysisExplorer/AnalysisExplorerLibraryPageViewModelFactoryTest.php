@@ -592,6 +592,22 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         self::assertNotEmpty($beyond->cards);
     }
 
+    public function testSearchWithNoMatchesReportsAnEmptyRange(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+        $page = $this->factory->create(
+            Request::create('/statistics/analysis/library?'.ExplorerLibraryQueryKeys::SEARCH.'=zzz-no-such-view'),
+            $user,
+        );
+
+        self::assertSame([], $page->cards);
+        self::assertSame(0, $page->resultFrom);
+        self::assertSame(0, $page->resultTo);
+        self::assertSame(0, $page->resultTotal);
+        self::assertSame(1, $page->lastPage);
+        self::assertFalse($page->hasToPaginate);
+    }
+
     /**
      * @return list<array<string, mixed>>
      */

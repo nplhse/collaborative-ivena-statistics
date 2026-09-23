@@ -115,6 +115,17 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         ]);
     }
 
+    public function testFromStateArrayDefaultsABlankOperatorToEquals(): void
+    {
+        $filters = $this->mapper->fromStateArray([
+            ['dimensionKey' => 'urgency', 'value' => 2],
+        ]);
+
+        self::assertCount(1, $filters);
+        self::assertSame(AnalysisFilterOperator::Equals, $filters[0]->operator);
+        self::assertSame(2, $filters[0]->value);
+    }
+
     public function testFromStateArrayRejectsUnknownOperators(): void
     {
         $this->expectException(InvalidExplorerConfigException::class);
