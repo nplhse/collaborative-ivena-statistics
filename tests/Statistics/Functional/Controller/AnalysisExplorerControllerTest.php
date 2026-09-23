@@ -418,6 +418,79 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertSelectorNotExists('.page-pretitle');
     }
 
+    public function testGuideOpensALineChartForTimeSeries(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?scope=public&period=all&guide=time_series&grain=month&metric=allocation_count',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-type-line"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'monthly');
+    }
+
+    public function testGuideOpensAHeatmapForAMatrix(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?scope=public&period=all&guide=matrix&row=weekday&column=hour&metric=allocation_count',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-type-heatmap"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'Weekday');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'Hour');
+    }
+
+    public function testGuideOpensTheChosenChartMetric(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?scope=public&period=all&guide=distribution&row=urgency&metric=resus_rate',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-config-warning"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-type-bar"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'Resuscitation room rate');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-show-percent-field"] input[type="checkbox"][checked]');
+    }
+
+    public function testInvalidGuideFallsBackToTheDefaultAnalysis(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $this->seedProjectionWithAllocation();
+        $client->followRedirects(true);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/explorer?scope=public&period=all&guide=not-a-goal',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-config-warning"]',
+            'standard analysis',
+        );
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-chart-type-bar"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-analysis-explorer-summary"]', 'monthly');
+    }
+
     public function testExistingAnalyticsViewStillWorks(): void
     {
         $client = $this->createClientAsRoleUser();

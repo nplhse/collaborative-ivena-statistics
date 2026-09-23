@@ -91,6 +91,24 @@ final class ExplorerTitleFactoryTest extends TestCase
         )));
     }
 
+    public function testHospitalCrossTabNamesHospitals(): void
+    {
+        $factory = new ExplorerTitleFactory($this->translator([
+            'stats.analysis_explorer.hospitals_cross_tab' => 'Hospitals: {rows} × {columns}',
+            'stats.analysis_explorer.dimension.hospital_location' => 'location',
+            'stats.analysis_explorer.dimension.hospital_tier' => 'care tier',
+        ]));
+
+        self::assertSame(
+            'Hospitals: location × care tier',
+            $factory->titleForAxes(
+                AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalLocation),
+                AnalysisAxisRef::breakdown(AnalysisDimensionKey::HospitalTier),
+                AnalysisDataSourceKey::Hospitals,
+            ),
+        );
+    }
+
     private function config(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis): AnalysisViewConfig
     {
         return new AnalysisViewConfig(
