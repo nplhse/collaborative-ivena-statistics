@@ -37,7 +37,7 @@ The seeder assigns `createdBy` to the admin user (`username: admin`).
 | View type | `isSystem` | `createdBy` | Read | Save | Save As |
 |---|---|---|---|---|---|
 | System view | `true` | admin | everyone | no | yes (participants) |
-| User view | `false` | creator | creator, or `public` and `ROLE_PARTICIPANT` | yes (creator) | yes (creator); the copy is private |
+| User view | `false` | creator | creator, or `public` and `ROLE_PARTICIPANT` | yes (creator) | yes (participants); visibility is chosen in the dialog and defaults to private |
 
 User views are referenced by **numeric id** in URLs (`/statistics/analysis/explorer/{id}`). System views keep legacy slugs for seeding and backward-compatible URLs.
 
@@ -47,7 +47,7 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Overview** (44 system views with category filters), **Favorites**, and **My views** for signed-in users. Participants also see **Public**, the public views of other users. New user views are private. Only the creator can switch a view to public.
+The analysis library **Overview** lists every analysis the viewer may open: system views, their own saved views, and — for participants — public views from other users. The active tab uses the same surface background and primary underline as the Insights subnav. A narrow filter column, laid out like the activity timeline, narrows the active tab by data source, origin, dimension, chart, grain, and username. Data source, origin, dimension, chart, and grain are dropdowns. Active filters are summarized above the results. Category filters follow the subject (allocations or hospitals), including user views via their data source. Cards are listed in a single column, 10 per page, with the same previous, numbered, and next links as the blog. The same row shows the visible range on the left, for example 11–20 of 27, and centers the page links. Library cards use the shared Card component. The title is a primary-colored link that opens the explorer and sits with the favorite control in the card header; provenance, description, and badges sit in the body. Data source sits with the dimension, grain, and chart badges; the hospitals source is labeled Kliniken. Clicking any of those badges applies that filter and keeps the other active filters. **Favorites** and **My views** stay personal. Switching among Overview, Favorites, and My views clears the library filters and keeps the statistics scope and period. Save as lets the creator choose private or public, defaulting to private. Visibility of an existing view changes only in the edit dialog. The creator can delete the view, including a public one, from the edit dialog after a confirmation. The viewer's own private views appear in the overview beside public views from other participants. A private view shows a lock beside the title in the library and on the explorer page; hovering the lock explains that only its owner can see it. Public views have no visibility badge; the author line identifies who created them. Cards and the explorer page show provenance on one line (`admin · 33 minutes ago` or `From the system · 2 months ago`). The saved description sits under the explorer title and on the card.
 
 ### System view labels (i18n)
 
@@ -75,7 +75,6 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 - Hospital time-series views are not a default focus; temporal axes are reserved for allocation-derived hospital metrics in system views.
 - CSV/table export (Alpha): results table as CSV with raw values (server-side `StreamedResponse`) and chart as PNG (client-side via ApexCharts `dataURI`).
 - No URL-encoded config sharing.
-- No delete workflow for saved views.
 - No pivot feature expansion beyond the results table matrix layouts.
 - Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
@@ -158,7 +157,7 @@ Under the chart title, the explorer shows a short human-readable summary of the 
 | UI | `_chart_card.html.twig` subtitle (`data-testid="stats-analysis-explorer-summary"`); chart card has no duplicate analysis title |
 | Filters | Up to 2 inline in the summary; more are abbreviated with a tooltip of the full list (no separate filter badges in the page header) |
 
-This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDescriptionFactory`), which describes the view in the page header.
+This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDescriptionFactory`), which describes the view under the page title, on the library card, and in the edit dialog.
 
 ### Export (Alpha)
 

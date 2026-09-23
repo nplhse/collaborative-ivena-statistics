@@ -62,6 +62,7 @@ final class SavedExplorerViewRepository extends ServiceEntityRepository
     {
         /** @var list<SavedExplorerView> $items */
         $items = $this->createQueryBuilder('v')
+            ->leftJoin('v.createdBy', 'creator')->addSelect('creator')
             ->andWhere('v.isSystem = :isSystem')
             ->andWhere('IDENTITY(v.createdBy) = :userId')
             ->setParameter('isSystem', false)
@@ -96,6 +97,7 @@ final class SavedExplorerViewRepository extends ServiceEntityRepository
     {
         /** @var list<SavedExplorerView> $items */
         $items = $this->createQueryBuilder('v')
+            ->leftJoin('v.createdBy', 'creator')->addSelect('creator')
             ->andWhere('v.isSystem = :isSystem')
             ->andWhere('v.visibility = :visibility')
             ->andWhere('IDENTITY(v.createdBy) != :userId')

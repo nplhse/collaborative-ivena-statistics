@@ -1433,6 +1433,26 @@
         <source>stats.analysis_explorer.library.card.chart</source>
         <target>Diagramm</target>
       </trans-unit>
+      <trans-unit id="statsAex58a" resname="stats.analysis_explorer.library.card.author">
+        <source>stats.analysis_explorer.library.card.author</source>
+        <target>Autor</target>
+      </trans-unit>
+      <trans-unit id="statsAex58b" resname="stats.analysis_explorer.library.card.unknown_author">
+        <source>stats.analysis_explorer.library.card.unknown_author</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="statsAex58c" resname="stats.analysis_explorer.library.card.system_source">
+        <source>stats.analysis_explorer.library.card.system_source</source>
+        <target>Vom System</target>
+      </trans-unit>
+      <trans-unit id="statsAex58d" resname="stats.analysis_explorer.library.card.created_at">
+        <source>stats.analysis_explorer.library.card.created_at</source>
+        <target>Erstellt</target>
+      </trans-unit>
+      <trans-unit id="statsAex58e" resname="stats.analysis_explorer.library.card.updated_at">
+        <source>stats.analysis_explorer.library.card.updated_at</source>
+        <target>Zuletzt gespeichert</target>
+      </trans-unit>
       <trans-unit id="statsAex56" resname="stats.analysis_explorer.library.card.dimension">
         <source>stats.analysis_explorer.library.card.dimension</source>
         <target>Dimension</target>
@@ -1451,7 +1471,7 @@
       </trans-unit>
       <trans-unit id="statsAex55h" resname="stats.analysis_explorer.library.category.hospitals">
         <source>stats.analysis_explorer.library.category.hospitals</source>
-        <target>Krankenhäuser</target>
+        <target>Kliniken</target>
       </trans-unit>
       <trans-unit id="statsAex76" resname="stats.analysis_explorer.library.category.my_views">
         <source>stats.analysis_explorer.library.category.my_views</source>
@@ -1484,6 +1504,10 @@
       <trans-unit id="statsAex54a" resname="stats.analysis_explorer.library.empty_title">
         <source>stats.analysis_explorer.library.empty_title</source>
         <target>Keine Ansichten gefunden</target>
+      </trans-unit>
+      <trans-unit id="statsAex54r" resname="stats.analysis_explorer.library.pagination.range">
+        <source>stats.analysis_explorer.library.pagination.range</source>
+        <target>{first}–{last} von {total}</target>
       </trans-unit>
       <trans-unit id="statsAex53" resname="stats.analysis_explorer.library.open">
         <source>stats.analysis_explorer.library.open</source>
@@ -1520,6 +1544,34 @@
       <trans-unit id="statsAex54b" resname="stats.analysis_explorer.library.tab.overview">
         <source>stats.analysis_explorer.library.tab.overview</source>
         <target>Übersicht</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o1" resname="stats.analysis_explorer.library.origin.label">
+        <source>stats.analysis_explorer.library.origin.label</source>
+        <target>Herkunft</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o2" resname="stats.analysis_explorer.library.origin.all">
+        <source>stats.analysis_explorer.library.origin.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o3" resname="stats.analysis_explorer.library.origin.system">
+        <source>stats.analysis_explorer.library.origin.system</source>
+        <target>System</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o4" resname="stats.analysis_explorer.library.origin.public">
+        <source>stats.analysis_explorer.library.origin.public</source>
+        <target>Öffentlich</target>
+      </trans-unit>
+      <trans-unit id="statsAex54u1" resname="stats.analysis_explorer.library.filter.user">
+        <source>stats.analysis_explorer.library.filter.user</source>
+        <target>Benutzer</target>
+      </trans-unit>
+      <trans-unit id="statsAex54u2" resname="stats.analysis_explorer.library.filter.user_placeholder">
+        <source>stats.analysis_explorer.library.filter.user_placeholder</source>
+        <target>Benutzername</target>
+      </trans-unit>
+      <trans-unit id="statsAex54f1" resname="stats.analysis_explorer.library.empty.filtered">
+        <source>stats.analysis_explorer.library.empty.filtered</source>
+        <target>Keine Ansichten entsprechen diesem Filter.</target>
       </trans-unit>
       <trans-unit id="statsAex51" resname="stats.analysis_explorer.library.title">
         <source>stats.analysis_explorer.library.title</source>
@@ -1653,10 +1705,6 @@
         <source>stats.analysis_explorer.open_library</source>
         <target>Bibliothek</target>
       </trans-unit>
-      <trans-unit id="statsAex02" resname="stats.analysis_explorer.pretitle">
-        <source>stats.analysis_explorer.pretitle</source>
-        <target>Statistik</target>
-      </trans-unit>
       <trans-unit id="statsAex40" resname="stats.analysis_explorer.query_failed">
         <source>stats.analysis_explorer.query_failed</source>
         <target>Die Analyse-Abfrage ist fehlgeschlagen. Bitte versuchen Sie es erneut oder passen Sie die Filter an.</target>
@@ -1669,9 +1717,57 @@
         <source>stats.analysis_explorer.visibility.private</source>
         <target>Privat</target>
       </trans-unit>
+      <trans-unit id="statsAex61h" resname="stats.analysis_explorer.visibility.private_hint">
+        <source>stats.analysis_explorer.visibility.private_hint</source>
+        <target>Privater View, den nur der jeweilige Benutzer sehen kann.</target>
+      </trans-unit>
       <trans-unit id="statsAex61u" resname="stats.analysis_explorer.visibility.public">
         <source>stats.analysis_explorer.visibility.public</source>
         <target>Öffentlich</target>
+      </trans-unit>
+      <trans-unit id="statsAexVis01" resname="stats.analysis_explorer.save_as.visibility_label">
+        <source>stats.analysis_explorer.save_as.visibility_label</source>
+        <target>Sichtbarkeit</target>
+      </trans-unit>
+      <trans-unit id="statsAexVis02" resname="stats.analysis_explorer.save_as.visibility_private_help">
+        <source>stats.analysis_explorer.save_as.visibility_private_help</source>
+        <target>Nur Sie können diese Ansicht sehen.</target>
+      </trans-unit>
+      <trans-unit id="statsAexVis03" resname="stats.analysis_explorer.save_as.visibility_public_help">
+        <source>stats.analysis_explorer.save_as.visibility_public_help</source>
+        <target>Alle Teilnehmenden können diese Ansicht lesen.</target>
+      </trans-unit>
+      <trans-unit id="statsAexEd01" resname="stats.analysis_explorer.edit_view.open">
+        <source>stats.analysis_explorer.edit_view.open</source>
+        <target>Bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="statsAexEd02" resname="stats.analysis_explorer.edit_view.title">
+        <source>stats.analysis_explorer.edit_view.title</source>
+        <target>Ansicht bearbeiten</target>
+      </trans-unit>
+      <trans-unit id="statsAexEd03" resname="stats.analysis_explorer.edit_view.submit">
+        <source>stats.analysis_explorer.edit_view.submit</source>
+        <target>Änderungen speichern</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel01" resname="stats.analysis_explorer.delete.action">
+        <source>stats.analysis_explorer.delete.action</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel02" resname="stats.analysis_explorer.delete.modal.title">
+        <source>stats.analysis_explorer.delete.modal.title</source>
+        <target>Ansicht löschen?</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel03" resname="stats.analysis_explorer.delete.modal.body">
+        <source>stats.analysis_explorer.delete.modal.body</source>
+        <target>Möchten Sie „{name}“ wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel04" resname="stats.analysis_explorer.delete.modal.confirm">
+        <source>stats.analysis_explorer.delete.modal.confirm</source>
+        <target>Endgültig löschen</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel05" resname="stats.analysis_explorer.delete.flash">
+        <source>stats.analysis_explorer.delete.flash</source>
+        <target>Die Ansicht wurde gelöscht.</target>
       </trans-unit>
       <trans-unit id="statsAex80" resname="stats.analysis_explorer.save.forbidden">
         <source>stats.analysis_explorer.save.forbidden</source>
