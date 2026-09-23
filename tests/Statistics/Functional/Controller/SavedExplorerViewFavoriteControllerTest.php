@@ -89,6 +89,9 @@ final class SavedExplorerViewFavoriteControllerTest extends WebTestCase
         $requestStack->push($request);
         try {
             $token = $client->getContainer()->get('security.csrf.token_manager')->getToken($tokenId);
+            if ($request->hasSession()) {
+                $request->getSession()->save();
+            }
         } finally {
             $requestStack->pop();
         }

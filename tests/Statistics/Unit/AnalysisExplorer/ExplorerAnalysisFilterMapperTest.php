@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\AnalysisExplorer;
 
 use App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisFilterMapper;
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisFilter;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisFilterOperator;
@@ -93,19 +94,34 @@ final class ExplorerAnalysisFilterMapperTest extends TestCase
         self::assertSame(1, $restored[1]->value);
     }
 
-    public function testFromStateArraySkipsInvalidRowsAndUnknownDimensions(): void
+    public function testFromStateArraySkipsNonArrayRows(): void
     {
         $filters = $this->mapper->fromStateArray([
             'not-an-array',
-            ['dimensionKey' => 'evil', 'operator' => 'equals', 'value' => 1],
             ['dimensionKey' => 'gender', 'operator' => 'equals', 'value' => 1],
-            ['dimensionKey' => 'urgency', 'operator' => 'unknown', 'value' => 2],
         ]);
 
-        self::assertCount(2, $filters);
+        self::assertCount(1, $filters);
         self::assertSame('gender', $filters[0]->dimensionKey);
-        self::assertSame('urgency', $filters[1]->dimensionKey);
-        self::assertSame(AnalysisFilterOperator::Equals, $filters[1]->operator);
+        self::assertSame(1, $filters[0]->value);
+    }
+
+    public function testFromStateArrayRejectsUnknownDimensions(): void
+    {
+        $this->expectException(InvalidExplorerConfigException::class);
+
+        $this->mapper->fromStateArray([
+            ['dimensionKey' => 'evil', 'operator' => 'equals', 'value' => 1],
+        ]);
+    }
+
+    public function testFromStateArrayRejectsUnknownOperators(): void
+    {
+        $this->expectException(InvalidExplorerConfigException::class);
+
+        $this->mapper->fromStateArray([
+            ['dimensionKey' => 'urgency', 'operator' => 'unknown', 'value' => 2],
+        ]);
     }
 
     public function testApplyToFormDataCoercesStringAndListValues(): void
