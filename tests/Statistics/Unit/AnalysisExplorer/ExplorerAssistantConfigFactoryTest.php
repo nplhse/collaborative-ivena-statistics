@@ -262,6 +262,75 @@ final class ExplorerAssistantConfigFactoryTest extends TestCase
         self::assertNull($this->factory()->create($query, $this->filter()));
     }
 
+    public function testMissingGoalIsIncompleteUntilTheQueryIsMalformed(): void
+    {
+        $incomplete = new ExplorerAssistantQuery(
+            null,
+            null,
+            null,
+            null,
+            null,
+            AnalysisMetricKey::AllocationCount,
+            AnalysisDataSourceKey::Allocations,
+            ExplorerAssistantFilters::none(),
+            false,
+        );
+        $malformed = new ExplorerAssistantQuery(
+            null,
+            null,
+            null,
+            null,
+            null,
+            AnalysisMetricKey::AllocationCount,
+            AnalysisDataSourceKey::Allocations,
+            ExplorerAssistantFilters::none(),
+            true,
+        );
+
+        self::assertSame(ExplorerAssistantReadiness::Incomplete, $this->factory()->status($incomplete));
+        self::assertSame(ExplorerAssistantReadiness::Unsupported, $this->factory()->status($malformed));
+        self::assertNull($this->factory()->create($malformed, $this->filter()));
+    }
+
+    public function testMalformedGuideIsUnsupportedWhenTheGoalIsAlreadyKnown(): void
+    {
+        $query = $this->query(
+            goal: ExplorerAssistantGoal::TimeSeries,
+            malformed: true,
+        );
+
+        self::assertSame(ExplorerAssistantReadiness::Unsupported, $this->factory()->status($query));
+        self::assertNull($this->factory()->create($query, $this->filter()));
+    }
+
+    public function testTimeSeriesRejectsAGrainOutsideTheAssistantCatalog(): void
+    {
+        $query = $this->query(
+            goal: ExplorerAssistantGoal::TimeSeries,
+            row: AnalysisDimensionKey::Time,
+            grain: AnalysisDimensionGrain::Total,
+        );
+
+        self::assertSame(ExplorerAssistantReadiness::Unsupported, $this->factory()->status($query));
+        self::assertNull($this->factory()->create($query, $this->filter()));
+    }
+
+    public function testTemporalColumnUsesTheChosenColumnGrain(): void
+    {
+        $config = $this->factory()->create($this->query(
+            goal: ExplorerAssistantGoal::Matrix,
+            row: AnalysisDimensionKey::Weekday,
+            column: AnalysisDimensionKey::Time,
+            columnGrain: AnalysisDimensionGrain::Quarter,
+        ), $this->filter());
+
+        self::assertNotNull($config);
+        self::assertNotNull($config->columnAxis);
+        self::assertSame(AnalysisDimensionKey::Time, $config->columnAxis->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Quarter, $config->columnAxis->resolvedGrain());
+        self::assertSame(ChartPresentationType::Heatmap, $config->presentation->chartType);
+    }
+
     public function testExplorerDimensionOutsideTheAssistantCatalogIsReady(): void
     {
         $query = $this->query(
@@ -297,17 +366,19 @@ final class ExplorerAssistantConfigFactoryTest extends TestCase
         ?AnalysisMetricKey $metric = null,
         ?ExplorerAssistantFilters $filters = null,
         AnalysisDataSourceKey $dataSource = AnalysisDataSourceKey::Allocations,
+        ?AnalysisDimensionGrain $columnGrain = null,
+        bool $malformed = false,
     ): ExplorerAssistantQuery {
         return new ExplorerAssistantQuery(
             $goal,
             $row,
             $column,
             $grain,
-            null,
+            $columnGrain,
             $metric ?? AnalysisMetricKey::AllocationCount,
             $dataSource,
             $filters ?? ExplorerAssistantFilters::none(),
-            false,
+            $malformed,
         );
     }
 

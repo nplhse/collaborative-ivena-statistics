@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\State;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
+use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
@@ -18,6 +24,7 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
+    use RefreshesStatisticsFunctionalDataTrait;
 
     public function testFirstStepShowsFourGoalCards(): void
     {
@@ -321,6 +328,72 @@ final class AnalysisExplorerAssistantControllerTest extends WebTestCase
             '[data-testid="stats-analysis-explorer-assistant-summary-title"]',
             'Hospitals: Location × Care tier',
         );
+    }
+
+    public function testNewQueryResetsTheAssistantAndKeepsTheScopeParameters(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->followRedirects(false);
+
+        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant?scope=public&hospital=9&cohort=urban_basic&state=3&dispatch_area=4&period=quarter&year=2024&month=5&quarter=2&new=1');
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('/statistics/analysis/assistant', $location);
+        self::assertStringNotContainsString('new=', $location);
+        self::assertStringContainsString('scope=public', $location);
+        self::assertStringContainsString('hospital=9', $location);
+        self::assertStringContainsString('period=quarter', $location);
+        self::assertStringContainsString('quarter=2', $location);
+    }
+
+    public function testUnavailableCohortRedirectsTheAssistantAndCancelToPublicScope(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $client->followRedirects(false);
+
+        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant?scope=hospital_cohort&cohort=urban_basic&period=all');
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('/statistics/analysis/assistant', $location);
+        self::assertStringContainsString('scope=public', $location);
+        self::assertStringNotContainsString('cohort=', $location);
+
+        $client->request(Request::METHOD_GET, '/statistics/analysis/assistant/cancel?scope=hospital_cohort&cohort=urban_basic&period=all');
+
+        $this->assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('/statistics/analysis/assistant/cancel', $location);
+        self::assertStringContainsString('scope=public', $location);
+    }
+
+    public function testAssistantAcceptsStateDispatchCohortHospitalAndMyHospitals(): void
+    {
+        $client = self::createClient();
+        $this->seedEligibleUrbanBasicCohort($client);
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $client->loginUser($admin);
+
+        $entities = self::getContainer()->get(EntityManagerInterface::class);
+        $state = $entities->getRepository(State::class)->findOneBy(['name' => 'Dashboard Cohort State']);
+        $dispatchArea = $entities->getRepository(DispatchArea::class)->findOneBy(['name' => 'Dashboard Cohort Dispatch']);
+        $hospital = $entities->getRepository(Hospital::class)->findOneBy(['name' => 'Dashboard Cohort Hospital A']);
+        self::assertNotNull($state?->getId());
+        self::assertNotNull($dispatchArea?->getId());
+        self::assertNotNull($hospital?->getId());
+
+        foreach ([
+            '/statistics/analysis/assistant?scope=state&state='.$state->getId().'&period=all',
+            '/statistics/analysis/assistant?scope=dispatch_area&dispatch_area='.$dispatchArea->getId().'&period=all',
+            '/statistics/analysis/assistant?scope=hospital_cohort&cohort=urban_basic&period=all',
+            '/statistics/analysis/assistant?scope=my_hospitals&period=all',
+            '/statistics/analysis/assistant?scope=hospital&hospital='.$hospital->getId().'&period=all',
+        ] as $url) {
+            $client->request(Request::METHOD_GET, $url);
+            $this->assertResponseIsSuccessful();
+            $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-title"]');
+        }
     }
 
     private function submitButton(KernelBrowser $client, string $label): void
