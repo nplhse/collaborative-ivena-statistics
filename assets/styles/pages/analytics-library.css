@@ -45,6 +45,30 @@
     border-color: color-mix(in srgb, var(--tblr-primary) 40%, var(--tblr-border-color));
 }
 
+.analytics-assistant-entry {
+    background-color: var(--tblr-primary-lt, var(--tblr-bg-surface-secondary));
+    border-color: color-mix(in srgb, var(--tblr-primary) 35%, var(--tblr-border-color));
+}
+
+button.analytics-assistant-goal {
+    color: inherit;
+    background-color: var(--tblr-bg-surface, #fff);
+}
+
+.analytics-assistant-goal:hover {
+    border-color: color-mix(in srgb, var(--tblr-primary) 45%, var(--tblr-border-color));
+}
+
+.assistant-steps .step-item.is-disabled {
+    color: var(--tblr-disabled-color);
+    pointer-events: none;
+}
+
+.assistant-steps .step-item.is-disabled:before,
+.assistant-steps .step-item.is-disabled:after {
+    background: var(--tblr-steps-inactive-color);
+}
+
 .analytics-library-pagination-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

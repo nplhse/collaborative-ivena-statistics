@@ -7,6 +7,7 @@ Interactive statistics explorer for ad-hoc allocation analyses. It replaces the 
 | Page | Route |
 |---|---|
 | Analysis library (subnav entry) | `/statistics/analysis/library` |
+| Analysis assistant | `/statistics/analysis/assistant` |
 | Analysis Explorer (default) | `/statistics/analysis/explorer` |
 | Analysis Explorer (saved view) | `/statistics/analysis/explorer/{view}` |
 
@@ -68,13 +69,25 @@ AnalysisExplorerController (saved view route)
 
 Invalid saved config falls back to the default analysis and shows `stats.analysis_explorer.saved_view.invalid_config`.
 
+## Guided assistant
+
+The library shows an entry card above the tabs. It links to `/statistics/analysis/assistant` and keeps the current scope so a new visit can seed the form. Without a period in the address, the assistant starts at the full history. A user who can use their own hospitals, and who is not a hospital-scope admin, gets that scope when the address has no scope, the same way as the other statistics pages. The label is “Meine Krankenhäuser”. The assistant is a Symfony FormFlow. The steps are question, data, scope, structure, filters, and summary. Scope and period come after the data step and only for allocations. Hospital analyses skip that step. They also skip filters; that step stays in the list and is disabled. The session stores the draft. The data step chooses allocations or hospitals. The card header shows the current step as a title and states what that step sets. Tabler's steps component sits below the form. A completed step opens again when its point is clicked. The first step cancels the draft and returns to the library. Later steps move back and forward. The page header does not open the analysis-context dialog.
+
+The structure step sets the row dimension in its own field. The time-series question starts with allocations grouped by year. Other questions start with an empty row. A temporal row shows its grain beside it, defaulting to year. Changing scope or period reloads only those fields. The two-characteristic question also asks for the second characteristic, with its own grain when that characteristic is temporal and the row is not. Its suggestions are allocation pairs such as weekday and hour. Hospital analyses offer hospital pairs such as location and care tier, size and care tier, location and size, and state and care tier, and a toplist offers tier, size, location, and state. Titles name hospitals instead of allocations when that source is selected. Then one chart metric that the chosen axes allow. The second characteristic is required for that question and turns the chart into a heatmap. The same row and column is rejected. `percent_of_total` is not a chart metric. An allocations time series stays a line chart. A toplist stays a bar chart limited to the top 10. Hospital analyses use a bar chart, or a heatmap for the two-characteristic question. Filters are optional. Allocation analyses group them like the explorer filter drawer: demographics, allocation, and clinical care. A filter that is already a row or column is hidden. Hospital analyses skip the filter step. The summary lists the choice like an order and can jump back to each earlier step.
+
+`guide`, `row`, `column`, `grain`, `columnGrain`, `metric`, `dataSource`, and any set filter keys are not the wizard state. They are added only when the finished draft opens the explorer, together with the scope and period from the form.
+
+`ExplorerAssistantConfigFactory` turns that choice into an `AnalysisViewConfig` for the chosen data source. The chosen metric is both `visualMetricKey` and the only entry in `metricKeys`. Set filters land on `AnalysisViewConfig.filters`. The same normalizer and validator as the explorer accept the result. An invalid combination is discarded.
+
+Opening the proposal goes to the blank explorer. When `guide` is present, `AnalysisExplorerController` replaces the default start configuration. Afterwards the shell is a normal editable analysis: it can be refined, filtered, saved, and exported. There is no separate assistant store or query.
+
 ## Current limitations (intentional)
 
 - Public user views are readable by `ROLE_PARTICIPANT`. Guests do not see them. There is no organization-wide audience.
 - Two data sources: `allocations` (default blank explorer) and `hospitals` (master-data snapshot). The active source is fixed per saved view via `configJson.dataSource`; hospital analyses are opened from the library or via `?dataSource=hospitals` on the blank explorer route only.
 - Hospital time-series views are not a default focus; temporal axes are reserved for allocation-derived hospital metrics in system views.
 - CSV/table export (Alpha): results table as CSV with raw values (server-side `StreamedResponse`) and chart as PNG (client-side via ApexCharts `dataURI`).
-- No URL-encoded config sharing.
+- No URL-encoded config sharing. The analysis assistant may open the blank explorer with start parameters `guide`, `row`, `column`, `grain`, `columnGrain`, `metric`, `dataSource`, and the allocation filter keys that were set. Those name an analysis; they are not a serialized configuration.
 - No pivot feature expansion beyond the results table matrix layouts.
 - Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.

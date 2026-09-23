@@ -4881,6 +4881,26 @@
         <source>stats.analysis_explorer.allocations_cross_tab</source>
         <target>Allocations: {rows} × {columns}</target>
       </trans-unit>
+      <trans-unit id="statsAexHs01" resname="stats.analysis_explorer.hospitals_by_dimension">
+        <source>stats.analysis_explorer.hospitals_by_dimension</source>
+        <target>Hospitals by {dimension}</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs02" resname="stats.analysis_explorer.hospitals_by_dimension_by_temporal">
+        <source>stats.analysis_explorer.hospitals_by_dimension_by_temporal</source>
+        <target>Hospitals by {dimension} by {temporal}</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs03" resname="stats.analysis_explorer.hospitals_by_dimension_over_time">
+        <source>stats.analysis_explorer.hospitals_by_dimension_over_time</source>
+        <target>Hospitals by {dimension} over time</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs04" resname="stats.analysis_explorer.hospitals_cross_tab">
+        <source>stats.analysis_explorer.hospitals_cross_tab</source>
+        <target>Hospitals: {rows} × {columns}</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs05" resname="stats.analysis_explorer.hospitals_over_time">
+        <source>stats.analysis_explorer.hospitals_over_time</source>
+        <target>Hospitals over time</target>
+      </trans-unit>
       <trans-unit id="statsAex135" resname="stats.analysis_explorer.description.breakdown_by_temporal">
         <source>stats.analysis_explorer.description.breakdown_by_temporal</source>
         <target>Allocation counts by {dimension}, grouped by {temporal}.</target>
@@ -6748,6 +6768,278 @@
       <trans-unit id="StatsInsCmp38" resname="stats.insights.compare.disable">
         <source>stats.insights.compare.disable</source>
         <target>Stop comparing</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs01" resname="stats.analysis_explorer.assistant.entry.title">
+        <source>stats.analysis_explorer.assistant.entry.title</source>
+        <target>Which analysis fits my question?</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs02" resname="stats.analysis_explorer.assistant.entry.description">
+        <source>stats.analysis_explorer.assistant.entry.description</source>
+        <target>Answer a few short questions and let the assistant create a suitable analysis.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs03" resname="stats.analysis_explorer.assistant.entry.action">
+        <source>stats.analysis_explorer.assistant.entry.action</source>
+        <target>Start</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs04" resname="stats.analysis_explorer.assistant.title">
+        <source>stats.analysis_explorer.assistant.title</source>
+        <target>Analysis assistant</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs05" resname="stats.analysis_explorer.assistant.pretitle">
+        <source>stats.analysis_explorer.assistant.pretitle</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs06" resname="stats.analysis_explorer.assistant.step.goal">
+        <source>stats.analysis_explorer.assistant.step.goal</source>
+        <target>Choose a question</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs07" resname="stats.analysis_explorer.assistant.change_goal">
+        <source>stats.analysis_explorer.assistant.change_goal</source>
+        <target>Choose a different question</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs08" resname="stats.analysis_explorer.assistant.open">
+        <source>stats.analysis_explorer.assistant.open</source>
+        <target>Open in Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs09" resname="stats.analysis_explorer.assistant.update">
+        <source>stats.analysis_explorer.assistant.update</source>
+        <target>Update proposal</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs37" resname="stats.analysis_explorer.assistant.back">
+        <source>stats.analysis_explorer.assistant.back</source>
+        <target>Back</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs38" resname="stats.analysis_explorer.assistant.next">
+        <source>stats.analysis_explorer.assistant.next</source>
+        <target>Next</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs39" resname="stats.analysis_explorer.assistant.incomplete">
+        <source>stats.analysis_explorer.assistant.incomplete</source>
+        <target>Choose the characteristics for this question first.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs40" resname="stats.analysis_explorer.assistant.context.title">
+        <source>stats.analysis_explorer.assistant.context.title</source>
+        <target>What this analysis covers</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs41" resname="stats.analysis_explorer.assistant.context.description">
+        <source>stats.analysis_explorer.assistant.context.description</source>
+        <target>Scope and period apply to the analysis that opens in the explorer.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs42" resname="stats.analysis_explorer.assistant.refresh">
+        <source>stats.analysis_explorer.assistant.refresh</source>
+        <target>Refresh</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs10" resname="stats.analysis_explorer.assistant.choose">
+        <source>stats.analysis_explorer.assistant.choose</source>
+        <target>Please choose</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs11" resname="stats.analysis_explorer.assistant.grain.label">
+        <source>stats.analysis_explorer.assistant.grain.label</source>
+        <target>Time grouping</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs12" resname="stats.analysis_explorer.assistant.characteristic.label">
+        <source>stats.analysis_explorer.assistant.characteristic.label</source>
+        <target>Characteristic</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs13" resname="stats.analysis_explorer.assistant.rows.label">
+        <source>stats.analysis_explorer.assistant.rows.label</source>
+        <target>First characteristic</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs14" resname="stats.analysis_explorer.assistant.columns.label">
+        <source>stats.analysis_explorer.assistant.columns.label</source>
+        <target>Second characteristic</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs15" resname="stats.analysis_explorer.assistant.measure.label">
+        <source>stats.analysis_explorer.assistant.measure.label</source>
+        <target>What should the result show?</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs16" resname="stats.analysis_explorer.assistant.measure.count">
+        <source>stats.analysis_explorer.assistant.measure.count</source>
+        <target>Number of allocations</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs17" resname="stats.analysis_explorer.assistant.measure.share">
+        <source>stats.analysis_explorer.assistant.measure.share</source>
+        <target>Number and share of the total</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs18" resname="stats.analysis_explorer.assistant.suggestions">
+        <source>stats.analysis_explorer.assistant.suggestions</source>
+        <target>Common combinations</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs19" resname="stats.analysis_explorer.assistant.toplist_suggestions">
+        <source>stats.analysis_explorer.assistant.toplist_suggestions</source>
+        <target>Often useful</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs20" resname="stats.analysis_explorer.assistant.pair">
+        <source>stats.analysis_explorer.assistant.pair</source>
+        <target>{rows} × {columns}</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs21" resname="stats.analysis_explorer.assistant.same_axis">
+        <source>stats.analysis_explorer.assistant.same_axis</source>
+        <target>Choose two different characteristics.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs22" resname="stats.analysis_explorer.assistant.invalid">
+        <source>stats.analysis_explorer.assistant.invalid</source>
+        <target>This combination is not available.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs23" resname="stats.analysis_explorer.assistant.invalid_config">
+        <source>stats.analysis_explorer.assistant.invalid_config</source>
+        <target>This combination cannot be opened. The explorer shows the standard analysis instead.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs24" resname="stats.analysis_explorer.assistant.goal.time_series.title">
+        <source>stats.analysis_explorer.assistant.goal.time_series.title</source>
+        <target>Development over time</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs25" resname="stats.analysis_explorer.assistant.goal.time_series.description">
+        <source>stats.analysis_explorer.assistant.goal.time_series.description</source>
+        <target>Explore how the number of allocations changes over time.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs26" resname="stats.analysis_explorer.assistant.goal.distribution.title">
+        <source>stats.analysis_explorer.assistant.goal.distribution.title</source>
+        <target>Distribution of a characteristic</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs27" resname="stats.analysis_explorer.assistant.goal.distribution.description">
+        <source>stats.analysis_explorer.assistant.goal.distribution.description</source>
+        <target>Explore how allocations are distributed across urgency, age group, gender, or another characteristic.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs28" resname="stats.analysis_explorer.assistant.goal.toplist.title">
+        <source>stats.analysis_explorer.assistant.goal.toplist.title</source>
+        <target>Most frequent categories</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs29" resname="stats.analysis_explorer.assistant.goal.toplist.description">
+        <source>stats.analysis_explorer.assistant.goal.toplist.description</source>
+        <target>Identify the most frequent indications, departments, assignments, or other categories.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs30" resname="stats.analysis_explorer.assistant.goal.matrix.title">
+        <source>stats.analysis_explorer.assistant.goal.matrix.title</source>
+        <target>Relationship between two characteristics</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs31" resname="stats.analysis_explorer.assistant.goal.matrix.description">
+        <source>stats.analysis_explorer.assistant.goal.matrix.description</source>
+        <target>Explore combinations such as weekday and hour of day, or department and urgency.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs32" resname="stats.analysis_explorer.assistant.presentation.time_series">
+        <source>stats.analysis_explorer.assistant.presentation.time_series</source>
+        <target>Displayed as a line chart with a results table.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs33" resname="stats.analysis_explorer.assistant.presentation.distribution">
+        <source>stats.analysis_explorer.assistant.presentation.distribution</source>
+        <target>Displayed as a bar chart with a results table.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs34" resname="stats.analysis_explorer.assistant.presentation.toplist">
+        <source>stats.analysis_explorer.assistant.presentation.toplist</source>
+        <target>The chart shows the ten most frequent values. The table lists every value.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs35" resname="stats.analysis_explorer.assistant.presentation.matrix">
+        <source>stats.analysis_explorer.assistant.presentation.matrix</source>
+        <target>Displayed as a heatmap with a results table.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs36" resname="stats.analysis_explorer.assistant.presentation.share">
+        <source>stats.analysis_explorer.assistant.presentation.share</source>
+        <target>The chart shows the number of allocations. The table also includes the share of the total.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs43" resname="stats.analysis_explorer.assistant.step_name.goal">
+        <source>stats.analysis_explorer.assistant.step_name.goal</source>
+        <target>Question</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs44" resname="stats.analysis_explorer.assistant.step_name.context">
+        <source>stats.analysis_explorer.assistant.step_name.context</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs45" resname="stats.analysis_explorer.assistant.step_name.questions">
+        <source>stats.analysis_explorer.assistant.step_name.questions</source>
+        <target>Structure</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs46" resname="stats.analysis_explorer.assistant.step_name.filters">
+        <source>stats.analysis_explorer.assistant.step_name.filters</source>
+        <target>Filters</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs47" resname="stats.analysis_explorer.assistant.step_name.summary">
+        <source>stats.analysis_explorer.assistant.step_name.summary</source>
+        <target>Summary</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs48" resname="stats.analysis_explorer.assistant.step_lead.goal">
+        <source>stats.analysis_explorer.assistant.step_lead.goal</source>
+        <target>Choose a question.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs49" resname="stats.analysis_explorer.assistant.step_lead.context">
+        <source>stats.analysis_explorer.assistant.step_lead.context</source>
+        <target>Scope and period apply to the analysis that opens in the explorer.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs50" resname="stats.analysis_explorer.assistant.step_lead.questions">
+        <source>stats.analysis_explorer.assistant.step_lead.questions</source>
+        <target>Choose the first characteristic and the chart metric. The relationship between two characteristics also asks for the second one.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs51" resname="stats.analysis_explorer.assistant.step_lead.filters">
+        <source>stats.analysis_explorer.assistant.step_lead.filters</source>
+        <target>Narrow the allocations. Every filter can stay open.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs52" resname="stats.analysis_explorer.assistant.step_lead.summary">
+        <source>stats.analysis_explorer.assistant.step_lead.summary</source>
+        <target>This is the analysis that will open in the explorer.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs53" resname="stats.analysis_explorer.assistant.cancel">
+        <source>stats.analysis_explorer.assistant.cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs54" resname="stats.analysis_explorer.assistant.columns.optional">
+        <source>stats.analysis_explorer.assistant.columns.optional</source>
+        <target>Column</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs55" resname="stats.analysis_explorer.assistant.columns.none">
+        <source>stats.analysis_explorer.assistant.columns.none</source>
+        <target>No column</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs56" resname="stats.analysis_explorer.assistant.metric.label">
+        <source>stats.analysis_explorer.assistant.metric.label</source>
+        <target>Chart metric</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs57" resname="stats.analysis_explorer.assistant.presentation.details">
+        <source>stats.analysis_explorer.assistant.presentation.details</source>
+        <target>The chart shows {metric}{column}{filters}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs58" resname="stats.analysis_explorer.assistant.presentation.column_part">
+        <source>stats.analysis_explorer.assistant.presentation.column_part</source>
+        <target>, with columns by {column}</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs59" resname="stats.analysis_explorer.assistant.presentation.filters_part">
+        <source>stats.analysis_explorer.assistant.presentation.filters_part</source>
+        <target>, limited to {filters}</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs60" resname="stats.analysis_explorer.assistant.presentation.box_plot">
+        <source>stats.analysis_explorer.assistant.presentation.box_plot</source>
+        <target>Displayed as a box plot with a results table.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs61" resname="stats.analysis_explorer.assistant.step_name.source">
+        <source>stats.analysis_explorer.assistant.step_name.source</source>
+        <target>Data</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs62" resname="stats.analysis_explorer.assistant.step_lead.source">
+        <source>stats.analysis_explorer.assistant.step_lead.source</source>
+        <target>Choose whether the analysis uses allocations or hospitals.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs63" resname="stats.analysis_explorer.assistant.summary.edit">
+        <source>stats.analysis_explorer.assistant.summary.edit</source>
+        <target>Change</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs64" resname="stats.analysis_explorer.assistant.summary.none">
+        <source>stats.analysis_explorer.assistant.summary.none</source>
+        <target>None</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs65" resname="stats.analysis_explorer.assistant.filters.empty">
+        <source>stats.analysis_explorer.assistant.filters.empty</source>
+        <target>This data set has no allocation filters. Continue to the summary.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs66" resname="stats.analysis_explorer.assistant.structure.row">
+        <source>stats.analysis_explorer.assistant.structure.row</source>
+        <target>Row</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs67" resname="stats.analysis_explorer.assistant.structure.column">
+        <source>stats.analysis_explorer.assistant.structure.column</source>
+        <target>Optional column</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs68" resname="stats.analysis_explorer.assistant.structure.metric">
+        <source>stats.analysis_explorer.assistant.structure.metric</source>
+        <target>Metric</target>
       </trans-unit>
     </body>
   </file>

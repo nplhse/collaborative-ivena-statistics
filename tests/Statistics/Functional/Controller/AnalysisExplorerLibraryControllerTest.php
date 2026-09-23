@@ -177,6 +177,30 @@ final class AnalysisExplorerLibraryControllerTest extends WebTestCase
         self::assertSame('Private view that only its owner can see.', $lock->attr('title'));
     }
 
+    public function testLibraryShowsAssistantEntryWithCurrentScope(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/analysis/library?scope=public&period=all',
+        );
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-assistant-entry"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="stats-analysis-explorer-assistant-entry"]',
+            'Which analysis fits my question?',
+        );
+        $link = $client->getCrawler()->filter('[data-testid="stats-analysis-explorer-assistant-entry-link"]');
+        self::assertGreaterThan(0, $link->count());
+        $href = (string) $link->attr('href');
+        self::assertStringContainsString('/statistics/analysis/assistant', $href);
+        self::assertStringContainsString('scope=public', $href);
+        self::assertStringNotContainsString('period=', $href);
+        $this->assertSelectorExists('[data-testid="stats-analysis-explorer-library-search-input"]');
+    }
+
     private function openPageContainingCard(KernelBrowser $client, Crawler $crawler, string $selector): Crawler
     {
         $page = 1;

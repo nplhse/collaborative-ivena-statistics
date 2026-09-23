@@ -187,20 +187,18 @@
             <section class="content">
                 {{ include('@Statistics/_data_quality_drawer.html.twig') }}
                 {% if activeFilters is not empty %}
-                    <div class="d-flex flex-wrap gap-1 mb-3" data-testid="stats-analysis-explorer-filter-badges">
-                        {% for badge in activeFilters %}
-                            <span class="badge bg-blue-lt d-inline-flex align-items-center gap-1">
-                                <strong>{{ badge.label }}:</strong> {{ badge.value }}
-                                <button type="button"
-                                        class="btn-close btn-close-sm"
-                                        data-action="live#action"
-                                        data-live-action-param="removeAnalysisFilter"
-                                        data-live-dimension-param="{{ badge.key }}"
-                                        aria-label="{{ 'label.filters.reset'|trans({}, 'messages') }}"
-                                        data-testid="stats-analysis-explorer-filter-badge-{{ badge.key }}"></button>
-                            </span>
-                        {% endfor %}
-                    </div>
+                    {% set activeFilterBadges = [] %}
+                    {% for badge in activeFilters %}
+                        {% set activeFilterBadges = activeFilterBadges|merge([{
+                            label: badge.label,
+                            value: badge.value,
+                        }]) %}
+                    {% endfor %}
+                    <twig:ActiveFilters
+                        :badges="activeFilterBadges"
+                        class="mb-3"
+                        data-testid="stats-analysis-explorer-filter-badges"
+                    />
                 {% endif %}
                 {{ form_start(form, {attr: {
                     'data-testid': 'stats-analysis-explorer-edit-form',

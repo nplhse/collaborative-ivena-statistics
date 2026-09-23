@@ -8,15 +8,18 @@ use App\Analytics\Application\UsageEvents\UsageAnalytics;
 use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactoryRegistry;
+use App\Statistics\AnalysisExplorer\Application\ExplorerAssistantConfigResolver;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
 use App\Statistics\AnalysisExplorer\Application\ExplorerViewActivityPresenter;
 use App\Statistics\AnalysisExplorer\Application\ExplorerViewAuthorPresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLabelResolver;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
+use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
+use App\Statistics\AnalysisExplorer\UI\Http\ExplorerAssistantQueryFactory;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
@@ -46,6 +49,8 @@ final class AnalysisExplorerController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $overviewPeriodViewModelFactory,
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly DefaultAnalysisViewFactoryRegistry $defaultAnalysisViewFactory,
+        private readonly ExplorerAssistantConfigResolver $assistantConfigResolver,
+        private readonly ExplorerAssistantQueryFactory $assistantQueryFactory,
         private readonly ExplorerConfigMapper $explorerConfigMapper,
         private readonly SavedExplorerViewLoader $savedExplorerViewLoader,
         private readonly SavedExplorerViewFavoriteService $favoriteService,
@@ -73,6 +78,22 @@ final class AnalysisExplorerController extends AbstractController
         $dataSource = $this->resolveDataSource($request);
         $defaultConfig = $this->defaultAnalysisViewFactory->createDefault($dataSource, $pageContext->filter);
         $appliedState = $this->explorerConfigMapper->toStateArray($defaultConfig);
+        $initialConfigWarning = null;
+        if ($request->query->has(ExplorerQueryKeys::GUIDE)) {
+            $guided = $this->assistantConfigResolver->resolve(
+                $this->assistantQueryFactory->fromRequest($request),
+                $pageContext->filter,
+            );
+            if ($guided instanceof AnalysisViewConfig) {
+                $appliedState = $this->explorerConfigMapper->toStateArray($guided);
+            } else {
+                $initialConfigWarning = $this->translator->trans(
+                    'stats.analysis_explorer.assistant.invalid_config',
+                    [],
+                    'statistics',
+                );
+            }
+        }
         $appliedState = $this->mergeChartTopQueryOverride($request, $appliedState);
 
         $this->usageAnalytics->record(UsageEventName::ANALYSIS_EXPLORER_OPENED, FeatureArea::Analysis);
@@ -81,7 +102,7 @@ final class AnalysisExplorerController extends AbstractController
             $this->buildViewPresentation(null, $user),
             [
                 'explorerAppliedConfigState' => $appliedState,
-                'initialConfigWarning' => null,
+                'initialConfigWarning' => $initialConfigWarning,
                 'libraryUrl' => $this->libraryUrl($request),
                 'exportCsvUrl' => $this->exportCsvUrl(),
             ],

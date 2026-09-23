@@ -158,6 +158,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             resultFrom: $pagination['resultFrom'],
             resultTo: $pagination['resultTo'],
             resultTotal: $pagination['resultTotal'],
+            assistantUrl: $this->router->generate('app_stats_analysis_assistant', array_merge($this->assistantScopeQuery($request), ['new' => '1'])),
         );
     }
 
@@ -737,6 +738,22 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
                 : null,
             'favoriteToken' => $canFavorite ? 'explorer_favorite_'.$viewId : null,
         ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function assistantScopeQuery(Request $request): array
+    {
+        $query = $this->scopeQuery($request);
+        unset(
+            $query[StatisticsQueryKeys::PERIOD],
+            $query[StatisticsQueryKeys::YEAR],
+            $query[StatisticsQueryKeys::MONTH],
+            $query[StatisticsQueryKeys::QUARTER],
+        );
+
+        return $query;
     }
 
     /**

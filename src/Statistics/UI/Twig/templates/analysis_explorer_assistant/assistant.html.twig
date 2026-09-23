@@ -1,0 +1,356 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.analysis_explorer.assistant.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}
+            {{ include('@Shared/_includes/subnav_stats.html.twig') }}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <twig:PageHeader
+        :pretitle="'stats.analysis_explorer.assistant.pretitle'|trans({}, 'statistics')"
+        :title="'stats.analysis_explorer.assistant.title'|trans({}, 'statistics')"
+        pretitleTestId="stats-analysis-explorer-assistant-pretitle"
+        titleTestId="stats-analysis-explorer-assistant-title"
+    >
+        <twig:block name="breadcrumbs">
+            <twig:Breadcrumbs :items="[
+                { label: 'link.statistics', path: path('app_stats_dashboard') },
+                { label: 'stats.analysis_explorer.library.title', path: assistantPage.libraryUrl },
+                { label: 'stats.analysis_explorer.assistant.title' }
+            ]" />
+        </twig:block>
+        <twig:block name="meta">
+            {{ include('@Statistics/_data_quality_indicator.html.twig') }}
+        </twig:block>
+        <twig:block name="actions">
+            {{ include('@Statistics/_header_actions.html.twig') }}
+        </twig:block>
+    </twig:PageHeader>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/_data_quality_drawer.html.twig') }}
+
+    {% set page = assistantPage %}
+    {% set goalIcons = {
+        time_series: 'tabler:chart-line',
+        distribution: 'tabler:chart-bar',
+        toplist: 'tabler:list-numbers',
+        matrix: 'tabler:layout-grid',
+    } %}
+    <div data-testid="stats-analysis-explorer-assistant">
+        {{ form_start(form, {
+            action: page.formAction,
+            attr: {
+                autocomplete: 'off',
+                'data-turbo': 'false',
+                'data-controller': 'assistant-context',
+                'data-testid': 'stats-analysis-explorer-assistant-form',
+            },
+        }) }}
+            <twig:Card
+                data-testid="stats-analysis-explorer-assistant-card"
+                footerClass="d-flex justify-content-between align-items-center gap-2"
+            >
+                <twig:block name="header">
+                    {% set currentStep = page.steps|filter(step => step.state == 'current')|first %}
+                    <div class="w-100">
+                        <h2 class="card-title mb-1" data-testid="stats-analysis-explorer-assistant-step-title">
+                            {{ currentStep.label }}
+                        </h2>
+                        <p class="text-secondary mb-0" data-testid="stats-analysis-explorer-assistant-step-lead">
+                            {{ page.stepDescription }}
+                        </p>
+                    </div>
+                </twig:block>
+
+                {% if page.step == 'context' %}
+                    <div id="assistant-dependent-fields" class="row g-3" data-testid="stats-analysis-explorer-assistant-context-fields">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.context.scopePeriod.scopeGroup.vars.id }}">
+                                {{ 'stats.filter.scope_label'|trans({}, 'statistics') }}
+                            </label>
+                            {{ form_widget(form.context.scopePeriod.scopeGroup, {attr: {
+                                'data-action': 'change->assistant-context#refresh',
+                                'data-testid': 'stats-analysis-explorer-assistant-scope',
+                            }}) }}
+                            {{ form_errors(form.context.scopePeriod.scopeGroup) }}
+                            {% if form.context.scopePeriod.scopeDetail is defined %}
+                                <div class="mt-2">
+                                    {{ form_widget(form.context.scopePeriod.scopeDetail, {attr: {
+                                        'data-testid': 'stats-analysis-explorer-assistant-scope-detail',
+                                    }}) }}
+                                    {{ form_errors(form.context.scopePeriod.scopeDetail) }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.context.scopePeriod.period.vars.id }}">
+                                {{ 'stats.filter.period_label'|trans({}, 'statistics') }}
+                            </label>
+                            {{ form_widget(form.context.scopePeriod.period, {attr: {
+                                'data-action': 'change->assistant-context#refresh',
+                                'data-testid': 'stats-analysis-explorer-assistant-period',
+                            }}) }}
+                            {{ form_errors(form.context.scopePeriod.period) }}
+                            {% if form.context.scopePeriod.periodYear is defined or form.context.scopePeriod.periodQuarter is defined or form.context.scopePeriod.periodMonth is defined %}
+                                <div class="row g-2 mt-2">
+                                    {% if form.context.scopePeriod.periodYear is defined %}
+                                        <div class="col">
+                                            {{ form_widget(form.context.scopePeriod.periodYear, {attr: {
+                                                'data-testid': 'stats-analysis-explorer-assistant-period-year',
+                                            }}) }}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.context.scopePeriod.periodQuarter is defined %}
+                                        <div class="col">
+                                            {{ form_widget(form.context.scopePeriod.periodQuarter, {attr: {
+                                                'data-testid': 'stats-analysis-explorer-assistant-period-quarter',
+                                            }}) }}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.context.scopePeriod.periodMonth is defined %}
+                                        <div class="col">
+                                            {{ form_widget(form.context.scopePeriod.periodMonth, {attr: {
+                                                'data-testid': 'stats-analysis-explorer-assistant-period-month',
+                                            }}) }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% do form.context.setRendered %}
+                {% elseif page.step == 'goal' %}
+                    <div class="row row-cols-2 g-3" data-testid="stats-analysis-explorer-assistant-goals">
+                        {% for goal in form.goal %}
+                            <div class="col d-flex">
+                                <button type="submit"
+                                        name="{{ goal.vars.full_name }}"
+                                        class="card card-body card-link w-100 text-start analytics-assistant-goal"
+                                        data-testid="stats-analysis-explorer-assistant-goal-{{ goal.vars.name }}">
+                                    <span class="d-flex align-items-start gap-3">
+                                        <span class="avatar avatar-sm bg-primary-lt">
+                                            <twig:ux:icon name="{{ goalIcons[goal.vars.name] }}" class="icon" />
+                                        </span>
+                                        <span>
+                                            <span class="d-block card-title mb-1">{{ goal.vars.label|trans({}, 'statistics') }}</span>
+                                            <span class="d-block text-secondary">{{ ('stats.analysis_explorer.assistant.goal.' ~ goal.vars.name ~ '.description')|trans({}, 'statistics') }}</span>
+                                        </span>
+                                    </span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% do form.goal.setRendered %}
+                {% elseif page.step == 'source' %}
+                    <div class="row row-cols-2 g-3" data-testid="stats-analysis-explorer-assistant-sources">
+                        {% for source in form.source %}
+                            <div class="col d-flex">
+                                <button type="submit"
+                                        name="{{ source.vars.full_name }}"
+                                        class="card card-body card-link w-100 text-start analytics-assistant-goal"
+                                        data-testid="stats-analysis-explorer-assistant-source-{{ source.vars.name }}">
+                                    <span class="d-block card-title mb-1">{{ source.vars.label|trans({}, 'statistics') }}</span>
+                                    <span class="d-block text-secondary">{{ ('stats.analysis_explorer.data_source.context.' ~ source.vars.name)|trans({}, 'statistics') }}</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% do form.source.setRendered %}
+                {% elseif page.step == 'summary' %}
+                    <h3 class="mb-3" data-testid="stats-analysis-explorer-assistant-goal-heading">{{ page.goalTitle }}</h3>
+                    <div data-testid="stats-analysis-explorer-assistant-summary">
+                        <h3 class="h4 mb-1" data-testid="stats-analysis-explorer-assistant-summary-title">
+                            {{ page.summaryTitle }}
+                        </h3>
+                        <p class="text-secondary" data-testid="stats-analysis-explorer-assistant-summary-presentation">
+                            {{ page.summaryPresentation }}
+                        </p>
+                        <div class="table-responsive">
+                            <table class="table table-vcenter table-striped" data-testid="stats-analysis-explorer-assistant-summary-lines">
+                                <tbody>
+                                    {% for line in page.summaryLines %}
+                                        <tr>
+                                            <th class="w-25">{{ line.label }}</th>
+                                            <td>{{ line.value }}</td>
+                                            <td class="w-1 text-end">
+                                                {% if line.showEdit and attribute(form.summary, 'edit_' ~ line.editStep) is defined %}
+                                                    {{ form_widget(attribute(form.summary, 'edit_' ~ line.editStep)) }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% do form.summary.setRendered %}
+                {% elseif page.step == 'filters' %}
+                    {% import '@Statistics/analysis_explorer/_edit_accordion_macros.html.twig' as editAccordion %}
+                    <h3 class="mb-3" data-testid="stats-analysis-explorer-assistant-goal-heading">{{ page.goalTitle }}</h3>
+                    <div data-testid="stats-analysis-explorer-assistant-filters">
+                        {% if form.filters|length == 0 %}
+                            <p class="text-secondary mb-0" data-testid="stats-analysis-explorer-assistant-filters-empty">
+                                {{ 'stats.analysis_explorer.assistant.filters.empty'|trans({}, 'statistics') }}
+                            </p>
+                        {% endif %}
+                        <div class="accordion accordion-flush" id="assistant-filter-accordion">
+                            {% set filterSections = [
+                                {
+                                    id: 'demographics',
+                                    title: 'stats.indication.section.demographics'|trans({}, 'statistics'),
+                                    fields: ['filterGender', 'filterAgeGroup'],
+                                },
+                                {
+                                    id: 'allocation',
+                                    title: 'label.allocation'|trans({}, 'messages'),
+                                    fields: ['filterDepartmentId', 'filterSpecialityId', 'filterIndicationId', 'filterSecondaryIndicationId', 'filterIndicationGroupId', 'filterUrgency', 'filterTransportType', 'filterAssignmentId'],
+                                },
+                                {
+                                    id: 'clinical',
+                                    title: 'stats.analysis_explorer.dimension_group.clinical_care'|trans({}, 'statistics'),
+                                    fields: ['filterResus', 'filterCpr', 'filterVentilation'],
+                                },
+                            ] %}
+                            {% for section in filterSections %}
+                                {% set sectionFields = [] %}
+                                {% for fieldName in section.fields %}
+                                    {% if attribute(form.filters, fieldName) is defined %}
+                                        {% set sectionFields = sectionFields|merge([attribute(form.filters, fieldName)]) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% if sectionFields is not empty %}
+                                    {% set sectionExpanded = sectionFields|filter(field => field.vars.data is not null and field.vars.data != '')|length > 0 %}
+                                    <div class="accordion-item">
+                                        {{ editAccordion.header(
+                                            'assistant-filter-' ~ section.id ~ '-heading',
+                                            'assistant-filter-' ~ section.id ~ '-panel',
+                                            section.title,
+                                            'stats-analysis-explorer-assistant-filter-section-' ~ section.id,
+                                            sectionExpanded,
+                                        ) }}
+                                        {{ editAccordion.panel_start('assistant-filter-' ~ section.id ~ '-panel', 'assistant-filter-' ~ section.id ~ '-heading', sectionExpanded) }}
+                                            <div class="accordion-body">
+                                                <div class="row g-3">
+                                                    {% for field in sectionFields %}
+                                                        <div class="col-md-6">{{ form_row(field) }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {{ editAccordion.panel_end() }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% do form.filters.setRendered %}
+                {% else %}
+                    <h3 class="mb-3" data-testid="stats-analysis-explorer-assistant-goal-heading">{{ page.goalTitle }}</h3>
+
+                    {% if form.questions.vars.errors|length > 0 %}
+                        <twig:Alert type="warning" class="py-2 mb-3" data-testid="stats-analysis-explorer-assistant-notice">
+                            {{ form_errors(form.questions) }}
+                        </twig:Alert>
+                    {% endif %}
+
+                    {% set suggestionLabel = page.goal == 'toplist'
+                        ? 'stats.analysis_explorer.assistant.toplist_suggestions'
+                        : 'stats.analysis_explorer.assistant.suggestions' %}
+                    {% set suggestions = [] %}
+                    {% for child in form.questions %}
+                        {% if child.vars.name starts with 'suggestion_' %}
+                            {% set suggestions = suggestions|merge([child]) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if suggestions is not empty %}
+                        <div class="mb-3">
+                            <div class="form-label">{{ suggestionLabel|trans({}, 'statistics') }}</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for suggestion in suggestions %}
+                                    {{ form_widget(suggestion) }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4" data-testid="stats-analysis-explorer-assistant-structure-row">
+                        <div class="row g-3">
+                            {% if form.questions.row is defined %}
+                                <div class="{{ form.questions.grain is defined ? 'col-md-6' : 'col-12' }}">
+                                    {{ form_row(form.questions.row) }}
+                                </div>
+                            {% endif %}
+                            {% if form.questions.grain is defined %}
+                                <div class="col-md-6">{{ form_row(form.questions.grain) }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if form.questions.column is defined %}
+                        <div class="mb-4" data-testid="stats-analysis-explorer-assistant-structure-column">
+                            <div class="row g-3">
+                                <div class="{{ form.questions.columnGrain is defined ? 'col-md-6' : 'col-12' }}">
+                                    {{ form_row(form.questions.column) }}
+                                </div>
+                                {% if form.questions.columnGrain is defined %}
+                                    <div class="col-md-6">{{ form_row(form.questions.columnGrain) }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div data-testid="stats-analysis-explorer-assistant-structure-metric">
+                        {% if form.questions.metric is defined %}
+                            {{ form_row(form.questions.metric) }}
+                        {% endif %}
+                    </div>
+                    {% do form.questions.setRendered %}
+                {% endif %}
+
+                <ul class="steps steps-counter steps-blue assistant-steps mt-4 mb-0 ms-0 ps-0 border-0" data-testid="stats-analysis-explorer-assistant-steps">
+                    {% for step in page.steps %}
+                        <li class="step-item{{ step.state == 'current' ? ' active' : '' }}{{ step.state == 'disabled' ? ' is-disabled' : '' }}"
+                            data-testid="stats-analysis-explorer-assistant-step-{{ step.id }}"
+                            {% if step.state == 'current' %}aria-current="step"{% endif %}
+                            {% if step.state == 'disabled' %}aria-disabled="true"{% endif %}>
+                            {% if step.state == 'complete' and form['jump_' ~ step.id] is defined %}
+                                {{ form_widget(form['jump_' ~ step.id]) }}
+                            {% else %}
+                                {{ step.label }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <twig:block name="footer">
+                    {% if page.step == 'goal' %}
+                        <a class="btn"
+                           href="{{ page.cancelUrl }}"
+                           data-testid="stats-analysis-explorer-assistant-back">
+                            {{ 'stats.analysis_explorer.assistant.cancel'|trans({}, 'statistics') }}
+                        </a>
+                    {% elseif form.previous is defined %}
+                        {{ form_widget(form.previous) }}
+                    {% endif %}
+                    {% if form.next is defined or form.finish is defined %}
+                        <div class="ms-auto d-flex gap-2">
+                            {% if form.next is defined %}
+                                {{ form_widget(form.next) }}
+                            {% endif %}
+                            {% if form.finish is defined %}
+                                {{ form_widget(form.finish) }}
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% if form.refresh is defined %}
+                        {{ form_widget(form.refresh) }}
+                    {% endif %}
+                </twig:block>
+            </twig:Card>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
