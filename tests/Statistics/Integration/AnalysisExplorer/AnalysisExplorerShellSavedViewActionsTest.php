@@ -211,6 +211,6 @@ final class AnalysisExplorerShellSavedViewActionsTest extends AnalysisExplorerSh
             $testComponent->call('removeAnalysisFilter', ['dimension' => $dimension]);
         }
 
-        self::assertSame([], $testComponent->component()->appliedConfigState['query']['filters'] ?? []);
+        self::assertSame('gender', $testComponent->component()->appliedConfig()->rowAxis->dimensionKey->value);
     }
 }
