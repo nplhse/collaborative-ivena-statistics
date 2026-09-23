@@ -40,7 +40,7 @@ final class AllocationsCapabilitiesProviderTest extends TestCase
             $capabilities->timeGrainsFor(AnalysisDimensionKey::Time),
         );
         self::assertSame(
-            [AnalysisDimensionGrain::Total, AnalysisDimensionGrain::Month, AnalysisDimensionGrain::Year],
+            [AnalysisDimensionGrain::Total],
             $capabilities->timeGrainsFor(AnalysisDimensionKey::Gender),
         );
     }

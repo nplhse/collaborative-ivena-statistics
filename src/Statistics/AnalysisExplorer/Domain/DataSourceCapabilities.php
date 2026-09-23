@@ -9,6 +9,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisShape;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 
@@ -44,11 +45,7 @@ final readonly class DataSourceCapabilities
             return $this->timeGrains;
         }
 
-        return [
-            AnalysisDimensionGrain::Total,
-            AnalysisDimensionGrain::Month,
-            AnalysisDimensionGrain::Year,
-        ];
+        return [AnalysisDimensionGrain::Total];
     }
 
     /**
@@ -78,11 +75,13 @@ final readonly class DataSourceCapabilities
             return ChartPresentationType::BoxPlot;
         }
 
-        if ($this->usesMultiSeriesChart($config)) {
-            return ChartPresentationType::GroupedBar;
-        }
-
-        return ChartPresentationType::Bar;
+        return match (AnalysisShape::fromConfig($config)) {
+            AnalysisShape::Matrix => ChartPresentationType::GroupedBar,
+            AnalysisShape::TimeSeries => $this->usesMultiSeriesChart($config)
+                ? ChartPresentationType::GroupedBar
+                : ChartPresentationType::Bar,
+            AnalysisShape::Distribution => ChartPresentationType::Bar,
+        };
     }
 
     public function supports(AnalysisViewConfig $config): bool
@@ -130,11 +129,11 @@ final readonly class DataSourceCapabilities
 
         $grain = $axis->resolvedGrain();
 
-        if (!\in_array($grain, $this->timeGrainsFor($axis->dimensionKey), true)) {
-            return false;
+        if (AnalysisDimensionKey::Time === $axis->dimensionKey && AnalysisDimensionGrain::Total === $grain) {
+            return true;
         }
 
-        return AnalysisDimensionKey::Time !== $axis->dimensionKey || AnalysisDimensionGrain::Total !== $grain;
+        return \in_array($grain, $this->timeGrainsFor($axis->dimensionKey), true);
     }
 
     public function supportsColumnAxis(AnalysisAxisRef $rowAxis, AnalysisAxisRef $columnAxis): bool

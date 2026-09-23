@@ -13,8 +13,8 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
-use App\Statistics\AnalysisExplorer\Domain\Enum\PresentationMode;
 use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 use App\Statistics\AnalysisExplorer\UI\Form\Data\ExplorerEditFormData;
 use App\Statistics\Application\DTO\StatisticsFilter;
@@ -37,7 +37,6 @@ final readonly class ExplorerConfigMapper
         private AnalysisAxisUpgradeMapper $axisUpgradeMapper,
         private ExplorerConfigPreviewFactory $previewFactory,
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
-        private ExplorerTableLayoutResolver $tableLayoutResolver,
         private ExplorerAnalysisFilterMapper $analysisFilterMapper,
         private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
     ) {
@@ -94,10 +93,6 @@ final readonly class ExplorerConfigMapper
             $visualMetricKey = $metricKeys[0];
         }
 
-        if (TableLayout::Flat === $tableLayout && $columnAxis instanceof AnalysisAxisRef) {
-            $tableLayout = $this->tableLayoutResolver->resolveForConfig($preview);
-        }
-
         $chartRowLimit = ExplorerChartRowLimit::fromValue($formData->chartRowLimit);
         if ($rowAxis->dimensionKey->isTemporalPrimary()) {
             $chartRowLimit = ExplorerChartRowLimit::All;
@@ -112,7 +107,6 @@ final readonly class ExplorerConfigMapper
             ->withMetrics($metricKeys, $visualMetricKey)
             ->withPresentation(new PresentationConfig(
                 chartType: $chartType,
-                mode: PresentationMode::Chart,
                 tableLayout: $tableLayout,
                 chartRowLimit: $chartRowLimit,
             ))
@@ -146,7 +140,6 @@ final readonly class ExplorerConfigMapper
             'dataSource' => $config->dataSourceKey->value,
             'query' => $query,
             'presentation' => [
-                'mode' => $config->presentation->mode->value,
                 'chartType' => $config->presentation->chartType->value,
                 'tableLayout' => $config->presentation->tableLayout->value,
                 'chartRowLimit' => $config->presentation->chartRowLimit->value,
@@ -160,14 +153,17 @@ final readonly class ExplorerConfigMapper
      */
     public function viewConfigFromState(array $state, ?User $user): AnalysisViewConfig
     {
+        $this->assertSchemaVersion($state);
+
         if ($this->isLegacyFlatState($state)) {
             $state = $this->upgradeLegacyState($state);
         }
 
         $state = $this->upgradeMetricState($state);
         $state = $this->upgradeAxisState($state);
+        $this->assertCatalog($state);
 
-        $dataSourceKey = AnalysisDataSourceKey::tryFrom((string) ($state['dataSource'] ?? 'allocations')) ?? AnalysisDataSourceKey::Allocations;
+        $dataSourceKey = $this->requireDataSource($state);
 
         $scopePeriod = $this->scopePeriodFromState($state);
         $filter = $this->statisticsFilterFactory->createFromInput(
@@ -249,7 +245,7 @@ final readonly class ExplorerConfigMapper
             $query['rows'] = $viewPreferences['rows'];
             $query['columns'] = $viewPreferences['columns'] ?? null;
         } elseif (isset($viewPreferences['dimension'])) {
-            $dimensionKey = AnalysisDimensionKey::tryFrom((string) $viewPreferences['dimension']) ?? AnalysisDimensionKey::Time;
+            $dimensionKey = $this->requireDimensionKey((string) $viewPreferences['dimension']);
             $grain = $this->resolveLegacyGrain($dimensionKey, $viewPreferences['grain'] ?? null);
             [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
             $query['rows'] = $rowAxis->toStateArray();
@@ -269,7 +265,6 @@ final readonly class ExplorerConfigMapper
                 'hospitalPopulation' => (string) ($viewPreferences['hospitalPopulation'] ?? ExplorerHospitalPopulationMode::Participating->value),
             ]),
             'presentation' => [
-                'mode' => PresentationMode::Chart->value,
                 'chartType' => $viewPreferences['chartType'] ?? ChartPresentationType::Bar->value,
                 'tableLayout' => $viewPreferences['tableLayout'] ?? TableLayout::Flat->value,
                 'chartRowLimit' => $viewPreferences['chartRowLimit'] ?? ExplorerChartRowLimit::All->value,
@@ -375,7 +370,7 @@ final readonly class ExplorerConfigMapper
             return [$rowAxis, $columnAxis];
         }
 
-        $dimensionKey = AnalysisDimensionKey::tryFrom((string) ($queryState['dimension'] ?? 'time')) ?? AnalysisDimensionKey::Time;
+        $dimensionKey = $this->requireDimensionKey((string) ($queryState['dimension'] ?? 'time'));
         $grain = $this->resolveLegacyGrain($dimensionKey, $queryState['grain'] ?? null);
         [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
 
@@ -404,7 +399,7 @@ final readonly class ExplorerConfigMapper
             return $state;
         }
 
-        $dimensionKey = AnalysisDimensionKey::tryFrom((string) $state['query']['dimension']) ?? AnalysisDimensionKey::Time;
+        $dimensionKey = $this->requireDimensionKey((string) $state['query']['dimension']);
         $grain = $this->resolveLegacyGrain($dimensionKey, $state['query']['grain'] ?? null);
         [$rowAxis, $columnAxis] = $this->axisUpgradeMapper->fromLegacyDimension($dimensionKey, $grain);
 
@@ -497,28 +492,25 @@ final readonly class ExplorerConfigMapper
         if (isset($queryState['metrics']) && \is_array($queryState['metrics'])) {
             $metricKeys = [];
             foreach ($queryState['metrics'] as $metric) {
-                $key = AnalysisMetricKey::tryFrom((string) $metric);
-                if ($key instanceof AnalysisMetricKey) {
-                    $metricKeys[] = $key;
-                }
+                $metricKeys[] = $this->requireMetricKey((string) $metric);
             }
 
             if ([] === $metricKeys) {
-                $metricKeys = [AnalysisMetricKey::AllocationCount];
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric');
             }
 
-            $visualMetric = AnalysisMetricKey::tryFrom((string) ($queryState['visualMetric'] ?? ''))
-                ?? $metricKeys[0];
+            $visualMetric = \array_key_exists('visualMetric', $queryState)
+                ? $this->requireMetricKey((string) $queryState['visualMetric'])
+                : $metricKeys[0];
 
             if (!\in_array($visualMetric, $metricKeys, true)) {
-                $visualMetric = $metricKeys[0];
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', ['metric' => $visualMetric->value]);
             }
 
             return [$metricKeys, $visualMetric];
         }
 
-        $legacyMetric = AnalysisMetricKey::tryFrom((string) ($queryState['metric'] ?? AnalysisMetricKey::AllocationCount->value))
-            ?? AnalysisMetricKey::AllocationCount;
+        $legacyMetric = $this->requireMetricKey((string) ($queryState['metric'] ?? AnalysisMetricKey::AllocationCount->value));
 
         return [[$legacyMetric], $legacyMetric];
     }
@@ -603,7 +595,6 @@ final readonly class ExplorerConfigMapper
                 'grain' => $grain,
             ],
             'presentation' => [
-                'mode' => PresentationMode::Chart->value,
                 'chartType' => (string) ($state['chartType'] ?? ChartPresentationType::Bar->value),
             ],
             'title' => (string) ($state['title'] ?? ''),
@@ -654,12 +645,106 @@ final readonly class ExplorerConfigMapper
     private function resolveLegacyGrain(AnalysisDimensionKey $dimensionKey, mixed $grainValue): AnalysisDimensionGrain
     {
         if (\is_string($grainValue) && '' !== $grainValue) {
-            return AnalysisDimensionGrain::tryFrom($grainValue)
-                ?? ($dimensionKey->isTemporalPrimary() ? AnalysisDimensionGrain::Month : AnalysisDimensionGrain::Total);
+            $grain = AnalysisDimensionGrain::tryFrom($grainValue);
+            if (!$grain instanceof AnalysisDimensionGrain) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_dimension', ['grain' => $grainValue]);
+            }
+
+            return $grain;
         }
 
         return $dimensionKey->isTemporalPrimary()
             ? AnalysisDimensionGrain::Month
             : AnalysisDimensionGrain::Total;
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     */
+    private function assertSchemaVersion(array $state): void
+    {
+        if (!isset($state['schemaVersion'])) {
+            return;
+        }
+
+        if ((int) $state['schemaVersion'] > self::SCHEMA_VERSION) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.saved_view.invalid_config');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     */
+    private function assertCatalog(array $state): void
+    {
+        $this->requireDataSource($state);
+
+        $presentation = \is_array($state['presentation'] ?? null) ? $state['presentation'] : [];
+        if (\array_key_exists('chartType', $presentation)) {
+            $chartType = ChartPresentationType::tryFrom((string) $presentation['chartType']);
+            if (!$chartType instanceof ChartPresentationType) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_chart', ['chart' => (string) $presentation['chartType']]);
+            }
+        }
+
+        if (\array_key_exists('tableLayout', $presentation) && '' !== (string) $presentation['tableLayout']) {
+            $tableLayout = TableLayout::tryFrom((string) $presentation['tableLayout']);
+            if (!$tableLayout instanceof TableLayout) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid');
+            }
+        }
+
+        $query = \is_array($state['query'] ?? null) ? $state['query'] : [];
+        if (\array_key_exists('hospitalPopulation', $query) && '' !== (string) $query['hospitalPopulation']) {
+            $population = ExplorerHospitalPopulationMode::tryFrom((string) $query['hospitalPopulation']);
+            if (!$population instanceof ExplorerHospitalPopulationMode) {
+                throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid');
+            }
+        }
+
+        if (AnalysisDataSourceKey::Hospitals === $this->requireDataSource($state)
+            && isset($query['filters'])
+            && \is_array($query['filters'])
+            && [] !== $query['filters']
+        ) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $state
+     */
+    private function requireDataSource(array $state): AnalysisDataSourceKey
+    {
+        if (!\array_key_exists('dataSource', $state) || '' === (string) $state['dataSource']) {
+            return AnalysisDataSourceKey::Allocations;
+        }
+
+        $dataSourceKey = AnalysisDataSourceKey::tryFrom((string) $state['dataSource']);
+        if (!$dataSourceKey instanceof AnalysisDataSourceKey) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.invalid', ['dataSource' => (string) $state['dataSource']]);
+        }
+
+        return $dataSourceKey;
+    }
+
+    private function requireDimensionKey(string $value): AnalysisDimensionKey
+    {
+        $dimensionKey = AnalysisDimensionKey::tryFrom($value);
+        if (!$dimensionKey instanceof AnalysisDimensionKey) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_dimension', ['rows' => $value]);
+        }
+
+        return $dimensionKey;
+    }
+
+    private function requireMetricKey(string $value): AnalysisMetricKey
+    {
+        $metricKey = AnalysisMetricKey::tryFrom($value);
+        if (!$metricKey instanceof AnalysisMetricKey) {
+            throw new InvalidExplorerConfigException('stats.analysis_explorer.validation.unsupported_metric', ['metric' => $value]);
+        }
+
+        return $metricKey;
     }
 }

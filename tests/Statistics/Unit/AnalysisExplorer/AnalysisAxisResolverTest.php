@@ -12,6 +12,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigException;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Tests\Statistics\Support\AnalysisExplorerTestSupport;
 use PHPUnit\Framework\TestCase;
@@ -90,7 +91,7 @@ final class AnalysisAxisResolverTest extends TestCase
         self::assertSame(AnalysisDimensionGrain::Year, $resolved->resolvedGrain());
     }
 
-    public function testDoesNotClampBreakdownAxes(): void
+    public function testForcesBreakdownAxesToTotal(): void
     {
         $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
         $resolver = new AnalysisAxisResolver();
@@ -101,7 +102,22 @@ final class AnalysisAxisResolverTest extends TestCase
             StatisticsFilterPeriod::Month,
         );
 
-        self::assertSame(AnalysisDimensionGrain::Month, $resolved->resolvedGrain());
+        self::assertSame(AnalysisDimensionGrain::Total, $resolved->resolvedGrain());
+    }
+
+    public function testKeepsTotalGrainOnTimeAxis(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $resolver = new AnalysisAxisResolver();
+
+        $resolved = $resolver->resolve(
+            AnalysisAxisRef::time(AnalysisDimensionGrain::Total),
+            $capabilities,
+            StatisticsFilterPeriod::AllTime,
+        );
+
+        self::assertSame(AnalysisDimensionGrain::Total, $resolved->resolvedGrain());
+        self::assertSame('allocation_total', $resolved->toRegistryKey());
     }
 
     public function testKeepsRequestedGrainWhenPeriodIsOmitted(): void
@@ -146,5 +162,25 @@ final class AnalysisAxisResolverTest extends TestCase
         );
 
         self::assertSame(AnalysisDimensionGrain::Month, $resolved->resolvedGrain());
+    }
+
+    public function testResolveFromStringsFallsBackToTimeAndRejectsUnknownValues(): void
+    {
+        $capabilities = $this->createAllocationsCapabilitiesProvider()->capabilities();
+        $resolver = new AnalysisAxisResolver();
+
+        $resolved = $resolver->resolveFromStrings('', null, $capabilities);
+
+        self::assertSame(AnalysisDimensionKey::Time, $resolved->dimensionKey);
+        self::assertSame(AnalysisDimensionGrain::Month, $resolved->resolvedGrain());
+
+        try {
+            $resolver->resolveFromStrings('not_a_dimension', 'month', $capabilities);
+            self::fail('Unknown dimensions must fail.');
+        } catch (InvalidExplorerConfigException) {
+        }
+
+        $this->expectException(InvalidExplorerConfigException::class);
+        $resolver->resolveFromStrings('time', 'not_a_grain', $capabilities);
     }
 }

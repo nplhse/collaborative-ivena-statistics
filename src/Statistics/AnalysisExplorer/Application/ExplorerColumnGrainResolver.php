@@ -42,14 +42,16 @@ final readonly class ExplorerColumnGrainResolver
             return AnalysisDimensionGrain::Total;
         }
 
+        if (AnalysisDimensionGrain::Total === $submittedGrain) {
+            return AnalysisDimensionGrain::Total;
+        }
+
         if ($rowAxis->dimensionKey->isTemporalPrimary()) {
             return $rowAxis->resolvedGrain();
         }
 
         $allowedGrains = $capabilities->timeGrainsFor($columnDimension);
-        if ($submittedGrain instanceof AnalysisDimensionGrain
-            && \in_array($submittedGrain, $allowedGrains, true)
-            && AnalysisDimensionGrain::Total !== $submittedGrain) {
+        if ($submittedGrain instanceof AnalysisDimensionGrain && \in_array($submittedGrain, $allowedGrains, true)) {
             return $submittedGrain;
         }
 

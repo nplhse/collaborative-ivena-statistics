@@ -9,4 +9,6 @@ final class ExplorerQueryKeys
     public const string CHART_TOP = 'chartTop';
 
     public const string DATA_SOURCE = 'dataSource';
+
+    public const string USE_PAGE_SCOPE = 'usePageScope';
 }

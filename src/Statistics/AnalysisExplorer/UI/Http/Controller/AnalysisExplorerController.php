@@ -9,6 +9,8 @@ use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactoryRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerViewActivityPresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerViewAuthorPresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLabelResolver;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
@@ -17,6 +19,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerQueryKeys;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsDataQualityReportFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
@@ -47,6 +50,8 @@ final class AnalysisExplorerController extends AbstractController
         private readonly SavedExplorerViewLoader $savedExplorerViewLoader,
         private readonly SavedExplorerViewFavoriteService $favoriteService,
         private readonly SavedExplorerViewLabelResolver $labelResolver,
+        private readonly ExplorerViewAuthorPresenter $authorPresenter,
+        private readonly ExplorerViewActivityPresenter $activityPresenter,
         private readonly UrlGeneratorInterface $router,
         private readonly TranslatorInterface $translator,
         private readonly UsageAnalytics $usageAnalytics,
@@ -97,7 +102,14 @@ final class AnalysisExplorerController extends AbstractController
 
         $pageContext = $this->createPageContext($request, $user, $filter, 'app_stats_analysis_explorer_view');
         $requestedDataSource = $this->resolveExplicitDataSource($request);
-        $loadResult = $this->savedExplorerViewLoader->load($view, $pageContext->filter, $user, $requestedDataSource);
+        $loadResult = $this->savedExplorerViewLoader->load(
+            $view,
+            $pageContext->filter,
+            $user,
+            $requestedDataSource,
+            $this->isGranted('ROLE_PARTICIPANT'),
+            $request->query->getBoolean(ExplorerQueryKeys::USE_PAGE_SCOPE),
+        );
         if ($loadResult->notFound) {
             throw new NotFoundHttpException(sprintf('Explorer view "%s" was not found.', $view));
         }
@@ -133,16 +145,26 @@ final class AnalysisExplorerController extends AbstractController
         $canFavorite = $user instanceof User && $view instanceof SavedExplorerView && null !== $savedViewId;
         $isFavorite = $canFavorite
             && $this->favoriteService->isFavorite($user, $view);
+        $author = $this->authorPresenter->present($view);
+        $activity = $view instanceof SavedExplorerView ? $this->activityPresenter->present($view) : null;
 
         return [
             'savedViewTitle' => $view instanceof SavedExplorerView ? $this->labelResolver->title($view) : null,
             'savedViewDescription' => $view instanceof SavedExplorerView ? $this->labelResolver->description($view) : null,
+            'savedViewAuthorName' => $author['name'],
+            'savedViewAuthorUrl' => $author['url'],
+            'savedViewActivityKind' => null === $activity ? null : $activity['kind'],
+            'savedViewActivityRelative' => null === $activity ? null : $activity['relativeLabel'],
+            'savedViewActivityAbsolute' => null === $activity ? null : $activity['absoluteLabel'],
+            'savedViewActivityIso' => null === $activity ? null : $activity['iso8601'],
             'savedViewId' => $savedViewId,
             'isSystemView' => $isSystemView,
             'canSave' => $canSave,
             'canSaveAs' => $canSaveAs,
             'canFavorite' => $canFavorite,
             'isFavorite' => $isFavorite,
+            'viewVisibility' => $view?->getVisibility()->value ?? AnalysisViewVisibility::Private->value,
+            'canChangeVisibility' => $view instanceof SavedExplorerView && $view->isEditableBy($user),
             'favoriteUrl' => $canFavorite
                 ? $this->generateUrl('app_stats_analysis_explorer_favorite_toggle', ['id' => $savedViewId])
                 : null,

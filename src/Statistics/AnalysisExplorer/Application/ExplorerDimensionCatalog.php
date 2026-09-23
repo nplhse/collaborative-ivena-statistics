@@ -25,7 +25,8 @@ final class ExplorerDimensionCatalog
             ],
             AnalysisDataSourceKey::Hospitals => [
                 ExplorerDimensionCategory::HospitalProfile,
-                ExplorerDimensionCategory::GeographyAndParticipation,
+                ExplorerDimensionCategory::Geography,
+                ExplorerDimensionCategory::Participation,
             ],
         };
     }

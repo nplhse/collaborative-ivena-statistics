@@ -33,6 +33,15 @@ final class SavedExplorerViewFavoriteRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
+    public function deleteForView(SavedExplorerView $view): void
+    {
+        $favorites = $this->findBy(['savedView' => $view]);
+        $entityManager = $this->getEntityManager();
+        foreach ($favorites as $favorite) {
+            $entityManager->remove($favorite);
+        }
+    }
+
     public function findForUserAndView(User $user, SavedExplorerView $view): ?SavedExplorerViewFavorite
     {
         $favorite = $this->findOneBy([
@@ -50,8 +59,9 @@ final class SavedExplorerViewFavoriteRepository extends ServiceEntityRepository
     {
         /** @var list<SavedExplorerView> $items */
         $items = $this->getEntityManager()->createQueryBuilder()
-            ->select('v')
+            ->select('v', 'creator')
             ->from(SavedExplorerView::class, 'v')
+            ->leftJoin('v.createdBy', 'creator')
             ->innerJoin(SavedExplorerViewFavorite::class, 'f', 'WITH', 'f.savedView = v AND IDENTITY(f.user) = :userId')
             ->setParameter('userId', $user->getId(), Types::INTEGER)
             ->orderBy('v.title', 'ASC')

@@ -98,14 +98,13 @@ enum AnalysisDimensionKey: string
                 default => throw new \LogicException(sprintf('Dimension "%s" is not part of the allocations explorer catalog.', $this->value)),
             },
             AnalysisDataSourceKey::Hospitals => match ($this) {
-                self::HospitalEntity,
                 self::HospitalLocation,
                 self::HospitalMasterCohort,
                 self::HospitalSize,
                 self::HospitalTier => ExplorerDimensionCategory::HospitalProfile,
                 self::HospitalDispatchArea,
-                self::HospitalPopulationGroup,
-                self::HospitalState => ExplorerDimensionCategory::GeographyAndParticipation,
+                self::HospitalState => ExplorerDimensionCategory::Geography,
+                self::HospitalPopulationGroup => ExplorerDimensionCategory::Participation,
                 default => throw new \LogicException(sprintf('Dimension "%s" is not part of the hospitals explorer catalog.', $this->value)),
             },
         };
@@ -163,7 +162,6 @@ enum AnalysisDimensionKey: string
             self::HospitalLocation,
             self::HospitalState,
             self::HospitalDispatchArea,
-            self::HospitalEntity,
             self::HospitalPopulationGroup,
         ];
     }

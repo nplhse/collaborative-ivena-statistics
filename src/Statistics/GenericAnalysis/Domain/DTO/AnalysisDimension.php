@@ -12,6 +12,8 @@ use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisDimensionType;
  */
 final readonly class AnalysisDimension
 {
+    public const string ALLOCATION_TOTAL_KEY = 'allocation_total';
+
     /**
      * @param list<int|string>          $fixedBuckets
      * @param array<int|string, string> $valueLabels

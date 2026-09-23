@@ -37,7 +37,7 @@ The seeder assigns `createdBy` to the admin user (`username: admin`).
 | View type | `isSystem` | `createdBy` | Read | Save | Save As |
 |---|---|---|---|---|---|
 | System view | `true` | admin | everyone | no | yes (participants) |
-| User view | `false` | creator | creator only | yes (creator) | yes (creator) |
+| User view | `false` | creator | creator, or `public` and `ROLE_PARTICIPANT` | yes (creator) | yes (participants); visibility is chosen in the dialog and defaults to private |
 
 User views are referenced by **numeric id** in URLs (`/statistics/analysis/explorer/{id}`). System views keep legacy slugs for seeding and backward-compatible URLs.
 
@@ -47,7 +47,7 @@ Favorites are stored in `saved_explorer_view_favorite` as a per-user relation to
 
 ### Library sections
 
-The analysis library page lists **Overview** (44 system views with category filters), **Favorites**, and **My views** for signed-in users.
+The analysis library **Overview** lists every analysis the viewer may open: system views, their own saved views, and — for participants — public views from other users. The active tab uses the same surface background and primary underline as the Insights subnav. A narrow filter column, laid out like the activity timeline, narrows the active tab by data source, origin, dimension, chart, grain, and username. Data source, origin, dimension, chart, and grain are dropdowns. Active filters are summarized above the results. Category filters follow the subject (allocations or hospitals), including user views via their data source. Cards are listed in a single column, 10 per page, with the same previous, numbered, and next links as the blog. The same row shows the visible range on the left, for example 11–20 of 27, and centers the page links. Library cards use the shared Card component. The title is a primary-colored link that opens the explorer and sits with the favorite control in the card header; provenance, description, and badges sit in the body. Data source sits with the dimension, grain, and chart badges; the hospitals source is labeled Kliniken. Clicking any of those badges applies that filter and keeps the other active filters. **Favorites** and **My views** stay personal. Switching among Overview, Favorites, and My views clears the library filters and keeps the statistics scope and period. Save as lets the creator choose private or public, defaulting to private. Visibility of an existing view changes only in the edit dialog. The creator can delete the view, including a public one, from the edit dialog after a confirmation. The viewer's own private views appear in the overview beside public views from other participants. A private view shows a lock beside the title in the library and on the explorer page; hovering the lock explains that only its owner can see it. Public views have no visibility badge; the author line identifies who created them. Cards and the explorer page show provenance on one line (`admin · 33 minutes ago` or `From the system · 2 months ago`). The saved description sits under the explorer title and on the card.
 
 ### System view labels (i18n)
 
@@ -62,7 +62,7 @@ Loading flow:
 ```text
 AnalysisExplorerController (saved view route)
   └─ SavedExplorerViewLoader (id or legacy slug)
-       └─ ExplorerConfigMapper + URL scope/period overlay
+       └─ ExplorerConfigMapper (stored scope and period; `usePageScope=1` copies the page filter once)
             └─ AnalysisExplorerShell
 ```
 
@@ -70,12 +70,11 @@ Invalid saved config falls back to the default analysis and shows `stats.analysi
 
 ## Current limitations (intentional)
 
-- No sharing, dashboards, or recommended views.
+- Public user views are readable by `ROLE_PARTICIPANT`. Guests do not see them. There is no organization-wide audience.
 - Two data sources: `allocations` (default blank explorer) and `hospitals` (master-data snapshot). The active source is fixed per saved view via `configJson.dataSource`; hospital analyses are opened from the library or via `?dataSource=hospitals` on the blank explorer route only.
 - Hospital time-series views are not a default focus; temporal axes are reserved for allocation-derived hospital metrics in system views.
 - CSV/table export (Alpha): results table as CSV with raw values (server-side `StreamedResponse`) and chart as PNG (client-side via ApexCharts `dataURI`).
 - No URL-encoded config sharing.
-- No delete workflow for saved views.
 - No pivot feature expansion beyond the results table matrix layouts.
 - Legacy `/statistics/analytics/*` URLs redirect here; old saved Generic Analysis views are not migrated.
 - Charts display a single `visualMetric`; additional metrics appear in the table only.
@@ -158,7 +157,7 @@ Under the chart title, the explorer shows a short human-readable summary of the 
 | UI | `_chart_card.html.twig` subtitle (`data-testid="stats-analysis-explorer-summary"`); chart card has no duplicate analysis title |
 | Filters | Up to 2 inline in the summary; more are abbreviated with a tooltip of the full list (no separate filter badges in the page header) |
 
-This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDescriptionFactory`), which describes the view in the page header.
+This is separate from saved-view metadata (`savedViewDescription` / `ExplorerDescriptionFactory`), which describes the view under the page title, on the library card, and in the edit dialog.
 
 ### Export (Alpha)
 
@@ -188,7 +187,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "dataSource": "allocations",
   "query": {
     "scope": { "group": "public", "detail": null },
@@ -199,7 +198,6 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
     "columns": { "dimension": "gender", "grain": "total" }
   },
   "presentation": {
-    "mode": "chart",
     "chartType": "grouped_bar",
     "tableLayout": "matrix",
     "chartRowLimit": "all"
@@ -208,7 +206,7 @@ Charts can optionally show only the **top 5** or **top 10** row buckets (primary
 }
 ```
 
-v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Serialisation always writes v3.
+v1–v3 configs with known fields are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpgradeMapper`. Unknown catalog keys fail. Serialisation always writes v4. `presentation.mode` is not part of v4.
 
 ### Hospitals data source
 
@@ -218,14 +216,14 @@ v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpg
 | Default view | `hospital_master_cohort` × `hospital_count`, population `participating`, bar chart |
 | Available metrics | Aggregate metrics (`hospital_count`, `sum_beds`, …) plus distribution profiles (`beds_distribution`, `allocations_per_hospital_distribution`, `transport_time_per_hospital_distribution`) |
 | Multi-metric tables | Chart metric + optional additional table metrics in the edit drawer (aggregate metrics only; distribution profiles use fixed n/min/p25/median/p75/max columns) |
-| Distribution profiles | Selecting a profile sets `chartType` to `box_plot`, runs raw-value SQL (per hospital or per allocation depending on data source), and aggregates with `DescriptiveStatisticsCalculator` per `(row bucket, series)` cell. Transport-time profiles format values in minutes. Supports an optional column axis or hospital compare mode as the series dimension; not combinable with temporal row dimensions. Compare mode and a manual column axis remain mutually exclusive. |
+| Distribution profiles | Selecting a profile sets `chartType` to `box_plot`, runs raw-value SQL (per hospital or per allocation depending on data source), and aggregates with `DescriptiveStatisticsCalculator` per `(row bucket, series)` cell. Transport-time profiles format values in minutes. Supports an optional column axis or hospital compare mode as the series dimension; not combinable with temporal row dimensions. Compare mode and a manual column axis remain mutually exclusive. Choosing a column other than the participation group switches the population back to participating hospitals and disables the compare option. |
 | Box plot chart type | `box_plot` — only available when `visualMetric` is a distribution profile |
 | Schema field | `query.hospitalPopulation` (`all`, `participating`, `compare`) |
 | System views category | `Hospitals` (seeded by `app:statistics:explorer-views:sync`) |
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "dataSource": "hospitals",
   "query": {
     "scope": { "group": "public", "detail": null },
@@ -237,12 +235,11 @@ v1/v2 configs are upgraded on load via `ExplorerConfigMapper` + `AnalysisAxisUpg
     "columns": null
   },
   "presentation": {
-    "mode": "chart",
     "chartType": "bar",
     "tableLayout": "flat",
     "chartRowLimit": "all"
   },
-  "title": "Hospitals by master cohort"
+  "title": "Hospitals by hospital cohort"
 }
 ```
 
@@ -250,7 +247,7 @@ Saved views are bound to `configJson.dataSource`. When opening a saved view with
 
 UI-only LiveProps on the shell: `isEditOpen`, `configWarning`, `analysisRevision`, `appliedConfigState`, `locale`. Chart/table output is request-scoped (not persisted in LiveProps).
 
-## Config state format (schema version 3)
+## Config state format (schema version 4)
 
 Legacy v1/v2 examples are upgraded on load. Current serialisation format:
 

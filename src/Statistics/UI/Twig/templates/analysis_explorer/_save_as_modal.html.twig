@@ -24,7 +24,7 @@
                     <input type="text"
                            id="analysisExplorerSaveAsTitle"
                            class="form-control"
-                           data-model="saveAsTitle"
+                           data-model="norender|saveAsTitle"
                            value="{{ saveAsTitle }}"
                            data-testid="stats-analysis-explorer-save-as-title">
                 </div>
@@ -33,9 +33,14 @@
                     <textarea id="analysisExplorerSaveAsDescription"
                               class="form-control"
                               rows="3"
-                              data-model="saveAsDescription"
+                              data-model="norender|saveAsDescription"
                               data-testid="stats-analysis-explorer-save-as-description">{{ saveAsDescription }}</textarea>
                 </div>
+                {{ include('@Statistics/analysis_explorer/_visibility_field.html.twig', {
+                    inputName: 'saveAsVisibility',
+                    selected: saveAsVisibility,
+                    testId: 'stats-analysis-explorer-save-as-visibility',
+                }) }}
             </div>
             <div class="modal-footer">
                 <button type="button"

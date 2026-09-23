@@ -1,0 +1,19 @@
+{% if filters|length > 1 %}
+    <div class="subheader mb-2">{{ label }}</div>
+    <div class="mb-3">
+        <label class="visually-hidden" for="library-filter-{{ testPrefix }}">{{ label }}</label>
+        <select id="library-filter-{{ testPrefix }}"
+                name="{{ testPrefix }}"
+                class="form-select"
+                data-action="change->autosubmit#submit"
+                data-testid="stats-analysis-explorer-library-{{ testPrefix }}-filters">
+            {% for filter in filters %}
+                <option value="{{ filter.key }}"
+                        {% if filter.active %}selected{% endif %}
+                        data-testid="stats-analysis-explorer-library-{{ testPrefix }}-{{ filter.key == '' ? 'all' : filter.key }}">
+                    {{ filter.label }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}

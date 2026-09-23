@@ -96,7 +96,7 @@ Entities and filter labels — mostly from existing DE labels in `messages+intl-
 | Department | Abteilung | |
 | Speciality | Fachrichtung | |
 | Tier / care level | Versorgungsstufe | `label.tier`, `hospital_tier` |
-| Location (hospital) | Standort | vs. „Lage“ for urban/rural — see cohort |
+| Location (hospital) | Standort | urban/rural classification on the hospital |
 | Size (hospital) | Größe | KPI: „Größenklasse“ |
 | Assignment | Zuweisungstyp | decision #8 |
 | Occasion | Anlass | incident context (place/situation) |
@@ -197,8 +197,7 @@ Boolean flags and explorer metrics — largely established.
 | Scope | Bereich | filter context |
 | Period | Zeitraum | |
 | Cohort | Kohorte | |
-| Hospital cohort | Krankenhauskohorte | |
-| Master cohort | Master-Kohorte | already established |
+| Hospital cohort | Krankenhauskohorte | location × tier; explorer dimension `hospital_cohort` and `hospital_master_cohort` |
 | Comparison cohort | Vergleichskohorte | benchmarking |
 | Projection | Projektion | table `allocation_stats_projection` |
 | Materialized view | Materialized view | mostly admin/docs |

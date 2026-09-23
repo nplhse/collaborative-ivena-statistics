@@ -17,7 +17,7 @@
         {% if reason == 'no_source' and canImport|default(false) %}
             <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.import.initial.cta'|trans({}, 'import') }}</a>
         {% elseif reason == 'no_source' %}
-            <a class="btn btn-outline-secondary" href="{{ path('app_default') }}" target="_top">{{ 'empty.onboarding.cta'|trans({}, 'shared') }}</a>
+            <a class="btn" href="{{ path('app_default') }}" target="_top">{{ 'empty.onboarding.cta'|trans({}, 'shared') }}</a>
         {% elseif reason == 'filtered' %}
             <button type="button" class="btn btn-primary" data-action="live#action" data-live-action-param="clearAnalysisFilters">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</button>
         {% elseif reason == 'no_data' %}

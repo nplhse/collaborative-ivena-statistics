@@ -4053,10 +4053,6 @@
         <source>stats.analysis_explorer.title</source>
         <target>Analysis Explorer</target>
       </trans-unit>
-      <trans-unit id="statsAex02" resname="stats.analysis_explorer.pretitle">
-        <source>stats.analysis_explorer.pretitle</source>
-        <target>Statistics</target>
-      </trans-unit>
       <trans-unit id="statsAex03" resname="stats.analysis_explorer.allocations_over_time">
         <source>stats.analysis_explorer.allocations_over_time</source>
         <target>Allocations over time</target>
@@ -4123,7 +4119,7 @@
       </trans-unit>
       <trans-unit id="statsAexM10" resname="stats.analysis_explorer.edit.show_percent_of_total">
         <source>stats.analysis_explorer.edit.show_percent_of_total</source>
-        <target>Show share of total</target>
+        <target>Show shares</target>
       </trans-unit>
       <trans-unit id="statsAexM10b" resname="stats.analysis_explorer.edit.show_percent_of_total_help">
         <source>stats.analysis_explorer.edit.show_percent_of_total_help</source>
@@ -4183,7 +4179,7 @@
       </trans-unit>
       <trans-unit id="statsAex19" resname="stats.analysis_explorer.dimension.time">
         <source>stats.analysis_explorer.dimension.time</source>
-        <target>Time period</target>
+        <target>Allocations</target>
       </trans-unit>
       <trans-unit id="statsAex20" resname="stats.analysis_explorer.dimension.gender">
         <source>stats.analysis_explorer.dimension.gender</source>
@@ -4229,6 +4225,10 @@
         <source>stats.analysis_explorer.grain.total</source>
         <target>Total (entire period)</target>
       </trans-unit>
+      <trans-unit id="statsAexGrainAll" resname="stats.analysis_explorer.grain.all_allocations">
+        <source>stats.analysis_explorer.grain.all_allocations</source>
+        <target>All allocations</target>
+      </trans-unit>
       <trans-unit id="statsAex31" resname="stats.analysis_explorer.edit.group_by">
         <source>stats.analysis_explorer.edit.group_by</source>
         <target>Group by</target>
@@ -4260,6 +4260,10 @@
       <trans-unit id="statsAex36" resname="stats.analysis_explorer.empty_state.no_data">
         <source>stats.analysis_explorer.empty_state.no_data</source>
         <target>No data available for the selected scope and period.</target>
+      </trans-unit>
+      <trans-unit id="statsAex36sf" resname="stats.analysis_explorer.empty_state.scope_forbidden">
+        <source>stats.analysis_explorer.empty_state.scope_forbidden</source>
+        <target>You cannot open this analysis for the saved hospital.</target>
       </trans-unit>
       <trans-unit id="statsAex36h" resname="stats.analysis_explorer.empty_state.no_data_help">
         <source>stats.analysis_explorer.empty_state.no_data_help</source>
@@ -4387,7 +4391,7 @@
       </trans-unit>
       <trans-unit id="statsAex60" resname="stats.analysis_explorer.open_library">
         <source>stats.analysis_explorer.open_library</source>
-        <target>Open library</target>
+        <target>Library</target>
       </trans-unit>
       <trans-unit id="statsAex54" resname="stats.analysis_explorer.library.empty">
         <source>stats.analysis_explorer.library.empty</source>
@@ -4397,9 +4401,41 @@
         <source>stats.analysis_explorer.library.empty_title</source>
         <target>No views found</target>
       </trans-unit>
+      <trans-unit id="statsAex54r" resname="stats.analysis_explorer.library.pagination.range">
+        <source>stats.analysis_explorer.library.pagination.range</source>
+        <target>{first}–{last} of {total}</target>
+      </trans-unit>
       <trans-unit id="statsAex54b" resname="stats.analysis_explorer.library.tab.overview">
         <source>stats.analysis_explorer.library.tab.overview</source>
         <target>Overview</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o1" resname="stats.analysis_explorer.library.origin.label">
+        <source>stats.analysis_explorer.library.origin.label</source>
+        <target>Source</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o2" resname="stats.analysis_explorer.library.origin.all">
+        <source>stats.analysis_explorer.library.origin.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o3" resname="stats.analysis_explorer.library.origin.system">
+        <source>stats.analysis_explorer.library.origin.system</source>
+        <target>System</target>
+      </trans-unit>
+      <trans-unit id="statsAex54o4" resname="stats.analysis_explorer.library.origin.public">
+        <source>stats.analysis_explorer.library.origin.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="statsAex54u1" resname="stats.analysis_explorer.library.filter.user">
+        <source>stats.analysis_explorer.library.filter.user</source>
+        <target>User</target>
+      </trans-unit>
+      <trans-unit id="statsAex54u2" resname="stats.analysis_explorer.library.filter.user_placeholder">
+        <source>stats.analysis_explorer.library.filter.user_placeholder</source>
+        <target>Username</target>
+      </trans-unit>
+      <trans-unit id="statsAex54f1" resname="stats.analysis_explorer.library.empty.filtered">
+        <source>stats.analysis_explorer.library.empty.filtered</source>
+        <target>No views match this filter.</target>
       </trans-unit>
       <trans-unit id="statsAex54c" resname="stats.analysis_explorer.library.tab.favorites">
         <source>stats.analysis_explorer.library.tab.favorites</source>
@@ -4408,6 +4444,10 @@
       <trans-unit id="statsAex54d" resname="stats.analysis_explorer.library.tab.my_views">
         <source>stats.analysis_explorer.library.tab.my_views</source>
         <target>My views</target>
+      </trans-unit>
+      <trans-unit id="statsAex54p" resname="stats.analysis_explorer.library.tab.public">
+        <source>stats.analysis_explorer.library.tab.public</source>
+        <target>Public</target>
       </trans-unit>
       <trans-unit id="statsAex54e" resname="stats.analysis_explorer.library.category.all">
         <source>stats.analysis_explorer.library.category.all</source>
@@ -4433,6 +4473,26 @@
         <source>stats.analysis_explorer.library.card.chart</source>
         <target>Chart</target>
       </trans-unit>
+      <trans-unit id="statsAex58a" resname="stats.analysis_explorer.library.card.author">
+        <source>stats.analysis_explorer.library.card.author</source>
+        <target>Author</target>
+      </trans-unit>
+      <trans-unit id="statsAex58b" resname="stats.analysis_explorer.library.card.unknown_author">
+        <source>stats.analysis_explorer.library.card.unknown_author</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="statsAex58c" resname="stats.analysis_explorer.library.card.system_source">
+        <source>stats.analysis_explorer.library.card.system_source</source>
+        <target>From the system</target>
+      </trans-unit>
+      <trans-unit id="statsAex58d" resname="stats.analysis_explorer.library.card.created_at">
+        <source>stats.analysis_explorer.library.card.created_at</source>
+        <target>Created</target>
+      </trans-unit>
+      <trans-unit id="statsAex58e" resname="stats.analysis_explorer.library.card.updated_at">
+        <source>stats.analysis_explorer.library.card.updated_at</source>
+        <target>Last saved</target>
+      </trans-unit>
       <trans-unit id="statsAex59" resname="stats.analysis_explorer.saved_view.invalid_config">
         <source>stats.analysis_explorer.saved_view.invalid_config</source>
         <target>The saved view configuration is invalid. Showing the default analysis instead.</target>
@@ -4440,6 +4500,62 @@
       <trans-unit id="statsAex61" resname="stats.analysis_explorer.save">
         <source>stats.analysis_explorer.save</source>
         <target>Save</target>
+      </trans-unit>
+      <trans-unit id="statsAex61p" resname="stats.analysis_explorer.visibility.private">
+        <source>stats.analysis_explorer.visibility.private</source>
+        <target>Private</target>
+      </trans-unit>
+      <trans-unit id="statsAex61h" resname="stats.analysis_explorer.visibility.private_hint">
+        <source>stats.analysis_explorer.visibility.private_hint</source>
+        <target>Private view that only its owner can see.</target>
+      </trans-unit>
+      <trans-unit id="statsAex61u" resname="stats.analysis_explorer.visibility.public">
+        <source>stats.analysis_explorer.visibility.public</source>
+        <target>Public</target>
+      </trans-unit>
+      <trans-unit id="statsAexVis01" resname="stats.analysis_explorer.save_as.visibility_label">
+        <source>stats.analysis_explorer.save_as.visibility_label</source>
+        <target>Visibility</target>
+      </trans-unit>
+      <trans-unit id="statsAexVis02" resname="stats.analysis_explorer.save_as.visibility_private_help">
+        <source>stats.analysis_explorer.save_as.visibility_private_help</source>
+        <target>Only you can see this view.</target>
+      </trans-unit>
+      <trans-unit id="statsAexVis03" resname="stats.analysis_explorer.save_as.visibility_public_help">
+        <source>stats.analysis_explorer.save_as.visibility_public_help</source>
+        <target>Every participant can read this view.</target>
+      </trans-unit>
+      <trans-unit id="statsAexEd01" resname="stats.analysis_explorer.edit_view.open">
+        <source>stats.analysis_explorer.edit_view.open</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="statsAexEd02" resname="stats.analysis_explorer.edit_view.title">
+        <source>stats.analysis_explorer.edit_view.title</source>
+        <target>Edit view</target>
+      </trans-unit>
+      <trans-unit id="statsAexEd03" resname="stats.analysis_explorer.edit_view.submit">
+        <source>stats.analysis_explorer.edit_view.submit</source>
+        <target>Save changes</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel01" resname="stats.analysis_explorer.delete.action">
+        <source>stats.analysis_explorer.delete.action</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel02" resname="stats.analysis_explorer.delete.modal.title">
+        <source>stats.analysis_explorer.delete.modal.title</source>
+        <target>Delete view?</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel03" resname="stats.analysis_explorer.delete.modal.body">
+        <source>stats.analysis_explorer.delete.modal.body</source>
+        <target>Are you sure you want to delete “{name}”? This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel04" resname="stats.analysis_explorer.delete.modal.confirm">
+        <source>stats.analysis_explorer.delete.modal.confirm</source>
+        <target>Delete permanently</target>
+      </trans-unit>
+      <trans-unit id="statsAexDel05" resname="stats.analysis_explorer.delete.flash">
+        <source>stats.analysis_explorer.delete.flash</source>
+        <target>The view was deleted.</target>
       </trans-unit>
       <trans-unit id="statsAex62" resname="stats.analysis_explorer.save_as">
         <source>stats.analysis_explorer.save_as</source>
@@ -4516,6 +4632,10 @@
       <trans-unit id="statsAex78" resname="stats.analysis_explorer.library.empty.my_views">
         <source>stats.analysis_explorer.library.empty.my_views</source>
         <target>You have not saved any personal views yet.</target>
+      </trans-unit>
+      <trans-unit id="statsAex78p" resname="stats.analysis_explorer.library.empty.public">
+        <source>stats.analysis_explorer.library.empty.public</source>
+        <target>No public views from other participants yet.</target>
       </trans-unit>
       <trans-unit id="statsAex78a" resname="stats.analysis_explorer.library.empty.search">
         <source>stats.analysis_explorer.library.empty.search</source>
@@ -4743,15 +4863,15 @@
       </trans-unit>
       <trans-unit id="statsAex130" resname="stats.analysis_explorer.table_layout.flat">
         <source>stats.analysis_explorer.table_layout.flat</source>
-        <target>Flat list</target>
+        <target>One row per combination</target>
       </trans-unit>
       <trans-unit id="statsAex131" resname="stats.analysis_explorer.table_layout.matrix">
         <source>stats.analysis_explorer.table_layout.matrix</source>
-        <target>Matrix</target>
+        <target>Crosstab</target>
       </trans-unit>
       <trans-unit id="statsAex132" resname="stats.analysis_explorer.table_layout.matrix_metrics_as_rows">
         <source>stats.analysis_explorer.table_layout.matrix_metrics_as_rows</source>
-        <target>Matrix (metrics as rows)</target>
+        <target>Metrics as rows</target>
       </trans-unit>
       <trans-unit id="statsAex133" resname="stats.analysis_explorer.allocations_by_dimension_by_temporal">
         <source>stats.analysis_explorer.allocations_by_dimension_by_temporal</source>
@@ -4941,6 +5061,10 @@
         <source>stats.analysis_explorer.edit.section.hospital_population_help</source>
         <target>Filter hospitals by participation status or compare both groups side by side.</target>
       </trans-unit>
+      <trans-unit id="statsAexHp10" resname="stats.analysis_explorer.edit.hospital_population_help_column">
+        <source>stats.analysis_explorer.edit.hospital_population_help_column</source>
+        <target>While a column is selected, comparing participating and non-participating hospitals is unavailable. The column already defines the series.</target>
+      </trans-unit>
       <trans-unit id="statsAexFlt01" resname="stats.analysis_explorer.edit.section.filters">
         <source>stats.analysis_explorer.edit.section.filters</source>
         <target>Filters</target>
@@ -5061,6 +5185,10 @@
         <source>stats.analysis_explorer.dimension_group.geography</source>
         <target>Geography</target>
       </trans-unit>
+      <trans-unit id="statsAexDg10" resname="stats.analysis_explorer.dimension_group.participation">
+        <source>stats.analysis_explorer.dimension_group.participation</source>
+        <target>Participation</target>
+      </trans-unit>
       <trans-unit id="statsAexBx01" resname="stats.analysis_explorer.box_plot.column.distribution_count">
         <source>stats.analysis_explorer.box_plot.column.distribution_count</source>
         <target>n</target>
@@ -5087,7 +5215,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd01" resname="stats.analysis_explorer.dimension.hospital_master_cohort">
         <source>stats.analysis_explorer.dimension.hospital_master_cohort</source>
-        <target>Hospital cohort (master data)</target>
+        <target>Hospital cohort</target>
       </trans-unit>
       <trans-unit id="statsAexHd02" resname="stats.analysis_explorer.dimension.hospital_tier">
         <source>stats.analysis_explorer.dimension.hospital_tier</source>
@@ -5095,7 +5223,7 @@
       </trans-unit>
       <trans-unit id="statsAexHd03" resname="stats.analysis_explorer.dimension.hospital_size">
         <source>stats.analysis_explorer.dimension.hospital_size</source>
-        <target>Size class</target>
+        <target>Size</target>
       </trans-unit>
       <trans-unit id="statsAexHd04" resname="stats.analysis_explorer.dimension.hospital_location">
         <source>stats.analysis_explorer.dimension.hospital_location</source>
@@ -5391,11 +5519,11 @@
       </trans-unit>
       <trans-unit id="statsSv8bb57528" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.title">
         <source>stats.analysis_explorer.system_view.hospitals-by-cohort.title</source>
-        <target>Hospitals by master cohort</target>
+        <target>Hospitals by hospital cohort</target>
       </trans-unit>
       <trans-unit id="statsSva2c79a3c" resname="stats.analysis_explorer.system_view.hospitals-by-cohort.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-cohort.description</source>
-        <target>Participating hospital counts grouped by master cohort.</target>
+        <target>Participating hospital counts grouped by hospital cohort.</target>
       </trans-unit>
       <trans-unit id="statsSv0be85ed4" resname="stats.analysis_explorer.system_view.hospitals-by-tier.title">
         <source>stats.analysis_explorer.system_view.hospitals-by-tier.title</source>
@@ -5419,15 +5547,15 @@
       </trans-unit>
       <trans-unit id="statsSv50459702" resname="stats.analysis_explorer.system_view.hospitals-by-size.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-size.description</source>
-        <target>Participating hospital counts and average beds grouped by size class.</target>
+        <target>Participating hospital counts and average beds grouped by size.</target>
       </trans-unit>
       <trans-unit id="statsSv5f7809dc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.title">
         <source>stats.analysis_explorer.system_view.hospital-tier-by-location.title</source>
-        <target>Hospital tier by location</target>
+        <target>Care tier by location</target>
       </trans-unit>
       <trans-unit id="statsSvb9c925cc" resname="stats.analysis_explorer.system_view.hospital-tier-by-location.description">
         <source>stats.analysis_explorer.system_view.hospital-tier-by-location.description</source>
-        <target>Participating hospital counts in a tier-by-location matrix.</target>
+        <target>Participating hospital counts in a care-tier-by-location matrix.</target>
       </trans-unit>
       <trans-unit id="statsSvf4ba0449" resname="stats.analysis_explorer.system_view.allocations-per-hospital-tier.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-tier.title</source>
@@ -5467,7 +5595,7 @@
       </trans-unit>
       <trans-unit id="statsSvccd56425" resname="stats.analysis_explorer.system_view.hospitals-by-location.description">
         <source>stats.analysis_explorer.system_view.hospitals-by-location.description</source>
-        <target>Participating hospital counts grouped by location type.</target>
+        <target>Participating hospital counts grouped by location.</target>
       </trans-unit>
       <trans-unit id="statsSv3c1801c2" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.title">
         <source>stats.analysis_explorer.system_view.beds-distribution-by-location.title</source>
@@ -5475,7 +5603,7 @@
       </trans-unit>
       <trans-unit id="statsSv0b410d6e" resname="stats.analysis_explorer.system_view.beds-distribution-by-location.description">
         <source>stats.analysis_explorer.system_view.beds-distribution-by-location.description</source>
-        <target>Distribution of hospital bed counts per location type as a box plot.</target>
+        <target>Distribution of hospital bed counts per location as a box plot.</target>
       </trans-unit>
       <trans-unit id="statsSv66da63ca" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.title</source>
@@ -5483,15 +5611,15 @@
       </trans-unit>
       <trans-unit id="statsSv7e8a70e5" resname="stats.analysis_explorer.system_view.allocations-per-hospital-size.description">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-size.description</source>
-        <target>How many allocations participating hospitals handle per size class.</target>
+        <target>How many allocations participating hospitals handle per size.</target>
       </trans-unit>
       <trans-unit id="statsSv56532599" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.title">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.title</source>
-        <target>Allocations per hospital location</target>
+        <target>Allocations per location</target>
       </trans-unit>
       <trans-unit id="statsSvf1c4b376" resname="stats.analysis_explorer.system_view.allocations-per-hospital-location.description">
         <source>stats.analysis_explorer.system_view.allocations-per-hospital-location.description</source>
-        <target>How many allocations participating hospitals handle per location type.</target>
+        <target>How many allocations participating hospitals handle per location.</target>
       </trans-unit>
       <trans-unit id="statsAexSum01" resname="stats.analysis_explorer.summary.temporal">
         <source>stats.analysis_explorer.summary.temporal</source>

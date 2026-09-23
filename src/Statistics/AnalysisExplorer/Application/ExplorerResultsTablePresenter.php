@@ -40,7 +40,7 @@ final readonly class ExplorerResultsTablePresenter
             return $this->createDistributionFlatTable($viewConfig, $result);
         }
 
-        if (!$result->hasColumnAxis()) {
+        if (!$result->hasColumnAxis() || TableLayout::Flat === $viewConfig->presentation->tableLayout) {
             return $this->createFlatTable($viewConfig, $result);
         }
 
@@ -54,7 +54,15 @@ final readonly class ExplorerResultsTablePresenter
     {
         $showPercentOfTotal = $viewConfig->showsPercentOfTotal();
         $visibleMetricKeys = $this->visibleMetricKeys($result->metricKeys, $showPercentOfTotal);
+        $seriesAxis = $viewConfig->columnAxis ?? $result->columnAxis;
+        $hasCombinationColumn = $seriesAxis instanceof AnalysisAxisRef;
         $metricColumns = $this->metricColumns($visibleMetricKeys);
+        if ($seriesAxis instanceof AnalysisAxisRef) {
+            array_unshift($metricColumns, new ExplorerResultsTableMetricColumn(
+                key: 'series',
+                label: $this->axisLabel($seriesAxis),
+            ));
+        }
         $rows = [];
 
         foreach ($result->rows as $row) {
@@ -71,10 +79,17 @@ final readonly class ExplorerResultsTablePresenter
                 }
             }
 
+            $formattedMetricValues = $this->formatRowValues($visibleMetricKeys, $row->metricValues);
+            $metricValues = $this->rawRowValues($visibleMetricKeys, $row->metricValues);
+            if ($hasCombinationColumn) {
+                $formattedMetricValues = ['series' => $row->seriesLabel ?? '—'] + $formattedMetricValues;
+                $metricValues = ['series' => $row->seriesLabel ?? ''] + $metricValues;
+            }
+
             $rows[] = new ExplorerResultsTableRow(
                 bucketLabel: $row->bucketLabel,
-                formattedMetricValues: $this->formatRowValues($visibleMetricKeys, $row->metricValues),
-                metricValues: $this->rawRowValues($visibleMetricKeys, $row->metricValues),
+                formattedMetricValues: $formattedMetricValues,
+                metricValues: $metricValues,
                 formattedMetricPercentValues: $formattedMetricPercentValues,
             );
         }
@@ -90,13 +105,19 @@ final readonly class ExplorerResultsTablePresenter
             }
         }
 
+        $formattedTotals = $this->formatTotals($result, $visibleMetricKeys);
+        if ($hasCombinationColumn) {
+            $formattedTotals = ['series' => ''] + $formattedTotals;
+        }
+
         return new ExplorerResultsTableViewModel(
             primaryDimensionLabel: $this->axisLabel($viewConfig->rowAxis),
             metricColumns: $metricColumns,
             rows: $rows,
-            formattedTotals: $this->formatTotals($result, $visibleMetricKeys),
+            formattedTotals: $formattedTotals,
             tableLayout: TableLayout::Flat,
             rowAxisLabel: $this->axisLabel($viewConfig->rowAxis),
+            columnAxisLabel: $seriesAxis instanceof AnalysisAxisRef ? $this->axisLabel($seriesAxis) : '',
             showPercentOfTotal: $showPercentOfTotal,
             formattedTotalsPercentValues: $formattedTotalsPercentValues,
             footerRowLabel: $this->footerRowLabel($visibleMetricKeys),

@@ -13,7 +13,8 @@ enum ExplorerDimensionCategory: string
     case TransportAndDuration = 'transport_and_duration';
     case HospitalAndGeography = 'hospital_and_geography';
     case HospitalProfile = 'hospital_profile';
-    case GeographyAndParticipation = 'geography_and_participation';
+    case Geography = 'geography';
+    case Participation = 'participation';
 
     public function labelTranslationKey(): string
     {

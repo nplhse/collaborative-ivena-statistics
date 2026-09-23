@@ -47,7 +47,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame('grouped_bar', $normalized->chartType);
     }
 
-    public function testTimeRowsRejectsTotalGrain(): void
+    public function testTimeRowsKeepsTotalGrain(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(
             rowDimension: 'time',
@@ -56,7 +56,7 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         ));
 
         self::assertSame('time', $normalized->rowDimension);
-        self::assertSame('month', $normalized->rowGrain);
+        self::assertSame('total', $normalized->rowGrain);
     }
 
     public function testHospitalRowOnPublicScopeDowngradesToTime(): void
@@ -148,6 +148,19 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame('year', $normalized->columnGrain);
     }
 
+    public function testTimeColumnsKeepAllAllocationsGrain(): void
+    {
+        $normalized = $this->normalizer->normalize($this->formData(
+            rowDimension: 'department',
+            rowGrain: 'total',
+            chartType: 'grouped_bar',
+            columnDimension: 'time',
+            columnGrain: 'total',
+        ));
+
+        self::assertSame('total', $normalized->columnGrain);
+    }
+
     public function testChangingRowGrainDoesNotAffectBreakdownColumnGrain(): void
     {
         $normalized = $this->normalizer->normalize($this->formData(
@@ -159,6 +172,41 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         ));
 
         self::assertSame('total', $normalized->columnGrain);
+    }
+
+    public function testMetricsAsRowsFallsBackToMatrixWithoutAdditionalMetrics(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            rowDimension: 'age_group',
+            rowGrain: 'total',
+            columnDimension: 'urgency',
+            columnGrain: 'total',
+            metric: 'allocation_count',
+            chartType: 'bar',
+            tableLayout: 'matrix_metrics_as_rows',
+        ));
+
+        self::assertSame('matrix', $normalized->tableLayout);
+    }
+
+    public function testMetricsAsRowsStaysWhenAdditionalMetricsAreSelected(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            columnDimension: 'hospital_location',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'bar',
+            tableLayout: 'matrix_metrics_as_rows',
+            additionalTableMetrics: ['sum_beds'],
+        ));
+
+        self::assertSame('matrix_metrics_as_rows', $normalized->tableLayout);
+        self::assertSame(['sum_beds'], $normalized->additionalTableMetrics);
     }
 
     public function testNormalizePreservesFilterFields(): void
@@ -177,6 +225,74 @@ final class ExplorerEditFormNormalizerTest extends KernelTestCase
         self::assertSame(2, $normalized->filterUrgency);
         self::assertSame(15, $normalized->filterIndicationId);
         self::assertSame(3, $normalized->filterIndicationGroupId);
+    }
+
+    public function testHospitalColumnClearsComparePopulation(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            columnDimension: 'hospital_location',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertSame('hospital_location', $normalized->columnDimension);
+        self::assertSame('participating', $normalized->hospitalPopulation);
+    }
+
+    public function testHospitalCompareStaysWhenPopulationGroupIsAnAxis(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_population_group',
+            rowGrain: 'total',
+            columnDimension: 'hospital_tier',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertSame('compare', $normalized->hospitalPopulation);
+    }
+
+    public function testHospitalCompareStaysWithoutAColumn(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertNull($normalized->columnDimension);
+        self::assertSame('compare', $normalized->hospitalPopulation);
+    }
+
+    public function testHospitalCompareStaysWhenPopulationGroupIsTheColumn(): void
+    {
+        $normalized = $this->normalizer->normalize(new ExplorerEditFormData(
+            scopePeriod: new StatisticsScopePeriodFormData('public', null, 'all'),
+            dataSource: 'hospitals',
+            rowDimension: 'hospital_tier',
+            rowGrain: 'total',
+            columnDimension: 'hospital_population_group',
+            columnGrain: 'total',
+            metric: 'hospital_count',
+            chartType: 'grouped_bar',
+            hospitalPopulation: 'compare',
+        ));
+
+        self::assertSame('compare', $normalized->hospitalPopulation);
     }
 
     private function formData(

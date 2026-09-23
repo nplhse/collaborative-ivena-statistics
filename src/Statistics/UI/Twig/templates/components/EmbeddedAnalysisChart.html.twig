@@ -1,0 +1,30 @@
+{% set chart = this.view %}
+<div class="card"
+     data-testid="{{ testId }}"
+     {% if chart.hasChart %}
+     data-controller="generic-analysis-chart"
+     data-generic-analysis-chart-specs-value="{{ chart.chartSpecs|json_encode|e('html_attr') }}"
+     data-generic-analysis-chart-default-type-value="{{ chart.defaultChartType }}"
+     data-generic-analysis-chart-export-filename-value="age-group-distribution"
+     {% endif %}>
+    <div class="card-header py-2">
+        <h3 class="card-title mb-0">
+            <a href="{{ chart.explorerUrl }}"
+               class="text-reset d-inline-flex align-items-center gap-1"
+               aria-label="{{ linkLabelKey|trans({}, 'statistics') }}"
+               data-testid="{{ linkTestId }}">
+                <span>{{ titleKey|trans({}, 'statistics') }}</span>
+                <twig:ux:icon name="tabler:external-link" style="height: 0.9em; width: 0.9em;" aria-hidden="true" />
+            </a>
+        </h3>
+    </div>
+    <div class="card-body">
+        {% if chart.hasChart %}
+            <div class="chart-sm" data-generic-analysis-chart-target="chart" data-testid="stats-embedded-analysis-chart"></div>
+        {% else %}
+            <p class="text-secondary mb-0" data-testid="stats-embedded-analysis-chart-empty">
+                {{ 'stats.analysis_explorer.empty_state.no_data'|trans({}, 'statistics') }}
+            </p>
+        {% endif %}
+    </div>
+</div>

@@ -132,11 +132,16 @@ final class ExplorerEditFormType extends AbstractType
                 return;
             }
 
+            $submitted = $this->withDefaultMatrixLayout($submitted, $current);
             $preview = $this->previewFromSubmitted($submitted, $current);
 
             /** @var \Symfony\Component\Form\FormInterface<ExplorerEditFormData> $form */
             $form = $event->getForm();
-            $this->configureDynamicChoices($form, $preview, $locale);
+            $adjusted = $this->configureDynamicChoices($form, $preview, $locale);
+            if ($adjusted->hospitalPopulation !== $preview->hospitalPopulation) {
+                $submitted['hospitalPopulation'] = $adjusted->hospitalPopulation;
+            }
+            $event->setData($submitted);
         });
 
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($locale): void {
@@ -162,6 +167,26 @@ final class ExplorerEditFormType extends AbstractType
         ]);
 
         $resolver->setAllowedTypes('locale', 'string');
+    }
+
+    /**
+     * @param array<string, mixed> $submitted
+     *
+     * @return array<string, mixed>
+     */
+    private function withDefaultMatrixLayout(array $submitted, ExplorerEditFormData $current): array
+    {
+        $columnDimension = \array_key_exists('columnDimension', $submitted)
+            ? (\is_string($submitted['columnDimension']) ? $submitted['columnDimension'] : null)
+            : $current->columnDimension;
+        $hasColumn = \is_string($columnDimension) && self::NONE_COLUMN !== $columnDimension;
+        $hadColumn = \is_string($current->columnDimension) && self::NONE_COLUMN !== $current->columnDimension;
+        $submittedLayout = \array_key_exists('tableLayout', $submitted) ? $submitted['tableLayout'] : $current->tableLayout;
+        if ($hasColumn && !$hadColumn && (TableLayout::Flat->value === $submittedLayout || !\is_string($submittedLayout))) {
+            $submitted['tableLayout'] = TableLayout::Matrix->value;
+        }
+
+        return $submitted;
     }
 
     /**
@@ -238,8 +263,21 @@ final class ExplorerEditFormType extends AbstractType
             $capabilities,
             $filter->period,
         );
+        if (!$rowAxis->dimensionKey->isTemporalPrimary()
+            && AnalysisDimensionGrain::Total->value !== $formData->rowGrain
+        ) {
+            $formData = $this->rebuildFormData($formData, [
+                'rowGrain' => AnalysisDimensionGrain::Total->value,
+            ]);
+        }
         $formData = $this->withResolvedColumnGrain($formData, $rowAxis, $capabilities);
         $columnAxis = $this->resolveColumnAxis($formData, $rowAxis, $capabilities, $filter->period);
+        $compareChoiceBlocked = $this->compareChoiceBlocked($dataSourceKey, $rowAxis, $columnAxis);
+        if ($compareChoiceBlocked && ExplorerHospitalPopulationMode::Compare->value === $formData->hospitalPopulation) {
+            $formData = $this->rebuildFormData($formData, [
+                'hospitalPopulation' => ExplorerHospitalPopulationMode::Participating->value,
+            ]);
+        }
         $metric = AnalysisMetricKey::tryFrom($formData->metric) ?? AnalysisMetricKey::defaultFor($dataSourceKey);
         $previewConfig = $this->previewFactory->fromFormData($capabilities, $rowAxis, $columnAxis, $metric, $formData);
         $compatibleMetrics = array_values(array_filter(
@@ -271,7 +309,7 @@ final class ExplorerEditFormType extends AbstractType
             'help' => $rowAxis->dimensionKey->isTemporalPrimary()
                 ? 'stats.analysis_explorer.edit.row_grain_time_help'
                 : 'stats.analysis_explorer.edit.row_grain_breakdown_help',
-            'choices' => $this->grainChoices($rowAxis->dimensionKey, $capabilities),
+            'choices' => $this->grainChoices($rowAxis->dimensionKey, $capabilities, true),
         ]);
 
         $form->add('columnDimension', PreTranslatedChoiceType::class, [
@@ -284,7 +322,7 @@ final class ExplorerEditFormType extends AbstractType
         $showColumnGrain = false;
         if ($columnAxis instanceof AnalysisAxisRef && $this->columnGrainResolver->affectsQuery($columnAxis->dimensionKey)) {
             $showColumnGrain = true;
-            $columnGrainChoices = $this->grainChoices($columnAxis->dimensionKey, $capabilities);
+            $columnGrainChoices = $this->grainChoices($columnAxis->dimensionKey, $capabilities, true);
         }
 
         $form->add('columnGrain', PreTranslatedChoiceType::class, [
@@ -351,10 +389,22 @@ final class ExplorerEditFormType extends AbstractType
             'disabled' => $isDistributionProfile,
         ]);
 
+        $showMetricsAsRows = [] !== array_values(array_filter(
+            $formData->additionalTableMetrics,
+            static fn (string $value): bool => '' !== $value,
+        ));
+        if (!$showMetricsAsRows && TableLayout::MatrixMetricsAsRows->value === $formData->tableLayout) {
+            $formData = $this->rebuildFormData($formData, [
+                'tableLayout' => $columnAxis instanceof AnalysisAxisRef
+                    ? TableLayout::Matrix->value
+                    : TableLayout::Flat->value,
+            ]);
+        }
+
         $form->add('tableLayout', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.table_layout',
             'help' => 'stats.analysis_explorer.edit.table_layout_help',
-            'choices' => $this->tableLayoutChoices(),
+            'choices' => $this->tableLayoutChoices($showMetricsAsRows),
             'disabled' => !$columnAxis instanceof AnalysisAxisRef,
         ]);
 
@@ -366,8 +416,17 @@ final class ExplorerEditFormType extends AbstractType
 
         $form->add('hospitalPopulation', PreTranslatedChoiceType::class, [
             'label' => 'stats.analysis_explorer.edit.hospital_population',
-            'help' => 'stats.analysis_explorer.edit.hospital_population_help',
+            'help' => $compareChoiceBlocked
+                ? null
+                : 'stats.analysis_explorer.edit.hospital_population_help',
             'choices' => $this->hospitalPopulationChoices(),
+            'choice_attr' => static function (mixed $choice, string $key, mixed $value) use ($compareChoiceBlocked): array {
+                if ($compareChoiceBlocked && ExplorerHospitalPopulationMode::Compare->value === (string) $value) {
+                    return ['disabled' => true];
+                }
+
+                return [];
+            },
             'disabled' => AnalysisDataSourceKey::Hospitals !== $dataSourceKey,
         ]);
 
@@ -521,6 +580,19 @@ final class ExplorerEditFormType extends AbstractType
         return $choices;
     }
 
+    private function compareChoiceBlocked(
+        AnalysisDataSourceKey $dataSourceKey,
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
+    ): bool {
+        if (AnalysisDataSourceKey::Hospitals !== $dataSourceKey || !$columnAxis instanceof AnalysisAxisRef) {
+            return false;
+        }
+
+        return AnalysisDimensionKey::HospitalPopulationGroup !== $rowAxis->dimensionKey
+            && AnalysisDimensionKey::HospitalPopulationGroup !== $columnAxis->dimensionKey;
+    }
+
     /**
      * @return array<string, string>
      */
@@ -648,6 +720,7 @@ final class ExplorerEditFormType extends AbstractType
     private function grainChoices(
         AnalysisDimensionKey $dimension,
         \App\Statistics\AnalysisExplorer\Domain\DataSourceCapabilities $capabilities,
+        bool $includeAllAllocations = false,
     ): array {
         $choices = [];
         foreach ($capabilities->timeGrainsFor($dimension) as $grain) {
@@ -662,19 +735,27 @@ final class ExplorerEditFormType extends AbstractType
             $choices[$this->translator->trans($labelKey, [], 'statistics')] = $grain->value;
         }
 
+        if ($includeAllAllocations && $dimension->isTemporalPrimary()) {
+            $choices[$this->translator->trans('stats.analysis_explorer.grain.all_allocations', [], 'statistics')] = AnalysisDimensionGrain::Total->value;
+        }
+
         return $choices;
     }
 
     /**
      * @return array<string, string>
      */
-    private function tableLayoutChoices(): array
+    private function tableLayoutChoices(bool $includeMetricsAsRows): array
     {
-        return [
+        $choices = [
             $this->translator->trans('stats.analysis_explorer.table_layout.flat', [], 'statistics') => TableLayout::Flat->value,
             $this->translator->trans('stats.analysis_explorer.table_layout.matrix', [], 'statistics') => TableLayout::Matrix->value,
-            $this->translator->trans('stats.analysis_explorer.table_layout.matrix_metrics_as_rows', [], 'statistics') => TableLayout::MatrixMetricsAsRows->value,
         ];
+        if ($includeMetricsAsRows) {
+            $choices[$this->translator->trans('stats.analysis_explorer.table_layout.matrix_metrics_as_rows', [], 'statistics')] = TableLayout::MatrixMetricsAsRows->value;
+        }
+
+        return $choices;
     }
 
     /**

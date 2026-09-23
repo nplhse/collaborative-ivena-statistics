@@ -40,6 +40,16 @@
     {{ include('@Statistics/_data_quality_drawer.html.twig') }}
 
     {% set page = explorerLibraryPage %}
+    {% set onlySearch = page.searchQuery and not page.userQuery and page.origin == 'all' and not page.activeCategory and not page.activeDimension and not page.activeChart and not page.activeGrain %}
+    {% set emptyDescription = onlySearch
+        ? 'stats.analysis_explorer.library.empty.search'
+        : (page.hasActiveFilters
+            ? 'stats.analysis_explorer.library.empty.filtered'
+            : (page.activeTab == 'favorites'
+                ? 'stats.analysis_explorer.library.empty.favorites'
+                : (page.activeTab == 'my_views'
+                    ? 'stats.analysis_explorer.library.empty.my_views'
+                    : 'stats.analysis_explorer.library.empty'))) %}
 
     <div data-testid="stats-analysis-explorer-library">
         <ul class="nav nav-tabs analytics-library-tabs mb-4" role="tablist">
@@ -61,86 +71,172 @@
             {% endfor %}
         </ul>
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4"
-             data-testid="stats-analysis-explorer-library-toolbar">
-            {% if page.activeTab == 'all' and page.categoryFilters is not empty %}
-                <div class="btn-group flex-wrap"
-                     role="group"
-                     data-testid="stats-analysis-explorer-library-category-filters"
-                     aria-label="{{ 'stats.analysis_explorer.library.tab.overview'|trans({}, 'statistics') }}">
-                    {% for filter in page.categoryFilters %}
-                        <a href="{{ filter.url }}"
-                           class="btn{% if filter.active %} btn-primary{% endif %}"
-                           {% if filter.active %}aria-current="true"{% endif %}
-                           data-testid="stats-analysis-explorer-library-category-{{ filter.key == '' ? 'all' : filter.key }}">
-                            {{ filter.label }}
-                        </a>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <form method="get"
+                      action="{{ path('app_stats_analysis_library') }}"
+                      autocomplete="off"
+                      data-controller="autosubmit"
+                      data-testid="stats-analysis-explorer-library-filters">
+                    {% for key, value in app.request.query.all %}
+                        {% if key not in ['search', 'user', 'category', 'origin', 'dimension', 'chart', 'grain', 'page'] and value is not iterable %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="subheader mb-2">{{ 'label.search'|trans({}, 'messages') }}</div>
+                    <div class="mb-3">
+                        <label class="visually-hidden" for="library-search">{{ 'label.search'|trans({}, 'messages') }}</label>
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <twig:ux:icon name="tabler:search" width="1em" height="1em" />
+                            </span>
+                            <input id="library-search"
+                                   class="form-control"
+                                   type="search"
+                                   name="search"
+                                   value="{{ page.searchQuery }}"
+                                   placeholder="{{ 'label.search'|trans({}, 'messages') }}"
+                                   data-testid="stats-analysis-explorer-library-search-input">
+                        </div>
+                    </div>
+
+                    {{ include('@Statistics/analysis_explorer_library/_filter_group.html.twig', {
+                        label: 'stats.analysis_explorer.data_source.label'|trans({}, 'statistics'),
+                        testPrefix: 'category',
+                        filters: page.categoryFilters,
+                    }) }}
+                    {{ include('@Statistics/analysis_explorer_library/_filter_group.html.twig', {
+                        label: 'stats.analysis_explorer.library.origin.label'|trans({}, 'statistics'),
+                        testPrefix: 'origin',
+                        filters: page.originFilters,
+                    }) }}
+                    {{ include('@Statistics/analysis_explorer_library/_filter_group.html.twig', {
+                        label: 'stats.analysis_explorer.library.card.dimension'|trans({}, 'statistics'),
+                        testPrefix: 'dimension',
+                        filters: page.dimensionFilters,
+                    }) }}
+                    {{ include('@Statistics/analysis_explorer_library/_filter_group.html.twig', {
+                        label: 'stats.analysis_explorer.library.card.chart'|trans({}, 'statistics'),
+                        testPrefix: 'chart',
+                        filters: page.chartFilters,
+                    }) }}
+                    {{ include('@Statistics/analysis_explorer_library/_filter_group.html.twig', {
+                        label: 'stats.analysis_explorer.library.card.grain'|trans({}, 'statistics'),
+                        testPrefix: 'grain',
+                        filters: page.grainFilters,
+                    }) }}
+
+                    <div class="subheader mb-2">{{ 'stats.analysis_explorer.library.filter.user'|trans({}, 'statistics') }}</div>
+                    <div>
+                        <label class="visually-hidden" for="library-user">{{ 'stats.analysis_explorer.library.filter.user'|trans({}, 'statistics') }}</label>
+                        <input id="library-user"
+                               class="form-control"
+                               type="text"
+                               name="user"
+                               value="{{ page.userQuery }}"
+                               placeholder="{{ 'stats.analysis_explorer.library.filter.user_placeholder'|trans({}, 'statistics') }}"
+                               data-testid="stats-analysis-explorer-library-user-input"
+                               autocomplete="off">
+                    </div>
+
+                    <div class="mt-5">
+                        <button type="submit" class="btn btn-primary w-100" data-testid="stats-analysis-explorer-library-filters-apply">
+                            {{ 'label.filters.apply'|trans({}, 'messages') }}
+                        </button>
+                        {% if page.hasActiveFilters %}
+                            <a href="{{ page.resetUrl }}" class="btn btn-link w-100" data-testid="stats-analysis-explorer-library-filters-reset">
+                                {{ 'label.filters.reset'|trans({}, 'messages') }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-9">
+                <twig:ActiveFilters
+                    :badges="page.activeFilterBadges"
+                    class="mb-3"
+                    data-testid="stats-analysis-explorer-library-active-filters"
+                />
+                <div class="row row-cards">
+                    {% for card in page.cards %}
+                        <div class="col-12">
+                            {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {card: card}) }}
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
+                                <twig:EmptyState
+                                    title="{{ 'stats.analysis_explorer.library.empty_title'|trans({}, 'statistics') }}"
+                                    description="{{ emptyDescription|trans({}, 'statistics') }}"
+                                    icon="{{ page.hasActiveFilters ? 'tabler:filter-off' : 'tabler:books' }}"
+                                >
+                                    <twig:block name="actions">
+                                        {% if page.hasActiveFilters %}
+                                            <a class="btn btn-primary" href="{{ page.resetUrl }}" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                                        {% endif %}
+                                    </twig:block>
+                                </twig:EmptyState>
+                            </div>
+                        </div>
                     {% endfor %}
                 </div>
-            {% endif %}
 
-            <form method="GET"
-                  action="{{ path('app_stats_analysis_library') }}"
-                  data-controller="autosubmit"
-                  data-testid="stats-analysis-explorer-library-search-form"
-                  class="ms-auto">
-                {% for key, value in app.request.query.all %}
-                    {% if key != 'search' %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
-                <div class="input-icon">
-                    <input type="search"
-                           name="search"
-                           value="{{ page.searchQuery }}"
-                           aria-label="{{ 'label.search'|trans({}, 'messages') }}"
-                           placeholder="{{ 'label.search'|trans({}, 'messages') }}"
-                           class="form-control d-inline-block w-9"
-                           data-action="autosubmit#debouncedSubmit"
-                           data-testid="stats-analysis-explorer-library-search-input">
-                    <span class="input-icon-addon">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             class="icon"
-                             width="24"
-                             height="24"
-                             viewBox="0 0 24 24"
-                             stroke-width="2"
-                             stroke="currentColor"
-                             fill="none"
-                             stroke-linecap="round"
-                             stroke-linejoin="round"
-                             aria-hidden="true">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <circle cx="10" cy="10" r="7" />
-                            <line x1="21" y1="21" x2="15" y2="15" />
-                        </svg>
-                    </span>
-                </div>
-            </form>
-        </div>
-
-        <div class="row row-cards mb-4">
-            {% for card in page.cards %}
-                <div class="col-12 col-md-6 col-xl-4">
-                    {{ include('@Statistics/analysis_explorer_library/_view_card.html.twig', {card: card}) }}
-                </div>
-            {% else %}
-                <div class="col-12">
-                    <div data-testid="stats-analysis-explorer-library-empty-{{ page.activeTab }}">
-                        <twig:EmptyState
-                            title="{{ 'stats.analysis_explorer.library.empty_title'|trans({}, 'statistics') }}"
-                            description="{{ (page.searchQuery ? 'stats.analysis_explorer.library.empty.search' : (page.activeTab == 'favorites' ? 'stats.analysis_explorer.library.empty.favorites' : (page.activeTab == 'my_views' ? 'stats.analysis_explorer.library.empty.my_views' : 'stats.analysis_explorer.library.empty')))|trans({}, 'statistics') }}"
-                            icon="{{ page.searchQuery ? 'tabler:filter-off' : 'tabler:books' }}"
-                        >
-                            <twig:block name="actions">
-                                {% if page.searchQuery %}
-                                    <a class="btn btn-primary" href="{{ path('app_stats_analysis_library', app.request.query.all|filter((value, key) => key != 'search')) }}" target="_top">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                {% if page.hasToPaginate %}
+                    {% set paginationQuery = app.request.query.all|filter(v => v is not iterable) %}
+                    <div class="analytics-library-pagination-row mt-3">
+                        <p class="text-secondary mb-0" data-testid="stats-analysis-explorer-library-result-range">
+                            {{ 'stats.analysis_explorer.library.pagination.range'|trans({
+                                first: page.resultFrom,
+                                last: page.resultTo,
+                                total: page.resultTotal,
+                            }, 'statistics') }}
+                        </p>
+                        <ul class="pagination m-0" data-testid="stats-analysis-explorer-library-pagination">
+                            {% if page.currentPage > 1 %}
+                                <li class="page-item">
+                                    <a class="page-link page-text"
+                                       href="{{ path('app_stats_analysis_library', paginationQuery|merge({page: page.currentPage - 1})) }}"
+                                       data-testid="stats-analysis-explorer-library-page-previous">
+                                        {{ 'blog.pagination.previous'|trans({}, 'content') }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.previous'|trans({}, 'content') }}</a>
+                                </li>
+                            {% endif %}
+                            {% for i in 1..page.lastPage %}
+                                {% if i == page.currentPage %}
+                                    <li class="page-item active">
+                                        <span class="page-link" data-testid="stats-analysis-explorer-library-page-{{ i }}">{{ i }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="{{ path('app_stats_analysis_library', paginationQuery|merge({page: i})) }}"
+                                           data-testid="stats-analysis-explorer-library-page-{{ i }}">{{ i }}</a>
+                                    </li>
                                 {% endif %}
-                            </twig:block>
-                        </twig:EmptyState>
+                            {% endfor %}
+                            {% if page.currentPage < page.lastPage %}
+                                <li class="page-item">
+                                    <a class="page-link page-text"
+                                       href="{{ path('app_stats_analysis_library', paginationQuery|merge({page: page.currentPage + 1})) }}"
+                                       data-testid="stats-analysis-explorer-library-page-next">
+                                        {{ 'blog.pagination.next'|trans({}, 'content') }}
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.next'|trans({}, 'content') }}</a>
+                                </li>
+                            {% endif %}
+                        </ul>
                     </div>
-                </div>
-            {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

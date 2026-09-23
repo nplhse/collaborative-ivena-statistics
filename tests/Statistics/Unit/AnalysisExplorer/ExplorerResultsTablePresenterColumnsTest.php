@@ -14,6 +14,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
+use App\Statistics\AnalysisExplorer\Domain\Enum\TableLayout;
 use App\Statistics\AnalysisExplorer\Domain\PresentationConfig;
 
 final class ExplorerResultsTablePresenterColumnsTest extends ExplorerResultsTablePresenterTestCase
@@ -123,5 +124,53 @@ final class ExplorerResultsTablePresenterColumnsTest extends ExplorerResultsTabl
         self::assertSame('allocation_count', $table->metricColumns[0]->key);
         self::assertSame('60 %', $table->rows[0]->formattedMetricPercentValues['allocation_count']);
         self::assertSame('100 %', $table->formattedTotalsPercentValues['allocation_count']);
+    }
+
+    public function testFlatLayoutWithColumnAxisKeepsOneRowPerCombination(): void
+    {
+        $translator = $this->stubExplorerTranslator([
+            ['stats.analysis_explorer.dimension.age_group', [], 'statistics', null, 'Age group'],
+            ['stats.analysis_explorer.dimension.urgency', [], 'statistics', null, 'Urgency'],
+            ['stats.analysis_explorer.metric.allocation_count', [], 'statistics', null, 'Allocations'],
+        ]);
+
+        $presenter = $this->createExplorerResultsTablePresenter($translator);
+        $viewConfig = new AnalysisViewConfig(
+            dataSourceKey: AnalysisDataSourceKey::Allocations,
+            metricKeys: [AnalysisMetricKey::AllocationCount],
+            visualMetricKey: AnalysisMetricKey::AllocationCount,
+            rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::AgeGroup),
+            columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+            statisticsFilter: $this->publicStatisticsFilter(),
+            presentation: new PresentationConfig(
+                chartType: ChartPresentationType::Bar,
+                tableLayout: TableLayout::Flat,
+            ),
+            title: 'Age group distribution',
+        );
+
+        $table = $presenter->create(
+            $viewConfig,
+            new AnalysisRunResult(
+                title: 'Age group distribution',
+                metricKeys: [AnalysisMetricKey::AllocationCount],
+                visualMetricKey: AnalysisMetricKey::AllocationCount,
+                rowAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::AgeGroup),
+                columnAxis: AnalysisAxisRef::breakdown(AnalysisDimensionKey::Urgency),
+                rows: [
+                    new AnalysisResultRow('0-18', '0–18', 'u1', 'U1', ['allocation_count' => 12]),
+                    new AnalysisResultRow('0-18', '0–18', 'u2', 'U2', ['allocation_count' => 8]),
+                ],
+                totals: new AnalysisTotals(grand: ['allocation_count' => 20]),
+            ),
+        );
+
+        self::assertFalse($table->hasSeries);
+        self::assertSame(TableLayout::Flat, $table->tableLayout);
+        self::assertSame('Urgency', $table->metricColumns[0]->label);
+        self::assertSame('Allocations', $table->metricColumns[1]->label);
+        self::assertSame('U1', $table->rows[0]->formattedMetricValues['series']);
+        self::assertSame('12', $table->rows[0]->formattedMetricValues['allocation_count']);
+        self::assertSame('U2', $table->rows[1]->formattedMetricValues['series']);
     }
 }

@@ -12,6 +12,7 @@ use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisMetricKey;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisShape;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerChartRowLimit;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ExplorerHospitalPopulationMode;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
@@ -56,21 +57,21 @@ final readonly class ExplorerAnalysisSummaryFactory
                 $period,
                 $locale,
             ),
-            $this->isTemporalPrimary($config) && !$config->hasColumnAxis() => $this->temporalParts(
+            AnalysisShape::TimeSeries === AnalysisShape::fromConfig($config) && !$config->hasColumnAxis() => $this->temporalParts(
                 $config,
                 $subject,
                 $scope,
                 $period,
                 $locale,
             ),
-            $this->isTemporalPrimary($config) && $config->hasColumnAxis() => $this->overTimeParts(
+            AnalysisShape::TimeSeries === AnalysisShape::fromConfig($config) && $config->hasColumnAxis() => $this->overTimeParts(
                 $config,
                 $subject,
                 $scope,
                 $period,
                 $locale,
             ),
-            $config->hasColumnAxis() => $this->matrixParts(
+            AnalysisShape::Matrix === AnalysisShape::fromConfig($config) => $this->matrixParts(
                 $config,
                 $subject,
                 $scope,
@@ -506,11 +507,6 @@ final readonly class ExplorerAnalysisSummaryFactory
         }
 
         return $normalized;
-    }
-
-    private function isTemporalPrimary(AnalysisViewConfig $config): bool
-    {
-        return $config->rowAxis->dimensionKey->isTemporalPrimary();
     }
 
     private function metricLabel(AnalysisMetricKey $metricKey, ?string $locale): string

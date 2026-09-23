@@ -110,7 +110,7 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
         self::assertSame('time', $result->state['query']['rows']['dimension'] ?? null);
     }
 
-    public function testFilterOverlayReplacesScopeInState(): void
+    public function testFilterOverlayKeepsStoredScopeUnlessPageScopeIsRequested(): void
     {
         $filter = new StatisticsFilter(
             scope: StatisticsFilterScope::Public,
@@ -120,10 +120,41 @@ final class SavedExplorerViewLoaderTest extends KernelTestCase
             referenceYear: 2024,
         );
 
-        $result = $this->loader->load('allocations-over-time', $filter, null);
+        $stored = $this->loader->load('allocations-over-time', $filter, null);
+        self::assertSame('all', $stored->state['query']['period']['type'] ?? null);
 
-        self::assertSame('year', $result->state['query']['period']['type'] ?? null);
-        self::assertSame(2024, $result->state['query']['period']['year'] ?? null);
+        $copied = $this->loader->load('allocations-over-time', $filter, null, null, false, true);
+        self::assertSame('year', $copied->state['query']['period']['type'] ?? null);
+        self::assertSame(2024, $copied->state['query']['period']['year'] ?? null);
+    }
+
+    public function testPublicViewIsReadableByOtherParticipantsOnly(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $participant = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $guest = UserFactory::createOne(['roles' => ['ROLE_USER']]);
+        $config = $this->repository->findBySlug('allocations-over-time')?->getConfigJson() ?? [];
+
+        $view = new SavedExplorerView(
+            slug: null,
+            title: 'Public view',
+            category: 'My views',
+            configJson: $config,
+            isSystem: false,
+        );
+        $view->setCreatedBy($owner);
+        $view->setVisibility(\App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility::Public);
+        $this->repository->save($view);
+        self::assertNotNull($view->getId());
+
+        $hidden = $this->loader->load((string) $view->getId(), $this->publicFilter(), $participant);
+        self::assertTrue($hidden->notFound);
+
+        $visible = $this->loader->load((string) $view->getId(), $this->publicFilter(), $participant, null, true);
+        self::assertFalse($visible->notFound);
+
+        $guestResult = $this->loader->load((string) $view->getId(), $this->publicFilter(), $guest);
+        self::assertTrue($guestResult->notFound);
     }
 
     public function testSystemViewStateTitleIsLocalized(): void

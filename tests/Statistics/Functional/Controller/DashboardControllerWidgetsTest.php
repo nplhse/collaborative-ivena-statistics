@@ -114,7 +114,7 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
     public function testOverviewRendersPortalNavigationLinks(): void
     {
         $client = $this->createClientAsRoleUser();
-        $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/?scope=public&period=all_time');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="stats-cross-nav-overview-benchmarking"]');
@@ -128,6 +128,14 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
         $this->assertSelectorExists('[data-testid="stats-cross-nav-overview-indicators"]');
         $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-time-series"]', 'Cases over time');
         $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-age-groups"]', 'Age groups');
+        self::assertStringContainsString(
+            'age-group-distribution',
+            (string) $crawler->filter('[data-testid="stats-cross-nav-overview-age-groups"]')->attr('href'),
+        );
+        self::assertStringContainsString(
+            'usePageScope=1',
+            (string) $crawler->filter('[data-testid="stats-cross-nav-overview-age-groups"]')->attr('href'),
+        );
         $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-resources"]', 'Resources');
         $this->assertSelectorTextContains('[data-testid="stats-cross-nav-overview-indicators"]', 'Clinical features');
     }

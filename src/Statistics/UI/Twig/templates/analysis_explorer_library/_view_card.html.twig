@@ -1,20 +1,21 @@
-<div class="card" data-testid="stats-analysis-explorer-view-card-{{ card.id }}">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-            <div class="d-flex flex-wrap gap-1">
-                {% if card.isSystem and card.categoryLabel and card.categoryUrl %}
-                    <a href="{{ card.categoryUrl }}"
-                       class="badge bg-blue-lt text-blue-lt-fg text-decoration-none"
-                       data-testid="stats-analysis-explorer-category-badge-{{ card.categoryKey }}">
-                        {{ card.categoryLabel }}
-                    </a>
-                {% elseif not card.isSystem %}
-                    <span class="badge bg-blue-lt text-blue-lt-fg">
-                        {{ card.viewTypeLabel }}
+<twig:Card headerClass="card-header-light" data-testid="stats-analysis-explorer-view-card-{{ card.id }}">
+    <twig:block name="header">
+        <h3 class="card-title mb-0">
+            <span class="d-inline-flex align-items-center gap-1">
+                <a href="{{ card.openUrl }}" class="link-primary" data-testid="stats-analysis-explorer-open-{{ card.id }}">{{ card.title }}</a>
+                {% if not card.isSystem and not card.isPublic %}
+                    <span class="d-inline-flex text-secondary"
+                          role="img"
+                          title="{{ 'stats.analysis_explorer.visibility.private_hint'|trans({}, 'statistics') }}"
+                          aria-label="{{ 'stats.analysis_explorer.visibility.private_hint'|trans({}, 'statistics') }}"
+                          data-testid="stats-analysis-explorer-private-lock-{{ card.id }}">
+                        <twig:ux:icon name="tabler:lock" class="icon" style="width: 0.9em; height: 0.9em;" />
                     </span>
                 {% endif %}
-            </div>
-            {% if card.canFavorite and card.favoriteUrl %}
+            </span>
+        </h3>
+        {% if card.canFavorite and card.favoriteUrl %}
+            <div class="card-actions">
                 <form method="post" action="{{ card.favoriteUrl }}" class="m-0">
                     <input type="hidden" name="_token" value="{{ csrf_token(card.favoriteToken) }}">
                     <button type="submit"
@@ -24,25 +25,86 @@
                         <twig:ux:icon name="{{ card.isFavorite ? 'tabler:star-filled' : 'tabler:star' }}" style="height: 1.2em;" />
                     </button>
                 </form>
+            </div>
+        {% endif %}
+    </twig:block>
+        <p class="text-secondary small mb-2" data-testid="stats-analysis-explorer-author-{{ card.id }}">
+            {% if card.isSystem %}
+                <twig:ux:icon name="tabler:server" class="icon icon-sm" />
+                {{ 'stats.analysis_explorer.library.card.system_source'|trans({}, 'statistics') }}
+            {% else %}
+                <twig:ux:icon name="tabler:user" class="icon icon-sm" />
+                {% if card.authorUrl and card.authorName %}
+                    <a href="{{ card.authorUrl }}">{{ card.authorName }}</a>
+                {% else %}
+                    {{ card.authorName ?: ('stats.analysis_explorer.library.card.unknown_author'|trans({}, 'statistics')) }}
+                {% endif %}
             {% endif %}
-        </div>
-        <h3 class="card-title mb-1">{{ card.title }}</h3>
+            {% if card.activityIso %}
+                <span class="mx-1" aria-hidden="true">·</span>
+                <time datetime="{{ card.activityIso }}" title="{{ card.activityAbsolute }}">{{ card.activityRelative }}</time>
+                <span class="visually-hidden">{{ card.activityAbsolute }}</span>
+            {% endif %}
+        </p>
         {% if card.description %}
             <p class="text-secondary small mb-3">{{ card.description }}</p>
         {% endif %}
-        <div class="d-flex flex-wrap gap-1 mb-3">
-            {% if card.dimension %}
-                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.dimension'|trans({}, 'statistics') }}: {{ card.dimension }}</span>
+        {% set chartIcons = {
+            bar: 'tabler:chart-bar',
+            line: 'tabler:chart-line',
+            grouped_bar: 'tabler:chart-bar',
+            stacked_bar: 'tabler:chart-histogram',
+            heatmap: 'tabler:layout-grid',
+            box_plot: 'tabler:chart-dots',
+        } %}
+        <div class="d-flex flex-wrap gap-1">
+            {% if card.categoryLabel and card.categoryUrl %}
+                {% set dataSourceIcons = {
+                    allocations: 'tabler:ambulance',
+                    hospitals: 'tabler:building-hospital',
+                } %}
+                {% set dataSourceLabel = 'stats.analysis_explorer.data_source.label'|trans({}, 'statistics') ~ ': ' ~ card.categoryLabel %}
+                <a href="{{ card.categoryUrl }}"
+                   class="badge bg-secondary-lt d-inline-flex align-items-center gap-1 text-decoration-none"
+                   title="{{ dataSourceLabel }}"
+                   aria-label="{{ dataSourceLabel }}"
+                   data-testid="stats-analysis-explorer-category-badge-{{ card.categoryKey }}">
+                    <twig:ux:icon name="{{ dataSourceIcons[card.categoryKey]|default('tabler:database') }}" class="icon icon-sm" />
+                    {{ card.categoryLabel }}
+                </a>
             {% endif %}
-            {% if card.grain %}
-                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.grain'|trans({}, 'statistics') }}: {{ card.grain }}</span>
+            {% if card.dimension and card.dimensionUrl %}
+                {% set dimensionLabel = 'stats.analysis_explorer.library.card.dimension'|trans({}, 'statistics') ~ ': ' ~ card.dimension %}
+                <a href="{{ card.dimensionUrl }}"
+                   class="badge bg-secondary-lt d-inline-flex align-items-center gap-1 text-decoration-none"
+                   title="{{ dimensionLabel }}"
+                   aria-label="{{ dimensionLabel }}"
+                   data-testid="stats-analysis-explorer-dimension-badge-{{ card.dimensionKey }}">
+                    <twig:ux:icon name="tabler:layout-rows" class="icon icon-sm" />
+                    {{ card.dimension }}
+                </a>
             {% endif %}
-            {% if card.chartType %}
-                <span class="badge bg-secondary-lt">{{ 'stats.analysis_explorer.library.card.chart'|trans({}, 'statistics') }}: {{ card.chartType }}</span>
+            {% if card.grain and card.grainUrl %}
+                {% set grainLabel = 'stats.analysis_explorer.library.card.grain'|trans({}, 'statistics') ~ ': ' ~ card.grain %}
+                <a href="{{ card.grainUrl }}"
+                   class="badge bg-secondary-lt d-inline-flex align-items-center gap-1 text-decoration-none"
+                   title="{{ grainLabel }}"
+                   aria-label="{{ grainLabel }}"
+                   data-testid="stats-analysis-explorer-grain-badge-{{ card.grainKey }}">
+                    <twig:ux:icon name="tabler:calendar-time" class="icon icon-sm" />
+                    {{ card.grain }}
+                </a>
+            {% endif %}
+            {% if card.chartType and card.chartUrl %}
+                {% set chartLabel = 'stats.analysis_explorer.library.card.chart'|trans({}, 'statistics') ~ ': ' ~ card.chartType %}
+                <a href="{{ card.chartUrl }}"
+                   class="badge bg-secondary-lt d-inline-flex align-items-center gap-1 text-decoration-none"
+                   title="{{ chartLabel }}"
+                   aria-label="{{ chartLabel }}"
+                   data-testid="stats-analysis-explorer-chart-badge-{{ card.chartTypeKey }}">
+                    <twig:ux:icon name="{{ chartIcons[card.chartTypeKey]|default('tabler:chart-bar') }}" class="icon icon-sm" />
+                    {{ card.chartType }}
+                </a>
             {% endif %}
         </div>
-        <a href="{{ card.openUrl }}" class="btn btn-primary w-100" data-testid="stats-analysis-explorer-open-{{ card.id }}">
-            {{ 'stats.analysis_explorer.library.open'|trans({}, 'statistics') }}
-        </a>
-    </div>
-</div>
+</twig:Card>

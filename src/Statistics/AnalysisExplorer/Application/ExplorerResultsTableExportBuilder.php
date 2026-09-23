@@ -33,7 +33,7 @@ final readonly class ExplorerResultsTableExportBuilder
             return $this->buildDistributionFlatDocument($viewConfig, $result);
         }
 
-        if (!$result->hasColumnAxis()) {
+        if (!$result->hasColumnAxis() || TableLayout::Flat === $viewConfig->presentation->tableLayout) {
             return $this->buildFlatDocument($viewConfig, $result);
         }
 
@@ -47,9 +47,16 @@ final readonly class ExplorerResultsTableExportBuilder
     {
         $showPercent = $viewConfig->showsPercentOfTotal();
         $countMetric = $this->countMetricForPercent($result);
+        $hasSeries = $result->hasSeries();
         $headers = [
             new TabularExportColumn('row', $this->axisLabel($viewConfig->rowAxis)),
         ];
+        if ($hasSeries) {
+            $headers[] = new TabularExportColumn(
+                'series',
+                $this->distributionSeriesAxisLabel($viewConfig, $result),
+            );
+        }
         foreach ($result->metricKeys as $metricKey) {
             if ($showPercent && AnalysisMetricKey::PercentOfTotal === $metricKey) {
                 continue;
@@ -67,6 +74,9 @@ final readonly class ExplorerResultsTableExportBuilder
         $rows = [];
         foreach ($result->rows as $row) {
             $cells = [$row->bucketLabel];
+            if ($hasSeries) {
+                $cells[] = $row->seriesLabel ?? '';
+            }
             foreach ($result->metricKeys as $metricKey) {
                 if ($showPercent && AnalysisMetricKey::PercentOfTotal === $metricKey) {
                     continue;
@@ -83,6 +93,9 @@ final readonly class ExplorerResultsTableExportBuilder
         $footerRows = [];
         if ([] !== $result->rows) {
             $footer = [$this->totalLabel()];
+            if ($hasSeries) {
+                $footer[] = '';
+            }
             foreach ($result->metricKeys as $metricKey) {
                 if ($showPercent && AnalysisMetricKey::PercentOfTotal === $metricKey) {
                     continue;

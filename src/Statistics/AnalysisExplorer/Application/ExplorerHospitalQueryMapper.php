@@ -27,6 +27,10 @@ final readonly class ExplorerHospitalQueryMapper implements ExplorerAnalysisQuer
         return AnalysisDataSourceKey::Hospitals === $query->dataSourceKey;
     }
 
+    /**
+     * Hospital analyses do not accept analysis filters. A non-empty filter list fails validation
+     * before this mapper runs, so filters are not copied onto the generic query.
+     */
     #[\Override]
     public function map(AnalysisQuery $query): GenericAnalysisQuery
     {

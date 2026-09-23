@@ -58,6 +58,23 @@ final class ExplorerEditAxisSwapperTest extends KernelTestCase
         self::assertSame('stacked_bar', $swapped->chartType);
     }
 
+    public function testSwapKeepsAllAllocationsGrainOnTimeColumns(): void
+    {
+        $formData = $this->formData(
+            rowDimension: 'time',
+            rowGrain: 'total',
+            columnDimension: 'urgency',
+            columnGrain: 'total',
+            chartType: 'bar',
+        );
+
+        $swapped = $this->swapper->swap($formData);
+
+        self::assertSame('urgency', $swapped->rowDimension);
+        self::assertSame('time', $swapped->columnDimension);
+        self::assertSame('total', $swapped->columnGrain);
+    }
+
     public function testCanSwapHospitalTierByLocationMatrix(): void
     {
         $formData = $this->formData(

@@ -19,7 +19,7 @@ final readonly class ExplorerFilterBadgePresenter implements ExplorerAnalysisSum
     }
 
     /**
-     * @return list<array{label: string, value: string}>
+     * @return list<array{key: string, label: string, value: string}>
      */
     #[\Override]
     public function present(AnalysisViewConfig $config, ?string $locale = null): array
@@ -27,6 +27,7 @@ final readonly class ExplorerFilterBadgePresenter implements ExplorerAnalysisSum
         $badges = [];
         foreach ($config->filters as $filter) {
             $badges[] = [
+                'key' => $filter->dimensionKey,
                 'label' => $this->dimensionLabel($filter->dimensionKey, $locale),
                 'value' => $this->valueLabel($filter, $locale),
             ];

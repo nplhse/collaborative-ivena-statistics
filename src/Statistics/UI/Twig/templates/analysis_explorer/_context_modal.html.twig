@@ -1,0 +1,81 @@
+<div class="modal modal-blur fade{% if isContextOpen %} show{% endif %}"
+     id="analysisExplorerContextModal"
+     tabindex="-1"
+     aria-labelledby="analysisExplorerContextModalLabel"
+     aria-hidden="{{ isContextOpen ? 'false' : 'true' }}"
+     {% if isContextOpen %}style="display: block;"{% endif %}
+     data-testid="stats-analysis-explorer-context-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="analysisExplorerContextModalLabel">
+                    {{ 'stats.analysis_context.title'|trans({}, 'statistics') }}
+                </h2>
+                <button type="button"
+                        class="btn-close"
+                        data-action="live#action"
+                        data-live-action-param="cancelEdit"
+                        aria-label="{{ 'action.close'|trans({}, 'messages') }}"></button>
+            </div>
+            <div class="modal-body">
+                <div data-testid="stats-analysis-explorer-edit-section-scope">
+                    <label class="form-label">{{ 'stats.filter.scope_label'|trans({}, 'statistics') }}</label>
+                    {{ include('@Statistics/analysis_explorer/_explorer_edit_scope_fields.html.twig', {
+                        sideForm: form.scopePeriod,
+                        testId: 'stats-analysis-explorer-scope-form',
+                    }) }}
+                </div>
+                <hr class="my-3">
+                <div data-testid="stats-analysis-explorer-edit-section-period">
+                    <label class="form-label">{{ 'stats.filter.period_label'|trans({}, 'statistics') }}</label>
+                    {{ include('@Statistics/analysis_explorer/_explorer_edit_period_fields.html.twig', {
+                        sideForm: form.scopePeriod,
+                        testId: 'stats-analysis-explorer-period-form',
+                    }) }}
+                    {% if not form.hospitalPopulation.vars.disabled %}
+                        {% set allocationDerivedMetrics = [
+                            'total_allocations',
+                            'avg_allocations_per_hospital',
+                            'min_allocations',
+                            'max_allocations',
+                        ] %}
+                        {% set selectedMetrics = [form.metric.vars.data]|merge(form.additionalTableMetrics.vars.data|default([])) %}
+                        {% if selectedMetrics|filter(metric => metric in allocationDerivedMetrics)|length > 0 %}
+                            <p class="text-secondary small mb-0 mt-2" data-testid="stats-analysis-explorer-allocation-derived-period-hint">
+                                {{ 'stats.generic_analysis.period.allocation_derived_hint'|trans({}, 'statistics') }}
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between align-items-center">
+                <button type="button"
+                        class="btn"
+                        data-action="live#action"
+                        data-live-action-param="resetContext"
+                        data-testid="stats-analysis-explorer-context-reset">
+                    {{ 'stats.analysis_context.reset'|trans({}, 'statistics') }}
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-link link-secondary"
+                            data-action="live#action"
+                            data-live-action-param="cancelEdit"
+                            data-testid="stats-analysis-explorer-context-cancel">
+                        {{ 'action.cancel'|trans({}, 'messages') }}
+                    </button>
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-action="live#action"
+                            data-live-action-param="applyEdit"
+                            data-testid="stats-analysis-explorer-context-apply">
+                        {{ 'stats.analysis_context.apply'|trans({}, 'statistics') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if isContextOpen %}
+    <div class="modal-backdrop fade show"></div>
+{% endif %}

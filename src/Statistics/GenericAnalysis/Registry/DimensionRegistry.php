@@ -96,6 +96,18 @@ SQL;
             recommendedChartType: 'line',
             sqlExpression: "to_char(make_date(created_year, created_month, created_day), 'YYYY-MM-DD')",
         ));
+        $this->register(new AnalysisDimension(
+            key: AnalysisDimension::ALLOCATION_TOTAL_KEY,
+            column: '',
+            label: 'All allocations',
+            type: AnalysisDimensionType::Categorical,
+            recommendedChartType: 'bar',
+            sqlExpression: "'all'",
+            fixedBuckets: ['all'],
+            valueLabelTranslationKeys: [
+                'all' => 'stats.analysis_explorer.grain.all_allocations',
+            ],
+        ));
         $this->register($this->clinicalIndicatorDimension(
             ClinicalIndicatorDefinitions::DIMENSION_RESOURCES,
             'Clinical resources',
