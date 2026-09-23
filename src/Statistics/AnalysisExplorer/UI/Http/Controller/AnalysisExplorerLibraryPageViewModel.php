@@ -42,6 +42,7 @@ final readonly class AnalysisExplorerLibraryPageViewModel
         public int $resultFrom = 0,
         public int $resultTo = 0,
         public int $resultTotal = 0,
+        public string $assistantUrl = '',
     ) {
     }
 }

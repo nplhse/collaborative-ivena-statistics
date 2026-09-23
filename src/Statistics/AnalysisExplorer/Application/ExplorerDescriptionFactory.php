@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\ChartPresentationType;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -24,6 +25,7 @@ final readonly class ExplorerDescriptionFactory
             $config->rowAxis,
             $config->columnAxis,
             $config->presentation->chartType,
+            $config->dataSourceKey,
         );
     }
 
@@ -31,6 +33,7 @@ final readonly class ExplorerDescriptionFactory
         AnalysisAxisRef $rowAxis,
         ?AnalysisAxisRef $columnAxis,
         ChartPresentationType $chartType,
+        AnalysisDataSourceKey $dataSource = AnalysisDataSourceKey::Allocations,
     ): string {
         if (!$columnAxis instanceof AnalysisAxisRef && $rowAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.description.temporal_primary', [
@@ -43,6 +46,7 @@ final readonly class ExplorerDescriptionFactory
                 'dimension' => $this->titleFactory->titleForAxes(
                     AnalysisAxisRef::breakdown($columnAxis->dimensionKey),
                     null,
+                    $dataSource,
                 ),
                 'grain' => $this->grainLabel($rowAxis->resolvedGrain()),
                 'chart' => $this->chartLabel($chartType),
@@ -51,13 +55,13 @@ final readonly class ExplorerDescriptionFactory
 
         if ($columnAxis instanceof AnalysisAxisRef && $columnAxis->dimensionKey->isTemporalPrimary()) {
             return $this->translator->trans('stats.analysis_explorer.description.breakdown_by_temporal', [
-                'dimension' => $this->titleFactory->titleForAxes($rowAxis, null),
+                'dimension' => $this->titleFactory->titleForAxes($rowAxis, null, $dataSource),
                 'temporal' => $this->grainLabel($columnAxis->resolvedGrain()),
             ], 'statistics');
         }
 
         return $this->translator->trans('stats.analysis_explorer.description.breakdown_total', [
-            'dimension' => $this->titleFactory->titleForAxes($rowAxis, null),
+            'dimension' => $this->titleFactory->titleForAxes($rowAxis, null, $dataSource),
         ], 'statistics');
     }
 

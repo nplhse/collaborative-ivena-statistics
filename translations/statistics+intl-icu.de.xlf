@@ -733,6 +733,26 @@
         <source>stats.analysis_explorer.allocations_cross_tab</source>
         <target>Zuweisungen: {rows} × {columns}</target>
       </trans-unit>
+      <trans-unit id="statsAexHs01" resname="stats.analysis_explorer.hospitals_by_dimension">
+        <source>stats.analysis_explorer.hospitals_by_dimension</source>
+        <target>Krankenhäuser nach {dimension}</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs02" resname="stats.analysis_explorer.hospitals_by_dimension_by_temporal">
+        <source>stats.analysis_explorer.hospitals_by_dimension_by_temporal</source>
+        <target>Krankenhäuser nach {dimension} nach {temporal}</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs03" resname="stats.analysis_explorer.hospitals_by_dimension_over_time">
+        <source>stats.analysis_explorer.hospitals_by_dimension_over_time</source>
+        <target>Krankenhäuser nach {dimension} im Zeitverlauf</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs04" resname="stats.analysis_explorer.hospitals_cross_tab">
+        <source>stats.analysis_explorer.hospitals_cross_tab</source>
+        <target>Krankenhäuser: {rows} × {columns}</target>
+      </trans-unit>
+      <trans-unit id="statsAexHs05" resname="stats.analysis_explorer.hospitals_over_time">
+        <source>stats.analysis_explorer.hospitals_over_time</source>
+        <target>Krankenhäuser über die Zeit</target>
+      </trans-unit>
       <trans-unit id="statsAex03" resname="stats.analysis_explorer.allocations_over_time">
         <source>stats.analysis_explorer.allocations_over_time</source>
         <target>Zuweisungen über die Zeit</target>
@@ -6748,6 +6768,278 @@
       <trans-unit id="StatsInsCmpDe38" resname="stats.insights.compare.disable">
         <source>stats.insights.compare.disable</source>
         <target>Vergleich beenden</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs01" resname="stats.analysis_explorer.assistant.entry.title">
+        <source>stats.analysis_explorer.assistant.entry.title</source>
+        <target>Welche Analyse passt zu meiner Frage?</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs02" resname="stats.analysis_explorer.assistant.entry.description">
+        <source>stats.analysis_explorer.assistant.entry.description</source>
+        <target>Beantworten Sie ein paar kurze Fragen. Der Assistent erstellt eine passende Analyse.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs03" resname="stats.analysis_explorer.assistant.entry.action">
+        <source>stats.analysis_explorer.assistant.entry.action</source>
+        <target>Starten</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs04" resname="stats.analysis_explorer.assistant.title">
+        <source>stats.analysis_explorer.assistant.title</source>
+        <target>Analyse-Assistent</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs05" resname="stats.analysis_explorer.assistant.pretitle">
+        <source>stats.analysis_explorer.assistant.pretitle</source>
+        <target>Analysis Explorer</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs06" resname="stats.analysis_explorer.assistant.step.goal">
+        <source>stats.analysis_explorer.assistant.step.goal</source>
+        <target>Wählen Sie eine Frage</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs07" resname="stats.analysis_explorer.assistant.change_goal">
+        <source>stats.analysis_explorer.assistant.change_goal</source>
+        <target>Andere Frage wählen</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs08" resname="stats.analysis_explorer.assistant.open">
+        <source>stats.analysis_explorer.assistant.open</source>
+        <target>Im Analysis Explorer öffnen</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs09" resname="stats.analysis_explorer.assistant.update">
+        <source>stats.analysis_explorer.assistant.update</source>
+        <target>Vorschlag aktualisieren</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs37" resname="stats.analysis_explorer.assistant.back">
+        <source>stats.analysis_explorer.assistant.back</source>
+        <target>Zurück</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs38" resname="stats.analysis_explorer.assistant.next">
+        <source>stats.analysis_explorer.assistant.next</source>
+        <target>Weiter</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs39" resname="stats.analysis_explorer.assistant.incomplete">
+        <source>stats.analysis_explorer.assistant.incomplete</source>
+        <target>Wählen Sie zuerst die Merkmale für diese Frage.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs40" resname="stats.analysis_explorer.assistant.context.title">
+        <source>stats.analysis_explorer.assistant.context.title</source>
+        <target>Umfang dieser Analyse</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs41" resname="stats.analysis_explorer.assistant.context.description">
+        <source>stats.analysis_explorer.assistant.context.description</source>
+        <target>Bereich und Zeitraum gelten für die Analyse, die im Explorer geöffnet wird.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs42" resname="stats.analysis_explorer.assistant.refresh">
+        <source>stats.analysis_explorer.assistant.refresh</source>
+        <target>Aktualisieren</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs10" resname="stats.analysis_explorer.assistant.choose">
+        <source>stats.analysis_explorer.assistant.choose</source>
+        <target>Bitte wählen</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs11" resname="stats.analysis_explorer.assistant.grain.label">
+        <source>stats.analysis_explorer.assistant.grain.label</source>
+        <target>Zeitliche Gruppierung</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs12" resname="stats.analysis_explorer.assistant.characteristic.label">
+        <source>stats.analysis_explorer.assistant.characteristic.label</source>
+        <target>Merkmal</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs13" resname="stats.analysis_explorer.assistant.rows.label">
+        <source>stats.analysis_explorer.assistant.rows.label</source>
+        <target>Erstes Merkmal</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs14" resname="stats.analysis_explorer.assistant.columns.label">
+        <source>stats.analysis_explorer.assistant.columns.label</source>
+        <target>Zweites Merkmal</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs15" resname="stats.analysis_explorer.assistant.measure.label">
+        <source>stats.analysis_explorer.assistant.measure.label</source>
+        <target>Was soll das Ergebnis zeigen?</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs16" resname="stats.analysis_explorer.assistant.measure.count">
+        <source>stats.analysis_explorer.assistant.measure.count</source>
+        <target>Anzahl der Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs17" resname="stats.analysis_explorer.assistant.measure.share">
+        <source>stats.analysis_explorer.assistant.measure.share</source>
+        <target>Anzahl und Anteil</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs18" resname="stats.analysis_explorer.assistant.suggestions">
+        <source>stats.analysis_explorer.assistant.suggestions</source>
+        <target>Häufige Kombinationen</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs19" resname="stats.analysis_explorer.assistant.toplist_suggestions">
+        <source>stats.analysis_explorer.assistant.toplist_suggestions</source>
+        <target>Häufig sinnvoll</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs20" resname="stats.analysis_explorer.assistant.pair">
+        <source>stats.analysis_explorer.assistant.pair</source>
+        <target>{rows} × {columns}</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs21" resname="stats.analysis_explorer.assistant.same_axis">
+        <source>stats.analysis_explorer.assistant.same_axis</source>
+        <target>Wählen Sie zwei unterschiedliche Merkmale.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs22" resname="stats.analysis_explorer.assistant.invalid">
+        <source>stats.analysis_explorer.assistant.invalid</source>
+        <target>Diese Kombination ist nicht verfügbar.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs23" resname="stats.analysis_explorer.assistant.invalid_config">
+        <source>stats.analysis_explorer.assistant.invalid_config</source>
+        <target>Diese Kombination kann nicht geöffnet werden. Der Explorer zeigt die Standardanalyse.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs24" resname="stats.analysis_explorer.assistant.goal.time_series.title">
+        <source>stats.analysis_explorer.assistant.goal.time_series.title</source>
+        <target>Entwicklung über die Zeit</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs25" resname="stats.analysis_explorer.assistant.goal.time_series.description">
+        <source>stats.analysis_explorer.assistant.goal.time_series.description</source>
+        <target>Sehen Sie, wie sich die Zahl der Zuweisungen über die Zeit verändert.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs26" resname="stats.analysis_explorer.assistant.goal.distribution.title">
+        <source>stats.analysis_explorer.assistant.goal.distribution.title</source>
+        <target>Verteilung eines Merkmals</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs27" resname="stats.analysis_explorer.assistant.goal.distribution.description">
+        <source>stats.analysis_explorer.assistant.goal.distribution.description</source>
+        <target>Sehen Sie, wie sich Zuweisungen auf Dringlichkeit, Altersgruppen, Geschlecht oder ein anderes Merkmal verteilen.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs28" resname="stats.analysis_explorer.assistant.goal.toplist.title">
+        <source>stats.analysis_explorer.assistant.goal.toplist.title</source>
+        <target>Häufigste Kategorien</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs29" resname="stats.analysis_explorer.assistant.goal.toplist.description">
+        <source>stats.analysis_explorer.assistant.goal.toplist.description</source>
+        <target>Finden Sie die häufigsten Indikationen, Abteilungen, Zuordnungen oder andere Kategorien.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs30" resname="stats.analysis_explorer.assistant.goal.matrix.title">
+        <source>stats.analysis_explorer.assistant.goal.matrix.title</source>
+        <target>Zusammenhang zweier Merkmale</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs31" resname="stats.analysis_explorer.assistant.goal.matrix.description">
+        <source>stats.analysis_explorer.assistant.goal.matrix.description</source>
+        <target>Sehen Sie Kombinationen wie Wochentag und Stunde oder Abteilung und Dringlichkeit.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs32" resname="stats.analysis_explorer.assistant.presentation.time_series">
+        <source>stats.analysis_explorer.assistant.presentation.time_series</source>
+        <target>Dargestellt als Liniendiagramm mit Ergebnistabelle.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs33" resname="stats.analysis_explorer.assistant.presentation.distribution">
+        <source>stats.analysis_explorer.assistant.presentation.distribution</source>
+        <target>Dargestellt als Balkendiagramm mit Ergebnistabelle.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs34" resname="stats.analysis_explorer.assistant.presentation.toplist">
+        <source>stats.analysis_explorer.assistant.presentation.toplist</source>
+        <target>Das Diagramm zeigt die zehn häufigsten Werte. Die Tabelle enthält alle Werte.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs35" resname="stats.analysis_explorer.assistant.presentation.matrix">
+        <source>stats.analysis_explorer.assistant.presentation.matrix</source>
+        <target>Dargestellt als Heatmap mit Ergebnistabelle.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs36" resname="stats.analysis_explorer.assistant.presentation.share">
+        <source>stats.analysis_explorer.assistant.presentation.share</source>
+        <target>Das Diagramm zeigt die Anzahl der Zuweisungen. Die Tabelle enthält zusätzlich den Anteil an der Gesamtzahl.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs43" resname="stats.analysis_explorer.assistant.step_name.goal">
+        <source>stats.analysis_explorer.assistant.step_name.goal</source>
+        <target>Frage</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs44" resname="stats.analysis_explorer.assistant.step_name.context">
+        <source>stats.analysis_explorer.assistant.step_name.context</source>
+        <target>Umfang</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs45" resname="stats.analysis_explorer.assistant.step_name.questions">
+        <source>stats.analysis_explorer.assistant.step_name.questions</source>
+        <target>Aufbau</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs46" resname="stats.analysis_explorer.assistant.step_name.filters">
+        <source>stats.analysis_explorer.assistant.step_name.filters</source>
+        <target>Filter</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs47" resname="stats.analysis_explorer.assistant.step_name.summary">
+        <source>stats.analysis_explorer.assistant.step_name.summary</source>
+        <target>Zusammenfassung</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs48" resname="stats.analysis_explorer.assistant.step_lead.goal">
+        <source>stats.analysis_explorer.assistant.step_lead.goal</source>
+        <target>Wählen Sie eine Frage.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs49" resname="stats.analysis_explorer.assistant.step_lead.context">
+        <source>stats.analysis_explorer.assistant.step_lead.context</source>
+        <target>Bereich und Zeitraum gelten für die Analyse, die im Explorer geöffnet wird.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs50" resname="stats.analysis_explorer.assistant.step_lead.questions">
+        <source>stats.analysis_explorer.assistant.step_lead.questions</source>
+        <target>Legen Sie das erste Merkmal und die Diagramm-Metrik fest. Beim Zusammenhang zweier Merkmale kommt das zweite Merkmal dazu.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs51" resname="stats.analysis_explorer.assistant.step_lead.filters">
+        <source>stats.analysis_explorer.assistant.step_lead.filters</source>
+        <target>Schränken Sie die Zuweisungen ein. Jeder Filter kann offen bleiben.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs52" resname="stats.analysis_explorer.assistant.step_lead.summary">
+        <source>stats.analysis_explorer.assistant.step_lead.summary</source>
+        <target>Das ist die Analyse, die im Explorer geöffnet wird.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs53" resname="stats.analysis_explorer.assistant.cancel">
+        <source>stats.analysis_explorer.assistant.cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs54" resname="stats.analysis_explorer.assistant.columns.optional">
+        <source>stats.analysis_explorer.assistant.columns.optional</source>
+        <target>Spalte</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs55" resname="stats.analysis_explorer.assistant.columns.none">
+        <source>stats.analysis_explorer.assistant.columns.none</source>
+        <target>Keine Spalte</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs56" resname="stats.analysis_explorer.assistant.metric.label">
+        <source>stats.analysis_explorer.assistant.metric.label</source>
+        <target>Diagramm-Metrik</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs57" resname="stats.analysis_explorer.assistant.presentation.details">
+        <source>stats.analysis_explorer.assistant.presentation.details</source>
+        <target>Das Diagramm zeigt {metric}{column}{filters}.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs58" resname="stats.analysis_explorer.assistant.presentation.column_part">
+        <source>stats.analysis_explorer.assistant.presentation.column_part</source>
+        <target>, mit Spalten nach {column}</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs59" resname="stats.analysis_explorer.assistant.presentation.filters_part">
+        <source>stats.analysis_explorer.assistant.presentation.filters_part</source>
+        <target>, eingeschränkt auf {filters}</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs60" resname="stats.analysis_explorer.assistant.presentation.box_plot">
+        <source>stats.analysis_explorer.assistant.presentation.box_plot</source>
+        <target>Dargestellt als Boxplot mit einer Ergebnistabelle.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs61" resname="stats.analysis_explorer.assistant.step_name.source">
+        <source>stats.analysis_explorer.assistant.step_name.source</source>
+        <target>Daten</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs62" resname="stats.analysis_explorer.assistant.step_lead.source">
+        <source>stats.analysis_explorer.assistant.step_lead.source</source>
+        <target>Lege fest, ob die Analyse Zuweisungen oder Krankenhäuser verwendet.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs63" resname="stats.analysis_explorer.assistant.summary.edit">
+        <source>stats.analysis_explorer.assistant.summary.edit</source>
+        <target>Ändern</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs64" resname="stats.analysis_explorer.assistant.summary.none">
+        <source>stats.analysis_explorer.assistant.summary.none</source>
+        <target>Keine</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs65" resname="stats.analysis_explorer.assistant.filters.empty">
+        <source>stats.analysis_explorer.assistant.filters.empty</source>
+        <target>Für diesen Datenbestand gibt es keine Zuweisungsfilter. Weiter zur Zusammenfassung.</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs66" resname="stats.analysis_explorer.assistant.structure.row">
+        <source>stats.analysis_explorer.assistant.structure.row</source>
+        <target>Zeile</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs67" resname="stats.analysis_explorer.assistant.structure.column">
+        <source>stats.analysis_explorer.assistant.structure.column</source>
+        <target>Optionale Spalte</target>
+      </trans-unit>
+      <trans-unit id="statsAexAs68" resname="stats.analysis_explorer.assistant.structure.metric">
+        <source>stats.analysis_explorer.assistant.structure.metric</source>
+        <target>Metrik</target>
       </trans-unit>
     </body>
   </file>

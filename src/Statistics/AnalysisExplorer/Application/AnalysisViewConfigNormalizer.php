@@ -107,7 +107,7 @@ final readonly class AnalysisViewConfigNormalizer
                 tableLayout: $tableLayout,
                 chartRowLimit: $config->presentation->chartRowLimit,
             ),
-            title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis),
+            title: $this->titleFactory->titleForAxes($rowAxis, $columnAxis, $capabilities->dataSourceKey),
             hospitalPopulationMode: $config->hospitalPopulationMode,
             filters: $this->analysisFilterPolicy->sanitizeForConfig($config, $config->filters),
         );

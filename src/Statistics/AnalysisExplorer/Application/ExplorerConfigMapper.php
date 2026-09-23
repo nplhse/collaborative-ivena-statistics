@@ -110,7 +110,7 @@ final readonly class ExplorerConfigMapper
                 tableLayout: $tableLayout,
                 chartRowLimit: $chartRowLimit,
             ))
-            ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis))
+            ->withTitle($this->titleFactory->titleForAxes($rowAxis, $columnAxis, $base->dataSourceKey))
             ->withHospitalPopulationMode($hospitalPopulationMode);
 
         return $config->withFilters($this->analysisFilterPolicy->sanitizeForConfig(

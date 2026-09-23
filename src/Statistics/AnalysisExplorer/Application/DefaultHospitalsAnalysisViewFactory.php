@@ -35,7 +35,7 @@ final readonly class DefaultHospitalsAnalysisViewFactory
             presentation: new PresentationConfig(
                 chartType: ChartPresentationType::Bar,
             ),
-            title: $this->titleFactory->titleForAxes($rowAxis, null),
+            title: $this->titleFactory->titleForAxes($rowAxis, null, AnalysisDataSourceKey::Hospitals),
             hospitalPopulationMode: ExplorerHospitalPopulationMode::Participating,
         );
     }

@@ -6,6 +6,7 @@ namespace App\Statistics\AnalysisExplorer\Application;
 
 use App\Statistics\AnalysisExplorer\Domain\AnalysisViewConfig;
 use App\Statistics\AnalysisExplorer\Domain\DTO\AnalysisAxisRef;
+use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDataSourceKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionGrain;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisDimensionKey;
 use App\Statistics\AnalysisExplorer\Domain\Enum\AnalysisShape;
@@ -18,32 +19,37 @@ final readonly class ExplorerTitleFactory
     ) {
     }
 
-    public function titleForAxes(AnalysisAxisRef $rowAxis, ?AnalysisAxisRef $columnAxis): string
-    {
+    public function titleForAxes(
+        AnalysisAxisRef $rowAxis,
+        ?AnalysisAxisRef $columnAxis,
+        AnalysisDataSourceKey $dataSource = AnalysisDataSourceKey::Allocations,
+    ): string {
+        $subject = AnalysisDataSourceKey::Hospitals === $dataSource ? 'hospitals' : 'allocations';
+
         if (!$columnAxis instanceof AnalysisAxisRef) {
             if ($rowAxis->dimensionKey->isTemporalPrimary()) {
-                return $this->translator->trans('stats.analysis_explorer.allocations_over_time', [], 'statistics');
+                return $this->translator->trans('stats.analysis_explorer.'.$subject.'_over_time', [], 'statistics');
             }
 
-            return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension', [
+            return $this->translator->trans('stats.analysis_explorer.'.$subject.'_by_dimension', [
                 'dimension' => $this->dimensionLabel($rowAxis->dimensionKey),
             ], 'statistics');
         }
 
         if ($rowAxis->dimensionKey->isTemporalPrimary()) {
-            return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension_over_time', [
+            return $this->translator->trans('stats.analysis_explorer.'.$subject.'_by_dimension_over_time', [
                 'dimension' => $this->dimensionLabel($columnAxis->dimensionKey),
             ], 'statistics');
         }
 
         if ($columnAxis->dimensionKey->isTemporalPrimary()) {
-            return $this->translator->trans('stats.analysis_explorer.allocations_by_dimension_by_temporal', [
+            return $this->translator->trans('stats.analysis_explorer.'.$subject.'_by_dimension_by_temporal', [
                 'dimension' => $this->dimensionLabel($rowAxis->dimensionKey),
                 'temporal' => $this->temporalLabel($columnAxis->resolvedGrain()),
             ], 'statistics');
         }
 
-        return $this->translator->trans('stats.analysis_explorer.allocations_cross_tab', [
+        return $this->translator->trans('stats.analysis_explorer.'.$subject.'_cross_tab', [
             'rows' => $this->dimensionLabel($rowAxis->dimensionKey),
             'columns' => $this->dimensionLabel($columnAxis->dimensionKey),
         ], 'statistics');
@@ -54,7 +60,7 @@ final readonly class ExplorerTitleFactory
         return match (AnalysisShape::fromConfig($config)) {
             AnalysisShape::TimeSeries,
             AnalysisShape::Distribution,
-            AnalysisShape::Matrix => $this->titleForAxes($config->rowAxis, $config->columnAxis),
+            AnalysisShape::Matrix => $this->titleForAxes($config->rowAxis, $config->columnAxis, $config->dataSourceKey),
         };
     }
 
