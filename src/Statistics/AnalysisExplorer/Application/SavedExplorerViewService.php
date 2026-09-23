@@ -11,6 +11,7 @@ use App\Statistics\AnalysisExplorer\Domain\Exception\InvalidExplorerConfigExcept
 use App\Statistics\AnalysisExplorer\Domain\Exception\SavedExplorerViewForbiddenException;
 use App\Statistics\Domain\Entity\SavedExplorerView;
 use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
+use App\Statistics\Infrastructure\Repository\SavedExplorerViewFavoriteRepository;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
 
@@ -20,6 +21,7 @@ final readonly class SavedExplorerViewService
 
     public function __construct(
         private SavedExplorerViewRepository $repository,
+        private SavedExplorerViewFavoriteRepository $favoriteRepository,
         private ExplorerConfigMapper $configMapper,
         private AnalysisViewConfigNormalizer $configNormalizer,
         private AnalysisViewConfigValidator $configValidator,
@@ -36,6 +38,7 @@ final readonly class SavedExplorerViewService
         array $appliedState,
         ?string $description = null,
         ?string $category = null,
+        AnalysisViewVisibility $visibility = AnalysisViewVisibility::Private,
     ): SavedExplorerView {
         $configJson = $this->normalizeStateToConfigJson($appliedState, $user);
         $configJson['title'] = $title;
@@ -47,6 +50,7 @@ final readonly class SavedExplorerViewService
             configJson: $configJson,
             description: $description,
             isSystem: false,
+            visibility: $visibility,
         );
 
         $this->repository->save($view);
@@ -67,6 +71,7 @@ final readonly class SavedExplorerViewService
         string $title,
         array $appliedState,
         ?string $description = null,
+        ?AnalysisViewVisibility $visibility = null,
     ): SavedExplorerView {
         if (!$view->isEditableBy($user)) {
             throw new SavedExplorerViewForbiddenException('User cannot update this explorer view.');
@@ -81,9 +86,22 @@ final readonly class SavedExplorerViewService
             configJson: $configJson,
             description: $description,
         );
+        if ($visibility instanceof AnalysisViewVisibility) {
+            $view->setVisibility($visibility);
+        }
         $this->repository->save($view);
 
         return $view;
+    }
+
+    public function delete(SavedExplorerView $view, User $user): void
+    {
+        if (!$view->isEditableBy($user)) {
+            throw new SavedExplorerViewForbiddenException('User cannot delete this explorer view.');
+        }
+
+        $this->favoriteRepository->deleteForView($view);
+        $this->repository->remove($view);
     }
 
     /**

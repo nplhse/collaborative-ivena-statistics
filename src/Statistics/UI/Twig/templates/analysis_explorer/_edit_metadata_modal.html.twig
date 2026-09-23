@@ -1,0 +1,79 @@
+<div class="modal fade{% if isEditMetadataOpen %} show{% endif %}"
+     id="analysisExplorerEditMetadataModal"
+     tabindex="-1"
+     aria-labelledby="analysisExplorerEditMetadataModalLabel"
+     aria-hidden="true"
+     {% if isEditMetadataOpen %}style="display: block;"{% endif %}
+     data-testid="stats-analysis-explorer-edit-metadata-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="analysisExplorerEditMetadataModalLabel">
+                    {{ 'stats.analysis_explorer.edit_view.title'|trans({}, 'statistics') }}
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="{{ 'action.close'|trans({}, 'messages') }}"
+                        data-action="live#action"
+                        data-live-action-param="closeEditMetadata"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label" for="analysisExplorerEditMetadataTitle">{{ 'stats.analysis_explorer.save_as.title_label'|trans({}, 'statistics') }}</label>
+                    <input type="text"
+                           id="analysisExplorerEditMetadataTitle"
+                           class="form-control"
+                           data-model="norender|editMetadataTitle"
+                           value="{{ editMetadataTitle }}"
+                           data-testid="stats-analysis-explorer-edit-metadata-title">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label" for="analysisExplorerEditMetadataDescription">{{ 'stats.analysis_explorer.save_as.description_label'|trans({}, 'statistics') }}</label>
+                    <textarea id="analysisExplorerEditMetadataDescription"
+                              class="form-control"
+                              rows="3"
+                              data-model="norender|editMetadataDescription"
+                              data-testid="stats-analysis-explorer-edit-metadata-description">{{ editMetadataDescription }}</textarea>
+                </div>
+                {{ include('@Statistics/analysis_explorer/_visibility_field.html.twig', {
+                    inputName: 'editMetadataVisibility',
+                    selected: editMetadataVisibility,
+                    testId: 'stats-analysis-explorer-edit-metadata-visibility',
+                    showPrivateIcon: true,
+                }) }}
+            </div>
+            <div class="modal-footer">
+                {% if savedViewId %}
+                    <button type="button"
+                            class="btn btn-outline-danger me-auto d-inline-flex align-items-center gap-1"
+                            data-bs-target="#analysisExplorerDeleteModal"
+                            data-bs-toggle="modal"
+                            data-bs-dismiss="modal"
+                            data-testid="stats-analysis-explorer-delete-open">
+                        <twig:ux:icon name="tabler:trash" class="icon" />
+                        {{ 'stats.analysis_explorer.delete.action'|trans({}, 'statistics') }}
+                    </button>
+                {% endif %}
+                <button type="button"
+                        class="btn btn-link"
+                        data-bs-dismiss="modal"
+                        data-action="live#action"
+                        data-live-action-param="closeEditMetadata">
+                    {{ 'action.cancel'|trans({}, 'messages') }}
+                </button>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        data-action="live#action"
+                        data-live-action-param="submitEditMetadata"
+                        data-testid="stats-analysis-explorer-edit-metadata-submit">
+                    {{ 'stats.analysis_explorer.edit_view.submit'|trans({}, 'statistics') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% if isEditMetadataOpen %}
+    <div class="modal-backdrop fade show"></div>
+{% endif %}

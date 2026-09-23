@@ -12,12 +12,26 @@
         {% set breadcrumbItems = breadcrumbItems|merge([{label: 'stats.analysis_explorer.title'}]) %}
     {% endif %}
     <twig:PageHeader
-        :pretitle="'stats.analysis_explorer.pretitle'|trans({}, 'statistics')"
         :title="savedViewTitle ?? ('stats.analysis_explorer.title'|trans({}, 'statistics'))"
-        titleTestId="stats-analysis-explorer-title"
         actionsClass="d-flex flex-wrap align-items-center justify-content-end gap-2"
         actionsTestId="stats-analysis-explorer-actions"
     >
+        <twig:block name="title">
+            <h2 class="page-title mb-0" data-testid="stats-analysis-explorer-title">
+                <span class="d-inline-flex align-items-center gap-1">
+                    {{ savedViewTitle ?? ('stats.analysis_explorer.title'|trans({}, 'statistics')) }}
+                    {% if canChangeVisibility and viewVisibility != 'public' %}
+                        <span class="d-inline-flex text-secondary"
+                              role="img"
+                              title="{{ 'stats.analysis_explorer.visibility.private_hint'|trans({}, 'statistics') }}"
+                              aria-label="{{ 'stats.analysis_explorer.visibility.private_hint'|trans({}, 'statistics') }}"
+                              data-testid="stats-analysis-explorer-private-lock">
+                            <twig:ux:icon name="tabler:lock" class="icon" style="width: 0.9em; height: 0.9em;" />
+                        </span>
+                    {% endif %}
+                </span>
+            </h2>
+        </twig:block>
         <twig:block name="breadcrumbs">
             <twig:Breadcrumbs :items="breadcrumbItems" />
         </twig:block>
@@ -26,8 +40,28 @@
         </twig:block>
         <twig:block name="context">
             {% if savedViewDescription %}
-                <p class="text-secondary mt-2 mb-0" data-testid="stats-analysis-explorer-description">
+                <p class="text-secondary mt-1 mb-0" data-testid="stats-analysis-explorer-description">
                     {{ savedViewDescription }}
+                </p>
+            {% endif %}
+            {% if savedViewId %}
+                <p class="text-secondary small mt-1 mb-0" data-testid="stats-analysis-explorer-meta">
+                    {% if isSystemView %}
+                        <twig:ux:icon name="tabler:server" class="icon icon-sm" />
+                        {{ 'stats.analysis_explorer.library.card.system_source'|trans({}, 'statistics') }}
+                    {% else %}
+                        <twig:ux:icon name="tabler:user" class="icon icon-sm" />
+                        {% if savedViewAuthorUrl and savedViewAuthorName %}
+                            <a href="{{ savedViewAuthorUrl }}">{{ savedViewAuthorName }}</a>
+                        {% else %}
+                            {{ savedViewAuthorName ?: ('stats.analysis_explorer.library.card.unknown_author'|trans({}, 'statistics')) }}
+                        {% endif %}
+                    {% endif %}
+                    {% if savedViewActivityIso %}
+                        <span class="mx-1" aria-hidden="true">·</span>
+                        <time datetime="{{ savedViewActivityIso }}" title="{{ savedViewActivityAbsolute }}">{{ savedViewActivityRelative }}</time>
+                        <span class="visually-hidden">{{ savedViewActivityAbsolute }}</span>
+                    {% endif %}
                 </p>
             {% endif %}
         </twig:block>
@@ -100,23 +134,24 @@
                     {% if canChangeVisibility %}
                         <button type="button"
                                 class="btn d-inline-flex align-items-center gap-1"
-                                data-action="live#action"
-                                data-live-action-param="toggleVisibility"
-                                data-testid="stats-analysis-explorer-visibility-toggle">
-                            <twig:ux:icon name="{{ viewVisibility == 'public' ? 'tabler:world' : 'tabler:lock' }}" class="icon" />
-                            {{ (viewVisibility == 'public' ? 'stats.analysis_explorer.visibility.public' : 'stats.analysis_explorer.visibility.private')|trans({}, 'statistics') }}
+                                data-bs-toggle="modal"
+                                data-bs-target="#analysisExplorerEditMetadataModal"
+                                data-testid="stats-analysis-explorer-edit-metadata-open">
+                            <twig:ux:icon name="tabler:pencil" class="icon" />
+                            {{ 'stats.analysis_explorer.edit_view.open'|trans({}, 'statistics') }}
                         </button>
                     {% endif %}
 
                     {% if canSave %}
                         <button type="button"
-                                class="btn d-inline-flex align-items-center gap-1"
+                                class="btn btn-icon"
                                 data-action="live#action"
                                 data-live-action-param="save"
+                                title="{{ 'stats.analysis_explorer.save'|trans({}, 'statistics') }}"
+                                aria-label="{{ 'stats.analysis_explorer.save'|trans({}, 'statistics') }}"
                                 {% if not hasUnsavedChanges %}disabled{% endif %}
                                 data-testid="stats-analysis-explorer-save">
                             <twig:ux:icon name="tabler:device-floppy" class="icon" />
-                            {{ 'stats.analysis_explorer.save'|trans({}, 'statistics') }}
                         </button>
                     {% endif %}
 
@@ -171,6 +206,11 @@
                     'data-testid': 'stats-analysis-explorer-edit-form',
                     'data-model': 'norender|on(change)|*',
                 }}) }}
+                {% if saveNotice %}
+                    <twig:Alert type="success" class="py-2 mb-3" data-testid="stats-analysis-explorer-save-notice">
+                        {{ saveNotice }}
+                    </twig:Alert>
+                {% endif %}
                 {{ include('@Statistics/analysis_explorer/_config_alert.html.twig') }}
                 {{ include('@Statistics/analysis_explorer/_chart_card.html.twig') }}
                 {{ include('@Statistics/analysis_explorer/_results_table.html.twig') }}
@@ -192,4 +232,18 @@
     </div>
 
     {{ include('@Statistics/analysis_explorer/_save_as_modal.html.twig') }}
+    {% if canChangeVisibility %}
+        {{ include('@Statistics/analysis_explorer/_edit_metadata_modal.html.twig') }}
+        {% if savedViewId %}
+            <twig:ConfirmModal
+                id="analysisExplorerDeleteModal"
+                :title="'stats.analysis_explorer.delete.modal.title'|trans({}, 'statistics')"
+                :message="'stats.analysis_explorer.delete.modal.body'|trans({name: savedViewTitle ?? ''}, 'statistics')"
+                :action="path('app_stats_analysis_explorer_view_delete', {id: savedViewId})"
+                :csrfToken="csrf_token('explorer_view_delete_' ~ savedViewId)"
+                :confirmLabel="'stats.analysis_explorer.delete.modal.confirm'|trans({}, 'statistics')"
+                :cancelLabel="'action.cancel'|trans({}, 'messages')"
+            />
+        {% endif %}
+    {% endif %}
 </div>

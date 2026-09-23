@@ -16,6 +16,9 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Domain\Entity\SavedExplorerView;
+use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
+use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\Tests\Statistics\Support\SeedsExplorerSystemViewsTrait;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\Tests\Support\Statistics\RefreshesStatisticsFunctionalDataTrait;
@@ -335,9 +338,9 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->seedExplorerSystemViews();
         $this->seedProjectionWithAllocation();
 
-        $repository = self::getContainer()->get(\App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository::class);
+        $repository = self::getContainer()->get(SavedExplorerViewRepository::class);
         $view = $repository->findBySlug('urgency-distribution');
-        self::assertInstanceOf(\App\Statistics\Domain\Entity\SavedExplorerView::class, $view);
+        self::assertInstanceOf(SavedExplorerView::class, $view);
         $view->update(
             title: $view->getTitle(),
             category: $view->getCategory(),
@@ -376,6 +379,43 @@ final class AnalysisExplorerControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-analysis-explorer-favorite-toggle"]');
         $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-save"]');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-explorer-private-lock"]');
+        $this->assertSelectorNotExists('.page-pretitle');
+    }
+
+    public function testPrivateViewLockExplainsThatOnlyTheOwnerCanSeeIt(): void
+    {
+        $client = self::createClient();
+        $owner = $this->loginAsParticipant($client);
+        $this->seedProjectionWithAllocation();
+        $view = new SavedExplorerView(
+            slug: null,
+            title: 'Private hint',
+            category: 'My views',
+            configJson: ['invalid' => true],
+            isSystem: false,
+            visibility: AnalysisViewVisibility::Private,
+        );
+        $view->setCreatedBy($owner);
+        self::getContainer()->get(SavedExplorerViewRepository::class)->save($view);
+        $viewId = $view->getId();
+        self::assertNotNull($viewId);
+
+        $client->followRedirects(true);
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            sprintf('/statistics/analysis/explorer/%d?scope=public&period=all', $viewId),
+        );
+
+        $this->assertResponseIsSuccessful();
+        $lock = $crawler->filter('[data-testid="stats-analysis-explorer-private-lock"]');
+        self::assertCount(1, $lock);
+        self::assertSame('Private view that only its owner can see.', $lock->attr('title'));
+        self::assertCount(
+            1,
+            $crawler->filter('h2.page-title > span.d-inline-flex.align-items-center [data-testid="stats-analysis-explorer-private-lock"]'),
+        );
+        $this->assertSelectorNotExists('.page-pretitle');
     }
 
     public function testExistingAnalyticsViewStillWorks(): void

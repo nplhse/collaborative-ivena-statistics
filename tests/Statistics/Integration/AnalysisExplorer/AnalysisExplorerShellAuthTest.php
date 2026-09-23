@@ -302,4 +302,50 @@ final class AnalysisExplorerShellAuthTest extends AnalysisExplorerShellTestCase
         self::assertSame('My custom library title', $testComponent->component()->saveAsTitle);
         self::assertSame('My custom library description', $testComponent->component()->saveAsDescription);
     }
+
+    public function testEditMetadataModalIsFilledBeforeItOpens(): void
+    {
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $mapper = self::getContainer()->get(ExplorerConfigMapper::class);
+        $viewFactory = self::getContainer()->get(DefaultAnalysisViewFactory::class);
+        $filter = new StatisticsFilter(
+            scope: StatisticsFilterScope::Public,
+            hospitalId: null,
+            cohortType: null,
+            period: StatisticsFilterPeriod::All,
+        );
+
+        $render = $this->createLiveComponent('AnalysisExplorerShell', [
+            'appliedConfigState' => $mapper->toStateArray($viewFactory->createDefault($filter)),
+            'locale' => 'en',
+            'libraryUrl' => '/statistics/analysis/library',
+            'savedViewId' => 7,
+            'savedViewTitle' => 'Private hint',
+            'savedViewDescription' => 'Only the owner',
+            'viewVisibility' => 'public',
+            'canChangeVisibility' => true,
+        ])->actingAs($user)->render();
+
+        $crawler = $render->crawler();
+        $button = $crawler->filter('[data-testid="stats-analysis-explorer-edit-metadata-open"]');
+        self::assertCount(1, $button);
+        self::assertNull($button->attr('data-live-action-param'));
+        self::assertSame(
+            'Private hint',
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-metadata-title"]')->attr('value'),
+        );
+        self::assertSame(
+            'Only the owner',
+            trim($crawler->filter('[data-testid="stats-analysis-explorer-edit-metadata-description"]')->text()),
+        );
+        self::assertCount(
+            1,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-metadata-visibility-public"][checked]'),
+        );
+        self::assertCount(
+            1,
+            $crawler->filter('[data-testid="stats-analysis-explorer-edit-metadata-visibility"] .form-check-label .icon'),
+        );
+        self::assertCount(0, $crawler->filter('#analysisExplorerEditMetadataModal.show'));
+    }
 }

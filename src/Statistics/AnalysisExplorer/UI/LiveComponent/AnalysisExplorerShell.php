@@ -87,6 +87,9 @@ final class AnalysisExplorerShell
     public ?string $configWarning = null;
 
     #[LiveProp]
+    public ?string $saveNotice = null;
+
+    #[LiveProp]
     public string $locale = 'en';
 
     #[LiveProp(writable: false)]
@@ -100,6 +103,24 @@ final class AnalysisExplorerShell
 
     #[LiveProp(writable: true)]
     public ?string $savedViewDescription = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewAuthorName = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewAuthorUrl = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewActivityKind = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewActivityRelative = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewActivityAbsolute = null;
+
+    #[LiveProp(writable: false)]
+    public ?string $savedViewActivityIso = null;
 
     #[LiveProp(writable: false)]
     public bool $isSystemView = false;
@@ -153,6 +174,21 @@ final class AnalysisExplorerShell
 
     #[LiveProp(writable: true)]
     public string $saveAsDescription = '';
+
+    #[LiveProp(writable: true)]
+    public string $saveAsVisibility = 'private';
+
+    #[LiveProp(writable: true)]
+    public bool $isEditMetadataOpen = false;
+
+    #[LiveProp(writable: true)]
+    public string $editMetadataTitle = '';
+
+    #[LiveProp(writable: true)]
+    public string $editMetadataDescription = '';
+
+    #[LiveProp(writable: true)]
+    public string $editMetadataVisibility = 'private';
 
     #[LiveProp(writable: true)]
     public string $editViewTitle = '';
@@ -238,6 +274,12 @@ final class AnalysisExplorerShell
         ?int $savedViewId = null,
         ?string $savedViewTitle = null,
         ?string $savedViewDescription = null,
+        ?string $savedViewAuthorName = null,
+        ?string $savedViewAuthorUrl = null,
+        ?string $savedViewActivityKind = null,
+        ?string $savedViewActivityRelative = null,
+        ?string $savedViewActivityAbsolute = null,
+        ?string $savedViewActivityIso = null,
         bool $isSystemView = false,
         bool $canSave = false,
         bool $canSaveAs = false,
@@ -253,6 +295,12 @@ final class AnalysisExplorerShell
         $this->savedViewId = $savedViewId;
         $this->savedViewTitle = $savedViewTitle;
         $this->savedViewDescription = $savedViewDescription;
+        $this->savedViewAuthorName = $savedViewAuthorName;
+        $this->savedViewAuthorUrl = $savedViewAuthorUrl;
+        $this->savedViewActivityKind = $savedViewActivityKind;
+        $this->savedViewActivityRelative = $savedViewActivityRelative;
+        $this->savedViewActivityAbsolute = $savedViewActivityAbsolute;
+        $this->savedViewActivityIso = $savedViewActivityIso;
         $this->isSystemView = $isSystemView;
         $this->canSave = $canSave;
         $this->canSaveAs = $canSaveAs;
@@ -275,6 +323,20 @@ final class AnalysisExplorerShell
         if (null !== $initialConfigWarning) {
             $this->configWarning = $initialConfigWarning;
         }
+
+        $this->syncClosedEditMetadataDraft();
+    }
+
+    #[PreReRender(priority: 10)]
+    public function syncClosedEditMetadataDraft(): void
+    {
+        if ($this->isEditMetadataOpen) {
+            return;
+        }
+
+        $this->editMetadataTitle = $this->savedViewTitle ?? '';
+        $this->editMetadataDescription = $this->savedViewDescription ?? '';
+        $this->editMetadataVisibility = $this->viewVisibility;
     }
 
     #[PreReRender(priority: -50)]
@@ -450,6 +512,7 @@ final class AnalysisExplorerShell
         $this->isEditOpen = true;
         $this->isContextOpen = false;
         $this->configWarning = null;
+        $this->saveNotice = null;
         $this->resetForm();
     }
 
@@ -465,6 +528,7 @@ final class AnalysisExplorerShell
         $this->isContextOpen = true;
         $this->isEditOpen = false;
         $this->configWarning = null;
+        $this->saveNotice = null;
         $this->resetForm();
     }
 
@@ -506,6 +570,7 @@ final class AnalysisExplorerShell
         $this->isEditOpen = false;
         $this->isContextOpen = false;
         $this->configWarning = null;
+        $this->saveNotice = null;
         $this->resetForm();
     }
 
@@ -656,6 +721,7 @@ final class AnalysisExplorerShell
             }
         }
 
+        $this->saveAsVisibility = AnalysisViewVisibility::Private->value;
         $this->isSaveAsOpen = true;
     }
 
@@ -679,11 +745,14 @@ final class AnalysisExplorerShell
 
         try {
             $description = '' !== trim($this->saveAsDescription) ? trim($this->saveAsDescription) : null;
+            $visibility = AnalysisViewVisibility::tryFrom($this->saveAsVisibility) ?? AnalysisViewVisibility::Private;
             $view = $this->savedViewService->create(
                 $user,
                 $title,
                 $this->appliedConfigState,
                 $description,
+                null,
+                $visibility,
             );
         } catch (InvalidExplorerConfigException $exception) {
             $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
@@ -730,10 +799,12 @@ final class AnalysisExplorerShell
                 $description,
             );
         } catch (SavedExplorerViewForbiddenException) {
+            $this->saveNotice = null;
             $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden', [], 'statistics');
 
             return;
         } catch (InvalidExplorerConfigException $exception) {
+            $this->saveNotice = null;
             $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
 
             return;
@@ -746,35 +817,85 @@ final class AnalysisExplorerShell
         $this->baselineViewDescription = $this->savedViewDescription;
         $this->metadataManuallyEdited = false;
         $this->syncUnsavedChangeState();
-        $this->configWarning = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
+        $this->configWarning = null;
+        $this->saveNotice = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
     }
 
     #[LiveAction]
-    public function toggleVisibility(): void
+    public function openEditMetadata(): void
+    {
+        if (!$this->canChangeVisibility) {
+            return;
+        }
+
+        $this->editMetadataTitle = $this->savedViewTitle ?? '';
+        $this->editMetadataDescription = $this->savedViewDescription ?? '';
+        $this->editMetadataVisibility = $this->viewVisibility;
+        $this->isEditMetadataOpen = true;
+    }
+
+    #[LiveAction]
+    public function closeEditMetadata(): void
+    {
+        $this->isEditMetadataOpen = false;
+    }
+
+    #[LiveAction]
+    public function submitEditMetadata(): void
     {
         if (!$this->canChangeVisibility || null === $this->savedViewId) {
             return;
         }
 
         $user = $this->requireParticipant();
+        $title = trim($this->editMetadataTitle);
+        if ('' === $title) {
+            $this->saveNotice = null;
+            $this->configWarning = $this->translator->trans('stats.analysis_explorer.save_as.title_required', [], 'statistics');
+
+            return;
+        }
+
         $view = $this->savedViewRepository->find($this->savedViewId);
         if (!$view instanceof SavedExplorerView) {
             return;
         }
 
-        $next = AnalysisViewVisibility::Public === $view->getVisibility()
-            ? AnalysisViewVisibility::Private
-            : AnalysisViewVisibility::Public;
+        $description = '' !== trim($this->editMetadataDescription) ? trim($this->editMetadataDescription) : null;
+        $visibility = AnalysisViewVisibility::tryFrom($this->editMetadataVisibility) ?? AnalysisViewVisibility::Private;
+        $state = [] !== $this->baselineConfigState ? $this->baselineConfigState : $this->appliedConfigState;
 
         try {
-            $this->savedViewService->setVisibility($view, $user, $next);
+            $this->savedViewService->update(
+                $view,
+                $user,
+                $title,
+                $state,
+                $description,
+                $visibility,
+            );
         } catch (SavedExplorerViewForbiddenException) {
+            $this->saveNotice = null;
             $this->configWarning = $this->translator->trans('stats.analysis_explorer.save.forbidden', [], 'statistics');
+
+            return;
+        } catch (InvalidExplorerConfigException $exception) {
+            $this->saveNotice = null;
+            $this->configWarning = $this->translator->trans($exception->translationKey, $exception->parameters, 'statistics');
 
             return;
         }
 
+        $this->savedViewTitle = $view->getTitle();
+        $this->savedViewDescription = $view->getDescription() ?? '';
+        $this->baselineViewTitle = $this->savedViewTitle;
+        $this->baselineViewDescription = $this->savedViewDescription;
         $this->viewVisibility = $view->getVisibility()->value;
+        $this->metadataManuallyEdited = false;
+        $this->isEditMetadataOpen = false;
+        $this->syncUnsavedChangeState();
+        $this->configWarning = null;
+        $this->saveNotice = $this->translator->trans('stats.analysis_explorer.saved', [], 'statistics');
     }
 
     private function syncUnsavedChangeState(): void
@@ -786,6 +907,9 @@ final class AnalysisExplorerShell
         $metadataDirty = $this->canSave && $this->metadataDiffersFromBaseline();
         $this->hasUnsavedChanges = $configDirty || $metadataDirty;
         $this->showSaveAs = $this->canSaveAs && $configDirty;
+        if ($this->hasUnsavedChanges) {
+            $this->saveNotice = null;
+        }
     }
 
     private function metadataDiffersFromBaseline(): bool

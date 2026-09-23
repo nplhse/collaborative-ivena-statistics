@@ -59,6 +59,24 @@ final class PageHeaderComponentTest extends KernelTestCase
         self::assertStringNotContainsString('page-pretitle', $html);
     }
 
+    public function testTitleBlockReplacesTheDefaultHeading(): void
+    {
+        $html = (string) $this->renderTwigComponent(
+            'PageHeader',
+            [
+                'title' => 'Ignored',
+            ],
+            null,
+            [
+                'title' => '<h2 class="page-title mb-0" data-testid="custom-title">Kept <span data-testid="lock">lock</span></h2>',
+            ],
+        );
+
+        self::assertStringContainsString('data-testid="custom-title"', $html);
+        self::assertStringContainsString('data-testid="lock"', $html);
+        self::assertStringNotContainsString('Ignored', $html);
+    }
+
     public function testUsesCustomActionsClass(): void
     {
         $html = (string) $this->renderTwigComponent(

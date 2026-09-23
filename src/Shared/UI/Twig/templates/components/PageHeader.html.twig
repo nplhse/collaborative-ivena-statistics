@@ -20,7 +20,10 @@
                 {% if pretitle %}
                     <div class="page-pretitle"{% if pretitleTestId %} data-testid="{{ pretitleTestId }}"{% endif %}>{{ pretitle }}</div>
                 {% endif %}
-                {% if title %}
+                {% set titleHtml %}{% block title %}{% endblock %}{% endset %}
+                {% if titleHtml|trim is not empty %}
+                    {{ titleHtml|raw }}
+                {% elseif title %}
                     <h2 class="page-title mb-0"{% if titleTestId %} data-testid="{{ titleTestId }}"{% endif %}>{{ title }}</h2>
                 {% endif %}
                 {% set contextHtml %}{% block context %}{% endblock %}{% endset %}

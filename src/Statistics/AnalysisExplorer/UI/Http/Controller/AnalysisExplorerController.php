@@ -9,6 +9,8 @@ use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Domain\UsageEventName;
 use App\Statistics\AnalysisExplorer\Application\DefaultAnalysisViewFactoryRegistry;
 use App\Statistics\AnalysisExplorer\Application\ExplorerConfigMapper;
+use App\Statistics\AnalysisExplorer\Application\ExplorerViewActivityPresenter;
+use App\Statistics\AnalysisExplorer\Application\ExplorerViewAuthorPresenter;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewFavoriteService;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLabelResolver;
 use App\Statistics\AnalysisExplorer\Application\SavedExplorerViewLoader;
@@ -48,6 +50,8 @@ final class AnalysisExplorerController extends AbstractController
         private readonly SavedExplorerViewLoader $savedExplorerViewLoader,
         private readonly SavedExplorerViewFavoriteService $favoriteService,
         private readonly SavedExplorerViewLabelResolver $labelResolver,
+        private readonly ExplorerViewAuthorPresenter $authorPresenter,
+        private readonly ExplorerViewActivityPresenter $activityPresenter,
         private readonly UrlGeneratorInterface $router,
         private readonly TranslatorInterface $translator,
         private readonly UsageAnalytics $usageAnalytics,
@@ -141,10 +145,18 @@ final class AnalysisExplorerController extends AbstractController
         $canFavorite = $user instanceof User && $view instanceof SavedExplorerView && null !== $savedViewId;
         $isFavorite = $canFavorite
             && $this->favoriteService->isFavorite($user, $view);
+        $author = $this->authorPresenter->present($view);
+        $activity = $view instanceof SavedExplorerView ? $this->activityPresenter->present($view) : null;
 
         return [
             'savedViewTitle' => $view instanceof SavedExplorerView ? $this->labelResolver->title($view) : null,
             'savedViewDescription' => $view instanceof SavedExplorerView ? $this->labelResolver->description($view) : null,
+            'savedViewAuthorName' => $author['name'],
+            'savedViewAuthorUrl' => $author['url'],
+            'savedViewActivityKind' => null === $activity ? null : $activity['kind'],
+            'savedViewActivityRelative' => null === $activity ? null : $activity['relativeLabel'],
+            'savedViewActivityAbsolute' => null === $activity ? null : $activity['absoluteLabel'],
+            'savedViewActivityIso' => null === $activity ? null : $activity['iso8601'],
             'savedViewId' => $savedViewId,
             'isSystemView' => $isSystemView,
             'canSave' => $canSave,
