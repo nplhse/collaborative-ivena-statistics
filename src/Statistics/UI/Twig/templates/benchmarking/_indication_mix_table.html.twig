@@ -2,11 +2,8 @@
     {% for row in rows %}
         {% set bucket = row.bucket %}
         {% set absoluteDelta = bucket.primaryShare - bucket.comparisonShare %}
-        {% set deltaTone = absoluteDelta > 0 ? 'success' : (absoluteDelta < 0 ? 'danger' : 'primary') %}
-        {% set deltaBadgeClass = deltaTone == 'danger' ? 'bg-red-lt' : (deltaTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
         {% set ratioTone = bucket.ratio > 1 ? 'success' : (bucket.ratio < 1 ? 'danger' : 'primary') %}
         {% set ratioBadgeClass = ratioTone == 'danger' ? 'bg-red-lt' : (ratioTone == 'success' ? 'bg-green-lt' : 'bg-primary-lt') %}
-        {% set deltaLabel = (absoluteDelta >= 0 ? '+' : '') ~ absoluteDelta|number_format(1, ',', '.') ~ '%' %}
 
         <tr class="{{ loop.index0 >= initialCount ? 'd-none' : '' }}"
             {% if loop.index0 >= initialCount %}data-benchmark-indication-mix-expand-target="hiddenRow"{% endif %}
@@ -21,7 +18,12 @@
             <td class="text-end">{{ bucket.primaryShare|number_format(1, ',', '.') }}%</td>
             <td class="text-end">{{ bucket.comparisonShare|number_format(1, ',', '.') }}%</td>
             <td class="text-end">
-                <span class="badge {{ deltaBadgeClass }}">{{ deltaLabel }}</span>
+                <twig:Statistics:DeltaIndicator
+                    :value="absoluteDelta"
+                    unit="percent"
+                    whenZero="neutral"
+                    ariaKey="stats.benchmark.indication_mix.delta.aria"
+                />
             </td>
             <td class="text-end">
                 <span class="badge {{ ratioBadgeClass }}">{{ bucket.ratio|number_format(1, ',', '.') }}×</span>

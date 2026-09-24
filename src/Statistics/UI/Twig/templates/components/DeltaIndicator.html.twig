@@ -1,0 +1,3 @@
+{% if this.visible %}
+    <span{% if this.title %} title="{{ this.title }}"{% endif %} aria-label="{{ this.ariaLabel }}"{{ attributes.defaults({class: this.cssClass}) }}>{{ this.label }}</span>
+{% endif %}

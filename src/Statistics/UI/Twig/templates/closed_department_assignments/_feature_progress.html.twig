@@ -25,8 +25,14 @@
                         {% set regularLabel = row.regularPercent is not null
                             ? ('stats.closed_department.compare.regular'|trans({}, 'statistics') ~ ': ' ~ row.regularPercent|number_format(1, ',', '.') ~ ' %')
                             : null %}
-                        <span class="small ms-1 fw-medium {{ row.deltaPp > 0 ? 'text-green' : 'text-red' }}"{% if regularLabel %} title="{{ regularLabel }}"{% endif %}>
-                            {% if row.deltaPp > 0 %}+{% endif %}{{ row.deltaPp|number_format(1, ',', '.') }}%
+                        <span class="small ms-1 fw-medium">
+                            <twig:Statistics:DeltaIndicator
+                                :value="row.deltaPp"
+                                unit="percent"
+                                display="text"
+                                ariaKey="stats.closed_department.compare.delta.aria"
+                                :title="regularLabel ?? ''"
+                            />
                         </span>
                     {% endif %}
                 </span>

@@ -57,11 +57,12 @@
                             <div class="stats-top-lists-value-pair justify-content-end">
                                 <span>{{ count is not null ? count : '—' }}</span>
                                 {% if showDiff %}
-                                    {{ include('@Statistics/_delta_badge.html.twig', {
-                                        delta: countDelta,
-                                        ariaKey: 'stats.top_lists.comparison.delta.aria',
-                                        testId: 'stats-top-lists-delta-count',
-                                    }) }}
+                                    <twig:Statistics:DeltaIndicator
+                                        :value="countDelta"
+                                        unit="count"
+                                        ariaKey="stats.top_lists.comparison.delta.aria"
+                                        data-testid="stats-top-lists-delta-count"
+                                    />
                                 {% endif %}
                             </div>
                         </td>
@@ -69,12 +70,12 @@
                             <div class="stats-top-lists-value-pair justify-content-end">
                                 <span>{{ share is not null ? share|number_format(1, ',', '.') ~ '%' : '—' }}</span>
                                 {% if showDiff %}
-                                    {{ include('@Statistics/_delta_badge.html.twig', {
-                                        delta: shareDelta,
-                                        deltaLabel: shareDelta is not null ? (shareDelta > 0 ? '+' : '') ~ shareDelta|number_format(1, ',', '.') ~ '%' : null,
-                                        ariaKey: 'stats.top_lists.comparison.delta.aria',
-                                        testId: 'stats-top-lists-delta-share',
-                                    }) }}
+                                    <twig:Statistics:DeltaIndicator
+                                        :value="shareDelta"
+                                        unit="percent"
+                                        ariaKey="stats.top_lists.comparison.delta.aria"
+                                        data-testid="stats-top-lists-delta-share"
+                                    />
                                 {% endif %}
                             </div>
                         </td>

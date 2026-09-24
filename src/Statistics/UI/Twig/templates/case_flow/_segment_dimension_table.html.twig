@@ -48,9 +48,13 @@
                                 {% if row.deltaPp is null %}
                                     —
                                 {% else %}
-                                    {% set deltaClass = row.deltaPp > 0 ? 'text-green' : (row.deltaPp < 0 ? 'text-red' : 'text-secondary') %}
-                                    {% set deltaSign = row.deltaPp > 0 ? '+' : '' %}
-                                    <span class="{{ deltaClass }}">{{ deltaSign }}{{ row.deltaPp|number_format(1, ',', '.') }}&nbsp;%</span>
+                                    <twig:Statistics:DeltaIndicator
+                                        :value="row.deltaPp"
+                                        unit="percent"
+                                        display="text"
+                                        whenZero="neutral"
+                                        ariaKey="stats.case_flow.segment.delta.aria"
+                                    />
                                 {% endif %}
                             </td>
                         {% endif %}

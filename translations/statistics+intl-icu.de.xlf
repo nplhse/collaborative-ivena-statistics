@@ -2277,6 +2277,10 @@
         <source>stats.benchmark.indication_mix.over_represented</source>
         <target>Überrepräsentiert vs. Vergleich</target>
       </trans-unit>
+      <trans-unit id="De1816ab77" resname="stats.benchmark.indication_mix.delta.aria">
+        <source>stats.benchmark.indication_mix.delta.aria</source>
+        <target>{delta} gegenüber dem Vergleich</target>
+      </trans-unit>
       <trans-unit id="De1816ab76" resname="stats.benchmark.indication_mix.reduce_to_top_5">
         <source>stats.benchmark.indication_mix.reduce_to_top_5</source>
         <target>Auf Top 5 reduzieren</target>
@@ -2920,6 +2924,10 @@
       <trans-unit id="CdaDe34" resname="stats.closed_department.compare.delta">
         <source>stats.closed_department.compare.delta</source>
         <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="CdaDe34a" resname="stats.closed_department.compare.delta.aria">
+        <source>stats.closed_department.compare.delta.aria</source>
+        <target>{delta} gegenüber regulären Zuweisungen</target>
       </trans-unit>
       <trans-unit id="CdaDe35" resname="stats.closed_department.compare.pp">
         <source>stats.closed_department.compare.pp</source>
@@ -3964,6 +3972,10 @@
       <trans-unit id="De902c1663" resname="stats.hospital_population.table.delta">
         <source>stats.hospital_population.table.delta</source>
         <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="De902c1663a" resname="stats.hospital_population.representativity.delta.aria">
+        <source>stats.hospital_population.representativity.delta.aria</source>
+        <target>{delta} gegenüber dem Bevölkerungsanteil</target>
       </trans-unit>
       <trans-unit id="De95bf1025" resname="stats.hospital_population.table.dispatch_area">
         <source>stats.hospital_population.table.dispatch_area</source>
@@ -5120,6 +5132,10 @@
       <trans-unit id="A258f8ac6b" resname="stats.reports.monthly.distribution.gender">
         <source>stats.reports.monthly.distribution.gender</source>
         <target>Geschlecht</target>
+      </trans-unit>
+      <trans-unit id="A258f8ac6c" resname="stats.reports.monthly.distribution.delta.aria">
+        <source>stats.reports.monthly.distribution.delta.aria</source>
+        <target>{delta} gegenüber dem Vormonat</target>
       </trans-unit>
       <trans-unit id="A0b109aa27" resname="stats.reports.monthly.insights.title">
         <source>stats.reports.monthly.insights.title</source>
@@ -6424,6 +6440,10 @@
       <trans-unit id="GeoSegDe24" resname="stats.case_flow.segment.table.delta">
         <source>stats.case_flow.segment.table.delta</source>
         <target>Δ</target>
+      </trans-unit>
+      <trans-unit id="GeoSegDe25" resname="stats.case_flow.segment.delta.aria">
+        <source>stats.case_flow.segment.delta.aria</source>
+        <target>{delta} gegenüber der Grundgesamtheit</target>
       </trans-unit>
       <trans-unit id="StatsInsDe01" resname="stats.insights.open">
         <source>stats.insights.open</source>

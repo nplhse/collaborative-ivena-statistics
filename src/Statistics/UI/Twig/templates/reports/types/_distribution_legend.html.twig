@@ -7,7 +7,13 @@
             </span>
             <span class="text-muted text-nowrap">
                 {{ segment.count|number_format(0, ',', '.') }}
-                ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %}, <span class="{% if segment.percentDeltaPp > 0 %}text-success{% elseif segment.percentDeltaPp < 0 %}text-danger{% else %}text-muted{% endif %}">{{ segment.percentDeltaPp >= 0 ? '+' : '' }}{{ segment.percentDeltaPp|number_format(1, ',', '.') }}%</span>{% endif %})
+                ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %}, <twig:Statistics:DeltaIndicator
+                    :value="segment.percentDeltaPp"
+                    unit="percent"
+                    display="text"
+                    whenZero="neutral"
+                    ariaKey="stats.reports.monthly.distribution.delta.aria"
+                />{% endif %})
             </span>
         </div>
     {% endfor %}

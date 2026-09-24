@@ -1237,6 +1237,10 @@
         <source>stats.reports.monthly.distribution.gender</source>
         <target>Gender</target>
       </trans-unit>
+      <trans-unit id="A4c476ff7f" resname="stats.reports.monthly.distribution.delta.aria">
+        <source>stats.reports.monthly.distribution.delta.aria</source>
+        <target>{delta} versus the previous month</target>
+      </trans-unit>
       <trans-unit id="A8ce932d69" resname="stats.reports.monthly.insights.title">
         <source>stats.reports.monthly.insights.title</source>
         <target>Highlights</target>
@@ -2713,6 +2717,10 @@
         <source>stats.benchmark.indication_mix.expand_to_top_10</source>
         <target>Expand to Top 10</target>
       </trans-unit>
+      <trans-unit id="statsBm10k" resname="stats.benchmark.indication_mix.delta.aria">
+        <source>stats.benchmark.indication_mix.delta.aria</source>
+        <target>{delta} versus the comparison</target>
+      </trans-unit>
       <trans-unit id="statsBm10e" resname="stats.benchmark.indication_mix.reduce_to_top_5">
         <source>stats.benchmark.indication_mix.reduce_to_top_5</source>
         <target>Reduce to Top 5</target>
@@ -3345,6 +3353,10 @@
         <source>stats.closed_department.compare.delta</source>
         <target>Delta</target>
       </trans-unit>
+      <trans-unit id="statsCda34a" resname="stats.closed_department.compare.delta.aria">
+        <source>stats.closed_department.compare.delta.aria</source>
+        <target>{delta} versus regular assignments</target>
+      </trans-unit>
       <trans-unit id="statsCda35" resname="stats.closed_department.compare.pp">
         <source>stats.closed_department.compare.pp</source>
         <target>PP</target>
@@ -3804,6 +3816,10 @@
       <trans-unit id="statsHp30" resname="stats.hospital_population.table.delta">
         <source>stats.hospital_population.table.delta</source>
         <target>Delta</target>
+      </trans-unit>
+      <trans-unit id="statsHp30a" resname="stats.hospital_population.representativity.delta.aria">
+        <source>stats.hospital_population.representativity.delta.aria</source>
+        <target>{delta} versus the population share</target>
       </trans-unit>
       <trans-unit id="statsHp31" resname="stats.hospital_population.table.empty">
         <source>stats.hospital_population.table.empty</source>
@@ -6424,6 +6440,10 @@
       <trans-unit id="GeoSeg24" resname="stats.case_flow.segment.table.delta">
         <source>stats.case_flow.segment.table.delta</source>
         <target>Δ</target>
+      </trans-unit>
+      <trans-unit id="GeoSeg25" resname="stats.case_flow.segment.delta.aria">
+        <source>stats.case_flow.segment.delta.aria</source>
+        <target>{delta} versus the population</target>
       </trans-unit>
       <trans-unit id="StatsIns01" resname="stats.insights.open">
         <source>stats.insights.open</source>

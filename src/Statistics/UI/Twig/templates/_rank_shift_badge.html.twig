@@ -1,6 +1,6 @@
 {# Rank shift badge (same pattern as the Transport Time Profile ranked table). #}
 {% if entered %}
-    <span class="badge bg-blue-lt stats-rank-shift-badge"
+    <span class="badge bg-blue-lt stats-rank-shift-badge{{ extraClass|default('') ? ' ' ~ extraClass : '' }}"
           data-testid="{{ testId }}"
           aria-label="{{ ariaNewKey|trans({}, 'statistics') }}">
         <span class="text-blue" aria-hidden="true">
@@ -9,7 +9,7 @@
         {{ newLabelKey|trans({}, 'statistics') }}
     </span>
 {% elseif rankDelta is not null and rankDelta != 0 %}
-    <span class="badge {{ rankDelta > 0 ? 'bg-green-lt' : 'bg-red-lt' }} stats-rank-shift-badge"
+    <span class="badge {{ rankDelta > 0 ? 'bg-green-lt' : 'bg-red-lt' }} stats-rank-shift-badge{{ extraClass|default('') ? ' ' ~ extraClass : '' }}"
           data-testid="{{ testId }}"
           aria-label="{{ (rankDelta > 0 ? ariaUpKey : ariaDownKey)|trans({delta: rankDelta|abs}, 'statistics') }}">
         <span class="{{ rankDelta > 0 ? 'text-success' : 'text-danger' }}" aria-hidden="true">

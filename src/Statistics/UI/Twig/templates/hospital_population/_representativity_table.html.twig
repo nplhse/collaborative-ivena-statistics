@@ -27,8 +27,13 @@
                         <td class="text-end">{{ row.populationSharePercent|number_format(1, ',', '.') }}%</td>
                         <td class="text-end">{{ row.participantSharePercent|number_format(1, ',', '.') }}%</td>
                         <td class="text-end">
-                            {% set deltaClass = row.deltaPercentPoints > 0 ? 'text-green' : (row.deltaPercentPoints < 0 ? 'text-red' : 'text-secondary') %}
-                            <span class="{{ deltaClass }}">{{ row.deltaPercentPoints|number_format(1, ',', '.') }}</span>
+                            <twig:Statistics:DeltaIndicator
+                                :value="row.deltaPercentPoints"
+                                unit="percent"
+                                display="text"
+                                whenZero="neutral"
+                                ariaKey="stats.hospital_population.representativity.delta.aria"
+                            />
                         </td>
                     </tr>
                 {% else %}
