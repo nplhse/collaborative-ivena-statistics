@@ -101,8 +101,10 @@ final class CaseFlowSegmentProfileControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Emergency Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Inpatient Care');
         $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'Outpatient Care');
-        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4');
-        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '+29,4%');
+        $this->assertSelectorTextContains('[data-testid="stats-case-flow-segment-group-urgency"]', '-29,4%');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-green');
+        $this->assertSelectorExists('[data-testid="stats-case-flow-segment-group-urgency"] .text-red');
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'pp');
         $this->assertSelectorTextNotContains('[data-testid="stats-case-flow-segment-group-urgency"]', 'U1');
         $this->assertSelectorNotExists('[data-testid="stats-case-flow-kpis"]');
