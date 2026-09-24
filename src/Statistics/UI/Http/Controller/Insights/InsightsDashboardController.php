@@ -156,7 +156,7 @@ final class InsightsDashboardController extends AbstractController
         $indicationIdForQuality = InsightDimensionKey::Indications === $dimensionKey ? $id : null;
         $chrome = $this->chromeFactory->templateVars($request, 'app_stats_insights_show', $user, $filter, $indicationIdForQuality);
         $dimensionLabel = $this->translator->trans($provider->labelTranslationKey(), [], 'statistics');
-        $referenceSummaryA = $subject->label.' · '.$dimensionLabel.' · '.$chrome['statisticsHeadingScope'].' · '.$chrome['statisticsHeadingPeriod'];
+        $referenceDetailA = $dimensionLabel.' · '.$chrome['statisticsHeadingScope'].' · '.$chrome['statisticsHeadingPeriod'];
 
         return $this->render('@Statistics/insights/dashboard.html.twig', array_merge(
             $chrome,
@@ -174,7 +174,8 @@ final class InsightsDashboardController extends AbstractController
                         $subject,
                         null,
                         $filter,
-                        $referenceSummaryA,
+                        $subject->label,
+                        $referenceDetailA,
                     )
                     : null,
                 'statsShowCompareLaunchButton' => $provider->supportsCompare(),

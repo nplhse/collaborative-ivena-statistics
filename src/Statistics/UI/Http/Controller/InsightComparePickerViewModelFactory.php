@@ -25,7 +25,8 @@ final readonly class InsightComparePickerViewModelFactory
         InsightSubject $subjectA,
         ?InsightSubject $subjectB,
         StatisticsFilter $comparisonFilter,
-        string $referenceSummaryA,
+        string $referenceLabelA,
+        string $referenceDetailA,
     ): InsightComparePickerViewModel {
         $searchUrl = $this->navigationUrlBuilder->build(
             $request,
@@ -56,7 +57,8 @@ final readonly class InsightComparePickerViewModelFactory
             $this->compareUrlHelper->buildCompareUrl($request, $subjectA, $subjectB ?? $subjectA, [], $removeB),
             $this->selectionFormDataFactory->fromFilter($comparisonFilter),
             $this->compareUrlHelper->preservedQuery($request),
-            $referenceSummaryA,
+            $referenceLabelA,
+            $referenceDetailA,
         );
     }
 }

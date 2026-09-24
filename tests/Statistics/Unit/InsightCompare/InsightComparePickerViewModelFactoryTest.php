@@ -41,6 +41,7 @@ final class InsightComparePickerViewModelFactoryTest extends TestCase
             $subjectA,
             null,
             new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::All),
+            'ACS',
             'Public · All',
         );
 
@@ -54,6 +55,8 @@ final class InsightComparePickerViewModelFactoryTest extends TestCase
         self::assertArrayNotHasKey('q', $params);
         self::assertArrayNotHasKey(StatisticsQueryKeys::SUBJECT_A_DIMENSION, $params);
         self::assertArrayNotHasKey(StatisticsQueryKeys::SUBJECT_A_ID, $params);
+        self::assertSame('ACS', $viewModel->referenceLabelA);
+        self::assertSame('Public · All', $viewModel->referenceDetailA);
     }
 
     private function factory(): InsightComparePickerViewModelFactory

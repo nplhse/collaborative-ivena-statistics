@@ -2,37 +2,25 @@
 {% set modalTitleKey = compareModalTitleKey|default('stats.insights.compare.edit_modal.title') %}
 {% set testIdPrefix = compareModalTestIdPrefix|default('stats-insights-compare-modal') %}
 
-<div class="modal modal-blur fade"
-     id="{{ modalId }}"
-     tabindex="-1"
-     aria-labelledby="{{ modalId }}-label"
-     aria-hidden="true"
-     data-testid="{{ testIdPrefix }}-modal">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-        <div class="modal-content"
-             data-controller="insight-compare-picker">
-            <div class="modal-header">
-                <h5 class="modal-title" id="{{ modalId }}-label">
-                    {{ modalTitleKey|trans({}, 'statistics') }}
-                </h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="{{ 'action.cancel'|trans({}, 'messages') }}"></button>
-            </div>
-            {{ component('InsightCompareSelectionForm', {
-                initialData: comparePicker.comparisonFormData,
-                preservedQuery: comparePicker.preservedQuery,
-                locale: app.request.locale,
-                searchUrl: comparePicker.searchUrl,
-                referenceSummaryA: comparePicker.referenceSummaryA,
-                subjectADimension: comparePicker.subjectA.dimension.value,
-                subjectAId: comparePicker.subjectA.id ~ '',
-                subjectBDimension: comparePicker.subjectB ? comparePicker.subjectB.dimension.value : '',
-                subjectBId: comparePicker.subjectB ? comparePicker.subjectB.id ~ '' : '',
-                subjectBLabel: comparePicker.subjectB ? comparePicker.subjectB.label : '',
-                key: modalId,
-            }) }}
-        </div>
-    </div>
-</div>
+<twig:Modal
+    id="{{ modalId }}"
+    :title="modalTitleKey|trans({}, 'statistics')"
+    size="lg"
+    data-testid="{{ testIdPrefix }}-modal"
+    data-controller="insight-compare-picker"
+>
+    {{ component('InsightCompareSelectionForm', {
+        initialData: comparePicker.comparisonFormData,
+        preservedQuery: comparePicker.preservedQuery,
+        locale: app.request.locale,
+        searchUrl: comparePicker.searchUrl,
+        referenceLabelA: comparePicker.referenceLabelA,
+        referenceDetailA: comparePicker.referenceDetailA,
+        subjectADimension: comparePicker.subjectA.dimension.value,
+        subjectAId: comparePicker.subjectA.id ~ '',
+        subjectBDimension: comparePicker.subjectB ? comparePicker.subjectB.dimension.value : '',
+        subjectBId: comparePicker.subjectB ? comparePicker.subjectB.id ~ '' : '',
+        subjectBLabel: comparePicker.subjectB ? comparePicker.subjectB.label : '',
+        key: modalId,
+    }) }}
+</twig:Modal>
