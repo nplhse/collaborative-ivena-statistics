@@ -633,8 +633,10 @@ final class TopListsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-b-edit"][data-bs-target="#stats-top-lists-comparison-modal-b"]');
         $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-a-edit"]', 'Edit comparison A');
         $this->assertSelectorTextContains('[data-testid="stats-top-lists-compare-b-edit"]', 'Edit comparison B');
-        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-a"]');
-        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"]');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-a"].modal.modal-blur .modal-dialog.modal-lg.modal-dialog-centered.modal-dialog-scrollable');
+        $this->assertSelectorExists('#stats-top-lists-comparison-modal-a-label');
+        $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-modal-b"].modal.modal-blur .modal-dialog.modal-lg.modal-dialog-centered.modal-dialog-scrollable');
+        $this->assertSelectorExists('#stats-top-lists-comparison-modal-b-label');
         $this->assertSelectorExists('[data-testid="stats-top-lists-compare-disable"].btn-outline-danger');
         $this->assertSelectorExists('[data-testid="stats-top-lists-comparison-workspace"] [data-testid="stats-top-lists-export-csv"]');
         $this->assertSelectorNotExists('[data-testid="stats-top-lists-header-actions"] [data-testid="stats-top-lists-export-csv"]');

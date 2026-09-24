@@ -97,7 +97,11 @@ final class InsightsCompareControllerTest extends WebTestCase
         self::assertSelectorNotExists('[data-testid="stats-insights-subnav"]');
         self::assertSelectorExists('[data-testid="stats-insights-compare-kpi-tiles"]');
         self::assertSelectorExists('[data-testid="stats-insights-compare-edit-button"]');
-        self::assertSelectorExists('[data-testid="stats-insights-compare-edit-modal"]');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-edit-modal"][data-controller="insight-compare-picker"].modal.modal-blur .modal-dialog.modal-lg.modal-dialog-centered.modal-dialog-scrollable');
+        self::assertSelectorExists('#stats-insights-compare-edit-modal-label');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-reference-a"] .stats-compare-side-a .avatar');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] h3', 'Compare Indication A');
+        self::assertSelectorNotExists('[data-testid="stats-insights-compare-reference-a"] .text-uppercase');
         self::assertSelectorExists('[data-testid="stats-insights-compare-disable"].btn-outline-danger');
         self::assertSelectorExists('[data-testid="stats-insights-compare-swap"]');
         self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');

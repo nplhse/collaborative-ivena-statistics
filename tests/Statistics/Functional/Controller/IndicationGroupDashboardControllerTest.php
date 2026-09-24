@@ -67,10 +67,11 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertStringContainsString('2', $crawler->filter('[data-testid="stats-indication-group-members"]')->text());
         self::assertStringContainsString('66,7%', $crawler->filter('[data-testid="stats-indication-group-members"]')->text());
 
-        self::assertStringContainsString(
-            'Cardiology Group',
-            (string) $crawler->filter('[data-testid="stats-insights-compare-reference-a"]')->text(),
-        );
+        self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-modal"][data-controller="insight-compare-picker"] .modal-dialog.modal-lg.modal-dialog-scrollable');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-reference-a"] .stats-compare-side-a .avatar');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] h3', 'Cardiology Group');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] .text-muted', 'Indication groups');
+        self::assertSelectorNotExists('[data-testid="stats-insights-compare-reference-a"] .text-uppercase');
         self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');
     }
 

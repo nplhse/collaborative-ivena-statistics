@@ -99,13 +99,14 @@ final class IndicationDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-header-actions"] [data-testid="stats-insights-compare-launch-button"].btn');
         self::assertSelectorTextContains('[data-testid="stats-insights-compare-launch-button"]', 'Compare');
         self::assertSelectorNotExists('[data-testid="stats-insights-compare-launch-button"].btn-outline-primary');
-        self::assertSelectorExists('[data-testid="stats-insights-compare-launch-modal"]');
+        self::assertSelectorExists('[data-testid="stats-insights-compare-launch-modal"][data-controller="insight-compare-picker"].modal.modal-blur .modal-dialog.modal-lg.modal-dialog-centered.modal-dialog-scrollable');
+        self::assertSelectorExists('#stats-insights-compare-launch-modal-label');
         self::assertSelectorNotExists('[data-testid="stats-insights-compare-cta"]');
         $crawler = $client->getCrawler();
-        self::assertStringContainsString(
-            'Dashboard Test Indication',
-            (string) $crawler->filter('[data-testid="stats-insights-compare-reference-a"]')->text(),
-        );
+        self::assertSelectorExists('[data-testid="stats-insights-compare-reference-a"] .stats-compare-side-a .avatar');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] h3', 'Dashboard Test Indication');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] .text-muted', 'Indications');
+        self::assertSelectorNotExists('[data-testid="stats-insights-compare-reference-a"] .text-uppercase');
         self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');
         $compareSearchUrl = $crawler->filter('[data-testid="stats-insights-compare-search"]')->attr('data-insights-search-url-value');
         self::assertNotNull($compareSearchUrl);
