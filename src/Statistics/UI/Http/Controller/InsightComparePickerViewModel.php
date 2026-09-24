@@ -19,7 +19,8 @@ final readonly class InsightComparePickerViewModel
         public string $compareBaseUrl,
         public BenchmarkSelectionSideFormData $comparisonFormData,
         public array $preservedQuery,
-        public string $referenceSummaryA,
+        public string $referenceLabelA,
+        public string $referenceDetailA,
     ) {
     }
 }

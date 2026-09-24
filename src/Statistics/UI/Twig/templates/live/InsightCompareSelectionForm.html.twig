@@ -3,8 +3,17 @@
         <p class="text-muted small mb-3">{{ 'stats.insights.compare.picker_help'|trans({}, 'statistics') }}</p>
 
         <div class="mb-3" data-testid="stats-insights-compare-reference-a">
-            <div class="form-label">{{ 'stats.insights.compare.side_a'|trans({}, 'statistics') }}</div>
-            <div class="form-control-plaintext">{{ referenceSummaryA }}</div>
+            <div class="rounded-3 p-3 bg-primary-lt border-start border-4 stats-compare-side-a">
+                <div class="d-flex align-items-start gap-3">
+                    <span class="avatar avatar-md bg-primary text-white fw-bold flex-shrink-0">A</span>
+                    <div class="min-w-0 flex-grow-1">
+                        <h3 class="h3 mb-1">{{ referenceLabelA }}</h3>
+                        {% if referenceDetailA %}
+                            <div class="text-muted mb-0">{{ referenceDetailA }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="mb-3" data-live-ignore>

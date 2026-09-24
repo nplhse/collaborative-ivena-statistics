@@ -139,13 +139,13 @@ final class InsightsCompareController extends AbstractController
             $overlapIds = array_values(array_intersect($subjectA->population->ids, $subjectB->population->ids));
         }
 
-        $referenceSummaryA = $subjectA->label.' · '.$report->header->dimensionLabelA.' · '.$filterLabelA;
         $comparePicker = $this->comparePickerViewModelFactory->create(
             $request,
             $subjectA,
             $subjectB,
             $comparisonFilter,
-            $referenceSummaryA,
+            $subjectA->label,
+            $report->header->dimensionLabelA.' · '.$filterLabelA,
         );
 
         return $this->render('@Statistics/insights/compare.html.twig', array_merge(

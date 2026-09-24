@@ -45,7 +45,10 @@ final class InsightCompareSelectionForm
     public string $searchUrl = '';
 
     #[LiveProp]
-    public string $referenceSummaryA = '';
+    public string $referenceLabelA = '';
+
+    #[LiveProp]
+    public string $referenceDetailA = '';
 
     #[LiveProp]
     public string $subjectADimension = '';
@@ -85,7 +88,8 @@ final class InsightCompareSelectionForm
         array $preservedQuery = [],
         string $locale = 'en',
         string $searchUrl = '',
-        string $referenceSummaryA = '',
+        string $referenceLabelA = '',
+        string $referenceDetailA = '',
         string $subjectADimension = '',
         string $subjectAId = '',
         string $subjectBDimension = '',
@@ -96,7 +100,8 @@ final class InsightCompareSelectionForm
         $this->preservedQuery = $preservedQuery;
         $this->locale = $locale;
         $this->searchUrl = $searchUrl;
-        $this->referenceSummaryA = $referenceSummaryA;
+        $this->referenceLabelA = $referenceLabelA;
+        $this->referenceDetailA = $referenceDetailA;
         $this->subjectADimension = $subjectADimension;
         $this->subjectAId = $subjectAId;
         $this->subjectBDimension = $subjectBDimension;
