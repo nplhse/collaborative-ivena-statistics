@@ -71,7 +71,7 @@ The picker splits options into **Dispatch area** and **Travel time** `<optgroup>
 - Age slices: `StatisticsAgeGroupBucketSql` (`0_17`, `18_29`, … — not Explorer `0_18`)
 - Travel bands: same exclusive 10-minute rings as the isochrone layer (`[0,10)`, `[10,20)`, … `[40,50)`, `≥50`). Allocations have no incident coordinates, so segments never intersect GeoJSON
 - UI: compact dimension tables like Top Lists (`table-sm` + share bar), tabs like Hospital Population, Turbo frame like Closed Department details
-- Reference population: the current Scope **AND** Period **AND** Drawer without the geographic segment. Dimension shares of a selected segment are compared with that parent population; Δ is the difference in percentage points, computed from unrounded shares
+- Reference population: the current Scope **AND** Period **AND** Drawer without the geographic segment. Dimension shares of a selected segment are compared with that parent population; Δ is the share difference, computed from unrounded shares and shown as a percent by [Directional indicators](directional-indicators.md)
 
 ### New pieces
 

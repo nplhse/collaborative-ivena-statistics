@@ -281,7 +281,7 @@ final class ReportsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-ttp-matrix-legend"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-ranked-legend"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"]');
-        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"] .text-success, [data-testid="stats-ttp-delta-badge"] .text-danger');
+        $this->assertSelectorExists('[data-testid="stats-ttp-delta-badge"].bg-green-lt, [data-testid="stats-ttp-delta-badge"].bg-red-lt');
         $this->assertSelectorExists('[data-testid="stats-ttp-rank-badge"]');
         $this->assertSelectorExists('[data-testid="stats-ttp-explorer-link"]');
         $this->assertStringContainsString(

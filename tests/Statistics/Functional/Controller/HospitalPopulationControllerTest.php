@@ -105,6 +105,7 @@ final class HospitalPopulationControllerTest extends WebTestCase
             '[data-testid="stats-hospital-population-coverage"]',
             'Positive delta indicates overrepresentation',
         );
+        $this->assertSelectorExists('[aria-label*="versus the population share"]');
         $this->assertSelectorNotExists('[data-testid="stats-hospital-population-participation"]');
         $this->assertSelectorNotExists('[data-controller="hospital-population-charts"]');
         self::assertSame('page', $crawler->filter('[data-testid="stats-hospital-population-tab-coverage"]')->attr('aria-current'));
