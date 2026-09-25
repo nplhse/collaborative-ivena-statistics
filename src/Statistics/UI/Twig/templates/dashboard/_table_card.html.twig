@@ -8,10 +8,22 @@
     {% endif %}
     {% set hasTableRows = p.rows is defined and p.rows is not empty %}
     <div class="card-body{% if hasTableRows and p.summaryStats is not defined %} p-0{% endif %}">
-        {{ include('@Statistics/dashboard/_analysis_table_inner.html.twig', {
-            tablePayload: p,
-            tableSummaryTestId: 'stats-analysis-table-summary',
-        }) }}
+        {% if p.shareBars is defined %}
+            <twig:Statistics:RankingTable
+                rankHeader="{{ p.headerTranslationKeys[0]|trans({}, statistics_label_domain(p.headerTranslationKeys[0])) }}"
+                labelHeader="{{ p.headerTranslationKeys[1]|trans({}, statistics_label_domain(p.headerTranslationKeys[1])) }}"
+                countHeader="{{ p.headerTranslationKeys[2]|trans({}, statistics_label_domain(p.headerTranslationKeys[2])) }}"
+                shareHeader="{{ p.headerTranslationKeys[3]|trans({}, statistics_label_domain(p.headerTranslationKeys[3])) }}"
+                :rows="ranking_table_widget_rows(p)"
+                :showShareBar="true"
+                emptyMessage="{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}"
+            />
+        {% else %}
+            {{ include('@Statistics/dashboard/_analysis_table_inner.html.twig', {
+                tablePayload: p,
+                tableSummaryTestId: 'stats-analysis-table-summary',
+            }) }}
+        {% endif %}
     </div>
     {% if p.limitFooter is defined and p.limitFooter.urls is defined and p.limitFooter.current is defined %}
         {{ include('@Statistics/top_lists/_limit_footer.html.twig', {
