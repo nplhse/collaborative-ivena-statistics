@@ -34,6 +34,7 @@
 | [closed-department-assignments.md](closed-department-assignments.md) | Notzuweisungen / forced assignments |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
 | [directional-indicators.md](directional-indicators.md) | Shared delta colour, sign, and unit |
+| [ranking-table.md](ranking-table.md) | Ranking table separate from DataTable |
 | [isochrone-origin-heatmap.md](isochrone-origin-heatmap.md) | Hospital-scope travel-time isochrone heatmap |
 
 ## Reading order (statistics feature work)
