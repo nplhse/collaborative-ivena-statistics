@@ -6,10 +6,15 @@ namespace App\Tests\Statistics\Unit\UI\Twig;
 
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\Insights\InsightValueRow;
+use App\Statistics\Application\TopList\TopListComparisonRow;
+use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Twig\RankingTable\RankingTableRankShift;
 use App\Statistics\UI\Twig\RankingTable\RankingTableRows;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class RankingTableRowsTest extends TestCase
 {
@@ -63,7 +68,7 @@ final class RankingTableRowsTest extends TestCase
 
     public function testFromInsightValuesFormatsRankCountShareAndExploreAction(): void
     {
-        $rows = new RankingTableRows()->fromInsightValues([
+        $rows = $this->rows()->fromInsightValues([
             new InsightValueRow(
                 id: 4,
                 label: 'STEMI',
@@ -100,7 +105,7 @@ final class RankingTableRowsTest extends TestCase
 
     public function testFromInsightValuesDropsMissingRankShareAndExploreUrl(): void
     {
-        $rows = new RankingTableRows()->fromInsightValues([
+        $rows = $this->rows()->fromInsightValues([
             new InsightValueRow(
                 id: 1,
                 label: 'Plain',
@@ -203,6 +208,85 @@ final class RankingTableRowsTest extends TestCase
         ], static fn (): string => '/unused');
     }
 
+    public function testFromComparisonSideFormatsSideAWithoutDeltas(): void
+    {
+        $target = new StatisticWidgetNavigationTarget('stats.insights.open', 'app_explore_indication_show');
+        $rows = RankingTableRows::fromComparisonSide([
+            $this->comparisonRow(rankA: null, countA: null, shareA: null, labelTarget: $target),
+            $this->comparisonRow(rankA: 2, countA: 8, shareA: 12.5),
+        ], false, 'stats-top-lists-comparison-table-a', static fn (StatisticWidgetNavigationTarget $navigationTarget): string => '/'.$navigationTarget->route);
+
+        self::assertSame('—', $rows[0]->rank);
+        self::assertSame('—', $rows[0]->count);
+        self::assertSame('—', $rows[0]->share);
+        self::assertSame('/app_explore_indication_show', $rows[0]->labelHref);
+        self::assertNull($rows[0]->rankShift);
+        self::assertNull($rows[0]->countDelta);
+        self::assertNull($rows[0]->shareDelta);
+        self::assertSame('stats-top-lists-comparison-table-a-row-acs', $rows[0]->testId);
+        self::assertSame('2', $rows[1]->rank);
+        self::assertSame('8', $rows[1]->count);
+        self::assertSame('12,5%', $rows[1]->share);
+    }
+
+    public function testFromComparisonSidePutsDeltaAndNewRankOnlyOnSideB(): void
+    {
+        $rows = RankingTableRows::fromComparisonSide([
+            $this->comparisonRow(rankB: 1, countB: 9, shareB: 4.0, deltaCount: 3, deltaShare: -1.5, rankMovement: 2),
+            $this->comparisonRow(identity: 'new', rankB: 4, countB: 1, shareB: 0.4, deltaCount: 1, deltaShare: 0.4, rankMovement: 4, onlyInB: true),
+        ], true, 'stats-top-lists-comparison-table-b', static fn (): string => '/label');
+
+        self::assertNotNull($rows[0]->rankShift);
+        self::assertFalse($rows[0]->rankShift->entered);
+        self::assertSame(2, $rows[0]->rankShift->rankDelta);
+        self::assertSame(3, $rows[0]->countDelta);
+        self::assertSame(-1.5, $rows[0]->shareDelta);
+        self::assertSame('4,0%', $rows[0]->share);
+        self::assertNotNull($rows[1]->rankShift);
+        self::assertTrue($rows[1]->rankShift->entered);
+        self::assertNull($rows[1]->countDelta);
+        self::assertNull($rows[1]->shareDelta);
+    }
+
+    public function testWidgetAndComparisonRowsResolveNavigationUrlsFromTheRequest(): void
+    {
+        $target = new StatisticWidgetNavigationTarget('stats.insights.open', 'app_explore_indication_show', ['publicId' => 'acs'], mergeRequestQuery: false);
+        $router = $this->createStub(UrlGeneratorInterface::class);
+        $router->method('generate')->willReturn('/explore/indications/acs');
+        $requestStack = new RequestStack([Request::create('/statistics/top-lists/top_diagnoses')]);
+        $rows = new RankingTableRows(new StatisticsNavigationUrlBuilder($router), $requestStack);
+
+        $widgetRows = $rows->widgetRows([
+            'rows' => [['1', 'ACS', '4', '10.0%']],
+            'labelRowTargets' => [$target],
+            'insightRowTargets' => [$target],
+            'shareBars' => [10.0],
+        ]);
+        $comparisonRows = $rows->comparisonRows([
+            $this->comparisonRow(labelTarget: $target),
+        ], false, 'side-a');
+
+        self::assertSame('/explore/indications/acs', $widgetRows[0]->labelHref);
+        self::assertSame('/explore/indications/acs', $widgetRows[0]->action?->href);
+        self::assertSame('/explore/indications/acs', $comparisonRows[0]->labelHref);
+    }
+
+    public function testNavigationUrlFallsBackWhenThereIsNoRequest(): void
+    {
+        $target = new StatisticWidgetNavigationTarget('stats.insights.open', 'app_explore_indication_show');
+        $rows = new RankingTableRows(
+            new StatisticsNavigationUrlBuilder($this->createStub(UrlGeneratorInterface::class)),
+            new RequestStack(),
+        );
+
+        $widgetRows = $rows->widgetRows([
+            'rows' => [['1', 'ACS', '4', '10.0%']],
+            'labelRowTargets' => [$target],
+        ]);
+
+        self::assertSame('#', $widgetRows[0]->labelHref);
+    }
+
     public function testRankShiftCellClassFollowsEnteredAndDirection(): void
     {
         self::assertSame('stats-rank-shift-new', new RankingTableRankShift(entered: true, rankDelta: 2)->cellClass());
@@ -210,5 +294,45 @@ final class RankingTableRowsTest extends TestCase
         self::assertSame('stats-rank-shift-down', new RankingTableRankShift(rankDelta: -4)->cellClass());
         self::assertSame('', new RankingTableRankShift(rankDelta: 0)->cellClass());
         self::assertSame('', new RankingTableRankShift()->cellClass());
+    }
+
+    private function rows(): RankingTableRows
+    {
+        return new RankingTableRows(
+            new StatisticsNavigationUrlBuilder($this->createStub(UrlGeneratorInterface::class)),
+            new RequestStack(),
+        );
+    }
+
+    private function comparisonRow(
+        string $identity = 'acs',
+        ?int $rankA = 1,
+        ?int $countA = 10,
+        ?float $shareA = 10.0,
+        ?int $rankB = 1,
+        ?int $countB = 10,
+        ?float $shareB = 10.0,
+        ?int $deltaCount = 0,
+        ?float $deltaShare = 0.0,
+        ?int $rankMovement = 0,
+        bool $onlyInB = false,
+        ?StatisticWidgetNavigationTarget $labelTarget = null,
+    ): TopListComparisonRow {
+        return new TopListComparisonRow(
+            identity: $identity,
+            label: 'ACS',
+            rankA: $rankA,
+            countA: $countA,
+            shareA: $shareA,
+            rankB: $rankB,
+            countB: $countB,
+            shareB: $shareB,
+            deltaCount: $deltaCount,
+            deltaShare: $deltaShare,
+            rankMovement: $rankMovement,
+            onlyInA: false,
+            onlyInB: $onlyInB,
+            labelTarget: $labelTarget,
+        );
     }
 }

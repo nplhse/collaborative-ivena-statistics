@@ -139,6 +139,27 @@ final class RankingTableComponentTest extends KernelTestCase
         self::assertStringContainsString('stats-rank-shift-down', $html);
     }
 
+    public function testComparisonLayoutKeepsValuePairsAndCompactTableWithoutDeltas(): void
+    {
+        $html = $this->render([
+            'compact' => true,
+            'valuePairs' => true,
+            'rows' => [
+                new RankingTableRow(
+                    rank: '1',
+                    label: 'ACS',
+                    count: '10',
+                    share: '10,0%',
+                ),
+            ],
+        ]);
+
+        self::assertStringContainsString('table-sm', $html);
+        self::assertSame(3, substr_count($html, 'stats-top-lists-value-pair'));
+        self::assertStringNotContainsString('stats-top-lists-delta-count', $html);
+        self::assertStringNotContainsString('stats-top-lists-rank-badge', $html);
+    }
+
     public function testEmptyRowsWithoutAMessageRenderNothing(): void
     {
         $html = $this->render([

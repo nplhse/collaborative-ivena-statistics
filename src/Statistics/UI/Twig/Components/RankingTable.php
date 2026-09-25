@@ -25,6 +25,10 @@ final class RankingTable
 
     public bool $showShareBar = false;
 
+    public bool $compact = false;
+
+    public bool $valuePairs = false;
+
     public ?string $emptyMessage = null;
 
     public string $shareBarTestId = 'stats-top-lists-share-bar';

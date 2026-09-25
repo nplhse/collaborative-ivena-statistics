@@ -12,7 +12,9 @@ Pass already translated header strings and `list<RankingTableRow>`.
 |------|---------|--------|
 | `rankHeader`, `labelHeader`, `countHeader`, `shareHeader` | `''` | Header text. Count and share are right-aligned. |
 | `rows` | `[]` | `RankingTableRow` values. |
-| `showShareBar` | `false` | Extra column using `top_lists/_share_bar.html.twig`. |
+| `showShareBar` | `false` | Extra column using `top_lists/_share_bar.html.twig`. Top Lists set this on the normal view only. |
+| `compact` | `false` | Adds `table-sm`. Comparison sides use it. |
+| `valuePairs` | `false` | Wraps rank, count, and share in the flex pair so both comparison sides keep the same row height. |
 | `emptyMessage` | `null` | Muted paragraph when `rows` is empty. No `EmptyState`, no footer. |
 | `shareBarTestId` | `stats-top-lists-share-bar` | |
 | `countDeltaAriaKey`, `shareDeltaAriaKey` | Top List comparison aria keys | Passed to `Statistics:DeltaIndicator` when the cell has a delta. |
@@ -32,11 +34,13 @@ There is no comparison mode. Render the component twice and set delta or rank sh
 
 ## Widget payload
 
-`RankingTableRows::fromTableWidget()` reads a Top List `StatisticWidget` table payload: string cells plus parallel `labelRowTargets`, `insightRowTargets`, and `shareBars`. The caller supplies the URL for each `StatisticWidgetNavigationTarget`.
+`RankingTableRows::fromTableWidget()` reads a Top List `StatisticWidget` table payload: string cells plus parallel `labelRowTargets`, `insightRowTargets`, and `shareBars`. The caller supplies the URL for each `StatisticWidgetNavigationTarget`. `ranking_table_widget_rows(payload)` does that with the same URL rules as `statistics_nav_url`.
 
-Payloads with `monthRowTargets`, `summaryStats`, or `footerRow` are analysis tables and are rejected. Top Lists still render through `dashboard/_table_card.html.twig` until they move onto this component.
+`dashboard/_table_card.html.twig` renders this component when the payload has `shareBars`. The card header and the limit footer (ranking depth, page size, pagination, CSV) stay outside the table. Payloads with `monthRowTargets`, `summaryStats`, or `footerRow` are analysis tables and stay on `_analysis_table_inner.html.twig`.
 
-Insights directories and the overview featured table build rows with the Twig function `ranking_table_insight_rows(rows, actionTestId)`.
+Comparison sides use `ranking_table_comparison_rows(rows, showDiff, rowTestIdPrefix)`. Side B adds delta and rank shift. The side header stays in `top_lists/_comparison_side_table.html.twig`, and both tables share one limit footer.
+
+Insights directories and the overview featured table build rows with `ranking_table_insight_rows(rows, actionTestId)`.
 
 ## Left outside
 

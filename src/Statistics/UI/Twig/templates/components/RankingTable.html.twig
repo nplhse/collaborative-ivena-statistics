@@ -4,7 +4,7 @@
     {% endif %}
 {% else %}
     <div class="table-responsive">
-        <table class="table table-vcenter card-table table-striped mb-0">
+        <table class="table{% if compact %} table-sm{% endif %} table-vcenter card-table table-striped mb-0">
             <thead>
                 <tr>
                     <th>{{ rankHeader }}</th>
@@ -23,18 +23,20 @@
                 {% for row in rows %}
                     <tr{% if row.testId %} data-testid="{{ row.testId }}"{% endif %}>
                         <td class="text-nowrap {{ row.rankShift ? row.rankShift.cellClass : '' }}">
-                            {% if row.rankShift %}
+                            {% if valuePairs or row.rankShift %}
                                 <div class="stats-top-lists-value-pair">
                                     <span>{{ row.rank }}</span>
-                                    {{ include('@Statistics/_rank_shift_badge.html.twig', {
-                                        entered: row.rankShift.entered,
-                                        rankDelta: row.rankShift.rankDelta,
-                                        newLabelKey: row.rankShift.newLabelKey,
-                                        ariaNewKey: row.rankShift.ariaNewKey,
-                                        ariaUpKey: row.rankShift.ariaUpKey,
-                                        ariaDownKey: row.rankShift.ariaDownKey,
-                                        testId: row.rankShift.testId,
-                                    }) }}
+                                    {% if row.rankShift %}
+                                        {{ include('@Statistics/_rank_shift_badge.html.twig', {
+                                            entered: row.rankShift.entered,
+                                            rankDelta: row.rankShift.rankDelta,
+                                            newLabelKey: row.rankShift.newLabelKey,
+                                            ariaNewKey: row.rankShift.ariaNewKey,
+                                            ariaUpKey: row.rankShift.ariaUpKey,
+                                            ariaDownKey: row.rankShift.ariaDownKey,
+                                            testId: row.rankShift.testId,
+                                        }) }}
+                                    {% endif %}
                                 </div>
                             {% else %}
                                 {{ row.rank }}
@@ -51,30 +53,34 @@
                             {% endif %}
                         </td>
                         <td class="text-end text-nowrap">
-                            {% if row.countDelta is not null %}
+                            {% if valuePairs or row.countDelta is not null %}
                                 <div class="stats-top-lists-value-pair justify-content-end">
                                     <span>{{ row.count }}</span>
-                                    <twig:Statistics:DeltaIndicator
-                                        :value="row.countDelta"
-                                        unit="count"
-                                        :ariaKey="countDeltaAriaKey"
-                                        data-testid="{{ countDeltaTestId }}"
-                                    />
+                                    {% if row.countDelta is not null %}
+                                        <twig:Statistics:DeltaIndicator
+                                            :value="row.countDelta"
+                                            unit="count"
+                                            :ariaKey="countDeltaAriaKey"
+                                            data-testid="{{ countDeltaTestId }}"
+                                        />
+                                    {% endif %}
                                 </div>
                             {% else %}
                                 {{ row.count }}
                             {% endif %}
                         </td>
                         <td class="text-end text-nowrap">
-                            {% if row.shareDelta is not null %}
+                            {% if valuePairs or row.shareDelta is not null %}
                                 <div class="stats-top-lists-value-pair justify-content-end">
                                     <span>{{ row.share }}</span>
-                                    <twig:Statistics:DeltaIndicator
-                                        :value="row.shareDelta"
-                                        unit="percent"
-                                        :ariaKey="shareDeltaAriaKey"
-                                        data-testid="{{ shareDeltaTestId }}"
-                                    />
+                                    {% if row.shareDelta is not null %}
+                                        <twig:Statistics:DeltaIndicator
+                                            :value="row.shareDelta"
+                                            unit="percent"
+                                            :ariaKey="shareDeltaAriaKey"
+                                            data-testid="{{ shareDeltaTestId }}"
+                                        />
+                                    {% endif %}
                                 </div>
                             {% else %}
                                 {{ row.share }}

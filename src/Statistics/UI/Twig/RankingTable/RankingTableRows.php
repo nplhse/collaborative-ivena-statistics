@@ -6,9 +6,41 @@ namespace App\Statistics\UI\Twig\RankingTable;
 
 use App\Statistics\Application\DTO\StatisticWidgetNavigationTarget;
 use App\Statistics\Application\Insights\InsightValueRow;
+use App\Statistics\Application\TopList\TopListComparisonRow;
+use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class RankingTableRows
 {
+    public function __construct(
+        private StatisticsNavigationUrlBuilder $urlBuilder,
+        private RequestStack $requestStack,
+    ) {
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return list<RankingTableRow>
+     */
+    #[\Twig\Attribute\AsTwigFunction(name: 'ranking_table_widget_rows')]
+    public function widgetRows(array $payload): array
+    {
+        return self::fromTableWidget($payload, $this->url(...));
+    }
+
+    /**
+     * @param list<TopListComparisonRow> $rows
+     *
+     * @return list<RankingTableRow>
+     */
+    #[\Twig\Attribute\AsTwigFunction(name: 'ranking_table_comparison_rows')]
+    public function comparisonRows(array $rows, bool $showDiff, string $rowTestIdPrefix): array
+    {
+        return self::fromComparisonSide($rows, $showDiff, $rowTestIdPrefix, $this->url(...));
+    }
+
     /**
      * @param list<InsightValueRow> $rows
      *
@@ -97,6 +129,47 @@ final readonly class RankingTableRows
         }
 
         return $mapped;
+    }
+
+    /**
+     * @param list<TopListComparisonRow>                        $rows
+     * @param callable(StatisticWidgetNavigationTarget): string $url
+     *
+     * @return list<RankingTableRow>
+     */
+    public static function fromComparisonSide(array $rows, bool $showDiff, string $rowTestIdPrefix, callable $url): array
+    {
+        $mapped = [];
+        foreach ($rows as $row) {
+            $rank = $showDiff ? $row->rankB : $row->rankA;
+            $count = $showDiff ? $row->countB : $row->countA;
+            $share = $showDiff ? $row->shareB : $row->shareA;
+            $labelTarget = $row->labelTarget;
+
+            $mapped[] = new RankingTableRow(
+                rank: null === $rank ? '—' : (string) $rank,
+                label: $row->label,
+                count: null === $count ? '—' : (string) $count,
+                share: null === $share ? '—' : number_format($share, 1, ',', '.').'%',
+                labelHref: $labelTarget instanceof StatisticWidgetNavigationTarget ? $url($labelTarget) : null,
+                rankShift: $showDiff ? new RankingTableRankShift(entered: $row->onlyInB, rankDelta: $row->rankMovement) : null,
+                countDelta: $showDiff && !$row->onlyInB ? $row->deltaCount : null,
+                shareDelta: $showDiff && !$row->onlyInB ? $row->deltaShare : null,
+                testId: $rowTestIdPrefix.'-row-'.$row->identity,
+            );
+        }
+
+        return $mapped;
+    }
+
+    private function url(StatisticWidgetNavigationTarget $target): string
+    {
+        $request = $this->requestStack->getMainRequest();
+        if (!$request instanceof Request) {
+            return '#';
+        }
+
+        return $this->urlBuilder->buildFromTarget($request, $target);
     }
 
     /**
