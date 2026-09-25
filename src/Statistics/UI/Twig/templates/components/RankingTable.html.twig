@@ -1,0 +1,108 @@
+{% if rows is empty %}
+    {% if emptyMessage %}
+        <p class="text-muted mb-0">{{ emptyMessage }}</p>
+    {% endif %}
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>{{ rankHeader }}</th>
+                    <th>{{ labelHeader }}</th>
+                    <th class="text-end">{{ countHeader }}</th>
+                    <th class="text-end">{{ shareHeader }}</th>
+                    {% if showShareBar %}
+                        <th class="stats-top-lists-share-col" aria-hidden="true"></th>
+                    {% endif %}
+                    {% if this.hasActions %}
+                        <th class="w-1" aria-label="{{ 'stats.insights.table.actions'|trans({}, 'statistics') }}"></th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr{% if row.testId %} data-testid="{{ row.testId }}"{% endif %}>
+                        <td class="text-nowrap {{ row.rankShift ? row.rankShift.cellClass : '' }}">
+                            {% if row.rankShift %}
+                                <div class="stats-top-lists-value-pair">
+                                    <span>{{ row.rank }}</span>
+                                    {{ include('@Statistics/_rank_shift_badge.html.twig', {
+                                        entered: row.rankShift.entered,
+                                        rankDelta: row.rankShift.rankDelta,
+                                        newLabelKey: row.rankShift.newLabelKey,
+                                        ariaNewKey: row.rankShift.ariaNewKey,
+                                        ariaUpKey: row.rankShift.ariaUpKey,
+                                        ariaDownKey: row.rankShift.ariaDownKey,
+                                        testId: row.rankShift.testId,
+                                    }) }}
+                                </div>
+                            {% else %}
+                                {{ row.rank }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.labelHref %}
+                                <a href="{{ row.labelHref }}">{{ row.label }}</a>
+                            {% else %}
+                                {{ row.label }}
+                            {% endif %}
+                            {% if row.labelContext %}
+                                <div class="text-secondary small">{{ row.labelContext }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            {% if row.countDelta is not null %}
+                                <div class="stats-top-lists-value-pair justify-content-end">
+                                    <span>{{ row.count }}</span>
+                                    <twig:Statistics:DeltaIndicator
+                                        :value="row.countDelta"
+                                        unit="count"
+                                        :ariaKey="countDeltaAriaKey"
+                                        data-testid="{{ countDeltaTestId }}"
+                                    />
+                                </div>
+                            {% else %}
+                                {{ row.count }}
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            {% if row.shareDelta is not null %}
+                                <div class="stats-top-lists-value-pair justify-content-end">
+                                    <span>{{ row.share }}</span>
+                                    <twig:Statistics:DeltaIndicator
+                                        :value="row.shareDelta"
+                                        unit="percent"
+                                        :ariaKey="shareDeltaAriaKey"
+                                        data-testid="{{ shareDeltaTestId }}"
+                                    />
+                                </div>
+                            {% else %}
+                                {{ row.share }}
+                            {% endif %}
+                        </td>
+                        {% if showShareBar %}
+                            <td class="stats-top-lists-share-col">
+                                {{ include('@Statistics/top_lists/_share_bar.html.twig', {
+                                    share: row.shareBar|default(0),
+                                    testId: shareBarTestId,
+                                }) }}
+                            </td>
+                        {% endif %}
+                        {% if this.hasActions %}
+                            <td class="w-1">
+                                {% if row.action %}
+                                    {{ include('@Statistics/insights/_table_icon_action.html.twig', {
+                                        href: row.action.href,
+                                        icon: row.action.icon,
+                                        labelKey: row.action.labelKey,
+                                        testId: row.action.testId,
+                                    }) }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

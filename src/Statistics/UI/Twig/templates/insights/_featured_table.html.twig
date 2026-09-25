@@ -11,35 +11,11 @@
         </twig:EmptyState>
     </div>
 {% else %}
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table table-striped mb-0">
-            <thead>
-                <tr>
-                    <th>{{ 'stats.top_lists.table.rank'|trans({}, 'statistics') }}</th>
-                    <th>{{ labelKey|trans({}, 'statistics') }}</th>
-                    <th class="text-end">{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}</th>
-                    <th class="text-end">{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}</th>
-                    <th class="w-1" aria-label="{{ 'stats.insights.table.actions'|trans({}, 'statistics') }}"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in rows %}
-                    <tr>
-                        <td>{{ row.rank }}</td>
-                        <td><a href="{{ row.url }}">{{ row.label }}</a></td>
-                        <td class="text-end">{{ row.count|number_format(0, ',', '.') }}</td>
-                        <td class="text-end">{{ row.shareDisplay }}</td>
-                        <td class="w-1">
-                            {{ include('@Statistics/insights/_table_icon_action.html.twig', {
-                                href: row.exploreUrl,
-                                icon: 'tabler:book-2',
-                                labelKey: 'stats.indication.nav.catalog',
-                                testId: 'stats-insights-featured-row-explore',
-                            }) }}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <twig:Statistics:RankingTable
+        rankHeader="{{ 'stats.top_lists.table.rank'|trans({}, 'statistics') }}"
+        labelHeader="{{ labelKey|trans({}, 'statistics') }}"
+        countHeader="{{ 'stats.top_lists.table.count'|trans({}, 'statistics') }}"
+        shareHeader="{{ 'stats.top_lists.table.share'|trans({}, 'statistics') }}"
+        :rows="ranking_table_insight_rows(rows, 'stats-insights-featured-row-explore')"
+    />
 {% endif %}
