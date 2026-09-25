@@ -305,6 +305,8 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 
 Declarative table card for Explore/Import lists. It renders Tabler `.card` chrome itself and does **not** wrap `<twig:Card>`. Pass `columns` plus `rows` (or a `paginator`) and the component draws headers, cells, empty state, and the footer.
 
+Do not use `DataTable` for statistics rankings. It owns the card, property-based columns, and a fixed page-size footer (`25/50/100`). A ranking already sits inside another card and needs share bars, an insight or catalog action, and optional comparison cells. That table is [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md). Top Lists still render through the widget table until they move onto it.
+
 Without `columns`, the `content` block is still the escape hatch (Admin Import-Rejects, Analysis Explorer). Pagination still uses the DataTable footer when a paginator has rows.
 
 Not a Live Component: sort, page size, and page links are GET URLs so list state stays shareable.
