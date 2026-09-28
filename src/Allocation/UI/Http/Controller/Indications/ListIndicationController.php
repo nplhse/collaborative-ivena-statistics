@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/indication', name: 'app_explore_indication_list', methods: ['GET'])]
 final class ListIndicationController extends AbstractController
@@ -20,6 +21,7 @@ final class ListIndicationController extends AbstractController
         private readonly IndicationNormalizedRepository $indicationRepository,
         private readonly IndicationRawRepository $indicationRawRepository,
         private readonly TranslatorInterface $translator,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
@@ -27,10 +29,15 @@ final class ListIndicationController extends AbstractController
         #[MapQueryString] IndicationQueryParametersDTO $query,
     ): Response {
         if ('normalized' === $query->type) {
-            $paginator = $this->indicationRepository->getListPaginator($query);
+            $source = $this->indicationRepository->listQuery($query);
         } else {
-            $paginator = $this->indicationRawRepository->getListPaginator($query);
+            $source = $this->indicationRawRepository->listQuery($query);
         }
+
+        $paginator = $this->paginator
+            ->query($source)
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         $tabs = [
             0 => [

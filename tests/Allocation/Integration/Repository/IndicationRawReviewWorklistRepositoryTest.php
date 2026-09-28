@@ -10,9 +10,11 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Repository\IndicationRawRepository;
 use App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO;
+use App\Tests\Support\Pagination\PaginatesQueries;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -20,6 +22,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class IndicationRawReviewWorklistRepositoryTest extends KernelTestCase
 {
     use Factories;
+    use PaginatesQueries;
 
     private IndicationRawRepository $repository;
 
@@ -39,15 +42,15 @@ final class IndicationRawReviewWorklistRepositoryTest extends KernelTestCase
             'reviewStatus' => IndicationRawReviewStatus::Matched,
         ]);
 
-        $openPaginator = $this->repository->getReviewWorklistPaginator(
+        $openPaginator = $this->paginateWorklist(
             new IndicationRawReviewWorklistQueryDTO(segment: IndicationRawReviewWorklistSegment::Unreviewed),
         );
-        $matchedPaginator = $this->repository->getReviewWorklistPaginator(
+        $matchedPaginator = $this->paginateWorklist(
             new IndicationRawReviewWorklistQueryDTO(segment: IndicationRawReviewWorklistSegment::Matched),
         );
 
-        self::assertSame(1, $openPaginator->getNumResults());
-        self::assertSame(1, $matchedPaginator->getNumResults());
+        self::assertSame(1, $openPaginator->getTotalItems());
+        self::assertSame(1, $matchedPaginator->getTotalItems());
     }
 
     public function testGetReviewWorklistPaginatorSearchFiltersByName(): void
@@ -55,14 +58,14 @@ final class IndicationRawReviewWorklistRepositoryTest extends KernelTestCase
         IndicationRawFactory::createOne(['code' => 803, 'name' => 'Alpha indication']);
         IndicationRawFactory::createOne(['code' => 804, 'name' => 'Beta indication']);
 
-        $paginator = $this->repository->getReviewWorklistPaginator(
+        $paginator = $this->paginateWorklist(
             new IndicationRawReviewWorklistQueryDTO(
                 search: 'alpha',
                 segment: IndicationRawReviewWorklistSegment::Open,
             ),
         );
 
-        self::assertSame(1, $paginator->getNumResults());
+        self::assertSame(1, $paginator->getTotalItems());
     }
 
     public function testFindNextInWorklistReturnsNextAfterCursor(): void
@@ -107,18 +110,26 @@ final class IndicationRawReviewWorklistRepositoryTest extends KernelTestCase
             'createdAt' => new \DateTimeImmutable('-1 day'),
         ]);
 
-        $needsReviewPaginator = $this->repository->getReviewWorklistPaginator(
+        $needsReviewPaginator = $this->paginateWorklist(
             new IndicationRawReviewWorklistQueryDTO(
                 orderBy: 'desc',
                 sortBy: 'firstMatchedAt',
                 segment: IndicationRawReviewWorklistSegment::NeedsReview,
             ),
         );
-        $newPaginator = $this->repository->getReviewWorklistPaginator(
+        $newPaginator = $this->paginateWorklist(
             new IndicationRawReviewWorklistQueryDTO(segment: IndicationRawReviewWorklistSegment::New),
         );
 
-        self::assertSame(1, $needsReviewPaginator->getNumResults());
-        self::assertGreaterThanOrEqual(1, $newPaginator->getNumResults());
+        self::assertSame(1, $needsReviewPaginator->getTotalItems());
+        self::assertGreaterThanOrEqual(1, $newPaginator->getTotalItems());
+    }
+
+    /**
+     * @return NumberedPaginationInterface<mixed>
+     */
+    private function paginateWorklist(IndicationRawReviewWorklistQueryDTO $query): NumberedPaginationInterface
+    {
+        return $this->paginateQuery($this->repository->reviewWorklistQuery($query));
     }
 }

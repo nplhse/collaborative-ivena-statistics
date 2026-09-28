@@ -27,4 +27,5 @@ return [
     Vich\UploaderBundle\VichUploaderBundle::class => ['all' => true],
     DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
     Nelmio\SecurityBundle\NelmioSecurityBundle::class => ['all' => true],
+    Symfony\UX\Pagination\UXPaginationBundle::class => ['all' => true],
 ];

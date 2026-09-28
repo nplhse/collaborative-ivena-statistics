@@ -6,9 +6,9 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +23,7 @@ final class SpecialityRepository extends ServiceEntityRepository
         parent::__construct($registry, Speciality::class);
     }
 
-    public function getListPaginator(SpecialityQueryParametersDTO $queryParametersDTO): Paginator
+    public function listQuery(SpecialityQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('s')
             ->addSelect('(CASE WHEN s.updatedAt IS NOT NULL THEN s.updatedAt ELSE s.createdAt END) AS HIDDEN sortDate')
@@ -46,6 +46,6 @@ final class SpecialityRepository extends ServiceEntityRepository
             ;
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 }

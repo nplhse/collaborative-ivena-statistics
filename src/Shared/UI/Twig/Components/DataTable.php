@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Shared\UI\Twig\Components;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\BadgeView;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
@@ -13,6 +12,7 @@ use App\Shared\UI\Twig\DataTable\DataTableValueResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\UX\Pagination\PaginationInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent(name: 'DataTable', template: '@Shared/components/DataTable.html.twig')]
@@ -27,7 +27,8 @@ final class DataTable
     /** @psalm-suppress PossiblyUnusedProperty Consumed by DataTable.html.twig. */
     public ?string $title = null;
 
-    public Paginator|CursorPaginator|null $paginator = null;
+    /** @var PaginationInterface<mixed>|CursorPaginator|null */
+    public PaginationInterface|CursorPaginator|null $paginator = null;
 
     public ?string $paginationRoute = null;
 
@@ -117,11 +118,15 @@ final class DataTable
             return $this->iterableToList($this->rows);
         }
 
-        if (null === $this->paginator) {
-            return [];
+        if ($this->paginator instanceof PaginationInterface) {
+            return $this->paginator->getItems();
         }
 
-        return $this->iterableToList($this->paginator->getResults());
+        if ($this->paginator instanceof CursorPaginator) {
+            return $this->iterableToList($this->paginator->getResults());
+        }
+
+        return [];
     }
 
     public function hasRows(): bool
@@ -132,6 +137,25 @@ final class DataTable
     public function isCursorPaginator(): bool
     {
         return $this->paginator instanceof CursorPaginator;
+    }
+
+    public function isUxPaginator(): bool
+    {
+        return $this->paginator instanceof PaginationInterface;
+    }
+
+    public function getPageSize(): int
+    {
+        $paginator = $this->paginator;
+        if ($paginator instanceof PaginationInterface) {
+            return $paginator->getItemsPerPage();
+        }
+
+        if ($paginator instanceof CursorPaginator) {
+            return $paginator->getPageSize();
+        }
+
+        return 25;
     }
 
     public function getShouldShowFooter(): bool
@@ -236,7 +260,7 @@ final class DataTable
      */
     public function getPageSizeLinks(): array
     {
-        $pageSize = $this->paginator?->getPageSize() ?? 25;
+        $pageSize = $this->getPageSize();
         $links = [];
         foreach (self::PAGE_SIZES as $size) {
             $params = ['limit' => $size];

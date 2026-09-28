@@ -1,0 +1,6 @@
+ux_pagination:
+    items_per_page: 25
+    navigation:
+        mode: sliding
+        size: 5
+    theme: '@Shared/pagination/theme.html.twig'
