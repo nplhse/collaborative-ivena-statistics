@@ -20,6 +20,11 @@ final class UserRole
 
     public const string REVIEW_INDICATIONS = 'ROLE_REVIEW_INDICATIONS';
 
+    /**
+     * Opt-in beta switch for closure imports. Not inherited by ROLE_ADMIN.
+     */
+    public const string CLOSURE_BETA = 'ROLE_CLOSURE_BETA';
+
     public static function containsParticipant(mixed $roles): bool
     {
         if (!\is_array($roles)) {

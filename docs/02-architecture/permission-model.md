@@ -16,6 +16,9 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
 | `ROLE_FEEDBACK_RECIPIENT` | Receives feedback admin notifications (with `ROLE_ADMIN`) |
 | `ROLE_RECEIVES_NOTIFICATION` | General notification recipient |
+| `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
+
+`ROLE_ADMIN` inherits `ROLE_PARTICIPANT` and `ROLE_REVIEW_INDICATIONS` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.
 
 ## Hospital permissions (bitmask)
 
