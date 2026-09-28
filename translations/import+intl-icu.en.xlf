@@ -309,6 +309,22 @@
         <source>empty.import.no_permission.description</source>
         <target>Importing a dataset requires permission for a hospital. Someone with import access can start the first import.</target>
       </trans-unit>
+      <trans-unit id="impTypeEn" resname="label.import.type">
+        <source>label.import.type</source>
+        <target>Import type</target>
+      </trans-unit>
+      <trans-unit id="impTypeAllocEn" resname="label.import.type.allocation">
+        <source>label.import.type.allocation</source>
+        <target>Allocations</target>
+      </trans-unit>
+      <trans-unit id="impTypeClosureEn" resname="label.import.type.closure">
+        <source>label.import.type.closure</source>
+        <target>Closure list (beta)</target>
+      </trans-unit>
+      <trans-unit id="impTypeHelpEn" resname="label.import.type.help">
+        <source>label.import.type.help</source>
+        <target>Closure lists are a beta and stay hidden without the Closure beta role.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

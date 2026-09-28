@@ -270,7 +270,33 @@ final class ImportVoterTest extends KernelTestCase
         self::assertFalse($this->voter->supportsType(Hospital::class));
     }
 
-    private function createImportForOwner(object $owner, ?object $createdBy = null): object
+    public function testClosureImportIsHiddenWithoutBetaRole(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::VIEW]),
+        );
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testClosureImportIsVisibleWithBetaRole(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::VIEW]),
+        );
+    }
+
+    private function createImportForOwner(object $owner, ?object $createdBy = null, ImportType $type = ImportType::ALLOCATION): object
     {
         $createdBy ??= $owner;
         $state = StateFactory::createOne();
@@ -285,7 +311,7 @@ final class ImportVoterTest extends KernelTestCase
         return ImportFactory::createOne([
             'hospital' => $hospital,
             'createdBy' => $createdBy,
-            'type' => ImportType::ALLOCATION,
+            'type' => $type,
             'status' => ImportStatus::PENDING,
             'filePath' => '/tmp/test.csv',
         ]);

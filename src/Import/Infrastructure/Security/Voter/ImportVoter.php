@@ -7,6 +7,7 @@ namespace App\Import\Infrastructure\Security\Voter;
 use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Import\Application\Service\ImportListAccess;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -48,6 +49,10 @@ final class ImportVoter extends Voter
     {
         $user = $token->getUser();
         if (!$user instanceof User) {
+            return false;
+        }
+
+        if ($this->closureBetaDenied($subject, $user)) {
             return false;
         }
 
@@ -93,5 +98,14 @@ final class ImportVoter extends Voter
         $createdBy = $subject->getCreatedBy();
 
         return null !== $createdBy && $createdBy->getId() === $user->getId();
+    }
+
+    private function closureBetaDenied(Import $import, User $user): bool
+    {
+        if (ImportType::CLOSURE !== $import->getType()) {
+            return false;
+        }
+
+        return !\in_array(UserRole::CLOSURE_BETA, $user->getRoles(), true);
     }
 }

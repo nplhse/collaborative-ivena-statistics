@@ -29,33 +29,60 @@ final class SpecialityDepartmentReferenceStrategy
 
     public function warm(): void
     {
-        if ([] !== $this->specialityIdByKey && [] !== $this->departmentIdByKey) {
-            return;
-        }
+        $this->specialityIdByKey = [];
+        $this->departmentIdByKey = [];
 
-        if ([] === $this->specialityIdByKey) {
-            foreach ($this->specialityRepo->findBy([], ['name' => 'ASC']) as $speciality) {
-                $id = $speciality->getId();
-                if (null === $id) {
-                    throw new \DomainException('Speciality id must not be null.');
-                }
-
-                $key = $this->key((string) $speciality->getName());
-                $this->specialityIdByKey[$key] = $id;
+        foreach ($this->specialityRepo->findBy([], ['name' => 'ASC']) as $speciality) {
+            $id = $speciality->getId();
+            if (null === $id) {
+                throw new \DomainException('Speciality id must not be null.');
             }
+
+            $key = $this->key((string) $speciality->getName());
+            $this->specialityIdByKey[$key] = $id;
         }
 
-        if ([] === $this->departmentIdByKey) {
-            foreach ($this->departmentRepo->findBy([], ['name' => 'ASC']) as $department) {
-                $id = $department->getId();
-                if (null === $id) {
-                    throw new \DomainException('Department id must not be null.');
-                }
-
-                $key = $this->key((string) $department->getName());
-                $this->departmentIdByKey[$key] = $id;
+        foreach ($this->departmentRepo->findBy([], ['name' => 'ASC']) as $department) {
+            $id = $department->getId();
+            if (null === $id) {
+                throw new \DomainException('Department id must not be null.');
             }
+
+            $key = $this->key((string) $department->getName());
+            $this->departmentIdByKey[$key] = $id;
         }
+    }
+
+    /**
+     * @return array{speciality: Speciality, department: Department}
+     */
+    public function requirePair(string $specialityName, string $departmentName): array
+    {
+        if ([] === $this->specialityIdByKey || [] === $this->departmentIdByKey) {
+            $this->warm();
+        }
+
+        $specialityKey = $this->key($specialityName);
+        $specialityId = $this->specialityIdByKey[$specialityKey] ?? null;
+        if ('' === $specialityKey || null === $specialityId) {
+            throw ReferenceNotFoundException::forField('speciality', $specialityName);
+        }
+
+        $departmentKey = $this->resolveDepartmentKey($departmentName);
+        $departmentId = $this->departmentIdByKey[$departmentKey] ?? null;
+        if ('' === $departmentKey || null === $departmentId) {
+            throw ReferenceNotFoundException::forField('department', $departmentName);
+        }
+
+        /** @var Speciality $speciality */
+        $speciality = $this->em->getReference(Speciality::class, $specialityId);
+        /** @var Department $department */
+        $department = $this->em->getReference(Department::class, $departmentId);
+
+        return [
+            'speciality' => $speciality,
+            'department' => $department,
+        ];
     }
 
     /**

@@ -39,6 +39,8 @@ deptrac:
       - App\Allocation\Infrastructure\Repository\AssessmentRepository
     App\Allocation\Domain\Entity\Assignment:
       - App\Allocation\Infrastructure\Repository\AssignmentRepository
+    App\Allocation\Domain\Entity\ClosureInterval:
+      - App\Allocation\Infrastructure\Repository\ClosureIntervalRepository
     App\Allocation\Domain\Entity\Department:
       - App\Allocation\Infrastructure\Repository\DepartmentRepository
     App\Allocation\Domain\Entity\DispatchArea:
@@ -215,14 +217,26 @@ deptrac:
       - App\Import\Infrastructure\Repository\ImportRejectRepository
     App\Import\Application\Analysis\RejectMessageNormalizer:
       - App\Import\Infrastructure\Mapping\DispatchAreaSourceResolver
+    App\Import\Application\Factory\ClosureImporterFactory:
+      - App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister
     App\Import\Application\Factory\RowReaderFactory:
       - App\Import\Infrastructure\Adapter\SplCsvRowReader
       - App\Import\Infrastructure\Adapter\SplCsvStreamFactory
       - App\Import\Infrastructure\Charset\EncodingDetector
     App\Import\Application\MessageHandler\ImportAllocationsMessageHandler:
       - App\Import\Infrastructure\Repository\ImportRepository
+    App\Import\Application\MessageHandler\ImportClosuresMessageHandler:
+      - App\Import\Infrastructure\Repository\ImportRepository
+      - App\User\Domain\Entity\User
+      - App\User\Domain\Security\UserRole
     App\Import\Application\Service\AllocationRowProcessor:
       - App\Import\Infrastructure\Mapping\AllocationImportFactory
+    App\Import\Application\Service\ClosureImporter:
+      - App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister
+    App\Import\Application\Service\ClosureRowProcessor:
+      - App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister
+      - App\Import\Infrastructure\Mapping\ClosureImportFactory
+      - App\Import\Infrastructure\Mapping\ClosureRowMapper
     App\Import\Application\Service\ImportAllocationsDispatcher:
       - App\Import\Infrastructure\Repository\ImportRepository
       - App\User\Domain\Entity\User
@@ -278,6 +292,7 @@ deptrac:
       - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\NewImportController:
       - App\User\Domain\Entity\User
+      - App\User\Domain\Security\UserRole
     App\Import\UI\Http\Controller\ProcessingImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\ShowImportController:

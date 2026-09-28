@@ -19,14 +19,15 @@ final class ImportTypeTest extends TestCase
 
     public function testGetValuesReturnsAllValuesInOrder(): void
     {
-        $expected = ['Allocation'];
+        $expected = ['Allocation', 'Closure'];
         self::assertSame($expected, ImportType::getValues());
     }
 
     public function testFromAndTryFrom(): void
     {
         self::assertSame(ImportType::ALLOCATION, ImportType::from('Allocation'));
-        self::assertSame(ImportType::ALLOCATION, ImportType::tryFrom('Allocation'));
+        self::assertSame(ImportType::CLOSURE, ImportType::from('Closure'));
+        self::assertSame(ImportType::CLOSURE, ImportType::tryFrom('Closure'));
         self::assertNull(ImportType::tryFrom('Unknown'));
     }
 
@@ -37,6 +38,7 @@ final class ImportTypeTest extends TestCase
     {
         return [
             'ALLOCATION' => ['case' => ImportType::ALLOCATION, 'value' => 'Allocation'],
+            'CLOSURE' => ['case' => ImportType::CLOSURE, 'value' => 'Closure'],
         ];
     }
 }

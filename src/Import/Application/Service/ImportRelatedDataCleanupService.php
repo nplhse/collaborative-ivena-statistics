@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Application\Service;
 
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
+use App\Allocation\Infrastructure\Repository\ClosureIntervalRepository;
 use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
@@ -23,6 +24,7 @@ final readonly class ImportRelatedDataCleanupService
         private Connection $connection,
         private ImportRejectRepository $importRejectRepository,
         private AllocationRepository $allocationRepository,
+        private ClosureIntervalRepository $closureIntervalRepository,
         private MciCaseRepository $mciCaseRepository,
         private AllocationStatsProjectionRebuildInterface $statsProjectionRebuilder,
         private ProjectionOverviewChangeDetectorInterface $projectionOverviewChangeDetector,
@@ -44,6 +46,7 @@ final readonly class ImportRelatedDataCleanupService
                 'projection' => $this->statsProjectionRebuilder->deleteForImport($importId),
                 'rejects' => $this->importRejectRepository->deleteByImport($import),
                 'allocations' => $this->allocationRepository->deleteByImport($import),
+                'closure_intervals' => $this->closureIntervalRepository->deleteByImport($import),
                 'assessments' => $this->deleteAssessmentsByIds($assessmentIds),
                 'mci_cases' => $this->mciCaseRepository->deleteByImport($import),
             ];
@@ -63,6 +66,7 @@ final readonly class ImportRelatedDataCleanupService
             $counts['rejects'],
             $counts['assessments'],
             $counts['allocations'],
+            $counts['closure_intervals'],
             $counts['mci_cases'],
         );
     }
@@ -122,6 +126,7 @@ SQL,
         int $deletedRejects,
         int $deletedAssessments,
         int $deletedAllocations,
+        int $deletedClosureIntervals,
         int $deletedMciCases,
     ): void {
         if ($deletedProjectionRows > 0) {
@@ -149,6 +154,13 @@ SQL,
             $this->importLogger->info('import.allocations.cleared', [
                 'import_id' => $importId,
                 'deleted' => $deletedAllocations,
+            ]);
+        }
+
+        if ($deletedClosureIntervals > 0) {
+            $this->importLogger->info('import.closure_intervals.cleared', [
+                'import_id' => $importId,
+                'deleted' => $deletedClosureIntervals,
             ]);
         }
 

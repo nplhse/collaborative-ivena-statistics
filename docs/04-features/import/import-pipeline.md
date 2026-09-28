@@ -9,6 +9,7 @@ Upload/dispatch is separated from processing in the worker.
 
 - Allocation records
 - MCI/MANV-related rows
+- Closure intervals, when the upload is a closure list and the user has `ROLE_CLOSURE_BETA` ([closure-import.md](closure-import.md))
 - Rejected rows are recorded as rejects
 
 Source: CSV or plain-text files (`.csv`, `.txt`) uploaded through the import UI.

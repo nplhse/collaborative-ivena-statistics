@@ -7,8 +7,10 @@ namespace App\Import\Infrastructure\Query;
 use App\Import\Application\Service\ImportListAccess;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -39,6 +41,11 @@ final readonly class ListImportsQuery
         } else {
             $qb->andWhere('h.id IN (:accessibleHospitalIds)')
                 ->setParameter('accessibleHospitalIds', $accessibleHospitalIds);
+        }
+
+        if (!\in_array(UserRole::CLOSURE_BETA, $user->getRoles(), true)) {
+            $qb->andWhere('i.type != :hiddenClosureType')
+                ->setParameter('hiddenClosureType', ImportType::CLOSURE);
         }
 
         $hospitalId = $this->importListAccess->sanitizeHospitalId($user, $query->hospitalId);

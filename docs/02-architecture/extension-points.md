@@ -12,7 +12,9 @@ The application uses Symfony tagged service registries for extensibility. Implem
 
 **Implementations:** `AllocationRowProcessor`, `MciCaseRowProcessor`
 
-To add a new CSV row type, extend `AllocationRowType` and implement `AllocationRowProcessorInterface`.
+To add a new CSV row type inside an allocation file, extend `AllocationRowType` and implement `AllocationRowProcessorInterface`.
+
+Closure lists are a separate `ImportType`, not another row type in the allocation detector. They use `ClosureRowMapper`, the reason/care-level/facility catalogs, `ClosureImportFactory`, and `ClosureImporter`. A renamed header is a mapper change. A new shared label is a catalog entry.
 
 ## Import resolvers
 

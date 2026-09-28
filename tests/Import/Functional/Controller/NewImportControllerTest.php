@@ -47,6 +47,66 @@ final class NewImportControllerTest extends WebTestCase
         $this->fixturesDir = \dirname(__DIR__, 2).'/Fixtures';
     }
 
+    public function testClosureBetaUserCanUploadAClosureList(): void
+    {
+        $owner = UserFactory::new()->withoutAutorefresh()->create([
+            'username' => 'closure-beta-owner',
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+        ]);
+        $createdBy = UserFactory::new()->withoutAutorefresh()->create(['username' => 'closure-area-user']);
+        $state = StateFactory::new()->withoutAutorefresh()->create(['name' => 'Hessen']);
+        $dispatch = DispatchAreaFactory::new()->withoutAutorefresh()->create(['name' => 'Closure Area', 'state' => $state]);
+        $hospital = HospitalFactory::new()->withoutAutorefresh()->create([
+            'name' => 'Klinikum Beispiel',
+            'owner' => $owner,
+            'createdBy' => $createdBy,
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+        SpecialityFactory::new()->withoutAutorefresh()->create(['name' => 'Innere Medizin']);
+        DepartmentFactory::new()->withoutAutorefresh()->create(['name' => 'Kardiologie']);
+
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        /** @var User $freshOwner */
+        $freshOwner = $em->getRepository(User::class)->findOneBy(['username' => 'closure-beta-owner']);
+        self::assertNotNull($freshOwner);
+
+        $csvPath = tempnam(sys_get_temp_dir(), 'closure-upload');
+        self::assertNotFalse($csvPath);
+        $csvFile = $csvPath.'.csv';
+        self::assertTrue(rename($csvPath, $csvFile));
+        $csvPath = $csvFile;
+        $csv = "Krankenhaus-Kurzname;Fachgebiet;Fachbereich;Behandlungsdringlichkeit;Datum (Schließungs-Beginn);Uhrzeit (Schließungs-Beginn);Schließungs-Dauer (Minuten);Datum (Schließungs-Ende);Uhrzeit (Schließungs-Ende);Grund;Eingetragen am;Geändert am;Typ\n";
+        $csv .= "Klinikum Beispiel;Innere Medizin;Kardiologie;Notfallversorgung;01.01.2026;00:10:00;60;01.01.2026;01:10:00;Überlastung der Notaufnahme;01.01.2026 00:20:22;01.01.2026 00:20:22;Klinik\n";
+        self::assertNotFalse(file_put_contents($csvPath, $csv));
+
+        $this->browser()
+            ->actingAs($freshOwner)
+            ->interceptRedirects()
+            ->visit('/import/new')
+            ->assertSuccessful()
+            ->assertSeeElement('select[name="import_create[type]"]')
+            ->fillField('import_create[name]', 'Test Closure List')
+            ->selectField('import_create[hospital]', (string) $hospital->getId())
+            ->selectField('import_create[type]', 'Closure')
+            ->attachFile('import_create[file]', $csvPath)
+            ->click('import_create[submit]')
+            ->assertRedirected()
+            ->use(function () use ($em): void {
+                $em->clear();
+                /** @var Import|null $import */
+                $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Test Closure List']);
+                self::assertNotNull($import);
+                self::assertSame(\App\Import\Domain\Enum\ImportType::CLOSURE, $import->getType());
+                self::assertTrue($import->isFinalStatus());
+                @\unlink((string) $import->getFilePath());
+            });
+
+        @\unlink($csvPath);
+    }
+
     public function testFormRendersForLoggedInOwner(): void
     {
         [$owner] = $this->createOwnerWithHospital();
