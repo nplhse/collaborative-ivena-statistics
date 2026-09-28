@@ -11,6 +11,7 @@ use App\Analytics\Application\UsageEvents\UsageAnalytics;
 use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Domain\UsageEventName;
 use App\Import\Application\Message\ImportAllocationsMessage;
+use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportUploadGuard;
@@ -21,6 +22,7 @@ use App\Import\UI\Form\ImportCreateType;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -59,7 +61,9 @@ final class NewImportController extends AbstractController
         #[Autowire(service: 'limiter.import_create')]
         RateLimiterFactory $importCreateLimiter,
     ): Response {
-        $form = $this->createForm(ImportCreateType::class);
+        $form = $this->createForm(ImportCreateType::class, null, [
+            'include_closure_type' => $this->isGranted(UserRole::CLOSURE_BETA),
+        ]);
         $form->handleRequest($request);
 
         // Remember-Me sessions are enough to start an import; do not re-add
@@ -93,6 +97,11 @@ final class NewImportController extends AbstractController
             $this->addFlash('warning', new TranslatableMessage('flash.import.rate_limited', domain: 'import'));
 
             return $this->redirectToRoute('app_import_new');
+        }
+
+        $importType = $this->resolveImportType($form);
+        if (ImportType::CLOSURE === $importType && !$this->isGranted(UserRole::CLOSURE_BETA)) {
+            throw $this->createAccessDeniedException();
         }
 
         /** @var Hospital $managedHospital */
@@ -131,7 +140,7 @@ final class NewImportController extends AbstractController
             ->setName($name)
             ->setHospital($managedHospital)
             ->setCreatedBy($createdBy)
-            ->setType(ImportType::ALLOCATION)
+            ->setType($importType)
             ->setStatus(ImportStatus::PENDING)
             ->setFilePath($targetPath)
             ->setFileExtension(pathinfo($targetPath, PATHINFO_EXTENSION) ?: 'csv')
@@ -158,13 +167,31 @@ final class NewImportController extends AbstractController
             throw new \LogicException('Persisted Import entity has no ID.');
         }
 
-        $this->bus->dispatch(new ImportAllocationsMessage($importId));
+        if (ImportType::CLOSURE === $importType) {
+            $this->bus->dispatch(new ImportClosuresMessage($importId));
+        } else {
+            $this->bus->dispatch(new ImportAllocationsMessage($importId));
+        }
 
         $this->usageAnalytics->record(UsageEventName::IMPORT_STARTED, FeatureArea::Import);
 
         $this->addFlash('success', new TranslatableMessage('flash.import.created', domain: 'import'));
 
         return $this->redirectToRoute('app_import_processing', ['id' => $importId]);
+    }
+
+    /**
+     * @param FormInterface<mixed> $form
+     */
+    private function resolveImportType(FormInterface $form): ImportType
+    {
+        if (!$form->has('type')) {
+            return ImportType::ALLOCATION;
+        }
+
+        $type = $form->get('type')->getData();
+
+        return $type instanceof ImportType ? $type : ImportType::ALLOCATION;
     }
 
     /**

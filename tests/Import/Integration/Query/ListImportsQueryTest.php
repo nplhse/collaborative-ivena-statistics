@@ -15,6 +15,8 @@ use App\Import\Infrastructure\Query\ListImportsQuery;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use App\User\Domain\Security\UserRole;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -75,6 +77,36 @@ final class ListImportsQueryTest extends KernelTestCase
         $names = $this->extractImportNames($paginator);
 
         self::assertSame(['Import A'], $names);
+    }
+
+    public function testClosureImportsStayHiddenWithoutBetaRole(): void
+    {
+        $owner = UserFactory::createOne([
+            'username' => 'owner-'.bin2hex(random_bytes(4)),
+            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        ]);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne();
+        $hospital = HospitalFactory::createOne([
+            'owner' => $owner,
+            'name' => 'Closure Hospital',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+            'createdBy' => $owner,
+        ]);
+
+        $this->createImport('Allocation import', $hospital, $owner);
+        $this->createImport('Closure import', $hospital, $owner, ['type' => ImportType::CLOSURE]);
+
+        $hidden = $this->extractImportNames($this->query->getPaginator($owner, new ListImportQueryParametersDTO()));
+        self::assertContains('Allocation import', $hidden);
+        self::assertNotContains('Closure import', $hidden);
+
+        $owner->setRoles(['ROLE_USER', 'ROLE_PARTICIPANT', UserRole::CLOSURE_BETA]);
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $visible = $this->extractImportNames($this->query->getPaginator($owner, new ListImportQueryParametersDTO()));
+        self::assertContains('Closure import', $visible);
     }
 
     public function testInvalidHospitalFilterIsIgnored(): void

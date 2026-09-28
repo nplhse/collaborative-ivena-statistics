@@ -309,6 +309,22 @@
         <source>empty.import.no_permission.description</source>
         <target>Ein Import setzt eine Berechtigung für eine Klinik voraus. Eine berechtigte Person kann den ersten Import starten.</target>
       </trans-unit>
+      <trans-unit id="impTypeDe" resname="label.import.type">
+        <source>label.import.type</source>
+        <target>Importart</target>
+      </trans-unit>
+      <trans-unit id="impTypeAllocDe" resname="label.import.type.allocation">
+        <source>label.import.type.allocation</source>
+        <target>Zuweisungen</target>
+      </trans-unit>
+      <trans-unit id="impTypeClosureDe" resname="label.import.type.closure">
+        <source>label.import.type.closure</source>
+        <target>Schließungsliste (Beta)</target>
+      </trans-unit>
+      <trans-unit id="impTypeHelpDe" resname="label.import.type.help">
+        <source>label.import.type.help</source>
+        <target>Schließungslisten sind eine Beta und nur mit der Rolle Closure beta sichtbar.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -8,10 +8,13 @@ enum ImportType: string
 {
     case ALLOCATION = 'Allocation';
 
+    case CLOSURE = 'Closure';
+
     public function getType(): string
     {
         return match ($this) {
             self::ALLOCATION => self::ALLOCATION->value,
+            self::CLOSURE => self::CLOSURE->value,
         };
     }
 
@@ -22,6 +25,7 @@ enum ImportType: string
     {
         return [
             self::ALLOCATION->value,
+            self::CLOSURE->value,
         ];
     }
 }

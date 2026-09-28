@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Validation\Constraints\ImportSourceFile;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\QueryBuilder;
@@ -15,6 +16,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -57,7 +59,24 @@ final class ImportCreateType extends AbstractType
                 'placeholder' => 'label.import.selectHospital',
                 'query_builder' => fn (): QueryBuilder => $this->hospitalRepository->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Import),
                 'constraints' => [new Assert\NotNull()],
-            ])
+            ]);
+
+        if (true === ($options['include_closure_type'] ?? false)) {
+            $builder->add('type', ChoiceType::class, [
+                'mapped' => false,
+                'required' => true,
+                'label' => 'label.import.type',
+                'data' => ImportType::ALLOCATION,
+                'choices' => [
+                    'label.import.type.allocation' => ImportType::ALLOCATION,
+                    'label.import.type.closure' => ImportType::CLOSURE,
+                ],
+                'help' => 'label.import.type.help',
+                'constraints' => [new Assert\NotNull()],
+            ]);
+        }
+
+        $builder
             ->add('file', FileType::class, [
                 'mapped' => false,
                 'required' => true,
@@ -85,6 +104,8 @@ final class ImportCreateType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Import::class,
             'translation_domain' => 'import',
+            'include_closure_type' => false,
         ]);
+        $resolver->setAllowedTypes('include_closure_type', 'bool');
     }
 }

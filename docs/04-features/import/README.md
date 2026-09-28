@@ -5,6 +5,7 @@
 | Document | Description |
 |----------|-------------|
 | [import-pipeline.md](import-pipeline.md) | Async upload → worker → projection rebuild (incl. [upload validation](import-pipeline.md#upload-validation)) |
+| [closure-import.md](closure-import.md) | IVENA closure-list import (beta role) |
 | [batch-requeue.md](batch-requeue.md) | Sequential reimport with checkpoints |
 | [reject-analysis.md](reject-analysis.md) | Aggregate and export rejects |
 | [reference-catalog.md](reference-catalog.md) | Import/export/propose, prod runbook, reject gaps |

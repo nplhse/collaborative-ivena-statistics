@@ -38,6 +38,11 @@ final class BadgePalette
                 'statusColor' => 'blue',
                 'label' => 'Allocation',
             ],
+            'Closure' => [
+                'presentation' => 'status',
+                'statusColor' => 'purple',
+                'label' => 'Closure',
+            ],
         ],
         'import_status' => [
             'Pending' => [

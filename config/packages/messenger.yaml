@@ -45,6 +45,7 @@ framework:
             Symfony\Component\Notifier\Message\SmsMessage: async_priority_low
 
             App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
+            App\Import\Application\Message\ImportClosuresMessage: async_priority_high
             App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
             App\Kpi\Application\Message\GenerateDailyKpisMessage: async_priority_low
             App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: async_priority_low
@@ -65,6 +66,7 @@ when@test:
                 sync: 'sync://'
             routing:
                 App\Import\Application\Message\ImportAllocationsMessage: sync
+                App\Import\Application\Message\ImportClosuresMessage: sync
                 App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
                 App\Kpi\Application\Message\GenerateDailyKpisMessage: sync
                 App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: sync
