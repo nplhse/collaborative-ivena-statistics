@@ -101,14 +101,14 @@ final class ListImportsQueryTest extends KernelTestCase
         $this->createImport('Allocation import', $hospital, $owner);
         $this->createImport('Closure import', $hospital, $owner, ['type' => ImportType::CLOSURE]);
 
-        $hidden = $this->extractImportNames($this->query->getPaginator($owner, new ListImportQueryParametersDTO()));
+        $hidden = $this->extractImportNames($this->paginateImports($owner, new ListImportQueryParametersDTO()));
         self::assertContains('Allocation import', $hidden);
         self::assertNotContains('Closure import', $hidden);
 
         $owner->setRoles(['ROLE_USER', 'ROLE_PARTICIPANT', UserRole::CLOSURE_BETA]);
         self::getContainer()->get(EntityManagerInterface::class)->flush();
 
-        $visible = $this->extractImportNames($this->query->getPaginator($owner, new ListImportQueryParametersDTO()));
+        $visible = $this->extractImportNames($this->paginateImports($owner, new ListImportQueryParametersDTO()));
         self::assertContains('Closure import', $visible);
     }
 
