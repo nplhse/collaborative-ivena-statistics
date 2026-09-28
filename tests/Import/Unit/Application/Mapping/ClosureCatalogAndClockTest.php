@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Application\Mapping;
 
+use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
 use App\Allocation\Domain\Service\ClosureIntervalDuration;
@@ -27,6 +28,10 @@ final class ClosureCatalogAndClockTest extends TestCase
         self::assertSame(ClosureCareLevel::OTHER, $catalog->resolve('Sonstige'));
         self::assertNull(ClosureCareLevel::OTHER->toAllocationUrgency());
         self::assertSame('SK1', ClosureCareLevel::EMERGENCY->skLabel());
+        self::assertSame(AllocationUrgency::INPATIENT, ClosureCareLevel::INPATIENT->toAllocationUrgency());
+        self::assertSame(AllocationUrgency::OUTPATIENT, ClosureCareLevel::OUTPATIENT->toAllocationUrgency());
+        self::assertSame('SK2', ClosureCareLevel::INPATIENT->skLabel());
+        self::assertNull(ClosureCareLevel::OTHER->skLabel());
     }
 
     public function testReasonCatalogKeepsNotSpecified(): void
@@ -78,6 +83,34 @@ final class ClosureCatalogAndClockTest extends TestCase
             1330,
             '28.03.2026 09:55:00',
             '28.03.2026 09:55:00',
+        );
+    }
+
+    public function testClockRejectsEndThatIsNotAfterStart(): void
+    {
+        $this->expectException(ImportException::class);
+        new ClosureIntervalClock()->resolve(
+            '01.01.2026',
+            '10:00:00',
+            '01.01.2026',
+            '09:00:00',
+            60,
+            '01.01.2026 10:00:00',
+            '01.01.2026 10:00:00',
+        );
+    }
+
+    public function testClockRejectsUnparseableTimestamp(): void
+    {
+        $this->expectException(ImportException::class);
+        new ClosureIntervalClock()->resolve(
+            '32.01.2026',
+            '10:00:00',
+            '01.01.2026',
+            '11:00:00',
+            60,
+            '01.01.2026 10:00:00',
+            '01.01.2026 10:00:00',
         );
     }
 

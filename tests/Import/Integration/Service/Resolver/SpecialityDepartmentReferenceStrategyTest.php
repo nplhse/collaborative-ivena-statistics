@@ -6,6 +6,7 @@ namespace App\Tests\Import\Integration\Service\Resolver;
 
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
+use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Import\Application\Exception\ReferenceNotFoundException;
 use App\Import\Infrastructure\Resolver\Strategy\SpecialityDepartmentReferenceStrategy;
 use App\User\Domain\Factory\UserFactory;
@@ -69,5 +70,24 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
             false,
             static fn (?bool $v): bool => $v ?? false,
         );
+    }
+
+    public function testRequirePairResolvesKnownNames(): void
+    {
+        SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        $this->strategy->warm();
+
+        $pair = $this->strategy->requirePair('Innere Medizin', 'Kardiologie');
+
+        self::assertSame('Innere Medizin', $pair['speciality']->getName());
+        self::assertSame('Kardiologie', $pair['department']->getName());
+    }
+
+    public function testRequirePairRejectsUnknownSpeciality(): void
+    {
+        $this->expectException(ReferenceNotFoundException::class);
+
+        $this->strategy->requirePair('Unbekanntes Fachgebiet', 'Geburtshilfe');
     }
 }
