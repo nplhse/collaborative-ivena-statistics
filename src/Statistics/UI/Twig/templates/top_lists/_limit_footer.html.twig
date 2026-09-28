@@ -1,4 +1,3 @@
-{% import '@Shared/_macros/pagination.html.twig' as pagination %}
 {% set wrapperClass = wrapperClass|default('card-footer') %}
 {% set exportCsvUrl = exportCsvUrl|default(null) %}
 <div class="{{ wrapperClass }} d-flex align-items-center justify-content-between gap-2 flex-wrap">
@@ -26,11 +25,11 @@
             </div>
         </div>
     </div>
-    {% set showPaginator = paginator is defined and paginator is not null and paginator.hasToPaginate %}
+    {% set showPaginator = paginator is defined and paginator is not null and (paginator.hasPrevious or paginator.hasNext) %}
     {% if showPaginator or exportCsvUrl %}
         <div class="d-flex align-items-center gap-2 ms-auto">
             {% if showPaginator %}
-                {{ pagination.navbar(paginator, app.request.attributes.get('_route')) }}
+                {{ ux_pagination(paginator, showInfo: false, navigationAttributes: {class: 'm-0'}) }}
             {% endif %}
             {% if exportCsvUrl %}
                 <a class="btn d-print-none"

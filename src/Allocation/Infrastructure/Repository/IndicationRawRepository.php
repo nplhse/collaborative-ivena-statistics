@@ -10,10 +10,10 @@ use App\Allocation\Domain\Enum\IndicationRawReviewStatus;
 use App\Allocation\Domain\Enum\IndicationRawReviewWorklistSegment;
 use App\Allocation\UI\Http\DTO\IndicationQueryParametersDTO;
 use App\Allocation\UI\Http\DTO\IndicationRawReviewWorklistQueryDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -30,7 +30,7 @@ class IndicationRawRepository extends ServiceEntityRepository
         parent::__construct($registry, IndicationRaw::class);
     }
 
-    public function getListPaginator(IndicationQueryParametersDTO $queryParametersDTO): Paginator
+    public function listQuery(IndicationQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('i')
             ->addSelect('(CASE WHEN i.updatedAt IS NOT NULL THEN i.updatedAt ELSE i.createdAt END) AS HIDDEN sortDate')
@@ -54,17 +54,17 @@ class IndicationRawRepository extends ServiceEntityRepository
             ;
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 
-    public function getReviewWorklistPaginator(IndicationRawReviewWorklistQueryDTO $query): Paginator
+    public function reviewWorklistQuery(IndicationRawReviewWorklistQueryDTO $query): QueryBuilder
     {
         $qb = $this->createQueryBuilder('i');
         $this->applyReviewWorklistSegment($qb, $query->segment);
         $this->applyReviewWorklistSearch($qb, $query->search);
         $this->applyReviewWorklistSort($qb, $query);
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 
     public function findNextInWorklist(
@@ -96,7 +96,7 @@ class IndicationRawRepository extends ServiceEntityRepository
         return $qb->getQuery()->getOneOrNullResult();
     }
 
-    private function applyReviewWorklistSegment(\Doctrine\ORM\QueryBuilder $qb, IndicationRawReviewWorklistSegment $segment): void
+    private function applyReviewWorklistSegment(QueryBuilder $qb, IndicationRawReviewWorklistSegment $segment): void
     {
         match ($segment) {
             IndicationRawReviewWorklistSegment::Open,
@@ -119,7 +119,7 @@ class IndicationRawRepository extends ServiceEntityRepository
         };
     }
 
-    private function applyReviewWorklistSearch(\Doctrine\ORM\QueryBuilder $qb, ?string $search): void
+    private function applyReviewWorklistSearch(QueryBuilder $qb, ?string $search): void
     {
         if (null === $search || '' === trim($search)) {
             return;
@@ -129,7 +129,7 @@ class IndicationRawRepository extends ServiceEntityRepository
             ->setParameter('search', '%'.mb_strtolower($search).'%');
     }
 
-    private function applyReviewWorklistSort(\Doctrine\ORM\QueryBuilder $qb, IndicationRawReviewWorklistQueryDTO $query): void
+    private function applyReviewWorklistSort(QueryBuilder $qb, IndicationRawReviewWorklistQueryDTO $query): void
     {
         $direction = 'desc' === $query->orderBy ? 'DESC' : 'ASC';
 

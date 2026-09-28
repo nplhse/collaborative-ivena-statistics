@@ -13,13 +13,11 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\UI\Http\DTO\HospitalQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -160,22 +158,12 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         return $hospitals;
     }
 
-    public function getHospitalListPaginator(HospitalQueryParametersDTO $queryParametersDTO): Paginator
+    public function hospitalListQuery(HospitalQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('h')
             ->addSelect('(CASE WHEN h.updatedAt IS NOT NULL THEN h.updatedAt ELSE h.createdAt END) AS HIDDEN sortDate')
-            ->leftJoin(
-                State::class,
-                's',
-                Join::WITH,
-                'h.state = s.id'
-            )
-            ->leftJoin(
-                DispatchArea::class,
-                'da',
-                Join::WITH,
-                'h.dispatchArea = da.id'
-            )
+            ->leftJoin('h.state', 's')
+            ->leftJoin('h.dispatchArea', 'da')
         ;
 
         $field = match ($queryParametersDTO->sortBy) {
@@ -231,7 +219,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ;
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 
     /**

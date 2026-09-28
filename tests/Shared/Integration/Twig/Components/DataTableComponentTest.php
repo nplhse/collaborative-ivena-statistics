@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Integration\Twig\Components;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\UI\Twig\Components\DataTable;
-use Doctrine\ORM\QueryBuilder as DoctrineQueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 
 final class DataTableComponentTest extends KernelTestCase
@@ -73,7 +73,7 @@ final class DataTableComponentTest extends KernelTestCase
     public function testEmptyTableKeepsHiddenResultCountForHeaderMirror(): void
     {
         $html = (string) $this->renderTwigComponent('DataTable', [
-            'paginator' => $this->offsetPaginator([], 0, 25),
+            'paginator' => $this->offsetPaginator([]),
             'columns' => [
                 ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
             ],
@@ -188,7 +188,7 @@ final class DataTableComponentTest extends KernelTestCase
 
         $html = (string) $this->renderTwigComponent('DataTable', [
             'paginationRoute' => 'app_explore_hospital_list',
-            'paginator' => $this->offsetPaginator([['name' => 'Alpha']], 10, 25),
+            'paginator' => $this->offsetPaginator(array_fill(0, 10, ['name' => 'Alpha'])),
             'columns' => [
                 ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
             ],
@@ -204,6 +204,32 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertNotFalse($countPos);
         self::assertLessThan($countPos, $pageSizePos);
         self::assertStringContainsString('flex-wrap gap-3', $html);
+    }
+
+    public function testNumberedFooterSitsAtTheTrailingEdge(): void
+    {
+        $requestStack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $requestStack);
+        $request = Request::create('/explore/hospital', 'GET', ['page' => '1']);
+        $request->attributes->set('_route', 'app_explore_hospital_list');
+        $request->attributes->set('_route_params', []);
+        $requestStack->push($request);
+
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'paginationRoute' => 'app_explore_hospital_list',
+            'paginator' => $this->offsetPaginator(array_fill(0, 30, ['name' => 'Alpha']), 10),
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+            ],
+        ]);
+
+        self::assertStringContainsString('Showing 1-10 of 30 results.', $html);
+        self::assertStringContainsString('class="ux-pagination-bootstrap ms-auto"', $html);
+        self::assertStringContainsString('class="pagination m-0"', $html);
+        self::assertMatchesRegularExpression(
+            '/id="result-count".*ux-pagination-bootstrap ms-auto/s',
+            $html,
+        );
     }
 
     public function testMountedComponentExposesVisibleColumns(): void
@@ -222,15 +248,14 @@ final class DataTableComponentTest extends KernelTestCase
 
     /**
      * @param list<array<string, mixed>> $results
+     *
+     * @return NumberedPaginationInterface<mixed>
      */
-    private function offsetPaginator(array $results, int $total, int $pageSize = 25, int $page = 1): Paginator
+    private function offsetPaginator(array $results, int $pageSize = 25): NumberedPaginationInterface
     {
-        $paginator = new Paginator($this->createStub(DoctrineQueryBuilder::class), $pageSize);
-        $reflection = new \ReflectionClass($paginator);
-        $reflection->getProperty('currentPage')->setValue($paginator, $page);
-        $reflection->getProperty('numResults')->setValue($paginator, $total);
-        $reflection->getProperty('results')->setValue($paginator, new \ArrayIterator($results));
+        $paginator = self::getContainer()->get(PaginatorInterface::class);
+        self::assertInstanceOf(PaginatorInterface::class, $paginator);
 
-        return $paginator;
+        return $paginator->query($results)->perPage($pageSize)->paginate();
     }
 }

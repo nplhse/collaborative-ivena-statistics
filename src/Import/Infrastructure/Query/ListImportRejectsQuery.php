@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Query;
 
-use App\Allocation\Domain\Entity\Hospital;
-use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\UI\Http\DTO\ImportRejectQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 
 /** @psalm-suppress UnusedClass */
 final readonly class ListImportRejectsQuery
@@ -20,7 +17,7 @@ final readonly class ListImportRejectsQuery
     ) {
     }
 
-    public function getPaginator(ImportRejectQueryParametersDTO $query): Paginator
+    public function listQuery(ImportRejectQueryParametersDTO $query): QueryBuilder
     {
         $qb = $this->entityManager->createQueryBuilder();
 
@@ -36,18 +33,8 @@ final readonly class ListImportRejectsQuery
                 h.name AS hospital_name
             ')
             ->from(ImportReject::class, 'r')
-            ->innerJoin(
-                Import::class,
-                'i',
-                Join::WITH,
-                'r.import = i.id'
-            )
-            ->innerJoin(
-                Hospital::class,
-                'h',
-                Join::WITH,
-                'i.hospital = h.id'
-            );
+            ->innerJoin('r.import', 'i')
+            ->innerJoin('i.hospital', 'h');
 
         if (null !== $query->importId) {
             $qb->andWhere('i.id = :importId')
@@ -72,6 +59,6 @@ final readonly class ListImportRejectsQuery
                 ->setParameter('search', '%'.mb_strtolower(trim($query->search)).'%');
         }
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 }

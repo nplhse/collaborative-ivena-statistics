@@ -13,6 +13,6 @@
         </select>
     </form>
 
-    {{ pagination.results(directory.numResults, directory.pageSize) }}
-    {{ pagination.navbar(directory, app.request.attributes.get('_route')) }}
+    {{ pagination.results(directory.pagination.totalItems|default(0), directory.pagination.itemsPerPage) }}
+    {{ ux_pagination(directory.pagination, showInfo: false, attributes: {class: 'ms-auto'}, navigationAttributes: {class: 'm-0'}) }}
 </div>

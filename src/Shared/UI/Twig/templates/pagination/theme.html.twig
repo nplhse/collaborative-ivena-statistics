@@ -1,0 +1,11 @@
+{% extends '@UXPagination/theme/bootstrap.html.twig' %}
+
+{% block previous_label %}
+    <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+    {{ 'Previous'|trans({}, 'UXPaginationBundle') }}
+{% endblock %}
+
+{% block next_label %}
+    {{ 'Next'|trans({}, 'UXPaginationBundle') }}
+    <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
+{% endblock %}

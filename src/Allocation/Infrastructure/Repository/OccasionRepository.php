@@ -6,9 +6,9 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\UI\Http\DTO\OccasionQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +23,7 @@ final class OccasionRepository extends ServiceEntityRepository
         parent::__construct($registry, Occasion::class);
     }
 
-    public function getListPaginator(OccasionQueryParametersDTO $queryParametersDTO): Paginator
+    public function listQuery(OccasionQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('o')
             ->addSelect('(CASE WHEN o.updatedAt IS NOT NULL THEN o.updatedAt ELSE o.createdAt END) AS HIDDEN sortDate')
@@ -46,6 +46,6 @@ final class OccasionRepository extends ServiceEntityRepository
             ;
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 }

@@ -7,7 +7,6 @@ namespace App\Statistics\UI\Http\Controller;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticWidget;
 use App\Statistics\Application\DTO\StatisticWidgetType;
-use App\Statistics\Application\TopList\TopListArrayPaginator;
 use App\Statistics\Application\TopList\TopListCatalogCrossReference;
 use App\Statistics\Application\TopList\TopListComparison;
 use App\Statistics\Application\TopList\TopListComparisonRow;
@@ -20,6 +19,8 @@ use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionFormData;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 final readonly class TopListsPagePresenter
 {
@@ -28,6 +29,7 @@ final readonly class TopListsPagePresenter
         private BenchmarkSelectionFormDataFactory $benchmarkSelectionFormDataFactory,
         private BenchmarkSelectionQueryBuilder $benchmarkSelectionQueryBuilder,
         private TopListCatalogCrossReference $catalogCrossReference,
+        private PaginatorInterface $paginator,
     ) {
     }
 
@@ -79,11 +81,7 @@ final readonly class TopListsPagePresenter
         }
 
         $fullRowCount = $comparison instanceof TopListComparison ? $comparison->count() : $rankingA->count();
-        $paginator = TopListArrayPaginator::fromCount(
-            $fullRowCount,
-            $requestModel->page,
-            $pageSize,
-        );
+        $paginator = $this->numberedPage($fullRowCount, $requestModel->page, $pageSize);
         $displayRanking = $rankingA;
         $displayComparison = $comparison;
         if ($displayComparison instanceof TopListComparison) {
@@ -211,8 +209,9 @@ final readonly class TopListsPagePresenter
     }
 
     /**
-     * @param array<int|string, string> $limitUrls
-     * @param array<int, string>        $pageSizeUrls
+     * @param array<int|string, string>          $limitUrls
+     * @param array<int, string>                 $pageSizeUrls
+     * @param NumberedPaginationInterface<mixed> $paginator
      */
     private function withTopListTableControls(
         StatisticWidget $widget,
@@ -220,7 +219,7 @@ final readonly class TopListsPagePresenter
         int|string $currentLimit,
         array $pageSizeUrls,
         int $currentPageSize,
-        TopListArrayPaginator $paginator,
+        NumberedPaginationInterface $paginator,
         bool $truncated,
     ): StatisticWidget {
         if (StatisticWidgetType::Table !== $widget->type) {
@@ -285,5 +284,28 @@ final readonly class TopListsPagePresenter
         array $removeKeys = [],
     ): string {
         return $this->statisticsNavigationUrlBuilder->build($request, $routeName, $replace, $removeKeys);
+    }
+
+    /**
+     * @return NumberedPaginationInterface<mixed>
+     */
+    private function numberedPage(int $numResults, int $page, int $pageSize): NumberedPaginationInterface
+    {
+        $pageSize = max(1, $pageSize);
+        $numResults = max(0, $numResults);
+        $lastPage = max(1, (int) ceil($numResults / $pageSize));
+        $currentPage = min(max(1, $page), $lastPage);
+
+        return $this->paginator
+            ->fromCallbacks(
+                static function (int $offset, int $limit) use ($numResults): array {
+                    $remaining = max(0, $numResults - $offset);
+
+                    return array_fill(0, min($limit, $remaining), 0);
+                },
+                static fn (): int => $numResults,
+            )
+            ->perPage($pageSize)
+            ->paginate(page: $currentPage);
     }
 }

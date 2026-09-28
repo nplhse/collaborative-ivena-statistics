@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\UX\Pagination\Test\PaginatorFactory;
 
 final class DataTableTest extends TestCase
 {
@@ -163,6 +164,36 @@ final class DataTableTest extends TestCase
         $emptyCursor = $this->table(Request::create('/explore/allocation', 'GET', ['cursor' => '']));
         $emptyCursor->paginationRoute = 'app_explore_allocation_list';
         self::assertNull($emptyCursor->cursorPreviousUrl());
+    }
+
+    public function testUxPaginatorSuppliesRowsAndPageSize(): void
+    {
+        $rows = [];
+        for ($i = 1; $i <= 30; ++$i) {
+            $rows[] = ['name' => 'Row '.$i];
+        }
+
+        $table = $this->table(Request::create('/explore/infection', 'GET', ['page' => '2', 'search' => 'alpha']));
+        $table->paginationRoute = 'app_explore_infection_list';
+        $table->paginator = PaginatorFactory::create()
+            ->query($rows)
+            ->perPage(25)
+            ->paginate(page: 2);
+
+        self::assertTrue($table->isUxPaginator());
+        self::assertFalse($table->isCursorPaginator());
+        self::assertTrue($table->getShouldShowFooter());
+        self::assertSame(25, $table->getPageSize());
+        self::assertCount(5, $table->getRowItems());
+        $first = $table->getRowItems()[0];
+        self::assertIsArray($first);
+        self::assertSame('Row 26', $first['name']);
+
+        $links = $table->getPageSizeLinks();
+        self::assertTrue($links[0]['active']);
+        self::assertStringContainsString('limit=25', $links[0]['url']);
+        self::assertStringContainsString('page=1', $links[0]['url']);
+        self::assertStringContainsString('search=alpha', $links[0]['url']);
     }
 
     public function testPaginationRouteFallsBackToCurrentRequest(): void

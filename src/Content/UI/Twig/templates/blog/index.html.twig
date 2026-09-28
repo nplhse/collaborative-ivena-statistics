@@ -16,11 +16,11 @@
                 <div class="col">
                     <h2 class="page-title">{{ list_title|trans(list_title_params|default({}), 'content') }}</h2>
                     <div class="text-body-secondary mt-1">
-                        {{ 'blog.list.range_of_total'|trans(({
-                            first: paginator.firstResultNumber,
-                            last: paginator.lastResultNumber,
-                            total: paginator.numResults,
-                        }), 'content') }}
+                        {{ 'blog.list.range_of_total'|trans({
+                            first: paginator.firstItemNumber|default(0),
+                            last: paginator.lastItemNumber|default(0),
+                            total: paginator.totalItems|default(0),
+                        }, 'content') }}
                     </div>
                 </div>
             </div>
@@ -29,13 +29,12 @@
 {% endblock %}
 
 {% block page_body %}
-    {% set routeParams = pagination_route_params|default({})|merge(app.request.query.all) %}
     <div class="page-body">
         <div class="container-xl">
             <div class="row g-3">
                 <div class="col-lg-8">
                     <div class="row row-cards">
-                        {% for post in paginator.results %}
+                        {% for post in paginator %}
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-body">
@@ -86,39 +85,7 @@
 
                     <div class="row mt-3">
                         <div class="col-12 d-flex align-items-center justify-content-center">
-                            {% if paginator.hasToPaginate %}
-                                <ul class="pagination m-0">
-                                    {% if paginator.hasPreviousPage %}
-                                        <li class="page-item">
-                                            <a class="page-link page-text" href="{{ path(pagination_route, routeParams|merge({page: paginator.previousPage})) }}">
-                                                {{ 'blog.pagination.previous'|trans({}, 'content') }}
-                                            </a>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item disabled">
-                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.previous'|trans({}, 'content') }}</a>
-                                        </li>
-                                    {% endif %}
-                                    {% for i in 1..paginator.lastPage %}
-                                        {% if i == paginator.currentPage %}
-                                            <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                                        {% else %}
-                                            <li class="page-item"><a class="page-link" href="{{ path(pagination_route, routeParams|merge({page: i})) }}">{{ i }}</a></li>
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% if paginator.hasNextPage %}
-                                        <li class="page-item">
-                                            <a class="page-link page-text" href="{{ path(pagination_route, routeParams|merge({page: paginator.nextPage})) }}">
-                                                {{ 'blog.pagination.next'|trans({}, 'content') }}
-                                            </a>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item disabled">
-                                            <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.next'|trans({}, 'content') }}</a>
-                                        </li>
-                                    {% endif %}
-                                </ul>
-                            {% endif %}
+                            {{ ux_pagination(paginator, showInfo: false, navigationAttributes: {class: 'm-0'}) }}
                         </div>
                     </div>
                 </div>

@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[IsGranted(IndicationRawReviewVoter::VIEW)]
 final class IndicationRawReviewWorklistController extends AbstractController
@@ -25,6 +26,7 @@ final class IndicationRawReviewWorklistController extends AbstractController
         private readonly IndicationRawOccurrenceQuery $occurrenceQuery,
         private readonly CatalogMappingQualityWarningFactory $mappingQualityWarningFactory,
         private readonly TranslatorInterface $translator,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
@@ -33,11 +35,14 @@ final class IndicationRawReviewWorklistController extends AbstractController
         #[MapQueryString] IndicationRawReviewWorklistQueryDTO $query,
     ): Response {
         $query = $this->normalizeQuery($query);
-        $paginator = $this->rawRepository->getReviewWorklistPaginator($query);
-        $results = iterator_to_array($paginator->getResults());
-        $numResults = $paginator->getNumResults();
+        $paginator = $this->paginator
+            ->query($this->rawRepository->reviewWorklistQuery($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
+        $results = $paginator->getItems();
+        $numResults = $paginator->getTotalItems() ?? 0;
 
-        $rawIds = array_values(array_map(static fn (object $raw): int => (int) $raw->getId(), $results));
+        $rawIds = array_map(static fn (object $raw): int => (int) $raw->getId(), $results);
         $occurrenceCounts = $this->occurrenceQuery->fetchCountsForIds($rawIds);
 
         $listQueryParams = $this->listQueryParams($query);

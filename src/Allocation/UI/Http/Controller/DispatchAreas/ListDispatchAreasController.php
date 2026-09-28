@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/dispatch_area', name: 'app_explore_dispatch_area_list', methods: ['GET'])]
 final class ListDispatchAreasController extends AbstractController
@@ -18,13 +19,17 @@ final class ListDispatchAreasController extends AbstractController
     public function __construct(
         private readonly DispatchAreaRepository $dispatchAreaRepository,
         private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     public function __invoke(
         #[MapQueryString] AreaListQueryParametersDTO $query,
     ): Response {
-        $paginator = $this->dispatchAreaRepository->getAreaListPaginator($query);
+        $paginator = $this->paginator
+            ->query($this->dispatchAreaRepository->areaListQuery($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         return $this->render('@Allocation/dispatch_areas/list.html.twig', [
             'paginator' => $paginator,

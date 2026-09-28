@@ -9,8 +9,8 @@
     {% endif %}
 {% else %}
     {{ 'label.pagination_numbers'|trans({
-        first: paginator.firstResultNumber,
-        last: paginator.lastResultNumber,
-        total: paginator.numResults,
+        first: paginator.firstItemNumber|default(0),
+        last: paginator.lastItemNumber|default(0),
+        total: paginator.totalItems|default(0),
     }, 'messages') }}
 {% endif %}

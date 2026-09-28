@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/hospital', name: 'app_explore_hospital_list', methods: ['GET'])]
 final class ListHospitalsController extends AbstractController
@@ -21,13 +22,17 @@ final class ListHospitalsController extends AbstractController
     public function __construct(
         private readonly HospitalRepository $hospitalRepository,
         private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     public function __invoke(
         #[MapQueryString] HospitalQueryParametersDTO $queryParametersDTO,
     ): Response {
-        $paginator = $this->hospitalRepository->getHospitalListPaginator($queryParametersDTO);
+        $paginator = $this->paginator
+            ->query($this->hospitalRepository->hospitalListQuery($queryParametersDTO))
+            ->perPage($queryParametersDTO->limit > 0 ? $queryParametersDTO->limit : 1)
+            ->paginate();
 
         return $this->render('@Allocation/hospitals/list.html.twig', [
             'paginator' => $paginator,

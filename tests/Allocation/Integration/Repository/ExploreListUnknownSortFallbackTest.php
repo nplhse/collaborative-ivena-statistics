@@ -29,6 +29,7 @@ use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
 use App\Allocation\UI\Http\DTO\OccasionQueryParametersDTO;
 use App\Allocation\UI\Http\DTO\SecondaryTransportQueryParametersDTO;
 use App\Allocation\UI\Http\DTO\SpecialityQueryParametersDTO;
+use App\Tests\Support\Pagination\PaginatesQueries;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -37,6 +38,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ExploreListUnknownSortFallbackTest extends KernelTestCase
 {
     use Factories;
+    use PaginatesQueries;
 
     #[\Override]
     protected function setUp(): void
@@ -51,101 +53,112 @@ final class ExploreListUnknownSortFallbackTest extends KernelTestCase
         HospitalFactory::createOne(['name' => 'Zebra Hospital']);
         HospitalFactory::createOne(['name' => 'Alpha Hospital']);
 
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(HospitalRepository::class)
-            ->getHospitalListPaginator(new HospitalQueryParametersDTO(orderBy: 'asc', sortBy: 'unknown'));
+            ->hospitalListQuery(new HospitalQueryParametersDTO(orderBy: 'asc', sortBy: 'unknown')));
 
-        self::assertSame(2, $paginator->getNumResults());
+        self::assertSame(2, $page->getTotalItems());
+        self::assertCount(2, $page->getItems());
     }
 
     public function testAssignmentListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(AssignmentRepository::class)
-            ->getListPaginator(new AssignmentQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new AssignmentQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testDepartmentListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(DepartmentRepository::class)
-            ->getListPaginator(new SpecialityQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new SpecialityQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testDispatchAreaListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(DispatchAreaRepository::class)
-            ->getAreaListPaginator(new AreaListQueryParametersDTO(sortBy: 'unknown'));
+            ->areaListQuery(new AreaListQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testIndicationNormalizedListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(IndicationNormalizedRepository::class)
-            ->getListPaginator(new IndicationQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new IndicationQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testIndicationRawListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(IndicationRawRepository::class)
-            ->getListPaginator(new IndicationQueryParametersDTO(sortBy: 'unknown', type: 'raw'));
+            ->listQuery(new IndicationQueryParametersDTO(sortBy: 'unknown', type: 'raw')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testInfectionListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(InfectionRepository::class)
-            ->getListPaginator(new InfectionQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new InfectionQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testMciCaseListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(MciCaseRepository::class)
-            ->getListPaginator(new MciCaseQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new MciCaseQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testOccasionListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(OccasionRepository::class)
-            ->getListPaginator(new OccasionQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new OccasionQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testSecondaryTransportListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(SecondaryTransportRepository::class)
-            ->getListPaginator(new SecondaryTransportQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new SecondaryTransportQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testSpecialityListPaginatorFallsBackToDefaultSortField(): void
     {
-        $paginator = self::getContainer()
+        $page = $this->paginateQuery(self::getContainer()
             ->get(SpecialityRepository::class)
-            ->getListPaginator(new SpecialityQueryParametersDTO(sortBy: 'unknown'));
+            ->listQuery(new SpecialityQueryParametersDTO(sortBy: 'unknown')));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $page->getTotalItems());
+        self::assertSame([], $page->getItems());
     }
 
     public function testAllocationListQueryFallsBackToDefaultSortField(): void

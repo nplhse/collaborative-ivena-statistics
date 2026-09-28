@@ -13,6 +13,7 @@ use App\Content\Infrastructure\Factory\PostFactory;
 use App\Content\Infrastructure\Factory\PostTagFactory;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -171,6 +172,80 @@ final class BlogControllerTest extends WebTestCase
         self::assertSelectorTextContains('.page-title', 'Tag: Symfony');
         self::assertSelectorTextContains('.col-lg-8', 'Dev Symfony');
         self::assertSelectorTextNotContains('.col-lg-8', 'News PHP');
+    }
+
+    public function testCategoryAndTagPaginationKeepTheSlugAndTagPagesStayDistinct(): void
+    {
+        $client = self::createClient();
+        $category = PostCategoryFactory::createOne(['name' => 'News', 'slug' => 'news']);
+        $tag = PostTagFactory::createOne(['name' => 'PHP', 'slug' => 'php']);
+        $extra = PostTagFactory::createOne(['name' => 'Release', 'slug' => 'release']);
+
+        for ($i = 1; $i <= 12; ++$i) {
+            PostFactory::createOne([
+                'title' => sprintf('Tagged Post %d', $i),
+                'slug' => sprintf('tagged-post-%d', $i),
+                'status' => PostStatus::PUBLISHED,
+                'publishedAt' => new \DateTimeImmutable(sprintf('-%d minutes', $i)),
+                'category' => $category,
+                'tags' => [$tag, $extra],
+            ]);
+        }
+
+        $categoryPage = $client->request(Request::METHOD_GET, '/blog/category/news?limit=5&page=2');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.text-body-secondary', '6-10 of 12 posts');
+        $categoryPage->filter('.pagination a.page-link')->each(function (Crawler $link): void {
+            $href = (string) $link->attr('href');
+            self::assertStringContainsString('/blog/category/news', $href);
+            self::assertStringContainsString('limit=5', $href);
+            self::assertStringNotContainsString('slug=', $href);
+        });
+
+        $client->request(Request::METHOD_GET, '/blog/category/news?limit=5&page=9');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.text-body-secondary', '0-0 of 12 posts');
+
+        $client->request(Request::METHOD_GET, '/blog/category/news?page=0');
+        self::assertResponseStatusCodeSame(404);
+
+        $client->enableProfiler();
+        $tagPage = $client->request(Request::METHOD_GET, '/blog/tag/php?limit=5&page=2');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.text-body-secondary', '6-10 of 12 posts');
+        self::assertSame(1, '' === $tagPage->filter('.col-lg-8')->text() ? 0 : substr_count($tagPage->filter('.col-lg-8')->text(), 'Tagged Post 6'));
+        $tagPage->filter('.pagination a.page-link')->each(function (Crawler $link): void {
+            $href = (string) $link->attr('href');
+            self::assertStringContainsString('/blog/tag/php', $href);
+            self::assertStringContainsString('limit=5', $href);
+        });
+
+        $profile = $client->getProfile();
+        self::assertNotNull($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        $countQueries = [];
+        foreach ($collector->getQueries() as $queries) {
+            if (!\is_array($queries)) {
+                continue;
+            }
+            foreach ($queries as $query) {
+                if (!\is_array($query) || !isset($query['sql']) || !\is_string($query['sql'])) {
+                    continue;
+                }
+                $sql = strtoupper($query['sql']);
+                if (str_contains($sql, 'COUNT(') && str_contains($sql, 'POST')) {
+                    $countQueries[] = $sql;
+                }
+            }
+        }
+
+        $distinctCounts = array_values(array_filter(
+            $countQueries,
+            static fn (string $sql): bool => str_contains($sql, 'DISTINCT'),
+        ));
+        self::assertCount(1, $distinctCounts);
     }
 
     public function testRssContainsOnlyDuePublishedPosts(): void

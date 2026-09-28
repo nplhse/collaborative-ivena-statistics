@@ -16,6 +16,8 @@ use App\User\Domain\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 final readonly class AnalysisExplorerLibraryPageViewModelFactory
 {
@@ -41,6 +43,7 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
         private ExplorerViewActivityPresenter $activityPresenter,
         private UrlGeneratorInterface $router,
         private TranslatorInterface $translator,
+        private PaginatorInterface $paginator,
     ) {
     }
 
@@ -115,8 +118,9 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
             activeCategory: $activeCategory,
             tabs: $this->tabs($request, $activeTab, $isLoggedIn, $user),
             categoryFilters: $categoryFilters,
-            cards: $pagination['cards'],
+            cards: $pagination->getItems(),
             isLoggedIn: $isLoggedIn,
+            pagination: $pagination,
             searchQuery: $searchQuery ?? '',
             origin: $origin,
             userQuery: $userQuery ?? '',
@@ -152,12 +156,6 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
                 $chartFilters,
                 $grainFilters,
             ),
-            currentPage: $pagination['currentPage'],
-            lastPage: $pagination['lastPage'],
-            hasToPaginate: $pagination['hasToPaginate'],
-            resultFrom: $pagination['resultFrom'],
-            resultTo: $pagination['resultTo'],
-            resultTotal: $pagination['resultTotal'],
             assistantUrl: $this->router->generate('app_stats_analysis_assistant', array_merge($this->assistantScopeQuery($request), ['new' => '1'])),
         );
     }
@@ -165,30 +163,18 @@ final readonly class AnalysisExplorerLibraryPageViewModelFactory
     /**
      * @param list<array<string, mixed>> $cards
      *
-     * @return array{cards: list<array<string, mixed>>, currentPage: int, lastPage: int, hasToPaginate: bool, resultFrom: int, resultTo: int, resultTotal: int}
+     * @return NumberedPaginationInterface<mixed>
      */
-    private function paginate(array $cards, int $requestedPage): array
+    private function paginate(array $cards, int $requestedPage): NumberedPaginationInterface
     {
         $total = \count($cards);
-        $lastPage = (int) ceil($total / self::PAGE_SIZE);
-        $currentPage = max(1, $requestedPage);
-        if ($lastPage > 0) {
-            $currentPage = min($currentPage, $lastPage);
-        }
+        $lastPage = max(1, (int) ceil($total / self::PAGE_SIZE));
+        $currentPage = min(max(1, $requestedPage), $lastPage);
 
-        $offset = ($currentPage - 1) * self::PAGE_SIZE;
-        $slice = \array_slice($cards, $offset, self::PAGE_SIZE);
-        $count = \count($slice);
-
-        return [
-            'cards' => $slice,
-            'currentPage' => $currentPage,
-            'lastPage' => max(1, $lastPage),
-            'hasToPaginate' => $total > self::PAGE_SIZE,
-            'resultFrom' => $count > 0 ? $offset + 1 : 0,
-            'resultTo' => $offset + $count,
-            'resultTotal' => $total,
-        ];
+        return $this->paginator
+            ->query($cards)
+            ->perPage(self::PAGE_SIZE)
+            ->paginate(page: $currentPage);
     }
 
     /**

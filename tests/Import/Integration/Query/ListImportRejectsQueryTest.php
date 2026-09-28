@@ -9,10 +9,11 @@ use App\Import\Domain\Entity\ImportReject;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Query\ListImportRejectsQuery;
 use App\Import\UI\Http\DTO\ImportRejectQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
+use App\Tests\Support\Pagination\PaginatesQueries;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -20,6 +21,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ListImportRejectsQueryTest extends KernelTestCase
 {
     use Factories;
+    use PaginatesQueries;
 
     private ListImportRejectsQuery $query;
 
@@ -36,11 +38,11 @@ final class ListImportRejectsQueryTest extends KernelTestCase
     {
         $fixture = $this->seedReject();
 
-        $paginator = $this->query->getPaginator(new ImportRejectQueryParametersDTO(
+        $paginator = $this->paginateRejects(new ImportRejectQueryParametersDTO(
             search: $fixture['messageToken'],
         ));
 
-        self::assertSame(1, $paginator->getNumResults());
+        self::assertSame(1, $paginator->getTotalItems());
         self::assertSame([$fixture['importName']], $this->extractImportNames($paginator));
     }
 
@@ -48,11 +50,11 @@ final class ListImportRejectsQueryTest extends KernelTestCase
     {
         $this->seedReject();
 
-        $paginator = $this->query->getPaginator(new ImportRejectQueryParametersDTO(
+        $paginator = $this->paginateRejects(new ImportRejectQueryParametersDTO(
             search: 'no-such-reject-token-'.bin2hex(random_bytes(4)),
         ));
 
-        self::assertSame(0, $paginator->getNumResults());
+        self::assertSame(0, $paginator->getTotalItems());
         self::assertSame([], $this->extractImportNames($paginator));
     }
 
@@ -60,11 +62,11 @@ final class ListImportRejectsQueryTest extends KernelTestCase
     {
         $fixture = $this->seedReject();
 
-        $paginator = $this->query->getPaginator(new ImportRejectQueryParametersDTO(
+        $paginator = $this->paginateRejects(new ImportRejectQueryParametersDTO(
             search: '   ',
         ));
 
-        self::assertSame(1, $paginator->getNumResults());
+        self::assertSame(1, $paginator->getTotalItems());
         self::assertSame([$fixture['importName']], $this->extractImportNames($paginator));
     }
 
@@ -100,12 +102,14 @@ final class ListImportRejectsQueryTest extends KernelTestCase
     }
 
     /**
+     * @param NumberedPaginationInterface<mixed> $paginator
+     *
      * @return list<string>
      */
-    private function extractImportNames(Paginator $paginator): array
+    private function extractImportNames(NumberedPaginationInterface $paginator): array
     {
         $names = [];
-        foreach ($paginator->getResults() as $row) {
+        foreach ($paginator->getItems() as $row) {
             self::assertIsArray($row);
             self::assertArrayHasKey('import_name', $row);
             self::assertIsString($row['import_name']);
@@ -113,5 +117,13 @@ final class ListImportRejectsQueryTest extends KernelTestCase
         }
 
         return $names;
+    }
+
+    /**
+     * @return NumberedPaginationInterface<mixed>
+     */
+    private function paginateRejects(ImportRejectQueryParametersDTO $query): NumberedPaginationInterface
+    {
+        return $this->paginateQuery($this->query->listQuery($query));
     }
 }

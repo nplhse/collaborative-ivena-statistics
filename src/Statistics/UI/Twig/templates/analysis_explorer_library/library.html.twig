@@ -198,57 +198,25 @@
                     {% endfor %}
                 </div>
 
-                {% if page.hasToPaginate %}
-                    {% set paginationQuery = app.request.query.all|filter(v => v is not iterable) %}
+                {% set resultFrom = page.pagination.firstItemNumber|default(0) %}
+                {% set resultTo = page.pagination.lastItemNumber|default(0) %}
+                {% set resultTotal = page.pagination.totalItems|default(0) %}
+                {% if page.pagination.hasPrevious or page.pagination.hasNext %}
                     <div class="analytics-library-pagination-row mt-3">
                         <p class="text-secondary mb-0" data-testid="stats-analysis-explorer-library-result-range">
                             {{ 'stats.analysis_explorer.library.pagination.range'|trans({
-                                first: page.resultFrom,
-                                last: page.resultTo,
-                                total: page.resultTotal,
+                                first: resultFrom,
+                                last: resultTo,
+                                total: resultTotal,
                             }, 'statistics') }}
                         </p>
-                        <ul class="pagination m-0" data-testid="stats-analysis-explorer-library-pagination">
-                            {% if page.currentPage > 1 %}
-                                <li class="page-item">
-                                    <a class="page-link page-text"
-                                       href="{{ path('app_stats_analysis_library', paginationQuery|merge({page: page.currentPage - 1})) }}"
-                                       data-testid="stats-analysis-explorer-library-page-previous">
-                                        {{ 'blog.pagination.previous'|trans({}, 'content') }}
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.previous'|trans({}, 'content') }}</a>
-                                </li>
-                            {% endif %}
-                            {% for i in 1..page.lastPage %}
-                                {% if i == page.currentPage %}
-                                    <li class="page-item active">
-                                        <span class="page-link" data-testid="stats-analysis-explorer-library-page-{{ i }}">{{ i }}</span>
-                                    </li>
-                                {% else %}
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="{{ path('app_stats_analysis_library', paginationQuery|merge({page: i})) }}"
-                                           data-testid="stats-analysis-explorer-library-page-{{ i }}">{{ i }}</a>
-                                    </li>
-                                {% endif %}
-                            {% endfor %}
-                            {% if page.currentPage < page.lastPage %}
-                                <li class="page-item">
-                                    <a class="page-link page-text"
-                                       href="{{ path('app_stats_analysis_library', paginationQuery|merge({page: page.currentPage + 1})) }}"
-                                       data-testid="stats-analysis-explorer-library-page-next">
-                                        {{ 'blog.pagination.next'|trans({}, 'content') }}
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <a class="page-link page-text" href="#" tabindex="-1" aria-disabled="true">{{ 'blog.pagination.next'|trans({}, 'content') }}</a>
-                                </li>
-                            {% endif %}
-                        </ul>
+                        {{ ux_pagination(
+                            page.pagination,
+                            showInfo: false,
+                            theme: '@Statistics/analysis_explorer_library/_pagination_theme.html.twig',
+                            navigationAttributes: {class: 'm-0', 'data-testid': 'stats-analysis-explorer-library-pagination'},
+                            linkAttributes: page.paginationLinkAttributes,
+                        ) }}
                     </div>
                 {% endif %}
             </div>

@@ -6,9 +6,9 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\UI\Http\DTO\SecondaryTransportQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +23,7 @@ final class SecondaryTransportRepository extends ServiceEntityRepository
         parent::__construct($registry, SecondaryTransport::class);
     }
 
-    public function getListPaginator(SecondaryTransportQueryParametersDTO $queryParametersDTO): Paginator
+    public function listQuery(SecondaryTransportQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('st')
             ->addSelect('(CASE WHEN st.updatedAt IS NOT NULL THEN st.updatedAt ELSE st.createdAt END) AS HIDDEN sortDate')
@@ -46,6 +46,6 @@ final class SecondaryTransportRepository extends ServiceEntityRepository
             ;
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 }

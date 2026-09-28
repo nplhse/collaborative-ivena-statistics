@@ -18,6 +18,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Support\Pagination\PaginatesQueries;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -27,6 +28,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class MciCaseListFilterTest extends KernelTestCase
 {
     use Factories;
+    use PaginatesQueries;
 
     #[\Override]
     protected function setUp(): void
@@ -103,7 +105,7 @@ final class MciCaseListFilterTest extends KernelTestCase
     private function matchingIds(MciCaseQueryParametersDTO $query): array
     {
         $ids = [];
-        foreach ($this->repository()->getListPaginator($query)->getResults() as $row) {
+        foreach ($this->paginateQuery($this->repository()->listQuery($query))->getItems() as $row) {
             /* @var array{mciId: string} $row */
             $ids[] = $row['mciId'];
         }

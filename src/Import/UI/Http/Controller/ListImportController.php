@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/import', name: 'app_import_index')]
 #[IsGranted('ROLE_PARTICIPANT')]
@@ -25,6 +26,7 @@ final class ListImportController extends AbstractController
         private readonly ListImportsQuery $listImportsQuery,
         private readonly HospitalRepository $hospitalRepository,
         private readonly ImportListAccess $importListAccess,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
@@ -36,7 +38,10 @@ final class ListImportController extends AbstractController
             throw new AccessDeniedException('You must be logged in to view imports.');
         }
 
-        $paginator = $this->listImportsQuery->getPaginator($user, $query);
+        $paginator = $this->paginator
+            ->query($this->listImportsQuery->listQuery($user, $query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         return $this->render('@Import/index.html.twig', [
             'paginator' => $paginator,

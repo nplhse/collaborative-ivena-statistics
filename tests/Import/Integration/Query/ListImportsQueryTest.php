@@ -13,11 +13,13 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Query\ListImportsQuery;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
+use App\Tests\Support\Pagination\PaginatesQueries;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -25,6 +27,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ListImportsQueryTest extends KernelTestCase
 {
     use Factories;
+    use PaginatesQueries;
 
     private ListImportsQuery $query;
 
@@ -38,7 +41,7 @@ final class ListImportsQueryTest extends KernelTestCase
     public function testParticipantSeesOnlyOwnHospitalImports(): void
     {
         [$owner, $foreignImport] = $this->seedTwoOwnersWithImports();
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO());
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO());
 
         $names = $this->extractImportNames($paginator);
         self::assertContains('Own Import', $names);
@@ -53,7 +56,7 @@ final class ListImportsQueryTest extends KernelTestCase
             'username' => 'admin-'.bin2hex(random_bytes(4)),
         ]);
 
-        $paginator = $this->query->getPaginator($admin, new ListImportQueryParametersDTO());
+        $paginator = $this->paginateImports($admin, new ListImportQueryParametersDTO());
         $names = $this->extractImportNames($paginator);
 
         self::assertContains('Own Import', $names);
@@ -73,7 +76,7 @@ final class ListImportsQueryTest extends KernelTestCase
         $this->createImport('Import A', $hospitalA, $createdBy);
         $this->createImport('Import B', $hospitalB, $createdBy);
 
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(hospitalId: $hospitalA->getId()));
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(hospitalId: $hospitalA->getId()));
         $names = $this->extractImportNames($paginator);
 
         self::assertSame(['Import A'], $names);
@@ -112,7 +115,7 @@ final class ListImportsQueryTest extends KernelTestCase
     public function testInvalidHospitalFilterIsIgnored(): void
     {
         [$owner, $foreignImport] = $this->seedTwoOwnersWithImports();
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(hospitalId: $foreignImport->getHospital()?->getId()));
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(hospitalId: $foreignImport->getHospital()?->getId()));
 
         $names = $this->extractImportNames($paginator);
         self::assertContains('Own Import', $names);
@@ -122,7 +125,7 @@ final class ListImportsQueryTest extends KernelTestCase
     public function testOwnerFilterRestrictsResults(): void
     {
         [$owner] = $this->seedTwoOwnersWithImports();
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(ownerId: $owner->getId()));
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(ownerId: $owner->getId()));
 
         $names = $this->extractImportNames($paginator);
         self::assertSame(['Own Import'], $names);
@@ -146,7 +149,7 @@ final class ListImportsQueryTest extends KernelTestCase
             'createdAt' => new \DateTimeImmutable('2025-03-12 00:00:00'),
         ]);
 
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(
             createdFrom: '2025-03-10',
             createdUntil: '2025-03-11',
         ));
@@ -169,7 +172,7 @@ final class ListImportsQueryTest extends KernelTestCase
         $this->createImport('Completed import', $hospital, $createdBy, ['status' => ImportStatus::COMPLETED]);
         $this->createImport('Pending import', $hospital, $createdBy, ['status' => ImportStatus::PENDING]);
 
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(
             status: ImportStatus::COMPLETED->value,
         ));
 
@@ -195,7 +198,7 @@ final class ListImportsQueryTest extends KernelTestCase
             'createdAt' => new \DateTimeImmutable('2025-01-01 12:00:00'),
         ]);
 
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(
             orderBy: 'asc',
             sortBy: 'createdAt',
         ));
@@ -208,9 +211,9 @@ final class ListImportsQueryTest extends KernelTestCase
     {
         [$owner] = $this->seedTwoOwnersWithImports();
 
-        $paginator = $this->query->getPaginator($owner, new ListImportQueryParametersDTO(sortBy: 'unknown'));
+        $paginator = $this->paginateImports($owner, new ListImportQueryParametersDTO(sortBy: 'unknown'));
 
-        self::assertGreaterThanOrEqual(1, $paginator->getNumResults());
+        self::assertGreaterThanOrEqual(1, $paginator->getTotalItems());
     }
 
     /**
@@ -267,17 +270,27 @@ final class ListImportsQueryTest extends KernelTestCase
     }
 
     /**
+     * @param NumberedPaginationInterface<mixed> $paginator
+     *
      * @return list<string>
      */
-    private function extractImportNames(\App\Shared\Infrastructure\Pagination\Paginator $paginator): array
+    private function extractImportNames(NumberedPaginationInterface $paginator): array
     {
         $names = [];
-        foreach ($paginator->getResults() as $import) {
+        foreach ($paginator->getItems() as $import) {
             if ($import instanceof Import) {
                 $names[] = (string) $import->getName();
             }
         }
 
         return $names;
+    }
+
+    /**
+     * @return NumberedPaginationInterface<mixed>
+     */
+    private function paginateImports(User $user, ListImportQueryParametersDTO $query): NumberedPaginationInterface
+    {
+        return $this->paginateQuery($this->query->listQuery($user, $query));
     }
 }
