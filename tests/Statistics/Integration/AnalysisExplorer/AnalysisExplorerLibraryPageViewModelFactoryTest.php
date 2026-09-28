@@ -554,12 +554,12 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         $first = $this->factory->create(Request::create('/statistics/analysis/library', Request::METHOD_GET), $user);
 
         self::assertCount(10, $first->cards);
-        self::assertTrue($first->hasToPaginate);
-        self::assertSame(1, $first->currentPage);
-        self::assertSame(1, $first->resultFrom);
-        self::assertSame(10, $first->resultTo);
-        self::assertGreaterThan(10, $first->resultTotal);
-        self::assertGreaterThan(1, $first->lastPage);
+        self::assertTrue($first->pagination->hasNext());
+        self::assertSame(1, $first->pagination->getCurrentPage());
+        self::assertSame(1, $first->pagination->getFirstItemNumber());
+        self::assertSame(10, $first->pagination->getLastItemNumber());
+        self::assertGreaterThan(10, $first->pagination->getTotalItems());
+        self::assertGreaterThan(1, $first->pagination->getTotalPages());
         self::assertStringNotContainsString(ExplorerLibraryQueryKeys::PAGE.'=', $first->tabs[0]['url']);
 
         $second = $this->factory->create(
@@ -570,12 +570,12 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
             $user,
         );
 
-        self::assertSame(2, $second->currentPage);
+        self::assertSame(2, $second->pagination->getCurrentPage());
         self::assertNotEmpty($second->cards);
         self::assertLessThanOrEqual(10, \count($second->cards));
-        self::assertSame(11, $second->resultFrom);
-        self::assertSame(10 + \count($second->cards), $second->resultTo);
-        self::assertSame($first->resultTotal, $second->resultTotal);
+        self::assertSame(11, $second->pagination->getFirstItemNumber());
+        self::assertSame(10 + \count($second->cards), $second->pagination->getLastItemNumber());
+        self::assertSame($first->pagination->getTotalItems(), $second->pagination->getTotalItems());
         self::assertSame([], array_intersect(
             array_column($first->cards, 'id'),
             array_column($second->cards, 'id'),
@@ -588,7 +588,7 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
             ),
             $user,
         );
-        self::assertSame($first->lastPage, $beyond->currentPage);
+        self::assertSame($first->pagination->getTotalPages(), $beyond->pagination->getCurrentPage());
         self::assertNotEmpty($beyond->cards);
     }
 
@@ -601,11 +601,11 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
         );
 
         self::assertSame([], $page->cards);
-        self::assertSame(0, $page->resultFrom);
-        self::assertSame(0, $page->resultTo);
-        self::assertSame(0, $page->resultTotal);
-        self::assertSame(1, $page->lastPage);
-        self::assertFalse($page->hasToPaginate);
+        self::assertSame(0, $page->pagination->getFirstItemNumber() ?? 0);
+        self::assertSame(0, $page->pagination->getLastItemNumber() ?? 0);
+        self::assertSame(0, $page->pagination->getTotalItems());
+        self::assertSame(1, $page->pagination->getTotalPages());
+        self::assertFalse($page->pagination->hasPrevious() || $page->pagination->hasNext());
     }
 
     /**
@@ -623,7 +623,10 @@ final class AnalysisExplorerLibraryPageViewModelFactoryTest extends KernelTestCa
             );
             array_push($cards, ...$page->cards);
             ++$pageNumber;
-        } while ($page->hasToPaginate && $pageNumber <= $page->lastPage);
+        } while (
+            ($page->pagination->hasPrevious() || $page->pagination->hasNext())
+            && $pageNumber <= ($page->pagination->getTotalPages() ?? 1)
+        );
 
         return $cards;
     }

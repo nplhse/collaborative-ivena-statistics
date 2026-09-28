@@ -10,19 +10,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/infection', name: 'app_explore_infection_list', methods: ['GET'])]
 final class ListInfectionController extends AbstractController
 {
     public function __construct(
         private readonly InfectionRepository $infectionRepository,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     public function __invoke(
         #[MapQueryString] InfectionQueryParametersDTO $query,
     ): Response {
-        $paginator = $this->infectionRepository->getListPaginator($query);
+        $paginator = $this->paginator
+            ->query($this->infectionRepository->listQuery($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         return $this->render('@Allocation/infections/list.html.twig', [
             'paginator' => $paginator,

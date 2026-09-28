@@ -1,11 +1,9 @@
-{% import '@Shared/_macros/pagination.html.twig' as pagination %}
-
 <div class="card-footer d-flex align-items-center flex-wrap gap-2">
     <div class="d-flex align-items-center flex-wrap gap-3">
         <div class="dropdown">
             <a class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <span class="me-1">
-                    {{ 'label.pagination_results'|trans({pageSize: paginator.pageSize}, 'messages') }}
+                    {{ 'label.pagination_results'|trans({pageSize: this.pageSize}, 'messages') }}
                 </span>
             </a>
             <div class="dropdown-menu">
@@ -24,7 +22,7 @@
 
     {% if this.cursorPaginator %}
         {{ include('@Shared/components/data_table/_cursor_nav.html.twig') }}
-    {% elseif this.resolvedPaginationRoute %}
-        {{ pagination.navbar(paginator, this.resolvedPaginationRoute) }}
+    {% elseif this.uxPaginator %}
+        {{ ux_pagination(paginator, showInfo: false, attributes: {class: 'ms-auto'}, navigationAttributes: {class: 'm-0'}) }}
     {% endif %}
 </div>

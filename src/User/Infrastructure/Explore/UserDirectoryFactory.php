@@ -11,23 +11,28 @@ use App\User\Application\Explore\UserQueryParameters;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Query\ListExploreUsersQuery;
 use App\User\Infrastructure\Query\UserHospitalRelationsQuery;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 final readonly class UserDirectoryFactory
 {
     /** @psalm-suppress PossiblyUnusedMethod Wired by Symfony DI. */
     public function __construct(
-        private ListExploreUsersQuery $listExploreUsersQuery,
-        private UserHospitalRelationsQuery $hospitalRelationsQuery,
+        private readonly ListExploreUsersQuery $listExploreUsersQuery,
+        private readonly UserHospitalRelationsQuery $hospitalRelationsQuery,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     public function create(UserQueryParameters $query): UserDirectoryPage
     {
-        $paginator = ($this->listExploreUsersQuery)($query);
+        $paginator = $this->paginator
+            ->query(($this->listExploreUsersQuery)($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate(page: $query->page);
 
         /** @var list<User> $users */
         $users = [];
-        foreach ($paginator->getResults() as $user) {
+        foreach ($paginator->getItems() as $user) {
             if ($user instanceof User) {
                 $users[] = $user;
             }

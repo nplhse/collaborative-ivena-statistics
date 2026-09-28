@@ -1,0 +1,24 @@
+{% extends '@Shared/pagination/theme.html.twig' %}
+
+{% block pages %}
+    {% if numbered %}
+        {% for link in pagination.pages %}
+            <li class="page-item{% if link.isGap %} disabled{% elseif link.isCurrent %} active{% endif %}">
+                {% if link.isGap %}
+                    <span class="page-link" aria-hidden="true">&hellip;</span>
+                {% elseif link.isCurrent %}
+                    <span class="page-link" aria-current="page" data-testid="stats-analysis-explorer-library-page-{{ link.page }}">{{ block('page_label') }}</span>
+                {% else %}
+                    {% set page_link_attributes = link_attributes.pages[link.page]|default({}) %}
+                    {% set attr = {
+                        class: 'page-link',
+                        'aria-label': 'Go to page %page%'|trans({'%page%': link.page}, 'UXPaginationBundle'),
+                    }|merge(page_link_attributes)|merge({
+                        class: ('page-link ' ~ page_link_attributes.class|default(''))|trim,
+                    }) %}
+                    <a href="{{ link.url }}"{{ block('attr') }}>{{ block('page_label') }}</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

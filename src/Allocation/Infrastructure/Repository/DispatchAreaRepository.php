@@ -6,12 +6,10 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Application\Contracts\DispatchAreaLookupInterface;
 use App\Allocation\Domain\Entity\DispatchArea;
-use App\Allocation\Domain\Entity\State;
 use App\Allocation\UI\Http\DTO\AreaListQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -61,16 +59,11 @@ final class DispatchAreaRepository extends ServiceEntityRepository implements Di
         return $names;
     }
 
-    public function getAreaListPaginator(AreaListQueryParametersDTO $queryParametersDTO): Paginator
+    public function areaListQuery(AreaListQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('da')
             ->addSelect('(CASE WHEN da.updatedAt IS NOT NULL THEN da.updatedAt ELSE da.createdAt END) AS HIDDEN sortDate')
-            ->leftJoin(
-                State::class,
-                's',
-                Join::WITH,
-                'da.state = s.id'
-            )
+            ->leftJoin('da.state', 's')
         ;
 
         if ('lastChange' === $queryParametersDTO->sortBy) {
@@ -97,6 +90,6 @@ final class DispatchAreaRepository extends ServiceEntityRepository implements Di
                 ->setParameter('stateId', $queryParametersDTO->state);
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 }

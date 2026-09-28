@@ -6,28 +6,37 @@ namespace App\Tests\Statistics\Unit\Application\Insights;
 
 use App\Statistics\Application\Insights\InsightDirectoryPage;
 use PHPUnit\Framework\TestCase;
+use Symfony\UX\Pagination\Test\PaginatorFactory;
 
 final class InsightDirectoryPageTest extends TestCase
 {
-    public function testExposesPaginatorHelpers(): void
+    public function testExposesTheNumberedPage(): void
     {
-        $page = new InsightDirectoryPage([], 40, 2, 25, 40);
+        $pagination = PaginatorFactory::create()
+            ->query(array_fill(0, 40, 1))
+            ->perPage(25)
+            ->paginate(page: 2);
+        $page = new InsightDirectoryPage([], 40, $pagination);
 
-        self::assertSame(2, $page->getCurrentPage());
-        self::assertSame(2, $page->getLastPage());
-        self::assertTrue($page->hasPreviousPage());
-        self::assertSame(1, $page->getPreviousPage());
-        self::assertFalse($page->hasNextPage());
-        self::assertSame(2, $page->getNextPage());
-        self::assertTrue($page->hasToPaginate());
-        self::assertSame(40, $page->getNumResults());
+        self::assertSame(2, $page->pagination->getCurrentPage());
+        self::assertSame(2, $page->pagination->getTotalPages());
+        self::assertTrue($page->pagination->hasPrevious());
+        self::assertFalse($page->pagination->hasNext());
+        self::assertSame(40, $page->pagination->getTotalItems());
+        self::assertSame(40, $page->totalAllocations);
     }
 
-    public function testLastPageNeverDropsBelowOne(): void
+    public function testEmptyPageHasASinglePageAndNoNavigation(): void
     {
-        $page = new InsightDirectoryPage([], 0, 1, 0, 0);
+        $pagination = PaginatorFactory::create()
+            ->query([])
+            ->perPage(25)
+            ->paginate();
+        $page = new InsightDirectoryPage([], 0, $pagination);
 
-        self::assertSame(1, $page->getLastPage());
-        self::assertFalse($page->hasToPaginate());
+        self::assertSame(1, $page->pagination->getTotalPages());
+        self::assertFalse($page->pagination->hasPrevious());
+        self::assertFalse($page->pagination->hasNext());
+        self::assertSame([], $page->rows);
     }
 }

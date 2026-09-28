@@ -6,9 +6,9 @@ namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\UI\Http\DTO\AssignmentQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +23,7 @@ final class AssignmentRepository extends ServiceEntityRepository
         parent::__construct($registry, Assignment::class);
     }
 
-    public function getListPaginator(AssignmentQueryParametersDTO $queryParametersDTO): Paginator
+    public function listQuery(AssignmentQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a')
             ->addSelect('(CASE WHEN a.updatedAt IS NOT NULL THEN a.updatedAt ELSE a.createdAt END) AS HIDDEN sortDate')
@@ -46,6 +46,6 @@ final class AssignmentRepository extends ServiceEntityRepository
             ;
         }
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 }

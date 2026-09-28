@@ -5,18 +5,11 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Repository;
 
 use App\Allocation\Application\Filter\OptionalRelationFilter;
-use App\Allocation\Domain\Entity\DispatchArea;
-use App\Allocation\Domain\Entity\Hospital;
-use App\Allocation\Domain\Entity\IndicationNormalized;
-use App\Allocation\Domain\Entity\IndicationRaw;
-use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\MciCase;
-use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\UI\Http\DTO\MciCaseQueryParametersDTO;
 use App\Import\Domain\Entity\Import;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\Shared\Infrastructure\Repository\PublicIdRepositoryTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
@@ -45,7 +38,7 @@ final class MciCaseRepository extends ServiceEntityRepository
             ->execute();
     }
 
-    public function getListPaginator(MciCaseQueryParametersDTO $queryParametersDTO): Paginator
+    public function listQuery(MciCaseQueryParametersDTO $queryParametersDTO): QueryBuilder
     {
         $qb = $this->createQueryBuilder('m')
             ->select('m.id, m.publicId, m.createdAt, m.arrivalAt,
@@ -60,42 +53,12 @@ final class MciCaseRepository extends ServiceEntityRepository
                 i.name as infection,
                 iraw.name as indicationRawName, iraw.code as indicationRawCode,
                 inor.name as indicationNormalizedName, inor.code as indicationNormalizedCode')
-            ->leftJoin(
-                State::class,
-                's',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'm.state = s.id'
-            )
-            ->leftJoin(
-                DispatchArea::class,
-                'da',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'm.dispatchArea = da.id'
-            )
-            ->leftJoin(
-                Hospital::class,
-                'h',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'm.hospital = h.id'
-            )
-            ->leftJoin(
-                Infection::class,
-                'i',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'm.infection = i.id'
-            )
-            ->leftJoin(
-                IndicationRaw::class,
-                'iraw',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'm.indicationRaw = iraw.id'
-            )
-            ->leftJoin(
-                IndicationNormalized::class,
-                'inor',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'm.indicationNormalized = inor.id'
-            );
+            ->leftJoin('m.state', 's')
+            ->leftJoin('m.dispatchArea', 'da')
+            ->leftJoin('m.hospital', 'h')
+            ->leftJoin('m.infection', 'i')
+            ->leftJoin('m.indicationRaw', 'iraw')
+            ->leftJoin('m.indicationNormalized', 'inor');
 
         if (null !== $queryParametersDTO->importId) {
             $qb->andWhere('m.import = :importId')
@@ -127,7 +90,7 @@ final class MciCaseRepository extends ServiceEntityRepository
 
         $qb->orderBy($field, $queryParametersDTO->orderBy);
 
-        return new Paginator($qb)->paginate($queryParametersDTO->page, $queryParametersDTO->limit);
+        return $qb;
     }
 
     private function applyListFilters(QueryBuilder $qb, MciCaseQueryParametersDTO $query): void

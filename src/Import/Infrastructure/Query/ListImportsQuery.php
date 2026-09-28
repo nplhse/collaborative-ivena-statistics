@@ -8,10 +8,10 @@ use App\Import\Application\Service\ImportListAccess;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 final readonly class ListImportsQuery
 {
@@ -21,7 +21,7 @@ final readonly class ListImportsQuery
     ) {
     }
 
-    public function getPaginator(User $user, ListImportQueryParametersDTO $query): Paginator
+    public function listQuery(User $user, ListImportQueryParametersDTO $query): QueryBuilder
     {
         $accessibleHospitalIds = $this->importListAccess->resolveAccessibleHospitalIds($user);
 
@@ -96,6 +96,6 @@ final readonly class ListImportsQuery
 
         $qb->orderBy($sortField, $query->orderBy);
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 }

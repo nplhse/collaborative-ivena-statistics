@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/mci_case', name: 'app_explore_mci_case_list', methods: ['GET'])]
 final class ListMciCasesController extends AbstractController
@@ -24,6 +25,7 @@ final class ListMciCasesController extends AbstractController
         private readonly ExploreFilterOptionsProvider $filterOptionsProvider,
         private readonly HospitalRepository $hospitalRepository,
         private readonly ImportRepository $importRepository,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
@@ -35,7 +37,10 @@ final class ListMciCasesController extends AbstractController
             $importName = $this->importRepository->find($query->importId)?->getName();
         }
 
-        $paginator = $this->mciCaseRepository->getListPaginator($query);
+        $paginator = $this->paginator
+            ->query($this->mciCaseRepository->listQuery($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         return $this->render('@Allocation/mci_cases/list.html.twig', [
             'paginator' => $paginator,

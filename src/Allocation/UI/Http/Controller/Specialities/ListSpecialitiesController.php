@@ -10,19 +10,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/speciality', name: 'app_explore_speciality_list', methods: ['GET'])]
 final class ListSpecialitiesController extends AbstractController
 {
     public function __construct(
         private readonly SpecialityRepository $specialityRepository,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     public function __invoke(
         #[MapQueryString] SpecialityQueryParametersDTO $query,
     ): Response {
-        $paginator = $this->specialityRepository->getListPaginator($query);
+        $paginator = $this->paginator
+            ->query($this->specialityRepository->listQuery($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         return $this->render('@Allocation/specialities/list.html.twig', [
             'paginator' => $paginator,

@@ -30,7 +30,6 @@
         </ClassMustBeFinal>
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
-                <file name="src/Shared/Infrastructure/Pagination/Paginator.php" />
                 <file name="src/Shared/Infrastructure/Pagination/CursorPaginator.php" />
                 <directory name="src/Shared/Application/Export/" />
                 <directory name="src/*/Application/Contracts/" />

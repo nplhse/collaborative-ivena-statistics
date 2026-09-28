@@ -13,9 +13,9 @@ use App\Content\Infrastructure\Repository\PostCommentRepository;
 use App\Content\Infrastructure\Repository\PostRepository;
 use App\Content\Infrastructure\Repository\PostTagRepository;
 use App\Content\UI\Http\DTO\BlogListQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +24,8 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\UX\Pagination\PaginationInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 final class BlogController extends AbstractController
 {
@@ -36,19 +38,18 @@ final class BlogController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly ContentActivityNotifier $contentActivityNotifier,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     #[Route('/blog', name: 'app_blog_index', methods: ['GET'])]
     public function index(#[MapQueryString] BlogListQueryParametersDTO $query): Response
     {
-        $paginator = $this->postRepository->getPublishedPaginator($query);
+        $paginator = $this->paginatePosts($this->postRepository->publishedQuery(), $query);
 
         return $this->render('@Content/blog/index.html.twig', [
             'paginator' => $paginator,
             'previews' => $this->buildPreviews($paginator),
-            'pagination_route' => 'app_blog_index',
-            'pagination_route_params' => [],
             'list_title' => 'blog.list.all_posts',
             'list_title_params' => [],
             ...$this->buildSidebarData(),
@@ -63,13 +64,11 @@ final class BlogController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('error.blog.category_not_found', [], 'content'));
         }
 
-        $paginator = $this->postRepository->getPublishedByCategorySlugPaginator($slug, $query);
+        $paginator = $this->paginatePosts($this->postRepository->publishedByCategoryQuery($slug), $query);
 
         return $this->render('@Content/blog/index.html.twig', [
             'paginator' => $paginator,
             'previews' => $this->buildPreviews($paginator),
-            'pagination_route' => 'app_blog_category',
-            'pagination_route_params' => ['slug' => $slug],
             'activeCategory' => $category,
             'list_title' => 'blog.list.category',
             'list_title_params' => ['name' => $category->getName()],
@@ -85,13 +84,11 @@ final class BlogController extends AbstractController
             throw $this->createNotFoundException($this->translator->trans('error.blog.tag_not_found', [], 'content'));
         }
 
-        $paginator = $this->postRepository->getPublishedByTagSlugPaginator($slug, $query);
+        $paginator = $this->paginatePosts($this->postRepository->publishedByTagQuery($slug), $query);
 
         return $this->render('@Content/blog/index.html.twig', [
             'paginator' => $paginator,
             'previews' => $this->buildPreviews($paginator),
-            'pagination_route' => 'app_blog_tag',
-            'pagination_route_params' => ['slug' => $slug],
             'activeTag' => $tag,
             'list_title' => 'blog.list.tag',
             'list_title_params' => ['name' => $tag->getName()],
@@ -182,13 +179,28 @@ final class BlogController extends AbstractController
     }
 
     /**
+     * @return PaginationInterface<mixed>
+     */
+    private function paginatePosts(QueryBuilder $posts, BlogListQueryParametersDTO $query): PaginationInterface
+    {
+        return $this->paginator
+            ->query($posts)
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
+    }
+
+    /**
+     * @param PaginationInterface<mixed> $paginator
+     *
      * @return array<int, string>
      */
-    private function buildPreviews(Paginator $paginator): array
+    private function buildPreviews(PaginationInterface $paginator): array
     {
         $previews = [];
-        foreach ($paginator->getResults() as $post) {
-            /* @var Post $post */
+        foreach ($paginator->getItems() as $post) {
+            if (!$post instanceof Post) {
+                continue;
+            }
             $previews[(int) $post->getId()] = $this->postContentSanitizer->preview((string) $post->getContent());
         }
 

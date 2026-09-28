@@ -6,11 +6,11 @@ namespace App\User\Infrastructure\Query;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use App\User\Application\Explore\UserQueryParameters;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 final readonly class ListExploreUsersQuery
 {
@@ -19,7 +19,7 @@ final readonly class ListExploreUsersQuery
     ) {
     }
 
-    public function __invoke(UserQueryParameters $query): Paginator
+    public function __invoke(UserQueryParameters $query): QueryBuilder
     {
         $qb = $this->entityManager->createQueryBuilder()
             ->select('u')
@@ -84,7 +84,7 @@ final readonly class ListExploreUsersQuery
                 ->addOrderBy('u.id', 'ASC');
         }
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 
     /**
@@ -122,7 +122,7 @@ final readonly class ListExploreUsersQuery
     /**
      * @param list<int> $userIds
      */
-    private function restrictToUserIds(\Doctrine\ORM\QueryBuilder $qb, array $userIds, string $parameterName): void
+    private function restrictToUserIds(QueryBuilder $qb, array $userIds, string $parameterName): void
     {
         if ([] === $userIds) {
             $qb->andWhere('1 = 0');

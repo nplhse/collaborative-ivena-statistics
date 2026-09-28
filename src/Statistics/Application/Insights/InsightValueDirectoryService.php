@@ -10,6 +10,7 @@ use App\Statistics\Application\TopEntityQuery;
 use App\Statistics\Application\TopIndicationGroupsQuery;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 final readonly class InsightValueDirectoryService
 {
@@ -20,6 +21,7 @@ final readonly class InsightValueDirectoryService
         private TopIndicationGroupsQuery $topIndicationGroupsQuery,
         private StatisticsNavigationUrlBuilder $navigationUrlBuilder,
         private ExploreShowUrlResolver $exploreShowUrlResolver,
+        private PaginatorInterface $paginator,
     ) {
     }
 
@@ -110,12 +112,18 @@ final readonly class InsightValueDirectoryService
         $numResults = \count($rows);
         $lastPage = max(1, (int) ceil($numResults / $limit));
         $page = min($page, $lastPage);
-        $offset = ($page - 1) * $limit;
-        $paged = \array_slice($rows, $offset, $limit);
+        $pagination = $this->paginator
+            ->query($rows)
+            ->perPage($limit)
+            ->paginate(page: $page);
 
-        $rankStart = $offset + 1;
+        $rankStart = $pagination->getFirstItemNumber() ?? 1;
         $ranked = [];
-        foreach ($paged as $index => $row) {
+        foreach ($pagination->getItems() as $index => $row) {
+            if (!$row instanceof InsightValueRow) {
+                continue;
+            }
+
             $ranked[] = new InsightValueRow(
                 $row->id,
                 $row->label,
@@ -130,7 +138,7 @@ final readonly class InsightValueDirectoryService
             );
         }
 
-        return new InsightDirectoryPage($ranked, $totalAllocations, $page, $limit, $numResults);
+        return new InsightDirectoryPage($ranked, $totalAllocations, $pagination);
     }
 
     /**

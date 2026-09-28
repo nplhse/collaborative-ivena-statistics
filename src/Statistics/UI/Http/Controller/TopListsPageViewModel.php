@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticWidget;
-use App\Statistics\Application\TopList\TopListArrayPaginator;
 use App\Statistics\Application\TopList\TopListDefinitionInterface;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
+use Symfony\UX\Pagination\NumberedPaginationInterface;
 
 final readonly class TopListsPageViewModel
 {
     /**
-     * @param list<TopListDefinitionInterface>     $topListDefinitions
-     * @param array<string, string>                $topListSelectUrls
-     * @param array<int|string, string>            $limitUrls
-     * @param array<int, string>                   $pageSizeUrls
-     * @param array<string, bool|float|int|string> $comparisonPreservedQuery
+     * @param list<TopListDefinitionInterface>        $topListDefinitions
+     * @param array<string, string>                   $topListSelectUrls
+     * @param array<int|string, string>               $limitUrls
+     * @param array<int, string>                      $pageSizeUrls
+     * @param array<string, bool|float|int|string>    $comparisonPreservedQuery
+     * @param NumberedPaginationInterface<mixed>|null $paginator
      */
     public function __construct(
         public ?StatisticWidget $topListWidget,
@@ -36,7 +37,7 @@ final readonly class TopListsPageViewModel
         public string $compareSwapUrl,
         public string $compareContinueWithBUrl,
         public bool $truncated,
-        public ?TopListArrayPaginator $paginator,
+        public ?NumberedPaginationInterface $paginator,
         public ?BenchmarkSelectionSideFormData $primaryFormData,
         public ?BenchmarkSelectionSideFormData $comparisonFormData,
         public array $comparisonPreservedQuery,

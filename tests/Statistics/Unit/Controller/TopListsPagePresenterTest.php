@@ -23,6 +23,7 @@ use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\UX\Pagination\Test\PaginatorFactory;
 
 final class TopListsPagePresenterTest extends TestCase
 {
@@ -65,7 +66,7 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertStringContainsString('per_page=50', $model->pageSizeUrls[50]);
         self::assertFalse($model->compareEnabled);
         self::assertNotNull($model->paginator);
-        self::assertFalse($model->paginator->hasToPaginate());
+        self::assertFalse($model->paginator->hasPrevious() || $model->paginator->hasNext());
     }
 
     public function testBuildsFormDataForBothComparisonSides(): void
@@ -195,9 +196,9 @@ final class TopListsPagePresenterTest extends TestCase
         self::assertSame(100, $model->currentLimit);
         self::assertSame(25, $model->currentPageSize);
         self::assertNotNull($model->paginator);
-        self::assertTrue($model->paginator->hasToPaginate());
+        self::assertTrue($model->paginator->hasPrevious() || $model->paginator->hasNext());
         self::assertSame(2, $model->paginator->getCurrentPage());
-        self::assertSame(2, $model->paginator->getLastPage());
+        self::assertSame(2, $model->paginator->getTotalPages());
         self::assertInstanceOf(TopListRanking::class, $slicedRanking);
         self::assertCount(5, $slicedRanking->rows);
         self::assertSame(26, $slicedRanking->rows[0]->rank);
@@ -234,6 +235,7 @@ final class TopListsPagePresenterTest extends TestCase
             new BenchmarkSelectionFormDataFactory(),
             new BenchmarkSelectionQueryBuilder(),
             new TopListCatalogCrossReference(),
+            PaginatorFactory::create(urlGenerator: $router),
         );
     }
 }

@@ -7,10 +7,9 @@ namespace App\Content\Infrastructure\Repository;
 use App\Content\Application\Blog\PostSlugExistsChecker;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
-use App\Content\UI\Http\DTO\BlogListQueryParametersDTO;
-use App\Shared\Infrastructure\Pagination\Paginator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +22,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
         parent::__construct($registry, Post::class);
     }
 
-    public function getPublishedPaginator(BlogListQueryParametersDTO $query): Paginator
+    public function publishedQuery(): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
             ->addSelect('c', 't')
@@ -35,10 +34,10 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 
-    public function getPublishedByCategorySlugPaginator(string $categorySlug, BlogListQueryParametersDTO $query): Paginator
+    public function publishedByCategoryQuery(string $categorySlug): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
             ->addSelect('c', 't')
@@ -52,10 +51,10 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 
-    public function getPublishedByTagSlugPaginator(string $tagSlug, BlogListQueryParametersDTO $query): Paginator
+    public function publishedByTagQuery(string $tagSlug): QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
             ->addSelect('c', 't')
@@ -70,7 +69,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
-        return new Paginator($qb)->paginate($query->page, $query->limit);
+        return $qb;
     }
 
     /**

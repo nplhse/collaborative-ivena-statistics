@@ -10,19 +10,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 #[Route('/explore/state', name: 'app_explore_state_list', methods: ['GET'])]
 final class ListStatesController extends AbstractController
 {
     public function __construct(
         private readonly StateRepository $stateRepository,
+        private readonly PaginatorInterface $paginator,
     ) {
     }
 
     public function __invoke(
         #[MapQueryString] SpecialityQueryParametersDTO $query,
     ): Response {
-        $paginator = $this->stateRepository->getListPaginator($query);
+        $paginator = $this->paginator
+            ->query($this->stateRepository->listQuery($query))
+            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->paginate();
 
         return $this->render('@Allocation/states/list.html.twig', [
             'paginator' => $paginator,
