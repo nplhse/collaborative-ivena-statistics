@@ -31,12 +31,14 @@ Custom controllers live in `assets/controllers/*_controller.js`. Examples:
 
 ## Live Components
 
-Two Live Components in `src/`:
+Four Live Components in `src/`:
 
-| Component | Purpose |
-|-----------|---------|
-| `AnalysisExplorerShell` | Interactive Explorer configuration and execution |
-| `BenchmarkSelectionForm` | Live benchmark selection form |
+| Component | Template | Purpose |
+|-----------|----------|---------|
+| [`AnalysisExplorerShell`](../../src/Statistics/AnalysisExplorer/UI/LiveComponent/AnalysisExplorerShell.php) | `@Statistics/analysis_explorer/AnalysisExplorerShell.html.twig` | Interactive Explorer configuration and execution |
+| [`BenchmarkSelectionForm`](../../src/Statistics/Benchmarking/UI/LiveComponent/BenchmarkSelectionForm.php) | `@Statistics/live/BenchmarkSelectionForm.html.twig` | Live benchmark selection form |
+| [`TopListComparisonSelectionForm`](../../src/Statistics/UI/LiveComponent/TopListComparisonSelectionForm.php) | `@Statistics/live/TopListComparisonSelectionForm.html.twig` | Scope and period selection for one Top List comparison side |
+| [`InsightCompareSelectionForm`](../../src/Statistics/UI/LiveComponent/InsightCompareSelectionForm.php) | `@Statistics/live/InsightCompareSelectionForm.html.twig` | Comparison subject selection on an Insight |
 
 Routes: `config/routes/ux_live_component.yaml`
 

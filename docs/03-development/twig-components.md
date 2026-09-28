@@ -8,7 +8,8 @@ Use these instead of copying Tabler page-header, card, modal, badge, alert, filt
 |------|-----|
 | Page title, scope or period context, and primary actions | `PageHeader` |
 | A content section | `Card` |
-| A tabular list | `DataTable` |
+| An entity or catalog list (Explore, Import, Users) | `DataTable` |
+| A statistics ranking (Top Lists, Insights directories) | [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md) |
 | An empty result set | `EmptyState` |
 | A notice, flash, or validation message | `Alert` |
 | A short status | `Badge` |
@@ -303,11 +304,21 @@ Do **not** restyle Explore DataTable cells with this component. Hospital, urgenc
 
 ## DataTable
 
-Declarative table card for Explore/Import lists. It renders Tabler `.card` chrome itself and does **not** wrap `<twig:Card>`. Pass `columns` plus `rows` (or a `paginator`) and the component draws headers, cells, empty state, and the footer.
+Declarative table card for entity and catalog lists (Explore, Import, Users). It renders Tabler `.card` chrome itself and does **not** wrap `<twig:Card>`. Pass `columns` plus `rows` (or a `paginator`) and the component draws headers, cells, empty state, and the footer.
 
-Do not use `DataTable` for statistics rankings. It owns the card, property-based columns, and a fixed page-size footer (`25/50/100`). A ranking already sits inside another card and needs share bars, an insight or catalog action, and optional comparison cells. That table is [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md). Top Lists still render through the widget table until they move onto it.
+Statistics rankings use [`Statistics:RankingTable`](../04-features/statistics/ranking-table.md) (#627). Top Lists and Insights directories already render that component. `DataTable` stays the entity and catalog list: it owns the card, property-based columns, and a fixed page-size footer (`25/50/100`). Do not migrate Top Lists onto `DataTable`.
 
-Without `columns`, the `content` block is still the escape hatch (Admin Import-Rejects, Analysis Explorer). Pagination still uses the DataTable footer when a paginator has rows.
+These views are not DataTable consumers:
+
+- Top Lists
+- Insights directories
+- matrices
+- heatmaps
+- the Analysis Explorer results table (`analysis_explorer/_results_table.html.twig`)
+
+Matrices, heatmaps, and the Analysis Explorer results table stay on their own page markup. They sit outside `RankingTable` as well.
+
+Without `columns`, the `content` block is the escape hatch for Admin Import Rejects only. Pagination still uses the DataTable footer when a paginator has rows.
 
 Not a Live Component: sort, page size, and page links are GET URLs so list state stays shareable.
 
@@ -368,4 +379,5 @@ Statistics reports and the Analysis Explorer split "no source data" from "this s
 ## Related
 
 - [frontend.md](frontend.md) — Asset Mapper, Stimulus, Live Components
+- [ranking-table.md](../04-features/statistics/ranking-table.md) — statistics rankings, separate from DataTable
 - [translations.md](translations.md) — UI string domains
