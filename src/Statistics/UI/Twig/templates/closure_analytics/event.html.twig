@@ -1,0 +1,105 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.closure.event.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.closure.title', path: path('app_stats_closure_analytics', app.request.query.all) },
+            { label: 'stats.closure.event.title' }
+        ]" />
+        <div class="page-header">
+            <h2 class="page-title">
+                {{ event.grouped ? event.sourceGroupId : 'stats.closure.events.ungrouped'|trans({}, 'statistics') }}
+            </h2>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div>
+        <div class="row row-cards">
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.events.children'|trans({}, 'statistics') }}</div>
+                <div class="h2">{{ event.closureCount }}</div>
+            </div></div></div>
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.kpi.sum_duration'|trans({}, 'statistics') }}</div>
+                <div class="h2">{{ event.summedMinutes|closure_duration }}</div>
+            </div></div></div>
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.kpi.actual_duration'|trans({}, 'statistics') }}</div>
+                <div class="h2">{{ event.actualMinutes|closure_duration }}</div>
+            </div></div></div>
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.kpi.closed_share'|trans({}, 'statistics') }}</div>
+                <div class="h2">—</div>
+                <div class="text-muted small">{{ 'stats.closure.kpi.share_unavailable'|trans({}, 'statistics') }}</div>
+            </div></div></div>
+        </div>
+
+        <div class="card mt-3" data-testid="closure-event-timeline">
+            <div class="card-header"><h3 class="card-title">{{ 'stats.closure.event.timeline'|trans({}, 'statistics') }}</h3></div>
+            {% set eventStart = event.startsAt|date('U') %}
+            {% set eventDuration = max(1, event.endsAt|date('U') - eventStart) %}
+            <div class="closure-timeline-scroll">
+                <div class="closure-event-ruler">
+                    <div class="closure-timeline-label"></div>
+                    <div class="d-flex justify-content-between px-2">
+                        <strong>{{ event.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</strong>
+                        <strong>{{ event.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</strong>
+                    </div>
+                </div>
+                {% for row in children %}
+                    {% set left = max(0, (row.startsAt|date('U') - eventStart) / eventDuration * 100) %}
+                    {% set width = max(0.25, (row.endsAt|date('U') - row.startsAt|date('U')) / eventDuration * 100) %}
+                    <div class="closure-timeline-lane">
+                        <div class="closure-timeline-label">
+                            <strong><a href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id})) }}">{{ row.departmentName }}</a></strong>
+                            <small>{{ row.specialityName }} · {{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}</small>
+                        </div>
+                        <div class="closure-timeline-track">
+                            <a href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id})) }}"
+                               class="closure-timeline-segment closure-timeline-segment--grouped"
+                               style="left: {{ left }}%; width: {{ min(width, 100 - left) }}%"
+                               title="{{ row.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}–{{ row.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}"
+                               aria-label="{{ row.departmentName }}"></a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead><tr>
+                        <th>{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'stats.closure.intervals.department'|trans({}, 'statistics') }}</th>
+                        <th>SK</th>
+                        <th>{{ 'stats.closure.intervals.reason'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'stats.closure.intervals.duration'|trans({}, 'statistics') }}</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for row in children %}
+                        <tr>
+                            <td><a href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id})) }}">{{ row.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</a></td>
+                            <td>{{ row.departmentName }}</td>
+                            <td>{{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}</td>
+                            <td>{{ ('stats.closure.reason.' ~ row.reason)|trans({}, 'statistics') }}</td>
+                            <td>{{ row.durationMinutes|closure_duration }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

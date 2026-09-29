@@ -63,6 +63,344 @@
     color: var(--tblr-dropdown-link-hover-color, inherit);
 }
 
+/* IVENA-inspired closure timeline. Neutral cells mean “no closure represented”,
+   not that the department was proven to be open. */
+.closure-timeline-scroll {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+}
+
+.closure-timeline-scroll--years {
+    max-height: min(65vh, 42rem);
+    overflow-y: auto;
+}
+
+.closure-timeline-grid {
+    display: grid;
+    grid-template-columns: minmax(12rem, 16rem) repeat(var(--closure-columns), minmax(7rem, 1fr));
+    min-width: max-content;
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-grid__label,
+.closure-timeline-label {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 12rem;
+    padding: 0.65rem 0.75rem;
+    background: var(--tblr-bg-surface);
+    border-right: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-grid__label small,
+.closure-timeline-label small {
+    margin-top: 0.125rem;
+    color: var(--tblr-secondary-color);
+    font-size: 0.7rem;
+    line-height: 1.25;
+}
+
+.closure-timeline-cell {
+    display: flex;
+    min-height: 4.5rem;
+    padding: 0.45rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--tblr-body-color);
+    background: color-mix(in srgb, var(--tblr-bg-surface-secondary) 75%, transparent);
+    border-right: 1px solid var(--tblr-border-color);
+    text-align: center;
+    text-decoration: none;
+}
+
+.closure-timeline-cell > span {
+    color: var(--tblr-body-color);
+    font-weight: 700;
+}
+
+.closure-timeline-cell--closed {
+    color: var(--tblr-primary);
+    background: var(--tblr-primary-lt);
+}
+
+.closure-timeline-cell--multiple {
+    background-color: var(--tblr-primary-lt);
+    background-image: repeating-linear-gradient(
+        135deg,
+        transparent 0,
+        transparent 7px,
+        color-mix(in srgb, var(--tblr-primary) 20%, transparent) 7px,
+        color-mix(in srgb, var(--tblr-primary) 20%, transparent) 12px
+    );
+}
+
+.closure-timeline-cell:hover,
+.closure-timeline-cell:focus-visible {
+    position: relative;
+    z-index: 2;
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: -2px;
+}
+
+.closure-timeline-ruler,
+.closure-timeline-lane,
+.closure-event-ruler,
+.closure-timeline-department,
+.closure-timeline-week-ruler,
+.closure-timeline-week-lane {
+    display: grid;
+    grid-template-columns: minmax(12rem, 16rem) minmax(48rem, 1fr);
+    min-width: 64rem;
+}
+
+.closure-timeline-ruler {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    min-height: 2.5rem;
+    color: var(--tblr-body-color);
+    background: var(--tblr-bg-surface-secondary);
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-event-ruler {
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--tblr-body-color);
+    background: var(--tblr-bg-surface-secondary);
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-hours,
+.closure-timeline-track {
+    position: relative;
+}
+
+.closure-timeline-hours span {
+    position: absolute;
+    top: 0.65rem;
+    translate: -50% 0;
+    color: var(--tblr-secondary-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.closure-timeline-hours span:first-child {
+    translate: 0;
+}
+
+.closure-timeline-hours span:last-child {
+    translate: -100% 0;
+}
+
+.closure-timeline-day {
+    width: 100%;
+    min-width: 64rem;
+    padding: 0.4rem 0.75rem;
+    color: var(--tblr-body-color);
+    background: var(--tblr-bg-surface-secondary);
+    border-bottom: 1px solid var(--tblr-border-color);
+    font-weight: 700;
+}
+
+.closure-timeline-department {
+    color: var(--tblr-body-color);
+    background: color-mix(in srgb, var(--tblr-bg-surface-secondary) 75%, var(--tblr-bg-surface));
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-department__label {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    display: flex;
+    padding: 0.45rem 0.75rem;
+    flex-direction: column;
+    background: var(--tblr-bg-surface-secondary);
+    border-left: 3px solid var(--tblr-primary);
+    border-right: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-department__label small {
+    color: var(--tblr-secondary-color);
+    font-size: 0.7rem;
+    line-height: 1.25;
+}
+
+.closure-timeline-lane {
+    min-height: 3.25rem;
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-scroll[data-testid='closure-timeline-segments'] .closure-timeline-lane .closure-timeline-label,
+[data-testid='closure-timeline-period-departments'] .closure-timeline-week-lane .closure-timeline-label {
+    padding-left: 1.5rem;
+}
+
+.closure-timeline-track {
+    margin-block: 0.55rem;
+    background-color: color-mix(in srgb, var(--tblr-bg-surface-secondary) 75%, transparent);
+    background-image: repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent calc(4.1667% - 1px),
+        var(--tblr-border-color) calc(4.1667% - 1px),
+        var(--tblr-border-color) 4.1667%
+    );
+}
+
+.closure-timeline-week-ruler {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    min-height: 2.75rem;
+    color: var(--tblr-body-color);
+    background: var(--tblr-bg-surface-secondary);
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-week-axis,
+.closure-timeline-week-track {
+    position: relative;
+}
+
+.closure-timeline-week-day {
+    position: absolute;
+    inset-block: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding-inline: 0.25rem;
+    border-right: 1px solid var(--tblr-border-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--tblr-body-color);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.closure-timeline-week-day:hover,
+.closure-timeline-week-day:focus-visible {
+    z-index: 1;
+    color: var(--tblr-primary);
+    background: var(--tblr-primary-lt);
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: -2px;
+}
+
+.closure-timeline-week-lane {
+    min-height: 3.5rem;
+    border-bottom: 1px solid var(--tblr-border-color);
+}
+
+.closure-timeline-week-track {
+    margin-block: 0.55rem;
+    background: color-mix(in srgb, var(--tblr-bg-surface-secondary) 75%, transparent);
+}
+
+.closure-timeline-week-gridline {
+    position: absolute;
+    inset-block: 0;
+    width: 1px;
+    background: var(--tblr-border-color);
+    pointer-events: none;
+}
+
+.closure-timeline-segment {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    min-width: 0.2rem;
+    border: 1px solid color-mix(in srgb, var(--tblr-primary) 70%, #000);
+    border-radius: 0.2rem;
+    background: var(--tblr-primary);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+}
+
+.closure-timeline-segment--grouped,
+.closure-timeline-segment--parallel {
+    background-image: repeating-linear-gradient(135deg, transparent 0, transparent 6px, rgb(255 255 255 / 22%) 6px, rgb(255 255 255 / 22%) 10px);
+}
+
+.closure-timeline-segment:hover,
+.closure-timeline-segment:focus-visible {
+    z-index: 2;
+    outline: 2px solid var(--tblr-primary);
+    outline-offset: 2px;
+}
+
+.closure-timeline-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+
+.closure-timeline-legend > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.closure-timeline-legend > small {
+    flex-basis: 100%;
+    color: var(--tblr-secondary-color);
+}
+
+.closure-timeline-swatch {
+    width: 1.25rem;
+    height: 0.75rem;
+    border: 1px solid var(--tblr-border-color);
+    border-radius: 0.15rem;
+    background: var(--tblr-bg-surface-secondary);
+}
+
+.closure-timeline-swatch--closed {
+    border-color: var(--tblr-primary);
+    background: var(--tblr-primary-lt);
+}
+
+.closure-timeline-swatch--multiple {
+    border-color: var(--tblr-primary);
+    background: repeating-linear-gradient(135deg, var(--tblr-primary-lt) 0, var(--tblr-primary-lt) 5px, color-mix(in srgb, var(--tblr-primary) 25%, transparent) 5px, color-mix(in srgb, var(--tblr-primary) 25%, transparent) 9px);
+}
+
+.closure-breakdown-details[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.closure-breakdown-details > summary {
+    order: 2;
+    cursor: pointer;
+    list-style: none;
+}
+
+.closure-breakdown-details > summary::marker,
+.closure-breakdown-details > summary::-webkit-details-marker {
+    display: none;
+    content: none;
+}
+
+.closure-breakdown-details__rows {
+    order: 1;
+}
+
+.closure-breakdown-details__hide,
+.closure-breakdown-details[open] .closure-breakdown-details__show {
+    display: none;
+}
+
+.closure-breakdown-details[open] .closure-breakdown-details__hide {
+    display: inline;
+}
+
 .benchmark-delta-heatmap__tooltip {
     position: fixed;
     z-index: 1080;

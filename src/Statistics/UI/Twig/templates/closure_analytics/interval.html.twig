@@ -1,0 +1,51 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.closure.interval.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.closure.title', path: path('app_stats_closure_analytics', app.request.query.all) },
+            { label: 'stats.closure.interval.title' }
+        ]" />
+        <div class="page-header"><h2 class="page-title">{{ 'stats.closure.interval.title'|trans({}, 'statistics') }}</h2></div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card" data-testid="stats-closure-interval-detail">
+        <div class="card-header">
+            <h3 class="card-title">{{ interval.hospitalName }} · {{ interval.departmentName }}</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ interval.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</dd>
+                <dt class="col-sm-4">{{ 'stats.closure.interval.end'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ interval.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</dd>
+                <dt class="col-sm-4">{{ 'stats.closure.intervals.duration'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ interval.durationMinutes|closure_duration }}</dd>
+                <dt class="col-sm-4">{{ 'stats.closure.breakdown.speciality'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ interval.specialityName }}</dd>
+                <dt class="col-sm-4">SK</dt>
+                <dd class="col-sm-8">{{ ('stats.closure.care_level.' ~ interval.careLevel)|trans({}, 'statistics') }}</dd>
+                <dt class="col-sm-4">{{ 'stats.closure.intervals.reason'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ ('stats.closure.reason.' ~ interval.reason)|trans({}, 'statistics') }}</dd>
+                <dt class="col-sm-4">{{ 'stats.closure.breakdown.closure_unit'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ interval.closureUnit ?: '—' }}</dd>
+                <dt class="col-sm-4">{{ 'stats.closure.interval.group_id'|trans({}, 'statistics') }}</dt>
+                <dd class="col-sm-8">{{ interval.sourceGroupId ?: '—' }}</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a class="btn btn-outline-secondary" href="{{ path('app_stats_closure_analytics', app.request.query.all) }}">{{ 'stats.closure.interval.back'|trans({}, 'statistics') }}</a>
+        </div>
+    </div>
+{% endblock %}

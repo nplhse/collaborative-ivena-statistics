@@ -21,7 +21,7 @@ final class UserRole
     public const string REVIEW_INDICATIONS = 'ROLE_REVIEW_INDICATIONS';
 
     /**
-     * Opt-in beta switch for closure imports. Not inherited by ROLE_ADMIN.
+     * Opt-in beta switch for closure imports and analytics. Not inherited by ROLE_ADMIN.
      */
     public const string CLOSURE_BETA = 'ROLE_CLOSURE_BETA';
 

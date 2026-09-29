@@ -1,0 +1,103 @@
+<twig:FilterDrawer
+    id="statistics-filters-drawer"
+    formId="closure-analytics-filter-form"
+    formAction="{{ app.request.pathInfo }}"
+    :preserveQuery="true"
+    :omitQueryKeys="closureFilterDrawer.filterKeys"
+    resetUrl="{{ statsFilterDrawerResetUrl }}"
+    testId="statistics-filters-drawer"
+    cancelTestId="statistics-filters-cancel"
+    applyTestId="statistics-filters-apply"
+    resetTestId="statistics-filters-reset"
+>
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-departments">{{ 'label.department'|trans({}, 'messages') }}</label>
+        <select id="closure-filter-departments"
+                name="closureDepartments[]"
+                class="form-select"
+                multiple
+                size="8"
+                data-testid="closure-filter-departments">
+            {% for choice in closureFilterDrawer.choices.departments %}
+                <option value="{{ choice.id }}" {{ choice.id in closureFilterDrawer.values.departments ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-specialities">{{ 'label.speciality'|trans({}, 'messages') }}</label>
+        <select id="closure-filter-specialities"
+                name="closureSpecialities[]"
+                class="form-select"
+                multiple
+                size="8"
+                data-testid="closure-filter-specialities">
+            {% for choice in closureFilterDrawer.choices.specialities %}
+                <option value="{{ choice.id }}" {{ choice.id in closureFilterDrawer.values.specialities ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    {% if closureFilterDrawer.showClosureUnits %}
+        <div class="mb-4">
+            <label class="form-label" for="closure-filter-units">{{ 'stats.closure.filter.closure_units'|trans({}, 'statistics') }}</label>
+            <select id="closure-filter-units"
+                    name="closureUnits[]"
+                    class="form-select"
+                    multiple
+                    size="6"
+                    data-testid="closure-filter-units">
+                {% for choice in closureFilterDrawer.choices.closureUnits %}
+                    <option value="{{ choice.value }}" {{ choice.value in closureFilterDrawer.values.closureUnits ? 'selected' }}>
+                        {{ choice.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+        </div>
+    {% endif %}
+
+    <fieldset class="mb-4">
+        <legend class="form-label">{{ 'label.urgency'|trans({}, 'messages') }}</legend>
+        <div class="row g-2">
+            {% for choice in closureFilterDrawer.choices.careLevels %}
+                <div class="col-12">
+                    <label class="form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="closureCareLevels[]"
+                               value="{{ choice.value }}"
+                               data-testid="closure-filter-care-level-{{ choice.value }}"
+                               {{ choice.value in closureFilterDrawer.values.careLevels ? 'checked' }}>
+                        <span class="form-check-label">{{ choice.name }}</span>
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend class="form-label">{{ 'stats.closure.filter.reasons'|trans({}, 'statistics') }}</legend>
+        <div class="row g-2">
+            {% for choice in closureFilterDrawer.choices.reasons %}
+                <div class="col-12">
+                    <label class="form-check">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               name="closureReasons[]"
+                               value="{{ choice.value }}"
+                               data-testid="closure-filter-reason-{{ choice.value }}"
+                               {{ choice.value in closureFilterDrawer.values.reasons ? 'checked' }}>
+                        <span class="form-check-label">{{ choice.name }}</span>
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    </fieldset>
+</twig:FilterDrawer>

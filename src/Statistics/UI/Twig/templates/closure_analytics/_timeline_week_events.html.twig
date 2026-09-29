@@ -1,0 +1,60 @@
+{% if timelineWeeklyRows %}
+    <section class="border-top" data-testid="closure-timeline-period-departments">
+        <div class="px-3 pt-3">
+            <h4 class="mb-1">{{ ('stats.closure.timeline.period_departments.title.' ~ timelineGrain)|trans({}, 'statistics') }}</h4>
+            <p class="text-muted small mb-3">{{ ('stats.closure.timeline.period_departments.help.' ~ timelineGrain)|trans({}, 'statistics') }}</p>
+        </div>
+        <div class="closure-timeline-scroll">
+            <div class="closure-timeline-week-ruler">
+                <div class="closure-timeline-label"></div>
+                <div class="closure-timeline-week-axis">
+                    {% for day in timelineWeekDays %}
+                        <a class="closure-timeline-week-day"
+                           href="{{ day.url }}"
+                           data-turbo-frame="stats-closure-timeline"
+                           style="left: {{ day.left }}%; width: {{ day.width }}%"
+                           title="{{ 'stats.closure.timeline.period_departments.jump'|trans({period: day.label}, 'statistics') }}">
+                            {{ day.label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% set currentGroup = null %}
+            {% for row in timelineWeeklyRows %}
+                {% if currentGroup != row.groupKey %}
+                    {% set currentGroup = row.groupKey %}
+                    <div class="closure-timeline-department">
+                        <div class="closure-timeline-department__label">
+                            <small>{{ row.hospitalName }} › {{ row.specialityName }}</small>
+                            <strong>{{ row.departmentName }}</strong>
+                        </div>
+                        <div aria-hidden="true"></div>
+                    </div>
+                {% endif %}
+                <div class="closure-timeline-week-lane">
+                    <div class="closure-timeline-label">
+                        <strong>{{ ('stats.closure.care_level.' ~ row.careLevelName)|trans({}, 'statistics') }}</strong>
+                    </div>
+                    <div class="closure-timeline-week-track">
+                        {% for tick in timelineWeekTicks %}
+                            <i class="closure-timeline-week-gridline" style="left: {{ tick }}%" aria-hidden="true"></i>
+                        {% endfor %}
+                        {% for segment in row.segments %}
+                            {% if segment.url %}
+                                <a href="{{ segment.url }}"
+                                   class="closure-timeline-segment{{ segment.parallel ? ' closure-timeline-segment--parallel' }}"
+                                   style="left: {{ segment.left }}%; width: {{ segment.width }}%"
+                                   title="{{ segment.title }}"
+                                   aria-label="{{ segment.title }}"></a>
+                            {% else %}
+                                <span class="closure-timeline-segment{{ segment.parallel ? ' closure-timeline-segment--parallel' }}"
+                                      style="left: {{ segment.left }}%; width: {{ segment.width }}%"
+                                      title="{{ segment.title }}"></span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}

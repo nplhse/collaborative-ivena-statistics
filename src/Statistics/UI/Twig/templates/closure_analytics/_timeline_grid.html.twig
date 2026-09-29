@@ -1,0 +1,27 @@
+<div class="closure-timeline-scroll{{ timelineScrollableYears ? ' closure-timeline-scroll--years' }}"
+     data-testid="closure-timeline-grid">
+    {% for row in timelineRows %}
+        <div class="closure-timeline-grid" style="--closure-columns: {{ row.cells|length }}">
+            <div class="closure-timeline-grid__label">
+                <strong>{{ row.grid.key }}</strong>
+                <small>{{ row.closedMinutes|closure_duration }} · {{ row.eventCount }} {{ 'stats.closure.timeline.events'|trans({}, 'statistics') }}</small>
+            </div>
+            {% for item in row.cells %}
+                {% set cell = item.cell %}
+                <a href="{{ item.url }}"
+                   data-turbo-frame="stats-closure-timeline"
+                   class="closure-timeline-cell{{ cell.closedMinutes > 0 ? ' closure-timeline-cell--closed' }}{{ cell.eventCount > 1 ? ' closure-timeline-cell--multiple' }}"
+                   title="{{ item.label }}: {{ cell.closedMinutes|closure_duration }}, {{ cell.eventCount }} {{ 'stats.closure.timeline.events'|trans({}, 'statistics') }}"
+                   aria-label="{{ item.label }}: {{ cell.closedMinutes|closure_duration }}">
+                    <span>{{ item.label }}</span>
+                    {% if cell.closedMinutes > 0 %}
+                        <strong>{{ cell.closedMinutes|closure_duration }}</strong>
+                        <small>{{ cell.eventCount }}×</small>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="p-3 text-muted">{{ 'stats.closure.empty'|trans({}, 'statistics') }}</div>
+    {% endfor %}
+</div>

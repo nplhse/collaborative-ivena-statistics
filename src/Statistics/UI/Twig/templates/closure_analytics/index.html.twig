@@ -1,0 +1,130 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'stats.closure.title'|trans({}, 'statistics') }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.closure.title' }
+        ]" />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col min-w-0">
+                    <div class="page-pretitle">{{ 'stats.closure.pretitle'|trans({}, 'statistics') }}</div>
+                    <h2 class="page-title mb-0" data-testid="stats-closure-heading">{{ 'stats.closure.title'|trans({}, 'statistics') }}</h2>
+                </div>
+                {{ include('@Statistics/_header_controls.html.twig') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/closure_analytics/_filter_drawer.html.twig') }}
+    {{ include('@Statistics/_filter_active_badges.html.twig') }}
+    {{ include('@Statistics/closure_analytics/_tabs.html.twig') }}
+
+    <div data-controller="closure-analytics-charts"
+         data-closure-analytics-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+        {% set metrics = dashboard.metrics %}
+        {% set singlePercent = metrics.closedMinutes > 0 ? metrics.singleMinutes / metrics.closedMinutes * 100 : 0 %}
+        {% set multiplePercent = metrics.closedMinutes > 0 ? metrics.multipleMinutes / metrics.closedMinutes * 100 : 0 %}
+        <div class="row row-deck row-cards g-3" data-testid="stats-closure-kpis">
+            <div class="col-12 col-lg-4">
+                <div class="card"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.kpi.actual_duration'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">{{ metrics.closedMinutes|closure_duration }}</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.kpi.sum_duration'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">{{ metrics.summedMinutes|closure_duration }}</div>
+                    <div class="text-muted small">{{ 'stats.closure.kpi.sum_duration_hint'|trans({}, 'statistics') }}</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="card" data-testid="stats-closure-concurrency"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.kpi.concurrency'|trans({}, 'statistics') }}</div>
+                    <div class="progress mt-3" style="height: .75rem" aria-hidden="true">
+                        <div class="progress-bar bg-primary" style="width: {{ multiplePercent }}%"></div>
+                        <div class="progress-bar bg-secondary-lt" style="width: {{ singlePercent }}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between gap-3 mt-3">
+                        <div>
+                            <span class="badge bg-primary-lt me-1"></span>
+                            <strong>{{ multiplePercent|number_format(1, ',', '.') }}%</strong>
+                            <small class="d-block text-muted">{{ 'stats.closure.kpi.multiple_short'|trans({}, 'statistics') }} · {{ metrics.multipleMinutes|closure_duration }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-secondary-lt me-1"></span>
+                            <strong>{{ singlePercent|number_format(1, ',', '.') }}%</strong>
+                            <small class="d-block text-muted">{{ 'stats.closure.kpi.single_short'|trans({}, 'statistics') }} · {{ metrics.singleMinutes|closure_duration }}</small>
+                        </div>
+                    </div>
+                </div></div>
+            </div>
+        </div>
+
+        {% if not dashboard.hasIntervals %}
+            <div class="mt-3" data-testid="stats-closure-empty">
+                <twig:EmptyState title="{{ 'stats.closure.empty'|trans({}, 'statistics') }}" icon="tabler:calendar-off" />
+            </div>
+        {% else %}
+            <div class="row g-3 mt-0 align-items-start">
+                <div class="col-12 col-xl-8">
+                    <div class="card">
+                        <div class="card-header"><h3 class="card-title">{{ 'stats.closure.development'|trans({}, 'statistics') }}</h3></div>
+                        <div class="card-body">
+                            <div data-closure-analytics-charts-target="timeSeriesChart" style="min-height: 280px"></div>
+                        </div>
+                    </div>
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'stats.closure.heatmap.title'|trans({}, 'statistics') }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">{{ 'stats.closure.heatmap.duration_help'|trans({}, 'statistics') }}</p>
+                            <div data-closure-analytics-charts-target="heatmapChart" style="min-height: 420px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-xl-4">
+                    <div class="d-grid gap-3">
+                        {{ include('@Statistics/closure_analytics/_breakdown_card.html.twig', {
+                            kind: 'reason',
+                            title: 'stats.closure.breakdown.reason',
+                            rows: dashboard.breakdowns.reason,
+                            totalMinutes: metrics.closedMinutes,
+                            totalClosures: metrics.closureCount,
+                            shareMode: 'count',
+                        }, false) }}
+                        {{ include('@Statistics/closure_analytics/_breakdown_card.html.twig', {
+                            kind: 'care_level',
+                            title: 'stats.closure.breakdown.care_level',
+                            rows: dashboard.breakdowns.care_level,
+                            totalMinutes: metrics.closedMinutes,
+                            totalClosures: metrics.closureCount,
+                            shareMode: 'count',
+                        }, false) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {{ include('@Statistics/closure_analytics/_breakdowns.html.twig') }}
+            </div>
+        {% endif %}
+    </div>
+
+    {% if overviewPeriodViewModel is defined and overviewPeriodViewModel.showNavigation %}
+        {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+    {% endif %}
+{% endblock %}

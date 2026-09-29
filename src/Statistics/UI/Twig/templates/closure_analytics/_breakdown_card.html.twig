@@ -1,0 +1,56 @@
+{% macro row(row, kind, totalMinutes, totalClosures, shareMode) %}
+    {% set labelKey = kind in ['care_level', 'reason'] ? 'stats.closure.' ~ kind ~ '.' ~ row.key : null %}
+    {% set countMode = shareMode|default('duration') == 'count' %}
+    {% set percent = countMode
+        ? (totalClosures > 0 ? row.closureCount / totalClosures * 100 : 0)
+        : (totalMinutes > 0 ? row.actualMinutes / totalMinutes * 100 : 0) %}
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between gap-3">
+            <span class="text-truncate">{{ labelKey ? labelKey|trans({}, 'statistics') : row.name }}</span>
+            <strong class="text-nowrap">{{ percent|number_format(1, ',', '.') }}%</strong>
+        </div>
+        <div class="progress progress-sm mt-2" aria-hidden="true">
+            <div class="progress-bar bg-primary" style="width: {{ min(100, percent) }}%"></div>
+        </div>
+        <small class="text-muted">
+            {% if countMode %}
+                {{ 'stats.closure.breakdown.closure_count'|trans({count: row.closureCount}, 'statistics') }}
+                · {{ row.actualMinutes|closure_duration }}
+            {% else %}
+                {{ row.actualMinutes|closure_duration }}
+            {% endif %}
+        </small>
+    </div>
+{% endmacro %}
+
+{% import _self as breakdown %}
+
+<div class="card{{ cardClass is defined ? ' ' ~ cardClass }}" data-testid="stats-closure-breakdown-{{ kind }}">
+    <div class="card-header">
+        <h3 class="card-title">{{ title|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for row in rows|slice(0, 5) %}
+            {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration')) }}
+        {% else %}
+            <div class="list-group-item text-muted">—</div>
+        {% endfor %}
+    </div>
+    {% if expandable|default(false) and rows|length > 5 %}
+        <details class="closure-breakdown-details">
+            <summary class="btn btn-link w-100 text-start px-3 py-2">
+                <span class="closure-breakdown-details__show">
+                    {{ 'stats.closure.breakdown.show_all'|trans({count: rows|length}, 'statistics') }}
+                </span>
+                <span class="closure-breakdown-details__hide">
+                    {{ 'stats.closure.breakdown.show_less'|trans({}, 'statistics') }}
+                </span>
+            </summary>
+            <div class="list-group list-group-flush closure-breakdown-details__rows">
+                {% for row in rows|slice(5) %}
+                    {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration')) }}
+                {% endfor %}
+            </div>
+        </details>
+    {% endif %}
+</div>

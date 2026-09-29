@@ -425,6 +425,10 @@
         <source>empty.context.cta</source>
         <target>Change period or scope</target>
       </trans-unit>
+      <trans-unit id="lnkStatsClosureEn" resname="link.stats.closure_analytics">
+        <source>link.stats.closure_analytics</source>
+        <target>Closures</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

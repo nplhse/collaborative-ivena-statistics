@@ -425,6 +425,10 @@
         <source>empty.context.cta</source>
         <target>Zeitraum oder Umfang ändern</target>
       </trans-unit>
+      <trans-unit id="lnkStatsClosureDe" resname="link.stats.closure_analytics">
+        <source>link.stats.closure_analytics</source>
+        <target>Schließungen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

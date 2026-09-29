@@ -7061,6 +7061,115 @@
         <source>stats.analysis_explorer.assistant.structure.metric</source>
         <target>Metric</target>
       </trans-unit>
+      <trans-unit id="statsClosure01" resname="stats.closure.title"><source>stats.closure.title</source><target>Closure analytics</target></trans-unit>
+      <trans-unit id="statsClosure02" resname="stats.closure.pretitle"><source>stats.closure.pretitle</source><target>Interval-based analysis</target></trans-unit>
+      <trans-unit id="statsClosure03" resname="stats.closure.empty"><source>stats.closure.empty</source><target>No closure intervals are available for this scope and period.</target></trans-unit>
+      <trans-unit id="statsClosure04" resname="stats.closure.development"><source>stats.closure.development</source><target>Development over time</target></trans-unit>
+      <trans-unit id="statsClosure05" resname="stats.closure.kpi.intervals"><source>stats.closure.kpi.intervals</source><target>Intervals</target></trans-unit>
+      <trans-unit id="statsClosure06" resname="stats.closure.kpi.actions"><source>stats.closure.kpi.actions</source><target>IVENA closure actions</target></trans-unit>
+      <trans-unit id="statsClosure07" resname="stats.closure.kpi.actions_missing"><source>stats.closure.kpi.actions_missing</source><target>{count, plural, one {# interval without group ID} other {# intervals without group ID}}</target></trans-unit>
+      <trans-unit id="statsClosure08" resname="stats.closure.kpi.duration"><source>stats.closure.kpi.duration</source><target>Total duration</target></trans-unit>
+      <trans-unit id="statsClosure09" resname="stats.closure.kpi.departments"><source>stats.closure.kpi.departments</source><target>Affected departments</target></trans-unit>
+      <trans-unit id="statsClosure10" resname="stats.closure.breakdown.hospital"><source>stats.closure.breakdown.hospital</source><target>Hospitals</target></trans-unit>
+      <trans-unit id="statsClosure11" resname="stats.closure.breakdown.speciality"><source>stats.closure.breakdown.speciality</source><target>Specialities</target></trans-unit>
+      <trans-unit id="statsClosure12" resname="stats.closure.breakdown.department"><source>stats.closure.breakdown.department</source><target>Departments</target></trans-unit>
+      <trans-unit id="statsClosure13" resname="stats.closure.breakdown.care_level"><source>stats.closure.breakdown.care_level</source><target>Urgency levels</target></trans-unit>
+      <trans-unit id="statsClosure14" resname="stats.closure.breakdown.reason"><source>stats.closure.breakdown.reason</source><target>Reasons</target></trans-unit>
+      <trans-unit id="statsClosure15" resname="stats.closure.breakdown.closure_unit"><source>stats.closure.breakdown.closure_unit</source><target>Local closure units</target></trans-unit>
+      <trans-unit id="statsClosure16" resname="stats.closure.intervals.title"><source>stats.closure.intervals.title</source><target>Closure intervals</target></trans-unit>
+      <trans-unit id="statsClosure17" resname="stats.closure.intervals.start"><source>stats.closure.intervals.start</source><target>Start</target></trans-unit>
+      <trans-unit id="statsClosure18" resname="stats.closure.intervals.hospital"><source>stats.closure.intervals.hospital</source><target>Hospital</target></trans-unit>
+      <trans-unit id="statsClosure19" resname="stats.closure.intervals.department"><source>stats.closure.intervals.department</source><target>Department</target></trans-unit>
+      <trans-unit id="statsClosure20" resname="stats.closure.intervals.reason"><source>stats.closure.intervals.reason</source><target>Reason</target></trans-unit>
+      <trans-unit id="statsClosure21" resname="stats.closure.intervals.duration"><source>stats.closure.intervals.duration</source><target>Duration</target></trans-unit>
+      <trans-unit id="statsClosure22" resname="stats.closure.interval.title"><source>stats.closure.interval.title</source><target>Interval details</target></trans-unit>
+      <trans-unit id="statsClosure23" resname="stats.closure.interval.end"><source>stats.closure.interval.end</source><target>End</target></trans-unit>
+      <trans-unit id="statsClosure24" resname="stats.closure.interval.group_id"><source>stats.closure.interval.group_id</source><target>IVENA group ID</target></trans-unit>
+      <trans-unit id="statsClosure25" resname="stats.closure.interval.back"><source>stats.closure.interval.back</source><target>Back to analytics</target></trans-unit>
+      <trans-unit id="statsClosure26" resname="stats.closure.care_level.emergency"><source>stats.closure.care_level.emergency</source><target>SK1</target></trans-unit>
+      <trans-unit id="statsClosure27" resname="stats.closure.care_level.inpatient"><source>stats.closure.care_level.inpatient</source><target>SK2</target></trans-unit>
+      <trans-unit id="statsClosure28" resname="stats.closure.care_level.outpatient"><source>stats.closure.care_level.outpatient</source><target>SK3</target></trans-unit>
+      <trans-unit id="statsClosure29" resname="stats.closure.care_level.other"><source>stats.closure.care_level.other</source><target>Other</target></trans-unit>
+      <trans-unit id="statsClosure30" resname="stats.closure.reason.emergency_department_overload"><source>stats.closure.reason.emergency_department_overload</source><target>Emergency department overload</target></trans-unit>
+      <trans-unit id="statsClosure31" resname="stats.closure.reason.no_bed_capacity"><source>stats.closure.reason.no_bed_capacity</source><target>No bed capacity</target></trans-unit>
+      <trans-unit id="statsClosure32" resname="stats.closure.reason.technical_fault"><source>stats.closure.reason.technical_fault</source><target>Technical fault</target></trans-unit>
+      <trans-unit id="statsClosure33" resname="stats.closure.reason.operating_room_notice"><source>stats.closure.reason.operating_room_notice</source><target>Operating room notice</target></trans-unit>
+      <trans-unit id="statsClosure34" resname="stats.closure.reason.not_specified"><source>stats.closure.reason.not_specified</source><target>Not specified</target></trans-unit>
+      <trans-unit id="statsClosure35" resname="stats.closure.kpi.open_share"><source>stats.closure.kpi.open_share</source><target>Observed time without a closure</target></trans-unit>
+      <trans-unit id="statsClosure36" resname="stats.closure.kpi.closed_share"><source>stats.closure.kpi.closed_share</source><target>Observed time with at least one closure</target></trans-unit>
+      <trans-unit id="statsClosure37" resname="stats.closure.kpi.observed_of"><source>stats.closure.kpi.observed_of</source><target>{value} of {observed} estimated observed time</target></trans-unit>
+      <trans-unit id="statsClosure38" resname="stats.closure.kpi.single"><source>stats.closure.kpi.single</source><target>Exactly one group / event</target></trans-unit>
+      <trans-unit id="statsClosure39" resname="stats.closure.kpi.multiple"><source>stats.closure.kpi.multiple</source><target>Multiple concurrent groups</target></trans-unit>
+      <trans-unit id="statsClosure40" resname="stats.closure.kpi.sum_duration"><source>stats.closure.kpi.sum_duration</source><target>Sum of individual durations</target></trans-unit>
+      <trans-unit id="statsClosure41" resname="stats.closure.kpi.actual_duration"><source>stats.closure.kpi.actual_duration</source><target>Actual closure time</target></trans-unit>
+      <trans-unit id="statsClosure42" resname="stats.closure.coverage.estimated"><source>stats.closure.coverage.estimated</source><target>Observation time is estimated.</target></trans-unit>
+      <trans-unit id="statsClosure43" resname="stats.closure.coverage.description"><source>stats.closure.coverage.description</source><target>{observed} observed; {unobserved} not observed in the selected calendar window. Based on the earliest start and latest end of each import.</target></trans-unit>
+      <trans-unit id="statsClosure44" resname="stats.closure.heatmap.title"><source>stats.closure.heatmap.title</source><target>Closure duration by weekday and time of day</target></trans-unit>
+      <trans-unit id="statsClosure45" resname="stats.closure.heatmap.help"><source>stats.closure.heatmap.help</source><target>Colour: actual closure duration in the respective cell.</target></trans-unit>
+      <trans-unit id="statsClosure46" resname="stats.closure.heatmap.weekday.1"><source>stats.closure.heatmap.weekday.1</source><target>Mon</target></trans-unit>
+      <trans-unit id="statsClosure47" resname="stats.closure.heatmap.weekday.2"><source>stats.closure.heatmap.weekday.2</source><target>Tue</target></trans-unit>
+      <trans-unit id="statsClosure48" resname="stats.closure.heatmap.weekday.3"><source>stats.closure.heatmap.weekday.3</source><target>Wed</target></trans-unit>
+      <trans-unit id="statsClosure49" resname="stats.closure.heatmap.weekday.4"><source>stats.closure.heatmap.weekday.4</source><target>Thu</target></trans-unit>
+      <trans-unit id="statsClosure50" resname="stats.closure.heatmap.weekday.5"><source>stats.closure.heatmap.weekday.5</source><target>Fri</target></trans-unit>
+      <trans-unit id="statsClosure51" resname="stats.closure.heatmap.weekday.6"><source>stats.closure.heatmap.weekday.6</source><target>Sat</target></trans-unit>
+      <trans-unit id="statsClosure52" resname="stats.closure.heatmap.weekday.7"><source>stats.closure.heatmap.weekday.7</source><target>Sun</target></trans-unit>
+      <trans-unit id="statsClosure53" resname="stats.closure.events.title"><source>stats.closure.events.title</source><target>Closure groups and individual events</target></trans-unit>
+      <trans-unit id="statsClosure54" resname="stats.closure.events.event"><source>stats.closure.events.event</source><target>Event</target></trans-unit>
+      <trans-unit id="statsClosure55" resname="stats.closure.events.children"><source>stats.closure.events.children</source><target>Individual closures</target></trans-unit>
+      <trans-unit id="statsClosure56" resname="stats.closure.events.ungrouped"><source>stats.closure.events.ungrouped</source><target>Ungrouped individual closure</target></trans-unit>
+      <trans-unit id="statsClosure57" resname="stats.closure.event.title"><source>stats.closure.event.title</source><target>Closure event</target></trans-unit>
+      <trans-unit id="statsClosure58" resname="stats.closure.event.timeline"><source>stats.closure.event.timeline</source><target>Timeline of individual closures</target></trans-unit>
+      <trans-unit id="statsClosure59" resname="stats.closure.timeline.title"><source>stats.closure.timeline.title</source><target>Timeline and drilldown</target></trans-unit>
+      <trans-unit id="statsClosure60" resname="stats.closure.timeline.back"><source>stats.closure.timeline.back</source><target>Back one level</target></trans-unit>
+      <trans-unit id="statsClosureTimeline01" resname="stats.closure.timeline.events"><source>stats.closure.timeline.events</source><target>events</target></trans-unit>
+      <trans-unit id="statsClosureTimeline02" resname="stats.closure.timeline.legend.none"><source>stats.closure.timeline.legend.none</source><target>No closure represented</target></trans-unit>
+      <trans-unit id="statsClosureTimeline03" resname="stats.closure.timeline.legend.closed"><source>stats.closure.timeline.legend.closed</source><target>At least one closure</target></trans-unit>
+      <trans-unit id="statsClosureTimeline04" resname="stats.closure.timeline.legend.multiple"><source>stats.closure.timeline.legend.multiple</source><target>Multiple concurrent groups</target></trans-unit>
+      <trans-unit id="statsClosureTimeline05" resname="stats.closure.timeline.legend.note"><source>stats.closure.timeline.legend.note</source><target>Neutral cells only mean that no closure is represented; they do not prove that the department was open or completely observed.</target></trans-unit>
+      <trans-unit id="statsClosureTimeline06" resname="stats.closure.timeline.breadcrumb.label"><source>stats.closure.timeline.breadcrumb.label</source><target>Drilldown navigation</target></trans-unit>
+      <trans-unit id="statsClosureTimeline07" resname="stats.closure.timeline.breadcrumb.overview"><source>stats.closure.timeline.breadcrumb.overview</source><target>Entire period</target></trans-unit>
+      <trans-unit id="statsClosureTimeline08" resname="stats.closure.timeline.breadcrumb.quarter"><source>stats.closure.timeline.breadcrumb.quarter</source><target>Quarters</target></trans-unit>
+      <trans-unit id="statsClosureTimeline09" resname="stats.closure.timeline.breadcrumb.month"><source>stats.closure.timeline.breadcrumb.month</source><target>Months</target></trans-unit>
+      <trans-unit id="statsClosureTimeline10" resname="stats.closure.timeline.breadcrumb.week"><source>stats.closure.timeline.breadcrumb.week</source><target>Weeks</target></trans-unit>
+      <trans-unit id="statsClosureTimeline11" resname="stats.closure.timeline.breadcrumb.day"><source>stats.closure.timeline.breadcrumb.day</source><target>Days</target></trans-unit>
+      <trans-unit id="statsClosureTimeline12" resname="stats.closure.timeline.breadcrumb.events"><source>stats.closure.timeline.breadcrumb.events</source><target>Events</target></trans-unit>
+      <trans-unit id="statsClosureTabs01" resname="stats.closure.tabs.label"><source>stats.closure.tabs.label</source><target>Closure analytics sections</target></trans-unit>
+      <trans-unit id="statsClosureTabs02" resname="stats.closure.tabs.overview"><source>stats.closure.tabs.overview</source><target>Overview</target></trans-unit>
+      <trans-unit id="statsClosureTabs03" resname="stats.closure.tabs.timeline"><source>stats.closure.tabs.timeline</source><target>Timeline drilldown</target></trans-unit>
+      <trans-unit id="statsClosureTabs04" resname="stats.closure.tabs.events"><source>stats.closure.tabs.events</source><target>Groups and events</target></trans-unit>
+      <trans-unit id="statsClosureWeek01" resname="stats.closure.timeline.period_departments.title.week"><source>stats.closure.timeline.period_departments.title.week</source><target>Departments and urgency levels over the week</target></trans-unit>
+      <trans-unit id="statsClosureWeek02" resname="stats.closure.timeline.period_departments.help.week"><source>stats.closure.timeline.period_departments.help.week</source><target>Urgency levels are grouped by department. The grid divides the week into days and six-hour sections; overlapping closures in the same row are shown as one continuous red period.</target></trans-unit>
+      <trans-unit id="statsClosurePeriod01" resname="stats.closure.timeline.period_departments.title.month"><source>stats.closure.timeline.period_departments.title.month</source><target>Departments and urgency levels over the month</target></trans-unit>
+      <trans-unit id="statsClosurePeriod02" resname="stats.closure.timeline.period_departments.help.month"><source>stats.closure.timeline.period_departments.help.month</source><target>Urgency levels are grouped by department. The grid is divided into calendar days; red bars show the actual closure periods.</target></trans-unit>
+      <trans-unit id="statsClosurePeriod03" resname="stats.closure.timeline.period_departments.title.quarter"><source>stats.closure.timeline.period_departments.title.quarter</source><target>Departments and urgency levels over the quarter</target></trans-unit>
+      <trans-unit id="statsClosurePeriod04" resname="stats.closure.timeline.period_departments.help.quarter"><source>stats.closure.timeline.period_departments.help.quarter</source><target>Urgency levels are grouped by department. The header is divided into calendar weeks and the finer grid into days.</target></trans-unit>
+      <trans-unit id="statsClosurePeriod05" resname="stats.closure.timeline.period_departments.jump"><source>stats.closure.timeline.period_departments.jump</source><target>Jump directly to {period}</target></trans-unit>
+      <trans-unit id="statsClosureFilterReason" resname="stats.closure.filter.reasons"><source>stats.closure.filter.reasons</source><target>Closure reasons</target></trans-unit>
+      <trans-unit id="statsClosureFilterUnit" resname="stats.closure.filter.closure_units"><source>stats.closure.filter.closure_units</source><target>Local closure units</target></trans-unit>
+      <trans-unit id="statsClosureOverview01" resname="stats.closure.kpi.concurrency"><source>stats.closure.kpi.concurrency</source><target>Concurrent closure groups</target></trans-unit>
+      <trans-unit id="statsClosureOverview02" resname="stats.closure.kpi.single_short"><source>stats.closure.kpi.single_short</source><target>Exactly one group</target></trans-unit>
+      <trans-unit id="statsClosureOverview03" resname="stats.closure.kpi.multiple_short"><source>stats.closure.kpi.multiple_short</source><target>Multiple groups</target></trans-unit>
+      <trans-unit id="statsClosureOverview04" resname="stats.closure.breakdown.show_all"><source>stats.closure.breakdown.show_all</source><target>Show all {count} entries</target></trans-unit>
+      <trans-unit id="statsClosureOverview10" resname="stats.closure.breakdown.show_less"><source>stats.closure.breakdown.show_less</source><target>Show less</target></trans-unit>
+      <trans-unit id="statsClosureOverview06" resname="stats.closure.breakdown.unit"><source>stats.closure.breakdown.unit</source><target>Closure unit</target></trans-unit>
+      <trans-unit id="statsClosureOverview07" resname="stats.closure.breakdown.share"><source>stats.closure.breakdown.share</source><target>Share</target></trans-unit>
+      <trans-unit id="statsClosureOverview08" resname="stats.closure.breakdown.closure_count"><source>stats.closure.breakdown.closure_count</source><target>{count, plural, one {# closure} other {# closures}}</target></trans-unit>
+      <trans-unit id="statsClosure61" resname="stats.closure.chart.share"><source>stats.closure.chart.share</source><target>Closure share</target></trans-unit>
+      <trans-unit id="statsClosure62" resname="stats.closure.chart.observed_suffix"><source>stats.closure.chart.observed_suffix</source><target>of observed time</target></trans-unit>
+      <trans-unit id="statsClosure63" resname="stats.closure.chart.observed_hours"><source>stats.closure.chart.observed_hours</source><target>observed hours</target></trans-unit>
+      <trans-unit id="statsClosure64" resname="stats.closure.filter.departments"><source>stats.closure.filter.departments</source><target>Departments</target></trans-unit>
+      <trans-unit id="statsClosure65" resname="stats.closure.filter.departments_hint"><source>stats.closure.filter.departments_hint</source><target>Multiple selection is possible. The filter applies to metrics, trends, heatmap and details.</target></trans-unit>
+      <trans-unit id="statsClosure66" resname="stats.closure.filter.apply"><source>stats.closure.filter.apply</source><target>Apply</target></trans-unit>
+      <trans-unit id="statsClosure67" resname="stats.closure.filter.reset"><source>stats.closure.filter.reset</source><target>Reset</target></trans-unit>
+      <trans-unit id="statsClosure68" resname="stats.closure.kpi.share_unavailable"><source>stats.closure.kpi.share_unavailable</source><target>United per hospital, then summed. Share unavailable: export period is unknown.</target></trans-unit>
+      <trans-unit id="statsClosure69" resname="stats.closure.kpi.sum_duration_hint"><source>stats.closure.kpi.sum_duration_hint</source><target>Individual durations including concurrent closures</target></trans-unit>
+      <trans-unit id="statsClosure70" resname="stats.closure.kpi.events"><source>stats.closure.kpi.events</source><target>Groups / events</target></trans-unit>
+      <trans-unit id="statsClosure71" resname="stats.closure.coverage.unknown"><source>stats.closure.coverage.unknown</source><target>The export's actual observation period is unknown.</target></trans-unit>
+      <trans-unit id="statsClosure72" resname="stats.closure.coverage.unknown_description"><source>stats.closure.coverage.unknown_description</source><target>The calculated sum of import-derived time spans is {observed} and is only a guide. No percentage is calculated from it.</target></trans-unit>
+      <trans-unit id="statsClosure73" resname="stats.closure.heatmap.duration_help"><source>stats.closure.heatmap.duration_help</source><target>Colour: merged actual closure duration per weekday and two-hour slot; not a percentage.</target></trans-unit>
+      <trans-unit id="statsClosure74" resname="stats.closure.chart.duration"><source>stats.closure.chart.duration</source><target>Actual closure duration</target></trans-unit>
+      <trans-unit id="statsClosure75" resname="stats.closure.chart.hours"><source>stats.closure.chart.hours</source><target>hours</target></trans-unit>
+      <trans-unit id="statsClosure76" resname="stats.closure.filter.multiple_hint"><source>stats.closure.filter.multiple_hint</source><target>Multiple selection is possible.</target></trans-unit>
     </body>
   </file>
 </xliff>
