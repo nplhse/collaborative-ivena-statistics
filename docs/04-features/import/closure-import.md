@@ -44,3 +44,12 @@ Not read: the long `Krankenhaus` address, `KHS-Versorgungsgebiet`, `Art der Einr
 Invalid rows are rejected with a message and are not stored. The same reject writer, import status, and deletion cleanup as allocation imports apply. Deleting an import removes its closure intervals.
 
 Adding a new shared reason, care level, or facility kind is a catalog class under `src/Import/Application/Mapping/`. Adding or renaming a column is `ClosureRowMapper`. The import loop stays the same.
+
+## Analytics coverage limitation
+
+The export period selected in IVENA is not part of the CSV and is therefore not
+stored on the import. Closure Analytics estimates observation coverage per import
+as the span from its earliest closure start to its latest closure end. This is not
+proof that the export was complete and is shown only as orientation. Closure
+Analytics does not use the span as a denominator or report open/closed
+percentages; time outside it remains unknown.

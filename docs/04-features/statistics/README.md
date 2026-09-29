@@ -15,6 +15,7 @@
 | DataQuality | Dashboard badges | Traffic-light data quality indicator |
 | CaseFlow | `/statistics/case-flow` | Regional flow metrics and maps |
 | ClosedDepartmentAssignments | `/statistics/closed-department-assignments` | Notzuweisungen / forced assignments (one lazy rankings frame for the six cards; KPI + grouping-sets slice on first paint) |
+| ClosureAnalytics | `/statistics/closure-analytics` | Hospital-local closure groups, canonical individual intervals, estimated observation coverage, overlap-aware actual closure time, timeline drilldown, and weekday/time heatmap |
 | HospitalPopulation | `/statistics/hospital-population/{section}` | Hospital population: Participation, Coverage, Beds, Allocations |
 | Isochrone origin heatmap | Overview / Insights / closed-department analysis (hospital scope) | Lazy travel-time isochrone map |
 
@@ -32,6 +33,7 @@
 | [overview-dashboard-performance.md](overview-dashboard-performance.md) | Overview default scope and profiler hotspots |
 | [case-flow.md](case-flow.md) | Geographic / case flow analysis |
 | [closed-department-assignments.md](closed-department-assignments.md) | Notzuweisungen / forced assignments |
+| [closure-analytics.md](closure-analytics.md) | Interval-based closure analytics |
 | [hospital-population.md](hospital-population.md) | Hospital population dashboard (Participation / Coverage / Beds / Allocations) |
 | [directional-indicators.md](directional-indicators.md) | Shared delta colour, sign, and unit |
 | [ranking-table.md](ranking-table.md) | Ranking table separate from DataTable |
