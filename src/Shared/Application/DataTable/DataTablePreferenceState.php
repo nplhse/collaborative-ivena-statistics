@@ -18,6 +18,24 @@ final readonly class DataTablePreferenceState
     }
 
     /**
+     * Visible columns in the configured left-to-right order.
+     *
+     * @return list<string>
+     */
+    public function visibleOrderedKeys(): array
+    {
+        $visible = array_fill_keys($this->visibleColumns, true);
+        $keys = [];
+        foreach ($this->columnOrder as $key) {
+            if (isset($visible[$key])) {
+                $keys[] = $key;
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
      * @return array{visibleColumns: list<string>, columnOrder: list<string>, pageSize: int}
      */
     public function toArray(): array

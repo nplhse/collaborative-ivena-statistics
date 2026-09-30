@@ -7129,6 +7129,9 @@
       <trans-unit id="statsClosureTableSumDe" resname="stats.closure.table.sum"><source>stats.closure.table.sum</source><target>Summe</target></trans-unit>
       <trans-unit id="statsClosureTableDurationDe" resname="stats.closure.table.duration"><source>stats.closure.table.duration</source><target>Dauer</target></trans-unit>
       <trans-unit id="statsClosureTableReasonDe" resname="stats.closure.table.reason"><source>stats.closure.table.reason</source><target>Grund</target></trans-unit>
+      <trans-unit id="statsClosureTableExportDe" resname="stats.closure.table.export"><source>stats.closure.table.export</source><target>CSV</target></trans-unit>
+      <trans-unit id="statsClosureExportEventsDe" resname="stats.closure.export.events"><source>stats.closure.export.events</source><target>Schließungsereignisse</target></trans-unit>
+      <trans-unit id="statsClosureExportIntervalsDe" resname="stats.closure.export.intervals"><source>stats.closure.export.intervals</source><target>Schließungsintervalle</target></trans-unit>
       <trans-unit id="statsClosure54" resname="stats.closure.events.event"><source>stats.closure.events.event</source><target>Ereignis</target></trans-unit>
       <trans-unit id="statsClosure55" resname="stats.closure.events.children"><source>stats.closure.events.children</source><target>Einzelschließungen</target></trans-unit>
       <trans-unit id="statsClosure56" resname="stats.closure.events.ungrouped"><source>stats.closure.events.ungrouped</source><target>Einzelschließung ohne Gruppe</target></trans-unit>

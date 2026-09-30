@@ -92,6 +92,9 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         $events = $eventQuery->fetchEvents($criteria, 0, 25, 'startsAt', 'desc');
         self::assertSame(2, $eventQuery->countEvents($criteria));
         self::assertCount(2, $events);
+        $iterated = iterator_to_array($eventQuery->iterateEvents($criteria, 'startsAt', 'desc'), false);
+        self::assertCount(2, $iterated);
+        self::assertSame($events[0]->key, $iterated[0]->key);
         self::assertNotEmpty($events[0]->children);
         $ascending = $eventQuery->fetchEvents($criteria, 0, 25, 'startsAt', 'asc');
         self::assertTrue($ascending[0]->startsAt < $ascending[1]->startsAt);
@@ -259,6 +262,9 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         $intervals = $eventQuery->fetchIntervals($criteria, 0, 25, 'department', 'asc');
         self::assertSame(3, $eventQuery->countIntervals($criteria));
         self::assertCount(3, $intervals);
+        $iteratedIntervals = iterator_to_array($eventQuery->iterateIntervals($criteria, 'department', 'asc'), false);
+        self::assertCount(3, $iteratedIntervals);
+        self::assertSame($intervals[0]->id, $iteratedIntervals[0]->id);
         self::assertSame('Cluster Department A', $intervals[0]->departmentName);
         self::assertSame('Cluster Speciality', $intervals[0]->specialityName);
         self::assertSame('Cluster A', $intervals[0]->closureUnit);

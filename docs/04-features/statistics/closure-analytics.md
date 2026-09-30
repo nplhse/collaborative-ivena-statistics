@@ -151,6 +151,14 @@ values fall back to start time descending. Column keys are likewise validated
 against the declared table configuration. No request value is interpolated as an
 arbitrary SQL identifier.
 
+The events table can export the current view as CSV (`/statistics/closure-analytics/export.csv`).
+The file uses the same scope, period, Closure filters, event/interval view, sort
+allowlist, and resolved visible columns (including left-to-right order) as the
+HTML table. Pagination is ignored: the stream contains every matching row, not
+only the current page. Cell values are semantic (translated labels, Berlin
+datetimes, humanized durations), not HTML. Presentation preferences still apply
+when the URL does not override columns.
+
 ## Event and interval detail
 
 Group, cluster and individual-closure detail pages follow the Explore entity-show

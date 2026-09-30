@@ -26,6 +26,17 @@
             rowTestId="stats-closure-event-row"
         >
             <twig:block name="toolbar">
+                {% set exportQuery = app.request.query.all|merge({page: null, limit: null}) %}
+                <a
+                    href="{{ path('app_stats_closure_analytics_export_csv', exportQuery) }}"
+                    class="btn btn-sm btn-outline-secondary"
+                    target="_top"
+                    data-turbo="false"
+                    data-testid="stats-closure-table-export"
+                >
+                    <twig:ux:icon name="tabler:download" class="icon" />
+                    {{ 'stats.closure.table.export'|trans({}, 'statistics') }}
+                </a>
                 <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.closure.table.view'|trans({}, 'statistics') }}" data-testid="stats-closure-table-view">
                     <a
                         href="{{ path('app_stats_closure_analytics_details', viewQuery|merge({tableView: 'events'})) }}"

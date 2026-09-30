@@ -30,74 +30,32 @@ final readonly class ClosureEventQuery
         string $sortBy,
         string $orderBy,
     ): array {
-        [$base, $params, $types] = ClosureTemporalSql::base($criteria);
-        $sortExpression = $this->sortExpression($sortBy);
-        $direction = 'asc' === strtolower($orderBy) ? 'ASC' : 'DESC';
+        [$sql, $params, $types] = $this->eventsStatement($criteria, $sortBy, $orderBy);
+        $sql .= "\nLIMIT :limit OFFSET :offset";
 
         /** @var list<array<string, int|string|null>> $rows */
-        $rows = $this->connection->fetchAllAssociative(<<<SQL
-WITH {$base},
-listed_event_points_raw AS (
-    SELECT event_key, hospital_id, clipped_start AS point, 1 AS delta FROM valid_closures
-    UNION ALL
-    SELECT event_key, hospital_id, clipped_end AS point, -1 AS delta FROM valid_closures
-),
-listed_event_points AS (
-    SELECT event_key, hospital_id, point, SUM(delta) AS delta
-    FROM listed_event_points_raw GROUP BY event_key, hospital_id, point
-),
-listed_event_sweep AS (
-    SELECT event_key, hospital_id, point AS segment_start,
-           LEAD(point) OVER (PARTITION BY event_key, hospital_id ORDER BY point) AS segment_end,
-           SUM(delta) OVER (PARTITION BY event_key, hospital_id ORDER BY point ROWS UNBOUNDED PRECEDING) AS active_count
-    FROM listed_event_points
-),
-listed_event_actual AS (
-    SELECT event_key,
-           SUM(EXTRACT(EPOCH FROM (segment_end - segment_start)) / 60.0) AS actual_minutes
-    FROM listed_event_sweep WHERE active_count > 0 AND segment_start < segment_end
-    GROUP BY event_key
-),
-hospital_observed AS (
-    SELECT hospital_id, SUM(EXTRACT(EPOCH FROM (segment_end - segment_start)) / 60.0) AS observed_minutes
-    FROM observed_segments GROUP BY hospital_id
-),
-event_totals AS (
-    SELECT v.event_key, MIN(v.event_type) AS event_type, v.hospital_id,
-           NULLIF(BTRIM(MIN(v.source_group_id)), '') AS source_group_id,
-           MIN(v.clipped_start) AS starts_at, MAX(v.clipped_end) AS ends_at,
-           COUNT(*)::int AS closure_count,
-           SUM(EXTRACT(EPOCH FROM (v.clipped_end - v.clipped_start)) / 60.0) AS summed_minutes,
-           JSONB_AGG(JSONB_BUILD_OBJECT(
-               'id', v.id,
-               'speciality', s.name,
-               'department', d.name,
-               'careLevel', v.care_level,
-               'reason', v.reason,
-               'closureUnit', v.closure_unit,
-               'startsAt', v.clipped_start,
-               'endsAt', v.clipped_end
-           ) ORDER BY v.clipped_start, v.id) AS children
-    FROM valid_closures v
-    JOIN speciality s ON s.id = v.speciality_id
-    JOIN department d ON d.id = v.department_id
-    GROUP BY v.event_key, v.hospital_id
-)
-SELECT e.event_key, e.event_type, e.hospital_id, h.name AS hospital_name, e.source_group_id,
-       e.starts_at, e.ends_at, e.closure_count,
-       ROUND(e.summed_minutes)::int AS summed_minutes,
-       ROUND(a.actual_minutes)::int AS actual_minutes,
-       ROUND(o.observed_minutes)::int AS observed_minutes,
-       e.children::text AS children
-FROM event_totals e
-JOIN listed_event_actual a USING (event_key)
-JOIN hospital_observed o ON o.hospital_id = e.hospital_id
-JOIN hospital h ON h.id = e.hospital_id
-ORDER BY {$sortExpression} {$direction} NULLS LAST, e.event_key ASC
-LIMIT :limit OFFSET :offset
-SQL, [...$params, 'limit' => max(1, $limit), 'offset' => max(0, $offset)], [...$types, 'limit' => ParameterType::INTEGER, 'offset' => ParameterType::INTEGER]);
+        $rows = $this->connection->fetchAllAssociative(
+            $sql,
+            [...$params, 'limit' => max(1, $limit), 'offset' => max(0, $offset)],
+            [...$types, 'limit' => ParameterType::INTEGER, 'offset' => ParameterType::INTEGER],
+        );
 
         return array_map($this->eventRow(...), $rows);
+    }
+
+    /**
+     * @return iterable<int, ClosureEventRow>
+     */
+    public function iterateEvents(
+        ClosureAnalyticsCriteria $criteria,
+        string $sortBy,
+        string $orderBy,
+    ): iterable {
+        [$sql, $params, $types] = $this->eventsStatement($criteria, $sortBy, $orderBy);
+        foreach ($this->connection->iterateAssociative($sql, $params, $types) as $row) {
+            /* @var array<string, int|string|null> $row */
+            yield $this->eventRow($row);
+        }
     }
 
     public function countEvents(ClosureAnalyticsCriteria $criteria): int
@@ -120,28 +78,32 @@ SQL, $params, $types);
         string $sortBy,
         string $orderBy,
     ): array {
-        [$base, $params, $types] = ClosureTemporalSql::base($criteria);
-        $sortExpression = $this->intervalSortExpression($sortBy);
-        $direction = 'asc' === strtolower($orderBy) ? 'ASC' : 'DESC';
+        [$sql, $params, $types] = $this->intervalsStatement($criteria, $sortBy, $orderBy);
+        $sql .= "\nLIMIT :limit OFFSET :offset";
 
         /** @var list<array<string, int|string|null>> $rows */
-        $rows = $this->connection->fetchAllAssociative(<<<SQL
-WITH {$base}
-SELECT v.id, v.event_key, v.event_type, h.name AS hospital_name,
-       s.name AS speciality_name, d.name AS department_name,
-       v.clipped_start AS starts_at, v.clipped_end AS ends_at,
-       v.care_level, v.reason, v.closure_unit,
-       NULLIF(BTRIM(v.source_group_id), '') AS source_group_id,
-       ROUND(EXTRACT(EPOCH FROM (v.clipped_end - v.clipped_start)) / 60.0)::int AS duration_minutes
-FROM valid_closures v
-JOIN hospital h ON h.id = v.hospital_id
-JOIN speciality s ON s.id = v.speciality_id
-JOIN department d ON d.id = v.department_id
-ORDER BY {$sortExpression} {$direction} NULLS LAST, v.id ASC
-LIMIT :limit OFFSET :offset
-SQL, [...$params, 'limit' => max(1, $limit), 'offset' => max(0, $offset)], [...$types, 'limit' => ParameterType::INTEGER, 'offset' => ParameterType::INTEGER]);
+        $rows = $this->connection->fetchAllAssociative(
+            $sql,
+            [...$params, 'limit' => max(1, $limit), 'offset' => max(0, $offset)],
+            [...$types, 'limit' => ParameterType::INTEGER, 'offset' => ParameterType::INTEGER],
+        );
 
         return array_map($this->intervalTableRow(...), $rows);
+    }
+
+    /**
+     * @return iterable<int, ClosureIntervalTableRow>
+     */
+    public function iterateIntervals(
+        ClosureAnalyticsCriteria $criteria,
+        string $sortBy,
+        string $orderBy,
+    ): iterable {
+        [$sql, $params, $types] = $this->intervalsStatement($criteria, $sortBy, $orderBy);
+        foreach ($this->connection->iterateAssociative($sql, $params, $types) as $row) {
+            /* @var array<string, int|string|null> $row */
+            yield $this->intervalTableRow($row);
+        }
     }
 
     public function countIntervals(ClosureAnalyticsCriteria $criteria): int
@@ -287,6 +249,106 @@ SQL, $params, $types);
             (int) $row['observed_minutes'],
             $this->eventChildren($row['children'] ?? null),
         );
+    }
+
+    /**
+     * @return array{0: string, 1: array<string, mixed>, 2: array<string, mixed>}
+     */
+    private function eventsStatement(ClosureAnalyticsCriteria $criteria, string $sortBy, string $orderBy): array
+    {
+        [$base, $params, $types] = ClosureTemporalSql::base($criteria);
+        $sortExpression = $this->sortExpression($sortBy);
+        $direction = 'asc' === strtolower($orderBy) ? 'ASC' : 'DESC';
+
+        $sql = <<<SQL
+WITH {$base},
+listed_event_points_raw AS (
+    SELECT event_key, hospital_id, clipped_start AS point, 1 AS delta FROM valid_closures
+    UNION ALL
+    SELECT event_key, hospital_id, clipped_end AS point, -1 AS delta FROM valid_closures
+),
+listed_event_points AS (
+    SELECT event_key, hospital_id, point, SUM(delta) AS delta
+    FROM listed_event_points_raw GROUP BY event_key, hospital_id, point
+),
+listed_event_sweep AS (
+    SELECT event_key, hospital_id, point AS segment_start,
+           LEAD(point) OVER (PARTITION BY event_key, hospital_id ORDER BY point) AS segment_end,
+           SUM(delta) OVER (PARTITION BY event_key, hospital_id ORDER BY point ROWS UNBOUNDED PRECEDING) AS active_count
+    FROM listed_event_points
+),
+listed_event_actual AS (
+    SELECT event_key,
+           SUM(EXTRACT(EPOCH FROM (segment_end - segment_start)) / 60.0) AS actual_minutes
+    FROM listed_event_sweep WHERE active_count > 0 AND segment_start < segment_end
+    GROUP BY event_key
+),
+hospital_observed AS (
+    SELECT hospital_id, SUM(EXTRACT(EPOCH FROM (segment_end - segment_start)) / 60.0) AS observed_minutes
+    FROM observed_segments GROUP BY hospital_id
+),
+event_totals AS (
+    SELECT v.event_key, MIN(v.event_type) AS event_type, v.hospital_id,
+           NULLIF(BTRIM(MIN(v.source_group_id)), '') AS source_group_id,
+           MIN(v.clipped_start) AS starts_at, MAX(v.clipped_end) AS ends_at,
+           COUNT(*)::int AS closure_count,
+           SUM(EXTRACT(EPOCH FROM (v.clipped_end - v.clipped_start)) / 60.0) AS summed_minutes,
+           JSONB_AGG(JSONB_BUILD_OBJECT(
+               'id', v.id,
+               'speciality', s.name,
+               'department', d.name,
+               'careLevel', v.care_level,
+               'reason', v.reason,
+               'closureUnit', v.closure_unit,
+               'startsAt', v.clipped_start,
+               'endsAt', v.clipped_end
+           ) ORDER BY v.clipped_start, v.id) AS children
+    FROM valid_closures v
+    JOIN speciality s ON s.id = v.speciality_id
+    JOIN department d ON d.id = v.department_id
+    GROUP BY v.event_key, v.hospital_id
+)
+SELECT e.event_key, e.event_type, e.hospital_id, h.name AS hospital_name, e.source_group_id,
+       e.starts_at, e.ends_at, e.closure_count,
+       ROUND(e.summed_minutes)::int AS summed_minutes,
+       ROUND(a.actual_minutes)::int AS actual_minutes,
+       ROUND(o.observed_minutes)::int AS observed_minutes,
+       e.children::text AS children
+FROM event_totals e
+JOIN listed_event_actual a USING (event_key)
+JOIN hospital_observed o ON o.hospital_id = e.hospital_id
+JOIN hospital h ON h.id = e.hospital_id
+ORDER BY {$sortExpression} {$direction} NULLS LAST, e.event_key ASC
+SQL;
+
+        return [$sql, $params, $types];
+    }
+
+    /**
+     * @return array{0: string, 1: array<string, mixed>, 2: array<string, mixed>}
+     */
+    private function intervalsStatement(ClosureAnalyticsCriteria $criteria, string $sortBy, string $orderBy): array
+    {
+        [$base, $params, $types] = ClosureTemporalSql::base($criteria);
+        $sortExpression = $this->intervalSortExpression($sortBy);
+        $direction = 'asc' === strtolower($orderBy) ? 'ASC' : 'DESC';
+
+        $sql = <<<SQL
+WITH {$base}
+SELECT v.id, v.event_key, v.event_type, h.name AS hospital_name,
+       s.name AS speciality_name, d.name AS department_name,
+       v.clipped_start AS starts_at, v.clipped_end AS ends_at,
+       v.care_level, v.reason, v.closure_unit,
+       NULLIF(BTRIM(v.source_group_id), '') AS source_group_id,
+       ROUND(EXTRACT(EPOCH FROM (v.clipped_end - v.clipped_start)) / 60.0)::int AS duration_minutes
+FROM valid_closures v
+JOIN hospital h ON h.id = v.hospital_id
+JOIN speciality s ON s.id = v.speciality_id
+JOIN department d ON d.id = v.department_id
+ORDER BY {$sortExpression} {$direction} NULLS LAST, v.id ASC
+SQL;
+
+        return [$sql, $params, $types];
     }
 
     private function sortExpression(string $sortBy): string
