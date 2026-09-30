@@ -1,0 +1,161 @@
+<twig:FilterDrawer
+    id="statistics-filters-drawer"
+    formId="closure-analytics-filter-form"
+    formAction="{{ app.request.pathInfo }}"
+    :preserveQuery="true"
+    :omitQueryKeys="closureFilterDrawer.filterKeys"
+    resetUrl="{{ statsFilterDrawerResetUrl }}"
+    testId="statistics-filters-drawer"
+    cancelTestId="statistics-filters-cancel"
+    applyTestId="statistics-filters-apply"
+    resetTestId="statistics-filters-reset"
+>
+    <div class="row g-2 mb-4">
+        <div class="col-6">
+            <label class="form-label" for="closure-filter-from">{{ 'field.dateFrom'|trans({}, 'messages') }}</label>
+            <input type="date"
+                   id="closure-filter-from"
+                   name="closureFrom"
+                   class="form-control"
+                   value="{{ closureFilterDrawer.values.fromDate }}"
+                   autocomplete="off"
+                   data-testid="closure-filter-from">
+        </div>
+        <div class="col-6">
+            <label class="form-label" for="closure-filter-to">{{ 'field.dateTo'|trans({}, 'messages') }}</label>
+            <input type="date"
+                   id="closure-filter-to"
+                   name="closureTo"
+                   class="form-control"
+                   value="{{ closureFilterDrawer.values.toDate }}"
+                   autocomplete="off"
+                   data-testid="closure-filter-to">
+        </div>
+        <div class="col-12">
+            <div class="form-hint">{{ 'stats.closure.filter.dates_hint'|trans({}, 'statistics') }}</div>
+        </div>
+    </div>
+
+    {% if closureFilterDrawer.showHospitals %}
+        <div class="mb-4">
+            <label class="form-label" for="closure-filter-hospitals">{{ 'label.hospital'|trans({}, 'messages') }}</label>
+            <select id="closure-filter-hospitals"
+                    name="closureHospitals[]"
+                    class="form-select"
+                    multiple
+                    size="8"
+                    data-testid="closure-filter-hospitals">
+                {% for choice in closureFilterDrawer.choices.hospitals %}
+                    <option value="{{ choice.id }}" {{ choice.id in closureFilterDrawer.values.hospitals ? 'selected' }}>
+                        {{ choice.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+        </div>
+    {% endif %}
+
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-departments">{{ 'label.department'|trans({}, 'messages') }}</label>
+        <select id="closure-filter-departments"
+                name="closureDepartments[]"
+                class="form-select"
+                multiple
+                size="8"
+                data-testid="closure-filter-departments">
+            {% for choice in closureFilterDrawer.choices.departments %}
+                <option value="{{ choice.id }}" {{ choice.id in closureFilterDrawer.values.departments ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-specialities">{{ 'label.speciality'|trans({}, 'messages') }}</label>
+        <select id="closure-filter-specialities"
+                name="closureSpecialities[]"
+                class="form-select"
+                multiple
+                size="8"
+                data-testid="closure-filter-specialities">
+            {% for choice in closureFilterDrawer.choices.specialities %}
+                <option value="{{ choice.id }}" {{ choice.id in closureFilterDrawer.values.specialities ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-care-levels">{{ 'label.urgency'|trans({}, 'messages') }}</label>
+        <select id="closure-filter-care-levels"
+                name="closureCareLevels[]"
+                class="form-select"
+                multiple
+                size="4"
+                data-testid="closure-filter-care-levels">
+            {% for choice in closureFilterDrawer.choices.careLevels %}
+                <option value="{{ choice.value }}" {{ choice.value in closureFilterDrawer.values.careLevels ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-reasons">{{ 'stats.closure.filter.reasons'|trans({}, 'statistics') }}</label>
+        <select id="closure-filter-reasons"
+                name="closureReasons[]"
+                class="form-select"
+                multiple
+                size="5"
+                data-testid="closure-filter-reasons">
+            {% for choice in closureFilterDrawer.choices.reasons %}
+                <option value="{{ choice.value }}" {{ choice.value in closureFilterDrawer.values.reasons ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-event-types">{{ 'stats.closure.filter.event_types'|trans({}, 'statistics') }}</label>
+        <select id="closure-filter-event-types"
+                name="closureEventTypes[]"
+                class="form-select"
+                multiple
+                size="3"
+                data-testid="closure-filter-event-types">
+            {% for choice in closureFilterDrawer.choices.eventTypes %}
+                <option value="{{ choice.value }}" {{ choice.value in closureFilterDrawer.values.eventTypes ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
+    {% if closureFilterDrawer.showClosureUnits %}
+        <div class="mb-4">
+            <label class="form-label" for="closure-filter-units">{{ 'stats.closure.filter.closure_units'|trans({}, 'statistics') }}</label>
+            <select id="closure-filter-units"
+                    name="closureUnits[]"
+                    class="form-select"
+                    multiple
+                    size="6"
+                    data-testid="closure-filter-units">
+                {% for choice in closureFilterDrawer.choices.closureUnits %}
+                    <option value="{{ choice.value }}" {{ choice.value in closureFilterDrawer.values.closureUnits ? 'selected' }}>
+                        {{ choice.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="form-hint">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
+        </div>
+    {% endif %}
+</twig:FilterDrawer>

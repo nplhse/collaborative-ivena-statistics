@@ -1,0 +1,59 @@
+<div data-testid="stats-closure-breakdowns">
+    <div class="row row-cards g-3">
+        {% for kind, title in {
+            hospital: 'stats.closure.breakdown.hospital',
+            speciality: 'stats.closure.breakdown.speciality',
+            department: 'stats.closure.breakdown.department',
+        } %}
+            <div class="col-12 col-lg-4">
+                {{ include('@Statistics/closure_analytics/_breakdown_card.html.twig', {
+                    kind: kind,
+                    title: title,
+                    rows: dashboard.breakdowns[kind],
+                    totalMinutes: dashboard.metrics.closedMinutes,
+                    expandable: true,
+                    cardClass: 'h-100',
+                }, false) }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="card mt-3" data-testid="stats-closure-units">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'stats.closure.breakdown.closure_unit'|trans({}, 'statistics') }}</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm table-vcenter card-table">
+                <thead>
+                <tr>
+                    <th>{{ 'stats.closure.breakdown.unit'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.closure.kpi.actual_duration'|trans({}, 'statistics') }}</th>
+                    <th class="text-end">{{ 'stats.closure.breakdown.share'|trans({}, 'statistics') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in dashboard.breakdowns.closure_unit %}
+                    {% set percent = dashboard.metrics.closedMinutes > 0 ? row.actualMinutes / dashboard.metrics.closedMinutes * 100 : 0 %}
+                    <tr>
+                        <td>
+                            {% if statisticsFilter.scope.value in ['hospital', 'my_hospitals'] %}
+                                <a href="{{ path('app_stats_closure_analytics_timeline', app.request.query.all|merge({closureUnits: [row.key]})) }}"
+                                   data-testid="stats-closure-unit-timeline-link">
+                                    {{ row.name }}
+                                    <twig:ux:icon name="tabler:arrow-right" class="icon ms-1" />
+                                </a>
+                            {% else %}
+                                {{ row.name }}
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">{{ row.actualMinutes|closure_duration }}</td>
+                        <td class="text-end text-nowrap">{{ percent|number_format(1, ',', '.') }}%</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="3" class="text-muted">—</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

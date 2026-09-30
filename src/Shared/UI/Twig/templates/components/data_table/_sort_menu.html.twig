@@ -1,0 +1,77 @@
+<div class="btn-group">
+    <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-no-caret"
+        data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        aria-expanded="false"
+        aria-label="{{ 'label.data_table.sort'|trans({}, 'shared') }}"
+        title="{{ 'label.data_table.sort'|trans({}, 'shared') }}"
+        data-testid="data-table-sort"
+    >
+        <twig:ux:icon name="tabler:arrows-sort" class="icon" />
+        {{ 'label.data_table.sort'|trans({}, 'shared') }}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end data-table-popover">
+        <div class="data-table-popover__header">
+            <h3 class="data-table-popover__title">{{ 'label.data_table.sort'|trans({}, 'shared') }}</h3>
+            <p class="data-table-popover__help">{{ 'help.data_table.sort'|trans({}, 'shared') }}</p>
+        </div>
+        <form method="get" action="{{ this.sortFormAction }}" data-testid="data-table-sort-form">
+            {% for field in this.sortFormHiddenFields %}
+                <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+            {% endfor %}
+            <div class="data-table-popover__body">
+                <div class="mb-3">
+                    <label class="form-label" for="data-table-sort-by">{{ 'label.data_table.sort_column'|trans({}, 'shared') }}</label>
+                    <select class="form-select" id="data-table-sort-by" name="sortBy">
+                        {% for choice in this.sortChoices %}
+                            <option value="{{ choice.sortKey }}"{% if choice.selected %} selected{% endif %}>
+                                {{ choice.column.label|trans({}, choice.column.labelDomain) }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="data-table-sort-order">{{ 'label.data_table.sort_direction'|trans({}, 'shared') }}</label>
+                    <select class="form-select" id="data-table-sort-order" name="orderBy">
+                        <option value="asc"{% if this.selectedSortDirection == 'asc' %} selected{% endif %}>
+                            {{ 'label.data_table.sort_asc_short'|trans({}, 'shared') }}
+                        </option>
+                        <option value="desc"{% if this.selectedSortDirection == 'desc' %} selected{% endif %}>
+                            {{ 'label.data_table.sort_desc_short'|trans({}, 'shared') }}
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="data-table-sort-limit">{{ 'label.data_table.page_size'|trans({}, 'shared') }}</label>
+                    <select class="form-select" id="data-table-sort-limit" name="limit">
+                        {% for size in this.pageSizes %}
+                            <option value="{{ size }}"{% if size == this.pageSize %} selected{% endif %}>
+                                {{ 'label.pagination_results'|trans({pageSize: size}, 'messages') }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="data-table-popover__actions">
+                {% if this.preferenceEnabled %}
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" form="data-table-sort-reset">
+                        {{ 'label.data_table.reset'|trans({}, 'shared') }}
+                    </button>
+                {% else %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ this.sortResetUrl }}">{{ 'label.data_table.reset'|trans({}, 'shared') }}</a>
+                {% endif %}
+                <button type="submit" class="btn btn-sm btn-primary">{{ 'label.data_table.apply'|trans({}, 'shared') }}</button>
+            </div>
+        </form>
+        {% if this.preferenceEnabled %}
+            <form id="data-table-sort-reset" method="post" action="{{ preferenceSaveUrl }}">
+                <input type="hidden" name="_token" value="{{ preferenceCsrfToken }}">
+                <input type="hidden" name="tableKey" value="{{ preferenceKey }}">
+                <input type="hidden" name="returnUrl" value="{{ this.sortResetUrl }}">
+                <input type="hidden" name="action" value="reset-sort">
+            </form>
+        {% endif %}
+    </div>
+</div>

@@ -51,6 +51,16 @@
                             </span>
                         </a>
                     </li>
+                    {% if is_granted('ROLE_CLOSURE_BETA') %}
+                        <li class="nav-item {{ route starts with 'app_stats_closure_analytics' ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ path('app_stats_closure_analytics') }}">
+                                <span class="nav-link-title">
+                                    <twig:ux:icon name="tabler:calendar-off" style="height: 1.2em;" />
+                                    {{ 'link.stats.closure_analytics'|trans({}, 'shared') }}
+                                </span>
+                            </a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item {{ route == 'app_stats_benchmarking' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('app_stats_benchmarking') }}">
                             <span class="nav-link-title">

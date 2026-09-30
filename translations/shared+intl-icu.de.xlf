@@ -425,6 +425,82 @@
         <source>empty.context.cta</source>
         <target>Zeitraum oder Umfang ändern</target>
       </trans-unit>
+      <trans-unit id="lnkStatsClosureDe" resname="link.stats.closure_analytics">
+        <source>link.stats.closure_analytics</source>
+        <target>Schließungen</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableColumnsDe" resname="label.data_table.columns">
+        <source>label.data_table.columns</source>
+        <target>Spalten</target>
+      </trans-unit>
+      <trans-unit id="lblDataTablePositionDe" resname="label.data_table.position">
+        <source>label.data_table.position</source>
+        <target>Position</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableRequiredDe" resname="label.data_table.required">
+        <source>label.data_table.required</source>
+        <target>Erforderliche Spalte</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableMoveUpDe" resname="label.data_table.move_up">
+        <source>label.data_table.move_up</source>
+        <target>{column} nach links verschieben</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableMoveDownDe" resname="label.data_table.move_down">
+        <source>label.data_table.move_down</source>
+        <target>{column} nach rechts verschieben</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableResetDe" resname="label.data_table.reset">
+        <source>label.data_table.reset</source>
+        <target>Zurücksetzen</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableApplyDe" resname="label.data_table.apply">
+        <source>label.data_table.apply</source>
+        <target>Übernehmen</target>
+      </trans-unit>
+      <trans-unit id="helpDataTableColumnsDe" resname="help.data_table.columns">
+        <source>help.data_table.columns</source>
+        <target>Spalten auswählen und ihre Reihenfolge von links nach rechts festlegen.</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableConfigureDe" resname="label.data_table.configure">
+        <source>label.data_table.configure</source>
+        <target>Sortierung und Spalten</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDe" resname="label.data_table.sort">
+        <source>label.data_table.sort</source>
+        <target>Sortierung</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortColumnDe" resname="label.data_table.sort_column">
+        <source>label.data_table.sort_column</source>
+        <target>Spalte</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDirectionDe" resname="label.data_table.sort_direction">
+        <source>label.data_table.sort_direction</source>
+        <target>Richtung</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortAscShortDe" resname="label.data_table.sort_asc_short">
+        <source>label.data_table.sort_asc_short</source>
+        <target>Aufsteigend</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDescShortDe" resname="label.data_table.sort_desc_short">
+        <source>label.data_table.sort_desc_short</source>
+        <target>Absteigend</target>
+      </trans-unit>
+      <trans-unit id="lblDataTablePageSizeDe" resname="label.data_table.page_size">
+        <source>label.data_table.page_size</source>
+        <target>Treffer pro Seite</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortAscDe" resname="label.data_table.sort_asc">
+        <source>label.data_table.sort_asc</source>
+        <target>{column} aufsteigend sortieren</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDescDe" resname="label.data_table.sort_desc">
+        <source>label.data_table.sort_desc</source>
+        <target>{column} absteigend sortieren</target>
+      </trans-unit>
+      <trans-unit id="helpDataTableSortDe" resname="help.data_table.sort">
+        <source>help.data_table.sort</source>
+        <target>Sortierung und Seitengröße festlegen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -1,0 +1,47 @@
+<div class="closure-timeline-scroll" data-testid="closure-event-timeline">
+    {% for day in timelineDays %}
+        <div class="closure-timeline-day">{{ day.dayKey|date('l, d.m.Y') }}</div>
+        <div class="closure-timeline-ruler" aria-hidden="true">
+            <div class="closure-timeline-label"></div>
+            <div class="closure-timeline-hours">
+                {% for tick in day.ticks %}<span style="left: {{ tick.position }}%">{{ tick.label }}</span>{% endfor %}
+            </div>
+        </div>
+        {% for lane in day.lanes %}
+            <div class="closure-timeline-lane">
+                <div class="closure-timeline-label">
+                    <strong><a href="{{ lane.segments[0].url }}">{{ lane.departmentName }}</a></strong>
+                    <small>{{ lane.specialityName }} · {{ ('stats.closure.care_level.' ~ lane.careLevel)|trans({}, 'statistics') }}</small>
+                </div>
+                <div class="closure-timeline-track">
+                    {% for segment in lane.segments %}
+                        {% set context = not segment.primary %}
+                        <a href="{{ segment.url }}"
+                           class="closure-timeline-segment{{ grouped|default(false) and segment.primary ? ' closure-timeline-segment--grouped' }}{{ context and segment.eventType.value != 'single' ? ' closure-timeline-segment--grouped' }}{{ context ? ' closure-timeline-segment--context' }} closure-timeline-segment--{{ segment.eventType.value }}"
+                           style="left: {{ segment.left }}%; width: {{ segment.width }}%"
+                           title="{{ segment.title }}"
+                           aria-label="{{ segment.title }}"
+                           {% if context %}data-testid="closure-timeline-context"{% endif %}></a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="p-3 text-muted">{{ 'stats.closure.empty'|trans({}, 'statistics') }}</div>
+    {% endfor %}
+</div>
+{% set contextTypes = timelineContextTypes|default([]) %}
+{% if contextTypes is not empty %}
+    <div class="closure-timeline-legend px-3 py-2" data-testid="closure-timeline-context-legend">
+        <span>
+            <i class="closure-timeline-swatch closure-timeline-swatch--current" aria-hidden="true"></i>
+            {{ 'stats.closure.event.timeline.legend.current'|trans({}, 'statistics') }}
+        </span>
+        {% for type in contextTypes %}
+            <span>
+                <i class="closure-timeline-swatch closure-timeline-swatch--context-{{ type }}" aria-hidden="true"></i>
+                {{ ('stats.closure.event.timeline.legend.other_' ~ type)|trans({}, 'statistics') }}
+            </span>
+        {% endfor %}
+    </div>
+{% endif %}

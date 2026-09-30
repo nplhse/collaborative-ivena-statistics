@@ -1,0 +1,17 @@
+{% if actions is not empty %}
+    <twig:Card class="mb-3" data-testid="catalog-actions">
+        <div class="card-title">{{ 'catalog.section.actions'|trans({}, 'allocation') }}</div>
+        <div class="btn-list flex-column">
+            {% for action in actions %}
+                <a
+                    href="{{ action.url }}"
+                    class="btn{{ action.primary ? ' btn-primary' : '' }}"
+                    data-testid="closure-event-allocations"
+                >
+                    <twig:ux:icon name="{{ action.icon }}" class="me-2" width="1em" height="1em" />
+                    {{ action.label }}
+                </a>
+            {% endfor %}
+        </div>
+    </twig:Card>
+{% endif %}

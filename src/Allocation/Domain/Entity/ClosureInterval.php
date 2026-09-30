@@ -26,6 +26,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'idx_closure_interval_hospital_unit', columns: ['hospital_id', 'closure_unit'])]
 #[ORM\Index(name: 'idx_closure_interval_source_group', columns: ['source_group_id'])]
 #[ORM\Index(name: 'idx_closure_interval_import', columns: ['import_id'])]
+#[ORM\Index(name: 'idx_closure_interval_period', columns: ['starts_at', 'ends_at'])]
+#[ORM\Index(name: 'idx_closure_interval_hospital_period', columns: ['hospital_id', 'starts_at', 'ends_at'])]
 class ClosureInterval
 {
     #[ORM\Id]

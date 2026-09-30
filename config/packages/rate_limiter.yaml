@@ -48,6 +48,10 @@ framework:
             policy: fixed_window
             limit: 20
             interval: '10 minutes'
+        closure_analytics_export:
+            policy: fixed_window
+            limit: 20
+            interval: '10 minutes'
 
 when@test:
     framework:
@@ -93,6 +97,10 @@ when@test:
                 limit: 10000
                 interval: '1 second'
             top_lists_export:
+                policy: fixed_window
+                limit: 10000
+                interval: '1 second'
+            closure_analytics_export:
                 policy: fixed_window
                 limit: 10000
                 interval: '1 second'

@@ -1,0 +1,130 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set eventTitle = event.grouped ? event.sourceGroupId : ('stats.closure.events.' ~ event.type.value ~ '_title')|trans({}, 'statistics') %}
+
+{% block title %}{{ eventTitle }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.closure.title', path: path('app_stats_closure_analytics', app.request.query.all) },
+            { label: eventTitle }
+        ]" />
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:calendar-off" width="36px" height="36px" />
+                </span>
+            </div>
+            <div class="col">
+                <h1 class="fw-bold" data-testid="closure-event-title">{{ eventTitle }}</h1>
+                <div class="list-inline list-inline-dots text-muted">
+                    <div class="list-inline-item">
+                        <span class="badge {{ event.grouped ? 'bg-blue-lt text-blue' : (event.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
+                            {{ ('stats.closure.events.' ~ event.type.value)|trans({}, 'statistics') }}
+                        </span>
+                    </div>
+                    <div class="list-inline-item">{{ event.hospitalName }}</div>
+                    <div class="list-inline-item">
+                        {{ event.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                        –
+                        {{ event.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto ms-auto">
+                <div class="btn-list">
+                    <a class="btn" href="{{ path('app_stats_closure_analytics_events', app.request.query.all) }}">
+                        <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
+                        {{ 'label.back_to_list'|trans({}, 'messages') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="row g-3" data-testid="closure-event-detail">
+        <div class="col-lg-8">
+            <twig:Card class="mb-3" title="{{ 'stats.closure.event.timeline'|trans({}, 'statistics') }}" :body="false">
+                {{ include('@Statistics/closure_analytics/_day_timeline.html.twig', {grouped: event.hasChildren}) }}
+            </twig:Card>
+
+            <twig:Card :body="false">
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead><tr>
+                            <th>{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</th>
+                            <th>{{ 'stats.closure.intervals.department'|trans({}, 'statistics') }}</th>
+                            <th>SK</th>
+                            <th>{{ 'stats.closure.intervals.reason'|trans({}, 'statistics') }}</th>
+                            <th>{{ 'stats.closure.intervals.duration'|trans({}, 'statistics') }}</th>
+                        </tr></thead>
+                        <tbody>
+                        {% for row in children %}
+                            <tr>
+                                <td><a href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id})) }}">{{ row.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</a></td>
+                                <td>{{ row.departmentName }}</td>
+                                <td>{{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}</td>
+                                <td>{{ ('stats.closure.reason.' ~ row.reason)|trans({}, 'statistics') }}</td>
+                                <td>{{ row.durationMinutes|closure_duration }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </twig:Card>
+
+            {{ include('@Statistics/closure_analytics/_overlapping_allocations.html.twig') }}
+        </div>
+        <div class="col-lg-4">
+            {{ include('@Statistics/closure_analytics/_detail_actions.html.twig') }}
+            <twig:Card class="mb-3" data-testid="closure-event-kpis">
+                <div class="mb-3">
+                    <div class="subheader">{{ 'stats.closure.events.children'|trans({}, 'statistics') }}</div>
+                    <div class="h2 mb-0">{{ event.closureCount }}</div>
+                </div>
+                <div class="mb-3">
+                    <div class="subheader">{{ 'stats.closure.kpi.sum_duration'|trans({}, 'statistics') }}</div>
+                    <div class="h2 mb-0">{{ event.summedMinutes|closure_duration }}</div>
+                </div>
+                <div>
+                    <div class="subheader">{{ 'stats.closure.kpi.actual_duration'|trans({}, 'statistics') }}</div>
+                    <div class="h2 mb-0">{{ event.actualMinutes|closure_duration }}</div>
+                </div>
+            </twig:Card>
+            <twig:Card data-testid="catalog-basic-info">
+                <div class="card-title">{{ 'label.basic_info'|trans({}, 'messages') }}</div>
+                <div class="mb-2">
+                    <twig:ux:icon name="tabler:building-hospital" width="1.5em" height="1.5em" />
+                    {{ 'label.hospital'|trans({}, 'messages') }} <strong>{{ event.hospitalName }}</strong>
+                </div>
+                <div class="mb-2">
+                    <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                    {{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}
+                    <strong>{{ event.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</strong>
+                </div>
+                <div class="mb-2">
+                    <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
+                    {{ 'stats.closure.interval.end'|trans({}, 'statistics') }}
+                    <strong>{{ event.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</strong>
+                </div>
+                {% if event.sourceGroupId %}
+                    <div class="mb-2">
+                        <twig:ux:icon name="tabler:id" width="1.5em" height="1.5em" />
+                        {{ 'stats.closure.interval.group_id'|trans({}, 'statistics') }}
+                        <strong>{{ event.sourceGroupId }}</strong>
+                    </div>
+                {% endif %}
+            </twig:Card>
+        </div>
+    </div>
+{% endblock %}

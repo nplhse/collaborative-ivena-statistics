@@ -1,0 +1,48 @@
+<div class="card mt-3" data-testid="closure-overlapping-allocations">
+    <div class="card-header">
+        <h3 class="card-title">
+            {{ 'stats.closure.event.overlapping_allocations'|trans({}, 'statistics') }}
+            <span class="badge bg-secondary-lt text-secondary ms-2">{{ overlappingAllocations|length }}</span>
+        </h3>
+    </div>
+    {% if overlappingAllocations is empty %}
+        <div class="card-body" data-testid="closure-overlapping-allocations-empty">
+            <twig:EmptyState
+                title="{{ 'stats.closure.event.overlapping_allocations_empty'|trans({}, 'statistics') }}"
+                description="{{ 'stats.closure.event.overlapping_allocations_empty_help'|trans({}, 'statistics') }}"
+                icon="tabler:ambulance"
+            />
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'stats.closure.table.department'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'label.indication'|trans({}, 'messages') }}</th>
+                        <th>SK</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for allocation in overlappingAllocations %}
+                        <tr data-testid="closure-overlapping-allocation-row">
+                            <td>
+                                {% if is_granted('ROLE_PARTICIPANT') %}
+                                    <a href="{{ path('app_explore_allocation_show', {publicId: allocation.publicId}) }}" data-testid="closure-overlapping-allocation-link">
+                                        {{ allocation.createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                                    </a>
+                                {% else %}
+                                    {{ allocation.createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                                {% endif %}
+                            </td>
+                            <td>{{ allocation.departmentName }}</td>
+                            <td>{{ allocation.indicationName ?: '—' }}</td>
+                            <td>{{ allocation.urgency.skLabel() }} · {{ allocation.urgency.label()|trans({}, 'messages') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,8 @@
+{% if column.key == 'careLevel' %}
+    {% set label = include('@Statistics/closure_analytics/data_table/_urgency_label.html.twig', {careLevel: value})|trim %}
+    {% set badgeClass = data_table_badge('closure_care_level', value).cssClass %}
+{% else %}
+    {% set label = ('stats.closure.reason.' ~ value)|trans({}, 'statistics') %}
+    {% set badgeClass = data_table_badge('closure_reason', value).cssClass %}
+{% endif %}
+<span class="badge {{ badgeClass }}">{{ label }}</span>

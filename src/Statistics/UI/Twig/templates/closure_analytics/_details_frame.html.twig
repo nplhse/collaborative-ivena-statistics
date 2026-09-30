@@ -1,0 +1,65 @@
+<turbo-frame id="stats-closure-details">
+    <div data-testid="stats-closure-intervals">
+        {% set viewQuery = app.request.query.all|merge({
+            page: null,
+            limit: null,
+            sortBy: null,
+            orderBy: null,
+            columns: null,
+            columnOrder: null,
+        }) %}
+        <twig:DataTable
+            title="{{ (table.view == 'intervals' ? 'stats.closure.table.intervals_title' : 'stats.closure.events.title')|trans({}, 'statistics') }}"
+            :paginator="events"
+            paginationRoute="app_stats_closure_analytics_details"
+            :sortBy="table.sortBy"
+            :orderBy="table.orderBy"
+            :columns="columns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="tablePreferences.visibleColumns"
+            :columnOrder="tablePreferences.columnOrder"
+            :preferenceKey="tablePreferencesPersisted ? tablePreferenceKey : null"
+            :preferenceSaveUrl="tablePreferencesPersisted ? path('app_data_table_preferences_save') : null"
+            :preferenceCsrfToken="tablePreferencesPersisted ? csrf_token('data_table_preference_' ~ tablePreferenceKey) : null"
+            :preferenceReturnUrl="tablePreferencesPersisted ? app.request.requestUri : null"
+            rowTestId="stats-closure-event-row"
+        >
+            <twig:block name="toolbar">
+                {% set exportQuery = app.request.query.all|merge({page: null, limit: null}) %}
+                <a
+                    href="{{ path('app_stats_closure_analytics_export_csv', exportQuery) }}"
+                    class="btn btn-sm btn-outline-secondary"
+                    target="_top"
+                    data-turbo="false"
+                    data-testid="stats-closure-table-export"
+                >
+                    <twig:ux:icon name="tabler:download" class="icon" />
+                    {{ 'stats.closure.table.export'|trans({}, 'statistics') }}
+                </a>
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.closure.table.view'|trans({}, 'statistics') }}" data-testid="stats-closure-table-view">
+                    <a
+                        href="{{ path('app_stats_closure_analytics_details', viewQuery|merge({tableView: 'events'})) }}"
+                        class="btn btn-sm btn-outline-secondary{% if table.view == 'events' %} active{% endif %}"
+                        title="{{ 'stats.closure.table.view.events'|trans({}, 'statistics') }}"
+                        aria-label="{{ 'stats.closure.table.view.events'|trans({}, 'statistics') }}"
+                        data-turbo-frame="stats-closure-details"
+                    >
+                        <twig:ux:icon name="tabler:stack-2" class="icon" />
+                        {{ 'stats.closure.table.view.events_short'|trans({}, 'statistics') }}
+                    </a>
+                    <a
+                        href="{{ path('app_stats_closure_analytics_details', viewQuery|merge({tableView: 'intervals'})) }}"
+                        class="btn btn-sm btn-outline-secondary{% if table.view == 'intervals' %} active{% endif %}"
+                        title="{{ 'stats.closure.table.view.intervals'|trans({}, 'statistics') }}"
+                        aria-label="{{ 'stats.closure.table.view.intervals'|trans({}, 'statistics') }}"
+                        data-turbo-frame="stats-closure-details"
+                    >
+                        <twig:ux:icon name="tabler:list-details" class="icon" />
+                        {{ 'stats.closure.table.view.intervals_short'|trans({}, 'statistics') }}
+                    </a>
+                </div>
+            </twig:block>
+        </twig:DataTable>
+    </div>
+</turbo-frame>

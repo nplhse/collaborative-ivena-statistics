@@ -60,6 +60,7 @@ security:
         - { path: ^/import, roles: ROLE_PARTICIPANT }
         - { path: ^/explore/indication/raw/assign, roles: ROLE_PARTICIPANT }
         - { path: ^/explore, roles: ROLE_PARTICIPANT }
+        - { path: ^/statistics/closure-analytics, roles: ROLE_CLOSURE_BETA }
         - { path: ^/statistics, roles: ROLE_USER }
         - { path: ^/activity, roles: ROLE_USER }
         - { path: ^/dashboard, roles: ROLE_USER }

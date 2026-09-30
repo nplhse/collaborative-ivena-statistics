@@ -1,0 +1,45 @@
+<turbo-frame id="stats-closure-timeline" target="_top">
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <h3 class="card-title">{{ 'stats.closure.timeline.title'|trans({}, 'statistics') }}</h3>
+                <nav aria-label="{{ 'stats.closure.timeline.breadcrumb.label'|trans({}, 'statistics') }}"
+                     data-testid="closure-timeline-breadcrumb">
+                    <ol class="breadcrumb breadcrumb-arrows mt-1 mb-0">
+                        {% for item in timelineBreadcrumbs %}
+                            <li class="breadcrumb-item{{ item.url ? '' : ' active' }}"{% if not item.url %} aria-current="page"{% endif %}>
+                                {% set label = item.translate ? item.label|trans({}, 'statistics') : item.label %}
+                                {% if item.url %}
+                                    <a href="{{ item.url }}" data-turbo-frame="stats-closure-timeline">{{ label }}</a>
+                                {% else %}
+                                    {{ label }}
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        {% if timelineGrain in ['day', 'event'] %}
+            {{ include('@Statistics/closure_analytics/_timeline_segments.html.twig') }}
+        {% else %}
+            {{ include('@Statistics/closure_analytics/_timeline_grid.html.twig') }}
+            {% if timelineGrain in ['quarter', 'month', 'week'] %}
+                {{ include('@Statistics/closure_analytics/_timeline_week_events.html.twig') }}
+            {% endif %}
+        {% endif %}
+        <div class="card-footer closure-timeline-legend">
+            {% if timelineGrain in ['day', 'event'] %}
+                {{ include('@Statistics/closure_analytics/_timeline_type_legend.html.twig') }}
+            {% else %}
+                <span><i class="closure-timeline-swatch"></i>{{ 'stats.closure.timeline.legend.none'|trans({}, 'statistics') }}</span>
+                <span><i class="closure-timeline-swatch closure-timeline-swatch--closed"></i>{{ 'stats.closure.timeline.legend.closed'|trans({}, 'statistics') }}</span>
+                <span><i class="closure-timeline-swatch closure-timeline-swatch--multiple"></i>{{ 'stats.closure.timeline.legend.multiple'|trans({}, 'statistics') }}</span>
+                {% if timelineGrain in ['quarter', 'month', 'week'] %}
+                    {{ include('@Statistics/closure_analytics/_timeline_type_legend.html.twig') }}
+                {% endif %}
+                <small>{{ 'stats.closure.timeline.legend.note'|trans({}, 'statistics') }}</small>
+            {% endif %}
+        </div>
+    </div>
+</turbo-frame>

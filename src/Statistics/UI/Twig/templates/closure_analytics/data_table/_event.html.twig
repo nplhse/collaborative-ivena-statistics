@@ -1,0 +1,8 @@
+<a
+    href="{{ path('app_stats_closure_analytics_event', app.request.query.all|merge({eventKey: row.key, page: null})) }}"
+    target="_top"
+    class="badge text-decoration-none {{ row.grouped ? 'bg-blue-lt text-blue' : (row.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}"
+    {% if row.grouped %}title="{{ row.sourceGroupId }}"{% endif %}
+>
+    {{ ('stats.closure.events.' ~ row.type.value)|trans({}, 'statistics') }}
+</a>

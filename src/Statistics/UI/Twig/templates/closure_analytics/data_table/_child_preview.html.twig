@@ -1,0 +1,40 @@
+<div class="dropdown">
+    <button
+        type="button"
+        class="btn btn-sm btn-ghost-secondary py-0 px-1"
+        data-bs-toggle="dropdown"
+        data-bs-boundary="viewport"
+        aria-expanded="false"
+        aria-label="{{ 'stats.closure.events.preview'|trans({count: row.closureCount}, 'statistics') }}"
+    >
+        <span class="d-inline-flex align-items-center closure-event-badge-stack" aria-hidden="true">
+            {% for child in row.children|slice(0, 3) %}
+                <span class="badge rounded-pill bg-secondary-lt">{{ child.departmentName|slice(0, 1) }}</span>
+            {% endfor %}
+        </span>
+        {% if row.closureCount > 3 %}
+            <span class="badge bg-secondary-lt text-secondary ms-1">+{{ row.closureCount - 3 }}</span>
+        {% endif %}
+    </button>
+    <div class="dropdown-menu closure-event-preview">
+        {% for child in row.children|slice(0, 8) %}
+            <div class="closure-event-preview__item{% if not loop.last %} border-bottom{% endif %}">
+                <h3 class="closure-event-preview__title">{{ child.departmentName }}</h3>
+                <p class="closure-event-preview__time text-muted">
+                    <twig:ux:icon name="tabler:clock" class="icon" aria-hidden="true" />
+                    {{ child.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                    –
+                    {{ child.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                </p>
+                <div class="closure-event-preview__badge">
+                    <span class="badge {{ data_table_badge('closure_care_level', child.careLevel).cssClass }}">{{ include('@Statistics/closure_analytics/data_table/_urgency_label.html.twig', {careLevel: child.careLevel}) }}</span>
+                </div>
+            </div>
+        {% endfor %}
+        {% if row.closureCount > 8 %}
+            <div class="closure-event-preview__more">
+                {{ 'stats.closure.events.preview_more'|trans({count: row.closureCount - 8}, 'statistics') }}
+            </div>
+        {% endif %}
+    </div>
+</div>

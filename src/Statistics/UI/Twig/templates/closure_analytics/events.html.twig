@@ -1,0 +1,23 @@
+{% extends '@Statistics/closure_analytics/index.html.twig' %}
+
+{% block page_content %}
+    {{ include('@Statistics/closure_analytics/_filter_drawer.html.twig') }}
+    {{ include('@Statistics/_filter_active_badges.html.twig') }}
+    {{ include('@Statistics/closure_analytics/_tabs.html.twig') }}
+
+    <turbo-frame id="stats-closure-details"
+                 src="{{ detailsFrameUrl }}"
+                 loading="lazy"
+                 data-testid="stats-closure-events-page">
+        <div class="card">
+            <div class="card-body placeholder-glow">
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-8"></span>
+            </div>
+        </div>
+    </turbo-frame>
+
+    {% if overviewPeriodViewModel is defined and overviewPeriodViewModel.showNavigation %}
+        {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+    {% endif %}
+{% endblock %}

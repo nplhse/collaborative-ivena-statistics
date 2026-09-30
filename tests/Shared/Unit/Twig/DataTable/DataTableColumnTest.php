@@ -21,16 +21,22 @@ final class DataTableColumnTest extends TestCase
             'sortKey' => 'location',
             'width' => 'col-1',
             'visible' => false,
+            'configurable' => true,
+            'required' => true,
             'badgePalette' => 'hospital_location',
             'numberProperty' => 'beds',
+            'emptyValue' => '—',
         ]);
 
         self::assertSame('location', $column->key);
         self::assertSame(DataTableColumnType::Badge, $column->type);
         self::assertSame('location', $column->resolvedSortKey());
         self::assertFalse($column->visible);
+        self::assertTrue($column->configurable);
+        self::assertTrue($column->required);
         self::assertSame('hospital_location', $column->option('badgePalette'));
         self::assertSame('beds', $column->option('numberProperty'));
+        self::assertSame('—', $column->option('emptyValue'));
     }
 
     public function testUnknownTypeFallsBackToText(): void
@@ -42,6 +48,8 @@ final class DataTableColumnTest extends TestCase
 
         self::assertSame(DataTableColumnType::Text, $column->type);
         self::assertSame('name', $column->property);
+        self::assertFalse($column->configurable);
+        self::assertFalse($column->required);
     }
 
     public function testNonEnumTypeAndNonArrayOptionsAreIgnored(): void

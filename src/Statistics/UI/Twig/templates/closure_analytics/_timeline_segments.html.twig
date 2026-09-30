@@ -1,0 +1,44 @@
+<div class="closure-timeline-scroll" data-testid="closure-timeline-segments">
+    {% set currentDay = null %}
+    {% set currentGroup = null %}
+    {% for row in timelineSegmentRows %}
+        {% if currentDay != row.dayKey %}
+            {% set currentDay = row.dayKey %}
+            {% set currentGroup = null %}
+            <div class="closure-timeline-day">{{ row.dayKey|date('l, d.m.Y') }}</div>
+            <div class="closure-timeline-ruler" aria-hidden="true">
+                <div class="closure-timeline-label"></div>
+                <div class="closure-timeline-hours">
+                    {% for tick in row.ticks %}<span style="left: {{ tick.position }}%">{{ tick.label }}</span>{% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        {% if currentGroup != row.groupKey %}
+            {% set currentGroup = row.groupKey %}
+            <div class="closure-timeline-department">
+                <div class="closure-timeline-department__label">
+                    <small>{{ row.hospitalName }} › {{ row.specialityName }}</small>
+                    <strong>{{ row.departmentName }}</strong>
+                </div>
+                <div aria-hidden="true"></div>
+            </div>
+        {% endif %}
+        <div class="closure-timeline-lane">
+            <div class="closure-timeline-label">
+                <strong>{{ ('stats.closure.care_level.' ~ row.careLevelName)|trans({}, 'statistics') }}</strong>
+            </div>
+            <div class="closure-timeline-track">
+                {% for segment in row.segments %}
+                    {% set eventType = segment.eventType|default('single') %}
+                    <a href="{{ segment.url }}"
+                       class="closure-timeline-segment{{ eventType != 'single' ? ' closure-timeline-segment--grouped' }}{{ segment.parallel ? ' closure-timeline-segment--parallel' }} closure-timeline-segment--{{ eventType }}"
+                       style="left: {{ segment.left }}%; width: {{ segment.width }}%"
+                       title="{{ ('stats.closure.events.' ~ eventType)|trans({}, 'statistics') }} · {{ segment.title }}"
+                       aria-label="{{ ('stats.closure.events.' ~ eventType)|trans({}, 'statistics') }} · {{ segment.title }}"></a>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="p-3 text-muted">{{ 'stats.closure.empty'|trans({}, 'statistics') }}</div>
+    {% endfor %}
+</div>

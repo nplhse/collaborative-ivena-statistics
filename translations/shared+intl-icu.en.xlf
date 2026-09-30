@@ -425,6 +425,82 @@
         <source>empty.context.cta</source>
         <target>Change period or scope</target>
       </trans-unit>
+      <trans-unit id="lnkStatsClosureEn" resname="link.stats.closure_analytics">
+        <source>link.stats.closure_analytics</source>
+        <target>Closures</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableColumnsEn" resname="label.data_table.columns">
+        <source>label.data_table.columns</source>
+        <target>Columns</target>
+      </trans-unit>
+      <trans-unit id="lblDataTablePositionEn" resname="label.data_table.position">
+        <source>label.data_table.position</source>
+        <target>Position</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableRequiredEn" resname="label.data_table.required">
+        <source>label.data_table.required</source>
+        <target>Required column</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableMoveUpEn" resname="label.data_table.move_up">
+        <source>label.data_table.move_up</source>
+        <target>Move {column} left</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableMoveDownEn" resname="label.data_table.move_down">
+        <source>label.data_table.move_down</source>
+        <target>Move {column} right</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableResetEn" resname="label.data_table.reset">
+        <source>label.data_table.reset</source>
+        <target>Reset</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableApplyEn" resname="label.data_table.apply">
+        <source>label.data_table.apply</source>
+        <target>Apply</target>
+      </trans-unit>
+      <trans-unit id="helpDataTableColumnsEn" resname="help.data_table.columns">
+        <source>help.data_table.columns</source>
+        <target>Select columns and arrange their left-to-right order.</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableConfigureEn" resname="label.data_table.configure">
+        <source>label.data_table.configure</source>
+        <target>Sort and columns</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortEn" resname="label.data_table.sort">
+        <source>label.data_table.sort</source>
+        <target>Sort</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortColumnEn" resname="label.data_table.sort_column">
+        <source>label.data_table.sort_column</source>
+        <target>Column</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDirectionEn" resname="label.data_table.sort_direction">
+        <source>label.data_table.sort_direction</source>
+        <target>Direction</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortAscShortEn" resname="label.data_table.sort_asc_short">
+        <source>label.data_table.sort_asc_short</source>
+        <target>Ascending</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDescShortEn" resname="label.data_table.sort_desc_short">
+        <source>label.data_table.sort_desc_short</source>
+        <target>Descending</target>
+      </trans-unit>
+      <trans-unit id="lblDataTablePageSizeEn" resname="label.data_table.page_size">
+        <source>label.data_table.page_size</source>
+        <target>Results per page</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortAscEn" resname="label.data_table.sort_asc">
+        <source>label.data_table.sort_asc</source>
+        <target>Sort {column} ascending</target>
+      </trans-unit>
+      <trans-unit id="lblDataTableSortDescEn" resname="label.data_table.sort_desc">
+        <source>label.data_table.sort_desc</source>
+        <target>Sort {column} descending</target>
+      </trans-unit>
+      <trans-unit id="helpDataTableSortEn" resname="help.data_table.sort">
+        <source>help.data_table.sort</source>
+        <target>Choose the sort column, direction, and page size.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

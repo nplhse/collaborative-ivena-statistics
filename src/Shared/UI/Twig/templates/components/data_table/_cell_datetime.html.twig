@@ -1,4 +1,6 @@
 {% set format = column.options.format|default('d.m.Y H:i') %}
 {% if value %}
-    {{ value|date(format) }}
+    {{ value|date(format, column.options.timezone|default(null)) }}
+{% else %}
+    {{ column.options.emptyValue|default('') }}
 {% endif %}

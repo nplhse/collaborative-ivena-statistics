@@ -1,0 +1,7 @@
+{% set urgencyKey = 'label.urgency.' ~ careLevel %}
+{% set urgencyLabel = urgencyKey|trans({}, 'messages') %}
+{% if urgencyLabel == urgencyKey %}
+    {{ ('stats.closure.care_level.' ~ careLevel)|trans({}, 'statistics') }}
+{% else %}
+    {{ urgencyLabel }}
+{% endif %}
