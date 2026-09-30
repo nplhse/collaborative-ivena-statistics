@@ -82,6 +82,8 @@
                     </table>
                 </div>
             </twig:Card>
+
+            {{ include('@Statistics/closure_analytics/_overlapping_allocations.html.twig') }}
         </div>
         <div class="col-lg-4">
             {{ include('@Statistics/closure_analytics/_detail_actions.html.twig') }}

@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Functional\Controller;
 
+use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Infrastructure\Factory\AllocationFactory;
+use App\Allocation\Infrastructure\Factory\AssignmentFactory;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
+use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -888,6 +893,80 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, $contextUrl);
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="closure-event-title"]', 'Ungrouped individual closure');
+    }
+
+    public function testEventAndIntervalDetailListOverlappingAllocationsByDepartmentWindow(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        [$hospitalId, $intervalId, $departmentAId] = $this->seedGroupedClosures($user);
+        $hospital = HospitalFactory::find($hospitalId);
+        $departmentA = DepartmentFactory::find($departmentAId);
+        $departmentB = DepartmentFactory::find(['name' => 'Functional Closure Department B']);
+        $speciality = SpecialityFactory::find(['name' => 'Functional Closure Speciality A']);
+        $import = ImportFactory::find(['hospital' => $hospital]);
+        AssignmentFactory::createOne(['name' => 'Overlap Assign']);
+        IndicationRawFactory::createOne(['name' => 'Overlap Raw', 'code' => 811]);
+        $indication = IndicationNormalizedFactory::createOne(['name' => 'During Closure']);
+        $defaults = [
+            'import' => $import,
+            'hospital' => $hospital,
+            'state' => $hospital->getState(),
+            'dispatchArea' => $hospital->getDispatchArea(),
+            'speciality' => $speciality,
+            'urgency' => AllocationUrgency::EMERGENCY,
+            'arrivalAt' => new \DateTimeImmutable('2026-05-01 11:30:00'),
+        ];
+        $included = AllocationFactory::createOne([
+            ...$defaults,
+            'department' => $departmentA,
+            'createdAt' => new \DateTimeImmutable('2026-05-01 11:00:00'),
+            'indicationNormalized' => $indication,
+        ]);
+        AllocationFactory::createOne([
+            ...$defaults,
+            'department' => $departmentB,
+            'createdAt' => new \DateTimeImmutable('2026-05-01 11:15:00'),
+        ]);
+        AllocationFactory::createOne([
+            ...$defaults,
+            'department' => $departmentA,
+            'createdAt' => new \DateTimeImmutable('2026-05-01 09:00:00'),
+        ]);
+
+        $eventKey = rawurlencode('group:'.$hospitalId.':functional-group');
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics/events/'.$eventKey.'?scope=public&period=all_time',
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-overlapping-allocations"]');
+        $this->assertSelectorNotExists('[data-testid="closure-overlapping-allocations-empty"]');
+        $this->assertSelectorCount(2, '[data-testid="closure-overlapping-allocation-row"]');
+        $this->assertSelectorTextContains('[data-testid="closure-overlapping-allocations"]', 'During Closure');
+        $link = $client->getCrawler()->filter('[data-testid="closure-overlapping-allocation-link"]')->attr('href');
+        self::assertNotNull($link);
+        self::assertStringContainsString('/explore/allocation/'.$included->getPublicIdString(), $link);
+
+        $client->request(
+            Request::METHOD_GET,
+            sprintf('/statistics/closure-analytics/intervals/%d?scope=public&period=all_time', $intervalId),
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorCount(1, '[data-testid="closure-overlapping-allocation-row"]');
+        $this->assertSelectorTextContains('[data-testid="closure-overlapping-allocations"]', 'Functional Closure Department A');
+        $this->assertSelectorTextNotContains('[data-testid="closure-overlapping-allocations"]', 'Functional Closure Department B');
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics/events/'.rawurlencode('group:'.$hospitalId.':current-month-group').'?scope=public&period=all_time',
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-overlapping-allocations-empty"]');
+        $this->assertSelectorTextContains(
+            '[data-testid="closure-overlapping-allocations-empty"]',
+            'No allocations during this closure',
+        );
     }
 
     private function loginAsClosureBetaUser(KernelBrowser $client): User

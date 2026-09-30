@@ -175,12 +175,21 @@ The primary action opens `/explore/allocation` for the matching calendar day or
 days (`createdFrom` / `createdUntil`) and the currently selected hospital
 filter. A single selected hospital, Hospital scope, or the event's own hospital
 becomes `hospitalFilter`. My Hospitals without a hospital selection uses
-`my_hospitals`. This is a date-and-hospital jump into the allocation list, not
-an SK-aware join of allocations *during* the closure.
+`my_hospitals`. That link is a date-and-hospital jump into the allocation list.
+
+Below the interval list, the same detail pages list allocations whose
+`created_at` (Europe/Berlin wall clock, same as Explore) falls inside a child
+interval's displayed, period-clipped window (`starts_at <= created_at <= ends_at`)
+and whose `department_id` matches that child. Groups and clusters therefore match
+per department window, not against the overall event span. The list is compact
+(time, department, indication, urgency) and links to Explore allocation show
+when the user has `ROLE_PARTICIPANT`. An empty state is always shown when nothing
+matches. `department_was_closed` and SK-aware urgency matching are not applied.
 
 ## Deferred allocation matching
 
-Allocations during closures and forced/emergency allocations require the SK-aware
-join contract from issue #571. They are intentionally absent here. No value is
+SK-aware joins, Notzuweisungen / emergency-assignment interpretation, aggregate
+overlap KPIs, and Explore filters for closure intervals still require the
+contract from issue #571. They are intentionally absent here. No value is
 derived from `department_was_closed`, and the existing Notzuweisungen analysis is
 not changed.

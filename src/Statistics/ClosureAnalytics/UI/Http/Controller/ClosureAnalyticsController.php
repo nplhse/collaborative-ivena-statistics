@@ -13,6 +13,7 @@ use App\Statistics\ClosureAnalytics\Application\ClosureAllocationExploreUrlFacto
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsService;
 use App\Statistics\ClosureAnalytics\Application\ClosureDetailDayTimelineFactory;
+use App\Statistics\ClosureAnalytics\Application\ClosureOverlappingAllocationsFinder;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
@@ -54,6 +55,7 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly ClosureIntervalTableColumns $intervalTableColumns,
         private readonly ClosureDetailDayTimelineFactory $detailDayTimelineFactory,
         private readonly ClosureAllocationExploreUrlFactory $allocationExploreUrlFactory,
+        private readonly ClosureOverlappingAllocationsFinder $overlappingAllocationsFinder,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -153,6 +155,7 @@ final class ClosureAnalyticsController extends AbstractController
             'children' => $children,
             'timelineDays' => $timelineDays,
             'timelineContextTypes' => $timelineContextTypes,
+            'overlappingAllocations' => $this->overlappingAllocationsFinder->forIntervals($children),
             'actions' => $this->allocationActions(
                 $filter,
                 $closureFilter,
@@ -242,6 +245,7 @@ final class ClosureAnalyticsController extends AbstractController
             'interval' => $interval,
             'timelineDays' => $timelineDays,
             'timelineContextTypes' => $timelineContextTypes,
+            'overlappingAllocations' => $this->overlappingAllocationsFinder->forIntervals([$interval]),
             'actions' => $this->allocationActions(
                 $filter,
                 $closureFilter,
