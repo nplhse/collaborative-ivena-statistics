@@ -55,6 +55,28 @@ final class DataTable
 
     public ?string $orderBy = null;
 
+    public bool $columnVisibilityEnabled = false;
+
+    public string $columnVisibilityParam = 'columns';
+
+    public bool $columnOrderingEnabled = false;
+
+    public string $columnOrderParam = 'columnOrder';
+
+    /** @var list<string>|null */
+    public ?array $visibleColumnKeys = null;
+
+    /** @var list<string>|null */
+    public ?array $columnOrder = null;
+
+    public ?string $preferenceKey = null;
+
+    public ?string $preferenceSaveUrl = null;
+
+    public ?string $preferenceCsrfToken = null;
+
+    public ?string $preferenceReturnUrl = null;
+
     /** @psalm-suppress PossiblyUnusedProperty Consumed by DataTable.html.twig. */
     public bool $loading = false;
 
@@ -100,13 +122,188 @@ final class DataTable
     public function getVisibleColumns(): array
     {
         $visible = [];
-        foreach ($this->normalizedColumns() as $column) {
-            if ($column->visible) {
+        $selected = $this->visibleColumnKeys ?? $this->selectedColumnKeys();
+        foreach ($this->orderedColumns() as $column) {
+            if ($column->required
+                || (!$column->configurable && $column->visible)
+                || ($column->configurable && (null === $selected ? $column->visible : \in_array($column->key, $selected, true)))
+            ) {
                 $visible[] = $column;
             }
         }
 
         return $visible;
+    }
+
+    /**
+     * @return list<array{column: DataTableColumn, visible: bool, url: string, moveUpUrl: string, moveDownUrl: string, canMoveUp: bool, canMoveDown: bool}>
+     */
+    public function getColumnVisibilityChoices(): array
+    {
+        if (!$this->columnVisibilityEnabled) {
+            return [];
+        }
+
+        $visibleKeys = array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $this->getVisibleColumns(),
+        );
+        $choices = [];
+        $configurableColumns = array_values(array_filter(
+            $this->orderedColumns(),
+            static fn (DataTableColumn $column): bool => $column->configurable || $column->required,
+        ));
+        foreach ($configurableColumns as $index => $column) {
+            if (!$column->configurable && !$column->required) {
+                continue;
+            }
+
+            $choices[] = [
+                'column' => $column,
+                'visible' => \in_array($column->key, $visibleKeys, true),
+                'url' => $column->required ? '#' : $this->columnVisibilityUrl($column),
+                'moveUpUrl' => $this->columnMoveUrl($column, -1),
+                'moveDownUrl' => $this->columnMoveUrl($column, 1),
+                'canMoveUp' => $this->columnOrderingEnabled && $index > 0,
+                'canMoveDown' => $this->columnOrderingEnabled && $index < \count($configurableColumns) - 1,
+            ];
+        }
+
+        return $choices;
+    }
+
+    public function getShouldShowColumnVisibility(): bool
+    {
+        return [] !== $this->getColumnVisibilityChoices();
+    }
+
+    public function getShouldShowHeaderActions(): bool
+    {
+        return $this->getShouldShowColumnVisibility()
+            || $this->getShouldShowSortMenu()
+            || $this->getShouldShowReset();
+    }
+
+    public function getShouldShowSortMenu(): bool
+    {
+        return $this->columnVisibilityEnabled && [] !== $this->getSortChoices();
+    }
+
+    /**
+     * @return list<array{column: DataTableColumn, sortKey: string, selected: bool}>
+     */
+    public function getSortChoices(): array
+    {
+        $choices = [];
+        foreach ($this->orderedColumns() as $column) {
+            if (!$column->sortable) {
+                continue;
+            }
+
+            $choices[] = [
+                'column' => $column,
+                'sortKey' => $column->resolvedSortKey(),
+                'selected' => $this->isSortedBy($column),
+            ];
+        }
+
+        return $choices;
+    }
+
+    public function getSelectedSortDirection(): string
+    {
+        return 'asc' === $this->orderBy ? 'asc' : 'desc';
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function getPageSizes(): array
+    {
+        return self::PAGE_SIZES;
+    }
+
+    public function getSortFormAction(): string
+    {
+        $route = $this->getResolvedPaginationRoute();
+        if (null === $route) {
+            return '#';
+        }
+
+        $request = $this->currentRequest();
+        $routeParams = $request instanceof Request ? $request->attributes->get('_route_params', []) : [];
+        if (!\is_array($routeParams)) {
+            $routeParams = [];
+        }
+
+        return $this->urlGenerator->generate($route, $routeParams);
+    }
+
+    /**
+     * @return list<array{name: string, value: string}>
+     */
+    public function getSortFormHiddenFields(): array
+    {
+        $request = $this->currentRequest();
+        $query = $request instanceof Request ? $request->query->all() : [];
+        foreach (['sortBy', 'orderBy', 'limit', ...self::DROP_QUERY_KEYS] as $key) {
+            unset($query[$key]);
+        }
+
+        return $this->flattenQueryFields($query);
+    }
+
+    public function sortResetUrl(): string
+    {
+        return $this->buildUrl([
+            'sortBy' => null,
+            'orderBy' => null,
+            'limit' => null,
+        ], dropPagination: true);
+    }
+
+    public function columnResetUrl(): string
+    {
+        return $this->buildUrl([
+            $this->columnVisibilityParam => null,
+            $this->columnOrderParam => null,
+        ], dropPagination: true);
+    }
+
+    public function getShouldShowReset(): bool
+    {
+        return $this->columnVisibilityEnabled || $this->isPreferenceEnabled();
+    }
+
+    public function resetUrl(): string
+    {
+        return $this->buildUrl([
+            $this->columnVisibilityParam => null,
+            $this->columnOrderParam => null,
+            'limit' => null,
+            'sortBy' => null,
+            'orderBy' => null,
+        ], dropPagination: true);
+    }
+
+    public function isPreferenceEnabled(): bool
+    {
+        return null !== $this->preferenceKey
+            && '' !== $this->preferenceKey
+            && null !== $this->preferenceSaveUrl
+            && '' !== $this->preferenceSaveUrl
+            && null !== $this->preferenceCsrfToken;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getResolvedColumnOrder(): array
+    {
+        return array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $this->orderedColumns(),
+        );
     }
 
     /**
@@ -244,15 +441,29 @@ final class DataTable
         $sortKey = $column->resolvedSortKey();
         $nextOrder = $this->sortBy === $sortKey && 'asc' === $this->orderBy ? 'desc' : 'asc';
 
+        return $this->sortUrlFor($column, $nextOrder);
+    }
+
+    private function sortUrlFor(DataTableColumn $column, string $order): string
+    {
         return $this->buildUrl([
-            'sortBy' => $sortKey,
-            'orderBy' => $nextOrder,
+            'sortBy' => $column->resolvedSortKey(),
+            'orderBy' => $order,
         ], dropPagination: true);
     }
 
     public function isSortedBy(DataTableColumn $column): bool
     {
         return $this->sortBy === $column->resolvedSortKey();
+    }
+
+    public function sortDirection(DataTableColumn $column): ?string
+    {
+        if (!$this->isSortedBy($column)) {
+            return null;
+        }
+
+        return 'desc' === $this->orderBy ? 'descending' : 'ascending';
     }
 
     /**
@@ -366,6 +577,157 @@ final class DataTable
     }
 
     /**
+     * @return list<string>|null
+     */
+    private function selectedColumnKeys(): ?array
+    {
+        if (!$this->columnVisibilityEnabled) {
+            return null;
+        }
+
+        $request = $this->currentRequest();
+        if (!$request instanceof Request || !$request->query->has($this->columnVisibilityParam)) {
+            return null;
+        }
+
+        $query = $request->query->all();
+        $value = $query[$this->columnVisibilityParam] ?? '';
+        if (!\is_string($value)) {
+            return [];
+        }
+
+        $available = [];
+        foreach ($this->normalizedColumns() as $column) {
+            if ($column->configurable) {
+                $available[$column->key] = true;
+            }
+        }
+
+        $selected = [];
+        foreach (explode(',', $value) as $key) {
+            $key = trim($key);
+            if (isset($available[$key]) && !\in_array($key, $selected, true)) {
+                $selected[] = $key;
+            }
+        }
+
+        return $selected;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function requestedColumnOrder(): ?array
+    {
+        if (!$this->columnOrderingEnabled) {
+            return null;
+        }
+        if (null !== $this->columnOrder) {
+            return $this->columnOrder;
+        }
+
+        $request = $this->currentRequest();
+        if (!$request instanceof Request || !$request->query->has($this->columnOrderParam)) {
+            return null;
+        }
+
+        $query = $request->query->all();
+        $value = $query[$this->columnOrderParam] ?? '';
+        if (!\is_string($value)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(
+            array_map(trim(...), explode(',', $value)),
+            static fn (string $key): bool => '' !== $key,
+        )));
+    }
+
+    /**
+     * @return list<DataTableColumn>
+     */
+    private function orderedColumns(): array
+    {
+        $columns = $this->normalizedColumns();
+        $requested = $this->requestedColumnOrder();
+        if (null === $requested) {
+            return $columns;
+        }
+
+        $byKey = [];
+        foreach ($columns as $column) {
+            $byKey[$column->key] = $column;
+        }
+
+        $ordered = [];
+        foreach ([...$requested, ...array_keys($byKey)] as $key) {
+            if (isset($byKey[$key]) && !isset($ordered[$key])) {
+                $ordered[$key] = $byKey[$key];
+            }
+        }
+
+        return array_values($ordered);
+    }
+
+    private function columnVisibilityUrl(DataTableColumn $toggled): string
+    {
+        $selected = $this->selectedColumnKeys();
+        if (null === $selected) {
+            $selected = [];
+            foreach ($this->normalizedColumns() as $column) {
+                if ($column->configurable && $column->visible) {
+                    $selected[] = $column->key;
+                }
+            }
+        }
+
+        $position = array_search($toggled->key, $selected, true);
+        if (false === $position) {
+            $selected[] = $toggled->key;
+        } else {
+            unset($selected[$position]);
+        }
+
+        $ordered = [];
+        foreach ($this->orderedColumns() as $column) {
+            if (\in_array($column->key, $selected, true)) {
+                $ordered[] = $column->key;
+            }
+        }
+
+        return $this->buildUrl([
+            $this->columnVisibilityParam => implode(',', $ordered),
+        ], dropPagination: true);
+    }
+
+    private function columnMoveUrl(DataTableColumn $column, int $offset): string
+    {
+        if (!$this->columnOrderingEnabled) {
+            return '#';
+        }
+
+        $order = array_map(
+            static fn (DataTableColumn $item): string => $item->key,
+            $this->orderedColumns(),
+        );
+        $index = array_search($column->key, $order, true);
+        if (false === $index) {
+            return '#';
+        }
+
+        $target = $index + $offset;
+        if ($target < 0 || $target >= \count($order)) {
+            return '#';
+        }
+
+        [$order[$index], $order[$target]] = [$order[$target], $order[$index]];
+
+        return $this->buildUrl([
+            $this->columnOrderParam => implode(',', $order),
+        ], dropPagination: true);
+    }
+
+    /**
      * @return list<DataTableColumn>
      */
     private function normalizedColumns(): array
@@ -380,6 +742,30 @@ final class DataTable
         }
 
         return $normalized;
+    }
+
+    /**
+     * @param array<array-key, mixed> $query
+     *
+     * @return list<array{name: string, value: string}>
+     */
+    private function flattenQueryFields(array $query, string $prefix = ''): array
+    {
+        $fields = [];
+        foreach ($query as $key => $value) {
+            $name = '' === $prefix ? (string) $key : $prefix.'['.$key.']';
+            if (\is_array($value)) {
+                $fields = [...$fields, ...$this->flattenQueryFields($value, $name)];
+                continue;
+            }
+            if (!\is_scalar($value)) {
+                continue;
+            }
+
+            $fields[] = ['name' => $name, 'value' => (string) $value];
+        }
+
+        return $fields;
     }
 
     /**

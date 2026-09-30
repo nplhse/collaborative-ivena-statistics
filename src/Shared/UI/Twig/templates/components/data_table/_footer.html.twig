@@ -8,9 +8,23 @@
             </a>
             <div class="dropdown-menu">
                 {% for link in this.pageSizeLinks %}
-                    <a class="dropdown-item{% if link.active %} active{% endif %}" href="{{ link.url }}">
-                        {{ 'label.pagination_results'|trans({pageSize: link.size}, 'messages') }}
-                    </a>
+                    {% if this.preferenceEnabled %}
+                        <form method="post" action="{{ preferenceSaveUrl }}">
+                            <input type="hidden" name="_token" value="{{ preferenceCsrfToken }}">
+                            <input type="hidden" name="tableKey" value="{{ preferenceKey }}">
+                            <input type="hidden" name="returnUrl" value="{{ preferenceReturnUrl }}">
+                            <input type="hidden" name="pageSize" value="{{ link.size }}">
+                            {% for column in this.visibleColumns %}<input type="hidden" name="visibleColumns[]" value="{{ column.key }}">{% endfor %}
+                            {% for key in this.resolvedColumnOrder %}<input type="hidden" name="columnOrder[]" value="{{ key }}">{% endfor %}
+                            <button type="submit" class="dropdown-item{% if link.active %} active{% endif %}" name="action" value="save">
+                                {{ 'label.pagination_results'|trans({pageSize: link.size}, 'messages') }}
+                            </button>
+                        </form>
+                    {% else %}
+                        <a class="dropdown-item{% if link.active %} active{% endif %}" href="{{ link.url }}">
+                            {{ 'label.pagination_results'|trans({pageSize: link.size}, 'messages') }}
+                        </a>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>

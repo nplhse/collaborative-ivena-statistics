@@ -35,6 +35,8 @@ final class FilterDrawerComponentTest extends KernelTestCase
         self::assertStringContainsString('data-testid="hospital-filters-drawer"', $html);
         self::assertStringContainsString('Filter Results', $html);
         self::assertStringContainsString('id="hospital-filter-form"', $html);
+        self::assertStringContainsString('data-controller="filter-drawer"', $html);
+        self::assertStringContainsString('filter-drawer#omitEmptyDates', $html);
         self::assertStringContainsString('data-testid="hospital-filter-form"', $html);
         self::assertStringContainsString('action="/explore/hospital"', $html);
         self::assertStringContainsString('name="tier"', $html);

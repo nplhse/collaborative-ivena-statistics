@@ -5,9 +5,18 @@
         <thead>
             <tr>
                 {% for column in this.visibleColumns %}
-                    <th{% if column.width %} class="{{ column.width }}"{% endif %}>
+                    {% set headerClasses = [
+                        column.width,
+                        column.align ? 'text-' ~ column.align : null,
+                        column.options.nowrap|default(false) ? 'text-nowrap' : null,
+                    ]|filter(value => value) %}
+                    <th
+                        scope="col"
+                        {% if headerClasses %}class="{{ headerClasses|join(' ') }}"{% endif %}
+                        {% if column.sortable %}aria-sort="{{ this.sortDirection(column) ?? 'none' }}"{% endif %}
+                    >
                         {% if column.sortable %}
-                            <a class="text-muted" href="{{ this.sortUrl(column) }}">
+                            <a class="text-reset text-decoration-none d-inline-flex align-items-center gap-1" href="{{ this.sortUrl(column) }}">
                                 {{ column.label|trans({}, column.labelDomain) }}
                                 {{ pagination.sortArrow(column.resolvedSortKey(), sortBy, orderBy) }}
                             </a>
@@ -22,7 +31,11 @@
             {% for row in this.rowItems %}
                 <tr{% if this.rowCssClass(row) %} class="{{ this.rowCssClass(row) }}"{% endif %}{% if rowTestId %} data-testid="{{ rowTestId }}"{% endif %}>
                     {% for column in this.visibleColumns %}
-                        <td{% if column.align %} class="text-{{ column.align }}"{% endif %}>
+                        {% set cellClasses = [
+                            column.align ? 'text-' ~ column.align : null,
+                            column.options.nowrap|default(false) ? 'text-nowrap' : null,
+                        ]|filter(value => value) %}
+                        <td{% if cellClasses %} class="{{ cellClasses|join(' ') }}"{% endif %}>
                             {{ include('@Shared/components/data_table/_cell.html.twig', {
                                 row: row,
                                 column: column,

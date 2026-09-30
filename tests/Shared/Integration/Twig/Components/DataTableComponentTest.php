@@ -246,6 +246,119 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertCount(1, $component->getVisibleColumns());
     }
 
+    public function testRendersOptInColumnPickerAndAccessibleSortState(): void
+    {
+        $requestStack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $requestStack);
+        $request = Request::create('/explore/hospital', 'GET', ['columns' => 'name']);
+        $request->attributes->set('_route', 'app_explore_hospital_list');
+        $request->attributes->set('_route_params', []);
+        $requestStack->push($request);
+
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'title' => 'Hospitals',
+            'columnVisibilityEnabled' => true,
+            'paginationRoute' => 'app_explore_hospital_list',
+            'sortBy' => 'name',
+            'orderBy' => 'desc',
+            'rows' => [['name' => 'Kiel', 'location' => 'Urban']],
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'sortable' => true, 'required' => true],
+                ['key' => 'location', 'label' => 'label.location', 'configurable' => true],
+            ],
+        ]);
+
+        self::assertStringContainsString('role="menuitemcheckbox"', $html);
+        self::assertStringContainsString('aria-sort="descending"', $html);
+        self::assertStringContainsString('scope="col"', $html);
+        self::assertStringContainsString('data-testid="data-table-configure"', $html);
+        self::assertStringContainsString('btn-group-sm', $html);
+        self::assertStringContainsString('data-testid="data-table-columns"', $html);
+        self::assertStringContainsString('data-testid="data-table-sort"', $html);
+        self::assertStringContainsString('data-testid="data-table-reset"', $html);
+        self::assertMatchesRegularExpression('/data-testid="data-table-sort".*data-testid="data-table-columns"/s', $html);
+        self::assertStringContainsString('btn-outline-secondary', $html);
+        self::assertStringContainsString('data-testid="data-table-sort-form"', $html);
+        self::assertStringContainsString('name="sortBy"', $html);
+        self::assertStringContainsString('name="orderBy"', $html);
+        self::assertStringContainsString('name="limit"', $html);
+        self::assertStringContainsString('Ascending', $html);
+        self::assertStringContainsString('Descending', $html);
+        self::assertStringContainsString('Results per page', $html);
+        self::assertStringContainsString('Apply', $html);
+        self::assertStringContainsString('aria-label="Sort"', $html);
+        self::assertStringContainsString('aria-label="Columns"', $html);
+        self::assertStringContainsString('aria-label="Reset"', $html);
+        self::assertMatchesRegularExpression('/data-testid="data-table-reset"[^>]*>.*Reset/s', $html);
+        self::assertStringContainsString('Kiel', $html);
+        self::assertStringNotContainsString('Urban', $html);
+    }
+
+    public function testToolbarBlockRendersBothViewButtons(): void
+    {
+        $html = (string) $this->renderTwigComponent(
+            'DataTable',
+            [
+                'title' => 'Hospitals',
+                'columnVisibilityEnabled' => true,
+                'rows' => [['name' => 'Kiel']],
+                'columns' => [
+                    ['key' => 'name', 'label' => 'label.name', 'required' => true],
+                    ['key' => 'location', 'label' => 'label.location', 'configurable' => true],
+                ],
+            ],
+            '',
+            ['toolbar' => '<div class="btn-group" data-testid="stats-closure-table-view"><a class="btn btn-icon btn-outline-secondary" href="/events">Events</a><a class="btn btn-icon btn-outline-secondary" href="/intervals">Intervals</a></div>'],
+        );
+
+        self::assertStringContainsString('href="/events"', $html);
+        self::assertStringContainsString('href="/intervals"', $html);
+        self::assertStringContainsString('data-testid="stats-closure-table-view"', $html);
+        self::assertMatchesRegularExpression('/data-testid="stats-closure-table-view".*href="\\/events".*href="\\/intervals"/s', $html);
+    }
+
+    public function testColumnPickerRemainsAbsentForExistingConfiguration(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'title' => 'Hospitals',
+            'rows' => [['name' => 'Kiel']],
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name'],
+            ],
+        ]);
+
+        self::assertStringNotContainsString('role="menuitemcheckbox"', $html);
+    }
+
+    public function testRendersPersistentOrderedColumnForm(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'title' => 'Hospitals',
+            'columnVisibilityEnabled' => true,
+            'columnOrderingEnabled' => true,
+            'visibleColumnKeys' => ['location'],
+            'columnOrder' => ['location', 'name'],
+            'preferenceKey' => 'test.hospitals',
+            'preferenceSaveUrl' => '/account/data-table-preferences',
+            'preferenceCsrfToken' => 'csrf',
+            'preferenceReturnUrl' => '/explore/hospitals?scope=public',
+            'rows' => [['name' => 'Kiel', 'location' => 'Urban']],
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'required' => true],
+                ['key' => 'location', 'label' => 'label.location', 'configurable' => true],
+            ],
+        ]);
+
+        self::assertStringContainsString('data-controller="data-table-columns"', $html);
+        self::assertStringContainsString('#1', $html);
+        self::assertStringContainsString('#2', $html);
+        self::assertMatchesRegularExpression('/name="columnOrder\\[\\]" value="location".*name="columnOrder\\[\\]" value="name"/s', $html);
+        self::assertMatchesRegularExpression('/name="visibleColumns\\[\\]"[^>]*value="location"|value="location"[^>]*name="visibleColumns\\[\\]"/', $html);
+        self::assertStringContainsString('name="action" value="reset-columns"', $html);
+        self::assertStringContainsString('name="action" value="save"', $html);
+        self::assertMatchesRegularExpression('/<th[^>]*>.*Location.*<th[^>]*>.*Name/s', $html);
+    }
+
     /**
      * @param list<array<string, mixed>> $results
      *

@@ -44,6 +44,203 @@ final class DataTableTest extends TestCase
         self::assertStringNotContainsString('page=', $url);
     }
 
+    public function testColumnVisibilityIsOptInAndPreservesQueryState(): void
+    {
+        $table = $this->table(Request::create('/statistics/closures', 'GET', [
+            'scope' => 'hospital',
+            'period' => 'month',
+            'page' => '3',
+        ]));
+        $table->paginationRoute = 'app_stats_closure_analytics_details';
+        $table->columns = [
+            ['key' => 'start', 'label' => 'Start', 'required' => true],
+            ['key' => 'hospital', 'label' => 'Hospital', 'configurable' => true],
+            ['key' => 'reason', 'label' => 'Reason', 'configurable' => true, 'visible' => false],
+            ['key' => 'internal', 'label' => 'Internal', 'visible' => false],
+        ];
+
+        self::assertSame(['start', 'hospital'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $table->getVisibleColumns(),
+        ));
+        self::assertFalse($table->getShouldShowColumnVisibility());
+
+        $table->columnVisibilityEnabled = true;
+        self::assertTrue($table->getShouldShowColumnVisibility());
+        self::assertCount(3, $table->getColumnVisibilityChoices());
+        $hospitalChoice = $table->getColumnVisibilityChoices()[1];
+        self::assertStringContainsString('columns=', $hospitalChoice['url']);
+        self::assertStringContainsString('scope=hospital', $hospitalChoice['url']);
+        self::assertStringContainsString('period=month', $hospitalChoice['url']);
+        self::assertStringNotContainsString('page=', $hospitalChoice['url']);
+    }
+
+    public function testColumnVisibilityAcceptsOnlyConfiguredKeysAndKeepsRequiredColumns(): void
+    {
+        $table = $this->table(Request::create('/statistics/closures', 'GET', [
+            'columns' => 'reason,unknown,reason',
+        ]));
+        $table->columnVisibilityEnabled = true;
+        $table->columns = [
+            ['key' => 'start', 'label' => 'Start', 'required' => true],
+            ['key' => 'hospital', 'label' => 'Hospital', 'configurable' => true],
+            ['key' => 'reason', 'label' => 'Reason', 'configurable' => true, 'visible' => false],
+            ['key' => 'internal', 'label' => 'Internal', 'visible' => false],
+        ];
+
+        self::assertSame(['start', 'reason'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $table->getVisibleColumns(),
+        ));
+
+        $arrayInput = $this->table(Request::create('/statistics/closures', 'GET', [
+            'columns' => ['reason'],
+        ]));
+        $arrayInput->columnVisibilityEnabled = true;
+        $arrayInput->columns = $table->columns;
+        self::assertSame(['start'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $arrayInput->getVisibleColumns(),
+        ));
+    }
+
+    public function testColumnOrderingIsOptInAndKeepsHiddenPositions(): void
+    {
+        $request = Request::create('/statistics/closures', 'GET', [
+            'columns' => 'hospital,reason',
+            'columnOrder' => 'reason,start,hospital,unknown,duration',
+            'scope' => 'public',
+            'sortBy' => 'startsAt',
+            'orderBy' => 'desc',
+            'limit' => '50',
+            'page' => '2',
+        ]);
+        $table = $this->table($request);
+        $table->paginationRoute = 'app_stats_closure_analytics_details';
+        $table->columnVisibilityEnabled = true;
+        $table->columns = [
+            ['key' => 'start', 'label' => 'Start', 'required' => true],
+            ['key' => 'hospital', 'label' => 'Hospital', 'configurable' => true],
+            ['key' => 'duration', 'label' => 'Duration', 'configurable' => true, 'visible' => false],
+            ['key' => 'reason', 'label' => 'Reason', 'configurable' => true, 'visible' => false],
+        ];
+
+        self::assertSame(['start', 'hospital', 'reason'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $table->getVisibleColumns(),
+        ), 'Existing tables ignore columnOrder until ordering is enabled.');
+
+        $table->columnOrderingEnabled = true;
+        self::assertSame(['reason', 'start', 'hospital'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $table->getVisibleColumns(),
+        ));
+
+        $choices = $table->getColumnVisibilityChoices();
+        self::assertSame(['reason', 'start', 'hospital', 'duration'], array_map(
+            static fn (array $choice): string => $choice['column']->key,
+            $choices,
+        ));
+        self::assertStringContainsString('columnOrder=start%2Creason%2Chospital%2Cduration', $choices[0]['moveDownUrl']);
+        self::assertStringContainsString('scope=public', $choices[0]['moveDownUrl']);
+        self::assertStringContainsString('sortBy=startsAt', $choices[0]['moveDownUrl']);
+        self::assertStringContainsString('orderBy=desc', $choices[0]['moveDownUrl']);
+        self::assertStringContainsString('limit=50', $choices[0]['moveDownUrl']);
+        self::assertStringNotContainsString('page=', $choices[0]['moveDownUrl']);
+    }
+
+    public function testSortMenuAndResetClearPresentationState(): void
+    {
+        $table = $this->table(Request::create('/statistics/closures', 'GET', [
+            'scope' => 'public',
+            'columns' => 'hospital',
+            'columnOrder' => 'hospital,start',
+            'sortBy' => 'hospital',
+            'orderBy' => 'asc',
+            'limit' => '50',
+            'page' => '2',
+            'closureReasons' => ['technical_fault'],
+        ]));
+        $table->paginationRoute = 'app_stats_closure_analytics_details';
+        $table->sortBy = 'hospital';
+        $table->orderBy = 'asc';
+        $table->columns = [
+            ['key' => 'start', 'label' => 'Start', 'sortable' => true, 'required' => true],
+            ['key' => 'hospital', 'label' => 'Hospital', 'sortable' => true, 'configurable' => true],
+            ['key' => 'reason', 'label' => 'Reason', 'sortable' => true, 'configurable' => true, 'visible' => false],
+        ];
+
+        self::assertFalse($table->getShouldShowSortMenu());
+        self::assertFalse($table->getShouldShowReset());
+
+        $table->columnVisibilityEnabled = true;
+        self::assertTrue($table->getShouldShowSortMenu());
+        self::assertTrue($table->getShouldShowReset());
+
+        $choices = $table->getSortChoices();
+        self::assertSame(['start', 'hospital', 'reason'], array_map(
+            static fn (array $choice): string => $choice['sortKey'],
+            $choices,
+        ));
+        self::assertFalse($choices[0]['selected']);
+        self::assertTrue($choices[1]['selected']);
+        self::assertSame('asc', $table->getSelectedSortDirection());
+        self::assertSame([25, 50, 100], $table->getPageSizes());
+
+        $hidden = array_column($table->getSortFormHiddenFields(), 'value', 'name');
+        self::assertSame('public', $hidden['scope']);
+        self::assertSame('hospital', $hidden['columns']);
+        self::assertSame('technical_fault', $hidden['closureReasons[0]']);
+        self::assertArrayNotHasKey('sortBy', $hidden);
+        self::assertArrayNotHasKey('limit', $hidden);
+        self::assertArrayNotHasKey('page', $hidden);
+        self::assertSame('/explore/state', $table->getSortFormAction());
+
+        $sortResetUrl = $table->sortResetUrl();
+        self::assertStringContainsString('scope=public', $sortResetUrl);
+        self::assertStringContainsString('columns=hospital', $sortResetUrl);
+        self::assertStringNotContainsString('sortBy=', $sortResetUrl);
+        self::assertStringNotContainsString('orderBy=', $sortResetUrl);
+        self::assertStringNotContainsString('limit=', $sortResetUrl);
+        self::assertStringNotContainsString('page=', $sortResetUrl);
+
+        $columnResetUrl = $table->columnResetUrl();
+        self::assertStringContainsString('scope=public', $columnResetUrl);
+        self::assertStringContainsString('sortBy=hospital', $columnResetUrl);
+        self::assertStringContainsString('limit=50', $columnResetUrl);
+        self::assertStringNotContainsString('columns=', $columnResetUrl);
+        self::assertStringNotContainsString('columnOrder=', $columnResetUrl);
+        self::assertStringNotContainsString('page=', $columnResetUrl);
+
+        $resetUrl = $table->resetUrl();
+        self::assertStringContainsString('scope=public', $resetUrl);
+        self::assertStringNotContainsString('columns=', $resetUrl);
+        self::assertStringNotContainsString('columnOrder=', $resetUrl);
+        self::assertStringNotContainsString('sortBy=', $resetUrl);
+        self::assertStringNotContainsString('orderBy=', $resetUrl);
+        self::assertStringNotContainsString('limit=', $resetUrl);
+        self::assertStringNotContainsString('page=', $resetUrl);
+    }
+
+    public function testResolvedColumnStateCanBeProvidedWithoutQueryParameters(): void
+    {
+        $table = $this->table(Request::create('/statistics/closures'));
+        $table->columnVisibilityEnabled = true;
+        $table->columnOrderingEnabled = true;
+        $table->visibleColumnKeys = ['reason'];
+        $table->columnOrder = ['reason', 'start', 'hospital'];
+        $table->columns = [
+            ['key' => 'start', 'label' => 'Start', 'required' => true],
+            ['key' => 'hospital', 'label' => 'Hospital', 'configurable' => true],
+            ['key' => 'reason', 'label' => 'Reason', 'configurable' => true, 'visible' => false],
+        ];
+
+        self::assertSame(['reason', 'start'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $table->getVisibleColumns(),
+        ));
+    }
+
     public function testCursorFooterUrlsAndHiddenWhenEmpty(): void
     {
         $table = $this->table(Request::create('/explore/allocation', 'GET', [

@@ -93,7 +93,7 @@ Three groups:
 2. **`keepQueryKeys`** — whitelist of outer state copied as hidden inputs (typically `search`, `sortBy`, `orderBy`). Use this on list pages.
 3. **Always dropped** — `page`, `cursor`, `after`, `before`. Applying filters always returns to the first page.
 
-`preserveQuery` + `omitQueryKeys` is the Statistics shortcut: copy every remaining scalar query key except the drawer fields (and except the always-dropped pagination keys). Do not use `preserveQuery` on paginated lists.
+`preserveQuery` + `omitQueryKeys` is the Statistics shortcut: copy every remaining scalar query key except the drawer fields (and except the always-dropped pagination keys). Do not use `preserveQuery` on paginated lists. Empty `type="date"` fields are omitted on Apply, so optional date ranges stay unset unless the user fills them.
 
 ```twig
 <twig:FilterDrawerTrigger
@@ -326,7 +326,42 @@ Not a Live Component: sort, page size, and page links are GET URLs so list state
 
 `property + label + type + options`. Types: `text`, `number`, `datetime`, `link`, `user`, `badge`, `boolean`, `actions`, `custom` (`cellTemplate` with `row` / `column` / `context`).
 
-Available vs visible columns: each column has a stable `key` and `visible` (default true). Column picker UI is later.
+Available vs visible columns: each column has a stable `key` and `visible` (default
+true). Set `columnVisibilityEnabled` on the table and `configurable: true` on the
+columns a user may toggle. `required: true` keeps an essential column visible.
+The selected keys are stored in the comma-separated `columns` query parameter;
+the component validates them against its own config and resets pagination while
+preserving the remaining query. Existing tables have no picker unless they opt in.
+
+Set `columnOrderingEnabled` to interpret `columnOrder` as the complete
+left-to-right list of column keys. Hidden columns remain in this order, so showing
+them again restores their previous position. Unknown keys are ignored and columns
+missing from an older state are appended in current definition order.
+
+Persisted preferences are a separate opt-in. A registered
+`DataTablePreferenceDefinitionInterface` supplies a stable key and current
+defaults; the component receives the resolved visible keys, order, page size,
+save URL and CSRF token. The Shared preference service stores only those three
+presentation values per `(user, table key)`. Explicit `columns`, `columnOrder`,
+or `limit` query values override stored defaults for a shareable URL. Page,
+filters, search, analysis scope/period and row sorting are never persisted.
+The picker saves once after checkbox/order changes. When column visibility is
+enabled, the header shows compact outlined button groups: a page-supplied
+`toolbar` (for example the events/intervals switch), then sort plus columns in
+one group with short labels, and a separate reset control with the same short
+label style. The reset restores the whole table presentation to application
+defaults. The sort flyover is a GET form for
+column, direction, and page size; applying it keeps the rest of the query
+(including filters) and clearing it drops only `sortBy`, `orderBy`, and
+`limit`. The column flyover lists `#` position, name, then move buttons, and
+can reset only column visibility and order.
+
+Sorting is also opt-in per column (`sortable: true`, optionally `sortKey`). The
+component renders a sort menu, header `aria-sort` links, and the reset control;
+the controller/query must validate the public sort key and perform the actual
+database ordering.
+`emptyValue`, datetime `timezone`, number `format`, and `nowrap` are optional
+presentation metadata. Domain-specific formatting remains a `custom` cell.
 
 Badge palettes live in `BadgePalette` (hospital location/tier/size, allocation urgency, import type/status). The `badges.render` and `import_status` macros use the same source.
 

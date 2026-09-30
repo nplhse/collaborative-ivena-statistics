@@ -22,6 +22,8 @@ final readonly class DataTableColumn
         public ?string $width = null,
         public ?string $align = null,
         public bool $visible = true,
+        public bool $configurable = false,
+        public bool $required = false,
         public array $options = [],
     ) {
     }
@@ -71,6 +73,9 @@ final readonly class DataTableColumn
             'cellTemplate',
             'actionLabel',
             'actionClass',
+            'emptyValue',
+            'timezone',
+            'nowrap',
         ] as $optionKey) {
             if (\array_key_exists($optionKey, $config)) {
                 $options[$optionKey] = $config[$optionKey];
@@ -89,6 +94,8 @@ final readonly class DataTableColumn
             width: self::nullableString($config['width'] ?? null),
             align: self::nullableString($config['align'] ?? null),
             visible: (bool) ($config['visible'] ?? true),
+            configurable: (bool) ($config['configurable'] ?? false),
+            required: (bool) ($config['required'] ?? false),
             options: $options,
         );
     }

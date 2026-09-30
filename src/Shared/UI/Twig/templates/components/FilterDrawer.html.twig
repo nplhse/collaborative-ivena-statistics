@@ -14,7 +14,7 @@
     </div>
 
     <div class="offcanvas-body">
-        <form method="get" action="{{ formAction }}" id="{{ formId }}"{% if formTestId %} data-testid="{{ formTestId }}"{% endif %}>
+        <form method="get" action="{{ formAction }}" id="{{ formId }}" data-controller="filter-drawer" data-action="submit->filter-drawer#omitEmptyDates"{% if formTestId %} data-testid="{{ formTestId }}"{% endif %}>
             {% for key, value in this.preservedQueryFields %}
                 <input type="hidden" name="{{ key }}" value="{{ value }}">
             {% endfor %}

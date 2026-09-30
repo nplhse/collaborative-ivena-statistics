@@ -1,8 +1,33 @@
 <div{{ attributes }}>
-    <div class="card">
-        {% if title %}
+    <div class="card data-table-card">
+        {% if title or this.shouldShowHeaderActions %}
             <div class="card-header">
-                <h3 class="card-title">{{ title }}</h3>
+                {% if title %}<h3 class="card-title">{{ title }}</h3>{% endif %}
+                {% if this.shouldShowHeaderActions %}
+                    <div class="card-actions">
+                        <div class="data-table-toolbar" data-testid="data-table-toolbar">
+                            {% block toolbar %}{% endblock %}
+                            {% if this.shouldShowSortMenu or this.shouldShowColumnVisibility %}
+                                <div
+                                    class="btn-group btn-group-sm"
+                                    role="group"
+                                    aria-label="{{ 'label.data_table.configure'|trans({}, 'shared') }}"
+                                    data-testid="data-table-configure"
+                                >
+                                    {% if this.shouldShowSortMenu %}
+                                        {{ include('@Shared/components/data_table/_sort_menu.html.twig') }}
+                                    {% endif %}
+                                    {% if this.shouldShowColumnVisibility %}
+                                        {{ include('@Shared/components/data_table/_column_picker.html.twig') }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if this.shouldShowReset %}
+                                {{ include('@Shared/components/data_table/_reset.html.twig') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         {% endif %}
         {% if tabs %}

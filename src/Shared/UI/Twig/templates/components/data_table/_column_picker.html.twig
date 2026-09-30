@@ -1,0 +1,100 @@
+<div class="btn-group">
+    <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-no-caret"
+        data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        aria-expanded="false"
+        aria-label="{{ 'label.data_table.columns'|trans({}, 'shared') }}"
+        title="{{ 'label.data_table.columns'|trans({}, 'shared') }}"
+        data-testid="data-table-columns"
+    >
+        <twig:ux:icon name="tabler:columns" class="icon" />
+        {{ 'label.data_table.columns'|trans({}, 'shared') }}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end data-table-column-picker">
+        {% if this.preferenceEnabled %}
+            <form
+                method="post"
+                action="{{ preferenceSaveUrl }}"
+                data-controller="data-table-columns"
+            >
+                <input type="hidden" name="_token" value="{{ preferenceCsrfToken }}">
+                <input type="hidden" name="tableKey" value="{{ preferenceKey }}">
+                <input type="hidden" name="returnUrl" value="{{ preferenceReturnUrl }}">
+                <input type="hidden" name="pageSize" value="{{ this.pageSize }}">
+                <div class="px-2 pt-2 pb-1 text-secondary small">{{ 'help.data_table.columns'|trans({}, 'shared') }}</div>
+                <div data-data-table-columns-target="list">
+                    {% for choice in this.columnVisibilityChoices %}
+                        {% set column = choice.column %}
+                        <div class="data-table-column-row" data-data-table-columns-target="item">
+                            <span class="data-table-column-id" data-data-table-columns-target="position">#{{ loop.index }}</span>
+                            <input type="hidden" name="columnOrder[]" value="{{ column.key }}">
+                            <input
+                                class="form-check-input m-0"
+                                type="checkbox"
+                                name="visibleColumns[]"
+                                value="{{ column.key }}"
+                                id="data-table-column-{{ column.key }}"
+                                {% if choice.visible %}checked{% endif %}
+                                {% if column.required %}disabled{% endif %}
+                            >
+                            <label class="form-check-label flex-fill text-truncate" for="data-table-column-{{ column.key }}">
+                                {{ column.label|trans({}, column.labelDomain) }}
+                                {% if column.required %}<span class="visually-hidden">{{ 'label.data_table.required'|trans({}, 'shared') }}</span>{% endif %}
+                            </label>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary px-1"
+                                    data-action="data-table-columns#moveUp"
+                                    aria-label="{{ 'label.data_table.move_up'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}"
+                                >↑</button>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-secondary px-1"
+                                    data-action="data-table-columns#moveDown"
+                                    aria-label="{{ 'label.data_table.move_down'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}"
+                                >↓</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="d-flex justify-content-between gap-2 px-2 py-2">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" name="action" value="reset-columns">
+                        {{ 'label.data_table.reset'|trans({}, 'shared') }}
+                    </button>
+                    <button type="submit" class="btn btn-sm btn-primary" name="action" value="save">
+                        {{ 'label.data_table.apply'|trans({}, 'shared') }}
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            {% for choice in this.columnVisibilityChoices %}
+                {% set column = choice.column %}
+                <div class="data-table-column-row">
+                    <span class="data-table-column-id">#{{ loop.index }}</span>
+                    <a
+                        class="flex-fill text-truncate text-reset text-decoration-none{% if column.required %} disabled{% endif %}"
+                        href="{{ choice.url }}"
+                        role="menuitemcheckbox"
+                        aria-checked="{{ choice.visible ? 'true' : 'false' }}"
+                        {% if column.required %}aria-disabled="true"{% endif %}
+                    >
+                        <span class="d-inline-block text-center me-1" style="width: 1rem" aria-hidden="true">{% if choice.visible %}✓{% endif %}</span>
+                        {{ column.label|trans({}, column.labelDomain) }}
+                    </a>
+                    {% if this.columnOrderingEnabled %}
+                        <div class="btn-group btn-group-sm">
+                            <a class="btn btn-outline-secondary px-1{% if not choice.canMoveUp %} disabled{% endif %}" href="{{ choice.moveUpUrl }}" aria-label="{{ 'label.data_table.move_up'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}">↑</a>
+                            <a class="btn btn-outline-secondary px-1{% if not choice.canMoveDown %} disabled{% endif %}" href="{{ choice.moveDownUrl }}" aria-label="{{ 'label.data_table.move_down'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}">↓</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <div class="d-flex justify-content-start px-2 py-2">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ this.columnResetUrl }}">{{ 'label.data_table.reset'|trans({}, 'shared') }}</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
