@@ -14,6 +14,7 @@ final readonly class ClosureTimelineSegment
         public string $careLevelName,
         public string $departmentName,
         public string $eventKey,
+        public ClosureEventType $eventType,
         public ?string $sourceGroupId,
         public int $intervalId,
         public \DateTimeImmutable $startsAt,

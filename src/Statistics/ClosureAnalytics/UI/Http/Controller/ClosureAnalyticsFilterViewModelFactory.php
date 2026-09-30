@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\ClosureReason;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -25,12 +26,15 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
      *   activeCount: int,
      *   filterKeys: list<string>,
      *   showClosureUnits: bool,
-     *   values: array{departments: list<int>, specialities: list<int>, careLevels: list<string>, reasons: list<string>, closureUnits: list<string>},
+     *   showHospitals: bool,
+     *   values: array{departments: list<int>, specialities: list<int>, careLevels: list<string>, reasons: list<string>, closureUnits: list<string>, fromDate: ?string, toDate: ?string, eventTypes: list<string>, hospitals: list<int>},
      *   choices: array{
      *     departments: list<array{id: int, name: string}>,
      *     specialities: list<array{id: int, name: string}>,
+     *     hospitals: list<array{id: int, name: string}>,
      *     careLevels: list<array{value: string, name: string}>,
      *     reasons: list<array{value: string, name: string}>,
+     *     eventTypes: list<array{value: string, name: string}>,
      *     closureUnits: list<array{value: string, name: string}>
      *   },
      *   badges: list<array{label: string, value: string}>
@@ -40,6 +44,8 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
     {
         $departments = $this->temporalQuery->fetchDepartmentChoices($baseCriteria);
         $specialities = $this->temporalQuery->fetchSpecialityChoices($baseCriteria);
+        $hospitals = $this->temporalQuery->fetchHospitalChoices($baseCriteria);
+        $showHospitals = \count($hospitals) > 1;
         $showClosureUnits = \in_array(
             $baseCriteria->filter->scope,
             [StatisticsFilterScope::Hospital, StatisticsFilterScope::MyHospitals],
@@ -62,8 +68,23 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
             ],
             ClosureReason::cases(),
         );
+        $eventTypes = array_map(
+            fn (ClosureEventType $eventType): array => [
+                'value' => $eventType->value,
+                'name' => $this->eventTypeLabel($eventType),
+            ],
+            ClosureEventType::cases(),
+        );
 
         $badges = [];
+        $this->addDateBadge($badges, $filter);
+        if ($showHospitals) {
+            $this->addBadge(
+                $badges,
+                'label.hospital',
+                $this->selectedNames($hospitals, $filter->hospitalIds),
+            );
+        }
         $this->addBadge(
             $badges,
             'label.department',
@@ -91,6 +112,15 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
             ),
             'statistics',
         );
+        $this->addBadge(
+            $badges,
+            'stats.closure.filter.event_types',
+            array_map(
+                fn (string $value): string => $this->eventTypeLabel(ClosureEventType::from($value)),
+                $filter->eventTypes,
+            ),
+            'statistics',
+        );
         if ($showClosureUnits) {
             $this->addBadge(
                 $badges,
@@ -104,18 +134,25 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
             'activeCount' => \count($badges),
             'filterKeys' => ClosureAnalyticsFilterRequestResolver::QUERY_KEYS,
             'showClosureUnits' => $showClosureUnits,
+            'showHospitals' => $showHospitals,
             'values' => [
                 'departments' => $filter->departmentIds,
                 'specialities' => $filter->specialityIds,
                 'careLevels' => $filter->careLevels,
                 'reasons' => $filter->reasons,
                 'closureUnits' => $showClosureUnits ? $filter->closureUnits : [],
+                'fromDate' => $filter->fromDate,
+                'toDate' => $filter->toDate,
+                'eventTypes' => $filter->eventTypes,
+                'hospitals' => $showHospitals ? $filter->hospitalIds : [],
             ],
             'choices' => [
                 'departments' => $departments,
                 'specialities' => $specialities,
+                'hospitals' => $hospitals,
                 'careLevels' => $careLevels,
                 'reasons' => $reasons,
+                'eventTypes' => $eventTypes,
                 'closureUnits' => $closureUnits,
             ],
             'badges' => $badges,
@@ -139,6 +176,34 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
     private function reasonLabel(ClosureReason $reason): string
     {
         return $this->translator->trans('stats.closure.reason.'.$reason->value, domain: 'statistics');
+    }
+
+    private function eventTypeLabel(ClosureEventType $eventType): string
+    {
+        return $this->translator->trans('stats.closure.events.'.$eventType->value, domain: 'statistics');
+    }
+
+    /**
+     * @param list<array{label: string, value: string}> $badges
+     */
+    private function addDateBadge(array &$badges, ClosureAnalyticsFilter $filter): void
+    {
+        if (null === $filter->fromDate && null === $filter->toDate) {
+            return;
+        }
+
+        if (null !== $filter->fromDate && null !== $filter->toDate) {
+            $value = $filter->fromDate.' – '.$filter->toDate;
+        } elseif (null !== $filter->fromDate) {
+            $value = '≥ '.$filter->fromDate;
+        } else {
+            $value = '≤ '.$filter->toDate;
+        }
+
+        $badges[] = [
+            'label' => $this->translator->trans('stats.closure.filter.dates', domain: 'statistics'),
+            'value' => $value,
+        ];
     }
 
     /**

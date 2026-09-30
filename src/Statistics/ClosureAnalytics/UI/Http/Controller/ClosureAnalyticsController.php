@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\UI\Http\Controller;
 
+use App\Allocation\Application\DTO\CatalogAction;
+use App\Shared\Application\DataTable\DataTablePreferenceService;
+use App\Shared\UI\Http\DataTablePreferenceQueryState;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\ClosureAnalytics\Application\ClosureAllocationExploreUrlFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsService;
+use App\Statistics\ClosureAnalytics\Application\ClosureDetailDayTimelineFactory;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureIntervalDetailQuery;
+use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
+use App\Statistics\ClosureAnalytics\UI\Twig\ClosureIntervalTableColumns;
 use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
@@ -22,6 +32,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\UX\Pagination\PaginatorInterface;
 
 final class ClosureAnalyticsController extends AbstractController
 {
@@ -36,6 +48,13 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly OverviewPeriodViewModelFactory $periodViewModelFactory,
         private readonly AnalysisContextViewModelFactory $analysisContextFactory,
         private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
+        private readonly PaginatorInterface $paginator,
+        private readonly DataTablePreferenceService $dataTablePreferences,
+        private readonly ClosureEventTableColumns $eventTableColumns,
+        private readonly ClosureIntervalTableColumns $intervalTableColumns,
+        private readonly ClosureDetailDayTimelineFactory $detailDayTimelineFactory,
+        private readonly ClosureAllocationExploreUrlFactory $allocationExploreUrlFactory,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -115,16 +134,32 @@ final class ClosureAnalyticsController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $criteria = $this->criteriaFactory->create($user, $filter, ClosureAnalyticsFilterRequestResolver::fromRequest($request));
+        $closureFilter = ClosureAnalyticsFilterRequestResolver::fromRequest($request);
+        $criteria = $this->criteriaFactory->create($user, $filter, $closureFilter);
         $event = $this->eventQuery->fetchEvent($criteria, $eventKey);
-        if (!$event instanceof \App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow) {
+        if (!$event instanceof ClosureEventRow) {
             throw $this->createNotFoundException();
         }
         $children = $this->eventQuery->fetchChildren($criteria, $eventKey);
+        [$timelineDays, $timelineContextTypes] = $this->detailDayTimelineFactory->build(
+            $criteria,
+            $children,
+            $eventKey,
+            $request->query->all(),
+        );
 
         return $this->render('@Statistics/closure_analytics/event.html.twig', [
             'event' => $event,
             'children' => $children,
+            'timelineDays' => $timelineDays,
+            'timelineContextTypes' => $timelineContextTypes,
+            'actions' => $this->allocationActions(
+                $filter,
+                $closureFilter,
+                $event->hospitalId,
+                $event->startsAt,
+                $event->endsAt,
+            ),
         ]);
     }
 
@@ -138,11 +173,43 @@ final class ClosureAnalyticsController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        $criteria = $this->criteriaFactory->create(
+            $user,
+            $filter,
+            ClosureAnalyticsFilterRequestResolver::fromRequest($request),
+        );
+        $requestedTable = ClosureEventTableState::fromRequest($request);
+        $intervalView = 'intervals' === $requestedTable->view;
+        $columnDefinition = $intervalView ? $this->intervalTableColumns : $this->eventTableColumns;
+        $schema = $columnDefinition->preferenceSchema();
+        $queryPreferences = DataTablePreferenceQueryState::fromRequest($request);
+        $tablePreferences = $this->dataTablePreferences->resolve(
+            $user,
+            $schema,
+            $queryPreferences->visibleColumns,
+            $queryPreferences->columnOrder,
+            $queryPreferences->pageSize,
+        );
+        $table = ClosureEventTableState::fromRequest($request, $tablePreferences->pageSize);
+        $events = $this->paginator
+            ->fromCallbacks(
+                fn (int $offset, int $limit): array => $intervalView
+                    ? $this->eventQuery->fetchIntervals($criteria, $offset, $limit, $table->sortBy, $table->orderBy)
+                    : $this->eventQuery->fetchEvents($criteria, $offset, $limit, $table->sortBy, $table->orderBy),
+                fn (): int => $intervalView
+                    ? $this->eventQuery->countIntervals($criteria)
+                    : $this->eventQuery->countEvents($criteria),
+            )
+            ->perPage(max(1, $table->limit))
+            ->paginate(page: $table->page);
+
         return $this->render('@Statistics/closure_analytics/_details_frame.html.twig', [
-            'dashboard' => $this->service->buildEvents(
-                $this->criteriaFactory->create($user, $filter, ClosureAnalyticsFilterRequestResolver::fromRequest($request)),
-                $request->query->getInt('page', 1),
-            ),
+            'events' => $events,
+            'table' => $table,
+            'columns' => $intervalView ? ClosureIntervalTableColumns::columns() : ClosureEventTableColumns::columns(),
+            'tablePreferences' => $tablePreferences,
+            'tablePreferenceKey' => $schema->key,
+            'tablePreferencesPersisted' => $user instanceof User,
         ]);
     }
 
@@ -157,17 +224,58 @@ final class ClosureAnalyticsController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $interval = $this->intervalQuery->fetch(
-            $this->criteriaFactory->create($user, $filter, ClosureAnalyticsFilterRequestResolver::fromRequest($request)),
-            $id,
-        );
-        if (!$interval instanceof \App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow) {
+        $closureFilter = ClosureAnalyticsFilterRequestResolver::fromRequest($request);
+        $criteria = $this->criteriaFactory->create($user, $filter, $closureFilter);
+        $interval = $this->intervalQuery->fetch($criteria, $id);
+        if (!$interval instanceof ClosureIntervalRow) {
             throw $this->createNotFoundException();
         }
 
+        [$timelineDays, $timelineContextTypes] = $this->detailDayTimelineFactory->build(
+            $criteria,
+            [$interval],
+            $interval->eventKey,
+            $request->query->all(),
+        );
+
         return $this->render('@Statistics/closure_analytics/interval.html.twig', [
             'interval' => $interval,
+            'timelineDays' => $timelineDays,
+            'timelineContextTypes' => $timelineContextTypes,
+            'actions' => $this->allocationActions(
+                $filter,
+                $closureFilter,
+                $interval->hospitalId,
+                $interval->startsAt,
+                $interval->endsAt,
+            ),
         ]);
+    }
+
+    /**
+     * @return list<CatalogAction>
+     */
+    private function allocationActions(
+        StatisticsFilter $filter,
+        ClosureAnalyticsFilter $closureFilter,
+        int $hospitalId,
+        \DateTimeImmutable $startsAt,
+        \DateTimeImmutable $endsAt,
+    ): array {
+        return [
+            new CatalogAction(
+                label: $this->translator->trans('stats.closure.event.view_allocations', [], 'statistics'),
+                url: $this->allocationExploreUrlFactory->listUrl(
+                    $filter,
+                    $closureFilter,
+                    $hospitalId,
+                    $startsAt,
+                    $endsAt,
+                ),
+                icon: 'tabler:list',
+                primary: true,
+            ),
+        ];
     }
 
     private function redirectUnsupportedScope(
@@ -209,6 +317,9 @@ final class ClosureAnalyticsController extends AbstractController
         unset($tabQuery['page'], $tabQuery['timeline_grain'], $tabQuery['timeline_from']);
         if (!\in_array($filter->scope, [StatisticsFilterScope::Hospital, StatisticsFilterScope::MyHospitals], true)) {
             unset($tabQuery[ClosureAnalyticsFilterRequestResolver::CLOSURE_UNITS]);
+        }
+        if (!$filterViewModel['showHospitals']) {
+            unset($tabQuery[ClosureAnalyticsFilterRequestResolver::HOSPITALS]);
         }
 
         return [

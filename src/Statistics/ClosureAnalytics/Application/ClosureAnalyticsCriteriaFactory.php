@@ -32,7 +32,10 @@ final readonly class ClosureAnalyticsCriteriaFactory
 
         return new ClosureAnalyticsCriteria(
             $this->scopeResolver->resolveCriteria($context),
-            StatisticsPeriodResolver::resolve($filter),
+            StatisticsPeriodResolver::resolve($filter)->intersect(
+                $closureFilter->periodFrom(),
+                $closureFilter->periodToExclusive(),
+            ),
             TimeSeriesGrainResolver::resolve($filter->period),
             $filter,
             $closureFilter->departmentIds,
@@ -42,6 +45,8 @@ final readonly class ClosureAnalyticsCriteriaFactory
             \in_array($filter->scope, [StatisticsFilterScope::Hospital, StatisticsFilterScope::MyHospitals], true)
                 ? $closureFilter->closureUnits
                 : [],
+            $closureFilter->eventTypes,
+            StatisticsFilterScope::Hospital === $filter->scope ? [] : $closureFilter->hospitalIds,
         );
     }
 }

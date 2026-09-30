@@ -63,6 +63,89 @@
     color: var(--tblr-dropdown-link-hover-color, inherit);
 }
 
+.closure-event-badge-stack .badge + .badge {
+    margin-left: -0.35rem;
+    box-shadow: 0 0 0 2px var(--tblr-bg-surface, #fff);
+}
+
+.closure-event-preview {
+    width: min(26rem, calc(100vw - 2rem));
+    max-height: 24rem;
+    overflow-y: auto;
+}
+
+.data-table-card {
+    overflow: visible;
+}
+
+.data-table-card > .card-header {
+    overflow: visible;
+}
+
+.data-table-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.data-table-toolbar .btn {
+    font-size: 0.75rem;
+    padding: 0.125rem 0.4rem;
+    min-height: 1.5rem;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.data-table-toolbar .btn .icon {
+    width: 0.8125rem;
+    height: 0.8125rem;
+}
+
+.data-table-toolbar .dropdown-toggle-no-caret::after {
+    display: none;
+}
+
+.bg-gray-lt {
+    background-color: var(--tblr-gray-lt) !important;
+    color: var(--tblr-gray) !important;
+}
+
+.bg-gray-dark-lt {
+    background-color: var(--tblr-gray-dark-lt) !important;
+    color: var(--tblr-gray-dark) !important;
+}
+
+.bg-gray-muted-lt {
+    background-color: color-mix(in srgb, var(--tblr-gray) 12%, transparent) !important;
+    color: var(--tblr-secondary) !important;
+}
+
+.data-table-column-picker {
+    width: min(24rem, calc(100vw - 2rem));
+    max-height: min(36rem, calc(100vh - 6rem));
+    overflow-y: auto;
+}
+
+.data-table-column-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+}
+
+.data-table-column-id {
+    flex: 0 0 1.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--tblr-secondary);
+}
+
+.data-table-sort-menu {
+    width: min(18rem, calc(100vw - 2rem));
+    padding: 0.75rem 1rem;
+}
+
 /* IVENA-inspired closure timeline. Neutral cells mean “no closure represented”,
    not that the department was proven to be open. */
 .closure-timeline-scroll {
@@ -316,6 +399,7 @@
     position: absolute;
     top: 0.25rem;
     bottom: 0.25rem;
+    z-index: 1;
     min-width: 0.2rem;
     border: 1px solid color-mix(in srgb, var(--tblr-primary) 70%, #000);
     border-radius: 0.2rem;
@@ -328,11 +412,71 @@
     background-image: repeating-linear-gradient(135deg, transparent 0, transparent 6px, rgb(255 255 255 / 22%) 6px, rgb(255 255 255 / 22%) 10px);
 }
 
+.closure-timeline-segment--group {
+    border-color: color-mix(in srgb, var(--tblr-blue) 70%, #000);
+    background-color: var(--tblr-blue);
+}
+
+.closure-timeline-segment--cluster {
+    border-color: color-mix(in srgb, var(--tblr-azure) 70%, #000);
+    background-color: var(--tblr-azure);
+}
+
+.closure-timeline-segment--single {
+    border-color: color-mix(in srgb, var(--tblr-purple) 70%, #000);
+    background-color: var(--tblr-purple);
+}
+
 .closure-timeline-segment:hover,
 .closure-timeline-segment:focus-visible {
     z-index: 2;
     outline: 2px solid var(--tblr-primary);
     outline-offset: 2px;
+}
+
+.closure-timeline-segment--context {
+    z-index: 0;
+    box-shadow: none;
+}
+
+.closure-timeline-segment--context:hover,
+.closure-timeline-segment--context:focus-visible {
+    outline-color: var(--tblr-secondary);
+}
+
+.closure-timeline-segment--context.closure-timeline-segment--group {
+    border-color: color-mix(in srgb, var(--tblr-blue) 45%, var(--tblr-border-color));
+    background: color-mix(in srgb, var(--tblr-blue) 28%, transparent);
+}
+
+.closure-timeline-segment--context.closure-timeline-segment--cluster {
+    border-color: color-mix(in srgb, var(--tblr-azure) 45%, var(--tblr-border-color));
+    background: color-mix(in srgb, var(--tblr-azure) 28%, transparent);
+}
+
+.closure-timeline-segment--context.closure-timeline-segment--single {
+    border-color: color-mix(in srgb, var(--tblr-purple) 45%, var(--tblr-border-color));
+    background: color-mix(in srgb, var(--tblr-purple) 28%, transparent);
+}
+
+.closure-timeline-swatch--current {
+    border-color: var(--tblr-primary);
+    background: var(--tblr-primary);
+}
+
+.closure-timeline-swatch--context-group {
+    border-color: color-mix(in srgb, var(--tblr-blue) 45%, var(--tblr-border-color));
+    background: color-mix(in srgb, var(--tblr-blue) 28%, transparent);
+}
+
+.closure-timeline-swatch--context-cluster {
+    border-color: color-mix(in srgb, var(--tblr-azure) 45%, var(--tblr-border-color));
+    background: color-mix(in srgb, var(--tblr-azure) 28%, transparent);
+}
+
+.closure-timeline-swatch--context-single {
+    border-color: color-mix(in srgb, var(--tblr-purple) 45%, var(--tblr-border-color));
+    background: color-mix(in srgb, var(--tblr-purple) 28%, transparent);
 }
 
 .closure-timeline-legend {
@@ -369,6 +513,21 @@
 .closure-timeline-swatch--multiple {
     border-color: var(--tblr-primary);
     background: repeating-linear-gradient(135deg, var(--tblr-primary-lt) 0, var(--tblr-primary-lt) 5px, color-mix(in srgb, var(--tblr-primary) 25%, transparent) 5px, color-mix(in srgb, var(--tblr-primary) 25%, transparent) 9px);
+}
+
+.closure-timeline-swatch--group {
+    border-color: var(--tblr-blue);
+    background: var(--tblr-blue);
+}
+
+.closure-timeline-swatch--cluster {
+    border-color: var(--tblr-azure);
+    background: var(--tblr-azure);
+}
+
+.closure-timeline-swatch--single {
+    border-color: var(--tblr-purple);
+    background: var(--tblr-purple);
 }
 
 .closure-breakdown-details[open] {

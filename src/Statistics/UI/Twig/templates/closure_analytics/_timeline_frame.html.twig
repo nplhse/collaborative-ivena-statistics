@@ -29,10 +29,17 @@
             {% endif %}
         {% endif %}
         <div class="card-footer closure-timeline-legend">
-            <span><i class="closure-timeline-swatch"></i>{{ 'stats.closure.timeline.legend.none'|trans({}, 'statistics') }}</span>
-            <span><i class="closure-timeline-swatch closure-timeline-swatch--closed"></i>{{ 'stats.closure.timeline.legend.closed'|trans({}, 'statistics') }}</span>
-            <span><i class="closure-timeline-swatch closure-timeline-swatch--multiple"></i>{{ 'stats.closure.timeline.legend.multiple'|trans({}, 'statistics') }}</span>
-            <small>{{ 'stats.closure.timeline.legend.note'|trans({}, 'statistics') }}</small>
+            {% if timelineGrain in ['day', 'event'] %}
+                {{ include('@Statistics/closure_analytics/_timeline_type_legend.html.twig') }}
+            {% else %}
+                <span><i class="closure-timeline-swatch"></i>{{ 'stats.closure.timeline.legend.none'|trans({}, 'statistics') }}</span>
+                <span><i class="closure-timeline-swatch closure-timeline-swatch--closed"></i>{{ 'stats.closure.timeline.legend.closed'|trans({}, 'statistics') }}</span>
+                <span><i class="closure-timeline-swatch closure-timeline-swatch--multiple"></i>{{ 'stats.closure.timeline.legend.multiple'|trans({}, 'statistics') }}</span>
+                {% if timelineGrain in ['quarter', 'month', 'week'] %}
+                    {{ include('@Statistics/closure_analytics/_timeline_type_legend.html.twig') }}
+                {% endif %}
+                <small>{{ 'stats.closure.timeline.legend.note'|trans({}, 'statistics') }}</small>
+            {% endif %}
         </div>
     </div>
 </turbo-frame>

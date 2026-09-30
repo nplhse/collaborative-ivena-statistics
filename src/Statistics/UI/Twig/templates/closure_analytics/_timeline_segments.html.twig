@@ -29,11 +29,12 @@
             </div>
             <div class="closure-timeline-track">
                 {% for segment in row.segments %}
+                    {% set eventType = segment.eventType|default('single') %}
                     <a href="{{ segment.url }}"
-                       class="closure-timeline-segment{{ segment.parallel ? ' closure-timeline-segment--parallel' }}"
+                       class="closure-timeline-segment{{ eventType != 'single' ? ' closure-timeline-segment--grouped' }}{{ segment.parallel ? ' closure-timeline-segment--parallel' }} closure-timeline-segment--{{ eventType }}"
                        style="left: {{ segment.left }}%; width: {{ segment.width }}%"
-                       title="{{ segment.title }}"
-                       aria-label="{{ segment.title }}"></a>
+                       title="{{ ('stats.closure.events.' ~ eventType)|trans({}, 'statistics') }} · {{ segment.title }}"
+                       aria-label="{{ ('stats.closure.events.' ~ eventType)|trans({}, 'statistics') }} · {{ segment.title }}"></a>
                 {% endfor %}
             </div>
         </div>

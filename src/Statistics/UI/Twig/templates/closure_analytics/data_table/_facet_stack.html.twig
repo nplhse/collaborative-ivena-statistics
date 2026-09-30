@@ -1,0 +1,26 @@
+<div class="dropdown" data-testid="{{ testId }}">
+    <button
+        type="button"
+        class="btn btn-sm btn-ghost-secondary py-0 px-1"
+        data-bs-toggle="dropdown"
+        data-bs-boundary="viewport"
+        aria-expanded="false"
+        aria-label="{{ items|map(item => item.label)|join(', ') }}"
+    >
+        <span class="d-inline-flex align-items-center closure-event-badge-stack" aria-hidden="true">
+            {% for item in items|slice(0, 3) %}
+                <span class="badge rounded-pill {{ item.class }}">{{ item.label|slice(0, 1) }}</span>
+            {% endfor %}
+        </span>
+        {% if items|length > 3 %}
+            <span class="badge bg-secondary-lt text-secondary ms-1">+{{ items|length - 3 }}</span>
+        {% endif %}
+    </button>
+    <div class="dropdown-menu closure-event-preview p-2">
+        {% for item in items %}
+            <div class="py-1{% if not loop.last %} border-bottom{% endif %}">
+                <span class="badge {{ item.class }}">{{ item.label }}</span>
+            </div>
+        {% endfor %}
+    </div>
+</div>

@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureBreakdownRow;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureHeatmapCell;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimeBucket;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimelineGridCell;
@@ -50,6 +51,27 @@ SQL, $params, $types);
             (int) ($row['single_minutes'] ?? 0),
             (int) ($row['multiple_minutes'] ?? 0),
         );
+    }
+
+    /**
+     * @return list<array{id: int, name: string}>
+     */
+    public function fetchHospitalChoices(ClosureAnalyticsCriteria $criteria): array
+    {
+        [$where, $params, $types] = ClosureIntervalSqlFilter::build($criteria->period, $criteria->scope);
+        /** @var list<array{id: int|string, name: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(<<<SQL
+SELECT DISTINCT h.id, h.name
+FROM closure_interval ci
+JOIN hospital h ON h.id = ci.hospital_id
+WHERE {$where}
+ORDER BY h.name
+SQL, $params, $types);
+
+        return array_map(static fn (array $row): array => [
+            'id' => (int) $row['id'],
+            'name' => $row['name'],
+        ], $rows);
     }
 
     /**
@@ -377,6 +399,7 @@ day_segments AS (
 SELECT TO_CHAR(ds.day_local, 'YYYY-MM-DD') AS day_key,
        ds.hospital_id, h.name AS hospital_name, s.name AS speciality_name,
        ds.care_level, d.name AS department_name, ds.event_key,
+       ds.event_type,
        NULLIF(BTRIM(ds.source_group_id), '') AS source_group_id,
        ds.id AS interval_id, ds.segment_start, ds.segment_end,
        EXISTS (
@@ -402,6 +425,7 @@ SQL, $params, $types);
             (string) $row['care_level'],
             (string) $row['department_name'],
             (string) $row['event_key'],
+            ClosureEventType::from((string) $row['event_type']),
             null === $row['source_group_id'] ? null : (string) $row['source_group_id'],
             (int) $row['interval_id'],
             new \DateTimeImmutable((string) $row['segment_start']),
@@ -464,6 +488,10 @@ SQL, $params, $types);
      */
     public function fetchBreakdown(ClosureAnalyticsCriteria $criteria, string $kind): array
     {
+        if ('event_type' === $kind) {
+            return $this->fetchEventTypeBreakdown($criteria);
+        }
+
         $hospitalScope = StatisticsFilterScope::Hospital === $criteria->filter->scope;
         [$key, $name, $join, $extraWhere] = match ($kind) {
             'hospital' => ['v.hospital_id::text', 'h.name', 'JOIN hospital h ON h.id = v.hospital_id', 'TRUE'],
@@ -544,6 +572,83 @@ FROM dimension_totals t
 JOIN dimension_actual a USING (dimension_key)
 JOIN dimension_observed o USING (dimension_key)
 ORDER BY {$orderBy} DESC, dimension_name
+SQL, $params, $types);
+
+        return array_map(static fn (array $row): ClosureBreakdownRow => new ClosureBreakdownRow(
+            (string) $row['dimension_key'],
+            (string) $row['dimension_name'],
+            (int) $row['closure_count'],
+            (int) $row['summed_minutes'],
+            (int) $row['actual_minutes'],
+            (int) $row['observed_minutes'],
+        ), $rows);
+    }
+
+    /**
+     * @return list<ClosureBreakdownRow>
+     */
+    private function fetchEventTypeBreakdown(ClosureAnalyticsCriteria $criteria): array
+    {
+        [$base, $params, $types] = ClosureTemporalSql::base($criteria);
+
+        /** @var list<array<string, int|string|null>> $rows */
+        $rows = $this->connection->fetchAllAssociative(<<<SQL
+WITH {$base},
+dimension_intervals AS (
+    SELECT v.event_type AS dimension_key, v.*
+    FROM valid_closures v
+),
+dimension_points_raw AS (
+    SELECT dimension_key, hospital_id, clipped_start AS point, 1 AS delta FROM dimension_intervals
+    UNION ALL
+    SELECT dimension_key, hospital_id, clipped_end AS point, -1 AS delta FROM dimension_intervals
+),
+dimension_points AS (
+    SELECT dimension_key, hospital_id, point, SUM(delta) AS delta
+    FROM dimension_points_raw GROUP BY dimension_key, hospital_id, point
+),
+dimension_sweep AS (
+    SELECT dimension_key, hospital_id, point AS segment_start,
+           LEAD(point) OVER (PARTITION BY dimension_key, hospital_id ORDER BY point) AS segment_end,
+           SUM(delta) OVER (PARTITION BY dimension_key, hospital_id ORDER BY point ROWS UNBOUNDED PRECEDING) AS active_count
+    FROM dimension_points
+),
+dimension_actual AS (
+    SELECT dimension_key,
+           SUM(EXTRACT(EPOCH FROM (segment_end - segment_start)) / 60.0) AS actual_minutes
+    FROM dimension_sweep
+    WHERE active_count > 0 AND segment_start < segment_end
+    GROUP BY dimension_key
+),
+dimension_hospitals AS (
+    SELECT DISTINCT dimension_key, hospital_id FROM dimension_intervals
+),
+dimension_observed AS (
+    SELECT dh.dimension_key,
+           SUM(EXTRACT(EPOCH FROM (o.segment_end - o.segment_start)) / 60.0) AS observed_minutes
+    FROM dimension_hospitals dh
+    JOIN observed_segments o ON o.hospital_id = dh.hospital_id
+    GROUP BY dh.dimension_key
+),
+dimension_totals AS (
+    SELECT dimension_key, COUNT(DISTINCT event_key)::int AS closure_count,
+           SUM(EXTRACT(EPOCH FROM (clipped_end - clipped_start)) / 60.0) AS summed_minutes
+    FROM dimension_intervals
+    GROUP BY dimension_key
+),
+type_keys AS (
+    SELECT unnest(ARRAY['group', 'cluster', 'single']) AS dimension_key
+)
+SELECT k.dimension_key, k.dimension_key AS dimension_name,
+       COALESCE(t.closure_count, 0)::int AS closure_count,
+       ROUND(COALESCE(t.summed_minutes, 0))::int AS summed_minutes,
+       ROUND(COALESCE(a.actual_minutes, 0))::int AS actual_minutes,
+       ROUND(COALESCE(o.observed_minutes, 0))::int AS observed_minutes
+FROM type_keys k
+LEFT JOIN dimension_totals t USING (dimension_key)
+LEFT JOIN dimension_actual a USING (dimension_key)
+LEFT JOIN dimension_observed o USING (dimension_key)
+ORDER BY array_position(ARRAY['group', 'cluster', 'single'], k.dimension_key)
 SQL, $params, $types);
 
         return array_map(static fn (array $row): ClosureBreakdownRow => new ClosureBreakdownRow(

@@ -1,39 +1,54 @@
-<turbo-frame id="stats-closure-details" target="_top">
-    <div class="card" data-testid="stats-closure-intervals">
-        <div class="card-header">
-            <h3 class="card-title">{{ 'stats.closure.events.title'|trans({}, 'statistics') }}</h3>
-            <div class="card-actions text-muted">{{ dashboard.eventTotal|number_format(0, ',', '.') }}</div>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-vcenter card-table">
-                <thead><tr>
-                    <th>{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</th>
-                    <th>{{ 'stats.closure.intervals.hospital'|trans({}, 'statistics') }}</th>
-                    <th>{{ 'stats.closure.events.event'|trans({}, 'statistics') }}</th>
-                    <th>{{ 'stats.closure.events.children'|trans({}, 'statistics') }}</th>
-                    <th>{{ 'stats.closure.kpi.sum_duration'|trans({}, 'statistics') }}</th>
-                    <th>{{ 'stats.closure.kpi.actual_duration'|trans({}, 'statistics') }}</th>
-                </tr></thead>
-                <tbody>
-                {% for row in dashboard.events %}
-                    <tr>
-                        <td><a href="{{ path('app_stats_closure_analytics_event', app.request.query.all|merge({eventKey: row.key})) }}">{{ row.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</a></td>
-                        <td>{{ row.hospitalName }}</td>
-                        <td>{{ row.grouped ? row.sourceGroupId : 'stats.closure.events.ungrouped'|trans({}, 'statistics') }}</td>
-                        <td>{{ row.closureCount }}</td>
-                        <td>{{ row.summedMinutes|closure_duration }}</td>
-                        <td>{{ row.actualMinutes|closure_duration }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if dashboard.pages > 1 %}
-            <div class="card-footer d-flex justify-content-between">
-                {% if dashboard.page > 1 %}<a data-turbo-frame="stats-closure-details" class="btn btn-outline-secondary" href="{{ path('app_stats_closure_analytics_details', app.request.query.all|merge({page: dashboard.page - 1})) }}">‹</a>{% else %}<span></span>{% endif %}
-                <span class="text-muted">{{ dashboard.page }} / {{ dashboard.pages }}</span>
-                {% if dashboard.page < dashboard.pages %}<a data-turbo-frame="stats-closure-details" class="btn btn-outline-secondary" href="{{ path('app_stats_closure_analytics_details', app.request.query.all|merge({page: dashboard.page + 1})) }}">›</a>{% endif %}
-            </div>
-        {% endif %}
+<turbo-frame id="stats-closure-details">
+    <div data-testid="stats-closure-intervals">
+        {% set viewQuery = app.request.query.all|merge({
+            page: null,
+            limit: null,
+            sortBy: null,
+            orderBy: null,
+            columns: null,
+            columnOrder: null,
+        }) %}
+        <twig:DataTable
+            title="{{ (table.view == 'intervals' ? 'stats.closure.table.intervals_title' : 'stats.closure.events.title')|trans({}, 'statistics') }}"
+            :paginator="events"
+            paginationRoute="app_stats_closure_analytics_details"
+            :sortBy="table.sortBy"
+            :orderBy="table.orderBy"
+            :columns="columns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="tablePreferences.visibleColumns"
+            :columnOrder="tablePreferences.columnOrder"
+            :preferenceKey="tablePreferencesPersisted ? tablePreferenceKey : null"
+            :preferenceSaveUrl="tablePreferencesPersisted ? path('app_data_table_preferences_save') : null"
+            :preferenceCsrfToken="tablePreferencesPersisted ? csrf_token('data_table_preference_' ~ tablePreferenceKey) : null"
+            :preferenceReturnUrl="tablePreferencesPersisted ? app.request.requestUri : null"
+            rowTestId="stats-closure-event-row"
+        >
+            <twig:block name="toolbar">
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'stats.closure.table.view'|trans({}, 'statistics') }}" data-testid="stats-closure-table-view">
+                    <a
+                        href="{{ path('app_stats_closure_analytics_details', viewQuery|merge({tableView: 'events'})) }}"
+                        class="btn btn-sm btn-outline-secondary{% if table.view == 'events' %} active{% endif %}"
+                        title="{{ 'stats.closure.table.view.events'|trans({}, 'statistics') }}"
+                        aria-label="{{ 'stats.closure.table.view.events'|trans({}, 'statistics') }}"
+                        data-turbo-frame="stats-closure-details"
+                    >
+                        <twig:ux:icon name="tabler:stack-2" class="icon" />
+                        {{ 'stats.closure.table.view.events_short'|trans({}, 'statistics') }}
+                    </a>
+                    <a
+                        href="{{ path('app_stats_closure_analytics_details', viewQuery|merge({tableView: 'intervals'})) }}"
+                        class="btn btn-sm btn-outline-secondary{% if table.view == 'intervals' %} active{% endif %}"
+                        title="{{ 'stats.closure.table.view.intervals'|trans({}, 'statistics') }}"
+                        aria-label="{{ 'stats.closure.table.view.intervals'|trans({}, 'statistics') }}"
+                        data-turbo-frame="stats-closure-details"
+                    >
+                        <twig:ux:icon name="tabler:list-details" class="icon" />
+                        {{ 'stats.closure.table.view.intervals_short'|trans({}, 'statistics') }}
+                    </a>
+                </div>
+            </twig:block>
+        </twig:DataTable>
     </div>
 </turbo-frame>

@@ -6,12 +6,12 @@ namespace App\Statistics\ClosureAnalytics\Application;
 
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsResult;
-use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 
 final readonly class ClosureAnalyticsService
 {
     private const array BREAKDOWN_KINDS = [
+        'event_type',
         'hospital',
         'speciality',
         'department',
@@ -22,24 +22,7 @@ final readonly class ClosureAnalyticsService
 
     public function __construct(
         private ClosureTemporalQuery $temporalQuery,
-        private ClosureEventQuery $eventQuery,
     ) {
-    }
-
-    public function buildEvents(ClosureAnalyticsCriteria $criteria, int $page = 1): ClosureAnalyticsResult
-    {
-        $events = $this->eventQuery->fetchEvents($criteria, $page);
-
-        return new ClosureAnalyticsResult(
-            $this->temporalQuery->fetchMetrics($criteria),
-            [],
-            [],
-            $events['rows'],
-            [],
-            $events['total'],
-            $events['page'],
-            max(1, (int) ceil($events['total'] / 25)),
-        );
     }
 
     public function buildOverview(ClosureAnalyticsCriteria $criteria): ClosureAnalyticsResult

@@ -45,6 +45,26 @@ final class BadgePaletteTest extends TestCase
         self::assertSame('bg-red text-red-fg', $view->cssClass);
     }
 
+    public function testClosureCareLevelUsesAllocationUrgencyColors(): void
+    {
+        $palette = new BadgePalette();
+
+        self::assertSame('bg-red-lt text-red', $palette->resolve('closure_care_level', 'emergency')->cssClass);
+        self::assertSame('bg-yellow-lt text-yellow', $palette->resolve('closure_care_level', 'inpatient')->cssClass);
+        self::assertSame('bg-green-lt text-green', $palette->resolve('closure_care_level', 'outpatient')->cssClass);
+    }
+
+    public function testClosureReasonsUseQuietGrayVariants(): void
+    {
+        $palette = new BadgePalette();
+
+        self::assertSame('bg-gray-lt text-gray', $palette->resolve('closure_reason', 'no_bed_capacity')->cssClass);
+        self::assertSame('bg-secondary-lt text-secondary', $palette->resolve('closure_reason', 'emergency_department_overload')->cssClass);
+        self::assertSame('bg-dark-lt text-dark', $palette->resolve('closure_reason', 'technical_fault')->cssClass);
+        self::assertSame('bg-gray-dark-lt text-gray-dark', $palette->resolve('closure_reason', 'operating_room_notice')->cssClass);
+        self::assertSame('bg-gray-muted-lt text-secondary', $palette->resolve('closure_reason', 'not_specified')->cssClass);
+    }
+
     public function testStringableAndUnknownValuesNormalizeToLabel(): void
     {
         $urban = new BadgePalette()->resolve('hospital_location', new DataTableBadgePaletteStringable('Urban'));

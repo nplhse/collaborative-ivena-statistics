@@ -99,6 +99,15 @@
                 <div class="col-12 col-xl-4">
                     <div class="d-grid gap-3">
                         {{ include('@Statistics/closure_analytics/_breakdown_card.html.twig', {
+                            kind: 'event_type',
+                            title: 'stats.closure.breakdown.event_type',
+                            rows: dashboard.breakdowns.event_type,
+                            totalMinutes: metrics.closedMinutes,
+                            totalClosures: metrics.eventCount,
+                            shareMode: 'count',
+                            countTranslation: 'stats.closure.breakdown.event_count',
+                        }, false) }}
+                        {{ include('@Statistics/closure_analytics/_breakdown_card.html.twig', {
                             kind: 'reason',
                             title: 'stats.closure.breakdown.reason',
                             rows: dashboard.breakdowns.reason,

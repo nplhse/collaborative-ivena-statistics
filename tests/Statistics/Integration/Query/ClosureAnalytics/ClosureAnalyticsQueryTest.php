@@ -17,6 +17,7 @@ use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use App\User\Domain\Factory\UserFactory;
@@ -87,12 +88,19 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertCount(1, $units);
         self::assertSame('Closure Hospital · Local A', $units[0]->name);
 
-        $events = self::getContainer()->get(ClosureEventQuery::class)->fetchEvents($criteria, 1);
-        self::assertSame(2, $events['total']);
-        self::assertCount(2, $events['rows']);
         $eventQuery = self::getContainer()->get(ClosureEventQuery::class);
-        self::assertNotNull($eventQuery->fetchEvent($criteria, $events['rows'][0]->key));
-        $children = $eventQuery->fetchChildren($criteria, $events['rows'][0]->key);
+        $events = $eventQuery->fetchEvents($criteria, 0, 25, 'startsAt', 'desc');
+        self::assertSame(2, $eventQuery->countEvents($criteria));
+        self::assertCount(2, $events);
+        self::assertNotEmpty($events[0]->children);
+        $ascending = $eventQuery->fetchEvents($criteria, 0, 25, 'startsAt', 'asc');
+        self::assertTrue($ascending[0]->startsAt < $ascending[1]->startsAt);
+        self::assertSame(
+            $ascending[1]->key,
+            $eventQuery->fetchEvents($criteria, 0, 1, 'startsAt', 'desc')[0]->key,
+        );
+        self::assertNotNull($eventQuery->fetchEvent($criteria, $events[0]->key));
+        $children = $eventQuery->fetchChildren($criteria, $events[0]->key);
         self::assertNotEmpty($children);
     }
 
@@ -151,11 +159,16 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertSame(0, $metrics->multipleMinutes);
         self::assertSame(120, $metrics->observedMinutes);
 
-        $events = self::getContainer()->get(ClosureEventQuery::class)->fetchEvents($criteria, 1);
-        self::assertSame(1, $events['total']);
-        self::assertSame(5, $events['rows'][0]->closureCount);
-        self::assertSame(600, $events['rows'][0]->summedMinutes);
-        self::assertSame(120, $events['rows'][0]->actualMinutes);
+        $eventTypes = self::getContainer()->get(ClosureTemporalQuery::class)->fetchBreakdown($criteria, 'event_type');
+        self::assertSame(['group', 'cluster', 'single'], array_map(static fn ($row): string => $row->key, $eventTypes));
+        self::assertSame([1, 0, 0], array_map(static fn ($row): int => $row->closureCount, $eventTypes));
+
+        $eventQuery = self::getContainer()->get(ClosureEventQuery::class);
+        $events = $eventQuery->fetchEvents($criteria, 0, 25, 'startsAt', 'desc');
+        self::assertSame(1, $eventQuery->countEvents($criteria));
+        self::assertSame(5, $events[0]->closureCount);
+        self::assertSame(600, $events[0]->summedMinutes);
+        self::assertSame(120, $events[0]->actualMinutes);
         $segments = self::getContainer()->get(ClosureTemporalQuery::class)->fetchTimelineSegments($criteria);
         self::assertCount(5, $segments);
         self::assertCount(1, array_unique(array_map(static fn ($segment): string => $segment->eventKey, $segments)));
@@ -173,6 +186,138 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertSame(240, $filteredMetrics->summedMinutes);
         self::assertSame(120, $filteredMetrics->closedMinutes);
         self::assertSame(0, $filteredMetrics->multipleMinutes);
+
+        $groupOnly = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            eventTypes: [ClosureEventType::Group->value],
+        );
+        self::assertSame(5, $eventQuery->countIntervals($groupOnly));
+        self::assertSame(1, $eventQuery->countEvents($groupOnly));
+        self::assertSame(1, self::getContainer()->get(ClosureTemporalQuery::class)->fetchMetrics($groupOnly)->eventCount);
+
+        $singleOnly = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            eventTypes: [ClosureEventType::Single->value],
+        );
+        self::assertSame(0, $eventQuery->countEvents($singleOnly));
+    }
+
+    public function testCoincidentUngroupedIntervalsFormAStableAnalyticalCluster(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne(['username' => 'closure-cluster-test']);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'Cluster Hospital', 'state' => $state, 'dispatchArea' => $dispatch]);
+        $speciality = SpecialityFactory::createOne(['name' => 'Cluster Speciality']);
+        $departmentA = DepartmentFactory::createOne(['name' => 'Cluster Department A']);
+        $departmentB = DepartmentFactory::createOne(['name' => 'Cluster Department B']);
+        $departmentC = DepartmentFactory::createOne(['name' => 'Cluster Department C']);
+        $import = ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user]);
+        $connection = self::getContainer()->get(Connection::class);
+
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $departmentA->getId(), '2026-04-10 10:00:00', '2026-04-10 12:00:00', null, 'Cluster A');
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $departmentB->getId(), '2026-04-10 10:00:00', '2026-04-10 12:00:00', null, 'Cluster B');
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $departmentC->getId(), '2026-04-10 10:00:00', '2026-04-10 11:00:00', null, 'Different end');
+
+        $filter = new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Month, 2026, 4);
+        $criteria = new ClosureAnalyticsCriteria(
+            new StatisticsScopeCriteria([$hospital->getId()]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-04-10'), new \DateTimeImmutable('2026-04-11')),
+            TimeSeriesGrain::Day,
+            $filter,
+        );
+        $temporal = self::getContainer()->get(ClosureTemporalQuery::class);
+        $metrics = $temporal->fetchMetrics($criteria);
+        self::assertSame(3, $metrics->closureCount);
+        self::assertSame(2, $metrics->eventCount);
+        self::assertSame(300, $metrics->summedMinutes);
+        self::assertSame(120, $metrics->closedMinutes);
+        self::assertSame(60, $metrics->singleMinutes);
+        self::assertSame(60, $metrics->multipleMinutes);
+
+        $eventTypes = $temporal->fetchBreakdown($criteria, 'event_type');
+        self::assertSame(['group', 'cluster', 'single'], array_map(static fn ($row): string => $row->key, $eventTypes));
+        self::assertSame([0, 1, 1], array_map(static fn ($row): int => $row->closureCount, $eventTypes));
+        self::assertSame(120, $eventTypes[1]->actualMinutes);
+        self::assertSame(60, $eventTypes[2]->actualMinutes);
+
+        $eventQuery = self::getContainer()->get(ClosureEventQuery::class);
+        $events = $eventQuery->fetchEvents($criteria, 0, 25, 'closureCount', 'desc');
+        $cluster = $events[0];
+        self::assertSame(ClosureEventType::Cluster, $cluster->type);
+        self::assertStringStartsWith('cluster:'.$hospital->getId().':', $cluster->key);
+        self::assertSame(2, $cluster->closureCount);
+        self::assertCount(2, $eventQuery->fetchChildren($criteria, $cluster->key));
+        self::assertSame($cluster->key, $eventQuery->fetchEvent($criteria, $cluster->key)?->key);
+        $intervals = $eventQuery->fetchIntervals($criteria, 0, 25, 'department', 'asc');
+        self::assertSame(3, $eventQuery->countIntervals($criteria));
+        self::assertCount(3, $intervals);
+        self::assertSame('Cluster Department A', $intervals[0]->departmentName);
+        self::assertSame('Cluster Speciality', $intervals[0]->specialityName);
+        self::assertSame('Cluster A', $intervals[0]->closureUnit);
+        self::assertSame(ClosureEventType::Cluster, $intervals[0]->eventType);
+
+        $segments = $temporal->fetchTimelineSegments($criteria);
+        $clusterSegments = array_values(array_filter(
+            $segments,
+            static fn ($segment): bool => ClosureEventType::Cluster === $segment->eventType,
+        ));
+        self::assertCount(2, $clusterSegments);
+        self::assertCount(1, array_unique(array_map(static fn ($segment): string => $segment->eventKey, $clusterSegments)));
+        self::assertTrue(array_all($clusterSegments, static fn ($segment): bool => $segment->parallel));
+
+        $filteredCriteria = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            [$departmentA->getId()],
+        );
+        $filteredEvent = $eventQuery->fetchEvents($filteredCriteria, 0, 25, 'startsAt', 'asc')[0];
+        self::assertSame(ClosureEventType::Cluster, $filteredEvent->type);
+        self::assertSame($cluster->key, $filteredEvent->key);
+        self::assertSame(1, $filteredEvent->closureCount);
+
+        $clusterOnly = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            eventTypes: [ClosureEventType::Cluster->value],
+        );
+        self::assertSame(1, $eventQuery->countEvents($clusterOnly));
+        self::assertSame(2, $eventQuery->countIntervals($clusterOnly));
+        self::assertSame(2, $temporal->fetchMetrics($clusterOnly)->closureCount);
+        self::assertSame(1, $temporal->fetchMetrics($clusterOnly)->eventCount);
+        self::assertSame(ClosureEventType::Cluster, $eventQuery->fetchEvents($clusterOnly, 0, 1, 'startsAt', 'asc')[0]->type);
+
+        $singleOnly = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            eventTypes: [ClosureEventType::Single->value],
+        );
+        self::assertSame(1, $eventQuery->countEvents($singleOnly));
+        self::assertSame(1, $eventQuery->countIntervals($singleOnly));
+        self::assertSame(ClosureEventType::Single, $eventQuery->fetchEvents($singleOnly, 0, 1, 'startsAt', 'asc')[0]->type);
+
+        $groupOnly = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            eventTypes: [ClosureEventType::Group->value],
+        );
+        self::assertSame(0, $eventQuery->countEvents($groupOnly));
+        self::assertSame(0, $temporal->fetchMetrics($groupOnly)->eventCount);
     }
 
     public function testEstimatedCoverageKeepsGapsAndDstElapsedTimeHonest(): void
@@ -275,6 +420,21 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertSame(240, $metrics->singleMinutes);
         self::assertSame(120, $metrics->multipleMinutes);
         self::assertSame([], $query->fetchClosureUnitChoices($criteria));
+        $hospitalChoices = $query->fetchHospitalChoices($criteria);
+        self::assertCount(2, $hospitalChoices);
+        self::assertSame(['Multi A', 'Multi B'], array_column($hospitalChoices, 'name'));
+
+        $hospitalAOnly = new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            hospitalIds: [$hospitalA->getId()],
+        );
+        $hospitalAMetrics = $query->fetchMetrics($hospitalAOnly);
+        self::assertSame(2, $hospitalAMetrics->closureCount);
+        self::assertSame(240, $hospitalAMetrics->closedMinutes);
+        self::assertSame(480, $hospitalAMetrics->observedMinutes, 'Coverage remains hospital-scoped.');
 
         $hospitalFilter = new StatisticsFilter(
             StatisticsFilterScope::Hospital,
@@ -297,6 +457,7 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         );
         self::assertSame(2, $query->fetchMetrics($unitCriteria)->closureCount);
         self::assertSame(240, $query->fetchMetrics($unitCriteria)->closedMinutes);
+        self::assertCount(1, $query->fetchHospitalChoices($unitCriteria));
         self::assertSame('Multi', $query->fetchBreakdown($unitCriteria, 'closure_unit')[0]->key);
 
         $missingUnitCriteria = new ClosureAnalyticsCriteria(
@@ -395,8 +556,8 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         );
         self::assertSame(0, $query->fetchMetrics($wrongReasonCriteria)->closedMinutes);
 
-        $events = self::getContainer()->get(ClosureEventQuery::class)->fetchEvents($criteria, 1);
-        self::assertCount(4, $events['rows']);
+        $events = self::getContainer()->get(ClosureEventQuery::class)->fetchEvents($criteria, 0, 25, 'startsAt', 'desc');
+        self::assertCount(4, $events);
         $segments = $query->fetchTimelineSegments($criteria);
         self::assertSame(['Multi A', 'Multi B'], array_values(array_unique(array_map(
             static fn ($segment): string => $segment->hospitalName,
@@ -410,6 +571,42 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
             $segments,
             static fn ($segment): bool => 'Multi B' === $segment->hospitalName && $segment->parallel,
         ));
+    }
+
+    public function testSameDayDepartmentQueryExcludesTheCurrentEventAndOtherDepartments(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne(['username' => 'closure-sameday-test']);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['name' => 'Same Day Hospital', 'state' => $state, 'dispatchArea' => $dispatch]);
+        $speciality = SpecialityFactory::createOne(['name' => 'Same Day Speciality']);
+        $department = DepartmentFactory::createOne(['name' => 'Same Day Department']);
+        $otherDepartment = DepartmentFactory::createOne(['name' => 'Ignored Department']);
+        $import = ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user]);
+        $connection = self::getContainer()->get(Connection::class);
+
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $department->getId(), '2026-08-12 10:00:00', '2026-08-12 12:00:00', 'same-day-group', 'Unit');
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $department->getId(), '2026-08-12 14:00:00', '2026-08-12 16:00:00', null, 'Unit');
+        $this->insertInterval($connection, $hospital->getId(), $import->getId(), $speciality->getId(), $otherDepartment->getId(), '2026-08-12 18:00:00', '2026-08-12 19:00:00', null, 'Unit');
+
+        $criteria = new ClosureAnalyticsCriteria(
+            new StatisticsScopeCriteria([$hospital->getId()]),
+            new StatisticsPeriodBounds(new \DateTimeImmutable('2026-08-12'), new \DateTimeImmutable('2026-08-13')),
+            TimeSeriesGrain::Day,
+            new StatisticsFilter(StatisticsFilterScope::Hospital, $hospital->getId(), null, StatisticsFilterPeriod::Month, 2026, 8),
+            [$department->getId()],
+            hospitalIds: [$hospital->getId()],
+        );
+        $related = self::getContainer()->get(ClosureEventQuery::class)->fetchSameDayDepartmentIntervals(
+            $criteria,
+            'group:'.$hospital->getId().':same-day-group',
+        );
+
+        self::assertCount(1, $related);
+        self::assertSame(ClosureEventType::Single, $related[0]->eventType);
+        self::assertSame('Same Day Department', $related[0]->departmentName);
+        self::assertStringStartsWith('interval:', $related[0]->eventKey);
     }
 
     private function insertInterval(

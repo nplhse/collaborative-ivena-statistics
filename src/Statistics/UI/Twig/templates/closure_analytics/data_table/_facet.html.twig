@@ -1,0 +1,26 @@
+{% set items = [] %}
+{% for item in value %}
+    {% set label = item %}
+    {% set badgeClass = 'bg-secondary-lt text-secondary' %}
+    {% if column.key == 'careLevels' %}
+        {% set label = include('@Statistics/closure_analytics/data_table/_urgency_label.html.twig', {careLevel: item})|trim %}
+        {% set badgeClass = data_table_badge('closure_care_level', item).cssClass %}
+    {% elseif column.key == 'reasons' %}
+        {% set label = ('stats.closure.reason.' ~ item)|trans({}, 'statistics') %}
+        {% set badgeClass = data_table_badge('closure_reason', item).cssClass %}
+    {% endif %}
+    {% if label is not null and label is not same as('') %}
+        {% set items = items|merge([{label: label, class: badgeClass}]) %}
+    {% endif %}
+{% endfor %}
+
+{% if items is empty %}
+    <span class="text-secondary" data-testid="closure-event-facet-{{ column.key }}">—</span>
+{% elseif items|length == 1 %}
+    <span class="badge {{ items[0].class }} text-truncate mw-100" title="{{ items[0].label }}" data-testid="closure-event-facet-{{ column.key }}">{{ items[0].label }}</span>
+{% else %}
+    {{ include('@Statistics/closure_analytics/data_table/_facet_stack.html.twig', {
+        items: items,
+        testId: 'closure-event-facet-' ~ column.key,
+    }) }}
+{% endif %}

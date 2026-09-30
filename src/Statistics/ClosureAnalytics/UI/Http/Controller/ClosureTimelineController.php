@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\User\Domain\Entity\User;
@@ -138,17 +139,7 @@ final class ClosureTimelineController extends AbstractController
         $to = new \DateTimeImmutable('first day of this month 00:00:00', new \DateTimeZone('Europe/Berlin'));
         $from = $to->modify('-12 months');
 
-        return new ClosureAnalyticsCriteria(
-            $criteria->scope,
-            new StatisticsPeriodBounds($from, $to),
-            $criteria->timeSeriesGrain,
-            $criteria->filter,
-            $criteria->departmentIds,
-            $criteria->specialityIds,
-            $criteria->careLevels,
-            $criteria->reasons,
-            $criteria->closureUnits,
-        );
+        return $criteria->withPeriod(new StatisticsPeriodBounds($from, $to));
     }
 
     private function windowedCriteria(ClosureAnalyticsCriteria $criteria, string $grain, mixed $fromInput): ClosureAnalyticsCriteria
@@ -176,17 +167,7 @@ final class ClosureTimelineController extends AbstractController
             $to = $criteria->period->toExclusive;
         }
 
-        return new ClosureAnalyticsCriteria(
-            $criteria->scope,
-            new StatisticsPeriodBounds($from, $to),
-            $criteria->timeSeriesGrain,
-            $criteria->filter,
-            $criteria->departmentIds,
-            $criteria->specialityIds,
-            $criteria->careLevels,
-            $criteria->reasons,
-            $criteria->closureUnits,
-        );
+        return $criteria->withPeriod(new StatisticsPeriodBounds($from, $to));
     }
 
     private function nextGrain(string $grain): string
@@ -351,7 +332,7 @@ final class ClosureTimelineController extends AbstractController
          *     specialityName: string,
          *     departmentName: string,
          *     careLevelName: string,
-         *     rawSegments: list<array{start: int, end: int, parallel: bool, urls: array<string, true>}>
+         *     rawSegments: list<array{start: int, end: int, parallel: bool, eventKey: string, eventType: string, urls: array<string, true>}>
          * }> $lanes
          */
         $lanes = [];
@@ -368,7 +349,7 @@ final class ClosureTimelineController extends AbstractController
                 $segment->specialityName,
                 $segment->departmentName,
             ]);
-            $url = null !== $segment->sourceGroupId
+            $url = ClosureEventType::Single !== $segment->eventType
                 ? $this->generateUrl('app_stats_closure_analytics_event', [...$query, 'eventKey' => $segment->eventKey])
                 : $this->generateUrl('app_stats_closure_analytics_interval', [...$query, 'id' => $segment->intervalId]);
             $lanes[$key] ??= [
@@ -383,6 +364,8 @@ final class ClosureTimelineController extends AbstractController
                 'start' => $segment->startsAt->getTimestamp(),
                 'end' => $segment->endsAt->getTimestamp(),
                 'parallel' => $segment->parallel,
+                'eventKey' => $segment->eventKey,
+                'eventType' => $segment->eventType->value,
                 'urls' => [$url => true],
             ];
         }
@@ -393,11 +376,15 @@ final class ClosureTimelineController extends AbstractController
                 $lane['rawSegments'],
                 static fn (array $left, array $right): int => $left['start'] <=> $right['start'],
             );
-            /** @var list<array{start: int, end: int, parallel: bool, urls: array<string, true>}> $merged */
+            /** @var list<array{start: int, end: int, parallel: bool, eventKey: string, eventType: string, urls: array<string, true>}> $merged */
             $merged = [];
             foreach ($lane['rawSegments'] as $rawSegment) {
                 $lastIndex = array_key_last($merged);
-                if (null === $lastIndex || $rawSegment['start'] > $merged[$lastIndex]['end']) {
+                if (
+                    null === $lastIndex
+                    || $rawSegment['start'] > $merged[$lastIndex]['end']
+                    || $rawSegment['eventKey'] !== $merged[$lastIndex]['eventKey']
+                ) {
                     $merged[] = $rawSegment;
                     continue;
                 }
@@ -415,6 +402,7 @@ final class ClosureTimelineController extends AbstractController
                     'left' => 100 * ($start - $fromTimestamp) / $duration,
                     'width' => max(0.15, 100 * ($end - $start) / $duration),
                     'parallel' => $segment['parallel'],
+                    'eventType' => $segment['eventType'],
                     'url' => 1 === \count($urls) ? $urls[0] : null,
                     'title' => sprintf(
                         '%s–%s',
@@ -526,7 +514,7 @@ final class ClosureTimelineController extends AbstractController
             $daySeconds = $dayEnd->getTimestamp() - $dayStart->getTimestamp();
             $left = 100.0 * (float) ($segment->startsAt->getTimestamp() - $dayStart->getTimestamp()) / (float) $daySeconds;
             $width = 100.0 * (float) ($segment->endsAt->getTimestamp() - $segment->startsAt->getTimestamp()) / (float) $daySeconds;
-            $url = null !== $segment->sourceGroupId
+            $url = ClosureEventType::Single !== $segment->eventType
                 ? $this->generateUrl('app_stats_closure_analytics_event', [...$query, 'eventKey' => $segment->eventKey])
                 : $this->generateUrl('app_stats_closure_analytics_interval', [...$query, 'id' => $segment->intervalId]);
             $rows[$key] ??= [
@@ -563,7 +551,7 @@ final class ClosureTimelineController extends AbstractController
                     $segment->endsAt->setTimezone($timezone)->format('H:i'),
                     $segment->sourceGroupId ?? $segment->departmentName,
                 ),
-                'grouped' => null !== $segment->sourceGroupId,
+                'eventType' => $segment->eventType->value,
                 'parallel' => $segment->parallel,
             ];
         }

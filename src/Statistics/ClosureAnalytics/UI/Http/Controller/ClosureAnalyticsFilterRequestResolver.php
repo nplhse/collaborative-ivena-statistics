@@ -7,33 +7,48 @@ namespace App\Statistics\ClosureAnalytics\UI\Http\Controller;
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ClosureAnalyticsFilterRequestResolver
 {
     public const string DEPARTMENTS = 'closureDepartments';
     public const string SPECIALITIES = 'closureSpecialities';
+    public const string HOSPITALS = 'closureHospitals';
     public const string CARE_LEVELS = 'closureCareLevels';
     public const string REASONS = 'closureReasons';
     public const string CLOSURE_UNITS = 'closureUnits';
+    public const string FROM = 'closureFrom';
+    public const string TO = 'closureTo';
+    public const string EVENT_TYPES = 'closureEventTypes';
 
     /** @var list<string> */
     public const array QUERY_KEYS = [
         self::DEPARTMENTS,
         self::SPECIALITIES,
+        self::HOSPITALS,
         self::CARE_LEVELS,
         self::REASONS,
         self::CLOSURE_UNITS,
+        self::FROM,
+        self::TO,
+        self::EVENT_TYPES,
     ];
 
     public static function fromRequest(Request $request): ClosureAnalyticsFilter
     {
+        [$fromDate, $toDate] = self::dateRange($request);
+
         return new ClosureAnalyticsFilter(
             self::positiveIds($request, self::DEPARTMENTS),
             self::positiveIds($request, self::SPECIALITIES),
             self::careLevels($request),
             self::reasons($request),
             self::strings($request, self::CLOSURE_UNITS),
+            $fromDate,
+            $toDate,
+            self::eventTypes($request),
+            self::positiveIds($request, self::HOSPITALS),
         );
     }
 
@@ -97,6 +112,51 @@ final class ClosureAnalyticsFilterRequestResolver
 
         /* @var list<value-of<ClosureReason>> $values */
         return array_values(array_unique($values));
+    }
+
+    /**
+     * @return list<value-of<ClosureEventType>>
+     */
+    private static function eventTypes(Request $request): array
+    {
+        $allowed = array_column(ClosureEventType::cases(), 'value');
+        $values = array_filter(
+            self::values($request, self::EVENT_TYPES),
+            static fn (mixed $value): bool => \is_string($value) && \in_array($value, $allowed, true),
+        );
+
+        /* @var list<value-of<ClosureEventType>> $values */
+        return array_values(array_unique($values));
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string}
+     */
+    private static function dateRange(Request $request): array
+    {
+        $from = self::date($request, self::FROM);
+        $to = self::date($request, self::TO);
+        if (null !== $from && null !== $to && $from > $to) {
+            return [$to, $from];
+        }
+
+        return [$from, $to];
+    }
+
+    private static function date(Request $request, string $key): ?string
+    {
+        $value = $request->query->get($key);
+        if (!\is_string($value)) {
+            return null;
+        }
+
+        $value = trim($value);
+        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+        if (false === $date || $date->format('Y-m-d') !== $value) {
+            return null;
+        }
+
+        return $value;
     }
 
     /**

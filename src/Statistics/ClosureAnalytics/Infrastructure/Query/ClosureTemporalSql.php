@@ -44,6 +44,11 @@ final class ClosureTemporalSql
         }
         $periodWhere = [] === $periodOverlap ? 'TRUE' : implode(' AND ', $periodOverlap);
         $closureFilters = [];
+        if ([] !== $criteria->hospitalIds) {
+            $closureFilters[] = 'ci.hospital_id IN (:closure_hospital_ids)';
+            $params['closure_hospital_ids'] = $criteria->hospitalIds;
+            $types['closure_hospital_ids'] = ArrayParameterType::INTEGER;
+        }
         if ([] !== $criteria->departmentIds) {
             $closureFilters[] = 'ci.department_id IN (:closure_department_ids)';
             $params['closure_department_ids'] = $criteria->departmentIds;
@@ -72,6 +77,12 @@ final class ClosureTemporalSql
             $types['closure_units'] = ArrayParameterType::STRING;
         }
         $closureWhere = [] === $closureFilters ? 'TRUE' : implode(' AND ', $closureFilters);
+        $eventTypeWhere = 'TRUE';
+        if ([] !== $criteria->eventTypes) {
+            $eventTypeWhere = 'event_type IN (:closure_event_types)';
+            $params['closure_event_types'] = $criteria->eventTypes;
+            $types['closure_event_types'] = ArrayParameterType::STRING;
+        }
 
         $sql = <<<SQL
 raw_scoped AS (
@@ -91,25 +102,51 @@ ranked_intervals AS (
            ) AS canonical_rank
     FROM raw_scoped r
 ),
-canonical_intervals AS (
+canonical_scoped_intervals AS (
     SELECT *
     FROM ranked_intervals ci
-    WHERE canonical_rank = 1 AND {$periodWhere} AND {$closureWhere}
+    WHERE canonical_rank = 1
+),
+identified_intervals AS (
+    SELECT ci.*,
+           COUNT(*) FILTER (
+               WHERE NULLIF(BTRIM(ci.source_group_id), '') IS NULL
+           ) OVER (
+               PARTITION BY ci.hospital_id, ci.starts_at, ci.ends_at
+           ) AS coincident_ungrouped_count
+    FROM canonical_scoped_intervals ci
+),
+canonical_intervals AS (
+    SELECT *
+    FROM identified_intervals ci
+    WHERE {$periodWhere} AND {$closureWhere}
 ),
 closure_clipped AS (
     SELECT ci.*,
            GREATEST(ci.starts_utc, COALESCE({$fromUtc}, ci.starts_utc)) AS clipped_start,
            LEAST(ci.ends_utc, COALESCE({$toUtc}, ci.ends_utc)) AS clipped_end,
            CASE
-               WHEN NULLIF(BTRIM(ci.source_group_id), '') IS NULL THEN 'interval:' || ci.id::text
-               ELSE 'group:' || ci.hospital_id::text || ':' || BTRIM(ci.source_group_id)
-           END AS event_key
+               WHEN NULLIF(BTRIM(ci.source_group_id), '') IS NOT NULL
+                   THEN 'group:' || ci.hospital_id::text || ':' || BTRIM(ci.source_group_id)
+               WHEN ci.coincident_ungrouped_count > 1
+                   THEN 'cluster:' || ci.hospital_id::text || ':' || MD5(
+                       TO_CHAR(ci.starts_at, 'YYYY-MM-DD"T"HH24:MI:SS.US')
+                       || '|' ||
+                       TO_CHAR(ci.ends_at, 'YYYY-MM-DD"T"HH24:MI:SS.US')
+                   )
+               ELSE 'interval:' || ci.id::text
+           END AS event_key,
+           CASE
+               WHEN NULLIF(BTRIM(ci.source_group_id), '') IS NOT NULL THEN 'group'
+               WHEN ci.coincident_ungrouped_count > 1 THEN 'cluster'
+               ELSE 'single'
+           END AS event_type
     FROM canonical_intervals ci
 ),
 valid_closures AS (
     SELECT *
     FROM closure_clipped
-    WHERE clipped_start < clipped_end
+    WHERE clipped_start < clipped_end AND {$eventTypeWhere}
 ),
 import_spans AS (
     SELECT import_id, hospital_id, MIN(starts_utc) AS span_start, MAX(ends_utc) AS span_end

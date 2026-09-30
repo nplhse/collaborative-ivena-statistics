@@ -8,6 +8,7 @@ final readonly class ClosureIntervalRow
 {
     public function __construct(
         public int $id,
+        public int $hospitalId,
         public string $hospitalName,
         public string $specialityName,
         public string $departmentName,
@@ -18,6 +19,9 @@ final readonly class ClosureIntervalRow
         public ?string $closureUnit,
         public ?string $sourceGroupId,
         public int $durationMinutes,
+        public string $eventKey,
+        public ClosureEventType $eventType,
+        public int $departmentId,
         public ?string $facilityKind = null,
         public ?\DateTimeImmutable $sourceRecordedAt = null,
         public ?\DateTimeImmutable $sourceChangedAt = null,

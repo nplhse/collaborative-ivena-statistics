@@ -1,0 +1,7 @@
+<a
+    href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id, page: null})) }}"
+    target="_top"
+    class="text-reset text-decoration-none fw-medium"
+>
+    {{ value|date('d.m.Y H:i', 'Europe/Berlin') }}
+</a>

@@ -32,6 +32,19 @@ final class BadgePalette
             '2' => ['class' => 'bg-yellow text-yellow-fg', 'label' => 'Inpatient Care'],
             '3' => ['class' => 'bg-green text-green-fg', 'label' => 'Outpatient Care'],
         ],
+        'closure_care_level' => [
+            'emergency' => ['class' => 'bg-red-lt text-red'],
+            'inpatient' => ['class' => 'bg-yellow-lt text-yellow'],
+            'outpatient' => ['class' => 'bg-green-lt text-green'],
+            'other' => ['class' => 'bg-secondary-lt text-secondary'],
+        ],
+        'closure_reason' => [
+            'emergency_department_overload' => ['class' => 'bg-secondary-lt text-secondary'],
+            'no_bed_capacity' => ['class' => 'bg-gray-lt text-gray'],
+            'technical_fault' => ['class' => 'bg-dark-lt text-dark'],
+            'operating_room_notice' => ['class' => 'bg-gray-dark-lt text-gray-dark'],
+            'not_specified' => ['class' => 'bg-gray-muted-lt text-secondary'],
+        ],
         'import_type' => [
             'Allocation' => [
                 'presentation' => 'status',

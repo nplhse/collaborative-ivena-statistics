@@ -1,12 +1,23 @@
-{% macro row(row, kind, totalMinutes, totalClosures, shareMode) %}
-    {% set labelKey = kind in ['care_level', 'reason'] ? 'stats.closure.' ~ kind ~ '.' ~ row.key : null %}
+{% macro row(row, kind, totalMinutes, totalClosures, shareMode, countTranslation) %}
+    {% set labelKey = kind == 'event_type'
+        ? 'stats.closure.events.' ~ row.key
+        : (kind in ['care_level', 'reason'] ? 'stats.closure.' ~ kind ~ '.' ~ row.key : null) %}
     {% set countMode = shareMode|default('duration') == 'count' %}
     {% set percent = countMode
         ? (totalClosures > 0 ? row.closureCount / totalClosures * 100 : 0)
         : (totalMinutes > 0 ? row.actualMinutes / totalMinutes * 100 : 0) %}
+    {% set countKey = countTranslation|default('stats.closure.breakdown.closure_count') %}
     <div class="list-group-item">
         <div class="d-flex justify-content-between gap-3">
-            <span class="text-truncate">{{ labelKey ? labelKey|trans({}, 'statistics') : row.name }}</span>
+            <span class="text-truncate">
+                {% if kind == 'event_type' %}
+                    <span class="badge {{ row.key == 'group' ? 'bg-blue-lt text-blue' : (row.key == 'cluster' ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
+                        {{ labelKey|trans({}, 'statistics') }}
+                    </span>
+                {% else %}
+                    {{ labelKey ? labelKey|trans({}, 'statistics') : row.name }}
+                {% endif %}
+            </span>
             <strong class="text-nowrap">{{ percent|number_format(1, ',', '.') }}%</strong>
         </div>
         <div class="progress progress-sm mt-2" aria-hidden="true">
@@ -14,7 +25,7 @@
         </div>
         <small class="text-muted">
             {% if countMode %}
-                {{ 'stats.closure.breakdown.closure_count'|trans({count: row.closureCount}, 'statistics') }}
+                {{ countKey|trans({count: row.closureCount}, 'statistics') }}
                 · {{ row.actualMinutes|closure_duration }}
             {% else %}
                 {{ row.actualMinutes|closure_duration }}
@@ -31,7 +42,7 @@
     </div>
     <div class="list-group list-group-flush">
         {% for row in rows|slice(0, 5) %}
-            {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration')) }}
+            {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration'), countTranslation|default('stats.closure.breakdown.closure_count')) }}
         {% else %}
             <div class="list-group-item text-muted">—</div>
         {% endfor %}
@@ -48,7 +59,7 @@
             </summary>
             <div class="list-group list-group-flush closure-breakdown-details__rows">
                 {% for row in rows|slice(5) %}
-                    {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration')) }}
+                    {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration'), countTranslation|default('stats.closure.breakdown.closure_count')) }}
                 {% endfor %}
             </div>
         </details>
