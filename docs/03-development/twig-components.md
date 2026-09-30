@@ -348,16 +348,19 @@ filters, search, analysis scope/period and row sorting are never persisted.
 The picker saves once after checkbox/order changes. When column visibility is
 enabled, the header shows compact outlined button groups: a page-supplied
 `toolbar` (for example the events/intervals switch), then sort plus columns in
-one group with short labels, and a separate reset control with the same short
-label style. The reset restores the whole table presentation to application
-defaults. The sort flyover is a GET form for
+one group with short labels.
+Reset in a flyover restores the application defaults for that area, not the last
+unsaved or last persisted change: the sort flyover resets sort and page size
+(including persisted page size) without touching columns; the column flyover
+resets visibility and order without changing page size.
+The sort and column flyovers share the same padded header, body, and action
+footer. The sort flyover is a GET form for
 column, direction, and page size; applying it keeps the rest of the query
-(including filters) and clearing it drops only `sortBy`, `orderBy`, and
-`limit`. The column flyover lists `#` position, name, then move buttons, and
-can reset only column visibility and order.
+(including filters). Clearing the URL drops `sortBy`, `orderBy`, and `limit`.
+The column flyover lists `#` position, name, then move buttons.
 
 Sorting is also opt-in per column (`sortable: true`, optionally `sortKey`). The
-component renders a sort menu, header `aria-sort` links, and the reset control;
+component renders a sort menu and header `aria-sort` links;
 the controller/query must validate the public sort key and perform the actual
 database ordering.
 `emptyValue`, datetime `timezone`, number `format`, and `nowrap` are optional

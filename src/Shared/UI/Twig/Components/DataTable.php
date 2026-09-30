@@ -180,8 +180,7 @@ final class DataTable
     public function getShouldShowHeaderActions(): bool
     {
         return $this->getShouldShowColumnVisibility()
-            || $this->getShouldShowSortMenu()
-            || $this->getShouldShowReset();
+            || $this->getShouldShowSortMenu();
     }
 
     public function getShouldShowSortMenu(): bool
@@ -267,22 +266,6 @@ final class DataTable
         return $this->buildUrl([
             $this->columnVisibilityParam => null,
             $this->columnOrderParam => null,
-        ], dropPagination: true);
-    }
-
-    public function getShouldShowReset(): bool
-    {
-        return $this->columnVisibilityEnabled || $this->isPreferenceEnabled();
-    }
-
-    public function resetUrl(): string
-    {
-        return $this->buildUrl([
-            $this->columnVisibilityParam => null,
-            $this->columnOrderParam => null,
-            'limit' => null,
-            'sortBy' => null,
-            'orderBy' => null,
         ], dropPagination: true);
     }
 

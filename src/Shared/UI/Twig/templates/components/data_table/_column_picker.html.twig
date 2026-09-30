@@ -12,7 +12,11 @@
         <twig:ux:icon name="tabler:columns" class="icon" />
         {{ 'label.data_table.columns'|trans({}, 'shared') }}
     </button>
-    <div class="dropdown-menu dropdown-menu-end data-table-column-picker">
+    <div class="dropdown-menu dropdown-menu-end data-table-popover data-table-column-picker">
+        <div class="data-table-popover__header">
+            <h3 class="data-table-popover__title">{{ 'label.data_table.columns'|trans({}, 'shared') }}</h3>
+            <p class="data-table-popover__help">{{ 'help.data_table.columns'|trans({}, 'shared') }}</p>
+        </div>
         {% if this.preferenceEnabled %}
             <form
                 method="post"
@@ -23,8 +27,7 @@
                 <input type="hidden" name="tableKey" value="{{ preferenceKey }}">
                 <input type="hidden" name="returnUrl" value="{{ preferenceReturnUrl }}">
                 <input type="hidden" name="pageSize" value="{{ this.pageSize }}">
-                <div class="px-2 pt-2 pb-1 text-secondary small">{{ 'help.data_table.columns'|trans({}, 'shared') }}</div>
-                <div data-data-table-columns-target="list">
+                <div class="data-table-popover__body" data-data-table-columns-target="list">
                     {% for choice in this.columnVisibilityChoices %}
                         {% set column = choice.column %}
                         <div class="data-table-column-row" data-data-table-columns-target="item">
@@ -60,7 +63,7 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="d-flex justify-content-between gap-2 px-2 py-2">
+                <div class="data-table-popover__actions">
                     <button type="submit" class="btn btn-sm btn-outline-secondary" name="action" value="reset-columns">
                         {{ 'label.data_table.reset'|trans({}, 'shared') }}
                     </button>
@@ -70,29 +73,31 @@
                 </div>
             </form>
         {% else %}
-            {% for choice in this.columnVisibilityChoices %}
-                {% set column = choice.column %}
-                <div class="data-table-column-row">
-                    <span class="data-table-column-id">#{{ loop.index }}</span>
-                    <a
-                        class="flex-fill text-truncate text-reset text-decoration-none{% if column.required %} disabled{% endif %}"
-                        href="{{ choice.url }}"
-                        role="menuitemcheckbox"
-                        aria-checked="{{ choice.visible ? 'true' : 'false' }}"
-                        {% if column.required %}aria-disabled="true"{% endif %}
-                    >
-                        <span class="d-inline-block text-center me-1" style="width: 1rem" aria-hidden="true">{% if choice.visible %}✓{% endif %}</span>
-                        {{ column.label|trans({}, column.labelDomain) }}
-                    </a>
-                    {% if this.columnOrderingEnabled %}
-                        <div class="btn-group btn-group-sm">
-                            <a class="btn btn-outline-secondary px-1{% if not choice.canMoveUp %} disabled{% endif %}" href="{{ choice.moveUpUrl }}" aria-label="{{ 'label.data_table.move_up'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}">↑</a>
-                            <a class="btn btn-outline-secondary px-1{% if not choice.canMoveDown %} disabled{% endif %}" href="{{ choice.moveDownUrl }}" aria-label="{{ 'label.data_table.move_down'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}">↓</a>
-                        </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <div class="d-flex justify-content-start px-2 py-2">
+            <div class="data-table-popover__body">
+                {% for choice in this.columnVisibilityChoices %}
+                    {% set column = choice.column %}
+                    <div class="data-table-column-row">
+                        <span class="data-table-column-id">#{{ loop.index }}</span>
+                        <a
+                            class="flex-fill text-truncate text-reset text-decoration-none{% if column.required %} disabled{% endif %}"
+                            href="{{ choice.url }}"
+                            role="menuitemcheckbox"
+                            aria-checked="{{ choice.visible ? 'true' : 'false' }}"
+                            {% if column.required %}aria-disabled="true"{% endif %}
+                        >
+                            <span class="d-inline-block text-center me-1" style="width: 1rem" aria-hidden="true">{% if choice.visible %}✓{% endif %}</span>
+                            {{ column.label|trans({}, column.labelDomain) }}
+                        </a>
+                        {% if this.columnOrderingEnabled %}
+                            <div class="btn-group btn-group-sm">
+                                <a class="btn btn-outline-secondary px-1{% if not choice.canMoveUp %} disabled{% endif %}" href="{{ choice.moveUpUrl }}" aria-label="{{ 'label.data_table.move_up'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}">↑</a>
+                                <a class="btn btn-outline-secondary px-1{% if not choice.canMoveDown %} disabled{% endif %}" href="{{ choice.moveDownUrl }}" aria-label="{{ 'label.data_table.move_down'|trans({column: column.label|trans({}, column.labelDomain)}, 'shared') }}">↓</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="data-table-popover__actions">
                 <a class="btn btn-sm btn-outline-secondary" href="{{ this.columnResetUrl }}">{{ 'label.data_table.reset'|trans({}, 'shared') }}</a>
             </div>
         {% endif %}

@@ -171,11 +171,9 @@ final class DataTableTest extends TestCase
         ];
 
         self::assertFalse($table->getShouldShowSortMenu());
-        self::assertFalse($table->getShouldShowReset());
 
         $table->columnVisibilityEnabled = true;
         self::assertTrue($table->getShouldShowSortMenu());
-        self::assertTrue($table->getShouldShowReset());
 
         $choices = $table->getSortChoices();
         self::assertSame(['start', 'hospital', 'reason'], array_map(
@@ -211,15 +209,6 @@ final class DataTableTest extends TestCase
         self::assertStringNotContainsString('columns=', $columnResetUrl);
         self::assertStringNotContainsString('columnOrder=', $columnResetUrl);
         self::assertStringNotContainsString('page=', $columnResetUrl);
-
-        $resetUrl = $table->resetUrl();
-        self::assertStringContainsString('scope=public', $resetUrl);
-        self::assertStringNotContainsString('columns=', $resetUrl);
-        self::assertStringNotContainsString('columnOrder=', $resetUrl);
-        self::assertStringNotContainsString('sortBy=', $resetUrl);
-        self::assertStringNotContainsString('orderBy=', $resetUrl);
-        self::assertStringNotContainsString('limit=', $resetUrl);
-        self::assertStringNotContainsString('page=', $resetUrl);
     }
 
     public function testResolvedColumnStateCanBeProvidedWithoutQueryParameters(): void

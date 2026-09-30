@@ -16,21 +16,23 @@
             <span class="badge bg-secondary-lt text-secondary ms-1">+{{ row.closureCount - 3 }}</span>
         {% endif %}
     </button>
-    <div class="dropdown-menu closure-event-preview p-2">
+    <div class="dropdown-menu closure-event-preview">
         {% for child in row.children|slice(0, 8) %}
-            <div class="py-2{% if not loop.last %} border-bottom{% endif %}">
-                <div class="d-flex align-items-center gap-1 flex-wrap">
+            <div class="closure-event-preview__item{% if not loop.last %} border-bottom{% endif %}">
+                <h3 class="closure-event-preview__title">{{ child.departmentName }}</h3>
+                <p class="closure-event-preview__time text-muted">
+                    <twig:ux:icon name="tabler:clock" class="icon" aria-hidden="true" />
+                    {{ child.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                    –
+                    {{ child.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                </p>
+                <div class="closure-event-preview__badge">
                     <span class="badge {{ data_table_badge('closure_care_level', child.careLevel).cssClass }}">{{ include('@Statistics/closure_analytics/data_table/_urgency_label.html.twig', {careLevel: child.careLevel}) }}</span>
-                    <span class="fw-medium">{{ child.departmentName }}</span>
-                </div>
-                <div class="small text-secondary mt-1">
-                    {{ child.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}–{{ child.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
-                    · <span class="badge {{ data_table_badge('closure_reason', child.reason).cssClass }}">{{ ('stats.closure.reason.' ~ child.reason)|trans({}, 'statistics') }}</span>
                 </div>
             </div>
         {% endfor %}
         {% if row.closureCount > 8 %}
-            <div class="small text-secondary pt-2">
+            <div class="closure-event-preview__more">
                 {{ 'stats.closure.events.preview_more'|trans({count: row.closureCount - 8}, 'statistics') }}
             </div>
         {% endif %}

@@ -275,10 +275,13 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('btn-group-sm', $html);
         self::assertStringContainsString('data-testid="data-table-columns"', $html);
         self::assertStringContainsString('data-testid="data-table-sort"', $html);
-        self::assertStringContainsString('data-testid="data-table-reset"', $html);
+        self::assertStringNotContainsString('data-testid="data-table-reset"', $html);
         self::assertMatchesRegularExpression('/data-testid="data-table-sort".*data-testid="data-table-columns"/s', $html);
         self::assertStringContainsString('btn-outline-secondary', $html);
+        self::assertStringContainsString('data-table-popover', $html);
         self::assertStringContainsString('data-testid="data-table-sort-form"', $html);
+        self::assertStringContainsString('Choose the sort column, direction, and page size.', $html);
+        self::assertStringContainsString('Select columns and arrange their left-to-right order.', $html);
         self::assertStringContainsString('name="sortBy"', $html);
         self::assertStringContainsString('name="orderBy"', $html);
         self::assertStringContainsString('name="limit"', $html);
@@ -288,8 +291,6 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('Apply', $html);
         self::assertStringContainsString('aria-label="Sort"', $html);
         self::assertStringContainsString('aria-label="Columns"', $html);
-        self::assertStringContainsString('aria-label="Reset"', $html);
-        self::assertMatchesRegularExpression('/data-testid="data-table-reset"[^>]*>.*Reset/s', $html);
         self::assertStringContainsString('Kiel', $html);
         self::assertStringNotContainsString('Urban', $html);
     }
@@ -344,7 +345,7 @@ final class DataTableComponentTest extends KernelTestCase
             'preferenceReturnUrl' => '/explore/hospitals?scope=public',
             'rows' => [['name' => 'Kiel', 'location' => 'Urban']],
             'columns' => [
-                ['key' => 'name', 'label' => 'label.name', 'required' => true],
+                ['key' => 'name', 'label' => 'label.name', 'sortable' => true, 'required' => true],
                 ['key' => 'location', 'label' => 'label.location', 'configurable' => true],
             ],
         ]);
@@ -355,6 +356,7 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertMatchesRegularExpression('/name="columnOrder\\[\\]" value="location".*name="columnOrder\\[\\]" value="name"/s', $html);
         self::assertMatchesRegularExpression('/name="visibleColumns\\[\\]"[^>]*value="location"|value="location"[^>]*name="visibleColumns\\[\\]"/', $html);
         self::assertStringContainsString('name="action" value="reset-columns"', $html);
+        self::assertStringContainsString('name="action" value="reset-sort"', $html);
         self::assertStringContainsString('name="action" value="save"', $html);
         self::assertMatchesRegularExpression('/<th[^>]*>.*Location.*<th[^>]*>.*Name/s', $html);
     }

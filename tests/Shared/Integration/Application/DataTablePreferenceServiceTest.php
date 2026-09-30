@@ -127,4 +127,26 @@ final class DataTablePreferenceServiceTest extends KernelTestCase
         self::assertSame($schema->defaults()->visibleColumns, $state->visibleColumns);
         self::assertSame(50, $state->pageSize);
     }
+
+    public function testResetSortRestoresDefaultPageSizeAndKeepsColumns(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne(['username' => 'table-pref-reset-sort']);
+        $service = self::getContainer()->get(DataTablePreferenceService::class);
+        $schema = self::getContainer()->get(ClosureEventTableColumns::class)->preferenceSchema();
+
+        $service->save($user, $schema->key, [
+            'visibleColumns' => ['reasons'],
+            'columnOrder' => ['reasons', 'startsAt'],
+            'pageSize' => 50,
+        ]);
+        $saved = $service->resolve($user, $schema);
+
+        $service->resetSort($user, $schema->key);
+        $state = $service->resolve($user, $schema);
+
+        self::assertSame($saved->columnOrder, $state->columnOrder);
+        self::assertSame($saved->visibleColumns, $state->visibleColumns);
+        self::assertSame($schema->defaultPageSize, $state->pageSize);
+    }
 }

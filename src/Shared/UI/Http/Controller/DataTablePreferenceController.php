@@ -43,6 +43,8 @@ final class DataTablePreferenceController extends AbstractController
             $preferences->reset($user, $tableKey);
         } elseif ('reset-columns' === $action) {
             $preferences->resetColumns($user, $tableKey);
+        } elseif ('reset-sort' === $action) {
+            $preferences->resetSort($user, $tableKey);
         } else {
             $preferences->save($user, $tableKey, [
                 'visibleColumns' => \is_array($body['visibleColumns'] ?? null) ? $body['visibleColumns'] : [],
@@ -57,6 +59,7 @@ final class DataTablePreferenceController extends AbstractController
         return $this->redirect($this->withoutQueryKeys($target, match ($action) {
             'reset' => ['columns', 'columnOrder', 'limit', 'page', 'cursor', 'after', 'before', 'sortBy', 'orderBy'],
             'reset-columns' => ['columns', 'columnOrder'],
+            'reset-sort' => ['sortBy', 'orderBy', 'limit', 'page', 'cursor', 'after', 'before'],
             default => ['columns', 'columnOrder', 'limit', 'page', 'cursor', 'after', 'before'],
         }));
     }

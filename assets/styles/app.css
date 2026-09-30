@@ -72,6 +72,43 @@
     width: min(26rem, calc(100vw - 2rem));
     max-height: 24rem;
     overflow-y: auto;
+    padding: 0.25rem 0;
+}
+
+.closure-event-preview__item {
+    padding: 0.75rem 1rem;
+}
+
+.closure-event-preview__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.closure-event-preview__time {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0.2rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.35;
+}
+
+.closure-event-preview__time .icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+
+.closure-event-preview__badge {
+    margin-top: 0.5rem;
+}
+
+.closure-event-preview__more {
+    padding: 0.5rem 1rem 0.75rem;
+    color: var(--tblr-secondary);
+    font-size: 0.8125rem;
 }
 
 .data-table-card {
@@ -85,10 +122,12 @@
 .data-table-toolbar {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.5rem;
 }
 
-.data-table-toolbar .btn {
+.data-table-toolbar > .btn,
+.data-table-toolbar > .btn-group > .btn,
+.data-table-toolbar > .btn-group > .btn-group > .btn {
     font-size: 0.75rem;
     padding: 0.125rem 0.4rem;
     min-height: 1.5rem;
@@ -98,7 +137,9 @@
     gap: 0.25rem;
 }
 
-.data-table-toolbar .btn .icon {
+.data-table-toolbar > .btn .icon,
+.data-table-toolbar > .btn-group > .btn .icon,
+.data-table-toolbar > .btn-group > .btn-group > .btn .icon {
     width: 0.8125rem;
     height: 0.8125rem;
 }
@@ -122,9 +163,51 @@
     color: var(--tblr-secondary) !important;
 }
 
-.data-table-column-picker {
-    width: min(24rem, calc(100vw - 2rem));
-    max-height: min(36rem, calc(100vh - 6rem));
+.data-table-popover {
+    width: min(22rem, calc(100vw - 2rem));
+    padding: 0;
+}
+
+.data-table-popover__header {
+    padding: 0.75rem 1rem 0.5rem;
+}
+
+.data-table-popover__title {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.data-table-popover__help {
+    margin: 0.25rem 0 0;
+    color: var(--tblr-secondary);
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.data-table-popover__body {
+    padding: 0.25rem 1rem 0.75rem;
+}
+
+.data-table-popover__body .form-label {
+    margin-bottom: 0.25rem;
+}
+
+.data-table-popover__body .mb-3:last-child {
+    margin-bottom: 0 !important;
+}
+
+.data-table-popover__actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--tblr-border-color);
+}
+
+.data-table-column-picker .data-table-popover__body {
+    max-height: min(24rem, calc(100vh - 14rem));
     overflow-y: auto;
 }
 
@@ -132,18 +215,13 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.35rem 0.75rem;
+    padding: 0.4rem 0;
 }
 
 .data-table-column-id {
     flex: 0 0 1.75rem;
     font-variant-numeric: tabular-nums;
     color: var(--tblr-secondary);
-}
-
-.data-table-sort-menu {
-    width: min(18rem, calc(100vw - 2rem));
-    padding: 0.75rem 1rem;
 }
 
 /* IVENA-inspired closure timeline. Neutral cells mean “no closure represented”,

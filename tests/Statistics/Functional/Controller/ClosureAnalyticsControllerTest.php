@@ -506,7 +506,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="data-table-sort-form"] select[name="sortBy"]');
         $this->assertSelectorExists('[data-testid="data-table-sort-form"] select[name="orderBy"]');
         $this->assertSelectorExists('[data-testid="data-table-sort-form"] select[name="limit"]');
-        $this->assertSelectorTextContains('[data-testid="data-table-reset"]', 'Reset');
+        $this->assertSelectorNotExists('[data-testid="data-table-reset"]');
         $this->assertSelectorExists('[data-testid="stats-closure-intervals"] form[data-controller="data-table-columns"]');
         $this->assertSelectorExists('[data-testid="stats-closure-intervals"] th[aria-sort="descending"]');
         $this->assertSelectorExists('[data-testid="closure-event-facet-departments"] .dropdown');

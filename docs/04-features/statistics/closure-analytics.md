@@ -107,7 +107,9 @@ completed in about 77 ms; no additional materialized view or index was justified
 The Events tab uses the shared `DataTable` and keeps groups, analytical clusters
 and individual closures in one list. The event column only shows the type badge.
 Group and cluster rows move the compact child preview into the department
-column, with a stacked flyover of the contained closures. Care levels in the
+column. The flyover lists each contained closure with the department name as
+the title, the Berlin time span as smaller muted text underneath with a clock
+icon, and the urgency badge on its own last line. Care levels in the
 table use the shared urgency labels (`Notfallversorgung`, `Stationäre
 Versorgung`, `Ambulante Versorgung`). Event type badges stay in a blue/violet
 family. Closure reasons use quiet gray badge fills, not just gray text. Local closure units stay

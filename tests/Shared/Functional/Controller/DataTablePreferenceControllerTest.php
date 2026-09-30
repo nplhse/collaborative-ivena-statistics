@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Functional\Controller;
 
+use App\Shared\Domain\Entity\DataTablePreference;
 use App\Shared\Infrastructure\Repository\DataTablePreferenceRepository;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
+use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -51,8 +54,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         self::assertStringNotContainsString('limit=', $location);
         self::assertStringNotContainsString('page=', $location);
 
-        $repository = $client->getContainer()->get(DataTablePreferenceRepository::class);
-        $preference = $repository->findForUserAndTable($user, $key);
+        $preference = $this->preferenceFor($client, $user, $key);
         self::assertNotNull($preference);
         $configuration = $preference->getConfiguration();
         self::assertSame(50, $configuration['pageSize']);
@@ -76,13 +78,41 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         self::assertStringContainsString('sortBy=actualMinutes', $columnResetLocation);
         self::assertStringContainsString('limit=100', $columnResetLocation);
         self::assertStringNotContainsString('columns=', $columnResetLocation);
-        $afterColumnReset = $repository->findForUserAndTable($user, $key);
+        $afterColumnReset = $this->preferenceFor($client, $user, $key);
         self::assertNotNull($afterColumnReset);
         $afterConfiguration = $afterColumnReset->getConfiguration();
         self::assertSame(50, $afterConfiguration['pageSize']);
         self::assertSame(
             $client->getContainer()->get(ClosureEventTableColumns::class)->preferenceSchema()->columnOrder,
             $afterConfiguration['columnOrder'],
+        );
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics/details?scope=public&period=all_time',
+        );
+        $token = (string) $crawler->filter('input[name="_token"]')->attr('value');
+        $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
+            '_token' => $token,
+            'tableKey' => $key,
+            'returnUrl' => '/statistics/closure-analytics/details?scope=public&period=year&year=2026&sortBy=actualMinutes&orderBy=asc&columns=hospital&limit=100',
+            'action' => 'reset-sort',
+        ]);
+        self::assertResponseRedirects();
+        $sortResetLocation = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('columns=hospital', $sortResetLocation);
+        self::assertStringNotContainsString('sortBy=', $sortResetLocation);
+        self::assertStringNotContainsString('orderBy=', $sortResetLocation);
+        self::assertStringNotContainsString('limit=', $sortResetLocation);
+        $afterSortReset = $this->preferenceFor($client, $user, $key);
+        self::assertNotNull($afterSortReset);
+        self::assertSame(
+            $client->getContainer()->get(ClosureEventTableColumns::class)->preferenceSchema()->defaultPageSize,
+            $afterSortReset->getConfiguration()['pageSize'],
+        );
+        self::assertSame(
+            $client->getContainer()->get(ClosureEventTableColumns::class)->preferenceSchema()->columnOrder,
+            $afterSortReset->getConfiguration()['columnOrder'],
         );
 
         $crawler = $client->request(
@@ -103,7 +133,7 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         self::assertStringNotContainsString('sortBy=', $resetLocation);
         self::assertStringNotContainsString('orderBy=', $resetLocation);
         self::assertStringNotContainsString('columns=', $resetLocation);
-        self::assertNull($repository->findForUserAndTable($user, $key));
+        self::assertNull($this->preferenceFor($client, $user, $key));
     }
 
     public function testInvalidCsrfAndUnknownTableAreRejected(): void
@@ -122,5 +152,14 @@ final class DataTablePreferenceControllerTest extends WebTestCase
             'tableKey' => 'unknown.table',
         ]);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    private function preferenceFor(KernelBrowser $client, User $user, string $key): ?DataTablePreference
+    {
+        $entityManager = $client->getContainer()->get('doctrine')->getManager();
+        $entityManager->clear();
+
+        return $client->getContainer()->get(DataTablePreferenceRepository::class)
+            ->findForUserAndTable($user, $key);
     }
 }

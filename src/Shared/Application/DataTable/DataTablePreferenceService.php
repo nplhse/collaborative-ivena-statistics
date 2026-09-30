@@ -105,6 +105,27 @@ final readonly class DataTablePreferenceService
         $this->repository->save($preference);
     }
 
+    public function resetSort(User $user, string $tableKey): void
+    {
+        $schema = $this->registry->get($tableKey);
+        if (!$schema instanceof DataTablePreferenceSchema) {
+            throw new \InvalidArgumentException(sprintf('Unknown DataTable preference key "%s".', $tableKey));
+        }
+
+        $preference = $this->repository->findForUserAndTable($user, $tableKey);
+        if (!$preference instanceof DataTablePreference) {
+            return;
+        }
+
+        $current = $this->reconcile($schema, $preference->getConfiguration());
+        $preference->update(new DataTablePreferenceState(
+            $current->visibleColumns,
+            $current->columnOrder,
+            $schema->defaultPageSize,
+        )->toArray());
+        $this->repository->save($preference);
+    }
+
     /**
      * @param array<string, mixed> $configuration
      */
