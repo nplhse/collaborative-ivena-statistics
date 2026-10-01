@@ -14,6 +14,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -222,5 +223,21 @@ final class HospitalRepositoryQueryTest extends KernelTestCase
         self::assertContains($nonParticipating->getId(), $ids);
         self::assertCount(2, $result);
         self::assertContainsOnlyInstancesOf(Hospital::class, $result);
+    }
+
+    public function testFindIdNameMapSkipsAHospitalWithoutAName(): void
+    {
+        UserFactory::createOne();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        $named = HospitalFactory::createOne(['name' => 'Named Hospital']);
+        $blank = HospitalFactory::createOne(['name' => 'Blank Hospital']);
+        $blank->setName('');
+        self::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $names = $this->repo->findIdNameMap();
+
+        self::assertSame('Named Hospital', $names[$named->getId()]);
+        self::assertArrayNotHasKey($blank->getId(), $names);
     }
 }

@@ -115,13 +115,7 @@ final readonly class ImportClosuresMessageHandler
             $this->flushWithImportIntent('import.run.started', $import);
 
             $hospitalId = $import->getHospital()?->getId();
-            if (null === $hospitalId) {
-                $reason = 'Import has no hospital';
-                $this->markFailed($import, $reason);
-                $this->dispatchImportOutcome($message->importId, $reason);
-
-                return;
-            }
+            \assert(\is_int($hospitalId));
 
             $writer = $this->rejectWriterFactory->create();
             $writer->start($import);

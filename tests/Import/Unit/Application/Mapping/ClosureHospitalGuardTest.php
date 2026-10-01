@@ -129,6 +129,29 @@ final class ClosureHospitalGuardTest extends TestCase
         $this->guard->profile(4, [1 => 'Klinikum Beispiel'], ['Klinikum Beispiel']);
     }
 
+    public function testDistinctShortNamesIgnoreNonStringsAndRepeatedLabels(): void
+    {
+        $names = $this->guard->distinctShortNames([
+            ['other' => 'ignored'],
+            ['krankenhaus_kurzname' => 'Klinikum Beispiel'],
+            ['krankenhaus_kurzname' => 'Klinikum Beispiel'],
+        ]);
+
+        self::assertSame(['Klinikum Beispiel'], $names);
+    }
+
+    public function testProfileSkipsBlankCatalogNamesAndBlankShortNames(): void
+    {
+        $profile = $this->guard->profile(1, [
+            1 => 'Klinikum Beispiel',
+            2 => '   ',
+        ], ['', 'Klinikum Beispiel', '  klinikum beispiel  ']);
+
+        self::assertFalse($profile->multiple);
+        self::assertSame(['Klinikum Beispiel'], $profile->distinctDisplays);
+        self::assertArrayNotHasKey('', $profile->hospitalIdsByNormalizedName);
+    }
+
     public function testFileWithoutAShortNameStaysAssignedToTheSelectedHospital(): void
     {
         $profile = $this->guard->profile(1, [1 => 'Klinikum Beispiel'], []);

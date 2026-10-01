@@ -53,6 +53,32 @@ final class ClosureImportFactoryEdgeTest extends DatabaseKernelTestCase
         self::getContainer()->get(ClosureImportFactory::class)->fromDto($this->validDto(), $import, $this->profileFor($hospital));
     }
 
+    public function testProfileForADifferentHospitalIsRejected(): void
+    {
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Klinikum Beispiel',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+        $hospitalId = $hospital->getId();
+        self::assertNotNull($hospitalId);
+        $import = new Import()->setHospital($this->em->getReference(Hospital::class, $hospitalId));
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Closure hospital profile does not match the import hospital');
+
+        self::getContainer()->get(ClosureImportFactory::class)->fromDto(
+            $this->validDto(),
+            $import,
+            new ClosureHospitalGuard()->profile(999_999, [
+                $hospitalId => 'Klinikum Beispiel',
+                999_999 => 'Anderes Haus',
+            ], []),
+        );
+    }
+
     public function testHospitalWithoutIdCannotBeReferenced(): void
     {
         $hospital = new Hospital();
