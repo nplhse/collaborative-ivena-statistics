@@ -69,7 +69,7 @@ percentages; time outside it remains unknown.
 ## Requeue
 
 ```bash
-php bin/console app:import:closures <IMPORT_ID>
+php bin/console app:import:start <IMPORT_ID>
 ```
 
-This dispatches `ImportClosuresMessage` on `async_priority_high`. A worker must consume that transport. `app:import:allocations` rejects a closure import. The source file stays on disk; a later run clears only data that belongs to this import.
+This resolves the import type and, for a closure import, dispatches `ImportClosuresMessage` on `async_priority_high`. A worker must consume that transport. The source file stays on disk; a later run clears only data that belongs to this import.

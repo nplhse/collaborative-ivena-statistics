@@ -11,12 +11,7 @@ final class ImportTypeMismatchException extends \RuntimeException
     public function __construct(int $importId, ImportType $expected, ?ImportType $actual)
     {
         $actualLabel = $actual instanceof ImportType ? $actual->value : 'missing';
-        $command = match ($actual) {
-            ImportType::ALLOCATION => 'app:import:allocations',
-            ImportType::CLOSURE => 'app:import:closures',
-            default => null,
-        };
-        $hint = null !== $command ? sprintf(' Use %s to requeue it.', $command) : '';
+        $hint = $actual instanceof ImportType ? ' Use app:import:start to requeue it.' : '';
 
         parent::__construct(sprintf(
             'Import #%d is a %s import and cannot be requeued as %s.%s',

@@ -366,65 +366,6 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         self::assertTrue($summary->interrupted);
     }
 
-    public function testImportAllocationsCommandSuccessAndFailureExitCodes(): void
-    {
-        $seed = $this->seedReferenceGraph();
-        $import = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
-
-        $application = new Application(self::$kernel);
-        $command = $application->find('app:import:allocations');
-        $tester = new CommandTester($command);
-
-        $success = $tester->execute(['importId' => (string) $import->getId()]);
-        self::assertSame(ImportDispatchExitCode::SUCCESS, $success);
-
-        $failure = $tester->execute(['importId' => '999999']);
-        self::assertSame(ImportDispatchExitCode::FAILURE, $failure);
-    }
-
-    public function testAllocationsCommandRejectsClosureImport(): void
-    {
-        $seed = $this->seedReferenceGraph();
-        $import = ImportFactory::createOne([
-            'hospital' => $seed['hospital'],
-            'createdBy' => $seed['user'],
-            'type' => ImportType::CLOSURE,
-        ]);
-
-        $application = new Application(self::$kernel);
-        $tester = new CommandTester($application->find('app:import:allocations'));
-        $exitCode = $tester->execute(['importId' => (string) $import->getId()]);
-
-        self::assertSame(ImportDispatchExitCode::FAILURE, $exitCode);
-        self::assertStringContainsString('app:import:closures', $tester->getDisplay());
-    }
-
-    public function testClosuresCommandDispatchesClosureImportAndRejectsAllocationImport(): void
-    {
-        $seed = $this->seedReferenceGraph();
-        $closure = ImportFactory::createOne([
-            'hospital' => $seed['hospital'],
-            'createdBy' => $seed['user'],
-            'type' => ImportType::CLOSURE,
-        ]);
-        $allocation = ImportFactory::createOne([
-            'hospital' => $seed['hospital'],
-            'createdBy' => $seed['user'],
-            'type' => ImportType::ALLOCATION,
-        ]);
-
-        $application = new Application(self::$kernel);
-        $tester = new CommandTester($application->find('app:import:closures'));
-
-        $success = $tester->execute(['importId' => (string) $closure->getId()]);
-        self::assertSame(ImportDispatchExitCode::SUCCESS, $success);
-        self::assertStringContainsString('Dispatched closure import job', $tester->getDisplay());
-
-        $failure = $tester->execute(['importId' => (string) $allocation->getId()]);
-        self::assertSame(ImportDispatchExitCode::FAILURE, $failure);
-        self::assertStringContainsString('app:import:allocations', $tester->getDisplay());
-    }
-
     /**
      * @return array{user: object, hospital: object}
      */
