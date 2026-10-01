@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Resolver\Strategy;
 
+use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Infrastructure\Repository\DepartmentRepository;
 use App\Allocation\Infrastructure\Repository\SpecialityRepository;
 use App\Import\Application\Exception\ReferenceNotFoundException;
-use App\Import\Application\Mapping\DepartmentNameAlias;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class SpecialityDepartmentReferenceStrategy
@@ -38,8 +40,16 @@ final class SpecialityDepartmentReferenceStrategy
                 throw new \DomainException('Speciality id must not be null.');
             }
 
-            $key = $this->key((string) $speciality->getName());
-            $this->specialityIdByKey[$key] = $id;
+            $this->remember($this->specialityIdByKey, $this->key((string) $speciality->getName()), $id, (string) $speciality->getName());
+        }
+
+        foreach ($this->em->getRepository(SpecialityAlias::class)->findBy([], ['name' => 'ASC']) as $alias) {
+            $id = $alias->getSpeciality()->getId();
+            if (null === $id) {
+                throw new \DomainException('Speciality id must not be null.');
+            }
+
+            $this->remember($this->specialityIdByKey, $alias->getNormalizedName(), $id, $alias->getName());
         }
 
         foreach ($this->departmentRepo->findBy([], ['name' => 'ASC']) as $department) {
@@ -48,8 +58,16 @@ final class SpecialityDepartmentReferenceStrategy
                 throw new \DomainException('Department id must not be null.');
             }
 
-            $key = $this->key((string) $department->getName());
-            $this->departmentIdByKey[$key] = $id;
+            $this->remember($this->departmentIdByKey, $this->key((string) $department->getName()), $id, (string) $department->getName());
+        }
+
+        foreach ($this->em->getRepository(DepartmentAlias::class)->findBy([], ['name' => 'ASC']) as $alias) {
+            $id = $alias->getDepartment()->getId();
+            if (null === $id) {
+                throw new \DomainException('Department id must not be null.');
+            }
+
+            $this->remember($this->departmentIdByKey, $alias->getNormalizedName(), $id, $alias->getName());
         }
     }
 
@@ -68,7 +86,7 @@ final class SpecialityDepartmentReferenceStrategy
             throw ReferenceNotFoundException::forField('speciality', $specialityName);
         }
 
-        $departmentKey = $this->resolveDepartmentKey($departmentName);
+        $departmentKey = $this->key($departmentName);
         $departmentId = $this->departmentIdByKey[$departmentKey] ?? null;
         if ('' === $departmentKey || null === $departmentId) {
             throw ReferenceNotFoundException::forField('department', $departmentName);
@@ -108,7 +126,7 @@ final class SpecialityDepartmentReferenceStrategy
             $entity->setSpeciality($specialityRef);
         }
 
-        $departmentKey = $this->resolveDepartmentKey((string) $departmentName);
+        $departmentKey = $this->key((string) $departmentName);
         if ('' !== $departmentKey) {
             $departmentId = $this->departmentIdByKey[$departmentKey] ?? null;
             if (null === $departmentId) {
@@ -123,21 +141,24 @@ final class SpecialityDepartmentReferenceStrategy
         $entity->setDepartmentWasClosed($departmentWasClosedPolicy($departmentWasClosed));
     }
 
-    private function resolveDepartmentKey(string $departmentName): string
+    /**
+     * @param array<string, int> $map
+     */
+    private function remember(array &$map, string $key, int $id, string $label): void
     {
-        $key = $this->key($departmentName);
         if ('' === $key) {
-            return '';
+            return;
         }
 
-        return DepartmentNameAlias::canonicalKey($key);
+        if (isset($map[$key]) && $map[$key] !== $id) {
+            throw new \DomainException(sprintf('Reference name "%s" resolves to more than one catalog row.', $label));
+        }
+
+        $map[$key] = $id;
     }
 
     private function key(string $name): string
     {
-        $s = \mb_strtolower(\trim($name), 'UTF-8');
-        $normalized = \preg_replace('/\s+/', ' ', $s);
-
-        return $normalized ?? $s;
+        return ReferenceNameKey::normalize($name);
     }
 }

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Tests\Import\Integration\Service\Resolver;
 
 use App\Allocation\Domain\Entity\Allocation;
+use App\Allocation\Domain\Entity\DepartmentAlias;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Import\Application\Exception\ReferenceNotFoundException;
 use App\Import\Infrastructure\Resolver\Strategy\SpecialityDepartmentReferenceStrategy;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -24,7 +27,17 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
         self::bootKernel();
 
         UserFactory::createOne();
-        DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
+        $department = DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        foreach ([
+            'Perinatalzentrum Level 1',
+            'Perinatalzentrum Level 2',
+            'Perinataler Schwerpunkt',
+            'Geburtsklinik',
+        ] as $alias) {
+            $em->persist(new DepartmentAlias($department, $alias, 'historical', 'local-catalog'));
+        }
+        $em->flush();
 
         $this->strategy = self::getContainer()->get(SpecialityDepartmentReferenceStrategy::class);
         $this->strategy->warm();
@@ -74,6 +87,21 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
 
     public function testRequirePairResolvesKnownNames(): void
     {
+        $speciality = SpecialityFactory::createOne(['name' => 'Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Kardiologie']);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist(new SpecialityAlias($speciality, 'Innere', 'historical', 'local-catalog'));
+        $em->flush();
+        $this->strategy->warm();
+
+        $pair = $this->strategy->requirePair('Innere', 'Kardiologie');
+
+        self::assertSame('Innere Medizin', $pair['speciality']->getName());
+        self::assertSame('Kardiologie', $pair['department']->getName());
+    }
+
+    public function testRequirePairResolvesCanonicalNames(): void
+    {
         SpecialityFactory::createOne(['name' => 'Innere Medizin']);
         DepartmentFactory::createOne(['name' => 'Kardiologie']);
         $this->strategy->warm();
@@ -89,5 +117,16 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
         $this->expectException(ReferenceNotFoundException::class);
 
         $this->strategy->requirePair('Unbekanntes Fachgebiet', 'Geburtshilfe');
+    }
+
+    public function testWarmRejectsAliasThatCollidesWithAnotherDepartment(): void
+    {
+        $other = DepartmentFactory::createOne(['name' => 'Gynäkologie']);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist(new DepartmentAlias($other, 'Geburtshilfe', 'historical', 'local-catalog'));
+        $em->flush();
+
+        $this->expectException(\DomainException::class);
+        $this->strategy->warm();
     }
 }

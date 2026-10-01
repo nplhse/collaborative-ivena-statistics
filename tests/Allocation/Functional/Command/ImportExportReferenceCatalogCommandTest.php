@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Command;
 
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationGroup;
@@ -468,6 +469,168 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         file_put_contents($path, Yaml::dump($catalog, 8, 2));
 
         return $path;
+    }
+
+    public function testAddRenamesDepartmentInPlaceAndImportsAlias(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        $department = DepartmentFactory::createOne(['name' => 'Allgemein Innere Medizin']);
+        $departmentId = $department->getId();
+        $source = $this->writeCatalog([
+            'departments' => [[
+                'name' => 'Allgemeine Innere Medizin',
+                'previous_names' => ['Allgemein Innere Medizin'],
+                'aliases' => [[
+                    'name' => 'Allgemein Innere Medizin',
+                    'classification' => 'faulty_catalog',
+                    'source' => 'local-catalog',
+                ]],
+            ]],
+        ]);
+
+        $exitCode = $this->commandTester('app:reference:import')->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $renamed = $em->getRepository(Department::class)->find($departmentId);
+        self::assertInstanceOf(Department::class, $renamed);
+        self::assertSame('Allgemeine Innere Medizin', $renamed->getName());
+        self::assertSame(1, $em->getRepository(Department::class)->count([]));
+        $alias = $em->getRepository(DepartmentAlias::class)->findOneBy(['normalizedName' => 'allgemein innere medizin']);
+        self::assertInstanceOf(DepartmentAlias::class, $alias);
+        self::assertSame($departmentId, $alias->getDepartment()->getId());
+        self::assertSame('faulty_catalog', $alias->getClassification());
+    }
+
+    public function testAddRefusesRenameWhenBothNamesAlreadyExist(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        DepartmentFactory::createOne(['name' => 'Allgemein Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Allgemeine Innere Medizin']);
+        $source = $this->writeCatalog([
+            'departments' => [[
+                'name' => 'Allgemeine Innere Medizin',
+                'previous_names' => ['Allgemein Innere Medizin'],
+            ]],
+        ]);
+
+        $tester = $this->commandTester('app:reference:import');
+        $exitCode = $tester->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+        ]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertStringContainsString('both names already exist', $tester->getDisplay());
+        self::assertSame(2, self::getContainer()->get(EntityManagerInterface::class)->getRepository(Department::class)->count([]));
+    }
+
+    public function testAddRefusesAliasOwnedByAnotherDepartment(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        $owner = DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
+        DepartmentFactory::createOne(['name' => 'Gynäkologie']);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist(new DepartmentAlias($owner, 'Geburtsklinik', 'historical', 'local-catalog'));
+        $em->flush();
+        $source = $this->writeCatalog([
+            'departments' => [[
+                'name' => 'Gynäkologie',
+                'aliases' => [[
+                    'name' => 'Geburtsklinik',
+                    'classification' => 'historical',
+                    'source' => 'local-catalog',
+                ]],
+            ]],
+        ]);
+
+        $tester = $this->commandTester('app:reference:import');
+        $exitCode = $tester->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+        ]);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertStringContainsString('already belongs to', $tester->getDisplay());
+    }
+
+    public function testReimportUpdatesAliasMetadataAndExportWritesIt(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
+        $source = $this->writeCatalog([
+            'departments' => [[
+                'name' => 'Geburtshilfe',
+                'aliases' => [[
+                    'name' => 'Geburtsklinik',
+                    'classification' => 'historical',
+                    'source' => 'local-catalog',
+                    'note' => 'first note',
+                    'valid_from' => '2019-01-01',
+                ]],
+            ]],
+        ]);
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:import')->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+        ]));
+
+        $updated = $this->writeCatalog([
+            'departments' => [[
+                'name' => 'Geburtshilfe',
+                'aliases' => [[
+                    'name' => 'Geburtsklinik',
+                    'classification' => 'historical',
+                    'source' => 'ivena-export',
+                    'note' => 'corrected note',
+                    'valid_from' => '2019-01-01',
+                    'valid_to' => '2024-12-31',
+                ]],
+            ]],
+        ]);
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:import')->execute([
+            '--source' => $updated,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+        ]));
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $alias = $em->getRepository(DepartmentAlias::class)->findOneBy(['normalizedName' => 'geburtsklinik']);
+        self::assertInstanceOf(DepartmentAlias::class, $alias);
+        self::assertSame('ivena-export', $alias->getSource());
+        self::assertSame('corrected note', $alias->getNote());
+        self::assertSame('2024-12-31', $alias->getValidTo()?->format('Y-m-d'));
+
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
+            '--output' => $output,
+            '--types' => 'department',
+        ]));
+        /** @var array<string, mixed> $parsed */
+        $parsed = Yaml::parseFile($output);
+        $exported = null;
+        foreach ($parsed['departments'] as $row) {
+            if (\is_array($row) && 'Geburtshilfe' === ($row['name'] ?? null)) {
+                $exported = $row;
+            }
+        }
+        self::assertIsArray($exported);
+        self::assertSame('corrected note', $exported['aliases'][0]['note'] ?? null);
+        self::assertSame('2024-12-31', $exported['aliases'][0]['valid_to'] ?? null);
     }
 
     /**

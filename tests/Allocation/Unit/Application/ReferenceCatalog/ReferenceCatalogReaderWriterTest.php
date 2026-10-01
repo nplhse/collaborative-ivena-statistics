@@ -73,7 +73,7 @@ final class ReferenceCatalogReaderWriterTest extends TestCase
         self::assertSame('Hessen', $loaded->dispatchAreas[0]['state']);
         self::assertSame('Göttingen', $loaded->dispatchAreas[1]['name']);
         self::assertNull($loaded->dispatchAreas[1]['state']);
-        self::assertSame(['Kardiologie'], $loaded->departments);
+        self::assertSame(['Kardiologie'], $loaded->names('departments'));
         self::assertStringContainsString('reference-catalog-yaml.md', (string) file_get_contents($path));
     }
 
@@ -94,7 +94,7 @@ final class ReferenceCatalogReaderWriterTest extends TestCase
         $filtered = $document->withTypes([ReferenceCatalogType::State, ReferenceCatalogType::Department]);
 
         self::assertSame(['Hessen'], $filtered->states);
-        self::assertSame(['Kardiologie'], $filtered->departments);
+        self::assertSame(['Kardiologie'], $filtered->names('departments'));
         self::assertSame([], $filtered->hospitals);
         self::assertSame('dispatch_areas', ReferenceCatalogType::DispatchArea->yamlKey());
         self::assertSame(['Kardiologie'], $document->names('departments.yaml'));

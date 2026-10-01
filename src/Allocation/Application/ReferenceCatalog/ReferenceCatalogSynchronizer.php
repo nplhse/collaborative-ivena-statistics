@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Address;
 use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
@@ -19,6 +20,7 @@ use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
@@ -75,8 +77,8 @@ final readonly class ReferenceCatalogSynchronizer
             match ($type) {
                 ReferenceCatalogType::State => $this->syncStates($document, $user, $dryRun, $statesByName, $created, $skipped),
                 ReferenceCatalogType::DispatchArea => $this->syncDispatchAreas($document, $user, $dryRun, $replace, $statesByName, $created, $skipped, $warnings),
-                ReferenceCatalogType::Department => $this->syncNameEntities(Department::class, $document->departments, $type, $user, $dryRun, $replace, $created, $skipped),
-                ReferenceCatalogType::Speciality => $this->syncNameEntities(Speciality::class, $document->specialities, $type, $user, $dryRun, $replace, $created, $skipped),
+                ReferenceCatalogType::Department => $this->syncNamedEntries(Department::class, DepartmentAlias::class, $document->departments, $type, $user, $dryRun, $replace, $created, $skipped, $updated),
+                ReferenceCatalogType::Speciality => $this->syncNamedEntries(Speciality::class, SpecialityAlias::class, $document->specialities, $type, $user, $dryRun, $replace, $created, $skipped, $updated),
                 ReferenceCatalogType::Assignment => $this->syncNameEntities(Assignment::class, $document->assignments, $type, $user, $dryRun, $replace, $created, $skipped),
                 ReferenceCatalogType::Occasion => $this->syncNameEntities(Occasion::class, $document->occasions, $type, $user, $dryRun, $replace, $created, $skipped),
                 ReferenceCatalogType::Infection => $this->syncNameEntities(Infection::class, $document->infections, $type, $user, $dryRun, $replace, $created, $skipped),
@@ -112,6 +114,8 @@ final readonly class ReferenceCatalogSynchronizer
 
     private function purgeCatalogTables(): void
     {
+        $this->entityManager->createQuery('DELETE FROM '.DepartmentAlias::class)->execute();
+        $this->entityManager->createQuery('DELETE FROM '.SpecialityAlias::class)->execute();
         $this->entityManager->getConnection()->executeStatement('DELETE FROM indication_group_indication_normalized');
         $this->entityManager->createQuery('DELETE FROM '.IndicationGroup::class)->execute();
         $this->entityManager->createQuery('UPDATE '.IndicationRaw::class.' r SET r.normalized = NULL, r.target = NULL')->execute();
@@ -252,6 +256,149 @@ final readonly class ReferenceCatalogSynchronizer
         }
 
         return $keys;
+    }
+
+    /**
+     * @param class-string<Department|Speciality>           $class
+     * @param class-string<DepartmentAlias|SpecialityAlias> $aliasClass
+     * @param list<ReferenceNameEntry>                      $entries
+     * @param array<string, int>                            $created
+     * @param array<string, int>                            $skipped
+     * @param array<string, int>                            $updated
+     */
+    private function syncNamedEntries(
+        string $class,
+        string $aliasClass,
+        array $entries,
+        ReferenceCatalogType $type,
+        User $user,
+        bool $dryRun,
+        bool $replace,
+        array &$created,
+        array &$skipped,
+        array &$updated,
+    ): void {
+        new ReferenceNameCatalogGuard()->assertNoConflicts($entries);
+
+        /** @var array<string, Department|Speciality> $existingByName */
+        $existingByName = [];
+        if (!$replace || !$dryRun) {
+            foreach ($this->entityManager->getRepository($class)->findBy([]) as $entity) {
+                if (!method_exists($entity, 'getName')) {
+                    throw new \LogicException(sprintf('Entity %s is not a name-based lookup.', $class));
+                }
+
+                $existingByName[(string) $entity->getName()] = $entity;
+            }
+        }
+
+        foreach ($entries as $entry) {
+            foreach ($entry->previousNames as $previousName) {
+                if (isset($existingByName[$previousName], $existingByName[$entry->name])) {
+                    throw new ReferenceCatalogRenameConflictException(sprintf('Cannot rename "%s" to "%s" because both names already exist.', $previousName, $entry->name));
+                }
+            }
+
+            $entity = $existingByName[$entry->name] ?? null;
+            if ($entity instanceof Department || $entity instanceof Speciality) {
+                $this->bump($skipped, $type->value);
+            } else {
+                $renamed = false;
+                foreach ($entry->previousNames as $previousName) {
+                    $previous = $existingByName[$previousName] ?? null;
+                    if (!$previous instanceof Department && !$previous instanceof Speciality) {
+                        continue;
+                    }
+
+                    unset($existingByName[$previousName]);
+                    $existingByName[$entry->name] = $previous;
+                    $entity = $previous;
+                    $renamed = true;
+                    $this->bump($updated, $type->value);
+                    if (!$dryRun) {
+                        $previous->setName($entry->name);
+                        $previous->setUpdatedBy($user);
+                        $previous->setUpdatedAt(new \DateTimeImmutable('now'));
+                    }
+                    break;
+                }
+
+                if (!$renamed) {
+                    $this->bump($created, $type->value);
+                    if (!$dryRun) {
+                        $createdEntity = new $class();
+                        if (!method_exists($createdEntity, 'setName') || !method_exists($createdEntity, 'setCreatedBy')) {
+                            throw new \LogicException(sprintf('Entity %s is not a name-based lookup.', $class));
+                        }
+
+                        $createdEntity->setName($entry->name);
+                        $createdEntity->setCreatedBy($user);
+                        $this->entityManager->persist($createdEntity);
+                        $entity = $createdEntity;
+                    }
+                    if ($entity instanceof Department || $entity instanceof Speciality) {
+                        $existingByName[$entry->name] = $entity;
+                    }
+                }
+            }
+
+            $this->syncAliases($aliasClass, $entity, $entry, $type, $dryRun, !$replace || !$dryRun, $created, $skipped, $updated);
+        }
+    }
+
+    /**
+     * @param class-string<DepartmentAlias|SpecialityAlias> $aliasClass
+     * @param array<string, int>                            $created
+     * @param array<string, int>                            $skipped
+     * @param array<string, int>                            $updated
+     */
+    private function syncAliases(
+        string $aliasClass,
+        Department|Speciality|null $owner,
+        ReferenceNameEntry $entry,
+        ReferenceCatalogType $type,
+        bool $dryRun,
+        bool $lookupExisting,
+        array &$created,
+        array &$skipped,
+        array &$updated,
+    ): void {
+        $aliasType = $type->value.'-alias';
+        foreach ($entry->aliases as $alias) {
+            $normalized = ReferenceNameKey::normalize($alias->name);
+            $existing = $lookupExisting
+                ? $this->entityManager->getRepository($aliasClass)->findOneBy(['normalizedName' => $normalized])
+                : null;
+            if ($existing instanceof DepartmentAlias || $existing instanceof SpecialityAlias) {
+                $ownerName = $existing instanceof DepartmentAlias
+                    ? (string) $existing->getDepartment()->getName()
+                    : (string) $existing->getSpeciality()->getName();
+                if ($ownerName !== $entry->name && '' !== $ownerName && !\in_array($ownerName, $entry->previousNames, true)) {
+                    throw new ReferenceCatalogAliasConflictException(sprintf('Alias "%s" already belongs to "%s".', $alias->name, $ownerName));
+                }
+
+                if ($existing->matches($alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo)) {
+                    $this->bump($skipped, $aliasType);
+                    continue;
+                }
+
+                $this->bump($updated, $aliasType);
+                if (!$dryRun) {
+                    $existing->applyMetadata($alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo);
+                }
+                continue;
+            }
+
+            $this->bump($created, $aliasType);
+            if ($dryRun || (!$owner instanceof Department && !$owner instanceof Speciality)) {
+                continue;
+            }
+
+            $createdAlias = $owner instanceof Department
+                ? new DepartmentAlias($owner, $alias->name, $alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo)
+                : new SpecialityAlias($owner, $alias->name, $alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo);
+            $this->entityManager->persist($createdAlias);
+        }
     }
 
     /**

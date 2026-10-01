@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\Import\Application\ReferenceCatalog;
 
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogDocument;
+use App\Allocation\Application\ReferenceCatalog\ReferenceNameEntry;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Import\Application\Analysis\ImportRejectAnalysisReader;
 use App\Import\Application\Analysis\RejectMessageNormalizer;
 use App\Import\Application\Mapping\Cp850MojibakeRepair;
-use App\Import\Application\Mapping\DepartmentNameAlias;
 use App\Import\Application\Mapping\DispatchAreaNameNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -196,12 +198,7 @@ final readonly class ReferenceCatalogFromRejectsProposer
      */
     private function isKnown(array $known, string $type, string $value): bool
     {
-        $key = $this->lookupKey($value);
-        if ('department' === $type) {
-            $key = DepartmentNameAlias::canonicalKey($key);
-        }
-
-        return isset($known[$type][$key]);
+        return isset($known[$type][$this->lookupKey($value)]);
     }
 
     private function isJunk(string $type, string $value): bool
@@ -244,8 +241,8 @@ final readonly class ReferenceCatalogFromRejectsProposer
 
             match ($entry['type']) {
                 'dispatch-area' => $document->dispatchAreas[] = ['name' => $entry['value'], 'state' => null],
-                'department' => $document->departments[] = $entry['value'],
-                'speciality' => $document->specialities[] = $entry['value'],
+                'department' => $document->departments[] = new ReferenceNameEntry($entry['value']),
+                'speciality' => $document->specialities[] = new ReferenceNameEntry($entry['value']),
                 'assignment' => $document->assignments[] = $entry['value'],
                 'occasion' => $document->occasions[] = $entry['value'],
                 'infection' => $document->infections[] = $entry['value'],
@@ -264,8 +261,8 @@ final readonly class ReferenceCatalogFromRejectsProposer
     {
         return [
             'dispatch-area' => $this->nameKeys(DispatchArea::class),
-            'department' => $this->nameKeys(Department::class),
-            'speciality' => $this->nameKeys(Speciality::class),
+            'department' => $this->nameKeys(Department::class) + $this->aliasKeys(DepartmentAlias::class),
+            'speciality' => $this->nameKeys(Speciality::class) + $this->aliasKeys(SpecialityAlias::class),
             'assignment' => $this->nameKeys(Assignment::class),
             'occasion' => $this->nameKeys(Occasion::class),
             'infection' => $this->nameKeys(Infection::class),
@@ -287,6 +284,25 @@ final readonly class ReferenceCatalogFromRejectsProposer
             }
 
             $keys[$this->lookupKey((string) $entity->getName())] = true;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * @param class-string<DepartmentAlias|SpecialityAlias> $class
+     *
+     * @return array<string, true>
+     */
+    private function aliasKeys(string $class): array
+    {
+        $keys = [];
+        foreach ($this->entityManager->getRepository($class)->findBy([]) as $alias) {
+            if (!method_exists($alias, 'getNormalizedName')) {
+                continue;
+            }
+
+            $keys[$alias->getNormalizedName()] = true;
         }
 
         return $keys;

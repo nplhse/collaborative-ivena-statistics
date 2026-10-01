@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Unit\Application\ReferenceCatalog;
 
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Import\Application\Analysis\ImportRejectAnalysisReader;
@@ -106,6 +107,10 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
 
         $departmentRepo = $this->createStub(EntityRepository::class);
         $departmentRepo->method('findBy')->willReturn([$geburtshilfe]);
+        $alias = $this->createStub(DepartmentAlias::class);
+        $alias->method('getNormalizedName')->willReturn('perinatalzentrum level 2');
+        $aliasRepo = $this->createStub(EntityRepository::class);
+        $aliasRepo->method('findBy')->willReturn([$alias]);
         $dispatchRepo = $this->createStub(EntityRepository::class);
         $dispatchRepo->method('findBy')->willReturn([$frankfurt]);
         $occasionRepo = $this->createStub(EntityRepository::class);
@@ -117,6 +122,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         $em->method('getRepository')->willReturnCallback(
             static fn (string $class): EntityRepository => match ($class) {
                 Department::class => $departmentRepo,
+                DepartmentAlias::class => $aliasRepo,
                 DispatchArea::class => $dispatchRepo,
                 Occasion::class => $occasionRepo,
                 default => $emptyRepo,
@@ -136,7 +142,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         self::assertNotContains('Häuslicher Einsatz', $all->document->occasions);
         self::assertNotContains('Öffentlicher Raum', $all->document->occasions);
         self::assertNotContains("H\u{0084}uslicher Einsatz", $all->document->occasions);
-        self::assertContains('ECMO-Therapie', $all->document->specialities);
+        self::assertContains('ECMO-Therapie', $all->document->names('specialities'));
         self::assertContains('NAW', $all->document->assignments);
         self::assertContains('MRSA', $all->document->infections);
         self::assertContains('Verlegung KH', $all->document->secondaryTransports);
@@ -147,7 +153,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         self::assertGreaterThan(0, $all->droppedAsKnown);
 
         $filtered = $proposer->propose(minCount: 2);
-        self::assertSame([], $filtered->document->specialities);
+        self::assertSame([], $filtered->document->names('specialities'));
         self::assertContains('Göttingen', array_column($filtered->document->dispatchAreas, 'name'));
     }
 }

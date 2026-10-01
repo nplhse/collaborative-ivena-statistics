@@ -54,10 +54,12 @@ final class ReferenceYamlLoaderTest extends TestCase
         self::assertSame('Akut- und Gerontopsych. / Isolierung', $values[0] ?? null);
         self::assertContains('Kardiologie', $values);
         self::assertContains('Nuklearmedizin', $values);
-        self::assertSame('eCPR Zuverlegung', $values[\count($values) - 1] ?? null);
+        self::assertSame('Kinder-Hals-Nasen-Ohrenheilkunde', $values[\count($values) - 1] ?? null);
         self::assertContains('Chir. Überwachung', $values);
+        self::assertContains('Allgemeine Innere Medizin', $values);
+        self::assertNotContains('Allgemein Innere Medizin', $values);
         self::assertSame($values, \array_values(\array_unique($values)));
-        self::assertCount(113, $values);
+        self::assertCount(137, $values);
     }
 
     #[Test]
@@ -68,10 +70,11 @@ final class ReferenceYamlLoaderTest extends TestCase
         self::assertSame('Augenheilkunde', $values[0] ?? null);
         self::assertContains('Innere Medizin', $values);
         self::assertContains('Neurologie', $values);
-        self::assertSame('Nuklearmedizin', $values[\count($values) - 1] ?? null);
+        self::assertSame('Palliativ', $values[\count($values) - 1] ?? null);
         self::assertContains('ECMO-Therapie', $values);
+        self::assertContains('Psychosomatische Medizin und Psychotherapie', $values);
         self::assertSame($values, \array_values(\array_unique($values)));
-        self::assertCount(22, $values);
+        self::assertCount(29, $values);
     }
 
     #[Test]

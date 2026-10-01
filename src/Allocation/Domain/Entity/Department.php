@@ -9,6 +9,8 @@ use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[Audit\Audited]
@@ -42,9 +44,14 @@ class Department implements \Stringable
     #[ORM\JoinColumn(nullable: true)]
     protected ?User $updatedBy = null;
 
+    /** @var Collection<int, DepartmentAlias> */
+    #[ORM\OneToMany(targetEntity: DepartmentAlias::class, mappedBy: 'department')]
+    private Collection $aliases;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
+        $this->aliases = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,6 +69,33 @@ class Department implements \Stringable
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, DepartmentAlias>
+     */
+    public function getAliases(): Collection
+    {
+        return $this->aliases;
+    }
+
+    public function addAlias(DepartmentAlias $alias): void
+    {
+        if (!$this->aliases->contains($alias)) {
+            $this->aliases->add($alias);
+        }
+    }
+
+    public function getAliasDetail(): string
+    {
+        $aliases = $this->aliases->toArray();
+        usort($aliases, static fn (DepartmentAlias $left, DepartmentAlias $right): int => $left->getName() <=> $right->getName());
+        $lines = [];
+        foreach ($aliases as $alias) {
+            $lines[] = sprintf('%s (%s, %s)', $alias->getName(), $alias->getClassification(), $alias->getSource());
+        }
+
+        return implode("\n", $lines);
     }
 
     public function getCreatedAt(): \DateTimeImmutable
