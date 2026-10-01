@@ -19,7 +19,7 @@ Sample used in tests: `tests/Import/Fixtures/closure_import_sample.csv`. Do not 
 | CSV column | Stored as | Notes |
 |------------|-----------|--------|
 | `Krankenhaus-Kurzname` | Hospital of the upload | Plausibility only. The hospital selected at import start is stored. See below. |
-| `Fachgebiet` | Speciality | Existing name lookup. Unknown names reject the row. |
+| `Fachgebiet` | Speciality | Existing name lookup, including speciality aliases. Unknown names reject the row. |
 | `Fachbereich` | Department | Existing name lookup, including department aliases. Unknown names reject the row. |
 | `Behandlungsdringlichkeit` | `ClosureCareLevel` | Notfallversorgung, Stationäre Versorgung, and Ambulante Versorgung are SK1–SK3. `Sonstige` is stored and is not an SK. |
 | `Datum` / `Uhrzeit` of start and end | `starts_at`, `ends_at` | Europe/Berlin wall clock. End must be after start. |
