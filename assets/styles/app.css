@@ -3,12 +3,6 @@
     background-color: var(--tblr-primary);
 }
 
-/* Hide bottom border in data-table to match with card-footer */
-.data-table-card tbody tr:last-child td,
-.data-table-card tbody tr:last-child th {
-    border-bottom: none !important;
-}
-
 .data-table-loading {
     position: absolute;
     inset: 0;

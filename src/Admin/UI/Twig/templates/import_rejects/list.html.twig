@@ -87,7 +87,7 @@
     >
         {% import '@Shared/_macros/pagination.html.twig' as pagination %}
 
-        <table class="table data-table-card">
+        <table class="table card-table">
             <thead>
             <tr>
                 <th class="col-2">
@@ -265,7 +265,7 @@
                         placeholder="{{ 'placeholder.search_import_rejects'|trans({}, 'admin') }}"
                     />
 
-                    <div class="form-hint">
+                    <div class="form-text">
                         {{ 'help.search_import_rejects'|trans({}, 'admin') }}
                     </div>
                 </div>
@@ -295,7 +295,7 @@
                         value="{{ filters.importId ?? '' }}"
                         placeholder="{{ 'placeholder.import_id'|trans({}, 'admin') }}"
                     />
-                    <div class="form-hint">
+                    <div class="form-text">
                         {{ 'help.import_reject.filter_import_id'|trans({}, 'admin') }}
                     </div>
                 </div>
