@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Exception\DispatchException;
 use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
+use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\Service\ImportClosuresDispatcher;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
@@ -42,6 +43,17 @@ final class ImportClosuresDispatcherTest extends DatabaseKernelTestCase
 
         $this->expectException(ImportCreatorMissingException::class);
         $this->expectExceptionMessage('has no createdBy user');
+
+        $this->dispatcher()->dispatch((int) $import->getId());
+    }
+
+    public function testAllocationImportIsRejected(): void
+    {
+        $import = $this->closureImport();
+        $import->setType(ImportType::ALLOCATION);
+
+        $this->expectException(ImportTypeMismatchException::class);
+        $this->expectExceptionMessage('app:import:start');
 
         $this->dispatcher()->dispatch((int) $import->getId());
     }

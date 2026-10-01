@@ -19,4 +19,14 @@ final class ImportTypeMismatchExceptionTest extends TestCase
             $exception->getMessage(),
         );
     }
+
+    public function testKnownTypeHintsUnifiedStartCommand(): void
+    {
+        $exception = new ImportTypeMismatchException(15, ImportType::ALLOCATION, ImportType::CLOSURE);
+
+        self::assertSame(
+            'Import #15 is a Closure import and cannot be requeued as Allocation. Use app:import:start to requeue it.',
+            $exception->getMessage(),
+        );
+    }
 }
