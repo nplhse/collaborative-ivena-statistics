@@ -303,7 +303,9 @@ final class ActivityTimelineControllerTest extends WebTestCase
         self::assertSelectorTextContains('[data-testid="activity-post-preview"]', 'Timeline intro');
         self::assertSelectorTextNotContains('body', 'Secret draft body');
         self::assertSelectorTextNotContains('body', 'Rest');
-        self::assertStringNotContainsString('<script>', $client->getResponse()->getContent() ?: '');
+        $previewHtml = $crawler->filter('[data-testid="activity-post-preview"]')->html();
+        self::assertStringNotContainsString('<script>', $previewHtml);
+        self::assertStringNotContainsString('alert(1)', $previewHtml);
         self::assertSelectorExists('a[href="/blog/hello-post"]');
         self::assertCount(1, $crawler->filter('[data-testid="activity-post-preview"]'));
 

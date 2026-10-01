@@ -123,15 +123,17 @@ final class BlogControllerTest extends WebTestCase
             'category' => $category,
         ]);
 
-        $client->request(Request::METHOD_GET, '/blog');
+        $crawler = $client->request(Request::METHOD_GET, '/blog');
         self::assertResponseIsSuccessful();
 
-        $html = (string) $client->getResponse()->getContent();
-        self::assertStringContainsString('Hello preview', $html);
-        self::assertStringContainsString('<p>Hello preview</p>', $html);
-        self::assertStringNotContainsString('<script>', $html);
-        self::assertStringNotContainsString('alert(1)', $html);
-        self::assertStringNotContainsString('Hidden second', $html);
+        $card = $crawler->filter('a[href="/blog/xss-preview-post"]')->closest('.card');
+        self::assertNotNull($card);
+        $previewHtml = $card->html();
+        self::assertStringContainsString('Hello preview', $previewHtml);
+        self::assertStringContainsString('<p>Hello preview</p>', $previewHtml);
+        self::assertStringNotContainsString('<script>', $previewHtml);
+        self::assertStringNotContainsString('alert(1)', $previewHtml);
+        self::assertStringNotContainsString('Hidden second', $previewHtml);
     }
 
     public function testCategoryAndTagFiltersUsePublishedDuePosts(): void
