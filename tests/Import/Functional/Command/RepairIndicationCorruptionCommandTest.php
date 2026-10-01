@@ -22,6 +22,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -311,6 +312,7 @@ final class RepairIndicationCorruptionCommandTest extends KernelTestCase
         $import = ImportFactory::createOne([
             'hospital' => $seed['hospital'],
             'createdBy' => $seed['user'],
+            'type' => ImportType::ALLOCATION,
             'name' => 'Dispatch Quote Import',
             'filePath' => $this->writeImportCsv('dispatch.csv')['stored'],
             'createdAt' => new \DateTimeImmutable('2025-06-02 10:00:00'),
