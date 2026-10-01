@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Application\Service;
 
+use App\Import\Application\Contracts\ImportWorkflowDispatcherInterface;
 use App\Import\Application\Exception\DispatchException;
 use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
@@ -17,7 +18,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
-final readonly class ImportClosuresDispatcher
+final readonly class ImportClosuresDispatcher implements ImportWorkflowDispatcherInterface
 {
     public function __construct(
         private ImportRepository $importRepository,
@@ -26,6 +27,7 @@ final readonly class ImportClosuresDispatcher
     ) {
     }
 
+    #[\Override]
     public function dispatch(int $importId): void
     {
         $import = $this->importRepository->find($importId);

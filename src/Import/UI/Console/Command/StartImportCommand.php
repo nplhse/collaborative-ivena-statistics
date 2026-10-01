@@ -8,20 +8,21 @@ use App\Import\Application\Exception\DispatchException;
 use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\ImportTypeMismatchException;
+use App\Import\Application\Exception\UnsupportedImportTypeException;
 use App\Import\Application\ImportDispatchExitCode;
-use App\Import\Application\Service\ImportClosuresDispatcher;
+use App\Import\Application\Service\ImportStartDispatcher;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:import:closures',
-    description: 'Dispatch a closure import job via Messenger using the import creator as audit user. Exit codes: 0=success, 1=import/creator not found, wrong import type, or dispatch failed, 2=invalid arguments.',
+    name: 'app:import:start',
+    description: 'Dispatch an import job via Messenger using the import creator as audit user. The import type is resolved from the Import. Exit codes: 0=success, 1=import/creator not found, missing import type, or dispatch failed, 2=invalid arguments.',
 )]
-final readonly class ImportClosuresCommand
+final readonly class StartImportCommand
 {
     public function __construct(
-        private ImportClosuresDispatcher $dispatcher,
+        private ImportStartDispatcher $dispatcher,
     ) {
     }
 
@@ -31,14 +32,14 @@ final readonly class ImportClosuresCommand
         int $importId,
     ): int {
         try {
-            $this->dispatcher->dispatch($importId);
-        } catch (ImportNotFoundException|ImportCreatorMissingException|ImportTypeMismatchException|DispatchException $e) {
+            $type = $this->dispatcher->dispatch($importId);
+        } catch (ImportNotFoundException|ImportCreatorMissingException|ImportTypeMismatchException|UnsupportedImportTypeException|DispatchException $e) {
             $io->error($e->getMessage());
 
             return ImportDispatchExitCode::FAILURE;
         }
 
-        $io->success(sprintf('Dispatched closure import job for Import #%d', $importId));
+        $io->success(sprintf('Dispatched %s import job for Import #%d', $type->value, $importId));
 
         return ImportDispatchExitCode::SUCCESS;
     }
