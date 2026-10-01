@@ -76,6 +76,19 @@
                             </div>
                         {% endif %}
                 </twig:Card>
+                {% if aliases is not empty %}
+                    <twig:Card class="mb-3" data-testid="department-aliases">
+                        <div class="card-title">
+                            {{ 'catalog.department.aliases.title'|trans({}, 'allocation') }}
+                        </div>
+                        <p class="text-muted mb-2">{{ 'catalog.department.aliases.hint'|trans({}, 'allocation') }}</p>
+                        <ul class="list-unstyled mb-0">
+                            {% for alias in aliases %}
+                                <li class="mb-1" data-testid="department-alias">{{ alias.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </twig:Card>
+                {% endif %}
             {% endblock %}
         {% endembed %}
 {% endblock %}

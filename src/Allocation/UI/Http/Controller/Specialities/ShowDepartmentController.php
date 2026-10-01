@@ -8,6 +8,7 @@ use App\Allocation\Application\Explore\Catalog\CatalogActionFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogAllocationYearUrlFactory;
 use App\Allocation\Application\Explore\Catalog\CatalogDimensionKey;
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,9 +44,21 @@ final class ShowDepartmentController extends AbstractController
 
         return $this->render('@Allocation/departments/show.html.twig', [
             'department' => $department,
+            'aliases' => $this->aliases($department),
             'coverage' => $coverage,
             'actions' => $this->actionFactory->forDepartment($id),
             'yearExploreUrls' => $this->yearUrlFactory->forYears(['department' => $id], $coverage->years),
         ]);
+    }
+
+    /**
+     * @return list<DepartmentAlias>
+     */
+    private function aliases(Department $department): array
+    {
+        $aliases = $department->getAliases()->toArray();
+        usort($aliases, static fn (DepartmentAlias $left, DepartmentAlias $right): int => $left->getName() <=> $right->getName());
+
+        return $aliases;
     }
 }

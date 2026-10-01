@@ -1185,6 +1185,14 @@
         <source>empty.access_grants.description</source>
         <target>Associate a user to grant them access to this hospital.</target>
       </trans-unit>
+      <trans-unit id="CatDeptAlTitleEn" resname="catalog.department.aliases.title">
+        <source>catalog.department.aliases.title</source>
+        <target>Other spellings</target>
+      </trans-unit>
+      <trans-unit id="CatDeptAlHintEn" resname="catalog.department.aliases.hint">
+        <source>catalog.department.aliases.hint</source>
+        <target>Other spellings from imports. Not an official directory.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
