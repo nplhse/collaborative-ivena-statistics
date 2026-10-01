@@ -27,7 +27,7 @@ See [console-commands.md](console-commands.md) for the full list and conventions
 
 | Command | Purpose |
 |---|---|
-| `app:import:allocations` | Dispatch a single import |
+| `app:import:start` | Dispatch a single import |
 | `app:import:requeue-all` | Re-queue many imports |
 | `app:import:analyze-rejects` | Aggregate and analyze rejects |
 | `app:statistics:refresh-mviews` | Refresh materialized views |

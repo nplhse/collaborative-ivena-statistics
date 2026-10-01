@@ -41,15 +41,17 @@ User-facing messages are in the `validators` domain (`validation.import.*`); hel
 
 1. Create import in the UI (file + context)
 2. Store file under `var/imports/...`
-3. `app:import:allocations <IMPORT_ID>` for allocation imports, `app:import:closures <IMPORT_ID>` for closure imports, or the UI dispatcher sends the matching message
+3. `app:import:start <IMPORT_ID>` resolves the import type and dispatches the matching message, or the UI dispatcher sends the matching message
 4. `ImportAllocationsMessageHandler` processes the file in the worker
 5. On success, emit `ImportCompleted`
 6. Trigger downstream statistics rebuild
 
 ## Core components
 
-- `ImportAllocationsCommand`
+- `StartImportCommand`
+- `ImportStartDispatcher`
 - `ImportAllocationsDispatcher`
+- `ImportClosuresDispatcher`
 - `ImportAllocationsMessageHandler`
 - `AllocationImporter`
 - `RuleBasedRowTypeDetector`
@@ -106,15 +108,16 @@ Administrators can download the original uploaded CSV from the import detail pag
 ## Test locally
 
 ```bash
-php bin/console app:import:allocations <IMPORT_ID>
-php bin/console app:import:closures <IMPORT_ID>
+php bin/console app:import:start <IMPORT_ID>
 php bin/console app:import:requeue-all --dry-run
 php bin/console app:import:requeue-all --resume
 ```
 
 Useful tests:
 - `tests/Import/Integration/...`
+- `tests/Import/Functional/Command/StartImportCommandTest.php`
 - `tests/Import/Functional/Command/RequeueAllImportsCommandTest.php`
+- `tests/Import/Unit/Application/Service/ImportStartDispatcherTest.php`
 - `tests/Import/Functional/Controller/DownloadImportSourceFileControllerTest.php` (admin source file download)
 - `tests/Import/Unit/Service/ImportUploadGuardTest.php`
 - `tests/Import/Integration/Validator/Constraints/ImportSourceFileValidatorTest.php`

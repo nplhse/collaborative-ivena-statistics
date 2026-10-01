@@ -13,13 +13,13 @@ app:<bounded-context>:<action>
 app:<bounded-context>:<subdomain>:<action>   # Statistics sub-features
 ```
 
-Examples: `app:import:allocations`, `app:statistics:rebuild-projection`. Geographic enrichment uses the operator group `app:geo:*` (Allocation commands).
+Examples: `app:import:start`, `app:statistics:rebuild-projection`. Geographic enrichment uses the operator group `app:geo:*` (Allocation commands).
 
 ### Arguments and options
 
 | Pattern | When to use | Examples |
 |---|---|---|
-| Positional argument | Single required entity ID for a one-entity command | `app:import:allocations <importId>` |
+| Positional argument | Single required entity ID for a one-entity command | `app:import:start <importId>` |
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
@@ -31,7 +31,7 @@ Commands use `SymfonyStyle` with `title`, `table`, `success`, `error`, and `warn
 
 ### Exit codes
 
-Most commands return `0` on success and `1` on failure. Non-standard exit codes are documented in the command description (`app:import:allocations`, `app:import:requeue-all`, `app:env:check`).
+Most commands return `0` on success and `1` on failure. Non-standard exit codes are documented in the command description (`app:import:start`, `app:import:requeue-all`, `app:env:check`).
 
 ### Registration
 
@@ -51,7 +51,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:import:allocations <importId>` | Dispatch a single import job via Messenger. |
+| `app:import:start <importId>` | Dispatch a single import job via Messenger. The import type is resolved from the Import. |
 | `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [../04-features/import/batch-requeue.md](../04-features/import/batch-requeue.md). `--only-ids` limits to a comma-separated ID list. |
 | `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [../04-features/import/reject-analysis.md](../04-features/import/reject-analysis.md). |
 | `app:import:repair-indication-corruption` | One-time issue 521 repair: merge quote/stub/`\OMI\""` IndicationRaws, then requeue quote-broken imports whose source CSV still exists. Production runbook: [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md). |

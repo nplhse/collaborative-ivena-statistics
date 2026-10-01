@@ -48,7 +48,7 @@ Details: [../04-features/statistics/statistics-filter-and-scope.md](../04-featur
 
 ## Related commands
 
-- `app:import:allocations` — process a single import
+- `app:import:start` — process a single import
 - `app:import:requeue-all` — sequential reimport
 - `app:statistics:rebuild-projection` — manual projection rebuild
 - `app:statistics:refresh-mviews` — refresh materialized views
