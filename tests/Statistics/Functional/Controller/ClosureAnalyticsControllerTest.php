@@ -554,7 +554,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=month&timeline_from=2026-09-01',
+            '/statistics/closure-analytics/timeline/frame?scope=public&period=all&timeline_grain=month&timeline_from='.$this->currentMonthStart()->format('Y-m-d'),
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.closure-timeline-cell--closed');
@@ -969,6 +969,11 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         );
     }
 
+    private function currentMonthStart(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable('first day of this month 00:00:00', new \DateTimeZone('Europe/Berlin'));
+    }
+
     private function loginAsClosureBetaUser(KernelBrowser $client): User
     {
         $user = UserFactory::createOne([
@@ -1021,20 +1026,21 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
                 'source_changed_at' => '2026-05-01 09:00:00',
             ]);
         }
+        $currentMonthClosure = $this->currentMonthStart()->modify('+9 days')->setTime(10, 0);
         $connection->insert('closure_interval', [
             'hospital_id' => $hospital->getId(),
             'import_id' => $import->getId(),
             'speciality_id' => $specialityB->getId(),
             'department_id' => $departmentB->getId(),
-            'starts_at' => '2026-09-10 10:00:00',
-            'ends_at' => '2026-09-10 12:00:00',
+            'starts_at' => $currentMonthClosure->format('Y-m-d H:i:s'),
+            'ends_at' => $currentMonthClosure->modify('+2 hours')->format('Y-m-d H:i:s'),
             'care_level' => 'inpatient',
             'reason' => 'no_bed_capacity',
             'facility_kind' => 'clinic',
             'closure_unit' => 'Functional unit',
             'source_group_id' => 'current-month-group',
-            'source_recorded_at' => '2026-09-10 09:00:00',
-            'source_changed_at' => '2026-09-10 09:00:00',
+            'source_recorded_at' => $currentMonthClosure->modify('-1 hour')->format('Y-m-d H:i:s'),
+            'source_changed_at' => $currentMonthClosure->modify('-1 hour')->format('Y-m-d H:i:s'),
         ]);
 
         $intervalId = (int) $connection->fetchOne(
