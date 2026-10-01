@@ -130,6 +130,7 @@ final class AllocationImportFeatureTest extends DatabaseKernelTestCase
 
         $one = $this->findOneAllocationForImportId((int) $import->getId());
         self::assertInstanceOf(Allocation::class, $one);
+        self::assertSame($hospital->getId(), $one->getHospital()?->getId());
         self::assertContains($one->getGender()->value, ['M', 'F', 'X']);
         self::assertNotNull($one->getCreatedAt());
         self::assertNotNull($one->getArrivalAt());

@@ -11,6 +11,7 @@ use App\Import\Application\Exception\DispatchException;
 use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\ImportRequeueInterruptedException;
+use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\ImportDispatchExitCode;
 use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
@@ -130,7 +131,7 @@ final readonly class ImportRequeueBatchOrchestrator
                         $import['filePath'],
                         'dispatched',
                     );
-                } catch (ImportNotFoundException|ImportCreatorMissingException|DispatchException $e) {
+                } catch (ImportNotFoundException|ImportCreatorMissingException|ImportTypeMismatchException|DispatchException $e) {
                     $item->markDispatchFailed($e->getMessage());
                     ++$failed;
                     $results[] = new ImportRequeueItemResult(

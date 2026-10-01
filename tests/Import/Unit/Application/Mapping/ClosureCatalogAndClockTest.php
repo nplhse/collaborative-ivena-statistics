@@ -11,7 +11,6 @@ use App\Allocation\Domain\Service\ClosureIntervalDuration;
 use App\Import\Application\Exception\ImportException;
 use App\Import\Application\Mapping\ClosureCareLevelCatalog;
 use App\Import\Application\Mapping\ClosureFacilityKindCatalog;
-use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureIntervalClock;
 use App\Import\Application\Mapping\ClosureReasonCatalog;
 use PHPUnit\Framework\TestCase;
@@ -112,14 +111,5 @@ final class ClosureCatalogAndClockTest extends TestCase
             '01.01.2026 10:00:00',
             '01.01.2026 10:00:00',
         );
-    }
-
-    public function testHospitalGuardComparesCollapsedNames(): void
-    {
-        $guard = new ClosureHospitalGuard();
-        $guard->assertMatches('Klinikum Beispiel', '  klinikum   beispiel ');
-
-        $this->expectException(ImportException::class);
-        $guard->assertMatches('Klinikum Beispiel', 'Andere Klinik');
     }
 }

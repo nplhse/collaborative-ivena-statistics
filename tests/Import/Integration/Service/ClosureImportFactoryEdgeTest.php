@@ -11,6 +11,8 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\DTO\ClosureRowDTO;
+use App\Import\Application\Mapping\ClosureHospitalGuard;
+use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Mapping\ClosureImportFactory;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
@@ -48,7 +50,33 @@ final class ClosureImportFactoryEdgeTest extends DatabaseKernelTestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Import has no id assigned');
 
-        self::getContainer()->get(ClosureImportFactory::class)->fromDto($this->validDto(), $import);
+        self::getContainer()->get(ClosureImportFactory::class)->fromDto($this->validDto(), $import, $this->profileFor($hospital));
+    }
+
+    public function testProfileForADifferentHospitalIsRejected(): void
+    {
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne([
+            'name' => 'Klinikum Beispiel',
+            'state' => $state,
+            'dispatchArea' => $dispatch,
+        ]);
+        $hospitalId = $hospital->getId();
+        self::assertNotNull($hospitalId);
+        $import = new Import()->setHospital($this->em->getReference(Hospital::class, $hospitalId));
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Closure hospital profile does not match the import hospital');
+
+        self::getContainer()->get(ClosureImportFactory::class)->fromDto(
+            $this->validDto(),
+            $import,
+            new ClosureHospitalGuard()->profile(999_999, [
+                $hospitalId => 'Klinikum Beispiel',
+                999_999 => 'Anderes Haus',
+            ], []),
+        );
     }
 
     public function testHospitalWithoutIdCannotBeReferenced(): void
@@ -60,7 +88,11 @@ final class ClosureImportFactoryEdgeTest extends DatabaseKernelTestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Import has no hospital');
 
-        self::getContainer()->get(ClosureImportFactory::class)->fromDto($this->validDto(), $import);
+        self::getContainer()->get(ClosureImportFactory::class)->fromDto(
+            $this->validDto(),
+            $import,
+            new ClosureHospitalGuard()->profile(1, [1 => 'Klinikum Beispiel'], ['Klinikum Beispiel']),
+        );
     }
 
     private function validDto(): ClosureRowDTO
@@ -81,5 +113,13 @@ final class ClosureImportFactoryEdgeTest extends DatabaseKernelTestCase
         $dto->sourceChangedAt = '01.01.2026 00:20:22';
 
         return $dto;
+    }
+
+    private function profileFor(Hospital $hospital): ClosureHospitalProfile
+    {
+        $id = $hospital->getId();
+        self::assertNotNull($id);
+
+        return new ClosureHospitalGuard()->profile($id, [$id => 'Klinikum Beispiel'], ['Klinikum Beispiel']);
     }
 }

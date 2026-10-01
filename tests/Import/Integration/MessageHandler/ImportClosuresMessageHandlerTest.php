@@ -13,6 +13,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
+use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\MessageHandler\ImportClosuresMessageHandler;
 use App\Import\Domain\Entity\Import;
@@ -85,6 +86,35 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
             ImportType::CLOSURE,
             'var/imports/'.date('Y/m').'/closure-missing-'.bin2hex(random_bytes(6)).'.csv',
         );
+        $completed = [];
+        $failed = [];
+        $this->listen($completed, $failed);
+
+        $this->handler->__invoke(new ImportClosuresMessage($id));
+
+        self::assertSame([$id], $failed);
+        self::assertSame([], $completed);
+        self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+    }
+
+    public function testEmptyCsvFailsBeforeTheRunStarts(): void
+    {
+        $owner = $this->betaOwner();
+        $hospital = $this->hospitalOwnedBy($owner);
+        $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $targetDir = $importsBaseDir.'/_tests/closure-handler/'.bin2hex(random_bytes(4));
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+            self::fail('Unable to create imports test directory: '.$targetDir);
+        }
+        $absolutePath = $targetDir.'/empty.csv';
+        self::assertNotFalse(file_put_contents($absolutePath, ''));
+        $storedPath = ltrim(str_replace('\\', '/', (string) preg_replace(
+            '#^'.preg_quote($projectDir, '#').'/?#',
+            '',
+            $absolutePath,
+        )), '/');
+        $id = $this->persistImport($owner, $hospital, ImportType::CLOSURE, $storedPath);
         $completed = [];
         $failed = [];
         $this->listen($completed, $failed);
@@ -174,7 +204,16 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         $this->expectExceptionMessage('closure row reader failed');
 
         try {
-            $this->handler->run($import, $reader, $writer);
+            $this->handler->run(
+                $import,
+                $reader,
+                $writer,
+                new ClosureHospitalGuard()->profile(
+                    (int) $hospital->getId(),
+                    [(int) $hospital->getId() => (string) $hospital->getName()],
+                    [],
+                ),
+            );
         } finally {
             self::assertSame(ImportStatus::FAILED, $this->imports->find($import->getId())?->getStatus());
         }

@@ -8,15 +8,16 @@ use App\Import\Application\Exception\DispatchException;
 use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\ImportTypeMismatchException;
-use App\Import\Application\Message\ImportAllocationsMessage;
+use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use App\User\Domain\Entity\User;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
-final readonly class ImportAllocationsDispatcher
+final readonly class ImportClosuresDispatcher
 {
     public function __construct(
         private ImportRepository $importRepository,
@@ -33,13 +34,13 @@ final readonly class ImportAllocationsDispatcher
             throw new ImportNotFoundException($importId);
         }
 
-        if (ImportType::ALLOCATION !== $import->getType()) {
-            throw new ImportTypeMismatchException($importId, ImportType::ALLOCATION, $import->getType());
+        if (ImportType::CLOSURE !== $import->getType()) {
+            throw new ImportTypeMismatchException($importId, ImportType::CLOSURE, $import->getType());
         }
 
         $user = $import->getCreatedBy();
 
-        if (!$user instanceof \App\User\Domain\Entity\User) {
+        if (!$user instanceof User) {
             throw new ImportCreatorMissingException($importId);
         }
 
@@ -47,7 +48,7 @@ final readonly class ImportAllocationsDispatcher
         $this->tokenStorage->setToken($token);
 
         try {
-            $this->bus->dispatch(new ImportAllocationsMessage($importId));
+            $this->bus->dispatch(new ImportClosuresMessage($importId));
         } catch (\Throwable $e) {
             throw new DispatchException($importId, $e);
         } finally {

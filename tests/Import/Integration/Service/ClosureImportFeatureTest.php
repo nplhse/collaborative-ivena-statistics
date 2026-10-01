@@ -12,8 +12,10 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Factory\ClosureImporterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
+use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -64,11 +66,17 @@ final class ClosureImportFeatureTest extends DatabaseKernelTestCase
         $this->em->persist($import);
         $this->em->flush();
 
-        $reader = self::getContainer()->get(RowReaderFactory::class)->createFromCsvFile(
-            \dirname(__DIR__, 2).'/Fixtures/closure_import_sample.csv',
+        $path = \dirname(__DIR__, 2).'/Fixtures/closure_import_sample.csv';
+        $guard = new ClosureHospitalGuard();
+        $scanReader = self::getContainer()->get(RowReaderFactory::class)->createFromCsvFile($path);
+        $profile = $guard->profile(
+            (int) $hospital->getId(),
+            self::getContainer()->get(HospitalRepository::class)->findIdNameMap(),
+            $guard->distinctShortNames($scanReader->rowsAssoc()),
         );
+        $reader = self::getContainer()->get(RowReaderFactory::class)->createFromCsvFile($path);
         $rejectWriter = new InMemoryRejectWriter();
-        $summary = self::getContainer()->get(ClosureImporterFactory::class)->create($reader, $rejectWriter)->import($import);
+        $summary = self::getContainer()->get(ClosureImporterFactory::class)->create($reader, $rejectWriter)->import($import, $profile);
 
         self::assertSame(7, $summary->total);
         self::assertSame(4, $summary->ok);

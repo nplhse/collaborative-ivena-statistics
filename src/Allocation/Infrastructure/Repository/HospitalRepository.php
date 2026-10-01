@@ -71,6 +71,33 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         return $names;
     }
 
+    /**
+     * Every catalog name. Used to spot a closure file that names another hospital.
+     * Callers must not treat a match as permission to import into that hospital.
+     *
+     * @return array<int, string>
+     */
+    public function findIdNameMap(): array
+    {
+        /** @var list<array{id: int|string, name: string|null}> $rows */
+        $rows = $this->createQueryBuilder('h')
+            ->select('h.id', 'h.name')
+            ->getQuery()
+            ->getArrayResult();
+
+        $names = [];
+        foreach ($rows as $row) {
+            $name = $row['name'];
+            if (!\is_string($name) || '' === $name) {
+                continue;
+            }
+
+            $names[(int) $row['id']] = $name;
+        }
+
+        return $names;
+    }
+
     public function countParticipating(): int
     {
         return (int) $this->createQueryBuilder('h')

@@ -9,19 +9,19 @@ use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\ImportDispatchExitCode;
-use App\Import\Application\Service\ImportAllocationsDispatcher;
+use App\Import\Application\Service\ImportClosuresDispatcher;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:import:allocations',
-    description: 'Dispatch an allocation import job via Messenger using the import creator as audit user. Exit codes: 0=success, 1=import/creator not found, wrong import type, or dispatch failed, 2=invalid arguments.',
+    name: 'app:import:closures',
+    description: 'Dispatch a closure import job via Messenger using the import creator as audit user. Exit codes: 0=success, 1=import/creator not found, wrong import type, or dispatch failed, 2=invalid arguments.',
 )]
-final readonly class ImportAllocationsCommand
+final readonly class ImportClosuresCommand
 {
     public function __construct(
-        private ImportAllocationsDispatcher $dispatcher,
+        private ImportClosuresDispatcher $dispatcher,
     ) {
     }
 
@@ -38,7 +38,7 @@ final readonly class ImportAllocationsCommand
             return ImportDispatchExitCode::FAILURE;
         }
 
-        $io->success(sprintf('Dispatched import job for Import #%d', $importId));
+        $io->success(sprintf('Dispatched closure import job for Import #%d', $importId));
 
         return ImportDispatchExitCode::SUCCESS;
     }

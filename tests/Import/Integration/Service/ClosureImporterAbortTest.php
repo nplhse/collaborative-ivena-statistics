@@ -6,6 +6,8 @@ namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
+use App\Import\Application\Mapping\ClosureHospitalGuard;
+use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Service\ClosureImporter;
 use App\Import\Application\Service\ClosureRowProcessor;
 use App\Import\Domain\Entity\Import;
@@ -28,7 +30,7 @@ final class ClosureImporterAbortTest extends DatabaseKernelTestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('reader failed');
 
-        $importer->import(new Import());
+        $importer->import(new Import(), $this->profile());
     }
 
     public function testFlushFailureDuringAbortIsLoggedAndOriginalErrorIsRethrown(): void
@@ -51,7 +53,7 @@ final class ClosureImporterAbortTest extends DatabaseKernelTestCase
             $this->expectException(\RuntimeException::class);
             $this->expectExceptionMessage('reader failed');
 
-            $importer->import(new Import());
+            $importer->import(new Import(), $this->profile());
         } finally {
             $em->getEventManager()->removeEventListener(Events::onFlush, $listener);
         }
@@ -90,5 +92,10 @@ final class ClosureImporterAbortTest extends DatabaseKernelTestCase
                 throw $this->error;
             }
         };
+    }
+
+    private function profile(): ClosureHospitalProfile
+    {
+        return new ClosureHospitalGuard()->profile(1, [1 => 'Klinikum Beispiel'], []);
     }
 }

@@ -24,6 +24,7 @@ use App\Import\Application\Service\ImportRequeueResumeResolver;
 use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportBatchRunStatus;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
@@ -55,7 +56,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testDryRunDispatchesNothingAndWritesNoCheckpoints(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createMany(2, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+        ImportFactory::createMany(2, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
 
         $tester = $this->commandTester();
         $exitCode = $tester->execute(['--dry-run' => true]);
@@ -68,7 +69,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testLimitRestrictsProcessedImports(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
 
         $tester = $this->commandTester();
         $exitCode = $tester->execute(['--limit' => '2']);
@@ -81,8 +82,8 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testFromIdFiltersImports(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Older Import']);
-        $newer = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Newer Import']);
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Older Import']);
+        $newer = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Newer Import']);
 
         $tester = $this->commandTester();
         $exitCode = $tester->execute([
@@ -98,8 +99,8 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testOnlyIdProcessesSingleImport(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
-        $target = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Target Import']);
+        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
+        $target = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Target Import']);
 
         $tester = $this->commandTester();
         $exitCode = $tester->execute(['--only-id' => (string) $target->getId()]);
@@ -111,9 +112,9 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testOnlyIdsProcessesListedImports(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Skip Import']);
-        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Import A']);
-        $second = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Import B']);
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Skip Import']);
+        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Keep Import A']);
+        $second = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Keep Import B']);
 
         $tester = $this->commandTester();
         $exitCode = $tester->execute([
@@ -130,8 +131,8 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testOnlyIdsSkipsNonNumericTokens(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Skip Import']);
-        $keep = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Keep Numeric Import']);
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Skip Import']);
+        $keep = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Keep Numeric Import']);
 
         $tester = $this->commandTester();
         $exitCode = $tester->execute([
@@ -156,7 +157,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testEmptyOnlyIdsDispatchesNothing(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+        ImportFactory::createMany(3, ['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
 
         $orchestrator = self::getContainer()->get(ImportRequeueBatchOrchestrator::class);
         $summary = $orchestrator->run(new ImportRequeueBatchOptions(dryRun: true, onlyIds: []));
@@ -169,8 +170,8 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testResumeAfterRunningRetriesSameImport(): void
     {
         $seed = $this->seedReferenceGraph();
-        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'First Import']);
-        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Second Import']);
+        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'First Import']);
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Second Import']);
 
         $run = new ImportBatchRun([]);
         $item = new ImportBatchRunItem($first->getId(), 'First Import');
@@ -190,8 +191,8 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testResumeAfterQueuedContinuesWithNextImport(): void
     {
         $seed = $this->seedReferenceGraph();
-        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Done Import']);
-        $second = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Next Import']);
+        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Done Import']);
+        $second = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Next Import']);
 
         $run = new ImportBatchRun([]);
         $item = new ImportBatchRunItem($first->getId(), 'Done Import');
@@ -217,7 +218,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testMaxRetriesReturnsCriticalExit(): void
     {
         $seed = $this->seedReferenceGraph();
-        $import = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+        $import = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
 
         $run = new ImportBatchRun([]);
         $item = new ImportBatchRunItem($import->getId(), 'Failed Import');
@@ -245,8 +246,8 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testDispatchFailureContinuesAndReturnsFailureExit(): void
     {
         $seed = $this->seedReferenceGraph();
-        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Fail Import']);
-        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Ok Import']);
+        $first = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Fail Import']);
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Ok Import']);
 
         $container = self::getContainer();
         $failImportId = $first->getId();
@@ -280,10 +281,61 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         self::assertSame(1, $summary->dispatched);
     }
 
+    public function testClosureImportIsFailedInsteadOfDispatchedAsAllocation(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $closure = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::CLOSURE,
+            'name' => 'Closure Import',
+        ]);
+        $allocation = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::ALLOCATION,
+            'name' => 'Allocation Import',
+        ]);
+
+        $container = self::getContainer();
+        $dispatched = [];
+        $bus = $this->createStub(MessageBusInterface::class);
+        $bus->method('dispatch')->willReturnCallback(function (object $message) use (&$dispatched): Envelope {
+            $dispatched[] = $message;
+
+            return new Envelope($message);
+        });
+
+        $orchestrator = new ImportRequeueBatchOrchestrator(
+            $container->get(ImportRepository::class),
+            $container->get(ImportBatchRunRepository::class),
+            new ImportAllocationsDispatcher(
+                $container->get(ImportRepository::class),
+                $bus,
+                $container->get(TokenStorageInterface::class),
+            ),
+            new ImportRequeueResumeResolver(),
+        );
+
+        $closureId = $closure->getId();
+        $allocationId = $allocation->getId();
+        self::assertNotNull($closureId);
+        self::assertNotNull($allocationId);
+
+        $summary = $orchestrator->run(new ImportRequeueBatchOptions(onlyIds: [$closureId, $allocationId]));
+
+        self::assertSame(ImportDispatchExitCode::FAILURE, $summary->exitCode);
+        self::assertSame(1, $summary->failed);
+        self::assertSame(1, $summary->dispatched);
+        self::assertCount(1, $dispatched);
+        self::assertInstanceOf(ImportAllocationsMessage::class, $dispatched[0]);
+        self::assertSame($allocationId, $dispatched[0]->importId);
+    }
+
     public function testSignalInterruptReturnsCriticalExit(): void
     {
         $seed = $this->seedReferenceGraph();
-        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'name' => 'Interrupt Import']);
+        ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Interrupt Import']);
 
         $container = self::getContainer();
         $runControl = new \App\Import\Application\Service\ImportRequeueRunControl();
@@ -317,7 +369,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
     public function testImportAllocationsCommandSuccessAndFailureExitCodes(): void
     {
         $seed = $this->seedReferenceGraph();
-        $import = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user']]);
+        $import = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION]);
 
         $application = new Application(self::$kernel);
         $command = $application->find('app:import:allocations');
@@ -328,6 +380,49 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
 
         $failure = $tester->execute(['importId' => '999999']);
         self::assertSame(ImportDispatchExitCode::FAILURE, $failure);
+    }
+
+    public function testAllocationsCommandRejectsClosureImport(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::CLOSURE,
+        ]);
+
+        $application = new Application(self::$kernel);
+        $tester = new CommandTester($application->find('app:import:allocations'));
+        $exitCode = $tester->execute(['importId' => (string) $import->getId()]);
+
+        self::assertSame(ImportDispatchExitCode::FAILURE, $exitCode);
+        self::assertStringContainsString('app:import:closures', $tester->getDisplay());
+    }
+
+    public function testClosuresCommandDispatchesClosureImportAndRejectsAllocationImport(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $closure = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::CLOSURE,
+        ]);
+        $allocation = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::ALLOCATION,
+        ]);
+
+        $application = new Application(self::$kernel);
+        $tester = new CommandTester($application->find('app:import:closures'));
+
+        $success = $tester->execute(['importId' => (string) $closure->getId()]);
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $success);
+        self::assertStringContainsString('Dispatched closure import job', $tester->getDisplay());
+
+        $failure = $tester->execute(['importId' => (string) $allocation->getId()]);
+        self::assertSame(ImportDispatchExitCode::FAILURE, $failure);
+        self::assertStringContainsString('app:import:allocations', $tester->getDisplay());
     }
 
     /**

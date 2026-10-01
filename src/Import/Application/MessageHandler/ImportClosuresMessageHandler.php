@@ -6,6 +6,7 @@ namespace App\Import\Application\MessageHandler;
 
 use App\Allocation\Application\Service\HospitalPermissionAccess;
 use App\Allocation\Domain\Enum\HospitalPermission;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
@@ -16,6 +17,8 @@ use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
 use App\Import\Application\Factory\ClosureImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
+use App\Import\Application\Mapping\ClosureHospitalGuard;
+use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
@@ -50,6 +53,8 @@ final readonly class ImportClosuresMessageHandler
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
         private ImportFileStorage $fileStorage,
+        private HospitalRepository $hospitalRepository,
+        private ClosureHospitalGuard $hospitalGuard,
     ) {
     }
 
@@ -109,13 +114,23 @@ final readonly class ImportClosuresMessageHandler
             $import->markAsRunning();
             $this->flushWithImportIntent('import.run.started', $import);
 
-            $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
+            $hospitalId = $import->getHospital()?->getId();
+            \assert(\is_int($hospitalId));
+
             $writer = $this->rejectWriterFactory->create();
             $writer->start($import);
 
+            $startedRun = false;
             try {
-                $this->run($import, $reader, $writer);
+                $profile = $this->hospitalProfile($hospitalId, $filePath);
+                $reader = $this->rowReaderFactory->createFromCsvFile($filePath);
+                $startedRun = true;
+                $this->run($import, $reader, $writer, $profile);
             } catch (\Throwable $e) {
+                if (!$startedRun) {
+                    $this->markFailed($import, $e->getMessage());
+                }
+
                 $this->importLogger->critical('closure.import.failed', [
                     'id' => $import->getId(),
                     'ex' => $e::class,
@@ -132,14 +147,14 @@ final readonly class ImportClosuresMessageHandler
         }
     }
 
-    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
+    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer, ClosureHospitalProfile $profile): ImportSummary
     {
         $started = \microtime(true);
         $summary = ImportSummary::empty();
 
         try {
             $importer = $this->importFactory->create($reader, $writer);
-            $summary = $importer->import($import);
+            $summary = $importer->import($import, $profile);
 
             $this->entityManager()->clear();
             $fresh = $this->importRepository->find($import->getId());
@@ -244,6 +259,17 @@ final readonly class ImportClosuresMessageHandler
         }
 
         return $em;
+    }
+
+    private function hospitalProfile(int $hospitalId, string $filePath): ClosureHospitalProfile
+    {
+        $scanReader = $this->rowReaderFactory->createFromCsvFile($filePath);
+
+        return $this->hospitalGuard->profile(
+            $hospitalId,
+            $this->hospitalRepository->findIdNameMap(),
+            $this->hospitalGuard->distinctShortNames($scanReader->rowsAssoc()),
+        );
     }
 
     private function resolvePermissionFailureReason(Import $import): ?string
