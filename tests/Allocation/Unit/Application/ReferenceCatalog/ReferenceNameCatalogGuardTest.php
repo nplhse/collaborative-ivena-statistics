@@ -66,11 +66,15 @@ final class ReferenceNameCatalogGuardTest extends TestCase
             'name' => 'Allgemeine Innere Medizin',
             'previous_names' => ['Allgemein Innere Medizin', ''],
             'aliases' => [[
+                'name' => '   ',
+                'classification' => 'historical',
+                'source' => 'local-catalog',
+            ], [
                 'name' => 'Allgemein Innere Medizin',
                 'classification' => 'faulty_catalog',
                 'source' => 'local-catalog',
                 'note' => 'catalog typo',
-                'valid_from' => '2020-01-01',
+                'valid_from' => ['not-a-date'],
                 'valid_to' => '',
             ], 'skip-me'],
         ]);
@@ -78,9 +82,10 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         self::assertInstanceOf(ReferenceNameEntry::class, $entry);
         self::assertSame('Allgemeine Innere Medizin', $entry->name);
         self::assertSame(['Allgemein Innere Medizin'], $entry->previousNames);
+        self::assertCount(1, $entry->aliases);
         self::assertSame('faulty_catalog', $entry->aliases[0]->classification);
         self::assertSame('catalog typo', $entry->aliases[0]->note);
-        self::assertSame('2020-01-01', $entry->aliases[0]->validFrom);
+        self::assertNull($entry->aliases[0]->validFrom);
         self::assertNull($entry->aliases[0]->validTo);
         self::assertSame([
             'name' => 'Allgemeine Innere Medizin',
@@ -90,7 +95,6 @@ final class ReferenceNameCatalogGuardTest extends TestCase
                 'classification' => 'faulty_catalog',
                 'source' => 'local-catalog',
                 'note' => 'catalog typo',
-                'valid_from' => '2020-01-01',
             ]],
         ], $entry->toYaml());
     }
@@ -178,6 +182,19 @@ final class ReferenceNameCatalogGuardTest extends TestCase
                 new ReferenceNameAliasSpec('Neurologie', 'historical', 'local-catalog'),
             ]),
         ]);
+    }
+
+    public function testPreviousNameThatMatchesTheCanonicalSpellingIsIgnored(): void
+    {
+        $guard = new ReferenceNameCatalogGuard();
+
+        $guard->assertNoConflicts([
+            new ReferenceNameEntry('Neurologie', [' neurologie '], [
+                new ReferenceNameAliasSpec('Neuro', 'historical', 'local-catalog'),
+            ]),
+        ]);
+
+        $this->addToAssertionCount(1);
     }
 
     public function testPreviousNameCannotAlsoStayCanonical(): void

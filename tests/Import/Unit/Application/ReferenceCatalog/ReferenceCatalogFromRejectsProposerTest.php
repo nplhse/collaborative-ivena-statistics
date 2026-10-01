@@ -110,7 +110,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         $alias = $this->createStub(DepartmentAlias::class);
         $alias->method('getNormalizedName')->willReturn('perinatalzentrum level 2');
         $aliasRepo = $this->createStub(EntityRepository::class);
-        $aliasRepo->method('findBy')->willReturn([$alias]);
+        $aliasRepo->method('findBy')->willReturn([$alias, new \stdClass()]);
         $dispatchRepo = $this->createStub(EntityRepository::class);
         $dispatchRepo->method('findBy')->willReturn([$frankfurt]);
         $occasionRepo = $this->createStub(EntityRepository::class);

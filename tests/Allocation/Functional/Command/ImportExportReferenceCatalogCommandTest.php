@@ -11,6 +11,8 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Occasion;
+use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Infrastructure\Factory\AllocationFactory;
 use App\Allocation\Infrastructure\Factory\AssignmentFactory;
@@ -173,6 +175,14 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
             'dispatch_areas' => [
                 ['name' => 'Eichsfeld', 'state' => 'Thüringen'],
             ],
+            'departments' => [[
+                'name' => 'Geburtshilfe',
+                'aliases' => [[
+                    'name' => 'Geburtsklinik',
+                    'classification' => 'historical',
+                    'source' => 'local-catalog',
+                ]],
+            ]],
         ]);
         $tester = $this->commandTester('app:reference:import');
         self::assertSame(Command::SUCCESS, $tester->execute([
@@ -506,6 +516,109 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertInstanceOf(DepartmentAlias::class, $alias);
         self::assertSame($departmentId, $alias->getDepartment()->getId());
         self::assertSame('faulty_catalog', $alias->getClassification());
+
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:import')->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+        ]));
+        $em->clear();
+        self::assertSame(1, $em->getRepository(DepartmentAlias::class)->count([]));
+        self::assertSame('Allgemeine Innere Medizin', $em->getRepository(Department::class)->find($departmentId)?->getName());
+    }
+
+    public function testDryRunRenameLeavesTheExistingDepartmentUntouched(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        DepartmentFactory::createOne(['name' => 'Allgemein Innere Medizin']);
+        $source = $this->writeCatalog([
+            'departments' => [[
+                'name' => 'Allgemeine Innere Medizin',
+                'previous_names' => ['Nicht vorhanden', 'Allgemein Innere Medizin'],
+                'aliases' => [[
+                    'name' => 'Allgemein Innere Medizin',
+                    'classification' => 'faulty_catalog',
+                    'source' => 'local-catalog',
+                ]],
+            ]],
+        ]);
+
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:import')->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'department',
+            '--dry-run' => true,
+        ]));
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertSame(['Allgemein Innere Medizin'], array_map(
+            static fn (Department $department): string => (string) $department->getName(),
+            $em->getRepository(Department::class)->findAll(),
+        ));
+        self::assertSame(0, $em->getRepository(DepartmentAlias::class)->count([]));
+    }
+
+    public function testAddRenamesSpecialityInPlaceAndExportsAlias(): void
+    {
+        UserFactory::createOne(['username' => 'admin']);
+        $speciality = SpecialityFactory::createOne(['name' => 'Innere']);
+        $specialityId = $speciality->getId();
+        $source = $this->writeCatalog([
+            'specialities' => [[
+                'name' => 'Innere Medizin',
+                'previous_names' => ['Innere'],
+                'aliases' => [[
+                    'name' => 'Innere',
+                    'classification' => 'historical',
+                    'source' => 'local-catalog',
+                    'note' => 'short form',
+                    'valid_from' => '2018-01-01',
+                ]],
+            ]],
+        ]);
+
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:import')->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'speciality',
+        ]));
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:import')->execute([
+            '--source' => $source,
+            '--mode' => 'add',
+            '--user' => 'admin',
+            '--types' => 'speciality',
+        ]));
+
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->clear();
+        $renamed = $em->getRepository(Speciality::class)->find($specialityId);
+        self::assertInstanceOf(Speciality::class, $renamed);
+        self::assertSame('Innere Medizin', $renamed->getName());
+        self::assertSame(1, $em->getRepository(Speciality::class)->count([]));
+        $alias = $em->getRepository(SpecialityAlias::class)->findOneBy(['normalizedName' => 'innere']);
+        self::assertInstanceOf(SpecialityAlias::class, $alias);
+        self::assertSame($specialityId, $alias->getSpeciality()->getId());
+        self::assertSame('short form', $alias->getNote());
+
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
+            '--output' => $output,
+            '--types' => 'speciality',
+        ]));
+        /** @var array<string, mixed> $parsed */
+        $parsed = Yaml::parseFile($output);
+        $exported = null;
+        foreach ($parsed['specialities'] as $row) {
+            if (\is_array($row) && 'Innere Medizin' === ($row['name'] ?? null)) {
+                $exported = $row;
+            }
+        }
+        self::assertIsArray($exported);
+        self::assertSame('short form', $exported['aliases'][0]['note'] ?? null);
+        self::assertSame('2018-01-01', $exported['aliases'][0]['valid_from'] ?? null);
     }
 
     public function testAddRefusesRenameWhenBothNamesAlreadyExist(): void
