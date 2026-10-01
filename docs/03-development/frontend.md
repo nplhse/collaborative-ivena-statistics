@@ -10,6 +10,22 @@ The frontend uses Symfony Asset Mapper, Stimulus, Turbo, and Live Components. Th
 
 Additional entrypoints: `admin-kpi`, `admin-page-form`, `admin-trix-media`, `error-page`.
 
+### ApexCharts
+
+Charts use **ApexCharts 7.6.1**. The import map entry `apexcharts` pulls in `apexcharts/core`; [`assets/lib/load-apexcharts.js`](../../assets/lib/load-apexcharts.js) imports the main module and uses its default export. That module registers chart types and the exports feature (`dataURI`) on load. Do not import `apexcharts/core` on its own — PNG export then throws because the exports feature is not registered.
+
+These version-specific details stay in place because 7.6.1 still depends on them:
+
+- `plotOptions.bar.borderRadiusWhenStacked: 'last'` in [`build-analysis-chart-options.js`](../../assets/lib/build-analysis-chart-options.js). The library default is `'all'`, which rounds both ends of a stacked bar. The v7.0 note that this option was removed does not match 7.6.1.
+- Axis title config always includes a `text` key. ApexCharts reads `axis.title.text` without checking that `title` exists.
+- PNG export sets an explicit font stack. Off-screen export cannot resolve `fontFamily: 'inherit'`.
+
+Not part of this upgrade. Add them only when a chart needs them:
+
+- Box plot jitter via `plotOptions.boxPlot.points`, once hospital or explorer distributions supply the raw observations.
+- Facet tokens (`--apx-*`) if charts should follow Tabler theme tokens more closely.
+- Violin, sunburst, icicle, trellis, the canvas renderer, storyboard, and ink. They need extra entry points and are unused by the current line, area, bar, heatmap, and box plot charts.
+
 ## Stimulus
 
 `assets/bootstrap.js` starts `@symfony/stimulus-bundle`.
