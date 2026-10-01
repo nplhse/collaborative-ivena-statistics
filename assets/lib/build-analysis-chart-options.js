@@ -353,6 +353,7 @@ export function buildAnalysisChartOptions(data, buildOptions = {}) {
                               : {
                                     borderRadius: 2,
                                     borderRadiusApplication: 'end',
+                                    // 7.6.1 still reads this. The library default is "all", which rounds both ends.
                                     borderRadiusWhenStacked: 'last',
                                 }
                           : {

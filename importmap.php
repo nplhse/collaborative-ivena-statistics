@@ -33,7 +33,7 @@ return [
     '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@hotwired/turbo' => ['version' => '8.0.23'],
     'debounce' => ['version' => '3.0.0'],
-    'apexcharts' => ['version' => '5.15.0'],
+    'apexcharts' => ['version' => '7.6.1'],
     'fslightbox' => ['version' => '3.7.5'],
     'leaflet' => ['version' => '1.9.4'],
     'leaflet/dist/leaflet.css' => ['version' => '1.9.4', 'type' => 'css'],
@@ -51,4 +51,5 @@ return [
     'es-module-shims' => ['version' => '2.8.4'],
     '@tabler/core' => ['version' => '1.6.1'],
     '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.6.1', 'type' => 'css'],
+    'apexcharts/core' => ['version' => '7.6.1'],
 ];
