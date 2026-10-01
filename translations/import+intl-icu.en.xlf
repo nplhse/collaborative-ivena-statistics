@@ -325,6 +325,26 @@
         <source>label.import.type.help</source>
         <target>Closure lists are a beta and stay hidden without the Closure beta role.</target>
       </trans-unit>
+      <trans-unit id="impSumAllocEn" resname="import.summary.allocations_imported">
+        <source>import.summary.allocations_imported</source>
+        <target>{count, plural, one {# Allocation imported} other {# Allocations imported}}</target>
+      </trans-unit>
+      <trans-unit id="impSumClosEn" resname="import.summary.closures_imported">
+        <source>import.summary.closures_imported</source>
+        <target>{count, plural, one {# Closure imported} other {# Closures imported}}</target>
+      </trans-unit>
+      <trans-unit id="impFldImpEn" resname="import.field.imported_records">
+        <source>import.field.imported_records</source>
+        <target>Imported records</target>
+      </trans-unit>
+      <trans-unit id="impActClosEn" resname="import.action.open_closure_analytics">
+        <source>import.action.open_closure_analytics</source>
+        <target>Closure analytics</target>
+      </trans-unit>
+      <trans-unit id="impDelClosEn" resname="import.delete.modal.body.closure">
+        <source>import.delete.modal.body.closure</source>
+        <target>Are you sure you want to permanently delete "{name}"? All closure intervals and related data will be removed. This action cannot be undone.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
