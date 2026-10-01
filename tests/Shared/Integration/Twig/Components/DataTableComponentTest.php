@@ -22,7 +22,7 @@ final class DataTableComponentTest extends KernelTestCase
         $html = (string) $this->renderTwigComponent(
             'DataTable',
             ['title' => 'Legacy'],
-            '<table class="table data-table-card"><tbody><tr><td>Legacy cell</td></tr></tbody></table>',
+            '<table class="table card-table"><tbody><tr><td>Legacy cell</td></tr></tbody></table>',
         );
 
         self::assertStringContainsString('Legacy', $html);
@@ -39,6 +39,7 @@ final class DataTableComponentTest extends KernelTestCase
             'rows' => [],
         ]);
 
+        self::assertStringContainsString('class="table card-table"', $html);
         self::assertStringContainsString('empty-title', $html);
         self::assertStringContainsString('Sorry, no results found.', $html);
         self::assertStringNotContainsString('card-footer', $html);

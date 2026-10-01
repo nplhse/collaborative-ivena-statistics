@@ -1,0 +1,16 @@
+<script>
+    (function () {
+        var media = window.matchMedia('(prefers-color-scheme: dark)');
+
+        var apply = function () {
+            if (media.matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-bs-theme');
+            }
+        };
+
+        apply();
+        media.addEventListener('change', apply);
+    })();
+</script>

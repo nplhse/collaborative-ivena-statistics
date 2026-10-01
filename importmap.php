@@ -32,8 +32,6 @@ return [
     '@symfony/ux-live-component' => ['path' => './vendor/symfony/ux-live-component/assets/dist/live_controller.js'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@hotwired/turbo' => ['version' => '8.0.23'],
-    '@tabler/core' => ['version' => '1.4.0'],
-    '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.4.0', 'type' => 'css'],
     'debounce' => ['version' => '3.0.0'],
     'apexcharts' => ['version' => '5.15.0'],
     'fslightbox' => ['version' => '3.7.5'],
@@ -51,4 +49,6 @@ return [
     'bignumber.js' => ['version' => '9.1.2'],
     'splaytree-ts' => ['version' => '1.0.2'],
     'es-module-shims' => ['version' => '2.8.4'],
+    '@tabler/core' => ['version' => '1.6.1'],
+    '@tabler/core/dist/css/tabler.min.css' => ['version' => '1.6.1', 'type' => 'css'],
 ];

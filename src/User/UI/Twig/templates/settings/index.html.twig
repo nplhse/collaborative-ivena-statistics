@@ -38,7 +38,7 @@
                                         <div class="col-md-6">
                                             <label class="form-label">{{ 'label.username'|trans({}, 'messages') }}</label>
                                             <input class="form-control" value="{{ app.user.userIdentifier }}" readonly />
-                                            <small class="form-hint">{{ 'help.settings.username_fixed'|trans({}, 'user') }}</small>
+                                            <small class="form-text">{{ 'help.settings.username_fixed'|trans({}, 'user') }}</small>
                                         </div>
                                     </div>
 
@@ -53,7 +53,7 @@
                                         </div>
                                     </div>
                                     <div class="mb-4">
-                                        <small class="form-hint d-flex align-items-center gap-2">
+                                        <small class="form-text d-flex align-items-center gap-2">
                                             <span>{{ 'label.settings.verification_status'|trans({}, 'user') }}</span>
                                             <span class="badge {{ app.user.isVerified ? 'bg-green text-green-fg' : 'bg-yellow text-yellow-fg' }}">
                                                 {{ app.user.isVerified ? 'label.verified'|trans({}, 'messages') : 'label.not_verified'|trans({}, 'messages') }}
