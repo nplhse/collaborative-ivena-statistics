@@ -44,8 +44,10 @@ final class ReferenceFixtureLoadTest extends KernelTestCase
 
         self::assertSame(29, (int) $connection->fetchOne('SELECT COUNT(*) FROM dispatch_area'));
         self::assertSame(77, (int) $connection->fetchOne('SELECT COUNT(*) FROM hospital'));
-        self::assertSame(113, (int) $connection->fetchOne('SELECT COUNT(*) FROM department'));
-        self::assertSame(22, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality'));
+        self::assertSame(137, (int) $connection->fetchOne('SELECT COUNT(*) FROM department'));
+        self::assertSame(8, (int) $connection->fetchOne('SELECT COUNT(*) FROM department_alias'));
+        self::assertSame(29, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality'));
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality_alias'));
         self::assertSame(7, (int) $connection->fetchOne('SELECT COUNT(*) FROM assignment'));
         self::assertSame(31, (int) $connection->fetchOne('SELECT COUNT(*) FROM occasion'));
         self::assertSame(19, (int) $connection->fetchOne('SELECT COUNT(*) FROM infection'));

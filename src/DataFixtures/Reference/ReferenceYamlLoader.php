@@ -6,6 +6,7 @@ namespace App\DataFixtures\Reference;
 
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogDocument;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogReader;
+use App\Allocation\Application\ReferenceCatalog\ReferenceNameEntry;
 
 final readonly class ReferenceYamlLoader
 {
@@ -37,6 +38,14 @@ final readonly class ReferenceYamlLoader
     public function names(string $filename): array
     {
         return $this->document()->names($filename);
+    }
+
+    /**
+     * @return list<ReferenceNameEntry>
+     */
+    public function namedEntries(string $filename): array
+    {
+        return $this->document()->namedEntries($filename);
     }
 
     /**

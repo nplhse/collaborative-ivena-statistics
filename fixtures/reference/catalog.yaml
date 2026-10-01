@@ -68,7 +68,13 @@ dispatch_areas:
 departments:
   - 'Akut- und Gerontopsych. / Isolierung'
   - 'Akut- und Gerontopsychiatrie'
-  - 'Allgemein Innere Medizin'
+  - name: 'Allgemeine Innere Medizin'
+    previous_names:
+      - 'Allgemein Innere Medizin'
+    aliases:
+      - name: 'Allgemein Innere Medizin'
+        classification: faulty_catalog
+        source: local-catalog
   - 'Allgemein- und Viszeralchirurgie'
   - 'Allgemeine Augenheilkunde'
   - 'Allgemeine Augenheilkunde - Isolierung'
@@ -91,7 +97,20 @@ departments:
   - 'Endokrino-/Diabetologie - Isolierung'
   - Gastroenterologie
   - 'Gastroenterologie - Isolierung'
-  - Geburtshilfe
+  - name: Geburtshilfe
+    aliases:
+      - name: 'Perinatalzentrum Level 1'
+        classification: historical
+        source: local-catalog
+      - name: 'Perinatalzentrum Level 2'
+        classification: historical
+        source: local-catalog
+      - name: 'Perinataler Schwerpunkt'
+        classification: historical
+        source: local-catalog
+      - name: Geburtsklinik
+        classification: historical
+        source: local-catalog
   - 'Geburtshilfe - Isolierung'
   - Gefäßchirurgie
   - Geriatrie
@@ -100,7 +119,13 @@ departments:
   - Hals-Nasen-Ohrenheilkunde
   - 'Hals-Nasen-Ohrenheilkunde - Isolierung'
   - Handchirurgie
-  - 'Haut- und Geschlechtsk. - Isolierung'
+  - name: 'Haut- und Geschlechtskrankheiten - Isolierung'
+    previous_names:
+      - 'Haut- und Geschlechtsk. - Isolierung'
+    aliases:
+      - name: 'Haut- und Geschlechtsk. - Isolierung'
+        classification: faulty_catalog
+        source: local-catalog
   - 'Haut- und Geschlechtskrankheiten'
   - Herzchirurgie
   - IMC
@@ -138,7 +163,13 @@ departments:
   - Kinderpsychiatrie
   - Kinderurologie
   - Mund-Kiefer-Gesichtschirurgie
-  - 'Mund-Kiefer-Gesichtschirurgie - Isolier'
+  - name: 'Mund-Kiefer-Gesichtschirurgie - Isolierung'
+    previous_names:
+      - 'Mund-Kiefer-Gesichtschirurgie - Isolier'
+    aliases:
+      - name: 'Mund-Kiefer-Gesichtschirurgie - Isolier'
+        classification: faulty_catalog
+        source: local-catalog
   - 'Neonatologie Intensiv'
   - Neurochirurgie
   - 'Neurochirurgie Intensiv - Isolierung'
@@ -155,7 +186,13 @@ departments:
   - Pneumologie
   - 'Pneumologie - Isolierung'
   - Psychiatrie
-  - 'Psychiatrie / Psychother. / Isolierung'
+  - name: 'Psychiatrie und Psychotherapie / Isolierung'
+    previous_names:
+      - 'Psychiatrie / Psychother. / Isolierung'
+    aliases:
+      - name: 'Psychiatrie / Psychother. / Isolierung'
+        classification: faulty_catalog
+        source: local-catalog
   - 'Psychiatrie HFEG'
   - 'Sektorenzuweisung nach PSychKHG'
   - Strahlentherapie
@@ -179,6 +216,30 @@ departments:
   - 'vvECMO Zuverlegung'
   - 'vaECMO Zuverlegung'
   - 'eCPR Zuverlegung'
+  - 'Innere IMC mit Beatmung'
+  - 'Plastische Chirurgie'
+  - 'Plastische Chirurgie - Isolierung'
+  - 'Schockraum Chirurgisch'
+  - 'Schockraum Konservativ'
+  - Angiografie
+  - Computertomographie
+  - 'Gastroenterologische Endoskopie'
+  - 'Kardiologie - Herzkatheteruntersuchung'
+  - Röntgen
+  - Replantationschirurgie
+  - Notfalldialyse
+  - Schwindeldiagnostik
+  - 'Operative Neurochirurgie'
+  - Kinder-Mund-Kiefer-Gesichtschirurgie
+  - 'Psychotherapeutische Medizin'
+  - 'Psychotherapeutische Medizin - Isolierung'
+  - 'Hubschrauberflugplatz Para. 6 Luftverkehrsgesetz'
+  - Hämatologie/Onkologie
+  - 'Allgemeine Neurologie'
+  - 'Allgemeine Urologie'
+  - 'Allgemeine Kinderheilkunde'
+  - 'Erwachsene Psychiatrie und Psychotherapie'
+  - Kinder-Hals-Nasen-Ohrenheilkunde
 specialities:
   - Augenheilkunde
   - Chirurgie
@@ -202,6 +263,13 @@ specialities:
   - 'Zentrale Notaufnahme'
   - ECMO-Therapie
   - Nuklearmedizin
+  - 'Hyperbare Medizin'
+  - 'Kinder- und Jugendpsychiatrie und -psychotherapie'
+  - 'Psychosomatische Medizin und Psychotherapie'
+  - Sonderbetten
+  - 'Besondere Aufgaben'
+  - 'Landestellen für Rettungshubschrauber'
+  - Palliativ
 assignments:
   - Arzt/Arzt
   - Einweisung

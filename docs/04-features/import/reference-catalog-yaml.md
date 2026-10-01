@@ -48,6 +48,25 @@ departments:
 specialities:
   - 'Innere Medizin'
   - ECMO-Therapie
+```
+
+`departments` and `specialities` may also be mappings. A string is still a name with no aliases. `previous_names` renames an existing row in place when `--mode=add` finds the old name and not the new one. If both names already exist, the import stops. Aliases are explicit alternate spellings. One normalized alias maps to exactly one canonical name. Isolation labels and `mit Beatmung` / `ohne Beatmung` cannot alias the base form or the other ventilation side.
+
+```yaml
+departments:
+  - name: 'Allgemeine Innere Medizin'
+    previous_names:
+      - 'Allgemein Innere Medizin'
+    aliases:
+      - name: 'Allgemein Innere Medizin'
+        classification: faulty_catalog
+        source: local-catalog
+specialities:
+  - name: 'Innere Medizin'
+    aliases:
+      - name: 'Innere'
+        classification: historical
+        source: local-catalog
 assignments:
   - Patient
   - ZLST
@@ -160,7 +179,7 @@ hospitals:
 
 `app:reference:propose-from-rejects` writes the **same keys**, but only sections that have missing values. Dispatch areas come with `state: ~`. After review, merge into this file or import the proposal with `--source=…/catalog.yaml`.
 
-Not written as catalog rows (handled in PHP or dropped): ILS/`Führungsstab` prefixes, `Perinatalzentrum Level 2` → `Geburtshilfe`, URLs, mojibake, `Erhängen`.
+Not written as catalog rows (handled in PHP or dropped): ILS/`Führungsstab` prefixes, URLs, mojibake, `Erhängen`. `Perinatalzentrum Level 2` is a department alias of `Geburtshilfe` in this file, not a separate row.
 
 ## Related
 

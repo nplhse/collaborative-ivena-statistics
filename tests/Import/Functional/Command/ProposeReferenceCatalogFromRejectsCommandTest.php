@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Functional\Command;
 
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
@@ -31,7 +32,10 @@ final class ProposeReferenceCatalogFromRejectsCommandTest extends KernelTestCase
         $user = UserFactory::createOne(['username' => 'admin']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
         DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
-        DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
+        $obstetrics = DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist(new DepartmentAlias($obstetrics, 'Perinatalzentrum Level 2', 'historical', 'local-catalog'));
+        $em->flush();
         $hospital = HospitalFactory::createOne([
             'name' => 'Propose Hospital',
             'state' => $state,

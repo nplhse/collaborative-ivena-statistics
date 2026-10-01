@@ -1185,6 +1185,14 @@
         <source>empty.access_grants.description</source>
         <target>Ordne eine Person zu, um ihr Zugang zu dieser Klinik zu geben.</target>
       </trans-unit>
+      <trans-unit id="CatDeptAlTitleDe" resname="catalog.department.aliases.title">
+        <source>catalog.department.aliases.title</source>
+        <target>Weitere Schreibweisen</target>
+      </trans-unit>
+      <trans-unit id="CatDeptAlHintDe" resname="catalog.department.aliases.hint">
+        <source>catalog.department.aliases.hint</source>
+        <target>Andere Schreibweisen aus Importen. Kein amtliches Verzeichnis.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

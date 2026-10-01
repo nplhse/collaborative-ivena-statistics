@@ -20,14 +20,15 @@ namespace App\Allocation\Application\ReferenceCatalog;
  *     location: string,
  *     address: HospitalAddressRow
  * }
+ * @phpstan-type NamedCatalogEntry ReferenceNameEntry
  */
 final class ReferenceCatalogDocument
 {
     /**
      * @param list<string>             $states
      * @param list<DispatchAreaRow>    $dispatchAreas
-     * @param list<string>             $departments
-     * @param list<string>             $specialities
+     * @param list<ReferenceNameEntry> $departments
+     * @param list<ReferenceNameEntry> $specialities
      * @param list<string>             $assignments
      * @param list<string>             $occasions
      * @param list<string>             $infections
@@ -61,8 +62,8 @@ final class ReferenceCatalogDocument
         return new self(
             states: self::stringList($data['states'] ?? []),
             dispatchAreas: self::dispatchAreaRows($data['dispatch_areas'] ?? []),
-            departments: self::stringList($data['departments'] ?? []),
-            specialities: self::stringList($data['specialities'] ?? []),
+            departments: self::namedEntriesFromYaml($data['departments'] ?? []),
+            specialities: self::namedEntriesFromYaml($data['specialities'] ?? []),
             assignments: self::stringList($data['assignments'] ?? []),
             occasions: self::stringList($data['occasions'] ?? []),
             infections: self::stringList($data['infections'] ?? []),
@@ -88,8 +89,8 @@ final class ReferenceCatalogDocument
                 ],
                 $this->dispatchAreas,
             ),
-            'departments' => $this->departments,
-            'specialities' => $this->specialities,
+            'departments' => array_map(static fn (ReferenceNameEntry $entry): string|array => $entry->toYaml(), $this->departments),
+            'specialities' => array_map(static fn (ReferenceNameEntry $entry): string|array => $entry->toYaml(), $this->specialities),
             'assignments' => $this->assignments,
             'occasions' => $this->occasions,
             'infections' => $this->infections,
@@ -166,14 +167,48 @@ final class ReferenceCatalogDocument
         $section = str_replace('.yaml', '', $section);
 
         return match ($section) {
-            'departments' => $this->departments,
-            'specialities' => $this->specialities,
+            'departments' => array_map(static fn (ReferenceNameEntry $entry): string => $entry->name, $this->departments),
+            'specialities' => array_map(static fn (ReferenceNameEntry $entry): string => $entry->name, $this->specialities),
             'assignments' => $this->assignments,
             'occasions' => $this->occasions,
             'infections' => $this->infections,
             'secondary_transports' => $this->secondaryTransports,
             default => throw new \InvalidArgumentException(sprintf('Unknown name section "%s".', $section)),
         };
+    }
+
+    /**
+     * @return list<ReferenceNameEntry>
+     */
+    public function namedEntries(string $section): array
+    {
+        $section = str_replace('.yaml', '', $section);
+
+        return match ($section) {
+            'departments' => $this->departments,
+            'specialities' => $this->specialities,
+            default => throw new \InvalidArgumentException(sprintf('Unknown named section "%s".', $section)),
+        };
+    }
+
+    /**
+     * @return list<ReferenceNameEntry>
+     */
+    private static function namedEntriesFromYaml(mixed $value): array
+    {
+        if (!\is_array($value)) {
+            return [];
+        }
+
+        $entries = [];
+        foreach ($value as $item) {
+            $entry = ReferenceNameEntry::fromYaml($item);
+            if ($entry instanceof ReferenceNameEntry) {
+                $entries[] = $entry;
+            }
+        }
+
+        return $entries;
     }
 
     /**

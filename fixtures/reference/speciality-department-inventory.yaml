@@ -1,0 +1,213 @@
+# Specialty and department label inventory for issue 656.
+# This file is the review record. It is not loaded by app:reference:import.
+# The public IVENA view and the PZC workbook are not in this repository, so only
+# labels named in issue 656, current import rejects, and the local catalog are classified.
+# Unnamed online labels stay unresolved until that list is compared again.
+#
+# status: applied labels are in fixtures/reference/catalog.yaml.
+# status: unresolved labels are not imported.
+
+meta:
+  issue: 656
+  public_ivena_view: '2026-09-29, not stored in this repository'
+  pzc_matrix: 'IVENA_PZC-Zuordnung_2026-09-29_09-48.xlsx, not stored in this repository'
+  reject_snapshot: 'local import_reject, closure imports 1089 and 1090 plus allocation reference rejects'
+
+# Labels that look alike but are not merged. Each long form is its own department
+# until the public IVENA list shows it is the same row as the shorter catalog name.
+unresolved:
+  departments:
+    - label: Kernspintomographie
+      reason: 'Issue 656 calls this a likely alias of MRT, and MRT is not a local department.'
+      sources: [pzc-matrix]
+    - label: 'six expanded ECMO/eCPR labels'
+      reason: 'Issue 656 does not list the six strings, so they cannot be added or aliased.'
+      sources: [pzc-matrix]
+  specialities: []
+
+applied_renames:
+  - canonical: Allgemeine Innere Medizin
+    previous: 'Allgemein Innere Medizin'
+    classification: faulty_catalog
+    reason: 'Issue 656: public IVENA view and closure exports use the longer spelling. 384954 allocations keep this row.'
+    specialty_context: 'Innere Medizin'
+    reject_count: 1776
+  - canonical: 'Mund-Kiefer-Gesichtschirurgie - Isolierung'
+    previous: 'Mund-Kiefer-Gesichtschirurgie - Isolier'
+    classification: faulty_catalog
+    reason: 'Local name is truncated. The reject spelling is the complete isolation label, not a second department.'
+    specialty_context: Mund-Kiefer-Gesichtschirurgie
+    reject_count: 137
+  - canonical: 'Haut- und Geschlechtskrankheiten - Isolierung'
+    previous: 'Haut- und Geschlechtsk. - Isolierung'
+    classification: faulty_catalog
+    reason: 'Local name abbreviates the same isolation label.'
+    specialty_context: 'Haut- und Geschlechtskrankheiten'
+    reject_count: 182
+  - canonical: 'Psychiatrie und Psychotherapie / Isolierung'
+    previous: 'Psychiatrie / Psychother. / Isolierung'
+    classification: faulty_catalog
+    reason: 'Local name abbreviates the same isolation label.'
+    specialty_context: 'Psychiatrie und Psychotherapie'
+    reject_count: 3
+
+applied_aliases:
+  - canonical: Geburtshilfe
+    aliases:
+      - 'Perinatalzentrum Level 1'
+      - 'Perinatalzentrum Level 2'
+      - 'Perinataler Schwerpunkt'
+      - Geburtsklinik
+    classification: historical
+    source: local-catalog
+
+applied_new_departments:
+  - name: 'Innere IMC mit Beatmung'
+    classification: distinct_variant
+    reason: 'Not an alias of Innere IMC ohne Beatmung.'
+    specialty_context: 'Innere Medizin'
+    reject_count: 305
+  - name: 'Plastische Chirurgie'
+    classification: canonical
+    specialty_context: Chirurgie
+    reject_count: 305
+  - name: 'Plastische Chirurgie - Isolierung'
+    classification: distinct_variant
+    reason: 'Isolation variant stays separate from Plastische Chirurgie.'
+    specialty_context: Chirurgie
+    reject_count: 306
+  - name: 'Schockraum Chirurgisch'
+    classification: canonical
+    specialty_context: 'Zentrale Notaufnahme'
+    reject_count: 34
+  - name: 'Schockraum Konservativ'
+    classification: canonical
+    specialty_context: 'Zentrale Notaufnahme'
+    reject_count: 34
+  - name: Angiografie
+    classification: canonical
+    specialty_context: 'Innere Medizin'
+    reject_count: 26
+    sources: [closure-reject, pzc-matrix]
+  - name: Computertomographie
+    classification: canonical
+    reason: 'Named in the PZC matrix and absent locally. No alias target exists.'
+    sources: [pzc-matrix]
+  - name: 'Gastroenterologische Endoskopie'
+    classification: canonical
+    specialty_context: 'Innere Medizin'
+    reject_count: 29
+    sources: [closure-reject, pzc-matrix]
+  - name: 'Kardiologie - Herzkatheteruntersuchung'
+    classification: canonical
+    specialty_context: 'Innere Medizin'
+    reject_count: 22
+    sources: [closure-reject, pzc-matrix]
+  - name: Röntgen
+    classification: canonical
+    reason: 'Named in the PZC matrix and absent locally. No alias target exists.'
+    sources: [pzc-matrix]
+  - name: Replantationschirurgie
+    classification: canonical
+    specialty_context: Chirurgie
+    reject_count: 86
+  - name: Notfalldialyse
+    classification: canonical
+    specialty_context: 'Innere Medizin'
+    reject_count: 14
+  - name: Schwindeldiagnostik
+    classification: canonical
+    specialty_context: Hals-Nasen-Ohrenheilkunde
+    reject_count: 4
+  - name: 'Operative Neurochirurgie'
+    classification: canonical
+    reason: 'Base label. Operative Neurochirurgie - Isolierung already exists and stays separate.'
+    specialty_context: Neurochirurgie
+    reject_count: 99
+  - name: Kinder-Mund-Kiefer-Gesichtschirurgie
+    classification: canonical
+    specialty_context: 'Kinder- und Jugendmedizin'
+    reject_count: 2
+  - name: 'Psychotherapeutische Medizin'
+    classification: canonical
+    reason: 'Hidden on speciality rejects because speciality resolution fails first.'
+    specialty_context: 'Psychosomatische Medizin und Psychotherapie'
+    reject_count: 32
+  - name: 'Psychotherapeutische Medizin - Isolierung'
+    classification: distinct_variant
+    specialty_context: 'Psychosomatische Medizin und Psychotherapie'
+    reject_count: 117
+  - name: 'Hubschrauberflugplatz Para. 6 Luftverkehrsgesetz'
+    classification: canonical
+    specialty_context: 'Landestellen für Rettungshubschrauber'
+    reject_count: 3
+  - name: Hämatologie/Onkologie
+    classification: canonical
+    reason: 'Department label. It is not the speciality Nuklearmedizin/Hämatologie/Onkologie.'
+    specialty_context: 'Innere Medizin'
+    reject_count: 215
+  - name: 'Allgemeine Neurologie'
+    classification: distinct_unconfirmed
+    reason: 'Not merged with Neurologie. The public list is not in the repo, and 127891 allocations use the shorter name.'
+    specialty_context: Neurologie
+    reject_count: 728
+  - name: 'Allgemeine Urologie'
+    classification: distinct_unconfirmed
+    reason: 'Not merged with Urologie.'
+    specialty_context: Urologie
+    reject_count: 182
+  - name: 'Allgemeine Kinderheilkunde'
+    classification: distinct_unconfirmed
+    reason: 'Not merged with Kinderheilkunde. Also named in the PZC matrix.'
+    specialty_context: 'Kinder- und Jugendmedizin'
+    reject_count: 18
+    sources: [closure-reject, pzc-matrix]
+  - name: 'Erwachsene Psychiatrie und Psychotherapie'
+    classification: distinct_unconfirmed
+    reason: 'Not merged with Psychiatrie.'
+    specialty_context: 'Psychiatrie und Psychotherapie'
+    reject_count: 3
+  - name: Kinder-Hals-Nasen-Ohrenheilkunde
+    classification: distinct_unconfirmed
+    reason: 'Not merged with Kinder-HNO.'
+    specialty_context: 'Kinder- und Jugendmedizin'
+    reject_count: 18
+
+applied_new_specialities:
+  - name: 'Hyperbare Medizin'
+    classification: canonical
+    sources: [issue-656]
+  - name: 'Kinder- und Jugendpsychiatrie und -psychotherapie'
+    classification: canonical
+    sources: [issue-656]
+  - name: 'Psychosomatische Medizin und Psychotherapie'
+    classification: canonical
+    sources: [issue-656, closure-reject]
+    reject_count: 149
+  - name: Sonderbetten
+    classification: canonical
+    sources: [issue-656]
+  - name: 'Besondere Aufgaben'
+    classification: canonical
+    sources: [issue-656]
+  - name: 'Landestellen für Rettungshubschrauber'
+    classification: canonical
+    sources: [issue-656, closure-reject]
+    reject_count: 3
+  - name: Palliativ
+    classification: canonical
+    sources: [issue-656]
+
+left_unchanged:
+  departments:
+    - 'Chir. Überwachung'
+    - 'vvECMO Zuverlegung'
+    - 'vaECMO Zuverlegung'
+    - 'eCPR Zuverlegung'
+  specialities:
+    - ECMO-Therapie
+    - Nuklearmedizin
+  reason: 'Already present under the rejected spelling. Stale allocation rejects are requeued, not renamed.'
+
+local_catalog_unverified:
+  note: 'Every other name already in fixtures/reference/catalog.yaml stays as stored. It was not contradicted by a reject or by a label named in issue 656. That is not confirmation against the public IVENA view.'

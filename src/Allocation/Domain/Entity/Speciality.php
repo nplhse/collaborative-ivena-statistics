@@ -9,6 +9,8 @@ use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Domain\Traits\HasPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[Audit\Audited]
@@ -42,9 +44,14 @@ class Speciality implements \Stringable
     #[ORM\JoinColumn(nullable: true)]
     protected ?User $updatedBy = null;
 
+    /** @var Collection<int, SpecialityAlias> */
+    #[ORM\OneToMany(targetEntity: SpecialityAlias::class, mappedBy: 'speciality')]
+    private Collection $aliases;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable('now');
+        $this->aliases = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -62,6 +69,21 @@ class Speciality implements \Stringable
         $this->name = $name;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, SpecialityAlias>
+     */
+    public function getAliases(): Collection
+    {
+        return $this->aliases;
+    }
+
+    public function addAlias(SpecialityAlias $alias): void
+    {
+        if (!$this->aliases->contains($alias)) {
+            $this->aliases->add($alias);
+        }
     }
 
     public function getCreatedAt(): \DateTimeImmutable

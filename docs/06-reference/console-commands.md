@@ -60,7 +60,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:reference:import` | Load `fixtures/reference/catalog.yaml` (or `--source=`) into the database. Default `--mode=add` inserts missing rows only. `--mode=replace` purges catalog tables and reloads; aborts when allocations, MCI cases, or imports exist. Dispatch areas without `state` are skipped. See [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md). |
+| `app:reference:import` | Load `fixtures/reference/catalog.yaml` (or `--source=`) into the database. Default `--mode=add` inserts missing rows only. For departments and specialities it also renames a row when `previous_names` matches an existing name and writes aliases. `--mode=replace` purges catalog tables and reloads; aborts when allocations, MCI cases, or imports exist. Dispatch areas without `state` are skipped. See [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md). |
 | `app:reference:export` | Write the current DB catalog into one YAML file (`--output=`, optional `--types=`). |
 | `app:reference:propose-from-rejects` | Read-only on rejects: write a catalog stub directory (`catalog.yaml`, `report.md`, requeue ID list). Fill area `state` before import. |
 

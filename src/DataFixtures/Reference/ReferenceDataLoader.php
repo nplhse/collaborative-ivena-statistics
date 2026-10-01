@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Reference;
 
+use App\Allocation\Application\ReferenceCatalog\ReferenceNameEntry;
 use App\Allocation\Domain\Entity\Address;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationNormalized;
@@ -15,6 +17,7 @@ use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
@@ -60,8 +63,8 @@ final readonly class ReferenceDataLoader
 
     public function loadLookups(User $user): void
     {
-        $this->loadNameEntities(Department::class, $this->yaml->names('departments'), $user);
-        $this->loadNameEntities(Speciality::class, $this->yaml->names('specialities'), $user);
+        $this->loadDepartments($this->yaml->namedEntries('departments'), $user);
+        $this->loadSpecialities($this->yaml->namedEntries('specialities'), $user);
         $this->loadNameEntities(Assignment::class, $this->yaml->names('assignments'), $user);
         $this->loadNameEntities(Occasion::class, $this->yaml->names('occasions'), $user);
         $this->loadNameEntities(Infection::class, $this->yaml->names('infections'), $user);
@@ -181,6 +184,54 @@ final readonly class ReferenceDataLoader
 
             $raw->setTarget($normalized);
             $raw->setNormalized($normalized);
+        }
+    }
+
+    /**
+     * @param list<ReferenceNameEntry> $entries
+     */
+    private function loadDepartments(array $entries, User $user): void
+    {
+        foreach ($entries as $entry) {
+            $department = new Department()
+                ->setName($entry->name)
+                ->setCreatedBy($user);
+            $this->entityManager->persist($department);
+            foreach ($entry->aliases as $alias) {
+                $this->entityManager->persist(new DepartmentAlias(
+                    $department,
+                    $alias->name,
+                    $alias->classification,
+                    $alias->source,
+                    $alias->note,
+                    $alias->validFrom,
+                    $alias->validTo,
+                ));
+            }
+        }
+    }
+
+    /**
+     * @param list<ReferenceNameEntry> $entries
+     */
+    private function loadSpecialities(array $entries, User $user): void
+    {
+        foreach ($entries as $entry) {
+            $speciality = new Speciality()
+                ->setName($entry->name)
+                ->setCreatedBy($user);
+            $this->entityManager->persist($speciality);
+            foreach ($entry->aliases as $alias) {
+                $this->entityManager->persist(new SpecialityAlias(
+                    $speciality,
+                    $alias->name,
+                    $alias->classification,
+                    $alias->source,
+                    $alias->note,
+                    $alias->validFrom,
+                    $alias->validTo,
+                ));
+            }
         }
     }
 

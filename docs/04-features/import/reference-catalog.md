@@ -104,11 +104,32 @@ Alternative: export locally, commit YAML, deploy, then `import --mode=add` from 
 
 Empty instance: migrate, create the admin user, `import --mode=replace`. Never replace a database that already has allocations.
 
+## Specialty and department name correction
+
+Deploy ships the migration (empty alias tables) and the reviewed `fixtures/reference/catalog.yaml`. It does not import the catalog and it does not requeue imports. There is no Deployer hook for this correction. An operator runs the commands below by hand after the release.
+
+Do not use `app:reference:propose-from-rejects` as the source. That command would add rejected spellings as new rows and split statistics. Do not use `--mode=replace` on a database that already has allocations. `previous_names` renames the existing department or speciality and keeps its id, so allocations and closure intervals stay attached. The old spelling is stored as an alias.
+
+`app:import:requeue-all` dispatches allocation imports only. Closure imports 1089 and 1090 must use `app:import:start`, which reads the import type and dispatches the closure job.
+
+```bash
+cd ~/www/current
+php bin/console app:reference:import --mode=add --source=fixtures/reference/catalog.yaml --dry-run
+php bin/console app:reference:import --mode=add --user=admin --source=fixtures/reference/catalog.yaml
+php bin/console cache:pool:clear cache.allocation.reference_data
+php bin/console app:import:start 1089
+php bin/console app:import:start 1090
+php bin/console app:import:requeue-all --only-ids=904,925,926,927,928,929,930,931,932,933,934,935,936,1050 --dry-run
+php bin/console app:import:requeue-all --only-ids=904,925,926,927,928,929,930,931,932,933,934,935,936,1050
+```
+
+The allocation id list is the local snapshot whose reference misses are only `Chir. Überwachung`, `ECMO-Therapie`, or `Nuklearmedizin`. Dispatch-area rejects stay rejected. After the closure jobs finish, the 4 680 reference-only closure rejects should be imported and the 52 structural closure rejects should remain (40 duration mismatches and incomplete rows). Confirm renamed departments kept their ids and that the explore page shows the old spelling as an alternate name. The classification and source of an alias are visible on the admin department detail page.
+
 ## Dispatch-area normalization (code, not YAML)
 
 `DispatchAreaNameNormalizer` trims, maps NBSP to space, collapses whitespace, strips leading `_`, parenthetical suffixes, longest-first prefixes (`Kommunale Regionalleitstelle`, `Integrierte Leitstelle`, `Zentrale Leitstelle`, `Regionalleitstelle`, `Leitstelle`, `Landkreis`, `Kreis`), trailing `Kreis` / `Führungsstab`, and keeps the `Groá-Gerau` typo map. Lookup stays name-based. Orientation maps remain Hessen-only (`disabled` for Göttingen, Bayerischer Untermain, Niedersachsen, …).
 
-Department alias: `Perinatalzentrum Level 2` → `Geburtshilfe` (same family as Level 1 / Schwerpunkt / Geburtsklinik). No extra department row.
+Department aliases live in `catalog.yaml` and the `department_alias` table, not in PHP. `Perinatalzentrum Level 2` → `Geburtshilfe` (same family as Level 1 / Schwerpunkt / Geburtsklinik). No extra department row. Speciality aliases use `speciality_alias` the same way. The explore department page lists known spellings and says the catalog is only a matching guide.
 
 ## Reject audit (catalog gaps)
 

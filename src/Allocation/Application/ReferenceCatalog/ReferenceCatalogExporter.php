@@ -6,6 +6,7 @@ namespace App\Allocation\Application\ReferenceCatalog;
 
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\IndicationGroup;
@@ -15,6 +16,7 @@ use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Domain\Entity\Speciality;
+use App\Allocation\Domain\Entity\SpecialityAlias;
 use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\IndicationKey;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,8 +39,8 @@ final readonly class ReferenceCatalogExporter
             match ($type) {
                 ReferenceCatalogType::State => $document->states = $this->nameList(State::class),
                 ReferenceCatalogType::DispatchArea => $document->dispatchAreas = $this->dispatchAreas(),
-                ReferenceCatalogType::Department => $document->departments = $this->nameList(Department::class),
-                ReferenceCatalogType::Speciality => $document->specialities = $this->nameList(Speciality::class),
+                ReferenceCatalogType::Department => $document->departments = $this->namedEntries(Department::class, DepartmentAlias::class),
+                ReferenceCatalogType::Speciality => $document->specialities = $this->namedEntries(Speciality::class, SpecialityAlias::class),
                 ReferenceCatalogType::Assignment => $document->assignments = $this->nameList(Assignment::class),
                 ReferenceCatalogType::Occasion => $document->occasions = $this->nameList(Occasion::class),
                 ReferenceCatalogType::Infection => $document->infections = $this->nameList(Infection::class),
@@ -51,6 +53,58 @@ final readonly class ReferenceCatalogExporter
         }
 
         return $document;
+    }
+
+    /**
+     * @param class-string<Department|Speciality>           $class
+     * @param class-string<DepartmentAlias|SpecialityAlias> $aliasClass
+     *
+     * @return list<ReferenceNameEntry>
+     */
+    private function namedEntries(string $class, string $aliasClass): array
+    {
+        /** @var array<int, list<ReferenceNameAliasSpec>> $aliasesByOwner */
+        $aliasesByOwner = [];
+        foreach ($this->entityManager->getRepository($aliasClass)->findBy([], ['name' => 'ASC']) as $alias) {
+            if (!$alias instanceof DepartmentAlias && !$alias instanceof SpecialityAlias) {
+                continue;
+            }
+
+            $owner = $alias instanceof DepartmentAlias ? $alias->getDepartment() : $alias->getSpeciality();
+            $ownerId = $owner->getId();
+            if (null === $ownerId) {
+                continue;
+            }
+
+            $aliasesByOwner[$ownerId][] = new ReferenceNameAliasSpec(
+                $alias->getName(),
+                $alias->getClassification(),
+                $alias->getSource(),
+                $alias->getNote(),
+                $alias->getValidFrom()?->format('Y-m-d'),
+                $alias->getValidTo()?->format('Y-m-d'),
+            );
+        }
+
+        $entries = [];
+        foreach ($this->entityManager->getRepository($class)->findBy([], ['name' => 'ASC']) as $entity) {
+            if (!method_exists($entity, 'getName') || !method_exists($entity, 'getId')) {
+                throw new \LogicException(sprintf('Entity %s is not a name-based lookup.', $class));
+            }
+
+            $ownerId = $entity->getId();
+            if (!\is_int($ownerId)) {
+                continue;
+            }
+
+            $entries[] = new ReferenceNameEntry(
+                (string) $entity->getName(),
+                [],
+                $aliasesByOwner[$ownerId] ?? [],
+            );
+        }
+
+        return $entries;
     }
 
     /**

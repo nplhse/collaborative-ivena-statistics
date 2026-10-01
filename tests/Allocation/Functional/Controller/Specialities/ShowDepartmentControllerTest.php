@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Allocation\Functional\Controller\Specialities;
 
+use App\Allocation\Domain\Entity\DepartmentAlias;
 use App\Allocation\Infrastructure\Factory\DepartmentFactory;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -39,6 +41,23 @@ final class ShowDepartmentControllerTest extends WebTestCase
             static fn ($node): string => (string) $node->attr('href'),
         );
         self::assertContains('/statistics/top-lists/top_departments', $actionHrefs);
+        self::assertSelectorNotExists('[data-testid="department-aliases"]');
+    }
+
+    public function testDetailPageShowsKnownDepartmentSpellings(): void
+    {
+        $client = $this->createClientAsAreaUser();
+        $department = DepartmentFactory::createOne(['name' => 'Allgemeine Innere Medizin']);
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $em->persist(new DepartmentAlias($department, 'Allgemein Innere Medizin', 'faulty_catalog', 'local-catalog'));
+        $em->flush();
+
+        $client->request(Request::METHOD_GET, '/explore/department/'.$department->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[data-testid="department-alias"]', 'Allgemein Innere Medizin');
+        self::assertSelectorTextContains('[data-testid="department-aliases"]', 'Not an official directory.');
+        self::assertSelectorTextNotContains('[data-testid="department-aliases"]', 'faulty_catalog');
     }
 
     public function testListPageLinksToDepartmentsTopList(): void
