@@ -65,3 +65,11 @@ as the span from its earliest closure start to its latest closure end. This is n
 proof that the export was complete and is shown only as orientation. Closure
 Analytics does not use the span as a denominator or report open/closed
 percentages; time outside it remains unknown.
+
+## Requeue
+
+```bash
+php bin/console app:import:closures <IMPORT_ID>
+```
+
+This dispatches `ImportClosuresMessage` on `async_priority_high`. A worker must consume that transport. `app:import:allocations` rejects a closure import. The source file stays on disk; a later run clears only data that belongs to this import.

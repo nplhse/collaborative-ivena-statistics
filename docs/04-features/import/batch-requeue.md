@@ -5,6 +5,7 @@ via Symfony Messenger. The command only queues jobs; actual CSV processing happe
 asynchronously in `ImportAllocationsMessageHandler` (or synchronously in `test` env).
 
 Each dispatch uses the import creator (`Import.createdBy`) as the audit user.
+`app:import:requeue-all` dispatches allocation jobs only. A closure import in that batch is marked dispatch-failed. Requeue it with `app:import:closures`.
 
 ## Prerequisites
 
@@ -16,9 +17,12 @@ Each dispatch uses the import creator (`Import.createdBy`) as the audit user.
 
 ```bash
 php bin/console app:import:allocations 42
+php bin/console app:import:closures 1090
 ```
 
-Exit codes: `0` = dispatched, `1` = import/creator not found or dispatch error, `2` = invalid arguments.
+`app:import:allocations` dispatches only `ImportType::Allocation`. A closure import exits `1` and names `app:import:closures`. `app:import:closures` is the matching command for `ImportType::Closure` and rejects allocation imports the same way.
+
+Exit codes: `0` = dispatched, `1` = import/creator not found, wrong type, or dispatch error, `2` = invalid arguments.
 
 ### Batch requeue
 
