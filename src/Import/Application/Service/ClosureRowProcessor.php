@@ -6,6 +6,7 @@ namespace App\Import\Application\Service;
 
 use App\Import\Application\Exception\ImportException;
 use App\Import\Application\Exception\RowRejectException;
+use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister;
 use App\Import\Infrastructure\Mapping\ClosureImportFactory;
@@ -32,7 +33,7 @@ final readonly class ClosureRowProcessor
      *
      * @throws RowRejectException
      */
-    public function process(array $row, Import $import): void
+    public function process(array $row, Import $import, ClosureHospitalProfile $profile): void
     {
         $dto = $this->mapper->mapAssoc($row);
         $violations = $this->validator->validate($dto);
@@ -46,7 +47,7 @@ final readonly class ClosureRowProcessor
         }
 
         try {
-            $entity = $this->factory->fromDto($dto, $import);
+            $entity = $this->factory->fromDto($dto, $import, $profile);
             $this->persister->persist($entity);
         } catch (ImportException $e) {
             throw new RowRejectException(messages: [$e->summarize()], context: $e->context());

@@ -10,6 +10,7 @@ use App\Import\Application\DTO\ClosureRowDTO;
 use App\Import\Application\Mapping\ClosureCareLevelCatalog;
 use App\Import\Application\Mapping\ClosureFacilityKindCatalog;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
+use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Mapping\ClosureIntervalClock;
 use App\Import\Application\Mapping\ClosureReasonCatalog;
 use App\Import\Domain\Entity\Import;
@@ -37,10 +38,9 @@ final readonly class ClosureImportFactory
         $this->references->warm();
     }
 
-    public function fromDto(ClosureRowDTO $dto, Import $import): ClosureInterval
+    public function fromDto(ClosureRowDTO $dto, Import $import, ClosureHospitalProfile $profile): ClosureInterval
     {
-        $hospitalName = $import->getHospital()?->getName();
-        $this->hospitalGuard->assertMatches($hospitalName, $dto->hospitalShortName);
+        $this->hospitalGuard->assertRow($profile, $dto->hospitalShortName);
 
         $careLevel = $this->careLevels->resolve((string) $dto->careLevelLabel);
         $reason = $this->reasons->resolve((string) $dto->reasonLabel);
@@ -57,7 +57,7 @@ final readonly class ClosureImportFactory
         $pair = $this->references->requirePair((string) $dto->speciality, (string) $dto->department);
 
         $interval = new ClosureInterval();
-        $interval->setHospital($this->refHospital($import));
+        $interval->setHospital($this->refHospital($import, $profile));
         $interval->setImport($this->refImport($import));
         $interval->setSpeciality($pair['speciality']);
         $interval->setDepartment($pair['department']);
@@ -86,11 +86,15 @@ final readonly class ClosureImportFactory
         return $this->referencer->readOnlyReference(Import::class, $importId);
     }
 
-    private function refHospital(Import $import): Hospital
+    private function refHospital(Import $import, ClosureHospitalProfile $profile): Hospital
     {
         $hospitalId = $import->getHospital()?->getId();
         if (null === $hospitalId) {
             throw new \LogicException('Import has no hospital');
+        }
+
+        if ($hospitalId !== $profile->selectedHospitalId) {
+            throw new \LogicException('Closure hospital profile does not match the import hospital');
         }
 
         return $this->referencer->readOnlyReference(Hospital::class, $hospitalId);

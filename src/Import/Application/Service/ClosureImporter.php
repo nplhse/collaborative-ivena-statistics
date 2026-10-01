@@ -8,6 +8,7 @@ use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Exception\RowRejectException;
+use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister;
 use Psr\Log\LoggerInterface;
@@ -23,8 +24,15 @@ final readonly class ClosureImporter
     ) {
     }
 
-    public function import(Import $import): ImportSummary
+    public function import(Import $import, ClosureHospitalProfile $profile): ImportSummary
     {
+        if (null !== $profile->differingFileLabel) {
+            $this->logger->info('closure.import.hospital_label', [
+                'file_label' => $profile->differingFileLabel,
+                'selected_hospital' => $profile->selectedDisplayName,
+            ]);
+        }
+
         $this->processor->warm();
         $this->persister->clear();
 
@@ -38,7 +46,7 @@ final readonly class ClosureImporter
                 ++$lineNo;
 
                 try {
-                    $this->processor->process($row, $import);
+                    $this->processor->process($row, $import, $profile);
                     ++$ok;
                 } catch (RowRejectException $e) {
                     $messages = $e->messages();

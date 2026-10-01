@@ -13,6 +13,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
+use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\MessageHandler\ImportClosuresMessageHandler;
 use App\Import\Domain\Entity\Import;
@@ -174,7 +175,16 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         $this->expectExceptionMessage('closure row reader failed');
 
         try {
-            $this->handler->run($import, $reader, $writer);
+            $this->handler->run(
+                $import,
+                $reader,
+                $writer,
+                new ClosureHospitalGuard()->profile(
+                    (int) $hospital->getId(),
+                    [(int) $hospital->getId() => (string) $hospital->getName()],
+                    [],
+                ),
+            );
         } finally {
             self::assertSame(ImportStatus::FAILED, $this->imports->find($import->getId())?->getStatus());
         }

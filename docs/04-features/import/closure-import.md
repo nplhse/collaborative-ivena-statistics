@@ -18,7 +18,7 @@ Sample used in tests: `tests/Import/Fixtures/closure_import_sample.csv`. Do not 
 
 | CSV column | Stored as | Notes |
 |------------|-----------|--------|
-| `Krankenhaus-Kurzname` | Hospital of the upload | Must match the selected hospital after trimming and case-folding. A mismatch rejects the row. |
+| `Krankenhaus-Kurzname` | Hospital of the upload | Plausibility only. The hospital selected at import start is stored. See below. |
 | `Fachgebiet` | Speciality | Existing name lookup. Unknown names reject the row. |
 | `Fachbereich` | Department | Existing name lookup, including department aliases. Unknown names reject the row. |
 | `Behandlungsdringlichkeit` | `ClosureCareLevel` | Notfallversorgung, Stationäre Versorgung, and Ambulante Versorgung are SK1–SK3. `Sonstige` is stored and is not an SK. |
@@ -38,6 +38,18 @@ Derived calendar fields (day, weekday, month, month name, year) are not stored.
 Not read: the long `Krankenhaus` address, `KHS-Versorgungsgebiet`, `Art der Einrichtung`, practice columns, and accessibility columns.
 
 `Eingetragen von` and `Geändert von` are not stored.
+
+## Hospital assignment
+
+The import is always stored on the hospital selected when the upload starts. That selection does not change, and the file cannot assign rows to a different hospital.
+
+`Krankenhaus-Kurzname` is read once before writing. Comparison trims, case-folds, and collapses whitespace. Empty values are ignored for this check.
+
+- One short name that exactly matches a different catalog hospital rejects every row (`HOSPITAL_CONFLICT`). Start the import for that hospital, or export the list for the selected one.
+- One short name that matches the selected hospital, or that matches no catalog hospital exactly, is accepted. A different spelling is logged and does not reject the row. This covers IVENA short names that are not the catalog name.
+- Several short names keep a row only when it exactly matches the selected hospital's catalog name. Other rows reject (`HOSPITAL_MISMATCH`). Split the file and import each hospital on its own. If none of the names match, nothing is stored.
+
+A catalog name that normalizes to more than one hospital is not treated as a unique contradiction. There is no alias list and no fuzzy match. Hospitals have no external id. The long `Krankenhaus` column is an address line, not an id.
 
 ## Rejects
 
