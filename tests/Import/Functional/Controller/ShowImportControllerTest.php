@@ -41,10 +41,46 @@ final class ShowImportControllerTest extends WebTestCase
         self::assertSelectorTextContains('.datagrid', 'Mime Type');
         self::assertSelectorTextContains('.datagrid', 'KB');
         self::assertSelectorTextContains('body', 'Pending');
-        self::assertSelectorTextContains('body', 'Allocation');
+        self::assertSelectorTextContains('body', 'Allocations');
+        self::assertSelectorTextContains('#import-imported-records', '4 Allocations imported');
+        self::assertSelectorTextContains('body', 'Deduplicated rows (total)');
         self::assertSelectorTextContains('body', '0 ms');
-        self::assertSelectorTextContains('body', '4');
         self::assertSelectorTextContains('body', '1');
+        self::assertSelectorTextContains('body', 'All allocations, projections, and related data will be removed.');
+
+        $allocationHref = $client->getCrawler()->filter('a[href*="/explore/allocation"]')->attr('href');
+        $mciHref = $client->getCrawler()->filter('a[href*="/explore/mci_case"]')->attr('href');
+        self::assertIsString($allocationHref);
+        self::assertIsString($mciHref);
+        self::assertStringContainsString('importId='.$importId, $allocationHref);
+        self::assertStringContainsString('importId='.$importId, $mciHref);
+    }
+
+    public function testClosureImportHidesAllocationLinks(): void
+    {
+        $client = self::createClient();
+        [$owner, $importId, , , $hospitalId] = $this->createImportWithRelations(
+            ImportType::CLOSURE,
+            ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'],
+            382,
+            'Closure upload',
+        );
+
+        $client->loginUser($owner);
+        $client->request(Request::METHOD_GET, \sprintf('/import/%d', $importId));
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Closure list (beta)');
+        self::assertSelectorTextContains('#import-imported-records', '382 Closures imported');
+        self::assertSelectorTextNotContains('body', 'Deduplicated');
+        self::assertSelectorTextContains('body', 'All closure intervals and related data will be removed.');
+        self::assertSelectorNotExists('a[href*="/explore/allocation"]');
+        self::assertSelectorNotExists('a[href*="/explore/mci_case"]');
+
+        $analyticsHref = $client->getCrawler()->filter('a[href*="/statistics/closure-analytics"]')->attr('href');
+        self::assertIsString($analyticsHref);
+        self::assertStringContainsString('closureHospitals', $analyticsHref);
+        self::assertStringContainsString((string) $hospitalId, $analyticsHref);
     }
 
     public function testForeignImportIsNotAccessible(): void
@@ -94,13 +130,19 @@ final class ShowImportControllerTest extends WebTestCase
     }
 
     /**
-     * @return array{0:User,1:int,2:string,3:string} [Owner, ImportId, ImportName, HospitalName]
+     * @param list<string> $roles
+     *
+     * @return array{0: User, 1: int, 2: string, 3: string, 4: int}
      */
-    private function createImportWithRelations(): array
-    {
+    private function createImportWithRelations(
+        ImportType $type = ImportType::ALLOCATION,
+        array $roles = ['ROLE_USER', 'ROLE_PARTICIPANT'],
+        int $rowsPassed = 4,
+        string $name = 'Test Allocations',
+    ): array {
         $owner = UserFactory::createOne([
             'username' => 'owner-user',
-            'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT'],
+            'roles' => $roles,
         ]);
         $createdBy = UserFactory::createOne(['username' => 'area-user']);
         $state = StateFactory::createOne(['name' => 'Hessen']);
@@ -114,8 +156,9 @@ final class ShowImportControllerTest extends WebTestCase
             'dispatchArea' => $dispatch,
         ]);
 
-        $name = 'Test Allocations';
         $hospitalName = $hospital->getName();
+        $hospitalId = $hospital->getId();
+        self::assertNotNull($hospitalId);
         $target = 'dummy/path';
 
         /** @var EntityManagerInterface $em */
@@ -129,7 +172,7 @@ final class ShowImportControllerTest extends WebTestCase
             ->setName($name)
             ->setHospital($hospital)
             ->setCreatedBy($freshOwner)
-            ->setType(ImportType::ALLOCATION)
+            ->setType($type)
             ->setStatus(ImportStatus::PENDING)
             ->setFilePath($target)
             ->setFileExtension('csv')
@@ -139,12 +182,12 @@ final class ShowImportControllerTest extends WebTestCase
             ->setRunCount(0)
             ->setRunTime(0)
             ->setRowCount(5)
-            ->setRowsPassed(4)
+            ->setRowsPassed($rowsPassed)
             ->setRowsRejected(1);
 
         $em->persist($import);
         $em->flush();
 
-        return [$freshOwner, (int) $import->getId(), $name, $hospitalName];
+        return [$freshOwner, (int) $import->getId(), $name, $hospitalName, $hospitalId];
     }
 }

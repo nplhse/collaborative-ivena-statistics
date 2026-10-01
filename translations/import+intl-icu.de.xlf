@@ -325,6 +325,26 @@
         <source>label.import.type.help</source>
         <target>Schließungslisten sind eine Beta und nur mit der Rolle Closure beta sichtbar.</target>
       </trans-unit>
+      <trans-unit id="impSumAllocDe" resname="import.summary.allocations_imported">
+        <source>import.summary.allocations_imported</source>
+        <target>{count, plural, one {# Zuweisung importiert} other {# Zuweisungen importiert}}</target>
+      </trans-unit>
+      <trans-unit id="impSumClosDe" resname="import.summary.closures_imported">
+        <source>import.summary.closures_imported</source>
+        <target>{count, plural, one {# Schließung importiert} other {# Schließungen importiert}}</target>
+      </trans-unit>
+      <trans-unit id="impFldImpDe" resname="import.field.imported_records">
+        <source>import.field.imported_records</source>
+        <target>Importierte Datensätze</target>
+      </trans-unit>
+      <trans-unit id="impActClosDe" resname="import.action.open_closure_analytics">
+        <source>import.action.open_closure_analytics</source>
+        <target>Schließungsanalyse</target>
+      </trans-unit>
+      <trans-unit id="impDelClosDe" resname="import.delete.modal.body.closure">
+        <source>import.delete.modal.body.closure</source>
+        <target>Möchten Sie „{name}“ dauerhaft löschen? Alle Schließungsintervalle und zugehörigen Daten werden entfernt. Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

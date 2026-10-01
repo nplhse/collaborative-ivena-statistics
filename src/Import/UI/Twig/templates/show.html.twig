@@ -33,7 +33,7 @@
                         </div>
                         <div class="list-inline-item">
                             <twig:ux:icon name="tabler:tag" class="w-3 h-3" />
-                            <twig:Badge variant="secondary">{{ import.type.value }}</twig:Badge>
+                            <twig:Badge variant="secondary">{{ detail.typeLabel }}</twig:Badge>
                         </div>
                         <div class="list-inline-item">
                             {% set importStatusVariant = {
@@ -126,7 +126,7 @@
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.type'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
-                                        <span class="status status-blue">{{ import.type.value }}</span>
+                                        <span class="status status-blue">{{ detail.typeLabel }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -171,9 +171,9 @@
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
-                                    <div class="datagrid-title">{{ 'import.field.rowsPassed'|trans({}, 'import') }}</div>
-                                    <div class="datagrid-content">
-                                        {{ import.rowsPassed ?? 0 }}
+                                    <div class="datagrid-title">{{ 'import.field.imported_records'|trans({}, 'import') }}</div>
+                                    <div class="datagrid-content" id="import-imported-records">
+                                        {{ detail.importedRecordsLabel }}
                                     </div>
                                 </div>
                                 <div class="datagrid-item">
@@ -191,6 +191,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
+                                {% if detail.showsDeduplication %}
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">{{ 'import.field.rowsDeduplicated'|trans({}, 'import') }}</div>
                                     <div class="datagrid-content">
@@ -219,6 +220,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% endif %}
                             </div>
                         </twig:Card>
@@ -265,12 +267,11 @@
                         <div class="col-12">
                             <twig:Card title="{{ 'label.import.section.quick_actions'|trans({}, 'import') }}">
                                 <div class="btn-list">
-                                    <a class="btn btn-outline-primary" href="{{ path('app_explore_allocation_list', {importId: import.id}) }}">
-                                        <twig:ux:icon name="tabler:table" class="w-3 h-3" /> {{ 'import.action.preview_rows'|trans({}, 'import') }}
-                                    </a>
-                                <a class="btn btn-outline-secondary" href="{{ path('app_explore_mci_case_list', {importId: import.id}) }}">
-                                    <twig:ux:icon name="tabler:ambulance" class="w-3 h-3" /> {{ 'import.action.preview_mci_cases'|trans({}, 'import') }}
-                                </a>
+                                    {% for action in detail.recordActions %}
+                                        <a class="btn btn-{{ action.variant }}" href="{{ action.url }}">
+                                            <twig:ux:icon :name="action.icon" class="w-3 h-3" /> {{ action.label }}
+                                        </a>
+                                    {% endfor %}
                                 {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) %}
                                     {% if import.status.value == 'Running' %}
                                         <button type="button" class="btn btn-outline-danger" disabled title="{{ 'import.delete.running_blocked_hint'|trans({}, 'import') }}">
@@ -295,7 +296,7 @@
         <twig:ConfirmModal
             id="import-delete-modal"
             :title="'import.delete.modal.title'|trans({}, 'import')"
-            :message="'import.delete.modal.body'|trans({'%name%': import.name ?? ('#' ~ import.id)}, 'import')"
+            :message="detail.deleteConfirmation"
             :action="path('app_import_delete', {id: import.id})"
             :csrfToken="csrf_token('import_delete_' ~ import.id)"
             :confirmLabel="'import.delete.modal.confirm'|trans({}, 'import')"
