@@ -18,7 +18,8 @@
      data-statistics-analysis-context-default-quarter-value="{{ context.defaultQuarter }}"
      data-statistics-analysis-context-default-month-value="{{ context.defaultMonth }}"
      data-statistics-analysis-context-hide-period-value="{{ context.hidePeriod ? 'true' : 'false' }}"
-     data-statistics-analysis-context-month-only-value="{{ context.monthOnlyPeriod ? 'true' : 'false' }}">
+     data-statistics-analysis-context-month-only-value="{{ context.monthOnlyPeriod ? 'true' : 'false' }}"
+     data-statistics-analysis-context-scope-mode-value="{{ context.scopeMode.value }}">
     <div class="btn-group analysis-context-triggers"
          role="group"
          aria-label="{{ 'stats.analysis_context.title'|trans({}, 'statistics') }}: {{ context.summary }}"
@@ -97,9 +98,35 @@
 
                         <input type="hidden"
                                name="scope"
-                               value="{{ context.appliedScope }}"
+                               value="{{ context.scopeMode.value == 'assigned_hospitals' ? (context.appliedScope == 'hospital' ? 'hospital' : 'my_hospitals') : context.appliedScope }}"
                                data-statistics-analysis-context-target="scope">
 
+                        {% if context.scopeMode.value == 'assigned_hospitals' %}
+                            {% if context.hospitalChoices|length > 0 %}
+                                <input type="hidden"
+                                       name="hospital"
+                                       value="{{ context.appliedScope == 'hospital' ? context.appliedScopeDetail : '' }}"
+                                       data-statistics-analysis-context-target="assignedHospitalId"
+                                       {{ context.appliedScope == 'hospital' ? '' : 'disabled' }}>
+                                <div class="mb-3" data-testid="stats-analysis-context-hospitals-group">
+                                    <label class="form-label" for="analysis-context-hospitals">
+                                        {{ 'stats.filter.scope_label'|trans({}, 'statistics') }}
+                                    </label>
+                                    <select id="analysis-context-hospitals"
+                                            class="form-select"
+                                            data-statistics-analysis-context-target="assignedHospitals"
+                                            data-testid="stats-analysis-context-hospitals">
+                                        {% for value, label in context.hospitalChoices %}
+                                            <option value="{{ value }}" {{ value in context.selectedHospitalIds ? 'selected' }}>{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-3" data-testid="stats-analysis-context-no-hospitals">
+                                    {{ 'stats.closure.no_hospital_access'|trans({}, 'statistics') }}
+                                </p>
+                            {% endif %}
+                        {% else %}
                         <div class="mb-3">
                             <label class="form-label" for="analysis-context-scope-group">
                                 {{ 'stats.filter.scope_label'|trans({}, 'statistics') }}
@@ -155,6 +182,7 @@
                             'hospitalSelect',
                             context.appliedScopeGroup == 'my_hospitals',
                         ) }}
+                        {% endif %}
 
                         {% if not context.hidePeriod %}
                             <hr class="my-3">

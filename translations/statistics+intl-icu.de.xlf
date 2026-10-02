@@ -7064,6 +7064,7 @@
       <trans-unit id="statsClosure01" resname="stats.closure.title"><source>stats.closure.title</source><target>Schließungsanalyse</target></trans-unit>
       <trans-unit id="statsClosure02" resname="stats.closure.pretitle"><source>stats.closure.pretitle</source><target>Intervallbasierte Analyse</target></trans-unit>
       <trans-unit id="statsClosure03" resname="stats.closure.empty"><source>stats.closure.empty</source><target>Für diesen Umfang und Zeitraum liegen keine Schließungsintervalle vor.</target></trans-unit>
+      <trans-unit id="statsClosure03b" resname="stats.closure.no_hospital_access"><source>stats.closure.no_hospital_access</source><target>Für Ihr Benutzerkonto ist keine Klinik mit Statistikberechtigung hinterlegt. Es werden keine Schließungsdaten angezeigt.</target></trans-unit>
       <trans-unit id="statsClosure04" resname="stats.closure.development"><source>stats.closure.development</source><target>Entwicklung über die Zeit</target></trans-unit>
       <trans-unit id="statsClosure05" resname="stats.closure.kpi.intervals"><source>stats.closure.kpi.intervals</source><target>Intervalle</target></trans-unit>
       <trans-unit id="statsClosure06" resname="stats.closure.kpi.actions"><source>stats.closure.kpi.actions</source><target>IVENA-Schließungsaktionen</target></trans-unit>
