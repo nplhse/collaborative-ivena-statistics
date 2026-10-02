@@ -67,3 +67,10 @@ Import, export, clinic management, and hospital-scoped statistics filters remain
 Benchmarking pages require `HospitalPermission::Benchmarking` (or admin/owner). Other statistics pages require `HospitalPermission::Statistics`.
 
 See [../04-features/statistics/statistics-filter-and-scope.md](../04-features/statistics/statistics-filter-and-scope.md) for how permissions affect filter scopes.
+
+Closure analytics (`/statistics/closure-analytics`) keeps that Statistics grant and
+adds `ROLE_PARTICIPANT` on top of `ROLE_CLOSURE_BETA`. `ClosureAnalyticsHospitalScope`
+forces every overview, timeline, event, detail, interval, group and export query
+onto `accessibleHospitalIds()`. Administrators with the beta role may select across
+hospitals. The restriction is not applied to other statistics pages, and closures
+are not listed in the Analysis Explorer.

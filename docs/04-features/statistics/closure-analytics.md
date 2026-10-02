@@ -5,8 +5,26 @@ Closure Analytics evaluates imported `closure_interval` rows. It is separate fro
 use the IVENA allocation snapshot `department_was_closed`.
 
 Access to the navigation entry and every `/statistics/closure-analytics` endpoint
-requires the explicit `ROLE_CLOSURE_BETA` opt-in. `ROLE_ADMIN` does not grant this
-role implicitly.
+requires the explicit `ROLE_CLOSURE_BETA` opt-in and `ROLE_PARTICIPANT`.
+`ROLE_ADMIN` does not grant the beta role implicitly, but an administrator who has
+the beta role inherits `ROLE_PARTICIPANT` and may evaluate every hospital.
+
+Hospital access is enforced in `ClosureAnalyticsHospitalScope` through the existing
+`HospitalPermission::Statistics` grants (`HospitalAccessInterface::accessibleHospitalIds()`).
+Every closure query — overview, indicators, charts, timeline, events, detail frame,
+interval, group and CSV export — receives that id list and never a public scope.
+Direct interval ids, group and cluster event keys, `closureHospitals[]`, and scope
+parameters for state, cohort, dispatch area or a foreign hospital are checked on the
+same list. A mixed selection keeps only the caller's hospitals. An empty selection
+or a user without a statistics grant yields no rows and does not fall back to public
+data. The period does not change the hospital list. Linked allocation jumps keep the
+existing Explore permissions.
+
+The analysis-context picker uses `AnalysisContextScopeMode::AssignedHospitals` only
+when `ClosureAnalyticsController` asks for it. It is a single dropdown: participants
+see “My hospitals” plus each granted hospital, administrators see “All hospitals”
+plus every hospital. Other statistics pages keep the shared scope picker. Closure
+analytics is not part of the Analysis Explorer.
 
 ## Data and event model
 
@@ -59,10 +77,13 @@ containing one two-hour closure would otherwise appear as 100% closed. The UI
 therefore shows absolute closure durations, explicitly marks the closure share as
 unavailable, and never treats time outside the derived spans as open.
 
-Hospital, My Hospitals, State, hospital cohort, and public scope use the shared
-Statistics scope contract. Dispatch-area scope describes the origin of allocations;
-closures have no allocation origin, so Closure Analytics redirects that scope to
-public instead of assigning a misleading hospital portfolio.
+Hospital, My Hospitals and an explicit subset of the caller's hospitals are the only
+scopes. State, hospital cohort, dispatch area and public scope are rewritten to that
+hospital selection; they are not queried. Dispatch-area scope describes the origin
+of allocations and is not a closure portfolio. With one granted hospital the URL is
+`scope=hospital`. With several, `scope=my_hospitals` is exactly those hospitals, and
+`closureHospitals[]` can narrow them. An empty `closureHospitalsSubmitted` selection
+stays empty.
 
 For multiple hospitals, times are calculated per hospital and then summed. The
 result is cumulative **hospital closure time**, not wall-clock time in which any
