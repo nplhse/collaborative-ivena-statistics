@@ -34,7 +34,7 @@ final readonly class ClosureAnalyticsService
 
         return new ClosureAnalyticsResult(
             $this->temporalQuery->fetchMetrics($criteria),
-            $this->temporalQuery->fetchTimeSeries($criteria),
+            ClosureDevelopmentSeries::complete($this->temporalQuery->fetchTimeSeries($criteria), $criteria),
             $breakdowns,
             [],
             $this->temporalQuery->fetchHeatmap($criteria),

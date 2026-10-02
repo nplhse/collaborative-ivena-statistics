@@ -16,6 +16,7 @@ use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsService;
 use App\Statistics\ClosureAnalytics\Application\ClosureDetailDayTimelineFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadService;
 use App\Statistics\ClosureAnalytics\Application\ClosureOverlappingAllocationsFinder;
+use App\Statistics\ClosureAnalytics\Application\ClosureUnitTableRows;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
@@ -23,6 +24,7 @@ use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureIntervalDetailQuery;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureIntervalTableColumns;
+use App\Statistics\ClosureAnalytics\UI\Twig\ClosureUnitTableColumns;
 use App\Statistics\UI\Http\Controller\AnalysisContextScopeMode;
 use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
@@ -61,6 +63,7 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly DataTablePreferenceService $dataTablePreferences,
         private readonly ClosureEventTableColumns $eventTableColumns,
         private readonly ClosureIntervalTableColumns $intervalTableColumns,
+        private readonly ClosureUnitTableColumns $unitTableColumns,
         private readonly ClosureDetailDayTimelineFactory $detailDayTimelineFactory,
         private readonly ClosureAllocationExploreUrlFactory $allocationExploreUrlFactory,
         private readonly ClosureOverlappingAllocationsFinder $overlappingAllocationsFinder,
@@ -85,11 +88,50 @@ final class ClosureAnalyticsController extends AbstractController
                 ClosureAnalyticsFilterRequestResolver::fromRequest($request),
             ),
         );
+        $unitSchema = $this->unitTableColumns->preferenceSchema();
+        $unitQueryPreferences = DataTablePreferenceQueryState::fromRequest(
+            $request,
+            ClosureUnitTableState::COLUMNS_PARAM,
+            ClosureUnitTableState::COLUMN_ORDER_PARAM,
+            ClosureUnitTableState::LIMIT_PARAM,
+        );
+        $unitPreferences = $this->dataTablePreferences->resolve(
+            $user,
+            $unitSchema,
+            $unitQueryPreferences->visibleColumns,
+            $unitQueryPreferences->columnOrder,
+            $unitQueryPreferences->pageSize,
+        );
+        $unitTable = ClosureUnitTableState::fromRequest(
+            $request,
+            $unitPreferences->pageSize,
+            $unitPreferences->sortBy,
+            $unitPreferences->orderBy,
+        );
+        $unitRows = ClosureUnitTableRows::sorted(
+            $dashboard->breakdowns['closure_unit'],
+            $dashboard->metrics->closedMinutes,
+            $unitTable->sortBy,
+            $unitTable->orderBy,
+        );
 
         return $this->render('@Statistics/closure_analytics/index.html.twig', [
             ...$this->pageVariables($request, $user, $filter, 'app_stats_closure_analytics', 'overview'),
             'dashboard' => $dashboard,
             'chartPayload' => $this->chartPayloadFactory->dashboard($dashboard->timeSeries, $dashboard->heatmap),
+            'closureUnits' => $this->paginator
+                ->fromCallbacks(
+                    static fn (int $offset, int $limit): array => \array_slice($unitRows, $offset, $limit),
+                    static fn (): int => \count($unitRows),
+                )
+                ->perPage(max(1, $unitTable->limit))
+                ->pageParameter(ClosureUnitTableState::PAGE_PARAM)
+                ->paginate($unitTable->page),
+            'closureUnitTable' => $unitTable,
+            'closureUnitColumns' => ClosureUnitTableColumns::columns(),
+            'closureUnitPreferences' => $unitPreferences,
+            'closureUnitPreferenceKey' => $unitSchema->key,
+            'closureUnitPreferencesPersisted' => $user instanceof User,
         ]);
     }
 

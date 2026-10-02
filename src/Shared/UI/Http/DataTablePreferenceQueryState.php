@@ -19,14 +19,18 @@ final readonly class DataTablePreferenceQueryState
     ) {
     }
 
-    public static function fromRequest(Request $request): self
-    {
+    public static function fromRequest(
+        Request $request,
+        string $columnsKey = 'columns',
+        string $columnOrderKey = 'columnOrder',
+        string $pageSizeKey = 'limit',
+    ): self {
         $query = $request->query->all();
 
         return new self(
-            self::stringList($query, 'columns'),
-            self::stringList($query, 'columnOrder'),
-            self::integer($query, 'limit'),
+            self::stringList($query, $columnsKey),
+            self::stringList($query, $columnOrderKey),
+            self::integer($query, $pageSizeKey),
         );
     }
 

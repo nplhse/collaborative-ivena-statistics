@@ -272,6 +272,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="timeSeriesChart"]');
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="heatmapChart"]');
+        $this->assertSelectorTextNotContains('body', 'not a percentage');
         $this->assertSelectorExists('[data-closure-analytics-charts-target="timeSeriesChart"]');
         $this->assertSelectorExists('[data-closure-analytics-charts-target="heatmapChart"]');
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdown-event_type"]', 'Event types');
@@ -291,8 +292,25 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid^="stats-closure-breakdown-"] .card-footer');
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Functional Closure Hospital');
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Functional Closure Department A');
-        $this->assertSelectorExists('[data-testid="stats-closure-units"] table.table-sm');
-        $this->assertSelectorNotExists('[data-testid="stats-closure-units"] .card-footer');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] table');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-units"]', 'Hospital');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-units"]', 'Name');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-units"]', 'Share');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-units"]', 'Number of events');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-units"]', 'Duration');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-units"]', '25 records');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-unit-name"]', 'Functional unit');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-unit-name"]', 'Functional Closure Hospital');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] a[href*="unitsSort=hospital"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] .card-footer');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-columns"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-sort"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] form[data-controller="data-table-columns"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-sort-form"][method="post"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-sort-form"] select[name="sortBy"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-sort-form"] select[name="orderBy"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-sort-form"] select[name="pageSize"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] th[aria-sort="descending"]');
         $this->assertSelectorExists('[data-testid="closure-filter-units"]');
         $this->assertSelectorNotExists('[data-testid="closure-filter-hospitals"]');
         $this->assertSelectorExists('[data-testid="stats-closure-unit-timeline-link"]');
@@ -302,6 +320,23 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="statistics-filters-drawer-trigger"]');
         self::assertStringContainsString('closedHours', (string) $client->getResponse()->getContent());
         self::assertStringNotContainsString('closedShares', (string) $client->getResponse()->getContent());
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
+        $this->assertResponseIsSuccessful();
+        $rollingChart = (string) $client->getResponse()->getContent();
+        $currentMonth = new \DateTimeImmutable('first day of this month');
+        self::assertStringContainsString($currentMonth->modify('-11 months')->format('Y-m'), $rollingChart);
+        self::assertStringContainsString($currentMonth->format('Y-m'), $rollingChart);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics?scope=public&period=all&unitsColumns=name&unitsColumnOrder=name',
+        );
+        $this->assertResponseIsSuccessful();
+        $unitHeaders = $client->getCrawler()->filter('[data-testid="stats-closure-units"] th')->each(
+            static fn ($node): string => trim($node->text()),
+        );
+        self::assertSame(['Name'], $unitHeaders);
 
         $hospitalScopeQuery = sprintf(
             'scope=hospital&hospital=%d&period=all_time',

@@ -14,6 +14,8 @@ final readonly class DataTablePreferenceState
         public array $visibleColumns,
         public array $columnOrder,
         public int $pageSize,
+        public ?string $sortBy = null,
+        public ?string $orderBy = null,
     ) {
     }
 
@@ -36,14 +38,20 @@ final readonly class DataTablePreferenceState
     }
 
     /**
-     * @return array{visibleColumns: list<string>, columnOrder: list<string>, pageSize: int}
+     * @return array{visibleColumns: list<string>, columnOrder: list<string>, pageSize: int, sortBy?: string, orderBy?: string}
      */
     public function toArray(): array
     {
-        return [
+        $configuration = [
             'visibleColumns' => $this->visibleColumns,
             'columnOrder' => $this->columnOrder,
             'pageSize' => $this->pageSize,
         ];
+        if (null !== $this->sortBy && null !== $this->orderBy) {
+            $configuration['sortBy'] = $this->sortBy;
+            $configuration['orderBy'] = $this->orderBy;
+        }
+
+        return $configuration;
     }
 }

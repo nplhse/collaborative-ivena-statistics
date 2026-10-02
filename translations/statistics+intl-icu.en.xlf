@@ -7188,6 +7188,7 @@
       <trans-unit id="statsClosureOverview10" resname="stats.closure.breakdown.show_less"><source>stats.closure.breakdown.show_less</source><target>Show less</target></trans-unit>
       <trans-unit id="statsClosureOverview06" resname="stats.closure.breakdown.unit"><source>stats.closure.breakdown.unit</source><target>Closure unit</target></trans-unit>
       <trans-unit id="statsClosureOverview07" resname="stats.closure.breakdown.share"><source>stats.closure.breakdown.share</source><target>Share</target></trans-unit>
+      <trans-unit id="statsClosureUnitsEventsEn" resname="stats.closure.units.events"><source>stats.closure.units.events</source><target>Number of events</target></trans-unit>
       <trans-unit id="statsClosureOverview08" resname="stats.closure.breakdown.closure_count"><source>stats.closure.breakdown.closure_count</source><target>{count, plural, one {# closure} other {# closures}}</target></trans-unit>
       <trans-unit id="statsClosureBreakdownEventTypeEn" resname="stats.closure.breakdown.event_type"><source>stats.closure.breakdown.event_type</source><target>Event types</target></trans-unit>
       <trans-unit id="statsClosureBreakdownEventCountEn" resname="stats.closure.breakdown.event_count"><source>stats.closure.breakdown.event_count</source><target>{count, plural, one {# event} other {# events}}</target></trans-unit>
@@ -7203,7 +7204,6 @@
       <trans-unit id="statsClosure70" resname="stats.closure.kpi.events"><source>stats.closure.kpi.events</source><target>Groups / events</target></trans-unit>
       <trans-unit id="statsClosure71" resname="stats.closure.coverage.unknown"><source>stats.closure.coverage.unknown</source><target>The export's actual observation period is unknown.</target></trans-unit>
       <trans-unit id="statsClosure72" resname="stats.closure.coverage.unknown_description"><source>stats.closure.coverage.unknown_description</source><target>The calculated sum of import-derived time spans is {observed} and is only a guide. No percentage is calculated from it.</target></trans-unit>
-      <trans-unit id="statsClosure73" resname="stats.closure.heatmap.duration_help"><source>stats.closure.heatmap.duration_help</source><target>Colour: merged actual closure duration per weekday and two-hour slot; not a percentage.</target></trans-unit>
       <trans-unit id="statsClosure74" resname="stats.closure.chart.duration"><source>stats.closure.chart.duration</source><target>Actual closure duration</target></trans-unit>
       <trans-unit id="statsClosure75" resname="stats.closure.chart.hours"><source>stats.closure.chart.hours</source><target>hours</target></trans-unit>
       <trans-unit id="statsClosure76" resname="stats.closure.filter.multiple_hint"><source>stats.closure.filter.multiple_hint</source><target>Multiple selection is possible.</target></trans-unit>

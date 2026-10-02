@@ -547,13 +547,13 @@ SQL, $params, $types);
             'closure_unit' => $hospitalScope
                 ? [
                     'v.closure_unit',
-                    "h.name || ' · ' || v.closure_unit",
+                    'v.closure_unit',
                     'JOIN hospital h ON h.id = v.hospital_id',
                     "v.closure_unit IS NOT NULL AND BTRIM(v.closure_unit) <> ''",
                 ]
                 : [
                     "v.hospital_id::text || ':' || v.closure_unit",
-                    "h.name || ' · ' || v.closure_unit",
+                    'v.closure_unit',
                     'JOIN hospital h ON h.id = v.hospital_id',
                     "v.closure_unit IS NOT NULL AND BTRIM(v.closure_unit) <> ''",
                 ],
@@ -561,12 +561,14 @@ SQL, $params, $types);
         };
         [$base, $params, $types] = ClosureTemporalSql::base($criteria);
         $orderBy = \in_array($kind, ['care_level', 'reason'], true) ? 'closure_count' : 'actual_minutes';
+        $hospitalName = 'closure_unit' === $kind ? 'h.name' : 'NULL::text';
+        $countExpression = 'closure_unit' === $kind ? 'COUNT(DISTINCT event_key)::int' : 'COUNT(*)::int';
 
         /** @var list<array<string, int|string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(<<<SQL
 WITH {$base},
 dimension_intervals AS (
-    SELECT {$key} AS dimension_key, {$name} AS dimension_name, v.*
+    SELECT {$key} AS dimension_key, {$name} AS dimension_name, {$hospitalName} AS hospital_name, v.*
     FROM valid_closures v
     {$join}
     WHERE {$extraWhere}
@@ -604,12 +606,12 @@ dimension_observed AS (
     GROUP BY dh.dimension_key
 ),
 dimension_totals AS (
-    SELECT dimension_key, MIN(dimension_name) AS dimension_name, COUNT(*)::int AS closure_count,
+    SELECT dimension_key, MIN(dimension_name) AS dimension_name, MIN(hospital_name) AS hospital_name, {$countExpression} AS closure_count,
            SUM(EXTRACT(EPOCH FROM (clipped_end - clipped_start)) / 60.0) AS summed_minutes
     FROM dimension_intervals
     GROUP BY dimension_key
 )
-SELECT t.dimension_key, t.dimension_name, t.closure_count,
+SELECT t.dimension_key, t.dimension_name, t.hospital_name, t.closure_count,
        ROUND(t.summed_minutes)::int AS summed_minutes,
        ROUND(a.actual_minutes)::int AS actual_minutes,
        ROUND(o.observed_minutes)::int AS observed_minutes
@@ -619,13 +621,15 @@ JOIN dimension_observed o USING (dimension_key)
 ORDER BY {$orderBy} DESC, dimension_name
 SQL, $params, $types);
 
-        return array_map(static fn (array $row): ClosureBreakdownRow => new ClosureBreakdownRow(
+        return array_map(fn (array $row): ClosureBreakdownRow => new ClosureBreakdownRow(
             (string) $row['dimension_key'],
             (string) $row['dimension_name'],
             (int) $row['closure_count'],
             (int) $row['summed_minutes'],
             (int) $row['actual_minutes'],
             (int) $row['observed_minutes'],
+            \is_string($row['hospital_name'] ?? null) && '' !== $row['hospital_name'] ? (string) $row['hospital_name'] : null,
+            'closure_unit' === $kind ? (int) $row['closure_count'] : null,
         ), $rows);
     }
 

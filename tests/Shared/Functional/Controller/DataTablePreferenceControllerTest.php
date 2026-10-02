@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Functional\Controller;
 
+use App\Shared\Application\DataTable\DataTablePreferenceService;
 use App\Shared\Domain\Entity\DataTablePreference;
 use App\Shared\Infrastructure\Repository\DataTablePreferenceRepository;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
+use App\Statistics\ClosureAnalytics\UI\Twig\ClosureUnitTableColumns;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -136,6 +138,77 @@ final class DataTablePreferenceControllerTest extends WebTestCase
         self::assertNull($this->preferenceFor($client, $user, $key));
     }
 
+    public function testUnitTablePreferenceStoresColumnsSortAndPageSize(): void
+    {
+        $client = self::createClient();
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        $client->loginUser($user);
+        $key = ClosureUnitTableColumns::PREFERENCE_KEY;
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics/details?scope=public&period=all_time',
+        );
+        $token = $this->csrfToken($client, 'data_table_preference_'.$key);
+        $returnUrl = '/statistics/closure-analytics?scope=public&period=all_time&unitsSort=hospital&unitsOrder=asc&unitsColumns=hospital&unitsColumnOrder=hospital%2Cname&unitsLimit=100&unitsPage=2';
+
+        $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
+            '_token' => $token,
+            'tableKey' => $key,
+            'returnUrl' => $returnUrl,
+            'action' => 'save',
+            'visibleColumns' => ['name', 'duration', 'unknown'],
+            'columnOrder' => ['duration', 'name', 'unknown'],
+            'pageSize' => '50',
+            'sortBy' => 'name',
+            'orderBy' => 'asc',
+        ]);
+
+        self::assertResponseRedirects();
+        $location = (string) $client->getResponse()->headers->get('Location');
+        self::assertStringContainsString('scope=public', $location);
+        self::assertStringNotContainsString('unitsColumns=', $location);
+        self::assertStringNotContainsString('unitsColumnOrder=', $location);
+        self::assertStringNotContainsString('unitsLimit=', $location);
+        self::assertStringNotContainsString('unitsPage=', $location);
+        self::assertStringNotContainsString('unitsSort=', $location);
+        self::assertStringNotContainsString('unitsOrder=', $location);
+
+        $preference = $this->preferenceFor($client, $user, $key);
+        self::assertNotNull($preference);
+        $configuration = $preference->getConfiguration();
+        self::assertSame(50, $configuration['pageSize']);
+        self::assertSame('name', $configuration['sortBy']);
+        self::assertSame('asc', $configuration['orderBy']);
+        self::assertSame('duration', $configuration['columnOrder'][0]);
+        self::assertContains('name', $configuration['visibleColumns']);
+        self::assertNotContains('unknown', $configuration['visibleColumns']);
+
+        $resolved = $client->getContainer()->get(DataTablePreferenceService::class)->resolve(
+            $user,
+            $client->getContainer()->get(ClosureUnitTableColumns::class)->preferenceSchema(),
+        );
+        self::assertSame(['duration', 'name'], array_slice($resolved->visibleOrderedKeys(), 0, 2));
+        self::assertSame('name', $resolved->sortBy);
+        self::assertSame('asc', $resolved->orderBy);
+        self::assertSame(50, $resolved->pageSize);
+
+        $token = $this->csrfToken($client, 'data_table_preference_'.$key);
+        $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
+            '_token' => $token,
+            'tableKey' => $key,
+            'returnUrl' => '/statistics/closure-analytics?scope=public&period=all_time',
+            'action' => 'save',
+            'visibleColumns' => ['name', 'hospital'],
+            'columnOrder' => ['hospital', 'name'],
+            'pageSize' => '25',
+        ]);
+        $keptSort = $this->preferenceFor($client, $user, $key);
+        self::assertNotNull($keptSort);
+        self::assertSame('name', $keptSort->getConfiguration()['sortBy']);
+        self::assertSame('asc', $keptSort->getConfiguration()['orderBy']);
+        self::assertSame(25, $keptSort->getConfiguration()['pageSize']);
+    }
+
     public function testInvalidCsrfAndUnknownTableAreRejected(): void
     {
         $client = self::createClient();
@@ -152,6 +225,21 @@ final class DataTablePreferenceControllerTest extends WebTestCase
             'tableKey' => 'unknown.table',
         ]);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    private function csrfToken(KernelBrowser $client, string $tokenId): string
+    {
+        $requestStack = $client->getContainer()->get('request_stack');
+        $request = $client->getRequest();
+        $requestStack->push($request);
+        try {
+            $token = $client->getContainer()->get('security.csrf.token_manager')->getToken($tokenId)->getValue();
+            $request->getSession()->save();
+
+            return $token;
+        } finally {
+            $requestStack->pop();
+        }
     }
 
     private function preferenceFor(KernelBrowser $client, User $user, string $key): ?DataTablePreference

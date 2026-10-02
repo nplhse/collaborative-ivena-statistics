@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Application\DTO;
 
-final readonly class ClosureBreakdownRow
+final readonly class ClosureUnitTableRow
 {
     public function __construct(
         public string $key,
+        public string $hospitalName,
         public string $name,
-        public int $closureCount,
-        public int $summedMinutes,
+        public int $eventCount,
         public int $actualMinutes,
-        public int $observedMinutes,
-        public ?string $hospitalName = null,
-        public ?int $eventCount = null,
+        public float $sharePercent,
     ) {
     }
 }
