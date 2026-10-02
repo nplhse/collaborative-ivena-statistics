@@ -98,6 +98,7 @@ final class ClosureAnalyticsExportControllerTest extends WebTestCase
         $user = UserFactory::createOne([
             'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
         ]);
+        $client->followRedirects(true);
         $client->loginUser($user);
 
         return $user;
