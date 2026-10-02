@@ -6,6 +6,11 @@ namespace App\Statistics\ClosureAnalytics\Application;
 
 final class ClosureDurationFormatter
 {
+    public static function minutesFromSeconds(int|float $seconds): int
+    {
+        return (int) round(max(0.0, (float) $seconds) / 60.0);
+    }
+
     public static function humanize(int $minutes): string
     {
         $minutes = max(0, $minutes);
