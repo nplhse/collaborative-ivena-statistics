@@ -91,6 +91,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
 
         foreach ([
             '/statistics/closure-analytics',
+            '/statistics/closure-analytics/duration',
             '/statistics/closure-analytics/timeline',
             '/statistics/closure-analytics/events',
         ] as $path) {
@@ -244,6 +245,31 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-closure-concurrency"] .d-flex > div:last-child', 'Exactly one group');
         $this->assertSelectorNotExists('[data-testid="stats-closure-coverage"]');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-kpis"]', 'Intervals');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-duration-load"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"]');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-tab-duration"]', 'Duration and time burden');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', 'Median duration');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', '2 h');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-median"]', 'Typical duration of an event');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-duration-clipping"]');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-shares"]', 'No department closed');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-shares"]', 'At least one department closed');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-specialities"]', 'Functional Closure Speciality A');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-specialities"]', 'Functional Closure Speciality A (1)');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-specialities"]', 'Specialities by number of closures');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-reasons"]', 'No bed capacity');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-reasons"]', 'No bed capacity (1)');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-reasons"]', 'Reasons by number of closures');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-reasons"]', 'must not be added together');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-specialities"]', 'individual values instead of a box');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Not computable');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Per 24 h without a closure');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Per 24 h with at least one closure');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+        $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="timeSeriesChart"]');
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="heatmapChart"]');
         $this->assertSelectorExists('[data-closure-analytics-charts-target="timeSeriesChart"]');
@@ -414,6 +440,16 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('closureSpecialities', $timelineSource);
         self::assertStringContainsString('closureCareLevels', $timelineSource);
         self::assertStringContainsString('closureReasons', $timelineSource);
+
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics/duration?scope=public&period=all_time&'.$filterQuery,
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', 'Median duration');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Median gap without a closure');
+        $this->assertSelectorExists('[data-testid="stats-closure-duration-pauses"] .datagrid');
 
         $client->request(
             Request::METHOD_GET,

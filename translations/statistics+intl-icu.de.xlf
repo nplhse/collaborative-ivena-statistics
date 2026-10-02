@@ -7169,6 +7169,7 @@
       <trans-unit id="statsClosureTimeline12" resname="stats.closure.timeline.breadcrumb.events"><source>stats.closure.timeline.breadcrumb.events</source><target>Ereignisse</target></trans-unit>
       <trans-unit id="statsClosureTabs01" resname="stats.closure.tabs.label"><source>stats.closure.tabs.label</source><target>Bereiche der Schließungsanalyse</target></trans-unit>
       <trans-unit id="statsClosureTabs02" resname="stats.closure.tabs.overview"><source>stats.closure.tabs.overview</source><target>Übersicht</target></trans-unit>
+      <trans-unit id="statsClosureTabsDurationDe" resname="stats.closure.tabs.duration"><source>stats.closure.tabs.duration</source><target>Dauer und zeitliche Belastung</target></trans-unit>
       <trans-unit id="statsClosureTabs03" resname="stats.closure.tabs.timeline"><source>stats.closure.tabs.timeline</source><target>Zeitlicher Drilldown</target></trans-unit>
       <trans-unit id="statsClosureTabs04" resname="stats.closure.tabs.events"><source>stats.closure.tabs.events</source><target>Gruppen und Ereignisse</target></trans-unit>
       <trans-unit id="statsClosureWeek01" resname="stats.closure.timeline.period_departments.title.week"><source>stats.closure.timeline.period_departments.title.week</source><target>Fachbereiche und Dringlichkeiten im Wochenverlauf</target></trans-unit>
@@ -7209,6 +7210,43 @@
       <trans-unit id="statsClosureFilterDatesDe" resname="stats.closure.filter.dates"><source>stats.closure.filter.dates</source><target>Datum</target></trans-unit>
       <trans-unit id="statsClosureFilterDatesHintDe" resname="stats.closure.filter.dates_hint"><source>stats.closure.filter.dates_hint</source><target>Optional. Leer lassen, um den gewählten Analysezeitraum nicht weiter einzuschränken. Das Enddatum ist eingeschlossen.</target></trans-unit>
       <trans-unit id="statsClosureFilterEventTypesDe" resname="stats.closure.filter.event_types"><source>stats.closure.filter.event_types</source><target>Ereignistyp</target></trans-unit>
+      <trans-unit id="statsClosureDuration06" resname="stats.closure.duration_load.median"><source>stats.closure.duration_load.median</source><target>Mediane Dauer</target></trans-unit>
+      <trans-unit id="statsClosureDuration08" resname="stats.closure.duration_load.mean"><source>stats.closure.duration_load.mean</source><target>Durchschnittliche Dauer</target></trans-unit>
+      <trans-unit id="statsClosureDuration09" resname="stats.closure.duration_load.shortest"><source>stats.closure.duration_load.shortest</source><target>Kürzeste Dauer</target></trans-unit>
+      <trans-unit id="statsClosureDuration10" resname="stats.closure.duration_load.longest"><source>stats.closure.duration_load.longest</source><target>Längste Dauer</target></trans-unit>
+      <trans-unit id="statsClosureDuration11" resname="stats.closure.duration_load.longest_phase"><source>stats.closure.duration_load.longest_phase</source><target>Längste zusammenhängende Phase</target></trans-unit>
+      <trans-unit id="statsClosureDuration12" resname="stats.closure.duration_load.shares_title"><source>stats.closure.duration_load.shares_title</source><target>Zeitanteile und Gleichzeitigkeit</target></trans-unit>
+      <trans-unit id="statsClosureDuration13" resname="stats.closure.duration_load.share_none"><source>stats.closure.duration_load.share_none</source><target>Keine Fachabteilung geschlossen</target></trans-unit>
+      <trans-unit id="statsClosureDuration14" resname="stats.closure.duration_load.share_single"><source>stats.closure.duration_load.share_single</source><target>Genau eine Fachabteilung geschlossen</target></trans-unit>
+      <trans-unit id="statsClosureDuration15" resname="stats.closure.duration_load.share_multiple"><source>stats.closure.duration_load.share_multiple</source><target>Mehrere Fachabteilungen gleichzeitig geschlossen</target></trans-unit>
+      <trans-unit id="statsClosureDuration17" resname="stats.closure.duration_load.normalized_none"><source>stats.closure.duration_load.normalized_none</source><target>Je 24 h ohne Schließung</target></trans-unit>
+      <trans-unit id="statsClosureDuration18" resname="stats.closure.duration_load.normalized_any"><source>stats.closure.duration_load.normalized_any</source><target>Je 24 h mit mindestens einer Schließung</target></trans-unit>
+      <trans-unit id="statsClosureDuration20" resname="stats.closure.duration_load.no_evaluable"><source>stats.closure.duration_load.no_evaluable</source><target>In dieser Auswahl gibt es keine auswertbare Klinikzeit.</target></trans-unit>
+      <trans-unit id="statsClosureDuration21" resname="stats.closure.duration_load.pauses_title"><source>stats.closure.duration_load.pauses_title</source><target>Schließungsphasen und Pausen</target></trans-unit>
+      <trans-unit id="statsClosureDuration23" resname="stats.closure.duration_load.median_pause"><source>stats.closure.duration_load.median_pause</source><target>Mediane schließungsfreie Pause</target></trans-unit>
+      <trans-unit id="statsClosureDuration24" resname="stats.closure.duration_load.shortest_pause"><source>stats.closure.duration_load.shortest_pause</source><target>Kürzeste schließungsfreie Pause</target></trans-unit>
+      <trans-unit id="statsClosureDuration25" resname="stats.closure.duration_load.longest_pause"><source>stats.closure.duration_load.longest_pause</source><target>Längste schließungsfreie Pause</target></trans-unit>
+      <trans-unit id="statsClosureDuration26" resname="stats.closure.duration_load.not_computable"><source>stats.closure.duration_load.not_computable</source><target>Nicht berechenbar</target></trans-unit>
+      <trans-unit id="statsClosureDuration30" resname="stats.closure.duration_load.specialities_title"><source>stats.closure.duration_load.specialities_title</source><target>Dauer nach Fachrichtung</target></trans-unit>
+      <trans-unit id="statsClosureDuration31" resname="stats.closure.duration_load.specialities_top"><source>stats.closure.duration_load.specialities_top</source><target>10 Fachrichtungen mit den meisten Schließungen</target></trans-unit>
+      <trans-unit id="statsClosureDuration32" resname="stats.closure.duration_load.specialities_all"><source>stats.closure.duration_load.specialities_all</source><target>Fachrichtungen nach Anzahl der Schließungen</target></trans-unit>
+      <trans-unit id="statsClosureDuration33" resname="stats.closure.duration_load.reasons_title"><source>stats.closure.duration_load.reasons_title</source><target>Dauer nach Schließungsgrund</target></trans-unit>
+      <trans-unit id="statsClosureDuration34" resname="stats.closure.duration_load.reasons_top"><source>stats.closure.duration_load.reasons_top</source><target>10 Gründe mit den meisten Schließungen</target></trans-unit>
+      <trans-unit id="statsClosureDuration37" resname="stats.closure.duration_load.reason_missing"><source>stats.closure.duration_load.reason_missing</source><target>Ohne Angabe</target></trans-unit>
+      <trans-unit id="statsClosureDuration38" resname="stats.closure.duration_load.column_speciality"><source>stats.closure.duration_load.column_speciality</source><target>Fachrichtung</target></trans-unit>
+      <trans-unit id="statsClosureDuration39" resname="stats.closure.duration_load.column_reason"><source>stats.closure.duration_load.column_reason</source><target>Schließungsgrund</target></trans-unit>
+      <trans-unit id="statsClosureDuration40" resname="stats.closure.duration_load.column_count"><source>stats.closure.duration_load.column_count</source><target>Anzahl</target></trans-unit>
+      <trans-unit id="statsClosureDuration41" resname="stats.closure.duration_load.column_median"><source>stats.closure.duration_load.column_median</source><target>Median</target></trans-unit>
+      <trans-unit id="statsClosureDuration42" resname="stats.closure.duration_load.column_mean"><source>stats.closure.duration_load.column_mean</source><target>Durchschnitt</target></trans-unit>
+      <trans-unit id="statsClosureDuration43" resname="stats.closure.duration_load.column_maximum"><source>stats.closure.duration_load.column_maximum</source><target>Maximum</target></trans-unit>
+      <trans-unit id="statsClosureDuration45" resname="stats.closure.duration_load.group_label"><source>stats.closure.duration_load.group_label</source><target>{name} ({count})</target></trans-unit>
+      <trans-unit id="statsClosureDuration46" resname="stats.closure.duration_load.axis_minutes"><source>stats.closure.duration_load.axis_minutes</source><target>Minuten</target></trans-unit>
+      <trans-unit id="statsClosureDuration47" resname="stats.closure.duration_load.tooltip_q1"><source>stats.closure.duration_load.tooltip_q1</source><target>Erstes Quartil</target></trans-unit>
+      <trans-unit id="statsClosureDuration48" resname="stats.closure.duration_load.tooltip_q3"><source>stats.closure.duration_load.tooltip_q3</source><target>Drittes Quartil</target></trans-unit>
+      <trans-unit id="statsClosureDuration49" resname="stats.closure.duration_load.tooltip_min"><source>stats.closure.duration_load.tooltip_min</source><target>Minimum</target></trans-unit>
+      <trans-unit id="statsClosureDuration50" resname="stats.closure.duration_load.tooltip_max"><source>stats.closure.duration_load.tooltip_max</source><target>Maximum</target></trans-unit>
+      <trans-unit id="statsClosureDuration51" resname="stats.closure.duration_load.outliers"><source>stats.closure.duration_load.outliers</source><target>Ausreißer</target></trans-unit>
+      <trans-unit id="statsClosureDuration52" resname="stats.closure.duration_load.individual_values"><source>stats.closure.duration_load.individual_values</source><target>Einzelwerte</target></trans-unit>
     </body>
   </file>
 </xliff>

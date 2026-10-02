@@ -8,8 +8,11 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureBreakdownRow;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureDurationInterval;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureDurationLoadSnapshot;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureHeatmapCell;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureObservedSegment;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimeBucket;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimelineGridCell;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimelineGridRow;
@@ -50,6 +53,48 @@ SQL, $params, $types);
             (int) ($row['closed_minutes'] ?? 0),
             (int) ($row['single_minutes'] ?? 0),
             (int) ($row['multiple_minutes'] ?? 0),
+        );
+    }
+
+    public function fetchDurationLoad(ClosureAnalyticsCriteria $criteria): ClosureDurationLoadSnapshot
+    {
+        [$base, $params, $types] = ClosureTemporalSql::base($criteria);
+        $row = $this->connection->fetchAssociative(<<<SQL
+WITH {$base}
+SELECT
+    COALESCE((
+        SELECT json_agg(json_build_object(
+            'hospitalId', v.hospital_id,
+            'departmentId', v.department_id,
+            'departmentName', d.name,
+            'specialityId', v.speciality_id,
+            'specialityName', s.name,
+            'reason', v.reason,
+            'eventKey', v.event_key,
+            'start', to_char(v.clipped_start AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'),
+            'end', to_char(v.clipped_end AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')
+        ))
+        FROM valid_closures v
+        JOIN department d ON d.id = v.department_id
+        JOIN speciality s ON s.id = v.speciality_id
+    )::text, '[]') AS intervals,
+    COALESCE((
+        SELECT json_agg(json_build_object(
+            'hospitalId', hospital_id,
+            'start', to_char(segment_start AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'),
+            'end', to_char(segment_end AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')
+        ))
+        FROM observed_segments
+    )::text, '[]') AS observed
+SQL, $params, $types);
+
+        if (false === $row) {
+            return new ClosureDurationLoadSnapshot([], []);
+        }
+
+        return new ClosureDurationLoadSnapshot(
+            $this->durationIntervals($row['intervals'] ?? '[]'),
+            $this->observedSegments($row['observed'] ?? '[]'),
         );
     }
 
@@ -659,5 +704,88 @@ SQL, $params, $types);
             (int) $row['actual_minutes'],
             (int) $row['observed_minutes'],
         ), $rows);
+    }
+
+    /**
+     * @return list<ClosureDurationInterval>
+     */
+    private function durationIntervals(mixed $json): array
+    {
+        $intervals = [];
+        foreach ($this->jsonRows($json) as $row) {
+            $start = $this->utcTimestamp($row['start'] ?? null);
+            $end = $this->utcTimestamp($row['end'] ?? null);
+            if (!$start instanceof \DateTimeImmutable || !$end instanceof \DateTimeImmutable || $end <= $start) {
+                continue;
+            }
+            $reason = $row['reason'] ?? null;
+            $intervals[] = new ClosureDurationInterval(
+                (int) ($row['hospitalId'] ?? 0),
+                (int) ($row['departmentId'] ?? 0),
+                (string) ($row['departmentName'] ?? ''),
+                \is_string($reason) && '' !== $reason ? $reason : null,
+                (string) ($row['eventKey'] ?? ''),
+                $start,
+                $end,
+                (int) ($row['specialityId'] ?? 0),
+                (string) ($row['specialityName'] ?? ''),
+            );
+        }
+
+        return $intervals;
+    }
+
+    /**
+     * @return list<ClosureObservedSegment>
+     */
+    private function observedSegments(mixed $json): array
+    {
+        $segments = [];
+        foreach ($this->jsonRows($json) as $row) {
+            $start = $this->utcTimestamp($row['start'] ?? null);
+            $end = $this->utcTimestamp($row['end'] ?? null);
+            if (!$start instanceof \DateTimeImmutable || !$end instanceof \DateTimeImmutable || $end <= $start) {
+                continue;
+            }
+            $segments[] = new ClosureObservedSegment((int) ($row['hospitalId'] ?? 0), $start, $end);
+        }
+
+        return $segments;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function jsonRows(mixed $json): array
+    {
+        if (\is_string($json)) {
+            $decoded = json_decode($json, true);
+        } elseif (\is_array($json)) {
+            $decoded = $json;
+        } else {
+            return [];
+        }
+        if (!\is_array($decoded)) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($decoded as $row) {
+            if (\is_array($row)) {
+                $rows[] = $row;
+            }
+        }
+
+        return $rows;
+    }
+
+    private function utcTimestamp(mixed $value): ?\DateTimeImmutable
+    {
+        if (!\is_string($value) || '' === $value) {
+            return null;
+        }
+        $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $value, new \DateTimeZone('UTC'));
+
+        return $parsed instanceof \DateTimeImmutable ? $parsed : null;
     }
 }

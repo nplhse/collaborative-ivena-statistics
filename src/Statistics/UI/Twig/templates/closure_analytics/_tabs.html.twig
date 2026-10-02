@@ -1,7 +1,7 @@
 <nav class="overflow-x-auto mb-4"
      aria-label="{{ 'stats.closure.tabs.label'|trans({}, 'statistics') }}"
      data-testid="stats-closure-tabs">
-    <ul class="nav nav-tabs flex-nowrap" role="tablist">
+    <ul class="nav nav-tabs analytics-library-tabs flex-nowrap" role="tablist">
         {% for tab in closureAnalyticsTabs %}
             <li class="nav-item" role="presentation">
                 <a class="nav-link{{ closureAnalyticsActiveTab == tab.key ? ' active' }}"

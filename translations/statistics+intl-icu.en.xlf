@@ -7169,6 +7169,7 @@
       <trans-unit id="statsClosureTimeline12" resname="stats.closure.timeline.breadcrumb.events"><source>stats.closure.timeline.breadcrumb.events</source><target>Events</target></trans-unit>
       <trans-unit id="statsClosureTabs01" resname="stats.closure.tabs.label"><source>stats.closure.tabs.label</source><target>Closure analytics sections</target></trans-unit>
       <trans-unit id="statsClosureTabs02" resname="stats.closure.tabs.overview"><source>stats.closure.tabs.overview</source><target>Overview</target></trans-unit>
+      <trans-unit id="statsClosureTabsDurationEn" resname="stats.closure.tabs.duration"><source>stats.closure.tabs.duration</source><target>Duration and time burden</target></trans-unit>
       <trans-unit id="statsClosureTabs03" resname="stats.closure.tabs.timeline"><source>stats.closure.tabs.timeline</source><target>Timeline drilldown</target></trans-unit>
       <trans-unit id="statsClosureTabs04" resname="stats.closure.tabs.events"><source>stats.closure.tabs.events</source><target>Groups and events</target></trans-unit>
       <trans-unit id="statsClosureWeek01" resname="stats.closure.timeline.period_departments.title.week"><source>stats.closure.timeline.period_departments.title.week</source><target>Departments and urgency levels over the week</target></trans-unit>
@@ -7209,6 +7210,43 @@
       <trans-unit id="statsClosureFilterDatesEn" resname="stats.closure.filter.dates"><source>stats.closure.filter.dates</source><target>Date</target></trans-unit>
       <trans-unit id="statsClosureFilterDatesHintEn" resname="stats.closure.filter.dates_hint"><source>stats.closure.filter.dates_hint</source><target>Optional. Leave empty to keep the selected analysis period. The end date is inclusive.</target></trans-unit>
       <trans-unit id="statsClosureFilterEventTypesEn" resname="stats.closure.filter.event_types"><source>stats.closure.filter.event_types</source><target>Event type</target></trans-unit>
+      <trans-unit id="statsClosureDuration06" resname="stats.closure.duration_load.median"><source>stats.closure.duration_load.median</source><target>Median duration</target></trans-unit>
+      <trans-unit id="statsClosureDuration08" resname="stats.closure.duration_load.mean"><source>stats.closure.duration_load.mean</source><target>Average duration</target></trans-unit>
+      <trans-unit id="statsClosureDuration09" resname="stats.closure.duration_load.shortest"><source>stats.closure.duration_load.shortest</source><target>Shortest duration</target></trans-unit>
+      <trans-unit id="statsClosureDuration10" resname="stats.closure.duration_load.longest"><source>stats.closure.duration_load.longest</source><target>Longest duration</target></trans-unit>
+      <trans-unit id="statsClosureDuration11" resname="stats.closure.duration_load.longest_phase"><source>stats.closure.duration_load.longest_phase</source><target>Longest continuous phase</target></trans-unit>
+      <trans-unit id="statsClosureDuration12" resname="stats.closure.duration_load.shares_title"><source>stats.closure.duration_load.shares_title</source><target>Time shares and concurrency</target></trans-unit>
+      <trans-unit id="statsClosureDuration13" resname="stats.closure.duration_load.share_none"><source>stats.closure.duration_load.share_none</source><target>No department closed</target></trans-unit>
+      <trans-unit id="statsClosureDuration14" resname="stats.closure.duration_load.share_single"><source>stats.closure.duration_load.share_single</source><target>Exactly one department closed</target></trans-unit>
+      <trans-unit id="statsClosureDuration15" resname="stats.closure.duration_load.share_multiple"><source>stats.closure.duration_load.share_multiple</source><target>Several departments closed at once</target></trans-unit>
+      <trans-unit id="statsClosureDuration17" resname="stats.closure.duration_load.normalized_none"><source>stats.closure.duration_load.normalized_none</source><target>Per 24 h without a closure</target></trans-unit>
+      <trans-unit id="statsClosureDuration18" resname="stats.closure.duration_load.normalized_any"><source>stats.closure.duration_load.normalized_any</source><target>Per 24 h with at least one closure</target></trans-unit>
+      <trans-unit id="statsClosureDuration20" resname="stats.closure.duration_load.no_evaluable"><source>stats.closure.duration_load.no_evaluable</source><target>This selection has no evaluable hospital time.</target></trans-unit>
+      <trans-unit id="statsClosureDuration21" resname="stats.closure.duration_load.pauses_title"><source>stats.closure.duration_load.pauses_title</source><target>Closure phases and gaps</target></trans-unit>
+      <trans-unit id="statsClosureDuration23" resname="stats.closure.duration_load.median_pause"><source>stats.closure.duration_load.median_pause</source><target>Median gap without a closure</target></trans-unit>
+      <trans-unit id="statsClosureDuration24" resname="stats.closure.duration_load.shortest_pause"><source>stats.closure.duration_load.shortest_pause</source><target>Shortest gap</target></trans-unit>
+      <trans-unit id="statsClosureDuration25" resname="stats.closure.duration_load.longest_pause"><source>stats.closure.duration_load.longest_pause</source><target>Longest gap</target></trans-unit>
+      <trans-unit id="statsClosureDuration26" resname="stats.closure.duration_load.not_computable"><source>stats.closure.duration_load.not_computable</source><target>Not computable</target></trans-unit>
+      <trans-unit id="statsClosureDuration30" resname="stats.closure.duration_load.specialities_title"><source>stats.closure.duration_load.specialities_title</source><target>Duration by speciality</target></trans-unit>
+      <trans-unit id="statsClosureDuration31" resname="stats.closure.duration_load.specialities_top"><source>stats.closure.duration_load.specialities_top</source><target>10 specialities with the most closures</target></trans-unit>
+      <trans-unit id="statsClosureDuration32" resname="stats.closure.duration_load.specialities_all"><source>stats.closure.duration_load.specialities_all</source><target>Specialities by number of closures</target></trans-unit>
+      <trans-unit id="statsClosureDuration33" resname="stats.closure.duration_load.reasons_title"><source>stats.closure.duration_load.reasons_title</source><target>Duration by closure reason</target></trans-unit>
+      <trans-unit id="statsClosureDuration34" resname="stats.closure.duration_load.reasons_top"><source>stats.closure.duration_load.reasons_top</source><target>10 reasons with the most closures</target></trans-unit>
+      <trans-unit id="statsClosureDuration37" resname="stats.closure.duration_load.reason_missing"><source>stats.closure.duration_load.reason_missing</source><target>No reason given</target></trans-unit>
+      <trans-unit id="statsClosureDuration38" resname="stats.closure.duration_load.column_speciality"><source>stats.closure.duration_load.column_speciality</source><target>Speciality</target></trans-unit>
+      <trans-unit id="statsClosureDuration39" resname="stats.closure.duration_load.column_reason"><source>stats.closure.duration_load.column_reason</source><target>Closure reason</target></trans-unit>
+      <trans-unit id="statsClosureDuration40" resname="stats.closure.duration_load.column_count"><source>stats.closure.duration_load.column_count</source><target>Count</target></trans-unit>
+      <trans-unit id="statsClosureDuration41" resname="stats.closure.duration_load.column_median"><source>stats.closure.duration_load.column_median</source><target>Median</target></trans-unit>
+      <trans-unit id="statsClosureDuration42" resname="stats.closure.duration_load.column_mean"><source>stats.closure.duration_load.column_mean</source><target>Average</target></trans-unit>
+      <trans-unit id="statsClosureDuration43" resname="stats.closure.duration_load.column_maximum"><source>stats.closure.duration_load.column_maximum</source><target>Maximum</target></trans-unit>
+      <trans-unit id="statsClosureDuration45" resname="stats.closure.duration_load.group_label"><source>stats.closure.duration_load.group_label</source><target>{name} ({count})</target></trans-unit>
+      <trans-unit id="statsClosureDuration46" resname="stats.closure.duration_load.axis_minutes"><source>stats.closure.duration_load.axis_minutes</source><target>Minutes</target></trans-unit>
+      <trans-unit id="statsClosureDuration47" resname="stats.closure.duration_load.tooltip_q1"><source>stats.closure.duration_load.tooltip_q1</source><target>First quartile</target></trans-unit>
+      <trans-unit id="statsClosureDuration48" resname="stats.closure.duration_load.tooltip_q3"><source>stats.closure.duration_load.tooltip_q3</source><target>Third quartile</target></trans-unit>
+      <trans-unit id="statsClosureDuration49" resname="stats.closure.duration_load.tooltip_min"><source>stats.closure.duration_load.tooltip_min</source><target>Minimum</target></trans-unit>
+      <trans-unit id="statsClosureDuration50" resname="stats.closure.duration_load.tooltip_max"><source>stats.closure.duration_load.tooltip_max</source><target>Maximum</target></trans-unit>
+      <trans-unit id="statsClosureDuration51" resname="stats.closure.duration_load.outliers"><source>stats.closure.duration_load.outliers</source><target>Outliers</target></trans-unit>
+      <trans-unit id="statsClosureDuration52" resname="stats.closure.duration_load.individual_values"><source>stats.closure.duration_load.individual_values</source><target>Individual values</target></trans-unit>
     </body>
   </file>
 </xliff>

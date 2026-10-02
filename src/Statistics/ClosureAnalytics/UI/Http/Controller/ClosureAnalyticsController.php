@@ -14,6 +14,7 @@ use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsHospitalScope;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsService;
 use App\Statistics\ClosureAnalytics\Application\ClosureDetailDayTimelineFactory;
+use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadService;
 use App\Statistics\ClosureAnalytics\Application\ClosureOverlappingAllocationsFinder;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
@@ -47,6 +48,8 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly ClosureIntervalDetailQuery $intervalQuery,
         private readonly ClosureEventQuery $eventQuery,
         private readonly ClosureAnalyticsChartPayloadFactory $chartPayloadFactory,
+        private readonly ClosureDurationLoadService $durationLoadService,
+        private readonly ClosureDurationLoadLabeler $durationLoadLabeler,
         private readonly ClosureAnalyticsFilterViewModelFactory $filterViewModelFactory,
         private readonly ClosureAnalyticsCriteriaFactory $criteriaFactory,
         private readonly StatisticsPageViewModelFactory $pageViewModelFactory,
@@ -87,6 +90,32 @@ final class ClosureAnalyticsController extends AbstractController
             ...$this->pageVariables($request, $user, $filter, 'app_stats_closure_analytics', 'overview'),
             'dashboard' => $dashboard,
             'chartPayload' => $this->chartPayloadFactory->dashboard($dashboard->timeSeries, $dashboard->heatmap),
+        ]);
+    }
+
+    #[Route('/statistics/closure-analytics/duration', name: 'app_stats_closure_analytics_duration', methods: ['GET'])]
+    public function duration(
+        Request $request,
+        #[CurrentUser] ?User $user,
+        #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
+    ): Response {
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_duration');
+        if ($redirect instanceof Response) {
+            return $redirect;
+        }
+        $criteria = $this->criteriaFactory->create(
+            $user,
+            $filter,
+            ClosureAnalyticsFilterRequestResolver::fromRequest($request),
+        );
+        $durationLoad = $this->durationLoadLabeler->label($this->durationLoadService->build($criteria));
+
+        return $this->render('@Statistics/closure_analytics/duration.html.twig', [
+            ...$this->pageVariables($request, $user, $filter, 'app_stats_closure_analytics_duration', 'duration'),
+            'durationLoad' => $durationLoad,
+            'chartPayload' => [
+                'durationLoad' => $this->chartPayloadFactory->durationLoad($durationLoad),
+            ],
         ]);
     }
 
@@ -350,6 +379,11 @@ final class ClosureAnalyticsController extends AbstractController
                     'key' => 'overview',
                     'label' => 'stats.closure.tabs.overview',
                     'url' => $this->generateUrl('app_stats_closure_analytics', $tabQuery),
+                ],
+                [
+                    'key' => 'duration',
+                    'label' => 'stats.closure.tabs.duration',
+                    'url' => $this->generateUrl('app_stats_closure_analytics_duration', $tabQuery),
                 ],
                 [
                     'key' => 'timeline',

@@ -1,0 +1,45 @@
+<div class="card mt-3" data-testid="stats-closure-duration-{{ kind }}">
+    <div class="card-header">
+        <div>
+            <h3 class="card-title {{ truncated or allLabel ? 'mb-1' : 'mb-0' }}">{{ title|trans({}, 'statistics') }}</h3>
+            {% if truncated or allLabel %}
+                <p class="text-muted small mb-0">
+                    {{ (truncated ? topLabel : allLabel)|trans({}, 'statistics') }}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if groups is empty %}
+            <p class="text-muted mb-0">—</p>
+        {% else %}
+            <div data-closure-analytics-charts-target="{{ chartTarget }}" style="min-height: 220px"></div>
+        {% endif %}
+    </div>
+    <div class="table-responsive border-top">
+        <table class="table table-sm table-vcenter card-table">
+            <thead>
+            <tr>
+                <th>{{ nameColumn|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.duration_load.column_count'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.duration_load.column_median'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.duration_load.column_mean'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.duration_load.column_maximum'|trans({}, 'statistics') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for group in groups %}
+                <tr>
+                    <td>{{ group.label }}</td>
+                    <td class="text-end">{{ group.count }}</td>
+                    <td class="text-end text-nowrap">{{ durationLoad.minutes(group.medianSeconds)|closure_duration }}</td>
+                    <td class="text-end text-nowrap">{{ durationLoad.minutes(group.meanSeconds)|closure_duration }}</td>
+                    <td class="text-end text-nowrap">{{ durationLoad.minutes(group.maximumSeconds)|closure_duration }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="text-muted">—</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
