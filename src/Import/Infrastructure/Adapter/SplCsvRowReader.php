@@ -164,19 +164,11 @@ final class SplCsvRowReader implements RowReaderInterface
         }
 
         $line = $this->file->fgets();
-        if (!\is_string($line)) {
-            return false;
-        }
-
         $parsed = $this->parseRecord($line);
         $parts = 0;
         while ($parts < 20 && !$this->file->eof() && $this->quotedFieldContinues($line, $parsed)) {
             ++$parts;
-            $next = $this->file->fgets();
-            if (!\is_string($next)) {
-                break;
-            }
-            $line .= $next;
+            $line .= $this->file->fgets();
             $parsed = $this->parseRecord($line);
         }
 
