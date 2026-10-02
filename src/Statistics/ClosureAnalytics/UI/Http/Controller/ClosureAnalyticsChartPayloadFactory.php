@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\UI\Http\Controller;
 
+use App\Statistics\ClosureAnalytics\Application\ClosureDurationFormatter;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureDurationDistributionGroup;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureDurationLoad;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureHeatmapCell;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimeBucket;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -47,5 +50,97 @@ final readonly class ClosureAnalyticsChartPayloadFactory
                 'durationLabel' => $this->translator->trans('stats.closure.chart.hours', domain: 'statistics'),
             ],
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function durationLoad(ClosureDurationLoad $load): array
+    {
+        return [
+            'axisLabel' => $this->translator->trans('stats.closure.duration_load.axis_minutes', domain: 'statistics'),
+            'boxName' => $this->translator->trans('stats.closure.duration_load.median', domain: 'statistics'),
+            'pointName' => $this->translator->trans('stats.closure.duration_load.individual_values', domain: 'statistics'),
+            'outlierName' => $this->translator->trans('stats.closure.duration_load.outliers', domain: 'statistics'),
+            'tooltipLabels' => [
+                'count' => $this->translator->trans('stats.closure.duration_load.column_count', domain: 'statistics'),
+                'median' => $this->translator->trans('stats.closure.duration_load.column_median', domain: 'statistics'),
+                'q1' => $this->translator->trans('stats.closure.duration_load.tooltip_q1', domain: 'statistics'),
+                'q3' => $this->translator->trans('stats.closure.duration_load.tooltip_q3', domain: 'statistics'),
+                'minimum' => $this->translator->trans('stats.closure.duration_load.tooltip_min', domain: 'statistics'),
+                'maximum' => $this->translator->trans('stats.closure.duration_load.tooltip_max', domain: 'statistics'),
+            ],
+            'shares' => [
+                $this->share('none', 'stats.closure.duration_load.share_none', $load->noneSeconds, $load),
+                $this->share('single', 'stats.closure.duration_load.share_single', $load->singleDepartmentSeconds, $load),
+                $this->share('multiple', 'stats.closure.duration_load.share_multiple', $load->multipleDepartmentsSeconds, $load),
+            ],
+            'specialities' => $this->distributionGroups($load->specialities),
+            'reasons' => $this->distributionGroups($load->reasons),
+        ];
+    }
+
+    /**
+     * @return array{key: string, name: string, seconds: int, duration: string, percent: float, percentLabel: string}
+     */
+    private function share(string $key, string $label, int $seconds, ClosureDurationLoad $load): array
+    {
+        $percent = $load->sharePercent($seconds);
+
+        return [
+            'key' => $key,
+            'name' => $this->translator->trans($label, domain: 'statistics'),
+            'seconds' => $seconds,
+            'duration' => ClosureDurationFormatter::humanize(ClosureDurationFormatter::minutesFromSeconds($seconds)),
+            'percent' => $percent,
+            'percentLabel' => number_format($percent, 1, ',', '.').'%',
+        ];
+    }
+
+    /**
+     * @param list<ClosureDurationDistributionGroup> $groups
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function distributionGroups(array $groups): array
+    {
+        return array_map(function (ClosureDurationDistributionGroup $group): array {
+            $label = $this->translator->trans('stats.closure.duration_load.group_label', [
+                'name' => $group->label,
+                'count' => $group->count,
+            ], 'statistics');
+
+            return [
+                'label' => $label,
+                'mode' => $group->showBox ? 'box' : 'points',
+                'box' => $group->showBox ? [
+                    $this->minutes($group->whiskerLowSeconds ?? $group->minimumSeconds),
+                    $this->minutes($group->lowerQuartileSeconds),
+                    $this->minutes($group->medianSeconds),
+                    $this->minutes($group->upperQuartileSeconds),
+                    $this->minutes($group->whiskerHighSeconds ?? $group->maximumSeconds),
+                ] : null,
+                'outliers' => array_map($this->minutes(...), $group->outlierSeconds),
+                'points' => $group->showBox ? [] : array_map($this->minutes(...), $group->valueSeconds),
+                'tooltip' => [
+                    'count' => (string) $group->count,
+                    'median' => $this->humanize($group->medianSeconds),
+                    'q1' => $this->humanize($group->lowerQuartileSeconds),
+                    'q3' => $this->humanize($group->upperQuartileSeconds),
+                    'minimum' => $this->humanize($group->minimumSeconds),
+                    'maximum' => $this->humanize($group->maximumSeconds),
+                ],
+            ];
+        }, $groups);
+    }
+
+    private function minutes(int|float $seconds): float
+    {
+        return round((float) $seconds / 60.0, 4);
+    }
+
+    private function humanize(int|float $seconds): string
+    {
+        return ClosureDurationFormatter::humanize(ClosureDurationFormatter::minutesFromSeconds($seconds));
     }
 }

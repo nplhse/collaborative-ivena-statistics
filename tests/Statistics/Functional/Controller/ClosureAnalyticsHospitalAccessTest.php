@@ -41,6 +41,12 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         self::assertStringContainsString('hospital='.$own['hospitalId'], (string) $client->getRequest()->getUri());
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Own Closure Hospital');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-tab-duration"].active');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', '2 h');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Not computable');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-load"]', 'Foreign Closure Hospital');
         $this->assertSelectorNotExists('[data-testid="stats-analysis-context-scope-group"]');
         $this->assertSelectorExists('[data-testid="stats-analysis-context-hospitals"] option[value="my_hospitals"]');
         $this->assertSelectorTextContains('[data-testid="stats-analysis-context-hospitals"] option[value="my_hospitals"]', 'My hospitals');
@@ -69,6 +75,14 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Own Closure Hospital');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
+        $client->request(Request::METHOD_GET, sprintf(
+            '/statistics/closure-analytics/duration?scope=my_hospitals&closureHospitals[]=%d&closureHospitals[]=%d&closureHospitalsSubmitted=1&period=all_time',
+            $own['hospitalId'],
+            $foreign['hospitalId'],
+        ));
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-median"]', '2 h');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-load"]', 'Foreign Closure Hospital');
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=my_hospitals&closureHospitalsSubmitted=1&period=all_time');
         $this->assertResponseIsSuccessful();
@@ -84,6 +98,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/timeline/frame?scope=public&period=all_time&timeline_grain=year');
         $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-closure-duration-pauses"]');
         $this->assertSelectorTextNotContains('body', 'Foreign Closure Hospital');
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/export.csv?scope=public&period=all_time&columns=hospital');

@@ -1,0 +1,46 @@
+<div data-testid="stats-closure-duration-pauses">
+    <div class="datagrid" style="grid-template-columns: 1fr">
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'stats.closure.duration_load.median_pause'|trans({}, 'statistics') }}</div>
+            <div class="datagrid-content">
+                {% if durationLoad.pausesComputable %}
+                    {{ durationLoad.minutes(durationLoad.medianPauseSeconds)|closure_duration }}
+                {% else %}
+                    {{ 'stats.closure.duration_load.not_computable'|trans({}, 'statistics') }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'stats.closure.duration_load.shortest_pause'|trans({}, 'statistics') }}</div>
+            <div class="datagrid-content">
+                {% if durationLoad.pausesComputable %}
+                    {{ durationLoad.minutes(durationLoad.minimumPauseSeconds)|closure_duration }}
+                {% else %}
+                    {{ 'stats.closure.duration_load.not_computable'|trans({}, 'statistics') }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'stats.closure.duration_load.longest_pause'|trans({}, 'statistics') }}</div>
+            <div class="datagrid-content">
+                {% if durationLoad.pausesComputable %}
+                    {{ durationLoad.minutes(durationLoad.maximumPauseSeconds)|closure_duration }}
+                {% else %}
+                    {{ 'stats.closure.duration_load.not_computable'|trans({}, 'statistics') }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% if durationLoad.hasEvaluableTime %}
+        <div class="datagrid mt-3 pt-3 border-top" style="grid-template-columns: 1fr">
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'stats.closure.duration_load.normalized_none'|trans({}, 'statistics') }}</div>
+                <div class="datagrid-content">{{ durationLoad.minutes(durationLoad.normalizedSeconds(durationLoad.noneSeconds))|closure_duration }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'stats.closure.duration_load.normalized_any'|trans({}, 'statistics') }}</div>
+                <div class="datagrid-content">{{ durationLoad.minutes(durationLoad.normalizedSeconds(durationLoad.atLeastOneSeconds))|closure_duration }}</div>
+            </div>
+        </div>
+    {% endif %}
+</div>

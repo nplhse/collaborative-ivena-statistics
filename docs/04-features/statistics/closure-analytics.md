@@ -209,6 +209,59 @@ per department window, not against the overall event span. The list is compact
 when the user has `ROLE_PARTICIPANT`. An empty state is always shown when nothing
 matches. `department_was_closed` and SK-aware urgency matching are not applied.
 
+## Duration and time burden
+
+A dedicated tab, `/statistics/closure-analytics/duration`, shows event durations,
+department concurrency, phases and gaps. It reuses the same clipped
+`valid_closures` and `observed_segments` as the rest of Closure Analytics,
+loaded once, and the same analysis context and hospital scope. The existing
+overview KPI is unchanged: that bar still counts concurrent groups and
+clusters, while the duration tab counts distinct departments.
+
+An event keeps its `event_key`. Its duration is the union of its clipped child
+intervals, so department or reason joins do not multiply the count or the
+duration. A department observation still drives concurrency: one union per
+`(event_key, department)`. A speciality observation is one union per
+`(event_key, speciality)`, so several departments of the same speciality do
+not multiply that speciality’s duration. A reason observation is one union per
+`(event_key, reason)`. An event with
+several reasons appears once in each of those groups; the group counts must not
+be added. A null reason is labelled “Ohne Angabe” / “No reason given”.
+`not_specified` stays the explicit “k. A.” category.
+
+Quartiles use the same linear interpolation as
+`DescriptiveStatisticsCalculator` (Hyndman–Fan type 7, equivalent to
+`percentile_cont`). Box whiskers follow the 1.5-IQR rule and stop at the
+outermost values inside the fences; points outside the fences are outliers.
+Fewer than five observations are drawn as individual values. The chart keeps
+the ten specialities or reasons with the most events. Ties break by name, then
+id. The selected rows are then ordered by median duration. Displayed durations
+round exact epoch seconds to minutes with the existing formatter. Shares and
+the 100% check use the unrounded seconds.
+
+Phases are merged per hospital on the half-open timeline: the next interval
+joins the phase when its start is less than or equal to the current end.
+Hospitals are never merged. A pause is only the gap between two phases of the
+same hospital, and only when that whole gap lies inside estimated import
+coverage. Open time at the edges of the window counts toward “no department
+closed” and is not a pause. With fewer than two phases in a hospital, that
+hospital contributes no pause. If no pause remains, the UI says “Not
+computable”. A department filter builds phases only from the selected
+departments, still separately per hospital. The timeline drilldown does not
+repeat these figures.
+
+Evaluable time is the sum of `observed_segments`, already cut to the analysis
+period and, in this section only, to the current Europe/Berlin wall clock.
+Future time is not part of the denominator. Unobserved gaps between imports are
+excluded rather than treated as open. Inside a span, absence of a matching
+closure counts as no department closed. That span is still only the earliest
+start and latest end per import.
+Department and other context filters do not shorten the span; they choose which
+closures count. Department concurrency is a sweep of distinct departments per
+hospital. The three shares — none, exactly one, several — add up to the
+evaluable hospital time. “Per 24 h” multiplies a share by 24 hours and is a
+normalised average, not a claim about each calendar day.
+
 ## Deferred allocation matching
 
 SK-aware joins, Notzuweisungen / emergency-assignment interpretation, aggregate

@@ -1,0 +1,118 @@
+<section class="mt-4" data-testid="stats-closure-duration-load">
+    <div class="row row-cards g-3">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100" data-testid="stats-closure-duration-median"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.duration_load.median'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0">
+                    {% if durationLoad.medianSeconds is null %}
+                        —
+                    {% else %}
+                        {{ durationLoad.minutes(durationLoad.medianSeconds)|closure_duration }}
+                    {% endif %}
+                </div>
+            </div></div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100" data-testid="stats-closure-duration-mean"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.duration_load.mean'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0">
+                    {% if durationLoad.meanSeconds is null %}
+                        —
+                    {% else %}
+                        {{ durationLoad.minutes(durationLoad.meanSeconds)|closure_duration }}
+                    {% endif %}
+                </div>
+            </div></div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100" data-testid="stats-closure-duration-range"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.duration_load.shortest'|trans({}, 'statistics') }} / {{ 'stats.closure.duration_load.longest'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0">
+                    {% if durationLoad.minimumSeconds is null %}
+                        —
+                    {% else %}
+                        {{ durationLoad.minutes(durationLoad.minimumSeconds)|closure_duration }}
+                        <span class="text-muted">/</span>
+                        {{ durationLoad.minutes(durationLoad.maximumSeconds)|closure_duration }}
+                    {% endif %}
+                </div>
+            </div></div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100" data-testid="stats-closure-duration-longest-phase"><div class="card-body">
+                <div class="subheader">{{ 'stats.closure.duration_load.longest_phase'|trans({}, 'statistics') }}</div>
+                <div class="h1 mt-2 mb-0">
+                    {% if durationLoad.longestPhaseSeconds is null %}
+                        —
+                    {% else %}
+                        {{ durationLoad.minutes(durationLoad.longestPhaseSeconds)|closure_duration }}
+                    {% endif %}
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-3 align-items-start">
+        <div class="col-12 col-xl-8">
+            <div class="card h-100" data-testid="stats-closure-duration-shares">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ 'stats.closure.duration_load.shares_title'|trans({}, 'statistics') }}</h3>
+                </div>
+                <div class="card-body">
+                    {% if durationLoad.hasEvaluableTime %}
+                        <div data-closure-analytics-charts-target="shareChart" style="min-height: 140px"></div>
+                        <div class="row g-3">
+                            {% for item in [
+                                {seconds: durationLoad.noneSeconds, label: 'stats.closure.duration_load.share_none'},
+                                {seconds: durationLoad.singleDepartmentSeconds, label: 'stats.closure.duration_load.share_single'},
+                                {seconds: durationLoad.multipleDepartmentsSeconds, label: 'stats.closure.duration_load.share_multiple'},
+                            ] %}
+                                <div class="col-12 col-md-4">
+                                    <div class="subheader">{{ item.label|trans({}, 'statistics') }}</div>
+                                    <div class="h3 mb-0">{{ durationLoad.sharePercent(item.seconds)|number_format(1, ',', '.') }}%</div>
+                                    <div class="text-muted">{{ durationLoad.minutes(item.seconds)|closure_duration }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">{{ 'stats.closure.duration_load.no_evaluable'|trans({}, 'statistics') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">{{ 'stats.closure.duration_load.pauses_title'|trans({}, 'statistics') }}</h3>
+                </div>
+                <div class="card-body">
+                    {{ include('@Statistics/closure_analytics/_duration_pauses.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ include('@Statistics/closure_analytics/_duration_distribution.html.twig', {
+        kind: 'specialities',
+        title: 'stats.closure.duration_load.specialities_title',
+        topLabel: 'stats.closure.duration_load.specialities_top',
+        allLabel: 'stats.closure.duration_load.specialities_all',
+        truncated: durationLoad.specialitiesTruncated,
+        groups: durationLoad.specialities,
+        nameColumn: 'stats.closure.duration_load.column_speciality',
+        chartTarget: 'specialityChart',
+        durationLoad: durationLoad,
+    }, false) }}
+
+    {{ include('@Statistics/closure_analytics/_duration_distribution.html.twig', {
+        kind: 'reasons',
+        title: 'stats.closure.duration_load.reasons_title',
+        topLabel: 'stats.closure.duration_load.reasons_top',
+        allLabel: null,
+        truncated: durationLoad.reasonsTruncated,
+        groups: durationLoad.reasons,
+        nameColumn: 'stats.closure.duration_load.column_reason',
+        chartTarget: 'reasonChart',
+        durationLoad: durationLoad,
+    }, false) }}
+</section>
