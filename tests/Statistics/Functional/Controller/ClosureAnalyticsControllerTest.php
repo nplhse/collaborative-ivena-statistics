@@ -321,6 +321,13 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('closedHours', (string) $client->getResponse()->getContent());
         self::assertStringNotContainsString('closedShares', (string) $client->getResponse()->getContent());
 
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
+        $this->assertResponseIsSuccessful();
+        $rollingChart = (string) $client->getResponse()->getContent();
+        $currentMonth = new \DateTimeImmutable('first day of this month');
+        self::assertStringContainsString($currentMonth->modify('-11 months')->format('Y-m'), $rollingChart);
+        self::assertStringContainsString($currentMonth->format('Y-m'), $rollingChart);
+
         $client->request(
             Request::METHOD_GET,
             '/statistics/closure-analytics?scope=public&period=all&unitsColumns=name&unitsColumnOrder=name',

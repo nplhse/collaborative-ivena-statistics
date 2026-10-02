@@ -7,6 +7,13 @@ import {
 import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
+function formatWholeHours(value, suffix) {
+    const hours = Math.round(Number(value));
+    const label = Number.isFinite(hours) ? String(hours) : '0';
+
+    return suffix ? `${label} ${suffix}` : label;
+}
+
 const SHARE_COLORS = {
     none: '#9aa5b1',
     single: '#74c0fc',
@@ -77,14 +84,12 @@ export default class extends Controller {
             yaxis: {
                 min: 0,
                 labels: {
-                    formatter: (value) =>
-                        `${Number(value).toFixed(1)} ${payload.tooltipSuffix ?? ''}`,
+                    formatter: (value) => formatWholeHours(value, payload.tooltipSuffix),
                 },
             },
             tooltip: {
                 y: {
-                    formatter: (value) =>
-                        `${Number(value).toFixed(1)} ${payload.tooltipSuffix ?? ''}`,
+                    formatter: (value) => formatWholeHours(value, payload.tooltipSuffix),
                 },
             },
             stroke: { width: 3, curve: 'smooth' },

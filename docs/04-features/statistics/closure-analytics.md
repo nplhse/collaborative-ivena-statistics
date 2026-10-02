@@ -106,6 +106,9 @@ intentionally not shortened to the selected dimensions.
 
 The development chart and heatmap show absolute, united closure duration. Their
 cells and buckets are not percentages and have no inferred open-time denominator.
+For the rolling last-12-months period the development chart lists every month
+from the period start through the current month, including months with no
+closures at zero. Hours on that chart are whole numbers.
 The timeline drilldown paints groups, clusters and individual closures in the
 same blue/violet family as the event table. Coarser grid cells still only mark
 closed versus concurrent time.

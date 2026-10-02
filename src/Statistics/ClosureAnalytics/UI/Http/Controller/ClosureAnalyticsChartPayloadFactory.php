@@ -33,7 +33,10 @@ final readonly class ClosureAnalyticsChartPayloadFactory
         return [
             'timeSeries' => [
                 'labels' => array_map(static fn (ClosureTimeBucket $row): string => $row->key, $timeSeries),
-                'closedHours' => array_map(static fn (ClosureTimeBucket $row): float => round($row->closedMinutes / 60, 2), $timeSeries),
+                'closedHours' => array_map(
+                    static fn (ClosureTimeBucket $row): int => (int) round($row->closedMinutes / 60),
+                    $timeSeries,
+                ),
                 'seriesLabel' => $this->translator->trans('stats.closure.chart.duration', domain: 'statistics'),
                 'tooltipSuffix' => $this->translator->trans('stats.closure.chart.hours', domain: 'statistics'),
             ],
