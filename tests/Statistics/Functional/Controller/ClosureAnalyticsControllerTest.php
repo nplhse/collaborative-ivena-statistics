@@ -43,10 +43,14 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('[data-testid="stats-closure-heading"]', 'Closure analytics');
         $this->assertSelectorExists('[data-testid="stats-closure-kpis"]');
-        $this->assertSelectorExists('[data-testid="stats-closure-empty"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-no-hospital-access"]');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-empty"]');
         $this->assertSelectorNotExists('[data-testid="stats-closure-intervals"]');
         $this->assertSelectorExists('[data-testid="stats-closure-tabs"]');
         $this->assertSelectorExists('[data-testid="stats-closure-tab-overview"].active');
+        $this->assertSelectorNotExists('[data-testid="stats-analysis-context-scope-group"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-no-hospitals"]');
+        $this->assertSelectorExists('[data-testid="stats-analysis-context-period"]');
         $this->assertSelectorExists('[data-testid="closure-filter-from"]');
         $this->assertSelectorExists('[data-testid="closure-filter-to"]');
         $this->assertSelectorExists('[data-testid="closure-filter-care-levels"]');
@@ -75,8 +79,9 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->loginAsClosureBetaUser($client);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=dispatch_area:99&period=all_time');
 
-        self::assertResponseRedirects();
-        self::assertStringContainsString('scope=public', (string) $client->getResponse()->headers->get('location'));
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-no-hospital-access"]');
+        self::assertStringNotContainsString('scope=public', (string) $client->getResponse()->headers->get('location'));
     }
 
     public function testPeriodStepNavigationIsAvailableOnAllClosurePages(): void
@@ -160,8 +165,8 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge.bg-purple-lt.text-purple-lt-fg');
         $previousUrl = $client->getCrawler()->filter('.pagination a')->first()->attr('href');
         self::assertNotNull($previousUrl);
-        self::assertStringContainsString('scope=public', $previousUrl);
         self::assertStringContainsString('period=year', $previousUrl);
+        self::assertStringNotContainsString('scope=public', $previousUrl);
         self::assertStringContainsString('year=2026', $previousUrl);
         self::assertStringContainsString('sortBy=startsAt', $previousUrl);
         self::assertStringContainsString('orderBy=asc', $previousUrl);
@@ -262,9 +267,9 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Functional Closure Department A');
         $this->assertSelectorExists('[data-testid="stats-closure-units"] table.table-sm');
         $this->assertSelectorNotExists('[data-testid="stats-closure-units"] .card-footer');
-        $this->assertSelectorNotExists('[data-testid="closure-filter-units"]');
+        $this->assertSelectorExists('[data-testid="closure-filter-units"]');
         $this->assertSelectorNotExists('[data-testid="closure-filter-hospitals"]');
-        $this->assertSelectorNotExists('[data-testid="stats-closure-unit-timeline-link"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-unit-timeline-link"]');
         $this->assertSelectorNotExists('turbo-frame#stats-closure-timeline');
         $this->assertSelectorNotExists('turbo-frame#stats-closure-details');
         $this->assertSelectorExists('[data-testid="stats-closure-tab-overview"].active');
@@ -307,22 +312,6 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="closure-filter-units"] option[value="Functional unit"][selected]');
         $this->assertSelectorTextContains('[data-testid="statistics-filters-active"]', 'Functional unit');
 
-        $client->request(
-            Request::METHOD_GET,
-            '/statistics/closure-analytics?scope=my_hospitals&period=all_time',
-        );
-        $this->assertResponseIsSuccessful();
-        $myHospitalsUnitValue = $hospitalId.':Functional unit';
-        $this->assertSelectorExists(sprintf(
-            '[data-testid="closure-filter-units"] option[value="%s"]',
-            $myHospitalsUnitValue,
-        ));
-        $myHospitalsTimelineUrl = $client->getCrawler()->filter('[data-testid="stats-closure-unit-timeline-link"]')->attr('href');
-        self::assertNotNull($myHospitalsTimelineUrl);
-        parse_str((string) parse_url($myHospitalsTimelineUrl, PHP_URL_QUERY), $myHospitalsTimelineQuery);
-        self::assertSame([$myHospitalsUnitValue], $myHospitalsTimelineQuery['closureUnits'] ?? null);
-        self::assertSame('my_hospitals', $myHospitalsTimelineQuery['scope'] ?? null);
-
         $secondState = StateFactory::createOne();
         $secondDispatch = DispatchAreaFactory::createOne(['state' => $secondState]);
         $secondHospital = HospitalFactory::createOne([
@@ -350,6 +339,22 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
             'source_changed_at' => '2026-05-01 09:00:00',
         ]);
 
+        $client->request(
+            Request::METHOD_GET,
+            '/statistics/closure-analytics?scope=my_hospitals&period=all_time',
+        );
+        $this->assertResponseIsSuccessful();
+        $myHospitalsUnitValue = $hospitalId.':Functional unit';
+        $this->assertSelectorExists(sprintf(
+            '[data-testid="closure-filter-units"] option[value="%s"]',
+            $myHospitalsUnitValue,
+        ));
+        $myHospitalsTimelineUrl = $client->getCrawler()->filter('[data-testid="stats-closure-unit-timeline-link"]')->attr('href');
+        self::assertNotNull($myHospitalsTimelineUrl);
+        parse_str((string) parse_url($myHospitalsTimelineUrl, PHP_URL_QUERY), $myHospitalsTimelineQuery);
+        self::assertSame([$myHospitalsUnitValue], $myHospitalsTimelineQuery['closureUnits'] ?? null);
+        self::assertSame('my_hospitals', $myHospitalsTimelineQuery['scope'] ?? null);
+
         $filterQuery = sprintf(
             'closureDepartments[]=%d&closureSpecialities[]=%d&closureCareLevels[]=emergency&closureReasons[]=no_bed_capacity',
             $departmentId,
@@ -376,7 +381,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextSame('[data-testid="statistics-filters-drawer-trigger"] .badge', '4');
         $resetUrl = $client->getCrawler()->filter('[data-testid="statistics-filters-clear"]')->attr('href');
         self::assertNotNull($resetUrl);
-        self::assertStringContainsString('scope=public', $resetUrl);
+        self::assertStringNotContainsString('scope=public', $resetUrl);
         self::assertStringContainsString('period=all_time', $resetUrl);
         self::assertStringNotContainsString('closureDepartments', $resetUrl);
         self::assertStringNotContainsString('closureSpecialities', $resetUrl);
@@ -447,10 +452,22 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
             '/statistics/closure-analytics?scope=public&period=all_time&'.$filterQuery.'&closureHospitals[]='.$hospitalId,
         );
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists(sprintf('[data-testid="closure-filter-hospitals"] option[value="%d"][selected]', $hospitalId));
-        $this->assertSelectorTextContains('[data-testid="statistics-filters-active"]', 'Functional Closure Hospital');
-        $this->assertSelectorTextNotContains('[data-testid="statistics-filters-active"]', 'Functional Closure Hospital B');
-        $this->assertSelectorTextSame('[data-testid="statistics-filters-drawer-trigger"] .badge', '5');
+        parse_str((string) parse_url((string) $client->getRequest()->getUri(), PHP_URL_QUERY), $narrowedHospitalQuery);
+        self::assertSame('hospital', $narrowedHospitalQuery['scope'] ?? null);
+        self::assertSame((string) $hospitalId, $narrowedHospitalQuery['hospital'] ?? null);
+        self::assertArrayNotHasKey('closureHospitals', $narrowedHospitalQuery);
+        $this->assertSelectorExists(sprintf(
+            '[data-testid="stats-analysis-context-hospitals"] option[value="hospital:%d"][selected]',
+            $hospitalId,
+        ));
+        $this->assertSelectorNotExists(sprintf(
+            '[data-testid="stats-analysis-context-hospitals"] option[value="hospital:%d"][selected]',
+            $secondHospital->getId(),
+        ));
+        $this->assertSelectorNotExists('[data-testid="closure-filter-hospitals"]');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-breakdowns"]', 'Functional Closure Hospital');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-breakdowns"]', 'Functional Closure Hospital B');
+        $this->assertSelectorTextSame('[data-testid="statistics-filters-drawer-trigger"] .badge', '4');
         $hospitalResetUrl = $client->getCrawler()->filter('[data-testid="statistics-filters-clear"]')->attr('href');
         self::assertNotNull($hospitalResetUrl);
         self::assertStringNotContainsString('closureHospitals', $hospitalResetUrl);
@@ -519,7 +536,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertStringContainsString('orderBy=asc', $sortUrl);
         self::assertStringContainsString('closureDepartments', $sortUrl);
         self::assertStringContainsString('closureReasons', $sortUrl);
-        self::assertStringContainsString('scope=public', $sortUrl);
+        self::assertStringNotContainsString('scope=public', $sortUrl);
         self::assertStringContainsString('period=all_time', $sortUrl);
         $this->assertSelectorNotExists('[data-testid="stats-closure-breakdowns"]');
 
@@ -698,7 +715,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $allocationsUrl = $client->getCrawler()->filter('[data-testid="closure-event-allocations"]')->attr('href');
         self::assertNotNull($allocationsUrl);
         self::assertStringContainsString('/explore/allocation', $allocationsUrl);
-        self::assertStringContainsString('hospitalFilter='.$hospitalId, $allocationsUrl);
+        self::assertStringContainsString('hospitalFilter=my_hospitals', $allocationsUrl);
         self::assertStringContainsString('createdFrom=2026-05-01', $allocationsUrl);
         self::assertStringContainsString('createdUntil=2026-05-01', $allocationsUrl);
 
@@ -979,6 +996,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $user = UserFactory::createOne([
             'roles' => [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA],
         ]);
+        $client->followRedirects(true);
         $client->loginUser($user);
 
         return $user;

@@ -441,6 +441,34 @@ final class StatisticsFilterFormChoiceProvider
     }
 
     /**
+     * Hospitals the user may use for closure analytics, without an "all hospitals" entry.
+     *
+     * @return list<array{id: int, name: string}>
+     */
+    public function statisticsHospitalSummaries(?User $user): array
+    {
+        if (!$user instanceof User || !$this->hospitalAccess->canUseMyHospitalsScope($user)) {
+            return [];
+        }
+
+        $rows = $this->hospitalRepository
+            ->getQueryBuilderForHospitalsWithPermission($user, HospitalPermission::Statistics)
+            ->select('h.id AS id', 'h.name AS name')
+            ->getQuery()
+            ->getArrayResult();
+
+        $summaries = [];
+        foreach ($rows as $row) {
+            $summaries[] = [
+                'id' => (int) $row['id'],
+                'name' => (string) $row['name'],
+            ];
+        }
+
+        return $summaries;
+    }
+
+    /**
      * @return list<int>
      */
     private function eligibleStateIds(StatisticsFilterScopeChoicePolicy $policy): array

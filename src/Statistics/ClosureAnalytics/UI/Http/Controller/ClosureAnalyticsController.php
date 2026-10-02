@@ -11,6 +11,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\ClosureAnalytics\Application\ClosureAllocationExploreUrlFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
+use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsHospitalScope;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsService;
 use App\Statistics\ClosureAnalytics\Application\ClosureDetailDayTimelineFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureOverlappingAllocationsFinder;
@@ -21,21 +22,24 @@ use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureIntervalDetailQuery;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureIntervalTableColumns;
+use App\Statistics\UI\Http\Controller\AnalysisContextScopeMode;
 use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
 use App\Statistics\UI\Http\Controller\OverviewPeriodViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
-use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\UX\Pagination\PaginatorInterface;
 
+#[IsGranted(UserRole::PARTICIPANT)]
 final class ClosureAnalyticsController extends AbstractController
 {
     public function __construct(
@@ -48,7 +52,8 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly StatisticsPageViewModelFactory $pageViewModelFactory,
         private readonly OverviewPeriodViewModelFactory $periodViewModelFactory,
         private readonly AnalysisContextViewModelFactory $analysisContextFactory,
-        private readonly StatisticsPublicScopeRedirector $publicScopeRedirector,
+        private readonly ClosureAnalyticsHospitalScope $hospitalScope,
+        private readonly ClosureAnalyticsScopeRedirector $scopeRedirector,
         private readonly PaginatorInterface $paginator,
         private readonly DataTablePreferenceService $dataTablePreferences,
         private readonly ClosureEventTableColumns $eventTableColumns,
@@ -66,7 +71,7 @@ final class ClosureAnalyticsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        $redirect = $this->redirectUnsupportedScope($request, $filter, 'app_stats_closure_analytics');
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics');
         if ($redirect instanceof Response) {
             return $redirect;
         }
@@ -91,7 +96,7 @@ final class ClosureAnalyticsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        $redirect = $this->redirectUnsupportedScope($request, $filter, 'app_stats_closure_analytics_timeline');
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_timeline');
         if ($redirect instanceof Response) {
             return $redirect;
         }
@@ -111,7 +116,7 @@ final class ClosureAnalyticsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        $redirect = $this->redirectUnsupportedScope($request, $filter, 'app_stats_closure_analytics_events');
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_events');
         if ($redirect instanceof Response) {
             return $redirect;
         }
@@ -132,14 +137,23 @@ final class ClosureAnalyticsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if (StatisticsFilterScope::DispatchArea === $filter->scope) {
+        if ($this->hospitalScope->eventKeyHospitalIsForbidden($eventKey, $user)) {
             throw $this->createNotFoundException();
+        }
+
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_event', [
+            'eventKey' => $eventKey,
+        ]);
+        if ($redirect instanceof Response) {
+            return $redirect;
         }
 
         $closureFilter = ClosureAnalyticsFilterRequestResolver::fromRequest($request);
         $criteria = $this->criteriaFactory->create($user, $filter, $closureFilter);
         $event = $this->eventQuery->fetchEvent($criteria, $eventKey);
-        if (!$event instanceof ClosureEventRow) {
+        if (!$event instanceof ClosureEventRow
+            || !\in_array($event->hospitalId, $this->hospitalScope->allowedHospitalIds($user), true)
+        ) {
             throw $this->createNotFoundException();
         }
         $children = $this->eventQuery->fetchChildren($criteria, $eventKey);
@@ -172,8 +186,9 @@ final class ClosureAnalyticsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if (StatisticsFilterScope::DispatchArea === $filter->scope) {
-            throw $this->createNotFoundException();
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_details');
+        if ($redirect instanceof Response) {
+            return $redirect;
         }
 
         $criteria = $this->criteriaFactory->create(
@@ -223,14 +238,19 @@ final class ClosureAnalyticsController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if (StatisticsFilterScope::DispatchArea === $filter->scope) {
-            throw $this->createNotFoundException();
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_interval', [
+            'id' => $id,
+        ]);
+        if ($redirect instanceof Response) {
+            return $redirect;
         }
 
         $closureFilter = ClosureAnalyticsFilterRequestResolver::fromRequest($request);
         $criteria = $this->criteriaFactory->create($user, $filter, $closureFilter);
         $interval = $this->intervalQuery->fetch($criteria, $id);
-        if (!$interval instanceof ClosureIntervalRow) {
+        if (!$interval instanceof ClosureIntervalRow
+            || !\in_array($interval->hospitalId, $this->hospitalScope->allowedHospitalIds($user), true)
+        ) {
             throw $this->createNotFoundException();
         }
 
@@ -282,24 +302,21 @@ final class ClosureAnalyticsController extends AbstractController
         ];
     }
 
-    private function redirectUnsupportedScope(
+    /**
+     * @param array<string, mixed> $routeParams
+     */
+    private function redirectAssignedScope(
         Request $request,
-        StatisticsFilter $filter,
+        ?User $user,
         string $route,
+        array $routeParams = [],
     ): ?Response {
-        $publicRedirect = $this->publicScopeRedirector->maybeRedirectPayload($request, $filter);
-        if (null !== $publicRedirect) {
-            return $this->redirectToRoute($route, $publicRedirect['query']);
-        }
-        if (StatisticsFilterScope::DispatchArea !== $filter->scope) {
+        $query = $this->scopeRedirector->canonicalRedirectQuery($request->query->all(), $user);
+        if (null === $query) {
             return null;
         }
 
-        $query = $request->query->all();
-        $query['scope'] = StatisticsFilterScope::Public->value;
-        $this->addFlash('warning', 'Leitstellenbereiche sind für Schließungsintervalle nicht definiert.');
-
-        return $this->redirectToRoute($route, $query);
+        return $this->redirectToRoute($route, [...$routeParams, ...$query]);
     }
 
     /**
@@ -377,7 +394,9 @@ final class ClosureAnalyticsController extends AbstractController
                 $filter,
                 $page->headingScope,
                 $period->headingLabel,
+                scopeMode: AnalysisContextScopeMode::AssignedHospitals,
             ),
+            'closureMissingHospitalAccess' => [] === $this->hospitalScope->allowedHospitalIds($user),
         ];
     }
 }

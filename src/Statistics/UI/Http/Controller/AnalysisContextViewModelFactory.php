@@ -8,6 +8,7 @@ use App\Statistics\Application\Contract\HospitalAccessInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
+use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsHospitalScope;
 use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
@@ -21,6 +22,7 @@ final readonly class AnalysisContextViewModelFactory
     public function __construct(
         private StatisticsFilterFormChoiceProvider $choiceProvider,
         private HospitalAccessInterface $hospitalAccess,
+        private ClosureAnalyticsHospitalScope $closureHospitalScope,
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
     ) {
@@ -35,6 +37,7 @@ final readonly class AnalysisContextViewModelFactory
         string $headingPeriod,
         AnalysisContextPeriodMode $periodMode = AnalysisContextPeriodMode::Full,
         ?OverviewPeriodViewModel $monthPeriodViewModel = null,
+        AnalysisContextScopeMode $scopeMode = AnalysisContextScopeMode::Standard,
     ): AnalysisContextViewModel {
         $locale = $request->getLocale();
         $now = new \DateTimeImmutable();
@@ -44,7 +47,6 @@ final readonly class AnalysisContextViewModelFactory
 
         $scopeGroup = $this->scopeGroup($filter);
         $scopeDetail = $this->scopeDetail($filter);
-        $defaultScopeGroup = $this->defaultScopeGroup($user);
         [$yearChoices, $monthChoices] = $this->periodValueChoices(
             $periodMode,
             $monthPeriodViewModel,
@@ -89,6 +91,43 @@ final readonly class AnalysisContextViewModelFactory
         $dispatchAreaChoices = $this->stringChoices($dispatchAreaChoices);
         $cohortChoices = $this->stringChoices($cohortChoices);
         $hospitalChoices = $this->stringChoices($hospitalChoices);
+        $scopeGroupChoices = $this->choiceProvider->scopePrimaryChoices($user, $locale);
+        $defaultScopeGroup = $this->defaultScopeGroup($user);
+        $selectedHospitalIds = [];
+        if (AnalysisContextScopeMode::AssignedHospitals === $scopeMode) {
+            $scopeGroupChoices = [
+                'my_hospitals' => $scopeGroupChoices['my_hospitals']
+                    ?? $this->translator->trans('stats.filter.hospital_label', [], 'statistics', $locale),
+            ];
+            $stateChoices = [];
+            $dispatchAreaChoices = [];
+            $cohortChoices = [];
+            $hospitalChoices = [];
+            $allowedIds = array_flip($this->closureHospitalScope->allowedHospitalIds($user));
+            $individualChoices = [];
+            foreach ($this->choiceProvider->statisticsHospitalSummaries($user) as $row) {
+                if (isset($allowedIds[$row['id']])) {
+                    $individualChoices['hospital:'.$row['id']] = $row['name'];
+                }
+            }
+            $defaultScopeGroup = 'my_hospitals';
+            if ([] !== $individualChoices) {
+                $aggregateLabel = $this->translator->trans(
+                    $user instanceof User && $this->hospitalAccess->isAdminHospitalScopeUser($user)
+                        ? 'stats.filter.hospital.all_hospitals'
+                        : 'stats.filter.scope.my_hospitals',
+                    [],
+                    'statistics',
+                    $locale,
+                );
+                $hospitalChoices = ['my_hospitals' => $aggregateLabel, ...$individualChoices];
+                $selectedHospitalIds = ['my_hospitals'];
+                $selectedHospitalKey = 'hospital:'.($filter->hospitalId ?? 0);
+                if (StatisticsFilterScope::Hospital === $filter->scope && isset($individualChoices[$selectedHospitalKey])) {
+                    $selectedHospitalIds = [$selectedHospitalKey];
+                }
+            }
+        }
         $locationLabel = $this->locationLabel(
             $scopeGroup,
             $scopeDetail,
@@ -98,6 +137,12 @@ final readonly class AnalysisContextViewModelFactory
             $cohortChoices,
             $hospitalChoices,
         );
+        if (AnalysisContextScopeMode::AssignedHospitals === $scopeMode
+            && ['my_hospitals'] === $selectedHospitalIds
+            && isset($hospitalChoices['my_hospitals'])
+        ) {
+            $locationLabel = $hospitalChoices['my_hospitals'];
+        }
 
         return new AnalysisContextViewModel(
             $this->summary($headingScope, $headingPeriod, $periodMode),
@@ -118,7 +163,7 @@ final readonly class AnalysisContextViewModelFactory
             $currentYear,
             $currentQuarter,
             $currentMonth,
-            $this->choiceProvider->scopePrimaryChoices($user, $locale),
+            $scopeGroupChoices,
             $stateChoices,
             $dispatchAreaChoices,
             $cohortChoices,
@@ -131,6 +176,8 @@ final readonly class AnalysisContextViewModelFactory
             $formQueryKeys,
             AnalysisContextPeriodMode::Hidden === $periodMode,
             AnalysisContextPeriodMode::MonthOnly === $periodMode,
+            $scopeMode,
+            $selectedHospitalIds,
         );
     }
 

@@ -15,6 +15,7 @@ final class ClosureAnalyticsFilterRequestResolver
     public const string DEPARTMENTS = 'closureDepartments';
     public const string SPECIALITIES = 'closureSpecialities';
     public const string HOSPITALS = 'closureHospitals';
+    public const string HOSPITALS_SUBMITTED = 'closureHospitalsSubmitted';
     public const string CARE_LEVELS = 'closureCareLevels';
     public const string REASONS = 'closureReasons';
     public const string CLOSURE_UNITS = 'closureUnits';
@@ -27,6 +28,7 @@ final class ClosureAnalyticsFilterRequestResolver
         self::DEPARTMENTS,
         self::SPECIALITIES,
         self::HOSPITALS,
+        self::HOSPITALS_SUBMITTED,
         self::CARE_LEVELS,
         self::REASONS,
         self::CLOSURE_UNITS,
@@ -49,6 +51,7 @@ final class ClosureAnalyticsFilterRequestResolver
             $toDate,
             self::eventTypes($request),
             self::positiveIds($request, self::HOSPITALS),
+            self::hospitalIdsSubmitted($request),
         );
     }
 
@@ -64,6 +67,13 @@ final class ClosureAnalyticsFilterRequestResolver
         }
 
         return $query;
+    }
+
+    private static function hospitalIdsSubmitted(Request $request): bool
+    {
+        $query = $request->query->all();
+
+        return \array_key_exists(self::HOSPITALS, $query) || \array_key_exists(self::HOSPITALS_SUBMITTED, $query);
     }
 
     /**

@@ -6,9 +6,8 @@ namespace App\Statistics\ClosureAnalytics\Application;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
-use App\Statistics\Application\StatisticsContextFactory;
+use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\StatisticsPeriodResolver;
-use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrainResolver;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
@@ -17,8 +16,7 @@ use App\User\Domain\Entity\User;
 final readonly class ClosureAnalyticsCriteriaFactory
 {
     public function __construct(
-        private StatisticsContextFactory $contextFactory,
-        private StatisticsScopeResolver $scopeResolver,
+        private ClosureAnalyticsHospitalScope $hospitalScope,
     ) {
     }
 
@@ -27,11 +25,11 @@ final readonly class ClosureAnalyticsCriteriaFactory
         StatisticsFilter $filter,
         ?ClosureAnalyticsFilter $closureFilter = null,
     ): ClosureAnalyticsCriteria {
-        $context = $this->contextFactory->create($user, $filter);
         $closureFilter ??= ClosureAnalyticsFilter::empty();
+        $hospitalIds = $this->hospitalScope->effectiveHospitalIds($user, $filter, $closureFilter);
 
         return new ClosureAnalyticsCriteria(
-            $this->scopeResolver->resolveCriteria($context),
+            new StatisticsScopeCriteria($hospitalIds),
             StatisticsPeriodResolver::resolve($filter)->intersect(
                 $closureFilter->periodFrom(),
                 $closureFilter->periodToExclusive(),
@@ -46,7 +44,6 @@ final readonly class ClosureAnalyticsCriteriaFactory
                 ? $closureFilter->closureUnits
                 : [],
             $closureFilter->eventTypes,
-            StatisticsFilterScope::Hospital === $filter->scope ? [] : $closureFilter->hospitalIds,
         );
     }
 }

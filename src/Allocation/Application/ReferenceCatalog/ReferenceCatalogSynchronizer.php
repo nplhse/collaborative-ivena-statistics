@@ -326,11 +326,11 @@ final readonly class ReferenceCatalogSynchronizer
                 if (!$renamed) {
                     $this->bump($created, $type->value);
                     if (!$dryRun) {
-                        $createdEntity = new $class();
-                        if (!method_exists($createdEntity, 'setName') || !method_exists($createdEntity, 'setCreatedBy')) {
-                            throw new \LogicException(sprintf('Entity %s is not a name-based lookup.', $class));
-                        }
-
+                        $createdEntity = match ($class) {
+                            Department::class => new Department(),
+                            Speciality::class => new Speciality(),
+                            default => throw new \LogicException(sprintf('Entity %s is not a name-based lookup.', $class)),
+                        };
                         $createdEntity->setName($entry->name);
                         $createdEntity->setCreatedBy($user);
                         $this->entityManager->persist($createdEntity);

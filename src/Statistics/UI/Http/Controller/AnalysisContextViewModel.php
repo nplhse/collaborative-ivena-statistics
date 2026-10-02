@@ -51,6 +51,9 @@ final readonly class AnalysisContextViewModel
         public array $formQueryKeys,
         public bool $hidePeriod,
         public bool $monthOnlyPeriod,
+        public AnalysisContextScopeMode $scopeMode = AnalysisContextScopeMode::Standard,
+        /** @var list<string> */
+        public array $selectedHospitalIds = [],
     ) {
     }
 }

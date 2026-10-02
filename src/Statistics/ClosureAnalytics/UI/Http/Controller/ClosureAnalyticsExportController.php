@@ -8,7 +8,6 @@ use App\Shared\Application\DataTable\DataTablePreferenceService;
 use App\Shared\Application\RateLimit\ClientRateLimit;
 use App\Shared\UI\Http\DataTablePreferenceQueryState;
 use App\Statistics\Application\DTO\StatisticsFilter;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
 use App\Statistics\ClosureAnalytics\Application\Export\ClosureTableExportBuilder;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
@@ -16,6 +15,7 @@ use App\Statistics\ClosureAnalytics\UI\Twig\ClosureIntervalTableColumns;
 use App\Statistics\GenericAnalysis\Application\Contract\AnalysisExportServiceInterface;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +25,9 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(UserRole::PARTICIPANT)]
 final class ClosureAnalyticsExportController extends AbstractController
 {
     public function __construct(
@@ -50,10 +52,6 @@ final class ClosureAnalyticsExportController extends AbstractController
         #[Autowire(service: 'limiter.closure_analytics_export')]
         RateLimiterFactory $closureAnalyticsExportLimiter,
     ): StreamedResponse {
-        if (StatisticsFilterScope::DispatchArea === $filter->scope) {
-            throw $this->createNotFoundException();
-        }
-
         $userKey = $user instanceof User && null !== $user->getId()
             ? (string) $user->getId()
             : 'anon';

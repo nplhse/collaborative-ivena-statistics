@@ -6,7 +6,6 @@ namespace App\Statistics\ClosureAnalytics\UI\Http\Controller;
 
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
-use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsCriteriaFactory;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
@@ -14,13 +13,16 @@ use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\User\Domain\Entity\User;
+use App\User\Domain\Security\UserRole;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\ValueResolver;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(UserRole::PARTICIPANT)]
 final class ClosureTimelineController extends AbstractController
 {
     private const array GRAINS = ['year', 'quarter', 'month', 'week', 'day', 'event'];
@@ -28,6 +30,7 @@ final class ClosureTimelineController extends AbstractController
     public function __construct(
         private readonly ClosureAnalyticsCriteriaFactory $criteriaFactory,
         private readonly ClosureTemporalQuery $temporalQuery,
+        private readonly ClosureAnalyticsScopeRedirector $scopeRedirector,
     ) {
     }
 
@@ -37,8 +40,9 @@ final class ClosureTimelineController extends AbstractController
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if (StatisticsFilterScope::DispatchArea === $filter->scope) {
-            throw $this->createNotFoundException();
+        $query = $this->scopeRedirector->canonicalRedirectQuery($request->query->all(), $user);
+        if (null !== $query) {
+            return $this->redirectToRoute('app_stats_closure_analytics_timeline_frame', $query);
         }
 
         $grain = $request->query->get('timeline_grain', $this->maximumGrain($filter->period));

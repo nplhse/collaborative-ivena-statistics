@@ -28,6 +28,7 @@ final readonly class ClosureAnalyticsFilter
         public ?string $toDate = null,
         public array $eventTypes = [],
         public array $hospitalIds = [],
+        public bool $hospitalIdsSubmitted = false,
     ) {
     }
 

@@ -35,6 +35,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
         self::assertSame('2026-03-15', $filter->toDate);
         self::assertSame(['cluster', 'single'], $filter->eventTypes);
         self::assertSame([12, 7], $filter->hospitalIds);
+        self::assertTrue($filter->hospitalIdsSubmitted);
         self::assertSame('2026-03-01 00:00:00', $filter->periodFrom()?->format('Y-m-d H:i:s'));
         self::assertSame('2026-03-16 00:00:00', $filter->periodToExclusive()?->format('Y-m-d H:i:s'));
     }
@@ -66,6 +67,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
         self::assertNull($filter->toDate);
         self::assertSame(['group'], $filter->eventTypes);
         self::assertSame([18], $filter->hospitalIds);
+        self::assertTrue($filter->hospitalIdsSubmitted);
         self::assertSame(
             ['scope' => 'public', 'period' => 'all_time'],
             ClosureAnalyticsFilterRequestResolver::withoutFilters($request->query->all()),
@@ -83,5 +85,6 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
         self::assertNull($filter->fromDate);
         self::assertNull($filter->toDate);
         self::assertSame([4], $filter->departmentIds);
+        self::assertFalse($filter->hospitalIdsSubmitted);
     }
 }

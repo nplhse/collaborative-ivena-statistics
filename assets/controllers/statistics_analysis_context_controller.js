@@ -29,6 +29,8 @@ export default class extends Controller {
         'monthGroup',
         'monthSelect',
         'preserved',
+        'assignedHospitals',
+        'assignedHospitalId',
     ];
 
     static values = {
@@ -42,6 +44,7 @@ export default class extends Controller {
         defaultMonth: Number,
         hidePeriod: Boolean,
         monthOnly: Boolean,
+        scopeMode: { type: String, default: 'standard' },
     };
 
     connect() {
@@ -133,6 +136,25 @@ export default class extends Controller {
     }
 
     resetToDefault() {
+        if ('assigned_hospitals' === this.scopeModeValue) {
+            this.resetAssignedHospitals();
+            if (this.hasPeriodSelectTarget) {
+                this.periodSelectTarget.value = this.defaultPeriodValue;
+            }
+            if (this.hasYearSelectTarget) {
+                this.yearSelectTarget.value = String(this.defaultYearValue);
+            }
+            if (this.hasQuarterSelectTarget) {
+                this.quarterSelectTarget.value = String(this.defaultQuarterValue);
+            }
+            if (this.hasMonthSelectTarget) {
+                this.monthSelectTarget.value = String(this.defaultMonthValue);
+            }
+            this.syncVisibility();
+
+            return;
+        }
+
         if (this.hasScopeGroupTarget) {
             this.scopeGroupTarget.value = this.defaultScopeGroupValue;
         }
@@ -160,6 +182,13 @@ export default class extends Controller {
     }
 
     prepareSubmit() {
+        if ('assigned_hospitals' === this.scopeModeValue) {
+            this.prepareAssignedHospitalSubmit();
+            this.syncDisabledFields();
+
+            return;
+        }
+
         this.syncScopeValue();
         this.syncDisabledFields();
         if (this.hasHospitalSelectTarget && '' === this.hospitalSelectTarget.value) {
@@ -168,6 +197,41 @@ export default class extends Controller {
         if (this.scopeContextChanged()) {
             this.removeGeoFields();
         }
+    }
+
+    resetAssignedHospitals() {
+        if (this.hasAssignedHospitalsTarget) {
+            this.assignedHospitalsTarget.value = 'my_hospitals';
+        }
+        this.applyAssignedHospitalValue('my_hospitals');
+    }
+
+    prepareAssignedHospitalSubmit() {
+        if (!this.hasAssignedHospitalsTarget) {
+            return;
+        }
+
+        this.applyAssignedHospitalValue(this.assignedHospitalsTarget.value);
+    }
+
+    applyAssignedHospitalValue(value) {
+        if (this.hasScopeTarget) {
+            this.scopeTarget.value = 'my_hospitals' === value ? 'my_hospitals' : 'hospital';
+        }
+        if (!this.hasAssignedHospitalIdTarget) {
+            return;
+        }
+
+        if ('my_hospitals' === value) {
+            this.assignedHospitalIdTarget.disabled = true;
+            this.assignedHospitalIdTarget.value = '';
+
+            return;
+        }
+
+        const hospitalId = value.startsWith('hospital:') ? value.slice('hospital:'.length) : value;
+        this.assignedHospitalIdTarget.disabled = false;
+        this.assignedHospitalIdTarget.value = hospitalId;
     }
 
     syncVisibility() {

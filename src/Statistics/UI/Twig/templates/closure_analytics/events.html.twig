@@ -5,6 +5,11 @@
     {{ include('@Statistics/_filter_active_badges.html.twig') }}
     {{ include('@Statistics/closure_analytics/_tabs.html.twig') }}
 
+    {% if closureMissingHospitalAccess|default(false) %}
+        <div class="mt-3" data-testid="stats-closure-no-hospital-access">
+            <twig:EmptyState title="{{ 'stats.closure.no_hospital_access'|trans({}, 'statistics') }}" icon="tabler:building-hospital" />
+        </div>
+    {% else %}
     <turbo-frame id="stats-closure-details"
                  src="{{ detailsFrameUrl }}"
                  loading="lazy"
@@ -16,6 +21,7 @@
             </div>
         </div>
     </turbo-frame>
+    {% endif %}
 
     {% if overviewPeriodViewModel is defined and overviewPeriodViewModel.showNavigation %}
         {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
