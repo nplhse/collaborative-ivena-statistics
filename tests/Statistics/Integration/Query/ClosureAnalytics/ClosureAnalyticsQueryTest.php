@@ -86,7 +86,9 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertSame('Closure Hospital', $segments[0]->hospitalName);
         $units = $temporal->fetchBreakdown($criteria, 'closure_unit');
         self::assertCount(1, $units);
-        self::assertSame('Closure Hospital · Local A', $units[0]->name);
+        self::assertSame('Local A', $units[0]->name);
+        self::assertSame('Closure Hospital', $units[0]->hospitalName);
+        self::assertSame(2, $units[0]->eventCount);
 
         $eventQuery = self::getContainer()->get(ClosureEventQuery::class);
         $events = $eventQuery->fetchEvents($criteria, 0, 25, 'startsAt', 'desc');

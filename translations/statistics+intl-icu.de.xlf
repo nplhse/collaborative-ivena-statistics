@@ -7188,6 +7188,7 @@
       <trans-unit id="statsClosureOverview10" resname="stats.closure.breakdown.show_less"><source>stats.closure.breakdown.show_less</source><target>Weniger anzeigen</target></trans-unit>
       <trans-unit id="statsClosureOverview06" resname="stats.closure.breakdown.unit"><source>stats.closure.breakdown.unit</source><target>Schließungseinheit</target></trans-unit>
       <trans-unit id="statsClosureOverview07" resname="stats.closure.breakdown.share"><source>stats.closure.breakdown.share</source><target>Anteil</target></trans-unit>
+      <trans-unit id="statsClosureUnitsEventsDe" resname="stats.closure.units.events"><source>stats.closure.units.events</source><target>Anzahl der Ereignisse</target></trans-unit>
       <trans-unit id="statsClosureOverview08" resname="stats.closure.breakdown.closure_count"><source>stats.closure.breakdown.closure_count</source><target>{count, plural, one {# Schließung} other {# Schließungen}}</target></trans-unit>
       <trans-unit id="statsClosureBreakdownEventTypeDe" resname="stats.closure.breakdown.event_type"><source>stats.closure.breakdown.event_type</source><target>Ereignistypen</target></trans-unit>
       <trans-unit id="statsClosureBreakdownEventCountDe" resname="stats.closure.breakdown.event_count"><source>stats.closure.breakdown.event_count</source><target>{count, plural, one {# Ereignis} other {# Ereignisse}}</target></trans-unit>

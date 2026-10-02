@@ -48,7 +48,13 @@ final readonly class DataTablePreferenceService
             ? $pageSize
             : $state->pageSize;
 
-        return new DataTablePreferenceState($resolvedVisible, $resolvedOrder, $resolvedPageSize);
+        return new DataTablePreferenceState(
+            $resolvedVisible,
+            $resolvedOrder,
+            $resolvedPageSize,
+            $state->sortBy,
+            $state->orderBy,
+        );
     }
 
     /**
@@ -61,7 +67,8 @@ final readonly class DataTablePreferenceService
             throw new \InvalidArgumentException(sprintf('Unknown DataTable preference key "%s".', $tableKey));
         }
 
-        $state = $this->reconcile($schema, $configuration);
+        $existing = $this->repository->findForUserAndTable($user, $tableKey)?->getConfiguration() ?? [];
+        $state = $this->reconcile($schema, array_replace($existing, $configuration));
         $preference = $this->repository->findForUserAndTable($user, $tableKey);
         if (!$preference instanceof DataTablePreference) {
             $preference = new DataTablePreference($user, $tableKey, $state->toArray());
@@ -101,6 +108,8 @@ final readonly class DataTablePreferenceService
             $defaults->visibleColumns,
             $defaults->columnOrder,
             $current->pageSize,
+            $current->sortBy,
+            $current->orderBy,
         )->toArray());
         $this->repository->save($preference);
     }
@@ -122,6 +131,8 @@ final readonly class DataTablePreferenceService
             $current->visibleColumns,
             $current->columnOrder,
             $schema->defaultPageSize,
+            [] === $schema->sortKeys ? null : $schema->defaultSortBy,
+            [] === $schema->sortKeys ? null : $schema->defaultOrderBy,
         )->toArray());
         $this->repository->save($preference);
     }
@@ -155,10 +166,14 @@ final readonly class DataTablePreferenceService
             $pageSize = $schema->defaultPageSize;
         }
 
+        [$sortBy, $orderBy] = $this->sort($schema, $configuration);
+
         return new DataTablePreferenceState(
             $this->visibleColumns($visible, $schema),
             $order,
             $pageSize,
+            $sortBy,
+            $orderBy,
         );
     }
 
@@ -197,6 +212,29 @@ final readonly class DataTablePreferenceService
         }
 
         return $resolved;
+    }
+
+    /**
+     * @param array<string, mixed> $configuration
+     *
+     * @return array{0: ?string, 1: ?string}
+     */
+    private function sort(DataTablePreferenceSchema $schema, array $configuration): array
+    {
+        if ([] === $schema->sortKeys || null === $schema->defaultSortBy) {
+            return [null, null];
+        }
+
+        $sortBy = $configuration['sortBy'] ?? $schema->defaultSortBy;
+        $orderBy = $configuration['orderBy'] ?? $schema->defaultOrderBy;
+        if (!\is_string($sortBy) || !\in_array($sortBy, $schema->sortKeys, true)) {
+            $sortBy = $schema->defaultSortBy;
+        }
+        if (!\is_string($orderBy) || !\in_array($orderBy, ['asc', 'desc'], true)) {
+            $orderBy = $schema->defaultOrderBy;
+        }
+
+        return [$sortBy, $orderBy];
     }
 
     /**

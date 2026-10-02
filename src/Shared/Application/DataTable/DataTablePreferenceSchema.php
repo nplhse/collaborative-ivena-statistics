@@ -11,6 +11,7 @@ final readonly class DataTablePreferenceSchema
      * @param list<string> $defaultVisibleColumns
      * @param list<string> $requiredColumns
      * @param list<int>    $pageSizes
+     * @param list<string> $sortKeys
      */
     public function __construct(
         public string $key,
@@ -19,6 +20,9 @@ final readonly class DataTablePreferenceSchema
         public array $requiredColumns,
         public array $pageSizes = [25, 50, 100],
         public int $defaultPageSize = 25,
+        public array $sortKeys = [],
+        public ?string $defaultSortBy = null,
+        public string $defaultOrderBy = 'desc',
     ) {
         if ('' === $key || [] === $columnOrder) {
             throw new \InvalidArgumentException('DataTable preference schema requires a key and columns.');
@@ -32,6 +36,8 @@ final readonly class DataTablePreferenceSchema
             $this->defaultVisibleColumns,
             $this->columnOrder,
             $this->defaultPageSize,
+            [] === $this->sortKeys ? null : $this->defaultSortBy,
+            [] === $this->sortKeys ? null : $this->defaultOrderBy,
         );
     }
 }

@@ -111,9 +111,19 @@ same blue/violet family as the event table. Coarser grid cells still only mark
 closed versus concurrent time.
 
 Hospital-local `closure_unit` labels are grouped by hospital id and label. Identical
-labels from different hospitals are not merged. In Hospital and My Hospitals
-scope, each unit in the overview links to the timeline with that hospital-local
-unit, scope, period, and the remaining contextual filters preserved.
+labels from different hospitals are not merged. The overview lists them in a
+paginated table with hospital, unit name, share, event count, and actual
+duration (`Dauer`). The unit name wraps inside its cell and does not repeat the
+hospital. Page sizes are 25, 50, and 100, defaulting to 25 rows sorted by
+duration descending. The table uses `unitsSort`, `unitsOrder`, `unitsLimit`,
+`unitsPage`, `unitsColumns`, and `unitsColumnOrder`, so its state stays
+independent of the event table. Visible columns, their order, the page size,
+and the sort chosen in the sort menu are stored per user under
+`statistics.closure_analytics.units`. A link can still override that layout for
+one request; saving the layout removes those parameters so the stored choice
+applies again. The unit name stays visible. In Hospital and My Hospitals scope,
+it links to the timeline with that hospital-local unit, scope, period, and the
+remaining contextual filters preserved.
 
 Stored timestamps are Europe/Berlin wall-clock values. Temporal analytics converts
 them to an absolute timeline before calculating elapsed durations, so daylight

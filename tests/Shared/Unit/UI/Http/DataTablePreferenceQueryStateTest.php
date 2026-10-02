@@ -42,4 +42,24 @@ final class DataTablePreferenceQueryStateTest extends TestCase
         self::assertSame([], $invalid->columnOrder);
         self::assertNull($invalid->pageSize);
     }
+
+    public function testReadsCustomQueryKeys(): void
+    {
+        $state = DataTablePreferenceQueryState::fromRequest(
+            Request::create('/table', 'GET', [
+                'unitsColumns' => 'name,duration',
+                'unitsColumnOrder' => 'duration,name',
+                'unitsLimit' => '100',
+                'columns' => 'hospital',
+                'limit' => '25',
+            ]),
+            'unitsColumns',
+            'unitsColumnOrder',
+            'unitsLimit',
+        );
+
+        self::assertSame(['name', 'duration'], $state->visibleColumns);
+        self::assertSame(['duration', 'name'], $state->columnOrder);
+        self::assertSame(100, $state->pageSize);
+    }
 }

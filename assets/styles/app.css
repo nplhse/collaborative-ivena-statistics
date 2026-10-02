@@ -607,6 +607,13 @@
     background: var(--tblr-purple);
 }
 
+[data-testid="stats-closure-unit-name"] {
+    display: inline-block;
+    max-width: 18rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .closure-breakdown-rows > * + * {
     margin-top: 1rem;
 }

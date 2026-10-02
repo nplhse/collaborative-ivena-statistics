@@ -55,6 +55,14 @@ final class DataTable
 
     public ?string $orderBy = null;
 
+    public string $pageParam = 'page';
+
+    public string $limitParam = 'limit';
+
+    public string $sortByParam = 'sortBy';
+
+    public string $orderByParam = 'orderBy';
+
     public bool $columnVisibilityEnabled = false;
 
     public string $columnVisibilityParam = 'columns';
@@ -76,6 +84,8 @@ final class DataTable
     public ?string $preferenceCsrfToken = null;
 
     public ?string $preferenceReturnUrl = null;
+
+    public bool $persistSort = false;
 
     /** @psalm-suppress PossiblyUnusedProperty Consumed by DataTable.html.twig. */
     public bool $loading = false;
@@ -245,7 +255,7 @@ final class DataTable
     {
         $request = $this->currentRequest();
         $query = $request instanceof Request ? $request->query->all() : [];
-        foreach (['sortBy', 'orderBy', 'limit', ...self::DROP_QUERY_KEYS] as $key) {
+        foreach ([$this->sortByParam, $this->orderByParam, $this->limitParam, $this->pageParam, ...self::DROP_QUERY_KEYS] as $key) {
             unset($query[$key]);
         }
 
@@ -255,9 +265,9 @@ final class DataTable
     public function sortResetUrl(): string
     {
         return $this->buildUrl([
-            'sortBy' => null,
-            'orderBy' => null,
-            'limit' => null,
+            $this->sortByParam => null,
+            $this->orderByParam => null,
+            $this->limitParam => null,
         ], dropPagination: true);
     }
 
@@ -430,8 +440,8 @@ final class DataTable
     private function sortUrlFor(DataTableColumn $column, string $order): string
     {
         return $this->buildUrl([
-            'sortBy' => $column->resolvedSortKey(),
-            'orderBy' => $order,
+            $this->sortByParam => $column->resolvedSortKey(),
+            $this->orderByParam => $order,
         ], dropPagination: true);
     }
 
@@ -457,11 +467,11 @@ final class DataTable
         $pageSize = $this->getPageSize();
         $links = [];
         foreach (self::PAGE_SIZES as $size) {
-            $params = ['limit' => $size];
+            $params = [$this->limitParam => $size];
             if ($this->isCursorPaginator()) {
                 $params['cursor'] = null;
             } else {
-                $params['page'] = 1;
+                $params[$this->pageParam] = 1;
             }
 
             $links[] = [
@@ -537,7 +547,7 @@ final class DataTable
         }
 
         if ($dropPagination) {
-            foreach (self::DROP_QUERY_KEYS as $key) {
+            foreach ([$this->pageParam, ...self::DROP_QUERY_KEYS] as $key) {
                 unset($query[$key]);
             }
         }

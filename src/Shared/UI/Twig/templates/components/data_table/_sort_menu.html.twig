@@ -17,14 +17,31 @@
             <h3 class="data-table-popover__title">{{ 'label.data_table.sort'|trans({}, 'shared') }}</h3>
             <p class="data-table-popover__help">{{ 'help.data_table.sort'|trans({}, 'shared') }}</p>
         </div>
-        <form method="get" action="{{ this.sortFormAction }}" data-testid="data-table-sort-form">
-            {% for field in this.sortFormHiddenFields %}
-                <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
-            {% endfor %}
+        <form
+            method="{{ this.persistSort and this.preferenceEnabled ? 'post' : 'get' }}"
+            action="{{ this.persistSort and this.preferenceEnabled ? preferenceSaveUrl : this.sortFormAction }}"
+            data-testid="data-table-sort-form"
+        >
+            {% if this.persistSort and this.preferenceEnabled %}
+                <input type="hidden" name="_token" value="{{ preferenceCsrfToken }}">
+                <input type="hidden" name="tableKey" value="{{ preferenceKey }}">
+                <input type="hidden" name="returnUrl" value="{{ preferenceReturnUrl }}">
+                <input type="hidden" name="action" value="save">
+                {% for column in this.visibleColumns %}
+                    <input type="hidden" name="visibleColumns[]" value="{{ column.key }}">
+                {% endfor %}
+                {% for key in this.resolvedColumnOrder %}
+                    <input type="hidden" name="columnOrder[]" value="{{ key }}">
+                {% endfor %}
+            {% else %}
+                {% for field in this.sortFormHiddenFields %}
+                    <input type="hidden" name="{{ field.name }}" value="{{ field.value }}">
+                {% endfor %}
+            {% endif %}
             <div class="data-table-popover__body">
                 <div class="mb-3">
                     <label class="form-label" for="data-table-sort-by">{{ 'label.data_table.sort_column'|trans({}, 'shared') }}</label>
-                    <select class="form-select" id="data-table-sort-by" name="sortBy">
+                    <select class="form-select" id="data-table-sort-by" name="{{ this.persistSort and this.preferenceEnabled ? 'sortBy' : this.sortByParam }}">
                         {% for choice in this.sortChoices %}
                             <option value="{{ choice.sortKey }}"{% if choice.selected %} selected{% endif %}>
                                 {{ choice.column.label|trans({}, choice.column.labelDomain) }}
@@ -34,7 +51,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="data-table-sort-order">{{ 'label.data_table.sort_direction'|trans({}, 'shared') }}</label>
-                    <select class="form-select" id="data-table-sort-order" name="orderBy">
+                    <select class="form-select" id="data-table-sort-order" name="{{ this.persistSort and this.preferenceEnabled ? 'orderBy' : this.orderByParam }}">
                         <option value="asc"{% if this.selectedSortDirection == 'asc' %} selected{% endif %}>
                             {{ 'label.data_table.sort_asc_short'|trans({}, 'shared') }}
                         </option>
@@ -45,7 +62,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="data-table-sort-limit">{{ 'label.data_table.page_size'|trans({}, 'shared') }}</label>
-                    <select class="form-select" id="data-table-sort-limit" name="limit">
+                    <select class="form-select" id="data-table-sort-limit" name="{{ this.persistSort and this.preferenceEnabled ? 'pageSize' : this.limitParam }}">
                         {% for size in this.pageSizes %}
                             <option value="{{ size }}"{% if size == this.pageSize %} selected{% endif %}>
                                 {{ 'label.pagination_results'|trans({pageSize: size}, 'messages') }}

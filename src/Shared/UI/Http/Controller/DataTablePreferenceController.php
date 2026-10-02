@@ -46,21 +46,28 @@ final class DataTablePreferenceController extends AbstractController
         } elseif ('reset-sort' === $action) {
             $preferences->resetSort($user, $tableKey);
         } else {
-            $preferences->save($user, $tableKey, [
+            $configuration = [
                 'visibleColumns' => \is_array($body['visibleColumns'] ?? null) ? $body['visibleColumns'] : [],
                 'columnOrder' => \is_array($body['columnOrder'] ?? null) ? $body['columnOrder'] : [],
                 'pageSize' => $this->pageSize($body['pageSize'] ?? null, $schema->defaultPageSize),
-            ]);
+            ];
+            if (\is_string($body['sortBy'] ?? null) && '' !== $body['sortBy']) {
+                $configuration['sortBy'] = $body['sortBy'];
+            }
+            if (\is_string($body['orderBy'] ?? null) && '' !== $body['orderBy']) {
+                $configuration['orderBy'] = $body['orderBy'];
+            }
+            $preferences->save($user, $tableKey, $configuration);
         }
 
         $candidate = \is_string($body['returnUrl'] ?? null) ? $body['returnUrl'] : null;
         $target = $redirectTargetResolver->resolve($candidate, $request, '/');
 
         return $this->redirect($this->withoutQueryKeys($target, match ($action) {
-            'reset' => ['columns', 'columnOrder', 'limit', 'page', 'cursor', 'after', 'before', 'sortBy', 'orderBy'],
-            'reset-columns' => ['columns', 'columnOrder'],
-            'reset-sort' => ['sortBy', 'orderBy', 'limit', 'page', 'cursor', 'after', 'before'],
-            default => ['columns', 'columnOrder', 'limit', 'page', 'cursor', 'after', 'before'],
+            'reset' => ['columns', 'columnOrder', 'limit', 'page', 'cursor', 'after', 'before', 'sortBy', 'orderBy', 'unitsColumns', 'unitsColumnOrder', 'unitsLimit', 'unitsPage', 'unitsSort', 'unitsOrder'],
+            'reset-columns' => ['columns', 'columnOrder', 'unitsColumns', 'unitsColumnOrder'],
+            'reset-sort' => ['sortBy', 'orderBy', 'limit', 'page', 'cursor', 'after', 'before', 'unitsSort', 'unitsOrder', 'unitsLimit', 'unitsPage'],
+            default => ['columns', 'columnOrder', 'limit', 'page', 'cursor', 'after', 'before', 'unitsColumns', 'unitsColumnOrder', 'unitsLimit', 'unitsPage', 'unitsSort', 'unitsOrder'],
         }));
     }
 
