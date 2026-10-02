@@ -151,8 +151,9 @@ final class SplCsvRowReader implements RowReaderInterface
     }
 
     /**
-     * Read one physical line and parse it as RFC 4180 CSV (empty escape).
-     * Falls back to a quoted-field split when inner ASCII quotes shift columns.
+     * Read one CSV record. A quoted field may continue on the next physical line.
+     * A line that already has the expected column count is left intact, so an
+     * unescaped inner quote does not swallow the following row.
      *
      * @return array<int,string|null>|false
      */
@@ -163,7 +164,30 @@ final class SplCsvRowReader implements RowReaderInterface
         }
 
         $line = $this->file->fgets();
+        if (!\is_string($line)) {
+            return false;
+        }
 
+        $parsed = $this->parseRecord($line);
+        $parts = 0;
+        while ($parts < 20 && !$this->file->eof() && $this->quotedFieldContinues($line, $parsed)) {
+            ++$parts;
+            $next = $this->file->fgets();
+            if (!\is_string($next)) {
+                break;
+            }
+            $line .= $next;
+            $parsed = $this->parseRecord($line);
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * @return array<int, string|null>
+     */
+    private function parseRecord(string $line): array
+    {
         return $this->csvParser->parseLine(
             $line,
             $this->delimiter,
@@ -171,6 +195,18 @@ final class SplCsvRowReader implements RowReaderInterface
             $this->escape,
             $this->expectedColumnCount,
         );
+    }
+
+    /**
+     * @param array<int, string|null> $parsed
+     */
+    private function quotedFieldContinues(string $line, array $parsed): bool
+    {
+        if (null === $this->expectedColumnCount || \count($parsed) === $this->expectedColumnCount || '' === $this->enclosure) {
+            return false;
+        }
+
+        return 1 === substr_count($line, $this->enclosure) % 2;
     }
 
     private function nfc(string $value): string

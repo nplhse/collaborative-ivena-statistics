@@ -41,6 +41,45 @@ final class SplCsvRowReaderQuoteParsingTest extends TestCase
         yield 'typographic quotes' => ["\"332 STEMI / \u{201C}OMI\u{201D}\"", "332 STEMI / \u{201C}OMI\u{201D}"];
     }
 
+    public function testQuotedLineBreakStaysInsideTheField(): void
+    {
+        $header = 'kurzname;bemerkung;typ';
+        $body = "Sana Klinikum, Offenbach;\"Hinweis:\n<br />weiter\";Klinik\nAndere Zeile;kurz;Klinik\n";
+        $path = tempnam(sys_get_temp_dir(), 'ivena_csv_');
+        self::assertNotFalse($path);
+        file_put_contents($path, $header."\n".$body);
+        $this->tempFiles[] = $path;
+
+        $rows = iterator_to_array($this->createReader($path)->rowsAssoc(), false);
+
+        self::assertCount(2, $rows);
+        self::assertSame('Sana Klinikum, Offenbach', $rows[0]['kurzname']);
+        self::assertSame('Hinweis:<br />weiter', $rows[0]['bemerkung']);
+        self::assertSame('Klinik', $rows[0]['typ']);
+        self::assertSame('Andere Zeile', $rows[1]['kurzname']);
+    }
+
+    public function testUnescapedInnerQuoteDoesNotSwallowTheNextRow(): void
+    {
+        $path = $this->writeFixture('"332 STEMI / "OMI""');
+        $second = implode(';', [
+            '"Next Area"',
+            '"100"',
+            '"plain"',
+            '"08.01.2025"',
+            '"11:00"',
+            '""',
+            '""',
+        ]);
+        file_put_contents($path, file_get_contents($path).$second."\n");
+
+        $rows = iterator_to_array($this->createReader($path)->rowsAssoc(), false);
+
+        self::assertCount(2, $rows);
+        self::assertSame('Next Area', $rows[1]['versorgungsbereich']);
+        self::assertSame('100', $rows[1]['pzc']);
+    }
+
     public function testUnquotedUtf8FixtureStillReads(): void
     {
         $path = \dirname(__DIR__, 5).'/tests/Import/Fixtures/csv/utf8.csv';
