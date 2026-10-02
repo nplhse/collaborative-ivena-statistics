@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { buildHeatmapColorScale } from '../lib/build-analysis-heatmap-options.js';
 import {
     buildHeatmapSeries,
     heatmapColumnIndexFromSeriesIndex,
@@ -96,6 +97,8 @@ export default class extends Controller {
 
     async renderHeatmap(ApexCharts, payload) {
         const labels = payload.columnLabels ?? [];
+        const matrix = payload.matrix ?? [];
+        const colorScale = buildHeatmapColorScale(matrix);
         const chart = new ApexCharts(this.heatmapChartTarget, {
             chart: {
                 type: 'heatmap',
@@ -103,16 +106,21 @@ export default class extends Controller {
                 toolbar: { show: false },
                 fontFamily: 'inherit',
             },
-            series: buildHeatmapSeries(labels, payload.rowLabels ?? [], payload.matrix ?? []),
-            colors: ['#206bc4'],
+            series: buildHeatmapSeries(labels, payload.rowLabels ?? [], matrix),
+            colors: ['#2fb344'],
             plotOptions: {
                 heatmap: {
                     radius: 2,
-                    enableShades: true,
-                    shadeIntensity: 0.8,
+                    enableShades: false,
+                    colorScale: {
+                        min: colorScale.min,
+                        max: Math.max(colorScale.max, 1),
+                        ranges: colorScale.ranges,
+                    },
                 },
             },
             dataLabels: { enabled: false },
+            legend: { show: false },
             tooltip: {
                 custom: ({ seriesIndex, dataPointIndex, w }) => {
                     const slot = heatmapColumnIndexFromSeriesIndex(seriesIndex, labels.length);

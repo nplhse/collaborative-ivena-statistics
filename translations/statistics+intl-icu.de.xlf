@@ -7203,7 +7203,6 @@
       <trans-unit id="statsClosure70" resname="stats.closure.kpi.events"><source>stats.closure.kpi.events</source><target>Gruppen / Ereignisse</target></trans-unit>
       <trans-unit id="statsClosure71" resname="stats.closure.coverage.unknown"><source>stats.closure.coverage.unknown</source><target>Der tatsächliche Beobachtungszeitraum des Exports ist unbekannt.</target></trans-unit>
       <trans-unit id="statsClosure72" resname="stats.closure.coverage.unknown_description"><source>stats.closure.coverage.unknown_description</source><target>Die rechnerische Summe der importabgeleiteten Zeitspannen beträgt {observed} und dient nur zur Orientierung. Daraus wird kein Prozentanteil berechnet.</target></trans-unit>
-      <trans-unit id="statsClosure73" resname="stats.closure.heatmap.duration_help"><source>stats.closure.heatmap.duration_help</source><target>Farbe: vereinigte tatsächliche Schließungsdauer je Wochentag und Zwei-Stunden-Fenster; keine Quote.</target></trans-unit>
       <trans-unit id="statsClosure74" resname="stats.closure.chart.duration"><source>stats.closure.chart.duration</source><target>Tatsächliche Schließungsdauer</target></trans-unit>
       <trans-unit id="statsClosure75" resname="stats.closure.chart.hours"><source>stats.closure.chart.hours</source><target>Stunden</target></trans-unit>
       <trans-unit id="statsClosure76" resname="stats.closure.filter.multiple_hint"><source>stats.closure.filter.multiple_hint</source><target>Mehrfachauswahl möglich.</target></trans-unit>

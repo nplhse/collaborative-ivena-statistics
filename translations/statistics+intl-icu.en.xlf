@@ -7203,7 +7203,6 @@
       <trans-unit id="statsClosure70" resname="stats.closure.kpi.events"><source>stats.closure.kpi.events</source><target>Groups / events</target></trans-unit>
       <trans-unit id="statsClosure71" resname="stats.closure.coverage.unknown"><source>stats.closure.coverage.unknown</source><target>The export's actual observation period is unknown.</target></trans-unit>
       <trans-unit id="statsClosure72" resname="stats.closure.coverage.unknown_description"><source>stats.closure.coverage.unknown_description</source><target>The calculated sum of import-derived time spans is {observed} and is only a guide. No percentage is calculated from it.</target></trans-unit>
-      <trans-unit id="statsClosure73" resname="stats.closure.heatmap.duration_help"><source>stats.closure.heatmap.duration_help</source><target>Colour: merged actual closure duration per weekday and two-hour slot; not a percentage.</target></trans-unit>
       <trans-unit id="statsClosure74" resname="stats.closure.chart.duration"><source>stats.closure.chart.duration</source><target>Actual closure duration</target></trans-unit>
       <trans-unit id="statsClosure75" resname="stats.closure.chart.hours"><source>stats.closure.chart.hours</source><target>hours</target></trans-unit>
       <trans-unit id="statsClosure76" resname="stats.closure.filter.multiple_hint"><source>stats.closure.filter.multiple_hint</source><target>Multiple selection is possible.</target></trans-unit>

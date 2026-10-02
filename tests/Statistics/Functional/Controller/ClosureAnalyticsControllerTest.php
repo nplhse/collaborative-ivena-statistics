@@ -272,6 +272,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="timeSeriesChart"]');
         $this->assertSelectorExists('.col-xl-8 [data-closure-analytics-charts-target="heatmapChart"]');
+        $this->assertSelectorTextNotContains('body', 'not a percentage');
         $this->assertSelectorExists('[data-closure-analytics-charts-target="timeSeriesChart"]');
         $this->assertSelectorExists('[data-closure-analytics-charts-target="heatmapChart"]');
         $this->assertSelectorTextContains('[data-testid="stats-closure-breakdown-event_type"]', 'Event types');

@@ -607,6 +607,14 @@
     background: var(--tblr-purple);
 }
 
+.closure-breakdown-rows > * + * {
+    margin-top: 1rem;
+}
+
+.closure-breakdown-details {
+    margin-top: 0.5rem;
+}
+
 .closure-breakdown-details[open] {
     display: flex;
     flex-direction: column;
