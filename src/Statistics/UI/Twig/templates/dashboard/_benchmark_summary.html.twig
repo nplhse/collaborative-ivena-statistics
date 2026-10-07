@@ -9,7 +9,7 @@
             </div>
             <div class="card-body">
                 {% if executiveDashboard.benchmarkInsufficientData %}
-                    <p class="text-muted mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans({}, 'statistics') }}</p>
+                    <p class="text-secondary mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans({}, 'statistics') }}</p>
                 {% else %}
                     <div class="row g-2">
                         {% for item in executiveDashboard.benchmarkScorecard %}
@@ -34,9 +34,9 @@
             </div>
             <div class="card-body">
                 {% if executiveDashboard.benchmarkInsufficientData or executiveDashboard.benchmarkSuppressRatios %}
-                    <p class="text-muted mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans({}, 'statistics') }}</p>
+                    <p class="text-secondary mb-0">{{ 'stats.overview.executive.benchmark.insufficient'|trans({}, 'statistics') }}</p>
                 {% else %}
-                    <p class="text-muted small mb-2">{{ 'stats.overview.executive.benchmark.positive'|trans({}, 'statistics') }}</p>
+                    <p class="text-secondary small mb-2">{{ 'stats.overview.executive.benchmark.positive'|trans({}, 'statistics') }}</p>
                     <ul class="list-unstyled mb-3">
                         {% for deviation in executiveDashboard.benchmarkDeviations.positive %}
                             <li class="d-flex justify-content-between gap-2 mb-1">
@@ -50,10 +50,10 @@
                                 <span class="badge bg-green-lt">{{ deviation.ratio|number_format(1, ',', '.') }}×</span>
                             </li>
                         {% else %}
-                            <li class="text-muted">—</li>
+                            <li class="text-secondary">—</li>
                         {% endfor %}
                     </ul>
-                    <p class="text-muted small mb-2">{{ 'stats.overview.executive.benchmark.negative'|trans({}, 'statistics') }}</p>
+                    <p class="text-secondary small mb-2">{{ 'stats.overview.executive.benchmark.negative'|trans({}, 'statistics') }}</p>
                     <ul class="list-unstyled mb-0">
                         {% for deviation in executiveDashboard.benchmarkDeviations.negative %}
                             <li class="d-flex justify-content-between gap-2 mb-1">
@@ -67,7 +67,7 @@
                                 <span class="badge bg-red-lt">{{ deviation.ratio|number_format(1, ',', '.') }}×</span>
                             </li>
                         {% else %}
-                            <li class="text-muted">—</li>
+                            <li class="text-secondary">—</li>
                         {% endfor %}
                     </ul>
                 {% endif %}

@@ -25,7 +25,7 @@
             </div>
             <div class="col">
                 <h1 class="fw-bold" data-testid="closure-event-title">{{ eventTitle }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
                         <span class="badge {{ event.grouped ? 'bg-blue-lt text-blue' : (event.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
                             {{ ('stats.closure.events.' ~ event.type.value)|trans({}, 'statistics') }}

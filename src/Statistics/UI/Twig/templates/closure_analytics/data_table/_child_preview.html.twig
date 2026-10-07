@@ -20,7 +20,7 @@
         {% for child in row.children|slice(0, 8) %}
             <div class="closure-event-preview__item{% if not loop.last %} border-bottom{% endif %}">
                 <h3 class="closure-event-preview__title">{{ child.departmentName }}</h3>
-                <p class="closure-event-preview__time text-muted">
+                <p class="closure-event-preview__time text-secondary">
                     <twig:ux:icon name="tabler:clock" class="icon" aria-hidden="true" />
                     {{ child.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
                     –

@@ -101,7 +101,7 @@ final readonly class ClosureRowMapper
 
         $date = $this->normalizeDate($matches['date']);
         $time = $this->normalizeTime($matches['time']);
-        if (1 !== preg_match('/^\d{2}\.\d{2}\.\d{4}$/', (string) $date) || 1 !== preg_match('/^\d{2}:\d{2}:\d{2}$/', (string) $time)) {
+        if (!\is_string($date) || 1 !== preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $date) || !\is_string($time) || 1 !== preg_match('/^\d{2}:\d{2}:\d{2}$/', $time)) {
             return $value;
         }
 

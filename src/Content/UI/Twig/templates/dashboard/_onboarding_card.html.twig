@@ -53,7 +53,7 @@
         <div class="border rounded overflow-hidden">
             <ul class="list-unstyled mb-0">
                 {% for step in onboardingCard.openSteps %}
-                    <li class="p-3{% if not loop.last %} border-bottom{% endif %}{% if not step.isActionable %} bg-light{% endif %}"
+                    <li class="p-3{% if not loop.last %} border-bottom{% endif %}"
                         data-testid="onboarding-step-{{ step.key.value }}"
                         {% if not step.isActionable %}data-testid-onboarding-locked="true"{% endif %}>
                         <div class="fw-medium mb-1 d-flex align-items-center gap-2{% if not step.isActionable %} text-secondary{% endif %}">

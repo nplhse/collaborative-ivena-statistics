@@ -125,7 +125,7 @@
         <div class="col-lg-4" data-testid="stats-insights-teasers">
             {% for teaser in teasers %}
                 <div class="card{% if not loop.last %} mb-3{% endif %}" data-testid="stats-insights-teaser-{{ teaser.key }}">
-                    <div class="card-header bg-light">
+                    <div class="card-header">
                         <h3 class="card-title mb-0">
                             <a href="{{ teaser.url }}" class="link-primary" data-testid="stats-insights-teaser-title-{{ teaser.key }}">
                                 <twig:ux:icon name="{{ teaser.icon }}" class="icon me-1" />

@@ -91,7 +91,7 @@ export default class extends Controller {
             );
 
             element.classList.toggle('text-success', met);
-            element.classList.toggle('text-muted', !met);
+            element.classList.toggle('text-secondary', !met);
 
             if (metIcon) {
                 metIcon.classList.toggle('d-none', !met);

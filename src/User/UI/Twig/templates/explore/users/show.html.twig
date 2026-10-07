@@ -30,7 +30,7 @@
             </div>
             <div class="col">
                 <h1 id="user-username" class="fw-bold mb-1">{{ profile.username }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     {% if profile.isSelf %}
                         <div class="list-inline-item">
                             <twig:Badge variant="green" data-testid="user-badge-self">{{ 'label.user.self_profile'|trans({}, 'user') }}</twig:Badge>

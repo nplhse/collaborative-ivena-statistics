@@ -5,7 +5,7 @@
         {% if node.children is not empty %}
             <details open class="border-0">
                 <summary class="d-flex align-items-center gap-1 small fw-medium">
-                    <twig:ux:icon name="tabler:folder" class="icon text-muted flex-shrink-0" />
+                    <twig:ux:icon name="tabler:folder" class="icon text-secondary flex-shrink-0" />
                     {% if pathSegment != '' %}
                         <a href="{{ path('app_page_show', {path: pathSegment}) }}" class="{{ isCurrent ? 'fw-semibold' : '' }}" onclick="event.stopPropagation()">{{ node.title }}</a>
                     {% else %}
@@ -18,7 +18,7 @@
             </details>
         {% else %}
             <div class="d-flex align-items-center gap-1 small">
-                <twig:ux:icon name="tabler:file-text" class="icon text-muted flex-shrink-0" />
+                <twig:ux:icon name="tabler:file-text" class="icon text-secondary flex-shrink-0" />
                 {% if pathSegment != '' %}
                     <a href="{{ path('app_page_show', {path: pathSegment}) }}" class="{{ isCurrent ? 'fw-semibold' : '' }}">{{ node.title }}</a>
                 {% else %}

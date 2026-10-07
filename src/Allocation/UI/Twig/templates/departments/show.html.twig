@@ -28,7 +28,7 @@
             </div>
             <div class="col">
                 <h1 id="department-name" class="fw-bold">{{ department.name }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
                         {{ 'catalog.type.department'|trans({}, 'allocation') }}
                     </div>
@@ -81,7 +81,7 @@
                         <div class="card-title">
                             {{ 'catalog.department.aliases.title'|trans({}, 'allocation') }}
                         </div>
-                        <p class="text-muted mb-2">{{ 'catalog.department.aliases.hint'|trans({}, 'allocation') }}</p>
+                        <p class="text-secondary mb-2">{{ 'catalog.department.aliases.hint'|trans({}, 'allocation') }}</p>
                         <ul class="list-unstyled mb-0">
                             {% for alias in aliases %}
                                 <li class="mb-1" data-testid="department-alias">{{ alias.name }}</li>

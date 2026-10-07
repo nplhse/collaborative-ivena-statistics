@@ -24,7 +24,7 @@
                             </td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="3" class="text-muted">No funnel data yet.</td></tr>
+                        <tr><td colspan="3" class="text-secondary">No funnel data yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -33,7 +33,7 @@
 
     <h3 class="mb-3">Time to first value (30 days)</h3>
     <div class="card mb-4">
-        <div class="card-body text-muted small mb-0">
+        <div class="card-body text-secondary small mb-0">
             Median days from first registration/participant event to first import, analysis run, or export (same analytics user key).
         </div>
         <div class="table-responsive">
@@ -66,7 +66,7 @@
                             {% for row in journeys.entryRoutes %}
                                 <tr><td><code>{{ row.routeName }}</code></td><td class="text-end">{{ row.sessionCount }}</td></tr>
                             {% else %}
-                                <tr><td colspan="2" class="text-muted">No data.</td></tr>
+                                <tr><td colspan="2" class="text-secondary">No data.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -83,7 +83,7 @@
                             {% for row in journeys.exitRoutes %}
                                 <tr><td><code>{{ row.routeName }}</code></td><td class="text-end">{{ row.sessionCount }}</td></tr>
                             {% else %}
-                                <tr><td colspan="2" class="text-muted">No data.</td></tr>
+                                <tr><td colspan="2" class="text-secondary">No data.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -103,7 +103,7 @@
                                     <td class="text-end">{{ row.transitionCount }}</td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="2" class="text-muted">No data.</td></tr>
+                                <tr><td colspan="2" class="text-secondary">No data.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>

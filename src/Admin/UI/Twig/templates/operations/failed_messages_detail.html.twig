@@ -31,10 +31,10 @@
     </dl>
 
     <h3 class="h5 mt-4">{{ 'ops.failed_messages.headers'|trans({}, 'admin') }}</h3>
-    <pre class="rounded border bg-white p-3 overflow-auto small ea-failed-messages-pre-headers">{{ message.headers }}</pre>
+    <pre class="rounded border bg-body-tertiary p-3 overflow-auto small ea-failed-messages-pre-headers">{{ message.headers }}</pre>
 
     <h3 class="h5 mt-4">{{ 'ops.failed_messages.body'|trans({}, 'admin') }}</h3>
-    <pre class="rounded border bg-white p-3 overflow-auto small ea-failed-messages-pre-body">{{ message.body }}</pre>
+    <pre class="rounded border bg-body-tertiary p-3 overflow-auto small ea-failed-messages-pre-body">{{ message.body }}</pre>
 
-    <p class="text-muted small mt-3">{{ 'ops.failed_messages.cli_hint'|trans({}, 'admin') }}</p>
+    <p class="text-secondary small mt-3">{{ 'ops.failed_messages.cli_hint'|trans({}, 'admin') }}</p>
 {% endblock %}

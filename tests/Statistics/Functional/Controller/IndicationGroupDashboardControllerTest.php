@@ -70,7 +70,7 @@ final class IndicationGroupDashboardControllerTest extends WebTestCase
         self::assertSelectorExists('[data-testid="stats-indication-group-compare-launch-modal"][data-controller="insight-compare-picker"] .modal-dialog.modal-lg.modal-dialog-scrollable');
         self::assertSelectorExists('[data-testid="stats-insights-compare-reference-a"] .stats-compare-side-a .avatar');
         self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] h3', 'Cardiology Group');
-        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] .text-muted', 'Indication groups');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] .text-secondary', 'Indication groups');
         self::assertSelectorNotExists('[data-testid="stats-insights-compare-reference-a"] .text-uppercase');
         self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');
     }

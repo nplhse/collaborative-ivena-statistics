@@ -28,7 +28,7 @@
             </div>
             <div class="col">
                 <h1 id="indication-group-name" class="fw-bold">{{ indicationGroup.name }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
                         {{ 'catalog.type.indication_group'|trans({}, 'allocation') }}
                     </div>
@@ -82,7 +82,7 @@
                         {% endif %}
                         {% if indicationGroup.description %}
                             <div class="mt-3" data-testid="catalog-editorial-note">
-                                <div class="text-muted mb-1">{{ 'catalog.field.note'|trans({}, 'allocation') }}</div>
+                                <div class="text-secondary mb-1">{{ 'catalog.field.note'|trans({}, 'allocation') }}</div>
                                 <div>{{ indicationGroup.description }}</div>
                             </div>
                         {% endif %}
@@ -93,7 +93,7 @@
                             <div class="card-title">
                                 {{ 'catalog.section.related_entities'|trans({}, 'allocation') }}
                             </div>
-                            <div class="text-muted mb-1">{{ 'catalog.relation.indications'|trans({}, 'allocation') }}</div>
+                            <div class="text-secondary mb-1">{{ 'catalog.relation.indications'|trans({}, 'allocation') }}</div>
                             <ul class="list-unstyled mb-0">
                                 {% for indication in indicationGroup.indications %}
                                     <li class="mb-1">

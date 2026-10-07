@@ -46,7 +46,7 @@
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
                 <h3 class="card-title mb-0">{{ 'stats.indication.section.age_groups'|trans({}, 'statistics') }}</h3>
                 {% if dashboard.medianAge is not null %}
-                    <span class="text-muted small">{{ 'stats.indication.median_age'|trans(({age: dashboard.medianAge|round(0)}), 'statistics') }}</span>
+                    <span class="text-secondary small">{{ 'stats.indication.median_age'|trans(({age: dashboard.medianAge|round(0)}), 'statistics') }}</span>
                 {% endif %}
             </div>
             <div class="card-body">
@@ -93,7 +93,7 @@
             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 py-2">
                 <h3 class="card-title mb-0">{{ 'stats.indication.section.transport_time'|trans({}, 'statistics') }}</h3>
                 {% if dashboard.metrics.meanTransportMinutesIndication is not null %}
-                    <span class="text-muted small">{{ 'stats.indication.mean_transport'|trans(({minutes: dashboard.metrics.meanTransportMinutesIndication|number_format(1, ',', '.')}), 'statistics') }}</span>
+                    <span class="text-secondary small">{{ 'stats.indication.mean_transport'|trans(({minutes: dashboard.metrics.meanTransportMinutesIndication|number_format(1, ',', '.')}), 'statistics') }}</span>
                 {% endif %}
             </div>
             <div class="card-body">

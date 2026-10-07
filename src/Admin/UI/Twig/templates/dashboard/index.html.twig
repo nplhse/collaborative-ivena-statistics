@@ -12,13 +12,13 @@
     {{ include('@Admin/dashboard/_ops_cards.html.twig') }}
     {{ include('@Admin/dashboard/_ops_notifications.html.twig') }}
 
-    <h3 class="h5 text-muted text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
+    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.section.title'|trans({}, 'admin') }}</h3>
     {{ include('@Admin/dashboard/_kpi_cards.html.twig') }}
     {{ include('@Admin/dashboard/_kpi_chart.html.twig') }}
     {{ include('@Admin/dashboard/_failed_imports_table.html.twig') }}
 
     {% for section in dashboard_sections %}
-        <h3 class="h5 text-muted text-uppercase mb-3">{{ section.title }}</h3>
+        <h3 class="h5 text-secondary text-uppercase mb-3">{{ section.title }}</h3>
         <div class="row mb-4">
             {% for tile in section.tiles %}
                 <div class="col-12 col-sm-6 col-lg-4 mb-3">
@@ -37,7 +37,7 @@
                                     {% endif %}
                                 </div>
                                 {% if tile.description %}
-                                    <p class="card-text text-muted small mb-0">{{ tile.description }}</p>
+                                    <p class="card-text text-secondary small mb-0">{{ tile.description }}</p>
                                 {% endif %}
                             </div>
                         </div>

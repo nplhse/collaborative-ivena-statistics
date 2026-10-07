@@ -177,7 +177,7 @@ final class RankingTableComponentTest extends KernelTestCase
         ]);
 
         self::assertStringContainsString('No ranking rows', $html);
-        self::assertStringContainsString('text-muted', $html);
+        self::assertStringContainsString('text-secondary', $html);
         self::assertStringNotContainsString('<table', $html);
         self::assertStringNotContainsString('card-footer', $html);
     }

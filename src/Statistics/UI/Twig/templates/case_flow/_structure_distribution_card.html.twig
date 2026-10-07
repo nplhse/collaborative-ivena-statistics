@@ -15,12 +15,12 @@
                     <span class="d-inline-flex align-items-center">
                         <span class="legend me-1 {{ segment.barClass }}"></span>
                         <span>{{ segment.labelTranslationKey|trans({}, statistics_label_domain(segment.labelTranslationKey)) }}</span>
-                        <span class="text-muted text-nowrap ms-1">{{ segment.count|number_format(0, ',', '.') }} ({{ segment.percent }}%)</span>
+                        <span class="text-secondary text-nowrap ms-1">{{ segment.count|number_format(0, ',', '.') }} ({{ segment.percent }}%)</span>
                     </span>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-muted small mb-0">{{ 'stats.case_flow.structure.empty'|trans({}, 'statistics') }}</p>
+            <p class="text-secondary small mb-0">{{ 'stats.case_flow.structure.empty'|trans({}, 'statistics') }}</p>
         {% endif %}
     </div>
 </div>

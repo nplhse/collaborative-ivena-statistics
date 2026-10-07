@@ -2,7 +2,7 @@
     {% if show_about is not defined or show_about %}
         <div class="col-12">
             <div class="card">
-                <div class="card-header bg-light">
+                <div class="card-header">
                     <h3 class="card-title d-flex align-items-center gap-2">
                         <twig:ux:icon name="tabler:info-circle" class="w-4 h-4" />
                         {{ 'title.blog'|trans({}, 'content') }}
@@ -21,7 +21,7 @@
 
     <div class="col-12">
         <div class="card">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:clock-hour-4" class="w-4 h-4" />
                     {{ 'blog.sidebar.latest_posts'|trans({}, 'content') }}
@@ -41,7 +41,7 @@
 
     <div class="col-12">
         <div class="card">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:folder" class="w-4 h-4" />
                     {{ 'blog.sidebar.categories'|trans({}, 'content') }}
@@ -62,7 +62,7 @@
 
     <div class="col-12">
         <div class="card">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h3 class="card-title d-flex align-items-center gap-2">
                     <twig:ux:icon name="tabler:tags" class="w-4 h-4" />
                     {{ 'blog.sidebar.tags'|trans({}, 'content') }}

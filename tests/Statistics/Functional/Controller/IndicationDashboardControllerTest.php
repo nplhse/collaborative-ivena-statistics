@@ -105,7 +105,7 @@ final class IndicationDashboardControllerTest extends WebTestCase
         $crawler = $client->getCrawler();
         self::assertSelectorExists('[data-testid="stats-insights-compare-reference-a"] .stats-compare-side-a .avatar');
         self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] h3', 'Dashboard Test Indication');
-        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] .text-muted', 'Indications');
+        self::assertSelectorTextContains('[data-testid="stats-insights-compare-reference-a"] .text-secondary', 'Indications');
         self::assertSelectorNotExists('[data-testid="stats-insights-compare-reference-a"] .text-uppercase');
         self::assertSelectorExists('[data-testid="stats-insights-compare-search"]');
         $compareSearchUrl = $crawler->filter('[data-testid="stats-insights-compare-search"]')->attr('data-insights-search-url-value');

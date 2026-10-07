@@ -38,7 +38,7 @@
                          data-catalog-orientation-map-target="mapContainer"></div>
                 </div>
                 {% if orientationMap.showRoute or orientationMap.hasContextMarkers %}
-                    <ul class="catalog-orientation-map-legend list-unstyled small text-muted mb-0 mt-2 row g-2">
+                    <ul class="catalog-orientation-map-legend list-unstyled small text-secondary mb-0 mt-2 row g-2">
                         <li class="col-sm-6 d-flex align-items-center gap-2">
                             <span class="catalog-orientation-map-legend-swatch catalog-orientation-map-legend-swatch-origin" aria-hidden="true"></span>
                             {{ 'catalog.orientation_map.legend.origin'|trans({}, 'allocation') }}
@@ -67,7 +67,7 @@
                         {% endif %}
                     </ul>
                 {% endif %}
-                <p class="catalog-orientation-map-hint text-muted small mb-0 mt-2">
+                <p class="catalog-orientation-map-hint text-secondary small mb-0 mt-2">
                     {{ 'catalog.orientation_map.hint'|trans({}, 'allocation') }}
                     {% if orientationMap.showRoute %}
                         {{ 'allocation.orientation_map.precision_hint'|trans({}, 'allocation') }}

@@ -31,7 +31,7 @@
             </div>
             <div class="col">
                 <h1 id="hospital-name" class="fw-bold">{{ hospital.name }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
                         <twig:ux:icon name="tabler:map" width="1em" height="1em" />
                         {{ explore_entity_link(hospital.dispatchArea, {class: 'link-secondary'}) }}, {{ explore_entity_link(hospital.state, {class: 'link-secondary'}) }}
@@ -132,7 +132,7 @@
                                     {{ 'label.is_participating'|trans({}, 'messages') }} <strong>{{ 'label.is_participating.yes'|trans({}, 'messages') }}</strong>
                                 </div>
                             {% else %}
-                                <div class="text-muted mb-2">
+                                <div class="text-secondary mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24"><path fill="currentColor" d="M19 2H5a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3M9.613 8.21l.094.083L12 10.585l2.293-2.292a1 1 0 0 1 1.497 1.32l-.083.094L13.415 12l2.292 2.293a1 1 0 0 1-1.32 1.497l-.094-.083L12 13.415l-2.293 2.292a1 1 0 0 1-1.497-1.32l.083-.094L10.585 12L8.293 9.707a1 1 0 0 1 1.32-1.497"/></svg>
                                     {{ 'label.is_participating'|trans({}, 'messages') }} <strong>{{ 'label.is_participating.not'|trans({}, 'messages') }}</strong>
                                 </div>
@@ -165,7 +165,7 @@
                                 {% if hospital.size %}
                                     {{ badges.render('hospital_size', hospital.size.value) }}
                                 {% else %}
-                                    <span class="text-muted">-</span>
+                                    <span class="text-secondary">-</span>
                                 {% endif %}
                             </div>
                             <div id="hospital-beds" class="mb-2">
@@ -178,7 +178,7 @@
                                 {% if hospital.location %}
                                     {{ badges.render('hospital_location', hospital.location.value) }}
                                 {% else %}
-                                    <span class="text-muted">-</span>
+                                    <span class="text-secondary">-</span>
                                 {% endif %}
                             </div>
                             <div id="hospital-tier" class="mb-2">
@@ -187,7 +187,7 @@
                                 {% if hospital.tier %}
                                     {{ badges.render('hospital_tier', hospital.tier.value) }}
                                 {% else %}
-                                    <span class="text-muted">-</span>
+                                    <span class="text-secondary">-</span>
                                 {% endif %}
                             </div>
                     </twig:Card>

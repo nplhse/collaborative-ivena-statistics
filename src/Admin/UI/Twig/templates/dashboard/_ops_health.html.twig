@@ -8,7 +8,7 @@
                     <i class="{{ statusIcon }} fa-2x text-{{ statusClass }}" aria-hidden="true"></i>
                     <div>
                         <div class="h4 mb-0">{{ ('ops.health.status.' ~ ops_health.status.value)|trans({}, 'admin') }}</div>
-                        <div class="text-muted small">{{ 'ops.health.version'|trans({'%version%': ops_health.appVersion}, 'admin') }}</div>
+                        <div class="text-secondary small">{{ 'ops.health.version'|trans({'%version%': ops_health.appVersion}, 'admin') }}</div>
                     </div>
                 </div>
             </div>

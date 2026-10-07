@@ -47,7 +47,7 @@
                 <div class="card"><div class="card-body">
                     <div class="subheader">{{ 'stats.closure.kpi.sum_duration'|trans({}, 'statistics') }}</div>
                     <div class="h1 mt-2 mb-0">{{ metrics.summedMinutes|closure_duration }}</div>
-                    <div class="text-muted small">{{ 'stats.closure.kpi.sum_duration_hint'|trans({}, 'statistics') }}</div>
+                    <div class="text-secondary small">{{ 'stats.closure.kpi.sum_duration_hint'|trans({}, 'statistics') }}</div>
                 </div></div>
             </div>
             <div class="col-12 col-lg-4">
@@ -61,12 +61,12 @@
                         <div>
                             <span class="badge bg-primary-lt me-1"></span>
                             <strong>{{ multiplePercent|number_format(1, ',', '.') }}%</strong>
-                            <small class="d-block text-muted">{{ 'stats.closure.kpi.multiple_short'|trans({}, 'statistics') }} · {{ metrics.multipleMinutes|closure_duration }}</small>
+                            <small class="d-block text-secondary">{{ 'stats.closure.kpi.multiple_short'|trans({}, 'statistics') }} · {{ metrics.multipleMinutes|closure_duration }}</small>
                         </div>
                         <div class="text-end">
                             <span class="badge bg-secondary-lt me-1"></span>
                             <strong>{{ singlePercent|number_format(1, ',', '.') }}%</strong>
-                            <small class="d-block text-muted">{{ 'stats.closure.kpi.single_short'|trans({}, 'statistics') }} · {{ metrics.singleMinutes|closure_duration }}</small>
+                            <small class="d-block text-secondary">{{ 'stats.closure.kpi.single_short'|trans({}, 'statistics') }} · {{ metrics.singleMinutes|closure_duration }}</small>
                         </div>
                     </div>
                 </div></div>

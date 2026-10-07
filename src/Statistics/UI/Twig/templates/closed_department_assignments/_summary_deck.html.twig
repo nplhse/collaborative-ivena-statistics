@@ -23,7 +23,7 @@
                         —
                     {% endif %}
                 </div>
-                <div class="text-muted small">
+                <div class="text-secondary small">
                     {{ 'stats.closed_department.kpi.share_hint'|trans({total: dashboard.kpis.totalCount|number_format(0, ',', '.')}, 'statistics') }}
                 </div>
             </div>
@@ -34,7 +34,7 @@
             <div class="card-body">
                 <div class="subheader">{{ 'stats.closed_department.kpi.departments'|trans({}, 'statistics') }}</div>
                 <div class="h1 mt-2 mb-0" data-testid="stats-closed-department-kpi-departments">{{ dashboard.kpis.departmentCount|number_format(0, ',', '.') }}</div>
-                <div class="text-muted small">
+                <div class="text-secondary small">
                     {{ 'stats.closed_department.kpi.departments_hint'|trans({total: dashboard.kpis.totalDepartmentCount|number_format(0, ',', '.')}, 'statistics') }}
                 </div>
             </div>
