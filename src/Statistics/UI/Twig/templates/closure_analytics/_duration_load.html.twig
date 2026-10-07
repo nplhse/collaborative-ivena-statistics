@@ -32,7 +32,7 @@
                         —
                     {% else %}
                         {{ durationLoad.minutes(durationLoad.minimumSeconds)|closure_duration }}
-                        <span class="text-muted">/</span>
+                        <span class="text-secondary">/</span>
                         {{ durationLoad.minutes(durationLoad.maximumSeconds)|closure_duration }}
                     {% endif %}
                 </div>
@@ -70,12 +70,12 @@
                                 <div class="col-12 col-md-4">
                                     <div class="subheader">{{ item.label|trans({}, 'statistics') }}</div>
                                     <div class="h3 mb-0">{{ durationLoad.sharePercent(item.seconds)|number_format(1, ',', '.') }}%</div>
-                                    <div class="text-muted">{{ durationLoad.minutes(item.seconds)|closure_duration }}</div>
+                                    <div class="text-secondary">{{ durationLoad.minutes(item.seconds)|closure_duration }}</div>
                                 </div>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted mb-0">{{ 'stats.closure.duration_load.no_evaluable'|trans({}, 'statistics') }}</p>
+                        <p class="text-secondary mb-0">{{ 'stats.closure.duration_load.no_evaluable'|trans({}, 'statistics') }}</p>
                     {% endif %}
                 </div>
             </div>

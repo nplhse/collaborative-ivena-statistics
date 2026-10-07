@@ -12,7 +12,7 @@
             <li class="d-flex align-items-baseline justify-content-between gap-3 py-1{{ loop.index > initialCount ? ' d-none' : '' }}"
                 {% if loop.index > initialCount %}data-benchmark-indication-mix-expand-target="hiddenRow"{% endif %}>
                 <a href="{{ row.insightUrl }}" class="text-reset">{{ row.label }}</a>
-                <span class="text-muted text-nowrap small">
+                <span class="text-secondary text-nowrap small">
                     {{ row.total|number_format(0, ',', '.') }}
                     <span class="text-secondary">·</span>
                     {{ row.shareWithinGroup|number_format(1, ',', '.') }}%

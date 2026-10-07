@@ -29,7 +29,7 @@
     </div>
     <div class="card-body">
         {% if dashboard.heatmap.maxCount == 0 %}
-            <p class="text-muted small mb-0">{{ 'stats.closed_department.empty_section'|trans({}, 'statistics') }}</p>
+            <p class="text-secondary small mb-0">{{ 'stats.closed_department.empty_section'|trans({}, 'statistics') }}</p>
         {% else %}
             <div class="chart-lg" data-closed-department-assignments-charts-target="heatmapChart"></div>
         {% endif %}

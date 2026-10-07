@@ -18,7 +18,7 @@
             · {{ page }}
         </a>
     {% else %}
-        <span class="text-muted">—</span>
+        <span class="text-secondary">—</span>
     {% endif %}
 </div>
 
@@ -66,7 +66,7 @@
                                     </a>
                                 {% endif %}
                                 {% if sibling.id == translation.id %}
-                                    <span class="text-muted">{{ 'admin.page_translation.current'|trans({}, 'admin') }}</span>
+                                    <span class="text-secondary">{{ 'admin.page_translation.current'|trans({}, 'admin') }}</span>
                                 {% else %}
                                     <a class="btn btn-sm btn-primary" href="{{ ea_url()
                                         .setController('App\\Admin\\UI\\Http\\Controller\\Page\\PageTranslationCrudController')
@@ -97,6 +97,6 @@
             </tbody>
         </table>
     {% else %}
-        <span class="text-muted">—</span>
+        <span class="text-secondary">—</span>
     {% endif %}
 </div>

@@ -8,7 +8,7 @@
 {% block content_title %}{{ 'ops.failed_messages.title'|trans({}, 'admin') }}{% endblock %}
 
 {% block main %}
-    <p class="text-muted mb-3">{{ 'ops.failed_messages.help'|trans({}, 'admin') }}</p>
+    <p class="text-secondary mb-3">{{ 'ops.failed_messages.help'|trans({}, 'admin') }}</p>
 
     {% if messages is not empty %}
         <div class="d-flex flex-wrap align-items-center ea-failed-messages-toolbar mb-3">
@@ -74,7 +74,7 @@
                                 <td>{{ message.id }}</td>
                                 <td class="text-nowrap">{{ message.created_at|date('d.m.Y H:i:s') }}</td>
                                 <td class="small"><code>{{ message.message_class ?: '—' }}</code></td>
-                                <td class="small text-muted">{{ message.error_preview }}</td>
+                                <td class="small text-secondary">{{ message.error_preview }}</td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center ea-failed-messages-row-actions">
                                         <a href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages_detail', {id: message.id}) }}" class="btn btn-sm btn-outline-primary">
@@ -114,7 +114,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="5" class="text-muted text-center py-4">{{ 'ops.failed_messages.empty'|trans({}, 'admin') }}</td>
+                            <td colspan="5" class="text-secondary text-center py-4">{{ 'ops.failed_messages.empty'|trans({}, 'admin') }}</td>
                         </tr>
                     </tbody>
                 </table>

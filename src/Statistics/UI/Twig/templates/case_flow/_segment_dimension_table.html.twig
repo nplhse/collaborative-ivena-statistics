@@ -2,7 +2,7 @@
 {# @var titleTranslationKey string #}
 {# @var showComparison bool #}
 {% if rows is empty %}
-    <p class="text-muted small mb-0">{{ 'stats.case_flow.segment.distribution_empty'|trans({}, 'statistics') }}</p>
+    <p class="text-secondary small mb-0">{{ 'stats.case_flow.segment.distribution_empty'|trans({}, 'statistics') }}</p>
 {% else %}
     <div class="table-responsive">
         <table class="table table-sm table-vcenter card-table table-striped mb-0 stats-case-flow-segment-dimension-table"

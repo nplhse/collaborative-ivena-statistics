@@ -5,7 +5,7 @@
             <span>
                 <span class="legend me-2 {{ segment.barClass }}"></span>{{ segment.label }}
             </span>
-            <span class="text-muted text-nowrap">
+            <span class="text-secondary text-nowrap">
                 {{ segment.count|number_format(0, ',', '.') }}
                 ({{ segment.percent|number_format(1, ',', '.') }}%{% if segment.percentDeltaPp is not null %}, <twig:Statistics:DeltaIndicator
                     :value="segment.percentDeltaPp"

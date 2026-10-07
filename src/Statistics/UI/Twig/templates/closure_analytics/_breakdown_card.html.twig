@@ -23,7 +23,7 @@
         <div class="progress progress-sm mt-1 mb-1" aria-hidden="true">
             <div class="progress-bar bg-primary" style="width: {{ min(100, percent) }}%"></div>
         </div>
-        <small class="text-muted">
+        <small class="text-secondary">
             {% if countMode %}
                 {{ countKey|trans({count: row.closureCount}, 'statistics') }}
                 · {{ row.actualMinutes|closure_duration }}
@@ -45,7 +45,7 @@
             {% for row in rows|slice(0, 5) %}
                 {{ breakdown.row(row, kind, totalMinutes, totalClosures|default(0), shareMode|default('duration'), countTranslation|default('stats.closure.breakdown.closure_count')) }}
             {% else %}
-                <div class="text-muted">—</div>
+                <div class="text-secondary">—</div>
             {% endfor %}
         </div>
         {% if expandable|default(false) and rows|length > 5 %}

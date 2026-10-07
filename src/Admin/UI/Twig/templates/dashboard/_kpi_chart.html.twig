@@ -1,5 +1,5 @@
 <div class="ea-dashboard-kpi mb-4">
-    <h3 class="h5 text-muted text-uppercase mb-3">{{ 'kpi.chart.title'|trans({}, 'admin') }}</h3>
+    <h3 class="h5 text-secondary text-uppercase mb-3">{{ 'kpi.chart.title'|trans({}, 'admin') }}</h3>
     <div class="card"
          data-controller="admin-kpi-chart"
          data-admin-kpi-chart-chart-value="{{ kpi_chart.toChartValue|json_encode|e('html_attr') }}"

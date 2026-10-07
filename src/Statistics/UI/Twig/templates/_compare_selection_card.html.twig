@@ -46,7 +46,7 @@
                             {% endif %}
                         </h3>
                         {% if sideASubheading is defined and sideASubheading %}
-                            <div class="text-muted mb-2" data-testid="{{ sideASubheadingTestId|default(testId ~ '-period-a') }}">
+                            <div class="text-secondary mb-2" data-testid="{{ sideASubheadingTestId|default(testId ~ '-period-a') }}">
                                 {{ sideASubheading }}
                             </div>
                         {% endif %}
@@ -71,7 +71,7 @@
             </div>
         {% else %}
             <div class="col-auto d-none d-md-flex align-items-center px-0">
-                <span class="text-muted fw-medium text-uppercase small">vs</span>
+                <span class="text-secondary fw-medium text-uppercase small">vs</span>
             </div>
         {% endif %}
 
@@ -121,7 +121,7 @@
                             {% endif %}
                         </h3>
                         {% if sideBSubheading is defined and sideBSubheading %}
-                            <div class="text-muted mb-2" data-testid="{{ sideBSubheadingTestId|default(testId ~ '-period-b') }}">
+                            <div class="text-secondary mb-2" data-testid="{{ sideBSubheadingTestId|default(testId ~ '-period-b') }}">
                                 {{ sideBSubheading }}
                             </div>
                         {% endif %}

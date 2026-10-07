@@ -20,7 +20,7 @@
                                     <td class="text-end">{{ row.uniqueUsers }}</td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="3" class="text-muted">No events yet (requires analytics consent).</td></tr>
+                                <tr><td colspan="3" class="text-secondary">No events yet (requires analytics consent).</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -41,7 +41,7 @@
                                     <td class="text-end">{{ row.eventCount }}</td>
                                 </tr>
                             {% else %}
-                                <tr><td colspan="3" class="text-muted">No events yet.</td></tr>
+                                <tr><td colspan="3" class="text-secondary">No events yet.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -63,7 +63,7 @@
                             <td class="text-end">{{ row.requestCount }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="3" class="text-muted">No data yet.</td></tr>
+                        <tr><td colspan="3" class="text-secondary">No data yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

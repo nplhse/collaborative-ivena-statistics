@@ -28,7 +28,7 @@
             </div>
             <div class="col">
                 <h1 id="dispatch-area-name" class="fw-bold">{{ dispatchArea.name }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
                         {{ 'catalog.type.dispatch_area'|trans({}, 'allocation') }}
                     </div>
@@ -86,14 +86,14 @@
 
                             {% if dispatchArea.state %}
                                 <div{% if dispatchArea.hospitals is not empty %} class="mb-3"{% endif %}>
-                                    <div class="text-muted mb-1">{{ 'catalog.relation.state'|trans({}, 'allocation') }}</div>
+                                    <div class="text-secondary mb-1">{{ 'catalog.relation.state'|trans({}, 'allocation') }}</div>
                                     {{ explore_entity_link(dispatchArea.state) }}
                                 </div>
                             {% endif %}
 
                             {% if dispatchArea.hospitals is not empty %}
                                 <div>
-                                    <div class="text-muted mb-1">{{ 'catalog.relation.hospitals'|trans({}, 'allocation') }}</div>
+                                    <div class="text-secondary mb-1">{{ 'catalog.relation.hospitals'|trans({}, 'allocation') }}</div>
                                     <ul class="list-unstyled mb-0">
                                         {% for hospital in dispatchArea.hospitals|sort((a, b) => a.name <=> b.name) %}
                                             <li class="mb-1 d-flex align-items-center justify-content-between gap-2">

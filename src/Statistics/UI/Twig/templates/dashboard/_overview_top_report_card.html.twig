@@ -9,7 +9,7 @@
     </div>
     <div class="card-body{% if section.rows is not empty %} p-0{% endif %}">
         {% if section.rows is empty %}
-            <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
+            <p class="text-secondary mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
         {% else %}
             <div class="table-responsive">
                 <table class="table table-vcenter card-table mb-0">

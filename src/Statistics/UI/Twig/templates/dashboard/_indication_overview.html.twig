@@ -9,7 +9,7 @@
             </div>
             <div class="card-body">
                 {% if executiveDashboard.indication.rows is empty %}
-                    <p class="text-muted mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
+                    <p class="text-secondary mb-0">{{ 'stats.overview.table.placeholder'|trans({}, 'statistics') }}</p>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table table-vcenter card-table mb-0">
@@ -37,11 +37,11 @@
                                         <td class="text-end">{{ row.shareDisplay }}</td>
                                         <td class="text-end">
                                             {% if row.trendDisplay %}
-                                                <span class="{{ row.trendTone == 'danger' ? 'text-danger' : (row.trendTone == 'success' ? 'text-success' : 'text-muted') }}">
+                                                <span class="{{ row.trendTone == 'danger' ? 'text-danger' : (row.trendTone == 'success' ? 'text-success' : 'text-secondary') }}">
                                                     {{ row.trendDisplay }}
                                                 </span>
                                             {% else %}
-                                                <span class="text-muted">—</span>
+                                                <span class="text-secondary">—</span>
                                             {% endif %}
                                         </td>
                                     </tr>

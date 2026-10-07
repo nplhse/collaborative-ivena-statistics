@@ -19,7 +19,7 @@
     </div>
     <div class="card-body">
         {% if rows is empty %}
-            <p class="text-muted small mb-0">{{ 'stats.closed_department.empty_section'|trans({}, 'statistics') }}</p>
+            <p class="text-secondary small mb-0">{{ 'stats.closed_department.empty_section'|trans({}, 'statistics') }}</p>
         {% else %}
             <div {% if showExpand %}
                     data-controller="benchmark-indication-mix-expand"
@@ -37,7 +37,7 @@
                                     {{ row.name }}
                                 {% endif %}
                             </span>
-                            <span class="text-muted text-nowrap ms-2">
+                            <span class="text-secondary text-nowrap ms-2">
                                 {{ row.closedCount|number_format(0, ',', '.') }}
                                 {% if row.shareOfClosed is not null %}
                                     &nbsp;·&nbsp;{{ row.shareOfClosed|number_format(1, ',', '.') }}%

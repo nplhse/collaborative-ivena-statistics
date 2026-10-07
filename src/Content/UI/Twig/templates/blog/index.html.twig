@@ -66,7 +66,7 @@
                                             </a>
                                             {% if post.sortedTags|length > 0 %}
                                                 <div class="d-flex align-items-center flex-wrap gap-2">
-                                                    <twig:ux:icon name="tabler:tags" class="w-3 h-3 text-muted" />
+                                                    <twig:ux:icon name="tabler:tags" class="w-3 h-3 text-secondary" />
                                                     {% for tag in post.sortedTags %}
                                                         <a class="badge bg-azure-lt" href="{{ path('app_blog_tag', {slug: tag.slug}) }}">{{ tag.name }}</a>
                                                     {% endfor %}
