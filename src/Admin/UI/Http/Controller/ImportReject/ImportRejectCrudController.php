@@ -133,7 +133,7 @@ final class ImportRejectCrudController extends AbstractCrudController
         );
         $hiddenCount = \count($categories) - \count($shown);
         if ($hiddenCount > 0) {
-            $badges[] = sprintf('<span class="badge bg-light text-dark">+%d</span>', $hiddenCount);
+            $badges[] = sprintf('<span class="badge bg-secondary-lt">+%d</span>', $hiddenCount);
         }
 
         return implode('', $badges);

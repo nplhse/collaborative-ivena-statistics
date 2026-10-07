@@ -15,7 +15,7 @@
         <div class="row align-items-center mt-1">
             <div class="col">
                 <h1 class="fw-bold mb-1">{{ post.title }}</h1>
-                <div class="list-inline list-inline-dots text-muted">
+                <div class="list-inline list-inline-dots text-secondary">
                     <div class="list-inline-item">
                         <twig:ux:icon name="tabler:calendar-event" class="w-3 h-3" />
                         {{ post.publishedAt|date('d.m.Y H:i') }}
@@ -29,7 +29,7 @@
                         }) }}
                     </div>
                 </div>
-                <div class="list-inline list-inline-dots text-muted mt-1">
+                <div class="list-inline list-inline-dots text-secondary mt-1">
                     <div class="list-inline-item">
                         <twig:ux:icon name="tabler:folder" class="w-3 h-3" />
                         {{ 'blog.meta.category'|trans({}, 'content') }}
@@ -37,7 +37,7 @@
                     </div>
                 {% if post.sortedTags|length > 0 %}
                     <div class="list-inline-item">
-                        <twig:ux:icon name="tabler:tags" class="w-3 h-3 text-muted" />
+                        <twig:ux:icon name="tabler:tags" class="w-3 h-3 text-secondary" />
                         {{ 'blog.meta.tags'|trans({}, 'content') }}
                         {% for tag in post.sortedTags %}
                             <a class="badge bg-azure-lt" href="{{ path('app_blog_tag', {slug: tag.slug}) }}">{{ tag.name }}</a>
@@ -80,7 +80,7 @@
                     </article>
 
                     <section class="card">
-                        <div class="card-header d-flex align-items-center justify-content-between bg-light">
+                        <div class="card-header d-flex align-items-center justify-content-between">
                             <h2 class="card-title mb-0">{{ 'blog.comments.title'|trans({}, 'content') }}</h2>
                             <span class="badge bg-secondary-lt">{{ 'blog.comments.count'|trans(({count: comments|length}), 'content') }}</span>
                         </div>

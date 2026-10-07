@@ -283,7 +283,7 @@ final class AuditLogCrudController extends AbstractCrudController
     private static function formatAuditScalarOrStructured(mixed $value): string
     {
         if (null === $value) {
-            return '<span class="text-muted">—</span>';
+            return '<span class="text-secondary">—</span>';
         }
 
         if (\is_bool($value)) {
@@ -298,7 +298,7 @@ final class AuditLogCrudController extends AbstractCrudController
 
         if (\is_string($value)) {
             if ('' === $value) {
-                return '<span class="text-muted">(empty string)</span>';
+                return '<span class="text-secondary">(empty string)</span>';
             }
 
             return '<span class="text-break">'.self::h($value).'</span>';
@@ -340,7 +340,7 @@ final class AuditLogCrudController extends AbstractCrudController
 
         $heightClass = '12rem' === $maxHeight ? 'ea-audit-json-panel--12rem' : 'ea-audit-json-panel--28rem';
 
-        return '<pre class="mb-0 small font-monospace rounded border bg-white p-3 overflow-auto shadow-sm user-select-all text-break ea-audit-json-panel '.$heightClass.'">'
+        return '<pre class="mb-0 small font-monospace rounded border bg-body-tertiary p-3 overflow-auto shadow-sm user-select-all text-break ea-audit-json-panel '.$heightClass.'">'
             .self::h($json).'</pre>';
     }
 
