@@ -1,4 +1,4 @@
-<footer class="footer site-footer d-print-none mt-auto bg-light border-top-0">
+<footer class="footer site-footer d-print-none mt-auto">
     <div class="container-xl">
         {% set footer_columns = footer_nav_columns() %}
         {% set activity_url = is_granted('ROLE_USER') ? path('app_activity_timeline') : null %}
