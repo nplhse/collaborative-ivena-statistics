@@ -8,6 +8,7 @@ use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
+use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 use Symfony\Component\HttpFoundation\Request;
 
 final class ClosureAnalyticsFilterRequestResolver
@@ -22,6 +23,7 @@ final class ClosureAnalyticsFilterRequestResolver
     public const string FROM = 'closureFrom';
     public const string TO = 'closureTo';
     public const string EVENT_TYPES = 'closureEventTypes';
+    public const string PROFILE = 'closureProfile';
 
     /** @var list<string> */
     public const array QUERY_KEYS = [
@@ -52,6 +54,7 @@ final class ClosureAnalyticsFilterRequestResolver
             self::eventTypes($request),
             self::positiveIds($request, self::HOSPITALS),
             self::hospitalIdsSubmitted($request),
+            ClosureProfileRef::fromQuery($request->query->getString(self::PROFILE)),
         );
     }
 

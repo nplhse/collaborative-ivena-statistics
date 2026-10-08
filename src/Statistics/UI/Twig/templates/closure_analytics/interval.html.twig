@@ -22,8 +22,8 @@
                 </span>
             </div>
             <div class="col">
-                <h1 class="fw-bold">{{ interval.departmentName }}</h1>
-                <div class="list-inline list-inline-dots text-secondary">
+                <h1 class="fw-bold" data-testid="closure-event-title">{{ interval.departmentName }}</h1>
+                <div class="list-inline list-inline-dots text-muted">
                     <div class="list-inline-item">{{ interval.hospitalName }}</div>
                     <div class="list-inline-item">{{ interval.specialityName }}</div>
                     <div class="list-inline-item">
@@ -49,7 +49,7 @@
     <div class="row g-3" data-testid="stats-closure-interval-detail">
         <div class="col-lg-8">
             <twig:Card class="mb-3" title="{{ 'stats.closure.event.timeline'|trans({}, 'statistics') }}" :body="false">
-                {{ include('@Statistics/closure_analytics/_day_timeline.html.twig') }}
+                {{ include('@Statistics/closure_analytics/_day_timeline.html.twig', {timelineEventKey: interval.eventKey}) }}
             </twig:Card>
 
             <twig:Card>
@@ -75,6 +75,7 @@
             </twig:Card>
 
             {{ include('@Statistics/closure_analytics/_overlapping_allocations.html.twig') }}
+            {{ include('@Statistics/closure_analytics/_volume_detail.html.twig') }}
         </div>
         <div class="col-lg-4">
             {{ include('@Statistics/closure_analytics/_detail_actions.html.twig') }}

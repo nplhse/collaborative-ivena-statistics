@@ -1,0 +1,13 @@
+{% set key = quality.value is defined ? quality.value : quality %}
+{% set badgeClass = {
+    reliable: 'bg-green-lt text-green',
+    limited: 'bg-yellow-lt text-yellow',
+    insufficient: 'bg-red-lt text-red',
+    incomplete: 'bg-orange-lt text-orange',
+    influenced: 'bg-purple-lt text-purple-lt-fg',
+    ongoing: 'bg-azure-lt text-azure',
+    not_applicable: 'bg-secondary-lt text-secondary',
+}[key] ?? 'bg-secondary-lt text-secondary' %}
+<span class="badge {{ badgeClass }}"
+      title="{{ ('stats.closure.volume.quality.' ~ key)|trans({}, 'statistics') }}"
+      data-testid="stats-closure-volume-quality-{{ key }}">{{ ('stats.closure.volume.quality_short.' ~ key)|trans({}, 'statistics') }}</span>

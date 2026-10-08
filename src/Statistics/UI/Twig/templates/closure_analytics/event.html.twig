@@ -1,6 +1,14 @@
 {% extends '@Shared/_layout_vertical.html.twig' %}
 
-{% set eventTitle = event.grouped ? event.sourceGroupId : ('stats.closure.events.' ~ event.type.value ~ '_title')|trans({}, 'statistics') %}
+{% set localGroups = localGroups|default([]) %}
+{% if event.grouped and localGroups|length == 1 %}
+    {% set eventTitle = localGroups[0].label %}
+{% elseif event.grouped %}
+    {% set eventTitle = event.sourceGroupId %}
+{% else %}
+    {% set eventTitle = ('stats.closure.events.' ~ event.type.value ~ '_title')|trans({}, 'statistics') %}
+{% endif %}
+{% set eventTab = eventTab|default('overview') %}
 
 {% block title %}{{ eventTitle }} – {{ parent() }}{% endblock %}
 
@@ -25,18 +33,43 @@
             </div>
             <div class="col">
                 <h1 class="fw-bold" data-testid="closure-event-title">{{ eventTitle }}</h1>
-                <div class="list-inline list-inline-dots text-secondary">
+                <div class="list-inline list-inline-dots text-muted mb-0">
+                    <div class="list-inline-item">
+                        {% if event.hospitalPublicId %}
+                            <a href="{{ path('app_explore_hospital_show', {publicId: event.hospitalPublicId}) }}" data-testid="closure-event-hospital">{{ event.hospitalName }}</a>
+                        {% else %}
+                            <span data-testid="closure-event-hospital">{{ event.hospitalName }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="list-inline-item" data-testid="closure-event-window">
+                        {{ event.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                        –
+                        {{ event.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                    </div>
+                    <div class="list-inline-item" data-testid="closure-event-duration">
+                        {{ 'stats.closure.event.meta.duration'|trans({}, 'statistics') }}
+                        {{ event.actualMinutes|closure_duration }}
+                    </div>
                     <div class="list-inline-item">
                         <span class="badge {{ event.grouped ? 'bg-blue-lt text-blue' : (event.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
                             {{ ('stats.closure.events.' ~ event.type.value)|trans({}, 'statistics') }}
                         </span>
                     </div>
-                    <div class="list-inline-item">{{ event.hospitalName }}</div>
-                    <div class="list-inline-item">
-                        {{ event.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
-                        –
-                        {{ event.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}
-                    </div>
+                    {% if event.grouped and localGroups|length == 1 and localGroups[0].showSourceGroupId %}
+                        <div class="list-inline-item small text-muted" data-testid="closure-event-source-group-id">{{ localGroups[0].sourceGroupId }}</div>
+                    {% endif %}
+                    {% if localGroups is not empty and not event.grouped %}
+                        {% for group in localGroups %}
+                            <div class="list-inline-item" data-testid="closure-event-header-local-group">
+                                {% if group.eventKey %}
+                                    <a href="{{ path('app_stats_closure_analytics_event', app.request.query.all|merge({eventKey: group.eventKey})) }}">{{ group.label }}</a>
+                                {% else %}
+                                    {{ group.label }}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="list-inline-item small" data-testid="closure-event-id">{{ event.key }}</div>
                 </div>
             </div>
             <div class="col-auto ms-auto">
@@ -54,36 +87,87 @@
 {% block page_content %}
     <div class="row g-3" data-testid="closure-event-detail">
         <div class="col-lg-8">
-            <twig:Card class="mb-3" title="{{ 'stats.closure.event.timeline'|trans({}, 'statistics') }}" :body="false">
-                {{ include('@Statistics/closure_analytics/_day_timeline.html.twig', {grouped: event.hasChildren}) }}
-            </twig:Card>
-
-            <twig:Card :body="false">
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
-                        <thead><tr>
-                            <th>{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</th>
-                            <th>{{ 'stats.closure.intervals.department'|trans({}, 'statistics') }}</th>
-                            <th>SK</th>
-                            <th>{{ 'stats.closure.intervals.reason'|trans({}, 'statistics') }}</th>
-                            <th>{{ 'stats.closure.intervals.duration'|trans({}, 'statistics') }}</th>
-                        </tr></thead>
-                        <tbody>
-                        {% for row in children %}
-                            <tr>
-                                <td><a href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id})) }}">{{ row.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</a></td>
-                                <td>{{ row.departmentName }}</td>
-                                <td>{{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}</td>
-                                <td>{{ ('stats.closure.reason.' ~ row.reason)|trans({}, 'statistics') }}</td>
-                                <td>{{ row.durationMinutes|closure_duration }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+            <div data-controller="closure-event-detail"
+                 data-closure-event-detail-closure-analytics-charts-outlet="[data-controller~='closure-analytics-charts']"
+                 data-closure-event-detail-closure-event-timeline-outlet="[data-controller~='closure-event-timeline']">
+                <ul class="nav nav-tabs mb-3" role="tablist" data-testid="closure-event-tabs">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ eventTab == 'course' ? '' : 'active' }}"
+                                id="closure-event-overview-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#closure-event-overview"
+                                data-event-tab="overview"
+                                data-action="shown.bs.tab->closure-event-detail#shown"
+                                type="button"
+                                role="tab"
+                                aria-controls="closure-event-overview"
+                                aria-selected="{{ eventTab == 'course' ? 'false' : 'true' }}"
+                                data-testid="closure-event-tab-overview">
+                            {{ 'stats.closure.event.tab.overview'|trans({}, 'statistics') }}
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ eventTab == 'course' ? 'active' : '' }}"
+                                id="closure-event-course-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#closure-event-course"
+                                data-event-tab="course"
+                                data-action="shown.bs.tab->closure-event-detail#shown"
+                                type="button"
+                                role="tab"
+                                aria-controls="closure-event-course"
+                                aria-selected="{{ eventTab == 'course' ? 'true' : 'false' }}"
+                                data-testid="closure-event-tab-course">
+                            {{ 'stats.closure.event.tab.course'|trans({}, 'statistics') }}
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade {{ eventTab == 'course' ? '' : 'show active' }}"
+                         id="closure-event-overview"
+                         role="tabpanel"
+                         aria-labelledby="closure-event-overview-tab"
+                         data-testid="closure-event-pane-overview">
+                        <twig:Card class="mb-3" title="{{ 'stats.closure.event.timeline'|trans({}, 'statistics') }}" :body="false">
+                            {{ include('@Statistics/closure_analytics/_day_timeline.html.twig', {grouped: event.hasChildren, timelineEventKey: event.key}) }}
+                        </twig:Card>
+                        <twig:Card class="mb-3" :body="false">
+                            <div class="table-responsive" data-testid="closure-event-members">
+                                <table class="table table-vcenter card-table">
+                                    <thead><tr>
+                                        <th>{{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}</th>
+                                        <th>{{ 'stats.closure.intervals.department'|trans({}, 'statistics') }}</th>
+                                        <th>SK</th>
+                                        <th>{{ 'stats.closure.intervals.reason'|trans({}, 'statistics') }}</th>
+                                        <th>{{ 'stats.closure.intervals.duration'|trans({}, 'statistics') }}</th>
+                                    </tr></thead>
+                                    <tbody>
+                                    {% for row in children %}
+                                        <tr>
+                                            <td><a href="{{ path('app_stats_closure_analytics_interval', app.request.query.all|merge({id: row.id})) }}">{{ row.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</a></td>
+                                            <td>{{ row.departmentName }}</td>
+                                            <td>{{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}</td>
+                                            <td>{{ ('stats.closure.reason.' ~ row.reason)|trans({}, 'statistics') }}</td>
+                                            <td>{{ row.durationMinutes|closure_duration }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </twig:Card>
+                    </div>
+                    <div class="tab-pane fade {{ eventTab == 'course' ? 'show active' : '' }}"
+                         id="closure-event-course"
+                         role="tabpanel"
+                         aria-labelledby="closure-event-course-tab"
+                         data-testid="closure-event-pane-course">
+                        {{ include('@Statistics/closure_analytics/_volume_detail.html.twig') }}
+                        <turbo-frame id="stats-closure-event-assignments" data-turbo-action="advance">
+                            {{ include('@Statistics/closure_analytics/_event_assignments.html.twig') }}
+                        </turbo-frame>
+                    </div>
                 </div>
-            </twig:Card>
-
-            {{ include('@Statistics/closure_analytics/_overlapping_allocations.html.twig') }}
+            </div>
         </div>
         <div class="col-lg-4">
             {{ include('@Statistics/closure_analytics/_detail_actions.html.twig') }}
@@ -101,30 +185,41 @@
                     <div class="h2 mb-0">{{ event.actualMinutes|closure_duration }}</div>
                 </div>
             </twig:Card>
-            <twig:Card data-testid="catalog-basic-info">
+            <twig:Card class="mb-3" data-testid="catalog-basic-info">
                 <div class="card-title">{{ 'label.basic_info'|trans({}, 'messages') }}</div>
                 <div class="mb-2">
-                    <twig:ux:icon name="tabler:building-hospital" width="1.5em" height="1.5em" />
-                    {{ 'label.hospital'|trans({}, 'messages') }} <strong>{{ event.hospitalName }}</strong>
+                    <div class="subheader">{{ 'stats.closure.event.side.specialities'|trans({}, 'statistics') }}</div>
+                    <strong>{{ event.specialities|join(', ') ?: '—' }}</strong>
                 </div>
-                <div class="mb-2">
-                    <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
-                    {{ 'stats.closure.intervals.start'|trans({}, 'statistics') }}
-                    <strong>{{ event.startsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</strong>
-                </div>
-                <div class="mb-2">
-                    <twig:ux:icon name="tabler:calendar-clock" width="1.5em" height="1.5em" />
-                    {{ 'stats.closure.interval.end'|trans({}, 'statistics') }}
-                    <strong>{{ event.endsAt|date('d.m.Y H:i', 'Europe/Berlin') }}</strong>
-                </div>
-                {% if event.sourceGroupId %}
-                    <div class="mb-2">
-                        <twig:ux:icon name="tabler:id" width="1.5em" height="1.5em" />
-                        {{ 'stats.closure.interval.group_id'|trans({}, 'statistics') }}
-                        <strong>{{ event.sourceGroupId }}</strong>
+                {% if profileLinks is defined %}
+                    <div class="mb-2" data-testid="closure-event-profiles">
+                        {% if profileLinks.groupKey %}
+                            <div class="mb-2">
+                                <div class="subheader">{{ 'stats.closure.profile.event_group'|trans({}, 'statistics') }}</div>
+                                <a href="{{ path('app_stats_closure_profile_group', app.request.query.all|merge({hospitalId: event.hospitalId, profileKey: profileLinks.groupKey})) }}" data-testid="closure-event-group-profile">
+                                    {{ profileLinks.groupTitle ? profileLinks.groupTitle|nl2br : 'stats.closure.profile.group_title'|trans({}, 'statistics') }}
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if profileLinks.specialities is not empty %}
+                            <div class="subheader">{{ 'stats.closure.profile.event_speciality'|trans({}, 'statistics') }}</div>
+                            {% for speciality in profileLinks.specialities %}
+                                <div>
+                                    <a href="{{ path('app_stats_closure_profile_speciality', app.request.query.all|merge({hospitalId: event.hospitalId, specialityId: speciality.id})) }}" data-testid="closure-event-speciality-profile">
+                                        {{ speciality.name }}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 {% endif %}
+                <div class="mb-2">
+                    <div class="subheader">{{ 'stats.closure.event.side.departments'|trans({}, 'statistics') }}</div>
+                    {{ include('@Statistics/closure_analytics/_event_affected_departments.html.twig') }}
+                </div>
+                {{ include('@Statistics/closure_analytics/_event_local_groups.html.twig', {showIntervalCount: not event.grouped}) }}
             </twig:Card>
+            {{ include('@Statistics/closure_analytics/_volume_phase_breakdown.html.twig') }}
         </div>
     </div>
 {% endblock %}

@@ -1,0 +1,7 @@
+{% if row.context.value == 'event_member_closed' %}
+    <span class="badge bg-red-lt text-red">{{ 'stats.closure.event.assignments.context.closed_at_time'|trans({}, 'statistics') }}</span>
+{% elseif row.context.value == 'event_member_open' %}
+    <span class="badge bg-secondary-lt text-secondary">{{ 'stats.closure.event.assignments.context.event_member'|trans({}, 'statistics') }}</span>
+{% else %}
+    <span class="badge bg-azure-lt text-azure">{{ 'stats.closure.event.assignments.context.speciality_only'|trans({}, 'statistics') }}</span>
+{% endif %}

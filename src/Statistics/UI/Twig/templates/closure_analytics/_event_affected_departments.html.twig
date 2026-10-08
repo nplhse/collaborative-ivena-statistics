@@ -1,0 +1,24 @@
+{% if volumeDetail.affectedDepartments is not empty %}
+    <ul class="closure-event-departments-list mb-0" data-testid="stats-closure-volume-departments">
+        {% for department in volumeDetail.affectedDepartments|sort((a, b) => a.name|lower <=> b.name|lower) %}
+            <li>
+                <span class="d-inline-flex flex-wrap align-items-center gap-1">
+                <span>{{ department.name }}</span>
+                {% if 'other' in department.careLevels %}
+                    {% for careLevel in ['emergency', 'inpatient', 'outpatient'] %}
+                        {{ include('@Statistics/closure_analytics/_volume_stratum_sk_badge.html.twig', {careLevel: careLevel}) }}
+                    {% endfor %}
+                {% else %}
+                    {% for careLevel in ['emergency', 'inpatient', 'outpatient'] %}
+                        {% if careLevel in department.careLevels %}
+                            {{ include('@Statistics/closure_analytics/_volume_stratum_sk_badge.html.twig', {careLevel: careLevel}) }}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <strong>{{ event.departments|join(', ') ?: '—' }}</strong>
+{% endif %}

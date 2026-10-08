@@ -1,0 +1,81 @@
+{% set frameId = 'stats-closure-event-assignments' %}
+{% set eventParams = app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({tab: 'course', population: null}) %}
+{% set phaseRanges = {
+    before: {id: 'before', short: 'stats.closure.event.assignments.phase.before.short', from: assignmentBeforeFrom, to: assignmentDuringFrom},
+    during: {id: 'during', short: 'stats.closure.event.assignments.phase.during.short', from: assignmentDuringFrom, to: assignmentDuringTo},
+    after: {id: 'after', short: 'stats.closure.event.assignments.phase.after.short', from: assignmentDuringTo, to: assignmentAfterTo},
+} %}
+<div data-testid="closure-event-assignments">
+    <div class="card mt-3">
+        <div class="card-header">
+            <h3 class="card-title mb-0">{{ 'stats.closure.event.assignments.title'|trans({}, 'statistics') }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="btn-group w-100 mb-2" role="group" aria-label="{{ 'stats.closure.event.assignments.phase.group'|trans({}, 'statistics') }}" data-testid="closure-event-phases">
+                {% for item in phaseRanges %}
+                    {% set phaseActive = assignmentPhase.value == item.id %}
+                    {% set phaseParams = eventParams|merge({phase: item.id, assignmentPage: null}) %}
+                    <a class="btn {{ phaseActive ? 'btn-primary' : 'btn-outline-secondary' }}"
+                       href="{{ path(app.request.attributes.get('_route'), phaseParams) }}"
+                       data-turbo-frame="{{ frameId }}"
+                       data-testid="closure-event-phase-{{ item.id }}">
+                        {{ item.short|trans({}, 'statistics') }}
+                        <span class="badge ms-1 {{ phaseActive ? 'bg-white text-primary' : 'bg-secondary-lt text-secondary' }}">{{ assignmentCounts[item.id] }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+            <p class="text-muted small mb-3 d-flex justify-content-center align-items-center gap-1" data-testid="closure-event-phase-range">
+                <twig:ux:icon name="tabler:clock" class="icon flex-shrink-0" width="1em" height="1em" aria-hidden="true" />
+                <span class="text-nowrap">
+                    {{ phaseRanges[assignmentPhase.value].from|date('d.m.Y H:i', 'Europe/Berlin') }}
+                    –
+                    {{ phaseRanges[assignmentPhase.value].to|date('d.m.Y H:i', 'Europe/Berlin') }}
+                </span>
+            </p>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-0" data-testid="closure-event-assignment-list-filters">
+                <span class="text-muted small">{{ 'stats.closure.event.assignments.list_filter'|trans({}, 'statistics') }}</span>
+                {% for choice in [
+                    {value: 'all', label: 'stats.closure.volume.stratum.all'},
+                    {value: 'sk1', label: 'stats.closure.volume.stratum.sk1'},
+                    {value: 'sk2', label: 'stats.closure.volume.stratum.sk2'},
+                    {value: 'sk3', label: 'stats.closure.volume.stratum.sk3'},
+                    {value: 'resus', label: 'stats.closure.volume.stratum.resus'},
+                    {value: 'cathlab', label: 'stats.closure.volume.stratum.cathlab'},
+                ] %}
+                    <a class="btn btn-sm {{ assignmentListFilter.value == choice.value ? 'btn-primary' : 'btn-outline-secondary' }}"
+                       href="{{ path(app.request.attributes.get('_route'), eventParams|merge({assignmentList: choice.value, assignmentPage: null})) }}"
+                       data-turbo-frame="{{ frameId }}"
+                       data-testid="closure-event-assignment-list-{{ choice.value }}">
+                        {{ choice.label|trans({}, 'statistics') }}
+                    </a>
+                {% endfor %}
+                {% if assignmentListFilter.value != 'all' %}
+                    <a class="btn btn-sm btn-link"
+                       href="{{ path(app.request.attributes.get('_route'), eventParams|merge({assignmentList: null, assignmentPage: null})) }}"
+                       data-turbo-frame="{{ frameId }}">
+                        {{ 'stats.closure.event.assignments.list_filter_reset'|trans({}, 'statistics') }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <twig:DataTable
+        class="mt-3"
+        :paginator="assignments"
+        paginationRoute="app_stats_closure_analytics_event"
+        turboFrame="{{ frameId }}"
+        pageParam="assignmentPage"
+        limitParam="assignmentLimit"
+        emptyTitle="{{ 'stats.closure.event.assignments.empty'|trans({}, 'statistics') }}"
+        emptyIcon="tabler:ambulance"
+        rowClassProperty="closedAtAssignmentTime"
+        rowClass="allocation-row-department-closed"
+        :columns="[
+            { key: 'createdAt', type: 'custom', label: 'stats.closure.intervals.start', labelDomain: 'statistics', cellTemplate: '@Statistics/closure_analytics/_event_assignment_time.html.twig' },
+            { key: 'context', type: 'custom', label: 'stats.closure.event.assignments.column.context', labelDomain: 'statistics', cellTemplate: '@Statistics/closure_analytics/_event_assignment_context.html.twig' },
+            { key: 'speciality', type: 'text', label: 'stats.closure.event.assignments.column.speciality', labelDomain: 'statistics', property: 'specialityName' },
+            { key: 'department', type: 'text', label: 'stats.closure.event.assignments.column.department', labelDomain: 'statistics', property: 'departmentName' },
+            { key: 'urgency', type: 'badge', label: 'label.urgency', labelDomain: 'messages', property: 'urgency', badgePalette: 'allocation_urgency' },
+        ]"
+    />
+</div>

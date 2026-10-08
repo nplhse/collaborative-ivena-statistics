@@ -15,15 +15,26 @@ use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsHospitalScope;
 use App\Statistics\ClosureAnalytics\Application\ClosureAnalyticsService;
 use App\Statistics\ClosureAnalytics\Application\ClosureDetailDayTimelineFactory;
 use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadService;
+use App\Statistics\ClosureAnalytics\Application\ClosureEventAssignmentPhase;
+use App\Statistics\ClosureAnalytics\Application\ClosureEventAssignmentPopulation;
+use App\Statistics\ClosureAnalytics\Application\ClosureEventLocalGroupResolver;
 use App\Statistics\ClosureAnalytics\Application\ClosureOverlappingAllocationsFinder;
 use App\Statistics\ClosureAnalytics\Application\ClosureUnitTableRows;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
+use App\Statistics\ClosureAnalytics\Application\Profile\ClosureRecurringProfileTableQuery;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventAllocationQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureIntervalDetailQuery;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureProfileQuery;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureEventTableColumns;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureIntervalTableColumns;
+use App\Statistics\ClosureAnalytics\UI\Twig\ClosureRecurringProfileTableColumns;
 use App\Statistics\ClosureAnalytics\UI\Twig\ClosureUnitTableColumns;
 use App\Statistics\UI\Http\Controller\AnalysisContextScopeMode;
 use App\Statistics\UI\Http\Controller\AnalysisContextViewModelFactory;
@@ -45,6 +56,8 @@ use Symfony\UX\Pagination\PaginatorInterface;
 #[IsGranted(UserRole::PARTICIPANT)]
 final class ClosureAnalyticsController extends AbstractController
 {
+    private const string ASSIGNMENTS_FRAME = 'stats-closure-event-assignments';
+
     public function __construct(
         private readonly ClosureAnalyticsService $service,
         private readonly ClosureIntervalDetailQuery $intervalQuery,
@@ -64,9 +77,14 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly ClosureEventTableColumns $eventTableColumns,
         private readonly ClosureIntervalTableColumns $intervalTableColumns,
         private readonly ClosureUnitTableColumns $unitTableColumns,
+        private readonly ClosureRecurringProfileTableColumns $recurringProfileTableColumns,
         private readonly ClosureDetailDayTimelineFactory $detailDayTimelineFactory,
         private readonly ClosureAllocationExploreUrlFactory $allocationExploreUrlFactory,
         private readonly ClosureOverlappingAllocationsFinder $overlappingAllocationsFinder,
+        private readonly ClosureVolumeReadModel $volume,
+        private readonly ClosureEventAllocationQuery $eventAllocations,
+        private readonly ClosureProfileQuery $profiles,
+        private readonly ClosureEventLocalGroupResolver $localGroupResolver,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -81,13 +99,12 @@ final class ClosureAnalyticsController extends AbstractController
         if ($redirect instanceof Response) {
             return $redirect;
         }
-        $dashboard = $this->service->buildOverview(
-            $this->criteriaFactory->create(
-                $user,
-                $filter,
-                ClosureAnalyticsFilterRequestResolver::fromRequest($request),
-            ),
+        $criteria = $this->criteriaFactory->create(
+            $user,
+            $filter,
+            ClosureAnalyticsFilterRequestResolver::fromRequest($request),
         );
+        $dashboard = $this->service->buildOverview($criteria);
         $unitSchema = $this->unitTableColumns->preferenceSchema();
         $unitQueryPreferences = DataTablePreferenceQueryState::fromRequest(
             $request,
@@ -132,6 +149,78 @@ final class ClosureAnalyticsController extends AbstractController
             'closureUnitPreferences' => $unitPreferences,
             'closureUnitPreferenceKey' => $unitSchema->key,
             'closureUnitPreferencesPersisted' => $user instanceof User,
+            'volumeBurden' => $dashboard->hasIntervals()
+                ? $this->volume->burden($criteria, ClosureVolumeStratum::All)
+                : null,
+        ]);
+    }
+
+    #[Route('/statistics/closure-analytics/profiles', name: 'app_stats_closure_analytics_profiles', methods: ['GET'])]
+    public function profiles(
+        Request $request,
+        #[CurrentUser] ?User $user,
+        #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
+    ): Response {
+        $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_profiles');
+        if ($redirect instanceof Response) {
+            return $redirect;
+        }
+        $criteria = $this->criteriaFactory->create(
+            $user,
+            $filter,
+            ClosureAnalyticsFilterRequestResolver::fromRequest($request),
+        );
+        $showHospital = \count($criteria->scope->hospitalIds ?? []) > 1;
+        $schema = $this->recurringProfileTableColumns->preferenceSchema();
+        $queryPreferences = DataTablePreferenceQueryState::fromRequest(
+            $request,
+            'profilesColumns',
+            'profilesColumnOrder',
+            ClosureRecurringProfileTableState::LIMIT_PARAM,
+        );
+        $preferences = $this->dataTablePreferences->resolve(
+            $user,
+            $schema,
+            $queryPreferences->visibleColumns,
+            $queryPreferences->columnOrder,
+            $queryPreferences->pageSize,
+        );
+        $tableState = ClosureRecurringProfileTableState::fromRequest(
+            $request,
+            $preferences->pageSize,
+            $preferences->sortBy,
+            $preferences->orderBy,
+        );
+        $recurringProfiles = $this->paginator
+            ->fromCallbacks(
+                function (int $offset, int $limit) use ($criteria, $tableState): array {
+                    $page = max(1, (int) floor($offset / max(1, $limit)) + 1);
+
+                    return $this->profiles->recurringGroupPage(
+                        $criteria,
+                        new ClosureRecurringProfileTableQuery(
+                            $page,
+                            $limit,
+                            $tableState->sortBy,
+                            $tableState->orderBy,
+                            $tableState->profileQ,
+                        ),
+                    )->rows;
+                },
+                fn (): int => $this->profiles->recurringGroupPage($criteria, $tableState->toTableQuery())->total,
+            )
+            ->perPage(max(1, $tableState->limit))
+            ->pageParameter(ClosureRecurringProfileTableState::PAGE_PARAM)
+            ->paginate($tableState->page);
+
+        return $this->render('@Statistics/closure_analytics/profiles.html.twig', [
+            ...$this->pageVariables($request, $user, $filter, 'app_stats_closure_analytics_profiles', 'profiles'),
+            'recurringProfiles' => $recurringProfiles,
+            'recurringProfileTable' => $tableState,
+            'recurringProfileColumns' => ClosureRecurringProfileTableColumns::columns($showHospital),
+            'recurringProfilePreferences' => $preferences,
+            'recurringProfilePreferenceKey' => $schema->key,
+            'recurringProfilePreferencesPersisted' => $user instanceof User,
         ]);
     }
 
@@ -201,17 +290,13 @@ final class ClosureAnalyticsController extends AbstractController
         ]);
     }
 
-    #[Route('/statistics/closure-analytics/events/{eventKey}', name: 'app_stats_closure_analytics_event', requirements: ['eventKey' => \Symfony\Component\Routing\Requirement\Requirement::CATCH_ALL], methods: ['GET'])]
+    #[Route('/statistics/closure-analytics/events/{eventKey}', name: 'app_stats_closure_analytics_event', requirements: ['eventKey' => '\d+'], methods: ['GET'])]
     public function event(
         string $eventKey,
         Request $request,
         #[CurrentUser] ?User $user,
         #[ValueResolver(StatisticsFilterValueResolver::class)] StatisticsFilter $filter,
     ): Response {
-        if ($this->hospitalScope->eventKeyHospitalIsForbidden($eventKey, $user)) {
-            throw $this->createNotFoundException();
-        }
-
         $redirect = $this->redirectAssignedScope($request, $user, 'app_stats_closure_analytics_event', [
             'eventKey' => $eventKey,
         ]);
@@ -235,12 +320,23 @@ final class ClosureAnalyticsController extends AbstractController
             $request->query->all(),
         );
 
+        if (self::ASSIGNMENTS_FRAME === $request->headers->get('Turbo-Frame')) {
+            return $this->renderEventAssignmentsFrame($event, (int) $eventKey, $request);
+        }
+
+        $volumeSeriesScope = $this->volumeSeriesScopeFromRequest($request);
+        $assignmentVariables = $this->eventAssignmentVariables(
+            $event,
+            (int) $eventKey,
+            $request,
+            $volumeSeriesScope->assignmentPopulation(),
+        );
+
         return $this->render('@Statistics/closure_analytics/event.html.twig', [
             'event' => $event,
             'children' => $children,
             'timelineDays' => $timelineDays,
             'timelineContextTypes' => $timelineContextTypes,
-            'overlappingAllocations' => $this->overlappingAllocationsFinder->forIntervals($children),
             'actions' => $this->allocationActions(
                 $filter,
                 $closureFilter,
@@ -248,6 +344,19 @@ final class ClosureAnalyticsController extends AbstractController
                 $event->startsAt,
                 $event->endsAt,
             ),
+            'volumeDetail' => $this->volume->detail(
+                $criteria,
+                (int) $eventKey,
+                $event->hospitalId,
+                ClosureVolumeStratum::All,
+                $volumeSeriesScope,
+            ),
+            'volumeScopeToggle' => true,
+            'volumeSeriesScope' => $volumeSeriesScope,
+            'eventTab' => 'course' === $request->query->getString('tab') ? 'course' : 'overview',
+            ...$assignmentVariables,
+            'profileLinks' => $this->profiles->linksForEvent((int) $eventKey, $event->hospitalId, $criteria),
+            'localGroups' => $this->localGroupResolver->resolve($event->hospitalId, $eventKey, $children),
         ]);
     }
 
@@ -344,7 +453,23 @@ final class ClosureAnalyticsController extends AbstractController
                 $interval->startsAt,
                 $interval->endsAt,
             ),
+            'volumeDetail' => $this->volume->detail(
+                $criteria,
+                (int) $interval->eventKey,
+                $interval->hospitalId,
+                ClosureVolumeStratum::All,
+                ClosureVolumeSeriesScope::Department,
+            ),
+            'volumeScopeToggle' => false,
+            'volumeSeriesScope' => ClosureVolumeSeriesScope::Department,
         ]);
+    }
+
+    private function volumeSeriesScopeFromRequest(Request $request): ClosureVolumeSeriesScope
+    {
+        return 'speciality' === $request->query->getString('volumeSeries')
+            ? ClosureVolumeSeriesScope::Speciality
+            : ClosureVolumeSeriesScope::Department;
     }
 
     /**
@@ -371,6 +496,88 @@ final class ClosureAnalyticsController extends AbstractController
                 primary: true,
             ),
         ];
+    }
+
+    private function assignmentListFilter(Request $request): ClosureVolumeStratum
+    {
+        $value = $request->query->get('assignmentList');
+
+        return ClosureVolumeStratum::fromRequest(\is_string($value) ? $value : null);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function eventAssignmentVariables(
+        ClosureEventRow $event,
+        int $eventId,
+        Request $request,
+        ClosureEventAssignmentPopulation $population,
+    ): array {
+        $listFilter = $this->assignmentListFilter($request);
+        $phase = ClosureEventAssignmentPhase::fromRequest($request->query->getString('phase'));
+        $counts = $this->eventAllocations->phaseCounts(
+            $eventId,
+            $event->hospitalId,
+            $event->startsAt,
+            $event->endsAt,
+            $population,
+            $listFilter,
+        );
+        [$phaseFrom, $phaseTo] = $phase->bounds($event->startsAt, $event->endsAt);
+        $requestedPageSize = $request->query->getInt('assignmentLimit');
+        $pageSize = \in_array($requestedPageSize, [25, 50, 100], true)
+            ? $requestedPageSize
+            : ClosureEventAllocationQuery::PAGE_SIZE;
+        $assignments = $this->paginator
+            ->fromCallbacks(
+                fn (int $offset, int $limit): array => $this->eventAllocations->assignments(
+                    $eventId,
+                    $event->hospitalId,
+                    $phaseFrom,
+                    $phaseTo,
+                    $population,
+                    $listFilter,
+                    $offset,
+                    $limit,
+                ),
+                fn (): int => $counts[$phase->value],
+            )
+            ->pageParameter('assignmentPage')
+            ->perPage($pageSize)
+            ->paginate();
+        $contextHours = ClosureVolumeReferenceConfig::CONTEXT_HOURS;
+
+        return [
+            'assignmentPhase' => $phase,
+            'assignmentPopulation' => $population,
+            'assignmentListFilter' => $listFilter,
+            'assignmentCounts' => $counts,
+            'assignmentPhaseBreakdown' => $this->eventAllocations->phaseBreakdown(
+                $eventId,
+                $event->hospitalId,
+                $event->startsAt,
+                $event->endsAt,
+                $population,
+            ),
+            'assignmentBeforeFrom' => $event->startsAt->modify(sprintf('-%d hours', $contextHours)),
+            'assignmentAfterTo' => $event->endsAt->modify(sprintf('+%d hours', $contextHours)),
+            'assignmentDuringFrom' => $event->startsAt,
+            'assignmentDuringTo' => $event->endsAt,
+            'assignments' => $assignments,
+        ];
+    }
+
+    private function renderEventAssignmentsFrame(ClosureEventRow $event, int $eventId, Request $request): Response
+    {
+        return $this->render('@Statistics/closure_analytics/_event_assignments_frame.html.twig', [
+            ...$this->eventAssignmentVariables(
+                $event,
+                $eventId,
+                $request,
+                $this->volumeSeriesScopeFromRequest($request)->assignmentPopulation(),
+            ),
+        ]);
     }
 
     /**
@@ -436,6 +643,11 @@ final class ClosureAnalyticsController extends AbstractController
                     'key' => 'events',
                     'label' => 'stats.closure.tabs.events',
                     'url' => $this->generateUrl('app_stats_closure_analytics_events', $tabQuery),
+                ],
+                [
+                    'key' => 'profiles',
+                    'label' => 'stats.closure.tabs.profiles',
+                    'url' => $this->generateUrl('app_stats_closure_analytics_profiles', $tabQuery),
                 ],
             ],
             'closureFilterDrawer' => $filterViewModel,

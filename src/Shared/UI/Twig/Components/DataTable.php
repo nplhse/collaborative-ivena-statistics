@@ -113,6 +113,8 @@ final class DataTable
      */
     public array $cellContext = [];
 
+    public ?string $turboFrame = null;
+
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -230,6 +232,18 @@ final class DataTable
     public function getPageSizes(): array
     {
         return self::PAGE_SIZES;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getTurboPaginationLinkAttributes(): array
+    {
+        if (null === $this->turboFrame || '' === $this->turboFrame) {
+            return [];
+        }
+
+        return ['data-turbo-frame' => $this->turboFrame];
     }
 
     public function getSortFormAction(): string

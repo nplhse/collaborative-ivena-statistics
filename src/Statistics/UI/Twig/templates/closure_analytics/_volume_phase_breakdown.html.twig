@@ -1,0 +1,58 @@
+{% if assignmentPhaseBreakdown is defined and assignmentPhaseBreakdown is not empty %}
+    <div class="card mb-3" data-testid="stats-closure-volume-phase-breakdown">
+        <div class="card-header">
+            <h3 class="card-title mb-0">{{ 'stats.closure.volume.phase_breakdown.title'|trans({}, 'statistics') }}</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-3">
+                {% if assignmentPhaseBreakdownProfile|default(false) %}
+                    {{ 'stats.closure.volume.phase_breakdown.profile_lead'|trans({}, 'statistics') }}
+                {% else %}
+                    {{ 'stats.closure.volume.phase_breakdown.lead'|trans({}, 'statistics') }}
+                {% endif %}
+            </p>
+            {% if assignmentPhaseBreakdownProfile|default(false) and assignmentPhaseBreakdown[0].evaluableEvents is defined %}
+                <p class="text-muted small mb-3" data-testid="stats-closure-volume-breakdown-events">
+                    {{ 'stats.closure.volume.phase_breakdown.evaluable_events'|trans({count: assignmentPhaseBreakdown[0].evaluableEvents}, 'statistics') }}
+                </p>
+            {% endif %}
+            <div class="table-responsive">
+                <table class="table table-sm table-vcenter">
+                    <thead>
+                    <tr>
+                        <th>{{ 'stats.closure.volume.phase_breakdown.category'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'stats.closure.event.assignments.phase.before.short'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'stats.closure.event.assignments.phase.during.short'|trans({}, 'statistics') }}</th>
+                        <th>{{ 'stats.closure.event.assignments.phase.after.short'|trans({}, 'statistics') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in assignmentPhaseBreakdown %}
+                        <tr data-testid="stats-closure-volume-breakdown-{{ row.stratum.value }}">
+                            <td>{{ ('stats.closure.volume.stratum.' ~ row.stratum.value)|trans({}, 'statistics') }}</td>
+                            {% if row.beforeTotal is defined %}
+                                {% for phase in [
+                                    {total: row.beforeTotal, mean: row.beforeMean},
+                                    {total: row.duringTotal, mean: row.duringMean},
+                                    {total: row.afterTotal, mean: row.afterMean},
+                                ] %}
+                                    <td>
+                                        {% if phase.total is null %}—{% else %}{{ phase.total }}{% endif %}
+                                        {% if phase.mean is not null %}
+                                            <span class="text-muted small d-block">{{ 'stats.closure.volume.phase_breakdown.mean_per_event'|trans({value: phase.mean|number_format(1, ',', '.')}, 'statistics') }}</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            {% else %}
+                                <td>{{ row.before }}</td>
+                                <td>{{ row.during }}</td>
+                                <td>{{ row.after }}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}

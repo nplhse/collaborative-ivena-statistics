@@ -177,19 +177,37 @@ sweep AS (
 ),
 selected_stats AS (
     SELECT MIN(s.event_type) AS event_type, MIN(s.hospital_id)::int AS hospital_id, MIN(h.name) AS hospital_name,
+           MIN(h.public_id::text) AS hospital_public_id,
            NULLIF(BTRIM(MIN(s.source_group_id)), '') AS source_group_id,
            MIN(s.clipped_start) AS starts_at, MAX(s.clipped_end) AS ends_at,
            COUNT(*)::int AS closure_count,
            ROUND(SUM(EXTRACT(EPOCH FROM (s.clipped_end - s.clipped_start)) / 60.0))::int AS summed_minutes
     FROM selected s JOIN hospital h ON h.id = s.hospital_id
+),
+event_children AS (
+    SELECT COALESCE(JSONB_AGG(JSONB_BUILD_OBJECT(
+        'id', s.id,
+        'speciality', sp.name,
+        'department', d.name,
+        'careLevel', s.care_level,
+        'reason', s.reason,
+        'closureUnit', s.closure_unit,
+        'startsAt', s.clipped_start,
+        'endsAt', s.clipped_end
+    ) ORDER BY s.clipped_start, s.id), '[]'::jsonb)::text AS children
+    FROM selected s
+    JOIN speciality sp ON sp.id = s.speciality_id
+    JOIN department d ON d.id = s.department_id
 )
-SELECT :event_key AS event_key, ss.event_type, ss.hospital_id, ss.hospital_name, ss.source_group_id,
+SELECT :event_key AS event_key, ss.event_type, ss.hospital_id, ss.hospital_name, ss.hospital_public_id, ss.source_group_id,
        ss.starts_at, ss.ends_at, ss.closure_count, ss.summed_minutes,
        (SELECT ROUND(SUM(EXTRACT(EPOCH FROM (segment_end - segment_start)) / 60.0))::int
         FROM sweep WHERE active_count > 0 AND segment_start < segment_end) AS actual_minutes,
        (SELECT ROUND(SUM(EXTRACT(EPOCH FROM (o.segment_end - o.segment_start)) / 60.0))::int
-        FROM observed_segments o WHERE o.hospital_id = ss.hospital_id) AS observed_minutes
+        FROM observed_segments o WHERE o.hospital_id = ss.hospital_id) AS observed_minutes,
+       ec.children
 FROM selected_stats ss
+CROSS JOIN event_children ec
 SQL, $params, $types);
 
         return false === $event ? null : ['event' => $event, 'children' => $children];
@@ -207,7 +225,7 @@ SQL, $params, $types);
         /** @var list<array<string, int|string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(<<<SQL
 WITH {$base}
-SELECT v.event_key, v.event_type, d.name AS department_name, s.name AS speciality_name, v.care_level,
+SELECT v.id, v.event_key, v.event_type, d.name AS department_name, s.name AS speciality_name, v.care_level,
        v.clipped_start AS starts_at, v.clipped_end AS ends_at
 FROM valid_closures v
 JOIN speciality s ON s.id = v.speciality_id
@@ -218,6 +236,7 @@ SQL, $params, $types);
 
         return array_map(
             static fn (array $row): ClosureSameDayInterval => new ClosureSameDayInterval(
+                (int) $row['id'],
                 (string) $row['event_key'],
                 ClosureEventType::from((string) $row['event_type']),
                 (string) $row['department_name'],
@@ -248,6 +267,7 @@ SQL, $params, $types);
             (int) $row['actual_minutes'],
             (int) $row['observed_minutes'],
             $this->eventChildren($row['children'] ?? null),
+            (string) ($row['hospital_public_id'] ?? ''),
         );
     }
 
@@ -308,7 +328,7 @@ event_totals AS (
     JOIN department d ON d.id = v.department_id
     GROUP BY v.event_key, v.hospital_id
 )
-SELECT e.event_key, e.event_type, e.hospital_id, h.name AS hospital_name, e.source_group_id,
+SELECT e.event_key, e.event_type, e.hospital_id, h.name AS hospital_name, h.public_id::text AS hospital_public_id, e.source_group_id,
        e.starts_at, e.ends_at, e.closure_count,
        ROUND(e.summed_minutes)::int AS summed_minutes,
        ROUND(a.actual_minutes)::int AS actual_minutes,

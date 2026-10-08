@@ -11,6 +11,7 @@ final readonly class ClosureOverlapWindow
         public int $departmentId,
         public \DateTimeImmutable $startsAt,
         public \DateTimeImmutable $endsAt,
+        public int $analysisIntervalId,
     ) {
     }
 }

@@ -1,0 +1,94 @@
+{% macro windowLabel(kind) %}
+    {% if kind == 'during' %}
+        {{ 'stats.closure.volume.window.during.short'|trans({}, 'statistics') }}
+    {% elseif kind starts with 'pre_' %}
+        {{ 'stats.closure.volume.window.hours_before'|trans({hours: kind|replace({pre_: ''})}, 'statistics') }}
+    {% else %}
+        {{ 'stats.closure.volume.window.hours_after'|trans({hours: kind|replace({post_: ''})}, 'statistics') }}
+    {% endif %}
+{% endmacro %}
+
+{% macro observedCell(window) %}
+    {% if window is null or window.observedArea is null %}—{% else %}{{ window.observedArea|number_format(1, ',', '.') }}{% endif %}
+{% endmacro %}
+
+{% macro expectedCell(window) %}
+    {% if window is null or window.expectedArea is null %}—{% else %}{{ window.expectedArea|number_format(1, ',', '.') }}{% endif %}
+{% endmacro %}
+
+{% macro deviationCell(window) %}
+    {% if window is null or (window.absoluteDeviation is null and window.relativeDeviation is null) %}
+        —
+    {% else %}
+        <div class="stats-top-lists-value-pair justify-content-end flex-wrap">
+            {% if window.absoluteDeviation is not null %}
+                <twig:Statistics:DeltaIndicator
+                    :value="window.absoluteDeviation"
+                    unit="decimal"
+                    display="text"
+                    whenZero="neutral"
+                    ariaKey="stats.closure.volume.deviation.absolute.aria"
+                />
+            {% endif %}
+            {% if window.relativeDeviation is not null %}
+                <twig:Statistics:DeltaIndicator
+                    :value="window.relativeDeviation * 100"
+                    unit="percent"
+                    whenZero="neutral"
+                    ariaKey="stats.closure.volume.deviation.relative.aria"
+                />
+            {% endif %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro evaluableCell(window) %}
+    {% if window is null %}
+        —
+    {% elseif window.quality.value == 'ongoing' %}
+        —
+    {% else %}
+        {{ (window.evaluableSeconds / 60)|number_format(0, ',', '.') ~ ' / ' ~ (window.requestedSeconds / 60)|number_format(0, ',', '.') }}
+    {% endif %}
+{% endmacro %}
+
+{% macro qualityCell(window) %}
+    {% if window is null %}
+        —
+    {% else %}
+        {{ include('@Statistics/closure_analytics/_volume_quality_badge.html.twig', {quality: window.quality}) }}
+    {% endif %}
+{% endmacro %}
+
+{% set windowOrder = ['pre_6', 'pre_3', 'pre_1', 'during', 'post_1', 'post_3', 'post_6'] %}
+{% import _self as windowsTable %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table" data-testid="stats-closure-volume-windows">
+            <thead>
+            <tr>
+                <th>{{ 'stats.closure.volume.column.window'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.volume.expected.legend'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.volume.observed.legend'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.volume.deviation'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.volume.column.evaluable'|trans({}, 'statistics') }}</th>
+                <th class="text-end">{{ 'stats.closure.volume.column.quality'|trans({}, 'statistics') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for kind in windowOrder %}
+                {% set window = volumeDetail.windows|filter(w => w.kind == kind)|first %}
+                <tr data-testid="stats-closure-volume-windows-row-{{ kind }}">
+                    <th scope="row" class="text-nowrap">{{ windowsTable.windowLabel(kind) }}</th>
+                    <td class="text-end text-nowrap">{{ windowsTable.expectedCell(window ?? null) }}</td>
+                    <td class="text-end text-nowrap">{{ windowsTable.observedCell(window ?? null) }}</td>
+                    <td class="text-end text-nowrap">{{ windowsTable.deviationCell(window ?? null)|raw }}</td>
+                    <td class="text-end text-nowrap">{{ windowsTable.evaluableCell(window ?? null) }}</td>
+                    <td class="text-end">{{ windowsTable.qualityCell(window ?? null)|raw }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ include('@Statistics/closure_analytics/_volume_quality_legend.html.twig') }}
+</div>

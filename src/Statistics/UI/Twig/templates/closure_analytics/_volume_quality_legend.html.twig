@@ -1,0 +1,18 @@
+<div class="card-footer p-3" data-testid="stats-closure-volume-quality-legend">
+    <p class="text-muted small mb-0">{{ 'stats.closure.volume.detail_lead'|trans({weeks: volumeDetail.referenceWeeks, slots: volumeDetail.minimumReferenceSlots}, 'statistics') }}</p>
+    <details class="closure-volume-quality-legend mt-3">
+        <summary class="small text-muted text-decoration-underline">
+            {{ 'stats.closure.volume.quality_legend.title'|trans({}, 'statistics') }}
+        </summary>
+        <ul class="small text-muted mb-0 mt-3 ps-3">
+            {% for key in ['reliable', 'limited', 'insufficient', 'incomplete', 'influenced', 'ongoing', 'not_applicable'] %}
+                <li class="mb-2">
+                    <span class="d-inline-flex flex-wrap align-items-baseline column-gap-3 row-gap-1">
+                        {{ include('@Statistics/closure_analytics/_volume_quality_badge.html.twig', {quality: key}) }}
+                        <span>{{ ('stats.closure.volume.quality_hint.' ~ key)|trans({}, 'statistics') }}</span>
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    </details>
+</div>

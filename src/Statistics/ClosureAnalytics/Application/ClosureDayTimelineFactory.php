@@ -101,7 +101,7 @@ final class ClosureDayTimelineFactory
             foreach ($day->lanes as $lane) {
                 foreach ($lane->segments as $segment) {
                     if (!$segment->primary) {
-                        $present[$segment->eventType->value] = true;
+                        $present[$segment->eventType->timelineLegendKind()] = true;
                     }
                 }
             }
@@ -109,7 +109,7 @@ final class ClosureDayTimelineFactory
 
         return array_values(array_filter(
             ['group', 'cluster', 'single'],
-            static fn (string $type): bool => isset($present[$type]),
+            static fn (string $kind): bool => isset($present[$kind]),
         ));
     }
 

@@ -1,0 +1,16 @@
+{% set volumeChoices = [
+    {value: 'all', label: 'stats.closure.volume.stratum.all'},
+    {value: 'sk1', label: 'stats.closure.volume.stratum.sk1'},
+    {value: 'sk2', label: 'stats.closure.volume.stratum.sk2'},
+    {value: 'sk3', label: 'stats.closure.volume.stratum.sk3'},
+    {value: 'resus', label: 'stats.closure.volume.stratum.resus'},
+    {value: 'cathlab', label: 'stats.closure.volume.stratum.cathlab'},
+] %}
+<div class="btn-list flex-wrap" data-testid="stats-closure-volume-stratum">
+    {% for choice in volumeChoices %}
+        <a class="btn btn-sm {{ active == choice.value ? 'btn-primary' : 'btn-outline-secondary' }}"
+           href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({volumeGroup: choice.value})) }}">
+            {{ choice.label|trans({}, 'statistics') }}
+        </a>
+    {% endfor %}
+</div>

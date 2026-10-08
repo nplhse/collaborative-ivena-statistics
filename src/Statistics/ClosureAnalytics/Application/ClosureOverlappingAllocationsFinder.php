@@ -30,6 +30,7 @@ final readonly class ClosureOverlappingAllocationsFinder
                 $interval->departmentId,
                 $interval->startsAt,
                 $interval->endsAt,
+                $interval->id,
             );
         }
 

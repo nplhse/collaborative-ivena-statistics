@@ -11,9 +11,9 @@ final class ClosureDurationFormatter
         return (int) round(max(0.0, (float) $seconds) / 60.0);
     }
 
-    public static function humanize(int $minutes): string
+    public static function humanize(int|float $minutes): string
     {
-        $minutes = max(0, $minutes);
+        $minutes = max(0, (int) round($minutes));
         $weeks = intdiv($minutes, 10_080);
         $days = intdiv($minutes % 10_080, 1_440);
         $hours = intdiv($minutes % 1_440, 60);
