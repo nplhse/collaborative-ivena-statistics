@@ -57,7 +57,7 @@ final class ClosureTableCsvCellFormatterTest extends TestCase
 
         self::assertSame('01.05.2026 10:00', $formatter->format($row, $this->column('startsAt', 'datetime')));
         self::assertSame('Demo Hospital', $formatter->format($row, $this->column('hospital')));
-        self::assertSame('Group; demo', $formatter->format($row, $this->column('event')));
+        self::assertSame('Source group; demo', $formatter->format($row, $this->column('event')));
         self::assertSame('Trauma; Orthopedics', $formatter->format($row, $this->column('departments')));
         self::assertSame(2, $formatter->format($row, $this->column('closureCount', 'number')));
         self::assertSame('Emergency; Inpatient', $formatter->format($row, $this->column('careLevels')));
@@ -98,7 +98,7 @@ final class ClosureTableCsvCellFormatterTest extends TestCase
         $translator = $this->createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id, array $parameters = [], ?string $domain = null): string => match ($id) {
-                'stats.closure.events.group' => 'Group',
+                'stats.closure.events.source_group' => 'Source group',
                 'stats.closure.events.single' => 'Single',
                 'label.urgency.emergency' => 'Emergency',
                 'label.urgency.inpatient' => 'Inpatient',

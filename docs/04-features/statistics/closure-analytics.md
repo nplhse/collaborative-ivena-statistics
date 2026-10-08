@@ -13,7 +13,7 @@ Hospital access is enforced in `ClosureAnalyticsHospitalScope` through the exist
 `HospitalPermission::Statistics` grants (`HospitalAccessInterface::accessibleHospitalIds()`).
 Every closure query — overview, indicators, charts, timeline, events, detail frame,
 interval, group and CSV export — receives that id list and never a public scope.
-Direct interval ids, group and cluster event keys, `closureHospitals[]`, and scope
+Direct interval ids, numeric event ids, `closureHospitals[]`, and scope
 parameters for state, cohort, dispatch area or a foreign hospital are checked on the
 same list. A mixed selection keeps only the caller's hospitals. An empty selection
 or a user without a statistics grant yields no rows and does not fall back to public
@@ -28,19 +28,18 @@ analytics is not part of the Analysis Explorer.
 
 ## Data and event model
 
-An imported row is one individual closure for one department and one care level.
-`source_group_id` is an optional IVENA action id, not a separate entity and not an
-interval of its own. Analytics therefore derives a group from all canonical rows
-with the same `(hospital_id, source_group_id)`. Two or more ungrouped canonical
-rows from the same hospital with exactly the same original start and end form an
-analytical cluster. Other ungrouped rows remain individual events. Cluster
-identity is assigned before period clipping and contextual filters, so a filtered
-subset keeps the same stable event key.
+Definitions, the three levels, and the rebuild path are in
+[closure-architecture.md](closure-architecture.md).
 
-Repeated exports may contain the same row. Analytics canonicalises exact natural
-duplicates (hospital, department, speciality, start/end, care level, reason,
-closure unit, and group id); the most recently changed/imported representation
-wins. Similar but non-identical rows remain separate.
+An imported row stays in `closure_interval`. Matching rows become one analysis
+interval; their care levels are a set. Remarks stay on the source row. Only
+completed and partial imports are analysed. A non-empty IVENA group id becomes
+one `source_group` event per hospital. Two or more ungrouped intervals with the
+same hospital and the exact same start and end become a `cluster`. Everything
+else is a `single`. The event id is numeric and stays when the same grouping
+key is rebuilt. A volume rebuild does not change it. Divergent times or
+features stay separate intervals. `other` stays `other` until the volume
+evaluation opens SK1–SK3.
 
 ## Metrics
 
@@ -124,9 +123,9 @@ independent of the event table. Visible columns, their order, the page size,
 and the sort chosen in the sort menu are stored per user under
 `statistics.closure_analytics.units`. A link can still override that layout for
 one request; saving the layout removes those parameters so the stored choice
-applies again. The unit name stays visible. In Hospital and My Hospitals scope,
-it links to the timeline with that hospital-local unit, scope, period, and the
-remaining contextual filters preserved.
+applies again. The unit name stays visible. It opens the closure-unit profile
+for that hospital and label. The profile keeps the scope, period, and the
+remaining contextual filters, and its timeline action applies the same unit.
 
 Stored timestamps are Europe/Berlin wall-clock values. Temporal analytics converts
 them to an absolute timeline before calculating elapsed durations, so daylight
@@ -198,38 +197,152 @@ when the URL does not override columns.
 ## Event and interval detail
 
 Group, cluster and individual-closure detail pages follow the Explore entity-show
-layout: avatar and `h1`, muted context, back to the events list, an 8/4 card
-grid, and an Actions sidebar. Count and duration sit in one card in the right
-column below the allocations action. The timeline always uses the associated
-Europe/Berlin calendar day, midnight to midnight, so a two-hour closure sits on
-a 24-hour axis. Closures that cross midnight are split across consecutive days,
-matching the Timeline tab. Other groups, clusters and individual closures of the
-same departments on those calendar days appear on the same tracks as quieter,
-type-coloured bars and link to their event detail.
+layout: avatar and `h1`, a muted meta line, back to the events list, an 8/4 card
+grid, and an Actions sidebar. The meta line links the hospital name to its
+Explore profile, then shows the Europe/Berlin start and end, the actual event
+duration, the event-type badge, and the numeric event id. The side card keeps
+the affected specialities, departments and care levels, the member count, the
+source-group id, and the summed duration only when it differs from the actual
+duration. Count and both durations stay in the KPI card below the allocations
+action.
 
-The primary action opens `/explore/allocation` for the matching calendar day or
-days (`createdFrom` / `createdUntil`) and the currently selected hospital
-filter. A single selected hospital, Hospital scope, or the event's own hospital
-becomes `hospitalFilter`. My Hospitals without a hospital selection uses
-`my_hospitals`. That link is a date-and-hospital jump into the allocation list.
+The event page has two in-page tabs, `tab=overview` (default) and `tab=course`.
+Overview shows the day timeline and the member table. Assignments that arrived
+while a department was closed (any SK / urgency) are listed on the course tab in
+the **Währenddessen** phase table, not in a separate sidebar card. The sidebar
+action is still the date-wide `createdFrom` / `createdUntil` jump to Explore and
+can use `my_hospitals`.
 
-Below the interval list, the same detail pages list allocations whose
-`created_at` (Europe/Berlin wall clock, same as Explore) falls inside a child
-interval's displayed, period-clipped window (`starts_at <= created_at <= ends_at`)
-and whose `department_id` matches that child. Groups and clusters therefore match
-per department window, not against the overall event span. The list is compact
-(time, department, indication, urgency) and links to Explore allocation show
-when the user has `ROLE_PARTICIPANT`. An empty state is always shown when nothing
-matches. `department_was_closed` and SK-aware urgency matching are not applied.
+Course volume defaults to the **closed-department** projection
+(`volumeSeries=department`, also the default). On the observed-vs-expected
+assignments card, a scope switch reloads charts, KPIs, and windows for
+`volumeSeries=speciality` (affected specialities of the event). While
+department scope is active, the lower **course against the reference** chart
+adds a dashed speciality ratio line only (no extra lines on the assignment
+chart). Interval detail stays on department scope without that card switch. Optional
+background bars for SK1–SK3, shock room and cath lab are toggled in the chart
+area and do not change the main series. A compact breakdown table lists observed
+assignment counts for all categories in the three ±6 hour windows. Below that,
+a Turbo Frame (`stats-closure-event-assignments`) holds the phase bar, local list
+filters, and the paginated table. Phase buttons use short labels (`Davor`,
+`Währenddessen`, `Danach`); the exact half-open window is shown separately. List
+filters use the query key `assignmentList` and reset pagination. The global
+`volumeGroup` selector is removed from charts; main lines always use
+`ClosureVolumeStratum::All`.
+
+The course header switch `volumeSeries=department|speciality` drives the charts,
+the sidebar observed-count table, and the assignment list together: **closed
+departments** (`department`) vs **affected specialities** (`speciality`), with
+the same semantics as the volume projection. Row counts are not required to
+match the decimal **observed** cells in the volume window table, which come
+from the hourly projection.
+
+Assignment rows in the course table are enriched with context: whether the
+department belongs to the event, and whether a matching analysis interval
+(hospital, department, care level / SK rule, half-open `[start, end)`) was
+active at `created_at`. Badges distinguish affected departments, other
+departments in the speciality (speciality population only), and rows closed at
+assignment time. The interval
+detail list under the day timeline uses the same SK-aware overlap join on the
+analysis interval id. Allocation detail links use `data-turbo-frame="_top"`.
+Allocation detail links still require `ROLE_PARTICIPANT`.
+
+Profile course charts mark closure relative to hour 0 (start- or end-aligned)
+with a share of contributing events still in closure per hour bucket. Optional
+background bars (SK1–SK3, shock room, cath lab) use the same toggles as event
+volume charts. Profile pages expose `assignmentPhaseBreakdown`: per-event totals
+and means across the profile’s events in the same ±6 hour windows and
+speciality/department population as the course analysis. Summed totals may count
+an allocation more than once when event windows overlap; the UI states that
+explicitly.
+
+The timeline uses the Europe/Berlin calendar day, midnight to midnight, so a
+two-hour closure sits on a 24-hour axis. Closures that cross midnight are split
+across consecutive days. The current event’s segments use a contour and a
+stripe, the label “Aktuell”, and `aria-current`. Neighbouring context stays
+faded. The track shares the 64rem minimum width of the day header. On the first
+display the scroll position moves to that segment, after the sticky label; a
+segment wider than the viewport is aligned to the start of the track. “Zum
+Ereignis” repeats that positioning. Later updates do not move the scroll again.
+Opening the course tab resizes the charts, because ApexCharts otherwise measures
+a hidden pane as width 0.
+
+Interval detail still lists allocations whose `created_at` falls inside that
+interval’s department window.
+
+Automated checks cover the hospital link, the side card without the event
+window, both tabs, the half-open population query
+(including a department that is not closed, excluding it from the closed
+population, no duplicate when several members match, and a page of 10), and the
+current-segment markup plus the jump button. The running page at
+`https://127.0.0.1:8000` redirects this browser to `/login`, so scroll position,
+chart width after the tab change, a narrow viewport, and dark mode were not
+observed in the live UI.
+
+## Clinic profiles
+
+Hospital, speciality and department names in the three breakdown cards open the
+matching profile, as does each local closure unit in the overview table. The
+**Constellations** tab (last tab) lists non-redundant **constellations**
+in a paginated data table with search (`profileQ`), sort, and column preferences.
+Each row shows speciality and department facets (badge stacks like the events
+list), SK and reason badges, a link to the constellation profile, and a composition
+dropdown with every member combination. The event list is opened from the
+profile detail, not from this table. A constellation row
+is omitted when, in the selected period, every event
+with that signature uses exactly one closure unit and every homogeneous event on
+that unit carries only that signature (strict bidirectional match with the
+closure-unit profile). Statistics stay on the unit profile; the constellation
+route remains available by URL.
+
+A row that belongs to one hospital opens that hospital's profile. A speciality or
+department that spans several hospitals in the current scope opens the same
+profile across that scope. The event page links the constellation only when it
+is not redundant to the event's local closure unit; speciality links are unchanged.
+
+Both profile pages use the event-detail header: hospital link, profile name,
+and KPI cards. The composition is a second in-page tab, `tab=composition`,
+rendered as a data table. Each row is one combination of speciality, department,
+care level and reason, plus the department provenance. A department that appears
+only in assignments is a row without care level or reason. The period picker and
+the closure date filter are the same controls as the rest of closure statistics.
+Access stays `ROLE_CLOSURE_BETA` and the hospital scope.
+
+KPIs are the event count, how many of those events have at least one volume
+piece of quality `reliable` or `limited` with positive evaluable seconds, the
+equal-weighted duration (union per event, then median, interquartile range and
+mean; under five events the individual values), care levels as “events that
+contain this level”, and the weekday and start hour in the closure heatmap.
+
+The data stock uses the same year heatmap as catalog coverage on a department
+page. Each cell is one year and shows how many profile events overlap it.
+Years inside the row without events stay empty. Years after the current year
+are future cells. The period above the grid is the first and last closure of
+the profile in the selected range.
+
+The timeline and the event list receive `closureProfile` together with the
+period. Event rows still open the event detail. The course charts read the
+volume projection; opening a profile does not rebuild it. Below four
+contributing events the course card shows an empty state that asks to widen
+the period, choose another care level, or loosen the filters. The
+whole-closure block still shows the count. When enough events contribute, it
+shows the equal-weighted rate and, separately, the deduplicated total volume,
+labelled as a deviation from the reference.
+
+The key, the department provenance, the populations, the two time axes, the
+equal event weight, the quality rule, and the limit that no hospital structure
+is stored are described in
+[closure-architecture.md](closure-architecture.md).
 
 ## Duration and time burden
 
 A dedicated tab, `/statistics/closure-analytics/duration`, shows event durations,
 department concurrency, phases and gaps. It reuses the same clipped
 `valid_closures` and `observed_segments` as the rest of Closure Analytics,
-loaded once, and the same analysis context and hospital scope. The existing
-overview KPI is unchanged: that bar still counts concurrent groups and
-clusters, while the duration tab counts distinct departments.
+loaded once, and the same analysis context and hospital scope. The overview
+KPI row shows actual closure time, the deviation of observed and expected
+assignments, and the share of expected hospital volume. The duration tab
+counts distinct departments.
 
 An event keeps its `event_key`. Its duration is the union of its clipped child
 intervals, so department or reason joins do not multiply the count or the
@@ -275,10 +388,87 @@ hospital. The three shares — none, exactly one, several — add up to the
 evaluable hospital time. “Per 24 h” multiplies a share by 24 hours and is a
 normalised average, not a claim about each calendar day.
 
+## Expected assignment volume
+
+The overview KPI row shows the deviation of observed and expected assignments
+during closures, and that expectation as a share of the hospital's expected
+volume. It does not replace the duration tab and it does not claim lost
+patients, diversion or a causal effect. Deviation is observed minus expected.
+A relative deviation is omitted when the expectation is zero or missing. The
+separate volume block is not shown on the overview.
+
+The primary series is the closed department (`scope = department` in
+`closure_volume_hour`). The closed departments and care levels are listed in
+the UI. On the event course tab, an optional speciality reference overlay uses
+`scope = speciality` (broader than the closed units). The hospital series is
+context. Care levels
+emergency, inpatient and outpatient limit the population to SK 1, SK 2 and SK 3.
+Care level `other` is stored as `other` and opens SK1–SK3 only in this
+evaluation. Shock room (`requires_resus`) and cardiac catheter
+(`requires_cathlab`) are separate views and must not be added to each other or
+to the urgency views. No ABCD score and no conspicuous-score threshold exist in
+the allocation model, so that view is not offered.
+
+The reference for a closure ends at its start. It uses the previous 8 weeks
+(`app.closure_volume.reference_weeks`) of the same weekday and clock hour, and
+only hours that lie fully inside import coverage and outside known closures of
+the same population. A partly closed reference hour is dropped. At least 4 such
+hours are required (`app.closure_volume.minimum_reference_slots`). Otherwise the
+same weekday and the existing day-time bucket (night, morning, afternoon,
+evening) are used, again with at least 4 hours. Below that, the expectation is
+missing rather than zero. Expectation for a span is the hourly rate times the
+actual epoch seconds, so a twelve-hour closure is not half of an average day.
+Durations use Europe/Berlin, including 23- and 25-hour daylight-saving days.
+
+A Berlin calendar day counts as covered only when the hospital has at least one
+row in `allocation_stats_projection` on that day. Days without any assignment
+are left out of the reference and are not stored as zero observations. Inside a
+covered day, zero assignments in the closed department are real zeros. A genuine
+hospital-wide zero day cannot be distinguished from a missing import.
+
+The context around an event is 6 hours before the start and 6 hours after the
+end. Overview figures are clipped to the selected period and to now. A clock
+hour that the period cuts is weighted by the overlap inside that hour. Detail
+figures use the full closure and the cumulative 1, 3 and 6 hour windows before
+and after it, even when they extend beyond the overview period; the page says
+so. Follow-up windows are omitted while a closure is still running. Each partial
+hour counts allocations with `created_at >= start AND created_at < end`. Windows
+influenced by another closure of the same population, or windows that are
+incomplete or not computable, stay visible and are excluded from the before/after
+comparison. The chart uses consecutive hour pieces of the department series.
+100 percent means the observation matches that series' own reference.
+
+Overlapping hour pieces of the same population are united before summing. Event
+totals are not the sum of child totals. Several hospitals are summed as
+numerators and denominators; their percentages are not averaged.
+
+`app:statistics:rebuild-closure-volume-projection` rebuilds the analysis and
+then `closure_volume_hour`. A full rebuild swaps the side table. A hospital
+rebuild replaces only that hospital in one transaction. The previous table stays
+readable until commit. The projection stores no method version. Closure imports
+schedule analysis asynchronously; the same run then builds volume for those
+hospitals. An allocation import schedules volume only for its hospital, after
+the allocation projection. Deleting closure sources schedules analysis; deleting
+only allocations schedules volume. A retry cleanup does not schedule a second
+rebuild. The worker memory limit stays 256 MB. The build walks one hospital in
+weekly partitions and logs runtime and memory per partition.
+
+### Volume read performance
+
+Department scope can return more `closure_volume_hour` rows per event than
+speciality scope (one grain per closed department). Overview burden aggregates
+across all filtered events. Before release, compare Symfony profiler timings for
+overview burden, event course, and interval detail against the previous
+speciality read path; `EXPLAIN (ANALYZE)` on `draftsForEvent` and `affectedRows`
+should use indexes on `(event_id, scope, …)`. The speciality reference on the
+department course view runs a second `draftsForEvent` (speciality) only to build
+the optional ratio reference line; `volumeSeries=speciality` replaces the primary
+series instead of overlaying it.
+
 ## Deferred allocation matching
 
-SK-aware joins, Notzuweisungen / emergency-assignment interpretation, aggregate
-overlap KPIs, and Explore filters for closure intervals still require the
-contract from issue #571. They are intentionally absent here. No value is
-derived from `department_was_closed`, and the existing Notzuweisungen analysis is
+SK-aware joins for the course-tab assignment list on the detail page and Explore
+filters for closure intervals still require the contract from issue #571. The
+volume view above is separate from that list. No value is derived from
+`department_was_closed`, and the dedicated Notzuweisungen statistics module is
 not changed.

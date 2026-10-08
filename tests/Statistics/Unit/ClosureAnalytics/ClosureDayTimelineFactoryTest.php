@@ -95,6 +95,37 @@ final class ClosureDayTimelineFactoryTest extends TestCase
         self::assertSame(['single'], ClosureDayTimelineFactory::contextEventTypes($days));
     }
 
+    public function testContextEventTypesMapsSourceGroupToGroupLegendKind(): void
+    {
+        $timezone = new \DateTimeZone('Europe/Berlin');
+        $days = new ClosureDayTimelineFactory()->build([
+            new ClosureDayTimelineItem(
+                new \DateTimeImmutable('2026-05-01 10:00:00', $timezone),
+                new \DateTimeImmutable('2026-05-01 12:00:00', $timezone),
+                'Cardiology',
+                'Inner Medicine',
+                'emergency',
+                '/event/current',
+                'Current',
+                true,
+                ClosureEventType::Single,
+            ),
+            new ClosureDayTimelineItem(
+                new \DateTimeImmutable('2026-05-01 14:00:00', $timezone),
+                new \DateTimeImmutable('2026-05-01 16:00:00', $timezone),
+                'Cardiology',
+                'Inner Medicine',
+                'emergency',
+                '/event/other-group',
+                'Group · 14:00–16:00 · Cardiology',
+                false,
+                ClosureEventType::Group,
+            ),
+        ]);
+
+        self::assertSame(['group'], ClosureDayTimelineFactory::contextEventTypes($days));
+    }
+
     public function testCalendarDayBoundsCoverMidnightToMidnightInBerlin(): void
     {
         $timezone = new \DateTimeZone('Europe/Berlin');

@@ -20,6 +20,7 @@ use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
+use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -30,6 +31,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ClosureAnalyticsQueryTest extends KernelTestCase
 {
     use Factories;
+    use RebuildsClosureAnalysis;
 
     public function testClipsDurationAndKeepsHospitalLocalGroupsSeparate(): void
     {
@@ -165,7 +167,7 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertSame(120, $metrics->observedMinutes);
 
         $eventTypes = self::getContainer()->get(ClosureTemporalQuery::class)->fetchBreakdown($criteria, 'event_type');
-        self::assertSame(['group', 'cluster', 'single'], array_map(static fn ($row): string => $row->key, $eventTypes));
+        self::assertSame(['source_group', 'cluster', 'single'], array_map(static fn ($row): string => $row->key, $eventTypes));
         self::assertSame([1, 0, 0], array_map(static fn ($row): int => $row->closureCount, $eventTypes));
 
         $eventQuery = self::getContainer()->get(ClosureEventQuery::class);
@@ -248,7 +250,7 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         self::assertSame(60, $metrics->multipleMinutes);
 
         $eventTypes = $temporal->fetchBreakdown($criteria, 'event_type');
-        self::assertSame(['group', 'cluster', 'single'], array_map(static fn ($row): string => $row->key, $eventTypes));
+        self::assertSame(['source_group', 'cluster', 'single'], array_map(static fn ($row): string => $row->key, $eventTypes));
         self::assertSame([0, 1, 1], array_map(static fn ($row): int => $row->closureCount, $eventTypes));
         self::assertSame(120, $eventTypes[1]->actualMinutes);
         self::assertSame(60, $eventTypes[2]->actualMinutes);
@@ -257,7 +259,7 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         $events = $eventQuery->fetchEvents($criteria, 0, 25, 'closureCount', 'desc');
         $cluster = $events[0];
         self::assertSame(ClosureEventType::Cluster, $cluster->type);
-        self::assertStringStartsWith('cluster:'.$hospital->getId().':', $cluster->key);
+        self::assertMatchesRegularExpression('/^\d+$/', $cluster->key);
         self::assertSame(2, $cluster->closureCount);
         self::assertCount(2, $eventQuery->fetchChildren($criteria, $cluster->key));
         self::assertSame($cluster->key, $eventQuery->fetchEvent($criteria, $cluster->key)?->key);
@@ -608,13 +610,13 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
         );
         $related = self::getContainer()->get(ClosureEventQuery::class)->fetchSameDayDepartmentIntervals(
             $criteria,
-            'group:'.$hospital->getId().':same-day-group',
+            (string) $this->closureEventId((int) $hospital->getId(), 'same-day-group'),
         );
 
         self::assertCount(1, $related);
         self::assertSame(ClosureEventType::Single, $related[0]->eventType);
         self::assertSame('Same Day Department', $related[0]->departmentName);
-        self::assertStringStartsWith('interval:', $related[0]->eventKey);
+        self::assertMatchesRegularExpression('/^\d+$/', $related[0]->eventKey);
     }
 
     private function insertInterval(
@@ -644,5 +646,6 @@ final class ClosureAnalyticsQueryTest extends KernelTestCase
             'source_recorded_at' => $startsAt,
             'source_changed_at' => $startsAt,
         ]);
+        $this->rebuildClosureAnalysis();
     }
 }

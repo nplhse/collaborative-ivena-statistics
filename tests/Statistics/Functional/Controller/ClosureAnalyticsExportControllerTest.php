@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
@@ -26,6 +27,7 @@ final class ClosureAnalyticsExportControllerTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
+    use RebuildsClosureAnalysis;
 
     public function testExportRequiresClosureBetaRole(): void
     {
@@ -138,6 +140,7 @@ final class ClosureAnalyticsExportControllerTest extends WebTestCase
                 'source_changed_at' => $date.' 09:00:00',
             ]);
         }
+        $this->rebuildClosureAnalysis();
     }
 
     private function exportCsv(KernelBrowser $client, string $uri): string

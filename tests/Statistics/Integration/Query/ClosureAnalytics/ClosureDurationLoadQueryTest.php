@@ -20,6 +20,7 @@ use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadCalculator;
 use App\Statistics\ClosureAnalytics\Application\ClosureDurationLoadService;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
+use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
@@ -31,6 +32,7 @@ use Zenstruck\Foundry\Test\Factories;
 final class ClosureDurationLoadQueryTest extends KernelTestCase
 {
     use Factories;
+    use RebuildsClosureAnalysis;
 
     public function testClipsIntervalsToThePeriodAndDropsOtherHospitals(): void
     {
@@ -168,5 +170,6 @@ final class ClosureDurationLoadQueryTest extends KernelTestCase
             'source_recorded_at' => $startsAt,
             'source_changed_at' => $startsAt,
         ]);
+        $this->rebuildClosureAnalysis();
     }
 }

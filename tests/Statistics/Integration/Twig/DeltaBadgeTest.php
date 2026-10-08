@@ -86,6 +86,20 @@ final class DeltaBadgeTest extends KernelTestCase
         self::assertStringContainsString('+1,2 min', $html);
     }
 
+    public function testDecimalUnitUsesOneDecimalPlaceWithoutSuffix(): void
+    {
+        $html = $this->render([
+            'value' => 1.25,
+            'unit' => 'decimal',
+            'display' => 'text',
+            'whenZero' => 'neutral',
+            'ariaKey' => 'stats.closure.volume.deviation.absolute.aria',
+        ]);
+
+        self::assertStringContainsString('+1,3', $html);
+        self::assertStringNotContainsString('%', $html);
+    }
+
     public function testZeroIsHiddenByDefault(): void
     {
         $html = $this->render([
