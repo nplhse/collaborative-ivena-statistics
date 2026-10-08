@@ -85,6 +85,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:statistics:rebuild-projection` | Truncate and rebuild `allocation_stats_projection` per import. See [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md). |
+| `app:statistics:rebuild-closure-volume-projection` | Rebuild closure analysis and `closure_volume_hour` for every hospital. Full rebuild, no method version. Prints the retained partition heap. See [../04-features/statistics/closure-architecture.md](../04-features/statistics/closure-architecture.md). |
 | `app:statistics:refresh-mviews` | Refresh materialized views manually. |
 | `app:statistics:deduplicate-projection` | Detect and remove duplicate projection/allocation rows. Use `--dry-run` first. |
 | `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md). |

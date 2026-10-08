@@ -59,12 +59,12 @@ Adding a new shared reason, care level, or facility kind is a catalog class unde
 
 ## Analytics coverage limitation
 
-The export period selected in IVENA is not part of the CSV and is therefore not
-stored on the import. Closure Analytics estimates observation coverage per import
-as the span from its earliest closure start to its latest closure end. This is not
-proof that the export was complete and is shown only as orientation. Closure
-Analytics does not use the span as a denominator or report open/closed
-percentages; time outside it remains unknown.
+The export period selected in IVENA is not part of the CSV. `import.export_starts_at`
+and `import.export_ends_at` stay empty unless that period is known from somewhere
+else. They are never filled from the earliest start or the latest end. Closure
+Analytics still estimates a span per import for orientation. That span is not
+proof of coverage and is not a denominator. A pause inside it is labelled as
+unknown coverage. See [closure-architecture.md](../statistics/closure-architecture.md).
 
 ## Requeue
 
@@ -72,4 +72,4 @@ percentages; time outside it remains unknown.
 php bin/console app:import:start <IMPORT_ID>
 ```
 
-This resolves the import type and, for a closure import, dispatches `ImportClosuresMessage` on `async_priority_high`. A worker must consume that transport. The source file stays on disk; a later run clears only data that belongs to this import.
+This resolves the import type and, for a closure import, dispatches `ImportClosuresMessage` on `async_priority_high`. A worker must consume that transport. The source file stays on disk; a later run clears only data that belongs to this import and does not itself schedule a rebuild. A successful completion schedules one analysis rebuild for the hospital. If the run fails after that cleanup, the analysis is scheduled then. The volume projection follows asynchronously. Only completed and partial imports feed the analysis.

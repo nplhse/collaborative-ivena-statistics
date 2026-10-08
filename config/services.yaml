@@ -71,7 +71,14 @@ services:
         class: Symfony\Component\Lock\LockFactory
         arguments: ['@app.lock.store']
 
+    App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface: '@App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuild'
+
     Symfony\Component\Lock\LockFactory: '@app.lock.factory'
+
+    App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig:
+        arguments:
+            $referenceWeeks: '%app.closure_volume.reference_weeks%'
+            $minimumReferenceSlots: '%app.closure_volume.minimum_reference_slots%'
 
     App\User\Infrastructure\Registration\RegistrationIdentityGuard:
         alias: App\User\Infrastructure\Registration\RegistrationIdentityChecker
