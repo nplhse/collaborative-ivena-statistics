@@ -261,6 +261,13 @@ final class ClosureProfileQueryTest extends KernelTestCase
             $overlap->eventCount,
             self::getContainer()->get(ClosureEventQuery::class)->countEvents($criteria->withProfile(ClosureProfileRef::group($seed['hospitalId'], $overlapKey))),
         );
+
+        $profileCriteria = $criteria->withProfile(ClosureProfileRef::group($seed['hospitalId'], $rateKey));
+        $barSeries = $profiles->courseBarSeries($profileCriteria, false, 0);
+        self::assertArrayHasKey('sk1', $barSeries);
+        self::assertCount(12, $barSeries['sk1']);
+        $phaseBreakdown = $profiles->assignmentPhaseBreakdown($profileCriteria);
+        self::assertCount(\count(ClosureVolumeStratum::choices()), $phaseBreakdown);
     }
 
     public function testCombinedSeriesCountsAssignmentsOncePerEventSlice(): void

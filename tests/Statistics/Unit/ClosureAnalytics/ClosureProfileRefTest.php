@@ -28,4 +28,36 @@ final class ClosureProfileRefTest extends TestCase
         self::assertSame(ClosureProfileKind::Department, ClosureProfileRef::fromQuery('department:0:3')?->kind);
         self::assertNull(ClosureProfileRef::fromQuery('group:40:not-an-md5'));
     }
+
+    public function testScopeWideSpecialityAndDepartmentAllowHospitalIdZero(): void
+    {
+        $speciality = ClosureProfileRef::speciality(0, 12);
+        $department = ClosureProfileRef::department(0, 7);
+
+        self::assertSame(0, $speciality->hospitalId);
+        self::assertSame(0, $department->hospitalId);
+        self::assertSame('speciality:0:12', $speciality->toQuery());
+        self::assertSame('department:0:7', $department->toQuery());
+    }
+
+    public function testFromQueryParsesClosureUnitAndRejectsEmptyUnit(): void
+    {
+        self::assertSame(
+            'Ward B',
+            ClosureProfileRef::fromQuery('closure_unit:5:'.rawurlencode('Ward B'))?->key,
+        );
+        self::assertNull(ClosureProfileRef::fromQuery('closure_unit:5:'));
+    }
+
+    public function testConstructorValidatesProfileShape(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        ClosureProfileRef::hospital(0);
+    }
+
+    public function testSpecialityIdRequiresSpecialityProfile(): void
+    {
+        $this->expectException(\LogicException::class);
+        ClosureProfileRef::hospital(4)->specialityId();
+    }
 }

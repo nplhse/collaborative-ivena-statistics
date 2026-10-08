@@ -72,6 +72,35 @@ final class ClosureVolumeReferenceTest extends TestCase
         self::assertNull($rate->expectedForSeconds(3600));
     }
 
+    public function testBuildOmitsUncoveredDaysFromTheReferenceWindow(): void
+    {
+        $zone = ClosureVolumeClock::zone();
+        $cutoff = new \DateTimeImmutable('2026-06-02 10:00:00', $zone);
+
+        self::assertSame([], new ClosureVolumeReferenceCalendar()->build(
+            $cutoff,
+            8,
+            ['2026-05-05 10:00:00' => 4],
+            [],
+            [],
+        ));
+
+        $covered = ['2026-05-05' => true];
+        $matching = new ClosureVolumeReferenceCalendar()->matchingSlots(
+            $cutoff,
+            8,
+            2,
+            2,
+            ['2026-05-05 10:00:00' => 2, '2026-05-05 11:00:00' => 3],
+            $covered,
+            [],
+        );
+        self::assertNotEmpty($matching);
+        foreach ($matching as $slot) {
+            self::assertSame(2, $slot->dayTimeBucket);
+        }
+    }
+
     public function testZeroExpectationKeepsAbsoluteDeviationAndDropsRelative(): void
     {
         self::assertEqualsWithDelta(4.0, ClosureVolumeDeviation::absolute(4.0, 0.0) ?? 0.0, 0.0001);

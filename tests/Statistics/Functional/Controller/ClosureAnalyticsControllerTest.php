@@ -127,6 +127,26 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorNotExists('[data-testid="stats-closure-breakdowns"]');
     }
 
+    public function testRecurringProfilesTabHonorsPaginationAndSearch(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        [$hospitalId] = $this->seedGroupedClosures($user);
+
+        $client->request(
+            Request::METHOD_GET,
+            sprintf(
+                '/statistics/closure-analytics/profiles?scope=hospital&hospital=%d&period=all_time&profilesPage=2&profilesLimit=25&profileQ=Functional&profilesSort=hospital&profilesOrder=asc',
+                $hospitalId,
+            ),
+        );
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-tab-profiles"].active');
+        $this->assertSelectorExists('[data-testid="stats-closure-profiles-page"]');
+        $searchValue = $client->getCrawler()->filter('[data-testid="closure-recurring-profile-search-input"]')->attr('value');
+        self::assertSame('Functional', $searchValue);
+    }
+
     public function testEventTablePaginatesAndPreservesAnalysisState(): void
     {
         $client = self::createClient();
