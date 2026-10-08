@@ -7,6 +7,18 @@
         ? (totalClosures > 0 ? row.closureCount / totalClosures * 100 : 0)
         : (totalMinutes > 0 ? row.actualMinutes / totalMinutes * 100 : 0) %}
     {% set countKey = countTranslation|default('stats.closure.breakdown.closure_count') %}
+    {% set profileUrl = null %}
+    {% if kind == 'hospital' %}
+        {% set profileUrl = path('app_stats_closure_profile_hospital', app.request.query.all|merge({hospitalId: row.key})) %}
+    {% elseif kind == 'speciality' and row.hospitalId %}
+        {% set profileUrl = path('app_stats_closure_profile_speciality', app.request.query.all|merge({hospitalId: row.hospitalId, specialityId: row.key})) %}
+    {% elseif kind == 'speciality' %}
+        {% set profileUrl = path('app_stats_closure_profile_speciality_scope', app.request.query.all|merge({specialityId: row.key})) %}
+    {% elseif kind == 'department' and row.hospitalId %}
+        {% set profileUrl = path('app_stats_closure_profile_department', app.request.query.all|merge({hospitalId: row.hospitalId, departmentId: row.key})) %}
+    {% elseif kind == 'department' %}
+        {% set profileUrl = path('app_stats_closure_profile_department_scope', app.request.query.all|merge({departmentId: row.key})) %}
+    {% endif %}
     <div>
         <div class="d-flex justify-content-between align-items-baseline gap-2">
             <span class="text-truncate">
@@ -14,6 +26,8 @@
                     <span class="badge {{ row.key == 'group' ? 'bg-blue-lt text-blue' : (row.key == 'cluster' ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
                         {{ labelKey|trans({}, 'statistics') }}
                     </span>
+                {% elseif profileUrl %}
+                    <a href="{{ profileUrl }}" class="text-reset" data-testid="stats-closure-breakdown-link">{{ row.name }}</a>
                 {% else %}
                     {{ labelKey ? labelKey|trans({}, 'statistics') : row.name }}
                 {% endif %}

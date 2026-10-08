@@ -1,0 +1,66 @@
+<section class="mt-4" data-testid="stats-closure-volume">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+        <div>
+            <h3 class="mb-1">{{ 'stats.closure.volume.title'|trans({}, 'statistics') }}</h3>
+            <p class="text-muted mb-0">{{ 'stats.closure.volume.lead'|trans({weeks: volumeBurden.referenceWeeks, slots: volumeBurden.minimumReferenceSlots}, 'statistics') }}</p>
+        </div>
+        {{ include('@Statistics/closure_analytics/_volume_stratum.html.twig', {active: volumeBurden.stratum.value}) }}
+    </div>
+    <p class="text-muted small">{{ 'stats.closure.volume.sign'|trans({}, 'statistics') }}</p>
+    <p class="text-muted small">{{ 'stats.closure.volume.coverage'|trans({}, 'statistics') }}</p>
+    <p class="text-muted small mb-3">{{ 'stats.closure.volume.abcd'|trans({}, 'statistics') }}</p>
+
+    {% if not volumeBurden.built %}
+        <div class="card" data-testid="stats-closure-volume-unbuilt">
+            <div class="card-body text-muted mb-0">{{ 'stats.closure.volume.not_built'|trans({}, 'statistics') }}</div>
+        </div>
+    {% else %}
+        <div class="row row-deck row-cards g-3">
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" data-testid="stats-closure-volume-expected"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.volume.expected'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">{{ volumeBurden.expectedArea is null ? '—' : volumeBurden.expectedArea|number_format(1, ',', '.') }}</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" data-testid="stats-closure-volume-observed"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.volume.observed'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">{{ volumeBurden.observedArea is null ? '—' : volumeBurden.observedArea|number_format(1, ',', '.') }}</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" data-testid="stats-closure-volume-deviation"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.volume.deviation'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">
+                        {% if volumeBurden.absoluteDeviation is null %}—{% else %}{{ volumeBurden.absoluteDeviation > 0 ? '+' : '' }}{{ volumeBurden.absoluteDeviation|number_format(1, ',', '.') }}{% endif %}
+                    </div>
+                    <div class="text-muted small">
+                        {% if volumeBurden.relativeDeviation is null %}
+                            {{ 'stats.closure.volume.relative_unavailable'|trans({}, 'statistics') }}
+                        {% else %}
+                            {{ volumeBurden.relativeDeviation > 0 ? '+' : '' }}{{ (volumeBurden.relativeDeviation * 100)|number_format(1, ',', '.') }} %
+                        {% endif %}
+                    </div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" data-testid="stats-closure-volume-share"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.volume.share'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">
+                        {% if volumeBurden.share is null %}—{% else %}{{ (volumeBurden.share * 100)|number_format(1, ',', '.') }} %{% endif %}
+                    </div>
+                    <div class="text-muted small">
+                        {% if volumeBurden.expectedHospital is null %}
+                            {{ 'stats.closure.volume.share_unavailable'|trans({}, 'statistics') }}
+                        {% else %}
+                            {{ 'stats.closure.volume.share_hint'|trans({hospital: volumeBurden.expectedHospital|number_format(1, ',', '.')}, 'statistics') }}
+                        {% endif %}
+                    </div>
+                </div></div>
+            </div>
+        </div>
+        {% if volumeBurden.partialReference or volumeBurden.partialObservation %}
+            <p class="text-muted small mt-3 mb-0" data-testid="stats-closure-volume-partial">{{ 'stats.closure.volume.partial'|trans({}, 'statistics') }}</p>
+        {% endif %}
+    {% endif %}
+</section>

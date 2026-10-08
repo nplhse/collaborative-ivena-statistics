@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Repository\MciCaseRepository;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use App\Statistics\Application\Contract\ProjectionOverviewChangeDetectorInterface;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
@@ -29,12 +30,13 @@ final readonly class ImportRelatedDataCleanupService
         private AllocationStatsProjectionRebuildInterface $statsProjectionRebuilder,
         private ProjectionOverviewChangeDetectorInterface $projectionOverviewChangeDetector,
         private MaterializedViewRefresherInterface $materializedViewRefresher,
+        private ClosureRebuildRequestInterface $closureRebuildScheduler,
         private LoggerInterface $importLogger,
         private ImportFileStorage $fileStorage,
     ) {
     }
 
-    public function removeAll(Import $import): void
+    public function removeAll(Import $import, bool $scheduleRebuild = true): void
     {
         $importId = (int) $import->getId();
         $needsMaterializedViewRefresh = $this->projectionOverviewChangeDetector->willRemoveHospitalsFromProjection($importId);
@@ -51,6 +53,16 @@ final readonly class ImportRelatedDataCleanupService
                 'mci_cases' => $this->mciCaseRepository->deleteByImport($import),
             ];
         });
+
+        if ($scheduleRebuild) {
+            $hospitalId = $import->getHospital()?->getId();
+            $hospitalId = \is_int($hospitalId) ? $hospitalId : null;
+            if ($counts['closure_intervals'] > 0) {
+                $this->closureRebuildScheduler->requestAnalysis($hospitalId);
+            } elseif ($counts['allocations'] > 0) {
+                $this->closureRebuildScheduler->requestVolume($hospitalId);
+            }
+        }
 
         if ($needsMaterializedViewRefresh) {
             $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]);

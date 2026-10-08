@@ -17,7 +17,7 @@ final readonly class ImportPreviousRunCleanupService
 
     public function cleanup(Import $import): void
     {
-        $this->relatedDataCleanup->removeAll($import);
+        $this->relatedDataCleanup->removeAll($import, false);
         $this->relatedDataCleanup->deleteRejectFile($import);
         $import->resetForReimport();
         $this->em->flush();

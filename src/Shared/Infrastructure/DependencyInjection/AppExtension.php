@@ -39,6 +39,9 @@ final class AppExtension extends Extension
             $config['registration']['blocked_email_domains'],
         );
 
+        $container->setParameter('app.closure_volume.reference_weeks', $config['closure_volume']['reference_weeks']);
+        $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
+
         // Feedback spam settings
         $spamConfig = $config['feedback']['spam'];
         $container->setParameter('app.feedback.spam.min_submission_seconds', $spamConfig['min_submission_seconds']);

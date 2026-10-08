@@ -1,0 +1,5 @@
+{# Maps closure care levels to SK1–3 labels and palette colours used elsewhere on closure analytics. #}
+{% set stratumKey = careLevel == 'emergency' ? 'sk1' : (careLevel == 'inpatient' ? 'sk2' : (careLevel == 'outpatient' ? 'sk3' : null)) %}
+{% if stratumKey %}
+    <span class="badge {{ data_table_badge('closure_care_level', careLevel).cssClass }}">{{ ('stats.closure.volume.stratum.' ~ stratumKey)|trans({}, 'statistics') }}</span>
+{% endif %}

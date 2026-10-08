@@ -1,0 +1,14 @@
+<twig:EmptyState
+    title="{{ 'stats.closure.profile.course.empty.title'|trans({}, 'statistics') }}"
+    description="{{ 'stats.closure.profile.course.empty.description'|trans({}, 'statistics') }}"
+    icon="tabler:chart-line"
+>
+    <twig:block name="actions">
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('statistics-analysis-context-trigger')?.click()">
+            {{ 'empty.context.cta'|trans({}, 'shared') }}
+        </button>
+        <button type="button" class="btn" onclick="document.querySelector('[data-testid=&quot;statistics-filters-drawer-trigger&quot;]')?.click()">
+            {{ 'stats.closure.profile.course.empty.filters'|trans({}, 'statistics') }}
+        </button>
+    </twig:block>
+</twig:EmptyState>

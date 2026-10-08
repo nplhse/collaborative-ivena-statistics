@@ -15,6 +15,7 @@ final readonly class ClosureBreakdownRow
         public int $observedMinutes,
         public ?string $hospitalName = null,
         public ?int $eventCount = null,
+        public ?int $hospitalId = null,
     ) {
     }
 }

@@ -25,6 +25,7 @@ final class ClosureUnitTableRows
                 $row->eventCount ?? $row->closureCount,
                 $row->actualMinutes,
                 $totalClosedMinutes > 0 ? (float) $row->actualMinutes * 100.0 / (float) $totalClosedMinutes : 0.0,
+                $row->hospitalId,
             ),
             $rows,
         );

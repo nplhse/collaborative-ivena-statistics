@@ -34,40 +34,60 @@
     <div data-controller="closure-analytics-charts"
          data-closure-analytics-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
         {% set metrics = dashboard.metrics %}
-        {% set singlePercent = metrics.closedMinutes > 0 ? metrics.singleMinutes / metrics.closedMinutes * 100 : 0 %}
-        {% set multiplePercent = metrics.closedMinutes > 0 ? metrics.multipleMinutes / metrics.closedMinutes * 100 : 0 %}
+        {% set volume = volumeBurden|default(null) %}
         <div class="row row-deck row-cards g-3" data-testid="stats-closure-kpis">
             <div class="col-12 col-lg-4">
-                <div class="card"><div class="card-body">
+                <div class="card h-100"><div class="card-body">
                     <div class="subheader">{{ 'stats.closure.kpi.actual_duration'|trans({}, 'statistics') }}</div>
                     <div class="h1 mt-2 mb-0">{{ metrics.closedMinutes|closure_duration }}</div>
                 </div></div>
             </div>
             <div class="col-12 col-lg-4">
-                <div class="card"><div class="card-body">
-                    <div class="subheader">{{ 'stats.closure.kpi.sum_duration'|trans({}, 'statistics') }}</div>
-                    <div class="h1 mt-2 mb-0">{{ metrics.summedMinutes|closure_duration }}</div>
-                    <div class="text-secondary small">{{ 'stats.closure.kpi.sum_duration_hint'|trans({}, 'statistics') }}</div>
+                <div class="card h-100" data-testid="stats-closure-kpi-deviation"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.kpi.volume_deviation'|trans({}, 'statistics') }}</div>
+                    <div class="d-flex align-items-baseline gap-2 mt-2 mb-0">
+                        <div class="h1 mb-0">
+                            {% if volume is null or not volume.built or volume.absoluteDeviation is null %}
+                                —
+                            {% else %}
+                                {{ volume.absoluteDeviation > 0 ? '+' : '' }}{{ volume.absoluteDeviation|number_format(1, ',', '.') }}
+                            {% endif %}
+                        </div>
+                        {% if volume and volume.built and volume.relativeDeviation is not null %}
+                            <div class="text-muted">{{ volume.relativeDeviation > 0 ? '+' : '' }}{{ (volume.relativeDeviation * 100)|number_format(1, ',', '.') }} %</div>
+                        {% endif %}
+                    </div>
+                    {% if volume and volume.built and volume.relativeDeviation is null %}
+                        <div class="text-muted small">{{ 'stats.closure.volume.relative_unavailable'|trans({}, 'statistics') }}</div>
+                    {% elseif volume and not volume.built %}
+                        <div class="text-muted small">{{ 'stats.closure.volume.not_built'|trans({}, 'statistics') }}</div>
+                    {% endif %}
+                    {% if volume and volume.built %}
+                        <div class="text-muted small">
+                            {{ 'stats.closure.kpi.volume_pair'|trans({
+                                expected: volume.expectedArea is null ? '—' : volume.expectedArea|number_format(1, ',', '.'),
+                                observed: volume.observedArea is null ? '—' : volume.observedArea|number_format(1, ',', '.'),
+                            }, 'statistics') }}
+                        </div>
+                    {% endif %}
                 </div></div>
             </div>
             <div class="col-12 col-lg-4">
-                <div class="card" data-testid="stats-closure-concurrency"><div class="card-body">
-                    <div class="subheader">{{ 'stats.closure.kpi.concurrency'|trans({}, 'statistics') }}</div>
-                    <div class="progress mt-3" style="height: .75rem" aria-hidden="true">
-                        <div class="progress-bar bg-primary" style="width: {{ multiplePercent }}%"></div>
-                        <div class="progress-bar bg-secondary-lt" style="width: {{ singlePercent }}%"></div>
+                <div class="card h-100" data-testid="stats-closure-kpi-share"><div class="card-body">
+                    <div class="subheader">{{ 'stats.closure.volume.share'|trans({}, 'statistics') }}</div>
+                    <div class="h1 mt-2 mb-0">
+                        {% if volume is null or not volume.built or volume.share is null %}
+                            —
+                        {% else %}
+                            {{ (volume.share * 100)|number_format(1, ',', '.') }} %
+                        {% endif %}
                     </div>
-                    <div class="d-flex justify-content-between gap-3 mt-3">
-                        <div>
-                            <span class="badge bg-primary-lt me-1"></span>
-                            <strong>{{ multiplePercent|number_format(1, ',', '.') }}%</strong>
-                            <small class="d-block text-secondary">{{ 'stats.closure.kpi.multiple_short'|trans({}, 'statistics') }} · {{ metrics.multipleMinutes|closure_duration }}</small>
-                        </div>
-                        <div class="text-end">
-                            <span class="badge bg-secondary-lt me-1"></span>
-                            <strong>{{ singlePercent|number_format(1, ',', '.') }}%</strong>
-                            <small class="d-block text-secondary">{{ 'stats.closure.kpi.single_short'|trans({}, 'statistics') }} · {{ metrics.singleMinutes|closure_duration }}</small>
-                        </div>
+                    <div class="text-muted small">
+                        {% if volume and volume.built and volume.expectedHospital is not null %}
+                            {{ 'stats.closure.volume.share_hint'|trans({hospital: volume.expectedHospital|number_format(1, ',', '.')}, 'statistics') }}
+                        {% elseif volume and volume.built %}
+                            {{ 'stats.closure.volume.share_unavailable'|trans({}, 'statistics') }}
+                        {% endif %}
                     </div>
                 </div></div>
             </div>

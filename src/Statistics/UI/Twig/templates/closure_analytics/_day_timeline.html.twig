@@ -1,4 +1,14 @@
-<div class="closure-timeline-scroll" data-testid="closure-event-timeline">
+<div data-controller="closure-event-timeline"
+     data-closure-event-timeline-event-key-value="{{ timelineEventKey|default('') }}">
+    <div class="d-flex justify-content-end px-3 pt-2">
+        <button type="button"
+                class="btn btn-sm"
+                data-action="closure-event-timeline#reveal"
+                data-testid="closure-timeline-jump">
+            {{ 'stats.closure.event.timeline.jump'|trans({}, 'statistics') }}
+        </button>
+    </div>
+<div class="closure-timeline-scroll" data-testid="closure-event-timeline" data-closure-event-timeline-target="scroller">
     {% for day in timelineDays %}
         <div class="closure-timeline-day">{{ day.dayKey|date('l, d.m.Y') }}</div>
         <div class="closure-timeline-ruler" aria-hidden="true">
@@ -17,11 +27,16 @@
                     {% for segment in lane.segments %}
                         {% set context = not segment.primary %}
                         <a href="{{ segment.url }}"
-                           class="closure-timeline-segment{{ grouped|default(false) and segment.primary ? ' closure-timeline-segment--grouped' }}{{ context and segment.eventType.value != 'single' ? ' closure-timeline-segment--grouped' }}{{ context ? ' closure-timeline-segment--context' }} closure-timeline-segment--{{ segment.eventType.value }}"
+                           class="closure-timeline-segment{{ grouped|default(false) and segment.primary ? ' closure-timeline-segment--grouped' }}{{ context and segment.eventType.value != 'single' ? ' closure-timeline-segment--grouped' }}{{ context ? ' closure-timeline-segment--context' }}{{ segment.primary ? ' closure-timeline-segment--current' }} closure-timeline-segment--{{ segment.eventType.value }}"
                            style="left: {{ segment.left }}%; width: {{ segment.width }}%"
                            title="{{ segment.title }}"
                            aria-label="{{ segment.title }}"
-                           {% if context %}data-testid="closure-timeline-context"{% endif %}></a>
+                           {% if segment.primary %}aria-current="true" data-testid="closure-timeline-current"{% endif %}
+                           {% if context %}data-testid="closure-timeline-context"{% endif %}>
+                            {% if segment.primary %}
+                                <span class="closure-timeline-segment__mark">{{ 'stats.closure.event.timeline.current'|trans({}, 'statistics') }}</span>
+                            {% endif %}
+                        </a>
                     {% endfor %}
                 </div>
             </div>
@@ -29,6 +44,7 @@
     {% else %}
         <div class="p-3 text-secondary">{{ 'stats.closure.empty'|trans({}, 'statistics') }}</div>
     {% endfor %}
+</div>
 </div>
 {% set contextTypes = timelineContextTypes|default([]) %}
 {% if contextTypes is not empty %}

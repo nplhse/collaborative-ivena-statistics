@@ -1,0 +1,32 @@
+{% if row.members is empty %}
+    <span class="text-secondary">—</span>
+{% else %}
+    <div class="dropdown">
+        <button
+            type="button"
+            class="btn btn-sm btn-ghost-secondary py-0 px-2"
+            data-bs-toggle="dropdown"
+            data-bs-boundary="viewport"
+            aria-expanded="false"
+            data-testid="closure-recurring-composition-toggle"
+        >
+            {{ 'stats.closure.profile.recurring.composition_count'|trans({count: row.members|length}, 'statistics') }}
+        </button>
+        <div class="dropdown-menu closure-event-preview p-2">
+            {% for member in row.members %}
+                <div class="py-1{% if not loop.last %} border-bottom{% endif %}">
+                    <div class="fw-medium">{{ member.specialityName }}</div>
+                    <div class="text-muted small">{{ member.departmentName }}</div>
+                    <div class="mt-1 d-flex flex-wrap gap-1">
+                        <span class="badge {{ data_table_badge('closure_care_level', member.careLevel).cssClass }}">
+                            {{ include('@Statistics/closure_analytics/data_table/_urgency_label.html.twig', {careLevel: member.careLevel}) }}
+                        </span>
+                        <span class="badge bg-secondary-lt text-secondary">
+                            {{ ('stats.closure.reason.' ~ member.reason)|trans({}, 'statistics') }}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

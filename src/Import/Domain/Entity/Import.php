@@ -80,6 +80,12 @@ class Import implements \Stringable
     #[ORM\Column]
     private ?int $runTime = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $exportStartsAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $exportEndsAt = null;
+
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
 
@@ -322,6 +328,30 @@ class Import implements \Stringable
     public function setRunTime(int $runTime): static
     {
         $this->runTime = $runTime;
+
+        return $this;
+    }
+
+    public function getExportStartsAt(): ?\DateTimeImmutable
+    {
+        return $this->exportStartsAt;
+    }
+
+    public function setExportStartsAt(?\DateTimeImmutable $exportStartsAt): static
+    {
+        $this->exportStartsAt = $exportStartsAt;
+
+        return $this;
+    }
+
+    public function getExportEndsAt(): ?\DateTimeImmutable
+    {
+        return $this->exportEndsAt;
+    }
+
+    public function setExportEndsAt(?\DateTimeImmutable $exportEndsAt): static
+    {
+        $this->exportEndsAt = $exportEndsAt;
 
         return $this;
     }

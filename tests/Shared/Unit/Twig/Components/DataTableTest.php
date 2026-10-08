@@ -44,6 +44,25 @@ final class DataTableTest extends TestCase
         self::assertStringNotContainsString('page=', $url);
     }
 
+    public function testTurboFrameIsAppliedToPaginationUrls(): void
+    {
+        $table = $this->table(Request::create('/statistics/closure-analytics/events/1', 'GET', [
+            'tab' => 'course',
+            'assignmentPage' => '2',
+        ]));
+        $table->paginationRoute = 'app_stats_closure_analytics_event';
+        $table->turboFrame = 'stats-closure-event-assignments';
+        $table->pageParam = 'assignmentPage';
+
+        self::assertSame(
+            ['data-turbo-frame' => 'stats-closure-event-assignments'],
+            $table->getTurboPaginationLinkAttributes(),
+        );
+        $links = $table->getPageSizeLinks();
+        self::assertNotEmpty($links);
+        self::assertStringContainsString('assignmentPage=1', $links[0]['url']);
+    }
+
     public function testColumnVisibilityIsOptInAndPreservesQueryState(): void
     {
         $table = $this->table(Request::create('/statistics/closures', 'GET', [

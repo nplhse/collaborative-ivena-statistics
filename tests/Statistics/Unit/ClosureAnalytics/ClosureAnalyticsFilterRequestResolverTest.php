@@ -52,7 +52,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
             'closureUnits' => 'Local unit',
             'closureFrom' => 'not-a-date',
             'closureTo' => '2026-02-31',
-            'closureEventTypes' => 'group',
+            'closureEventTypes' => 'source_group',
             'closureHospitals' => '18',
         ]);
 
@@ -65,7 +65,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
         self::assertSame(['Local unit'], $filter->closureUnits);
         self::assertNull($filter->fromDate);
         self::assertNull($filter->toDate);
-        self::assertSame(['group'], $filter->eventTypes);
+        self::assertSame(['source_group'], $filter->eventTypes);
         self::assertSame([18], $filter->hospitalIds);
         self::assertTrue($filter->hospitalIdsSubmitted);
         self::assertSame(

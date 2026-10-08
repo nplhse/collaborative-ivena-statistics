@@ -21,7 +21,7 @@
                             </button>
                         </form>
                     {% else %}
-                        <a class="dropdown-item{% if link.active %} active{% endif %}" href="{{ link.url }}">
+                        <a class="dropdown-item{% if link.active %} active{% endif %}" href="{{ link.url }}"{% for name, value in this.turboPaginationLinkAttributes %} {{ name }}="{{ value }}"{% endfor %}>
                             {{ 'label.pagination_results'|trans({pageSize: link.size}, 'messages') }}
                         </a>
                     {% endif %}
@@ -37,6 +37,6 @@
     {% if this.cursorPaginator %}
         {{ include('@Shared/components/data_table/_cursor_nav.html.twig') }}
     {% elseif this.uxPaginator %}
-        {{ ux_pagination(paginator, showInfo: false, attributes: {class: 'ms-auto'}, navigationAttributes: {class: 'm-0'}) }}
+        {{ ux_pagination(paginator, showInfo: false, attributes: {class: 'ms-auto'}, navigationAttributes: {class: 'm-0'}, linkAttributes: this.turboPaginationLinkAttributes) }}
     {% endif %}
 </div>

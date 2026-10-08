@@ -7,6 +7,7 @@ namespace App\Statistics\ClosureAnalytics\Application\DTO;
 final readonly class ClosureSameDayInterval
 {
     public function __construct(
+        public int $id,
         public string $eventKey,
         public ClosureEventType $eventType,
         public string $departmentName,

@@ -8,6 +8,7 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
+use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 
 final readonly class ClosureAnalyticsCriteria
 {
@@ -32,6 +33,7 @@ final readonly class ClosureAnalyticsCriteria
         public array $closureUnits = [],
         public array $eventTypes = [],
         public array $hospitalIds = [],
+        public ?ClosureProfileRef $profile = null,
     ) {
     }
 
@@ -49,6 +51,25 @@ final readonly class ClosureAnalyticsCriteria
             $this->closureUnits,
             $this->eventTypes,
             $this->hospitalIds,
+            $this->profile,
+        );
+    }
+
+    public function withProfile(ClosureProfileRef $profile): self
+    {
+        return new self(
+            $this->scope,
+            $this->period,
+            $this->timeSeriesGrain,
+            $this->filter,
+            $this->departmentIds,
+            $this->specialityIds,
+            $this->careLevels,
+            $this->reasons,
+            $this->closureUnits,
+            $this->eventTypes,
+            $this->hospitalIds,
+            $profile,
         );
     }
 

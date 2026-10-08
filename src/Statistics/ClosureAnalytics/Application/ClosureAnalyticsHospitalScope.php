@@ -59,15 +59,6 @@ final readonly class ClosureAnalyticsHospitalScope
         );
     }
 
-    public function eventKeyHospitalIsForbidden(string $eventKey, ?User $user): bool
-    {
-        if (1 !== preg_match('/^(?:group|cluster):(\d+):/', $eventKey, $matches)) {
-            return false;
-        }
-
-        return !\in_array((int) $matches[1], $this->allowedHospitalIds($user), true);
-    }
-
     /**
      * @param list<int> $allowed
      * @param list<int> $submittedIds

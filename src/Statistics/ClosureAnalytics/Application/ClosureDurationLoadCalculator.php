@@ -14,8 +14,11 @@ use App\Statistics\HospitalPopulation\Application\DescriptiveStatisticsCalculato
  * Duration, phase and department-concurrency metrics for one analysis context.
  *
  * Intervals are half-open. Touching intervals of the same hospital form one
- * phase. Hospitals are never merged. A gap counts as a pause only when it lies
- * entirely inside estimated import coverage.
+ * hospital phase. Hospitals are never merged. A gap between those phases is
+ * counted only when it lies inside the estimated import span. That span is not
+ * confirmed export coverage, so the pause is a hospital-phase gap inside the
+ * estimate. Department and speciality phases are a separate view: without a
+ * known export period their gaps stay unconfirmed.
  */
 final readonly class ClosureDurationLoadCalculator
 {

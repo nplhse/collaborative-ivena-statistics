@@ -1,15 +1,15 @@
 {% set query = context.query|default({})|merge({
-    closureUnits: [row.key],
+    hospitalId: row.hospitalId,
+    unit: row.name,
     unitsPage: null,
     unitsLimit: null,
     unitsSort: null,
     unitsOrder: null,
 }) %}
-{% if context.linkUnits|default(false) %}
-    <a href="{{ path('app_stats_closure_analytics_timeline', query) }}"
-       data-testid="stats-closure-unit-timeline-link">
+{% if row.hospitalId %}
+    <a href="{{ path('app_stats_closure_profile_unit', query) }}"
+       data-testid="stats-closure-unit-profile-link">
         <span class="text-break" data-testid="stats-closure-unit-name">{{ row.name }}</span>
-        <twig:ux:icon name="tabler:arrow-right" class="icon ms-1" />
     </a>
 {% else %}
     <span class="text-break" data-testid="stats-closure-unit-name">{{ row.name }}</span>

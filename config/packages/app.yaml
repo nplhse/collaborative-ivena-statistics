@@ -31,6 +31,10 @@ app:
         blocked_email_domains:
             - .ru
 
+    closure_volume:
+        reference_weeks: 8
+        minimum_reference_slots: 4
+
     feedback:
         spam:
             min_submission_seconds: 4

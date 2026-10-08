@@ -1,0 +1,30 @@
+{% if localGroups is defined and localGroups is not empty %}
+    <div class="{{ wrapperClass|default('mb-2') }}" data-testid="closure-event-local-groups">
+        {% if showHeading|default(true) %}
+            <div class="subheader">{{ 'stats.closure.event.local_group.title'|trans({}, 'statistics') }}</div>
+        {% endif %}
+        <ul class="list-unstyled mb-0">
+            {% for group in localGroups %}
+                <li class="{{ loop.last ? '' : 'mb-2' }}" data-testid="closure-event-local-group-row">
+                    {% if group.eventKey and not group.current %}
+                        <a href="{{ path('app_stats_closure_analytics_event', app.request.query.all|merge({eventKey: group.eventKey})) }}"
+                           data-testid="closure-event-local-group-link">
+                            {{ group.label }}
+                        </a>
+                    {% else %}
+                        <strong data-testid="closure-event-local-group-label">{{ group.label }}</strong>
+                    {% endif %}
+                    {% if group.showSourceGroupId %}
+                        <div class="text-muted small">{{ 'stats.closure.interval.group_id'|trans({}, 'statistics') }}: {{ group.sourceGroupId }}</div>
+                    {% endif %}
+                    {% if group.closureUnits|length > 1 %}
+                        <div class="text-muted small">{{ 'stats.closure.event.local_group.units'|trans({units: group.closureUnits|join(', ')}, 'statistics') }}</div>
+                    {% endif %}
+                    {% if group.intervalCount > 0 and showIntervalCount|default(false) %}
+                        <div class="text-muted small">{{ 'stats.closure.event.local_group.intervals'|trans({count: group.intervalCount}, 'statistics') }}</div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

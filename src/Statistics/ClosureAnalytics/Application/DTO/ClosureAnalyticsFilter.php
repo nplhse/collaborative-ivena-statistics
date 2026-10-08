@@ -6,6 +6,7 @@ namespace App\Statistics\ClosureAnalytics\Application\DTO;
 
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
+use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 
 final readonly class ClosureAnalyticsFilter
 {
@@ -29,6 +30,7 @@ final readonly class ClosureAnalyticsFilter
         public array $eventTypes = [],
         public array $hospitalIds = [],
         public bool $hospitalIdsSubmitted = false,
+        public ?ClosureProfileRef $profile = null,
     ) {
     }
 

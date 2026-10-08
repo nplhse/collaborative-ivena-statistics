@@ -43,6 +43,7 @@ final class DeltaIndicator
         $value = (float) ($this->value ?? 0);
         $magnitude = match ($this->unit) {
             'count' => number_format($value, 0, ',', '.'),
+            'decimal' => number_format($value, 1, ',', '.'),
             'minutes' => number_format($value, 1, ',', '.').' '.$this->translator->trans('stats.reports.monthly.kpi.minutes', [], 'statistics'),
             default => number_format($value, 1, ',', '.').'%',
         };

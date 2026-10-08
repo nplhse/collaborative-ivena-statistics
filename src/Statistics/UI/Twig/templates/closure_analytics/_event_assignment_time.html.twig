@@ -1,0 +1,7 @@
+{% if is_granted('ROLE_PARTICIPANT') %}
+    <a href="{{ path('app_explore_allocation_show', {publicId: row.publicId}) }}" data-turbo-frame="_top" data-testid="closure-event-assignment-link">
+        {{ row.createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+    </a>
+{% else %}
+    {{ row.createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+{% endif %}

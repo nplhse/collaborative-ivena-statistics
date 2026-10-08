@@ -8,6 +8,7 @@ use App\Import\Application\Event\ImportCompleted;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\EventSubscriber\ImportCompletedSubscriber;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -39,22 +40,25 @@ final class ImportCompletedSubscriberTest extends TestCase
             ))
             ->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
 
-        $subscriber = new ImportCompletedSubscriber($messageBus, $entityManager);
+        $subscriber = new ImportCompletedSubscriber($messageBus, $entityManager, $this->createStub(ClosureRebuildRequestInterface::class));
         $subscriber->onImportCompleted(new ImportCompleted($importId));
     }
 
-    public function testSkipsProjectionRebuildForClosureImport(): void
+    public function testRequestsAnalysisForClosureImport(): void
     {
+        $hospital = $this->createStub(\App\Allocation\Domain\Entity\Hospital::class);
+        $hospital->method('getId')->willReturn(4);
         $import = $this->createStub(Import::class);
         $import->method('getType')->willReturn(ImportType::CLOSURE);
+        $import->method('getHospital')->willReturn($hospital);
 
         $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('find')->willReturn($import);
 
-        $messageBus = $this->createMock(MessageBusInterface::class);
-        $messageBus->expects($this->never())->method('dispatch');
+        $scheduler = $this->createMock(ClosureRebuildRequestInterface::class);
+        $scheduler->expects($this->once())->method('requestAnalysis')->with(4);
 
-        $subscriber = new ImportCompletedSubscriber($messageBus, $entityManager);
+        $subscriber = new ImportCompletedSubscriber($this->createStub(MessageBusInterface::class), $entityManager, $scheduler);
         $subscriber->onImportCompleted(new ImportCompleted(7));
     }
 }

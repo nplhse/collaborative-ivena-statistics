@@ -1,0 +1,13 @@
+{% set items = value|default([]) %}
+<div data-testid="closure-recurring-facet-{{ column.key }}">
+    {% if items is empty %}
+        <span class="text-secondary">—</span>
+    {% elseif items|length == 1 %}
+        <span class="text-truncate d-inline-block mw-100" title="{{ items[0] }}">{{ items[0] }}</span>
+    {% else %}
+        {{ include('@Statistics/closure_analytics/data_table/_facet_stack.html.twig', {
+            items: items|map(label => {label: label, class: 'bg-secondary-lt text-secondary'}),
+            testId: 'closure-recurring-' ~ column.key ~ '-stack',
+        }) }}
+    {% endif %}
+</div>

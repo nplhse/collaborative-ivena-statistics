@@ -10,6 +10,7 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
@@ -26,6 +27,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
 {
     use Factories;
     use InteractsWithAuthenticatedUser;
+    use RebuildsClosureAnalysis;
 
     public function testParticipantSeesOnlyAssignedHospitalsAcrossQueriesExportsAndDirectIds(): void
     {
@@ -91,7 +93,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
 
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/intervals/'.$foreign['intervalId'].'?scope=hospital&hospital='.$own['hospitalId']);
         $this->assertResponseStatusCodeSame(404);
-        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events/'.rawurlencode('group:'.$foreign['hospitalId'].':foreign-group'));
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events/'.$foreign['eventId']);
         $this->assertResponseStatusCodeSame(404);
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time');
         $this->assertResponseIsSuccessful();
@@ -219,7 +221,7 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
     }
 
     /**
-     * @return array{hospitalId: int, intervalId: int}
+     * @return array{hospitalId: int, intervalId: int, eventId: int}
      */
     private function seedClosure(User $owner, string $hospitalName, string $groupId): array
     {
@@ -252,12 +254,15 @@ final class ClosureAnalyticsHospitalAccessTest extends WebTestCase
             'source_changed_at' => '2026-05-01 09:00:00',
         ]);
 
+        $this->rebuildClosureAnalysis();
+
         return [
             'hospitalId' => (int) $hospital->getId(),
             'intervalId' => (int) $connection->fetchOne(
-                'SELECT id FROM closure_interval WHERE hospital_id = :hospital_id AND source_group_id = :group_id',
+                'SELECT ai.id FROM closure_analysis_interval ai WHERE ai.hospital_id = :hospital_id AND ai.source_group_id = :group_id',
                 ['hospital_id' => $hospital->getId(), 'group_id' => $groupId],
             ),
+            'eventId' => $this->closureEventId((int) $hospital->getId(), $groupId),
         ];
     }
 }

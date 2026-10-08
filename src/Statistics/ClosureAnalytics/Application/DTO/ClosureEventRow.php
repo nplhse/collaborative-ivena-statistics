@@ -22,6 +22,7 @@ final readonly class ClosureEventRow
         public int $actualMinutes,
         public int $observedMinutes,
         public array $children = [],
+        public string $hospitalPublicId = '',
     ) {
     }
 

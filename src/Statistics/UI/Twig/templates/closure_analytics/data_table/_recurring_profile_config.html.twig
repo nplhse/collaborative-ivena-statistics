@@ -1,0 +1,10 @@
+<div class="d-flex flex-wrap align-items-center gap-2" data-testid="closure-profile-group-item">
+    {% if row.once() %}
+        <span class="badge bg-secondary-lt text-secondary">{{ 'stats.closure.profile.once'|trans({}, 'statistics') }}</span>
+    {% endif %}
+    <a href="{{ path('app_stats_closure_profile_group', app.request.query.all|merge({hospitalId: row.hospitalId, profileKey: row.profileKey})) }}"
+       class="text-reset fw-medium"
+       data-testid="closure-profile-group-link">
+        {{ row.specialities|join(', ') }}
+    </a>
+</div>

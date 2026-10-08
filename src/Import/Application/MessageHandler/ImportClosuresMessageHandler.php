@@ -28,6 +28,7 @@ use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
@@ -55,6 +56,7 @@ final readonly class ImportClosuresMessageHandler
         private ImportFileStorage $fileStorage,
         private HospitalRepository $hospitalRepository,
         private ClosureHospitalGuard $hospitalGuard,
+        private ClosureRebuildRequestInterface $closureRebuildScheduler,
     ) {
     }
 
@@ -107,8 +109,10 @@ final readonly class ImportClosuresMessageHandler
 
         $this->auditContext->pushSuppressedEntityAudit(ImportRunSuppressedAuditClasses::fqcnList());
         try {
+            $cleanedPreviousRun = false;
             if ($import->hasRunBefore()) {
                 $this->previousRunCleanupService->cleanup($import);
+                $cleanedPreviousRun = true;
             }
 
             $import->markAsRunning();
@@ -127,6 +131,9 @@ final readonly class ImportClosuresMessageHandler
                 $startedRun = true;
                 $this->run($import, $reader, $writer, $profile);
             } catch (\Throwable $e) {
+                if ($cleanedPreviousRun) {
+                    $this->closureRebuildScheduler->requestAnalysis($hospitalId);
+                }
                 if (!$startedRun) {
                     $this->markFailed($import, $e->getMessage());
                 }

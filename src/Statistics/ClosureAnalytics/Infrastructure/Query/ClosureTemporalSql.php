@@ -6,6 +6,8 @@ namespace App\Statistics\ClosureAnalytics\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
+use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileKind;
+use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 
@@ -77,70 +79,98 @@ final class ClosureTemporalSql
             $types['closure_units'] = ArrayParameterType::STRING;
         }
         $closureWhere = [] === $closureFilters ? 'TRUE' : implode(' AND ', $closureFilters);
+        $analysisScopeWhere = str_replace('ci.', 'ai.', $scopeWhere);
         $eventTypeWhere = 'TRUE';
         if ([] !== $criteria->eventTypes) {
             $eventTypeWhere = 'event_type IN (:closure_event_types)';
             $params['closure_event_types'] = $criteria->eventTypes;
             $types['closure_event_types'] = ArrayParameterType::STRING;
         }
+        $profilePrefix = '';
+        $profileWhere = 'TRUE';
+        if ($criteria->profile instanceof ClosureProfileRef) {
+            $profile = $criteria->profile;
+            $hospitalSql = '';
+            if ($profile->hospitalId > 0) {
+                $params['profile_hospital_id'] = $profile->hospitalId;
+                $types['profile_hospital_id'] = Types::INTEGER;
+                $hospitalSql = 'ci.hospital_id = :profile_hospital_id AND ';
+            }
+            switch ($profile->kind) {
+                case ClosureProfileKind::Speciality:
+                    $params['profile_speciality_id'] = $profile->specialityId();
+                    $types['profile_speciality_id'] = Types::INTEGER;
+                    $profileWhere = $hospitalSql.'ci.speciality_id = :profile_speciality_id';
+                    break;
+                case ClosureProfileKind::Department:
+                    $params['profile_department_id'] = (int) $profile->key;
+                    $types['profile_department_id'] = Types::INTEGER;
+                    $profileWhere = $hospitalSql.'ci.department_id = :profile_department_id';
+                    break;
+                case ClosureProfileKind::Hospital:
+                    $profileWhere = 'ci.hospital_id = :profile_hospital_id';
+                    break;
+                case ClosureProfileKind::ClosureUnit:
+                    $params['profile_key'] = $profile->key;
+                    $types['profile_key'] = Types::STRING;
+                    $profileWhere = 'ci.hospital_id = :profile_hospital_id AND ci.closure_unit = :profile_key';
+                    break;
+                case ClosureProfileKind::Group:
+                    $profilePrefix = ClosureProfileSql::signatureCtes().",\n";
+                    $params['profile_key'] = $profile->key;
+                    $types['profile_key'] = Types::STRING;
+                    $profileWhere = 'ci.hospital_id = :profile_hospital_id AND ci.event_key IN (SELECT event_id::text FROM profile_signature WHERE profile_key = :profile_key)';
+                    break;
+            }
+        }
 
         $sql = <<<SQL
-raw_scoped AS (
+{$profilePrefix}raw_scoped AS (
     SELECT ci.*,
            ci.starts_at AT TIME ZONE 'Europe/Berlin' AS starts_utc,
            ci.ends_at AT TIME ZONE 'Europe/Berlin' AS ends_utc
     FROM closure_interval ci
     WHERE {$scopeWhere}
 ),
-ranked_intervals AS (
-    SELECT r.*,
-           ROW_NUMBER() OVER (
-               PARTITION BY hospital_id, speciality_id, department_id, starts_at, ends_at,
-                            care_level, reason, facility_kind, COALESCE(closure_unit, ''),
-                            COALESCE(source_group_id, '')
-               ORDER BY source_changed_at DESC, import_id DESC, id DESC
-           ) AS canonical_rank
-    FROM raw_scoped r
-),
-canonical_scoped_intervals AS (
-    SELECT *
-    FROM ranked_intervals ci
-    WHERE canonical_rank = 1
-),
-identified_intervals AS (
-    SELECT ci.*,
-           COUNT(*) FILTER (
-               WHERE NULLIF(BTRIM(ci.source_group_id), '') IS NULL
-           ) OVER (
-               PARTITION BY ci.hospital_id, ci.starts_at, ci.ends_at
-           ) AS coincident_ungrouped_count
-    FROM canonical_scoped_intervals ci
+analysis_scoped AS (
+    SELECT ai.id,
+           ai.hospital_id,
+           ai.speciality_id,
+           ai.department_id,
+           ai.starts_at,
+           ai.ends_at,
+           ai.reason,
+           ai.facility_kind,
+           ai.closure_unit,
+           ai.source_group_id,
+           cl.care_level,
+           ai.starts_at AT TIME ZONE 'Europe/Berlin' AS starts_utc,
+           ai.ends_at AT TIME ZONE 'Europe/Berlin' AS ends_utc,
+           e.id::text AS event_key,
+           e.event_type,
+           src.source_recorded_at,
+           src.source_changed_at
+    FROM closure_analysis_interval ai
+    INNER JOIN closure_event e ON e.id = ai.event_id
+    INNER JOIN closure_analysis_care_level cl ON cl.analysis_interval_id = ai.id
+    LEFT JOIN LATERAL (
+        SELECT MAX(source.source_recorded_at) AS source_recorded_at,
+               MAX(source.source_changed_at) AS source_changed_at
+        FROM closure_analysis_source link
+        INNER JOIN closure_interval source ON source.id = link.closure_interval_id
+        WHERE link.analysis_interval_id = ai.id
+    ) src ON TRUE
+    WHERE {$analysisScopeWhere}
 ),
 canonical_intervals AS (
     SELECT *
-    FROM identified_intervals ci
-    WHERE {$periodWhere} AND {$closureWhere}
+    FROM analysis_scoped ci
+    WHERE {$periodWhere} AND {$closureWhere} AND {$profileWhere}
 ),
 closure_clipped AS (
     SELECT ci.*,
            GREATEST(ci.starts_utc, COALESCE({$fromUtc}, ci.starts_utc)) AS clipped_start,
-           LEAST(ci.ends_utc, COALESCE({$toUtc}, ci.ends_utc)) AS clipped_end,
-           CASE
-               WHEN NULLIF(BTRIM(ci.source_group_id), '') IS NOT NULL
-                   THEN 'group:' || ci.hospital_id::text || ':' || BTRIM(ci.source_group_id)
-               WHEN ci.coincident_ungrouped_count > 1
-                   THEN 'cluster:' || ci.hospital_id::text || ':' || MD5(
-                       TO_CHAR(ci.starts_at, 'YYYY-MM-DD"T"HH24:MI:SS.US')
-                       || '|' ||
-                       TO_CHAR(ci.ends_at, 'YYYY-MM-DD"T"HH24:MI:SS.US')
-                   )
-               ELSE 'interval:' || ci.id::text
-           END AS event_key,
-           CASE
-               WHEN NULLIF(BTRIM(ci.source_group_id), '') IS NOT NULL THEN 'group'
-               WHEN ci.coincident_ungrouped_count > 1 THEN 'cluster'
-               ELSE 'single'
-           END AS event_type
+           LEAST(ci.ends_utc, COALESCE({$toUtc}, ci.ends_utc)) AS clipped_end
     FROM canonical_intervals ci
 ),
 valid_closures AS (

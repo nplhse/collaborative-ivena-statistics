@@ -41,7 +41,6 @@
             :preferenceCsrfToken="closureUnitPreferencesPersisted ? csrf_token('data_table_preference_' ~ closureUnitPreferenceKey) : null"
             :preferenceReturnUrl="closureUnitPreferencesPersisted ? app.request.requestUri : null"
             :cellContext="{
-                linkUnits: statisticsFilter.scope.value in ['hospital', 'my_hospitals'],
                 query: app.request.query.all,
             }"
         />

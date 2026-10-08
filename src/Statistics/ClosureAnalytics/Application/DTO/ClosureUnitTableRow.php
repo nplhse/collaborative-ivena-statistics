@@ -13,6 +13,7 @@ final readonly class ClosureUnitTableRow
         public int $eventCount,
         public int $actualMinutes,
         public float $sharePercent,
+        public ?int $hospitalId = null,
     ) {
     }
 }

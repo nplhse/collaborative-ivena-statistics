@@ -87,17 +87,6 @@ final class ClosureAnalyticsHospitalScopeTest extends TestCase
         );
     }
 
-    public function testForeignEventKeysAreRejectedAndIntervalKeysStayInTheQuery(): void
-    {
-        $scope = $this->scope([4], false);
-        $user = $this->participant();
-
-        self::assertTrue($scope->eventKeyHospitalIsForbidden('group:9:action', $user));
-        self::assertTrue($scope->eventKeyHospitalIsForbidden('cluster:9:abc', $user));
-        self::assertFalse($scope->eventKeyHospitalIsForbidden('group:4:action', $user));
-        self::assertFalse($scope->eventKeyHospitalIsForbidden('interval:15', $user));
-    }
-
     public function testRedirectCanonicalizesBroadScopesWithoutExpandingAnEmptySelection(): void
     {
         $redirector = new ClosureAnalyticsScopeRedirector($this->scope([4, 8], false));
@@ -175,7 +164,6 @@ final class ClosureAnalyticsHospitalScopeTest extends TestCase
                 ClosureAnalyticsFilter::empty(),
             ),
         );
-        self::assertFalse($scope->eventKeyHospitalIsForbidden('not-an-event-key', $this->participant()));
     }
 
     public function testRedirectKeepsARealSubsetAndDropsCohortStateAndDispatchKeys(): void

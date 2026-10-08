@@ -1,0 +1,47 @@
+<twig:Card class="mb-3" data-testid="closure-profile-coverage">
+    <div class="card-title">{{ 'catalog.section.coverage'|trans({}, 'allocation') }}</div>
+    {% if not profile.coverage.hasData %}
+        <p class="text-muted mb-0">{{ 'stats.closure.profile.empty'|trans({}, 'statistics') }}</p>
+    {% else %}
+        <div class="datagrid" data-testid="closure-profile-coverage-metrics">
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'stats.closure.profile.events'|trans({}, 'statistics') }}</div>
+                <div class="datagrid-content">{{ profile.eventCount|number_format(0, ',', '.') }}</div>
+            </div>
+            {% if profile.coverage.firstAt and profile.coverage.lastAt %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'catalog.metric.period'|trans({}, 'allocation') }}</div>
+                    <div class="datagrid-content">
+                        {{ profile.coverage.firstAt|date('d.m.Y') }}
+                        –
+                        {{ profile.coverage.lastAt|date('d.m.Y') }}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="mt-3" data-testid="closure-profile-coverage-years">
+            <div class="text-muted mb-2">{{ 'catalog.metric.years'|trans({}, 'allocation') }}</div>
+            <div class="catalog-year-heatmap">
+                {% for row in profile.coverage.yearHeatmap %}
+                    <div class="catalog-year-heatmap-row">
+                        {% for cell in row %}
+                            <div class="catalog-year-heatmap-cell{{ cell.future ? ' is-future' : (not cell.hasData ? ' is-empty' : '') }}{{ cell.intensity >= 0.45 ? ' is-hot' : '' }}"
+                                 style="--catalog-heat: {{ cell.intensity }}"
+                                 title="{{ cell.year }}: {{ cell.future ? '—' : cell.count|number_format(0, ',', '.') }}"
+                                 data-testid="closure-profile-coverage-year">
+                                <div class="catalog-year-heatmap-year">{{ cell.year }}</div>
+                                <div class="catalog-year-heatmap-count">
+                                    {% if cell.future %}
+                                        —
+                                    {% else %}
+                                        {{ cell.count|number_format(0, ',', '.') }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</twig:Card>

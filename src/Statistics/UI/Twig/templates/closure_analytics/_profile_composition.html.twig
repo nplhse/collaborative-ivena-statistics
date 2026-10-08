@@ -1,0 +1,20 @@
+<div data-testid="closure-profile-composition">
+    <p class="text-muted">{{ 'stats.closure.profile.composition.hint'|trans({}, 'statistics') }}</p>
+    {% if profile.ref.kind.value == 'group' %}
+        <div class="alert alert-info" data-testid="closure-profile-rule">{{ 'stats.closure.profile.rule'|trans({}, 'statistics') }}</div>
+    {% endif %}
+    <twig:DataTable
+        :rows="compositionRows"
+        :showPaginationFooter="false"
+        rowTestId="closure-profile-composition-row"
+        emptyTitle="{{ 'stats.closure.profile.empty'|trans({}, 'statistics') }}"
+        emptyIcon="tabler:list-details"
+        :columns="[
+            { key: 'speciality', type: 'text', label: 'stats.closure.profile.speciality_title', labelDomain: 'statistics', property: 'specialityName' },
+            { key: 'department', type: 'text', label: 'stats.closure.event.assignments.column.department', labelDomain: 'statistics', property: 'departmentName' },
+            { key: 'careLevel', type: 'custom', label: 'stats.closure.profile.column.care_level', labelDomain: 'statistics', cellTemplate: '@Statistics/closure_analytics/_profile_composition_care_level.html.twig' },
+            { key: 'reason', type: 'custom', label: 'stats.closure.intervals.reason', labelDomain: 'statistics', cellTemplate: '@Statistics/closure_analytics/_profile_composition_reason.html.twig' },
+            { key: 'provenance', type: 'custom', label: 'stats.closure.profile.column.provenance', labelDomain: 'statistics', cellTemplate: '@Statistics/closure_analytics/_profile_composition_provenance.html.twig' },
+        ]"
+    />
+</div>

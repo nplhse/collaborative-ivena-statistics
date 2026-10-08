@@ -1,0 +1,9 @@
+{% if row.provenance == 'both' %}
+    <span class="badge bg-blue-lt" data-testid="closure-profile-provenance">{{ 'stats.closure.profile.provenance.both'|trans({}, 'statistics') }}</span>
+{% elseif row.provenance == 'assignment' %}
+    <span class="badge bg-green-lt" data-testid="closure-profile-provenance">{{ 'stats.closure.profile.provenance.assignment'|trans({}, 'statistics') }}</span>
+{% elseif row.provenance == 'closure' %}
+    <span class="badge bg-orange-lt" data-testid="closure-profile-provenance">{{ 'stats.closure.profile.provenance.closure'|trans({}, 'statistics') }}</span>
+{% else %}
+    —
+{% endif %}

@@ -18,6 +18,7 @@ use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureOverlapWindow;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureOverlappingAllocationsQuery;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -27,7 +28,7 @@ final class ClosureOverlappingAllocationsQueryTest extends KernelTestCase
 {
     use Factories;
 
-    public function testMatchesInclusiveBoundsDepartmentAndHospital(): void
+    public function testMatchesHalfOpenBoundsDepartmentAndHospital(): void
     {
         self::bootKernel();
         $user = UserFactory::createOne(['username' => 'closure-overlap-alloc']);
@@ -96,6 +97,15 @@ final class ClosureOverlappingAllocationsQueryTest extends KernelTestCase
             'createdAt' => new \DateTimeImmutable('2026-05-01 11:00:00'),
         ]);
 
+        $connection = self::getContainer()->get(Connection::class);
+        $intervalId = $this->insertAnalysisInterval(
+            $connection,
+            (int) $hospital->getId(),
+            (int) $speciality->getId(),
+            (int) $department->getId(),
+            'emergency',
+        );
+
         $query = self::getContainer()->get(ClosureOverlappingAllocationsQuery::class);
         $rows = $query->fetch([
             new ClosureOverlapWindow(
@@ -103,10 +113,11 @@ final class ClosureOverlappingAllocationsQueryTest extends KernelTestCase
                 (int) $department->getId(),
                 new \DateTimeImmutable('2026-05-01 10:00:00', $berlin),
                 new \DateTimeImmutable('2026-05-01 12:00:00', $berlin),
+                $intervalId,
             ),
         ]);
 
-        self::assertCount(2, $rows);
+        self::assertCount(1, $rows);
         self::assertSame($insideStart->getPublicIdString(), $rows[0]->publicId);
         self::assertSame('Overlap Alloc Department', $rows[0]->departmentName);
         self::assertSame(AllocationUrgency::EMERGENCY, $rows[0]->urgency);
@@ -137,9 +148,18 @@ final class ClosureOverlappingAllocationsQueryTest extends KernelTestCase
             'urgency' => AllocationUrgency::INPATIENT,
         ]);
 
-        $query = self::getContainer()->get(ClosureOverlappingAllocationsQuery::class);
+        $connection = self::getContainer()->get(Connection::class);
         $hospitalId = (int) $hospital->getId();
         $departmentId = (int) $department->getId();
+        $intervalId = $this->insertAnalysisInterval(
+            $connection,
+            $hospitalId,
+            (int) $speciality->getId(),
+            $departmentId,
+            'inpatient',
+        );
+
+        $query = self::getContainer()->get(ClosureOverlappingAllocationsQuery::class);
         $berlin = new \DateTimeZone('Europe/Berlin');
         $rows = $query->fetch([
             new ClosureOverlapWindow(
@@ -147,12 +167,14 @@ final class ClosureOverlappingAllocationsQueryTest extends KernelTestCase
                 $departmentId,
                 new \DateTimeImmutable('2026-05-01 10:00:00', $berlin),
                 new \DateTimeImmutable('2026-05-01 12:00:00', $berlin),
+                $intervalId,
             ),
             new ClosureOverlapWindow(
                 $hospitalId,
                 $departmentId,
                 new \DateTimeImmutable('2026-05-01 10:30:00', $berlin),
                 new \DateTimeImmutable('2026-05-01 11:30:00', $berlin),
+                $intervalId,
             ),
         ]);
 
@@ -165,5 +187,47 @@ final class ClosureOverlappingAllocationsQueryTest extends KernelTestCase
         $query = self::getContainer()->get(ClosureOverlappingAllocationsQuery::class);
 
         self::assertSame([], $query->fetch([]));
+    }
+
+    private function insertAnalysisInterval(
+        Connection $connection,
+        int $hospitalId,
+        int $specialityId,
+        int $departmentId,
+        string $careLevel,
+    ): int {
+        $eventId = (int) $connection->fetchOne(
+            <<<'SQL'
+INSERT INTO closure_event (hospital_id, event_type, grouping_key, grouping_rule, starts_at, ends_at)
+VALUES (:hospital, 'single', :grouping_key, 'test', '2026-05-01 10:00:00', '2026-05-01 12:00:00')
+RETURNING id
+SQL,
+            [
+                'hospital' => $hospitalId,
+                'grouping_key' => 'overlap-alloc-'.$hospitalId.'-'.bin2hex(random_bytes(4)),
+            ],
+        );
+        $intervalId = (int) $connection->fetchOne(
+            <<<'SQL'
+INSERT INTO closure_analysis_interval (
+    event_id, hospital_id, speciality_id, department_id, starts_at, ends_at, reason, facility_kind, fingerprint
+) VALUES (
+    :event, :hospital, :speciality, :department, '2026-05-01 10:00:00', '2026-05-01 12:00:00', 'no_bed_capacity', 'clinic', :fingerprint
+) RETURNING id
+SQL,
+            [
+                'event' => $eventId,
+                'hospital' => $hospitalId,
+                'speciality' => $specialityId,
+                'department' => $departmentId,
+                'fingerprint' => 'overlap-alloc-'.$eventId.'-'.$departmentId,
+            ],
+        );
+        $connection->insert('closure_analysis_care_level', [
+            'analysis_interval_id' => $intervalId,
+            'care_level' => $careLevel,
+        ]);
+
+        return $intervalId;
     }
 }

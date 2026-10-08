@@ -53,13 +53,16 @@ final readonly class ClosureDetailDayTimelineFactory
         }
 
         foreach ($this->related($criteria, $focus, $excludeEventKey) as $interval) {
+            $url = ClosureEventType::Single === $interval->eventType
+                ? $this->urlGenerator->generate('app_stats_closure_analytics_interval', [...$query, 'id' => $interval->id])
+                : $this->urlGenerator->generate('app_stats_closure_analytics_event', [...$query, 'eventKey' => $interval->eventKey]);
             $items[] = $this->item(
                 $interval->startsAt,
                 $interval->endsAt,
                 $interval->departmentName,
                 $interval->specialityName,
                 $interval->careLevel,
-                $this->urlGenerator->generate('app_stats_closure_analytics_event', [...$query, 'eventKey' => $interval->eventKey]),
+                $url,
                 $this->eventTitle($interval),
                 false,
                 $interval->eventType,

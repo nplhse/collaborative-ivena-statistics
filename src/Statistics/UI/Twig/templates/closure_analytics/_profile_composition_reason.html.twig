@@ -1,0 +1,5 @@
+{% if row.reason %}
+    {{ ('stats.closure.reason.' ~ row.reason)|trans({}, 'statistics') }}
+{% else %}
+    —
+{% endif %}

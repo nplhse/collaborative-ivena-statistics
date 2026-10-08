@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Statistics\Unit\MessageHandler;
 
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use App\Statistics\Application\Contract\ProjectionOverviewChangeDetectorInterface;
 use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
 use App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -33,11 +35,18 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
         $materializedViewRefresher = $this->createMock(MaterializedViewRefresherInterface::class);
         $materializedViewRefresher->expects($this->never())->method('refresh');
 
+        $scheduler = $this->createMock(ClosureRebuildRequestInterface::class);
+        $scheduler->expects($this->once())->method('requestVolume')->with(15);
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn(15);
+
         $handler = new RebuildAllocationStatsProjectionHandler(
             $rebuilder,
             $changeDetector,
             $materializedViewRefresher,
-            $this->createMock(LoggerInterface::class),
+            $scheduler,
+            $connection,
+            $this->createStub(LoggerInterface::class),
         );
         $handler(new RebuildAllocationStatsProjection($importId));
     }
@@ -71,10 +80,17 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
                 ['import_id' => $importId, 'reason' => 'new_hospital'],
             );
 
+        $scheduler = $this->createMock(ClosureRebuildRequestInterface::class);
+        $scheduler->expects($this->once())->method('requestVolume')->with(15);
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn(15);
+
         $handler = new RebuildAllocationStatsProjectionHandler(
             $rebuilder,
             $changeDetector,
             $materializedViewRefresher,
+            $scheduler,
+            $connection,
             $logger,
         );
         $handler(new RebuildAllocationStatsProjection($importId));

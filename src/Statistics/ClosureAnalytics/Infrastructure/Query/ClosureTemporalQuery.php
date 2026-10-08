@@ -606,12 +606,14 @@ dimension_observed AS (
     GROUP BY dh.dimension_key
 ),
 dimension_totals AS (
-    SELECT dimension_key, MIN(dimension_name) AS dimension_name, MIN(hospital_name) AS hospital_name, {$countExpression} AS closure_count,
+    SELECT dimension_key, MIN(dimension_name) AS dimension_name, MIN(hospital_name) AS hospital_name,
+           CASE WHEN COUNT(DISTINCT hospital_id) = 1 THEN MIN(hospital_id) ELSE NULL END AS sole_hospital_id,
+           {$countExpression} AS closure_count,
            SUM(EXTRACT(EPOCH FROM (clipped_end - clipped_start)) / 60.0) AS summed_minutes
     FROM dimension_intervals
     GROUP BY dimension_key
 )
-SELECT t.dimension_key, t.dimension_name, t.hospital_name, t.closure_count,
+SELECT t.dimension_key, t.dimension_name, t.hospital_name, t.sole_hospital_id, t.closure_count,
        ROUND(t.summed_minutes)::int AS summed_minutes,
        ROUND(a.actual_minutes)::int AS actual_minutes,
        ROUND(o.observed_minutes)::int AS observed_minutes
@@ -630,6 +632,7 @@ SQL, $params, $types);
             (int) $row['observed_minutes'],
             \is_string($row['hospital_name'] ?? null) && '' !== $row['hospital_name'] ? (string) $row['hospital_name'] : null,
             'closure_unit' === $kind ? (int) $row['closure_count'] : null,
+            is_numeric($row['sole_hospital_id'] ?? null) ? (int) $row['sole_hospital_id'] : null,
         ), $rows);
     }
 
@@ -686,7 +689,7 @@ dimension_totals AS (
     GROUP BY dimension_key
 ),
 type_keys AS (
-    SELECT unnest(ARRAY['group', 'cluster', 'single']) AS dimension_key
+    SELECT unnest(ARRAY['source_group', 'cluster', 'single']) AS dimension_key
 )
 SELECT k.dimension_key, k.dimension_key AS dimension_name,
        COALESCE(t.closure_count, 0)::int AS closure_count,
@@ -697,7 +700,7 @@ FROM type_keys k
 LEFT JOIN dimension_totals t USING (dimension_key)
 LEFT JOIN dimension_actual a USING (dimension_key)
 LEFT JOIN dimension_observed o USING (dimension_key)
-ORDER BY array_position(ARRAY['group', 'cluster', 'single'], k.dimension_key)
+ORDER BY array_position(ARRAY['source_group', 'cluster', 'single'], k.dimension_key)
 SQL, $params, $types);
 
         return array_map(static fn (array $row): ClosureBreakdownRow => new ClosureBreakdownRow(
