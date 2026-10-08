@@ -1,0 +1,200 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% set profileKind = profile.ref.kind.value %}
+{% set profilePretitleKey = {
+    hospital: 'stats.closure.profile.kind.hospital',
+    speciality: 'stats.closure.profile.kind.speciality',
+    department: 'stats.closure.profile.kind.department',
+    closure_unit: 'stats.closure.profile.kind.unit',
+    group: 'stats.closure.profile.kind.group',
+}[profileKind]|default('stats.closure.profile.configuration') %}
+{% set profileTitle = profile.title ? profile.title|replace({'\n': ' / '}) : 'stats.closure.profile.configuration'|trans({}, 'statistics') %}
+
+{% block title %}{{ profileTitle }} – {{ parent() }}{% endblock %}
+
+{% block header %}
+    {% embed '@Shared/_embeds/header.html.twig' %}
+        {% block header_after %}{{ include('@Shared/_includes/subnav_stats.html.twig') }}{% endblock %}
+    {% endembed %}
+{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'link.statistics', path: path('app_stats_dashboard') },
+            { label: 'stats.closure.title', path: path('app_stats_closure_analytics', app.request.query.all) },
+            { label: profileTitle }
+        ]" />
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <span class="avatar avatar-lg rounded">
+                    <twig:ux:icon name="tabler:repeat" width="36px" height="36px" />
+                </span>
+            </div>
+            <div class="col">
+                <div class="page-pretitle">{{ profilePretitleKey|trans({}, 'statistics') }}</div>
+                <h1 class="fw-bold mb-1" data-testid="closure-profile-title">{{ profile.title ? profile.title|nl2br : profileTitle }}</h1>
+                <div class="list-inline list-inline-dots text-muted mb-0">
+                    {% if profile.hospitalName and profileKind != 'hospital' %}
+                    <div class="list-inline-item">
+                        {% if profile.hospitalPublicId %}
+                            <a href="{{ path('app_explore_hospital_show', {publicId: profile.hospitalPublicId}) }}" data-testid="closure-profile-hospital">{{ profile.hospitalName }}</a>
+                        {% else %}
+                            <span data-testid="closure-profile-hospital">{{ profile.hospitalName }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div class="list-inline-item">{{ statisticsHeadingPeriod }}</div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <a class="btn" href="{{ path('app_stats_closure_analytics', app.request.query.all) }}">
+                    <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
+                    {{ 'stats.closure.profile.back'|trans({}, 'statistics') }}
+                </a>
+            </div>
+            {{ include('@Statistics/_header_controls.html.twig') }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {{ include('@Statistics/closure_analytics/_filter_drawer.html.twig') }}
+    <div data-testid="closure-profile" data-controller="closure-analytics-charts" data-closure-analytics-charts-payload-value="{{ chartPayload|json_encode|e('html_attr') }}">
+        {% set profileTab = profileTab|default('overview') %}
+        <div data-controller="closure-profile">
+        <ul class="nav nav-tabs mb-3" role="tablist" data-testid="closure-profile-tabs">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {{ profileTab == 'composition' ? '' : 'active' }}"
+                        id="closure-profile-overview-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#closure-profile-overview"
+                        data-profile-tab="overview"
+                        data-action="shown.bs.tab->closure-profile#shown"
+                        type="button"
+                        role="tab"
+                        aria-controls="closure-profile-overview"
+                        aria-selected="{{ profileTab == 'composition' ? 'false' : 'true' }}"
+                        data-testid="closure-profile-tab-overview">
+                    {{ 'stats.closure.profile.tab.overview'|trans({}, 'statistics') }}
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {{ profileTab == 'composition' ? 'active' : '' }}"
+                        id="closure-profile-composition-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#closure-profile-composition-pane"
+                        data-profile-tab="composition"
+                        data-action="shown.bs.tab->closure-profile#shown"
+                        type="button"
+                        role="tab"
+                        aria-controls="closure-profile-composition-pane"
+                        aria-selected="{{ profileTab == 'composition' ? 'true' : 'false' }}"
+                        data-testid="closure-profile-tab-composition">
+                    {{ 'stats.closure.profile.tab.composition'|trans({}, 'statistics') }}
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content">
+        <div class="tab-pane fade {{ profileTab == 'composition' ? '' : 'show active' }}"
+             id="closure-profile-overview"
+             role="tabpanel"
+             aria-labelledby="closure-profile-overview-tab">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                {{ include('@Statistics/closure_analytics/_profile_coverage.html.twig') }}
+
+                <twig:Card class="mb-3" title="{{ 'stats.closure.profile.heatmap'|trans({}, 'statistics') }}">
+                    <div data-closure-analytics-charts-target="heatmapChart" style="min-height: 420px" data-testid="closure-profile-heatmap"></div>
+                </twig:Card>
+
+                {{ include('@Statistics/closure_analytics/_profile_course.html.twig') }}
+            </div>
+            <div class="col-lg-4">
+                <twig:Card class="mb-3" data-testid="closure-profile-actions">
+                    <div class="card-title">{{ 'catalog.section.actions'|trans({}, 'allocation') }}</div>
+                    <div class="btn-list flex-column">
+                        <a class="btn btn-primary" href="{{ timelineUrl }}" data-testid="closure-profile-timeline-link">
+                            <twig:ux:icon name="tabler:timeline" class="me-2" width="1em" height="1em" />
+                            {{ 'stats.closure.profile.timeline'|trans({}, 'statistics') }}
+                        </a>
+                        <a class="btn" href="{{ eventsUrl }}" data-testid="closure-profile-events-link">
+                            <twig:ux:icon name="tabler:list" class="me-2" width="1em" height="1em" />
+                            {{ 'stats.closure.profile.events_link'|trans({}, 'statistics') }}
+                        </a>
+                    </div>
+                </twig:Card>
+                <twig:Card class="mb-3" data-testid="closure-profile-kpis" title="{{ 'stats.closure.profile.kpis'|trans({}, 'statistics') }}">
+                    <div class="datagrid">
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'stats.closure.profile.events'|trans({}, 'statistics') }}</div>
+                            <div class="datagrid-content" data-testid="closure-profile-event-count">{{ profile.eventCount }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'stats.closure.profile.usable'|trans({}, 'statistics') }}</div>
+                            <div class="datagrid-content" data-testid="closure-profile-usable-count">{{ profile.usableEventCount }}</div>
+                        </div>
+                        <div class="datagrid-item">
+                            {% if profile.showIndividuals %}
+                                <div class="datagrid-title">{{ 'stats.closure.profile.duration_individuals'|trans({}, 'statistics') }}</div>
+                                <div class="datagrid-content" data-testid="closure-profile-durations">
+                                    {% for minutes in profile.individualMinutes %}
+                                        <div>{{ minutes|closure_duration }}</div>
+                                    {% else %}
+                                        —
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="datagrid-title">{{ 'stats.closure.profile.duration_median'|trans({}, 'statistics') }}</div>
+                                <div class="datagrid-content" data-testid="closure-profile-duration-median">
+                                    {{ profile.medianMinutes is null ? '—' : profile.medianMinutes|closure_duration }}
+                                    <div class="text-muted small fw-normal">
+                                        {{ 'stats.closure.profile.duration_iqr'|trans({}, 'statistics') }}
+                                        {{ profile.q1Minutes is null ? '—' : profile.q1Minutes|closure_duration }}
+                                        –
+                                        {{ profile.q3Minutes is null ? '—' : profile.q3Minutes|closure_duration }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="datagrid-item">
+                            <div class="datagrid-title">{{ 'stats.closure.profile.duration_mean'|trans({}, 'statistics') }}</div>
+                            <div class="datagrid-content">{{ profile.meanMinutes is null ? '—' : profile.meanMinutes|closure_duration }}</div>
+                        </div>
+                    </div>
+                </twig:Card>
+                <twig:Card class="mb-3" title="{{ 'stats.closure.profile.care_levels'|trans({}, 'statistics') }}">
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table" data-testid="closure-profile-care-levels">
+                            <tbody>
+                            {% for row in profile.careLevels %}
+                                <tr>
+                                    <td>{{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}</td>
+                                    <td class="text-end">{{ row.eventCount }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td class="text-muted">{{ 'stats.closure.profile.empty'|trans({}, 'statistics') }}</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </twig:Card>
+                {{ include('@Statistics/closure_analytics/_volume_phase_breakdown.html.twig') }}
+            </div>
+        </div>
+        </div>
+        <div class="tab-pane fade {{ profileTab == 'composition' ? 'show active' : '' }}"
+             id="closure-profile-composition-pane"
+             role="tabpanel"
+             aria-labelledby="closure-profile-composition-tab"
+             data-testid="closure-profile-composition-pane">
+            {{ include('@Statistics/closure_analytics/_profile_composition.html.twig') }}
+        </div>
+        </div>
+        </div>
+    </div>
+
+    {% if overviewPeriodViewModel is defined and overviewPeriodViewModel.showNavigation %}
+        {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+    {% endif %}
+{% endblock %}

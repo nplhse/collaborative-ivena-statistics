@@ -1,0 +1,5 @@
+{% if row.careLevel %}
+    {{ ('stats.closure.care_level.' ~ row.careLevel)|trans({}, 'statistics') }}
+{% else %}
+    —
+{% endif %}

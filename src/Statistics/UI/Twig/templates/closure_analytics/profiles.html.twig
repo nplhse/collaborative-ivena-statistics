@@ -1,0 +1,73 @@
+{% extends '@Statistics/closure_analytics/index.html.twig' %}
+
+{% block page_content %}
+    {{ include('@Statistics/closure_analytics/_filter_drawer.html.twig') }}
+    {{ include('@Statistics/_filter_active_badges.html.twig') }}
+    {{ include('@Statistics/closure_analytics/_tabs.html.twig') }}
+
+    {% if closureMissingHospitalAccess|default(false) %}
+        <div class="mt-3" data-testid="stats-closure-no-hospital-access">
+            <twig:EmptyState title="{{ 'stats.closure.no_hospital_access'|trans({}, 'statistics') }}" icon="tabler:building-hospital" />
+        </div>
+    {% else %}
+        <div class="mt-3" data-testid="stats-closure-profiles-page">
+            <p class="text-muted small mb-3">{{ 'stats.closure.profile.groups_lead'|trans({}, 'statistics') }}</p>
+
+            <form method="get" action="{{ path('app_stats_closure_analytics_profiles') }}" class="mb-3" data-testid="closure-recurring-profile-search">
+                {% for key, value in app.request.query.all %}
+                    {% if key != 'profileQ' and key != 'profilesPage' %}
+                        {% if value is iterable %}
+                            {% for item in value %}
+                                <input type="hidden" name="{{ key }}[]" value="{{ item }}">
+                            {% endfor %}
+                        {% else %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                <div class="input-group">
+                    <input type="search"
+                           class="form-control"
+                           name="profileQ"
+                           value="{{ recurringProfileTable.profileQ }}"
+                           placeholder="{{ 'stats.closure.profile.recurring.search_placeholder'|trans({}, 'statistics') }}"
+                           data-testid="closure-recurring-profile-search-input">
+                    <button type="submit" class="btn btn-primary">{{ 'stats.closure.profile.recurring.search_submit'|trans({}, 'statistics') }}</button>
+                </div>
+            </form>
+
+            <div data-testid="closure-profile-groups">
+                <twig:DataTable
+                    title="{{ 'stats.closure.profile.groups'|trans({}, 'statistics') }}"
+                    :paginator="recurringProfiles"
+                    paginationRoute="app_stats_closure_analytics_profiles"
+                    :sortBy="recurringProfileTable.sortBy"
+                    :orderBy="recurringProfileTable.orderBy"
+                    :columns="recurringProfileColumns"
+                    columnVisibilityEnabled
+                    columnOrderingEnabled
+                    persistSort
+                    :visibleColumnKeys="recurringProfilePreferences.visibleColumns"
+                    :columnOrder="recurringProfilePreferences.columnOrder"
+                    pageParam="profilesPage"
+                    limitParam="profilesLimit"
+                    sortByParam="profilesSort"
+                    orderByParam="profilesOrder"
+                    columnVisibilityParam="profilesColumns"
+                    columnOrderParam="profilesColumnOrder"
+                    :preferenceKey="recurringProfilePreferencesPersisted ? recurringProfilePreferenceKey : null"
+                    :preferenceSaveUrl="recurringProfilePreferencesPersisted ? path('app_data_table_preferences_save') : null"
+                    :preferenceCsrfToken="recurringProfilePreferencesPersisted ? csrf_token('data_table_preference_' ~ recurringProfilePreferenceKey) : null"
+                    :preferenceReturnUrl="recurringProfilePreferencesPersisted ? app.request.requestUri : null"
+                    rowTestId="closure-profile-group-item"
+                    emptyTitle="{{ 'stats.closure.profiles.empty'|trans({}, 'statistics') }}"
+                    emptyIcon="tabler:layers-linked"
+                />
+            </div>
+        </div>
+    {% endif %}
+
+    {% if overviewPeriodViewModel is defined and overviewPeriodViewModel.showNavigation %}
+        {{ include('@Statistics/dashboard/_overview_period_navigation.html.twig') }}
+    {% endif %}
+{% endblock %}

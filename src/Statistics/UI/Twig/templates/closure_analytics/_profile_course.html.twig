@@ -1,0 +1,67 @@
+<twig:Card class="mb-3" title="{{ 'stats.closure.profile.course.title'|trans({}, 'statistics') }}" data-testid="closure-profile-course">
+    {% set startDrawable = startCourses|filter(course => course.drawable|default(false))|length > 0 %}
+    {% set endDrawable = endCourses|filter(course => course.drawable|default(false))|length > 0 %}
+    {% if not startDrawable and not endDrawable %}
+        <div data-testid="closure-profile-course-empty">
+            {{ include('@Statistics/closure_analytics/_profile_course_empty.html.twig') }}
+        </div>
+    {% else %}
+        {% for courseBlock in [
+            {title: 'stats.closure.profile.course.start', courses: startCourses, testid: 'closure-profile-course-start', drawable: startDrawable},
+            {title: 'stats.closure.profile.course.end', courses: endCourses, testid: 'closure-profile-course-end', drawable: endDrawable},
+        ] %}
+            <h3 class="h4 mt-3">{{ courseBlock.title|trans({}, 'statistics') }}</h3>
+            {% if not courseBlock.drawable %}
+                <div data-testid="{{ courseBlock.testid }}-empty">
+                    {{ include('@Statistics/closure_analytics/_profile_course_empty.html.twig') }}
+                </div>
+            {% else %}
+                <div data-testid="{{ courseBlock.testid }}">
+                    {% for course in courseBlock.courses|filter(course => course.drawable|default(false)) %}
+                        <div class="mb-3" data-testid="closure-profile-course-chart-{{ course.chartId|default(loop.index) }}">
+                            {% if course.name %}
+                                <div class="subheader">{{ course.name }}</div>
+                            {% endif %}
+                            <div data-closure-analytics-charts-target="profileCourseChart"
+                                 data-course="{{ course|json_encode|e('html_attr') }}"
+                                 style="min-height: 280px"></div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <h3 class="h4 mt-3">{{ 'stats.closure.profile.phase'|trans({}, 'statistics') }}</h3>
+    <div data-testid="closure-profile-phase">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="subheader">{{ 'stats.closure.profile.course.contributing'|trans({}, 'statistics') }}</div>
+                <div class="h3 mb-0">{{ profile.phase.contributingEvents }}</div>
+                {% if profile.phase.lineSuppressed and (startDrawable or endDrawable) %}
+                    <div class="text-muted">{{ 'stats.closure.profile.course.suppressed'|trans({}, 'statistics') }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <div class="subheader">{{ 'stats.closure.profile.phase.rate'|trans({}, 'statistics') }}</div>
+                {% if profile.phase.lineSuppressed %}
+                    <div class="h3 mb-0">—</div>
+                {% else %}
+                    <div class="h3 mb-0" data-testid="closure-profile-phase-rate">{{ profile.phase.observedRate is null ? '—' : profile.phase.observedRate|number_format(2, ',', '.') }}</div>
+                    <div class="text-muted small">
+                        {{ 'stats.closure.profile.phase.deviation'|trans({}, 'statistics') }}
+                        {{ profile.phase.rateDeviation is null ? '—' : profile.phase.rateDeviation|number_format(2, ',', '.') }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <div class="subheader">{{ 'stats.closure.profile.phase.volume'|trans({}, 'statistics') }}</div>
+                <div class="h3 mb-0" data-testid="closure-profile-phase-volume">{{ profile.phase.dedupedObserved is null ? '—' : profile.phase.dedupedObserved|number_format(1, ',', '.') }}</div>
+                <div class="text-muted small">
+                    {{ 'stats.closure.profile.phase.deviation'|trans({}, 'statistics') }}
+                    {{ profile.phase.volumeDeviation is null ? '—' : profile.phase.volumeDeviation|number_format(1, ',', '.') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</twig:Card>
