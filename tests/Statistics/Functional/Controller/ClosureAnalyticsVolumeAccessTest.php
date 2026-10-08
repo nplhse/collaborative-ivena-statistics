@@ -55,7 +55,7 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('[data-testid="stats-closure-volume-detail"]');
         $this->assertSelectorExists('[data-testid="stats-closure-volume-windows"]');
-        $this->assertSelectorExists('[data-testid="stats-closure-volume-bar-toggles"]');
+        $this->assertSelectorExists('[data-controller="closure-analytics-charts"]');
         $this->assertSelectorTextNotContains('body', 'Foreign Volume Hospital');
     }
 
