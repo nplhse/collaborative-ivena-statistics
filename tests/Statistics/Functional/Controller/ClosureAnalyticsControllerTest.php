@@ -1321,6 +1321,7 @@ SQL,
         ]);
 
         $this->rebuildClosureAnalysis();
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
         $intervalId = (int) $connection->fetchOne(
             <<<'SQL'
 SELECT ai.id
