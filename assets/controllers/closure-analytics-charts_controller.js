@@ -4,6 +4,15 @@ import {
     buildHeatmapSeries,
     heatmapColumnIndexFromSeriesIndex,
 } from '../lib/build-heatmap-series.js';
+import {
+    buildAssignmentMixedChartOptions,
+    buildVolumeRatioChartOptions,
+    formatClosureChartCount,
+    placeClosureBandsBehind,
+    profileAssignmentLineSeries,
+    volumeAssignmentLineSeries,
+    volumeAssignmentTooltip,
+} from '../lib/build-closure-course-chart-options.js';
 import { formatChartMonthLabel } from '../lib/format-chart-month-label.js';
 import { loadApexCharts } from '../lib/load-apexcharts.js';
 
@@ -29,7 +38,12 @@ export default class extends Controller {
         'shareChart',
         'specialityChart',
         'reasonChart',
+        'volumeChart',
+        'volumeRatioChart',
+        'profileCourseChart',
     ];
+
+    volumeChart = null;
 
     async connect() {
         this.charts = [];
@@ -64,6 +78,22 @@ export default class extends Controller {
                 durationLoad.reasons ?? [],
                 durationLoad,
             );
+        }
+        if (this.hasVolumeChartTarget) {
+            await this.renderVolume(ApexCharts, payload.volume ?? {}, payload.otherClosures ?? []);
+        }
+        if (this.hasVolumeRatioChartTarget) {
+            await this.renderVolumeRatio(
+                ApexCharts,
+                payload.volume ?? {},
+                payload.otherClosures ?? [],
+            );
+        }
+        if (this.hasProfileCourseChartTarget) {
+            for (const element of this.profileCourseChartTargets) {
+                const course = JSON.parse(element.dataset.course ?? '{}');
+                await this.renderProfileCourse(ApexCharts, element, course);
+            }
         }
     }
 
@@ -344,10 +374,138 @@ export default class extends Controller {
         };
     }
 
+    async renderVolume(ApexCharts, volume, otherClosures) {
+        const categories = volume.categories ?? [];
+        if (categories.length === 0) {
+            return;
+        }
+        const volumeChartRoot = this.volumeChartTarget;
+        const built = buildAssignmentMixedChartOptions({
+            categories,
+            lineSeries: volumeAssignmentLineSeries(volume),
+            barSeries: volume.barSeries ?? {},
+            chartData: volume,
+            otherClosures,
+            chartRoot: volumeChartRoot,
+            height: 320,
+            colorProfile: 'volume',
+            tooltip: () => '',
+        });
+        built.options.tooltip.custom = ({ dataPointIndex, w }) =>
+            volumeAssignmentTooltip(w, dataPointIndex, {
+                ...volume,
+                otherClosureAt: built.otherClosureAt,
+            });
+        const chart = new ApexCharts(volumeChartRoot, built.options);
+        this.volumeChart = chart;
+        this.charts.push(chart);
+        await chart.render();
+        placeClosureBandsBehind(volumeChartRoot);
+    }
+
+    async renderProfileCourse(ApexCharts, element, course) {
+        const categories = course.categories ?? [];
+        const hasLine = (course.observed ?? []).some(
+            (value) => value !== null && value !== undefined,
+        );
+        if (categories.length === 0 || !hasLine) {
+            element.textContent = course.suppressedLabel ?? '';
+            return;
+        }
+        const lineSeries = profileAssignmentLineSeries(course);
+        const { options, barEntries } = buildAssignmentMixedChartOptions({
+            categories,
+            lineSeries,
+            barSeries: course.barSeries ?? {},
+            chartData: course,
+            otherClosures: [],
+            chartRoot: element,
+            height: 280,
+            colorProfile: 'profile',
+            tooltip: ({ dataPointIndex, w }) => {
+                const point = course.points?.[dataPointIndex] ?? {};
+                if (point.suppressed) {
+                    return `<div class="p-2">${course.suppressedLabel ?? ''} · ${point.events ?? 0}</div>`;
+                }
+                const share = Math.round(Number(point.reliableShare ?? 0) * 100);
+                const closureShare = Math.round(Number(point.closureShare ?? 0) * 100);
+                const closureLine =
+                    closureShare > 0
+                        ? `<br>${course.closureShareLabel ?? 'In Schließung'}: ${closureShare}%`
+                        : '';
+                const spread =
+                    point.q1 === null || point.q1 === undefined
+                        ? ''
+                        : `<br>${course.spreadLabel ?? ''}: ${Number(point.q1).toFixed(2)}–${Number(point.q3).toFixed(2)}`;
+                const lineCount = lineSeries.length;
+                const barLines = barEntries
+                    .map((entry, index) => {
+                        const value = w.config.series[lineCount + index]?.data?.[dataPointIndex];
+                        if (value === null || value === undefined) {
+                            return '';
+                        }
+                        return `<br>${entry.meta.name}: ${formatClosureChartCount(value)}`;
+                    })
+                    .join('');
+
+                return `<div class="p-2">${course.eventsLabel ?? ''}: ${point.events ?? 0}<br>${course.qualityLabel ?? ''}: ${share}%${closureLine}${spread}${barLines}</div>`;
+            },
+        });
+        const chart = new ApexCharts(element, options);
+        this.charts.push(chart);
+        await chart.render();
+        placeClosureBandsBehind(element);
+    }
+
+    async renderVolumeRatio(ApexCharts, volume, otherClosures) {
+        const categories = volume.categories ?? [];
+        if (categories.length === 0) {
+            return;
+        }
+        const ratioTarget = this.volumeRatioChartTarget;
+        const { options, otherClosureAt } = buildVolumeRatioChartOptions(
+            categories,
+            volume,
+            otherClosures,
+            ratioTarget,
+            ({ dataPointIndex, w }) => {
+                const category = w.globals.categoryLabels[dataPointIndex] ?? '';
+                const rows = w.config.series
+                    .map((series) => {
+                        const value = series.data?.[dataPointIndex];
+                        if (value === null || value === undefined) {
+                            return '';
+                        }
+                        return `<div>${series.name}: ${formatClosureChartCount(value)} %</div>`;
+                    })
+                    .filter(Boolean)
+                    .join('');
+                const otherClosure = otherClosureAt[dataPointIndex]
+                    ? `<div>${volume.otherClosureHint ?? 'Andere Schließung'}: ${otherClosureAt[dataPointIndex]}</div>`
+                    : '';
+
+                return `<div class="p-2"><strong>${category}</strong>${otherClosure}${rows}</div>`;
+            },
+        );
+        const chart = new ApexCharts(ratioTarget, options);
+        this.charts.push(chart);
+        await chart.render();
+        placeClosureBandsBehind(ratioTarget);
+    }
+
+    resize() {
+        (this.charts ?? []).forEach((chart) => {
+            if (typeof chart.resize === 'function') {
+                chart.resize();
+            }
+        });
+    }
+
     disconnect() {
         this.generation = (this.generation ?? 0) + 1;
         (this.charts ?? []).forEach((chart) => chart.destroy());
         this.charts = [];
+        this.volumeChart = null;
     }
 }
 

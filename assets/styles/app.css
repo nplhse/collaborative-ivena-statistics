@@ -104,6 +104,37 @@
     margin-top: 0.5rem;
 }
 
+.closure-volume-quality-legend > summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+.closure-volume-quality-legend > summary::-webkit-details-marker,
+.closure-volume-quality-legend > summary::marker {
+    display: none;
+}
+
+.closure-volume-quality-legend > summary::before {
+    content: '▸ ';
+}
+
+.closure-volume-quality-legend[open] > summary::before {
+    content: '▾ ';
+}
+
+.closure-volume-quality-legend > summary:hover {
+    color: var(--tblr-body-color);
+}
+
+.closure-event-departments-list {
+    padding-left: 1.25rem;
+    list-style: disc;
+}
+
+.closure-event-departments-list > li {
+    display: list-item;
+}
+
 .closure-event-preview__more {
     padding: 0.5rem 1rem 0.75rem;
     color: var(--tblr-secondary);
@@ -489,7 +520,8 @@
     background-image: repeating-linear-gradient(135deg, transparent 0, transparent 6px, rgb(255 255 255 / 22%) 6px, rgb(255 255 255 / 22%) 10px);
 }
 
-.closure-timeline-segment--group {
+.closure-timeline-segment--group,
+.closure-timeline-segment--source_group {
     border-color: color-mix(in srgb, var(--tblr-blue) 70%, #000);
     background-color: var(--tblr-blue);
 }
@@ -521,7 +553,8 @@
     outline-color: var(--tblr-secondary);
 }
 
-.closure-timeline-segment--context.closure-timeline-segment--group {
+.closure-timeline-segment--context.closure-timeline-segment--group,
+.closure-timeline-segment--context.closure-timeline-segment--source_group {
     border-color: color-mix(in srgb, var(--tblr-blue) 45%, var(--tblr-border-color));
     background: color-mix(in srgb, var(--tblr-blue) 28%, transparent);
 }
@@ -536,9 +569,81 @@
     background: color-mix(in srgb, var(--tblr-purple) 28%, transparent);
 }
 
+[data-testid='closure-event-timeline'].closure-timeline-scroll {
+    --closure-event-timeline-track-min: 64rem;
+    padding-inline-end: 0.75rem;
+}
+
+[data-testid='closure-event-timeline'] .closure-timeline-day {
+    width: 100%;
+    min-width: calc(16rem + var(--closure-event-timeline-track-min));
+    box-sizing: border-box;
+}
+
+[data-testid='closure-event-timeline'] .closure-timeline-ruler,
+[data-testid='closure-event-timeline'] .closure-timeline-lane {
+    grid-template-columns: minmax(12rem, 16rem) minmax(var(--closure-event-timeline-track-min), 1fr);
+    width: 100%;
+    min-width: calc(16rem + var(--closure-event-timeline-track-min));
+    box-sizing: border-box;
+}
+
+[data-testid='closure-event-timeline'] .closure-timeline-hours,
+[data-testid='closure-event-timeline'] .closure-timeline-track {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+[data-testid='closure-event-timeline'] .closure-timeline-track {
+    isolation: isolate;
+}
+
+.closure-timeline-segment--current,
+.closure-timeline-segment--current.closure-timeline-segment--group,
+.closure-timeline-segment--current.closure-timeline-segment--source_group,
+.closure-timeline-segment--current.closure-timeline-segment--cluster,
+.closure-timeline-segment--current.closure-timeline-segment--single {
+    z-index: 2;
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--tblr-body-color);
+    outline: 2px dashed var(--tblr-body-color);
+    outline-offset: 1px;
+    background-color: var(--tblr-bg-surface);
+    background-image: repeating-linear-gradient(
+        135deg,
+        transparent 0,
+        transparent 4px,
+        color-mix(in srgb, var(--tblr-body-color) 42%, transparent) 4px,
+        color-mix(in srgb, var(--tblr-body-color) 42%, transparent) 6px
+    );
+}
+
+.closure-timeline-segment__mark {
+    position: absolute;
+    top: 0.1rem;
+    left: 0.15rem;
+    z-index: 1;
+    padding: 0 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--tblr-body-color);
+    background: var(--tblr-bg-surface);
+    border: 1px solid var(--tblr-body-color);
+}
+
 .closure-timeline-swatch--current {
-    border-color: var(--tblr-primary);
-    background: var(--tblr-primary);
+    border: 2px solid var(--tblr-body-color);
+    background-color: var(--tblr-bg-surface);
+    background-image: repeating-linear-gradient(
+        135deg,
+        transparent 0,
+        transparent 4px,
+        color-mix(in srgb, var(--tblr-body-color) 42%, transparent) 4px,
+        color-mix(in srgb, var(--tblr-body-color) 42%, transparent) 6px
+    );
 }
 
 .closure-timeline-swatch--context-group {
@@ -646,6 +751,48 @@
 .closure-breakdown-details__hide,
 .closure-breakdown-details[open] .closure-breakdown-details__show {
     display: none;
+}
+
+[data-controller='closure-analytics-charts'] {
+    --closure-chart-current-fill: rgba(32, 107, 196, 0.22);
+    --closure-chart-current-border: #1864ab;
+    --closure-chart-other-fill: rgba(173, 181, 189, 0.14);
+    --closure-chart-other-border: rgba(134, 142, 150, 0.55);
+}
+
+[data-bs-theme='dark'] [data-controller='closure-analytics-charts'] {
+    --closure-chart-current-fill: color-mix(in srgb, var(--tblr-primary) 32%, transparent);
+    --closure-chart-current-border: color-mix(in srgb, var(--tblr-primary) 82%, white);
+    --closure-chart-other-fill: color-mix(in srgb, var(--tblr-secondary) 20%, transparent);
+    --closure-chart-other-border: color-mix(in srgb, var(--tblr-secondary) 55%, transparent);
+}
+
+.closure-chart-legend-swatch {
+    display: inline-block;
+    width: 1rem;
+    height: 0.65rem;
+    vertical-align: -0.1em;
+    border: 1px solid var(--closure-chart-current-border);
+    border-radius: 2px;
+    background: var(--closure-chart-current-fill);
+}
+
+[data-controller='closure-analytics-charts'] .apexcharts-legend {
+    display: flex !important;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    gap: 0.25rem 0.875rem;
+    padding: 0;
+}
+
+.closure-volume-chart-card .apexcharts-legend {
+    justify-content: flex-end !important;
+}
+
+[data-controller='closure-analytics-charts'] .apexcharts-legend-series {
+    display: inline-flex !important;
+    align-items: center;
+    margin: 0 !important;
 }
 
 .closure-breakdown-details[open] .closure-breakdown-details__hide {
