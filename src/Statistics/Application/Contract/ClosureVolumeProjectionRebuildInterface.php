@@ -8,8 +8,9 @@ interface ClosureVolumeProjectionRebuildInterface
 {
     /**
      * @param callable(int $processed, int $total): void|null $onHospital
+     * @param list<int>|null                                  $hospitalIds null rebuilds every hospital
      */
-    public function rebuild(?callable $onHospital = null): int;
+    public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null): int;
 
     public function consume(): void;
 

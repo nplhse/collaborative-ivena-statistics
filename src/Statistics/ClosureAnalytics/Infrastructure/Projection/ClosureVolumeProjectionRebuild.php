@@ -19,8 +19,11 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
     ) {
     }
 
+    /**
+     * @param list<int>|null $hospitalIds
+     */
     #[\Override]
-    public function rebuild(?callable $onHospital = null): int
+    public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null): int
     {
         $lock = $this->lockFactory->createLock('closure-volume-projection', 7200.0);
         if (!$lock->acquire(true)) {
@@ -28,9 +31,9 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         }
 
         try {
-            $this->analysis->rebuild(null);
+            $this->analysis->rebuild($hospitalIds);
 
-            return $this->publishVolume($onHospital, null);
+            return $this->publishVolume($onHospital, $hospitalIds);
         } finally {
             $lock->release();
         }

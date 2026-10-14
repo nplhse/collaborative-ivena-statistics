@@ -86,7 +86,9 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | Command | Purpose |
 |---|---|
 | `app:statistics:rebuild-projection` | Truncate and rebuild `allocation_stats_projection` per import. See [../04-features/statistics/projection-and-materialized-views.md](../04-features/statistics/projection-and-materialized-views.md). |
-| `app:statistics:rebuild-closure-volume-projection` | Rebuild closure analysis and `closure_volume_hour` for every hospital. Full rebuild, no method version. Prints the retained partition heap. See [../04-features/statistics/closure-architecture.md](../04-features/statistics/closure-architecture.md). |
+| `app:statistics:rebuild-closure-volume-projection` | Rebuild closure analysis and `closure_volume_hour` for every hospital, or only `--hospital=<id>` (repeatable). Prints duration, the retained partition heap and the process peak memory. See [../04-features/statistics/closure-architecture.md](../04-features/statistics/closure-architecture.md). |
+| `app:statistics:closure-volume-snapshot <action> [name]` | `save`, `compare`, `list` or `drop` named copies of `closure_volume_hour` (table `closure_volume_snapshot_<name>`). `compare` reports missing, extra and changed rows per column (`--tolerance`, default 0.0001) and exits 1 on differences. `--hospital=<id>` limits save and compare. Used to verify refactorings against ADR 015. |
+| `app:statistics:closure-volume-diagnostics` | Read-only checks for ADR 015: reference quality per scope, derived coverage and gaps, closures at export boundaries, and events that would be provisional with a symmetric window (`--weeks`, default 4). `--hospital=<id>` limits the scope. |
 | `app:statistics:refresh-mviews` | Refresh materialized views manually. |
 | `app:statistics:deduplicate-projection` | Detect and remove duplicate projection/allocation rows. Use `--dry-run` first. |
 | `app:statistics:explorer-views:sync` | Seed or update Analysis Explorer system demo views. See [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md). |
