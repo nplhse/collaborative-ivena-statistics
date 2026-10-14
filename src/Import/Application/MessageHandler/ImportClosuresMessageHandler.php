@@ -20,6 +20,7 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
+use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Domain\Entity\Import;
@@ -57,6 +58,7 @@ final readonly class ImportClosuresMessageHandler
         private HospitalRepository $hospitalRepository,
         private ClosureHospitalGuard $hospitalGuard,
         private ClosureRebuildRequestInterface $closureRebuildScheduler,
+        private ImportExportPeriodDeriver $exportPeriodDeriver,
     ) {
     }
 
@@ -173,6 +175,8 @@ final readonly class ImportClosuresMessageHandler
             if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
                 $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
             }
+
+            $this->exportPeriodDeriver->apply($fresh);
 
             $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
             ImportEvaluation::apply($fresh, $summary, $runtimeMs);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\EventSubscriber;
 
 use App\Import\Application\Event\ImportCompleted;
+use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
@@ -20,6 +21,7 @@ final readonly class ImportCompletedSubscriber
         private MessageBusInterface $messageBus,
         private EntityManagerInterface $entityManager,
         private ClosureRebuildRequestInterface $closureRebuildScheduler,
+        private ImportExportPeriodDeriver $exportPeriodDeriver,
     ) {
     }
 
@@ -31,6 +33,10 @@ final readonly class ImportCompletedSubscriber
         }
         if (ImportType::ALLOCATION === $import->getType()) {
             $this->messageBus->dispatch(new RebuildAllocationStatsProjection($event->importId));
+            $hospitalId = $import->getHospital()?->getId();
+            if (\is_int($hospitalId)) {
+                $this->exportPeriodDeriver->refreshClosureImports($hospitalId);
+            }
 
             return;
         }

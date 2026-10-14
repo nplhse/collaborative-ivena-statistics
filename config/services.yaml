@@ -72,6 +72,7 @@ services:
         arguments: ['@app.lock.store']
 
     App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface: '@App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuild'
+    App\Import\Application\Contracts\ImportSourceRangeReaderInterface: '@App\Import\Infrastructure\Query\DoctrineImportSourceRangeReader'
 
     Symfony\Component\Lock\LockFactory: '@app.lock.factory'
 

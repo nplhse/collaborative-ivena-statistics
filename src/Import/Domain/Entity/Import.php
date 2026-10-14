@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Domain\Entity;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\Import\Domain\Enum\ImportExportPeriodSource;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
@@ -85,6 +86,9 @@ class Import implements \Stringable
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $exportEndsAt = null;
+
+    #[ORM\Column(length: 16, nullable: true, enumType: ImportExportPeriodSource::class)]
+    private ?ImportExportPeriodSource $exportPeriodSource = null;
 
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
@@ -354,6 +358,47 @@ class Import implements \Stringable
         $this->exportEndsAt = $exportEndsAt;
 
         return $this;
+    }
+
+    public function getExportPeriodSource(): ?ImportExportPeriodSource
+    {
+        return $this->exportPeriodSource;
+    }
+
+    public function setExportPeriodSource(?ImportExportPeriodSource $exportPeriodSource): static
+    {
+        $this->exportPeriodSource = $exportPeriodSource;
+
+        return $this;
+    }
+
+    /**
+     * Stores a period derived from the imported rows. A manually maintained period is kept.
+     *
+     * @return bool true when the stored period changed
+     */
+    public function applyDerivedExportPeriod(?\DateTimeImmutable $startsAt, ?\DateTimeImmutable $endsAt): bool
+    {
+        if (ImportExportPeriodSource::MANUAL === $this->exportPeriodSource) {
+            return false;
+        }
+        if (null === $startsAt || null === $endsAt) {
+            $startsAt = null;
+            $endsAt = null;
+        }
+        // DERIVED without a period records that the import has no rows to derive from.
+        $source = ImportExportPeriodSource::DERIVED;
+        $changed = $this->exportStartsAt?->format('Y-m-d H:i:s') !== $startsAt?->format('Y-m-d H:i:s')
+            || $this->exportEndsAt?->format('Y-m-d H:i:s') !== $endsAt?->format('Y-m-d H:i:s')
+            || $this->exportPeriodSource !== $source;
+        if (!$changed) {
+            return false;
+        }
+        $this->exportStartsAt = $startsAt;
+        $this->exportEndsAt = $endsAt;
+        $this->exportPeriodSource = $source;
+
+        return true;
     }
 
     public function hasRunBefore(): bool

@@ -53,6 +53,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:import:start <importId>` | Dispatch a single import job via Messenger. The import type is resolved from the Import. |
 | `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [../04-features/import/batch-requeue.md](../04-features/import/batch-requeue.md). `--only-ids` limits to a comma-separated ID list. |
+| `app:import:derive-export-periods` | Derive `import.export_starts_at` / `export_ends_at` from imported rows (allocations first, then closures). Dry run by default; `--apply` writes and requests a closure rebuild per changed hospital. `--hospital=<id>` limits the scope, `--show-unchanged` lists every import. Manual periods are kept. See [../04-features/statistics/closure-architecture.md](../04-features/statistics/closure-architecture.md). |
 | `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [../04-features/import/reject-analysis.md](../04-features/import/reject-analysis.md). |
 | `app:import:repair-indication-corruption` | One-time issue 521 repair: merge quote/stub/`\OMI\""` IndicationRaws, then requeue quote-broken imports whose source CSV still exists. Production runbook: [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md). |
 

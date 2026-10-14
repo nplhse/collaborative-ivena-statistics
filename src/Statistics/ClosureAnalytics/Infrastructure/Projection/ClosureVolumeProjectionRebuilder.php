@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Projection;
 
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureCoverage;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchorBuilder;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft;
@@ -14,6 +15,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
@@ -48,6 +50,7 @@ final class ClosureVolumeProjectionRebuilder
         private readonly ClosureVolumeReferenceCalendar $calendar,
         private readonly ClosureVolumeHourPlanner $planner,
         private readonly ClosureVolumeReferenceSelector $selector,
+        private readonly ClosureCoverageQuery $coverage,
         private readonly LoggerInterface $logger,
         #[Autowire(service: 'doctrine.debug_data_holder')]
         private readonly ?DebugDataHolder $debugDataHolder = null,
@@ -190,11 +193,15 @@ SQL,
             return $pending;
         }
 
+        $coverage = $this->coverage->allocations($hospitalId);
+        if (!$coverage instanceof ClosureCoverage) {
+            $this->logger->info('closure_volume.coverage_fallback', ['hospital_id' => $hospitalId]);
+        }
         $weekStart = new \DateTimeImmutable($bounds['min_start'])->setTime(0, 0);
         $last = new \DateTimeImmutable((string) $bounds['max_start'])->modify('+1 day');
         while ($weekStart < $last) {
             $weekEnd = $weekStart->modify('+7 days');
-            $pending = $this->rebuildPartition($hospitalId, $weekStart, $weekEnd, $pending, $done, $total, $onProgress);
+            $pending = $this->rebuildPartition($hospitalId, $weekStart, $weekEnd, $coverage, $pending, $done, $total, $onProgress);
             $weekStart = $weekEnd;
         }
 
@@ -211,6 +218,7 @@ SQL,
         int $hospitalId,
         \DateTimeImmutable $weekStart,
         \DateTimeImmutable $weekEnd,
+        ?ClosureCoverage $coverage,
         array $pending,
         int &$done,
         int $total,
@@ -247,6 +255,10 @@ SQL,
 
         $neighbours = $this->neighbours($hospitalId, $windowStart, $windowEnd);
         [$areaCounts, $hospitalCounts, $coveredDays] = $this->hourlyCounts($hospitalId, $windowStart, $windowEnd);
+        if ($coverage instanceof ClosureCoverage) {
+            // Import export periods are authoritative; a covered day without allocations is a real zero.
+            $coveredDays = $coverage->coveredDays($windowStart->setTime(0, 0), $windowEnd);
+        }
         $this->fillPartialCounts($hospitalId, $anchors, $now, $areaCounts, $hospitalCounts);
         [$blockedDepartment, $blockedSpeciality] = $this->blockedMaps($neighbours, $windowStart, $windowEnd);
         /** @var array<string, array<string, ClosureVolumeRate>> $rateCache */

@@ -733,6 +733,14 @@
         <source>admin.fieldset.hospitals</source>
         <target>Krankenhaus-Zuordnungen</target>
       </trans-unit>
+      <trans-unit id="admFsExportPeriodDe" resname="admin.fieldset.export_period">
+        <source>admin.fieldset.export_period</source>
+        <target>Exportzeitraum</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodHelpDe" resname="admin.import.export_period.help">
+        <source>admin.import.export_period.help</source>
+        <target>Aus den importierten Zeilen abgeleitet. Eine Änderung des Zeitraums markiert ihn als manuell; Quelle auf „derived“ zurücksetzen, damit die nächste Ableitung ihn überschreibt.</target>
+      </trans-unit>
       <trans-unit id="admFsMetadataDe" resname="admin.fieldset.metadata">
         <source>admin.fieldset.metadata</source>
         <target>Metadaten</target>

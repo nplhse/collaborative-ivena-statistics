@@ -63,13 +63,27 @@ intervals as one clinical event.
 
 Overlapping or half-open adjacent intervals of the same department that belong
 to different events are marked in `closure_relation_candidate` (`overlap`,
-`adjacent`). `export_boundary` is used only when both imports have a known
-export period and the intervals sit on those bounds. `import.export_starts_at`
-and `import.export_ends_at` stay null unless the period is actually known. The
-span from the earliest start to the latest end remains an estimate, not proof
-of coverage. Without a known export period a pause is unknown coverage, not a
-confirmed gap. Hospital-phase gaps stay computable and are labelled as gaps
-inside that estimate.
+`adjacent`). `export_boundary` is used only when both imports have an export
+period and the intervals sit on those bounds.
+
+IVENA files carry no export period, so `import.export_starts_at` and
+`import.export_ends_at` are derived from the imported rows when an import
+completes (`export_period_source = derived`, ADR 015):
+
+- allocation imports cover whole days from the first to the last `created_at`
+- closure imports cover whole days from the first start to the last end; they
+  are widened to calendar months only when allocation imports of the same
+  hospital cover those whole months
+- an administrator can correct a period in the admin area
+  (`export_period_source = manual`); derivation never overwrites it
+
+The derivation is conservative: an under-estimated period only marks more data
+as missing. `app:import:derive-export-periods` backfills existing imports. The
+volume rebuild reads the union of allocation export periods as coverage, so a
+covered hour without allocations counts as zero and an uncovered hour as
+missing. While a hospital has a completed import without a derived period, the
+rebuild falls back to "day with at least one allocation". Hospital-phase gaps
+stay computable and are labelled as gaps inside that estimate.
 
 ## Phases and counting
 

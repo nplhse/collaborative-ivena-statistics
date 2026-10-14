@@ -18,6 +18,7 @@ use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationDeduplicationService;
+use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Domain\Entity\Import;
@@ -49,6 +50,7 @@ final readonly class ImportAllocationsMessageHandler
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
         private ImportFileStorage $fileStorage,
+        private ImportExportPeriodDeriver $exportPeriodDeriver,
     ) {
     }
 
@@ -151,6 +153,9 @@ final readonly class ImportAllocationsMessageHandler
             if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
                 $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
             }
+
+            // Before deduplication, so rows replaced by later imports still count for this file.
+            $this->exportPeriodDeriver->apply($fresh);
 
             $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
             $this->deduplicationService->applyDeduplicationStats($fresh, $dedupResult);
