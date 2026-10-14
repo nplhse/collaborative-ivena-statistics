@@ -39,6 +39,8 @@ final readonly class DeriveImportExportPeriodsCommand
     ): int {
         $rows = [];
         $changedImports = 0;
+        $queued = [];
+        $notQueued = [];
         foreach ($this->hospitalIds($hospital) as $hospitalId) {
             $allocationPeriods = [];
             $allocationChanged = false;
@@ -62,7 +64,11 @@ final readonly class DeriveImportExportPeriodsCommand
             if ($apply) {
                 $this->entityManager->flush();
                 if ($allocationChanged || $closureChanged) {
-                    $this->deriver->notifyCoverageChanged($hospitalId);
+                    if ($this->deriver->notifyCoverageChanged($hospitalId)) {
+                        $queued[] = $hospitalId;
+                    } else {
+                        $notQueued[] = $hospitalId;
+                    }
                 }
             }
             $this->entityManager->clear();
@@ -73,6 +79,12 @@ final readonly class DeriveImportExportPeriodsCommand
         }
         $verb = $apply ? 'Updated' : 'Would update';
         $io->success(sprintf('%s %d import export period(s).%s', $verb, $changedImports, $apply ? '' : ' Run with --apply to write.'));
+        if ([] !== $queued) {
+            $io->text(sprintf('Closure rebuild queued for hospitals: %s', implode(', ', $queued)));
+        }
+        if ([] !== $notQueued) {
+            $io->text(sprintf('No closure rebuild queued (no closure data or already queued) for hospitals: %s', implode(', ', $notQueued)));
+        }
 
         return Command::SUCCESS;
     }

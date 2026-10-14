@@ -94,9 +94,11 @@ final readonly class ImportExportPeriodDeriver
 
     /**
      * Coverage feeds Closure Analytics; a changed period invalidates its results.
+     *
+     * @return bool false when the hospital has no closure data or a rebuild is already queued
      */
-    public function notifyCoverageChanged(int $hospitalId): void
+    public function notifyCoverageChanged(int $hospitalId): bool
     {
-        $this->closureRebuildScheduler->requestAnalysis($hospitalId);
+        return $this->closureRebuildScheduler->requestAnalysis($hospitalId);
     }
 }

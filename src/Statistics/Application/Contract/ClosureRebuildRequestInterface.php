@@ -9,8 +9,14 @@ namespace App\Statistics\Application\Contract;
  */
 interface ClosureRebuildRequestInterface
 {
-    public function requestAnalysis(?int $hospitalId): void;
+    /**
+     * @return bool false when the hospital has no closure data or an open request already covers it
+     */
+    public function requestAnalysis(?int $hospitalId): bool;
 
+    /**
+     * Skipped like requestAnalysis() when the hospital has no closure data or an open request already covers it.
+     */
     public function requestVolume(?int $hospitalId): void;
 
     /**

@@ -39,9 +39,9 @@ final readonly class ClosureRebuildScheduler implements ClosureRebuildRequestInt
     }
 
     #[\Override]
-    public function requestAnalysis(?int $hospitalId): void
+    public function requestAnalysis(?int $hospitalId): bool
     {
-        $this->request('analysis', $hospitalId);
+        return $this->request('analysis', $hospitalId);
     }
 
     #[\Override]
@@ -265,20 +265,46 @@ SQL,
         }
     }
 
-    private function request(string $kind, ?int $hospitalId): void
+    /**
+     * Queues a request unless the hospital has no closure data or an open request already covers it.
+     * An open analysis request covers volume, and a request for all hospitals covers each one.
+     * Claimed requests do not count: their run may have read the data before this change.
+     */
+    private function request(string $kind, ?int $hospitalId): bool
     {
-        $this->connection->insert('closure_rebuild_request', [
-            'kind' => $kind,
-            'hospital_id' => $hospitalId,
-            'requested_at' => $this->now(),
-            'consumed_at' => null,
-        ], [
-            'kind' => ParameterType::STRING,
-            'hospital_id' => null === $hospitalId ? ParameterType::NULL : ParameterType::INTEGER,
-            'requested_at' => ParameterType::STRING,
-            'consumed_at' => ParameterType::NULL,
-        ]);
+        $covering = 'volume' === $kind ? ['analysis', 'volume'] : ['analysis'];
+        /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
+        $queued = $this->connection->fetchOne(
+            <<<'SQL'
+INSERT INTO closure_rebuild_request (kind, hospital_id, requested_at)
+SELECT :kind, CAST(:hospital AS INT), CAST(:now AS TIMESTAMP(0))
+WHERE (
+    CAST(:hospital AS INT) IS NULL
+    OR EXISTS (SELECT 1 FROM closure_interval WHERE hospital_id = :hospital)
+    OR EXISTS (SELECT 1 FROM closure_event WHERE hospital_id = :hospital)
+)
+AND NOT EXISTS (
+    SELECT 1 FROM closure_rebuild_request
+    WHERE kind IN (:covering)
+    AND consumed_at IS NULL AND failed_at IS NULL AND claimed_by IS NULL
+    AND (hospital_id IS NULL OR hospital_id = :hospital)
+)
+RETURNING id
+SQL,
+            ['kind' => $kind, 'hospital' => $hospitalId, 'now' => $this->now(), 'covering' => $covering],
+            [
+                'kind' => ParameterType::STRING,
+                'hospital' => null === $hospitalId ? ParameterType::NULL : ParameterType::INTEGER,
+                'now' => ParameterType::STRING,
+                'covering' => ArrayParameterType::STRING,
+            ],
+        );
+        if (false === $queued) {
+            return false;
+        }
         $this->messageBus->dispatch(new RebuildClosureVolumeProjection());
+
+        return true;
     }
 
     private function now(): string

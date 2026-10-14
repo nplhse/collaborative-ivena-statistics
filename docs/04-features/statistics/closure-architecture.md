@@ -149,6 +149,11 @@ hospitals in one transaction. An error drops the build table.
 for every hospital, or for the hospitals given with `--hospital`. There is no
 projection version.
 
+A request is queued only for hospitals with `closure_interval` or
+`closure_event` rows, and only when no open, unclaimed request covers it: an
+open `analysis` covers `volume`, and a request for all hospitals covers each
+one. Claimed or failed requests never cover a new change.
+
 A request moves through these states (all timestamps Europe/Berlin):
 
 - **open:** not claimed.
