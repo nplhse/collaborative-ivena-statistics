@@ -36,14 +36,18 @@ final readonly class RebuildClosureVolumeProjectionCommand
         $startedAt = microtime(true);
         $progress = new ProgressBar($output);
         $progress->setFormat(' %current%/%max% events [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%');
-        $started = false;
+        $currentPass = 0;
 
         try {
-            $hospitals = $this->rebuilder->rebuild(function (int $done, int $total) use ($progress, &$started): void {
-                if (!$started) {
-                    $progress->setMaxSteps(max(1, $total));
-                    $progress->start();
-                    $started = true;
+            $hospitals = $this->rebuilder->rebuild(function (int $done, int $total, int $pass) use ($progress, $output, $io, &$currentPass): void {
+                if ($pass !== $currentPass) {
+                    if (0 !== $currentPass) {
+                        $progress->finish();
+                        $output->writeln('');
+                        $io->note(sprintf('Pass %d: rebuild requests arrived during pass %d, rebuilding %d events again.', $pass, $currentPass, $total));
+                    }
+                    $progress->start(max(1, $total));
+                    $currentPass = $pass;
                 }
                 $progress->setProgress(min($done, max(1, $total)));
             }, $hospitalIds);

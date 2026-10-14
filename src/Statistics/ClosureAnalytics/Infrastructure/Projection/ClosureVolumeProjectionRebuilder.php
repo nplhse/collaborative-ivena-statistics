@@ -60,7 +60,7 @@ final class ClosureVolumeProjectionRebuilder
     }
 
     /**
-     * @param callable(int $processed, int $total): void|null                      $onProgress
+     * @param callable(int $processed, int $total, int $pass): void|null           $onProgress      pass 2 rebuilds hospitals with late requests
      * @param list<int>|null                                                       $hospitalIds     null replaces the whole projection
      * @param callable(list<int>|null): array{full: bool, refresh: list<int>}|null $expandHospitals
      */
@@ -76,14 +76,18 @@ final class ClosureVolumeProjectionRebuilder
             $this->createBuildTable();
             $ids = $hospitalIds ?? $this->hospitalIds();
             $pending = [];
+            $pass = 1;
             $done = 0;
             $total = $this->countEvents($ids);
-            if (null !== $onProgress) {
-                $onProgress(0, $total);
+            $report = null === $onProgress ? null : static function (int $processed, int $events) use ($onProgress, &$pass): void {
+                $onProgress($processed, $events, $pass);
+            };
+            if (null !== $report) {
+                $report(0, $total);
             }
             foreach ($ids as $hospitalId) {
                 $before = memory_get_usage(false);
-                $pending = $this->rebuildHospital($hospitalId, $pending, $done, $total, $onProgress);
+                $pending = $this->rebuildHospital($hospitalId, $pending, $done, $total, $report);
                 $this->forgetDebugQueries();
                 gc_collect_cycles();
                 $this->sample('hospital '.$hospitalId, 0.0, max(0, memory_get_usage(false) - $before));
@@ -93,6 +97,20 @@ final class ClosureVolumeProjectionRebuilder
             if (null !== $expandHospitals) {
                 $decision = $expandHospitals($full ? null : $ids);
                 $refresh = $decision['refresh'];
+                $missing = $decision['full']
+                    ? array_values(array_diff($this->hospitalIds(), array_values(array_unique([...$ids, ...$refresh]))))
+                    : [];
+                $late = [...$refresh, ...$missing];
+                if ([] !== $late) {
+                    // Requests claimed after the first pass get a pass of their own, so the progress does not stall at 100 %.
+                    $this->logger->info('closure_volume.late_requests', ['hospital_ids' => $late, 'full' => $decision['full']]);
+                    ++$pass;
+                    $done = 0;
+                    $total = $this->countEvents($late);
+                    if (null !== $report) {
+                        $report(0, $total);
+                    }
+                }
                 if ([] !== $refresh) {
                     /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
                     $this->connection->executeStatement(
@@ -102,29 +120,32 @@ final class ClosureVolumeProjectionRebuilder
                     );
                 }
                 $pending = [];
-                foreach ($refresh as $hospitalId) {
-                    $pending = $this->rebuildHospital($hospitalId, $pending, $done, $total, $onProgress);
+                foreach ($late as $hospitalId) {
+                    $pending = $this->rebuildHospital($hospitalId, $pending, $done, $total, $report);
                 }
                 if ($decision['full']) {
-                    $known = array_values(array_unique([...$ids, ...$refresh]));
-                    foreach (array_values(array_diff($this->hospitalIds(), $known)) as $hospitalId) {
-                        $pending = $this->rebuildHospital($hospitalId, $pending, $done, $total, $onProgress);
-                    }
                     $full = true;
                     $ids = $this->hospitalIds();
                 } elseif ([] !== $refresh) {
                     $ids = array_values(array_unique([...$ids, ...$refresh]));
                 }
                 $this->flush($pending, true);
-                unset($pending, $refresh, $decision);
+                unset($pending, $refresh, $missing, $late, $decision);
             }
             if ($this->beforePublishHook instanceof \Closure) {
                 ($this->beforePublishHook)();
             }
-            if (null !== $onProgress) {
-                $onProgress($total, $total);
+            if (null !== $report) {
+                $report($total, $total);
             }
+            $publishStartedAt = microtime(true);
             $this->publish($full, $ids);
+            $this->logger->info('closure_volume.published', [
+                'full' => $full,
+                'hospital_ids' => $ids,
+                'passes' => $pass,
+                'seconds' => round(microtime(true) - $publishStartedAt, 2),
+            ]);
         } catch (\Throwable $exception) {
             $this->connection->executeStatement('DROP TABLE IF EXISTS closure_volume_hour_build');
             throw $exception;

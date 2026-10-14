@@ -139,13 +139,32 @@ schedules one analysis. Deleting a source schedules analysis for that hospital;
 deleting only allocations schedules volume.
 
 `closure_rebuild_request` stores the hospital and the kind (`analysis` or
-`volume`). The handler takes open requests under the lock
+`volume`). The handler claims open requests under the lock
 `closure-volume-projection`. Requests for the same hospitals that arrive during
-the run are included before publish. The previous table stays readable until
-commit. A full rebuild swaps the side table. A partial rebuild replaces only
-the affected hospitals in one transaction. An error drops the build table.
+the run are claimed before publish and rebuilt in a second pass, which the
+console progress shows. The previous table stays readable until commit. A full
+rebuild swaps the side table. A partial rebuild replaces only the affected
+hospitals in one transaction. An error drops the build table.
 `app:statistics:rebuild-closure-volume-projection` rebuilds analysis and volume
-for every hospital. There is no projection version.
+for every hospital, or for the hospitals given with `--hospital`. There is no
+projection version.
+
+A request moves through these states (all timestamps Europe/Berlin):
+
+- **open:** not claimed.
+- **claimed:** `claimed_at` and `claimed_by` (the run id) are set. Only the lock
+  holder claims, and the semaphore lock ends with its process, so a request
+  claimed by another run belongs to a run that died and is claimed again.
+- **consumed:** `consumed_at` is set after the publish.
+- **released:** a failed run clears the claim and stores `last_error`; the next
+  run retries it. Messenger retries the message three times.
+- **failed:** after three claims (failed or orphaned) `failed_at` parks the
+  request. `app:statistics:closure-rebuild-requests` lists unconsumed requests;
+  `--retry-failed` re-queues failed ones with a fresh budget.
+
+An hourly scheduler message (minute 40) consumes requests nobody picked up, for
+example after a killed console rebuild. It skips the run while another rebuild
+holds the lock.
 
 Event pages use the numeric `closure_event.id`. The route parameter is still
 named `eventKey` and accepts only digits.

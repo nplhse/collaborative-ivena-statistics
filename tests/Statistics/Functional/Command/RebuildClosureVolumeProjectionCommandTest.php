@@ -56,8 +56,41 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
         self::assertStringContainsString('Closure volume projection rebuilt', $tester->getDisplay());
     }
 
+    #[Test]
+    public function lateAnalysisRequestRunsAVisibleSecondPassAndTheCommandFinishes(): void
+    {
+        self::bootKernel();
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get(Connection::class);
+        $seed = $this->seedClosureGraph($connection);
+        $this->rebuildClosureAnalysis();
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($seed['importId']);
+        // Queued like derive-export-periods --apply does while a rebuild is running; the rebuild claims it after its first pass.
+        $connection->insert('closure_rebuild_request', [
+            'kind' => 'analysis',
+            'hospital_id' => $seed['hospitalId'],
+            'requested_at' => '2026-10-14 15:58:55',
+        ]);
+
+        /** @var RebuildClosureVolumeProjectionCommand $command */
+        $command = self::getContainer()->get(RebuildClosureVolumeProjectionCommand::class);
+        $tester = new CommandTester($command);
+        $tester->execute(['--hospital' => [(string) $seed['hospitalId']]]);
+
+        $tester->assertCommandIsSuccessful();
+        $display = $tester->getDisplay();
+        self::assertStringContainsString('Pass 2: rebuild requests arrived during pass 1', $display);
+        self::assertStringContainsString('Closure volume projection rebuilt for 1 hospitals', $display);
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE consumed_at IS NULL'));
+        self::assertGreaterThan(
+            0,
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour WHERE hospital_id = ?', [$seed['hospitalId']]),
+        );
+        self::assertFalse($connection->createSchemaManager()->tablesExist(['closure_volume_hour_build']));
+    }
+
     /**
-     * @return array{importId: int}
+     * @return array{importId: int, hospitalId: int}
      */
     private function seedClosureGraph(Connection $connection): array
     {
@@ -119,6 +152,6 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
             'urgency' => AllocationUrgency::EMERGENCY,
         ]);
 
-        return ['importId' => $importId];
+        return ['importId' => $importId, 'hospitalId' => (int) $hospital->getId()];
     }
 }
