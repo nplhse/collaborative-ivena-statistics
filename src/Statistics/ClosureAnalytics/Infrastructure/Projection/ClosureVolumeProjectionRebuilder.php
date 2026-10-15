@@ -15,6 +15,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
@@ -51,6 +52,7 @@ final class ClosureVolumeProjectionRebuilder
         private readonly ClosureVolumeHourPlanner $planner,
         private readonly ClosureVolumeReferenceSelector $selector,
         private readonly ClosureCoverageQuery $coverage,
+        private readonly ClosureRebuildTelemetry $telemetry,
         private readonly LoggerInterface $logger,
         #[Autowire(service: 'doctrine.debug_data_holder')]
         private readonly ?DebugDataHolder $debugDataHolder = null,
@@ -85,6 +87,7 @@ final class ClosureVolumeProjectionRebuilder
             if (null !== $report) {
                 $report(0, $total);
             }
+            $this->telemetry->startPass($pass, $ids, $total);
             foreach ($ids as $hospitalId) {
                 $before = memory_get_usage(false);
                 $pending = $this->rebuildHospital($hospitalId, $pending, $done, $total, $report);
@@ -94,8 +97,11 @@ final class ClosureVolumeProjectionRebuilder
             }
             $this->flush($pending, true);
             unset($pending);
+            $this->telemetry->finishSpan();
             if (null !== $expandHospitals) {
+                $this->telemetry->startSpan('closure.rebuild.late_claim');
                 $decision = $expandHospitals($full ? null : $ids);
+                $this->telemetry->finishSpan(['full' => $decision['full'], 'hospital_ids' => $decision['refresh']]);
                 $refresh = $decision['refresh'];
                 $missing = $decision['full']
                     ? array_values(array_diff($this->hospitalIds(), array_values(array_unique([...$ids, ...$refresh]))))
@@ -110,6 +116,7 @@ final class ClosureVolumeProjectionRebuilder
                     if (null !== $report) {
                         $report(0, $total);
                     }
+                    $this->telemetry->startPass($pass, $late, $total);
                 }
                 if ([] !== $refresh) {
                     /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
@@ -130,6 +137,9 @@ final class ClosureVolumeProjectionRebuilder
                     $ids = array_values(array_unique([...$ids, ...$refresh]));
                 }
                 $this->flush($pending, true);
+                if ([] !== $late) {
+                    $this->telemetry->finishSpan();
+                }
                 unset($pending, $refresh, $missing, $late, $decision);
             }
             if ($this->beforePublishHook instanceof \Closure) {
@@ -139,13 +149,10 @@ final class ClosureVolumeProjectionRebuilder
                 $report($total, $total);
             }
             $publishStartedAt = microtime(true);
+            $this->telemetry->startSpan('closure.rebuild.publish', ['full' => $full, 'hospital_ids' => $ids]);
             $this->publish($full, $ids);
-            $this->logger->info('closure_volume.published', [
-                'full' => $full,
-                'hospital_ids' => $ids,
-                'passes' => $pass,
-                'seconds' => round(microtime(true) - $publishStartedAt, 2),
-            ]);
+            $this->telemetry->finishSpan();
+            $this->telemetry->published($full, $ids, microtime(true) - $publishStartedAt);
         } catch (\Throwable $exception) {
             $this->connection->executeStatement('DROP TABLE IF EXISTS closure_volume_hour_build');
             throw $exception;
@@ -214,6 +221,7 @@ SQL,
             return $pending;
         }
 
+        $this->telemetry->startSpan('closure.rebuild.hospital', ['hospital_id' => $hospitalId]);
         $coverage = $this->coverage->allocations($hospitalId);
         if (!$coverage instanceof ClosureCoverage) {
             $this->logger->info('closure_volume.coverage_fallback', ['hospital_id' => $hospitalId]);
@@ -225,6 +233,7 @@ SQL,
             $pending = $this->rebuildPartition($hospitalId, $weekStart, $weekEnd, $coverage, $pending, $done, $total, $onProgress);
             $weekStart = $weekEnd;
         }
+        $this->telemetry->finishSpan();
 
         return $pending;
     }
@@ -251,6 +260,9 @@ SQL,
         if ([] === $anchors) {
             return $pending;
         }
+        // Partition spans carry ids and counts only, not the week, so closure periods stay local.
+        $this->telemetry->startSpan('closure.rebuild.partition', ['hospital_id' => $hospitalId]);
+        $this->telemetry->countPartition();
 
         $now = ClosureVolumeClock::now();
         $from = $anchors[0]->startsAt;
@@ -303,7 +315,8 @@ SQL,
             }
             $seenEvents[$anchor->eventId] = true;
         }
-        $done += \count($seenEvents);
+        $events = \count($seenEvents);
+        $done += $events;
         if (null !== $onProgress) {
             $onProgress(min($done, $total), $total);
         }
@@ -312,6 +325,7 @@ SQL,
         gc_collect_cycles();
         $retained = max(0, memory_get_usage(false) - $before);
         $this->partitionSamples[] = $retained;
+        $this->telemetry->finishSpan(['events' => $events, 'retained_bytes' => $retained]);
         $this->sample($hospitalId.' '.$weekStart->format('Y-m-d'), microtime(true) - $started, $retained);
 
         return $pending;
@@ -727,6 +741,7 @@ SQL,
         if ([] === $batch) {
             return;
         }
+        $this->telemetry->countHoursWritten(\count($batch));
         $values = [];
         $params = [];
         $types = [];

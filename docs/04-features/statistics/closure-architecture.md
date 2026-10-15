@@ -171,6 +171,11 @@ An hourly scheduler message (minute 40) consumes requests nobody picked up, for
 example after a killed console rebuild. It skips the run while another rebuild
 holds the lock.
 
+Each run is recorded in `closure_rebuild_run` and as Sentry transaction
+`closure_rebuild`, with a summary log and threshold warnings on the
+`closure_rebuild` channel. See
+[observability-sentry.md](../../05-operations/observability-sentry.md#closure-rebuild-monitoring).
+
 Event pages use the numeric `closure_event.id`. The route parameter is still
 named `eventKey` and accepts only digits.
 

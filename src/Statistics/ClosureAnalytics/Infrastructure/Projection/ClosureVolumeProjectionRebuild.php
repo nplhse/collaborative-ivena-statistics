@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Projection;
 
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Uid\Uuid;
 
@@ -24,6 +25,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         private readonly ClosureVolumeProjectionRebuilder $rebuilder,
         private readonly ClosureRebuildScheduler $scheduler,
         private readonly LockFactory $lockFactory,
+        private readonly ClosureRebuildTelemetry $telemetry,
     ) {
     }
 
@@ -38,11 +40,18 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
             throw new \RuntimeException('Closure volume projection rebuild is already running.');
         }
 
+        $runId = Uuid::v7()->toRfc4122();
+        $this->telemetry->begin($runId, 'console', $hospitalIds);
+        $error = null;
         try {
-            $this->analysis->rebuild($hospitalIds);
+            $this->rebuildAnalysis($hospitalIds);
 
-            return $this->publishVolume(Uuid::v7()->toRfc4122(), $onHospital, $hospitalIds, ClosureRebuildClaim::empty());
+            return $this->publishVolume($runId, $onHospital, $hospitalIds, ClosureRebuildClaim::empty());
+        } catch (\Throwable $exception) {
+            $error = $exception;
+            throw $exception;
         } finally {
+            $this->telemetry->end($error);
             $lock->release();
         }
     }
@@ -60,6 +69,8 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
             return;
         }
 
+        $began = false;
+        $error = null;
         try {
             if (!$this->scheduler->hasPending()) {
                 return;
@@ -72,9 +83,15 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                 if ($work->isEmpty()) {
                     break;
                 }
+                if (!$began) {
+                    // No run is recorded when the check finds nothing to do.
+                    $this->telemetry->begin($runId, $waitForLock ? 'messenger' : 'scheduler', $work->all ? null : $work->hospitalIds);
+                    $began = true;
+                }
+                $this->telemetry->claimedRequests(\count($work->requestIds));
                 try {
                     if (!$analysis->isEmpty()) {
-                        $this->analysis->rebuild($analysis->all ? null : $analysis->hospitalIds);
+                        $this->rebuildAnalysis($analysis->all ? null : $analysis->hospitalIds);
                     }
                 } catch (\Throwable $exception) {
                     $this->scheduler->release($work->requestIds, $exception);
@@ -82,7 +99,13 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                 }
                 $this->publishVolume($runId, null, $work->all ? null : $work->hospitalIds, $work);
             }
+        } catch (\Throwable $exception) {
+            $error = $exception;
+            throw $exception;
         } finally {
+            if ($began) {
+                $this->telemetry->end($error);
+            }
             $lock->release();
         }
     }
@@ -91,6 +114,16 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
     public function maxPartitionBytes(): int
     {
         return $this->maxPartitionBytes;
+    }
+
+    /**
+     * @param list<int>|null $hospitalIds
+     */
+    private function rebuildAnalysis(?array $hospitalIds): void
+    {
+        $this->telemetry->startSpan('closure.rebuild.analysis', ['full' => null === $hospitalIds, 'hospital_ids' => $hospitalIds ?? []]);
+        $this->analysis->rebuild($hospitalIds);
+        $this->telemetry->finishSpan();
     }
 
     /**
@@ -109,8 +142,9 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                     $lateAnalysis = $this->scheduler->claim($runId, 'analysis', $current);
                     $lateVolume = $this->scheduler->claim($runId, 'volume', $current);
                     $claimed = $claimed->merge($lateAnalysis)->merge($lateVolume);
+                    $this->telemetry->claimedRequests(\count($lateAnalysis->requestIds) + \count($lateVolume->requestIds));
                     if (!$lateAnalysis->isEmpty()) {
-                        $this->analysis->rebuild($lateAnalysis->all ? null : $lateAnalysis->hospitalIds);
+                        $this->rebuildAnalysis($lateAnalysis->all ? null : $lateAnalysis->hospitalIds);
                     }
                     $late = $lateAnalysis->merge($lateVolume);
                     if ($late->isEmpty()) {

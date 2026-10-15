@@ -8,6 +8,7 @@ use App\Analytics\Application\Message\AggregateDailyAnalyticsMessage;
 use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Shared\Infrastructure\Scheduler\DefaultScheduleProvider;
+use App\Statistics\Application\Message\RebuildClosureVolumeProjection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Scheduler\Generator\MessageContext;
 use Symfony\Component\Scheduler\RecurringMessage;
@@ -16,12 +17,12 @@ use Symfony\Component\Scheduler\Trigger\StaticMessageProvider;
 
 final class DefaultScheduleProviderKernelTest extends KernelTestCase
 {
-    public function testContainerWiresKpiReminderAndAnalyticsContributions(): void
+    public function testContainerWiresKpiReminderAnalyticsAndClosureRebuildContributions(): void
     {
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(3, $recurringMessages);
+        self::assertCount(4, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -43,5 +44,6 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(GenerateDailyKpisMessage::class, $classes);
         self::assertContains(SendMonthlySubmissionRemindersMessage::class, $classes);
         self::assertContains(AggregateDailyAnalyticsMessage::class, $classes);
+        self::assertContains(RebuildClosureVolumeProjection::class, $classes);
     }
 }

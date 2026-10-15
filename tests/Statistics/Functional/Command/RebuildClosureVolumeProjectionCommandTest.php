@@ -87,6 +87,21 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
             (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour WHERE hospital_id = ?', [$seed['hospitalId']]),
         );
         self::assertFalse($connection->createSchemaManager()->tablesExist(['closure_volume_hour_build']));
+
+        $run = $connection->fetchAssociative('SELECT * FROM closure_rebuild_run');
+        self::assertIsArray($run);
+        self::assertSame('console', $run['triggered_by']);
+        self::assertSame('succeeded', $run['status']);
+        self::assertSame([$seed['hospitalId']], json_decode((string) $run['hospital_ids'], true));
+        self::assertSame(2, (int) $run['passes']);
+        self::assertSame(2, (int) $run['events'], 'One event in each pass.');
+        self::assertSame(1, (int) $run['request_count']);
+        self::assertGreaterThan(0, (int) $run['partitions']);
+        self::assertSame(
+            (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour') * 2,
+            (int) $run['hours_written'],
+            'Both passes wrote the hospital.',
+        );
     }
 
     /**
