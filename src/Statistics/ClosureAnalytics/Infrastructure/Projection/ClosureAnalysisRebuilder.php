@@ -298,10 +298,11 @@ WHERE candidate.hospital_id = :hospital
       INNER JOIN import AS high_import ON high_import.id = high_source.import_id
       INNER JOIN closure_analysis_interval AS high_interval ON high_interval.id = high_source.analysis_interval_id
       WHERE low_source.analysis_interval_id = candidate.analysis_interval_low_id
-        AND low_import.export_ends_at IS NOT NULL
-        AND high_import.export_starts_at IS NOT NULL
-        AND low_interval.ends_at = low_import.export_ends_at
-        AND high_interval.starts_at = high_import.export_starts_at
+        -- low and high are ordered by id, not by time, so the earlier interval may be either one.
+        AND (
+            (low_interval.ends_at = low_import.export_ends_at AND high_interval.starts_at = high_import.export_starts_at)
+            OR (high_interval.ends_at = high_import.export_ends_at AND low_interval.starts_at = low_import.export_starts_at)
+        )
   )
 SQL,
             ['hospital' => $hospitalId],
