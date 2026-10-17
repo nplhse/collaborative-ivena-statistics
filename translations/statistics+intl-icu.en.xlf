@@ -7471,6 +7471,17 @@
       <trans-unit id="statsClosureProfile56" resname="stats.closure.profile.column.care_level"><source>stats.closure.profile.column.care_level</source><target>Care level</target></trans-unit>
       <trans-unit id="statsClosureProfile57" resname="stats.closure.profile.column.provenance"><source>stats.closure.profile.column.provenance</source><target>Provenance</target></trans-unit>
       <trans-unit id="statsClosureProfile58" resname="stats.closure.profile.composition.hint"><source>stats.closure.profile.composition.hint</source><target>Each row is one combination of speciality, department, care level and reason. Provenance says whether the department appears in closures, assignments, or both. A department seen only in assignments has no care level and no reason.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage01" resname="stats.closure.coverage.title"><source>stats.closure.coverage.title</source><target>Data coverage</target></trans-unit>
+      <trans-unit id="statsClosureCoverage02" resname="stats.closure.coverage.hint"><source>stats.closure.coverage.hint</source><target>Periods covered by the completed imports of this hospital. A gap usually means a missing monthly file or a failed import; results in those periods rest on missing data.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage03" resname="stats.closure.coverage.kind.allocations"><source>stats.closure.coverage.kind.allocations</source><target>Assignments</target></trans-unit>
+      <trans-unit id="statsClosureCoverage04" resname="stats.closure.coverage.kind.closures"><source>stats.closure.coverage.kind.closures</source><target>Closures</target></trans-unit>
+      <trans-unit id="statsClosureCoverage05" resname="stats.closure.coverage.no_imports"><source>stats.closure.coverage.no_imports</source><target>No completed imports.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage06" resname="stats.closure.coverage.period"><source>stats.closure.coverage.period</source><target>Covered period</target></trans-unit>
+      <trans-unit id="statsClosureCoverage07" resname="stats.closure.coverage.imports"><source>stats.closure.coverage.imports</source><target>Imports</target></trans-unit>
+      <trans-unit id="statsClosureCoverage08" resname="stats.closure.coverage.without_period"><source>stats.closure.coverage.without_period</source><target>{count, plural, one {# import has no export period yet. Gaps may appear larger than they are.} other {# imports have no export period yet. Gaps may appear larger than they are.}}</target></trans-unit>
+      <trans-unit id="statsClosureCoverage09" resname="stats.closure.coverage.no_gaps"><source>stats.closure.coverage.no_gaps</source><target>No gaps between imports.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage10" resname="stats.closure.coverage.gaps"><source>stats.closure.coverage.gaps</source><target>{count, plural, one {# gap} other {# gaps}}</target></trans-unit>
+      <trans-unit id="statsClosureCoverage11" resname="stats.closure.coverage.gap_days"><source>stats.closure.coverage.gap_days</source><target>{count, plural, one {# day} other {# days}}</target></trans-unit>
     </body>
   </file>
 </xliff>

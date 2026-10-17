@@ -28,6 +28,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventAllocationQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureIntervalDetailQuery;
@@ -85,6 +86,7 @@ final class ClosureAnalyticsController extends AbstractController
         private readonly ClosureEventAllocationQuery $eventAllocations,
         private readonly ClosureProfileQuery $profiles,
         private readonly ClosureEventLocalGroupResolver $localGroupResolver,
+        private readonly ClosureCoverageQuery $coverage,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -105,6 +107,7 @@ final class ClosureAnalyticsController extends AbstractController
             ClosureAnalyticsFilterRequestResolver::fromRequest($request),
         );
         $dashboard = $this->service->buildOverview($criteria);
+        $scopedHospitalIds = $criteria->scope->hospitalIds ?? [];
         $unitSchema = $this->unitTableColumns->preferenceSchema();
         $unitQueryPreferences = DataTablePreferenceQueryState::fromRequest(
             $request,
@@ -152,6 +155,8 @@ final class ClosureAnalyticsController extends AbstractController
             'volumeBurden' => $dashboard->hasIntervals()
                 ? $this->volume->burden($criteria, ClosureVolumeStratum::All)
                 : null,
+            // Import gaps only make sense for one hospital; the scope already respects access rights.
+            'dataCoverage' => 1 === \count($scopedHospitalIds) ? $this->coverage->imports($scopedHospitalIds[0]) : null,
         ]);
     }
 

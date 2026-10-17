@@ -7471,6 +7471,17 @@
       <trans-unit id="statsClosureProfile56" resname="stats.closure.profile.column.care_level"><source>stats.closure.profile.column.care_level</source><target>Versorgungsstufe</target></trans-unit>
       <trans-unit id="statsClosureProfile57" resname="stats.closure.profile.column.provenance"><source>stats.closure.profile.column.provenance</source><target>Herkunft</target></trans-unit>
       <trans-unit id="statsClosureProfile58" resname="stats.closure.profile.composition.hint"><source>stats.closure.profile.composition.hint</source><target>Jede Zeile ist eine Kombination aus Fachbereich, Fachabteilung, Versorgungsstufe und Grund. Die Herkunft sagt, ob die Fachabteilung in Schließungen, Zuweisungen oder in beiden vorkommt. Eine Fachabteilung nur aus Zuweisungen hat keine Versorgungsstufe und keinen Grund.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage01" resname="stats.closure.coverage.title"><source>stats.closure.coverage.title</source><target>Datenabdeckung</target></trans-unit>
+      <trans-unit id="statsClosureCoverage02" resname="stats.closure.coverage.hint"><source>stats.closure.coverage.hint</source><target>Zeiträume, die die abgeschlossenen Importe dieses Krankenhauses abdecken. Eine Lücke bedeutet meist eine fehlende Monatsdatei oder einen fehlgeschlagenen Import; Ergebnisse in diesen Zeiträumen beruhen auf fehlenden Daten.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage03" resname="stats.closure.coverage.kind.allocations"><source>stats.closure.coverage.kind.allocations</source><target>Zuweisungen</target></trans-unit>
+      <trans-unit id="statsClosureCoverage04" resname="stats.closure.coverage.kind.closures"><source>stats.closure.coverage.kind.closures</source><target>Schließungen</target></trans-unit>
+      <trans-unit id="statsClosureCoverage05" resname="stats.closure.coverage.no_imports"><source>stats.closure.coverage.no_imports</source><target>Keine abgeschlossenen Importe.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage06" resname="stats.closure.coverage.period"><source>stats.closure.coverage.period</source><target>Abgedeckter Zeitraum</target></trans-unit>
+      <trans-unit id="statsClosureCoverage07" resname="stats.closure.coverage.imports"><source>stats.closure.coverage.imports</source><target>Importe</target></trans-unit>
+      <trans-unit id="statsClosureCoverage08" resname="stats.closure.coverage.without_period"><source>stats.closure.coverage.without_period</source><target>{count, plural, one {# Import hat noch keinen Exportzeitraum. Lücken können dadurch zu groß erscheinen.} other {# Importe haben noch keinen Exportzeitraum. Lücken können dadurch zu groß erscheinen.}}</target></trans-unit>
+      <trans-unit id="statsClosureCoverage09" resname="stats.closure.coverage.no_gaps"><source>stats.closure.coverage.no_gaps</source><target>Keine Lücken zwischen den Importen.</target></trans-unit>
+      <trans-unit id="statsClosureCoverage10" resname="stats.closure.coverage.gaps"><source>stats.closure.coverage.gaps</source><target>{count, plural, one {# Lücke} other {# Lücken}}</target></trans-unit>
+      <trans-unit id="statsClosureCoverage11" resname="stats.closure.coverage.gap_days"><source>stats.closure.coverage.gap_days</source><target>{count, plural, one {# Tag} other {# Tage}}</target></trans-unit>
     </body>
   </file>
 </xliff>

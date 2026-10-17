@@ -154,6 +154,10 @@
                 {{ include('@Statistics/closure_analytics/_breakdowns.html.twig') }}
             </div>
         {% endif %}
+
+        {% if dataCoverage|default(null) and not closureMissingHospitalAccess|default(false) %}
+            {{ include('@Statistics/closure_analytics/_data_coverage.html.twig') }}
+        {% endif %}
     </div>
 
     {% if overviewPeriodViewModel is defined and overviewPeriodViewModel.showNavigation %}

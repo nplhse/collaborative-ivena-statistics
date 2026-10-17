@@ -1,0 +1,61 @@
+{# Coverage of the selected hospital by its import export periods; gaps are missing monthly files or failed imports. #}
+<div class="card mt-3" data-testid="stats-closure-data-coverage">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'stats.closure.coverage.title'|trans({}, 'statistics') }}</h3>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small">{{ 'stats.closure.coverage.hint'|trans({}, 'statistics') }}</p>
+        <div class="row g-3">
+            {% for coverage in dataCoverage %}
+                <div class="col-12 col-lg-6" data-testid="stats-closure-data-coverage-{{ coverage.kind }}">
+                    <div class="subheader mb-2">{{ ('stats.closure.coverage.kind.' ~ coverage.kind)|trans({}, 'statistics') }}</div>
+                    {% if not coverage.hasImports %}
+                        <p class="text-muted mb-0">{{ 'stats.closure.coverage.no_imports'|trans({}, 'statistics') }}</p>
+                    {% else %}
+                        <div class="datagrid mb-3">
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'stats.closure.coverage.period'|trans({}, 'statistics') }}</div>
+                                <div class="datagrid-content">
+                                    {% if coverage.firstDay and coverage.lastDay %}
+                                        {{ coverage.firstDay|date('d.m.Y') }} – {{ coverage.lastDay|date('d.m.Y') }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="datagrid-item">
+                                <div class="datagrid-title">{{ 'stats.closure.coverage.imports'|trans({}, 'statistics') }}</div>
+                                <div class="datagrid-content">{{ coverage.imports|number_format(0, ',', '.') }}</div>
+                            </div>
+                        </div>
+                        {% if coverage.withoutPeriod > 0 %}
+                            <div class="alert alert-warning py-2 small" data-testid="stats-closure-data-coverage-{{ coverage.kind }}-without-period">
+                                {{ 'stats.closure.coverage.without_period'|trans({count: coverage.withoutPeriod}, 'statistics') }}
+                            </div>
+                        {% endif %}
+                        {% set gaps = coverage.gaps %}
+                        {% if gaps is empty %}
+                            <p class="text-success mb-0" data-testid="stats-closure-data-coverage-{{ coverage.kind }}-no-gaps">
+                                {{ 'stats.closure.coverage.no_gaps'|trans({}, 'statistics') }}
+                            </p>
+                        {% else %}
+                            <div class="text-muted small mb-1">{{ 'stats.closure.coverage.gaps'|trans({count: gaps|length}, 'statistics') }}</div>
+                            <ul class="list-unstyled mb-0" data-testid="stats-closure-data-coverage-{{ coverage.kind }}-gaps">
+                                {% for gap in gaps %}
+                                    <li>
+                                        {% if gap.startsAt|date('Y-m-d') == gap.lastDay|date('Y-m-d') %}
+                                            {{ gap.startsAt|date('d.m.Y') }}
+                                        {% else %}
+                                            {{ gap.startsAt|date('d.m.Y') }} – {{ gap.lastDay|date('d.m.Y') }}
+                                        {% endif %}
+                                        <span class="text-muted">({{ 'stats.closure.coverage.gap_days'|trans({count: gap.days}, 'statistics') }})</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
