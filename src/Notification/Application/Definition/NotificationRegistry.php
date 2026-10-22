@@ -36,6 +36,14 @@ final class NotificationRegistry
     }
 
     /**
+     * @return list<NotificationDefinition>
+     */
+    public function definitions(): array
+    {
+        return array_map($this->get(...), array_keys($this->types));
+    }
+
+    /**
      * @param class-string $class
      */
     public static function readDefinition(string $class): ?NotificationDefinition

@@ -23,6 +23,7 @@ use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -163,6 +164,12 @@ final class NewImportControllerTest extends WebTestCase
                 self::assertEquals($runs[0]->getId(), $import->getCurrentRunId());
                 self::assertSame($import->getCreatedBy()?->getId(), $runs[0]->getInitiatedBy()?->getId());
                 self::assertSame(1, $import->getRunCount());
+
+                $types = self::getContainer()->get(Connection::class)->fetchFirstColumn(
+                    "SELECT type FROM notification WHERE recipient_id = ? AND type IN ('import.completed', 'import.failed')",
+                    [$import->getCreatedBy()?->getId()],
+                );
+                self::assertCount(1, $types, 'The finished run is announced once to its creator (ADR 016).');
 
                 self::assertNotEmpty($import->getFileMimeType());
                 self::assertTrue(

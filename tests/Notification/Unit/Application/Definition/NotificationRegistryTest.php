@@ -20,6 +20,7 @@ final class NotificationRegistryTest extends TestCase
 
         self::assertSame('test.in_app', $definition->type);
         self::assertSame($definition, $registry->get('test.in_app'));
+        self::assertSame([$definition], $registry->definitions());
     }
 
     public function testGetThrowsForUnknownType(): void

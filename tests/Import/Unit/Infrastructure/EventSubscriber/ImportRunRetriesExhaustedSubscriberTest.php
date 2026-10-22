@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Import\Unit\Infrastructure\EventSubscriber;
 
 use App\Import\Application\Message\ImportAllocationsMessage;
+use App\Import\Application\Service\ImportMilestoneRecorder;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
 use App\Shared\Infrastructure\Audit\AuditContext;
@@ -56,7 +57,7 @@ final class ImportRunRetriesExhaustedSubscriberTest extends TestCase
     private function subscriber(ManagerRegistry $registry, LoggerInterface $logger): ImportRunRetriesExhaustedSubscriber
     {
         return new ImportRunRetriesExhaustedSubscriber(
-            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger),
+            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder()),
             $logger,
         );
     }

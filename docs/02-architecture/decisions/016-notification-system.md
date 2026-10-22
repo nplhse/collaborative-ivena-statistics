@@ -62,7 +62,7 @@ Each type declares its defaults with a PHP attribute on its notification class:
 
 ```php
 #[NotificationDefinition(
-    type: 'import.run_finished',
+    type: 'import.completed',
     category: NotificationCategory::Imports,
     defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
     availableChannels: [NotificationChannel::InApp, NotificationChannel::Email, NotificationChannel::Toast],
@@ -72,7 +72,7 @@ Each type declares its defaults with a PHP attribute on its notification class:
     accessScope: NotificationAccessScope::Hospital,
     deduplicationTtl: 'P7D',
 )]
-final class ImportRunFinishedNotification extends AppNotification
+final class ImportCompletedNotification extends AppNotification
 {
     // translation keys, email template, action route
 }
@@ -318,7 +318,7 @@ Mandatory channels are shown as fixed.
 - Activation is always an admin action (grant link or EasyAdmin). Each activation is a new event with its own deduplication key. If an admin activates a user again after revocation, the user gets the welcome mail again. Two welcome mails in that case are accepted.
 - The direct `TransactionalMailer::sendParticipationWelcomeEmail` call is removed in the same change, so the mail cannot be sent twice through two paths.
 
-#### Import runs (`import.run_finished`)
+#### Import runs (`import.completed`, `import.failed`)
 
 A **run** is one deliberate processing request: an upload, `StartImportCommand`, or one item of a requeue batch.
 
@@ -337,7 +337,7 @@ A **run** is one deliberate processing request: an upload, `StartImportCommand`,
   - Non-retryable errors (invalid or missing file, validation, rejection ratio exceeded) end the run as `Failed` with a reason code.
   - Retryable errors (lost database connection, deadlock, lock timeout) are rethrown and leave the run open. If retries are exhausted (`WorkerMessageFailedEvent` without retry), the run ends as `Failed` with the reason code `retries_exhausted`.
 - **Exactly one terminal state per run.** The transition to `Completed`, `Partial`, `Failed` or `Superseded` is a conditional update on the `ImportRun` (`status` not yet terminal). Only the process that wins this update dispatches the outcome event. `Import::runCount` is incremented in the same transaction, so it counts finished runs, not attempts.
-- The deduplication key `import.run_finished:{runId}` does **not** contain the status. A run therefore yields at most one notification, whatever its outcome.
+- Completed and partial runs use the type `import.completed`, failed runs `import.failed`, so users can set preferences for both separately. Both share the deduplication key `import.run_finished:{runId}`, which does **not** contain the status. A run therefore yields at most one notification, whatever its outcome.
 
 **Superseded runs.**
 
@@ -345,7 +345,7 @@ A **run** is one deliberate processing request: an upload, `StartImportCommand`,
 - A message of a superseded run is acknowledged without processing.
 - The terminal-state update alone does not protect the data. Therefore **every commit of processing results** (each chunk, the rejects and the final evaluation) first locks the import row and checks that `currentRunId` still equals the message's `runId`. If not, the chunk is rolled back and processing stops. This check and the registration of a new run use the same row lock, so they are serialized.
 - Chunks that a superseded run committed before the new run was registered are removed by the new run's existing cleanup of previous data, which runs at its start.
-- Superseded runs produce no `import.run_finished` notification.
+- Superseded runs produce no notification.
 
 **Recipients.**
 
@@ -422,7 +422,7 @@ Separate pull requests into `feature/notification-system`, within this one archi
 2. In-app UI: bell, dropdown, overview, read state, removal, render-time permission checks, retention and daily recount.
 3. Import runs, in two pull requests:
    - **3a** Import-run lifecycle, without notifications: durable `ImportRun` history, `currentRunId`, error classification and terminal `Failed`, `Superseded`, current-run check on every commit.
-   - **3b** Import notifications: `user_import_milestone`, `import.run_finished`, `user.first_import`, reconciliation and catch-up command; `participation.activated` in-app.
+   - **3b** Import notifications: `user_import_milestone`, `import.completed` / `import.failed`, `user.first_import`, reconciliation and catch-up command; `participation.activated` in-app.
 4. Batch processing semantics, together: item states including `Superseded` and `Partial`, suppression of per-import notifications, completion check in one transaction, summary counts, batch reconciliation.
 5. Toast component, activity detection, recipient version, shared snapshot logic, immediate initial poll and polling endpoint.
 6. Email delivery: delivery table and row lock, status tracking, final-failure handling, pending-delivery reconciliation; migrate the participation welcome mail.
