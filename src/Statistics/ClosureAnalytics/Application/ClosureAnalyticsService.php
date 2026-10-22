@@ -7,6 +7,7 @@ namespace App\Statistics\ClosureAnalytics\Application;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsResult;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
+use Psr\Clock\ClockInterface;
 
 final readonly class ClosureAnalyticsService
 {
@@ -22,6 +23,7 @@ final readonly class ClosureAnalyticsService
 
     public function __construct(
         private ClosureTemporalQuery $temporalQuery,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -34,7 +36,11 @@ final readonly class ClosureAnalyticsService
 
         return new ClosureAnalyticsResult(
             $this->temporalQuery->fetchMetrics($criteria),
-            ClosureDevelopmentSeries::complete($this->temporalQuery->fetchTimeSeries($criteria), $criteria),
+            ClosureDevelopmentSeries::complete(
+                $this->temporalQuery->fetchTimeSeries($criteria),
+                $criteria,
+                $this->clock->now(),
+            ),
             $breakdowns,
             [],
             $this->temporalQuery->fetchHeatmap($criteria),

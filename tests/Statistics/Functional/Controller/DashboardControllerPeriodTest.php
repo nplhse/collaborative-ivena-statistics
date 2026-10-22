@@ -19,6 +19,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\HttpFoundation\Request;
 
 final class DashboardControllerPeriodTest extends DashboardControllerTestCase
@@ -208,7 +209,7 @@ final class DashboardControllerPeriodTest extends DashboardControllerTestCase
             'createdBy' => $user,
         ]);
 
-        $start = new \DateTimeImmutable('first day of this month')->modify('-11 months')->setTime(0, 0, 0);
+        $start = Clock::get()->now()->modify('first day of this month')->modify('-11 months')->setTime(0, 0, 0);
         for ($offset = 0; $offset < $monthCount; ++$offset) {
             $createdAt = $start->modify(sprintf('+%d months', $offset))->modify('+10 days');
             AllocationFactory::createOne([

@@ -7,6 +7,7 @@ namespace App\Statistics\Application;
 use App\Statistics\Application\Contract\ProjectionEarliestDateProviderInterface;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
+use Psr\Clock\ClockInterface;
 
 /**
  * Stepwise navigation (previous / next / parent) for calendar periods on the statistics overview.
@@ -15,6 +16,7 @@ final readonly class StatisticsPeriodNavigation
 {
     public function __construct(
         private ProjectionEarliestDateProviderInterface $earliestDateProvider,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -55,7 +57,7 @@ final readonly class StatisticsPeriodNavigation
 
     public function parent(StatisticsFilter $filter): ?StatisticsFilter
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $year = $filter->referenceYear ?? (int) $now->format('Y');
 
         return match ($filter->period) {
@@ -91,17 +93,17 @@ final readonly class StatisticsPeriodNavigation
             return (int) $earliest->format('Y');
         }
 
-        return (int) new \DateTimeImmutable()->format('Y');
+        return (int) $this->clock->now()->format('Y');
     }
 
     public function currentYear(): int
     {
-        return (int) new \DateTimeImmutable()->format('Y');
+        return (int) $this->clock->now()->format('Y');
     }
 
     private function stepYear(StatisticsFilter $filter, int $delta): ?StatisticsFilter
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $year = ($filter->referenceYear ?? (int) $now->format('Y')) + $delta;
         $candidate = $this->withPeriod($filter, StatisticsFilterPeriod::Year, $year, null, null);
         if (!$this->isWithinBounds($candidate)) {
@@ -113,7 +115,7 @@ final readonly class StatisticsPeriodNavigation
 
     private function stepQuarter(StatisticsFilter $filter, int $delta): ?StatisticsFilter
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $year = $filter->referenceYear ?? (int) $now->format('Y');
         $quarter = $filter->referenceQuarter ?? (int) ceil((int) $now->format('n') / 3);
         $absoluteQuarter = ($year * 4) + ($quarter - 1) + $delta;
@@ -130,7 +132,7 @@ final readonly class StatisticsPeriodNavigation
 
     private function stepMonth(StatisticsFilter $filter, int $delta): ?StatisticsFilter
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $year = $filter->referenceYear ?? (int) $now->format('Y');
         $month = $filter->referenceMonth ?? (int) $now->format('n');
         $anchor = new \DateTimeImmutable(sprintf('%04d-%02d-01 00:00:00', $year, $month));
@@ -166,7 +168,7 @@ final readonly class StatisticsPeriodNavigation
             }
         }
 
-        $today = new \DateTimeImmutable('today');
+        $today = $this->clock->now()->setTime(0, 0);
 
         return $bounds->from <= $today;
     }
