@@ -17,6 +17,7 @@ use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportBatchRunItemStatus;
 use App\Import\Domain\Enum\ImportBatchRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
 
@@ -121,7 +122,7 @@ final readonly class ImportRequeueBatchOrchestrator
                 }
 
                 try {
-                    $this->dispatcher->dispatch($import['id']);
+                    $this->dispatcher->dispatch($import['id'], ImportRunTrigger::BatchRequeue, $options->initiatedByUserId, $item);
                     $runControl?->throwIfStopRequested();
                     $item->markQueued();
                     ++$dispatched;

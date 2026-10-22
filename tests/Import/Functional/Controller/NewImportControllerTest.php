@@ -17,6 +17,8 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Service\FileUploader;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunTrigger;
+use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\Tests\Support\Browser\CookieConsentTestHelper;
 use App\Tests\Support\RateLimit\DeniesRateLimiter;
 use App\User\Domain\Entity\User;
@@ -153,6 +155,14 @@ final class NewImportControllerTest extends WebTestCase
                 $import = $em->getRepository(Import::class)->findOneBy(['name' => 'Test Allocations']);
                 self::assertNotNull($import, 'Import has been persisted.');
                 self::assertTrue($import->isFinalStatus(), 'Import is processed synchronously in the test environment.');
+
+                $runs = self::getContainer()->get(ImportRunRepository::class)->findByImportId((int) $import->getId());
+                self::assertCount(1, $runs, 'The upload registers exactly one run.');
+                self::assertTrue($runs[0]->isFinished());
+                self::assertSame(ImportRunTrigger::Upload, $runs[0]->getTrigger());
+                self::assertEquals($runs[0]->getId(), $import->getCurrentRunId());
+                self::assertSame($import->getCreatedBy()?->getId(), $runs[0]->getInitiatedBy()?->getId());
+                self::assertSame(1, $import->getRunCount());
 
                 self::assertNotEmpty($import->getFileMimeType());
                 self::assertTrue(

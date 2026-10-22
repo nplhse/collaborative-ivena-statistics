@@ -21,9 +21,11 @@ use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationsDispatcher;
 use App\Import\Application\Service\ImportRequeueBatchOrchestrator;
 use App\Import\Application\Service\ImportRequeueResumeResolver;
+use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportBatchRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
@@ -107,6 +109,38 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
 
         self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
         self::assertSame(1, $this->countBatchRunItems());
+    }
+
+    public function testBatchItemsReferenceTheirRunAndNotifyUserIsTheInitiator(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $admin = UserFactory::createOne(['username' => 'requeue-admin']);
+        $target = ImportFactory::createOne(['hospital' => $seed['hospital'], 'createdBy' => $seed['user'], 'type' => ImportType::ALLOCATION, 'name' => 'Run Import']);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute([
+            '--only-id' => (string) $target->getId(),
+            '--notify-user' => 'requeue-admin',
+        ]);
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
+        $this->em->clear();
+        $items = $this->em->getRepository(ImportBatchRunItem::class)->findBy(['importId' => $target->getId()]);
+        self::assertCount(1, $items);
+        $run = $items[0]->getImportRun();
+        self::assertNotNull($run, 'The batch item references the run registered for it.');
+        self::assertSame($admin->getId(), $run->getInitiatedBy()?->getId());
+        self::assertSame(ImportRunTrigger::BatchRequeue, $run->getTrigger());
+        self::assertSame($target->getId(), $run->getImport()->getId());
+    }
+
+    public function testUnknownNotifyUserIsRejected(): void
+    {
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute(['--notify-user' => 'nobody-'.bin2hex(random_bytes(3))]);
+
+        self::assertSame(ImportDispatchExitCode::CRITICAL, $exitCode);
+        self::assertSame(0, $this->countBatchRuns());
     }
 
     public function testOnlyIdsProcessesListedImports(): void
@@ -265,6 +299,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             $container->get(ImportRepository::class),
             $bus,
             $container->get(TokenStorageInterface::class),
+            $container->get(ImportRunLifecycle::class),
         );
 
         $orchestrator = new ImportRequeueBatchOrchestrator(
@@ -313,6 +348,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
                 $container->get(ImportRepository::class),
                 $bus,
                 $container->get(TokenStorageInterface::class),
+                $container->get(ImportRunLifecycle::class),
             ),
             new ImportRequeueResumeResolver(),
         );
@@ -351,6 +387,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             $container->get(ImportRepository::class),
             $bus,
             $container->get(TokenStorageInterface::class),
+            $container->get(ImportRunLifecycle::class),
         );
 
         $orchestrator = new ImportRequeueBatchOrchestrator(

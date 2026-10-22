@@ -16,8 +16,10 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\ImportDispatchExitCode;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -69,6 +71,65 @@ final class StartImportCommandTest extends KernelTestCase
             sprintf('Dispatched Closure import job for Import #%d', $closureId),
             $tester->getDisplay(),
         );
+    }
+
+    public function testNotifyUserIsStoredAsRunInitiator(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $admin = UserFactory::createOne(['username' => 'start-import-admin']);
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::ALLOCATION,
+        ]);
+        $importId = $import->getId();
+        self::assertNotNull($importId);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute(['importId' => (string) $importId, '--notify-user' => 'start-import-admin']);
+
+        self::assertSame(ImportDispatchExitCode::SUCCESS, $exitCode);
+        $runs = self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId);
+        self::assertCount(1, $runs);
+        self::assertSame($admin->getId(), $runs[0]->getInitiatedBy()?->getId());
+        self::assertSame(ImportRunTrigger::Console, $runs[0]->getTrigger());
+    }
+
+    public function testStartCommandWithoutNotifyUserHasNoInitiator(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::ALLOCATION,
+        ]);
+        $importId = $import->getId();
+        self::assertNotNull($importId);
+
+        $this->commandTester()->execute(['importId' => (string) $importId]);
+
+        $runs = self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId);
+        self::assertCount(1, $runs);
+        self::assertNull($runs[0]->getInitiatedBy());
+    }
+
+    public function testUnknownNotifyUserIsRejectedBeforeDispatching(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+            'type' => ImportType::ALLOCATION,
+        ]);
+        $importId = $import->getId();
+        self::assertNotNull($importId);
+
+        $tester = $this->commandTester();
+        $exitCode = $tester->execute(['importId' => (string) $importId, '--notify-user' => 'nobody-'.bin2hex(random_bytes(3))]);
+
+        self::assertSame(ImportDispatchExitCode::CRITICAL, $exitCode);
+        self::assertStringContainsString('No user found with username', $tester->getDisplay());
+        self::assertSame([], self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId));
     }
 
     public function testStartCommandFailsForUnknownImport(): void
