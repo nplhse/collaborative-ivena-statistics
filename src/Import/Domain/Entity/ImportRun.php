@@ -6,6 +6,7 @@ namespace App\Import\Domain\Entity;
 
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -30,6 +31,9 @@ class ImportRun
     #[ORM\ManyToOne(targetEntity: Import::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Import $import;
+
+    #[ORM\Column(length: 16, enumType: ImportRunTrigger::class)]
+    private ImportRunTrigger $trigger;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -62,10 +66,11 @@ class ImportRun
     #[ORM\Column(length: 64, nullable: true, enumType: ImportRunReasonCode::class)]
     private ?ImportRunReasonCode $reasonCode = null;
 
-    public function __construct(Uuid $id, Import $import, ?User $initiatedBy = null, ?\DateTimeImmutable $createdAt = null)
+    public function __construct(Uuid $id, Import $import, ImportRunTrigger $trigger, ?User $initiatedBy = null, ?\DateTimeImmutable $createdAt = null)
     {
         $this->id = $id;
         $this->import = $import;
+        $this->trigger = $trigger;
         $this->initiatedBy = $initiatedBy;
         $this->createdAt = $createdAt ?? new \DateTimeImmutable();
     }
@@ -78,6 +83,11 @@ class ImportRun
     public function getImport(): Import
     {
         return $this->import;
+    }
+
+    public function getTrigger(): ImportRunTrigger
+    {
+        return $this->trigger;
     }
 
     public function getInitiatedBy(): ?User

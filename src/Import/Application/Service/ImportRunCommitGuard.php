@@ -38,18 +38,34 @@ final class ImportRunCommitGuard implements ResetInterface
     }
 
     /**
-     * Flushes the unit of work. For an active run this happens in one transaction after locking the
-     * import row and checking that the run is still current.
+     * Flushes the unit of work as a guarded commit (see transactional()).
      *
      * @throws ImportRunSupersededException when a newer run was registered; nothing is committed then
      */
     public function flush(EntityManagerInterface $em): void
     {
+        $this->transactional($em, static function () use ($em): void {
+            $em->flush();
+        });
+    }
+
+    /**
+     * Runs $work as one commit. For an active run this happens in one transaction after locking the
+     * import row and checking that the run is still current; without an active run $work runs as is.
+     *
+     * @template T
+     *
+     * @param \Closure(): T $work
+     *
+     * @return T
+     *
+     * @throws ImportRunSupersededException when a newer run was registered; nothing is committed then
+     */
+    public function transactional(EntityManagerInterface $em, \Closure $work): mixed
+    {
         $context = $this->context;
         if (!$context instanceof ImportRunContext) {
-            $em->flush();
-
-            return;
+            return $work();
         }
 
         $connection = $em->getConnection();
@@ -60,36 +76,16 @@ final class ImportRunCommitGuard implements ResetInterface
                 throw new ImportRunSupersededException($context->importId, $context->runId->toRfc4122());
             }
 
-            $em->flush();
+            $result = $work();
             $connection->commit();
+
+            return $result;
         } catch (\Throwable $e) {
             if ($connection->isTransactionActive()) {
                 $connection->rollBack();
             }
 
             throw $e;
-        }
-    }
-
-    /**
-     * Unlocked check for steps that are not commits of processing results (e.g. before cleaning up previous data).
-     *
-     * @throws ImportRunSupersededException
-     */
-    public function assertCurrent(EntityManagerInterface $em): void
-    {
-        $context = $this->context;
-        if (!$context instanceof ImportRunContext) {
-            return;
-        }
-
-        $currentRunId = $em->getConnection()->fetchOne(
-            'SELECT current_run_id FROM import WHERE id = :id',
-            ['id' => $context->importId],
-        );
-
-        if (!self::matches($currentRunId, $context)) {
-            throw new ImportRunSupersededException($context->importId, $context->runId->toRfc4122());
         }
     }
 

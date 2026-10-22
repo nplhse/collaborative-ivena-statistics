@@ -8,6 +8,7 @@ use App\Import\Application\Contracts\ImportWorkflowDispatcherInterface;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\UnsupportedImportTypeException;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -38,8 +39,8 @@ final readonly class ImportStartDispatcher
         }
 
         match ($type) {
-            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, $initiatedByUserId),
-            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, $initiatedByUserId),
+            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, ImportRunTrigger::Console, $initiatedByUserId),
+            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, ImportRunTrigger::Console, $initiatedByUserId),
         };
 
         return $type;

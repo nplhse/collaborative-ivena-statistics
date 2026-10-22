@@ -14,6 +14,7 @@ use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Entity\ImportRun;
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
@@ -29,8 +30,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * Registers, starts and ends import runs (ADR 016).
  *
- * - Registering a run locks the import row, supersedes the previous unfinished run and points
- *   Import::currentRunId to the new run, all in one transaction.
+ * - Registering a run locks the import row, supersedes the previous unfinished run, points
+ *   Import::currentRunId to the new run and dispatches its message, all in one transaction.
  * - Ending a run is a conditional update from an open status. Only the caller that wins it
  *   increments Import::runCount, commits the import result and dispatches ImportCompleted / ImportFailed.
  */
@@ -44,40 +45,74 @@ final readonly class ImportRunLifecycle
     ) {
     }
 
-    public function register(int $importId, ?int $initiatedByUserId = null, ?ImportBatchRunItem $batchRunItem = null): ImportRun
-    {
+    /**
+     * Registers a new run and dispatches its message in one transaction on the default connection.
+     *
+     * Messenger stores messages on the same connection (`doctrine://default`), so either the run, the
+     * superseded previous run and the queued message are committed together, or none of them is.
+     *
+     * @param (\Closure(ImportRun): void)|null $dispatch dispatches the run's message; called inside the transaction
+     */
+    public function register(
+        int $importId,
+        ImportRunTrigger $trigger,
+        ?int $initiatedByUserId = null,
+        ?ImportBatchRunItem $batchRunItem = null,
+        ?\Closure $dispatch = null,
+    ): ImportRun {
         $em = $this->entityManager();
+        $connection = $em->getConnection();
+        $connection->beginTransaction();
 
-        return $em->wrapInTransaction(function (EntityManagerInterface $em) use ($importId, $initiatedByUserId, $batchRunItem): ImportRun {
+        $import = null;
+        $previous = null;
+        $run = null;
+
+        try {
             $import = $em->find(Import::class, $importId);
             if (!$import instanceof Import) {
                 throw new \InvalidArgumentException(\sprintf('Import #%d does not exist.', $importId));
             }
 
             // Lock the row first, then reload it, so current_run_id and run_count are the committed values.
-            ImportRunCommitGuard::lockCurrentRunId($em->getConnection(), $importId);
+            ImportRunCommitGuard::lockCurrentRunId($connection, $importId);
             $em->refresh($import);
 
             $now = new \DateTimeImmutable();
-            $this->supersedeCurrentRun($em, $import, $now);
+            $previous = $this->supersedeCurrentRun($em, $import, $now);
 
             $initiator = null !== $initiatedByUserId ? $em->getReference(User::class, $initiatedByUserId) : null;
-            $run = new ImportRun(Uuid::v7(), $import, $initiator, $now);
+            $run = new ImportRun(Uuid::v7(), $import, $trigger, $initiator, $now);
             $em->persist($run);
             $import->setCurrentRunId($run->getId());
             $batchRunItem?->setImportRun($run);
 
-            $this->flushWithIntent($em, 'import.run.queued', $importId, $run->getId());
+            $this->flushWithIntent($em, 'import.run.queued', $importId, $run->getId(), ['trigger' => $trigger->value]);
 
-            $this->importLogger->info('import.run.queued', [
-                'id' => $importId,
-                'run_id' => $run->getId()->toRfc4122(),
-                'initiated_by' => $initiatedByUserId,
-                'batch_item_id' => $batchRunItem?->getId(),
-            ]);
+            if ($dispatch instanceof \Closure) {
+                $dispatch($run);
+            }
 
-            return $run;
-        });
+            $connection->commit();
+        } catch (\Throwable $e) {
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+
+            $this->restoreAfterRollback($em, $run, [$import, $previous, $previous?->getBatchRunItem(), $batchRunItem]);
+
+            throw $e;
+        }
+
+        $this->importLogger->info('import.run.queued', [
+            'id' => $importId,
+            'run_id' => $run->getId()->toRfc4122(),
+            'trigger' => $trigger->value,
+            'initiated_by' => $initiatedByUserId,
+            'batch_item_id' => $batchRunItem?->getId(),
+        ]);
+
+        return $run;
     }
 
     /**
@@ -202,24 +237,6 @@ final readonly class ImportRunLifecycle
     }
 
     /**
-     * Ends a registered run whose message could not be dispatched.
-     *
-     * @psalm-suppress PossiblyUnusedReturnValue
-     */
-    public function failDispatch(ImportRun $run): bool
-    {
-        $importId = $run->getImport()->getId();
-        if (null === $importId) {
-            return false;
-        }
-
-        return $this->fail(
-            new ImportRunContext($importId, $run->getId()),
-            ImportRunReasonCode::DispatchFailed,
-        );
-    }
-
-    /**
      * @param \Closure(Import): ImportRunOutcome $evaluate
      * @param array<string, mixed>               $auditMetadata
      */
@@ -277,20 +294,23 @@ final readonly class ImportRunLifecycle
         return $outcome;
     }
 
-    private function supersedeCurrentRun(EntityManagerInterface $em, Import $import, \DateTimeImmutable $now): void
+    /**
+     * @return ImportRun|null the run that was superseded, if any
+     */
+    private function supersedeCurrentRun(EntityManagerInterface $em, Import $import, \DateTimeImmutable $now): ?ImportRun
     {
         $currentRunId = $import->getCurrentRunId();
         if (!$currentRunId instanceof Uuid) {
-            return;
+            return null;
         }
 
         $previous = $this->findFresh($em, $currentRunId);
         if (!$previous instanceof ImportRun || $previous->isFinished()) {
-            return;
+            return null;
         }
 
         if (!$this->transitionToTerminal($em, $currentRunId, new ImportRunOutcome(ImportRunStatus::Superseded), $now)) {
-            return;
+            return null;
         }
 
         $em->refresh($previous);
@@ -301,6 +321,39 @@ final readonly class ImportRunLifecycle
             'id' => $import->getId(),
             'run_id' => $currentRunId->toRfc4122(),
         ]);
+
+        return $previous;
+    }
+
+    /**
+     * After a rolled back registration, the identity map still holds the flushed state. Forget the new
+     * run and reload the touched entities, so a later flush by the caller cannot write the rolled back
+     * changes again (e.g. a batch item pointing to a run that does not exist).
+     *
+     * @param list<object|null> $touched
+     */
+    private function restoreAfterRollback(EntityManagerInterface $em, ?ImportRun $run, array $touched): void
+    {
+        if (!$em->isOpen()) {
+            return;
+        }
+
+        try {
+            if ($run instanceof ImportRun && $em->contains($run)) {
+                $em->detach($run);
+            }
+
+            foreach ($touched as $entity) {
+                if (null !== $entity && $em->contains($entity)) {
+                    $em->refresh($entity);
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->importLogger->warning('import.run.restore_after_rollback_failed', [
+                'ex' => $e::class,
+                'msg' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

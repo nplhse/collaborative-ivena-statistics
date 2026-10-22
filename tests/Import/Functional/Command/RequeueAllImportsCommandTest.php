@@ -25,6 +25,7 @@ use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportBatchRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
@@ -129,6 +130,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
         $run = $items[0]->getImportRun();
         self::assertNotNull($run, 'The batch item references the run registered for it.');
         self::assertSame($admin->getId(), $run->getInitiatedBy()?->getId());
+        self::assertSame(ImportRunTrigger::BatchRequeue, $run->getTrigger());
         self::assertSame($target->getId(), $run->getImport()->getId());
     }
 

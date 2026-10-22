@@ -18,6 +18,7 @@ use App\Import\Domain\Entity\ImportRun;
 use App\Import\Domain\Enum\ImportBatchRunItemStatus;
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -48,12 +49,13 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
         $importId = $this->createImport(runCount: 0);
         $initiator = UserFactory::createOne(['username' => 'run-initiator']);
 
-        $run = $this->lifecycle->register($importId, $initiator->getId());
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console, $initiator->getId());
 
         $this->em->clear();
         $stored = $this->runs->find($run->getId());
         self::assertInstanceOf(ImportRun::class, $stored);
         self::assertSame(ImportRunStatus::Queued, $stored->getStatus());
+        self::assertSame(ImportRunTrigger::Console, $stored->getTrigger());
         self::assertSame($initiator->getId(), $stored->getInitiatedBy()?->getId());
         self::assertNull($stored->getStartedAt());
         self::assertEquals($run->getId(), $this->import($importId)->getCurrentRunId());
@@ -65,8 +67,8 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
         $importId = $this->createImport(runCount: 0);
         $item = $this->createBatchItem($importId);
 
-        $previous = $this->lifecycle->register($importId, null, $item);
-        $next = $this->lifecycle->register($importId);
+        $previous = $this->lifecycle->register($importId, ImportRunTrigger::BatchRequeue, null, $item);
+        $next = $this->lifecycle->register($importId, ImportRunTrigger::Console);
 
         $this->em->clear();
         $previousRun = $this->runs->find($previous->getId());
@@ -81,13 +83,41 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
         self::assertCount(2, $this->runs->findByImportId($importId));
     }
 
+    public function testAFailingDispatchRollsBackTheRegistration(): void
+    {
+        $importId = $this->createImport(runCount: 0);
+        $item = $this->createBatchItem($importId);
+        $previous = $this->lifecycle->register($importId, ImportRunTrigger::BatchRequeue, null, $item);
+
+        try {
+            $this->lifecycle->register($importId, ImportRunTrigger::BatchRequeue, null, $item, static function (): never {
+                throw new \RuntimeException('bus down');
+            });
+            self::fail('The dispatch error must propagate.');
+        } catch (\RuntimeException $e) {
+            self::assertSame('bus down', $e->getMessage());
+        }
+
+        // The caller may flush again after a failed dispatch (the requeue batch does).
+        $this->em->flush();
+        $this->em->clear();
+
+        self::assertCount(1, $this->runs->findByImportId($importId), 'No run without a queued message is left behind.');
+        $previousRun = $this->runs->find($previous->getId());
+        self::assertInstanceOf(ImportRun::class, $previousRun);
+        self::assertSame(ImportRunStatus::Queued, $previousRun->getStatus(), 'The previous run is not superseded by a rolled back registration.');
+        self::assertEquals($previous->getId(), $this->import($importId)->getCurrentRunId());
+        self::assertSame(0, $this->import($importId)->getRunCount());
+        self::assertEquals($previous->getId(), $previousRun->getBatchRunItem()?->getImportRun()?->getId());
+    }
+
     public function testRegisteringANewRunKeepsAFinishedPreviousRun(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $previous = $this->lifecycle->register($importId);
+        $previous = $this->lifecycle->register($importId, ImportRunTrigger::Console);
         self::assertTrue($this->lifecycle->fail($this->contextFor($importId, $previous), ImportRunReasonCode::FileNotFound));
 
-        $this->lifecycle->register($importId);
+        $this->lifecycle->register($importId, ImportRunTrigger::Console);
 
         $this->em->clear();
         $previousRun = $this->runs->find($previous->getId());
@@ -100,7 +130,7 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
     public function testStartClaimsTheCurrentRunOnlyWhileItIsOpen(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $run = $this->lifecycle->register($importId);
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
         $message = new ImportAllocationsMessage($importId, $run->getId()->toRfc4122());
 
         $context = $this->lifecycle->start($message);
@@ -119,8 +149,8 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
     public function testStartIgnoresMessagesOfAnotherRun(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $old = $this->lifecycle->register($importId);
-        $this->lifecycle->register($importId);
+        $old = $this->lifecycle->register($importId, ImportRunTrigger::Console);
+        $this->lifecycle->register($importId, ImportRunTrigger::Console);
 
         self::assertNull($this->lifecycle->start(new ImportAllocationsMessage($importId, $old->getId()->toRfc4122())));
         self::assertNull($this->lifecycle->start(new ImportAllocationsMessage($importId, Uuid::v7()->toRfc4122())));
@@ -130,7 +160,7 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
     public function testARunEndsExactlyOnceAndOnlyTheWinnerDispatchesTheEvent(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $run = $this->lifecycle->register($importId);
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
         $context = $this->lifecycle->start(new ImportAllocationsMessage($importId, $run->getId()->toRfc4122()));
         self::assertInstanceOf(ImportRunContext::class, $context);
 
@@ -159,7 +189,7 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
     public function testRetriesExhaustedEndsAnOpenRunAsFailed(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $run = $this->lifecycle->register($importId);
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
         $message = new ImportAllocationsMessage($importId, $run->getId()->toRfc4122());
         $this->lifecycle->start($message);
 
@@ -175,10 +205,10 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
     public function testFailingASupersededRunChangesNothing(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $old = $this->lifecycle->register($importId);
+        $old = $this->lifecycle->register($importId, ImportRunTrigger::Console);
         $context = $this->lifecycle->start(new ImportAllocationsMessage($importId, $old->getId()->toRfc4122()));
         self::assertInstanceOf(ImportRunContext::class, $context);
-        $this->lifecycle->register($importId);
+        $this->lifecycle->register($importId, ImportRunTrigger::Console);
 
         self::assertFalse($this->lifecycle->fail($context, ImportRunReasonCode::ProcessingError));
 
@@ -190,8 +220,8 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
     public function testRunsAreDeletedWithTheirImport(): void
     {
         $importId = $this->createImport(runCount: 0);
-        $this->lifecycle->register($importId);
-        $this->lifecycle->register($importId);
+        $this->lifecycle->register($importId, ImportRunTrigger::Console);
+        $this->lifecycle->register($importId, ImportRunTrigger::Console);
         $this->em->clear();
 
         $this->em->remove($this->import($importId));

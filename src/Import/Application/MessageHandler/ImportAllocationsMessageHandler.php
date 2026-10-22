@@ -153,8 +153,8 @@ final readonly class ImportAllocationsMessageHandler
         $this->commitGuard->activate($context);
         try {
             // A resumed run may have committed chunks before it failed; remove them like a previous run's data.
+            // The cleanup is a guarded commit, so it never deletes data of a newer run.
             if ($import->hasRunBefore() || $context->resumed) {
-                $this->commitGuard->assertCurrent($this->entityManager());
                 $this->cleanupPreviousRun($import);
             }
 

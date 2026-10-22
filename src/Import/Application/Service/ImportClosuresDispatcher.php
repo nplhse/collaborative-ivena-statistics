@@ -12,6 +12,8 @@ use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportBatchRunItem;
+use App\Import\Domain\Entity\ImportRun;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\User\Domain\Entity\User;
@@ -30,7 +32,7 @@ final readonly class ImportClosuresDispatcher implements ImportWorkflowDispatche
     }
 
     #[\Override]
-    public function dispatch(int $importId, ?int $initiatedByUserId = null, ?ImportBatchRunItem $batchRunItem = null): void
+    public function dispatch(int $importId, ImportRunTrigger $trigger, ?int $initiatedByUserId = null, ?ImportBatchRunItem $batchRunItem = null): void
     {
         $import = $this->importRepository->find($importId);
 
@@ -48,25 +50,26 @@ final readonly class ImportClosuresDispatcher implements ImportWorkflowDispatche
             throw new ImportCreatorMissingException($importId);
         }
 
-        try {
-            $run = $this->runLifecycle->register($importId, $initiatedByUserId, $batchRunItem);
-        } catch (\Throwable $e) {
-            throw new DispatchException($importId, $e);
-        }
-
         $token = new PostAuthenticationToken($user, 'main', $user->getRoles());
         $this->tokenStorage->setToken($token);
 
         try {
-            $this->bus->dispatch(new ImportClosuresMessage(
-                importId: $importId,
-                runId: $run->getId()->toRfc4122(),
-                initiatedByUserId: $initiatedByUserId,
-                batchRunId: $batchRunItem?->getRun()?->getId(),
-            ));
+            // Registration and message are committed together; a failure leaves neither behind.
+            $this->runLifecycle->register(
+                $importId,
+                $trigger,
+                $initiatedByUserId,
+                $batchRunItem,
+                function (ImportRun $run) use ($importId, $initiatedByUserId, $batchRunItem): void {
+                    $this->bus->dispatch(new ImportClosuresMessage(
+                        importId: $importId,
+                        runId: $run->getId()->toRfc4122(),
+                        initiatedByUserId: $initiatedByUserId,
+                        batchRunId: $batchRunItem?->getRun()?->getId(),
+                    ));
+                },
+            );
         } catch (\Throwable $e) {
-            $this->runLifecycle->failDispatch($run);
-
             throw new DispatchException($importId, $e);
         } finally {
             $this->tokenStorage->setToken(null);

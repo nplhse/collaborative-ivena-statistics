@@ -10,7 +10,8 @@ An **import run** is one deliberate processing request for an import: an upload,
 |-------|---------|
 | `id` | Run id (UUID v7). Carried by the Messenger message |
 | `import_id` | The import. Runs are deleted with it (`ON DELETE CASCADE`) |
-| `initiated_by_id` | User who deliberately started the run, or `NULL` (console run without `--notify-user`) |
+| `trigger` | Where the run came from: `upload` (UI upload), `console` (`app:import:start`), `batch_requeue` (one item of `app:import:requeue-all`) |
+| `initiated_by_id` | User who deliberately started the run: the uploading user, the `--notify-user` of a console or batch run, or `NULL` (console run without `--notify-user`) |
 | `status` | `queued`, `running`, `completed`, `partial`, `failed`, `superseded` |
 | `created_at`, `started_at`, `finished_at` | Registration, first processing attempt, terminal transition |
 | `rows_total`, `rows_ok`, `rows_rejected` | Outcome counts of a completed, partial or failed evaluation |
@@ -19,6 +20,8 @@ An **import run** is one deliberate processing request for an import: an upload,
 `Import::currentRunId` points to the run whose results the import currently accepts. Older runs are kept as history; a new run never overwrites one.
 
 A requeue batch item (`import_batch_run_item.import_run_id`) references the run registered for it.
+
+`trigger` and `initiated_by_id` together decide who is told about the outcome (step 3b, ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `console` or `batch_requeue` run notifies only its initiator (nobody without `--notify-user`), and batch runs are summarized per batch.
 
 ## Lifecycle
 
@@ -30,11 +33,12 @@ queued ──▶ running ──▶ completed | partial | failed
 
 1. **Register** (`ImportRunLifecycle::register()`): upload (`NewImportController`), `ImportAllocationsDispatcher` / `ImportClosuresDispatcher` (used by `app:import:start` and `app:import:requeue-all`). In one transaction, under a row lock on the import:
    - the previous run, if it is still `queued` or `running`, becomes `superseded` (and its batch item too),
-   - a new `queued` run is created and `Import::currentRunId` points to it.
+   - a new `queued` run is created and `Import::currentRunId` points to it,
+   - the run's message is dispatched.
 
-   The message is dispatched after that transaction. If dispatching fails, the run ends as `failed` with `dispatch_failed`.
+   Messenger stores messages on the same connection (`doctrine://default`), so the run and its message are committed together. If dispatching fails, the whole registration is rolled back: no `queued` run without a message is left behind, and the previous run stays current.
 2. **Start** (`ImportRunLifecycle::start()`): the handler claims the message. It is acknowledged **without processing** when its run is not the import's current run any more, or when the run already finished (redelivery).
-3. **Process**: every commit of processing results (each chunk flush, the rejects, the final evaluation) goes through `ImportRunCommitGuard`. It locks the import row and checks `currentRunId` first. If a newer run was registered, the chunk is rolled back and processing stops.
+3. **Process**: every commit of processing results (the cleanup of previous data, each chunk flush, the rejects, the final evaluation) goes through `ImportRunCommitGuard`. It locks the import row and checks `currentRunId` first. If a newer run was registered, the chunk is rolled back and processing stops.
 4. **End**: exactly one terminal transition per run, as a conditional update from `queued`/`running`. Only the process that wins it commits the import result, increments `Import::runCount` and dispatches `ImportCompleted` / `ImportFailed` (both carry `runId`). `runCount` therefore counts finished runs (including superseded ones), not attempts.
 
 ## Errors
@@ -50,7 +54,7 @@ queued ──▶ running ──▶ completed | partial | failed
 
 Retryable errors no longer mark the import `FAILED` immediately. While Messenger retries, the import stays `Running`.
 
-A redelivered message (run already `running`) first removes the chunks that the failed attempt committed, using the same cleanup as a reimport.
+A redelivered message (run already `running`) first removes the chunks that the failed attempt committed, using the same cleanup as a reimport. The cleanup deletes rows inside a guarded commit, so a superseded run never deletes data of a newer run; the materialized view refresh and the reject file deletion follow after the commit.
 
 ## Starting runs from the console
 

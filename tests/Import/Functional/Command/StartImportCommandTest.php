@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\ImportDispatchExitCode;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
@@ -91,6 +92,7 @@ final class StartImportCommandTest extends KernelTestCase
         $runs = self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId);
         self::assertCount(1, $runs);
         self::assertSame($admin->getId(), $runs[0]->getInitiatedBy()?->getId());
+        self::assertSame(ImportRunTrigger::Console, $runs[0]->getTrigger());
     }
 
     public function testStartCommandWithoutNotifyUserHasNoInitiator(): void

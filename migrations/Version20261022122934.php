@@ -11,7 +11,7 @@ final class Version20261022122934 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add durable import runs (ADR 016): import_run, import.current_run_id and the run reference of batch items.';
+        return 'Add durable import runs (ADR 016): import_run (incl. trigger), import.current_run_id and the run reference of batch items.';
     }
 
     public function up(Schema $schema): void
@@ -20,6 +20,7 @@ final class Version20261022122934 extends AbstractMigration
 CREATE TABLE import_run (
     id UUID NOT NULL,
     status VARCHAR(16) NOT NULL,
+    trigger VARCHAR(16) NOT NULL,
     created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     started_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,
     finished_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL,

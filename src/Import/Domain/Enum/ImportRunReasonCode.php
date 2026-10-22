@@ -22,7 +22,6 @@ enum ImportRunReasonCode: string
     case RejectionRatioExceeded = 'rejection_ratio_exceeded';
     case ProcessingError = 'processing_error';
     case RetriesExhausted = 'retries_exhausted';
-    case DispatchFailed = 'dispatch_failed';
 
     public function describe(): string
     {
@@ -40,7 +39,6 @@ enum ImportRunReasonCode: string
             self::RejectionRatioExceeded => 'Import exceeded the maximum allowed rejection ratio',
             self::ProcessingError => 'Import processing failed',
             self::RetriesExhausted => 'Import processing failed repeatedly and was given up',
-            self::DispatchFailed => 'Import job could not be queued',
         };
     }
 }

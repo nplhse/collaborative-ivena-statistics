@@ -7,12 +7,16 @@ namespace App\Tests\Import\Integration\MessageHandler;
 use App\Import\Application\DTO\ImportRunContext;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
+use App\Import\Application\Exception\ImportRunSupersededException;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
+use App\Import\Application\Service\ImportPreviousRunCleanupService;
+use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\ImportRun;
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
@@ -38,7 +42,7 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
     public function testRunMessageCompletesTheRunAndDispatchesTheOutcomeOnce(): void
     {
         ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
-        $run = $this->lifecycle->register($id);
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
         /** @var list<ImportCompleted> $completed */
         $completed = [];
         self::getContainer()->get(EventDispatcherInterface::class)
@@ -73,8 +77,8 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
     public function testMessageOfASupersededRunIsAcknowledgedWithoutProcessing(): void
     {
         ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
-        $old = $this->lifecycle->register($id);
-        $current = $this->lifecycle->register($id);
+        $old = $this->lifecycle->register($id, ImportRunTrigger::Console);
+        $current = $this->lifecycle->register($id, ImportRunTrigger::Console);
 
         $this->handler->__invoke(new ImportAllocationsMessage($id, $old->getId()->toRfc4122()));
 
@@ -89,7 +93,7 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
     {
         ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
         \unlink($csvPath);
-        $run = $this->lifecycle->register($id);
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
         /** @var list<ImportFailed> $failed */
         $failed = [];
         self::getContainer()->get(EventDispatcherInterface::class)
@@ -111,7 +115,7 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
     public function testRetryableErrorIsRethrownAndLeavesTheRunOpenUntilRetriesAreExhausted(): void
     {
         ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
-        $run = $this->lifecycle->register($id);
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
         $message = new ImportAllocationsMessage($id, $run->getId()->toRfc4122());
         $context = $this->lifecycle->start($message);
         self::assertInstanceOf(ImportRunContext::class, $context);
@@ -143,7 +147,7 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
     public function testNonRetryableErrorEndsTheRunAsFailed(): void
     {
         ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
-        $run = $this->lifecycle->register($id);
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
         $context = $this->lifecycle->start(new ImportAllocationsMessage($id, $run->getId()->toRfc4122()));
         self::assertInstanceOf(ImportRunContext::class, $context);
 
@@ -159,7 +163,7 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
     public function testRedeliveredRunRemovesItsEarlierChunksBeforeProcessingAgain(): void
     {
         ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
-        $run = $this->lifecycle->register($id);
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
         $message = new ImportAllocationsMessage($id, $run->getId()->toRfc4122());
         $this->handler->__invoke($message);
         self::assertSame(1, $this->countAllocationsForImport($id));
@@ -177,6 +181,35 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
         $this->em->clear();
         self::assertSame(1, $this->countAllocationsForImport($id), 'The redelivery must not duplicate allocations.');
         self::assertSame(ImportRunStatus::Completed, $this->storedRun($run)->getStatus());
+    }
+
+    public function testSupersededRunCannotDeleteDataOfANewerRun(): void
+    {
+        ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $first = $this->lifecycle->register($id, ImportRunTrigger::Console);
+        $this->handler->__invoke(new ImportAllocationsMessage($id, $first->getId()->toRfc4122()));
+        self::assertSame(1, $this->countAllocationsForImport($id));
+
+        // Run A claims its message, then run B is registered (e.g. on another worker) before A cleans up.
+        $runA = $this->lifecycle->register($id, ImportRunTrigger::Console);
+        $contextA = $this->lifecycle->start(new ImportAllocationsMessage($id, $runA->getId()->toRfc4122()));
+        self::assertInstanceOf(ImportRunContext::class, $contextA);
+        $this->lifecycle->register($id, ImportRunTrigger::Console);
+
+        $guard = self::getContainer()->get(ImportRunCommitGuard::class);
+        $guard->activate($contextA);
+        try {
+            $import = $this->imports->find($id);
+            self::assertNotNull($import);
+            self::getContainer()->get(ImportPreviousRunCleanupService::class)->cleanup($import);
+            self::fail('The superseded run must not clean up.');
+        } catch (ImportRunSupersededException) {
+        } finally {
+            $guard->deactivate();
+        }
+
+        $this->em->clear();
+        self::assertSame(1, $this->countAllocationsForImport($id), 'Data is kept for the newer run.');
     }
 
     public function testLegacyMessageIsProcessedWithoutCreatingARun(): void

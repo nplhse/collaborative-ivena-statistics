@@ -12,6 +12,7 @@ use App\Import\Application\Exception\ImportRunSupersededException;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -43,7 +44,7 @@ final class ImportRunCommitGuardTest extends DatabaseKernelTestCase
     public function testCommitsWhileTheRunIsCurrent(): void
     {
         $import = $this->createImport();
-        $run = $this->lifecycle->register((int) $import->getId());
+        $run = $this->lifecycle->register((int) $import->getId(), ImportRunTrigger::Console);
         $this->guard->activate(new ImportRunContext((int) $import->getId(), $run->getId()));
 
         $import->setName('Committed by current run');
@@ -56,9 +57,9 @@ final class ImportRunCommitGuardTest extends DatabaseKernelTestCase
     {
         $import = $this->createImport();
         $importId = (int) $import->getId();
-        $old = $this->lifecycle->register($importId);
+        $old = $this->lifecycle->register($importId, ImportRunTrigger::Console);
         $this->guard->activate(new ImportRunContext($importId, $old->getId()));
-        $this->lifecycle->register($importId);
+        $this->lifecycle->register($importId, ImportRunTrigger::Console);
 
         $import->setName('Written by superseded run');
 

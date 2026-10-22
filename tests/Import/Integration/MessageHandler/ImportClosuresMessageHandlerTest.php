@@ -20,6 +20,7 @@ use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportRunStatus;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
@@ -84,7 +85,7 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
     {
         ['id' => $id] = $this->arrangeRunnableImport();
         $lifecycle = self::getContainer()->get(ImportRunLifecycle::class);
-        $run = $lifecycle->register($id);
+        $run = $lifecycle->register($id, ImportRunTrigger::Console);
         $message = new ImportClosuresMessage($id, $run->getId()->toRfc4122());
         $completed = [];
         $failed = [];
@@ -106,8 +107,8 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
     {
         ['id' => $id] = $this->arrangeRunnableImport();
         $lifecycle = self::getContainer()->get(ImportRunLifecycle::class);
-        $old = $lifecycle->register($id);
-        $lifecycle->register($id);
+        $old = $lifecycle->register($id, ImportRunTrigger::Console);
+        $lifecycle->register($id, ImportRunTrigger::Console);
         $completed = [];
         $failed = [];
         $this->listen($completed, $failed);
@@ -130,7 +131,7 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
             ImportType::CLOSURE,
             'var/imports/'.date('Y/m').'/closure-missing-'.bin2hex(random_bytes(6)).'.csv',
         );
-        $run = self::getContainer()->get(ImportRunLifecycle::class)->register($id);
+        $run = self::getContainer()->get(ImportRunLifecycle::class)->register($id, ImportRunTrigger::Console);
 
         $this->handler->__invoke(new ImportClosuresMessage($id, $run->getId()->toRfc4122()));
 
