@@ -13,6 +13,7 @@ use App\Statistics\Application\StatisticsPeriodNavigation;
 use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
+use Symfony\Component\Clock\Clock;
 
 final readonly class OverviewPeriodComparisonService
 {
@@ -87,7 +88,7 @@ final readonly class OverviewPeriodComparisonService
             return null;
         }
 
-        $end = $bounds->toExclusive ?? new \DateTimeImmutable('now');
+        $end = $bounds->toExclusive ?? Clock::get()->now();
 
         return max(1, (int) $from->diff($end)->days);
     }

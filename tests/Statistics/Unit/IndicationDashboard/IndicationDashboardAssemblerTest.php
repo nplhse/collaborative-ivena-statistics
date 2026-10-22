@@ -7,6 +7,8 @@ namespace App\Tests\Statistics\Unit\IndicationDashboard;
 use App\Statistics\Application\IndicationDashboard\IndicationDashboardAssembler;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Translation\IdentityTranslator;
 
 final class IndicationDashboardAssemblerTest extends TestCase
@@ -15,7 +17,7 @@ final class IndicationDashboardAssemblerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->assembler = new IndicationDashboardAssembler(new IdentityTranslator());
+        $this->assembler = new IndicationDashboardAssembler(new IdentityTranslator(), new NativeClock());
     }
 
     public function testBuildGenderSegments(): void
@@ -138,6 +140,26 @@ final class IndicationDashboardAssemblerTest extends TestCase
         );
         self::assertSame(['2026-09-01', '2026-09-02', '2026-09-03'], $daily->labels);
         self::assertSame([12, 0, 17], $daily->values);
+    }
+
+    public function testTimeSeriesIsClippedAtTheClockWhenNoReferenceTimeIsGiven(): void
+    {
+        $assembler = new IndicationDashboardAssembler(
+            new IdentityTranslator(),
+            new MockClock(new \DateTimeImmutable('2027-06-15 12:00:00')),
+        );
+
+        $series = $assembler->buildTimeSeries(
+            [['year' => 2027, 'month' => 1, 'count' => 5]],
+            \App\Statistics\Application\TimeSeries\TimeSeriesGrain::Month,
+            new \App\Statistics\Application\DTO\StatisticsPeriodBounds(
+                new \DateTimeImmutable('2027-01-01 00:00:00'),
+                new \DateTimeImmutable('2028-01-01 00:00:00'),
+            ),
+        );
+
+        self::assertSame(['2027-01', '2027-02', '2027-03', '2027-04', '2027-05'], $series->labels);
+        self::assertSame([5, 0, 0, 0, 0], $series->values);
     }
 
     public function testBuildAgeHistogramAndGroupDistribution(): void
