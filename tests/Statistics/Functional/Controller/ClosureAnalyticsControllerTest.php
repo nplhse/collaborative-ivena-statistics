@@ -25,8 +25,11 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Clock;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -34,6 +37,7 @@ use Zenstruck\Foundry\Test\Factories;
 #[ResetDatabase]
 final class ClosureAnalyticsControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
     use InteractsWithAuthenticatedUser;
     use RebuildsClosureAnalysis;
@@ -288,7 +292,8 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-reasons"]', 'Reasons by number of closures');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-reasons"]', 'must not be added together');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-specialities"]', 'individual values instead of a box');
-        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Not computable');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Median gap without a closure');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-pauses"]', 'Not computable');
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Per 24 h without a closure');
         $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Per 24 h with at least one closure');
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
@@ -871,6 +876,39 @@ SQL,
         self::assertStringContainsString('createdFrom=2026-05-01', $intervalAllocationsUrl);
     }
 
+    /**
+     * Regression for #694: the pause statistics used to depend on the day of the month.
+     */
+    #[DataProvider('dayOfMonthProvider')]
+    public function testDurationPausesDoNotDependOnTheDayOfTheMonth(string $now): void
+    {
+        self::mockTime(new \DateTimeImmutable($now, new \DateTimeZone('Europe/Berlin')));
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        $this->seedGroupedClosures($user);
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/duration?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-closure-duration-pauses"]', 'Median gap without a closure');
+        $this->assertSelectorTextNotContains('[data-testid="stats-closure-duration-pauses"]', 'Not computable');
+    }
+
+    /**
+     * Dates stay between the seeded closures and today, because parts of the
+     * request still read the wall clock instead of the Symfony clock.
+     *
+     * @return iterable<string, array{string}>
+     */
+    public static function dayOfMonthProvider(): iterable
+    {
+        yield 'first of the month' => ['2026-07-01 00:30:00'];
+        yield 'before the 10th' => ['2026-07-09 23:59:00'];
+        yield 'on the 10th after 10:00' => ['2026-07-10 10:30:00'];
+        yield 'end of the month' => ['2026-07-31 23:59:00'];
+        yield 'date of the original failure' => ['2026-10-10 10:30:00'];
+    }
+
     public function testCoincidentUngroupedClosuresRenderAsClusterWithSharedDetail(): void
     {
         $client = self::createClient();
@@ -1120,7 +1158,7 @@ SQL,
 
         $client->request(
             Request::METHOD_GET,
-            '/statistics/closure-analytics/events/'.$this->closureEventId($hospitalId, 'current-month-group').'?scope=public&period=all_time&tab=course&phase=during',
+            '/statistics/closure-analytics/events/'.$this->closureEventId($hospitalId, 'previous-month-group').'?scope=public&period=all_time&tab=course&phase=during',
         );
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('[data-testid="closure-event-assignment-link"]');
@@ -1267,7 +1305,9 @@ SQL,
 
     private function currentMonthStart(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('first day of this month 00:00:00', new \DateTimeZone('Europe/Berlin'));
+        return Clock::get()->now()
+            ->setTimezone(new \DateTimeZone('Europe/Berlin'))
+            ->modify('first day of this month 00:00:00');
     }
 
     private function loginAsClosureBetaUser(KernelBrowser $client): User
@@ -1323,21 +1363,23 @@ SQL,
                 'source_changed_at' => '2026-05-01 09:00:00',
             ]);
         }
-        $currentMonthClosure = $this->currentMonthStart()->modify('+9 days')->setTime(10, 0);
+        // Keep the second closure in the past on every day of the month, so the
+        // duration load window (capped at the clock) always contains both closures.
+        $previousMonthClosure = $this->currentMonthStart()->modify('-1 month +9 days')->setTime(10, 0);
         $connection->insert('closure_interval', [
             'hospital_id' => $hospital->getId(),
             'import_id' => $import->getId(),
             'speciality_id' => $specialityB->getId(),
             'department_id' => $departmentB->getId(),
-            'starts_at' => $currentMonthClosure->format('Y-m-d H:i:s'),
-            'ends_at' => $currentMonthClosure->modify('+2 hours')->format('Y-m-d H:i:s'),
+            'starts_at' => $previousMonthClosure->format('Y-m-d H:i:s'),
+            'ends_at' => $previousMonthClosure->modify('+2 hours')->format('Y-m-d H:i:s'),
             'care_level' => 'inpatient',
             'reason' => 'no_bed_capacity',
             'facility_kind' => 'clinic',
             'closure_unit' => 'Functional unit',
-            'source_group_id' => 'current-month-group',
-            'source_recorded_at' => $currentMonthClosure->modify('-1 hour')->format('Y-m-d H:i:s'),
-            'source_changed_at' => $currentMonthClosure->modify('-1 hour')->format('Y-m-d H:i:s'),
+            'source_group_id' => 'previous-month-group',
+            'source_recorded_at' => $previousMonthClosure->modify('-1 hour')->format('Y-m-d H:i:s'),
+            'source_changed_at' => $previousMonthClosure->modify('-1 hour')->format('Y-m-d H:i:s'),
         ]);
 
         $this->rebuildClosureAnalysis();
