@@ -14,6 +14,7 @@ use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
+use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Application\Service\ImportUploadGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
@@ -53,6 +54,7 @@ final class NewImportController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly UsageAnalytics $usageAnalytics,
+        private readonly ImportRunLifecycle $runLifecycle,
     ) {
     }
 
@@ -167,10 +169,17 @@ final class NewImportController extends AbstractController
             throw new \LogicException('Persisted Import entity has no ID.');
         }
 
-        if (ImportType::CLOSURE === $importType) {
-            $this->bus->dispatch(new ImportClosuresMessage($importId));
-        } else {
-            $this->bus->dispatch(new ImportAllocationsMessage($importId));
+        $run = $this->runLifecycle->register($importId, $userId);
+        $runId = $run->getId()->toRfc4122();
+
+        try {
+            $this->bus->dispatch(ImportType::CLOSURE === $importType
+                ? new ImportClosuresMessage($importId, $runId, $userId)
+                : new ImportAllocationsMessage($importId, $runId, $userId));
+        } catch (\Throwable $e) {
+            $this->runLifecycle->failDispatch($run);
+
+            throw $e;
         }
 
         $this->usageAnalytics->record(UsageEventName::IMPORT_STARTED, FeatureArea::Import);

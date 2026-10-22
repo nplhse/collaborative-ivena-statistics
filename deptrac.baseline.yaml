@@ -250,6 +250,8 @@ deptrac:
     App\Import\Application\Service\ImportRequeueBatchOrchestrator:
       - App\Import\Infrastructure\Repository\ImportBatchRunRepository
       - App\Import\Infrastructure\Repository\ImportRepository
+    App\Import\Application\Service\ImportRunLifecycle:
+      - App\User\Domain\Entity\User
     App\Import\Application\Service\MciCaseRowProcessor:
       - App\Import\Infrastructure\Mapping\MciCaseImportFactory
     App\Import\Domain\Entity\Import:
@@ -261,6 +263,9 @@ deptrac:
       - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
     App\Import\Domain\Entity\ImportReject:
       - App\Import\Infrastructure\Repository\ImportRejectRepository
+    App\Import\Domain\Entity\ImportRun:
+      - App\Import\Infrastructure\Repository\ImportRunRepository
+      - App\User\Domain\Entity\User
     App\Import\Domain\Service\ImportEvaluation:
       - App\Import\Application\DTO\ImportSummary
     App\Import\Domain\Validation\Constraints\ImportSourceFileValidator:
@@ -281,6 +286,9 @@ deptrac:
       - App\Import\Infrastructure\Analysis\Export\RejectAnalysisExporterRegistry
     App\Import\UI\Form\ImportCreateType:
       - App\User\Domain\Entity\User
+    App\Import\UI\Console\NotifyUserResolver:
+      - App\User\Domain\Entity\User
+      - App\User\Infrastructure\Repository\UserRepository
     App\Import\UI\Http\Controller\DeleteImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\DownloadImportSourceFileController:

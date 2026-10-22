@@ -4,7 +4,7 @@ Re-dispatch allocation import jobs for all existing imports (or a filtered subse
 via Symfony Messenger. The command only queues jobs; actual CSV processing happens
 asynchronously in `ImportAllocationsMessageHandler` (or synchronously in `test` env).
 
-Each dispatch uses the import creator (`Import.createdBy`) as the audit user.
+Each dispatch uses the import creator (`Import.createdBy`) as the audit user and registers a new [import run](import-runs.md). An unfinished earlier run of the same import becomes `superseded`.
 `app:import:requeue-all` dispatches allocation jobs only. A closure import in that batch is marked dispatch-failed. Requeue it with `app:import:start`.
 
 ## Prerequisites
@@ -20,6 +20,8 @@ php bin/console app:import:start 42
 ```
 
 `app:import:start` loads the import and dispatches the workflow for its type (`Allocation` or `Closure`).
+
+Both commands accept `--notify-user=<username>`. The user is stored as the run initiator; without the option, the run has no initiator. An unknown username exits with `2`.
 
 Exit codes: `0` = dispatched, `1` = import/creator not found, missing type, or dispatch error, `2` = invalid arguments.
 
@@ -72,12 +74,13 @@ Progress is stored in `import_batch_run` and `import_batch_run_item`:
 - After success: `queued`
 - On dispatch error: `dispatch_failed` (batch continues)
 - On SIGINT/SIGTERM: `interrupted`
+- When a newer run is registered for the import before this item's run finished: `superseded`
 
-Item status `queued` means the message was handed to Messenger, not that the CSV import finished.
+Item status `queued` means the message was handed to Messenger, not that the CSV import finished. Each item references the run registered for it (`import_run_id`); the run's status tells whether processing finished.
 
 ## Reimport cleanup
 
-When an import is processed again (`runCount > 0`), `ImportAllocationsMessageHandler` deletes all data from the previous run before reading the CSV again:
+When an import is processed again (`runCount > 0`), or a run is redelivered after a retryable error, `ImportAllocationsMessageHandler` deletes all data from the previous attempt before reading the CSV again:
 
 - `allocation_stats_projection` rows for that import
 - `import_reject` rows and the reject CSV file on disk

@@ -12,6 +12,8 @@ use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: ImportRepository::class)]
@@ -79,6 +81,10 @@ class Import implements \Stringable
 
     #[ORM\Column]
     private ?int $runTime = null;
+
+    /** The run whose results this import currently accepts (ADR 016). Null for imports processed before runs existed. */
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
+    private ?Uuid $currentRunId = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $exportStartsAt = null;
@@ -328,6 +334,18 @@ class Import implements \Stringable
     public function setRunTime(int $runTime): static
     {
         $this->runTime = $runTime;
+
+        return $this;
+    }
+
+    public function getCurrentRunId(): ?Uuid
+    {
+        return $this->currentRunId;
+    }
+
+    public function setCurrentRunId(?Uuid $currentRunId): static
+    {
+        $this->currentRunId = $currentRunId;
 
         return $this;
     }

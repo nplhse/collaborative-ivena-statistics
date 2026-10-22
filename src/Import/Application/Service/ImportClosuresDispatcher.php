@@ -11,6 +11,7 @@ use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\User\Domain\Entity\User;
@@ -24,11 +25,12 @@ final readonly class ImportClosuresDispatcher implements ImportWorkflowDispatche
         private ImportRepository $importRepository,
         private MessageBusInterface $bus,
         private TokenStorageInterface $tokenStorage,
+        private ImportRunLifecycle $runLifecycle,
     ) {
     }
 
     #[\Override]
-    public function dispatch(int $importId): void
+    public function dispatch(int $importId, ?int $initiatedByUserId = null, ?ImportBatchRunItem $batchRunItem = null): void
     {
         $import = $this->importRepository->find($importId);
 
@@ -46,12 +48,25 @@ final readonly class ImportClosuresDispatcher implements ImportWorkflowDispatche
             throw new ImportCreatorMissingException($importId);
         }
 
+        try {
+            $run = $this->runLifecycle->register($importId, $initiatedByUserId, $batchRunItem);
+        } catch (\Throwable $e) {
+            throw new DispatchException($importId, $e);
+        }
+
         $token = new PostAuthenticationToken($user, 'main', $user->getRoles());
         $this->tokenStorage->setToken($token);
 
         try {
-            $this->bus->dispatch(new ImportClosuresMessage($importId));
+            $this->bus->dispatch(new ImportClosuresMessage(
+                importId: $importId,
+                runId: $run->getId()->toRfc4122(),
+                initiatedByUserId: $initiatedByUserId,
+                batchRunId: $batchRunItem?->getRun()?->getId(),
+            ));
         } catch (\Throwable $e) {
+            $this->runLifecycle->failDispatch($run);
+
             throw new DispatchException($importId, $e);
         } finally {
             $this->tokenStorage->setToken(null);

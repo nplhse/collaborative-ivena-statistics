@@ -1,0 +1,87 @@
+# Import runs
+
+**Audience:** Developers and operators who start, requeue or debug imports.
+
+An **import run** is one deliberate processing request for an import: an upload, one `app:import:start` call, or one item of an `app:import:requeue-all` batch. Every run is stored as an `ImportRun` row (`import_run` table) in the `Import` context. Background and rules: [ADR 016](../../02-architecture/decisions/016-notification-system.md#import-runs-importrun_finished).
+
+## What a run stores
+
+| Field | Meaning |
+|-------|---------|
+| `id` | Run id (UUID v7). Carried by the Messenger message |
+| `import_id` | The import. Runs are deleted with it (`ON DELETE CASCADE`) |
+| `initiated_by_id` | User who deliberately started the run, or `NULL` (console run without `--notify-user`) |
+| `status` | `queued`, `running`, `completed`, `partial`, `failed`, `superseded` |
+| `created_at`, `started_at`, `finished_at` | Registration, first processing attempt, terminal transition |
+| `rows_total`, `rows_ok`, `rows_rejected` | Outcome counts of a completed, partial or failed evaluation |
+| `reason_code` | Why a run failed, e.g. `file_not_found`, `rejection_ratio_exceeded`, `retries_exhausted`. Never an exception message |
+
+`Import::currentRunId` points to the run whose results the import currently accepts. Older runs are kept as history; a new run never overwrites one.
+
+A requeue batch item (`import_batch_run_item.import_run_id`) references the run registered for it.
+
+## Lifecycle
+
+```
+queued ──▶ running ──▶ completed | partial | failed
+   │          │
+   └──────────┴──▶ superseded   (a newer run was registered)
+```
+
+1. **Register** (`ImportRunLifecycle::register()`): upload (`NewImportController`), `ImportAllocationsDispatcher` / `ImportClosuresDispatcher` (used by `app:import:start` and `app:import:requeue-all`). In one transaction, under a row lock on the import:
+   - the previous run, if it is still `queued` or `running`, becomes `superseded` (and its batch item too),
+   - a new `queued` run is created and `Import::currentRunId` points to it.
+
+   The message is dispatched after that transaction. If dispatching fails, the run ends as `failed` with `dispatch_failed`.
+2. **Start** (`ImportRunLifecycle::start()`): the handler claims the message. It is acknowledged **without processing** when its run is not the import's current run any more, or when the run already finished (redelivery).
+3. **Process**: every commit of processing results (each chunk flush, the rejects, the final evaluation) goes through `ImportRunCommitGuard`. It locks the import row and checks `currentRunId` first. If a newer run was registered, the chunk is rolled back and processing stops.
+4. **End**: exactly one terminal transition per run, as a conditional update from `queued`/`running`. Only the process that wins it commits the import result, increments `Import::runCount` and dispatches `ImportCompleted` / `ImportFailed` (both carry `runId`). `runCount` therefore counts finished runs (including superseded ones), not attempts.
+
+## Errors
+
+| Error | Examples | Result |
+|-------|----------|--------|
+| Precondition | missing creator, hospital or import permission, wrong type, missing or invalid file path, file not found | Run `failed` with a reason code, import `FAILED` |
+| Validation | `ImportException` (e.g. closure list for another hospital) | Run `failed` with `invalid_file` |
+| Evaluation | no rows, rejection ratio ≥ 35 % | Run `failed` with `no_rows` / `rejection_ratio_exceeded` |
+| Other non-retryable error | bug, constraint violation | Run `failed` with `processing_error` |
+| **Retryable** | lost database connection, deadlock, lock timeout (DBAL `RetryableException`, `ConnectionException`) | Rethrown; the run **stays open** and Messenger retries the same message (same run) |
+| Retries exhausted | `WorkerMessageFailedEvent` without retry | `ImportRunRetriesExhaustedSubscriber` ends the run `failed` with `retries_exhausted` |
+
+Retryable errors no longer mark the import `FAILED` immediately. While Messenger retries, the import stays `Running`.
+
+A redelivered message (run already `running`) first removes the chunks that the failed attempt committed, using the same cleanup as a reimport.
+
+## Starting runs from the console
+
+```bash
+php bin/console app:import:start 42 --notify-user=admin
+php bin/console app:import:requeue-all --only-ids=42,43 --notify-user=admin
+```
+
+`--notify-user=<username>` stores that user as run initiator. Without it, a console run has no initiator. An unknown username exits with `2` before anything is dispatched.
+
+## Legacy messages and deployment
+
+Messages queued before this change carry no run id. Such a message is processed with the old behaviour, creates no `ImportRun` and logs `notification.import_run.legacy_message`.
+
+Before deploying, drain the import queue: wait until `php bin/console messenger:stats` shows no pending `async_priority_high` messages, stop the worker, deploy, start the worker.
+
+## Log events
+
+| Event | Meaning |
+|-------|---------|
+| `import.run.queued` | Run registered |
+| `import.run.superseded` | Previous unfinished run replaced by a new one |
+| `import.run.stale_message` | Message of a non-current run acknowledged without processing |
+| `import.run.already_finished` | Redelivered message of a finished run, or lost terminal transition |
+| `import.run.superseded_during_processing` | Commit refused because a newer run was registered |
+| `import.run.retryable_error` | Error rethrown for a Messenger retry |
+| `import.run.failed` | Run ended as failed (with `reason`) |
+| `notification.import_run.legacy_message` | Message without run id |
+
+## Related
+
+- [import-pipeline.md](import-pipeline.md)
+- [batch-requeue.md](batch-requeue.md)
+- Code: `src/Import/Application/Service/ImportRunLifecycle.php`, `ImportRunCommitGuard.php`, `ImportRunErrorClassifier.php`

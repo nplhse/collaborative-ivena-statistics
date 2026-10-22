@@ -121,7 +121,7 @@ final readonly class ImportRequeueBatchOrchestrator
                 }
 
                 try {
-                    $this->dispatcher->dispatch($import['id']);
+                    $this->dispatcher->dispatch($import['id'], $options->initiatedByUserId, $item);
                     $runControl?->throwIfStopRequested();
                     $item->markQueued();
                     ++$dispatched;

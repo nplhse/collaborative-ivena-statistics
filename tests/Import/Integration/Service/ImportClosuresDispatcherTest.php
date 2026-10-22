@@ -12,6 +12,7 @@ use App\Import\Application\Exception\ImportCreatorMissingException;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\Service\ImportClosuresDispatcher;
+use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
@@ -76,6 +77,7 @@ final class ImportClosuresDispatcherTest extends DatabaseKernelTestCase
             self::getContainer()->get(ImportRepository::class),
             $bus ?? $this->createStub(MessageBusInterface::class),
             self::getContainer()->get(TokenStorageInterface::class),
+            self::getContainer()->get(ImportRunLifecycle::class),
         );
     }
 

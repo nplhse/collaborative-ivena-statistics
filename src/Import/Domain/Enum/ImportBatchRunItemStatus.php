@@ -12,4 +12,6 @@ enum ImportBatchRunItemStatus: string
     case DispatchFailed = 'dispatch_failed';
     case Interrupted = 'interrupted';
     case Skipped = 'skipped';
+    /** A newer run was registered for the import before this item's run finished. */
+    case Superseded = 'superseded';
 }

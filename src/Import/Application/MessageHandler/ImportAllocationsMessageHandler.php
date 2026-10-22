@@ -9,10 +9,13 @@ use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
+use App\Import\Application\DTO\ImportRunContext;
+use App\Import\Application\DTO\ImportRunOutcome;
 use App\Import\Application\DTO\ImportSummary;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Exception\ImportFilePathOutsideBaseException;
+use App\Import\Application\Exception\ImportRunSupersededException;
 use App\Import\Application\Factory\AllocationImporterFactory;
 use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
@@ -20,7 +23,11 @@ use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationDeduplicationService;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
+use App\Import\Application\Service\ImportRunCommitGuard;
+use App\Import\Application\Service\ImportRunErrorClassifier;
+use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
@@ -49,22 +56,201 @@ final readonly class ImportAllocationsMessageHandler
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
         private ImportFileStorage $fileStorage,
+        private ImportRunLifecycle $runLifecycle,
+        private ImportRunCommitGuard $commitGuard,
     ) {
     }
 
     public function __invoke(ImportAllocationsMessage $message): void
     {
-        $import = $this->importRepository->findOneBy(['id' => $message->importId]);
-        if (!$import instanceof Import) {
-            $this->importLogger->error('import.not_found', ['id' => $message->importId]);
+        if (null === $message->runId) {
+            $this->importLogger->warning('notification.import_run.legacy_message', [
+                'id' => $message->importId,
+                'message' => ImportAllocationsMessage::class,
+            ]);
+            $this->processLegacyMessage($message->importId);
 
             return;
         }
 
-        $reason = $this->resolvePermissionFailureReason($import);
+        $context = $this->runLifecycle->start($message);
+        if (!$context instanceof ImportRunContext) {
+            return;
+        }
+
+        $this->processRun($context);
+    }
+
+    /** @psalm-suppress PossiblyUnusedReturnValue */
+    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
+    {
+        $started = \microtime(true);
+        $summary = ImportSummary::empty();
+
+        try {
+            $importer = $this->importFactory->create($reader, $writer);
+            $summary = $importer->import($import);
+
+            $this->entityManager()->clear();
+            $fresh = $this->importRepository->find($import->getId());
+            if (!$fresh instanceof Import) {
+                throw new \RuntimeException('Import not found after refresh');
+            }
+
+            $summary = $this->applyResult($fresh, $summary, $writer, $this->runtimeSince($started));
+
+            $this->flushWithImportIntent('import.run.finished', $fresh);
+
+            return $summary;
+        } catch (\Throwable $e) {
+            $runtimeMs = $this->runtimeSince($started);
+
+            $importId = $import->getId();
+            if (null !== $importId) {
+                $this->entityManager();
+                $import = $this->importRepository->find($importId) ?? $import;
+            }
+
+            $import->markAsFailed(
+                $runtimeMs,
+                $summary->total,
+                $summary->ok,
+                $summary->rejected,
+            );
+            $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
+
+            $this->importLogger->error('import.failed.precondition', [
+                'id' => $import->getId(),
+                'reason' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Processes one run. Non-retryable errors end the run as failed; retryable errors are rethrown
+     * so Messenger retries the message with the same run.
+     */
+    private function processRun(ImportRunContext $context): void
+    {
+        $import = $this->importRepository->find($context->importId);
+        if (!$import instanceof Import) {
+            $this->importLogger->error('import.not_found', ['id' => $context->importId]);
+
+            return;
+        }
+
+        $source = $this->resolveSourceFile($import);
+        if ($source instanceof ImportRunReasonCode) {
+            $this->runLifecycle->fail($context, $source);
+
+            return;
+        }
+
+        $started = \microtime(true);
+        $this->auditContext->pushSuppressedEntityAudit(ImportRunSuppressedAuditClasses::fqcnList());
+        $this->commitGuard->activate($context);
+        try {
+            // A resumed run may have committed chunks before it failed; remove them like a previous run's data.
+            if ($import->hasRunBefore() || $context->resumed) {
+                $this->commitGuard->assertCurrent($this->entityManager());
+                $this->cleanupPreviousRun($import);
+            }
+
+            $import->markAsRunning();
+            $this->flushWithImportIntent('import.run.started', $import);
+
+            $reader = $this->rowReaderFactory->createFromCsvFile($source);
+            $writer = $this->rejectWriterFactory->create();
+            $writer->start($import);
+
+            $summary = $this->importFactory->create($reader, $writer)->import($import);
+            $runtimeMs = $this->runtimeSince($started);
+
+            $this->runLifecycle->finish(
+                $context,
+                function (Import $fresh) use ($summary, $writer, $runtimeMs): ImportRunOutcome {
+                    $this->applyResult($fresh, $summary, $writer, $runtimeMs);
+
+                    return ImportRunOutcome::fromEvaluatedImport($fresh);
+                },
+            );
+        } catch (ImportRunSupersededException) {
+            $this->importLogger->info('import.run.superseded_during_processing', [
+                'id' => $context->importId,
+                'run_id' => $context->runId->toRfc4122(),
+            ]);
+            $this->entityManager()->clear();
+        } catch (\Throwable $e) {
+            $this->handleRunError($context, $e, $this->runtimeSince($started));
+        } finally {
+            $this->commitGuard->deactivate();
+            $this->auditContext->popSuppressedEntityAudit();
+        }
+    }
+
+    private function handleRunError(ImportRunContext $context, \Throwable $e, int $runtimeMs): void
+    {
+        $logContext = [
+            'id' => $context->importId,
+            'run_id' => $context->runId->toRfc4122(),
+            'ex' => $e::class,
+            'msg' => $e->getMessage(),
+        ];
+
+        if (ImportRunErrorClassifier::isRetryable($e)) {
+            $this->importLogger->warning('import.run.retryable_error', $logContext);
+
+            throw $e;
+        }
+
+        $this->importLogger->critical('import.failed', $logContext);
+
+        $this->runLifecycle->fail(
+            $context,
+            ImportRunErrorClassifier::reasonCodeFor($e),
+            static function (Import $import) use ($runtimeMs): void {
+                $import->markAsFailed($runtimeMs);
+            },
+        );
+    }
+
+    /**
+     * Applies reject file, deduplication and evaluation to the freshly loaded import.
+     */
+    private function applyResult(Import $fresh, ImportSummary $summary, RejectWriterInterface $writer, int $runtimeMs): ImportSummary
+    {
+        $absRejectPath = $writer->getPath();
+        if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
+            $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
+        }
+
+        $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
+        $this->deduplicationService->applyDeduplicationStats($fresh, $dedupResult);
+        $summary = $this->deduplicationService->adjustSummary($summary, $dedupResult);
+
+        ImportEvaluation::apply($fresh, $summary, $runtimeMs);
+
+        return $summary;
+    }
+
+    /**
+     * Behaviour for messages queued before import runs existed. Remove once no legacy messages remain.
+     */
+    private function processLegacyMessage(int $importId): void
+    {
+        $import = $this->importRepository->findOneBy(['id' => $importId]);
+        if (!$import instanceof Import) {
+            $this->importLogger->error('import.not_found', ['id' => $importId]);
+
+            return;
+        }
+
+        $reason = $this->resolvePermissionFailure($import)?->describe();
         if (null !== $reason) {
             $this->markFailed($import, $reason);
-            $this->dispatchImportOutcome($message->importId, $reason);
+            $this->dispatchImportOutcome($importId, $reason);
 
             return;
         }
@@ -72,7 +258,7 @@ final readonly class ImportAllocationsMessageHandler
         $filePath = $import->getFilePath();
         if (null === $filePath) {
             $this->markFailed($import, 'Import has no file path');
-            $this->dispatchImportOutcome($message->importId, 'Import has no file path');
+            $this->dispatchImportOutcome($importId, 'Import has no file path');
 
             return;
         }
@@ -82,11 +268,11 @@ final readonly class ImportAllocationsMessageHandler
         } catch (ImportFilePathOutsideBaseException $e) {
             $reason = 'Invalid import file path';
             $this->importLogger->error('import.file_path.outside_base', [
-                'id' => $message->importId,
+                'id' => $importId,
                 'msg' => $e->getMessage(),
             ]);
             $this->markFailed($import, $reason);
-            $this->dispatchImportOutcome($message->importId, $reason);
+            $this->dispatchImportOutcome($importId, $reason);
 
             return;
         }
@@ -94,7 +280,7 @@ final readonly class ImportAllocationsMessageHandler
         if (!\is_file($filePath)) {
             $reason = 'CSV not found: '.$filePath;
             $this->markFailed($import, $reason);
-            $this->dispatchImportOutcome($message->importId, $reason);
+            $this->dispatchImportOutcome($importId, $reason);
 
             return;
         }
@@ -120,73 +306,44 @@ final readonly class ImportAllocationsMessageHandler
                     'ex' => $e::class,
                     'msg' => $e->getMessage(),
                 ]);
-                $this->dispatchImportOutcome($message->importId, $e->getMessage());
+                $this->dispatchImportOutcome($importId, $e->getMessage());
 
                 return;
             }
 
-            $this->dispatchImportOutcome($message->importId);
+            $this->dispatchImportOutcome($importId);
         } finally {
             $this->auditContext->popSuppressedEntityAudit();
         }
     }
 
-    /** @psalm-suppress PossiblyUnusedReturnValue */
-    public function run(Import $import, RowReaderInterface $reader, RejectWriterInterface $writer): ImportSummary
+    /**
+     * @return string|ImportRunReasonCode the resolved absolute path, or why the run cannot start
+     */
+    private function resolveSourceFile(Import $import): string|ImportRunReasonCode
     {
-        $started = \microtime(true);
-        $summary = ImportSummary::empty();
+        $permissionFailure = $this->resolvePermissionFailure($import);
+        if ($permissionFailure instanceof ImportRunReasonCode) {
+            return $permissionFailure;
+        }
+
+        $filePath = $import->getFilePath();
+        if (null === $filePath) {
+            return ImportRunReasonCode::MissingFilePath;
+        }
 
         try {
-            $importer = $this->importFactory->create($reader, $writer);
-            $summary = $importer->import($import);
-
-            $this->entityManager()->clear();
-            $fresh = $this->importRepository->find($import->getId());
-            if (!$fresh instanceof Import) {
-                throw new \RuntimeException('Import not found after refresh');
-            }
-
-            $absRejectPath = $writer->getPath();
-            if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
-                $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
-            }
-
-            $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);
-            $this->deduplicationService->applyDeduplicationStats($fresh, $dedupResult);
-            $summary = $this->deduplicationService->adjustSummary($summary, $dedupResult);
-
-            $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
-
-            ImportEvaluation::apply($fresh, $summary, $runtimeMs);
-
-            $this->flushWithImportIntent('import.run.finished', $fresh);
-
-            return $summary;
-        } catch (\Throwable $e) {
-            $runtimeMs = (int) \round((\microtime(true) - $started) * 1000.0);
-
-            $importId = $import->getId();
-            if (null !== $importId) {
-                $this->entityManager();
-                $import = $this->importRepository->find($importId) ?? $import;
-            }
-
-            $import->markAsFailed(
-                $runtimeMs,
-                $summary->total,
-                $summary->ok,
-                $summary->rejected,
-            );
-            $this->flushWithImportIntent('import.run.failed', $import, ['reason' => $e->getMessage()]);
-
-            $this->importLogger->error('import.failed.precondition', [
+            $filePath = $this->fileStorage->resolve($filePath);
+        } catch (ImportFilePathOutsideBaseException $e) {
+            $this->importLogger->error('import.file_path.outside_base', [
                 'id' => $import->getId(),
-                'reason' => $e->getMessage(),
+                'msg' => $e->getMessage(),
             ]);
 
-            throw $e;
+            return ImportRunReasonCode::InvalidFilePath;
         }
+
+        return \is_file($filePath) ? $filePath : ImportRunReasonCode::FileNotFound;
     }
 
     private function markFailed(Import $import, string $reason): void
@@ -253,7 +410,7 @@ final readonly class ImportAllocationsMessageHandler
         $meta = array_merge(['import_id' => $import->getId()], $metadata);
         $this->auditContext->beginIntent($intent, $meta);
         try {
-            $em->flush();
+            $this->commitGuard->flush($em);
         } finally {
             $this->auditContext->endIntent();
         }
@@ -278,21 +435,26 @@ final readonly class ImportAllocationsMessageHandler
         $this->previousRunCleanupService->cleanup($import);
     }
 
-    private function resolvePermissionFailureReason(Import $import): ?string
+    private function runtimeSince(float $started): int
+    {
+        return (int) \round((\microtime(true) - $started) * 1000.0);
+    }
+
+    private function resolvePermissionFailure(Import $import): ?ImportRunReasonCode
     {
         $createdBy = $import->getCreatedBy();
         if (!$createdBy instanceof \App\User\Domain\Entity\User) {
-            return 'Import has no creator user';
+            return ImportRunReasonCode::MissingCreator;
         }
 
         $hospital = $import->getHospital();
         $hospitalId = $hospital?->getId();
         if (null === $hospitalId) {
-            return 'Import has no hospital';
+            return ImportRunReasonCode::MissingHospital;
         }
 
         if (!$this->hospitalPermissionAccess->hasPermission($createdBy, $hospitalId, HospitalPermission::Import)) {
-            return 'Creator has no current import permission';
+            return ImportRunReasonCode::MissingImportPermission;
         }
 
         return null;

@@ -23,7 +23,7 @@ final readonly class ImportStartDispatcher
     ) {
     }
 
-    public function dispatch(int $importId): ImportType
+    public function dispatch(int $importId, ?int $initiatedByUserId = null): ImportType
     {
         $import = $this->entityManager->find(Import::class, $importId);
 
@@ -38,8 +38,8 @@ final readonly class ImportStartDispatcher
         }
 
         match ($type) {
-            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId),
-            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId),
+            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, $initiatedByUserId),
+            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, $initiatedByUserId),
         };
 
         return $type;

@@ -44,6 +44,11 @@ class ImportBatchRunItem
     #[ORM\Column]
     private int $attemptCount = 0;
 
+    /** The run registered for this item; replaced when the item is dispatched again. */
+    #[ORM\OneToOne(targetEntity: ImportRun::class, inversedBy: 'batchRunItem')]
+    #[ORM\JoinColumn(name: 'import_run_id', nullable: true, onDelete: 'SET NULL')]
+    private ?ImportRun $importRun = null;
+
     public function __construct(int $importId, ?string $importName = null)
     {
         $this->importId = $importId;
@@ -133,6 +138,26 @@ class ImportBatchRunItem
     public function incrementAttemptCount(): self
     {
         ++$this->attemptCount;
+
+        return $this;
+    }
+
+    public function getImportRun(): ?ImportRun
+    {
+        return $this->importRun;
+    }
+
+    public function setImportRun(?ImportRun $importRun): self
+    {
+        $this->importRun = $importRun;
+
+        return $this;
+    }
+
+    public function markSuperseded(): self
+    {
+        $this->status = ImportBatchRunItemStatus::Superseded;
+        $this->finishedAt = new \DateTimeImmutable();
 
         return $this;
     }
