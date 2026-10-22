@@ -68,9 +68,9 @@ final readonly class DbalNotificationInboxWriter implements NotificationInboxWri
     }
 
     #[\Override]
-    public function removeAll(int $recipientId): int
+    public function removeAll(int $recipientId, bool $unreadOnly = false): int
     {
-        return $this->removeWhere($recipientId, '', []);
+        return $this->removeWhere($recipientId, $unreadOnly ? ' AND read_at IS NULL' : '', []);
     }
 
     /**

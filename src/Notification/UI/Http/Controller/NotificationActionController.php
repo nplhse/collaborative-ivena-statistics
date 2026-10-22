@@ -125,18 +125,22 @@ final class NotificationActionController extends AbstractController
         return $this->redirectBack($request);
     }
 
+    /**
+     * Removes all entries, or only the unread ones when the overview is filtered to unread entries.
+     */
     #[Route('/notifications/remove-all', name: 'app_notification_remove_all', methods: ['POST'])]
     public function removeAll(Request $request, #[CurrentUser] User $user): RedirectResponse
     {
         $this->assertCsrf(self::CSRF_REMOVE_ALL, $request);
+        $unreadOnly = NotificationInboxController::FILTER_UNREAD === $request->query->getString('filter');
 
         $this->addFlash('success', new TranslatableMessage(
             'notification.flash.removed',
-            ['count' => $this->inboxWriter->removeAll($this->userId($user))],
+            ['count' => $this->inboxWriter->removeAll($this->userId($user), $unreadOnly)],
             'notification',
         ));
 
-        return $this->redirectToRoute('app_notification_index');
+        return $this->redirectToRoute('app_notification_index', $unreadOnly ? ['filter' => NotificationInboxController::FILTER_UNREAD] : []);
     }
 
     /**

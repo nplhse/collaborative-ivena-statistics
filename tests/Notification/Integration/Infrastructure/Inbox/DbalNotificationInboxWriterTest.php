@@ -131,6 +131,20 @@ final class DbalNotificationInboxWriterTest extends DatabaseKernelTestCase
         self::assertNull($this->connection->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$foreign->getId()]));
     }
 
+    public function testRemoveAllUnreadKeepsReadEntries(): void
+    {
+        $user = $this->userWithState(unread: 2);
+        $unread = NotificationFactory::createMany(2, ['recipient' => $user]);
+        $read = NotificationFactory::createOne(['recipient' => $user]);
+        new NotificationTestState($this->connection)->markRead($read, new \DateTimeImmutable('2026-10-22 10:00:00'));
+
+        self::assertSame(2, $this->writer->removeAll($this->id($user), unreadOnly: true));
+
+        self::assertSame(['version' => 2, 'unread' => 0], $this->state($user));
+        self::assertNull($this->connection->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$read->getId()]));
+        self::assertNotNull($this->connection->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$unread[0]->getId()]));
+    }
+
     private function userWithState(int $unread): User
     {
         $user = UserFactory::createOne();

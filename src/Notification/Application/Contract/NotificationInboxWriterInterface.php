@@ -48,9 +48,9 @@ interface NotificationInboxWriterInterface
     public function removeMany(int $recipientId, array $notificationIds): int;
 
     /**
-     * Hides every entry of the recipient.
+     * Hides every entry of the recipient, or only the unread ones.
      *
      * @return int number of entries removed by this call
      */
-    public function removeAll(int $recipientId): int;
+    public function removeAll(int $recipientId, bool $unreadOnly = false): int;
 }

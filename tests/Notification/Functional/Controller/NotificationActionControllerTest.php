@@ -275,6 +275,48 @@ final class NotificationActionControllerTest extends DatabaseWebTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
 
+    public function testActionBarStartsWithActionsForAllEntriesAndHidesSelectionActions(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 1);
+        NotificationFactory::createOne(['recipient' => $user]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications');
+
+        self::assertCount(0, $crawler->filter('.page-header [data-testid="notification-read-all"], .page-header [data-testid="notification-remove-all"]'), 'the page header has no actions');
+        self::assertCount(1, $crawler->filter('[data-testid="notification-all-actions"]:not(.d-none) [data-testid="notification-read-all"]'));
+        self::assertStringContainsString('Remove all', $crawler->filter('[data-testid="notification-remove-all"]')->text());
+        self::assertCount(1, $crawler->filter('[data-testid="notification-selection-actions"].d-none'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-bulk-clear"]'));
+        $card = $crawler->filter('[data-testid="notification-inbox"]');
+        self::assertSame('checkbox-select-all notification-bulk', $card->attr('data-controller'));
+        self::assertSame('%count% selected', $card->attr('data-notification-bulk-selected-label-value'));
+        self::assertSame('/notifications/remove-all', $crawler->filter('#notification-remove-all-modal form')->attr('action'));
+    }
+
+    public function testUnreadFilterScopesRemoveAllToUnreadEntries(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 2);
+        $unread = NotificationFactory::createMany(2, ['recipient' => $user]);
+        $read = NotificationFactory::createOne(['recipient' => $user]);
+        $this->connection()->executeStatement('UPDATE notification SET read_at = NOW() WHERE id = ?', [$read->getId()]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications?filter=unread');
+        self::assertStringContainsString('Remove all unread', $crawler->filter('[data-testid="notification-remove-all"]')->text());
+        self::assertStringContainsString('Read notifications stay', $crawler->filter('#notification-remove-all-modal')->text());
+        $client->submit($crawler->filter('#notification-remove-all-modal form')->form());
+
+        self::assertResponseRedirects('/notifications?filter=unread');
+        self::assertNotNull($this->connection()->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$unread[0]->getId()]));
+        self::assertNotNull($this->connection()->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$unread[1]->getId()]));
+        self::assertNull($this->connection()->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$read->getId()]));
+        self::assertSame(0, $this->unreadCount($user));
+
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert', '2 notifications were removed.');
+    }
+
     private function bulkToken(KernelBrowser $client, string $page): string
     {
         $crawler = $client->request(Request::METHOD_GET, $page);

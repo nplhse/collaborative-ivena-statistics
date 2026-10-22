@@ -5,6 +5,26 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="NtfBAAE5495" resname="notification.action.remove_all_unread">
+        <source>notification.action.remove_all_unread</source>
+        <target>Remove all unread</target>
+      </trans-unit>
+      <trans-unit id="Ntf3F45CDBE" resname="notification.remove_all.modal.title_unread">
+        <source>notification.remove_all.modal.title_unread</source>
+        <target>Remove all unread notifications?</target>
+      </trans-unit>
+      <trans-unit id="Ntf87AA883F" resname="notification.remove_all.modal.body_unread">
+        <source>notification.remove_all.modal.body_unread</source>
+        <target>All your unread notifications will be removed from your inbox. Read notifications stay. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="NtfEAC5C279" resname="notification.bulk.selected">
+        <source>notification.bulk.selected</source>
+        <target>{count} selected</target>
+      </trans-unit>
+      <trans-unit id="NtfA439C272" resname="notification.bulk.clear">
+        <source>notification.bulk.clear</source>
+        <target>Clear selection</target>
+      </trans-unit>
       <trans-unit id="Ntf8C034F13" resname="notification.action.remove_all">
         <source>notification.action.remove_all</source>
         <target>Remove all</target>
@@ -17,10 +37,6 @@
         <source>notification.remove_all.modal.body</source>
         <target>All your notifications, read and unread, will be removed from your inbox. This cannot be undone.</target>
       </trans-unit>
-      <trans-unit id="NtfB3DA48B5" resname="notification.remove_all.modal.confirm">
-        <source>notification.remove_all.modal.confirm</source>
-        <target>Remove all</target>
-      </trans-unit>
       <trans-unit id="Ntf5BE42711" resname="notification.bulk.select_page">
         <source>notification.bulk.select_page</source>
         <target>Select all on this page</target>
@@ -28,14 +44,6 @@
       <trans-unit id="NtfD0CF1C3D" resname="notification.bulk.select_item">
         <source>notification.bulk.select_item</source>
         <target>Select notification: {title}</target>
-      </trans-unit>
-      <trans-unit id="Ntf657AD352" resname="notification.bulk.read">
-        <source>notification.bulk.read</source>
-        <target>Mark selected as read</target>
-      </trans-unit>
-      <trans-unit id="NtfACDA0D4E" resname="notification.bulk.remove">
-        <source>notification.bulk.remove</source>
-        <target>Remove selected</target>
       </trans-unit>
       <trans-unit id="Ntf1CDD29D7" resname="notification.bulk.confirm_remove">
         <source>notification.bulk.confirm_remove</source>
