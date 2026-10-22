@@ -62,16 +62,69 @@ final class NotificationInboxQueryTest extends DatabaseKernelTestCase
         }
         $userId = (int) $user->getId();
 
-        $first = $this->query()->page($userId, null, 2);
-        $second = $this->query()->page($userId, $first->nextCursor, 2);
-        $third = $this->query()->page($userId, $second->nextCursor, 2);
+        $first = $this->query()->page($userId, size: 2);
+        $second = $this->query()->page($userId, before: $first->olderCursor, size: 2);
+        $third = $this->query()->page($userId, before: $second->olderCursor, size: 2);
 
         $descending = array_reverse($ids);
-        self::assertSame(\array_slice($descending, 0, 2), array_map(static fn (InboxEntry $e): int => $e->id, $first->entries));
-        self::assertSame(\array_slice($descending, 2, 2), array_map(static fn (InboxEntry $e): int => $e->id, $second->entries));
-        self::assertSame(\array_slice($descending, 4, 1), array_map(static fn (InboxEntry $e): int => $e->id, $third->entries));
-        self::assertInstanceOf(InboxCursor::class, $first->nextCursor);
-        self::assertNull($third->nextCursor);
+        self::assertSame(\array_slice($descending, 0, 2), $this->ids($first->entries));
+        self::assertSame(\array_slice($descending, 2, 2), $this->ids($second->entries));
+        self::assertSame(\array_slice($descending, 4, 1), $this->ids($third->entries));
+        self::assertInstanceOf(InboxCursor::class, $first->olderCursor);
+        self::assertNull($first->newerCursor, 'the first page has nothing newer');
+        self::assertInstanceOf(InboxCursor::class, $second->newerCursor);
+        self::assertNull($third->olderCursor);
+
+        $backToSecond = $this->query()->page($userId, after: $third->newerCursor, size: 2);
+        $backToFirst = $this->query()->page($userId, after: $backToSecond->newerCursor, size: 2);
+        self::assertSame($this->ids($second->entries), $this->ids($backToSecond->entries), 'newer pages are returned newest first');
+        self::assertSame($this->ids($first->entries), $this->ids($backToFirst->entries));
+        self::assertNull($backToFirst->newerCursor);
+        self::assertInstanceOf(InboxCursor::class, $backToFirst->olderCursor);
+        self::assertSame(
+            $this->ids($third->entries),
+            $this->ids($this->query()->page($userId, before: $second->olderCursor, after: $first->olderCursor, size: 2)->entries),
+            'before wins over after',
+        );
+    }
+
+    public function testPageBeyondTheLastEntryIsEmpty(): void
+    {
+        $user = UserFactory::createOne();
+        $notification = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => new \DateTimeImmutable('2026-10-10 10:00:00')]);
+        $cursor = new InboxCursor(new \DateTimeImmutable('2026-10-10 10:00:00'), (int) $notification->getId());
+
+        $page = $this->query()->page((int) $user->getId(), before: $cursor);
+
+        self::assertSame([], $page->entries);
+        self::assertNull($page->olderCursor);
+        self::assertNull($page->newerCursor);
+        self::assertSame([], $this->query()->page((int) $user->getId(), after: $cursor)->entries);
+    }
+
+    public function testPageCanBeLimitedToUnreadEntries(): void
+    {
+        $user = UserFactory::createOne();
+        $start = new \DateTimeImmutable('2026-10-10 10:00:00');
+        $unread = [];
+        for ($i = 0; $i < 5; ++$i) {
+            $notification = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => $start->modify('+'.$i.' hours')]);
+            if (0 === $i % 2) {
+                $unread[] = (int) $notification->getId();
+            } else {
+                $this->state()->markRead($notification, $start->modify('+1 day'));
+            }
+        }
+        $userId = (int) $user->getId();
+
+        $first = $this->query()->page($userId, size: 2, unreadOnly: true);
+        $second = $this->query()->page($userId, before: $first->olderCursor, size: 2, unreadOnly: true);
+
+        self::assertSame(\array_slice(array_reverse($unread), 0, 2), array_map(static fn (InboxEntry $e): int => $e->id, $first->entries));
+        self::assertSame(\array_slice(array_reverse($unread), 2, 1), array_map(static fn (InboxEntry $e): int => $e->id, $second->entries));
+        self::assertNull($second->olderCursor);
+        self::assertSame($this->ids($first->entries), $this->ids($this->query()->page($userId, after: $second->newerCursor, size: 2, unreadOnly: true)->entries));
+        self::assertCount(5, $this->query()->page($userId, size: 10)->entries);
     }
 
     public function testFindHydratesEntryAndIgnoresForeignEntries(): void
@@ -116,6 +169,16 @@ final class NotificationInboxQueryTest extends DatabaseKernelTestCase
         self::assertNotNull($entry);
         self::assertSame([], $entry->parameters);
         self::assertSame(['id' => 3], $entry->actionParameters);
+    }
+
+    /**
+     * @param list<InboxEntry> $entries
+     *
+     * @return list<int>
+     */
+    private function ids(array $entries): array
+    {
+        return array_map(static fn (InboxEntry $entry): int => $entry->id, $entries);
     }
 
     private function state(): NotificationTestState

@@ -19,7 +19,7 @@
                 {% if state.unreadCount > 0 %}
                     <div class="col-12 col-sm-auto">
                         {{ include('@Notification/inbox/_read_all_form.html.twig', {
-                            target: path('app_notification_index'),
+                            target: path('app_notification_index', filterParams),
                             button_class: 'btn btn-outline-primary',
                         }) }}
                     </div>
@@ -30,23 +30,93 @@
 {% endblock %}
 
 {% block page_content %}
+    {% set unread_filter = constant('App\\Notification\\UI\\Http\\Controller\\NotificationInboxController::FILTER_UNREAD') %}
     <div class="card" data-testid="notification-inbox">
-        {% if notifications is empty %}
-            <div class="card-body" data-testid="notification-inbox-empty">
-                <twig:EmptyState
-                    icon="tabler:bell-off"
-                    :title="'notification.empty.title'|trans({}, 'notification')"
-                    :description="'notification.empty.description'|trans({}, 'notification')"
-                />
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" data-testid="notification-inbox-filter">
+                <li class="nav-item">
+                    <a
+                        class="nav-link{{ unreadOnly ? '' : ' active' }}"
+                        href="{{ path('app_notification_index') }}"
+                        {% if not unreadOnly %}aria-current="page"{% endif %}
+                        data-testid="notification-filter-all"
+                    >{{ 'notification.filter.all'|trans({}, 'notification') }}</a>
+                </li>
+                <li class="nav-item">
+                    <a
+                        class="nav-link{{ unreadOnly ? ' active' : '' }}"
+                        href="{{ path('app_notification_index', {filter: unread_filter}) }}"
+                        {% if unreadOnly %}aria-current="page"{% endif %}
+                        data-testid="notification-filter-unread"
+                    >
+                        {{ 'notification.filter.unread'|trans({}, 'notification') }}
+                        {% if state.unreadCount > 0 %}
+                            <span class="badge bg-primary text-primary-fg ms-2">{{ state.unreadCount > 99 ? '99+' : state.unreadCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% if notifications is not empty %}
+            <div class="list-group list-group-flush">
+                {% for notification in notifications %}
+                    {{ include('@Notification/inbox/_item.html.twig', {notification: notification, target: currentPath}) }}
+                {% endfor %}
+            </div>
+        {% elseif not isFirstPage %}
+            <div class="card-body text-center text-secondary" data-testid="notification-inbox-page-empty">
+                {{ 'notification.pagination.page_empty'|trans({}, 'notification') }}
+                <a href="{{ path('app_notification_index', filterParams) }}" class="ms-1">{{ 'notification.pagination.first'|trans({}, 'notification') }}</a>
             </div>
         {% else %}
-            <div class="list-group list-group-flush">
-                {{ include('@Notification/inbox/_page.html.twig', {
-                    notifications: notifications,
-                    frameId: frameId,
-                    nextCursor: nextCursor,
-                }) }}
+            <div class="card-body" data-testid="notification-inbox-empty">
+                {% if unreadOnly %}
+                    <twig:EmptyState
+                        icon="tabler:checks"
+                        :title="'notification.empty.unread_title'|trans({}, 'notification')"
+                        :description="'notification.empty.unread_description'|trans({}, 'notification')"
+                    />
+                {% else %}
+                    <twig:EmptyState
+                        icon="tabler:bell-off"
+                        :title="'notification.empty.title'|trans({}, 'notification')"
+                        :description="'notification.empty.description'|trans({}, 'notification')"
+                    />
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if newerPath or olderPath %}
+            {# Same markup as the cursor navigation of DataTable (@Shared/components/data_table/_cursor_nav.html.twig). #}
+            <div class="card-footer d-flex align-items-center">
+                <ul class="pagination m-0 ms-auto" aria-label="{{ 'notification.pagination.label'|trans({}, 'notification') }}" data-testid="notification-inbox-pagination">
+                    <li class="page-item{{ newerPath ? '' : ' disabled' }}">
+                        <a
+                            class="page-link"
+                            href="{{ newerPath ?: '#' }}"
+                            {% if newerPath %}rel="prev"{% else %}tabindex="-1" aria-disabled="true"{% endif %}
+                            data-testid="notification-inbox-newer"
+                        >
+                            <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                            {{ 'notification.pagination.newer'|trans({}, 'notification') }}
+                        </a>
+                    </li>
+                    <li class="page-item{{ olderPath ? '' : ' disabled' }}">
+                        <a
+                            class="page-link"
+                            href="{{ olderPath ?: '#' }}"
+                            {% if olderPath %}rel="next"{% else %}tabindex="-1" aria-disabled="true"{% endif %}
+                            data-testid="notification-inbox-older"
+                        >
+                            {{ 'notification.pagination.older'|trans({}, 'notification') }}
+                            <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
+                        </a>
+                    </li>
+                </ul>
             </div>
         {% endif %}
     </div>
+    <p class="text-secondary small mt-3" data-testid="notification-retention-notice">
+        <twig:ux:icon name="tabler:info-circle" class="icon me-1" />
+        {{ 'notification.retention_notice'|trans({}, 'notification') }}
+    </p>
 {% endblock %}

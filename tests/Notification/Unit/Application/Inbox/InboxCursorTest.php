@@ -42,7 +42,7 @@ final class InboxCursorTest extends TestCase
             readAt: null,
         );
 
-        $cursor = InboxCursor::after($entry);
+        $cursor = InboxCursor::at($entry);
 
         self::assertSame(9, $cursor->id);
         self::assertEquals($entry->createdAt, $cursor->createdAt);

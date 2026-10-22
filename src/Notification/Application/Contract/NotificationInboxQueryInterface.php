@@ -21,7 +21,19 @@ interface NotificationInboxQueryInterface
      */
     public function latest(int $recipientId, int $limit = InboxPage::DROPDOWN_SIZE): array;
 
-    public function page(int $recipientId, ?InboxCursor $cursor, int $size = InboxPage::OVERVIEW_PAGE_SIZE): InboxPage;
+    /**
+     * One page of up to $size entries, newest first. Without cursor it starts with the newest entries;
+     * with $before it continues with older entries, with $after with newer ones ($before wins if both are set).
+     *
+     * @param bool $unreadOnly only entries that have not been read yet
+     */
+    public function page(
+        int $recipientId,
+        ?InboxCursor $before = null,
+        ?InboxCursor $after = null,
+        int $size = InboxPage::OVERVIEW_PAGE_SIZE,
+        bool $unreadOnly = false,
+    ): InboxPage;
 
     public function find(int $recipientId, int $notificationId): ?InboxEntry;
 }

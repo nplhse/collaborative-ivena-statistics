@@ -8,7 +8,6 @@ use App\Notification\Application\Contract\NotificationInboxQueryInterface;
 use App\Notification\Application\Inbox\InboxCursor;
 use App\Notification\Application\Inbox\InboxPage;
 use App\Notification\UI\Http\SafeTargetPath;
-use App\Notification\UI\ViewModel\NotificationView;
 use App\Notification\UI\ViewModel\NotificationViewFactory;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,9 +20,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class NotificationInboxController extends AbstractController
 {
-    public const string FIRST_FRAME_ID = 'notification-inbox';
-
-    public const string NEXT_FRAME_PREFIX = 'notification-inbox-after-';
+    /** Value of the "filter" query parameter that limits the overview to unread entries. */
+    public const string FILTER_UNREAD = 'unread';
 
     public function __construct(
         private readonly NotificationInboxQueryInterface $inboxQuery,
@@ -31,52 +29,51 @@ final class NotificationInboxController extends AbstractController
     ) {
     }
 
+    /**
+     * Overview with keyset paging: "before" continues with older entries, "after" with newer ones.
+     * Invalid cursors start from the newest entries.
+     */
     #[Route('/notifications', name: 'app_notification_index', methods: ['GET'])]
-    public function index(#[CurrentUser] User $user): Response
-    {
+    public function index(
+        #[CurrentUser] User $user,
+        #[MapQueryParameter] ?string $filter = null,
+        #[MapQueryParameter] ?string $before = null,
+        #[MapQueryParameter] ?string $after = null,
+    ): Response {
+        $userId = (int) $user->getId();
+        $unreadOnly = self::FILTER_UNREAD === $filter;
+        $beforeCursor = InboxCursor::tryDecode($before);
+        $afterCursor = $beforeCursor instanceof InboxCursor ? null : InboxCursor::tryDecode($after);
+
+        $page = $this->inboxQuery->page($userId, $beforeCursor, $afterCursor, InboxPage::OVERVIEW_PAGE_SIZE, $unreadOnly);
+        $filterParams = $unreadOnly ? ['filter' => self::FILTER_UNREAD] : [];
+        $positionParams = match (true) {
+            $beforeCursor instanceof InboxCursor => ['before' => $before],
+            $afterCursor instanceof InboxCursor => ['after' => $after],
+            default => [],
+        };
+
         return $this->render('@Notification/inbox/index.html.twig', [
-            'state' => $this->inboxQuery->state($this->userId($user)),
-            ...$this->pageContext($user, null, self::FIRST_FRAME_ID),
+            'state' => $this->inboxQuery->state($userId),
+            'notifications' => $this->viewFactory->build($user, $page->entries),
+            'unreadOnly' => $unreadOnly,
+            'isFirstPage' => [] === $positionParams,
+            'filterParams' => $filterParams,
+            'currentPath' => $this->generateUrl('app_notification_index', [...$filterParams, ...$positionParams]),
+            'olderPath' => $page->olderCursor instanceof InboxCursor ? $this->generateUrl('app_notification_index', [...$filterParams, 'before' => $page->olderCursor->encode()]) : null,
+            'newerPath' => $page->newerCursor instanceof InboxCursor ? $this->generateUrl('app_notification_index', [...$filterParams, 'after' => $page->newerCursor->encode()]) : null,
         ]);
-    }
-
-    #[Route('/notifications/page', name: 'app_notification_page', methods: ['GET'])]
-    public function page(#[CurrentUser] User $user, #[MapQueryParameter] ?string $cursor = null): Response
-    {
-        $decoded = InboxCursor::tryDecode($cursor);
-        $frameId = $decoded instanceof InboxCursor && null !== $cursor ? self::NEXT_FRAME_PREFIX.$cursor : self::FIRST_FRAME_ID;
-
-        return $this->render('@Notification/inbox/_page.html.twig', $this->pageContext($user, $decoded, $frameId));
     }
 
     #[Route('/notifications/dropdown', name: 'app_notification_dropdown', methods: ['GET'])]
     public function dropdown(#[CurrentUser] User $user, #[MapQueryParameter] ?string $target = null): Response
     {
-        $userId = $this->userId($user);
+        $userId = (int) $user->getId();
 
         return $this->render('@Notification/inbox/_dropdown.html.twig', [
             'target' => SafeTargetPath::sanitize($target) ?? $this->generateUrl('app_notification_index'),
             'notifications' => $this->viewFactory->build($user, $this->inboxQuery->latest($userId, InboxPage::DROPDOWN_SIZE)),
             'state' => $this->inboxQuery->state($userId),
         ]);
-    }
-
-    /**
-     * @return array{notifications: list<NotificationView>, frameId: string, nextCursor: ?string}
-     */
-    private function pageContext(User $user, ?InboxCursor $cursor, string $frameId): array
-    {
-        $page = $this->inboxQuery->page($this->userId($user), $cursor, InboxPage::OVERVIEW_PAGE_SIZE);
-
-        return [
-            'notifications' => $this->viewFactory->build($user, $page->entries),
-            'frameId' => $frameId,
-            'nextCursor' => $page->nextCursor?->encode(),
-        ];
-    }
-
-    private function userId(User $user): int
-    {
-        return (int) $user->getId();
     }
 }

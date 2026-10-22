@@ -59,8 +59,8 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 
 ## Inbox
 
-- **Bell:** `NotificationBell` in the header shows the unread count from `notification_recipient_state` (one primary-key lookup). Its dropdown loads lazily from `/notifications/dropdown` and shows the **5 newest** entries.
-- **Overview:** `/notifications` lists entries newest first, **25 per page**; older entries load into a Turbo frame (keyset on `created_at, id`).
+- **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count and the **5 newest** entries.
+- **Overview:** `/notifications` lists entries newest first, **25 per page**, with the tabs *All* and *Unread* (`?filter=unread`). "Older" and "Newer" page with keyset cursors on `created_at, id` (`?before=` / `?after=`); filter and page are kept after every action. A notice below the list explains the retention periods.
 - **Actions:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, mark all as read, remove. The POST actions are CSRF-protected and only accept same-site return paths.
 - **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
 
@@ -92,7 +92,7 @@ No production type publishes notifications yet. In `dev`, the command `app:notif
 php bin/console app:notification:demo <username-or-email> --count=30
 ```
 
-- `--count` normal entries with a link (default 3); more than 25 show the "load older" step of the overview.
+- `--count` normal entries with a link (default 3); more than 25 show the paging of the overview.
 - One hospital-scoped entry about a hospital the user cannot access, so it is shown redacted (skipped when the user can access every hospital, e.g. admins).
 - One admin-only entry, hidden for users without `ROLE_ADMIN`.
 - `--clear` removes all notifications of the user first.

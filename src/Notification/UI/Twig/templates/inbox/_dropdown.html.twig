@@ -1,7 +1,19 @@
 <turbo-frame id="notification-dropdown">
     <div class="card" data-testid="notification-dropdown">
         <div class="card-header">
-            <h3 class="card-title">{{ 'notification.title'|trans({}, 'notification') }}</h3>
+            <h3 class="card-title">
+                {{ 'notification.title'|trans({}, 'notification') }}
+                {% if state.unreadCount > 0 %}
+                    {% set unread_label = 'notification.unread_count'|trans({count: state.unreadCount}, 'notification') %}
+                    <span
+                        class="badge bg-primary text-primary-fg ms-2"
+                        title="{{ unread_label }}"
+                        aria-hidden="true"
+                        data-testid="notification-dropdown-unread-count"
+                    >{{ state.unreadCount > 99 ? '99+' : state.unreadCount }}</span>
+                    <span class="visually-hidden">{{ unread_label }}</span>
+                {% endif %}
+            </h3>
             {% if state.unreadCount > 0 %}
                 <div class="card-actions">
                     {{ include('@Notification/inbox/_read_all_form.html.twig', {target: target, icon_only: true}) }}

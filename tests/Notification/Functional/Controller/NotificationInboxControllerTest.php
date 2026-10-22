@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Notification\Functional\Controller;
 
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
+use App\Notification\Application\Inbox\InboxCursor;
 use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Infrastructure\Factory\NotificationFactory;
 use App\Notification\Infrastructure\Factory\NotificationRecipientStateFactory;
@@ -70,10 +71,12 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         self::assertCount(2, $crawler->filter('[data-testid="notification-item-read"]'));
         self::assertCount(2, $crawler->filter('[data-testid="notification-item-remove"]'));
         self::assertCount(1, $crawler->filter('[data-testid="notification-read-all"]'));
-        self::assertCount(0, $crawler->filter('[data-testid="notification-inbox-next"]'));
+        self::assertCount(0, $crawler->filter('[data-testid="notification-inbox-pagination"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-retention-notice"]'));
+        self::assertStringContainsString('30 days', $crawler->filter('[data-testid="notification-retention-notice"]')->text());
     }
 
-    public function testOverviewPagesInStepsOfTwentyFive(): void
+    public function testOverviewPagesInStepsOfTwentyFiveWithNewerAndOlderLinks(): void
     {
         $client = self::createClient();
         $user = $this->user($client);
@@ -84,27 +87,101 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/notifications');
         self::assertCount(25, $crawler->filter('[data-testid="notification-item"]'));
-        $next = $crawler->filter('[data-testid="notification-inbox-load-more"]');
-        self::assertCount(1, $next);
+        $firstPageIds = $this->itemIds($crawler);
+        self::assertStringContainsString('disabled', (string) $crawler->filter('[data-testid="notification-inbox-newer"]')->closest('li')?->attr('class'));
+        $older = (string) $crawler->filter('[data-testid="notification-inbox-older"]')->attr('href');
+        self::assertStringStartsWith('/notifications?before=', $older);
 
-        $page = $client->request(Request::METHOD_GET, (string) $next->attr('href'));
+        $page = $client->request(Request::METHOD_GET, $older);
         self::assertResponseIsSuccessful();
         self::assertCount(2, $page->filter('[data-testid="notification-item"]'));
-        self::assertCount(0, $page->filter('[data-testid="notification-inbox-next"]'));
-        self::assertStringStartsWith('notification-inbox-after-', (string) $page->filter('turbo-frame')->attr('id'));
+        self::assertStringContainsString('disabled', (string) $page->filter('[data-testid="notification-inbox-older"]')->closest('li')?->attr('class'));
+        self::assertSame($older, $page->filter('[data-testid="notification-item"] input[name="_target"]')->first()->attr('value'), 'actions return to the same page');
+        $newer = (string) $page->filter('[data-testid="notification-inbox-newer"]')->attr('href');
+        self::assertStringStartsWith('/notifications?after=', $newer);
+
+        $back = $client->request(Request::METHOD_GET, $newer);
+        self::assertSame($firstPageIds, $this->itemIds($back));
+        self::assertStringContainsString('disabled', (string) $back->filter('[data-testid="notification-inbox-newer"]')->closest('li')?->attr('class'));
     }
 
-    public function testPageWithInvalidCursorStartsFromTheTop(): void
+    public function testPageThatBecameEmptyLinksBackToTheNewestEntries(): void
+    {
+        $client = self::createClient();
+        $user = $this->user($client);
+        $notification = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => new \DateTimeImmutable('2026-10-01 10:00:00')]);
+        $cursor = new InboxCursor(new \DateTimeImmutable('2026-10-01 10:00:00'), (int) $notification->getId());
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications?filter=unread&before='.$cursor->encode());
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('[data-testid="notification-inbox-page-empty"]'));
+        self::assertSame('/notifications?filter=unread', $crawler->filter('[data-testid="notification-inbox-page-empty"] a')->attr('href'));
+        self::assertCount(0, $crawler->filter('[data-testid="notification-inbox-pagination"]'));
+    }
+
+    public function testUnreadFilterShowsOnlyUnreadEntriesAndKeepsTheFilter(): void
+    {
+        $client = self::createClient();
+        $user = $this->user($client);
+        NotificationRecipientStateFactory::createOne(['user' => $user, 'unreadCount' => 26]);
+        $start = new \DateTimeImmutable('2026-10-01 00:00:00');
+        for ($i = 0; $i < 26; ++$i) {
+            NotificationFactory::createOne(['recipient' => $user, 'createdAt' => $start->modify('+'.$i.' hours')]);
+        }
+        $read = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => $start->modify('+2 days')]);
+        new NotificationTestState(self::getContainer()->get(Connection::class))->markRead($read, $start->modify('+3 days'));
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications?filter=unread');
+
+        self::assertResponseIsSuccessful();
+        $unreadTab = $crawler->filter('[data-testid="notification-filter-unread"]');
+        self::assertStringContainsString('active', (string) $unreadTab->attr('class'));
+        self::assertSame('page', $unreadTab->attr('aria-current'));
+        self::assertStringNotContainsString('active', (string) $crawler->filter('[data-testid="notification-filter-all"]')->attr('class'));
+        self::assertSame('26', trim($unreadTab->filter('.badge')->text()));
+        self::assertCount(25, $crawler->filter('[data-testid="notification-item"]'));
+        self::assertCount(0, $crawler->filter('[data-notification-id="'.$read->getId().'"]'));
+        self::assertSame('/notifications?filter=unread', $crawler->filter('form:has([data-testid="notification-read-all"]) input[name="_target"]')->attr('value'));
+        self::assertSame('/notifications?filter=unread', $crawler->filter('[data-testid="notification-item"] input[name="_target"]')->first()->attr('value'));
+
+        $next = (string) $crawler->filter('[data-testid="notification-inbox-older"]')->attr('href');
+        self::assertStringStartsWith('/notifications?filter=unread&before=', $next);
+        $page = $client->request(Request::METHOD_GET, $next);
+        self::assertCount(1, $page->filter('[data-testid="notification-item"]'));
+
+        $all = $client->request(Request::METHOD_GET, '/notifications');
+        self::assertStringContainsString('active', (string) $all->filter('[data-testid="notification-filter-all"]')->attr('class'));
+        self::assertCount(1, $all->filter('[data-notification-id="'.$read->getId().'"]'));
+    }
+
+    public function testUnreadFilterWithoutUnreadEntriesShowsItsOwnEmptyState(): void
+    {
+        $client = self::createClient();
+        $user = $this->user($client);
+        $read = NotificationFactory::createOne(['recipient' => $user]);
+        new NotificationTestState(self::getContainer()->get(Connection::class))->markRead($read, new \DateTimeImmutable());
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications?filter=unread');
+
+        self::assertCount(1, $crawler->filter('[data-testid="notification-inbox-empty"]'));
+        self::assertStringContainsString('All caught up', $crawler->filter('[data-testid="notification-inbox-empty"]')->text());
+        self::assertCount(0, $crawler->filter('[data-testid="notification-filter-unread"] .badge'));
+    }
+
+    public function testInvalidCursorStartsFromTheNewestEntries(): void
     {
         $client = self::createClient();
         $user = $this->user($client);
         NotificationFactory::createOne(['recipient' => $user]);
 
-        $crawler = $client->request(Request::METHOD_GET, '/notifications/page?cursor=not-a-cursor');
+        foreach (['/notifications?before=not-a-cursor', '/notifications?after=not-a-cursor'] as $url) {
+            $crawler = $client->request(Request::METHOD_GET, $url);
 
-        self::assertResponseIsSuccessful();
-        self::assertSame('notification-inbox', $crawler->filter('turbo-frame')->attr('id'));
-        self::assertCount(1, $crawler->filter('[data-testid="notification-item"]'));
+            self::assertResponseIsSuccessful();
+            self::assertCount(1, $crawler->filter('[data-testid="notification-item"]'));
+            self::assertSame('/notifications', $crawler->filter('[data-testid="notification-item"] input[name="_target"]')->first()->attr('value'));
+        }
     }
 
     public function testDropdownShowsFiveNewestAndKeepsTheReturnPath(): void
@@ -127,6 +204,8 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         self::assertCount(1, $crawler->filter('[data-testid="notification-read-all"][aria-label]'), 'mark all as read is an icon button with a label');
         self::assertSame('/statistics', $crawler->filter('[data-testid="notification-dropdown"] input[name="_target"]')->attr('value'));
         self::assertCount(1, $crawler->filter('[data-testid="notification-dropdown-show-all"]'));
+        self::assertSame('6', trim($crawler->filter('[data-testid="notification-dropdown-unread-count"]')->text()));
+        self::assertCount(5, $crawler->filter('[data-testid="notification-item"] .status-dot.bg-primary'), 'unread entries use the primary color');
     }
 
     public function testDropdownRejectsForeignReturnTargets(): void
@@ -149,6 +228,7 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-testid="notification-dropdown-empty"]'));
+        self::assertCount(0, $crawler->filter('[data-testid="notification-dropdown-unread-count"]'));
         self::assertCount(0, $crawler->filter('[data-testid="notification-read-all"]'));
     }
 

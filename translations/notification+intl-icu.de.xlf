@@ -5,6 +5,50 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="Ntf6D33508A" resname="notification.pagination.label">
+        <source>notification.pagination.label</source>
+        <target>Seiten der Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf90EBFF54" resname="notification.pagination.newer">
+        <source>notification.pagination.newer</source>
+        <target>Neuere</target>
+      </trans-unit>
+      <trans-unit id="NtfCB297C92" resname="notification.pagination.older">
+        <source>notification.pagination.older</source>
+        <target>Ältere</target>
+      </trans-unit>
+      <trans-unit id="Ntf5817EBBC" resname="notification.pagination.page_empty">
+        <source>notification.pagination.page_empty</source>
+        <target>Auf dieser Seite gibt es keine Benachrichtigungen mehr.</target>
+      </trans-unit>
+      <trans-unit id="NtfEEFA08F7" resname="notification.pagination.first">
+        <source>notification.pagination.first</source>
+        <target>Zu den neuesten Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="NtfE061826E" resname="notification.retention_notice">
+        <source>notification.retention_notice</source>
+        <target>Gelesene Benachrichtigungen werden nach 30 Tagen automatisch gelöscht, ungelesene nach 90 Tagen.</target>
+      </trans-unit>
+      <trans-unit id="NtfAE55BB36" resname="notification.unread_count">
+        <source>notification.unread_count</source>
+        <target>{count, plural, one {# ungelesen} other {# ungelesen}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf94CD6456" resname="notification.filter.all">
+        <source>notification.filter.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="NtfB5BFC91F" resname="notification.filter.unread">
+        <source>notification.filter.unread</source>
+        <target>Ungelesen</target>
+      </trans-unit>
+      <trans-unit id="Ntf3A2D1010" resname="notification.empty.unread_title">
+        <source>notification.empty.unread_title</source>
+        <target>Alles gelesen</target>
+      </trans-unit>
+      <trans-unit id="NtfE25C6646" resname="notification.empty.unread_description">
+        <source>notification.empty.unread_description</source>
+        <target>Sie haben keine ungelesenen Benachrichtigungen.</target>
+      </trans-unit>
       <trans-unit id="Ntf7B7CC0E9" resname="demo.import_finished.title">
         <source>demo.import_finished.title</source>
         <target>Import „{importName}“ abgeschlossen</target>
@@ -28,10 +72,6 @@
       <trans-unit id="NtfA1FBE3A2" resname="demo.admin_only.message">
         <source>demo.admin_only.message</source>
         <target>Nur Administratoren sehen diesen Eintrag. (Demo)</target>
-      </trans-unit>
-      <trans-unit id="Ntf3F32290C" resname="notification.action.load_more">
-        <source>notification.action.load_more</source>
-        <target>Ältere Benachrichtigungen laden</target>
       </trans-unit>
       <trans-unit id="Ntf71FA27AC" resname="notification.action.read">
         <source>notification.action.read</source>

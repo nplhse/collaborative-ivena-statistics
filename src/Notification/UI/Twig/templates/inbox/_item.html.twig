@@ -11,7 +11,7 @@
             {% if notification.isRead %}
                 <span class="status-dot d-block" aria-hidden="true"></span>
             {% else %}
-                <span class="status-dot status-dot-animated bg-red d-block" aria-hidden="true"></span>
+                <span class="status-dot status-dot-animated bg-primary d-block" aria-hidden="true"></span>
                 <span class="visually-hidden">{{ 'notification.unread'|trans({}, 'notification') }}</span>
             {% endif %}
         </div>

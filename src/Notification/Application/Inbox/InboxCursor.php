@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Notification\Application\Inbox;
 
 /**
- * Keyset position in the inbox: entries older than (createdAt, id).
+ * Keyset position in the inbox: the (createdAt, id) of one entry. Pages continue before or after it.
  */
 final readonly class InboxCursor
 {
@@ -17,7 +17,7 @@ final readonly class InboxCursor
     ) {
     }
 
-    public static function after(InboxEntry $entry): self
+    public static function at(InboxEntry $entry): self
     {
         return new self($entry->createdAt, $entry->id);
     }

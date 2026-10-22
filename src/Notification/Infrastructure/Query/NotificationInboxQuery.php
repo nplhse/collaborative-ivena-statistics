@@ -58,31 +58,95 @@ final readonly class NotificationInboxQuery implements NotificationInboxQueryInt
     }
 
     #[\Override]
-    public function page(int $recipientId, ?InboxCursor $cursor, int $size = InboxPage::OVERVIEW_PAGE_SIZE): InboxPage
-    {
-        $parameters = ['recipient' => $recipientId];
-        $types = [];
-        $after = '';
-        if ($cursor instanceof InboxCursor) {
-            $after = ' AND (created_at, id) < (:cursor_created_at, :cursor_id)';
-            $parameters['cursor_created_at'] = $cursor->createdAt;
-            $parameters['cursor_id'] = $cursor->id;
-            $types['cursor_created_at'] = Types::DATETIME_IMMUTABLE;
+    public function page(
+        int $recipientId,
+        ?InboxCursor $before = null,
+        ?InboxCursor $after = null,
+        int $size = InboxPage::OVERVIEW_PAGE_SIZE,
+        bool $unreadOnly = false,
+    ): InboxPage {
+        $filter = $unreadOnly ? ' AND read_at IS NULL' : '';
+
+        if (!$before instanceof InboxCursor && $after instanceof InboxCursor) {
+            // Walk towards newer entries, then restore the newest-first order.
+            $entries = $this->fetchFrom($recipientId, $filter, '>', $after, 'ASC', $size + 1);
+            $hasNewer = \count($entries) > $size;
+            $entries = array_reverse(\array_slice($entries, 0, $size));
+            $hasOlder = [] !== $entries && $this->exists($recipientId, $filter, '<', InboxCursor::at($entries[\count($entries) - 1]));
+        } else {
+            $entries = $this->fetchFrom($recipientId, $filter, '<', $before, 'DESC', $size + 1);
+            $hasOlder = \count($entries) > $size;
+            $entries = \array_slice($entries, 0, $size);
+            $hasNewer = [] !== $entries && $before instanceof InboxCursor && $this->exists($recipientId, $filter, '>', InboxCursor::at($entries[0]));
         }
 
-        $entries = $this->fetch(
-            \sprintf('SELECT %s FROM notification WHERE %s%s ORDER BY created_at DESC, id DESC LIMIT %d', self::COLUMNS, self::VISIBLE, $after, $size + 1),
+        if ([] === $entries) {
+            return new InboxPage([]);
+        }
+
+        return new InboxPage(
+            $entries,
+            $hasOlder ? InboxCursor::at($entries[\count($entries) - 1]) : null,
+            $hasNewer ? InboxCursor::at($entries[0]) : null,
+        );
+    }
+
+    /**
+     * @param '<'|'>'      $comparison
+     * @param 'ASC'|'DESC' $direction
+     *
+     * @return list<InboxEntry>
+     */
+    private function fetchFrom(int $recipientId, string $filter, string $comparison, ?InboxCursor $cursor, string $direction, int $limit): array
+    {
+        [$condition, $parameters, $types] = $this->cursorCondition($recipientId, $comparison, $cursor);
+
+        return $this->fetch(
+            \sprintf(
+                'SELECT %s FROM notification WHERE %s%s%s ORDER BY created_at %s, id %s LIMIT %d',
+                self::COLUMNS,
+                self::VISIBLE,
+                $filter,
+                $condition,
+                $direction,
+                $direction,
+                $limit,
+            ),
             $parameters,
             $types,
         );
+    }
 
-        if (\count($entries) <= $size) {
-            return new InboxPage($entries, null);
+    /**
+     * @param '<'|'>' $comparison
+     */
+    private function exists(int $recipientId, string $filter, string $comparison, InboxCursor $cursor): bool
+    {
+        [$condition, $parameters, $types] = $this->cursorCondition($recipientId, $comparison, $cursor);
+
+        return false !== $this->connection->fetchOne(
+            \sprintf('SELECT 1 FROM notification WHERE %s%s%s LIMIT 1', self::VISIBLE, $filter, $condition),
+            $parameters,
+            $types,
+        );
+    }
+
+    /**
+     * @param '<'|'>' $comparison
+     *
+     * @return array{string, array<string, mixed>, array<string, string>}
+     */
+    private function cursorCondition(int $recipientId, string $comparison, ?InboxCursor $cursor): array
+    {
+        if (!$cursor instanceof InboxCursor) {
+            return ['', ['recipient' => $recipientId], []];
         }
 
-        $entries = \array_slice($entries, 0, $size);
-
-        return new InboxPage($entries, InboxCursor::after($entries[$size - 1]));
+        return [
+            \sprintf(' AND (created_at, id) %s (:cursor_created_at, :cursor_id)', $comparison),
+            ['recipient' => $recipientId, 'cursor_created_at' => $cursor->createdAt, 'cursor_id' => $cursor->id],
+            ['cursor_created_at' => Types::DATETIME_IMMUTABLE],
+        ];
     }
 
     #[\Override]
