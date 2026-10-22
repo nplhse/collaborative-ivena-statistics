@@ -7,6 +7,7 @@ namespace App\Statistics\Application;
 use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsPeriodBounds;
+use Symfony\Component\Clock\Clock;
 
 /**
  * Resolves the evaluation time window for allocations/imports from {@see StatisticsFilter}.
@@ -20,7 +21,7 @@ final class StatisticsPeriodResolver
 {
     public static function resolve(StatisticsFilter $filter): StatisticsPeriodBounds
     {
-        $now = new \DateTimeImmutable('now');
+        $now = Clock::get()->now();
 
         return match ($filter->period) {
             StatisticsFilterPeriod::All => new StatisticsPeriodBounds(

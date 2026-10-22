@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsPeriodNavigation;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 
 final class StatisticsPeriodNavigationTest extends TestCase
 {
@@ -24,7 +25,7 @@ final class StatisticsPeriodNavigationTest extends TestCase
                 return new \DateTimeImmutable('2020-03-15 10:00:00');
             }
         };
-        $this->navigation = new StatisticsPeriodNavigation($earliestProvider);
+        $this->navigation = new StatisticsPeriodNavigation($earliestProvider, new MockClock());
     }
 
     public function testParentFromMonthGoesToQuarter(): void

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Application\Volume;
 
+use Symfony\Component\Clock\Clock;
+
 /**
  * Splits half-open intervals on Europe/Berlin clock hours and measures epoch seconds.
  * Stored closure and allocation timestamps are naive wall-clock values.
@@ -19,7 +21,7 @@ final class ClosureVolumeClock
 
     public static function now(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('now', self::zone());
+        return Clock::get()->now()->setTimezone(self::zone());
     }
 
     public static function wall(\DateTimeImmutable $instant): \DateTimeImmutable

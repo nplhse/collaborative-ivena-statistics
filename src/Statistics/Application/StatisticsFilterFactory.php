@@ -16,6 +16,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForDispatchAreaQuery;
 use App\Statistics\Infrastructure\Query\Overview\CountDistinctHospitalsForStateQuery;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 
 final readonly class StatisticsFilterFactory
 {
@@ -25,6 +26,7 @@ final readonly class StatisticsFilterFactory
         private HospitalCohortEligibilityChecker $hospitalCohortEligibilityChecker,
         private CountDistinctHospitalsForStateQuery $countDistinctHospitalsForStateQuery,
         private CountDistinctHospitalsForDispatchAreaQuery $countDistinctHospitalsForDispatchAreaQuery,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -112,17 +114,17 @@ final readonly class StatisticsFilterFactory
         $referenceQuarter = $this->parseQuarter($input->quarter);
 
         if (StatisticsFilterPeriod::Year === $period) {
-            $referenceYear ??= (int) new \DateTimeImmutable()->format('Y');
+            $referenceYear ??= (int) $this->clock->now()->format('Y');
             $referenceMonth = null;
             $referenceQuarter = null;
         } elseif (StatisticsFilterPeriod::Quarter === $period) {
-            $now = new \DateTimeImmutable();
+            $now = $this->clock->now();
             $referenceYear ??= (int) $now->format('Y');
             $referenceQuarter ??= (int) ceil((int) $now->format('n') / 3);
             $referenceQuarter = max(1, min(4, $referenceQuarter));
             $referenceMonth = null;
         } elseif (StatisticsFilterPeriod::Month === $period) {
-            $now = new \DateTimeImmutable();
+            $now = $this->clock->now();
             $referenceYear ??= (int) $now->format('Y');
             $referenceMonth ??= (int) $now->format('n');
             $referenceMonth = max(1, min(12, $referenceMonth));

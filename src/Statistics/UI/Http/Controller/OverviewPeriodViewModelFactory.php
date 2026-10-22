@@ -9,6 +9,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\StatisticsPeriodNavigation;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -18,13 +19,14 @@ final readonly class OverviewPeriodViewModelFactory
         private StatisticsPeriodNavigation $periodNavigation,
         private StatisticsNavigationUrlBuilder $urlBuilder,
         private TranslatorInterface $translator,
+        private ClockInterface $clock,
     ) {
     }
 
     public function create(Request $request, string $routeName, StatisticsFilter $filter): OverviewPeriodViewModel
     {
         $locale = $request->getLocale();
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $primaryMenu = $this->buildPrimaryMenu($request, $routeName, $filter, $locale, $now);
         [$secondaryMenu, $showSecondary] = $this->buildSecondaryMenu($request, $routeName, $filter, $locale);
@@ -128,7 +130,7 @@ final readonly class OverviewPeriodViewModelFactory
      */
     private function buildYearSecondaryMenu(Request $request, string $routeName, StatisticsFilter $filter): array
     {
-        $referenceYear = $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y');
+        $referenceYear = $filter->referenceYear ?? (int) $this->clock->now()->format('Y');
         $items = [];
 
         for ($year = $this->periodNavigation->currentYear(); $year >= $this->periodNavigation->earliestYear(); --$year) {
@@ -148,7 +150,7 @@ final readonly class OverviewPeriodViewModelFactory
      */
     private function buildQuarterSecondaryMenu(Request $request, string $routeName, StatisticsFilter $filter, string $locale): array
     {
-        $referenceYear = $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y');
+        $referenceYear = $filter->referenceYear ?? (int) $this->clock->now()->format('Y');
         $referenceQuarter = $filter->referenceQuarter ?? 1;
         $items = [];
 
@@ -172,7 +174,7 @@ final readonly class OverviewPeriodViewModelFactory
      */
     private function buildMonthSecondaryMenu(Request $request, string $routeName, StatisticsFilter $filter, string $locale): array
     {
-        $referenceYear = $filter->referenceYear ?? (int) new \DateTimeImmutable()->format('Y');
+        $referenceYear = $filter->referenceYear ?? (int) $this->clock->now()->format('Y');
         $referenceMonth = $filter->referenceMonth ?? 1;
         $items = [];
 
@@ -260,7 +262,7 @@ final readonly class OverviewPeriodViewModelFactory
 
     private function periodLabel(StatisticsFilter $filter, string $locale): string
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return match ($filter->period) {
             StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),

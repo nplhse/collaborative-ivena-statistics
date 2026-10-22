@@ -7,6 +7,7 @@ namespace App\Statistics\ClosureAnalytics\Application;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureTimeBucket;
+use Symfony\Component\Clock\Clock;
 
 /**
  * The rolling 12-month window has a start and no exclusive end. The query only
@@ -33,7 +34,7 @@ final class ClosureDevelopmentSeries
             return $buckets;
         }
 
-        $now ??= new \DateTimeImmutable('now');
+        $now ??= Clock::get()->now();
         $cursor = $from->modify('first day of this month')->setTime(0, 0);
         $end = $now->modify('first day of this month')->setTime(0, 0);
         if ($cursor > $end) {

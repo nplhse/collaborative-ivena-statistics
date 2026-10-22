@@ -352,7 +352,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all');
         $this->assertResponseIsSuccessful();
         $rollingChart = (string) $client->getResponse()->getContent();
-        $currentMonth = new \DateTimeImmutable('first day of this month');
+        $currentMonth = $this->currentMonthStart();
         self::assertStringContainsString($currentMonth->modify('-11 months')->format('Y-m'), $rollingChart);
         self::assertStringContainsString($currentMonth->format('Y-m'), $rollingChart);
 
@@ -895,9 +895,6 @@ SQL,
     }
 
     /**
-     * Dates stay between the seeded closures and today, because parts of the
-     * request still read the wall clock instead of the Symfony clock.
-     *
      * @return iterable<string, array{string}>
      */
     public static function dayOfMonthProvider(): iterable
@@ -907,6 +904,8 @@ SQL,
         yield 'on the 10th after 10:00' => ['2026-07-10 10:30:00'];
         yield 'end of the month' => ['2026-07-31 23:59:00'];
         yield 'date of the original failure' => ['2026-10-10 10:30:00'];
+        yield 'new year' => ['2027-01-01 00:30:00'];
+        yield 'one year after the fixed closures' => ['2027-06-15 12:00:00'];
     }
 
     public function testCoincidentUngroupedClosuresRenderAsClusterWithSharedDetail(): void
