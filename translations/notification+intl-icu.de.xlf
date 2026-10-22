@@ -5,6 +5,38 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="NtfDA3B927C" resname="import.completed.title">
+        <source>import.completed.title</source>
+        <target>Import „{importName}“ abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf8921F49C" resname="import.completed.message">
+        <source>import.completed.message</source>
+        <target>{hospitalName}: {rowsOk, number} von {rowsTotal, number} Zeilen übernommen{rowsRejected, plural, =0 {.} one {, # Zeile abgelehnt.} other {, # Zeilen abgelehnt.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfAAAB7C51" resname="import.failed.title">
+        <source>import.failed.title</source>
+        <target>Import „{importName}“ fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Ntf5CF406A2" resname="import.failed.message">
+        <source>import.failed.message</source>
+        <target>{hospitalName}: {reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf85A987C7" resname="user.first_import.title">
+        <source>user.first_import.title</source>
+        <target>Ihr erster Import ist da!</target>
+      </trans-unit>
+      <trans-unit id="NtfA8436D46" resname="user.first_import.message">
+        <source>user.first_import.message</source>
+        <target>Glückwunsch: „{importName}“ wurde erfolgreich verarbeitet. Ihre Daten fließen jetzt in die Statistiken ein.</target>
+      </trans-unit>
+      <trans-unit id="Ntf875B8E08" resname="participation.activated.title">
+        <source>participation.activated.title</source>
+        <target>Ihre Teilnahme ist aktiviert</target>
+      </trans-unit>
+      <trans-unit id="NtfC7E6A712" resname="participation.activated.message">
+        <source>participation.activated.message</source>
+        <target>Sie können jetzt Daten importieren und alle Auswertungen nutzen.</target>
+      </trans-unit>
       <trans-unit id="NtfD2FEBF6B" resname="notification.dropdown.show_all">
         <source>notification.dropdown.show_all</source>
         <target>{count, plural, =0 {Zu den Benachrichtigungen} one {# Benachrichtigung anzeigen} other {Alle # Benachrichtigungen anzeigen}}</target>

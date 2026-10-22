@@ -15,6 +15,31 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Email delivery | planned (step 6) |
 | Preferences UI | planned (step 7) |
 
+## Notification types
+
+| Type | Category | Default channels | Recipients | Published when |
+|------|----------|------------------|------------|----------------|
+| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; console run: its initiator; batch runs: nobody (summary in step 4) | an import run ends as completed or partial |
+| `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
+| `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
+| `participation.activated` | Account | in-app, toast | the activated user | an administrator activates participation |
+
+Import types are hospital-scoped (redacted after access is revoked) and link to the import. One run yields at most one import notification (deduplication key `import.run_finished:{runId}`); superseded runs and runs from messages queued before import runs existed yield none.
+
+The first-import milestone is stored in `user_import_milestone` (Import context) in the same transaction as the run's end and is never recorded twice. The migration marks users who already had a successful import, so existing users are not congratulated after the deploy.
+
+## Recovery
+
+Notifications are published after the business transaction commits. If the process dies in between, the hourly job `ReconcileNotificationsMessage` (minute 17) re-publishes the outcomes of the last 24 hours from durable records; deduplication skips those that were delivered. Producers take part through `NotificationReconcilerInterface` (Import: finished `import_run` rows and recorded milestones; backfilled milestones without a run are never announced).
+
+After a longer outage, reconcile a chosen range by hand. It may not reach further back than the shortest deduplication period (7 days by default):
+
+```bash
+php bin/console app:notification:reconcile --from="2026-10-20 08:00" --to="2026-10-21 08:00"
+```
+
+Without options the command covers the last 24 hours, like the job.
+
 ## Adding a notification type
 
 1. Create a class in the context that owns the event, e.g. `src/Import/Infrastructure/Notification/`, that extends `AppNotification`.
@@ -91,7 +116,7 @@ Hospital access comes from `NotificationHospitalAccessInterface`, implemented in
 
 ## Trying it locally
 
-No production type publishes notifications yet. In `dev`, the command `app:notification:demo` creates demo entries for a user through the real publisher:
+Real entries come from imports (upload a file and let the worker process it) and from activating participation. For a quick look without that, the `dev` command `app:notification:demo` creates demo entries for a user through the real publisher:
 
 ```bash
 php bin/console app:notification:demo <username-or-email> --count=30

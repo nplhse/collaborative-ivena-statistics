@@ -21,7 +21,7 @@ An **import run** is one deliberate processing request for an import: an upload,
 
 A requeue batch item (`import_batch_run_item.import_run_id`) references the run registered for it.
 
-`trigger` and `initiated_by_id` together decide who is told about the outcome (step 3b, ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `console` or `batch_requeue` run notifies only its initiator (nobody without `--notify-user`), and batch runs are summarized per batch.
+`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` runs send no notification of their own, they are summarized per batch (step 4). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
 
 ## Lifecycle
 

@@ -18,6 +18,14 @@ enum ImportRunStatus: string
     case Failed = 'failed';
     case Superseded = 'superseded';
 
+    /**
+     * A finished run whose data was imported (with or without rejected rows).
+     */
+    public function isSuccessful(): bool
+    {
+        return self::Completed === $this || self::Partial === $this;
+    }
+
     public function isTerminal(): bool
     {
         return match ($this) {

@@ -8,6 +8,7 @@ use App\Import\Application\DTO\ImportRunContext;
 use App\Import\Application\DTO\ImportRunOutcome;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
+use App\Import\Application\Event\ImportMilestoneReached;
 use App\Import\Application\Message\ImportRunMessageInterface;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportBatchRunItem;
@@ -42,6 +43,7 @@ final readonly class ImportRunLifecycle
         private EventDispatcherInterface $dispatcher,
         private AuditContext $auditContext,
         private LoggerInterface $importLogger,
+        private ImportMilestoneRecorder $milestoneRecorder,
     ) {
     }
 
@@ -52,6 +54,8 @@ final readonly class ImportRunLifecycle
      * superseded previous run and the queued message are committed together, or none of them is.
      *
      * @param (\Closure(ImportRun): void)|null $dispatch dispatches the run's message; called inside the transaction
+     *
+     * @psalm-suppress PossiblyUnusedReturnValue Production callers dispatch inside the closure; tests use the run.
      */
     public function register(
         int $importId,
@@ -264,7 +268,8 @@ final readonly class ImportRunLifecycle
             $em->refresh($import);
             $outcome = $evaluate($import);
 
-            if (!$this->transitionToTerminal($em, $context->runId, $outcome, new \DateTimeImmutable())) {
+            $now = new \DateTimeImmutable();
+            if (!$this->transitionToTerminal($em, $context->runId, $outcome, $now)) {
                 $connection->rollBack();
                 $em->refresh($import);
                 $this->importLogger->info('import.run.already_finished', [
@@ -274,6 +279,10 @@ final readonly class ImportRunLifecycle
 
                 return null;
             }
+
+            $milestoneId = $outcome->status->isSuccessful()
+                ? $this->milestoneRecorder->recordFirstImport($connection, $import, $context->runId, $now)
+                : null;
 
             $this->flushWithIntent($em, $auditIntent, $context->importId, $context->runId, $auditMetadata);
             $connection->commit();
@@ -286,6 +295,9 @@ final readonly class ImportRunLifecycle
         }
 
         $this->dispatchOutcome($context, $outcome);
+        if (null !== $milestoneId) {
+            $this->dispatcher->dispatch(new ImportMilestoneReached($milestoneId));
+        }
 
         return $outcome;
     }

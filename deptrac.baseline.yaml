@@ -266,6 +266,8 @@ deptrac:
     App\Import\Domain\Entity\ImportRun:
       - App\Import\Infrastructure\Repository\ImportRunRepository
       - App\User\Domain\Entity\User
+    App\Import\Domain\Entity\UserImportMilestone:
+      - App\User\Domain\Entity\User
     App\Import\Domain\Service\ImportEvaluation:
       - App\Import\Application\DTO\ImportSummary
     App\Import\Domain\Validation\Constraints\ImportSourceFileValidator:

@@ -707,6 +707,8 @@ deptrac:
             - Allocation_UI
             - Import_Application
             - Import_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -1029,6 +1031,8 @@ deptrac:
             - Shared_UI
         User_Infrastructure:
             - Allocation_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

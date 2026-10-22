@@ -8,6 +8,7 @@ use App\Analytics\Application\Message\AggregateDailyAnalyticsMessage;
 use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Notification\Application\Message\CleanUpNotificationsMessage;
+use App\Notification\Application\Message\ReconcileNotificationsMessage;
 use App\Shared\Infrastructure\Scheduler\DefaultScheduleProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Scheduler\Generator\MessageContext;
@@ -22,7 +23,7 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(4, $recurringMessages);
+        self::assertCount(5, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -45,5 +46,6 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(SendMonthlySubmissionRemindersMessage::class, $classes);
         self::assertContains(AggregateDailyAnalyticsMessage::class, $classes);
         self::assertContains(CleanUpNotificationsMessage::class, $classes);
+        self::assertContains(ReconcileNotificationsMessage::class, $classes);
     }
 }
