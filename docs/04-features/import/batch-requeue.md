@@ -71,12 +71,22 @@ export MAX_RETRIES_PER_IMPORT=3
 Progress is stored in `import_batch_run` and `import_batch_run_item`:
 
 - Before each dispatch: item status `running` (persisted)
-- After success: `queued`
+- After success: `queued`, set in the same transaction that registers the item's run (`import_run_id`)
 - On dispatch error: `dispatch_failed` (batch continues)
-- On SIGINT/SIGTERM: `interrupted`
+- On SIGINT/SIGTERM the batch stops after the current item and becomes `interrupted`; `--resume` continues with the next import. (Items of earlier batches may still carry the item status `interrupted`.)
+- When the item's run ends: `completed`, `partial` or `failed`, mirroring the run. Only the run an item references updates it.
 - When a newer run is registered for the import before this item's run finished: `superseded`
 
-Item status `queued` means the message was handed to Messenger, not that the CSV import finished. Each item references the run registered for it (`import_run_id`); the run's status tells whether processing finished.
+Item status `queued` means the message was handed to Messenger, not that the CSV import finished.
+
+## Completion and summary
+
+When every item is dispatched, the batch gets the status `finished` and `dispatch_closed_at`. Processing goes on in the worker. As soon as no item is `pending`, `running`, `queued` or `interrupted` any more, the batch gets `processing_finished_at` and the user given with `--notify-user` receives one summary (`import.batch_finished`, admins only): completed, partial, failed (including `dispatch_failed` and `skipped`) and superseded items, with a link to the batch in the admin area. Runs of a batch send no notification of their own.
+
+- The check locks the batch row and runs in the transaction that ends an item's run (or registers a newer run for its import), and once more when the dispatch phase closes. The summary is published in that transaction (ADR 016).
+- Batches that are `interrupted` or `failed` (max retries) do not close their dispatch phase and get no summary until a resumed run finishes them.
+- The hourly notification reconciliation completes batches that were closed but never completed and publishes lost summaries of the last 24 hours again.
+- Batches finished before this feature were marked as processed by the migration; nobody gets a summary for them.
 
 ## Reimport cleanup
 

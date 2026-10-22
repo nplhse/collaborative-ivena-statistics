@@ -5,6 +5,14 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="Ntf72CD762A" resname="import.batch_finished.title">
+        <source>import.batch_finished.title</source>
+        <target>Batch re-import #{batchId} finished</target>
+      </trans-unit>
+      <trans-unit id="Ntf838AD818" resname="import.batch_finished.message">
+        <source>import.batch_finished.message</source>
+        <target>{total, plural, one {# import} other {# imports}}: {completed, number} completed, {partial, number} with rejected rows, {failed, number} failed, {superseded, number} replaced by a newer run.</target>
+      </trans-unit>
       <trans-unit id="Ntf7705325B" resname="notification.toast.more">
         <source>notification.toast.more</source>
         <target>{count, plural, one {# more notification} other {# more notifications}}</target>

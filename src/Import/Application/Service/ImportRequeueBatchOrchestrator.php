@@ -28,6 +28,7 @@ final readonly class ImportRequeueBatchOrchestrator
         private ImportBatchRunRepository $batchRunRepository,
         private ImportAllocationsDispatcher $dispatcher,
         private ImportRequeueResumeResolver $resumeResolver,
+        private ImportBatchCompletion $batchCompletion,
     ) {
     }
 
@@ -82,7 +83,6 @@ final readonly class ImportRequeueBatchOrchestrator
         $failed = 0;
         $skipped = 0;
         $results = [];
-        $currentItem = null;
 
         try {
             foreach ($slice as $import) {
@@ -93,7 +93,6 @@ final readonly class ImportRequeueBatchOrchestrator
                 $run->addItem($item);
                 $this->batchRunRepository->save($run);
                 $this->batchRunRepository->flush();
-                $currentItem = $item;
 
                 if ($item->getAttemptCount() > $options->maxRetriesPerImport) {
                     $item->markSkipped(sprintf(
@@ -122,9 +121,9 @@ final readonly class ImportRequeueBatchOrchestrator
                 }
 
                 try {
+                    // Registering the run marks the item as queued in the same transaction; from then on only
+                    // the run updates it, even if a fast worker already finished it.
                     $this->dispatcher->dispatch($import['id'], ImportRunTrigger::BatchRequeue, $options->initiatedByUserId, $item);
-                    $runControl?->throwIfStopRequested();
-                    $item->markQueued();
                     ++$dispatched;
                     $results[] = new ImportRequeueItemResult(
                         $import['id'],
@@ -144,12 +143,14 @@ final readonly class ImportRequeueBatchOrchestrator
                 }
 
                 $this->batchRunRepository->flush();
-                $currentItem = null;
+                // A stop request takes effect between items, so a dispatched item is never marked as interrupted.
+                $runControl?->throwIfStopRequested();
             }
 
-            $run->setStatus(ImportBatchRunStatus::Finished);
-            $run->setFinishedAt(new \DateTimeImmutable());
+            $run->closeDispatch(new \DateTimeImmutable());
             $this->batchRunRepository->flush();
+            // Items may all have finished during the dispatch phase; then nobody else completes the batch.
+            $this->batchCompletion->complete((int) $run->getId());
 
             $exitCode = $failed > 0 ? ImportDispatchExitCode::FAILURE : ImportDispatchExitCode::SUCCESS;
 
@@ -162,9 +163,6 @@ final readonly class ImportRequeueBatchOrchestrator
                 results: $results,
             );
         } catch (ImportRequeueInterruptedException) {
-            if ($currentItem instanceof ImportBatchRunItem) {
-                $currentItem->markInterrupted();
-            }
             $run->setStatus(ImportBatchRunStatus::Interrupted);
             $run->setFinishedAt(new \DateTimeImmutable());
             $this->batchRunRepository->flush();

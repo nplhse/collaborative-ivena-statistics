@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Infrastructure\EventSubscriber;
 
+use App\Import\Application\Contracts\ImportBatchSummaryPublisherInterface;
 use App\Import\Application\Message\ImportAllocationsMessage;
+use App\Import\Application\Service\ImportBatchCompletion;
 use App\Import\Application\Service\ImportMilestoneRecorder;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -57,7 +60,7 @@ final class ImportRunRetriesExhaustedSubscriberTest extends TestCase
     private function subscriber(ManagerRegistry $registry, LoggerInterface $logger): ImportRunRetriesExhaustedSubscriber
     {
         return new ImportRunRetriesExhaustedSubscriber(
-            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder()),
+            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder(), new ImportBatchCompletion($this->createStub(Connection::class), $this->createStub(ImportBatchSummaryPublisherInterface::class), $logger)),
             $logger,
         );
     }
