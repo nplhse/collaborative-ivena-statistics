@@ -1,0 +1,193 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'notification.title'|trans({}, 'notification') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'notification.title', label_domain: 'notification', translatable: true }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm">
+                    <h2 class="page-title">{{ 'notification.title'|trans({}, 'notification') }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'notification.index.subtitle'|trans({count: state.unreadCount}, 'notification') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    {% set unread_filter = constant('App\\Notification\\UI\\Http\\Controller\\NotificationInboxController::FILTER_UNREAD') %}
+    <div
+        class="card"
+        data-testid="notification-inbox"
+        data-controller="checkbox-select-all notification-bulk"
+        data-notification-bulk-default-label-value="{{ 'notification.bulk.select_page'|trans({}, 'notification') }}"
+        data-notification-bulk-selected-label-value="{{ 'notification.bulk.selected'|trans({count: '%count%'}, 'notification') }}"
+    >
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" data-testid="notification-inbox-filter">
+                <li class="nav-item">
+                    <a
+                        class="nav-link{{ unreadOnly ? '' : ' active' }}"
+                        href="{{ path('app_notification_index') }}"
+                        {% if not unreadOnly %}aria-current="page"{% endif %}
+                        data-testid="notification-filter-all"
+                    >{{ 'notification.filter.all'|trans({}, 'notification') }}</a>
+                </li>
+                <li class="nav-item">
+                    <a
+                        class="nav-link{{ unreadOnly ? ' active' : '' }}"
+                        href="{{ path('app_notification_index', {filter: unread_filter}) }}"
+                        {% if unreadOnly %}aria-current="page"{% endif %}
+                        data-testid="notification-filter-unread"
+                    >
+                        {{ 'notification.filter.unread'|trans({}, 'notification') }}
+                        {% if state.unreadCount > 0 %}
+                            <span class="badge bg-primary text-primary-fg ms-2">{{ state.unreadCount > 99 ? '99+' : state.unreadCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% if notifications is not empty %}
+            {# One action bar: without a selection it acts on all entries (only the unread ones while the
+               "Unread" filter is active), with a selection it acts on the selected entries. #}
+            <div class="card-body border-bottom py-2 d-flex flex-wrap align-items-center gap-2" data-testid="notification-bulk-actions">
+                <label class="form-check m-0 me-auto">
+                    <input
+                        type="checkbox"
+                        class="form-check-input"
+                        data-checkbox-select-all-target="toggle"
+                        data-notification-bulk-target="toggle"
+                        data-action="change->checkbox-select-all#toggleAll change->notification-bulk#update"
+                        data-testid="notification-select-all"
+                    >
+                    <span class="form-check-label" data-notification-bulk-target="label" aria-live="polite">{{ 'notification.bulk.select_page'|trans({}, 'notification') }}</span>
+                </label>
+                <div class="d-flex flex-wrap gap-2" data-notification-bulk-target="allActions" data-testid="notification-all-actions">
+                    {% if state.unreadCount > 0 %}
+                        {{ include('@Notification/inbox/_read_all_form.html.twig', {
+                            target: path('app_notification_index', filterParams),
+                            button_class: 'btn btn-sm',
+                        }) }}
+                    {% endif %}
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#notification-remove-all-modal" data-testid="notification-remove-all">
+                        <twig:ux:icon name="tabler:trash" class="icon" />
+                        {{ (unreadOnly ? 'notification.action.remove_all_unread' : 'notification.action.remove_all')|trans({}, 'notification') }}
+                    </button>
+                </div>
+                <form
+                    id="notification-bulk-form"
+                    method="post"
+                    action="{{ path('app_notification_bulk') }}"
+                    class="d-flex d-none flex-wrap gap-2"
+                    data-notification-bulk-target="selectionActions"
+                    data-testid="notification-selection-actions"
+                >
+                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_BULK')) }}">
+                    <input type="hidden" name="_target" value="{{ currentPath }}">
+                    <button type="button" class="btn btn-sm btn-link" data-action="notification-bulk#clear" data-testid="notification-bulk-clear">
+                        {{ 'notification.bulk.clear'|trans({}, 'notification') }}
+                    </button>
+                    <button
+                        type="submit"
+                        name="bulk_action"
+                        value="{{ constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::BULK_READ') }}"
+                        class="btn btn-sm"
+                        data-testid="notification-bulk-read"
+                    >
+                        <twig:ux:icon name="tabler:check" class="icon" />
+                        {{ 'notification.action.read'|trans({}, 'notification') }}
+                    </button>
+                    <button
+                        type="submit"
+                        name="bulk_action"
+                        value="{{ constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::BULK_REMOVE') }}"
+                        class="btn btn-sm btn-outline-danger"
+                        data-controller="confirm-submit"
+                        data-action="click->confirm-submit#confirm"
+                        data-confirm-submit-message-value="{{ 'notification.bulk.confirm_remove'|trans({}, 'notification') }}"
+                        data-testid="notification-bulk-remove"
+                    >
+                        <twig:ux:icon name="tabler:trash" class="icon" />
+                        {{ 'notification.action.remove'|trans({}, 'notification') }}
+                    </button>
+                </form>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for notification in notifications %}
+                    {{ include('@Notification/inbox/_item.html.twig', {notification: notification, target: currentPath}) }}
+                {% endfor %}
+            </div>
+        {% elseif not isFirstPage %}
+            <div class="card-body text-center text-secondary" data-testid="notification-inbox-page-empty">
+                {{ 'notification.pagination.page_empty'|trans({}, 'notification') }}
+                <a href="{{ path('app_notification_index', filterParams) }}" class="ms-1">{{ 'notification.pagination.first'|trans({}, 'notification') }}</a>
+            </div>
+        {% else %}
+            <div class="card-body" data-testid="notification-inbox-empty">
+                {% if unreadOnly %}
+                    <twig:EmptyState
+                        icon="tabler:checks"
+                        :title="'notification.empty.unread_title'|trans({}, 'notification')"
+                        :description="'notification.empty.unread_description'|trans({}, 'notification')"
+                    />
+                {% else %}
+                    <twig:EmptyState
+                        icon="tabler:bell-off"
+                        :title="'notification.empty.title'|trans({}, 'notification')"
+                        :description="'notification.empty.description'|trans({}, 'notification')"
+                    />
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if newerPath or olderPath %}
+            {# Same markup as the cursor navigation of DataTable (@Shared/components/data_table/_cursor_nav.html.twig). #}
+            <div class="card-footer d-flex align-items-center">
+                <ul class="pagination m-0 ms-auto" aria-label="{{ 'notification.pagination.label'|trans({}, 'notification') }}" data-testid="notification-inbox-pagination">
+                    <li class="page-item{{ newerPath ? '' : ' disabled' }}">
+                        <a
+                            class="page-link"
+                            href="{{ newerPath ?: '#' }}"
+                            {% if newerPath %}rel="prev"{% else %}tabindex="-1" aria-disabled="true"{% endif %}
+                            data-testid="notification-inbox-newer"
+                        >
+                            <twig:ux:icon name="tabler:chevron-left" width="1em" height="1em" />
+                            {{ 'notification.pagination.newer'|trans({}, 'notification') }}
+                        </a>
+                    </li>
+                    <li class="page-item{{ olderPath ? '' : ' disabled' }}">
+                        <a
+                            class="page-link"
+                            href="{{ olderPath ?: '#' }}"
+                            {% if olderPath %}rel="next"{% else %}tabindex="-1" aria-disabled="true"{% endif %}
+                            data-testid="notification-inbox-older"
+                        >
+                            {{ 'notification.pagination.older'|trans({}, 'notification') }}
+                            <twig:ux:icon name="tabler:chevron-right" width="1em" height="1em" />
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    <twig:ConfirmModal
+        id="notification-remove-all-modal"
+        :title="(unreadOnly ? 'notification.remove_all.modal.title_unread' : 'notification.remove_all.modal.title')|trans({}, 'notification')"
+        :message="(unreadOnly ? 'notification.remove_all.modal.body_unread' : 'notification.remove_all.modal.body')|trans({}, 'notification')"
+        :action="path('app_notification_remove_all', filterParams)"
+        :csrfToken="csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_REMOVE_ALL'))"
+        :confirmLabel="(unreadOnly ? 'notification.action.remove_all_unread' : 'notification.action.remove_all')|trans({}, 'notification')"
+        :cancelLabel="'action.cancel'|trans({}, 'messages')"
+    />
+    <p class="text-secondary small mt-3" data-testid="notification-retention-notice">
+        <twig:ux:icon name="tabler:info-circle" class="icon me-1" />
+        {{ 'notification.retention_notice'|trans({}, 'notification') }}
+    </p>
+{% endblock %}

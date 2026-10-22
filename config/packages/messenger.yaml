@@ -52,6 +52,7 @@ framework:
             App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: async_priority_low
             App\Analytics\Application\Message\AggregateDailyAnalyticsMessage: async_priority_low
             App\Allocation\Application\Message\BackfillAllocationsForIndicationRawMessage: async_priority_low
+            App\Notification\Application\Message\CleanUpNotificationsMessage: async_priority_low
 
 when@dev:
     framework:
@@ -74,4 +75,5 @@ when@test:
                 App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage: sync
                 App\Analytics\Application\Message\AggregateDailyAnalyticsMessage: sync
                 App\Allocation\Application\Message\BackfillAllocationsForIndicationRawMessage: sync
+                App\Notification\Application\Message\CleanUpNotificationsMessage: sync
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync

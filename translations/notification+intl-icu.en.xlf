@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="en" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="NtfD2FEBF6B" resname="notification.dropdown.show_all">
+        <source>notification.dropdown.show_all</source>
+        <target>{count, plural, =0 {Open notifications} one {Show # notification} other {Show all # notifications}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1FD72BCA" resname="notification.dropdown.empty">
+        <source>notification.dropdown.empty</source>
+        <target>No unread notifications</target>
+      </trans-unit>
+      <trans-unit id="NtfBAAE5495" resname="notification.action.remove_all_unread">
+        <source>notification.action.remove_all_unread</source>
+        <target>Remove all unread</target>
+      </trans-unit>
+      <trans-unit id="Ntf3F45CDBE" resname="notification.remove_all.modal.title_unread">
+        <source>notification.remove_all.modal.title_unread</source>
+        <target>Remove all unread notifications?</target>
+      </trans-unit>
+      <trans-unit id="Ntf87AA883F" resname="notification.remove_all.modal.body_unread">
+        <source>notification.remove_all.modal.body_unread</source>
+        <target>All your unread notifications will be removed from your inbox. Read notifications stay. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="NtfEAC5C279" resname="notification.bulk.selected">
+        <source>notification.bulk.selected</source>
+        <target>{count} selected</target>
+      </trans-unit>
+      <trans-unit id="NtfA439C272" resname="notification.bulk.clear">
+        <source>notification.bulk.clear</source>
+        <target>Clear selection</target>
+      </trans-unit>
+      <trans-unit id="Ntf8C034F13" resname="notification.action.remove_all">
+        <source>notification.action.remove_all</source>
+        <target>Remove all</target>
+      </trans-unit>
+      <trans-unit id="NtfD23CD63B" resname="notification.remove_all.modal.title">
+        <source>notification.remove_all.modal.title</source>
+        <target>Remove all notifications?</target>
+      </trans-unit>
+      <trans-unit id="NtfAE6A2954" resname="notification.remove_all.modal.body">
+        <source>notification.remove_all.modal.body</source>
+        <target>All your notifications, read and unread, will be removed from your inbox. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="Ntf5BE42711" resname="notification.bulk.select_page">
+        <source>notification.bulk.select_page</source>
+        <target>Select all on this page</target>
+      </trans-unit>
+      <trans-unit id="NtfD0CF1C3D" resname="notification.bulk.select_item">
+        <source>notification.bulk.select_item</source>
+        <target>Select notification: {title}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1CDD29D7" resname="notification.bulk.confirm_remove">
+        <source>notification.bulk.confirm_remove</source>
+        <target>Remove the selected notifications?</target>
+      </trans-unit>
+      <trans-unit id="Ntf181696BE" resname="notification.flash.none_selected">
+        <source>notification.flash.none_selected</source>
+        <target>No notifications were selected.</target>
+      </trans-unit>
+      <trans-unit id="NtfA2938B9C" resname="notification.flash.marked_read">
+        <source>notification.flash.marked_read</source>
+        <target>{count, plural, =0 {No notification was marked as read.} one {# notification was marked as read.} other {# notifications were marked as read.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf95DA62FE" resname="notification.flash.removed">
+        <source>notification.flash.removed</source>
+        <target>{count, plural, =0 {No notification was removed.} one {# notification was removed.} other {# notifications were removed.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf6D33508A" resname="notification.pagination.label">
+        <source>notification.pagination.label</source>
+        <target>Notification pages</target>
+      </trans-unit>
+      <trans-unit id="Ntf90EBFF54" resname="notification.pagination.newer">
+        <source>notification.pagination.newer</source>
+        <target>Newer</target>
+      </trans-unit>
+      <trans-unit id="NtfCB297C92" resname="notification.pagination.older">
+        <source>notification.pagination.older</source>
+        <target>Older</target>
+      </trans-unit>
+      <trans-unit id="Ntf5817EBBC" resname="notification.pagination.page_empty">
+        <source>notification.pagination.page_empty</source>
+        <target>There are no notifications on this page any more.</target>
+      </trans-unit>
+      <trans-unit id="NtfEEFA08F7" resname="notification.pagination.first">
+        <source>notification.pagination.first</source>
+        <target>Show the newest notifications</target>
+      </trans-unit>
+      <trans-unit id="NtfE061826E" resname="notification.retention_notice">
+        <source>notification.retention_notice</source>
+        <target>Read notifications are deleted automatically after 30 days, unread ones after 90 days.</target>
+      </trans-unit>
+      <trans-unit id="NtfAE55BB36" resname="notification.unread_count">
+        <source>notification.unread_count</source>
+        <target>{count, plural, one {# unread} other {# unread}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf94CD6456" resname="notification.filter.all">
+        <source>notification.filter.all</source>
+        <target>All</target>
+      </trans-unit>
+      <trans-unit id="NtfB5BFC91F" resname="notification.filter.unread">
+        <source>notification.filter.unread</source>
+        <target>Unread</target>
+      </trans-unit>
+      <trans-unit id="Ntf3A2D1010" resname="notification.empty.unread_title">
+        <source>notification.empty.unread_title</source>
+        <target>All caught up</target>
+      </trans-unit>
+      <trans-unit id="NtfE25C6646" resname="notification.empty.unread_description">
+        <source>notification.empty.unread_description</source>
+        <target>You have no unread notifications.</target>
+      </trans-unit>
+      <trans-unit id="Ntf7B7CC0E9" resname="demo.import_finished.title">
+        <source>demo.import_finished.title</source>
+        <target>Import "{importName}" finished</target>
+      </trans-unit>
+      <trans-unit id="NtfB05E095F" resname="demo.import_finished.message">
+        <source>demo.import_finished.message</source>
+        <target>{rows, number} rows were processed. (Demo)</target>
+      </trans-unit>
+      <trans-unit id="Ntf58DAAD66" resname="demo.hospital.title">
+        <source>demo.hospital.title</source>
+        <target>New data for {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfE7DDAF6F" resname="demo.hospital.message">
+        <source>demo.hospital.message</source>
+        <target>This demo entry refers to {hospitalName}. (Demo)</target>
+      </trans-unit>
+      <trans-unit id="Ntf92EC08C9" resname="demo.admin_only.title">
+        <source>demo.admin_only.title</source>
+        <target>Administrative notice</target>
+      </trans-unit>
+      <trans-unit id="NtfA1FBE3A2" resname="demo.admin_only.message">
+        <source>demo.admin_only.message</source>
+        <target>Only administrators can see this entry. (Demo)</target>
+      </trans-unit>
+      <trans-unit id="Ntf71FA27AC" resname="notification.action.read">
+        <source>notification.action.read</source>
+        <target>Mark as read</target>
+      </trans-unit>
+      <trans-unit id="NtfC3295454" resname="notification.action.read_all">
+        <source>notification.action.read_all</source>
+        <target>Mark all as read</target>
+      </trans-unit>
+      <trans-unit id="Ntf4A641482" resname="notification.action.remove">
+        <source>notification.action.remove</source>
+        <target>Remove</target>
+      </trans-unit>
+      <trans-unit id="NtfED9D293F" resname="notification.bell.label">
+        <source>notification.bell.label</source>
+        <target>{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}</target>
+      </trans-unit>
+      <trans-unit id="NtfBD976864" resname="notification.empty.description">
+        <source>notification.empty.description</source>
+        <target>We will let you know here when something concerns you, for example when an import has finished.</target>
+      </trans-unit>
+      <trans-unit id="NtfC38B99A5" resname="notification.empty.title">
+        <source>notification.empty.title</source>
+        <target>No notifications yet</target>
+      </trans-unit>
+      <trans-unit id="NtfBC7DA15F" resname="notification.index.subtitle">
+        <source>notification.index.subtitle</source>
+        <target>{count, plural, =0 {You have no unread notifications.} one {You have # unread notification.} other {You have # unread notifications.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf4709D7CF" resname="notification.loading">
+        <source>notification.loading</source>
+        <target>Loading notifications …</target>
+      </trans-unit>
+      <trans-unit id="NtfE5BBDA0A" resname="notification.redacted.message">
+        <source>notification.redacted.message</source>
+        <target>You no longer have access to the hospital this notification was about.</target>
+      </trans-unit>
+      <trans-unit id="NtfCF01A719" resname="notification.redacted.title">
+        <source>notification.redacted.title</source>
+        <target>Notification about a hospital</target>
+      </trans-unit>
+      <trans-unit id="NtfB8613ED5" resname="notification.title">
+        <source>notification.title</source>
+        <target>Notifications</target>
+      </trans-unit>
+      <trans-unit id="Ntf3E8A7704" resname="notification.unread">
+        <source>notification.unread</source>
+        <target>Unread</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

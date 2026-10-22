@@ -1,0 +1,52 @@
+{# Compact entry for the header dropdown, following the Tabler "Last updates" pattern. #}
+{% set title = notification.titleKey|trans(notification.parameters, notification.translationDomain) %}
+<div
+    class="list-group-item"
+    data-testid="notification-item"
+    data-notification-id="{{ notification.id }}"
+    data-notification-read="{{ notification.isRead ? 'true' : 'false' }}"
+>
+    <div class="row align-items-center">
+        <div class="col-auto">
+            {% if notification.isRead %}
+                <span class="status-dot d-block" aria-hidden="true"></span>
+            {% else %}
+                <span class="status-dot status-dot-animated bg-primary d-block" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'notification.unread'|trans({}, 'notification') }}</span>
+            {% endif %}
+        </div>
+        <div class="col text-truncate">
+            {% if notification.hasLink %}
+                <a
+                    href="{{ path('app_notification_open', {id: notification.id}) }}"
+                    class="text-body d-block text-truncate"
+                    data-turbo-frame="_top"
+                    data-testid="notification-item-link"
+                >{{ title }}</a>
+            {% else %}
+                <div class="text-body d-block text-truncate">{{ title }}</div>
+            {% endif %}
+            <div class="d-block text-secondary text-truncate mt-n1">
+                {{ notification.messageKey|trans(notification.parameters, notification.translationDomain) }}
+            </div>
+            <twig:RelativeTimestamp :datetime="notification.createdAt" class="text-secondary small" />
+        </div>
+        {% if not notification.isRead %}
+            <div class="col-auto">
+                <form method="post" action="{{ path('app_notification_read', {id: notification.id}) }}" data-turbo-frame="_top">
+                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_READ')) }}">
+                    <input type="hidden" name="_target" value="{{ target }}">
+                    <button
+                        type="submit"
+                        class="list-group-item-actions btn btn-link p-0 border-0"
+                        title="{{ 'notification.action.read'|trans({}, 'notification') }}"
+                        aria-label="{{ 'notification.action.read'|trans({}, 'notification') }}"
+                        data-testid="notification-item-read"
+                    >
+                        <twig:ux:icon name="tabler:check" class="icon text-secondary" />
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>

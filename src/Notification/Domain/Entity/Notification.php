@@ -76,6 +76,9 @@ class Notification
     #[ORM\Column(nullable: true)]
     private ?int $scopeReferenceId = null;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $requiredRole = null;
+
     /** @var array<string, scalar|null> */
     #[ORM\Column(type: Types::JSON)]
     private array $metadata = [];
@@ -120,6 +123,7 @@ class Notification
         ?int $scopeReferenceId = null,
         array $metadata = [],
         ?\DateTimeImmutable $toastPendingUntil = null,
+        ?string $requiredRole = null,
     ) {
         $this->recipient = $recipient;
         $this->type = $type;
@@ -137,6 +141,7 @@ class Notification
         $this->scopeReferenceId = $scopeReferenceId;
         $this->metadata = $metadata;
         $this->toastPendingUntil = $toastPendingUntil;
+        $this->requiredRole = $requiredRole;
     }
 
     public function getId(): ?int
@@ -208,6 +213,11 @@ class Notification
     public function getScopeReferenceId(): ?int
     {
         return $this->scopeReferenceId;
+    }
+
+    public function getRequiredRole(): ?string
+    {
+        return $this->requiredRole;
     }
 
     /**

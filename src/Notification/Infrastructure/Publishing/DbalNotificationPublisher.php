@@ -149,11 +149,11 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
             <<<'SQL'
                 INSERT INTO notification (
                     recipient_id, type, category, priority, translation_domain, title_key, message_key,
-                    parameters, action_route, action_parameters, access_scope, scope_reference_id,
+                    parameters, action_route, action_parameters, access_scope, scope_reference_id, required_role,
                     metadata, in_app_visible, created_at, toast_pending_until
                 ) VALUES (
                     :recipient, :type, :category, :priority, :translation_domain, :title_key, :message_key,
-                    :parameters, :action_route, :action_parameters, :access_scope, :scope_reference_id,
+                    :parameters, :action_route, :action_parameters, :access_scope, :scope_reference_id, :required_role,
                     :metadata, :in_app_visible, :created_at, :toast_pending_until
                 )
                 RETURNING id
@@ -171,6 +171,7 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
                 'action_parameters' => $request->action->routeParameters ?? [],
                 'access_scope' => $definition->accessScope->value,
                 'scope_reference_id' => $request->scopeReferenceId,
+                'required_role' => $definition->requiredRole,
                 'metadata' => $request->metadata,
                 'in_app_visible' => true,
                 'created_at' => $now,

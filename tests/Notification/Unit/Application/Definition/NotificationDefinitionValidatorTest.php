@@ -6,6 +6,7 @@ namespace App\Tests\Notification\Unit\Application\Definition;
 
 use App\Notification\Application\Definition\NotificationDefinition;
 use App\Notification\Application\Definition\NotificationDefinitionValidator;
+use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationChannel;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,6 +19,7 @@ final class NotificationDefinitionValidatorTest extends TestCase
         $definition = $this->definition(defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast], availableChannels: [NotificationChannel::InApp, NotificationChannel::Email, NotificationChannel::Toast]);
 
         self::assertSame([], new NotificationDefinitionValidator()->validate($definition));
+        self::assertSame([], new NotificationDefinitionValidator()->validate(self::definition(accessScope: NotificationAccessScope::Role, requiredRole: 'ROLE_ADMIN')));
     }
 
     /**
@@ -34,8 +36,10 @@ final class NotificationDefinitionValidatorTest extends TestCase
         array $mandatoryChannels = [],
         bool $configurable = true,
         string $deduplicationTtl = 'P7D',
+        NotificationAccessScope $accessScope = NotificationAccessScope::None,
+        ?string $requiredRole = null,
     ): void {
-        $errors = new NotificationDefinitionValidator()->validate($this->definition(type: $type, defaultChannels: $defaultChannels, availableChannels: $availableChannels, mandatoryChannels: $mandatoryChannels, configurable: $configurable, deduplicationTtl: $deduplicationTtl));
+        $errors = new NotificationDefinitionValidator()->validate($this->definition(type: $type, defaultChannels: $defaultChannels, availableChannels: $availableChannels, mandatoryChannels: $mandatoryChannels, configurable: $configurable, deduplicationTtl: $deduplicationTtl, accessScope: $accessScope, requiredRole: $requiredRole));
 
         self::assertNotSame([], $errors);
         self::assertStringContainsString($expectedError, implode(' | ', $errors));
@@ -84,6 +88,9 @@ final class NotificationDefinitionValidatorTest extends TestCase
         ];
         yield 'ttl not iso 8601' => ['expectedError' => 'is not an ISO 8601 duration', 'deduplicationTtl' => '7 days'];
         yield 'ttl equal to reconciliation window' => ['expectedError' => 'must be longer than the reconciliation window', 'deduplicationTtl' => 'PT24H'];
+        yield 'role scope without role' => ['expectedError' => 'role-scoped type needs a requiredRole', 'accessScope' => NotificationAccessScope::Role];
+        yield 'role scope with invalid role' => ['expectedError' => 'role-scoped type needs a requiredRole', 'accessScope' => NotificationAccessScope::Role, 'requiredRole' => 'admin'];
+        yield 'role outside role scope' => ['expectedError' => 'requiredRole is only allowed for role-scoped types', 'requiredRole' => 'ROLE_ADMIN'];
         yield 'ttl shorter than reconciliation window' => ['expectedError' => 'must be longer than the reconciliation window', 'deduplicationTtl' => 'PT1H'];
     }
 
@@ -99,6 +106,8 @@ final class NotificationDefinitionValidatorTest extends TestCase
         array $mandatoryChannels = [],
         bool $configurable = true,
         string $deduplicationTtl = 'P7D',
+        NotificationAccessScope $accessScope = NotificationAccessScope::None,
+        ?string $requiredRole = null,
     ): NotificationDefinition {
         return new NotificationDefinition(
             type: $type,
@@ -107,7 +116,9 @@ final class NotificationDefinitionValidatorTest extends TestCase
             availableChannels: $availableChannels,
             configurable: $configurable,
             mandatoryChannels: $mandatoryChannels,
+            accessScope: $accessScope,
             deduplicationTtl: $deduplicationTtl,
+            requiredRole: $requiredRole,
         );
     }
 }

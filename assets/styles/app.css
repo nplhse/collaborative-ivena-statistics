@@ -2076,3 +2076,35 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     flex: 0 0 auto;
     white-space: nowrap;
 }
+
+/* Notification dropdown (ADR 016): hover actions stay reachable for keyboard users. */
+.list-group-hoverable .list-group-item-actions:focus-visible {
+    opacity: 1;
+}
+
+/* Notification bell: the unread dot sits on the icon's top right corner, not on the wider nav link. */
+.notification-bell-icon {
+    position: relative;
+    display: inline-flex;
+}
+
+.navbar .navbar-nav .nav-link .notification-bell-icon .badge:empty {
+    top: 0;
+    inset-inline-end: 0;
+}
+
+/* Notification dropdown on phones: full width below the navbar instead of overflowing the left edge. */
+@media (max-width: 575.98px) {
+    header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu {
+        position: fixed;
+        top: 3.5rem;
+        inset-inline: 0.5rem;
+        width: auto;
+        min-width: 0;
+    }
+
+    header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu.dropdown-menu-arrow::before,
+    header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu.dropdown-menu-arrow::after {
+        display: none;
+    }
+}

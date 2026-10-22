@@ -63,6 +63,7 @@
             <directory>tests/Import/Functional</directory>
             <directory>tests/Install/Functional</directory>
             <directory>tests/Kpi/Functional</directory>
+            <directory>tests/Notification/Functional</directory>
             <directory>tests/Onboarding/Functional</directory>
             <directory>tests/Shared/Functional</directory>
             <directory>tests/Statistics/Functional</directory>
