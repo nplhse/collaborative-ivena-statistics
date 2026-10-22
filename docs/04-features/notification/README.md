@@ -84,6 +84,21 @@ Hospital access comes from `NotificationHospitalAccessInterface`, implemented in
 - deletes expired deduplication keys;
 - recounts `unread_count` per recipient with the visibility rules above and increments `version` where it changed.
 
+## Trying it locally
+
+No production type publishes notifications yet. In `dev`, the command `app:notification:demo` creates demo entries for a user through the real publisher:
+
+```bash
+php bin/console app:notification:demo <username-or-email> --count=30
+```
+
+- `--count` normal entries with a link (default 3); more than 25 show the "load older" step of the overview.
+- One hospital-scoped entry about a hospital the user cannot access, so it is shown redacted (skipped when the user can access every hospital, e.g. admins).
+- One admin-only entry, hidden for users without `ROLE_ADMIN`.
+- `--clear` removes all notifications of the user first.
+
+The command and its demo types live in `src/DataFixtures/Notification/` and exist only in `dev` and `test`.
+
 ## Storage
 
 | Table | Purpose |

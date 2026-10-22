@@ -5,6 +5,30 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="Ntf7B7CC0E9" resname="demo.import_finished.title">
+        <source>demo.import_finished.title</source>
+        <target>Import „{importName}“ abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="NtfB05E095F" resname="demo.import_finished.message">
+        <source>demo.import_finished.message</source>
+        <target>{rows, number} Zeilen wurden verarbeitet. (Demo)</target>
+      </trans-unit>
+      <trans-unit id="Ntf58DAAD66" resname="demo.hospital.title">
+        <source>demo.hospital.title</source>
+        <target>Neue Daten für {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfE7DDAF6F" resname="demo.hospital.message">
+        <source>demo.hospital.message</source>
+        <target>Dieser Demo-Eintrag bezieht sich auf {hospitalName}. (Demo)</target>
+      </trans-unit>
+      <trans-unit id="Ntf92EC08C9" resname="demo.admin_only.title">
+        <source>demo.admin_only.title</source>
+        <target>Hinweis für Administratoren</target>
+      </trans-unit>
+      <trans-unit id="NtfA1FBE3A2" resname="demo.admin_only.message">
+        <source>demo.admin_only.message</source>
+        <target>Nur Administratoren sehen diesen Eintrag. (Demo)</target>
+      </trans-unit>
       <trans-unit id="Ntf3F32290C" resname="notification.action.load_more">
         <source>notification.action.load_more</source>
         <target>Ältere Benachrichtigungen laden</target>
