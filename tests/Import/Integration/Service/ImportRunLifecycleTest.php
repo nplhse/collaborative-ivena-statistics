@@ -8,6 +8,8 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\DTO\ImportRunContext;
+use App\Import\Application\DTO\ImportRunOutcome;
+use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportRunLifecycle;
@@ -56,6 +58,8 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
         self::assertInstanceOf(ImportRun::class, $stored);
         self::assertSame(ImportRunStatus::Queued, $stored->getStatus());
         self::assertSame(ImportRunTrigger::Console, $stored->getTrigger());
+        self::assertSame($importId, $stored->getImport()->getId());
+        self::assertEquals($run->getCreatedAt()->getTimestamp(), $stored->getCreatedAt()->getTimestamp());
         self::assertSame($initiator->getId(), $stored->getInitiatedBy()?->getId());
         self::assertNull($stored->getStartedAt());
         self::assertEquals($run->getId(), $this->import($importId)->getCurrentRunId());
@@ -228,6 +232,120 @@ final class ImportRunLifecycleTest extends DatabaseKernelTestCase
         $this->em->flush();
 
         self::assertSame([], $this->runs->findByImportId($importId));
+    }
+
+    public function testRegisteringARunForAMissingImportFails(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->lifecycle->register(2_147_483_647, ImportRunTrigger::Console);
+    }
+
+    public function testACurrentRunIdWithoutRunIsReplacedWithoutSuperseding(): void
+    {
+        $importId = $this->createImport(runCount: 0);
+        $this->em->getConnection()->executeStatement(
+            'UPDATE import SET current_run_id = :runId WHERE id = :id',
+            ['runId' => Uuid::v7()->toRfc4122(), 'id' => $importId],
+        );
+        $this->em->clear();
+
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
+
+        $this->em->clear();
+        self::assertEquals($run->getId(), $this->import($importId)->getCurrentRunId());
+        self::assertSame(0, $this->import($importId)->getRunCount());
+    }
+
+    public function testRollbackWithAClosedEntityManagerKeepsTheOriginalError(): void
+    {
+        $importId = $this->createImport(runCount: 0);
+
+        try {
+            $this->lifecycle->register($importId, ImportRunTrigger::Console, null, null, function (): never {
+                $this->em->close();
+
+                throw new \RuntimeException('worker died');
+            });
+            self::fail('The dispatch error must propagate.');
+        } catch (\RuntimeException $e) {
+            self::assertSame('worker died', $e->getMessage());
+        }
+
+        self::getContainer()->get('doctrine')->resetManager();
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        self::assertSame([], self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId));
+        self::assertTrue($em->isOpen());
+    }
+
+    public function testStartResetsAClosedEntityManager(): void
+    {
+        $importId = $this->createImport(runCount: 0);
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
+        $this->em->close();
+
+        $context = $this->lifecycle->start(new ImportAllocationsMessage($importId, $run->getId()->toRfc4122()));
+
+        self::assertInstanceOf(ImportRunContext::class, $context);
+    }
+
+    public function testStartIgnoresLegacyMessagesAndMissingImports(): void
+    {
+        self::assertNull($this->lifecycle->start(new ImportAllocationsMessage(1)));
+        self::assertNull($this->lifecycle->start(new ImportAllocationsMessage(2_147_483_647, Uuid::v7()->toRfc4122())));
+        self::assertFalse($this->lifecycle->failAfterRetriesExhausted(new ImportAllocationsMessage(1)));
+    }
+
+    public function testFailedEvaluationRollsBackAndKeepsTheRunOpen(): void
+    {
+        $importId = $this->createImport(runCount: 0);
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
+        $context = $this->lifecycle->start(new ImportAllocationsMessage($importId, $run->getId()->toRfc4122()));
+        self::assertInstanceOf(ImportRunContext::class, $context);
+
+        try {
+            $this->lifecycle->finish($context, static function (Import $import): ImportRunOutcome {
+                $import->setName('Never committed');
+
+                throw new \RuntimeException('deduplication failed');
+            });
+            self::fail('The evaluation error must propagate.');
+        } catch (\RuntimeException $e) {
+            self::assertSame('deduplication failed', $e->getMessage());
+        }
+
+        $this->em->clear();
+        self::assertSame(ImportRunStatus::Running, $this->runs->find($run->getId())?->getStatus());
+        self::assertNotSame('Never committed', $this->import($importId)->getName());
+        self::assertFalse($this->em->getConnection()->isTransactionActive());
+    }
+
+    public function testFinishCommitsTheEvaluatedResultAndDispatchesImportCompleted(): void
+    {
+        $importId = $this->createImport(runCount: 0);
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Console);
+        $context = $this->lifecycle->start(new ImportAllocationsMessage($importId, $run->getId()->toRfc4122()));
+        self::assertInstanceOf(ImportRunContext::class, $context);
+        $completed = [];
+        self::getContainer()->get(EventDispatcherInterface::class)
+            ->addListener(ImportCompleted::class, static function (ImportCompleted $event) use (&$completed): void {
+                $completed[] = $event->runId;
+            });
+
+        $outcome = $this->lifecycle->finish($context, static function (Import $import): ImportRunOutcome {
+            $import->markAsPartial(total: 10, ok: 8, rejected: 2, runtimeMs: 5);
+
+            return ImportRunOutcome::fromEvaluatedImport($import);
+        });
+
+        self::assertSame(ImportRunStatus::Partial, $outcome?->status);
+        self::assertSame([$run->getId()->toRfc4122()], $completed);
+        $this->em->clear();
+        $stored = $this->runs->find($run->getId());
+        self::assertInstanceOf(ImportRun::class, $stored);
+        self::assertSame(8, $stored->getRowsOk());
+        self::assertSame(2, $stored->getRowsRejected());
+        self::assertSame(1, $this->import($importId)->getRunCount());
     }
 
     private function contextFor(int $importId, ImportRun $run): ImportRunContext

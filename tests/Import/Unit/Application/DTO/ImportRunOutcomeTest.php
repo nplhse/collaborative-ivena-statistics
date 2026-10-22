@@ -61,4 +61,18 @@ final class ImportRunOutcomeTest extends TestCase
         self::assertSame(ImportRunReasonCode::FileNotFound, $outcome->reasonCode);
         self::assertNull($outcome->rowsTotal);
     }
+
+    public function testImportWithoutStatusIsRejected(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        ImportRunOutcome::fromEvaluatedImport(new Import());
+    }
+
+    public function testOpenStatusIsRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new ImportRunOutcome(ImportRunStatus::Running);
+    }
 }

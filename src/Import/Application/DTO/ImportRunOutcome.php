@@ -21,6 +21,9 @@ final readonly class ImportRunOutcome
         public ?int $rowsRejected = null,
         public ?ImportRunReasonCode $reasonCode = null,
     ) {
+        if (!$status->isTerminal()) {
+            throw new \InvalidArgumentException(\sprintf('Run status "%s" is not terminal.', $status->value));
+        }
     }
 
     public static function failed(ImportRunReasonCode $reasonCode): self

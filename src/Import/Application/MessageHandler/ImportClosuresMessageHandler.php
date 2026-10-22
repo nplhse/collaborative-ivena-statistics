@@ -253,43 +253,16 @@ final readonly class ImportClosuresMessageHandler
             return;
         }
 
-        $reason = $this->resolvePermissionFailure($import)?->describe();
-        if (null !== $reason) {
+        $source = $this->resolveSourceFile($import);
+        if ($source instanceof ImportRunReasonCode) {
+            $reason = $source->describe();
             $this->markFailed($import, $reason);
             $this->dispatchImportOutcome($importId, $reason);
 
             return;
         }
 
-        $filePath = $import->getFilePath();
-        if (null === $filePath) {
-            $this->markFailed($import, 'Import has no file path');
-            $this->dispatchImportOutcome($importId, 'Import has no file path');
-
-            return;
-        }
-
-        try {
-            $filePath = $this->fileStorage->resolve($filePath);
-        } catch (ImportFilePathOutsideBaseException $e) {
-            $reason = 'Invalid import file path';
-            $this->importLogger->error('closure.import.file_path.outside_base', [
-                'id' => $importId,
-                'msg' => $e->getMessage(),
-            ]);
-            $this->markFailed($import, $reason);
-            $this->dispatchImportOutcome($importId, $reason);
-
-            return;
-        }
-
-        if (!\is_file($filePath)) {
-            $reason = 'CSV not found: '.$filePath;
-            $this->markFailed($import, $reason);
-            $this->dispatchImportOutcome($importId, $reason);
-
-            return;
-        }
+        $filePath = $source;
 
         $this->auditContext->pushSuppressedEntityAudit(ImportRunSuppressedAuditClasses::fqcnList());
         try {

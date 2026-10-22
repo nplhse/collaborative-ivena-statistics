@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Integration\MessageHandler;
 
+use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\DTO\ImportRunContext;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
@@ -20,11 +21,15 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
 use App\Import\Infrastructure\Repository\ImportRunRepository;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRejectWriter;
+use App\User\Domain\Entity\User;
+use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Driver\AbstractException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Uid\Uuid;
 
 final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAllocationsMessageHandlerTestCase
 {
@@ -210,6 +215,163 @@ final class ImportAllocationsMessageHandlerRunLifecycleTest extends ImportAlloca
 
         $this->em->clear();
         self::assertSame(1, $this->countAllocationsForImport($id), 'Data is kept for the newer run.');
+    }
+
+    public function testCreatorWithoutImportPermissionEndsTheRunAsFailed(): void
+    {
+        ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $outsider = UserFactory::createOne(['username' => 'no-permission-'.bin2hex(random_bytes(4))]);
+        $import = $this->imports->find($id);
+        self::assertNotNull($import);
+        $import->setCreatedBy($this->em->getReference(User::class, $outsider->getId()));
+        $this->em->flush();
+        $this->em->clear();
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
+
+        $this->handler->__invoke(new ImportAllocationsMessage($id, $run->getId()->toRfc4122()));
+
+        $this->em->clear();
+        self::assertSame(ImportRunReasonCode::MissingImportPermission, $this->storedRun($run)->getReasonCode());
+    }
+
+    public function testFilePathOutsideTheImportsBaseEndsTheRunAsFailed(): void
+    {
+        $id = $this->arrangeImportWithFilePath('/etc/passwd');
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
+
+        $this->handler->__invoke(new ImportAllocationsMessage($id, $run->getId()->toRfc4122()));
+
+        $this->em->clear();
+        self::assertSame(ImportRunReasonCode::InvalidFilePath, $this->storedRun($run)->getReasonCode());
+        self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+    }
+
+    public function testLegacyMessageWithFilePathOutsideTheImportsBaseMarksTheImportFailed(): void
+    {
+        $id = $this->arrangeImportWithFilePath('/etc/passwd');
+        /** @var list<ImportFailed> $failed */
+        $failed = [];
+        self::getContainer()->get(EventDispatcherInterface::class)
+            ->addListener(ImportFailed::class, static function (ImportFailed $event) use (&$failed): void {
+                $failed[] = $event;
+            });
+
+        $this->handler->__invoke(new ImportAllocationsMessage($id));
+
+        self::assertCount(1, $failed);
+        self::assertSame(ImportRunReasonCode::InvalidFilePath->describe(), $failed[0]->reason);
+        self::assertNull($failed[0]->runId);
+        self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+    }
+
+    public function testImportWithoutFilePathCannotStart(): void
+    {
+        ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $import = $this->imports->find($id);
+        self::assertNotNull($import);
+        new \ReflectionProperty($import, 'filePath')->setValue($import, null);
+
+        $reason = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolveSourceFile')
+            ->invoke($this->handler, $import);
+
+        self::assertSame(ImportRunReasonCode::MissingFilePath, $reason);
+        $this->em->clear();
+    }
+
+    public function testUnreadableFileEndsTheRunWithAProcessingError(): void
+    {
+        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
+        \file_put_contents($csvPath, '');
+        $run = $this->lifecycle->register($id, ImportRunTrigger::Console);
+
+        $this->handler->__invoke(new ImportAllocationsMessage($id, $run->getId()->toRfc4122()));
+
+        $this->em->clear();
+        $stored = $this->storedRun($run);
+        self::assertSame(ImportRunStatus::Failed, $stored->getStatus());
+        self::assertSame(ImportRunReasonCode::ProcessingError, $stored->getReasonCode());
+        self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+    }
+
+    public function testLegacyMessageWithUnreadableFileIsRetriedAsBefore(): void
+    {
+        ['id' => $id, 'csvPath' => $csvPath] = $this->arrangeSingleRowSuccessfulCsvImport();
+        \file_put_contents($csvPath, '');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('File is empty');
+
+        $this->handler->__invoke(new ImportAllocationsMessage($id));
+    }
+
+    public function testRunOfAMissingImportIsIgnored(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'processRun')
+            ->invoke($this->handler, new ImportRunContext(2_147_483_647, Uuid::v7()));
+    }
+
+    public function testRunThatIsSupersededBeforeItsFirstCommitWritesNothing(): void
+    {
+        ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $runA = $this->lifecycle->register($id, ImportRunTrigger::Console);
+        $contextA = $this->lifecycle->start(new ImportAllocationsMessage($id, $runA->getId()->toRfc4122()));
+        self::assertInstanceOf(ImportRunContext::class, $contextA);
+        $this->lifecycle->register($id, ImportRunTrigger::Console);
+
+        new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'processRun')
+            ->invoke($this->handler, $contextA);
+
+        $this->em->clear();
+        self::assertSame(0, $this->countAllocationsForImport($id));
+        self::assertSame(ImportStatus::PENDING, $this->imports->find($id)?->getStatus());
+        self::assertSame(ImportRunStatus::Superseded, $this->storedRun($runA)->getStatus());
+    }
+
+    public function testLegacyRunMarksTheImportFailedAndRethrowsReaderErrors(): void
+    {
+        ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $import = $this->imports->find($id);
+        self::assertNotNull($import);
+        $reader = new class implements RowReaderInterface {
+            public function rows(): iterable
+            {
+                return [];
+            }
+
+            public function header(): ?array
+            {
+                return null;
+            }
+
+            public function rowsAssoc(): iterable
+            {
+                throw new \RuntimeException('reader failed');
+            }
+        };
+
+        try {
+            $this->handler->run($import, $reader, new InMemoryRejectWriter());
+            self::fail('The reader error must be rethrown.');
+        } catch (\RuntimeException $e) {
+            self::assertSame('reader failed', $e->getMessage());
+        }
+
+        $this->em->clear();
+        self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+    }
+
+    private function arrangeImportWithFilePath(string $filePath): int
+    {
+        ['id' => $id] = $this->arrangeSingleRowSuccessfulCsvImport();
+        $import = $this->imports->find($id);
+        self::assertNotNull($import);
+        $import->setFilePath($filePath);
+        $this->em->flush();
+        $this->em->clear();
+
+        return $id;
     }
 
     public function testLegacyMessageIsProcessedWithoutCreatingARun(): void

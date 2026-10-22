@@ -257,12 +257,8 @@ final readonly class ImportRunLifecycle
                 return null;
             }
 
-            $import = $em->find(Import::class, $context->importId);
-            if (!$import instanceof Import) {
-                $connection->rollBack();
-
-                return null;
-            }
+            // The locked row exists, so the import exists.
+            $import = $em->find(Import::class, $context->importId) ?? throw new \LogicException('Locked import vanished.');
 
             // The row is locked now; work on its committed state, not on a stale copy in the identity map.
             $em->refresh($import);
@@ -361,10 +357,6 @@ final readonly class ImportRunLifecycle
      */
     private function transitionToTerminal(EntityManagerInterface $em, Uuid $runId, ImportRunOutcome $outcome, \DateTimeImmutable $now): bool
     {
-        if (!$outcome->status->isTerminal()) {
-            throw new \InvalidArgumentException(\sprintf('Run status "%s" is not terminal.', $outcome->status->value));
-        }
-
         $updated = $em->createQuery(\sprintf(
             'UPDATE %s run
              SET run.status = :status,
@@ -393,22 +385,25 @@ final readonly class ImportRunLifecycle
         return 1 === $updated;
     }
 
+    /**
+     * end() only receives completed, partial or failed outcomes; superseded runs dispatch nothing.
+     */
     private function dispatchOutcome(ImportRunContext $context, ImportRunOutcome $outcome): void
     {
         $runId = $context->runId->toRfc4122();
 
-        match ($outcome->status) {
-            ImportRunStatus::Completed, ImportRunStatus::Partial => $this->dispatcher->dispatch(
-                new ImportCompleted($context->importId, $runId),
-            ),
-            ImportRunStatus::Failed => $this->dispatcher->dispatch(new ImportFailed(
+        if (ImportRunStatus::Failed === $outcome->status) {
+            $this->dispatcher->dispatch(new ImportFailed(
                 $context->importId,
                 $outcome->reasonCode?->describe(),
                 $runId,
                 $outcome->reasonCode,
-            )),
-            ImportRunStatus::Queued, ImportRunStatus::Running, ImportRunStatus::Superseded => null,
-        };
+            ));
+
+            return;
+        }
+
+        $this->dispatcher->dispatch(new ImportCompleted($context->importId, $runId));
     }
 
     /**

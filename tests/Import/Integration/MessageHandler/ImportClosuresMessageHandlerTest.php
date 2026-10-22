@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\DTO\ImportRunContext;
 use App\Import\Application\Event\ImportCompleted;
 use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
@@ -28,8 +29,11 @@ use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Driver\AbstractException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
 {
@@ -140,6 +144,100 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         self::assertSame(ImportRunStatus::Failed, $storedRun?->getStatus());
         self::assertSame(ImportRunReasonCode::FileNotFound, $storedRun?->getReasonCode());
         self::assertSame(ImportStatus::FAILED, $this->imports->find($id)?->getStatus());
+    }
+
+    public function testSecondRunCleansTheFirstRunsIntervals(): void
+    {
+        ['id' => $id] = $this->arrangeRunnableImport();
+        $lifecycle = self::getContainer()->get(ImportRunLifecycle::class);
+
+        foreach ([1, 2] as $_) {
+            $run = $lifecycle->register($id, ImportRunTrigger::Console);
+            $this->handler->__invoke(new ImportClosuresMessage($id, $run->getId()->toRfc4122()));
+        }
+
+        $this->em->clear();
+        self::assertCount(1, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
+        self::assertSame(2, $this->imports->find($id)?->getRunCount());
+    }
+
+    public function testUnreadableFileAfterAnEarlierRunEndsTheRunWithAProcessingError(): void
+    {
+        ['id' => $id, 'path' => $path] = $this->arrangeRunnableImport();
+        $lifecycle = self::getContainer()->get(ImportRunLifecycle::class);
+        $first = $lifecycle->register($id, ImportRunTrigger::Console);
+        $this->handler->__invoke(new ImportClosuresMessage($id, $first->getId()->toRfc4122()));
+        \file_put_contents($path, '');
+
+        $second = $lifecycle->register($id, ImportRunTrigger::Console);
+        $this->handler->__invoke(new ImportClosuresMessage($id, $second->getId()->toRfc4122()));
+
+        $this->em->clear();
+        $stored = self::getContainer()->get(ImportRunRepository::class)->find($second->getId());
+        self::assertSame(ImportRunStatus::Failed, $stored?->getStatus());
+        self::assertSame(ImportRunReasonCode::ProcessingError, $stored?->getReasonCode());
+        self::assertCount(0, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]), 'The earlier run\'s intervals were cleaned up.');
+    }
+
+    public function testRetryableErrorIsRethrownAndLeavesTheRunOpen(): void
+    {
+        ['id' => $id] = $this->arrangeRunnableImport();
+        $lifecycle = self::getContainer()->get(ImportRunLifecycle::class);
+        $run = $lifecycle->register($id, ImportRunTrigger::Console);
+        $context = $lifecycle->start(new ImportClosuresMessage($id, $run->getId()->toRfc4122()));
+        self::assertInstanceOf(ImportRunContext::class, $context);
+        $deadlock = new DeadlockException(new class('deadlock detected') extends AbstractException {
+        }, null);
+
+        try {
+            new \ReflectionMethod(ImportClosuresMessageHandler::class, 'handleRunError')
+                ->invoke($this->handler, $context, $deadlock, 10);
+            self::fail('A retryable error must be rethrown.');
+        } catch (DeadlockException $e) {
+            self::assertSame($deadlock, $e);
+        }
+
+        $this->em->clear();
+        self::assertSame(ImportRunStatus::Running, self::getContainer()->get(ImportRunRepository::class)->find($run->getId())?->getStatus());
+    }
+
+    public function testRunOfAMissingImportIsIgnored(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        new \ReflectionMethod(ImportClosuresMessageHandler::class, 'processRun')
+            ->invoke($this->handler, new ImportRunContext(2_147_483_647, Uuid::v7()));
+    }
+
+    public function testRunThatIsSupersededBeforeItsFirstCommitWritesNothing(): void
+    {
+        ['id' => $id] = $this->arrangeRunnableImport();
+        $lifecycle = self::getContainer()->get(ImportRunLifecycle::class);
+        $runA = $lifecycle->register($id, ImportRunTrigger::Console);
+        $contextA = $lifecycle->start(new ImportClosuresMessage($id, $runA->getId()->toRfc4122()));
+        self::assertInstanceOf(ImportRunContext::class, $contextA);
+        $lifecycle->register($id, ImportRunTrigger::Console);
+
+        new \ReflectionMethod(ImportClosuresMessageHandler::class, 'processRun')
+            ->invoke($this->handler, $contextA);
+
+        $this->em->clear();
+        self::assertSame(ImportStatus::PENDING, $this->imports->find($id)?->getStatus());
+        self::assertCount(0, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
+    }
+
+    public function testImportWithoutFilePathCannotStart(): void
+    {
+        ['id' => $id] = $this->arrangeRunnableImport();
+        $import = $this->imports->find($id);
+        self::assertNotNull($import);
+        new \ReflectionProperty($import, 'filePath')->setValue($import, null);
+
+        $reason = new \ReflectionMethod(ImportClosuresMessageHandler::class, 'resolveSourceFile')
+            ->invoke($this->handler, $import);
+
+        self::assertSame(ImportRunReasonCode::MissingFilePath, $reason);
+        $this->em->clear();
     }
 
     public function testMissingCsvMarksTheImportFailed(): void
@@ -319,7 +417,7 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
     }
 
     /**
-     * @return array{id: int}
+     * @return array{id: int, path: string}
      */
     private function arrangeRunnableImport(): array
     {
@@ -345,7 +443,7 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
             $absolutePath,
         )), '/');
 
-        return ['id' => $this->persistImport($owner, $hospital, ImportType::CLOSURE, $storedPath)];
+        return ['id' => $this->persistImport($owner, $hospital, ImportType::CLOSURE, $storedPath), 'path' => $absolutePath];
     }
 
     private function betaOwner(): User
