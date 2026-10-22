@@ -131,6 +131,30 @@ deptrac:
                     type: directory
                     value: src/Content/UI/.*
         -
+            name: Notification_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/Domain/.*
+        -
+            name: Notification_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/Application/.*
+        -
+            name: Notification_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/Infrastructure/.*
+        -
+            name: Notification_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/UI/.*
+        -
             name: Onboarding_Domain
             collectors:
                 -
@@ -800,6 +824,47 @@ deptrac:
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
+        Notification_Application:
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Notification_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Notification_Infrastructure:
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Notification_UI:
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
         Onboarding_Application:
             - Analytics_Application
             - Analytics_Domain
