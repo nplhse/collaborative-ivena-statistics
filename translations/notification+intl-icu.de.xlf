@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="Ntf3F32290C" resname="notification.action.load_more">
+        <source>notification.action.load_more</source>
+        <target>Ältere Benachrichtigungen laden</target>
+      </trans-unit>
+      <trans-unit id="Ntf71FA27AC" resname="notification.action.read">
+        <source>notification.action.read</source>
+        <target>Als gelesen markieren</target>
+      </trans-unit>
+      <trans-unit id="NtfC3295454" resname="notification.action.read_all">
+        <source>notification.action.read_all</source>
+        <target>Alle als gelesen markieren</target>
+      </trans-unit>
+      <trans-unit id="Ntf4A641482" resname="notification.action.remove">
+        <source>notification.action.remove</source>
+        <target>Entfernen</target>
+      </trans-unit>
+      <trans-unit id="NtfED9D293F" resname="notification.bell.label">
+        <source>notification.bell.label</source>
+        <target>{count, plural, =0 {Benachrichtigungen} one {Benachrichtigungen, # ungelesen} other {Benachrichtigungen, # ungelesen}}</target>
+      </trans-unit>
+      <trans-unit id="NtfD2FEBF6B" resname="notification.dropdown.show_all">
+        <source>notification.dropdown.show_all</source>
+        <target>Alle Benachrichtigungen anzeigen</target>
+      </trans-unit>
+      <trans-unit id="NtfBD976864" resname="notification.empty.description">
+        <source>notification.empty.description</source>
+        <target>Hier erfahren Sie, wenn etwas Sie betrifft, zum Beispiel wenn ein Import abgeschlossen ist.</target>
+      </trans-unit>
+      <trans-unit id="NtfC38B99A5" resname="notification.empty.title">
+        <source>notification.empty.title</source>
+        <target>Noch keine Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="NtfBC7DA15F" resname="notification.index.subtitle">
+        <source>notification.index.subtitle</source>
+        <target>{count, plural, =0 {Sie haben keine ungelesenen Benachrichtigungen.} one {Sie haben # ungelesene Benachrichtigung.} other {Sie haben # ungelesene Benachrichtigungen.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf4709D7CF" resname="notification.loading">
+        <source>notification.loading</source>
+        <target>Benachrichtigungen werden geladen …</target>
+      </trans-unit>
+      <trans-unit id="NtfE5BBDA0A" resname="notification.redacted.message">
+        <source>notification.redacted.message</source>
+        <target>Sie haben keinen Zugriff mehr auf die Klinik, um die es in dieser Benachrichtigung ging.</target>
+      </trans-unit>
+      <trans-unit id="NtfCF01A719" resname="notification.redacted.title">
+        <source>notification.redacted.title</source>
+        <target>Benachrichtigung zu einer Klinik</target>
+      </trans-unit>
+      <trans-unit id="NtfB8613ED5" resname="notification.title">
+        <source>notification.title</source>
+        <target>Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf3E8A7704" resname="notification.unread">
+        <source>notification.unread</source>
+        <target>Ungelesen</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

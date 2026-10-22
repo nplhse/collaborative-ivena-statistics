@@ -1,6 +1,7 @@
 {% if is_granted('ROLE_USER') %}
     <div class="navbar-nav flex-row order-md-last ms-auto flex-shrink-0 align-items-center gap-1">
         <twig:LocaleSwitcher class="d-none d-md-flex" />
+        <twig:NotificationBell />
         <div class="nav-item dropdown">
             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Open user menu">
                 <span class="avatar avatar-sm">
@@ -53,6 +54,10 @@
                         {{ 'label.my_hospitals'|trans({}, 'messages') }}
                     </a>
                 {% endif %}
+                <a href="{{ path('app_notification_index') }}" class="dropdown-item" data-testid="user-menu-notifications">
+                    <twig:ux:icon name="tabler:bell" class="icon" />
+                    {{ 'notification.title'|trans({}, 'notification') }}
+                </a>
                 <a href="{{ path('app_settings_index') }}" class="dropdown-item">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notification\Application\Definition;
 
+use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationChannel;
 
 /**
@@ -23,6 +24,8 @@ final class NotificationDefinitionValidator
     public const array DELIVERABLE_CHANNELS = [NotificationChannel::InApp, NotificationChannel::Toast];
 
     private const string TYPE_PATTERN = '/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/';
+
+    private const string ROLE_PATTERN = '/^ROLE_[A-Z0-9_]+$/';
 
     /**
      * @return list<string> violations; empty when the definition is valid
@@ -63,6 +66,14 @@ final class NotificationDefinitionValidator
 
         if (\in_array(NotificationChannel::Toast, $definition->mandatoryChannels, true)) {
             $errors[] = 'toast is best effort and cannot be mandatory';
+        }
+
+        if (NotificationAccessScope::Role === $definition->accessScope && (null === $definition->requiredRole || 1 !== preg_match(self::ROLE_PATTERN, $definition->requiredRole))) {
+            $errors[] = 'a role-scoped type needs a requiredRole such as "ROLE_ADMIN"';
+        }
+
+        if (NotificationAccessScope::Role !== $definition->accessScope && null !== $definition->requiredRole) {
+            $errors[] = 'requiredRole is only allowed for role-scoped types';
         }
 
         if (!$definition->configurable && [] === $definition->defaultChannels && [] === $definition->mandatoryChannels) {

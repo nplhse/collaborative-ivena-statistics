@@ -118,6 +118,7 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
             scopeReferenceId: 7,
             metadata: ['reference' => 'import:7'],
             toastPendingUntil: $createdAt->modify('+5 minutes'),
+            requiredRole: 'ROLE_ADMIN',
         );
         $deduplication = new NotificationDeduplication($user, 'test.toast:7', $createdAt->modify('+7 days'), $notification);
         $state = new NotificationRecipientState($user, $createdAt, version: 4, unreadCount: 2);
@@ -144,6 +145,7 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
         self::assertSame('app_import_index', $loaded->getActionRoute());
         self::assertSame(['page' => 2], $loaded->getActionParameters());
         self::assertSame(7, $loaded->getScopeReferenceId());
+        self::assertSame('ROLE_ADMIN', $loaded->getRequiredRole());
         self::assertSame(['reference' => 'import:7'], $loaded->getMetadata());
         self::assertEquals($createdAt->modify('+5 minutes'), $loaded->getToastPendingUntil());
 

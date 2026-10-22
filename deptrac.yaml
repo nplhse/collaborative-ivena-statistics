@@ -505,6 +505,7 @@ deptrac:
             - Allocation_Application
             - Allocation_Domain
             - Import_Domain
+            - Notification_Application
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

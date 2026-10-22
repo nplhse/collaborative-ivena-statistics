@@ -1,0 +1,7 @@
+<form method="post" action="{{ path('app_notification_read_all') }}" data-turbo-frame="_top" class="{{ class|default('') }}">
+    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_READ_ALL')) }}">
+    <input type="hidden" name="_target" value="{{ target }}">
+    <button type="submit" class="{{ button_class|default('btn btn-link btn-sm p-0') }}" data-testid="notification-read-all">
+        {{ 'notification.action.read_all'|trans({}, 'notification') }}
+    </button>
+</form>

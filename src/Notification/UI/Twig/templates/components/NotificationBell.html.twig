@@ -1,0 +1,30 @@
+{% set unread = this.unreadCount %}
+<div {{ attributes.defaults({class: 'nav-item dropdown me-1 me-md-2', 'data-testid': 'notification-bell', 'data-notification-version': this.version}) }}>
+    <a
+        href="{{ path('app_notification_index') }}"
+        class="nav-link px-0 position-relative"
+        data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        aria-expanded="false"
+        aria-label="{{ 'notification.bell.label'|trans({count: unread}, 'notification') }}"
+    >
+        <twig:ux:icon name="tabler:bell" class="icon" />
+        {% if unread > 0 %}
+            <span class="badge bg-red text-red-fg badge-notification badge-pill" data-testid="notification-bell-badge" aria-hidden="true">{{ unread > 99 ? '99+' : unread }}</span>
+        {% endif %}
+    </a>
+    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card notification-dropdown">
+        <turbo-frame
+            id="notification-dropdown"
+            src="{{ path('app_notification_dropdown', {target: this.currentPath}) }}"
+            loading="lazy"
+        >
+            <div class="card">
+                <div class="card-body text-center text-secondary py-4" aria-busy="true">
+                    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+                    <span class="visually-hidden">{{ 'notification.loading'|trans({}, 'notification') }}</span>
+                </div>
+            </div>
+        </turbo-frame>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+{# Renders one NotificationView. Variables: notification, compact (bool), target (return path). #}
+{% set title = notification.titleKey|trans(notification.parameters, notification.translationDomain) %}
+<div
+    class="list-group-item{{ notification.isRead ? '' : ' bg-primary-lt' }}"
+    data-testid="notification-item"
+    data-notification-id="{{ notification.id }}"
+    data-notification-read="{{ notification.isRead ? 'true' : 'false' }}"
+>
+    <div class="row align-items-center g-2">
+        <div class="col-auto">
+            {% if notification.isRead %}
+                <span class="status-dot d-block" aria-hidden="true"></span>
+            {% else %}
+                <span class="status-dot status-dot-animated bg-red d-block" aria-hidden="true"></span>
+                <span class="visually-hidden">{{ 'notification.unread'|trans({}, 'notification') }}</span>
+            {% endif %}
+        </div>
+        <div class="col text-truncate">
+            {% if notification.hasLink %}
+                <a
+                    href="{{ path('app_notification_open', {id: notification.id}) }}"
+                    class="text-body d-block{{ notification.isRead ? '' : ' fw-bold' }}"
+                    data-turbo-frame="_top"
+                    data-testid="notification-item-link"
+                >{{ title }}</a>
+            {% else %}
+                <div class="text-body{{ notification.isRead ? '' : ' fw-bold' }}">{{ title }}</div>
+            {% endif %}
+            <div class="text-secondary{{ compact ? ' text-truncate' : ' text-wrap' }}">
+                {{ notification.messageKey|trans(notification.parameters, notification.translationDomain) }}
+            </div>
+            <twig:RelativeTimestamp :datetime="notification.createdAt" class="text-secondary small mt-1" />
+        </div>
+        {% if not compact %}
+            <div class="col-auto d-flex gap-1">
+                {% if not notification.isRead %}
+                    <form method="post" action="{{ path('app_notification_read', {id: notification.id}) }}" data-turbo-frame="_top">
+                        <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_READ')) }}">
+                        <input type="hidden" name="_target" value="{{ target }}">
+                        <button type="submit" class="btn btn-ghost-secondary btn-icon btn-sm" title="{{ 'notification.action.read'|trans({}, 'notification') }}" aria-label="{{ 'notification.action.read'|trans({}, 'notification') }}" data-testid="notification-item-read">
+                            <twig:ux:icon name="tabler:check" class="icon" />
+                        </button>
+                    </form>
+                {% endif %}
+                <form method="post" action="{{ path('app_notification_remove', {id: notification.id}) }}" data-turbo-frame="_top">
+                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_REMOVE')) }}">
+                    <input type="hidden" name="_target" value="{{ target }}">
+                    <button type="submit" class="btn btn-ghost-danger btn-icon btn-sm" title="{{ 'notification.action.remove'|trans({}, 'notification') }}" aria-label="{{ 'notification.action.remove'|trans({}, 'notification') }}" data-testid="notification-item-remove">
+                        <twig:ux:icon name="tabler:trash" class="icon" />
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>

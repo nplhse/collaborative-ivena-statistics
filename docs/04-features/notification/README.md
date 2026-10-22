@@ -9,7 +9,8 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Definitions, registry, validation | available |
 | Publisher with deduplication and recipient state | available |
 | Channel resolution (defaults, mandatory channels, overrides) | available; overrides are not stored yet |
-| In-app UI (bell, inbox) | planned (step 2) |
+| In-app UI (bell, dropdown, overview, read/remove) | available |
+| Retention and daily recount | available |
 | Toasts and polling | planned (step 5) |
 | Email delivery | planned (step 6) |
 | Preferences UI | planned (step 7) |
@@ -53,13 +54,41 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 - **Deduplication key:** deterministic per business fact. Publishing the same key for the same recipient again within the TTL (default 7 days) creates nothing.
 - **No raw data:** parameters and metadata contain only stable identifiers, display names the recipient may see, counts and reason codes. Never exception messages, import rows or file contents.
 - **Hospital scope:** types with `accessScope: Hospital` need `scopeReferenceId` (the hospital id).
+- **Role scope:** types with `accessScope: Role` declare `requiredRole` (e.g. `ROLE_ADMIN`) in the definition.
 - **Errors:** invalid requests throw. Storage errors for a single recipient are logged as `notification.publish_failed` and never thrown, so they cannot change the outcome of the caller.
+
+## Inbox
+
+- **Bell:** `NotificationBell` in the header shows the unread count from `notification_recipient_state` (one primary-key lookup). Its dropdown loads lazily from `/notifications/dropdown` and shows the **5 newest** entries.
+- **Overview:** `/notifications` lists entries newest first, **25 per page**; older entries load into a Turbo frame (keyset on `created_at, id`).
+- **Actions:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, mark all as read, remove. The POST actions are CSRF-protected and only accept same-site return paths.
+- **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
+
+### Visibility after permission changes
+
+Permissions are checked whenever entries are rendered:
+
+| Access scope | Viewer lost access | Shown as |
+|--------------|--------------------|----------|
+| `none` | – | normal entry |
+| `hospital` | no `View` permission on the hospital any more | generic text without names, counts or link |
+| `role` | the definition's `requiredRole` is not reachable any more | hidden |
+
+Hospital access comes from `NotificationHospitalAccessInterface`, implemented in Allocation with `HospitalPermissionAccess`. Badge counts may lag behind permission changes until the daily recount.
+
+### Retention
+
+`CleanUpNotificationsMessage` runs daily at 02:45 (scheduler):
+
+- deletes read entries 30 days after they were read, unread entries 90 days after creation, and removed entries;
+- deletes expired deduplication keys;
+- recounts `unread_count` per recipient with the visibility rules above and increments `version` where it changed.
 
 ## Storage
 
 | Table | Purpose |
 |-------|---------|
-| `notification` | Inbox entry per recipient (translation keys and parameters, action route, toast window) |
+| `notification` | Inbox entry per recipient (translation keys and parameters, action route, access scope and required role, toast window) |
 | `notification_deduplication` | Duplicate protection per recipient and key, independent of the inbox entry |
 | `notification_recipient_state` | `version` and `unread_count` per recipient for badge and polling |
 

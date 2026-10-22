@@ -1,0 +1,24 @@
+{# One page of the overview. Variables: notifications, frameId, nextCursor. #}
+<turbo-frame id="{{ frameId }}">
+    {% for notification in notifications %}
+        {{ include('@Notification/inbox/_item.html.twig', {notification: notification, compact: false, target: path('app_notification_index')}) }}
+    {% endfor %}
+    {% if nextCursor %}
+        <turbo-frame
+            id="{{ constant('App\\Notification\\UI\\Http\\Controller\\NotificationInboxController::NEXT_FRAME_PREFIX') ~ nextCursor }}"
+            src="{{ path('app_notification_page', {cursor: nextCursor}) }}"
+            loading="lazy"
+            data-testid="notification-inbox-next"
+        >
+            <div class="list-group-item text-center text-secondary py-3" aria-busy="true" aria-live="polite">
+                <div class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></div>
+                <span class="visually-hidden">{{ 'notification.loading'|trans({}, 'notification') }}</span>
+                <div class="mt-2">
+                    <a href="{{ path('app_notification_page', {cursor: nextCursor}) }}" data-testid="notification-inbox-load-more">
+                        {{ 'notification.action.load_more'|trans({}, 'notification') }}
+                    </a>
+                </div>
+            </div>
+        </turbo-frame>
+    {% endif %}
+</turbo-frame>

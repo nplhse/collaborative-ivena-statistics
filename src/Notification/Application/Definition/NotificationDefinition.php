@@ -22,6 +22,7 @@ final readonly class NotificationDefinition
      * @param list<NotificationChannel> $availableChannels channels the user may choose from
      * @param list<NotificationChannel> $mandatoryChannels channels used regardless of preferences
      * @param string                    $deduplicationTtl  ISO 8601 duration of the duplicate protection
+     * @param string|null               $requiredRole      role a viewer needs for role-scoped types, e.g. "ROLE_ADMIN"
      *
      * @psalm-suppress PossiblyUnusedMethod Instantiated through reflection from the attribute.
      */
@@ -36,6 +37,7 @@ final readonly class NotificationDefinition
         public NotificationAccessScope $accessScope = NotificationAccessScope::None,
         public string $deduplicationTtl = 'P7D',
         public string $translationDomain = 'notification',
+        public ?string $requiredRole = null,
     ) {
     }
 

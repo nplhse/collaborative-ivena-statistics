@@ -1,0 +1,52 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'notification.title'|trans({}, 'notification') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs :items="[
+            { label: 'notification.title', label_domain: 'notification' }
+        ]" />
+
+        <div class="page-header d-print-none">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'notification.title'|trans({}, 'notification') }}</h2>
+                    <div class="text-body-secondary mt-1">
+                        {{ 'notification.index.subtitle'|trans({count: state.unreadCount}, 'notification') }}
+                    </div>
+                </div>
+                {% if state.unreadCount > 0 %}
+                    <div class="col-auto ms-auto">
+                        {{ include('@Notification/inbox/_read_all_form.html.twig', {
+                            target: path('app_notification_index'),
+                            button_class: 'btn btn-outline-primary',
+                        }) }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card" data-testid="notification-inbox">
+        {% if notifications is empty %}
+            <div class="card-body" data-testid="notification-inbox-empty">
+                <twig:EmptyState
+                    icon="tabler:bell-off"
+                    :title="'notification.empty.title'|trans({}, 'notification')"
+                    :description="'notification.empty.description'|trans({}, 'notification')"
+                />
+            </div>
+        {% else %}
+            <div class="list-group list-group-flush">
+                {{ include('@Notification/inbox/_page.html.twig', {
+                    notifications: notifications,
+                    frameId: frameId,
+                    nextCursor: nextCursor,
+                }) }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

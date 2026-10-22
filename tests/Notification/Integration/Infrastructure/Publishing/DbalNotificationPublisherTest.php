@@ -14,6 +14,7 @@ use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\Tests\Support\Notification\Type\HospitalScopedTestNotification;
 use App\Tests\Support\Notification\Type\InAppTestNotification;
 use App\Tests\Support\Notification\Type\OptInTestNotification;
+use App\Tests\Support\Notification\Type\RoleScopedTestNotification;
 use App\Tests\Support\Notification\Type\ToastTestNotification;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
@@ -39,6 +40,7 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
                 'test.toast' => ToastTestNotification::class,
                 'test.hospital_scoped' => HospitalScopedTestNotification::class,
                 'test.opt_in' => OptInTestNotification::class,
+                'test.role_scoped' => RoleScopedTestNotification::class,
             ]),
             new NotificationChannelResolver(),
             $this->clock,
@@ -74,6 +76,7 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
         self::assertTrue((bool) $row['in_app_visible']);
         self::assertSame('2026-10-22 12:00:00', $row['created_at']);
         self::assertNull($row['toast_pending_until']);
+        self::assertNull($row['required_role']);
 
         self::assertSame(['version' => 1, 'unread_count' => 1], $this->recipientState($userId));
 
@@ -81,6 +84,18 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
         self::assertIsArray($deduplication);
         self::assertSame($row['id'], $deduplication['notification_id']);
         self::assertSame('2026-10-29 12:00:00', $deduplication['expires_at']);
+    }
+
+    public function testRoleScopedTypeStoresRequiredRole(): void
+    {
+        $userId = $this->createUserId();
+
+        $this->publisher->publish(new NotificationRequest('test.role_scoped', [$userId], 'test.role_scoped:1'));
+
+        self::assertSame(
+            ['access_scope' => 'role', 'required_role' => 'ROLE_ADMIN'],
+            $this->connection->fetchAssociative('SELECT access_scope, required_role FROM notification WHERE recipient_id = ?', [$userId]),
+        );
     }
 
     public function testToastTypeOpensToastWindow(): void
