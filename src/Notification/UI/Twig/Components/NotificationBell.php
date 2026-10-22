@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Notification\UI\Twig\Components;
 
-use App\Notification\Application\Contract\NotificationInboxQueryInterface;
-use App\Notification\Application\Inbox\RecipientInboxState;
+use App\Notification\Application\Snapshot\NotificationSnapshot;
+use App\Notification\Application\Snapshot\NotificationSnapshotProvider;
 use App\Notification\UI\Http\SafeTargetPath;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -19,11 +19,11 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 #[AsTwigComponent(name: 'NotificationBell', template: '@Notification/components/NotificationBell.html.twig')]
 final class NotificationBell
 {
-    private ?RecipientInboxState $state = null;
+    private ?NotificationSnapshot $state = null;
 
     public function __construct(
         private readonly Security $security,
-        private readonly NotificationInboxQueryInterface $inboxQuery,
+        private readonly NotificationSnapshotProvider $snapshotProvider,
         private readonly RequestStack $requestStack,
     ) {
     }
@@ -46,15 +46,16 @@ final class NotificationBell
         return SafeTargetPath::sanitize($this->requestStack->getCurrentRequest()?->getRequestUri()) ?? '/';
     }
 
-    private function state(): RecipientInboxState
+    private function state(): NotificationSnapshot
     {
-        if ($this->state instanceof RecipientInboxState) {
+        if ($this->state instanceof NotificationSnapshot) {
             return $this->state;
         }
 
         $user = $this->security->getUser();
         $userId = $user instanceof User ? $user->getId() : null;
 
-        return $this->state = null === $userId ? new RecipientInboxState() : $this->inboxQuery->state($userId);
+        // The page render never claims toasts; the first poll does (ADR 016).
+        return $this->state = null === $userId ? new NotificationSnapshot(0, 0) : $this->snapshotProvider->snapshot($userId);
     }
 }

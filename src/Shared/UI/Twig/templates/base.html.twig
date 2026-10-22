@@ -63,5 +63,8 @@
         feedback_extra_context: feedback_extra_str,
     })) }}
 {% endif %}
+{% if is_granted('ROLE_USER') %}
+    {{ include('@Notification/toast/_container.html.twig') }}
+{% endif %}
 </body>
 </html>
