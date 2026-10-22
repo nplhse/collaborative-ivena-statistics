@@ -1,9 +1,11 @@
 <turbo-frame id="notification-dropdown">
     <div class="card" data-testid="notification-dropdown">
-        <div class="card-header d-flex align-items-center">
+        <div class="card-header">
             <h3 class="card-title">{{ 'notification.title'|trans({}, 'notification') }}</h3>
             {% if state.unreadCount > 0 %}
-                {{ include('@Notification/inbox/_read_all_form.html.twig', {target: target, class: 'ms-auto'}) }}
+                <div class="card-actions">
+                    {{ include('@Notification/inbox/_read_all_form.html.twig', {target: target, icon_only: true}) }}
+                </div>
             {% endif %}
         </div>
         {% if notifications is empty %}
@@ -13,14 +15,12 @@
         {% else %}
             <div class="list-group list-group-flush list-group-hoverable">
                 {% for notification in notifications %}
-                    {{ include('@Notification/inbox/_item.html.twig', {notification: notification, compact: true, target: target}) }}
+                    {{ include('@Notification/inbox/_dropdown_item.html.twig', {notification: notification, target: target}) }}
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="card-footer text-center">
-            <a href="{{ path('app_notification_index') }}" data-turbo-frame="_top" data-testid="notification-dropdown-show-all">
-                {{ 'notification.dropdown.show_all'|trans({}, 'notification') }}
-            </a>
-        </div>
+        <a href="{{ path('app_notification_index') }}" class="card-footer text-center text-secondary text-decoration-none" data-turbo-frame="_top" data-testid="notification-dropdown-show-all">
+            {{ 'notification.dropdown.show_all'|trans({}, 'notification') }}
+        </a>
     </div>
 </turbo-frame>

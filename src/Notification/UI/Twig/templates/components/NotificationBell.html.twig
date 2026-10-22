@@ -1,19 +1,24 @@
 {% set unread = this.unreadCount %}
+{% set label = 'notification.bell.label'|trans({count: unread}, 'notification') %}
 <div {{ attributes.defaults({class: 'nav-item dropdown me-1 me-md-2', 'data-testid': 'notification-bell', 'data-notification-version': this.version}) }}>
     <a
         href="{{ path('app_notification_index') }}"
-        class="nav-link px-0 position-relative"
+        class="nav-link px-0"
         data-bs-toggle="dropdown"
         data-bs-auto-close="outside"
         aria-expanded="false"
-        aria-label="{{ 'notification.bell.label'|trans({count: unread}, 'notification') }}"
+        aria-label="{{ label }}"
+        title="{{ label }}"
     >
-        <twig:ux:icon name="tabler:bell" class="icon" />
-        {% if unread > 0 %}
-            <span class="badge bg-red text-red-fg badge-notification badge-pill" data-testid="notification-bell-badge" aria-hidden="true">{{ unread > 99 ? '99+' : unread }}</span>
-        {% endif %}
+        <span class="notification-bell-icon">
+            <twig:ux:icon name="tabler:bell" class="icon" />
+            {% if unread > 0 %}
+                {# Empty badge: rendered as a dot on the top right corner of the icon. #}
+                <span class="badge bg-red" data-testid="notification-bell-badge" data-unread-count="{{ unread }}"></span>
+            {% endif %}
+        </span>
     </a>
-    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card notification-dropdown">
+    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card notification-dropdown-menu">
         <turbo-frame
             id="notification-dropdown"
             src="{{ path('app_notification_dropdown', {target: this.currentPath}) }}"

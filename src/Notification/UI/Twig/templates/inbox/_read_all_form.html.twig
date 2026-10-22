@@ -1,7 +1,16 @@
+{# Variables: target, icon_only (bool, default false), button_class, class. #}
+{% set label = 'notification.action.read_all'|trans({}, 'notification') %}
 <form method="post" action="{{ path('app_notification_read_all') }}" data-turbo-frame="_top" class="{{ class|default('') }}">
     <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_READ_ALL')) }}">
     <input type="hidden" name="_target" value="{{ target }}">
-    <button type="submit" class="{{ button_class|default('btn btn-link btn-sm p-0') }}" data-testid="notification-read-all">
-        {{ 'notification.action.read_all'|trans({}, 'notification') }}
-    </button>
+    {% if icon_only|default(false) %}
+        <button type="submit" class="btn btn-action" title="{{ label }}" aria-label="{{ label }}" data-testid="notification-read-all">
+            <twig:ux:icon name="tabler:checks" class="icon" />
+        </button>
+    {% else %}
+        <button type="submit" class="{{ button_class|default('btn') }}" data-testid="notification-read-all">
+            <twig:ux:icon name="tabler:checks" class="icon" />
+            {{ label }}
+        </button>
+    {% endif %}
 </form>

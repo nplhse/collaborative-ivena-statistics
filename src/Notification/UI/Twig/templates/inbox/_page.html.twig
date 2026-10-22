@@ -1,7 +1,7 @@
 {# One page of the overview. Variables: notifications, frameId, nextCursor. #}
 <turbo-frame id="{{ frameId }}">
     {% for notification in notifications %}
-        {{ include('@Notification/inbox/_item.html.twig', {notification: notification, compact: false, target: path('app_notification_index')}) }}
+        {{ include('@Notification/inbox/_item.html.twig', {notification: notification, target: path('app_notification_index')}) }}
     {% endfor %}
     {% if nextCursor %}
         <turbo-frame

@@ -1,4 +1,4 @@
-{# Renders one NotificationView. Variables: notification, compact (bool), target (return path). #}
+{# One entry of the overview page. Variables: notification, target (return path). #}
 {% set title = notification.titleKey|trans(notification.parameters, notification.translationDomain) %}
 <div
     class="list-group-item{{ notification.isRead ? '' : ' bg-primary-lt' }}"
@@ -15,7 +15,7 @@
                 <span class="visually-hidden">{{ 'notification.unread'|trans({}, 'notification') }}</span>
             {% endif %}
         </div>
-        <div class="col text-truncate">
+        <div class="col">
             {% if notification.hasLink %}
                 <a
                     href="{{ path('app_notification_open', {id: notification.id}) }}"
@@ -26,30 +26,28 @@
             {% else %}
                 <div class="text-body{{ notification.isRead ? '' : ' fw-bold' }}">{{ title }}</div>
             {% endif %}
-            <div class="text-secondary{{ compact ? ' text-truncate' : ' text-wrap' }}">
+            <div class="text-secondary text-wrap">
                 {{ notification.messageKey|trans(notification.parameters, notification.translationDomain) }}
             </div>
             <twig:RelativeTimestamp :datetime="notification.createdAt" class="text-secondary small mt-1" />
         </div>
-        {% if not compact %}
-            <div class="col-auto d-flex gap-1">
-                {% if not notification.isRead %}
-                    <form method="post" action="{{ path('app_notification_read', {id: notification.id}) }}" data-turbo-frame="_top">
-                        <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_READ')) }}">
-                        <input type="hidden" name="_target" value="{{ target }}">
-                        <button type="submit" class="btn btn-ghost-secondary btn-icon btn-sm" title="{{ 'notification.action.read'|trans({}, 'notification') }}" aria-label="{{ 'notification.action.read'|trans({}, 'notification') }}" data-testid="notification-item-read">
-                            <twig:ux:icon name="tabler:check" class="icon" />
-                        </button>
-                    </form>
-                {% endif %}
-                <form method="post" action="{{ path('app_notification_remove', {id: notification.id}) }}" data-turbo-frame="_top">
-                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_REMOVE')) }}">
+        <div class="col-auto d-flex gap-1">
+            {% if not notification.isRead %}
+                <form method="post" action="{{ path('app_notification_read', {id: notification.id}) }}" data-turbo-frame="_top">
+                    <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_READ')) }}">
                     <input type="hidden" name="_target" value="{{ target }}">
-                    <button type="submit" class="btn btn-ghost-danger btn-icon btn-sm" title="{{ 'notification.action.remove'|trans({}, 'notification') }}" aria-label="{{ 'notification.action.remove'|trans({}, 'notification') }}" data-testid="notification-item-remove">
-                        <twig:ux:icon name="tabler:trash" class="icon" />
+                    <button type="submit" class="btn btn-ghost-secondary btn-icon btn-sm" title="{{ 'notification.action.read'|trans({}, 'notification') }}" aria-label="{{ 'notification.action.read'|trans({}, 'notification') }}" data-testid="notification-item-read">
+                        <twig:ux:icon name="tabler:check" class="icon" />
                     </button>
                 </form>
-            </div>
-        {% endif %}
+            {% endif %}
+            <form method="post" action="{{ path('app_notification_remove', {id: notification.id}) }}" data-turbo-frame="_top">
+                <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_REMOVE')) }}">
+                <input type="hidden" name="_target" value="{{ target }}">
+                <button type="submit" class="btn btn-ghost-danger btn-icon btn-sm" title="{{ 'notification.action.remove'|trans({}, 'notification') }}" aria-label="{{ 'notification.action.remove'|trans({}, 'notification') }}" data-testid="notification-item-remove">
+                    <twig:ux:icon name="tabler:trash" class="icon" />
+                </button>
+            </form>
+        </div>
     </div>
 </div>

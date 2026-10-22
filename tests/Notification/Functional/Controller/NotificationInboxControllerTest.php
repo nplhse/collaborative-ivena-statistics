@@ -46,6 +46,7 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         self::assertCount(1, $crawler->filter('[data-testid="notification-bell"]'));
         self::assertCount(0, $crawler->filter('[data-testid="notification-bell-badge"]'));
         self::assertCount(1, $crawler->filter('[data-testid="user-menu-notifications"]'));
+        self::assertStringNotContainsString('notification.title', $crawler->filter('.breadcrumb')->text(), 'the breadcrumb label is translated');
     }
 
     public function testOverviewShowsOwnEntriesNewestFirstWithBadge(): void
@@ -61,7 +62,8 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame([(string) $newer->getId(), (string) $older->getId()], $this->itemIds($crawler));
-        self::assertSame('2', trim($crawler->filter('[data-testid="notification-bell-badge"]')->text()));
+        self::assertSame('2', $crawler->filter('[data-testid="notification-bell-badge"]')->attr('data-unread-count'));
+        self::assertSame('', trim($crawler->filter('[data-testid="notification-bell-badge"]')->text()), 'the badge is a dot, the count is in the label');
         self::assertSame('1', $crawler->filter('[data-testid="notification-bell"]')->attr('data-notification-version'));
         self::assertCount(1, $crawler->filter('[data-notification-id="'.$newer->getId().'"] [data-testid="notification-item-link"]'));
         self::assertCount(0, $crawler->filter('[data-notification-id="'.$older->getId().'"] [data-testid="notification-item-link"]'));
@@ -121,6 +123,8 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSame(\array_slice(array_reverse($ids), 0, 5), $this->itemIds($crawler));
         self::assertCount(0, $crawler->filter('[data-testid="notification-item-remove"]'), 'the dropdown is compact');
+        self::assertCount(5, $crawler->filter('[data-testid="notification-item-read"]'), 'unread entries offer a hover action');
+        self::assertCount(1, $crawler->filter('[data-testid="notification-read-all"][aria-label]'), 'mark all as read is an icon button with a label');
         self::assertSame('/statistics', $crawler->filter('[data-testid="notification-dropdown"] input[name="_target"]')->attr('value'));
         self::assertCount(1, $crawler->filter('[data-testid="notification-dropdown-show-all"]'));
     }

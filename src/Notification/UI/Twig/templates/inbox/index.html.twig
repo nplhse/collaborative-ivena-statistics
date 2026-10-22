@@ -5,19 +5,19 @@
 {% block page_header %}
     <div class="container-xl">
         <twig:Breadcrumbs :items="[
-            { label: 'notification.title', label_domain: 'notification' }
+            { label: 'notification.title', label_domain: 'notification', translatable: true }
         ]" />
 
         <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-sm">
                     <h2 class="page-title">{{ 'notification.title'|trans({}, 'notification') }}</h2>
                     <div class="text-body-secondary mt-1">
                         {{ 'notification.index.subtitle'|trans({count: state.unreadCount}, 'notification') }}
                     </div>
                 </div>
                 {% if state.unreadCount > 0 %}
-                    <div class="col-auto ms-auto">
+                    <div class="col-12 col-sm-auto">
                         {{ include('@Notification/inbox/_read_all_form.html.twig', {
                             target: path('app_notification_index'),
                             button_class: 'btn btn-outline-primary',
