@@ -86,7 +86,16 @@ To add a new data source, also implement `DataSourceCapabilitiesProviderInterfac
 
 **Implementations:** `CsvTabularExporter`
 
+## Notification types
+
+**Attribute:** `#[NotificationDefinition]` on a subclass of `AppNotification`
+
+**Registry:** `NotificationRegistry` (filled by `NotificationDefinitionPass`, which also validates every definition)
+
+See [../04-features/notification/README.md](../04-features/notification/README.md).
+
 ## Related documentation
 
 - [../04-features/import/import-pipeline.md](../04-features/import/import-pipeline.md)
 - [../04-features/statistics/analysis-explorer.md](../04-features/statistics/analysis-explorer.md)
+- [../04-features/notification/README.md](../04-features/notification/README.md)

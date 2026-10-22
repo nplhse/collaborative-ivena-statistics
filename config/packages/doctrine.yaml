@@ -81,6 +81,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Analytics/Domain/Entity'
                 prefix: 'App\Analytics\Domain\Entity'
+            Notification:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Notification/Domain/Entity'
+                prefix: 'App\Notification\Domain\Entity'
         dql:
             string_functions:
                 JSON_GET_TEXT: App\User\Infrastructure\Doctrine\JsonGetTextFunction

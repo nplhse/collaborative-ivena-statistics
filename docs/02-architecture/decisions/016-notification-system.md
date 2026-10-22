@@ -78,7 +78,7 @@ final class ImportRunFinishedNotification extends AppNotification
 }
 ```
 
-Definitions are collected at container compile time (autoconfigured tag + tagged iterator) into a `NotificationRegistry`. Type identifiers are dotted strings. Categories, channels, priorities and access scopes are enums; `NotificationPriority` maps onto Notifier's importance levels. A notification class lives in the context that owns the event (e.g. `Import\Infrastructure\Notification\…`). The attribute, base class and enums live in `Notification\Application`.
+Definitions are collected at container compile time (attribute autoconfiguration + compiler pass) into a `NotificationRegistry`. Type identifiers are dotted strings. Categories, channels, priorities and access scopes are enums; `NotificationPriority` maps onto Notifier's importance levels. A notification class lives in the context that owns the event (e.g. `Import\Infrastructure\Notification\…`). The attribute and base class live in `Notification\Application`. The enums live in `Notification\Domain`, because the entities use them; producing contexts may use `Notification_Application` and these enums.
 
 A compiler pass **rejects invalid definitions** and fails the container build when:
 
@@ -203,7 +203,7 @@ PostgreSQL tables in the `Notification` context:
 - The link to the instance lets a duplicate publication find pending deliveries while the instance exists.
 - **Expired keys are taken over explicitly.** The claim is one statement: `INSERT … ON CONFLICT (recipient_id, key) DO UPDATE SET expires_at = :new, notification_id = NULL WHERE notification_deduplication.expires_at < now() RETURNING id`. A returned row means the key was claimed (new or expired). No row means an unexpired holder exists. `expires_at` alone never resolves a unique-key conflict.
 
-**`notification_recipient_state`**: one row per recipient with `version` (bigint) and `unread_count`. Both are updated in the same transaction as every change that is visible in the inbox or badge.
+**`notification_recipient_state`**: one row per recipient with `version` and `unread_count`. Both are updated in the same transaction as every change that is visible in the inbox or badge.
 
 ### Retention and deduplication periods
 
@@ -418,12 +418,14 @@ Import messages dispatched before the deploy have no `runId`. `runCount` is not 
 
 Separate pull requests into `feature/notification-system`, within this one architecture:
 
-1. Core: context, attribute, registry with validation, tables (including deduplication takeover), publisher with transaction, preference resolver with defaults only, Notifier configuration.
+1. Core: context, attribute, registry with validation, inbox, deduplication and recipient-state tables (including deduplication takeover), publisher with transaction, preference resolver (overrides are stored from step 7 on), Notifier configuration.
 2. In-app UI: bell, dropdown, overview, read state, removal, render-time permission checks, retention and daily recount.
-3. Import runs: durable `ImportRun` history, `currentRunId`, error classification and terminal `Failed`, current-run check on every commit, `user_import_milestone`, `import.run_finished`, `user.first_import`, reconciliation and catch-up command; `participation.activated` in-app.
+3. Import runs, in two pull requests:
+   - **3a** Import-run lifecycle, without notifications: durable `ImportRun` history, `currentRunId`, error classification and terminal `Failed`, `Superseded`, current-run check on every commit.
+   - **3b** Import notifications: `user_import_milestone`, `import.run_finished`, `user.first_import`, reconciliation and catch-up command; `participation.activated` in-app.
 4. Batch processing semantics, together: item states including `Superseded` and `Partial`, suppression of per-import notifications, completion check in one transaction, summary counts, batch reconciliation.
 5. Toast component, activity detection, recipient version, shared snapshot logic, immediate initial poll and polling endpoint.
-6. Email delivery: delivery row lock, status tracking, final-failure handling, pending-delivery reconciliation; migrate the participation welcome mail.
+6. Email delivery: delivery table and row lock, status tracking, final-failure handling, pending-delivery reconciliation; migrate the participation welcome mail.
 7. Preferences UI; migrate the monthly reminder and its opt-out.
 8. Migrate admin notifications and the feedback admin mail.
 
