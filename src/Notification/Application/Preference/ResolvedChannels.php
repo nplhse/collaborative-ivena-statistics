@@ -20,17 +20,4 @@ final readonly class ResolvedChannels
     {
         return \in_array($channel, $this->channels, true);
     }
-
-    /**
-     * Channels delivered outside the application (everything except in-app and toast).
-     *
-     * @return list<NotificationChannel>
-     */
-    public function external(): array
-    {
-        return array_values(array_filter(
-            $this->channels,
-            static fn (NotificationChannel $channel): bool => NotificationChannel::InApp !== $channel && NotificationChannel::Toast !== $channel,
-        ));
-    }
 }

@@ -85,16 +85,8 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
     {
         $channels = $this->channelResolver->resolve($definition, NotificationPreferenceOverrides::none());
 
-        // External channels get durable delivery jobs with step 6 of ADR 016. Until then they cannot be
-        // a default or mandatory channel (see NotificationDefinitionValidator), so this only logs.
-        foreach ($channels->external() as $channel) {
-            $this->logger->error('notification.channel_unavailable', [
-                'type' => $request->type,
-                'recipient_id' => $recipientId,
-                'channel' => $channel->value,
-            ]);
-        }
-
+        // Only in-app and toast are resolved until external channels get delivery jobs (step 6 of ADR 016);
+        // NotificationDefinitionValidator keeps them out of default and mandatory channels.
         if (!$channels->has(NotificationChannel::InApp)) {
             return;
         }
