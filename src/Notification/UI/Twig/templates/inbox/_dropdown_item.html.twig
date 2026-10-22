@@ -29,6 +29,7 @@
             <div class="d-block text-secondary text-truncate mt-n1">
                 {{ notification.messageKey|trans(notification.parameters, notification.translationDomain) }}
             </div>
+            <twig:RelativeTimestamp :datetime="notification.createdAt" class="text-secondary small" />
         </div>
         {% if not notification.isRead %}
             <div class="col-auto">

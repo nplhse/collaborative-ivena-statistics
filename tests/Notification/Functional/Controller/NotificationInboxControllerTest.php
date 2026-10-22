@@ -194,6 +194,8 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         for ($i = 0; $i < 6; ++$i) {
             $ids[] = (string) NotificationFactory::createOne(['recipient' => $user, 'createdAt' => $start->modify('+'.$i.' hours')])->getId();
         }
+        $newestButRead = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => $start->modify('+1 day')]);
+        new NotificationTestState(self::getContainer()->get(Connection::class))->markRead($newestButRead, $start->modify('+2 days'));
 
         $crawler = $client->request(Request::METHOD_GET, '/notifications/dropdown?target=/statistics');
 
@@ -203,9 +205,11 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         self::assertCount(5, $crawler->filter('[data-testid="notification-item-read"]'), 'unread entries offer a hover action');
         self::assertCount(1, $crawler->filter('[data-testid="notification-read-all"][aria-label]'), 'mark all as read is an icon button with a label');
         self::assertSame('/statistics', $crawler->filter('[data-testid="notification-dropdown"] input[name="_target"]')->attr('value'));
-        self::assertCount(1, $crawler->filter('[data-testid="notification-dropdown-show-all"]'));
+        self::assertSame('Show all 7 notifications', trim($crawler->filter('[data-testid="notification-dropdown-show-all"]')->text()));
+        self::assertCount(0, $crawler->filter('[data-notification-id="'.$newestButRead->getId().'"]'), 'read entries are not in the dropdown');
         self::assertSame('6', trim($crawler->filter('[data-testid="notification-dropdown-unread-count"]')->text()));
         self::assertCount(5, $crawler->filter('[data-testid="notification-item"] .status-dot.bg-primary'), 'unread entries use the primary color');
+        self::assertCount(5, $crawler->filter('[data-testid="notification-item"] time[datetime]'), 'each entry shows a relative timestamp');
     }
 
     public function testDropdownRejectsForeignReturnTargets(): void
@@ -228,8 +232,24 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $crawler->filter('[data-testid="notification-dropdown-empty"]'));
+        self::assertStringContainsString('No unread notifications', $crawler->filter('[data-testid="notification-dropdown-empty"]')->text());
+        self::assertSame('Open notifications', trim($crawler->filter('[data-testid="notification-dropdown-show-all"]')->text()));
         self::assertCount(0, $crawler->filter('[data-testid="notification-dropdown-unread-count"]'));
         self::assertCount(0, $crawler->filter('[data-testid="notification-read-all"]'));
+    }
+
+    public function testDropdownWithOnlyReadEntriesShowsNoEntriesButTheTotal(): void
+    {
+        $client = self::createClient();
+        $user = $this->user($client);
+        $read = NotificationFactory::createOne(['recipient' => $user]);
+        new NotificationTestState(self::getContainer()->get(Connection::class))->markRead($read, new \DateTimeImmutable());
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications/dropdown');
+
+        self::assertCount(0, $crawler->filter('[data-testid="notification-item"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-dropdown-empty"]'));
+        self::assertSame('Show 1 notification', trim($crawler->filter('[data-testid="notification-dropdown-show-all"]')->text()));
     }
 
     public function testRedactsRevokedHospitalsAndHidesEntriesWithoutRole(): void

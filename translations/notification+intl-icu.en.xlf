@@ -5,6 +5,14 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="NtfD2FEBF6B" resname="notification.dropdown.show_all">
+        <source>notification.dropdown.show_all</source>
+        <target>{count, plural, =0 {Open notifications} one {Show # notification} other {Show all # notifications}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1FD72BCA" resname="notification.dropdown.empty">
+        <source>notification.dropdown.empty</source>
+        <target>No unread notifications</target>
+      </trans-unit>
       <trans-unit id="NtfBAAE5495" resname="notification.action.remove_all_unread">
         <source>notification.action.remove_all_unread</source>
         <target>Remove all unread</target>
@@ -144,10 +152,6 @@
       <trans-unit id="NtfED9D293F" resname="notification.bell.label">
         <source>notification.bell.label</source>
         <target>{count, plural, =0 {Notifications} one {Notifications, # unread} other {Notifications, # unread}}</target>
-      </trans-unit>
-      <trans-unit id="NtfD2FEBF6B" resname="notification.dropdown.show_all">
-        <source>notification.dropdown.show_all</source>
-        <target>Show all notifications</target>
       </trans-unit>
       <trans-unit id="NtfBD976864" resname="notification.empty.description">
         <source>notification.empty.description</source>

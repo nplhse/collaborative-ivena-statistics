@@ -49,10 +49,19 @@ final readonly class NotificationInboxQuery implements NotificationInboxQueryInt
      * @return list<InboxEntry>
      */
     #[\Override]
-    public function latest(int $recipientId, int $limit = InboxPage::DROPDOWN_SIZE): array
+    public function latestUnread(int $recipientId, int $limit = InboxPage::DROPDOWN_SIZE): array
     {
         return $this->fetch(
-            \sprintf('SELECT %s FROM notification WHERE %s ORDER BY created_at DESC, id DESC LIMIT %d', self::COLUMNS, self::VISIBLE, $limit),
+            \sprintf('SELECT %s FROM notification WHERE %s AND read_at IS NULL ORDER BY created_at DESC, id DESC LIMIT %d', self::COLUMNS, self::VISIBLE, $limit),
+            ['recipient' => $recipientId],
+        );
+    }
+
+    #[\Override]
+    public function count(int $recipientId): int
+    {
+        return (int) $this->connection->fetchOne(
+            \sprintf('SELECT COUNT(*) FROM notification WHERE %s', self::VISIBLE),
             ['recipient' => $recipientId],
         );
     }

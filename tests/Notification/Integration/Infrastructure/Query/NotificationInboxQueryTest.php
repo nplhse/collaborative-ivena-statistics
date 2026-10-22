@@ -32,7 +32,7 @@ final class NotificationInboxQueryTest extends DatabaseKernelTestCase
         self::assertSame(3, $query->state($userId)->unreadCount);
     }
 
-    public function testLatestReturnsNewestVisibleOwnEntries(): void
+    public function testLatestUnreadReturnsNewestVisibleOwnEntries(): void
     {
         $user = UserFactory::createOne();
         $other = UserFactory::createOne();
@@ -47,9 +47,26 @@ final class NotificationInboxQueryTest extends DatabaseKernelTestCase
         NotificationFactory::createOne(['recipient' => $user, 'type' => 'test.email_only', 'inAppVisible' => false, 'createdAt' => new \DateTimeImmutable('2026-10-09 10:00:00')]);
         NotificationFactory::createOne(['recipient' => $other, 'type' => 'test.other', 'createdAt' => new \DateTimeImmutable('2026-10-09 10:00:00')]);
 
-        $latest = array_map(static fn (InboxEntry $entry): int => $entry->id, $this->query()->latest((int) $user->getId(), 5));
+        $latest = array_map(static fn (InboxEntry $entry): int => $entry->id, $this->query()->latestUnread((int) $user->getId(), 5));
 
         self::assertSame([$ids[6], $ids[5], $ids[4], $ids[3], $ids[2]], $latest);
+    }
+
+    public function testLatestUnreadSkipsReadEntriesAndCountIncludesThem(): void
+    {
+        $user = UserFactory::createOne();
+        $unread = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => new \DateTimeImmutable('2026-10-01 10:00:00')]);
+        $read = NotificationFactory::createOne(['recipient' => $user, 'createdAt' => new \DateTimeImmutable('2026-10-02 10:00:00')]);
+        $this->state()->markRead($read, new \DateTimeImmutable('2026-10-03 10:00:00'));
+        $removed = NotificationFactory::createOne(['recipient' => $user]);
+        $this->state()->markRemoved($removed, new \DateTimeImmutable('2026-10-03 10:00:00'));
+        NotificationFactory::createOne(['recipient' => $user, 'inAppVisible' => false]);
+        NotificationFactory::createOne();
+        $userId = (int) $user->getId();
+
+        self::assertSame([(int) $unread->getId()], array_map(static fn (InboxEntry $entry): int => $entry->id, $this->query()->latestUnread($userId)));
+        self::assertSame(2, $this->query()->count($userId), 'read and unread entries count; removed, email-only and foreign ones do not');
+        self::assertSame(0, $this->query()->count((int) UserFactory::createOne()->getId()));
     }
 
     public function testPagesWithKeysetAndOrdersEqualTimestampsById(): void

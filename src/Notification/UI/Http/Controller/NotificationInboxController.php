@@ -72,8 +72,9 @@ final class NotificationInboxController extends AbstractController
 
         return $this->render('@Notification/inbox/_dropdown.html.twig', [
             'target' => SafeTargetPath::sanitize($target) ?? $this->generateUrl('app_notification_index'),
-            'notifications' => $this->viewFactory->build($user, $this->inboxQuery->latest($userId, InboxPage::DROPDOWN_SIZE)),
+            'notifications' => $this->viewFactory->build($user, $this->inboxQuery->latestUnread($userId, InboxPage::DROPDOWN_SIZE)),
             'state' => $this->inboxQuery->state($userId),
+            'total' => $this->inboxQuery->count($userId),
         ]);
     }
 }

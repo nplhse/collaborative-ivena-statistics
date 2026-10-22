@@ -22,7 +22,7 @@
         </div>
         {% if notifications is empty %}
             <div class="card-body text-secondary" data-testid="notification-dropdown-empty">
-                {{ 'notification.empty.title'|trans({}, 'notification') }}
+                {{ 'notification.dropdown.empty'|trans({}, 'notification') }}
             </div>
         {% else %}
             <div class="list-group list-group-flush list-group-hoverable">
@@ -32,7 +32,7 @@
             </div>
         {% endif %}
         <a href="{{ path('app_notification_index') }}" class="card-footer text-center text-secondary text-decoration-none" data-turbo-frame="_top" data-testid="notification-dropdown-show-all">
-            {{ 'notification.dropdown.show_all'|trans({}, 'notification') }}
+            {{ 'notification.dropdown.show_all'|trans({count: total}, 'notification') }}
         </a>
     </div>
 </turbo-frame>

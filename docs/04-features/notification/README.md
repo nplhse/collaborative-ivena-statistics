@@ -59,7 +59,7 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 
 ## Inbox
 
-- **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count and the **5 newest** entries.
+- **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count, the **5 newest unread** entries with their relative time (fewer if fewer are unread) and a link to the overview with the total number of entries.
 - **Overview:** `/notifications` lists entries newest first, **25 per page**, with the tabs *All* and *Unread* (`?filter=unread`). "Older" and "Newer" page with keyset cursors on `created_at, id` (`?before=` / `?after=`); filter and page are kept after every action. A notice below the list explains the retention periods.
 - **Single entries:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, remove.
 - **Action bar** above the list, one place for all other actions:

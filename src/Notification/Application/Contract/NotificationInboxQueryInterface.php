@@ -17,9 +17,16 @@ interface NotificationInboxQueryInterface
     public function state(int $recipientId): RecipientInboxState;
 
     /**
+     * The newest unread entries, e.g. for the header dropdown. Fewer than $limit when fewer are unread.
+     *
      * @return list<InboxEntry>
      */
-    public function latest(int $recipientId, int $limit = InboxPage::DROPDOWN_SIZE): array;
+    public function latestUnread(int $recipientId, int $limit = InboxPage::DROPDOWN_SIZE): array;
+
+    /**
+     * Number of entries in the inbox (read and unread, not removed).
+     */
+    public function count(int $recipientId): int;
 
     /**
      * One page of up to $size entries, newest first. Without cursor it starts with the newest entries;
