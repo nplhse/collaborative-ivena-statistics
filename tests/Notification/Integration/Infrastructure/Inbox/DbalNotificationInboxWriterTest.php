@@ -91,6 +91,46 @@ final class DbalNotificationInboxWriterTest extends DatabaseKernelTestCase
         self::assertSame(['version' => 2, 'unread' => 0], $this->state($user));
     }
 
+    public function testMarkReadManyChangesOnlyOwnUnreadEntries(): void
+    {
+        $user = $this->userWithState(unread: 3);
+        $unread = NotificationFactory::createMany(2, ['recipient' => $user]);
+        $alreadyRead = NotificationFactory::createOne(['recipient' => $user]);
+        new NotificationTestState($this->connection)->markRead($alreadyRead, new \DateTimeImmutable('2026-10-22 10:00:00'));
+        $foreign = NotificationFactory::createOne();
+
+        $changed = $this->writer->markReadMany($this->id($user), [
+            (int) $unread[0]->getId(),
+            (int) $unread[1]->getId(),
+            (int) $unread[1]->getId(),
+            (int) $alreadyRead->getId(),
+            (int) $foreign->getId(),
+        ]);
+
+        self::assertSame(2, $changed);
+        self::assertSame(['version' => 2, 'unread' => 1], $this->state($user));
+        self::assertNull($this->connection->fetchOne('SELECT read_at FROM notification WHERE id = ?', [$foreign->getId()]));
+        self::assertSame(0, $this->writer->markReadMany($this->id($user), []));
+    }
+
+    public function testRemoveManyAndRemoveAllAdjustTheCounter(): void
+    {
+        $user = $this->userWithState(unread: 3);
+        $entries = NotificationFactory::createMany(4, ['recipient' => $user]);
+        new NotificationTestState($this->connection)->markRead($entries[3], new \DateTimeImmutable('2026-10-22 10:00:00'));
+        $foreign = NotificationFactory::createOne();
+
+        self::assertSame(2, $this->writer->removeMany($this->id($user), [(int) $entries[0]->getId(), (int) $entries[3]->getId(), (int) $foreign->getId()]));
+        self::assertSame(['version' => 2, 'unread' => 2], $this->state($user), 'only one of the removed entries was unread');
+        self::assertSame(0, $this->writer->removeMany($this->id($user), []));
+
+        self::assertSame(2, $this->writer->removeAll($this->id($user)));
+        self::assertSame(['version' => 3, 'unread' => 0], $this->state($user));
+        self::assertSame(0, $this->writer->removeAll($this->id($user)));
+        self::assertSame(['version' => 3, 'unread' => 0], $this->state($user), 'nothing left to remove changes nothing');
+        self::assertNull($this->connection->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$foreign->getId()]));
+    }
+
     private function userWithState(int $unread): User
     {
         $user = UserFactory::createOne();

@@ -1,4 +1,4 @@
-{# One entry of the overview page. Variables: notification, target (return path). #}
+{# One entry of the overview page. Variables: notification, target (return path). The checkbox belongs to #notification-bulk-form. #}
 {% set title = notification.titleKey|trans(notification.parameters, notification.translationDomain) %}
 <div
     class="list-group-item{{ notification.isRead ? '' : ' bg-primary-lt' }}"
@@ -7,6 +7,19 @@
     data-notification-read="{{ notification.isRead ? 'true' : 'false' }}"
 >
     <div class="row align-items-center g-2">
+        <div class="col-auto">
+            <input
+                type="checkbox"
+                class="form-check-input m-0 align-middle"
+                name="ids[]"
+                value="{{ notification.id }}"
+                form="notification-bulk-form"
+                data-checkbox-select-all-target="item"
+                data-action="change->checkbox-select-all#syncToggle"
+                aria-label="{{ 'notification.bulk.select_item'|trans({title: title}, 'notification') }}"
+                data-testid="notification-item-select"
+            >
+        </div>
         <div class="col-auto">
             {% if notification.isRead %}
                 <span class="status-dot d-block" aria-hidden="true"></span>

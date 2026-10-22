@@ -144,6 +144,144 @@ final class NotificationActionControllerTest extends DatabaseWebTestCase
         self::assertResponseRedirects('/notifications');
     }
 
+    public function testOverviewOffersSelectionAndRemoveAll(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 2);
+        NotificationFactory::createMany(2, ['recipient' => $user]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications');
+
+        self::assertCount(2, $crawler->filter('[data-testid="notification-item-select"][form="notification-bulk-form"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-select-all"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-bulk-read"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-bulk-remove"][data-controller="confirm-submit"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="notification-remove-all"][data-bs-target="#notification-remove-all-modal"]'));
+        self::assertCount(1, $crawler->filter('#notification-remove-all-modal form[action="/notifications/remove-all"]'));
+    }
+
+    public function testEmptyInboxHasNoBulkActionsAndNoRemoveAll(): void
+    {
+        $client = self::createClient();
+        $this->loginWithState($client, unread: 0);
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications');
+
+        self::assertCount(0, $crawler->filter('[data-testid="notification-bulk-actions"]'));
+        self::assertCount(0, $crawler->filter('[data-testid="notification-remove-all"]'));
+    }
+
+    public function testBulkReadMarksSelectedOwnEntriesAndReturnsToThePage(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 3);
+        $entries = NotificationFactory::createMany(3, ['recipient' => $user]);
+        $foreign = NotificationFactory::createOne(['recipient' => UserFactory::new()]);
+
+        $token = $this->bulkToken($client, '/notifications?filter=unread');
+        $client->request(Request::METHOD_POST, '/notifications/bulk', [
+            '_token' => $token,
+            '_target' => '/notifications?filter=unread',
+            'bulk_action' => 'read',
+            'ids' => [(string) $entries[0]->getId(), (string) $entries[1]->getId(), (string) $foreign->getId(), 'abc', '0'],
+        ]);
+
+        self::assertResponseRedirects('/notifications?filter=unread');
+        self::assertNotNull($this->readAt((int) $entries[0]->getId()));
+        self::assertNotNull($this->readAt((int) $entries[1]->getId()));
+        self::assertNull($this->readAt((int) $entries[2]->getId()));
+        self::assertNull($this->readAt((int) $foreign->getId()));
+        self::assertSame(1, $this->unreadCount($user));
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert', '2 notifications were marked as read.');
+    }
+
+    public function testBulkRemoveHidesSelectedEntries(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 2);
+        $entries = NotificationFactory::createMany(2, ['recipient' => $user]);
+
+        $client->request(Request::METHOD_POST, '/notifications/bulk', [
+            '_token' => $this->bulkToken($client, '/notifications'),
+            'bulk_action' => 'remove',
+            'ids' => [(string) $entries[0]->getId()],
+        ]);
+
+        self::assertResponseRedirects('/notifications');
+        self::assertNotNull($this->connection()->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$entries[0]->getId()]));
+        self::assertNull($this->connection()->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$entries[1]->getId()]));
+        self::assertSame(1, $this->unreadCount($user));
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert', '1 notification was removed.');
+    }
+
+    public function testBulkWithoutSelectionWarns(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 1);
+        NotificationFactory::createOne(['recipient' => $user]);
+
+        $client->request(Request::METHOD_POST, '/notifications/bulk', [
+            '_token' => $this->bulkToken($client, '/notifications'),
+            'bulk_action' => 'read',
+        ]);
+
+        self::assertResponseRedirects('/notifications');
+        $client->followRedirect();
+        self::assertSelectorTextContains('.alert', 'No notifications were selected.');
+        self::assertSame(1, $this->unreadCount($user));
+    }
+
+    public function testBulkRejectsUnknownActionTooManyIdsAndInvalidToken(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 1);
+        $entry = NotificationFactory::createOne(['recipient' => $user]);
+        $token = $this->bulkToken($client, '/notifications');
+
+        $client->request(Request::METHOD_POST, '/notifications/bulk', ['_token' => $token, 'bulk_action' => 'archive', 'ids' => [(string) $entry->getId()]]);
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+
+        $client->request(Request::METHOD_POST, '/notifications/bulk', ['_token' => $token, 'bulk_action' => 'read', 'ids' => array_map(strval(...), range(1, 101))]);
+        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+
+        $client->request(Request::METHOD_POST, '/notifications/bulk', ['_token' => 'invalid', 'bulk_action' => 'read', 'ids' => [(string) $entry->getId()]]);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+
+        self::assertNull($this->readAt((int) $entry->getId()));
+    }
+
+    public function testRemoveAllHidesEveryOwnEntryThroughTheModal(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 3);
+        NotificationFactory::createMany(3, ['recipient' => $user]);
+        $foreign = NotificationFactory::createOne(['recipient' => UserFactory::new()]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/notifications');
+        $client->submit($crawler->filter('#notification-remove-all-modal form')->form());
+
+        self::assertResponseRedirects('/notifications');
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ? AND removed_at IS NULL', [$user->getId()]));
+        self::assertNull($this->connection()->fetchOne('SELECT removed_at FROM notification WHERE id = ?', [$foreign->getId()]));
+        self::assertSame(0, $this->unreadCount($user));
+
+        $crawler = $client->followRedirect();
+        self::assertSelectorTextContains('.alert', '3 notifications were removed.');
+        self::assertCount(1, $crawler->filter('[data-testid="notification-inbox-empty"]'));
+
+        $client->request(Request::METHOD_POST, '/notifications/remove-all', ['_token' => 'invalid']);
+        self::assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    private function bulkToken(KernelBrowser $client, string $page): string
+    {
+        $crawler = $client->request(Request::METHOD_GET, $page);
+
+        return (string) $crawler->filter('#notification-bulk-form input[name="_token"]')->attr('value');
+    }
+
     private function loginWithState(KernelBrowser $client, int $unread): User
     {
         $user = $this->loginAsRoleUser($client);

@@ -21,45 +21,67 @@ final readonly class DbalNotificationInboxWriter implements NotificationInboxWri
 {
     private const string OWN_VISIBLE = 'recipient_id = :recipient AND in_app_visible = true AND removed_at IS NULL';
 
+    private const string ID_CONDITION = ' AND id = ANY(CAST(:ids AS int[]))';
+
     public function __construct(
         private Connection $connection,
         private ClockInterface $clock,
     ) {
     }
 
-    /**
-     * @return bool whether the entry changed from unread to read
-     */
     #[\Override]
     public function markRead(int $recipientId, int $notificationId): bool
     {
-        return $this->connection->transactional(function (Connection $connection) use ($recipientId, $notificationId): bool {
-            $changed = $connection->executeStatement(
-                \sprintf('UPDATE notification SET read_at = :now WHERE %s AND id = :id AND read_at IS NULL', self::OWN_VISIBLE),
-                ['now' => $this->clock->now(), 'recipient' => $recipientId, 'id' => $notificationId],
-                ['now' => Types::DATETIME_IMMUTABLE],
-            );
-
-            if (0 === $changed) {
-                return false;
-            }
-
-            $this->bumpState($connection, $recipientId, -1);
-
-            return true;
-        });
+        return 1 === $this->markReadMany($recipientId, [$notificationId]);
     }
 
-    /**
-     * @return int number of entries that changed from unread to read
-     */
+    #[\Override]
+    public function markReadMany(int $recipientId, array $notificationIds): int
+    {
+        if ([] === $notificationIds) {
+            return 0;
+        }
+
+        return $this->markReadWhere($recipientId, self::ID_CONDITION, ['ids' => $this->postgresIntArray($notificationIds)]);
+    }
+
     #[\Override]
     public function markAllRead(int $recipientId): int
     {
-        return $this->connection->transactional(function (Connection $connection) use ($recipientId): int {
+        return $this->markReadWhere($recipientId, '', []);
+    }
+
+    #[\Override]
+    public function remove(int $recipientId, int $notificationId): bool
+    {
+        return 1 === $this->removeMany($recipientId, [$notificationId]);
+    }
+
+    #[\Override]
+    public function removeMany(int $recipientId, array $notificationIds): int
+    {
+        if ([] === $notificationIds) {
+            return 0;
+        }
+
+        return $this->removeWhere($recipientId, self::ID_CONDITION, ['ids' => $this->postgresIntArray($notificationIds)]);
+    }
+
+    #[\Override]
+    public function removeAll(int $recipientId): int
+    {
+        return $this->removeWhere($recipientId, '', []);
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     */
+    private function markReadWhere(int $recipientId, string $condition, array $parameters): int
+    {
+        return $this->connection->transactional(function (Connection $connection) use ($recipientId, $condition, $parameters): int {
             $changed = $connection->executeStatement(
-                \sprintf('UPDATE notification SET read_at = :now WHERE %s AND read_at IS NULL', self::OWN_VISIBLE),
-                ['now' => $this->clock->now(), 'recipient' => $recipientId],
+                \sprintf('UPDATE notification SET read_at = :now WHERE %s%s AND read_at IS NULL', self::OWN_VISIBLE, $condition),
+                ['now' => $this->clock->now(), 'recipient' => $recipientId, ...$parameters],
                 ['now' => Types::DATETIME_IMMUTABLE],
             );
 
@@ -72,28 +94,36 @@ final readonly class DbalNotificationInboxWriter implements NotificationInboxWri
     }
 
     /**
-     * Hides the entry at once. Outstanding deliveries are not cancelled; the cleanup task deletes the row later.
-     *
-     * @return bool whether the entry was removed by this call
+     * @param array<string, string> $parameters
      */
-    #[\Override]
-    public function remove(int $recipientId, int $notificationId): bool
+    private function removeWhere(int $recipientId, string $condition, array $parameters): int
     {
-        return $this->connection->transactional(function (Connection $connection) use ($recipientId, $notificationId): bool {
-            $removed = $connection->fetchAssociative(
-                \sprintf('UPDATE notification SET removed_at = :now WHERE %s AND id = :id RETURNING read_at', self::OWN_VISIBLE),
-                ['now' => $this->clock->now(), 'recipient' => $recipientId, 'id' => $notificationId],
+        return $this->connection->transactional(function (Connection $connection) use ($recipientId, $condition, $parameters): int {
+            $removed = $connection->fetchFirstColumn(
+                \sprintf('UPDATE notification SET removed_at = :now WHERE %s%s RETURNING read_at IS NULL', self::OWN_VISIBLE, $condition),
+                ['now' => $this->clock->now(), 'recipient' => $recipientId, ...$parameters],
                 ['now' => Types::DATETIME_IMMUTABLE],
             );
 
-            if (false === $removed) {
-                return false;
+            if ([] === $removed) {
+                return 0;
             }
 
-            $this->bumpState($connection, $recipientId, null === $removed['read_at'] ? -1 : 0);
+            $wasUnread = \count(array_filter($removed, static fn (mixed $unread): bool => true === $unread));
+            $this->bumpState($connection, $recipientId, -$wasUnread);
 
-            return true;
+            return \count($removed);
         });
+    }
+
+    /**
+     * PostgreSQL array literal for an int[] parameter, e.g. "{3,5,8}".
+     *
+     * @param list<int> $ids
+     */
+    private function postgresIntArray(array $ids): string
+    {
+        return '{'.implode(',', array_unique($ids)).'}';
     }
 
     private function bumpState(Connection $connection, int $recipientId, int $unreadDelta): void

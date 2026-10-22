@@ -13,10 +13,12 @@ use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * Read and removal actions on the viewer's own notifications. Entries of other users are not found.
@@ -29,6 +31,17 @@ final class NotificationActionController extends AbstractController
     public const string CSRF_READ_ALL = 'notification_read_all';
 
     public const string CSRF_REMOVE = 'notification_remove';
+
+    public const string CSRF_REMOVE_ALL = 'notification_remove_all';
+
+    public const string CSRF_BULK = 'notification_bulk';
+
+    public const string BULK_READ = 'read';
+
+    public const string BULK_REMOVE = 'remove';
+
+    /** Upper limit for one bulk request; a page shows 25 entries. */
+    private const int BULK_MAX_IDS = 100;
 
     public function __construct(
         private readonly NotificationInboxQueryInterface $inboxQuery,
@@ -77,6 +90,73 @@ final class NotificationActionController extends AbstractController
         $this->inboxWriter->remove($this->userId($user), $id);
 
         return $this->redirectBack($request);
+    }
+
+    /**
+     * Applies "read" or "remove" to the selected entries. Ids of other users are ignored by the writer.
+     */
+    #[Route('/notifications/bulk', name: 'app_notification_bulk', methods: ['POST'])]
+    public function bulk(Request $request, #[CurrentUser] User $user): RedirectResponse
+    {
+        $this->assertCsrf(self::CSRF_BULK, $request);
+
+        $ids = $this->selectedIds($request);
+        if ([] === $ids) {
+            $this->addFlash('warning', new TranslatableMessage('notification.flash.none_selected', domain: 'notification'));
+
+            return $this->redirectBack($request);
+        }
+
+        $action = $request->request->getString('bulk_action');
+        match ($action) {
+            self::BULK_READ => $this->addFlash('success', new TranslatableMessage(
+                'notification.flash.marked_read',
+                ['count' => $this->inboxWriter->markReadMany($this->userId($user), $ids)],
+                'notification',
+            )),
+            self::BULK_REMOVE => $this->addFlash('success', new TranslatableMessage(
+                'notification.flash.removed',
+                ['count' => $this->inboxWriter->removeMany($this->userId($user), $ids)],
+                'notification',
+            )),
+            default => throw new BadRequestHttpException(\sprintf('Unknown bulk action "%s".', $action)),
+        };
+
+        return $this->redirectBack($request);
+    }
+
+    #[Route('/notifications/remove-all', name: 'app_notification_remove_all', methods: ['POST'])]
+    public function removeAll(Request $request, #[CurrentUser] User $user): RedirectResponse
+    {
+        $this->assertCsrf(self::CSRF_REMOVE_ALL, $request);
+
+        $this->addFlash('success', new TranslatableMessage(
+            'notification.flash.removed',
+            ['count' => $this->inboxWriter->removeAll($this->userId($user))],
+            'notification',
+        ));
+
+        return $this->redirectToRoute('app_notification_index');
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function selectedIds(Request $request): array
+    {
+        $raw = $request->request->all('ids');
+        if (\count($raw) > self::BULK_MAX_IDS) {
+            throw new BadRequestHttpException(\sprintf('At most %d notifications can be changed at once.', self::BULK_MAX_IDS));
+        }
+
+        $ids = [];
+        foreach ($raw as $value) {
+            if (\is_string($value) && 1 === preg_match('/^[1-9]\d{0,9}$/', $value)) {
+                $ids[(int) $value] = (int) $value;
+            }
+        }
+
+        return array_values($ids);
     }
 
     private function ownEntry(User $user, int $id): InboxEntry

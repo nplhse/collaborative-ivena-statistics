@@ -5,6 +5,54 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="Ntf8C034F13" resname="notification.action.remove_all">
+        <source>notification.action.remove_all</source>
+        <target>Remove all</target>
+      </trans-unit>
+      <trans-unit id="NtfD23CD63B" resname="notification.remove_all.modal.title">
+        <source>notification.remove_all.modal.title</source>
+        <target>Remove all notifications?</target>
+      </trans-unit>
+      <trans-unit id="NtfAE6A2954" resname="notification.remove_all.modal.body">
+        <source>notification.remove_all.modal.body</source>
+        <target>All your notifications, read and unread, will be removed from your inbox. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="NtfB3DA48B5" resname="notification.remove_all.modal.confirm">
+        <source>notification.remove_all.modal.confirm</source>
+        <target>Remove all</target>
+      </trans-unit>
+      <trans-unit id="Ntf5BE42711" resname="notification.bulk.select_page">
+        <source>notification.bulk.select_page</source>
+        <target>Select all on this page</target>
+      </trans-unit>
+      <trans-unit id="NtfD0CF1C3D" resname="notification.bulk.select_item">
+        <source>notification.bulk.select_item</source>
+        <target>Select notification: {title}</target>
+      </trans-unit>
+      <trans-unit id="Ntf657AD352" resname="notification.bulk.read">
+        <source>notification.bulk.read</source>
+        <target>Mark selected as read</target>
+      </trans-unit>
+      <trans-unit id="NtfACDA0D4E" resname="notification.bulk.remove">
+        <source>notification.bulk.remove</source>
+        <target>Remove selected</target>
+      </trans-unit>
+      <trans-unit id="Ntf1CDD29D7" resname="notification.bulk.confirm_remove">
+        <source>notification.bulk.confirm_remove</source>
+        <target>Remove the selected notifications?</target>
+      </trans-unit>
+      <trans-unit id="Ntf181696BE" resname="notification.flash.none_selected">
+        <source>notification.flash.none_selected</source>
+        <target>No notifications were selected.</target>
+      </trans-unit>
+      <trans-unit id="NtfA2938B9C" resname="notification.flash.marked_read">
+        <source>notification.flash.marked_read</source>
+        <target>{count, plural, =0 {No notification was marked as read.} one {# notification was marked as read.} other {# notifications were marked as read.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf95DA62FE" resname="notification.flash.removed">
+        <source>notification.flash.removed</source>
+        <target>{count, plural, =0 {No notification was removed.} one {# notification was removed.} other {# notifications were removed.}}</target>
+      </trans-unit>
       <trans-unit id="Ntf6D33508A" resname="notification.pagination.label">
         <source>notification.pagination.label</source>
         <target>Notification pages</target>

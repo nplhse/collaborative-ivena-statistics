@@ -61,7 +61,9 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 
 - **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count and the **5 newest** entries.
 - **Overview:** `/notifications` lists entries newest first, **25 per page**, with the tabs *All* and *Unread* (`?filter=unread`). "Older" and "Newer" page with keyset cursors on `created_at, id` (`?before=` / `?after=`); filter and page are kept after every action. A notice below the list explains the retention periods.
-- **Actions:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, mark all as read, remove. The POST actions are CSRF-protected and only accept same-site return paths.
+- **Actions:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, mark all as read, remove, and **remove all** (with a confirmation dialog).
+- **Bulk actions:** entries on the current page can be selected (one by one or all at once) and marked as read or removed together (`POST /notifications/bulk`, at most 100 ids per request; ids of other users are ignored).
+- The POST actions are CSRF-protected and only accept same-site return paths.
 - **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
 
 ### Visibility after permission changes
