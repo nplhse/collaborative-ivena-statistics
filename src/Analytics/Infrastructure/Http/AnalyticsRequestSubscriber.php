@@ -40,6 +40,8 @@ final readonly class AnalyticsRequestSubscriber
         '_profiler',
         '_fragment',
         'app_cookie_',
+        // Notification polling (ADR 016): frequent background requests, not page views.
+        'app_notification_poll',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */

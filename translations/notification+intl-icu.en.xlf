@@ -5,6 +5,18 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="Ntf7705325B" resname="notification.toast.more">
+        <source>notification.toast.more</source>
+        <target>{count, plural, one {# more notification} other {# more notifications}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf44B845CD" resname="notification.toast.close">
+        <source>notification.toast.close</source>
+        <target>Close</target>
+      </trans-unit>
+      <trans-unit id="NtfC9FD997B" resname="notification.toast.open">
+        <source>notification.toast.open</source>
+        <target>Show</target>
+      </trans-unit>
       <trans-unit id="NtfDA3B927C" resname="import.completed.title">
         <source>import.completed.title</source>
         <target>Import "{importName}" finished</target>

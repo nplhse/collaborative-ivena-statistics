@@ -11,7 +11,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Channel resolution (defaults, mandatory channels, overrides) | available; overrides are not stored yet |
 | In-app UI (bell, dropdown, overview, read/remove) | available |
 | Retention and daily recount | available |
-| Toasts and polling | planned (step 5) |
+| Toasts and polling | available |
 | Email delivery | planned (step 6) |
 | Preferences UI | planned (step 7) |
 
@@ -93,6 +93,17 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
   - the switch between both states is the Stimulus controller `notification-bulk`.
 - The POST actions are CSRF-protected and only accept same-site return paths.
 - **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
+
+### Toasts and polling
+
+Types with the toast channel get a 5-minute toast window when they are published (`toast_pending_until`). The bell keeps itself current by short polling; toasts are shown only to **active** browser contexts.
+
+- **Active** means the tab is visible and the user interacted (pointer, keyboard, scroll) within the last 10 minutes. The time of the last interaction is kept in `localStorage` (`notification:last-interaction`), so it survives navigation and is shared by the user's tabs.
+- **Initial render:** every page renders `version` and the unread dot through `NotificationSnapshotProvider` and never claims toasts. Once the context is active, the Stimulus controller `notification-poll` polls immediately, then every 30–60 s (random jitter). Inactive tabs stop and resume on interaction or visibility. Page loads within 10 s of the last poll of any tab reuse it.
+- **Endpoint:** `GET /notifications/poll?version=N` claims pending toasts independently of the version (`toast_claimed_at`, one conditional update, at most once per toast) and answers `204 No Content` when the version is unchanged and no toast was claimed. Otherwise the JSON carries `version`, `unreadCount`, `badgeLabel`, up to 3 toasts and a summary of further ones (`more`). Toast texts follow the inbox visibility rules: hidden entries are left out, redacted ones keep their generic text.
+- **Load:** the endpoint sends `Cache-Control: no-store`, is skipped by request analytics and Sentry tracing, and is limited to 30 requests per minute and user (`notification_poll`, `429` with `Retry-After`).
+- **Tabs:** results are shared via `BroadcastChannel` (`app-notifications`), so other tabs update their badge without polling. When the version changes, a dropdown that was already opened reloads.
+- **Display:** the Stimulus controller `notification-toasts` shows toasts bottom right (`#notification-toasts`, kept across Turbo visits). Severity follows the priority (low: secondary, normal: primary, high: warning, urgent: danger). High and urgent toasts use `role="alert"` and stay until closed; the others hide after 10 s unless hovered or focused. A claim means "handed to a browser", not "seen": a lost response leaves the entry only in the inbox.
 
 ### Visibility after permission changes
 
