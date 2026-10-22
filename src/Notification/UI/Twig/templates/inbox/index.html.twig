@@ -92,6 +92,9 @@
                 >
                     <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_BULK')) }}">
                     <input type="hidden" name="_target" value="{{ currentPath }}">
+                    <button type="button" class="btn btn-sm btn-link" data-action="notification-bulk#clear" data-testid="notification-bulk-clear">
+                        {{ 'notification.bulk.clear'|trans({}, 'notification') }}
+                    </button>
                     <button
                         type="submit"
                         name="bulk_action"
@@ -114,9 +117,6 @@
                     >
                         <twig:ux:icon name="tabler:trash" class="icon" />
                         {{ 'notification.action.remove'|trans({}, 'notification') }}
-                    </button>
-                    <button type="button" class="btn btn-sm btn-link" data-action="notification-bulk#clear" data-testid="notification-bulk-clear">
-                        {{ 'notification.bulk.clear'|trans({}, 'notification') }}
                     </button>
                 </form>
             </div>
