@@ -359,8 +359,8 @@ final readonly class BenchmarkMetricBuilder
             }
 
             $row = $rowsByKey[$bucketKey] ?? null;
-            $primaryCount = $row?->primaryCount ?? 0;
-            $comparisonCount = $row?->comparisonCount ?? 0;
+            $primaryCount = $row->primaryCount ?? 0;
+            $comparisonCount = $row->comparisonCount ?? 0;
             $primaryShare = $this->share($primaryCount, $result->primary->total);
             $comparisonShare = $this->share($comparisonCount, $result->comparison->total);
             $buckets[] = new BenchmarkDistributionBucket(
