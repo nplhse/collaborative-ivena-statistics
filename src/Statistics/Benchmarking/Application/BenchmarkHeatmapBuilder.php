@@ -81,8 +81,8 @@ final readonly class BenchmarkHeatmapBuilder
 
             foreach ($bucketCodes as $bucketCode) {
                 $cell = $cells[$weekday][$bucketCode] ?? null;
-                $primaryCount = null !== $cell ? $cell->primaryCount : 0;
-                $comparisonCount = null !== $cell ? $cell->comparisonCount : 0;
+                $primaryCount = $cell->primaryCount ?? 0;
+                $comparisonCount = $cell->comparisonCount ?? 0;
                 $primaryShare = $this->share($primaryCount, $result->primary->total);
                 $comparisonShare = $this->share($comparisonCount, $result->comparison->total);
                 $delta = round($primaryShare - $comparisonShare, 1);
