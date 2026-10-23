@@ -7,9 +7,7 @@ namespace App\Notification\UI\Http\Controller;
 use App\Notification\Application\Contract\NotificationPreferenceStoreInterface;
 use App\Notification\Application\Preference\NotificationPreferenceMatrixBuilder;
 use App\Notification\UI\Form\NotificationPreferencesType;
-use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,8 +26,6 @@ final class NotificationSettingsController extends AbstractController
     public function __construct(
         private readonly NotificationPreferenceStoreInterface $preferenceStore,
         private readonly NotificationPreferenceMatrixBuilder $matrixBuilder,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly AuditContext $auditContext,
     ) {
     }
 
@@ -44,25 +40,14 @@ final class NotificationSettingsController extends AbstractController
             $preferences[$control->fieldName()] = $control->isChecked();
         }
 
-        $form = $this->createForm(NotificationPreferencesType::class, [
-            'preferences' => $preferences,
-            'reminder' => ['receivesMonthlySubmissionReminder' => $user->receivesMonthlySubmissionReminder()],
-        ], ['matrix' => $matrix]);
+        $form = $this->createForm(NotificationPreferencesType::class, ['preferences' => $preferences], ['matrix' => $matrix]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var array{preferences: array<string, bool>, reminder: array{receivesMonthlySubmissionReminder?: bool}} $data */
+            /** @var array{preferences: array<string, bool>} $data */
             $data = $form->getData();
 
             $this->preferenceStore->save($userId, $matrix->changesFor($data['preferences']));
-
-            $user->setReceivesMonthlySubmissionReminder($data['reminder']['receivesMonthlySubmissionReminder'] ?? false);
-            $this->auditContext->beginIntent('user.settings.notifications_updated', []);
-            try {
-                $this->entityManager->flush();
-            } finally {
-                $this->auditContext->endIntent();
-            }
 
             $this->addFlash('success', new TranslatableMessage('flash.settings.notifications.updated', domain: 'user'));
 

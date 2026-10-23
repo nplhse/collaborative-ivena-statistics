@@ -118,6 +118,7 @@ final class MonthlyReminderDispatchCrudControllerTest extends WebTestCase
         self::assertStringContainsString('Recipient', $body);
         self::assertStringContainsString('Delivered at', $body);
         self::assertSelectorExists('a.action-sendMonthlyReminder');
+        self::assertMatchesRegularExpression('/requestId=[0-9a-f-]{36}/', (string) $crawler->filter('a.action-sendMonthlyReminder')->first()->attr('href'));
     }
 
     public function testReminderDispatchSendActionQueuesEmailForHospitalOwner(): void
@@ -155,7 +156,7 @@ final class MonthlyReminderDispatchCrudControllerTest extends WebTestCase
             '/admin/monthly-reminder-dispatch/'.$dispatch->getId().'/send-monthly-reminder',
         );
         self::assertResponseRedirects();
-        self::assertQueuedEmailCount(1);
+        self::assertEmailCount(1);
         $client->followRedirect();
         self::assertResponseIsSuccessful();
     }

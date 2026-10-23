@@ -69,6 +69,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     #[ORM\Column(options: ['default' => true])]
     private bool $isEnabled = true;
 
+    /**
+     * Replaced by the preference override of `engagement.monthly_reminder` (ADR 016, step 7b). Kept
+     * mapped until the column is dropped in a later release; nothing reads it any more.
+     *
+     * @psalm-suppress UnusedProperty
+     */
     #[ORM\Column(options: ['default' => true])]
     private bool $receivesMonthlySubmissionReminder = true;
 
@@ -211,18 +217,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function setIsEnabled(bool $isEnabled): static
     {
         $this->isEnabled = $isEnabled;
-
-        return $this;
-    }
-
-    public function receivesMonthlySubmissionReminder(): bool
-    {
-        return $this->receivesMonthlySubmissionReminder;
-    }
-
-    public function setReceivesMonthlySubmissionReminder(bool $receivesMonthlySubmissionReminder): static
-    {
-        $this->receivesMonthlySubmissionReminder = $receivesMonthlySubmissionReminder;
 
         return $this;
     }

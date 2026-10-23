@@ -75,5 +75,15 @@ final class HospitalCrudControllerTest extends WebTestCase
         self::assertStringContainsString($hospital->getCreatedAt()->format('d.m.Y H:i'), $body);
         self::assertSelectorExists('a.action-sendMonthlyReminder');
         self::assertSelectorExists('a.action-reminderHistory');
+
+        // Every rendered action carries its own request id; sending it is one admin action.
+        $link = (string) $crawler->filter('a.action-sendMonthlyReminder')->first()->attr('href');
+        self::assertMatchesRegularExpression('/requestId=[0-9a-f-]{36}/', $link);
+        $client->request(Request::METHOD_GET, $link);
+        self::assertResponseRedirects();
+        self::assertEmailCount(1);
+        self::assertSame(1, (int) self::getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
+            "SELECT COUNT(*) FROM notification_deduplication WHERE deduplication_key LIKE 'engagement.monthly_reminder_manual:%'",
+        ));
     }
 }

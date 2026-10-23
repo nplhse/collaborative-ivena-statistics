@@ -211,6 +211,8 @@ deptrac:
       - App\User\Domain\Entity\User
     App\Engagement\Domain\Entity\MonthlyReminderDispatch:
       - App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository
+    App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer:
+      - App\User\Domain\Entity\User
     App\Feedback\Domain\Entity\Feedback:
       - App\Feedback\Infrastructure\Repository\FeedbackRepository
     App\Import\Application\Analysis\ImportRejectAnalysisService:

@@ -11,15 +11,15 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
+use App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
+use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Component\Lock\LockFactory;
-use Symfony\Component\Mailer\Envelope;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\RawMessage;
 
 final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 {
@@ -95,7 +95,6 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => '   ',
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
         ]);
         $hospital = $this->createHospital(optedOut: false, owner: $owner);
 
@@ -110,7 +109,6 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => sprintf('unverified-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => false,
-            'receivesMonthlySubmissionReminder' => true,
         ]);
         $hospital = $this->createHospital(optedOut: false, owner: $owner);
 
@@ -287,39 +285,30 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertNull($retried->getFailureReason());
     }
 
-    public function testMarksDispatchFailedWhenMailerThrows(): void
+    public function testReminderGoesOutAsNotificationEmailAndCompletesTheDispatch(): void
     {
-        self::ensureKernelShutdown();
-        self::bootKernel();
-
         $hospital = $this->createHospital(optedOut: false);
-        $dispatchRepository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
-        $referenceDate = $this->frozenReferenceDate();
 
-        self::getContainer()->set(MailerInterface::class, new class implements MailerInterface {
-            public function send(RawMessage $message, ?Envelope $envelope = null): void
-            {
-                throw new \RuntimeException('SMTP unavailable');
-            }
-        });
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler, $this->frozenReferenceDate()));
 
-        $sender = self::getContainer()->get(MonthlyReminderSender::class);
-
-        try {
-            $sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler, $referenceDate);
-            self::fail('Expected mailer exception.');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('SMTP unavailable', $exception->getMessage());
-        }
-
-        $dispatch = $dispatchRepository->findForHospitalPeriodAndTrigger(
-            (int) $hospital->getId(),
-            '2026-06',
-            MonthlyReminderTrigger::Scheduler->value,
-        );
+        self::assertEmailCount(1);
+        $email = $this->findReminderEmail();
+        $dispatch = self::getContainer()->get(MonthlyReminderDispatchRepository::class)
+            ->findForHospitalPeriodAndTrigger((int) $hospital->getId(), '2026-06', MonthlyReminderTrigger::Scheduler->value);
         self::assertNotNull($dispatch);
-        self::assertSame(MonthlyReminderDispatchStatus::Failed, $dispatch->getStatus());
-        self::assertSame('SMTP unavailable', $dispatch->getFailureReason());
+        self::assertSame((string) $dispatch->getId(), $email->getHeaders()->get(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER)?->getBodyAsString());
+        self::assertNotNull($email->getHeaders()->get(NotificationEmailFactory::DELIVERY_ID_HEADER));
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus(), 'the mail events complete the dispatch');
+
+        $row = self::getContainer()->get(Connection::class)->fetchAssociative(
+            'SELECT type, in_app_visible, scope_reference_id, parameters FROM notification WHERE recipient_id = ?',
+            [$hospital->getOwner()?->getId()],
+        );
+        self::assertIsArray($row);
+        self::assertSame(['engagement.monthly_reminder', false, $hospital->getId()], [$row['type'], (bool) $row['in_app_visible'], $row['scope_reference_id']]);
+        $parameters = json_decode((string) $row['parameters'], true);
+        self::assertIsArray($parameters);
+        self::assertSame(['2026-07-01', $dispatch->getId()], [$parameters['referenceDate'], $parameters['dispatchId']]);
     }
 
     public function testSendUsesOwnerGermanLocale(): void
@@ -327,14 +316,13 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => sprintf('de-owner-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
             'locale' => 'de',
         ]);
         $hospital = $this->createHospital(optedOut: false, owner: $owner);
 
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
 
-        self::assertQueuedEmailCount(1);
+        self::assertEmailCount(1);
         $email = $this->findReminderEmail();
         self::assertSame('de', $email->getLocale());
         self::assertEmailSubjectContains($email, 'Monatsübersicht');
@@ -345,18 +333,67 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => sprintf('en-owner-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
             'locale' => 'en',
         ]);
         $hospital = $this->createHospital(optedOut: false, owner: $owner);
 
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
 
-        self::assertQueuedEmailCount(1);
+        self::assertEmailCount(1);
         $email = $this->findReminderEmail();
         self::assertSame('en', $email->getLocale());
         self::assertEmailSubjectContains($email, 'Monthly overview');
         self::assertEmailSubjectNotContains($email, 'Monatsübersicht');
+    }
+
+    public function testRepeatedAdminActionSendsOneEmailAndANewActionSendsAnother(): void
+    {
+        $hospital = $this->createHospital(optedOut: true);
+        $connection = self::getContainer()->get(Connection::class);
+        $releaseGuard = static fn () => $connection->executeStatement("UPDATE monthly_reminder_dispatch SET sent_at = sent_at - INTERVAL '10 minutes'");
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin, requestId: 'b3c4a1f0-0000-4000-8000-000000000001'));
+        $releaseGuard();
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin, requestId: 'b3c4a1f0-0000-4000-8000-000000000001'));
+        self::assertEmailCount(1, message: 'the same admin action (double click, retry) sends nothing new');
+
+        $releaseGuard();
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin, requestId: 'b3c4a1f0-0000-4000-8000-000000000002'));
+        self::assertEmailCount(2);
+        self::assertSame(['engagement.monthly_reminder_manual', 'engagement.monthly_reminder_manual'], $connection->fetchFirstColumn('SELECT type FROM notification ORDER BY id'), 'admin sends ignore the opt-out');
+    }
+
+    public function testOwnersWhoOnlyKeepTheInAppEntryGetNoEmail(): void
+    {
+        $owner = UserFactory::createOne(['email' => sprintf('inbox-%s@example.test', bin2hex(random_bytes(4))), 'isVerified' => true]);
+        $connection = self::getContainer()->get(Connection::class);
+        $connection->executeStatement(
+            "INSERT INTO user_notification_preference (user_id, scope, preference_key, channel, enabled) VALUES (?, 'type', 'engagement.monthly_reminder', 'email', false), (?, 'type', 'engagement.monthly_reminder', 'in_app', true)",
+            [$owner->getId(), $owner->getId()],
+        );
+        $hospital = $this->createHospital(optedOut: false, owner: $owner);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Scheduler, $this->frozenReferenceDate()));
+
+        self::assertEmailCount(0);
+        self::assertSame(['engagement.monthly_reminder' => true], array_column(
+            $connection->fetchAllAssociative('SELECT type, in_app_visible FROM notification WHERE recipient_id = ?', [$owner->getId()]),
+            'in_app_visible',
+            'type',
+        ));
+        $dispatch = self::getContainer()->get(MonthlyReminderDispatchRepository::class)
+            ->findForHospitalPeriodAndTrigger((int) $hospital->getId(), '2026-06', MonthlyReminderTrigger::Scheduler->value);
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch?->getStatus(), 'nothing else would complete the dispatch');
+    }
+
+    public function testCliSendsAreAlwaysNewPublications(): void
+    {
+        $hospital = $this->createHospital(optedOut: false);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Cli, $this->frozenReferenceDate()));
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Cli, $this->frozenReferenceDate()));
+
+        self::assertEmailCount(2);
     }
 
     private function frozenReferenceDate(): \DateTimeImmutable
@@ -384,8 +421,10 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
             $owner = UserFactory::createOne([
                 'email' => sprintf('reminder-%s@example.test', bin2hex(random_bytes(4))),
                 'isVerified' => true,
-                'receivesMonthlySubmissionReminder' => !$optedOut,
             ]);
+            if ($optedOut) {
+                $this->optOut($owner);
+            }
         }
 
         $state = StateFactory::createOne();
@@ -397,5 +436,12 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
             'dispatchArea' => $dispatchArea,
             'isParticipating' => $participating,
         ]);
+    }
+
+    private function optOut(object $owner): void
+    {
+        \assert($owner instanceof \App\User\Domain\Entity\User);
+        new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class))
+            ->switchOff($owner, \App\Engagement\Application\MonthlyReminderNotificationType::SCHEDULED);
     }
 }

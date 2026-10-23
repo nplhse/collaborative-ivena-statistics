@@ -15,7 +15,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Import notifications incl. batch summary | available |
 | Email delivery | available |
 | Preferences (storage and settings page) | available |
-| Monthly reminder migration and its opt-out | planned (step 7b) |
+| Monthly reminder and its opt-out | available |
 
 ## Notification types
 
@@ -25,11 +25,21 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
 | `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
+| `engagement.monthly_reminder` | Reports | email (in-app optional) | the hospital owner | the scheduled monthly reminder is due (first working day) or sent from the CLI |
+| `engagement.monthly_reminder_manual` | Reports | email (mandatory, not configurable) | the hospital owner | an administrator sends the reminder by hand |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
 
 Import types are hospital-scoped (redacted after access is revoked) and link to the import. One run yields at most one import notification (deduplication key `import.run_finished:{runId}`); superseded runs and runs from messages queued before import runs existed yield none.
 
 The first-import milestone is stored in `user_import_milestone` (Import context) in the same transaction as the run's end and is never recorded twice. The migration marks users who already had a successful import, so existing users are not congratulated after the deploy.
+
+### Monthly reminder
+
+`Engagement` still decides when a reminder is due, keeps one `monthly_reminder_dispatch` row per hospital, upload month and trigger, and the 5-minute guard for manual sends. The reminder itself is published as a notification to the hospital owner; its email is rendered with the reminder design by `MonthlyReminderEmailCustomizer` when it is delivered (for the reference date stored with the notification) and carries the dispatch id, so the dispatch status keeps following the mail events. The in-app entry links to the upload page.
+
+- Owners switch the scheduled reminder off or add the in-app entry on the settings page. The former user flag `receives_monthly_submission_reminder = false` was migrated to an email override; the column is no longer read and will be dropped in a later release. An owner who keeps only the in-app entry gets no email; the dispatch is marked as sent at once.
+- Deduplication: `engagement.monthly_reminder:{hospitalId}:{uploadMonth}` for scheduled reminders, with a `:retry:{time}` suffix when a failed dispatch is retried; CLI sends (`app:reminder:preview --send`) are always new. Manual reminders use `engagement.monthly_reminder_manual:{hospitalId}:{requestId}`: every rendered admin action carries a new request id, so a repeated submission of the same action sends nothing new.
+- The former own delay between bulk emails (`MAILER_BULK_DELAY_MS`) is gone; the rate limiter of `async_mail` spaces emails.
 
 ## Email delivery
 

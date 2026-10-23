@@ -248,9 +248,6 @@ final class UserCrudController extends AbstractCrudController
             ->hideOnIndex();
         yield BooleanField::new('credentialsExpired')
             ->hideOnIndex();
-        yield BooleanField::new('receivesMonthlySubmissionReminder', 'Monthly submission reminder')
-            ->renderAsSwitch()
-            ->hideOnIndex();
         yield ChoiceField::new('roles')
             ->setChoices([
                 'Admin' => UserRole::ADMIN,

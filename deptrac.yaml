@@ -588,6 +588,8 @@ deptrac:
             - Kpi_Domain
             - Kpi_Infrastructure
             - Kpi_UI
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -616,6 +618,8 @@ deptrac:
             - Allocation_UI
             - Engagement_Application
             - Engagement_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

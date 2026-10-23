@@ -80,6 +80,9 @@ final readonly class NotificationEmailFactory
             $email->replyTo($replyTo);
         }
 
+        foreach ($content->headers as $name => $value) {
+            $email->getHeaders()->addTextHeader($name, $value);
+        }
         $email->getHeaders()->addTextHeader(self::DELIVERY_ID_HEADER, (string) $deliveryId);
 
         return $email;

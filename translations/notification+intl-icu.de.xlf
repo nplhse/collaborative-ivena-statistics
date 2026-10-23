@@ -5,6 +5,30 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="NtfB6E533FC" resname="engagement.monthly_reminder.label">
+        <source>engagement.monthly_reminder.label</source>
+        <target>Monatliche Erinnerung an die Datenlieferung</target>
+      </trans-unit>
+      <trans-unit id="NtfDBB956CA" resname="engagement.monthly_reminder.title">
+        <source>engagement.monthly_reminder.title</source>
+        <target>Zeit für Ihre Daten: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="Ntf944D8F20" resname="engagement.monthly_reminder.message">
+        <source>engagement.monthly_reminder.message</source>
+        <target>Bitte laden Sie die Zuweisungen für {period, date, ::MMMMyyyy} hoch.</target>
+      </trans-unit>
+      <trans-unit id="NtfEB76D961" resname="engagement.monthly_reminder_manual.label">
+        <source>engagement.monthly_reminder_manual.label</source>
+        <target>Erinnerung durch eine Administratorin oder einen Administrator</target>
+      </trans-unit>
+      <trans-unit id="Ntf829FA7A5" resname="engagement.monthly_reminder_manual.title">
+        <source>engagement.monthly_reminder_manual.title</source>
+        <target>Erinnerung: Daten für {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="NtfB219520A" resname="engagement.monthly_reminder_manual.message">
+        <source>engagement.monthly_reminder_manual.message</source>
+        <target>Bitte laden Sie die Zuweisungen für {period, date, ::MMMMyyyy} hoch.</target>
+      </trans-unit>
       <trans-unit id="NtfE7985812" resname="notification.email.action">
         <source>notification.email.action</source>
         <target>Öffnen</target>
@@ -280,10 +304,6 @@
       <trans-unit id="Ntf4F8A970F" resname="notification.preferences.empty">
         <source>notification.preferences.empty</source>
         <target>Für Ihr Konto gibt es keine einstellbaren Benachrichtigungen.</target>
-      </trans-unit>
-      <trans-unit id="NtfFE0B4969" resname="notification.preferences.reminder_title">
-        <source>notification.preferences.reminder_title</source>
-        <target>E-Mail-Erinnerungen</target>
       </trans-unit>
       <trans-unit id="Ntf7263502F" resname="notification.channel.in_app">
         <source>notification.channel.in_app</source>

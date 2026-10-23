@@ -14,6 +14,7 @@ final class NotificationEmailContent
     /**
      * @param array<string, scalar|null> $parameters the stored notification parameters
      * @param array<string, mixed>       $context    template context
+     * @param array<string, string>      $headers    additional text headers
      */
     public function __construct(
         public readonly string $type,
@@ -22,6 +23,7 @@ final class NotificationEmailContent
         public string $subject,
         public string $htmlTemplate,
         public array $context,
+        public array $headers = [],
     ) {
     }
 }
