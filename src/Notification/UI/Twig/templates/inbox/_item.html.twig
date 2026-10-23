@@ -29,11 +29,11 @@
                 <span class="visually-hidden">{{ 'notification.unread'|trans({}, 'notification') }}</span>
             {% endif %}
         </div>
-        <div class="col">
+        <div class="col position-relative">
             {% if notification.hasLink %}
                 <a
                     href="{{ path('app_notification_open', {id: notification.id}) }}"
-                    class="text-body d-block{{ notification.isRead ? '' : ' fw-bold' }}"
+                    class="text-body d-block stretched-link{{ notification.isRead ? '' : ' fw-bold' }}"
                     data-turbo-frame="_top"
                     data-testid="notification-item-link"
                 >{{ title }}</a>
