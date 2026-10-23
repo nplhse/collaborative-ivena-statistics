@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Feedback\Application;
 
-use App\Feedback\Application\Contract\AdminFeedbackNotifierInterface;
+use App\Feedback\Application\Event\FeedbackReceived;
 use App\Feedback\Domain\Entity\Feedback;
 use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final readonly class RecordFeedbackHandler
 {
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private AdminFeedbackNotifierInterface $adminFeedbackNotifier,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -51,27 +52,10 @@ final readonly class RecordFeedbackHandler
         $this->entityManager->persist($feedback);
         $this->entityManager->flush();
 
-        $this->adminFeedbackNotifier->notify(
-            $feedback,
-            $category,
-            $this->encodeContextPreview($feedback->getContext()),
-        );
-    }
-
-    /** @param array<string, mixed>|null $context */
-    private function encodeContextPreview(?array $context): string
-    {
-        if (null === $context || [] === $context) {
-            return '—';
+        $feedbackId = $feedback->getId();
+        if (null !== $feedbackId) {
+            $this->eventDispatcher->dispatch(new FeedbackReceived($feedbackId));
         }
-
-        try {
-            $encoded = json_encode($context, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        } catch (\JsonException) {
-            return '(invalid JSON)';
-        }
-
-        return $this->truncate($encoded, 12000);
     }
 
     private function truncate(string $value, int $max): string

@@ -15,6 +15,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Import notifications incl. batch summary | available |
 | Email delivery | available |
 | Preferences (storage and settings page) | available |
+| Admin notifications | available |
 | Monthly reminder migration and its opt-out | planned (step 7b) |
 
 ## Notification types
@@ -26,8 +27,13 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
+| `admin.user_registered` | Administration | in-app, email | admins with `ROLE_RECEIVES_NOTIFICATION` | a user registers |
+| `admin.import_failed` | Administration | in-app, email | admins with `ROLE_RECEIVES_NOTIFICATION` | an import run ends as failed (text from the reason code) |
+| `admin.feedback_received` | Administration | in-app, email | admins with `ROLE_FEEDBACK_RECIPIENT` | someone sends feedback |
 
 Import types are hospital-scoped (redacted after access is revoked) and link to the import. One run yields at most one import notification (deduplication key `import.run_finished:{runId}`); superseded runs and runs from messages queued before import runs existed yield none.
+
+Admin types are role-scoped (`requiredRole: ROLE_ADMIN`, hidden after the role is revoked) and configurable; email is a default, not mandatory. Recipients come from `AdminNotificationRecipientResolverInterface` (User): enabled, verified users with `ROLE_ADMIN` plus the opt-in role (EasyAdmin: *Receives notifications* / *Receives Feedback*). Each admin gets their own entry, once per user (`admin.user_registered:{userId}`), run (`admin.import_failed:{runId}`, only runs that ended as failed) or feedback entry (`admin.feedback_received:{feedbackId}`). The notification stores only ids, the username, import and hospital names, counts and the reason code. The emails keep their former layout through customizers in the owning contexts; they load the user or feedback entry at delivery time, so the signed grant link and the feedback preview (`FeedbackMailPreview`, links removed) are never stored. Email addresses, user agent, page query and context of a feedback stay in the admin area. Admin types are not reconciled: a crash between the business commit and publishing loses the notification (ADR 016).
 
 The first-import milestone is stored in `user_import_milestone` (Import context) in the same transaction as the run's end and is never recorded twice. The migration marks users who already had a successful import, so existing users are not congratulated after the deploy.
 

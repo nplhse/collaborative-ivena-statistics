@@ -34,8 +34,6 @@
                                 <div style="font-size:13px;line-height:1.5;color:{{ fg }};margin-bottom:24px;">
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.username'|trans({}, 'admin') }}:</strong>
                                     {{ username }}<br/>
-                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.email'|trans({}, 'admin') }}:</strong>
-                                    {{ userEmail }}<br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.registered_at'|trans({}, 'admin') }}:</strong>
                                     {{ registeredAt|date('d.m.Y H:i', 'Europe/Berlin') }}
                                 </div>
@@ -60,6 +58,7 @@
                     </table>
                 </div>
                 <div style="text-align:center;margin-top:20px;font-size:12px;color:#8491a1;">
+                    {% if inboxUrl %}<a href="{{ inboxUrl }}" style="color:#8491a1;">{{ 'notification.email.inbox'|trans({}, 'notification') }}</a><br/>{% endif %}
                     {{ 'email.footer.transactional'|trans(({app: app_title}), 'user') }}
                 </div>
             </td>

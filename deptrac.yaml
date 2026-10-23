@@ -661,6 +661,8 @@ deptrac:
         Feedback_Infrastructure:
             - Feedback_Application
             - Feedback_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

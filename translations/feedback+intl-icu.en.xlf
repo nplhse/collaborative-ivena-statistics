@@ -113,6 +113,10 @@
         <source>feedback.email.open_in_admin</source>
         <target>Open feedback in admin</target>
       </trans-unit>
+      <trans-unit id="fb027" resname="feedback.email.actor.guest">
+        <source>feedback.email.actor.guest</source>
+        <target>Guest</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
