@@ -395,6 +395,7 @@ Batch states, the suppression of per-import notifications and the summary are in
 
 - They move into the same system, with access scope `role`. Their recipients are resolved from roles (e.g. `ROLE_ADMIN` + `ROLE_FEEDBACK_RECIPIENT`) by a recipient resolver in `User`. Each admin gets their own instance, so admins also see these in their inbox.
 - `admin.import_failed` is published only for runs that ended as `Failed`, never for superseded runs.
+- `admin.user_registered` and `admin.import_failed` go to `ROLE_ADMIN` + `ROLE_RECEIVES_NOTIFICATION`, `admin.feedback_received` to `ROLE_ADMIN` + `ROLE_FEEDBACK_RECIPIENT`, as the former mails did. Default channels are in-app and email; no channel is mandatory, so each admin can turn the email off.
 - `AdminNotificationSender`, `AdminNotification*` and the feedback admin mailer are removed once migrated.
 
 ### Scope boundaries

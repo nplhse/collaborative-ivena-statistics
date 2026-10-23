@@ -36,31 +36,26 @@
                                     {{ importName }}<br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.hospital'|trans({}, 'admin') }}:</strong>
                                     {{ hospitalName }}<br/>
-                                    <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.status'|trans({}, 'admin') }}:</strong>
-                                    {{ status }}<br/>
                                     {% if rowCount is not null %}
                                         <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.rows'|trans({}, 'admin') }}:</strong>
                                         {{ rowCount }}<br/>
                                     {% endif %}
-                                    {% if runTimeMs is not null %}
-                                        <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'admin_notification.email.label.runtime'|trans({}, 'admin') }}:</strong>
-                                        {{ runTimeMs }} ms<br/>
-                                    {% endif %}
                                 </div>
-                                {% if reason %}
-                                    <div style="background-color:{{ quoteBg }};border-radius:8px;padding:14px 16px;margin-bottom:24px;">
-                                        <div style="font-weight:600;color:{{ fgHeading }};margin-bottom:8px;">{{ 'admin_notification.email.label.error'|trans({}, 'admin') }}</div>
-                                        <p style="margin:0;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word;">{{ reason|e('html') }}</p>
-                                    </div>
-                                {% endif %}
+                                <div style="background-color:{{ quoteBg }};border-radius:8px;padding:14px 16px;margin-bottom:24px;">
+                                    <div style="font-weight:600;color:{{ fgHeading }};margin-bottom:8px;">{{ 'admin_notification.email.label.reason'|trans({}, 'admin') }}</div>
+                                    <p style="margin:0;font-size:14px;line-height:1.6;">{{ reason }}</p>
+                                </div>
+                                {% if importDetailUrl %}
                                 <a href="{{ importDetailUrl }}" style="display:inline-block;background-color:{{ link }};color:#ffffff;text-decoration:none;font-weight:500;font-size:15px;border-radius:4px;padding:12px 24px;">
                                     {{ 'admin_notification.email.import_failed.action.view'|trans({}, 'admin') }}
                                 </a>
+                                {% endif %}
                             </td>
                         </tr>
                     </table>
                 </div>
                 <div style="text-align:center;margin-top:20px;font-size:12px;color:#8491a1;">
+                    {% if inboxUrl %}<a href="{{ inboxUrl }}" style="color:#8491a1;">{{ 'notification.email.inbox'|trans({}, 'notification') }}</a><br/>{% endif %}
                     {{ 'email.footer.transactional'|trans(({app: app_title}), 'user') }}
                 </div>
             </td>

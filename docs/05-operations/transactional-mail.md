@@ -1,6 +1,6 @@
 # Transactional mail
 
-Registration verification, password reset, participation welcome mail, and feedback admin notifications are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
+Registration verification and password reset are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
 
 A **participation welcome email** is sent when an administrator first grants `ROLE_PARTICIPANT` (signed grant link or EasyAdmin user form). Re-saving an already active participant does not send it again. The mail uses the user's username for the greeting, links back to the dashboard, and lists a few next steps based on whether the user owns hospitals.
 
@@ -64,13 +64,18 @@ php bin/console debug:config framework router --env=prod | grep default_uri
 |----------|---------|
 | `MAILER_REPLY_TO` | Reply-to address on all transactional mail |
 
-## Feedback notifications (role-based recipients)
+## Admin notifications (role-based recipients)
 
-`FEEDBACK_ADMIN_EMAIL` is **no longer used**. Feedback admin mail is sent to users who have **both** `ROLE_ADMIN` and `ROLE_FEEDBACK_RECIPIENT` (EasyAdmin: **Receives Feedback**).
+New registrations, failed imports and feedback reach administrators through the notification system ([notifications](../04-features/notification/README.md#notification-types)): in the inbox and, by default, by email. `FEEDBACK_ADMIN_EMAIL` is **no longer used**.
 
-Additional requirements: account enabled, email verified, non-empty email address.
+| Type | Recipients |
+|------|------------|
+| `admin.user_registered`, `admin.import_failed` | users with `ROLE_ADMIN` and `ROLE_RECEIVES_NOTIFICATION` (EasyAdmin: **Receives notifications**) |
+| `admin.feedback_received` | users with `ROLE_ADMIN` and `ROLE_FEEDBACK_RECIPIENT` (EasyAdmin: **Receives Feedback**) |
 
-If no matching user exists, feedback is still stored but no email is sent. Check logs for `feedback.admin_mail_skipped` with reason `no_feedback_recipients`.
+Additional requirements: account enabled, email verified, non-empty email address. Each admin can turn the email or in-app channel off on the settings page *Notifications*.
+
+If no matching user exists, the registration, import or feedback is still stored but nobody is notified.
 
 ## Async delivery in production
 
@@ -99,7 +104,7 @@ Feedback admin notifications include a short, URL-stripped message preview (max 
 
 | Symptom | Likely cause |
 |---------|----------------|
-| No verification / reset / feedback mail | `MAILER_DSN` missing or worker not consuming `async_mail` |
+| No verification / reset / notification mail | `MAILER_DSN` missing or worker not consuming `async_mail` (notification mails also need `async_priority_low`) |
 | Reset link or mail images use `http://localhost` | `APP_URL` unset or wrong; restart worker after change |
 | Feedback saved but no admin email | No user with Admin + Receives Feedback |
 | Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |
