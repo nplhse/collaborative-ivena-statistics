@@ -38,19 +38,19 @@
                                 {% set categoryLabel = ('notification.category.' ~ category.category.value)|trans({}, 'notification') %}
                                 {% set typesId = 'notification-preferences-types-' ~ category.category.value %}
                                 {% set hasTypeOverrides = category.types|filter(type => type.controls|filter(control => control.override is not null)|length > 0)|length > 0 %}
-                                <div class="table-responsive mb-4" data-testid="preference-category-{{ category.category.value }}">
+                                <div class="table-responsive mb-4" data-testid="preference-category-{{ category.category.value }}" data-controller="notification-preferences">
                                     <table class="table table-vcenter table-sm mb-0 notification-preferences">
                                         <colgroup>
                                             <col>
                                             {% for channel in matrix.channels %}
-                                                <col style="width: 11rem">
+                                                <col style="width: 7rem">
                                             {% endfor %}
                                         </colgroup>
                                         <thead>
                                             <tr>
                                                 <th scope="col">{{ categoryLabel }}</th>
                                                 {% for channel in matrix.channels %}
-                                                    <th scope="col">{{ ('notification.channel.' ~ channel.value)|trans({}, 'notification') }}</th>
+                                                    <th scope="col" class="text-center">{{ ('notification.channel.' ~ channel.value)|trans({}, 'notification') }}</th>
                                                 {% endfor %}
                                             </tr>
                                         </thead>
@@ -71,7 +71,7 @@
                                                     </button>
                                                 </th>
                                                 {% for channel in matrix.channels %}
-                                                    <td>{{ include('@Notification/settings/_control.html.twig', {control: category.controls[channel.value], subject: categoryLabel}) }}</td>
+                                                    <td class="text-center">{{ include('@Notification/settings/_control.html.twig', {control: category.controls[channel.value], subject: categoryLabel}) }}</td>
                                                 {% endfor %}
                                             </tr>
                                         </tbody>
@@ -81,7 +81,7 @@
                                                 <tr data-testid="preference-type-{{ type.definition.type }}">
                                                     <th scope="row" class="fw-normal ps-4">{{ typeLabel }}</th>
                                                     {% for channel in matrix.channels %}
-                                                        <td>{{ include('@Notification/settings/_control.html.twig', {control: type.controls[channel.value], subject: typeLabel}) }}</td>
+                                                        <td class="text-center">{{ include('@Notification/settings/_control.html.twig', {control: type.controls[channel.value], subject: typeLabel}) }}</td>
                                                     {% endfor %}
                                                 </tr>
                                             {% endfor %}

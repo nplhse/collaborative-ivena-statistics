@@ -66,9 +66,9 @@ final class NotificationPreferenceMatrixBuilderTest extends TestCase
         $fixed = $matrix->categories[1]->types[3];
 
         $this->assertControl($mandatory->controls['in_app'], NotificationPreferenceControlKind::Mandatory, null, true);
-        self::assertTrue($mandatory->controls['in_app']->isEffectivelyEnabled());
+        self::assertTrue($mandatory->controls['in_app']->isChecked());
         $this->assertControl($mandatory->controls['email'], NotificationPreferenceControlKind::Unavailable, null, false);
-        self::assertFalse($mandatory->controls['email']->isEffectivelyEnabled());
+        self::assertFalse($mandatory->controls['email']->isChecked());
         $this->assertControl($mandatory->controls['toast'], NotificationPreferenceControlKind::Configurable, null, false);
 
         $this->assertControl($fixed->controls['in_app'], NotificationPreferenceControlKind::Fixed, null, true);
@@ -85,10 +85,10 @@ final class NotificationPreferenceMatrixBuilderTest extends TestCase
         $announcements = $matrix->categories[1];
 
         $this->assertControl($announcements->controls['in_app'], NotificationPreferenceControlKind::Configurable, false, null);
-        self::assertFalse($announcements->controls['in_app']->isEffectivelyEnabled());
+        self::assertFalse($announcements->controls['in_app']->isChecked());
         $this->assertControl($announcements->types[0]->controls['in_app'], NotificationPreferenceControlKind::Configurable, null, false);
         $this->assertControl($announcements->types[2]->controls['in_app'], NotificationPreferenceControlKind::Configurable, true, false);
-        self::assertTrue($announcements->types[2]->controls['in_app']->isEffectivelyEnabled());
+        self::assertTrue($announcements->types[2]->controls['in_app']->isChecked());
         $this->assertControl($announcements->types[3]->controls['in_app'], NotificationPreferenceControlKind::Fixed, null, true, 'overrides of non-configurable types are ignored');
     }
 

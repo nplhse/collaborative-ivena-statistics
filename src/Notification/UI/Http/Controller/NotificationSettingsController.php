@@ -6,7 +6,6 @@ namespace App\Notification\UI\Http\Controller;
 
 use App\Notification\Application\Contract\NotificationPreferenceStoreInterface;
 use App\Notification\Application\Preference\NotificationPreferenceMatrixBuilder;
-use App\Notification\Application\Preference\NotificationPreferenceState;
 use App\Notification\UI\Form\NotificationPreferencesType;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
@@ -42,7 +41,7 @@ final class NotificationSettingsController extends AbstractController
 
         $preferences = [];
         foreach ($matrix->configurableControls() as $control) {
-            $preferences[$control->fieldName()] = $control->state();
+            $preferences[$control->fieldName()] = $control->isChecked();
         }
 
         $form = $this->createForm(NotificationPreferencesType::class, [
@@ -52,15 +51,10 @@ final class NotificationSettingsController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var array{preferences: array<string, NotificationPreferenceState>, reminder: array{receivesMonthlySubmissionReminder?: bool}} $data */
+            /** @var array{preferences: array<string, bool>, reminder: array{receivesMonthlySubmissionReminder?: bool}} $data */
             $data = $form->getData();
 
-            $changes = [];
-            foreach ($matrix->configurableControls() as $control) {
-                $changes[] = $control->change($data['preferences'][$control->fieldName()] ?? NotificationPreferenceState::Default);
-            }
-
-            $this->preferenceStore->save($userId, $changes);
+            $this->preferenceStore->save($userId, $matrix->changesFor($data['preferences']));
 
             $user->setReceivesMonthlySubmissionReminder($data['reminder']['receivesMonthlySubmissionReminder'] ?? false);
             $this->auditContext->beginIntent('user.settings.notifications_updated', []);

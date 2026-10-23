@@ -113,6 +113,7 @@ final readonly class NotificationPreferenceMatrixBuilder
         }
 
         $uniqueDefaults = array_values(array_unique($defaults));
+        $commonDefault = 1 === \count($uniqueDefaults) ? $uniqueDefaults[0] : null;
 
         return new NotificationPreferenceControl(
             NotificationPreferenceScope::Category,
@@ -120,7 +121,8 @@ final readonly class NotificationPreferenceMatrixBuilder
             $channel,
             NotificationPreferenceControlKind::Configurable,
             $preferences->get(NotificationPreferenceScope::Category, $category->value, $channel),
-            1 === \count($uniqueDefaults) ? $uniqueDefaults[0] : null,
+            $commonDefault,
+            $commonDefault,
         );
     }
 
@@ -138,7 +140,7 @@ final readonly class NotificationPreferenceMatrixBuilder
         };
 
         if (NotificationPreferenceControlKind::Configurable !== $kind) {
-            return new NotificationPreferenceControl(NotificationPreferenceScope::Type, $definition->type, $channel, $kind, null, $default);
+            return new NotificationPreferenceControl(NotificationPreferenceScope::Type, $definition->type, $channel, $kind, null, $default, $default);
         }
 
         return new NotificationPreferenceControl(
@@ -148,6 +150,7 @@ final readonly class NotificationPreferenceMatrixBuilder
             $kind,
             $preferences->get(NotificationPreferenceScope::Type, $definition->type, $channel),
             $preferences->get(NotificationPreferenceScope::Category, $definition->category->value, $channel) ?? $default,
+            $default,
         );
     }
 
