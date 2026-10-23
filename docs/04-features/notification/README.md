@@ -15,8 +15,8 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Import notifications incl. batch summary | available |
 | Email delivery | available |
 | Preferences (storage and settings page) | available |
+| Monthly reminder and its opt-out | available |
 | Admin notifications | available |
-| Monthly reminder migration and its opt-out | planned (step 7b) |
 
 ## Notification types
 
@@ -26,6 +26,8 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
 | `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
+| `engagement.monthly_reminder` | Reports | email (in-app optional) | the hospital owner | the scheduled monthly reminder is due (first working day) or sent from the CLI |
+| `engagement.monthly_reminder_manual` | Reports | email (mandatory, not configurable) | the hospital owner | an administrator sends the reminder by hand |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
 | `admin.user_registered` | Administration | in-app, email | admins with `ROLE_RECEIVES_NOTIFICATION` | a user registers |
 | `admin.import_failed` | Administration | in-app, email | admins with `ROLE_RECEIVES_NOTIFICATION` | an import run ends as failed (text from the reason code) |
@@ -36,6 +38,14 @@ Import types are hospital-scoped (redacted after access is revoked) and link to 
 Admin types are role-scoped (`requiredRole: ROLE_ADMIN`, hidden after the role is revoked) and configurable; email is a default, not mandatory. Recipients come from `AdminNotificationRecipientResolverInterface` (User): enabled, verified users with `ROLE_ADMIN` plus the opt-in role (EasyAdmin: *Receives notifications* / *Receives Feedback*). Each admin gets their own entry, once per user (`admin.user_registered:{userId}`), run (`admin.import_failed:{runId}`, only runs that ended as failed) or feedback entry (`admin.feedback_received:{feedbackId}`). The notification stores only ids, the username, import and hospital names, counts and the reason code. The emails keep their former layout through customizers in the owning contexts; they load the user or feedback entry at delivery time, so the signed grant link and the feedback preview (`FeedbackMailPreview`, links removed) are never stored. Email addresses, user agent, page query and context of a feedback stay in the admin area. Admin types are not reconciled: a crash between the business commit and publishing loses the notification (ADR 016).
 
 The first-import milestone is stored in `user_import_milestone` (Import context) in the same transaction as the run's end and is never recorded twice. The migration marks users who already had a successful import, so existing users are not congratulated after the deploy.
+
+### Monthly reminder
+
+`Engagement` still decides when a reminder is due, keeps one `monthly_reminder_dispatch` row per hospital, upload month and trigger, and the 5-minute guard for manual sends. The reminder itself is published as a notification to the hospital owner; its email is rendered with the reminder design by `MonthlyReminderEmailCustomizer` when it is delivered (for the reference date stored with the notification) and carries the dispatch id, so the dispatch status keeps following the mail events. The in-app entry links to the upload page.
+
+- Owners switch the scheduled reminder off or add the in-app entry on the settings page. The former user flag `receives_monthly_submission_reminder = false` was migrated to an email override; the column is no longer read and will be dropped in a later release. An owner who keeps only the in-app entry gets no email; the dispatch is marked as sent at once.
+- Deduplication: `engagement.monthly_reminder:{hospitalId}:{uploadMonth}` for scheduled reminders, with a `:retry:{time}` suffix when a failed dispatch is retried; CLI sends (`app:reminder:preview --send`) are always new. Manual reminders use `engagement.monthly_reminder_manual:{hospitalId}:{requestId}`: every rendered admin action carries a new request id, so a repeated submission of the same action sends nothing new.
+- The former own delay between bulk emails (`MAILER_BULK_DELAY_MS`) is gone; the rate limiter of `async_mail` spaces emails.
 
 ## Email delivery
 

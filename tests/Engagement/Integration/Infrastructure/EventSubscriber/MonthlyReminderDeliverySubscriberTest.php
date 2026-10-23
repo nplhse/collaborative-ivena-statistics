@@ -8,10 +8,10 @@ use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
-use App\Engagement\Application\MonthlyReminderMailer;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\EventSubscriber\MonthlyReminderDeliverySubscriber;
+use App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
@@ -42,7 +42,7 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
             ->subject('Reminder')
             ->text('Reminder body');
         $email->getHeaders()->addTextHeader(
-            MonthlyReminderMailer::DISPATCH_ID_HEADER,
+            MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER,
             (string) $dispatch->getId(),
         );
 
@@ -73,7 +73,7 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
             ->subject('Reminder')
             ->text('Reminder body');
         $email->getHeaders()->addTextHeader(
-            MonthlyReminderMailer::DISPATCH_ID_HEADER,
+            MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER,
             (string) $dispatch->getId(),
         );
         $message = new SendEmailMessage($email);
@@ -116,7 +116,7 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
         $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
 
         $email = $this->email();
-        $email->getHeaders()->addTextHeader(MonthlyReminderMailer::DISPATCH_ID_HEADER, '999999');
+        $email->getHeaders()->addTextHeader(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, '999999');
 
         $subscriber->onSent($this->sentMessageEvent($email));
 
@@ -134,7 +134,7 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
 
         $email = $this->email();
         $email->getHeaders()->addTextHeader(
-            MonthlyReminderMailer::DISPATCH_ID_HEADER,
+            MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER,
             (string) $dispatch->getId(),
         );
 
@@ -178,7 +178,7 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
         $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
 
         $email = $this->email();
-        $email->getHeaders()->addTextHeader(MonthlyReminderMailer::DISPATCH_ID_HEADER, 'not-numeric');
+        $email->getHeaders()->addTextHeader(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, 'not-numeric');
 
         $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
             new Envelope(new SendEmailMessage($email)),

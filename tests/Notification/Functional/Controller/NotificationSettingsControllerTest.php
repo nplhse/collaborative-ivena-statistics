@@ -197,23 +197,25 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertSame([], $this->rows($this->id($user)));
     }
 
-    public function testUserCanOptOutOfMonthlyReminder(): void
+    public function testMonthlyReminderIsSwitchedOffLikeAnyOtherType(): void
     {
         $client = self::createClient();
-        $user = UserFactory::createOne(['roles' => ['ROLE_USER'], 'receivesMonthlySubmissionReminder' => true]);
+        $user = UserFactory::createOne(['roles' => ['ROLE_USER']]);
         $client->loginUser($user);
 
         $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
+        self::assertTrue($this->isChecked($crawler, 'type-engagement-monthly_reminder-email'), 'email by default');
+        self::assertFalse($this->isChecked($crawler, 'type-engagement-monthly_reminder-in_app'));
+        self::assertSelectorNotExists(\sprintf('input[name="%s[reminder][receivesMonthlySubmissionReminder]"]', self::FORM), 'the old opt-out is gone');
+
         $form = $crawler->selectButton('Save')->form();
-        $checkbox = $form[self::FORM.'[reminder][receivesMonthlySubmissionReminder]'];
+        $checkbox = $form[self::FORM.'[preferences][type-engagement-monthly_reminder-email]'];
         self::assertInstanceOf(ChoiceFormField::class, $checkbox);
         $checkbox->untick();
         $client->submit($form);
 
         self::assertResponseRedirects('/settings/notifications');
-        \Zenstruck\Foundry\Persistence\refresh($user);
-        self::assertFalse($user->receivesMonthlySubmissionReminder());
-        self::assertSame([], $this->rows($this->id($user)), 'defaults are not stored');
+        self::assertSame([['scope' => 'type', 'preference_key' => 'engagement.monthly_reminder', 'channel' => 'email', 'enabled' => false]], $this->rows($this->id($user)));
     }
 
     private function isChecked(Crawler $crawler, string $field): bool

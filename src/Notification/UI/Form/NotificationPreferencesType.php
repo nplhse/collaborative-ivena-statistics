@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Notification\UI\Form;
 
 use App\Notification\Application\Preference\NotificationPreferenceMatrix;
-use App\User\UI\Form\SettingsNotificationsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
@@ -13,11 +12,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Settings page "Notifications": one checkbox per configurable control (ADR 016) and, until the
- * monthly reminder is migrated, its opt-out from the User context. Mandatory and fixed channels
- * are rendered as disabled checkboxes outside the form, so they are never submitted.
+ * Settings page "Notifications": one checkbox per configurable control (ADR 016). Mandatory and
+ * fixed channels are rendered as disabled checkboxes outside the form, so they are never submitted.
  *
- * Data: ['preferences' => array<field name, bool>, 'reminder' => array<string, mixed>].
+ * Data: ['preferences' => array<field name, bool>].
  *
  * @extends AbstractType<array<string, mixed>>
  */
@@ -38,7 +36,6 @@ final class NotificationPreferencesType extends AbstractType
         }
 
         $builder->add($preferences);
-        $builder->add('reminder', SettingsNotificationsType::class, ['label' => false]);
     }
 
     #[\Override]

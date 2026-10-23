@@ -91,7 +91,7 @@ The reminder distinguishes two periods:
 
 Example: a reminder sent on 1 July requests a June upload but shows statistics for May. Personalized reminders include a compact Notzuweisungen card in the clinical profile that links to the Monthly Report for that insights month.
 
-Dispatch history is stored in `monthly_reminder_dispatch` (keyed by upload month).
+Dispatch history is stored in `monthly_reminder_dispatch` (keyed by upload month). The reminder is sent as a notification (ADR 016): owners switch it off on the notification settings page, and admins can always send it by hand. See [the notification README](../04-features/notification/README.md#monthly-reminder).
 
 **Local preview:**
 

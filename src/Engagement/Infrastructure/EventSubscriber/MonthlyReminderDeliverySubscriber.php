@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Engagement\Infrastructure\EventSubscriber;
 
-use App\Engagement\Application\MonthlyReminderMailer;
+use App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Mailer\Event\SentMessageEvent;
@@ -71,7 +71,7 @@ final readonly class MonthlyReminderDeliverySubscriber
             return null;
         }
 
-        $header = $message->getHeaders()->get(MonthlyReminderMailer::DISPATCH_ID_HEADER);
+        $header = $message->getHeaders()->get(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER);
         if (!$header instanceof \Symfony\Component\Mime\Header\HeaderInterface) {
             return null;
         }
