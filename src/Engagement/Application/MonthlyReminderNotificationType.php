@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace App\Engagement\Application;
 
 /**
- * Notification types of the monthly reminder (ADR 016). The definitions live in
- * Engagement\Infrastructure\Notification.
+ * Notification type of the monthly reminder (ADR 016), used for scheduled, CLI and admin sends alike.
+ * The definition lives in Engagement\Infrastructure\Notification.
  */
 final class MonthlyReminderNotificationType
 {
-    /** Scheduled reminder, configurable by the owner. */
-    public const string SCHEDULED = 'engagement.monthly_reminder';
-
-    /** Reminder an administrator sends by hand; email is mandatory. */
-    public const string MANUAL = 'engagement.monthly_reminder_manual';
+    public const string TYPE = 'engagement.monthly_reminder';
 }

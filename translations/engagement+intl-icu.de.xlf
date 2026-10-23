@@ -75,7 +75,7 @@
       </trans-unit>
       <trans-unit id="De8202f3d1" resname="monthly_reminder.error.opted_out">
         <source>monthly_reminder.error.opted_out</source>
-        <target>Der Benutzer hat monatliche Erinnerungen abbestellt.</target>
+        <target>Der Benutzer hat die monatliche Erinnerung in seinen Benachrichtigungseinstellungen abgeschaltet (weder Web noch E-Mail).</target>
       </trans-unit>
       <trans-unit id="De6f07bd39" resname="monthly_reminder.fallback.insight.platform.body">
         <source>monthly_reminder.fallback.insight.platform.body</source>

@@ -287,7 +287,7 @@
       </trans-unit>
       <trans-unit id="mr061" resname="monthly_reminder.error.opted_out">
         <source>monthly_reminder.error.opted_out</source>
-        <target>User has opted out of monthly reminders.</target>
+        <target>The user switched the monthly reminder off in their notification settings (neither web nor email).</target>
       </trans-unit>
       <trans-unit id="mr062" resname="monthly_reminder.email.manage_notifications">
         <source>monthly_reminder.email.manage_notifications</source>

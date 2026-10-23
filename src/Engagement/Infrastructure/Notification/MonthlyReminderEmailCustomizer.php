@@ -14,7 +14,7 @@ use App\User\Domain\Entity\User;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
- * Renders the email of both reminder types with the existing monthly reminder design. The content is
+ * Renders the reminder email with the existing monthly reminder design. The content is
  * built when the email is delivered, for the reference date stored with the notification, so the
  * entry itself only carries ids and names. The dispatch id header keeps `monthly_reminder_dispatch`
  * up to date (MonthlyReminderDeliverySubscriber).
@@ -36,7 +36,7 @@ final readonly class MonthlyReminderEmailCustomizer implements NotificationEmail
     #[\Override]
     public function supports(string $type): bool
     {
-        return MonthlyReminderNotification::TYPE === $type || ManualMonthlyReminderNotification::TYPE === $type;
+        return MonthlyReminderNotification::TYPE === $type;
     }
 
     #[\Override]

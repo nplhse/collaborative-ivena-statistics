@@ -13,6 +13,7 @@ use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -55,8 +56,13 @@ final class NotificationActionController extends AbstractController
      * route, so this never redirects outside the application.
      */
     #[Route('/notifications/{id}/open', name: 'app_notification_open', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function open(int $id, #[CurrentUser] User $user): RedirectResponse
+    public function open(int $id, #[CurrentUser] User $user, Request $request): Response
     {
+        // Opening marks the entry as read, so a prefetch (Turbo on hover, browser speculation) must not open it.
+        if ($this->isPrefetch($request)) {
+            return new Response(null, Response::HTTP_NO_CONTENT, ['Cache-Control' => 'no-store']);
+        }
+
         $entry = $this->ownEntry($user, $id);
         $this->inboxWriter->markRead($this->userId($user), $id);
 
@@ -186,5 +192,10 @@ final class NotificationActionController extends AbstractController
     private function userId(User $user): int
     {
         return (int) $user->getId();
+    }
+
+    private function isPrefetch(Request $request): bool
+    {
+        return array_any(['X-Sec-Purpose', 'Sec-Purpose', 'Purpose'], fn (string $header): bool => str_contains(strtolower((string) $request->headers->get($header)), 'prefetch'));
     }
 }

@@ -18,7 +18,7 @@ use App\Notification\Domain\Enum\NotificationChannel;
  * @psalm-suppress UnusedClass Collected by NotificationDefinitionPass through #[NotificationDefinition].
  */
 #[NotificationDefinition(
-    type: MonthlyReminderNotificationType::SCHEDULED,
+    type: MonthlyReminderNotificationType::TYPE,
     category: NotificationCategory::Reports,
     defaultChannels: [NotificationChannel::Email],
     availableChannels: [NotificationChannel::InApp, NotificationChannel::Email],
@@ -26,5 +26,5 @@ use App\Notification\Domain\Enum\NotificationChannel;
 )]
 final class MonthlyReminderNotification extends AppNotification
 {
-    public const string TYPE = MonthlyReminderNotificationType::SCHEDULED;
+    public const string TYPE = MonthlyReminderNotificationType::TYPE;
 }

@@ -16,9 +16,6 @@ final class MonthlyReminderPreviewInput
     #[Option(description: 'Send the email to the hospital owner')]
     public bool $send = false;
 
-    #[Option(description: 'Send even if the owner opted out (like admin action)', name: 'ignore-opt-out')]
-    public bool $ignoreOptOut = false;
-
     #[Option(description: 'Write HTML to file path')]
     public ?string $output = null;
 

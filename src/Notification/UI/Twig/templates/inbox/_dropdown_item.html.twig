@@ -15,18 +15,19 @@
                 <span class="visually-hidden">{{ 'notification.unread'|trans({}, 'notification') }}</span>
             {% endif %}
         </div>
-        <div class="col text-truncate">
+        <div class="col notification-dropdown-text position-relative">
             {% if notification.hasLink %}
                 <a
                     href="{{ path('app_notification_open', {id: notification.id}) }}"
-                    class="text-body d-block text-truncate"
+                    data-turbo-prefetch="false"
+                    class="text-body d-block fw-bold stretched-link"
                     data-turbo-frame="_top"
                     data-testid="notification-item-link"
                 >{{ title }}</a>
             {% else %}
-                <div class="text-body d-block text-truncate">{{ title }}</div>
+                <div class="text-body d-block fw-bold">{{ title }}</div>
             {% endif %}
-            <div class="d-block text-secondary text-truncate mt-n1">
+            <div class="text-secondary">
                 {{ notification.messageKey|trans(notification.parameters, notification.translationDomain) }}
             </div>
             <twig:RelativeTimestamp :datetime="notification.createdAt" class="text-secondary small" />

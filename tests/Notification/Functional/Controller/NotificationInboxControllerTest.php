@@ -47,6 +47,8 @@ final class NotificationInboxControllerTest extends DatabaseWebTestCase
         self::assertCount(1, $crawler->filter('[data-testid="notification-bell"]'));
         self::assertCount(0, $crawler->filter('[data-testid="notification-bell-badge"]'));
         self::assertCount(1, $crawler->filter('[data-testid="user-menu-notifications"]'));
+        self::assertSame('/settings/notifications', $crawler->filter('[data-testid="notification-settings-link"]')->attr('href'), 'the settings are one click away');
+        self::assertSame('Notification settings', $crawler->filter('[data-testid="notification-settings-link"]')->attr('aria-label'));
         self::assertStringNotContainsString('notification.title', $crawler->filter('.breadcrumb')->text(), 'the breadcrumb label is translated');
     }
 

@@ -382,14 +382,14 @@ Batch states, the suppression of per-import notifications and the summary are in
 - Reconciliation runs the check for every batch with `dispatchClosedAt` set and `processingFinishedAt` empty, and re-publishes summaries of batches finished within the 24-hour window.
 - **Summary counts:** completed, partial, failed and superseded items, each reported separately, plus a link to the batch run. The summary goes to the initiator only.
 
-#### Monthly reminder (`engagement.monthly_reminder`, `engagement.monthly_reminder_manual`)
+#### Monthly reminder (`engagement.monthly_reminder`)
 
 - `Engagement` keeps deciding *when* a reminder is due and *what* it contains, and keeps `monthly_reminder_dispatch` with its lock.
 - There is still **one reminder per hospital**. Scheduled reminders use the deduplication key `engagement.monthly_reminder:{hospitalId}:{period}`.
 - Default channel: email; optional in-app with a link to the report.
 - `receivesMonthlySubmissionReminder = false` is migrated to a type override. The column is dropped in a later release.
-- Reminders sent manually by an admin use the separate, non-configurable type `engagement.monthly_reminder_manual` with mandatory email. This keeps today's behaviour (admin sends despite opt-out) declarative instead of a bypass flag.
-- Every manual action has its own **request id**, generated when the admin form is rendered and submitted with it. Repeating the same submission (double click, retry) keeps the id. A deliberate second reminder is a new action with a new id. Key: `engagement.monthly_reminder_manual:{hospitalId}:{requestId}`. The existing guard against resending within 5 minutes stays as a business rule in `Engagement`.
+- Reminders sent manually by an admin use the same type and follow the owner's settings: with the email switched off the owner gets only the web entry, with the reminder switched off nothing. (A first version had a separate, non-configurable type `engagement.monthly_reminder_manual` with mandatory email; it was dropped because it overrode the owner's choice and confused users on the settings page. Existing entries were migrated to the regular type.)
+- Every manual action has its own **request id**, generated when the admin form is rendered and submitted with it. Repeating the same submission (double click, retry) keeps the id. A deliberate second reminder is a new action with a new id. Key: `engagement.monthly_reminder:{hospitalId}:manual:{requestId}`. The existing guard against resending within 5 minutes stays as a business rule in `Engagement`.
 
 #### Admin notifications (`admin.user_registered`, `admin.import_failed`, `admin.feedback_received`)
 

@@ -83,7 +83,7 @@ final class HospitalCrudControllerTest extends WebTestCase
         self::assertResponseRedirects();
         self::assertEmailCount(1);
         self::assertSame(1, (int) self::getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
-            "SELECT COUNT(*) FROM notification_deduplication WHERE deduplication_key LIKE 'engagement.monthly_reminder_manual:%'",
+            "SELECT COUNT(*) FROM notification_deduplication WHERE deduplication_key LIKE 'engagement.monthly_reminder:%:manual:%'",
         ));
     }
 }

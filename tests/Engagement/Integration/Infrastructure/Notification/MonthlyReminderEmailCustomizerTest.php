@@ -12,12 +12,12 @@ use App\User\Domain\Factory\UserFactory;
 
 final class MonthlyReminderEmailCustomizerTest extends DatabaseKernelTestCase
 {
-    public function testHandlesBothReminderTypesOnly(): void
+    public function testHandlesTheReminderTypeOnly(): void
     {
         $customizer = self::getContainer()->get(MonthlyReminderEmailCustomizer::class);
 
         self::assertTrue($customizer->supports('engagement.monthly_reminder'));
-        self::assertTrue($customizer->supports('engagement.monthly_reminder_manual'));
+        self::assertFalse($customizer->supports('engagement.monthly_reminder_manual'), 'the former manual type is gone');
         self::assertFalse($customizer->supports('import.completed'));
     }
 

@@ -76,7 +76,7 @@ final class SendMonthlySubmissionRemindersMessageHandlerTest extends DatabaseKer
             'isVerified' => true,
         ]);
         new NotificationPreferenceTestState(self::getContainer()->get(Connection::class))
-            ->switchOff($optedOutOwner, MonthlyReminderNotificationType::SCHEDULED);
+            ->switchOff($optedOutOwner, MonthlyReminderNotificationType::TYPE);
         $eligibleOwner = UserFactory::createOne([
             'email' => sprintf('batch-sent-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,

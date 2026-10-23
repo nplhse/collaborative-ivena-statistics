@@ -2093,6 +2093,26 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     inset-inline-end: 0;
 }
 
+/* Notification dropdown: Tabler strips the card's own frame only for a direct child of the menu; here the
+   lazily loaded turbo-frame sits in between, so the card would draw a second border and shadow. */
+.dropdown-menu.notification-dropdown-menu > turbo-frame > .card {
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+}
+
+/* Notification dropdown: a fixed width; titles and messages wrap in full instead of widening the menu. */
+.dropdown-menu.notification-dropdown-menu {
+    width: 24rem;
+    max-width: calc(100vw - 1rem);
+}
+
+.notification-dropdown-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+
 /* Notification dropdown on phones: full width below the navbar instead of overflowing the left edge. */
 @media (max-width: 575.98px) {
     header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu {
