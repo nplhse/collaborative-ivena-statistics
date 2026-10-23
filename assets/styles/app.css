@@ -2108,3 +2108,21 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
         display: none;
     }
 }
+
+/* Notification preferences: the chevron of the type toggle points up while the types are shown. */
+.notification-preferences [data-bs-toggle='collapse'] .icon {
+    transition: transform 0.15s ease-in-out;
+}
+
+.notification-preferences [data-bs-toggle='collapse']:not(.collapsed) .icon {
+    transform: rotate(180deg);
+}
+
+/* Notification preferences on narrow screens: keep the selects readable; the table scrolls sideways. */
+.notification-preferences .form-select {
+    min-width: 10rem;
+}
+
+.notification-preferences th[scope='row'] {
+    min-width: 13rem;
+}

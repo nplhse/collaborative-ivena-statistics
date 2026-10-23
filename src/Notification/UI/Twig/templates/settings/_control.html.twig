@@ -1,0 +1,17 @@
+{# One cell of the preferences table: a three-state select, or the fixed state of the channel. #}
+{% if control.configurable %}
+    {{ form_widget(form.preferences[control.fieldName], {attr: {
+        'aria-label': 'notification.preferences.control_label'|trans({subject: subject, channel: ('notification.channel.' ~ control.channel.value)|trans({}, 'notification')}, 'notification'),
+        'data-testid': 'preference-' ~ control.fieldName,
+    }}) }}
+{% elseif control.kind.value == 'mandatory' %}
+    <span class="badge bg-blue-lt" title="{{ 'notification.preferences.mandatory_hint'|trans({}, 'notification') }}" data-testid="preference-mandatory-{{ control.key }}-{{ control.channel.value }}">
+        {{ 'notification.preferences.mandatory'|trans({}, 'notification') }}
+    </span>
+{% elseif control.kind.value == 'fixed' %}
+    <span class="text-secondary" title="{{ 'notification.preferences.fixed_hint'|trans({}, 'notification') }}">
+        {{ 'notification.preferences.fixed'|trans({state: control.effectivelyEnabled ? 'on' : 'off'}, 'notification') }}
+    </span>
+{% else %}
+    <span class="text-secondary" aria-label="{{ 'notification.preferences.unavailable'|trans({}, 'notification') }}" title="{{ 'notification.preferences.unavailable'|trans({}, 'notification') }}">–</span>
+{% endif %}

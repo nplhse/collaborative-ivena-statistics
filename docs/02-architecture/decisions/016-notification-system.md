@@ -426,7 +426,9 @@ Separate pull requests into `feature/notification-system`, within this one archi
 4. Batch processing semantics, together: item states including `Superseded` and `Partial`, suppression of per-import notifications, completion check in one transaction, summary counts, batch reconciliation.
 5. Toast component, activity detection, recipient version, shared snapshot logic, immediate initial poll and polling endpoint.
 6. Email delivery: delivery table and row lock, status tracking, final-failure handling, pending-delivery reconciliation; migrate the participation welcome mail.
-7. Preferences UI; migrate the monthly reminder and its opt-out.
+7. Preferences, in two pull requests:
+   - **7a** Preference storage (`user_notification_preference`), resolution with stored overrides in the publisher, settings page *Notifications*. The settings page lives in the `Notification` context, which owns the preferences, and keeps the existing monthly-reminder opt-out until 7b.
+   - **7b** (after step 6) Migrate the monthly reminder and its opt-out.
 8. Migrate admin notifications and the feedback admin mail.
 
 ## Consequences
