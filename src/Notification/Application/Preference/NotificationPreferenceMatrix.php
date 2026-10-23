@@ -88,7 +88,8 @@ final readonly class NotificationPreferenceMatrix
     private function newOverride(NotificationPreferenceControl $control, bool $checked, ?bool $inherited): ?bool
     {
         if ($checked === $control->isChecked()) {
-            return $control->override;
+            // Untouched: keep following; an own setting that now matches what it inherits is no longer needed.
+            return $control->override === $inherited ? null : $control->override;
         }
 
         return $checked === $inherited ? null : $checked;

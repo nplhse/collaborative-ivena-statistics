@@ -71,11 +71,6 @@ final readonly class NotificationPreferenceMatrixBuilder
         array $channels,
         NotificationPreferenceSet $preferences,
     ): NotificationCategoryPreferences {
-        $categoryControls = [];
-        foreach ($channels as $channel) {
-            $categoryControls[$channel->value] = $this->categoryControl($category, $definitions, $channel, $preferences);
-        }
-
         $types = [];
         foreach ($definitions as $definition) {
             $typeControls = [];
@@ -84,6 +79,19 @@ final readonly class NotificationPreferenceMatrixBuilder
             }
 
             $types[] = new NotificationTypePreferences($definition, $typeControls);
+        }
+
+        $categoryControls = [];
+        foreach ($channels as $channel) {
+            $states = [];
+            foreach ($types as $type) {
+                $control = $type->controls[$channel->value];
+                if ($control->isConfigurable()) {
+                    $states[] = $control->isChecked();
+                }
+            }
+
+            $categoryControls[$channel->value] = $this->categoryControl($category, $definitions, $channel, $preferences, \count(array_unique($states)) > 1);
         }
 
         return new NotificationCategoryPreferences($category, $categoryControls, $types);
@@ -100,6 +108,7 @@ final readonly class NotificationPreferenceMatrixBuilder
         array $definitions,
         NotificationChannel $channel,
         NotificationPreferenceSet $preferences,
+        bool $typesDiffer,
     ): NotificationPreferenceControl {
         $defaults = [];
         foreach ($definitions as $definition) {
@@ -123,6 +132,7 @@ final readonly class NotificationPreferenceMatrixBuilder
             $preferences->get(NotificationPreferenceScope::Category, $category->value, $channel),
             $commonDefault,
             $commonDefault,
+            $typesDiffer,
         );
     }
 

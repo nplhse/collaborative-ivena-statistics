@@ -2122,3 +2122,18 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
 .notification-preferences th[scope='row'] {
     min-width: 13rem;
 }
+
+/* Notification preferences: checkboxes sit exactly in the middle of their cell, like the "–" of channels a type does not offer. */
+.notification-preferences td .form-check {
+    display: inline-flex;
+    justify-content: center;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.notification-preferences td .form-check .form-check-input {
+    float: none;
+    margin: 0;
+}

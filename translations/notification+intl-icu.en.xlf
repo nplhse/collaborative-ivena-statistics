@@ -297,17 +297,13 @@
         <source>notification.preferences.unavailable</source>
         <target>Not available</target>
       </trans-unit>
-      <trans-unit id="NtfF6310304" resname="notification.preferences.hint">
-        <source>notification.preferences.hint</source>
-        <target>Notifications you changed individually keep their setting when you change the category. Toasts are only shown together with in-app notifications.</target>
-      </trans-unit>
       <trans-unit id="Ntf4F8A970F" resname="notification.preferences.empty">
         <source>notification.preferences.empty</source>
         <target>There are no notifications you can configure for your account.</target>
       </trans-unit>
       <trans-unit id="Ntf7263502F" resname="notification.channel.in_app">
         <source>notification.channel.in_app</source>
-        <target>In-app</target>
+        <target>Web</target>
       </trans-unit>
       <trans-unit id="Ntf5BFDF5D2" resname="notification.channel.email">
         <source>notification.channel.email</source>

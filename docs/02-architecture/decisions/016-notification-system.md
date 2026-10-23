@@ -304,9 +304,9 @@ A channel the user disabled is never used unless it is mandatory. Mandatory stat
 
 The settings page *Notifications* shows categories with per-channel controls and an expandable list of individual types. It uses the existing Tabler form components. Each control is a checkbox that shows whether the channel is used (on / off); users are not asked about defaults. Storage still distinguishes a missing override from an explicit value:
 
-- An untouched checkbox keeps what is stored, so types without their own setting keep following their category.
-- A changed checkbox stores an override, or deletes it when the new value equals what applies without one (for a type: the category override, else its default; for a category: the common default of its types).
-- Changing a category never overwrites types that were set individually.
+- Changing a category checkbox applies to all its configurable types of that channel; the page ticks or unticks them at once, and the category is shown partly ticked whenever its types differ. Toast and in-app ("Web" on the page) are coupled per row.
+- A checkbox stores an override only when its value differs from what applies without one (for a type: the category override, else its default; for a category: the common default of its types). An override that matches this inherited value is deleted, so types switched together with their category follow it from then on.
+- An untouched type without its own setting keeps following its category.
 
 Mandatory channels are shown as ticked, disabled checkboxes with an explanation; disabled checkboxes are not part of the form, so the server never accepts a value for them.
 

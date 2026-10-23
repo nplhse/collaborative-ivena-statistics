@@ -81,7 +81,7 @@ final class NotificationPreferenceMatrixTest extends TestCase
         );
     }
 
-    public function testCategoryBackToItsDefaultRemovesTheOverrideAndKeepsExplicitTypes(): void
+    public function testCategoryBackToItsDefaultAlsoDropsTypeSettingsThatNowMatchIt(): void
     {
         $matrix = $this->matrix([
             $this->change(NotificationPreferenceScope::Category, 'announcements', NotificationChannel::Toast, false),
@@ -94,8 +94,12 @@ final class NotificationPreferenceMatrixTest extends TestCase
         $checked['category-announcements-toast'] = true;
 
         self::assertEquals(
-            [$this->change(NotificationPreferenceScope::Category, 'announcements', NotificationChannel::Toast, null)],
+            [
+                $this->change(NotificationPreferenceScope::Category, 'announcements', NotificationChannel::Toast, null),
+                $this->change(NotificationPreferenceScope::Type, 'test.toast', NotificationChannel::Toast, null),
+            ],
             $matrix->changesFor($checked),
+            'the type was on, the category is on again: the type follows its category from now on',
         );
     }
 
