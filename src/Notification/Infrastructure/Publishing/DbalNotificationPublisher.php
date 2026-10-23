@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Notification\Infrastructure\Publishing;
 
+use App\Notification\Application\Contract\NotificationPreferenceStoreInterface;
 use App\Notification\Application\Contract\NotificationPublisherInterface;
 use App\Notification\Application\Definition\NotificationDefinition;
 use App\Notification\Application\Definition\NotificationRegistry;
 use App\Notification\Application\Preference\NotificationChannelResolver;
-use App\Notification\Application\Preference\NotificationPreferenceOverrides;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationChannel;
@@ -39,6 +39,7 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
         private Connection $connection,
         private NotificationRegistry $registry,
         private NotificationChannelResolver $channelResolver,
+        private NotificationPreferenceStoreInterface $preferences,
         private ClockInterface $clock,
         private LoggerInterface $logger,
     ) {
@@ -83,7 +84,7 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
 
     private function publishForRecipient(NotificationRequest $request, NotificationDefinition $definition, int $recipientId): void
     {
-        $channels = $this->channelResolver->resolve($definition, NotificationPreferenceOverrides::none());
+        $channels = $this->channelResolver->resolve($definition, $this->preferences->overridesFor($recipientId, $definition));
 
         // Only in-app and toast are resolved until external channels get delivery jobs (step 6 of ADR 016);
         // NotificationDefinitionValidator keeps them out of default and mandatory channels.

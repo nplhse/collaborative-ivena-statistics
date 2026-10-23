@@ -12,7 +12,8 @@ use App\Notification\Domain\Enum\NotificationPriority;
 /**
  * Declares a notification type and its delivery defaults on a subclass of {@see AppNotification} (ADR 016).
  *
- * Translation keys follow the type: "{type}.title" and "{type}.message" in the given translation domain.
+ * Translation keys follow the type: "{type}.title" and "{type}.message" in the given translation domain,
+ * and "{type}.label" for the name shown on the settings page.
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class NotificationDefinition
@@ -49,6 +50,12 @@ final readonly class NotificationDefinition
     public function messageKey(): string
     {
         return $this->type.'.message';
+    }
+
+    /** @psalm-suppress PossiblyUnusedMethod Read by the settings template. */
+    public function labelKey(): string
+    {
+        return $this->type.'.label';
     }
 
     public function deduplicationInterval(): \DateInterval
