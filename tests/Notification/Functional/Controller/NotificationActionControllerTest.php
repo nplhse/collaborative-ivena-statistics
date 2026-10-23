@@ -34,6 +34,31 @@ final class NotificationActionControllerTest extends DatabaseWebTestCase
         self::assertSame(0, $this->unreadCount($user));
     }
 
+    /**
+     * Turbo prefetches links on hover; browsers may prefetch too. Opening marks an entry as read, so a
+     * prefetch must not open it, and the links opt out of Turbo's prefetching.
+     */
+    public function testPrefetchingTheOpenLinkLeavesTheEntryUnread(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginWithState($client, unread: 1);
+        $notification = NotificationFactory::createOne(['recipient' => $user, 'actionRoute' => 'app_settings_index']);
+        $url = '/notifications/'.$notification->getId().'/open';
+
+        foreach (['HTTP_X_SEC_PURPOSE' => 'prefetch', 'HTTP_SEC_PURPOSE' => 'prefetch;prerender', 'HTTP_PURPOSE' => 'prefetch'] as $header => $value) {
+            $client->request(Request::METHOD_GET, $url, server: [$header => $value]);
+            self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        }
+
+        self::assertNull($this->readAt((int) $notification->getId()));
+        self::assertSame(1, $this->unreadCount($user));
+
+        foreach (['/notifications', '/notifications/dropdown'] as $page) {
+            $crawler = $client->request(Request::METHOD_GET, $page);
+            self::assertSame('false', $crawler->filter('[data-testid="notification-item-link"]')->attr('data-turbo-prefetch'), $page);
+        }
+    }
+
     public function testOpenWithoutTargetFallsBackToTheOverview(): void
     {
         $client = self::createClient();

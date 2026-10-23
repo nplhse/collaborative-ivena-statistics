@@ -19,6 +19,7 @@
             {% if notification.hasLink %}
                 <a
                     href="{{ path('app_notification_open', {id: notification.id}) }}"
+                    data-turbo-prefetch="false"
                     class="text-body d-block fw-bold stretched-link"
                     data-turbo-frame="_top"
                     data-testid="notification-item-link"
