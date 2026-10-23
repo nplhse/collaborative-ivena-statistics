@@ -62,6 +62,8 @@ when@dev:
             routing:
                 # Sofortiger Versand lokal (Mailpit o. Ä.); ohne Worker nötig
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+                # Benachrichtigungs-E-Mails ebenfalls sofort (ADR 016); läuft im Request des Auslösers
+                App\Notification\Application\Message\DeliverNotificationMessage: sync
 
 when@test:
     framework:

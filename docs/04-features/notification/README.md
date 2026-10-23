@@ -39,7 +39,7 @@ When a type resolves the email channel for a recipient, the publisher stores one
 - `NotificationDeliveryStatusSubscriber` sets `sent` when the mail transport accepted the email and `failed` when the email (`transport_failed`) or the delivery job (`delivery_job_failed`) is given up. Recipients without a usable address or with a disabled account fail with `recipient_unavailable`. Failed deliveries are never restarted; they never change the business result.
 - The email is built by `NotificationEmailFactory` in the recipient's locale: by default the generic `@Notification/email/notification.html.twig` with title, message and an absolute link to the entry. A context can give a type its own mail with a `NotificationEmailCustomizerInterface` (e.g. the participation welcome mail in User). The header `X-Notification-Delivery-Id` connects the mail events with the delivery.
 - Publishing the same deduplication key again creates nothing new but dispatches deliveries of that instance that are still `pending` after 5 minutes. The hourly reconciliation dispatches deliveries that are still `pending` after 15 minutes.
-- Local: `SendEmailMessage` is sent synchronously in `dev` (Mailpit or the null transport), so the email goes out as soon as a worker (`make consume`) handled the delivery job.
+- Local: in `dev`, `DeliverNotificationMessage` and `SendEmailMessage` run synchronously in the request that publishes the notification, so emails reach Mailpit without a worker. Start the app with the Symfony CLI (`symfony serve`, `symfony console`), which provides `MAILER_DSN` for Mailpit; plain `bin/console` uses `null://null` from `.env`. In production both stay asynchronous.
 
 ## Recovery
 
