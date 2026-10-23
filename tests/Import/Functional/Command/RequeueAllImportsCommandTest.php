@@ -19,6 +19,7 @@ use App\Import\Application\DTO\ImportRequeueBatchOptions;
 use App\Import\Application\ImportDispatchExitCode;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationsDispatcher;
+use App\Import\Application\Service\ImportBatchCompletion;
 use App\Import\Application\Service\ImportRequeueBatchOrchestrator;
 use App\Import\Application\Service\ImportRequeueResumeResolver;
 use App\Import\Application\Service\ImportRunLifecycle;
@@ -307,6 +308,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             $container->get(ImportBatchRunRepository::class),
             $dispatcher,
             new ImportRequeueResumeResolver(),
+            $container->get(ImportBatchCompletion::class),
         );
 
         $summary = $orchestrator->run(new ImportRequeueBatchOptions(limit: 2));
@@ -351,6 +353,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
                 $container->get(ImportRunLifecycle::class),
             ),
             new ImportRequeueResumeResolver(),
+            $container->get(ImportBatchCompletion::class),
         );
 
         $closureId = $closure->getId();
@@ -395,6 +398,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             $container->get(ImportBatchRunRepository::class),
             $dispatcher,
             new ImportRequeueResumeResolver(),
+            $container->get(ImportBatchCompletion::class),
         );
 
         $summary = $orchestrator->run(new ImportRequeueBatchOptions(), $runControl);

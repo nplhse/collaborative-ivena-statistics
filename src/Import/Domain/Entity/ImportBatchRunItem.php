@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Domain\Entity;
 
 use App\Import\Domain\Enum\ImportBatchRunItemStatus;
+use App\Import\Domain\Enum\ImportRunStatus;
 use App\Import\Infrastructure\Repository\ImportBatchRunItemRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -154,6 +155,17 @@ class ImportBatchRunItem
         return $this;
     }
 
+    /**
+     * Mirrors the end of the run this item references (ADR 016: an item is updated only by its run).
+     */
+    public function markFinishedBy(ImportRunStatus $runStatus, \DateTimeImmutable $at): self
+    {
+        $this->status = ImportBatchRunItemStatus::fromRunStatus($runStatus);
+        $this->finishedAt = $at;
+
+        return $this;
+    }
+
     public function markSuperseded(): self
     {
         $this->status = ImportBatchRunItemStatus::Superseded;
@@ -186,14 +198,6 @@ class ImportBatchRunItem
         $this->status = ImportBatchRunItemStatus::DispatchFailed;
         $this->finishedAt = new \DateTimeImmutable();
         $this->errorMessage = $message;
-
-        return $this;
-    }
-
-    public function markInterrupted(): self
-    {
-        $this->status = ImportBatchRunItemStatus::Interrupted;
-        $this->finishedAt = new \DateTimeImmutable();
 
         return $this;
     }

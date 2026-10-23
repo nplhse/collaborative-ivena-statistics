@@ -21,7 +21,7 @@ An **import run** is one deliberate processing request for an import: an upload,
 
 A requeue batch item (`import_batch_run_item.import_run_id`) references the run registered for it.
 
-`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` runs send no notification of their own, they are summarized per batch (step 4). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
+`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` runs send no notification of their own, they are summarized per batch ([batch-requeue.md](batch-requeue.md#completion-and-summary)). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
 
 ## Lifecycle
 
@@ -32,7 +32,7 @@ queued ──▶ running ──▶ completed | partial | failed
 ```
 
 1. **Register** (`ImportRunLifecycle::register()`): upload (`NewImportController`), `ImportAllocationsDispatcher` / `ImportClosuresDispatcher` (used by `app:import:start` and `app:import:requeue-all`). In one transaction, under a row lock on the import:
-   - the previous run, if it is still `queued` or `running`, becomes `superseded` (and its batch item too),
+   - the previous run, if it is still `queued` or `running`, becomes `superseded` (and its batch item too, which may finish its batch),
    - a new `queued` run is created and `Import::currentRunId` points to it,
    - the run's message is dispatched.
 

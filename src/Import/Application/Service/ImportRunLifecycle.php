@@ -44,6 +44,7 @@ final readonly class ImportRunLifecycle
         private AuditContext $auditContext,
         private LoggerInterface $importLogger,
         private ImportMilestoneRecorder $milestoneRecorder,
+        private ImportBatchCompletion $batchCompletion,
     ) {
     }
 
@@ -84,14 +85,20 @@ final readonly class ImportRunLifecycle
 
             $now = new \DateTimeImmutable();
             $previous = $this->supersedeCurrentRun($em, $import, $now);
+            $supersededBatchRunId = $previous?->getBatchRunItem()?->getRun()?->getId();
 
             $initiator = null !== $initiatedByUserId ? $em->getReference(User::class, $initiatedByUserId) : null;
             $run = new ImportRun(Uuid::v7(), $import, $trigger, $initiator, $now);
             $em->persist($run);
             $import->setCurrentRunId($run->getId());
-            $batchRunItem?->setImportRun($run);
+            // Queued before the commit: a fast worker may end the run before the caller continues.
+            $batchRunItem?->setImportRun($run)->markQueued();
 
             $this->flushWithIntent($em, 'import.run.queued', $importId, $run->getId(), ['trigger' => $trigger->value]);
+
+            if (null !== $supersededBatchRunId) {
+                $this->batchCompletion->completeIfFinished($connection, $supersededBatchRunId, $now);
+            }
 
             if ($dispatch instanceof \Closure) {
                 $dispatch($run);
@@ -284,7 +291,16 @@ final readonly class ImportRunLifecycle
                 ? $this->milestoneRecorder->recordFirstImport($connection, $import, $context->runId, $now)
                 : null;
 
+            $batchRunItem = $this->batchRunItemOf($em, $context->runId);
+            $batchRunItem?->markFinishedBy($outcome->status, $now);
+
             $this->flushWithIntent($em, $auditIntent, $context->importId, $context->runId, $auditMetadata);
+
+            $batchRunId = $batchRunItem?->getRun()?->getId();
+            if (null !== $batchRunId) {
+                $this->batchCompletion->completeIfFinished($connection, $batchRunId, $now);
+            }
+
             $connection->commit();
         } catch (\Throwable $e) {
             if ($connection->isTransactionActive()) {
@@ -300,6 +316,17 @@ final readonly class ImportRunLifecycle
         }
 
         return $outcome;
+    }
+
+    /**
+     * The batch item that references this run, if the run belongs to a batch re-import.
+     */
+    private function batchRunItemOf(EntityManagerInterface $em, Uuid $runId): ?ImportBatchRunItem
+    {
+        $item = $em->find(ImportRun::class, $runId)?->getBatchRunItem();
+
+        // Only the run an item references may update it (ADR 016).
+        return true === $item?->getImportRun()?->getId()->equals($runId) ? $item : null;
     }
 
     /**

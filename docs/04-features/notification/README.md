@@ -12,6 +12,7 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | In-app UI (bell, dropdown, overview, read/remove) | available |
 | Retention and daily recount | available |
 | Toasts and polling | available |
+| Import notifications incl. batch summary | available |
 | Email delivery | planned (step 6) |
 | Preferences UI | planned (step 7) |
 
@@ -19,8 +20,9 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 
 | Type | Category | Default channels | Recipients | Published when |
 |------|----------|------------------|------------|----------------|
-| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; console run: its initiator; batch runs: nobody (summary in step 4) | an import run ends as completed or partial |
+| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; console run: its initiator; batch runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
+| `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
 | `participation.activated` | Account | in-app, toast | the activated user | an administrator activates participation |
 
@@ -30,7 +32,7 @@ The first-import milestone is stored in `user_import_milestone` (Import context)
 
 ## Recovery
 
-Notifications are published after the business transaction commits. If the process dies in between, the hourly job `ReconcileNotificationsMessage` (minute 17) re-publishes the outcomes of the last 24 hours from durable records; deduplication skips those that were delivered. Producers take part through `NotificationReconcilerInterface` (Import: finished `import_run` rows and recorded milestones; backfilled milestones without a run are never announced).
+Notifications are published after the business transaction commits. If the process dies in between, the hourly job `ReconcileNotificationsMessage` (minute 17) re-publishes the outcomes of the last 24 hours from durable records; deduplication skips those that were delivered. Producers take part through `NotificationReconcilerInterface` (Import: finished `import_run` rows, recorded milestones and finished batches; backfilled milestones without a run are never announced; batches that were closed but never completed are completed).
 
 After a longer outage, reconcile a chosen range by hand. It may not reach further back than the shortest deduplication period (7 days by default):
 
