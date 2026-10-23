@@ -15,7 +15,7 @@
       </trans-unit>
       <trans-unit id="NtfCBA8A1E4" resname="announcement.new_feature.message">
         <source>announcement.new_feature.message</source>
-        <target>{feature, select, notifications {From now on you are told here about finished imports and other news. Choose which notifications you get on the web, as toast or by email.} other {A new feature is available.}}</target>
+        <target>{feature, select, notifications {News such as finished imports now appear here. Choose in the settings how you want to be notified.} other {A new feature is available.}}</target>
       </trans-unit>
       <trans-unit id="NtfE778D32C" resname="notification.index.settings">
         <source>notification.index.settings</source>

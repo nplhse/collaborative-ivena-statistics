@@ -19,14 +19,14 @@
             {% if notification.hasLink %}
                 <a
                     href="{{ path('app_notification_open', {id: notification.id}) }}"
-                    class="text-body d-block"
+                    class="text-body d-block fw-bold"
                     data-turbo-frame="_top"
                     data-testid="notification-item-link"
                 >{{ title }}</a>
             {% else %}
-                <div class="text-body d-block">{{ title }}</div>
+                <div class="text-body d-block fw-bold">{{ title }}</div>
             {% endif %}
-            <div class="text-secondary mt-n1 notification-dropdown-message">
+            <div class="text-secondary">
                 {{ notification.messageKey|trans(notification.parameters, notification.translationDomain) }}
             </div>
             <twig:RelativeTimestamp :datetime="notification.createdAt" class="text-secondary small" />

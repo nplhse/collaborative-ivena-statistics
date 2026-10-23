@@ -2093,7 +2093,7 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     inset-inline-end: 0;
 }
 
-/* Notification dropdown: a fixed width; long titles and messages wrap instead of widening the menu. */
+/* Notification dropdown: a fixed width; titles and messages wrap in full instead of widening the menu. */
 .dropdown-menu.notification-dropdown-menu {
     width: 24rem;
     max-width: calc(100vw - 1rem);
@@ -2104,14 +2104,6 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     overflow-wrap: anywhere;
 }
 
-/* Messages show at most three lines in the dropdown; the overview shows them in full. */
-.notification-dropdown-message {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    overflow: hidden;
-}
 
 /* Notification dropdown on phones: full width below the navbar instead of overflowing the left edge. */
 @media (max-width: 575.98px) {

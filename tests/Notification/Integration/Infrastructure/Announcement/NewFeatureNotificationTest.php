@@ -27,7 +27,7 @@ final class NewFeatureNotificationTest extends KernelTestCase
         $translator = self::getContainer()->get(TranslatorInterface::class);
 
         self::assertSame('Neu: Benachrichtigungen', $translator->trans('announcement.new_feature.title', ['feature' => 'notifications'], 'notification', 'de'));
-        self::assertStringContainsString('Web, als Toast oder per E-Mail', $translator->trans('announcement.new_feature.message', ['feature' => 'notifications'], 'notification', 'de'));
+        self::assertStringContainsString('legen Sie in den Einstellungen fest', $translator->trans('announcement.new_feature.message', ['feature' => 'notifications'], 'notification', 'de'));
         self::assertSame('New feature', $translator->trans('announcement.new_feature.title', ['feature' => 'something_else'], 'notification', 'en'));
     }
 }
