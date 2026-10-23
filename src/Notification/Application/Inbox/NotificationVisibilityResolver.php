@@ -56,4 +56,22 @@ final readonly class NotificationVisibilityResolver
 
         return $visibility;
     }
+
+    /**
+     * The same rules for one notification that is not stored yet, e.g. before the publisher plans an
+     * email: hospital scope without a reference or without access is redacted, role scope without the
+     * role is hidden.
+     */
+    public function visibilityOf(User $viewer, NotificationAccessScope $scope, ?int $scopeReferenceId, ?string $requiredRole): NotificationVisibility
+    {
+        return match ($scope) {
+            NotificationAccessScope::None => NotificationVisibility::Visible,
+            NotificationAccessScope::Hospital => null !== $scopeReferenceId && [] !== $this->hospitalAccess->filterAccessible($viewer, [$scopeReferenceId])
+                ? NotificationVisibility::Visible
+                : NotificationVisibility::Redacted,
+            NotificationAccessScope::Role => null !== $requiredRole && \in_array($requiredRole, $this->roleHierarchy->getReachableRoleNames($viewer->getRoles()), true)
+                ? NotificationVisibility::Visible
+                : NotificationVisibility::Hidden,
+        };
+    }
 }

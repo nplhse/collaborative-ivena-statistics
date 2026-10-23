@@ -57,12 +57,16 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
                 'test.email' => EmailTestNotification::class,
                 'test.email_only' => EmailOnlyTestNotification::class,
                 'test.fixed' => FixedTestNotification::class,
+                'test.hospital_email' => \App\Tests\Support\Notification\Type\HospitalEmailTestNotification::class,
+                'test.role_email' => \App\Tests\Support\Notification\Type\RoleEmailTestNotification::class,
             ]),
             new NotificationChannelResolver(),
             $this->preferences,
             $this->clock,
             $this->logger,
             new NotificationDeliveryQueue($this->connection, $this->bus = new RecordingMessageBus()),
+            self::getContainer()->get(\App\Notification\Application\Inbox\NotificationVisibilityResolver::class),
+            self::getContainer()->get(\App\User\Infrastructure\Repository\UserRepository::class),
         );
     }
 
@@ -335,6 +339,38 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
         self::assertCount(2, $this->bus->messages, 'failed deliveries are never restarted');
     }
 
+    /**
+     * Permissions are checked when the email is planned: a recipient who lost access to the hospital (or the
+     * role) before publication gets no email with the protected content; the inbox entry is still stored and
+     * shown redacted (or hidden) like any entry after a revocation.
+     */
+    public function testNoEmailIsPlannedForRecipientsWithoutAccessAtPublication(): void
+    {
+        $owner = UserFactory::createOne();
+        $revoked = UserFactory::createOne();
+        $hospital = \App\Allocation\Infrastructure\Factory\HospitalFactory::createOne(['owner' => $owner]);
+
+        $this->publisher->publish(new NotificationRequest(
+            type: 'test.hospital_email',
+            recipientUserIds: [(int) $owner->getId(), (int) $revoked->getId()],
+            deduplicationKey: 'test.hospital_email:1',
+            parameters: ['importName' => 'Januar'],
+            scopeReferenceId: $hospital->getId(),
+        ));
+
+        self::assertSame(1, $this->deliveries((int) $owner->getId()), 'the owner may see the hospital');
+        self::assertSame(0, $this->deliveries((int) $revoked->getId()), 'no email without hospital access');
+        self::assertSame(1, $this->countNotifications((int) $revoked->getId()), 'the inbox entry is still stored');
+        self::assertCount(1, $this->bus->messages);
+
+        $nonAdmin = $this->createUserId();
+        $this->publisher->publish(new NotificationRequest(type: 'test.role_email', recipientUserIds: [$nonAdmin], deduplicationKey: 'test.role_email:1'));
+        self::assertSame(0, $this->deliveries($nonAdmin), 'no email without the required role');
+
+        $this->publisher->publish(new NotificationRequest(type: 'test.role_email', recipientUserIds: [999_999], deduplicationKey: 'test.role_email:2'));
+        self::assertSame(0, (int) $this->connection->fetchOne("SELECT COUNT(*) FROM notification_delivery d JOIN notification n ON n.id = d.notification_id WHERE n.type = 'test.role_email'"), 'unknown recipients get no email');
+    }
+
     public function testRejectsUnknownType(): void
     {
         $this->expectException(UnknownNotificationTypeException::class);
@@ -372,6 +408,14 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
         self::assertNotNull($id);
 
         return $id;
+    }
+
+    private function deliveries(int $userId): int
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM notification_delivery d JOIN notification n ON n.id = d.notification_id WHERE n.recipient_id = ?',
+            [$userId],
+        );
     }
 
     private function countNotifications(int $userId): int

@@ -8,11 +8,15 @@ use App\Notification\Application\Contract\NotificationPreferenceStoreInterface;
 use App\Notification\Application\Contract\NotificationPublisherInterface;
 use App\Notification\Application\Definition\NotificationDefinition;
 use App\Notification\Application\Definition\NotificationRegistry;
+use App\Notification\Application\Inbox\NotificationVisibility;
+use App\Notification\Application\Inbox\NotificationVisibilityResolver;
 use App\Notification\Application\Preference\NotificationChannelResolver;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationChannel;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
+use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use Psr\Clock\ClockInterface;
@@ -59,6 +63,8 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
         private ClockInterface $clock,
         private LoggerInterface $logger,
         private NotificationDeliveryQueue $deliveryQueue,
+        private NotificationVisibilityResolver $visibilityResolver,
+        private UserRepository $userRepository,
     ) {
     }
 
@@ -105,6 +111,14 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
 
         $inApp = $channels->has(NotificationChannel::InApp);
         $external = array_values(array_filter(self::EXTERNAL_CHANNELS, $channels->has(...)));
+
+        // An email carries the content as it is now; without access it must not be planned at all. The
+        // inbox entry is still stored and shown redacted or hidden like any entry after a revocation.
+        if ([] !== $external && !$this->mayReceiveContent($request, $definition, $recipientId)) {
+            $this->logger->info('notification.external_channels_skipped', ['type' => $request->type, 'recipient_id' => $recipientId]);
+            $external = [];
+        }
+
         if (!$inApp && [] === $external) {
             return;
         }
@@ -213,6 +227,29 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
                 'created_at' => Types::DATETIME_IMMUTABLE,
                 'toast_pending_until' => Types::DATETIME_IMMUTABLE,
             ],
+        );
+    }
+
+    /**
+     * The recipient's permissions at publication time (ADR 016): hospital and role scope must be visible,
+     * the same rule the inbox applies when rendering.
+     */
+    private function mayReceiveContent(NotificationRequest $request, NotificationDefinition $definition, int $recipientId): bool
+    {
+        if (NotificationAccessScope::None === $definition->accessScope) {
+            return true;
+        }
+
+        $recipient = $this->userRepository->find($recipientId);
+        if (!$recipient instanceof User) {
+            return false;
+        }
+
+        return NotificationVisibility::Visible === $this->visibilityResolver->visibilityOf(
+            $recipient,
+            $definition->accessScope,
+            $request->scopeReferenceId,
+            $definition->requiredRole,
         );
     }
 

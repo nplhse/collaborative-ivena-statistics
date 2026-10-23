@@ -54,6 +54,8 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
             new MockClock('2026-10-22 12:00:00'),
             new NullLogger(),
             new NotificationDeliveryQueue(self::getContainer()->get(Connection::class), new RecordingMessageBus()),
+            self::getContainer()->get(\App\Notification\Application\Inbox\NotificationVisibilityResolver::class),
+            self::getContainer()->get(\App\User\Infrastructure\Repository\UserRepository::class),
         );
         $publisher->publish(new NotificationRequest(
             type: 'test.hospital_scoped',
