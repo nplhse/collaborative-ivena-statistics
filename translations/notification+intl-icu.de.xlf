@@ -245,6 +245,134 @@
         <source>notification.unread</source>
         <target>Ungelesen</target>
       </trans-unit>
+      <trans-unit id="Ntf2FBEF284" resname="notification.preferences.intro">
+        <source>notification.preferences.intro</source>
+        <target>Hier legen Sie fest, wie Sie über Ereignisse informiert werden. Einstellungen einer Kategorie gelten für alle ihre Benachrichtigungen; eine Einstellung für eine einzelne Benachrichtigung hat Vorrang.</target>
+      </trans-unit>
+      <trans-unit id="NtfAA7B724A" resname="notification.preferences.category_row">
+        <source>notification.preferences.category_row</source>
+        <target>Alle Benachrichtigungen dieser Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Ntf2B2991EB" resname="notification.preferences.types_toggle">
+        <source>notification.preferences.types_toggle</source>
+        <target>{count, plural, one {# Benachrichtigung einzeln einstellen} other {# Benachrichtigungen einzeln einstellen}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf4B23BD12" resname="notification.preferences.control_label">
+        <source>notification.preferences.control_label</source>
+        <target>{subject}: {channel}</target>
+      </trans-unit>
+      <trans-unit id="Ntf8909FACC" resname="notification.preferences.state.default">
+        <source>notification.preferences.state.default</source>
+        <target>{inherited, select, on {Standard (an)} off {Standard (aus)} other {Standard (je nach Benachrichtigung)}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf8930BD7E" resname="notification.preferences.state.on">
+        <source>notification.preferences.state.on</source>
+        <target>An</target>
+      </trans-unit>
+      <trans-unit id="Ntf0E0B975B" resname="notification.preferences.state.off">
+        <source>notification.preferences.state.off</source>
+        <target>Aus</target>
+      </trans-unit>
+      <trans-unit id="Ntf0F138C3C" resname="notification.preferences.mandatory">
+        <source>notification.preferences.mandatory</source>
+        <target>Immer</target>
+      </trans-unit>
+      <trans-unit id="NtfCB7FDF61" resname="notification.preferences.mandatory_hint">
+        <source>notification.preferences.mandatory_hint</source>
+        <target>Diese Benachrichtigung wird immer auf diesem Weg zugestellt.</target>
+      </trans-unit>
+      <trans-unit id="NtfAA435B0F" resname="notification.preferences.fixed">
+        <source>notification.preferences.fixed</source>
+        <target>{state, select, on {An} other {Aus}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf3F158C51" resname="notification.preferences.fixed_hint">
+        <source>notification.preferences.fixed_hint</source>
+        <target>Diese Benachrichtigung lässt sich nicht einstellen.</target>
+      </trans-unit>
+      <trans-unit id="Ntf42F961A6" resname="notification.preferences.unavailable">
+        <source>notification.preferences.unavailable</source>
+        <target>Nicht verfügbar</target>
+      </trans-unit>
+      <trans-unit id="NtfF6310304" resname="notification.preferences.hint">
+        <source>notification.preferences.hint</source>
+        <target>„Standard“ übernimmt die Einstellung der Kategorie oder die Voreinstellung der Benachrichtigung. Toasts erscheinen nur zusammen mit In-App-Benachrichtigungen.</target>
+      </trans-unit>
+      <trans-unit id="Ntf4F8A970F" resname="notification.preferences.empty">
+        <source>notification.preferences.empty</source>
+        <target>Für Ihr Konto gibt es keine einstellbaren Benachrichtigungen.</target>
+      </trans-unit>
+      <trans-unit id="NtfFE0B4969" resname="notification.preferences.reminder_title">
+        <source>notification.preferences.reminder_title</source>
+        <target>E-Mail-Erinnerungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf7263502F" resname="notification.channel.in_app">
+        <source>notification.channel.in_app</source>
+        <target>In-App</target>
+      </trans-unit>
+      <trans-unit id="Ntf5BFDF5D2" resname="notification.channel.email">
+        <source>notification.channel.email</source>
+        <target>E-Mail</target>
+      </trans-unit>
+      <trans-unit id="NtfF1AEC408" resname="notification.channel.toast">
+        <source>notification.channel.toast</source>
+        <target>Toast</target>
+      </trans-unit>
+      <trans-unit id="Ntf65D5D8D3" resname="notification.category.imports">
+        <source>notification.category.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="Ntf260269C4" resname="notification.category.analyses_exports">
+        <source>notification.category.analyses_exports</source>
+        <target>Auswertungen und Exporte</target>
+      </trans-unit>
+      <trans-unit id="NtfCA0416B3" resname="notification.category.account">
+        <source>notification.category.account</source>
+        <target>Konto</target>
+      </trans-unit>
+      <trans-unit id="NtfB84E513D" resname="notification.category.reports">
+        <source>notification.category.reports</source>
+        <target>Berichte</target>
+      </trans-unit>
+      <trans-unit id="Ntf1B8EA53F" resname="notification.category.announcements">
+        <source>notification.category.announcements</source>
+        <target>Ankündigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf162B4673" resname="notification.category.administration">
+        <source>notification.category.administration</source>
+        <target>Administration</target>
+      </trans-unit>
+      <trans-unit id="Ntf36DEF39B" resname="import.completed.label">
+        <source>import.completed.label</source>
+        <target>Import abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf0C8DA30A" resname="import.failed.label">
+        <source>import.failed.label</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Ntf9E64AC41" resname="import.batch_finished.label">
+        <source>import.batch_finished.label</source>
+        <target>Batch-Re-Import abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf9244EACB" resname="user.first_import.label">
+        <source>user.first_import.label</source>
+        <target>Erster erfolgreicher Import</target>
+      </trans-unit>
+      <trans-unit id="NtfE4407E27" resname="participation.activated.label">
+        <source>participation.activated.label</source>
+        <target>Teilnahme aktiviert</target>
+      </trans-unit>
+      <trans-unit id="Ntf83FFEAA7" resname="demo.import_finished.label">
+        <source>demo.import_finished.label</source>
+        <target>Demo: Import abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf55341535" resname="demo.hospital.label">
+        <source>demo.hospital.label</source>
+        <target>Demo: Neue Klinikdaten</target>
+      </trans-unit>
+      <trans-unit id="Ntf2150C740" resname="demo.admin_only.label">
+        <source>demo.admin_only.label</source>
+        <target>Demo: Hinweis für Administratoren</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

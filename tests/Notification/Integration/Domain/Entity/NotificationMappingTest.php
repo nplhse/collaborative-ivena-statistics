@@ -6,20 +6,24 @@ namespace App\Tests\Notification\Integration\Domain\Entity;
 
 use App\Notification\Application\Definition\NotificationRegistry;
 use App\Notification\Application\Preference\NotificationChannelResolver;
+use App\Notification\Application\Preference\NotificationPreferenceChange;
 use App\Notification\Application\Publishing\NotificationAction;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Entity\Notification;
 use App\Notification\Domain\Entity\NotificationDeduplication;
 use App\Notification\Domain\Entity\NotificationDelivery;
 use App\Notification\Domain\Entity\NotificationRecipientState;
+use App\Notification\Domain\Entity\UserNotificationPreference;
 use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationChannel;
 use App\Notification\Domain\Enum\NotificationDeliveryFailureReason;
 use App\Notification\Domain\Enum\NotificationDeliveryStatus;
+use App\Notification\Domain\Enum\NotificationPreferenceScope;
 use App\Notification\Domain\Enum\NotificationPriority;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
 use App\Notification\Infrastructure\Factory\NotificationFactory;
+use App\Notification\Infrastructure\Preference\DbalNotificationPreferenceStore;
 use App\Notification\Infrastructure\Publishing\DbalNotificationPublisher;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\Tests\Support\Messenger\RecordingMessageBus;
@@ -46,6 +50,7 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
             self::getContainer()->get(Connection::class),
             new NotificationRegistry(['test.hospital_scoped' => HospitalScopedTestNotification::class]),
             new NotificationChannelResolver(),
+            new DbalNotificationPreferenceStore(self::getContainer()->get(Connection::class)),
             new MockClock('2026-10-22 12:00:00'),
             new NullLogger(),
             new NotificationDeliveryQueue(self::getContainer()->get(Connection::class), new RecordingMessageBus()),
@@ -226,6 +231,34 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
         self::assertInstanceOf(NotificationDeduplication::class, $loaded);
         self::assertNull($loaded->getNotification());
         self::assertSame($user->getId(), $loaded->getRecipient()->getId());
+    }
+
+    public function testPreferenceEntityReadsRowsOfTheStoreAndRoundTrips(): void
+    {
+        $user = UserFactory::createOne();
+        $userId = (int) $user->getId();
+        $store = new DbalNotificationPreferenceStore(self::getContainer()->get(Connection::class));
+        $store->save($userId, [
+            new NotificationPreferenceChange(NotificationPreferenceScope::Type, 'import.failed', NotificationChannel::Email, true),
+        ]);
+
+        $entityManager = $this->entityManager();
+        $entityManager->persist(new UserNotificationPreference($user, NotificationPreferenceScope::Category, 'imports', NotificationChannel::Toast, false));
+        $entityManager->flush();
+        $entityManager->clear();
+
+        $type = $entityManager->getRepository(UserNotificationPreference::class)->findOneBy(['user' => $userId, 'scope' => NotificationPreferenceScope::Type]);
+        self::assertInstanceOf(UserNotificationPreference::class, $type);
+        self::assertNotNull($type->getId());
+        self::assertSame($userId, $type->getUser()->getId());
+        self::assertSame('import.failed', $type->getPreferenceKey());
+        self::assertSame(NotificationChannel::Email, $type->getChannel());
+        self::assertTrue($type->isEnabled());
+
+        $category = $entityManager->getRepository(UserNotificationPreference::class)->findOneBy(['user' => $userId, 'scope' => NotificationPreferenceScope::Category]);
+        self::assertInstanceOf(UserNotificationPreference::class, $category);
+        self::assertSame(NotificationPreferenceScope::Category, $category->getScope());
+        self::assertFalse($store->load($userId)->get(NotificationPreferenceScope::Category, 'imports', NotificationChannel::Toast));
     }
 
     private function entityManager(): EntityManagerInterface

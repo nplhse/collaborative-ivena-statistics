@@ -8,13 +8,14 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 |------|-------|
 | Definitions, registry, validation | available |
 | Publisher with deduplication and recipient state | available |
-| Channel resolution (defaults, mandatory channels, overrides) | available; overrides are not stored yet |
+| Channel resolution (defaults, mandatory channels, overrides) | available |
 | In-app UI (bell, dropdown, overview, read/remove) | available |
 | Retention and daily recount | available |
 | Toasts and polling | available |
 | Import notifications incl. batch summary | available |
 | Email delivery | available |
-| Preferences UI | planned (step 7) |
+| Preferences (storage and settings page) | available |
+| Monthly reminder migration and its opt-out | planned (step 7b) |
 
 ## Notification types
 
@@ -70,7 +71,7 @@ final class ImportRunFinishedNotification extends AppNotification
 }
 ```
 
-3. Add the translations `{type}.title` and `{type}.message` to the translation domain of the definition (default: `notification`).
+3. Add the translations `{type}.title`, `{type}.message` and `{type}.label` (name on the settings page) to the translation domain of the definition (default: `notification`).
 4. Publish from a subscriber of the context's own application event through `NotificationPublisherInterface`:
 
 ```php
@@ -137,6 +138,20 @@ Hospital access comes from `NotificationHospitalAccessInterface`, implemented in
 - deletes expired deduplication keys;
 - recounts `unread_count` per recipient with the visibility rules above and increments `version` where it changed.
 
+## Preferences
+
+Users choose how they want to be notified on **Settings → Notifications** (`/settings/notifications`, `NotificationSettingsController` in the Notification context; the page uses the settings layout of the User context).
+
+- **Layout:** one table per category with a column per channel (in-app, email, toast; only channels some offered type has). The first row sets the whole category; *Set n notifications individually* expands the rows of its types. Categories with type overrides start expanded.
+- **Three states per control:** *Default (on/off)* stores nothing and shows what applies without an override; *On* and *Off* store an override. For a type, the default is the category override or else the type's default; for a category it is the types' common default, or *per notification* when they differ.
+- **Fixed cells:** mandatory channels show *Always*; channels of non-configurable types show their fixed state; channels a type does not offer show a dash. A category control covers only the configurable types that offer the channel and do not make it mandatory.
+- **Access:** role-scoped types (e.g. `import.batch_finished`) are listed only for users with the required role (role hierarchy included). The form only accepts controls it rendered, so other types cannot be configured by a crafted request.
+- **Monthly reminder:** the existing opt-out (`User::receivesMonthlySubmissionReminder`) is shown on the same page and saved with the same button until it is migrated to a type override (step 7b).
+
+Resolution when publishing, per channel: type override → category override → definition default; overrides of non-configurable types are ignored, mandatory channels are always added, and toast is dropped without in-app (`NotificationChannelResolver`). The publisher reads the overrides through `NotificationPreferenceStoreInterface` (`DbalNotificationPreferenceStore`).
+
+Email can already be chosen for types that offer it; it is delivered once email delivery (step 6) is available.
+
 ## Trying it locally
 
 Real entries come from imports (upload a file and let the worker process it) and from activating participation. For a quick look without that, the `dev` command `app:notification:demo` creates demo entries for a user through the real publisher:
@@ -160,6 +175,7 @@ The command and its demo types live in `src/DataFixtures/Notification/` and exis
 | `notification_deduplication` | Duplicate protection per recipient and key, independent of the inbox entry |
 | `notification_recipient_state` | `version` and `unread_count` per recipient for badge and polling |
 | `notification_delivery` | One external delivery (email) per instance and channel with status, attempts and reason code |
+| `user_notification_preference` | Preference overrides only: `(user, scope = category or type, key, channel, enabled)`, unique per user, scope, key and channel; deleted with the user |
 
 The publisher writes these tables with DBAL inside one transaction per recipient (a savepoint when the caller already has a transaction open), so it never flushes pending entity changes of the caller.
 
