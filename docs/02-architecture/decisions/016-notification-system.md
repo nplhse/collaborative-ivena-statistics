@@ -302,13 +302,13 @@ Effective channels for one user and type:
 
 A channel the user disabled is never used unless it is mandatory. Mandatory status is declared per definition, never decided by the caller.
 
-The settings page *Notifications* shows categories with per-channel controls and an expandable list of individual types. It uses the existing Tabler form components. Each control has three states, because a missing override and an explicit "off" mean different things:
+The settings page *Notifications* shows categories with per-channel controls and an expandable list of individual types. It uses the existing Tabler form components. Each control is a checkbox that shows whether the channel is used (on / off); users are not asked about defaults. Storage still distinguishes a missing override from an explicit value:
 
-- **Default (on / off)**: no override is stored, and the effective default is shown. Choosing it deletes the override.
-- **On**: override `enabled = true`.
-- **Off**: override `enabled = false`.
+- An untouched checkbox keeps what is stored, so types without their own setting keep following their category.
+- A changed checkbox stores an override, or deletes it when the new value equals what applies without one (for a type: the category override, else its default; for a category: the common default of its types).
+- Changing a category never overwrites types that were set individually.
 
-Mandatory channels are shown as fixed.
+Mandatory channels are shown as ticked, disabled checkboxes with an explanation; disabled checkboxes are not part of the form, so the server never accepts a value for them.
 
 ### Workflows
 

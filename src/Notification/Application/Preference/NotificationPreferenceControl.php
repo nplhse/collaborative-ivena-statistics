@@ -8,15 +8,17 @@ use App\Notification\Domain\Enum\NotificationChannel;
 use App\Notification\Domain\Enum\NotificationPreferenceScope;
 
 /**
- * One cell of the settings page: a category or type and one channel.
+ * One cell of the settings page: a category or type and one channel, shown as a checkbox.
  */
 final readonly class NotificationPreferenceControl
 {
     /**
      * @param bool|null $override  the stored override, null when none is stored
-     * @param bool|null $inherited what applies without an override: the category override or the
-     *                             definition default for types, the default of all types for
-     *                             categories; null when the types of a category differ
+     * @param bool|null $inherited what applies without an override of this level: for types the
+     *                             category override or else the definition default, for categories
+     *                             the default of all their types; null when those defaults differ
+     * @param bool|null $default   the definition default (types) or the common default of the
+     *                             types (categories); null when those defaults differ
      */
     public function __construct(
         public NotificationPreferenceScope $scope,
@@ -25,6 +27,7 @@ final readonly class NotificationPreferenceControl
         public NotificationPreferenceControlKind $kind,
         public ?bool $override = null,
         public ?bool $inherited = null,
+        public ?bool $default = null,
     ) {
     }
 
@@ -33,23 +36,27 @@ final readonly class NotificationPreferenceControl
         return NotificationPreferenceControlKind::Configurable === $this->kind;
     }
 
-    public function state(): NotificationPreferenceState
-    {
-        return NotificationPreferenceState::fromOverride($this->override);
-    }
-
     /**
-     * Whether the channel is used for this control as stored now (fixed and mandatory controls included).
-     *
-     * @psalm-suppress PossiblyUnusedMethod Read by the settings template.
+     * Whether the checkbox is shown checked: the channel is used as stored now. A category whose
+     * types have different defaults and no override is shown unchecked (and marked as mixed).
      */
-    public function isEffectivelyEnabled(): ?bool
+    public function isChecked(): bool
     {
         return match ($this->kind) {
             NotificationPreferenceControlKind::Mandatory => true,
             NotificationPreferenceControlKind::Unavailable => false,
-            default => $this->override ?? $this->inherited,
+            default => $this->override ?? $this->inherited ?? false,
         };
+    }
+
+    /**
+     * A category without override whose types have different defaults.
+     *
+     * @psalm-suppress PossiblyUnusedMethod Read by the settings template.
+     */
+    public function isMixed(): bool
+    {
+        return $this->isConfigurable() && null === $this->override && null === $this->inherited;
     }
 
     /**
@@ -58,10 +65,5 @@ final readonly class NotificationPreferenceControl
     public function fieldName(): string
     {
         return $this->scope->value.'-'.str_replace('.', '-', $this->key).'-'.$this->channel->value;
-    }
-
-    public function change(NotificationPreferenceState $state): NotificationPreferenceChange
-    {
-        return new NotificationPreferenceChange($this->scope, $this->key, $this->channel, $state->toOverride());
     }
 }

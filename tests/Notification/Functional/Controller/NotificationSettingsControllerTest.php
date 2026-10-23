@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Tests\Notification\Functional\Controller;
 
 use App\Notification\Application\Contract\NotificationPreferenceStoreInterface;
+use App\Notification\Application\Definition\NotificationRegistry;
 use App\Notification\Application\Preference\NotificationPreferenceChange;
 use App\Notification\Domain\Enum\NotificationChannel;
 use App\Notification\Domain\Enum\NotificationPreferenceScope;
 use App\Tests\Support\Foundry\DatabaseWebTestCase;
+use App\Tests\Support\Notification\Type\FixedTestNotification;
+use App\Tests\Support\Notification\Type\MandatoryInAppTestNotification;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
+use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\HttpFoundation\Request;
 
 final class NotificationSettingsControllerTest extends DatabaseWebTestCase
@@ -40,14 +44,16 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('[data-testid="preference-category-imports"] thead', 'Imports');
-        self::assertSame('default', $this->selectedValue($crawler, 'category-imports-in_app'));
-        self::assertSame(['Default (on)', 'On', 'Off'], $this->optionLabels($crawler, 'category-imports-in_app'));
-        self::assertSame(['Default (off)', 'On', 'Off'], $this->optionLabels($crawler, 'type-import-completed-email'));
+        self::assertTrue($this->isChecked($crawler, 'category-imports-in_app'));
+        self::assertFalse($this->isChecked($crawler, 'category-imports-email'));
+        self::assertFalse($this->isChecked($crawler, 'type-import-completed-email'));
+        self::assertTrue($this->isChecked($crawler, 'type-import-completed-toast'));
         self::assertSelectorExists('[data-testid="preference-type-import.completed"]');
         self::assertSelectorExists('[data-testid="preference-type-participation.activated"]');
         self::assertSelectorNotExists('[data-testid="preference-type-import.batch_finished"]', 'role-scoped types need the role');
         self::assertSelectorNotExists('[data-testid="preference-category-administration"]');
         self::assertSelectorExists('#notification-preferences-types-imports.collapse:not(.show)');
+        self::assertSelectorNotExists('[data-controller="notification-preferences"] select', 'no three-state selects any more');
         self::assertSelectorTextContains('body', 'Monthly data submission reminder');
     }
 
@@ -62,6 +68,36 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertSelectorExists('[data-testid="preference-type-import.batch_finished"]');
     }
 
+    public function testMandatoryAndFixedChannelsAreDisabledCheckboxesWithAnExplanation(): void
+    {
+        $client = self::createClient();
+        $this->loginAsRoleUser($client);
+        self::getContainer()->set(NotificationRegistry::class, new NotificationRegistry([
+            'test.mandatory_in_app' => MandatoryInAppTestNotification::class,
+            'test.fixed' => FixedTestNotification::class,
+        ]));
+
+        $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
+
+        self::assertResponseIsSuccessful();
+        $mandatory = $crawler->filter('[data-testid="preference-mandatory-type-test-mandatory_in_app-in_app"]');
+        self::assertCount(1, $mandatory);
+        self::assertNotNull($mandatory->attr('disabled'));
+        self::assertNotNull($mandatory->attr('checked'));
+        self::assertNull($mandatory->attr('name'), 'disabled checkboxes are not part of the form');
+        $hintId = (string) $mandatory->attr('aria-describedby');
+        self::assertSame('This notification is always delivered this way and cannot be turned off.', trim($crawler->filter('#'.$hintId)->text()));
+        self::assertSame('This notification is always delivered this way and cannot be turned off.', $mandatory->ancestors()->filter('label')->attr('title'));
+
+        $fixed = $crawler->filter('[data-testid="preference-fixed-type-test-fixed-toast"]');
+        self::assertNotNull($fixed->attr('disabled'));
+        self::assertNull($fixed->attr('checked'));
+        self::assertSame('This notification cannot be configured.', trim($crawler->filter('#'.$fixed->attr('aria-describedby'))->text()));
+
+        self::assertFalse($this->isChecked($crawler, 'type-test-mandatory_in_app-toast'));
+        self::assertSame('true', $crawler->filter('input[name="'.self::FORM.'[preferences][category-account-toast]"]')->attr('data-follows'));
+    }
+
     public function testShowsStoredOverridesAndInheritedValues(): void
     {
         $client = self::createClient();
@@ -73,14 +109,14 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
 
-        self::assertSame('off', $this->selectedValue($crawler, 'category-imports-toast'));
-        self::assertSame('on', $this->selectedValue($crawler, 'type-import-failed-email'));
-        self::assertSame('default', $this->selectedValue($crawler, 'type-import-completed-toast'));
-        self::assertSame('Default (off)', $this->optionLabels($crawler, 'type-import-completed-toast')[0], 'a type shows the category override as its default');
+        self::assertFalse($this->isChecked($crawler, 'category-imports-toast'));
+        self::assertTrue($this->isChecked($crawler, 'type-import-failed-email'));
+        self::assertFalse($this->isChecked($crawler, 'type-import-completed-toast'), 'a type follows the category override');
+        self::assertSame('false', $crawler->filter('input[name="'.self::FORM.'[preferences][type-import-failed-email]"]')->attr('data-follows'));
         self::assertSelectorExists('#notification-preferences-types-imports.collapse.show', 'categories with type overrides start expanded');
     }
 
-    public function testSavesTheThreeStates(): void
+    public function testSavingCheckboxesStoresOnlyDifferencesFromTheDefaults(): void
     {
         $client = self::createClient();
         $user = $this->loginAsRoleUser($client);
@@ -91,9 +127,9 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
         $form = $crawler->selectButton('Save')->form();
-        $form[self::FORM.'[preferences][category-imports-email]'] = 'on';
-        $form[self::FORM.'[preferences][type-import-completed-in_app]'] = 'off';
-        $form[self::FORM.'[preferences][type-import-failed-toast]'] = 'default';
+        $this->checkbox($form, 'category-imports-email')->tick();
+        $this->checkbox($form, 'type-import-completed-in_app')->untick();
+        $this->checkbox($form, 'type-import-failed-toast')->tick();
         $client->submit($form);
 
         self::assertResponseRedirects('/settings/notifications');
@@ -105,7 +141,11 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
                 ['scope' => 'type', 'preference_key' => 'import.completed', 'channel' => 'in_app', 'enabled' => false],
             ],
             $this->rows($userId),
+            'ticking import.failed toast again matches its default, so the override is removed',
         );
+
+        $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
+        self::assertTrue($this->isChecked($crawler, 'type-import-completed-email'), 'untouched types follow the category');
     }
 
     public function testInvalidCsrfTokenChangesNothing(): void
@@ -115,7 +155,7 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
 
         $client->request(Request::METHOD_POST, '/settings/notifications', [self::FORM => [
             '_token' => 'invalid',
-            'preferences' => ['category-imports-email' => 'on'],
+            'preferences' => ['category-imports-email' => '1'],
         ]]);
 
         self::assertResponseIsUnprocessable();
@@ -131,23 +171,26 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         $token = (string) $crawler->filter('input[name="'.self::FORM.'[_token]"]')->attr('value');
         $client->request(Request::METHOD_POST, '/settings/notifications', [self::FORM => [
             '_token' => $token,
-            'preferences' => ['type-import-batch_finished-in_app' => 'off'],
+            'preferences' => ['type-import-batch_finished-in_app' => '1'],
         ]]);
 
         self::assertResponseIsUnprocessable();
         self::assertSame([], $this->rows($this->id($user)));
     }
 
-    public function testUnknownStateIsRejected(): void
+    public function testMandatoryChannelsCannotBeSubmitted(): void
     {
         $client = self::createClient();
         $user = $this->loginAsRoleUser($client);
+        self::getContainer()->set(NotificationRegistry::class, new NotificationRegistry([
+            'test.mandatory_in_app' => MandatoryInAppTestNotification::class,
+        ]));
 
         $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
         $token = (string) $crawler->filter('input[name="'.self::FORM.'[_token]"]')->attr('value');
         $client->request(Request::METHOD_POST, '/settings/notifications', [self::FORM => [
             '_token' => $token,
-            'preferences' => ['category-imports-email' => 'maybe'],
+            'preferences' => ['type-test-mandatory_in_app-in_app' => '0'],
         ]]);
 
         self::assertResponseIsUnprocessable();
@@ -173,22 +216,20 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertSame([], $this->rows($this->id($user)), 'defaults are not stored');
     }
 
-    private function selectedValue(Crawler $crawler, string $field): ?string
+    private function isChecked(Crawler $crawler, string $field): bool
     {
-        $select = $crawler->filter(\sprintf('select[name="%s[preferences][%s]"]', self::FORM, $field));
-        self::assertCount(1, $select, $field);
+        $checkbox = $crawler->filter(\sprintf('input[type="checkbox"][name="%s[preferences][%s]"]', self::FORM, $field));
+        self::assertCount(1, $checkbox, $field);
 
-        return $select->filter('option[selected]')->attr('value');
+        return null !== $checkbox->attr('checked');
     }
 
-    /**
-     * @return list<string>
-     */
-    private function optionLabels(Crawler $crawler, string $field): array
+    private function checkbox(Form $form, string $field): ChoiceFormField
     {
-        return array_values($crawler
-            ->filter(\sprintf('select[name="%s[preferences][%s]"] option', self::FORM, $field))
-            ->each(static fn (Crawler $option): string => trim($option->text())));
+        $checkbox = $form[\sprintf('%s[preferences][%s]', self::FORM, $field)];
+        self::assertInstanceOf(ChoiceFormField::class, $checkbox);
+
+        return $checkbox;
     }
 
     /**

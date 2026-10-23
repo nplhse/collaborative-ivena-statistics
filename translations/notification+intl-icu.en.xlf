@@ -247,7 +247,7 @@
       </trans-unit>
       <trans-unit id="Ntf2FBEF284" resname="notification.preferences.intro">
         <source>notification.preferences.intro</source>
-        <target>Choose how you are told about events. Settings of a category apply to all its notifications; a setting for a single notification takes precedence.</target>
+        <target>Choose how you are told about events. A tick in a category row applies to all its notifications you have not changed individually.</target>
       </trans-unit>
       <trans-unit id="NtfAA7B724A" resname="notification.preferences.category_row">
         <source>notification.preferences.category_row</source>
@@ -261,29 +261,9 @@
         <source>notification.preferences.control_label</source>
         <target>{subject}: {channel}</target>
       </trans-unit>
-      <trans-unit id="Ntf8909FACC" resname="notification.preferences.state.default">
-        <source>notification.preferences.state.default</source>
-        <target>{inherited, select, on {Default (on)} off {Default (off)} other {Default (per notification)}}</target>
-      </trans-unit>
-      <trans-unit id="Ntf8930BD7E" resname="notification.preferences.state.on">
-        <source>notification.preferences.state.on</source>
-        <target>On</target>
-      </trans-unit>
-      <trans-unit id="Ntf0E0B975B" resname="notification.preferences.state.off">
-        <source>notification.preferences.state.off</source>
-        <target>Off</target>
-      </trans-unit>
-      <trans-unit id="Ntf0F138C3C" resname="notification.preferences.mandatory">
-        <source>notification.preferences.mandatory</source>
-        <target>Always</target>
-      </trans-unit>
       <trans-unit id="NtfCB7FDF61" resname="notification.preferences.mandatory_hint">
         <source>notification.preferences.mandatory_hint</source>
-        <target>This notification is always delivered this way.</target>
-      </trans-unit>
-      <trans-unit id="NtfAA435B0F" resname="notification.preferences.fixed">
-        <source>notification.preferences.fixed</source>
-        <target>{state, select, on {On} other {Off}}</target>
+        <target>This notification is always delivered this way and cannot be turned off.</target>
       </trans-unit>
       <trans-unit id="Ntf3F158C51" resname="notification.preferences.fixed_hint">
         <source>notification.preferences.fixed_hint</source>
@@ -295,7 +275,7 @@
       </trans-unit>
       <trans-unit id="NtfF6310304" resname="notification.preferences.hint">
         <source>notification.preferences.hint</source>
-        <target>“Default” uses the category setting or the notification’s preset. Toasts are only shown together with in-app notifications.</target>
+        <target>Notifications you changed individually keep their setting when you change the category. Toasts are only shown together with in-app notifications.</target>
       </trans-unit>
       <trans-unit id="Ntf4F8A970F" resname="notification.preferences.empty">
         <source>notification.preferences.empty</source>

@@ -2118,11 +2118,7 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     transform: rotate(180deg);
 }
 
-/* Notification preferences on narrow screens: keep the selects readable; the table scrolls sideways. */
-.notification-preferences .form-select {
-    min-width: 10rem;
-}
-
+/* Notification preferences on narrow screens: keep the names readable; the table scrolls sideways. */
 .notification-preferences th[scope='row'] {
     min-width: 13rem;
 }
