@@ -44,6 +44,7 @@
             <directory>tests/Analytics/Integration</directory>
             <directory>tests/Content/Integration</directory>
             <directory>tests/Engagement/Integration</directory>
+            <directory>tests/Feedback/Integration</directory>
             <directory>tests/Import/Integration</directory>
             <directory>tests/Kpi/Integration</directory>
             <directory>tests/Notification/Integration</directory>

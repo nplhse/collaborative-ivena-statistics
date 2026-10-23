@@ -373,6 +373,46 @@
         <source>demo.admin_only.label</source>
         <target>Demo: note for administrators</target>
       </trans-unit>
+      <trans-unit id="Ntf4DD92465" resname="admin.user_registered.title">
+        <source>admin.user_registered.title</source>
+        <target>New user registration: {username}</target>
+      </trans-unit>
+      <trans-unit id="Ntf6C4F84B2" resname="admin.user_registered.message">
+        <source>admin.user_registered.message</source>
+        <target>{username} has registered and may need participant permissions.</target>
+      </trans-unit>
+      <trans-unit id="NtfE832E381" resname="admin.user_registered.label">
+        <source>admin.user_registered.label</source>
+        <target>New user registrations</target>
+      </trans-unit>
+      <trans-unit id="NtfD747025B" resname="admin.import_failed.title">
+        <source>admin.import_failed.title</source>
+        <target>Import „{importName}“ failed</target>
+      </trans-unit>
+      <trans-unit id="Ntf870A2E86" resname="admin.import_failed.message">
+        <source>admin.import_failed.message</source>
+        <target>{hospitalName}: {reason, select, missing_creator {The import has no creator.} missing_hospital {The import has no hospital.} missing_import_permission {The creator is no longer allowed to import for this hospital.} missing_closure_role {The creator is not allowed to import closures.} type_mismatch {The file type does not match the import type.} missing_file_path {The import file is missing.} invalid_file_path {The import file could not be read.} file_not_found {The import file could not be found.} invalid_file {The file failed validation.} no_rows {The file contains no rows.} rejection_ratio_exceeded {Too many rows were rejected.} processing_error {Processing failed.} retries_exhausted {Processing failed several times and was given up.} other {The import could not be processed.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1474BAF4" resname="admin.import_failed.reason">
+        <source>admin.import_failed.reason</source>
+        <target>{reason, select, missing_creator {The import has no creator.} missing_hospital {The import has no hospital.} missing_import_permission {The creator is no longer allowed to import for this hospital.} missing_closure_role {The creator is not allowed to import closures.} type_mismatch {The file type does not match the import type.} missing_file_path {The import file is missing.} invalid_file_path {The import file could not be read.} file_not_found {The import file could not be found.} invalid_file {The file failed validation.} no_rows {The file contains no rows.} rejection_ratio_exceeded {Too many rows were rejected.} processing_error {Processing failed.} retries_exhausted {Processing failed several times and was given up.} other {The import could not be processed.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf3429DD8A" resname="admin.import_failed.label">
+        <source>admin.import_failed.label</source>
+        <target>Failed imports</target>
+      </trans-unit>
+      <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
+        <source>admin.feedback_received.title</source>
+        <target>New feedback: {category, select, bug {bug report} improvement {suggestion} question {question} other {other}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf25A8E604" resname="admin.feedback_received.message">
+        <source>admin.feedback_received.message</source>
+        <target>{sender, select, guest {A guest} other {{username}}} sent feedback.</target>
+      </trans-unit>
+      <trans-unit id="Ntf5B0D5B41" resname="admin.feedback_received.label">
+        <source>admin.feedback_received.label</source>
+        <target>New feedback</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

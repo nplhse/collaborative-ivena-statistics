@@ -373,6 +373,46 @@
         <source>demo.admin_only.label</source>
         <target>Demo: Hinweis für Administratoren</target>
       </trans-unit>
+      <trans-unit id="Ntf4DD92465" resname="admin.user_registered.title">
+        <source>admin.user_registered.title</source>
+        <target>Neue Benutzerregistrierung: {username}</target>
+      </trans-unit>
+      <trans-unit id="Ntf6C4F84B2" resname="admin.user_registered.message">
+        <source>admin.user_registered.message</source>
+        <target>{username} hat sich registriert und benötigt möglicherweise Teilnehmerberechtigungen.</target>
+      </trans-unit>
+      <trans-unit id="NtfE832E381" resname="admin.user_registered.label">
+        <source>admin.user_registered.label</source>
+        <target>Neue Benutzerregistrierungen</target>
+      </trans-unit>
+      <trans-unit id="NtfD747025B" resname="admin.import_failed.title">
+        <source>admin.import_failed.title</source>
+        <target>Import „{importName}“ fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Ntf870A2E86" resname="admin.import_failed.message">
+        <source>admin.import_failed.message</source>
+        <target>{hospitalName}: {reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} processing_error {Die Verarbeitung ist fehlgeschlagen.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1474BAF4" resname="admin.import_failed.reason">
+        <source>admin.import_failed.reason</source>
+        <target>{reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} processing_error {Die Verarbeitung ist fehlgeschlagen.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf3429DD8A" resname="admin.import_failed.label">
+        <source>admin.import_failed.label</source>
+        <target>Fehlgeschlagene Importe</target>
+      </trans-unit>
+      <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
+        <source>admin.feedback_received.title</source>
+        <target>Neues Feedback: {category, select, bug {Fehlermeldung} improvement {Verbesserungsvorschlag} question {Frage} other {Sonstiges}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf25A8E604" resname="admin.feedback_received.message">
+        <source>admin.feedback_received.message</source>
+        <target>{sender, select, guest {Ein Gast} other {{username}}} hat Feedback gesendet.</target>
+      </trans-unit>
+      <trans-unit id="Ntf5B0D5B41" resname="admin.feedback_received.label">
+        <source>admin.feedback_received.label</source>
+        <target>Neues Feedback</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
