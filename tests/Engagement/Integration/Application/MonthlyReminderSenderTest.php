@@ -326,6 +326,8 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $parameters = json_decode((string) $row['parameters'], true);
         self::assertIsArray($parameters);
         self::assertSame(['2026-07-01', $dispatch->getId()], [$parameters['referenceDate'], $parameters['dispatchId']]);
+        self::assertNotNull($dispatch->getAttemptId());
+        self::assertSame($dispatch->getAttemptId(), $parameters['attemptId'], 'the notification names the send attempt');
     }
 
     public function testSendUsesOwnerGermanLocale(): void

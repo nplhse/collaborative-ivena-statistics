@@ -67,7 +67,24 @@ final readonly class NotificationDeliveryStatusSubscriber
             return;
         }
 
-        $updated = $this->connection->executeStatement(
+        try {
+            // Status and announcement commit together, so producers record the failure with it.
+            $this->connection->transactional(function (Connection $connection) use ($deliveryId, $reason): void {
+                if ($this->markFailed($connection, $deliveryId, $reason) > 0) {
+                    $this->failureAnnouncer->announce($deliveryId, $reason);
+                }
+            });
+        } catch (\Throwable $exception) {
+            // Messenger does not retry this job any more. Keep the delivery's final state; the hourly
+            // reconciliation announces failed deliveries again, so the producer catches up later.
+            $this->logger->error('notification.delivery.failure_announcement_failed', ['delivery_id' => $deliveryId, 'exception' => $exception::class]);
+            $this->markFailed($this->connection, $deliveryId, $reason);
+        }
+    }
+
+    private function markFailed(Connection $connection, int $deliveryId, NotificationDeliveryFailureReason $reason): int
+    {
+        $updated = $connection->executeStatement(
             "UPDATE notification_delivery SET status = 'failed', reason_code = :reason, status_changed_at = :now WHERE id = :id AND status IN ('pending', 'queued')",
             ['reason' => $reason->value, 'now' => $this->clock->now(), 'id' => $deliveryId],
             ['now' => Types::DATETIME_IMMUTABLE],
@@ -75,8 +92,9 @@ final readonly class NotificationDeliveryStatusSubscriber
 
         if ($updated > 0) {
             $this->logger->warning('notification.delivery.failed', ['delivery_id' => $deliveryId, 'reason' => $reason->value]);
-            $this->failureAnnouncer->announce($deliveryId, $reason);
         }
+
+        return $updated;
     }
 
     private function deliveryId(RawMessage $message): ?int

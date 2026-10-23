@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace App\Engagement\Infrastructure\EventSubscriber;
 
 use App\Engagement\Application\MonthlyReminderNotificationType;
-use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
-use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Notification\Application\Event\NotificationDeliveryFailed;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
 /**
- * A reminder email that failed for good before it reached the mailer (recipient gone or disabled, delivery
- * job out of retries) leaves no mail event, so MonthlyReminderDeliverySubscriber never sees it. Without this,
- * the dispatch would stay queued and block the next scheduled attempt.
+ * A reminder email that failed for good fails its dispatch, so it no longer blocks the next scheduled
+ * attempt. This also covers failures before the mailer (owner disabled, delivery job out of retries),
+ * which leave no mail event for MonthlyReminderDeliverySubscriber.
  *
- * The notification's parameters name the dispatch; it is only updated when it belongs to the same hospital
- * and is still queued, so a later attempt or an already completed dispatch is never overwritten.
+ * Runs synchronously in the transaction that marks the delivery as failed: if this update fails, the delivery
+ * stays pending and is retried. The notification's parameters name the dispatch, its hospital and the send
+ * attempt; only a dispatch that is still queued for exactly that attempt changes, so a failure of an earlier
+ * attempt never touches a newer one. The update is idempotent, which lets reconciliation repeat it.
  *
  * @psalm-suppress UnusedClass Registered via #[AsEventListener].
  */
@@ -33,18 +33,12 @@ final readonly class MonthlyReminderDeliveryFailureSubscriber
     {
         $dispatchId = $event->parameters['dispatchId'] ?? null;
         $hospitalId = $event->parameters['hospitalId'] ?? null;
-        if (MonthlyReminderNotificationType::TYPE !== $event->type || !\is_int($dispatchId) || !\is_int($hospitalId)) {
+        $attemptId = $event->parameters['attemptId'] ?? null;
+        if (MonthlyReminderNotificationType::TYPE !== $event->type || !\is_int($dispatchId) || !\is_int($hospitalId)
+            || (null !== $attemptId && !\is_string($attemptId))) {
             return;
         }
 
-        $dispatch = $this->dispatchRepository->find($dispatchId);
-        if (!$dispatch instanceof MonthlyReminderDispatch
-            || $dispatch->getHospital()->getId() !== $hospitalId
-            || MonthlyReminderDispatchStatus::Queued !== $dispatch->getStatus()) {
-            return;
-        }
-
-        $dispatch->markFailed(\sprintf('notification_delivery:%s', $event->reasonCode));
-        $this->dispatchRepository->save($dispatch);
+        $this->dispatchRepository->markAttemptFailed($dispatchId, $hospitalId, $attemptId, \sprintf('notification_delivery:%s', $event->reasonCode));
     }
 }

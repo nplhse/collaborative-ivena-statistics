@@ -136,6 +136,9 @@ final readonly class MonthlyReminderSender
             $dispatch = new MonthlyReminderDispatch($hospital, $dispatchPeriod, $trigger->value, $queuedAt, MonthlyReminderDispatchStatus::Queued, $email);
         }
 
+        // The notification carries this id, so failures of an earlier attempt never touch this one.
+        $attemptId = Uuid::v4()->toRfc4122();
+        $dispatch->startAttempt($attemptId);
         $this->dispatchRepository->save($dispatch);
 
         $this->auditContext->beginIntent('hospital.reminder_sent', [
@@ -158,6 +161,7 @@ final readonly class MonthlyReminderSender
                     // Noon avoids a different month after time zone conversion when the month name is rendered.
                     'period' => $period['reportingMonthStart']->setTime(12, 0)->getTimestamp(),
                     'dispatchId' => $dispatch->getId(),
+                    'attemptId' => $attemptId,
                 ],
                 action: new NotificationAction('app_import_new'),
                 scopeReferenceId: $hospitalId,

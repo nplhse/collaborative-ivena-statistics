@@ -49,7 +49,7 @@ final readonly class DeliverNotificationMessageHandler
 
     public function __invoke(DeliverNotificationMessage $message): void
     {
-        $failure = $this->connection->transactional(function (Connection $connection) use ($message): ?NotificationDeliveryFailureReason {
+        $this->connection->transactional(function (Connection $connection) use ($message): void {
             $columns = implode(', ', array_map(
                 static fn (string $column): string => 'n.'.trim($column),
                 explode(',', InboxEntryRowMapper::COLUMNS),
@@ -67,7 +67,7 @@ final readonly class DeliverNotificationMessageHandler
             );
 
             if (false === $row || NotificationDeliveryStatus::Pending->value !== $row['delivery_status']) {
-                return null;
+                return;
             }
 
             $connection->executeStatement('UPDATE notification_delivery SET attempt_count = attempt_count + 1 WHERE id = :id', ['id' => $message->deliveryId]);
@@ -76,9 +76,12 @@ final readonly class DeliverNotificationMessageHandler
             $address = $recipient instanceof User ? trim((string) $recipient->getEmail()) : '';
             if (!$recipient instanceof User || !$recipient->isEnabled() || '' === $address
                 || NotificationChannel::Email->value !== $row['delivery_channel']) {
+                // Status and announcement commit together: if a producer cannot record the failure, everything
+                // rolls back, the delivery stays pending and Messenger retries the whole job.
                 $this->fail($connection, $message->deliveryId, NotificationDeliveryFailureReason::RecipientUnavailable);
+                $this->failureAnnouncer->announce($message->deliveryId, NotificationDeliveryFailureReason::RecipientUnavailable);
 
-                return NotificationDeliveryFailureReason::RecipientUnavailable;
+                return;
             }
 
             $type = (string) $row['type'];
@@ -93,13 +96,7 @@ final readonly class DeliverNotificationMessageHandler
                 ['now' => $this->clock->now(), 'id' => $message->deliveryId],
                 ['now' => Types::DATETIME_IMMUTABLE],
             );
-
-            return null;
         });
-
-        if ($failure instanceof NotificationDeliveryFailureReason) {
-            $this->failureAnnouncer->announce($message->deliveryId, $failure);
-        }
     }
 
     private function fail(Connection $connection, int $deliveryId, NotificationDeliveryFailureReason $reason): void
