@@ -15,232 +15,108 @@ use App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Envelope as MailerEnvelope;
 use Symfony\Component\Mailer\Event\SentMessageEvent;
-use Symfony\Component\Mailer\Messenger\SendEmailMessage;
 use Symfony\Component\Mailer\SentMessage;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
-use Symfony\Component\Messenger\Exception\HandlerFailedException;
-use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\RawMessage;
 
 final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
 {
-    public function testOnSentMarksDispatchAsDelivered(): void
+    public function testSuccessOfTheCurrentAttemptMarksTheDispatchAsSent(): void
     {
-        self::bootKernel();
+        $dispatch = $this->createDispatch('attempt-a');
 
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
+        $this->subscriber()->onSent($this->sent($this->email((string) $dispatch->getId(), 'attempt-a')));
 
+        $this->entityManager()->refresh($dispatch);
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus());
+        self::assertNotNull($dispatch->getDeliveredAt());
+    }
+
+    /**
+     * Attempt A is delayed by mailer retries, an admin starts attempt B on the same dispatch, then A's email
+     * goes out after all: B is still running and must not be marked as sent by A.
+     */
+    public function testALateSuccessOfAnEarlierAttemptLeavesTheCurrentAttemptAlone(): void
+    {
+        $dispatch = $this->createDispatch('attempt-a');
+        $dispatch->startAttempt('attempt-b');
+        $this->entityManager()->flush();
+
+        $this->subscriber()->onSent($this->sent($this->email((string) $dispatch->getId(), 'attempt-a')));
+        $this->subscriber()->onSent($this->sent($this->email((string) $dispatch->getId(), null)));
+
+        $this->entityManager()->refresh($dispatch);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $dispatch->getStatus());
+        self::assertNull($dispatch->getDeliveredAt());
+    }
+
+    public function testDispatchesFromBeforeAttemptIdsMatchEmailsWithoutOne(): void
+    {
+        $dispatch = $this->createDispatch(null);
+
+        $this->subscriber()->onSent($this->sent($this->email((string) $dispatch->getId(), null)));
+
+        $this->entityManager()->refresh($dispatch);
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus());
+    }
+
+    public function testIgnoresEmailsWithoutUsableDispatchHeader(): void
+    {
+        $dispatch = $this->createDispatch('attempt-a');
+
+        $this->subscriber()->onSent($this->sent($this->email(null, 'attempt-a')));
+        $this->subscriber()->onSent($this->sent($this->email('not-a-number', 'attempt-a')));
+        $this->subscriber()->onSent($this->sent($this->email('999999', 'attempt-a')));
+        $this->subscriber()->onSent(new SentMessageEvent(new SentMessage(new RawMessage('raw'), new MailerEnvelope(new Address('no-reply@example.test'), [new Address('owner@example.test')]))));
+
+        $this->entityManager()->refresh($dispatch);
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $dispatch->getStatus());
+    }
+
+    private function email(?string $dispatchId, ?string $attemptId): TemplatedEmail
+    {
         $email = new TemplatedEmail()
             ->from('no-reply@example.test')
             ->to('owner@example.test')
             ->subject('Reminder')
             ->text('Reminder body');
-        $email->getHeaders()->addTextHeader(
-            MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER,
-            (string) $dispatch->getId(),
-        );
+        if (null !== $dispatchId) {
+            $email->getHeaders()->addTextHeader(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, $dispatchId);
+        }
+        if (null !== $attemptId) {
+            $email->getHeaders()->addTextHeader(MonthlyReminderEmailCustomizer::ATTEMPT_ID_HEADER, $attemptId);
+        }
 
-        $subscriber->onSent(new SentMessageEvent(new SentMessage(
-            $email,
-            new MailerEnvelope(
-                new Address('no-reply@example.test'),
-                [new Address('owner@example.test')],
-            ),
-        )));
-
-        $updated = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($updated);
-        self::assertSame(MonthlyReminderDispatchStatus::Sent, $updated->getStatus());
-        self::assertNotNull($updated->getDeliveredAt());
+        return $email;
     }
 
-    public function testOnMessengerFailedMarksDispatchWhenRetriesAreExhausted(): void
+    private function sent(TemplatedEmail $email): SentMessageEvent
     {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $email = new TemplatedEmail()
-            ->from('no-reply@example.test')
-            ->to('owner@example.test')
-            ->subject('Reminder')
-            ->text('Reminder body');
-        $email->getHeaders()->addTextHeader(
-            MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER,
-            (string) $dispatch->getId(),
-        );
-        $message = new SendEmailMessage($email);
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope($message),
-            'async_mail',
-            new HandlerFailedException(new Envelope($message), [
-                new UnrecoverableMessageHandlingException('SMTP rate limit'),
-            ]),
-        );
-
-        $subscriber->onMessengerFailed($event);
-
-        $updated = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($updated);
-        self::assertSame(MonthlyReminderDispatchStatus::Failed, $updated->getStatus());
-        self::assertStringContainsString('SMTP rate limit', (string) $updated->getFailureReason());
+        return new SentMessageEvent(new SentMessage($email, new MailerEnvelope(new Address('no-reply@example.test'), [new Address('owner@example.test')])));
     }
 
-    public function testOnSentIgnoresMessagesWithoutDispatchHeader(): void
+    private function subscriber(): MonthlyReminderDeliverySubscriber
     {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $subscriber->onSent($this->sentMessageEvent($this->email()));
-
-        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($unchanged);
-        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+        return self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
     }
 
-    public function testOnSentIgnoresUnknownDispatchId(): void
+    private function entityManager(): EntityManagerInterface
     {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $email = $this->email();
-        $email->getHeaders()->addTextHeader(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, '999999');
-
-        $subscriber->onSent($this->sentMessageEvent($email));
-
-        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($unchanged);
-        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
+        return self::getContainer()->get(EntityManagerInterface::class);
     }
 
-    public function testOnMessengerFailedIgnoresRetryableFailures(): void
+    private function createDispatch(?string $attemptId): MonthlyReminderDispatch
     {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $email = $this->email();
-        $email->getHeaders()->addTextHeader(
-            MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER,
-            (string) $dispatch->getId(),
-        );
-
-        $event = new WorkerMessageFailedEvent(
-            new Envelope(new SendEmailMessage($email)),
-            'async_mail',
-            new \RuntimeException('temporary'),
-        );
-        $event->setForRetry();
-
-        $subscriber->onMessengerFailed($event);
-
-        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($unchanged);
-        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
-    }
-
-    public function testOnMessengerFailedIgnoresNonEmailMessages(): void
-    {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
-            new Envelope(new \stdClass()),
-            'async_mail',
-            new \RuntimeException('failed'),
-        ));
-
-        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($unchanged);
-        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
-    }
-
-    public function testOnMessengerFailedIgnoresInvalidDispatchHeader(): void
-    {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $email = $this->email();
-        $email->getHeaders()->addTextHeader(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, 'not-numeric');
-
-        $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
-            new Envelope(new SendEmailMessage($email)),
-            'async_mail',
-            new \RuntimeException('failed'),
-        ));
-
-        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($unchanged);
-        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
-    }
-
-    public function testOnMessengerFailedIgnoresRawMessagesWithoutHeaders(): void
-    {
-        self::bootKernel();
-
-        $dispatch = $this->createDispatch();
-        $subscriber = self::getContainer()->get(MonthlyReminderDeliverySubscriber::class);
-
-        $subscriber->onMessengerFailed(new WorkerMessageFailedEvent(
-            new Envelope(new SendEmailMessage(new RawMessage('body'))),
-            'async_mail',
-            new \RuntimeException('failed'),
-        ));
-
-        $unchanged = self::getContainer()->get(MonthlyReminderDispatchRepository::class)->find($dispatch->getId());
-        self::assertNotNull($unchanged);
-        self::assertSame(MonthlyReminderDispatchStatus::Queued, $unchanged->getStatus());
-    }
-
-    private function email(): TemplatedEmail
-    {
-        return new TemplatedEmail()
-            ->from('no-reply@example.test')
-            ->to('owner@example.test')
-            ->subject('Reminder')
-            ->text('Reminder body');
-    }
-
-    private function sentMessageEvent(TemplatedEmail $email): SentMessageEvent
-    {
-        return new SentMessageEvent(new SentMessage(
-            $email,
-            new MailerEnvelope(
-                new Address('no-reply@example.test'),
-                [new Address('owner@example.test')],
-            ),
-        ));
-    }
-
-    private function createDispatch(): MonthlyReminderDispatch
-    {
-        $owner = UserFactory::createOne([
-            'email' => sprintf('delivery-%s@example.test', bin2hex(random_bytes(4))),
-            'isVerified' => true,
-        ]);
+        $owner = UserFactory::createOne(['email' => sprintf('delivery-%s@example.test', bin2hex(random_bytes(4))), 'isVerified' => true]);
         $state = StateFactory::createOne();
-        $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);
         $hospital = HospitalFactory::createOne([
             'owner' => $owner,
             'state' => $state,
-            'dispatchArea' => $dispatchArea,
+            'dispatchArea' => DispatchAreaFactory::createOne(['state' => $state]),
             'isParticipating' => true,
         ]);
 
@@ -252,9 +128,10 @@ final class MonthlyReminderDeliverySubscriberTest extends DatabaseKernelTestCase
             MonthlyReminderDispatchStatus::Queued,
             (string) $owner->getEmail(),
         );
-
-        $repository = self::getContainer()->get(MonthlyReminderDispatchRepository::class);
-        $repository->save($dispatch);
+        if (null !== $attemptId) {
+            $dispatch->startAttempt($attemptId);
+        }
+        self::getContainer()->get(MonthlyReminderDispatchRepository::class)->save($dispatch);
 
         return $dispatch;
     }

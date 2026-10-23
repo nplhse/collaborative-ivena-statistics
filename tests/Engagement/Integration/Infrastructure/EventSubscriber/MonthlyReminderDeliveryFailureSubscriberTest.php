@@ -151,6 +151,30 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'attempt B is still running');
     }
 
+    /**
+     * Attempt A's email is retried by the mailer, attempt B starts on the same dispatch, then the mailer gives
+     * A up for good: the failure belongs to A and must not fail B.
+     */
+    public function testALateMailerFailureOfAnEarlierAttemptLeavesTheCurrentAttemptAlone(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = $this->dispatch($hospital);
+        $deliveryOfA = $this->reminderDelivery($owner, $hospital, $dispatch, 'queued', 'attempt-a');
+        $dispatch->startAttempt('attempt-b');
+        $this->entityManager()->flush();
+
+        $email = new \Symfony\Component\Mime\Email();
+        $email->getHeaders()->addTextHeader(\App\Notification\Infrastructure\Delivery\NotificationEmailFactory::DELIVERY_ID_HEADER, (string) $deliveryOfA);
+        $email->getHeaders()->addTextHeader(\App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, (string) $dispatch->getId());
+        $email->getHeaders()->addTextHeader(\App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer::ATTEMPT_ID_HEADER, 'attempt-a');
+        self::getContainer()->get(NotificationDeliveryStatusSubscriber::class)->onMessageFailed(
+            new WorkerMessageFailedEvent(new Envelope(new \Symfony\Component\Mailer\Messenger\SendEmailMessage($email)), 'async_mail', new \RuntimeException('550 mailbox unavailable')),
+        );
+
+        self::assertSame('failed', $this->deliveryStatus($deliveryOfA), 'attempt A failed for good');
+        self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'attempt B is still running');
+    }
+
     private function failNextAnnouncement(): void
     {
         $failed = false;

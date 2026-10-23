@@ -25,6 +25,8 @@ final readonly class MonthlyReminderEmailCustomizer implements NotificationEmail
 {
     public const string DISPATCH_ID_HEADER = 'X-COIS-Monthly-Reminder-Dispatch-Id';
 
+    public const string ATTEMPT_ID_HEADER = 'X-COIS-Monthly-Reminder-Attempt-Id';
+
     public function __construct(
         private HospitalRepository $hospitalRepository,
         private MonthlyReminderContentBuilder $contentBuilder,
@@ -62,6 +64,12 @@ final readonly class MonthlyReminderEmailCustomizer implements NotificationEmail
         $dispatchId = $content->parameters['dispatchId'] ?? null;
         if (\is_int($dispatchId)) {
             $content->headers[self::DISPATCH_ID_HEADER] = (string) $dispatchId;
+
+            // The send attempt, so a late mail event of an earlier attempt cannot change a newer one.
+            $attemptId = $content->parameters['attemptId'] ?? null;
+            if (\is_string($attemptId) && '' !== $attemptId) {
+                $content->headers[self::ATTEMPT_ID_HEADER] = $attemptId;
+            }
         }
     }
 }

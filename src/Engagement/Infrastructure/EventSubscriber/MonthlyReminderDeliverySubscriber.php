@@ -8,11 +8,19 @@ use App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Mailer\Event\SentMessageEvent;
-use Symfony\Component\Mailer\Messenger\SendEmailMessage;
-use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Mime\Message;
 use Symfony\Component\Mime\RawMessage;
 
+/**
+ * Marks a reminder dispatch as sent when the mail transport accepted its email, but only while the
+ * dispatch is still queued for the send attempt the email belongs to (headers set by
+ * MonthlyReminderEmailCustomizer). A late success of an earlier attempt never changes a newer one.
+ *
+ * Failures are not handled here: a reminder email that fails for good reaches Engagement as
+ * NotificationDeliveryFailed (MonthlyReminderDeliveryFailureSubscriber), with the same attempt check.
+ *
+ * @psalm-suppress UnusedClass Registered via #[AsEventListener].
+ */
 final readonly class MonthlyReminderDeliverySubscriber
 {
     private const string TIMEZONE = 'Europe/Berlin';
@@ -25,59 +33,27 @@ final readonly class MonthlyReminderDeliverySubscriber
     #[AsEventListener(event: SentMessageEvent::class)]
     public function onSent(SentMessageEvent $event): void
     {
-        $dispatchId = $this->extractDispatchId($event->getMessage()->getOriginalMessage());
-        if (null === $dispatchId) {
+        $message = $event->getMessage()->getOriginalMessage();
+        $dispatchId = $this->header($message, MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER);
+        if (null === $dispatchId || !ctype_digit($dispatchId)) {
             return;
         }
 
-        $dispatch = $this->dispatchRepository->find($dispatchId);
-        if (null === $dispatch) {
-            return;
-        }
-
-        $dispatch->markSent(new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE)));
-        $this->dispatchRepository->save($dispatch);
+        $this->dispatchRepository->markAttemptSent(
+            (int) $dispatchId,
+            $this->header($message, MonthlyReminderEmailCustomizer::ATTEMPT_ID_HEADER),
+            new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE)),
+        );
     }
 
-    #[AsEventListener(event: WorkerMessageFailedEvent::class)]
-    public function onMessengerFailed(WorkerMessageFailedEvent $event): void
-    {
-        if ($event->willRetry()) {
-            return;
-        }
-
-        $message = $event->getEnvelope()->getMessage();
-        if (!$message instanceof SendEmailMessage) {
-            return;
-        }
-
-        $dispatchId = $this->extractDispatchId($message->getMessage());
-        if (null === $dispatchId) {
-            return;
-        }
-
-        $dispatch = $this->dispatchRepository->find($dispatchId);
-        if (null === $dispatch) {
-            return;
-        }
-
-        $dispatch->markFailed($event->getThrowable()->getMessage());
-        $this->dispatchRepository->save($dispatch);
-    }
-
-    private function extractDispatchId(RawMessage $message): ?int
+    private function header(RawMessage $message, string $name): ?string
     {
         if (!$message instanceof Message) {
             return null;
         }
 
-        $header = $message->getHeaders()->get(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER);
-        if (!$header instanceof \Symfony\Component\Mime\Header\HeaderInterface) {
-            return null;
-        }
+        $value = trim((string) $message->getHeaders()->get($name)?->getBodyAsString());
 
-        $value = trim($header->getBodyAsString());
-
-        return '' !== $value && ctype_digit($value) ? (int) $value : null;
+        return '' === $value ? null : $value;
     }
 }
