@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Notification;
 
 use App\Notification\Application\Definition\AppNotification;
 use App\Notification\Application\Definition\NotificationDefinition;
+use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationChannel;
 
@@ -19,6 +20,7 @@ use App\Notification\Domain\Enum\NotificationChannel;
     category: NotificationCategory::Imports,
     defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
     availableChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
+    accessScope: NotificationAccessScope::Hospital,
 )]
 final class FirstImportNotification extends AppNotification
 {

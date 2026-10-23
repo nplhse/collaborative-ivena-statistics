@@ -48,7 +48,7 @@ final class ImportNotifierEdgeCasesTest extends DatabaseKernelTestCase
         self::assertNull(new ImportMilestoneRecorder()->recordFirstImport($this->connection(), $import, Uuid::v7(), new \DateTimeImmutable()));
     }
 
-    public function testMilestoneWithoutRunLinksToTheImportList(): void
+    public function testMilestoneWithoutRunIsKeptButNotAnnounced(): void
     {
         $user = UserFactory::createOne();
         $milestone = new UserImportMilestone($user, ImportMilestoneType::FirstImport, new \DateTimeImmutable());
@@ -57,10 +57,52 @@ final class ImportNotifierEdgeCasesTest extends DatabaseKernelTestCase
 
         self::getContainer()->get(ImportMilestoneNotifier::class)->notify($milestone);
 
-        self::assertSame(
-            ['type' => 'user.first_import', 'action_route' => 'app_import_index'],
-            $this->connection()->fetchAssociative('SELECT type, action_route FROM notification WHERE recipient_id = ?', [$user->getId()]),
-        );
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ?', [$user->getId()]), 'no hospital to scope the text to');
+    }
+
+    public function testFirstImportIsScopedToTheHospitalAndRedactedAfterRevocation(): void
+    {
+        $creator = UserFactory::createOne();
+        $hospital = HospitalFactory::createOne(['owner' => UserFactory::new()]);
+        $import = ImportFactory::createOne(['name' => 'Januar', 'hospital' => $hospital, 'createdBy' => $creator, 'type' => ImportType::ALLOCATION, 'status' => ImportStatus::PENDING, 'runCount' => 0]);
+        $run = self::getContainer()->get(ImportRunLifecycle::class)->register((int) $import->getId(), ImportRunTrigger::Upload, $creator->getId());
+        $milestone = new UserImportMilestone($creator, ImportMilestoneType::FirstImport, new \DateTimeImmutable(), $run);
+        $this->entityManager()->persist($milestone);
+        $this->entityManager()->flush();
+
+        self::getContainer()->get(ImportMilestoneNotifier::class)->notify($milestone);
+
+        $row = $this->connection()->fetchAssociative('SELECT id, access_scope, scope_reference_id, parameters FROM notification WHERE recipient_id = ?', [$creator->getId()]);
+        self::assertIsArray($row);
+        self::assertSame(['hospital', $hospital->getId(), ['importName' => 'Januar']], [$row['access_scope'], $row['scope_reference_id'], json_decode((string) $row['parameters'], true)]);
+
+        // The creator has no access to the hospital (any more): the entry is shown without the import's name.
+        $entry = self::getContainer()->get(\App\Notification\Application\Contract\NotificationInboxQueryInterface::class)->find((int) $creator->getId(), (int) $row['id']);
+        self::assertNotNull($entry);
+        $views = self::getContainer()->get(\App\Notification\UI\ViewModel\NotificationViewFactory::class)->build($creator, [$entry]);
+        self::assertTrue($views[0]->isRedacted);
+        self::assertFalse($views[0]->hasLink);
+    }
+
+    public function testMilestoneOfADeletedImportIsKeptButNotAnnounced(): void
+    {
+        $creator = UserFactory::createOne();
+        $import = ImportFactory::createOne(['hospital' => HospitalFactory::createOne(['owner' => UserFactory::new()]), 'createdBy' => $creator, 'type' => ImportType::ALLOCATION, 'status' => ImportStatus::PENDING, 'runCount' => 0]);
+        $run = self::getContainer()->get(ImportRunLifecycle::class)->register((int) $import->getId(), ImportRunTrigger::Upload, $creator->getId());
+        $milestone = new UserImportMilestone($creator, ImportMilestoneType::FirstImport, new \DateTimeImmutable(), $run);
+        $this->entityManager()->persist($milestone);
+        $this->entityManager()->flush();
+        $milestoneId = $milestone->getId();
+
+        $this->connection()->executeStatement('DELETE FROM import WHERE id = ?', [$import->getId()]);
+        $this->entityManager()->clear();
+        $reloaded = $this->entityManager()->find(UserImportMilestone::class, $milestoneId);
+        self::assertInstanceOf(UserImportMilestone::class, $reloaded, 'the milestone survives the import');
+        self::assertNull($reloaded->getImportRun());
+
+        self::getContainer()->get(ImportMilestoneNotifier::class)->notify($reloaded);
+
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ?', [$creator->getId()]));
     }
 
     public function testUnsavedMilestoneIsIgnored(): void
