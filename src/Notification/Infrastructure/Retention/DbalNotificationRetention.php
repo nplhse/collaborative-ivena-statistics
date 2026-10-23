@@ -19,7 +19,9 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
  * at the next run, expired deduplication keys. Then unread_count is recounted with the same visibility
  * rules as the inbox (redacted entries count, role-scoped entries only with the required role).
  *
- * Entries that are only delivered externally get their own rule together with delivery jobs (step 6).
+ * An instance is only deleted when all its deliveries reached `sent` or `failed` at least 30 days ago.
+ * Instances without inbox entry (external channels only) are deleted by that rule alone; removing an
+ * entry from the inbox never cancels its deliveries.
  *
  * @psalm-suppress UnusedClass Wired via #[AsAlias] for NotificationRetentionInterface.
  */
@@ -29,6 +31,8 @@ final readonly class DbalNotificationRetention implements NotificationRetentionI
     public const string READ_RETENTION = 'P30D';
 
     public const string UNREAD_RETENTION = 'P90D';
+
+    public const string DELIVERY_RETENTION = 'P30D';
 
     public function __construct(
         private Connection $connection,
@@ -45,17 +49,23 @@ final readonly class DbalNotificationRetention implements NotificationRetentionI
 
         $deletedNotifications = $this->connection->executeStatement(
             <<<'SQL'
-                DELETE FROM notification
-                WHERE in_app_visible = true
-                  AND (removed_at IS NOT NULL
-                       OR (read_at IS NOT NULL AND read_at < :read_before)
-                       OR (read_at IS NULL AND created_at < :unread_before))
+                DELETE FROM notification n
+                WHERE (n.in_app_visible = false
+                       OR n.removed_at IS NOT NULL
+                       OR (n.read_at IS NOT NULL AND n.read_at < :read_before)
+                       OR (n.read_at IS NULL AND n.created_at < :unread_before))
+                  AND NOT EXISTS (
+                      SELECT 1 FROM notification_delivery d
+                      WHERE d.notification_id = n.id
+                        AND (d.status NOT IN ('sent', 'failed') OR d.status_changed_at >= :delivery_before)
+                  )
                 SQL,
             [
                 'read_before' => $now->sub(new \DateInterval(self::READ_RETENTION)),
                 'unread_before' => $now->sub(new \DateInterval(self::UNREAD_RETENTION)),
+                'delivery_before' => $now->sub(new \DateInterval(self::DELIVERY_RETENTION)),
             ],
-            ['read_before' => Types::DATETIME_IMMUTABLE, 'unread_before' => Types::DATETIME_IMMUTABLE],
+            ['read_before' => Types::DATETIME_IMMUTABLE, 'unread_before' => Types::DATETIME_IMMUTABLE, 'delivery_before' => Types::DATETIME_IMMUTABLE],
         );
 
         $deletedKeys = $this->connection->executeStatement(

@@ -30,6 +30,7 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 | `AggregateDailyAnalyticsMessage` | `async_priority_low` |
 | `CleanUpNotificationsMessage` | `async_priority_low` |
 | `ReconcileNotificationsMessage` | `async_priority_low` |
+| `DeliverNotificationMessage` | `async_priority_low` |
 | `SendEmailMessage` (prod) | `async_mail` |
 
 In `dev`, mail is synchronous. In `test`, most messages use `sync`.

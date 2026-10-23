@@ -12,6 +12,7 @@ use App\Notification\Application\Preference\NotificationChannelResolver;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationChannel;
+use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use Psr\Clock\ClockInterface;
@@ -21,8 +22,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 /**
  * Stores notifications with plain DBAL statements (ADR 016, "Delivery semantics").
  *
- * Per recipient, one transaction claims the deduplication key, inserts the inbox entry and updates
- * the recipient state. Inside an open transaction of the caller it runs as a savepoint. DBAL is used
+ * Per recipient, one transaction claims the deduplication key, inserts the entry (visible in the inbox
+ * if in-app is resolved), one delivery per external channel with its DeliverNotificationMessage, and
+ * updates the recipient state. Messenger stores messages on the same connection, so the entry, its
+ * deliveries and their jobs are committed together. A duplicate creates nothing but resumes the
+ * instance's deliveries that are still pending after a grace period. Inside an open transaction of the caller it runs as a savepoint. DBAL is used
  * instead of the entity manager so that publishing never flushes pending changes of the caller.
  *
  * @psalm-suppress UnusedClass Wired via #[AsAlias] for NotificationPublisherInterface.
@@ -35,6 +39,18 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
      */
     public const string TOAST_WINDOW = 'PT5M';
 
+    /**
+     * Pending deliveries older than this are dispatched again when the same key is published again.
+     */
+    public const string DELIVERY_GRACE_PERIOD = 'PT5M';
+
+    /**
+     * Channels delivered by a job instead of being part of the stored entry.
+     *
+     * @var list<NotificationChannel>
+     */
+    public const array EXTERNAL_CHANNELS = [NotificationChannel::Email];
+
     public function __construct(
         private Connection $connection,
         private NotificationRegistry $registry,
@@ -42,6 +58,7 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
         private NotificationPreferenceStoreInterface $preferences,
         private ClockInterface $clock,
         private LoggerInterface $logger,
+        private NotificationDeliveryQueue $deliveryQueue,
     ) {
     }
 
@@ -86,29 +103,38 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
     {
         $channels = $this->channelResolver->resolve($definition, $this->preferences->overridesFor($recipientId, $definition));
 
-        // Only in-app and toast are resolved until external channels get delivery jobs (step 6 of ADR 016);
-        // NotificationDefinitionValidator keeps them out of default and mandatory channels.
-        if (!$channels->has(NotificationChannel::InApp)) {
+        $inApp = $channels->has(NotificationChannel::InApp);
+        $external = array_values(array_filter(self::EXTERNAL_CHANNELS, $channels->has(...)));
+        if (!$inApp && [] === $external) {
             return;
         }
 
         $now = $this->clock->now();
 
-        $this->connection->transactional(function (Connection $connection) use ($request, $definition, $recipientId, $channels, $now): void {
+        $this->connection->transactional(function (Connection $connection) use ($request, $definition, $recipientId, $channels, $inApp, $external, $now): void {
             $deduplicationId = $this->claimDeduplicationKey($connection, $recipientId, $request->deduplicationKey, $now->add($definition->deduplicationInterval()), $now);
             if (null === $deduplicationId) {
+                // A duplicate never creates anything, but it resumes deliveries that were never handed on.
+                $this->deliveryQueue->redispatchPendingForKey($connection, $recipientId, $request->deduplicationKey, $now->sub(new \DateInterval(self::DELIVERY_GRACE_PERIOD)));
+
                 return;
             }
 
-            $toastPendingUntil = $channels->has(NotificationChannel::Toast) ? $now->add(new \DateInterval(self::TOAST_WINDOW)) : null;
-            $notificationId = $this->insertNotification($connection, $request, $definition, $recipientId, $now, $toastPendingUntil);
+            $toastPendingUntil = $inApp && $channels->has(NotificationChannel::Toast) ? $now->add(new \DateInterval(self::TOAST_WINDOW)) : null;
+            $notificationId = $this->insertNotification($connection, $request, $definition, $recipientId, $now, $inApp, $toastPendingUntil);
 
             $connection->executeStatement(
                 'UPDATE notification_deduplication SET notification_id = :notification WHERE id = :id',
                 ['notification' => $notificationId, 'id' => $deduplicationId],
             );
 
-            $this->bumpRecipientState($connection, $recipientId, $now);
+            foreach ($external as $channel) {
+                $this->deliveryQueue->dispatch($this->insertDelivery($connection, $notificationId, $channel, $now));
+            }
+
+            if ($inApp) {
+                $this->bumpRecipientState($connection, $recipientId, $now);
+            }
         });
     }
 
@@ -144,6 +170,7 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
         NotificationDefinition $definition,
         int $recipientId,
         \DateTimeImmutable $now,
+        bool $inAppVisible,
         ?\DateTimeImmutable $toastPendingUntil,
     ): int {
         return (int) $connection->fetchOne(
@@ -174,7 +201,7 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
                 'scope_reference_id' => $request->scopeReferenceId,
                 'required_role' => $definition->requiredRole,
                 'metadata' => $request->metadata,
-                'in_app_visible' => true,
+                'in_app_visible' => $inAppVisible,
                 'created_at' => $now,
                 'toast_pending_until' => $toastPendingUntil,
             ],
@@ -186,6 +213,19 @@ final readonly class DbalNotificationPublisher implements NotificationPublisherI
                 'created_at' => Types::DATETIME_IMMUTABLE,
                 'toast_pending_until' => Types::DATETIME_IMMUTABLE,
             ],
+        );
+    }
+
+    private function insertDelivery(Connection $connection, int $notificationId, NotificationChannel $channel, \DateTimeImmutable $now): int
+    {
+        return (int) $connection->fetchOne(
+            <<<'SQL'
+                INSERT INTO notification_delivery (notification_id, channel, status, attempt_count, created_at, status_changed_at)
+                VALUES (:notification, :channel, 'pending', 0, :now, :now)
+                RETURNING id
+                SQL,
+            ['notification' => $notificationId, 'channel' => $channel->value, 'now' => $now],
+            ['now' => Types::DATETIME_IMMUTABLE],
         );
     }
 

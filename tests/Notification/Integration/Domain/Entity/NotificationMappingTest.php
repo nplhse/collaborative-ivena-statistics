@@ -11,16 +11,22 @@ use App\Notification\Application\Publishing\NotificationAction;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Entity\Notification;
 use App\Notification\Domain\Entity\NotificationDeduplication;
+use App\Notification\Domain\Entity\NotificationDelivery;
 use App\Notification\Domain\Entity\NotificationRecipientState;
 use App\Notification\Domain\Entity\UserNotificationPreference;
 use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationChannel;
+use App\Notification\Domain\Enum\NotificationDeliveryFailureReason;
+use App\Notification\Domain\Enum\NotificationDeliveryStatus;
 use App\Notification\Domain\Enum\NotificationPreferenceScope;
 use App\Notification\Domain\Enum\NotificationPriority;
+use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
+use App\Notification\Infrastructure\Factory\NotificationFactory;
 use App\Notification\Infrastructure\Preference\DbalNotificationPreferenceStore;
 use App\Notification\Infrastructure\Publishing\DbalNotificationPublisher;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
+use App\Tests\Support\Messenger\RecordingMessageBus;
 use App\Tests\Support\Notification\Type\HospitalScopedTestNotification;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
@@ -47,6 +53,7 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
             new DbalNotificationPreferenceStore(self::getContainer()->get(Connection::class)),
             new MockClock('2026-10-22 12:00:00'),
             new NullLogger(),
+            new NotificationDeliveryQueue(self::getContainer()->get(Connection::class), new RecordingMessageBus()),
         );
         $publisher->publish(new NotificationRequest(
             type: 'test.hospital_scoped',
@@ -163,6 +170,34 @@ final class NotificationMappingTest extends DatabaseKernelTestCase
         self::assertInstanceOf(NotificationRecipientState::class, $loadedState);
         self::assertSame(4, $loadedState->getVersion());
         self::assertSame(2, $loadedState->getUnreadCount());
+    }
+
+    public function testDeliveryRowsAreReadThroughTheEntity(): void
+    {
+        $notification = NotificationFactory::createOne(['inAppVisible' => false]);
+        $connection = self::getContainer()->get(Connection::class);
+        $id = (int) $connection->fetchOne(
+            "INSERT INTO notification_delivery (notification_id, channel, status, attempt_count, reason_code, created_at, status_changed_at) VALUES (?, 'email', 'failed', 2, 'transport_failed', '2026-10-23 07:00:00', '2026-10-23 07:05:00') RETURNING id",
+            [$notification->getId()],
+        );
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->clear();
+
+        $delivery = $entityManager->find(NotificationDelivery::class, $id);
+
+        self::assertInstanceOf(NotificationDelivery::class, $delivery);
+        self::assertSame($id, $delivery->getId());
+        self::assertSame($notification->getId(), $delivery->getNotification()->getId());
+        self::assertSame(NotificationChannel::Email, $delivery->getChannel());
+        self::assertSame(NotificationDeliveryStatus::Failed, $delivery->getStatus());
+        self::assertSame(2, $delivery->getAttemptCount());
+        self::assertSame(NotificationDeliveryFailureReason::TransportFailed, $delivery->getReasonCode());
+        self::assertSame('2026-10-23 07:00:00', $delivery->getCreatedAt()->format('Y-m-d H:i:s'));
+        self::assertSame('2026-10-23 07:05:00', $delivery->getStatusChangedAt()->format('Y-m-d H:i:s'));
+
+        $new = new NotificationDelivery($delivery->getNotification(), NotificationChannel::Email, new \DateTimeImmutable('2026-10-23 08:00:00'));
+        self::assertSame(NotificationDeliveryStatus::Pending, $new->getStatus());
+        self::assertSame($new->getCreatedAt(), $new->getStatusChangedAt());
     }
 
     public function testRemovingTheInboxEntryKeepsTheDeduplicationKey(): void

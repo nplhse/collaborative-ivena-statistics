@@ -36,6 +36,16 @@ final class NotificationRegistry
     }
 
     /**
+     * The notification class of a type, e.g. to hand an instance to Symfony Notifier.
+     *
+     * @return class-string<AppNotification>
+     */
+    public function className(string $type): string
+    {
+        return $this->types[$type] ?? throw UnknownNotificationTypeException::forType($type);
+    }
+
+    /**
      * @return list<NotificationDefinition>
      */
     public function definitions(): array

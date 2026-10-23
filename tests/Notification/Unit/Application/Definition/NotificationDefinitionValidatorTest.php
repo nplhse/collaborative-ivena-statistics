@@ -61,11 +61,6 @@ final class NotificationDefinitionValidatorTest extends TestCase
             'expectedError' => 'mandatoryChannels contains "email", which is not in availableChannels',
             'mandatoryChannels' => [NotificationChannel::Email],
         ];
-        yield 'default not deliverable yet' => [
-            'expectedError' => 'defaultChannels contains "email", which cannot be delivered yet',
-            'defaultChannels' => [NotificationChannel::Email],
-            'availableChannels' => [NotificationChannel::InApp, NotificationChannel::Email],
-        ];
         yield 'toast available without in-app' => [
             'expectedError' => 'toast is available without in_app',
             'defaultChannels' => [],

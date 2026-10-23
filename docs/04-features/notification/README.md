@@ -13,9 +13,9 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | Retention and daily recount | available |
 | Toasts and polling | available |
 | Import notifications incl. batch summary | available |
-| Email delivery | planned (step 6) |
+| Email delivery | available |
 | Preferences (storage and settings page) | available |
-| Monthly reminder migration and its opt-out | planned (step 7b, after step 6) |
+| Monthly reminder migration and its opt-out | planned (step 7b) |
 
 ## Notification types
 
@@ -25,11 +25,21 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
 | `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
-| `participation.activated` | Account | in-app, toast | the activated user | an administrator activates participation |
+| `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
 
 Import types are hospital-scoped (redacted after access is revoked) and link to the import. One run yields at most one import notification (deduplication key `import.run_finished:{runId}`); superseded runs and runs from messages queued before import runs existed yield none.
 
 The first-import milestone is stored in `user_import_milestone` (Import context) in the same transaction as the run's end and is never recorded twice. The migration marks users who already had a successful import, so existing users are not congratulated after the deploy.
+
+## Email delivery
+
+When a type resolves the email channel for a recipient, the publisher stores one row in `notification_delivery` (`pending`) and dispatches `DeliverNotificationMessage` (`async_priority_low`) in the same transaction. Types that resolve only email get an instance outside the inbox (`in_app_visible = false`) and do not touch the badge.
+
+- `DeliverNotificationMessageHandler` locks the delivery (`SELECT … FOR UPDATE`), stops unless it is still `pending`, builds the email and hands it to Symfony Notifier with exactly the email channel. Notifier stores a `SendEmailMessage` on `async_mail`; the delivery becomes `queued` in the same transaction.
+- `NotificationDeliveryStatusSubscriber` sets `sent` when the mail transport accepted the email and `failed` when the email (`transport_failed`) or the delivery job (`delivery_job_failed`) is given up. Recipients without a usable address or with a disabled account fail with `recipient_unavailable`. Failed deliveries are never restarted; they never change the business result.
+- The email is built by `NotificationEmailFactory` in the recipient's locale: by default the generic `@Notification/email/notification.html.twig` with title, message and an absolute link to the entry. A context can give a type its own mail with a `NotificationEmailCustomizerInterface` (e.g. the participation welcome mail in User). The header `X-Notification-Delivery-Id` connects the mail events with the delivery.
+- Publishing the same deduplication key again creates nothing new but dispatches deliveries of that instance that are still `pending` after 5 minutes. The hourly reconciliation dispatches deliveries that are still `pending` after 15 minutes.
+- Local: in `dev`, `DeliverNotificationMessage` and `SendEmailMessage` run synchronously in the request that publishes the notification, so emails reach Mailpit without a worker. Start the app with the Symfony CLI (`symfony serve`, `symfony console`), which provides `MAILER_DSN` for Mailpit; plain `bin/console` uses `null://null` from `.env`. In production both stay asynchronous.
 
 ## Recovery
 
@@ -124,7 +134,7 @@ Hospital access comes from `NotificationHospitalAccessInterface`, implemented in
 
 `CleanUpNotificationsMessage` runs daily at 02:45 (scheduler):
 
-- deletes read entries 30 days after they were read, unread entries 90 days after creation, and removed entries;
+- deletes read entries 30 days after they were read, unread entries 90 days after creation, removed entries and instances without inbox entry, but only when all their deliveries reached `sent` or `failed` at least 30 days ago (removing an entry never cancels its email);
 - deletes expired deduplication keys;
 - recounts `unread_count` per recipient with the visibility rules above and increments `version` where it changed.
 
@@ -164,6 +174,7 @@ The command and its demo types live in `src/DataFixtures/Notification/` and exis
 | `notification` | Inbox entry per recipient (translation keys and parameters, action route, access scope and required role, toast window) |
 | `notification_deduplication` | Duplicate protection per recipient and key, independent of the inbox entry |
 | `notification_recipient_state` | `version` and `unread_count` per recipient for badge and polling |
+| `notification_delivery` | One external delivery (email) per instance and channel with status, attempts and reason code |
 | `user_notification_preference` | Preference overrides only: `(user, scope = category or type, key, channel, enabled)`, unique per user, scope, key and channel; deleted with the user |
 
 The publisher writes these tables with DBAL inside one transaction per recipient (a savepoint when the caller already has a transaction open), so it never flushes pending entity changes of the caller.

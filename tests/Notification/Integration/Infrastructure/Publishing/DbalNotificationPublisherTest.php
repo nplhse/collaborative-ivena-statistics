@@ -6,15 +6,20 @@ namespace App\Tests\Notification\Integration\Infrastructure\Publishing;
 
 use App\Notification\Application\Definition\NotificationRegistry;
 use App\Notification\Application\Definition\UnknownNotificationTypeException;
+use App\Notification\Application\Message\DeliverNotificationMessage;
 use App\Notification\Application\Preference\NotificationChannelResolver;
 use App\Notification\Application\Preference\NotificationPreferenceChange;
 use App\Notification\Application\Publishing\NotificationAction;
 use App\Notification\Application\Publishing\NotificationRequest;
 use App\Notification\Domain\Enum\NotificationChannel;
 use App\Notification\Domain\Enum\NotificationPreferenceScope;
+use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
 use App\Notification\Infrastructure\Preference\DbalNotificationPreferenceStore;
 use App\Notification\Infrastructure\Publishing\DbalNotificationPublisher;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
+use App\Tests\Support\Messenger\RecordingMessageBus;
+use App\Tests\Support\Notification\Type\EmailOnlyTestNotification;
+use App\Tests\Support\Notification\Type\EmailTestNotification;
 use App\Tests\Support\Notification\Type\FixedTestNotification;
 use App\Tests\Support\Notification\Type\HospitalScopedTestNotification;
 use App\Tests\Support\Notification\Type\InAppTestNotification;
@@ -32,6 +37,7 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
     private MockClock $clock;
     private BufferingLogger $logger;
     private DbalNotificationPublisher $publisher;
+    private RecordingMessageBus $bus;
     private DbalNotificationPreferenceStore $preferences;
 
     protected function setUp(): void
@@ -48,12 +54,15 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
                 'test.hospital_scoped' => HospitalScopedTestNotification::class,
                 'test.opt_in' => OptInTestNotification::class,
                 'test.role_scoped' => RoleScopedTestNotification::class,
+                'test.email' => EmailTestNotification::class,
+                'test.email_only' => EmailOnlyTestNotification::class,
                 'test.fixed' => FixedTestNotification::class,
             ]),
             new NotificationChannelResolver(),
             $this->preferences,
             $this->clock,
             $this->logger,
+            new NotificationDeliveryQueue($this->connection, $this->bus = new RecordingMessageBus()),
         );
     }
 
@@ -277,6 +286,53 @@ final class DbalNotificationPublisherTest extends DatabaseKernelTestCase
 
         self::assertSame(0, $this->countNotifications($userId));
         self::assertFalse($this->recipientState($userId));
+    }
+
+    public function testEmailChannelStoresAPendingDeliveryAndQueuesItsJob(): void
+    {
+        $userId = $this->createUserId();
+
+        $this->publisher->publish(new NotificationRequest(type: 'test.email', recipientUserIds: [$userId], deduplicationKey: 'test.email:1'));
+
+        $delivery = $this->connection->fetchAssociative('SELECT d.* FROM notification_delivery d JOIN notification n ON n.id = d.notification_id WHERE n.recipient_id = ?', [$userId]);
+        self::assertIsArray($delivery);
+        self::assertSame(['email', 'pending', 0, null], [$delivery['channel'], $delivery['status'], (int) $delivery['attempt_count'], $delivery['reason_code']]);
+        self::assertEquals([new DeliverNotificationMessage((int) $delivery['id'])], $this->bus->messages);
+        self::assertSame(['version' => 1, 'unread_count' => 1], $this->recipientState($userId), 'the in-app entry counts as usual');
+    }
+
+    public function testEmailOnlyTypeStoresAnInstanceOutsideTheInbox(): void
+    {
+        $userId = $this->createUserId();
+
+        $this->publisher->publish(new NotificationRequest(type: 'test.email_only', recipientUserIds: [$userId], deduplicationKey: 'test.email_only:1'));
+
+        self::assertFalse((bool) $this->connection->fetchOne('SELECT in_app_visible FROM notification WHERE recipient_id = ?', [$userId]));
+        self::assertNull($this->connection->fetchOne('SELECT toast_pending_until FROM notification WHERE recipient_id = ?', [$userId]));
+        self::assertFalse($this->recipientState($userId), 'nothing for the badge');
+        self::assertCount(1, $this->bus->messages);
+    }
+
+    public function testDuplicateResumesDeliveriesThatAreStillPendingAfterTheGracePeriod(): void
+    {
+        $userId = $this->createUserId();
+        $request = new NotificationRequest(type: 'test.email', recipientUserIds: [$userId], deduplicationKey: 'test.email:2');
+
+        $this->publisher->publish($request);
+        $this->clock->modify('+4 minutes');
+        $this->publisher->publish($request);
+        self::assertCount(1, $this->bus->messages, 'within the grace period the first job is still expected to run');
+
+        $this->clock->modify('+2 minutes');
+        $this->publisher->publish($request);
+        self::assertCount(2, $this->bus->messages);
+        self::assertEquals($this->bus->messages[0], $this->bus->messages[1], 'the same delivery is dispatched again');
+        self::assertSame(1, $this->countNotifications($userId));
+
+        $this->connection->executeStatement("UPDATE notification_delivery SET status = 'failed'");
+        $this->clock->modify('+10 minutes');
+        $this->publisher->publish($request);
+        self::assertCount(2, $this->bus->messages, 'failed deliveries are never restarted');
     }
 
     public function testRejectsUnknownType(): void
