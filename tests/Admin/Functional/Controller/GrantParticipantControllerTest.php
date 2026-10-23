@@ -29,7 +29,7 @@ final class GrantParticipantControllerTest extends WebTestCase
         $client = self::createClient();
 
         $admin = UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => 'grant-admin-'.bin2hex(random_bytes(4)),
             ]);
@@ -56,7 +56,7 @@ final class GrantParticipantControllerTest extends WebTestCase
         $client = self::createClient();
 
         $admin = UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => 'grant-admin-idem-'.bin2hex(random_bytes(4)),
             ]);
@@ -81,7 +81,7 @@ final class GrantParticipantControllerTest extends WebTestCase
     public function testInvalidSignedUrlIsRejected(): void
     {
         $admin = UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => 'grant-admin-invalid-'.bin2hex(random_bytes(4)),
             ]);
@@ -99,7 +99,7 @@ final class GrantParticipantControllerTest extends WebTestCase
     public function testExpiredSignedUrlIsRejected(): void
     {
         $admin = UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => 'grant-admin-expired-'.bin2hex(random_bytes(4)),
             ]);

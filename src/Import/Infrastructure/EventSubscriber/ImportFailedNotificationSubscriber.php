@@ -56,7 +56,7 @@ final readonly class ImportFailedNotificationSubscriber
             return;
         }
 
-        $recipientIds = $this->recipients->systemRecipientIds();
+        $recipientIds = $this->recipients->recipientIds();
         if ([] === $recipientIds) {
             return;
         }

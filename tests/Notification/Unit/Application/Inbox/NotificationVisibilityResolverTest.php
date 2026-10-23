@@ -39,7 +39,7 @@ final class NotificationVisibilityResolverTest extends TestCase
             InboxEntries::entry(4, NotificationAccessScope::Hospital, hospitalId: 10),
             InboxEntries::entry(5, NotificationAccessScope::Hospital),
             InboxEntries::entry(6, NotificationAccessScope::Role, role: 'ROLE_PARTICIPANT'),
-            InboxEntries::entry(7, NotificationAccessScope::Role, role: 'ROLE_FEEDBACK_RECIPIENT'),
+            InboxEntries::entry(7, NotificationAccessScope::Role, role: 'ROLE_BOARD_MEMBER'),
             InboxEntries::entry(8, NotificationAccessScope::Role),
         ]);
 

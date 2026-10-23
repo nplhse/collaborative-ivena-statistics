@@ -38,8 +38,11 @@ final class ImportFailedNotificationSubscriberTest extends DatabaseKernelTestCas
 
     public function testFailedRunNotifiesSystemRecipientsOnceWithItsReasonCode(): void
     {
-        $admin = UserFactory::new()->asNotificationRecipient()->create(['email' => 'admin-import@example.test']);
-        $adminWithoutOptIn = UserFactory::new()->asAdmin()->create();
+        $admin = UserFactory::new()->asAdmin()->create(['email' => 'admin-import@example.test']);
+        $adminWhoSwitchedItOff = UserFactory::new()->asAdmin()->create();
+        $preferences = new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class));
+        $preferences->switchOff($adminWhoSwitchedItOff, 'admin.import_failed', 'in_app');
+        $preferences->switchOff($adminWhoSwitchedItOff, 'admin.import_failed', 'email');
         $creator = UserFactory::createOne();
         $importId = $this->createImport($creator, 'Broken allocation import');
 
@@ -64,7 +67,7 @@ final class ImportFailedNotificationSubscriberTest extends DatabaseKernelTestCas
         self::assertSame('high', $rows[0]['priority']);
         self::assertSame('app_import_show', $rows[0]['action_route']);
         self::assertSame(['import.failed'], $this->types($creator), 'the creator only gets the user notification');
-        self::assertSame([], $this->types($adminWithoutOptIn));
+        self::assertSame([], $this->types($adminWhoSwitchedItOff));
 
         $email = $this->emailTo('admin-import@example.test');
         self::assertSame('Import „Broken allocation import“ failed', $email->getSubject());
@@ -77,7 +80,7 @@ final class ImportFailedNotificationSubscriberTest extends DatabaseKernelTestCas
 
     public function testOnlyFailedRunsWithRunIdQualify(): void
     {
-        $admin = UserFactory::new()->asNotificationRecipient()->create();
+        $admin = UserFactory::new()->asAdmin()->create();
         $creator = UserFactory::createOne();
         $importId = $this->createImport($creator, 'Fine import');
         $dispatcher = self::getContainer()->get(EventDispatcherInterface::class);

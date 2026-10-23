@@ -11,34 +11,24 @@ use App\User\Domain\Security\UserRole;
 
 final class AdminNotificationRecipientResolverTest extends DatabaseKernelTestCase
 {
-    public function testResolvesEnabledVerifiedAdminsWithTheOptInRole(): void
+    public function testResolvesEveryEnabledVerifiedAdmin(): void
     {
-        $system = UserFactory::createOne(['roles' => [UserRole::ADMIN, UserRole::RECEIVES_NOTIFICATION]]);
-        $feedback = UserFactory::createOne(['roles' => [UserRole::ADMIN, UserRole::FEEDBACK_RECIPIENT]]);
-        $both = UserFactory::createOne(['roles' => [UserRole::ADMIN, UserRole::RECEIVES_NOTIFICATION, UserRole::FEEDBACK_RECIPIENT]]);
-        UserFactory::createOne(['roles' => [UserRole::ADMIN]]);
-        UserFactory::createOne(['roles' => [UserRole::RECEIVES_NOTIFICATION, UserRole::FEEDBACK_RECIPIENT]]);
-        UserFactory::createOne(['roles' => [UserRole::ADMIN, UserRole::RECEIVES_NOTIFICATION, UserRole::FEEDBACK_RECIPIENT], 'isEnabled' => false]);
-        UserFactory::createOne(['roles' => [UserRole::ADMIN, UserRole::RECEIVES_NOTIFICATION, UserRole::FEEDBACK_RECIPIENT], 'isVerified' => false]);
+        $first = UserFactory::createOne(['roles' => [UserRole::ADMIN]]);
+        $second = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::ADMIN]]);
+        UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+        UserFactory::createOne(['roles' => [UserRole::ADMIN], 'isEnabled' => false]);
+        UserFactory::createOne(['roles' => [UserRole::ADMIN], 'isVerified' => false]);
 
-        $resolver = self::getContainer()->get(AdminNotificationRecipientResolverInterface::class);
+        $ids = self::getContainer()->get(AdminNotificationRecipientResolverInterface::class)->recipientIds();
+        sort($ids);
 
-        $systemIds = $resolver->systemRecipientIds();
-        sort($systemIds);
-        $feedbackIds = $resolver->feedbackRecipientIds();
-        sort($feedbackIds);
-
-        self::assertSame([$system->getId(), $both->getId()], $systemIds);
-        self::assertSame([$feedback->getId(), $both->getId()], $feedbackIds);
+        self::assertSame([$first->getId(), $second->getId()], $ids);
     }
 
     public function testReturnsNothingWithoutAdmins(): void
     {
         UserFactory::createOne(['roles' => [UserRole::USER]]);
 
-        $resolver = self::getContainer()->get(AdminNotificationRecipientResolverInterface::class);
-
-        self::assertSame([], $resolver->systemRecipientIds());
-        self::assertSame([], $resolver->feedbackRecipientIds());
+        self::assertSame([], self::getContainer()->get(AdminNotificationRecipientResolverInterface::class)->recipientIds());
     }
 }

@@ -70,10 +70,9 @@ New registrations, failed imports and feedback reach administrators through the 
 
 | Type | Recipients |
 |------|------------|
-| `admin.user_registered`, `admin.import_failed` | users with `ROLE_ADMIN` and `ROLE_RECEIVES_NOTIFICATION` (EasyAdmin: **Receives notifications**) |
-| `admin.feedback_received` | users with `ROLE_ADMIN` and `ROLE_FEEDBACK_RECIPIENT` (EasyAdmin: **Receives Feedback**) |
+| `admin.user_registered`, `admin.import_failed`, `admin.feedback_received` | users with `ROLE_ADMIN` |
 
-Additional requirements: account enabled, email verified, non-empty email address. Each admin can turn the email or in-app channel off on the settings page *Notifications*.
+Additional requirements: account enabled, email verified, non-empty email address. Each admin chooses per type on the settings page *Notifications* whether to get it by email, in the web inbox, both or not at all. (The former roles *Receives notifications* / *Receives Feedback* were replaced by these settings; admins without them were migrated with the types switched off.)
 
 If no matching user exists, the registration, import or feedback is still stored but nobody is notified.
 
@@ -94,7 +93,7 @@ Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`.
 
 1. Set `MAILER_DSN`, `MAILER_FROM`, and `APP_URL` in server `.env.local`.
 2. Confirm the Messenger worker is active.
-3. Assign **Receives Feedback** to at least one verified admin.
+3. Make sure at least one verified admin has *Feedback received* → E-Mail ticked under Settings → Notifications.
 4. Smoke-test: register a user, request a password reset, grant participant access, submit feedback.
 5. If mail does not arrive, check `messenger:stats`, `messenger:failed:show`, and `journalctl --user -u messenger -f`.
 
@@ -106,7 +105,7 @@ Feedback admin notifications include a short, URL-stripped message preview (max 
 |---------|----------------|
 | No verification / reset / notification mail | `MAILER_DSN` missing or worker not consuming `async_mail` (notification mails also need `async_priority_low`) |
 | Reset link or mail images use `http://localhost` | `APP_URL` unset or wrong; restart worker after change |
-| Feedback saved but no admin email | No user with Admin + Receives Feedback |
+| Feedback saved but no admin email | No verified admin, or the admins switched the feedback email off in their notification settings |
 | Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |
 | `554 5.7.1 Spam message rejected` (or other SMTP 5xx) | Permanent rejection by the MTA (often spammy user content in outbound mail). Message goes to the `failed` transport **without** the usual 5 retries. Do **not** blindly retry; inspect content, delete the failed message, and fix the source (e.g. feedback spam). |
 

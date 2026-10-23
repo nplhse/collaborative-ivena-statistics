@@ -20,27 +20,11 @@ final readonly class AdminNotificationRecipientResolver implements AdminNotifica
     }
 
     #[\Override]
-    public function systemRecipientIds(): array
-    {
-        return $this->idsWithRoles([UserRole::ADMIN, UserRole::RECEIVES_NOTIFICATION]);
-    }
-
-    #[\Override]
-    public function feedbackRecipientIds(): array
-    {
-        return $this->idsWithRoles([UserRole::ADMIN, UserRole::FEEDBACK_RECIPIENT]);
-    }
-
-    /**
-     * @param list<string> $roles
-     *
-     * @return list<int>
-     */
-    private function idsWithRoles(array $roles): array
+    public function recipientIds(): array
     {
         $ids = array_map(
             static fn (User $user): ?int => $user->getId(),
-            $this->userRepository->findEnabledVerifiedUsersWithRoles($roles),
+            $this->userRepository->findEnabledVerifiedUsersWithRoles([UserRole::ADMIN]),
         );
 
         return array_values(array_filter($ids, static fn (?int $id): bool => null !== $id));
