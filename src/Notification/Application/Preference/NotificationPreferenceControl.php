@@ -13,12 +13,14 @@ use App\Notification\Domain\Enum\NotificationPreferenceScope;
 final readonly class NotificationPreferenceControl
 {
     /**
-     * @param bool|null $override  the stored override, null when none is stored
-     * @param bool|null $inherited what applies without an override of this level: for types the
-     *                             category override or else the definition default, for categories
-     *                             the default of all their types; null when those defaults differ
-     * @param bool|null $default   the definition default (types) or the common default of the
-     *                             types (categories); null when those defaults differ
+     * @param bool|null $override    the stored override, null when none is stored
+     * @param bool|null $inherited   what applies without an override of this level: for types the
+     *                               category override or else the definition default, for categories
+     *                               the default of all their types; null when those defaults differ
+     * @param bool|null $default     the definition default (types) or the common default of the
+     *                               types (categories); null when those defaults differ
+     * @param bool      $typesDiffer categories only: the configurable types of this channel are
+     *                               currently not all on or all off
      */
     public function __construct(
         public NotificationPreferenceScope $scope,
@@ -28,6 +30,7 @@ final readonly class NotificationPreferenceControl
         public ?bool $override = null,
         public ?bool $inherited = null,
         public ?bool $default = null,
+        public bool $typesDiffer = false,
     ) {
     }
 
@@ -50,13 +53,13 @@ final readonly class NotificationPreferenceControl
     }
 
     /**
-     * A category without override whose types have different defaults.
+     * A category whose types are currently set differently, shown as a partly ticked checkbox.
      *
      * @psalm-suppress PossiblyUnusedMethod Read by the settings template.
      */
     public function isMixed(): bool
     {
-        return $this->isConfigurable() && null === $this->override && null === $this->inherited;
+        return $this->isConfigurable() && $this->typesDiffer;
     }
 
     /**

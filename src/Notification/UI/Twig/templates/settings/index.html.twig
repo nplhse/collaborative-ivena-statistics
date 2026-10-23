@@ -92,11 +92,6 @@
                                 <p class="text-secondary">{{ 'notification.preferences.empty'|trans({}, 'notification') }}</p>
                             {% endfor %}
 
-                            <div class="form-hint mb-4">
-                                <twig:ux:icon name="tabler:info-circle" class="icon" aria-hidden="true" />
-                                {{ 'notification.preferences.hint'|trans({}, 'notification') }}
-                            </div>
-
                         </div>
                         <div class="card-footer d-flex justify-content-end gap-2">
                             <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>

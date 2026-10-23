@@ -62,9 +62,10 @@ final class NotificationPreferenceSetTest extends TestCase
         self::assertFalse($control->isChecked());
         self::assertFalse($control->isMixed());
 
-        $mixed = new NotificationPreferenceControl(NotificationPreferenceScope::Category, 'imports', NotificationChannel::InApp, NotificationPreferenceControlKind::Configurable);
+        $mixed = new NotificationPreferenceControl(NotificationPreferenceScope::Category, 'imports', NotificationChannel::InApp, NotificationPreferenceControlKind::Configurable, typesDiffer: true);
         self::assertFalse($mixed->isChecked());
         self::assertTrue($mixed->isMixed());
+        self::assertFalse(new NotificationPreferenceControl(NotificationPreferenceScope::Category, 'imports', NotificationChannel::InApp, NotificationPreferenceControlKind::Configurable)->isMixed(), 'differing defaults alone do not make it mixed');
 
         $mandatory = new NotificationPreferenceControl(NotificationPreferenceScope::Type, 'x', NotificationChannel::Email, NotificationPreferenceControlKind::Mandatory);
         self::assertTrue($mandatory->isChecked());

@@ -95,7 +95,8 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertSame('This notification cannot be configured.', trim($crawler->filter('#'.$fixed->attr('aria-describedby'))->text()));
 
         self::assertFalse($this->isChecked($crawler, 'type-test-mandatory_in_app-toast'));
-        self::assertSame('true', $crawler->filter('input[name="'.self::FORM.'[preferences][category-account-toast]"]')->attr('data-follows'));
+        $category = $crawler->filter('input[name="'.self::FORM.'[preferences][category-account-toast]"]');
+        self::assertSame(['category', 'toast', 'notification-preferences#categoryChanged'], [$category->attr('data-notification-preferences-target'), $category->attr('data-channel'), $category->attr('data-action')]);
     }
 
     public function testShowsStoredOverridesAndInheritedValues(): void
@@ -112,8 +113,12 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertFalse($this->isChecked($crawler, 'category-imports-toast'));
         self::assertTrue($this->isChecked($crawler, 'type-import-failed-email'));
         self::assertFalse($this->isChecked($crawler, 'type-import-completed-toast'), 'a type follows the category override');
-        self::assertSame('false', $crawler->filter('input[name="'.self::FORM.'[preferences][type-import-failed-email]"]')->attr('data-follows'));
+        self::assertSame('notification-preferences#typeChanged', $crawler->filter('input[name="'.self::FORM.'[preferences][type-import-failed-email]"]')->attr('data-action'));
         self::assertSelectorExists('#notification-preferences-types-imports.collapse.show', 'categories with type overrides start expanded');
+
+        $mixed = static fn (string $field): ?string => $crawler->filter('input[name="'.self::FORM.'[preferences]['.$field.']"]')->attr('data-mixed');
+        self::assertSame('true', $mixed('category-imports-email'), 'import.failed sends email, import.completed does not: partly on after a reload too');
+        self::assertSame('false', $mixed('category-imports-toast'), 'all toasts of the category are off');
     }
 
     public function testSavingCheckboxesStoresOnlyDifferencesFromTheDefaults(): void
@@ -146,6 +151,39 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
 
         $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
         self::assertTrue($this->isChecked($crawler, 'type-import-completed-email'), 'untouched types follow the category');
+    }
+
+    public function testSwitchingACategoryWithAllItsTypesRemovesTheirOwnSettings(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsRoleUser($client);
+        $userId = $this->id($user);
+        $this->store()->save($userId, [
+            new NotificationPreferenceChange(NotificationPreferenceScope::Type, 'import.failed', NotificationChannel::Email, true),
+        ]);
+
+        // What the page submits after the category checkbox was unticked: every type of the channel is unticked too.
+        $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
+        $form = $crawler->selectButton('Save')->form();
+        $this->checkbox($form, 'category-imports-in_app')->untick();
+        foreach (['import-completed', 'import-failed', 'user-first_import'] as $type) {
+            $this->checkbox($form, 'type-'.$type.'-in_app')->untick();
+        }
+        $this->checkbox($form, 'category-imports-email')->tick();
+        foreach (['import-completed', 'import-failed'] as $type) {
+            $this->checkbox($form, 'type-'.$type.'-email')->tick();
+        }
+        $client->submit($form);
+
+        self::assertResponseRedirects('/settings/notifications');
+        self::assertSame(
+            [
+                ['scope' => 'category', 'preference_key' => 'imports', 'channel' => 'email', 'enabled' => true],
+                ['scope' => 'category', 'preference_key' => 'imports', 'channel' => 'in_app', 'enabled' => false],
+            ],
+            $this->rows($userId),
+            'types that match their category follow it; the former type setting is gone',
+        );
     }
 
     public function testInvalidCsrfTokenChangesNothing(): void

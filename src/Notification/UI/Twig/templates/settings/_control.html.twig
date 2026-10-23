@@ -9,8 +9,8 @@
             'data-testid': 'preference-' ~ control.fieldName,
             'data-notification-preferences-target': control.scope.value == 'category' ? 'category' : 'type',
             'data-channel': control.channel.value,
+            'data-row': control.scope.value ~ '-' ~ control.key,
             'data-mixed': control.mixed ? 'true' : 'false',
-            'data-follows': control.override is null ? 'true' : 'false',
             'data-action': control.scope.value == 'category' ? 'notification-preferences#categoryChanged' : 'notification-preferences#typeChanged',
         }}) }}
     </label>

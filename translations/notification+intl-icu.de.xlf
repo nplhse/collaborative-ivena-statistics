@@ -297,17 +297,13 @@
         <source>notification.preferences.unavailable</source>
         <target>Nicht verfügbar</target>
       </trans-unit>
-      <trans-unit id="NtfF6310304" resname="notification.preferences.hint">
-        <source>notification.preferences.hint</source>
-        <target>Einzeln geänderte Benachrichtigungen behalten ihre Einstellung, wenn Sie die Kategorie ändern. Toasts erscheinen nur zusammen mit In-App-Benachrichtigungen.</target>
-      </trans-unit>
       <trans-unit id="Ntf4F8A970F" resname="notification.preferences.empty">
         <source>notification.preferences.empty</source>
         <target>Für Ihr Konto gibt es keine einstellbaren Benachrichtigungen.</target>
       </trans-unit>
       <trans-unit id="Ntf7263502F" resname="notification.channel.in_app">
         <source>notification.channel.in_app</source>
-        <target>In-App</target>
+        <target>Web</target>
       </trans-unit>
       <trans-unit id="Ntf5BFDF5D2" resname="notification.channel.email">
         <source>notification.channel.email</source>
