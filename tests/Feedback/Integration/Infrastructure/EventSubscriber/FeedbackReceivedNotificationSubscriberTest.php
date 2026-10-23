@@ -21,8 +21,11 @@ final class FeedbackReceivedNotificationSubscriberTest extends DatabaseKernelTes
 {
     public function testFeedbackNotifiesEachFeedbackRecipientOnce(): void
     {
-        $recipient = UserFactory::new()->asFeedbackRecipient()->create(['email' => 'admin-feedback@example.test']);
-        $systemRecipient = UserFactory::new()->asNotificationRecipient()->create();
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-feedback@example.test']);
+        $systemRecipient = UserFactory::new()->asAdmin()->create();
+        $preferences = new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class));
+        $preferences->switchOff($systemRecipient, 'admin.feedback_received', 'in_app');
+        $preferences->switchOff($systemRecipient, 'admin.feedback_received', 'email');
         $sender = UserFactory::createOne(['username' => 'feedback-sender', 'email' => 'feedback-sender@example.test']);
 
         $this->record($sender, FeedbackCategory::BUG, "The chart is broken.\nSee https://spam.example.test/x for details.");
@@ -58,7 +61,7 @@ final class FeedbackReceivedNotificationSubscriberTest extends DatabaseKernelTes
 
     public function testGuestFeedbackNamesNoSender(): void
     {
-        $recipient = UserFactory::new()->asFeedbackRecipient()->create(['email' => 'admin-guest@example.test']);
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-guest@example.test']);
 
         $this->record(null, FeedbackCategory::QUESTION, 'How do I import?');
 
@@ -73,7 +76,7 @@ final class FeedbackReceivedNotificationSubscriberTest extends DatabaseKernelTes
 
     public function testMailFallsBackToTheGenericEmailWhenTheFeedbackIsGone(): void
     {
-        $recipient = UserFactory::new()->asFeedbackRecipient()->create(['email' => 'admin-gone@example.test']);
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-gone@example.test']);
 
         self::getContainer()->get(NotificationPublisherInterface::class)->publish(new NotificationRequest(
             type: 'admin.feedback_received',
@@ -88,7 +91,7 @@ final class FeedbackReceivedNotificationSubscriberTest extends DatabaseKernelTes
 
     public function testNoRecipientsOrUnknownFeedbackMeansNoNotification(): void
     {
-        UserFactory::new()->asAdmin()->create();
+        UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
 
         $this->record(null, FeedbackCategory::OTHER, 'Hello');
         self::getContainer()->get(EventDispatcherInterface::class)->dispatch(new FeedbackReceived(999999));

@@ -35,7 +35,7 @@ final readonly class FeedbackReceivedNotificationSubscriber
             return;
         }
 
-        $recipientIds = $this->recipients->feedbackRecipientIds();
+        $recipientIds = $this->recipients->recipientIds();
         if ([] === $recipientIds) {
             return;
         }

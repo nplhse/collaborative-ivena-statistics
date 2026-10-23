@@ -70,8 +70,9 @@ final class ImportBatchSummaryTest extends DatabaseKernelTestCase
         $context = $this->start($third);
         self::assertTrue($this->lifecycle->fail($context, ImportRunReasonCode::NoRows));
 
-        self::assertSame(['import.batch_finished'], $this->types($admin));
-        $row = $this->connection->fetchAssociative('SELECT parameters, action_route, action_parameters, access_scope, required_role FROM notification WHERE recipient_id = ?', [$admin->getId()]);
+        // The initiator gets one summary; as an admin they also get the failed run like every admin.
+        self::assertSame(['admin.import_failed', 'import.batch_finished'], $this->types($admin));
+        $row = $this->connection->fetchAssociative("SELECT parameters, action_route, action_parameters, access_scope, required_role FROM notification WHERE recipient_id = ? AND type = 'import.batch_finished'", [$admin->getId()]);
         self::assertIsArray($row);
         self::assertSame(
             ['batchId' => $batch->getId(), 'total' => 3, 'completed' => 1, 'partial' => 1, 'failed' => 1, 'superseded' => 0],
@@ -87,7 +88,7 @@ final class ImportBatchSummaryTest extends DatabaseKernelTestCase
         self::assertNotNull($this->connection->fetchOne('SELECT processing_finished_at FROM import_batch_run WHERE id = ?', [$batch->getId()]));
 
         self::assertFalse($this->completion->complete((int) $batch->getId()), 'a finished batch is not finished again');
-        self::assertCount(1, $this->types($admin));
+        self::assertSame(['admin.import_failed', 'import.batch_finished'], $this->types($admin), 'still one summary');
     }
 
     public function testBatchWhoseItemsFinishedDuringDispatchCompletesWhenTheDispatchCloses(): void

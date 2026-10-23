@@ -130,7 +130,7 @@ final class RegistrationControllerTest extends WebTestCase
         $suffix = bin2hex(random_bytes(4));
         $recipientEmail = sprintf('admin-notify-%s@example.test', $suffix);
         UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => sprintf('admin-notify-%s', $suffix),
                 'email' => $recipientEmail,

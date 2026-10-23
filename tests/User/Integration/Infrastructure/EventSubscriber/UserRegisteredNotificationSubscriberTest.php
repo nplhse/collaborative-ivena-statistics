@@ -18,10 +18,13 @@ final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestC
 {
     public function testRegistrationNotifiesEachSystemRecipientOnce(): void
     {
-        $recipient = UserFactory::new()->asNotificationRecipient()->create(['email' => 'admin-notify@example.test']);
-        $otherRecipient = UserFactory::new()->asNotificationRecipient()->create();
-        $adminWithoutOptIn = UserFactory::new()->asAdmin()->create();
-        $disabledRecipient = UserFactory::new()->asNotificationRecipient()->create(['isEnabled' => false]);
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-notify@example.test']);
+        $otherRecipient = UserFactory::new()->asAdmin()->create();
+        $adminWhoSwitchedItOff = UserFactory::new()->asAdmin()->create();
+        $preferences = new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class));
+        $preferences->switchOff($adminWhoSwitchedItOff, 'admin.user_registered', 'in_app');
+        $preferences->switchOff($adminWhoSwitchedItOff, 'admin.user_registered', 'email');
+        $disabledRecipient = UserFactory::new()->asAdmin()->create(['isEnabled' => false]);
         $user = UserFactory::createOne(['username' => 'notify-me', 'email' => 'notify-me@example.test']);
 
         $this->dispatch((int) $user->getId());
@@ -39,7 +42,7 @@ final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestC
             self::assertSame(['userId' => $user->getId(), 'username' => 'notify-me'], json_decode((string) $rows[0]['parameters'], true), 'no email address is stored');
         }
 
-        foreach ([$adminWithoutOptIn, $disabledRecipient, $user] as $other) {
+        foreach ([$adminWhoSwitchedItOff, $disabledRecipient, $user] as $other) {
             self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ?', [$other->getId()]));
         }
 
@@ -56,7 +59,7 @@ final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestC
 
     public function testMailFallsBackToTheGenericEmailWhenTheUserIsGone(): void
     {
-        $recipient = UserFactory::new()->asNotificationRecipient()->create(['email' => 'admin-fallback@example.test']);
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-fallback@example.test']);
 
         self::getContainer()->get(NotificationPublisherInterface::class)->publish(new NotificationRequest(
             type: 'admin.user_registered',
@@ -72,7 +75,7 @@ final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestC
 
     public function testNoRecipientsMeansNoNotification(): void
     {
-        UserFactory::new()->asAdmin()->create();
+        UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
         $user = UserFactory::createOne();
 
         $this->dispatch((int) $user->getId());

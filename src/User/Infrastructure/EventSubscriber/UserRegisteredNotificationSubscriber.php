@@ -36,7 +36,7 @@ final readonly class UserRegisteredNotificationSubscriber
             return;
         }
 
-        $recipientIds = $this->recipients->systemRecipientIds();
+        $recipientIds = $this->recipients->recipientIds();
         if ([] === $recipientIds) {
             return;
         }

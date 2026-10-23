@@ -30,7 +30,7 @@ final class OnboardingHappyPathTest extends WebTestCase
         $password = 'super-secret-password';
 
         $admin = UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => sprintf('onboarding-admin-%s', $suffix),
             ]);

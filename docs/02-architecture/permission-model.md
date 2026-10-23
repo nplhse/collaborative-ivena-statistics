@@ -12,10 +12,8 @@ Defined in `src/User/Domain/Security/UserRole.php`:
 |------|---------|
 | `ROLE_USER` | Base access; public statistics (`/statistics`) |
 | `ROLE_PARTICIPANT` | Hospital participant; `/hospitals`, `/explore` (allocation list/detail) |
-| `ROLE_ADMIN` | EasyAdmin back office, impersonation |
+| `ROLE_ADMIN` | EasyAdmin back office, impersonation; receives the admin notifications (`admin.*`), each admin chooses them on the notification settings page |
 | `ROLE_REVIEW_INDICATIONS` | Indication raw review worklist |
-| `ROLE_FEEDBACK_RECIPIENT` | Receives `admin.feedback_received` notifications (with `ROLE_ADMIN`) |
-| `ROLE_RECEIVES_NOTIFICATION` | Receives `admin.user_registered` and `admin.import_failed` notifications (with `ROLE_ADMIN`) |
 | `ROLE_CLOSURE_BETA` | Opt-in beta switch for closure-list imports and Closure Analytics. Not part of the role hierarchy, so `ROLE_ADMIN` does not grant it. Assign it on the user in EasyAdmin. It is not a public role. |
 
 `ROLE_ADMIN` inherits `ROLE_PARTICIPANT` and `ROLE_REVIEW_INDICATIONS` only. `ROLE_CLOSURE_BETA` stays explicit so production users and the first testers stay separate.

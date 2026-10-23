@@ -254,8 +254,6 @@ final class UserCrudController extends AbstractCrudController
                 'Participant' => UserRole::PARTICIPANT,
                 'Board Member' => UserRole::BOARD_MEMBER,
                 'User' => UserRole::USER,
-                'Receives Feedback' => UserRole::FEEDBACK_RECIPIENT,
-                'Receives notifications' => UserRole::RECEIVES_NOTIFICATION,
                 'Reviews indications' => UserRole::REVIEW_INDICATIONS,
                 'Closure beta' => UserRole::CLOSURE_BETA,
             ])
@@ -265,8 +263,6 @@ final class UserCrudController extends AbstractCrudController
                 UserRole::PARTICIPANT => 'warning',
                 UserRole::BOARD_MEMBER => 'info',
                 UserRole::USER => 'primary',
-                UserRole::FEEDBACK_RECIPIENT => 'success',
-                UserRole::RECEIVES_NOTIFICATION => 'info',
                 UserRole::REVIEW_INDICATIONS => 'secondary',
                 UserRole::CLOSURE_BETA => 'dark',
             ]);
