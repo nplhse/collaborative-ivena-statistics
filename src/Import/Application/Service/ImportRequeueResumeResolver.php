@@ -34,6 +34,10 @@ final class ImportRequeueResumeResolver
             ImportBatchRunItemStatus::Interrupted,
             ImportBatchRunItemStatus::DispatchFailed => $this->sliceForRetry($imports, $lastItem, $maxRetriesPerImport),
             ImportBatchRunItemStatus::Queued,
+            ImportBatchRunItemStatus::Completed,
+            ImportBatchRunItemStatus::Partial,
+            ImportBatchRunItemStatus::Failed,
+            ImportBatchRunItemStatus::Superseded,
             ImportBatchRunItemStatus::Skipped => $this->sliceAfterImport($imports, $lastItem->getImportId()),
             ImportBatchRunItemStatus::Pending => $this->sliceFromImport($imports, $lastItem->getImportId()),
         };
@@ -46,6 +50,10 @@ final class ImportRequeueResumeResolver
             ImportBatchRunItemStatus::Interrupted,
             ImportBatchRunItemStatus::DispatchFailed => $this->resolveRetryImportId($lastItem, $maxRetriesPerImport),
             ImportBatchRunItemStatus::Queued,
+            ImportBatchRunItemStatus::Completed,
+            ImportBatchRunItemStatus::Partial,
+            ImportBatchRunItemStatus::Failed,
+            ImportBatchRunItemStatus::Superseded,
             ImportBatchRunItemStatus::Skipped => $lastItem->getImportId(),
             ImportBatchRunItemStatus::Pending => $lastItem->getImportId(),
         };

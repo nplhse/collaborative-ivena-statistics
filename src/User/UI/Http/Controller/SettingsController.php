@@ -13,7 +13,6 @@ use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Form\ForceChangePasswordType;
 use App\User\UI\Form\SettingsEmailType;
 use App\User\UI\Form\SettingsLocaleType;
-use App\User\UI\Form\SettingsNotificationsType;
 use App\User\UI\Form\SettingsPasswordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -196,38 +195,6 @@ final class SettingsController extends AbstractController
 
         return $this->render('@User/settings/password.html.twig', [
             'passwordForm' => $form,
-        ]);
-    }
-
-    #[Route('/settings/notifications', name: 'app_settings_notifications')]
-    public function notifications(Request $request): Response
-    {
-        $user = $this->requireUser();
-
-        $form = $this->createForm(SettingsNotificationsType::class, [
-            'receivesMonthlySubmissionReminder' => $user->receivesMonthlySubmissionReminder(),
-        ]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @var array{receivesMonthlySubmissionReminder?: bool} $data */
-            $data = $form->getData();
-
-            $user->setReceivesMonthlySubmissionReminder($data['receivesMonthlySubmissionReminder'] ?? false);
-            $this->auditContext->beginIntent('user.settings.notifications_updated', []);
-            try {
-                $this->entityManager->flush();
-            } finally {
-                $this->auditContext->endIntent();
-            }
-
-            $this->addFlash('success', new TranslatableMessage('flash.settings.notifications.updated', domain: 'user'));
-
-            return $this->redirectToRoute('app_settings_notifications');
-        }
-
-        return $this->render('@User/settings/notifications.html.twig', [
-            'notificationsForm' => $form,
         ]);
     }
 

@@ -11,6 +11,15 @@ use Sentry\Event;
  */
 final readonly class SentryBeforeSendCallback
 {
+    /**
+     * Frequent background requests that would only add noise and cost (ADR 016, notification polling).
+     *
+     * @var list<string>
+     */
+    private const array UNTRACED_TRANSACTIONS = [
+        'GET app_notification_poll',
+    ];
+
     public function __construct(
         private SentryEventScrubber $scrubber,
         private SentryLogScrubber $logScrubber,
@@ -33,6 +42,10 @@ final readonly class SentryBeforeSendCallback
         return function (?Event $event): ?Event {
             if (!$event instanceof Event) {
                 return $event;
+            }
+
+            if (\in_array($event->getTransaction(), self::UNTRACED_TRANSACTIONS, true)) {
+                return null;
             }
 
             return $this->scrubber->scrubEvent($event);

@@ -11,9 +11,12 @@ use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use App\Engagement\Application\MessageHandler\SendMonthlySubmissionRemindersMessageHandler;
+use App\Engagement\Application\MonthlyReminderNotificationType;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
+use App\Tests\Support\Notification\NotificationPreferenceTestState;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\Lock\LockFactory;
 
 final class SendMonthlySubmissionRemindersMessageHandlerTest extends DatabaseKernelTestCase
@@ -42,7 +45,6 @@ final class SendMonthlySubmissionRemindersMessageHandlerTest extends DatabaseKer
         $eligibleOwner = UserFactory::createOne([
             'email' => sprintf('batch-skip-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
         ]);
         $state = StateFactory::createOne();
         $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);
@@ -72,12 +74,12 @@ final class SendMonthlySubmissionRemindersMessageHandlerTest extends DatabaseKer
         $optedOutOwner = UserFactory::createOne([
             'email' => sprintf('batch-skipped-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => false,
         ]);
+        new NotificationPreferenceTestState(self::getContainer()->get(Connection::class))
+            ->switchOff($optedOutOwner, MonthlyReminderNotificationType::TYPE);
         $eligibleOwner = UserFactory::createOne([
             'email' => sprintf('batch-sent-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
         ]);
         $state = StateFactory::createOne();
         $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);

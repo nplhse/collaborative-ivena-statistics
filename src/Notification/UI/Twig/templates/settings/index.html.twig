@@ -1,0 +1,106 @@
+{% extends '@Shared/_layout_vertical.html.twig' %}
+
+{% block title %}{{ 'title.settings.notifications'|trans({}, 'user') }} - {{ parent() }}{% endblock %}
+
+{% block page_header %}
+    <div class="container-xl">
+        <twig:Breadcrumbs
+            :items="[
+                { label: 'title.settings', path: path('app_settings_index') },
+                { label: 'title.settings.notifications' },
+            ]"
+        />
+        <div class="page-header d-print-none">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">{{ 'title.settings.notifications'|trans({}, 'user') }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_body %}
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="row g-0">
+                    {{ include('@User/settings/_sidebar.html.twig', {active: 'notifications'}) }}
+                    <div class="col-12 col-md-9">
+                        {{ form_start(form) }}
+                        <div class="card-header">
+                            <h3 class="card-title">{{ 'title.settings.notifications'|trans({}, 'user') }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-secondary">{{ 'notification.preferences.intro'|trans({}, 'notification') }}</p>
+
+                            {% for category in matrix.categories %}
+                                {% set categoryLabel = ('notification.category.' ~ category.category.value)|trans({}, 'notification') %}
+                                {% set typesId = 'notification-preferences-types-' ~ category.category.value %}
+                                {% set hasTypeOverrides = category.types|filter(type => type.controls|filter(control => control.override is not null)|length > 0)|length > 0 %}
+                                <div class="table-responsive mb-4" data-testid="preference-category-{{ category.category.value }}" data-controller="notification-preferences">
+                                    <table class="table table-vcenter table-sm mb-0 notification-preferences">
+                                        <colgroup>
+                                            <col>
+                                            {% for channel in matrix.channels %}
+                                                <col style="width: 7rem">
+                                            {% endfor %}
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">{{ categoryLabel }}</th>
+                                                {% for channel in matrix.channels %}
+                                                    <th scope="col" class="text-center">{{ ('notification.channel.' ~ channel.value)|trans({}, 'notification') }}</th>
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row" class="fw-medium">
+                                                    {{ 'notification.preferences.category_row'|trans({}, 'notification') }}
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-link btn-sm px-0 d-flex align-items-center gap-1{{ hasTypeOverrides ? '' : ' collapsed' }}"
+                                                        data-bs-toggle="collapse"
+                                                        data-bs-target="#{{ typesId }}"
+                                                        aria-expanded="{{ hasTypeOverrides ? 'true' : 'false' }}"
+                                                        aria-controls="{{ typesId }}"
+                                                    >
+                                                        <twig:ux:icon name="tabler:chevron-down" class="icon" aria-hidden="true" />
+                                                        {{ 'notification.preferences.types_toggle'|trans({count: category.types|length}, 'notification') }}
+                                                    </button>
+                                                </th>
+                                                {% for channel in matrix.channels %}
+                                                    <td class="text-center">{{ include('@Notification/settings/_control.html.twig', {control: category.controls[channel.value], subject: categoryLabel}) }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                        </tbody>
+                                        <tbody id="{{ typesId }}" class="collapse{{ hasTypeOverrides ? ' show' : '' }}">
+                                            {% for type in category.types %}
+                                                {% set typeLabel = type.definition.labelKey|trans({}, type.definition.translationDomain) %}
+                                                <tr data-testid="preference-type-{{ type.definition.type }}">
+                                                    <th scope="row" class="fw-normal ps-4">{{ typeLabel }}</th>
+                                                    {% for channel in matrix.channels %}
+                                                        <td class="text-center">{{ include('@Notification/settings/_control.html.twig', {control: type.controls[channel.value], subject: typeLabel}) }}</td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-secondary">{{ 'notification.preferences.empty'|trans({}, 'notification') }}</p>
+                            {% endfor %}
+
+                        </div>
+                        <div class="card-footer d-flex justify-content-end gap-2">
+                            <a class="btn btn-link" href="{{ path('app_settings_index') }}">{{ 'action.cancel'|trans({}, 'messages') }}</a>
+                            <button class="btn btn-primary">{{ 'label.btn.save'|trans({}, 'messages') }}</button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

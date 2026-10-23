@@ -10,6 +10,7 @@ use App\Import\Application\ImportDispatchExitCode;
 use App\Import\Application\Service\ImportRequeueBatchOrchestrator;
 use App\Import\Application\Service\ImportRequeueRunControl;
 use App\Import\UI\Console\Input\ImportRequeueInput;
+use App\Import\UI\Console\NotifyUserResolver;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -25,6 +26,7 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
 
     public function __construct(
         private readonly ImportRequeueBatchOrchestrator $orchestrator,
+        private readonly NotifyUserResolver $notifyUserResolver,
     ) {
     }
 
@@ -53,6 +55,14 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
         SymfonyStyle $io,
         #[MapInput] ImportRequeueInput $input,
     ): int {
+        try {
+            $initiatedByUserId = $this->notifyUserResolver->resolve($input->notifyUser);
+        } catch (\InvalidArgumentException $e) {
+            $io->error($e->getMessage());
+
+            return ImportDispatchExitCode::CRITICAL;
+        }
+
         $options = new ImportRequeueBatchOptions(
             dryRun: $input->dryRun,
             fromId: $input->fromId,
@@ -62,6 +72,7 @@ final class RequeueAllImportsCommand implements SignalableCommandInterface
             resume: $input->resume,
             runId: $input->runId,
             maxRetriesPerImport: $input->maxRetriesPerImport,
+            initiatedByUserId: $initiatedByUserId,
         );
 
         $this->runControl = new ImportRequeueRunControl();

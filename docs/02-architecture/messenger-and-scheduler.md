@@ -11,7 +11,7 @@ Configured in `config/packages/messenger.yaml`:
 | Transport | Purpose |
 |-----------|---------|
 | `async_priority_high` | Import processing |
-| `async_priority_low` | Statistics rebuild, KPI aggregation, analytics aggregation |
+| `async_priority_low` | Statistics rebuild, KPI aggregation, analytics aggregation, notification retention and reconciliation |
 | `async_mail` | Transactional and bulk mail (rate-limited) |
 | `scheduler_default` | Symfony Scheduler messages |
 | `failed` | Failed message store |
@@ -28,6 +28,9 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 | `GenerateDailyKpisMessage` | `async_priority_low` |
 | `SendMonthlySubmissionRemindersMessage` | `async_priority_low` |
 | `AggregateDailyAnalyticsMessage` | `async_priority_low` |
+| `CleanUpNotificationsMessage` | `async_priority_low` |
+| `ReconcileNotificationsMessage` | `async_priority_low` |
+| `DeliverNotificationMessage` | `async_priority_low` |
 | `SendEmailMessage` (prod) | `async_mail` |
 
 In `dev`, mail is synchronous. In `test`, most messages use `sync`.
@@ -41,6 +44,8 @@ In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 | `0 */6 * * *` (every 6 hours) | `GenerateDailyKpisMessage` |
 | `0 8 * * *` (daily 08:00 Europe/Berlin) | `SendMonthlySubmissionRemindersMessage` |
 | `15 2 * * *` (daily 02:15 Europe/Berlin) | `AggregateDailyAnalyticsMessage` |
+| `45 2 * * *` (daily 02:45 Europe/Berlin) | `CleanUpNotificationsMessage` |
+| `17 * * * *` (hourly) | `ReconcileNotificationsMessage` |
 
 The scheduler requires a running worker consuming `scheduler_default`. Locally: `make consume`.
 

@@ -46,7 +46,7 @@ Self-benchmark compares `period=all` (primary) to `all_time` (comparison). Publi
 2. **Sync path** only runs metrics + slice (plus `transport_type` buckets in `OverviewSliceQuery`; charts no longer need `BenchmarkReport`). The isochrone origin heatmap is a separate lazy Turbo-Frame (`GET /statistics/widgets/isochrone-origin-map`) and is not part of the sync query budget.
 3. **Slim overview aggregation** `BenchmarkAggregationProvider::aggregateForOverview` — reduced core counters + `indication` distribution only (full provider unchanged for `/statistics/benchmarking`).
 
-Sync query budget: `tests/Statistics/Functional/Controller/OverviewDashboardQueryCountTest.php` (max 30 queries; asserts no self-benchmark SQL on sync).
+Sync query budget: `tests/Statistics/Functional/Controller/OverviewDashboardQueryCountTest.php` (max 31 queries, including the header notification badge lookup from ADR 016; asserts no self-benchmark SQL on sync).
 
 ## Follow-up ideas
 

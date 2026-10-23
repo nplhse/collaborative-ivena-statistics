@@ -2076,3 +2076,84 @@ header.navbar .navbar-nav.flex-row .dropdown-menu {
     flex: 0 0 auto;
     white-space: nowrap;
 }
+
+/* Notification dropdown (ADR 016): hover actions stay reachable for keyboard users. */
+.list-group-hoverable .list-group-item-actions:focus-visible {
+    opacity: 1;
+}
+
+/* Notification bell: the unread dot sits on the icon's top right corner, not on the wider nav link. */
+.notification-bell-icon {
+    position: relative;
+    display: inline-flex;
+}
+
+.navbar .navbar-nav .nav-link .notification-bell-icon .badge:empty {
+    top: 0;
+    inset-inline-end: 0;
+}
+
+/* Notification dropdown: Tabler strips the card's own frame only for a direct child of the menu; here the
+   lazily loaded turbo-frame sits in between, so the card would draw a second border and shadow. */
+.dropdown-menu.notification-dropdown-menu > turbo-frame > .card {
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+}
+
+/* Notification dropdown: a fixed width; titles and messages wrap in full instead of widening the menu. */
+.dropdown-menu.notification-dropdown-menu {
+    width: 24rem;
+    max-width: calc(100vw - 1rem);
+}
+
+.notification-dropdown-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+
+/* Notification dropdown on phones: full width below the navbar instead of overflowing the left edge. */
+@media (max-width: 575.98px) {
+    header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu {
+        position: fixed;
+        top: 3.5rem;
+        inset-inline: 0.5rem;
+        width: auto;
+        min-width: 0;
+    }
+
+    header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu.dropdown-menu-arrow::before,
+    header.navbar .navbar-nav.flex-row .dropdown-menu.notification-dropdown-menu.dropdown-menu-arrow::after {
+        display: none;
+    }
+}
+
+/* Notification preferences: the chevron of the type toggle points up while the types are shown. */
+.notification-preferences [data-bs-toggle='collapse'] .icon {
+    transition: transform 0.15s ease-in-out;
+}
+
+.notification-preferences [data-bs-toggle='collapse']:not(.collapsed) .icon {
+    transform: rotate(180deg);
+}
+
+/* Notification preferences on narrow screens: keep the names readable; the table scrolls sideways. */
+.notification-preferences th[scope='row'] {
+    min-width: 13rem;
+}
+
+/* Notification preferences: checkboxes sit exactly in the middle of their cell, like the "–" of channels a type does not offer. */
+.notification-preferences td .form-check {
+    display: inline-flex;
+    justify-content: center;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.notification-preferences td .form-check .form-check-input {
+    float: none;
+    margin: 0;
+}

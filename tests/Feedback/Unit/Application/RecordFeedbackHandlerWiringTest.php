@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Feedback\Unit\Application;
 
-use App\Feedback\Application\Contract\AdminFeedbackNotifierInterface;
 use App\Feedback\Application\RecordFeedbackHandler;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final class RecordFeedbackHandlerWiringTest extends TestCase
 {
-    public function testHandlerUsesAdminFeedbackNotifierNotMailerInterface(): void
+    public function testHandlerDispatchesAnEventInsteadOfMailingAdmins(): void
     {
         $constructor = new \ReflectionClass(RecordFeedbackHandler::class)->getConstructor();
         self::assertNotNull($constructor);
@@ -23,7 +23,7 @@ final class RecordFeedbackHandlerWiringTest extends TestCase
             $constructor->getParameters(),
         );
 
-        self::assertContains(AdminFeedbackNotifierInterface::class, $parameterTypes);
+        self::assertContains(EventDispatcherInterface::class, $parameterTypes);
         self::assertNotContains(MailerInterface::class, $parameterTypes);
     }
 }

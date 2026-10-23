@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\Adapter;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
+use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportReject;
 use App\Import\Infrastructure\ReadOnlyAssociationReferencer;
@@ -20,6 +21,7 @@ final class DoctrineRejectWriter implements RejectWriterInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ReadOnlyAssociationReferencer $referencer,
+        private readonly ImportRunCommitGuard $commitGuard,
     ) {
     }
 
@@ -67,7 +69,7 @@ final class DoctrineRejectWriter implements RejectWriterInterface
     #[\Override]
     public function close(): void
     {
-        $this->em->flush();
+        $this->commitGuard->flush($this->em);
     }
 
     #[\Override]

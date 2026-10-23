@@ -37,6 +37,14 @@ class ImportBatchRun
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /** All items were dispatched (set together with the status Finished). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $dispatchClosedAt = null;
+
+    /** All dispatched items reached a terminal state; the summary was published (ADR 016). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $processingFinishedAt = null;
+
     /** @var Collection<int, ImportBatchRunItem> */
     #[ORM\OneToMany(targetEntity: ImportBatchRunItem::class, mappedBy: 'run', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['id' => 'ASC'])]
@@ -99,6 +107,28 @@ class ImportBatchRun
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getDispatchClosedAt(): ?\DateTimeImmutable
+    {
+        return $this->dispatchClosedAt;
+    }
+
+    /**
+     * Ends the dispatch phase: every item was handed to the queue or failed to be dispatched.
+     */
+    public function closeDispatch(\DateTimeImmutable $at): self
+    {
+        $this->status = ImportBatchRunStatus::Finished;
+        $this->finishedAt = $at;
+        $this->dispatchClosedAt = $at;
+
+        return $this;
+    }
+
+    public function getProcessingFinishedAt(): ?\DateTimeImmutable
+    {
+        return $this->processingFinishedAt;
     }
 
     /** @return Collection<int, ImportBatchRunItem> */

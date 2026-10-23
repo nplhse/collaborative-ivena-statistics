@@ -28,8 +28,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -70,7 +72,13 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
             new TranslatableMessage('admin.hospital.action.send_reminder', domain: 'admin'),
             'fas fa-envelope',
         )
-            ->linkToCrudAction('sendMonthlyReminder')
+            // A new request id per rendered action: a repeated submission of the same action sends nothing new.
+            ->linkToUrl(fn (MonthlyReminderDispatch $dispatch): string => $this->adminUrlGenerator
+                ->setController(self::class)
+                ->setAction('sendMonthlyReminder')
+                ->setEntityId($dispatch->getId())
+                ->set('requestId', Uuid::v4()->toRfc4122())
+                ->generateUrl())
             ->displayIf(static function (MonthlyReminderDispatch $dispatch): bool {
                 $hospital = $dispatch->getHospital();
 
@@ -89,9 +97,12 @@ final class MonthlyReminderDispatchCrudController extends AbstractCrudController
     public function sendMonthlyReminder(
         #[MapEntity(id: 'entityId')] MonthlyReminderDispatch $dispatch,
         MonthlyReminderSender $monthlyReminderSender,
+        Request $request,
     ): RedirectResponse {
+        $requestId = $request->query->getString('requestId');
+        $requestId = Uuid::isValid($requestId) ? $requestId : null;
         $hospital = $dispatch->getHospital();
-        $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
+        $errors = $monthlyReminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Admin, requestId: $requestId);
         if ([] === $errors) {
             $this->addFlash('success', new TranslatableMessage('flash.admin.hospital.reminder.sent', domain: 'admin'));
         } else {

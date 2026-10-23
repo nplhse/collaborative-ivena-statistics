@@ -12,6 +12,7 @@ use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Factory\UserFactory;
@@ -133,19 +134,19 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         self::assertSame(ImportStatus::FAILED, $fresh->getStatus());
     }
 
-    public function testResolvePermissionFailureReasonReturnsReasonWhenCreatorMissing(): void
+    public function testResolvePermissionFailureReturnsReasonWhenCreatorMissing(): void
     {
         $import = new Import(); // createdBy bleibt null
 
-        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailureReason');
+        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailure');
 
         self::assertSame(
-            'Import has no creator user',
+            ImportRunReasonCode::MissingCreator,
             $reflection->invoke($this->handler, $import),
         );
     }
 
-    public function testResolvePermissionFailureReasonReturnsReasonWhenHospitalMissing(): void
+    public function testResolvePermissionFailureReturnsReasonWhenHospitalMissing(): void
     {
         $creator = UserFactory::createOne(['username' => 'import-perm-hospital-missing']);
         $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $creator->getId());
@@ -153,10 +154,10 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         $import = new Import()
             ->setCreatedBy($userRef);
 
-        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailureReason');
+        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailure');
 
         self::assertSame(
-            'Import has no hospital',
+            ImportRunReasonCode::MissingHospital,
             $reflection->invoke($this->handler, $import),
         );
     }

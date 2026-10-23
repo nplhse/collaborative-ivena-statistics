@@ -4,50 +4,105 @@ declare(strict_types=1);
 
 namespace App\Tests\User\Integration\Infrastructure\EventSubscriber;
 
-use App\Shared\Application\Notification\AdminNotification;
-use App\Shared\Application\Notification\AdminNotificationSenderInterface;
-use App\Shared\Application\Notification\AdminNotificationType;
+use App\Notification\Application\Contract\NotificationPublisherInterface;
+use App\Notification\Application\Publishing\NotificationRequest;
+use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Factory\UserFactory;
-use App\User\Infrastructure\EventSubscriber\UserRegisteredNotificationSubscriber;
-use App\User\Infrastructure\Repository\UserRepository;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Zenstruck\Foundry\Attribute\ResetDatabase;
-use Zenstruck\Foundry\Test\Factories;
+use Doctrine\DBAL\Connection;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mime\Address;
 
-#[ResetDatabase]
-final class UserRegisteredNotificationSubscriberTest extends KernelTestCase
+final class UserRegisteredNotificationSubscriberTest extends DatabaseKernelTestCase
 {
-    use Factories;
-
-    public function testOnUserRegisteredSendsNotification(): void
+    public function testRegistrationNotifiesEachSystemRecipientOnce(): void
     {
-        $user = UserFactory::createOne([
-            'username' => 'notify-me',
-            'email' => 'notify-me@example.test',
-        ]);
-        $userId = (int) $user->getId();
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-notify@example.test']);
+        $otherRecipient = UserFactory::new()->asAdmin()->create();
+        $adminWhoSwitchedItOff = UserFactory::new()->asAdmin()->create();
+        $preferences = new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class));
+        $preferences->switchOff($adminWhoSwitchedItOff, 'admin.user_registered', 'in_app');
+        $preferences->switchOff($adminWhoSwitchedItOff, 'admin.user_registered', 'email');
+        $disabledRecipient = UserFactory::new()->asAdmin()->create(['isEnabled' => false]);
+        $user = UserFactory::createOne(['username' => 'notify-me', 'email' => 'notify-me@example.test']);
 
-        $sender = $this->createMock(AdminNotificationSenderInterface::class);
-        $sender->expects(self::once())
-            ->method('send')
-            ->with(self::callback(function (AdminNotification $notification): bool {
-                self::assertSame(AdminNotificationType::UserRegistered, $notification->type);
-                self::assertSame('notify-me', $notification->templateContext['username'] ?? null);
-                self::assertSame('notify-me@example.test', $notification->templateContext['userEmail'] ?? null);
-                self::assertIsString($notification->templateContext['userManagementUrl'] ?? null);
-                self::assertIsString($notification->templateContext['grantParticipantUrl'] ?? null);
+        $this->dispatch((int) $user->getId());
+        $this->dispatch((int) $user->getId());
 
-                return true;
-            }));
+        foreach ([$recipient, $otherRecipient] as $admin) {
+            $rows = $this->connection()->fetchAllAssociative('SELECT * FROM notification WHERE recipient_id = ?', [$admin->getId()]);
+            self::assertCount(1, $rows, 'the same registration notifies every recipient once');
+            self::assertSame('admin.user_registered', $rows[0]['type']);
+            self::assertSame('administration', $rows[0]['category']);
+            self::assertSame('role', $rows[0]['access_scope']);
+            self::assertSame('ROLE_ADMIN', $rows[0]['required_role']);
+            self::assertSame('app_admin_dashboard_user_detail', $rows[0]['action_route']);
+            self::assertSame(['entityId' => $user->getId()], json_decode((string) $rows[0]['action_parameters'], true));
+            self::assertSame(['userId' => $user->getId(), 'username' => 'notify-me'], json_decode((string) $rows[0]['parameters'], true), 'no email address is stored');
+        }
 
-        $subscriber = new UserRegisteredNotificationSubscriber(
-            self::getContainer()->get(UserRepository::class),
-            self::getContainer()->get(\App\User\Application\Contract\AdminUserDetailUrlGeneratorInterface::class),
-            self::getContainer()->get(\App\User\Application\Contract\GrantParticipantUrlGeneratorInterface::class),
-            $sender,
-        );
+        foreach ([$adminWhoSwitchedItOff, $disabledRecipient, $user] as $other) {
+            self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE recipient_id = ?', [$other->getId()]));
+        }
 
-        $subscriber->onUserRegistered(new UserRegistered($userId));
+        self::assertEmailCount(2);
+        $email = $this->emailTo('admin-notify@example.test');
+        self::assertSame('New user registration: notify-me', $email->getSubject());
+        $html = (string) $email->getHtmlBody();
+        self::assertStringContainsString('notify-me', $html);
+        self::assertStringContainsString('/admin/user/'.$user->getId(), $html);
+        self::assertStringContainsString('/admin/users/'.$user->getId().'/grant-participant', $html);
+        self::assertStringContainsString('/notifications', $html);
+        self::assertStringNotContainsString('notify-me@example.test', $html, 'the email does not repeat the new user\'s address');
+    }
+
+    public function testMailFallsBackToTheGenericEmailWhenTheUserIsGone(): void
+    {
+        $recipient = UserFactory::new()->asAdmin()->create(['email' => 'admin-fallback@example.test']);
+
+        self::getContainer()->get(NotificationPublisherInterface::class)->publish(new NotificationRequest(
+            type: 'admin.user_registered',
+            recipientUserIds: [(int) $recipient->getId()],
+            deduplicationKey: 'admin.user_registered:999999',
+            parameters: ['userId' => 999999, 'username' => 'gone-soon'],
+        ));
+
+        $email = $this->emailTo('admin-fallback@example.test');
+        self::assertStringContainsString('gone-soon', (string) $email->getHtmlBody());
+        self::assertStringNotContainsString('grant-participant', (string) $email->getHtmlBody(), 'the generic notification email is sent');
+    }
+
+    public function testNoRecipientsMeansNoNotification(): void
+    {
+        UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $user = UserFactory::createOne();
+
+        $this->dispatch((int) $user->getId());
+        $this->dispatch(999999);
+
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification'));
+        self::assertEmailCount(0);
+    }
+
+    private function dispatch(int $userId): void
+    {
+        self::getContainer()->get(EventDispatcherInterface::class)->dispatch(new UserRegistered($userId));
+    }
+
+    private function emailTo(string $address): TemplatedEmail
+    {
+        foreach (self::getMailerMessages() as $message) {
+            if ($message instanceof TemplatedEmail && \in_array($address, array_map(static fn (Address $to): string => $to->getAddress(), $message->getTo()), true)) {
+                return $message;
+            }
+        }
+
+        self::fail(\sprintf('No email to %s.', $address));
+    }
+
+    private function connection(): Connection
+    {
+        return self::getContainer()->get(Connection::class);
     }
 }

@@ -6,17 +6,22 @@ namespace App\Tests\Import\Integration\Service;
 
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
+use App\Import\Application\DTO\ImportRunContext;
+use App\Import\Application\Exception\ImportRunSupersededException;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Service\ClosureImporter;
 use App\Import\Application\Service\ClosureRowProcessor;
+use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister;
+use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class ClosureImporterAbortTest extends DatabaseKernelTestCase
 {
@@ -57,6 +62,48 @@ final class ClosureImporterAbortTest extends DatabaseKernelTestCase
         } finally {
             $em->getEventManager()->removeEventListener(Events::onFlush, $listener);
         }
+    }
+
+    public function testSupersededRunDropsThePendingChunkAndRethrows(): void
+    {
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+        $guard = new ImportRunCommitGuard();
+        // No import with this id exists, so the guarded commit finds a different current run.
+        $guard->activate(new ImportRunContext(2_147_483_647, Uuid::v7()));
+        $rejectWriter = $this->createMock(RejectWriterInterface::class);
+        $rejectWriter->expects($this->once())->method('close')
+            ->willThrowException(new ImportRunSupersededException(2_147_483_647, 'run'));
+
+        $importer = new ClosureImporter(
+            InMemoryRowReader::fromAssocRows([]),
+            self::getContainer()->get(ClosureRowProcessor::class),
+            new DoctrineClosureIntervalPersister($em, $guard),
+            $rejectWriter,
+            self::getContainer()->get(LoggerInterface::class),
+        );
+
+        $this->expectException(ImportRunSupersededException::class);
+
+        $importer->import(new Import(), $this->profile());
+    }
+
+    public function testFailingRejectWriterCloseDoesNotHideTheOriginalError(): void
+    {
+        $rejectWriter = $this->createStub(RejectWriterInterface::class);
+        $rejectWriter->method('close')->willThrowException(new \LogicException('entity manager closed'));
+
+        $importer = new ClosureImporter(
+            $this->throwingReader(new \RuntimeException('reader failed')),
+            self::getContainer()->get(ClosureRowProcessor::class),
+            self::getContainer()->get(DoctrineClosureIntervalPersister::class),
+            $rejectWriter,
+            self::getContainer()->get(LoggerInterface::class),
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('reader failed');
+
+        $importer->import(new Import(), $this->profile());
     }
 
     private function importer(RowReaderInterface $reader, DoctrineClosureIntervalPersister $persister): ClosureImporter

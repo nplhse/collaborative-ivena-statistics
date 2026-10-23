@@ -23,7 +23,8 @@ final class OverviewDashboardQueryCountTest extends WebTestCase
     use InteractsWithAuthenticatedUser;
     use RefreshesStatisticsFunctionalDataTrait;
 
-    private const int MAX_SYNC_QUERIES = 30;
+    /** Includes the primary-key lookup of the header notification badge (ADR 016). */
+    private const int MAX_SYNC_QUERIES = 31;
 
     public function testOverviewDashboardUsesBoundedQueryCountWithoutSelfBenchmark(): void
     {

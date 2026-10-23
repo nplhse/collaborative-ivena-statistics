@@ -14,8 +14,11 @@ use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\FileChecksumCalculator;
 use App\Import\Application\Service\FileUploader;
+use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Application\Service\ImportUploadGuard;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Entity\ImportRun;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Form\ImportCreateType;
@@ -53,6 +56,7 @@ final class NewImportController extends AbstractController
         private readonly AuditContext $auditContext,
         private readonly HospitalPermissionAccess $hospitalPermissionAccess,
         private readonly UsageAnalytics $usageAnalytics,
+        private readonly ImportRunLifecycle $runLifecycle,
     ) {
     }
 
@@ -167,11 +171,19 @@ final class NewImportController extends AbstractController
             throw new \LogicException('Persisted Import entity has no ID.');
         }
 
-        if (ImportType::CLOSURE === $importType) {
-            $this->bus->dispatch(new ImportClosuresMessage($importId));
-        } else {
-            $this->bus->dispatch(new ImportAllocationsMessage($importId));
-        }
+        // Registration and message are committed together; a failure leaves neither behind.
+        $this->runLifecycle->register(
+            $importId,
+            ImportRunTrigger::Upload,
+            $userId,
+            null,
+            function (ImportRun $run) use ($importId, $importType, $userId): void {
+                $runId = $run->getId()->toRfc4122();
+                $this->bus->dispatch(ImportType::CLOSURE === $importType
+                    ? new ImportClosuresMessage($importId, $runId, $userId)
+                    : new ImportAllocationsMessage($importId, $runId, $userId));
+            },
+        );
 
         $this->usageAnalytics->record(UsageEventName::IMPORT_STARTED, FeatureArea::Import);
 

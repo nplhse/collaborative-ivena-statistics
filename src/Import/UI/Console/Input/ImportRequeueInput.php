@@ -37,4 +37,7 @@ final class ImportRequeueInput
     #[Option(description: 'Max dispatch attempts per import before critical exit', name: 'max-retries-per-import')]
     #[Assert\Positive]
     public int $maxRetriesPerImport = 3;
+
+    #[Option(description: 'Username of the user who started these runs and is told about their outcome', name: 'notify-user')]
+    public ?string $notifyUser = null;
 }

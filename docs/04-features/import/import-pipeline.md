@@ -41,10 +41,11 @@ User-facing messages are in the `validators` domain (`validation.import.*`); hel
 
 1. Create import in the UI (file + context)
 2. Store file under `var/imports/...`
-3. `app:import:start <IMPORT_ID>` resolves the import type and dispatches the matching message, or the UI dispatcher sends the matching message
-4. `ImportAllocationsMessageHandler` processes the file in the worker
-5. On success, emit `ImportCompleted`
-6. Trigger downstream statistics rebuild
+3. Register a new [import run](import-runs.md) (`ImportRun`, status `queued`) and point `Import::currentRunId` to it
+4. The UI, or `app:import:start <IMPORT_ID>` for the import's type, dispatches the matching message with the run id
+5. `ImportAllocationsMessageHandler` / `ImportClosuresMessageHandler` processes the file in the worker; every commit checks that the run is still current
+6. The run ends exactly once; the winner emits `ImportCompleted` or `ImportFailed` (with `runId`)
+7. Trigger downstream statistics rebuild
 
 ## Core components
 
@@ -53,6 +54,8 @@ User-facing messages are in the `validators` domain (`validation.import.*`); hel
 - `ImportAllocationsDispatcher`
 - `ImportClosuresDispatcher`
 - `ImportAllocationsMessageHandler`
+- `ImportClosuresMessageHandler`
+- `ImportRunLifecycle`, `ImportRunCommitGuard`, `ImportRunErrorClassifier` (see [import-runs.md](import-runs.md))
 - `AllocationImporter`
 - `RuleBasedRowTypeDetector`
 - `ImportRequeueBatchOrchestrator`
@@ -78,15 +81,15 @@ To clean up historical import-generated `Assessment` `create` audit entries, see
 ## Order and error handling
 
 - Previous run data may be cleaned up before a re-run
-- Missing file / invalid preconditions mark the import as failed
+- Missing file / invalid preconditions end the run as `failed` with a reason code and mark the import as failed
 - Row-level business errors become rejects
-- Critical errors are logged as import failures
+- Non-retryable errors end the run as `failed`; retryable database errors (connection loss, deadlock, lock timeout) are rethrown so Messenger retries the run. Details: [import-runs.md](import-runs.md#errors)
 
 ## Deletion cleanup
 
 When an import is deleted (UI or admin), `ImportDeletionService` removes:
 
-- The import database record
+- The import database record and its `import_run` history (database cascade)
 - Related allocations, assessments, MCI cases, and projection rows
 - Batch-run history entries for that import
 - The uploaded source file under `var/imports/...`
@@ -135,6 +138,7 @@ See [../../02-architecture/decisions/005-reject-writer-strategy.md](../../02-arc
 
 ## Related documentation
 
+- Import runs: [import-runs.md](import-runs.md)
 - Requeue: [batch-requeue.md](batch-requeue.md)
 - Reject analysis: [reject-analysis.md](reject-analysis.md)
 - Indication corruption repair: [repair-indication-corruption.md](repair-indication-corruption.md)

@@ -52,6 +52,11 @@ framework:
             policy: fixed_window
             limit: 20
             interval: '10 minutes'
+        # Notification polling (ADR 016): one poll every 30-60 s per active tab plus page loads.
+        notification_poll:
+            policy: sliding_window
+            limit: 30
+            interval: '1 minute'
 
 when@test:
     framework:

@@ -18,14 +18,13 @@ final class UserCrudLocaleTest extends WebTestCase
 {
     use Factories;
 
-    public function testAdminCanEditLocaleAndReminderPreference(): void
+    public function testAdminCanEditLocale(): void
     {
         $client = self::createClient();
 
         $target = UserFactory::createOne([
             'username' => 'locale-user-'.bin2hex(random_bytes(4)),
             'locale' => SupportedLocales::DEFAULT,
-            'receivesMonthlySubmissionReminder' => true,
         ]);
         $admin = UserFactory::new()
             ->asAdmin()
@@ -40,26 +39,13 @@ final class UserCrudLocaleTest extends WebTestCase
 
         $form = $crawler->selectButton('Save changes')->form();
         $this->selectChoice($form, 'User[locale]', SupportedLocales::GERMAN);
-        $this->setCheckboxValue($form, 'User[receivesMonthlySubmissionReminder]', false);
+        self::assertFalse($form->has('User[receivesMonthlySubmissionReminder]'), 'the reminder opt-out lives in the notification settings now');
         $client->submit($form);
         $client->followRedirect();
         self::assertResponseIsSuccessful();
 
         \Zenstruck\Foundry\Persistence\refresh($target);
         self::assertSame(SupportedLocales::GERMAN, $target->getLocale());
-        self::assertFalse($target->receivesMonthlySubmissionReminder());
-    }
-
-    private function setCheckboxValue(Form $form, string $name, bool $checked): void
-    {
-        $field = $form->get($name);
-        self::assertInstanceOf(ChoiceFormField::class, $field);
-
-        if ($checked) {
-            $field->tick();
-        } else {
-            $field->untick();
-        }
     }
 
     private function selectChoice(Form $form, string $name, string $value): void
