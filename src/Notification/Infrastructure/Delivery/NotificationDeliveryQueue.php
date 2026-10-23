@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Hands pending deliveries to the delivery job again: after a duplicate publication (grace period
- * 5 minutes) and during reconciliation (older than 15 minutes). `failed` deliveries are never restarted.
+ * 5 minutes) and in the hourly resumption (older than 15 minutes, whatever their age). `failed` deliveries are never restarted.
  */
 final readonly class NotificationDeliveryQueue
 {
@@ -49,16 +49,16 @@ final readonly class NotificationDeliveryQueue
     }
 
     /**
-     * Pending deliveries created in [$from, $before).
+     * Pending deliveries created before $before, oldest first, at most $limit.
      *
      * @return int number of deliveries dispatched again
      */
-    public function redispatchPendingCreatedBetween(\DateTimeImmutable $from, \DateTimeImmutable $before): int
+    public function redispatchPendingCreatedBefore(\DateTimeImmutable $before, int $limit): int
     {
         $ids = $this->connection->fetchFirstColumn(
-            "SELECT id FROM notification_delivery WHERE status = 'pending' AND created_at >= :from AND created_at < :before ORDER BY id",
-            ['from' => $from, 'before' => $before],
-            ['from' => Types::DATETIME_IMMUTABLE, 'before' => Types::DATETIME_IMMUTABLE],
+            \sprintf("SELECT id FROM notification_delivery WHERE status = 'pending' AND created_at < :before ORDER BY created_at, id LIMIT %d", max(1, $limit)),
+            ['before' => $before],
+            ['before' => Types::DATETIME_IMMUTABLE],
         );
 
         return $this->dispatchAll($ids);

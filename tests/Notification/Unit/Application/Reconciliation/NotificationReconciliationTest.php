@@ -50,7 +50,7 @@ final class NotificationReconciliationTest extends TestCase
 
     public function testWithoutRegisteredTypesOnlyTheRegularWindowIsAllowed(): void
     {
-        $reconciliation = new NotificationReconciliation([], new NotificationRegistry(), new MockClock('2026-10-22 12:00:00'));
+        $reconciliation = new NotificationReconciliation([], new NotificationRegistry(), new MockClock('2026-10-22 12:00:00'), new CountingResumer(0));
 
         self::assertSame('2026-10-21 12:00:00', $reconciliation->earliestAllowedStart()->format('Y-m-d H:i:s'));
     }
@@ -64,7 +64,13 @@ final class NotificationReconciliationTest extends TestCase
             $reconcilers,
             new NotificationRegistry(['test.in_app' => InAppTestNotification::class, 'test.toast' => ToastTestNotification::class]),
             new MockClock('2026-10-22 12:00:00'),
+            new CountingResumer(4),
         );
+    }
+
+    public function testPendingDeliveriesAreResumedOutsideAnyRange(): void
+    {
+        self::assertSame(4, $this->reconciliation([])->resumePendingDeliveries());
     }
 }
 
@@ -82,5 +88,18 @@ final class RecordingReconciler implements NotificationReconcilerInterface
         $this->ranges[] = [$from->format('Y-m-d H:i:s'), $to->format('Y-m-d H:i:s')];
 
         return $this->published;
+    }
+}
+
+final readonly class CountingResumer implements \App\Notification\Application\Contract\PendingDeliveryResumerInterface
+{
+    public function __construct(private int $resumed)
+    {
+    }
+
+    #[\Override]
+    public function resume(): int
+    {
+        return $this->resumed;
     }
 }

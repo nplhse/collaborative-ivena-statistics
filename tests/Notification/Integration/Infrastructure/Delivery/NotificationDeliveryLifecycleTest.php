@@ -8,7 +8,7 @@ use App\Notification\Application\Message\DeliverNotificationMessage;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryStatusSubscriber;
 use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
-use App\Notification\Infrastructure\Delivery\PendingDeliveryReconciler;
+use App\Notification\Infrastructure\Delivery\PendingDeliveryResumer;
 use App\Notification\Infrastructure\Factory\NotificationFactory;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\Tests\Support\Messenger\RecordingMessageBus;
@@ -39,7 +39,7 @@ final class NotificationDeliveryLifecycleTest extends DatabaseKernelTestCase
         $mail = $this->delivery('queued');
         $job = $this->delivery('pending');
         $sent = $this->delivery('sent');
-        $subscriber = new NotificationDeliveryStatusSubscriber($this->connection, new MockClock('2026-10-23 08:00:00'), new NullLogger());
+        $subscriber = new NotificationDeliveryStatusSubscriber($this->connection, new MockClock('2026-10-23 08:00:00'), new NullLogger(), self::getContainer()->get(\App\Notification\Infrastructure\Delivery\NotificationDeliveryFailureAnnouncer::class));
 
         $subscriber->onMessageFailed($this->failed($this->emailMessage($mail), willRetry: true));
         self::assertSame(['queued', null], $this->state($mail), 'a retry follows');
@@ -54,19 +54,43 @@ final class NotificationDeliveryLifecycleTest extends DatabaseKernelTestCase
         self::assertSame(['failed', 'transport_failed'], $this->state($mail));
         self::assertSame(['failed', 'delivery_job_failed'], $this->state($job));
         self::assertSame(['sent', null], $this->state($sent), 'a sent delivery stays sent');
+
+        // A delivery that is gone (e.g. deleted with its instance) announces nothing.
+        self::getContainer()->get(\App\Notification\Infrastructure\Delivery\NotificationDeliveryFailureAnnouncer::class)->announce(999_999, \App\Notification\Domain\Enum\NotificationDeliveryFailureReason::DeliveryJobFailed);
     }
 
-    public function testReconciliationResumesOnlyDeliveriesPendingForAQuarterOfAnHour(): void
+    /**
+     * Stored pending deliveries are resumed whatever their age (the 24-hour window only limits the rebuilding of
+     * business events); younger than 15 minutes they are left to the running job, and only pending ones count.
+     */
+    public function testPendingDeliveriesAreResumedWhateverTheirAge(): void
     {
+        $twoDaysOld = $this->delivery('pending', '2026-10-21 07:00:00');
         $old = $this->delivery('pending', '2026-10-23 07:40:00');
         $this->delivery('pending', '2026-10-23 07:50:00');
-        $this->delivery('failed', '2026-10-23 07:00:00');
+        foreach (['queued', 'sent', 'failed'] as $status) {
+            $this->delivery($status, '2026-10-20 07:00:00');
+        }
         $bus = new RecordingMessageBus();
-        $reconciler = new PendingDeliveryReconciler(new NotificationDeliveryQueue($this->connection, $bus), new MockClock(new \DateTimeImmutable('2026-10-23 08:00:00')));
+        $resumer = new PendingDeliveryResumer(new NotificationDeliveryQueue($this->connection, $bus), new MockClock(new \DateTimeImmutable('2026-10-23 08:00:00')));
+        $notifications = (int) $this->connection->fetchOne('SELECT COUNT(*) FROM notification');
 
-        self::assertSame(1, $reconciler->reconcile(new \DateTimeImmutable('2026-10-22 08:00:00'), new \DateTimeImmutable('2026-10-23 08:00:00')));
-        self::assertEquals([new DeliverNotificationMessage($old)], $bus->messages);
-        self::assertSame(0, $reconciler->reconcile(new \DateTimeImmutable('2026-10-23 07:50:00'), new \DateTimeImmutable('2026-10-23 08:00:00')), 'nothing old enough in range');
+        self::assertSame(2, $resumer->resume());
+        self::assertEquals([new DeliverNotificationMessage($twoDaysOld), new DeliverNotificationMessage($old)], $bus->messages, 'oldest first');
+        self::assertSame($notifications, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM notification'), 'no new notification is created');
+    }
+
+    public function testEachRunResumesABoundedBatchOldestFirst(): void
+    {
+        $ids = [];
+        for ($i = 0; $i < 3; ++$i) {
+            $ids[] = $this->delivery('pending', sprintf('2026-10-2%d 07:00:00', $i));
+        }
+        $bus = new RecordingMessageBus();
+        $queue = new NotificationDeliveryQueue($this->connection, $bus);
+
+        self::assertSame(2, $queue->redispatchPendingCreatedBefore(new \DateTimeImmutable('2026-10-23 08:00:00'), 2));
+        self::assertEquals([new DeliverNotificationMessage($ids[0]), new DeliverNotificationMessage($ids[1])], $bus->messages, 'newer deliveries never push out older ones');
     }
 
     private function delivery(string $status, string $createdAt = '2026-10-23 07:00:00'): int

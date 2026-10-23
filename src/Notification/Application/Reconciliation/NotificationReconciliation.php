@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notification\Application\Reconciliation;
 
 use App\Notification\Application\Contract\NotificationReconcilerInterface;
+use App\Notification\Application\Contract\PendingDeliveryResumerInterface;
 use App\Notification\Application\Definition\NotificationRegistry;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
@@ -28,6 +29,7 @@ final readonly class NotificationReconciliation
         private iterable $reconcilers,
         private NotificationRegistry $registry,
         private ClockInterface $clock,
+        private PendingDeliveryResumerInterface $deliveryResumer,
     ) {
     }
 
@@ -63,6 +65,17 @@ final readonly class NotificationReconciliation
         }
 
         return $published;
+    }
+
+    /**
+     * Resumes stored deliveries that are still pending, independent of any range: they already exist, so
+     * nothing new is published and the deduplication period does not limit them.
+     *
+     * @return int number of deliveries dispatched again
+     */
+    public function resumePendingDeliveries(): int
+    {
+        return $this->deliveryResumer->resume();
     }
 
     public function earliestAllowedStart(): \DateTimeImmutable

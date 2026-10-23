@@ -32,7 +32,10 @@ final readonly class ReconcileNotificationsMessageHandler
         }
 
         try {
-            $this->logger->info('notification.reconciliation.finished', ['published' => $this->reconciliation->reconcileRecent()]);
+            $this->logger->info('notification.reconciliation.finished', [
+                'published' => $this->reconciliation->reconcileRecent(),
+                'deliveries_resumed' => $this->reconciliation->resumePendingDeliveries(),
+            ]);
         } finally {
             $lock->release();
         }

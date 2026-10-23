@@ -53,11 +53,14 @@ final readonly class ReconcileNotificationsCommand
             return Command::INVALID;
         }
 
+        $resumed = $this->reconciliation->resumePendingDeliveries();
+
         $io->success(sprintf(
-            'Reconciled %s to %s: %d outcome(s) published again (already delivered ones are skipped by deduplication).',
+            'Reconciled %s to %s: %d outcome(s) published again (already delivered ones are skipped by deduplication); %d pending delivery job(s) resumed regardless of the range.',
             $start->format('Y-m-d H:i:s'),
             $end->format('Y-m-d H:i:s'),
             $published,
+            $resumed,
         ));
 
         return Command::SUCCESS;

@@ -30,6 +30,7 @@ final readonly class NotificationDeliveryStatusSubscriber
         private Connection $connection,
         private ClockInterface $clock,
         private LoggerInterface $logger,
+        private NotificationDeliveryFailureAnnouncer $failureAnnouncer,
     ) {
     }
 
@@ -74,6 +75,7 @@ final readonly class NotificationDeliveryStatusSubscriber
 
         if ($updated > 0) {
             $this->logger->warning('notification.delivery.failed', ['delivery_id' => $deliveryId, 'reason' => $reason->value]);
+            $this->failureAnnouncer->announce($deliveryId, $reason);
         }
     }
 

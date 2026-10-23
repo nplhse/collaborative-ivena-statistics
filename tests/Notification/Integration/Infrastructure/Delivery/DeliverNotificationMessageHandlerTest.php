@@ -92,6 +92,7 @@ final class DeliverNotificationMessageHandlerTest extends DatabaseKernelTestCase
             $container->get(UserRepository::class),
             new MockClock('2026-10-23 08:00:00'),
             new NullLogger(),
+            $container->get(\App\Notification\Infrastructure\Delivery\NotificationDeliveryFailureAnnouncer::class),
         );
     }
 
