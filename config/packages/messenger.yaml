@@ -54,6 +54,7 @@ framework:
             App\Allocation\Application\Message\BackfillAllocationsForIndicationRawMessage: async_priority_low
             App\Notification\Application\Message\CleanUpNotificationsMessage: async_priority_low
             App\Notification\Application\Message\ReconcileNotificationsMessage: async_priority_low
+            App\Notification\Application\Message\DeliverNotificationMessage: async_priority_low
 
 when@dev:
     framework:
@@ -78,4 +79,5 @@ when@test:
                 App\Allocation\Application\Message\BackfillAllocationsForIndicationRawMessage: sync
                 App\Notification\Application\Message\CleanUpNotificationsMessage: sync
                 App\Notification\Application\Message\ReconcileNotificationsMessage: sync
+                App\Notification\Application\Message\DeliverNotificationMessage: sync
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\Infrastructure\Mail;
 
 use App\Shared\Infrastructure\Mail\TransactionalMailer;
-use App\User\Infrastructure\EventSubscriber\UserBecameParticipantNotificationSubscriber;
 use App\User\Infrastructure\Security\EmailVerifier;
 use App\User\UI\Http\Controller\ResetPasswordController;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -41,7 +40,6 @@ final class TransactionalMailWiringTest extends TestCase
     {
         yield EmailVerifier::class => [EmailVerifier::class];
         yield ResetPasswordController::class => [ResetPasswordController::class];
-        yield UserBecameParticipantNotificationSubscriber::class => [UserBecameParticipantNotificationSubscriber::class];
     }
 
     public function testResetPasswordControllerDoesNotBuildTemplatedEmailDirectly(): void

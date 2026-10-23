@@ -5,6 +5,14 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="NtfE7985812" resname="notification.email.action">
+        <source>notification.email.action</source>
+        <target>Open</target>
+      </trans-unit>
+      <trans-unit id="NtfD84C7C14" resname="notification.email.inbox">
+        <source>notification.email.inbox</source>
+        <target>All notifications</target>
+      </trans-unit>
       <trans-unit id="Ntf72CD762A" resname="import.batch_finished.title">
         <source>import.batch_finished.title</source>
         <target>Batch re-import #{batchId} finished</target>

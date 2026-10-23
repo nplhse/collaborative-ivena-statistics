@@ -10,6 +10,7 @@ use App\User\Application\Event\UserBecameParticipant;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Infrastructure\EventSubscriber\ParticipationActivatedNotificationSubscriber;
 use Doctrine\DBAL\Connection;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -23,6 +24,23 @@ final class ParticipationActivatedNotificationSubscriberTest extends DatabaseKer
 
         $row = $this->connection()->fetchAssociative('SELECT type, category, action_route FROM notification WHERE recipient_id = ?', [$user->getId()]);
         self::assertSame(['type' => 'participation.activated', 'category' => 'account', 'action_route' => 'app_default'], $row);
+    }
+
+    public function testActivationSendsTheWelcomeMailThroughTheNotificationEmail(): void
+    {
+        $user = UserFactory::createOne(['username' => 'welcome-me', 'email' => 'welcome-me@example.test', 'roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+
+        self::getContainer()->get(EventDispatcherInterface::class)->dispatch(new UserBecameParticipant((int) $user->getId()));
+
+        self::assertEmailCount(1);
+        $email = self::getMailerMessage();
+        self::assertInstanceOf(TemplatedEmail::class, $email);
+        self::assertSame(['welcome-me@example.test'], array_map(static fn (\Symfony\Component\Mime\Address $address): string => $address->getAddress(), $email->getTo()));
+        self::assertStringContainsString('welcome-me', (string) $email->getHtmlBody());
+        self::assertSame('sent', $this->connection()->fetchOne(
+            'SELECT d.status FROM notification_delivery d JOIN notification n ON n.id = d.notification_id WHERE n.recipient_id = ?',
+            [$user->getId()],
+        ), 'the welcome mail is the mandatory email of participation.activated');
     }
 
     public function testEveryActivationIsItsOwnNotification(): void

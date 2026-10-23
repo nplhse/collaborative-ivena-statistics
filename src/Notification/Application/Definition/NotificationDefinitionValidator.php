@@ -21,7 +21,7 @@ final class NotificationDefinitionValidator
     /**
      * Channels the publisher can deliver today. External channels are added together with their delivery.
      */
-    public const array DELIVERABLE_CHANNELS = [NotificationChannel::InApp, NotificationChannel::Toast];
+    public const array DELIVERABLE_CHANNELS = [NotificationChannel::InApp, NotificationChannel::Toast, NotificationChannel::Email];
 
     private const string TYPE_PATTERN = '/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/';
 

@@ -47,13 +47,39 @@ final class DbalNotificationRetentionTest extends DatabaseKernelTestCase
 
         $remaining = array_map(intval(...), $connection->fetchFirstColumn('SELECT id FROM notification ORDER BY id'));
         sort($remaining);
-        $expected = array_map(static fn (\App\Notification\Domain\Entity\Notification $n): int => (int) $n->getId(), [$readRecent, $unreadRecent, $emailOnly]);
+        $expected = array_map(static fn (\App\Notification\Domain\Entity\Notification $n): int => (int) $n->getId(), [$readRecent, $unreadRecent]);
         sort($expected);
         self::assertSame($expected, $remaining);
-        self::assertSame(3, $result->deletedNotifications);
+        self::assertSame(4, $result->deletedNotifications, 'an email-only instance without open deliveries goes too');
+        self::assertNotContains($emailOnly->getId(), $remaining);
         self::assertSame(1, $result->deletedDeduplicationKeys);
         self::assertSame(['valid'], $connection->fetchFirstColumn('SELECT deduplication_key FROM notification_deduplication'));
         self::assertNotContains($unreadOld->getId(), $remaining);
+    }
+
+    public function testInstancesStayUntilTheirDeliveriesAreDoneForThirtyDays(): void
+    {
+        $connection = $this->connection();
+        $state = new NotificationTestState($connection);
+        $created = new \DateTimeImmutable('2026-08-01 10:00:00');
+
+        $removedWithPendingMail = NotificationFactory::createOne(['createdAt' => $created]);
+        $state->markRemoved($removedWithPendingMail, $created);
+        $this->delivery($removedWithPendingMail->getId(), 'pending', '2026-08-01 10:00:00');
+        $mailSentRecently = NotificationFactory::createOne(['inAppVisible' => false, 'createdAt' => $created]);
+        $this->delivery($mailSentRecently->getId(), 'sent', '2026-10-01 10:00:00');
+        $mailFailedLongAgo = NotificationFactory::createOne(['inAppVisible' => false, 'createdAt' => $created]);
+        $this->delivery($mailFailedLongAgo->getId(), 'failed', '2026-09-01 10:00:00');
+
+        $result = $this->retention()->run();
+
+        self::assertSame(1, $result->deletedNotifications);
+        self::assertSame(
+            [$removedWithPendingMail->getId(), $mailSentRecently->getId()],
+            array_map(intval(...), $connection->fetchFirstColumn('SELECT id FROM notification ORDER BY id')),
+            'removing an entry never cancels its delivery',
+        );
+        self::assertSame(2, (int) $connection->fetchOne('SELECT COUNT(*) FROM notification_delivery'), 'deliveries go with their instance');
     }
 
     public function testRecountsWithInboxVisibilityRules(): void
@@ -80,6 +106,14 @@ final class DbalNotificationRetentionTest extends DatabaseKernelTestCase
         self::assertSame(['version' => 6, 'unread' => 3], $this->state((int) $participant->getId()));
         self::assertSame(['version' => 2, 'unread' => 0], $this->state((int) $untouched->getId()));
         self::assertSame(0, $this->retention()->run()->correctedRecipients, 'a second run finds nothing to correct');
+    }
+
+    private function delivery(?int $notificationId, string $status, string $statusChangedAt): void
+    {
+        $this->connection()->executeStatement(
+            "INSERT INTO notification_delivery (notification_id, channel, status, attempt_count, created_at, status_changed_at) VALUES (?, 'email', ?, 1, ?, ?)",
+            [$notificationId, $status, $statusChangedAt, $statusChangedAt],
+        );
     }
 
     private function retention(): DbalNotificationRetention

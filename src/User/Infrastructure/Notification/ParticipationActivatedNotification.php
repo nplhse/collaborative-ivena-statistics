@@ -10,16 +10,17 @@ use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationChannel;
 
 /**
- * An administrator activated the user's participation (ADR 016). The welcome email stays on its
- * current path until email delivery exists (step 6), then it becomes this type's mandatory email.
+ * An administrator activated the user's participation (ADR 016). The email is mandatory and is the
+ * welcome mail ({@see ParticipationWelcomeEmailCustomizer}).
  *
  * @psalm-suppress UnusedClass Collected by NotificationDefinitionPass through #[NotificationDefinition].
  */
 #[NotificationDefinition(
     type: 'participation.activated',
     category: NotificationCategory::Account,
-    defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
-    availableChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
+    defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast, NotificationChannel::Email],
+    availableChannels: [NotificationChannel::InApp, NotificationChannel::Email, NotificationChannel::Toast],
+    mandatoryChannels: [NotificationChannel::Email],
 )]
 final class ParticipationActivatedNotification extends AppNotification
 {
