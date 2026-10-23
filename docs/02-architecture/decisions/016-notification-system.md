@@ -134,7 +134,7 @@ The transaction must stay on `doctrine://default`. Moving Messenger to another t
 
 A database row lock is used rather than Symfony Lock, because it needs no shared lock store and cannot be released before the transaction ends. It does not replace the transaction; it is part of it.
 
-A subscriber modelled on `MonthlyReminderDeliverySubscriber` then sets `sent` on `SentMessageEvent` and `failed` on `WorkerMessageFailedEvent` when no retry follows. If `DeliverNotificationMessage` itself fails for good (retries exhausted), the same mechanism sets the delivery to `failed` with the reason code `delivery_job_failed`.
+A subscriber modelled on `MonthlyReminderDeliverySubscriber` then sets `sent` on `SentMessageEvent` and `failed` on `WorkerMessageFailedEvent` when no retry follows. If `DeliverNotificationMessage` itself fails for good (retries exhausted), the same mechanism sets the delivery to `failed` with the reason code `delivery_job_failed`. Every delivery that fails for good (also `recipient_unavailable` before the mailer) dispatches the application event `NotificationDeliveryFailed` with the notification's type and parameters; producers update their own records from it (Engagement marks the reminder dispatch named in the parameters as failed), so Notification never depends on them. While a retry follows, nothing is announced.
 
 Delivery statuses have distinct meanings:
 
@@ -160,7 +160,7 @@ As a rule, events are dispatched after the business transaction has committed, a
 
 An hourly Scheduler task (`app:notification:reconcile`) does two things:
 
-- It re-dispatches `pending` deliveries older than 15 minutes.
+- It re-dispatches `pending` deliveries older than 15 minutes, whatever their age: they already exist, so the window and the deduplication TTL do not limit them. Oldest first and at most 500 per run, so older deliveries are never pushed out by newer ones. `queued`, `sent` and `failed` deliveries are never restarted, and no new instance is created.
 - It re-publishes the outcomes of the last **24 hours** from durable business records: terminal `ImportRun` records, recorded milestones and finished batches. It never reads the audit log. Deduplication turns already-published outcomes into no-ops.
 
 The deduplication TTL (default 7 days) is always longer than this 24-hour window, which the registry enforces.
@@ -239,7 +239,7 @@ As much as necessary, as little as possible:
 
 Further rules:
 
-- External delivery uses the recipient's permissions at publication time. Already scheduled emails are not cancelled when permissions change later. This is an accepted limitation, and no cancellation state exists for it.
+- External delivery uses the recipient's permissions at publication time: the publisher plans an email only when the recipient may see the content then, by the same rules as the inbox (hospital access for hospital-scoped types, the required role for role-scoped types). Without access, only the inbox entry is stored, shown redacted or hidden. This holds for direct publication and for reconciliation alike. Already scheduled emails are not cancelled when permissions change later. This is an accepted limitation, and no cancellation state exists for it.
 - Permission changes are not pushed into `unread_count` and `version` immediately. A temporary badge discrepancy is accepted until the daily cleanup recounts `unread_count` with the same visibility rules as the inbox (redacted entries count, hidden entries do not). When the count changes, the recount increments `version` in the same transaction.
 
 ### Toast delivery and active sessions
@@ -361,6 +361,7 @@ The first successful import is a **durable business fact**, not something derive
 - The milestone is recorded **in the same transaction** as the run's successful terminal transition (`Completed` or `Partial`), with `ON CONFLICT DO NOTHING`. Only its initial creation establishes it. Later runs, re-imports, deleted imports and deleted notification instances never establish it again.
 - Only a newly created milestone dispatches its event. The deduplication key `user.first_import:{milestoneId}` is derived from the milestone.
 - Reconciliation re-publishes milestones achieved within the 24-hour window, which is shorter than the deduplication TTL.
+- The notification names the import and links to it, so it is hospital-scoped (redacted after access is revoked) with the import's hospital as reference. When the run, the import or its hospital no longer exists, the milestone stays recorded but nothing is announced: there is no scope to check.
 
 The notification is published next to the existing `FIRST_IMPORT` activity entry (ADR 014), without depending on it.
 
