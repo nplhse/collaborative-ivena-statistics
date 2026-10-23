@@ -160,22 +160,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
             '--send' => true,
             '--date' => '2026-06-17',
         ]));
-        self::assertStringContainsString('Use --ignore-opt-out', $tester->getDisplay());
-    }
-
-    public function testSendSucceedsWithIgnoreOptOut(): void
-    {
-        self::bootKernel();
-        $hospital = $this->createHospital(optedOut: true);
-        $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
-
-        self::assertSame(Command::SUCCESS, $tester->execute([
-            '--hospital-id' => (string) $hospital->getId(),
-            '--send' => true,
-            '--ignore-opt-out' => true,
-            '--date' => '2026-06-17',
-        ]));
-        self::assertStringContainsString('Sent reminder to', $tester->getDisplay());
+        self::assertStringContainsString('switched the monthly reminder off', $tester->getDisplay());
     }
 
     public function testWritesHtmlPreviewToFile(): void
@@ -292,6 +277,6 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
     {
         \assert($owner instanceof \App\User\Domain\Entity\User);
         new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(\Doctrine\DBAL\Connection::class))
-            ->switchOff($owner, \App\Engagement\Application\MonthlyReminderNotificationType::SCHEDULED);
+            ->switchOff($owner, \App\Engagement\Application\MonthlyReminderNotificationType::TYPE);
     }
 }

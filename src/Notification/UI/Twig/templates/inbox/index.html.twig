@@ -16,6 +16,18 @@
                         {{ 'notification.index.subtitle'|trans({count: state.unreadCount}, 'notification') }}
                     </div>
                 </div>
+                <div class="col-auto ms-auto d-print-none">
+                    {% set settingsLabel = 'notification.index.settings'|trans({}, 'notification') %}
+                    <a
+                        href="{{ path('app_settings_notifications') }}"
+                        class="btn btn-icon"
+                        title="{{ settingsLabel }}"
+                        aria-label="{{ settingsLabel }}"
+                        data-testid="notification-settings-link"
+                    >
+                        <twig:ux:icon name="tabler:settings" class="icon" aria-hidden="true" />
+                    </a>
+                </div>
             </div>
         </div>
     </div>

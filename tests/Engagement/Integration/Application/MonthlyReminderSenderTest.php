@@ -50,13 +50,30 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertSame(['monthly_reminder.error.opted_out'], $errors);
     }
 
-    public function testAdminTriggerSendsDespiteOptOut(): void
+    public function testAdminTriggerRespectsTheOwnersSettings(): void
     {
         $hospital = $this->createHospital(optedOut: true);
 
-        $errors = $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin);
+        self::assertSame(['monthly_reminder.error.opted_out'], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+        self::assertEmailCount(0);
+    }
 
-        self::assertSame([], $errors);
+    public function testAdminReminderToAnOwnerWithoutEmailIsOnlyAWebEntry(): void
+    {
+        $owner = UserFactory::createOne(['email' => sprintf('web-only-%s@example.test', bin2hex(random_bytes(4))), 'isVerified' => true]);
+        self::getContainer()->get(Connection::class)->executeStatement(
+            "INSERT INTO user_notification_preference (user_id, scope, preference_key, channel, enabled) VALUES (?, 'type', 'engagement.monthly_reminder', 'email', false), (?, 'type', 'engagement.monthly_reminder', 'in_app', true)",
+            [$owner->getId(), $owner->getId()],
+        );
+        $hospital = $this->createHospital(optedOut: false, owner: $owner);
+
+        self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin));
+
+        self::assertEmailCount(0);
+        self::assertSame(['engagement.monthly_reminder'], self::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT type FROM notification WHERE recipient_id = ? AND in_app_visible = true',
+            [$owner->getId()],
+        ));
     }
 
     public function testSkipsWhenHospitalIsNotParticipating(): void
@@ -120,7 +137,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
     public function testAdminTriggerReturnsErrorWhenManualLockIsAlreadyHeld(): void
     {
-        $hospital = $this->createHospital(optedOut: true);
+        $hospital = $this->createHospital(optedOut: false);
         $hospitalId = (int) $hospital->getId();
         $lock = self::getContainer()->get(LockFactory::class)->createLock(sprintf('reminder-manual-%d', $hospitalId));
         self::assertTrue($lock->acquire());
@@ -348,7 +365,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
 
     public function testRepeatedAdminActionSendsOneEmailAndANewActionSendsAnother(): void
     {
-        $hospital = $this->createHospital(optedOut: true);
+        $hospital = $this->createHospital(optedOut: false);
         $connection = self::getContainer()->get(Connection::class);
         $releaseGuard = static fn () => $connection->executeStatement("UPDATE monthly_reminder_dispatch SET sent_at = sent_at - INTERVAL '10 minutes'");
 
@@ -360,7 +377,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $releaseGuard();
         self::assertSame([], $this->sender->sendForHospital($hospital, MonthlyReminderTrigger::Admin, requestId: 'b3c4a1f0-0000-4000-8000-000000000002'));
         self::assertEmailCount(2);
-        self::assertSame(['engagement.monthly_reminder_manual', 'engagement.monthly_reminder_manual'], $connection->fetchFirstColumn('SELECT type FROM notification ORDER BY id'), 'admin sends ignore the opt-out');
+        self::assertSame(['engagement.monthly_reminder', 'engagement.monthly_reminder'], $connection->fetchFirstColumn('SELECT type FROM notification ORDER BY id'), 'admin sends use the regular reminder type');
     }
 
     public function testOwnersWhoOnlyKeepTheInAppEntryGetNoEmail(): void
@@ -442,6 +459,6 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
     {
         \assert($owner instanceof \App\User\Domain\Entity\User);
         new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(Connection::class))
-            ->switchOff($owner, \App\Engagement\Application\MonthlyReminderNotificationType::SCHEDULED);
+            ->switchOff($owner, \App\Engagement\Application\MonthlyReminderNotificationType::TYPE);
     }
 }

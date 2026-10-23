@@ -25,10 +25,9 @@ use Symfony\Component\Uid\Uuid;
  * Decides whether a hospital's monthly reminder is due and records it in `monthly_reminder_dispatch`;
  * the reminder itself goes out through the notification system (ADR 016):
  *
- * - scheduled and CLI reminders use `engagement.monthly_reminder`, which owners can switch off or
- *   extend to the in-app inbox on the notification settings page;
- * - an administrator's reminder uses `engagement.monthly_reminder_manual` with a mandatory email,
- *   deduplicated per admin action (request id), so a double click sends one email.
+ * - every reminder uses `engagement.monthly_reminder` and follows the owner's settings: an owner who
+ *   switched the email off gets only the web entry, also when an administrator sends it by hand;
+ * - an administrator's reminder is deduplicated per admin action (request id), so a double click sends one.
  */
 final readonly class MonthlyReminderSender
 {
@@ -77,7 +76,7 @@ final readonly class MonthlyReminderSender
             return ['monthly_reminder.error.email_not_verified'];
         }
 
-        if (MonthlyReminderTrigger::Admin !== $trigger && [] === $this->scheduledChannels($owner)) {
+        if ([] === $this->reminderChannels($owner)) {
             return ['monthly_reminder.error.opted_out'];
         }
 
@@ -139,7 +138,6 @@ final readonly class MonthlyReminderSender
 
         $this->dispatchRepository->save($dispatch);
 
-        $isManual = MonthlyReminderTrigger::Admin === $trigger;
         $this->auditContext->beginIntent('hospital.reminder_sent', [
             'hospital_id' => $hospitalId,
             'owner_id' => $owner->getId(),
@@ -150,7 +148,7 @@ final readonly class MonthlyReminderSender
         ]);
         try {
             $this->publisher->publish(new NotificationRequest(
-                type: $isManual ? MonthlyReminderNotificationType::MANUAL : MonthlyReminderNotificationType::SCHEDULED,
+                type: MonthlyReminderNotificationType::TYPE,
                 recipientUserIds: [(int) $owner->getId()],
                 deduplicationKey: $this->deduplicationKey($hospitalId, $dispatchPeriod, $trigger, $isRetry, $queuedAt, $requestId),
                 parameters: [
@@ -169,7 +167,7 @@ final readonly class MonthlyReminderSender
             $this->auditContext->endIntent();
         }
 
-        if (!$isManual && !\in_array(NotificationChannel::Email, $this->scheduledChannels($owner), true)) {
+        if (!\in_array(NotificationChannel::Email, $this->reminderChannels($owner), true)) {
             // In-app only: there is no email whose events would complete the dispatch.
             $dispatch->markSent($queuedAt);
             $this->dispatchRepository->save($dispatch);
@@ -179,13 +177,13 @@ final readonly class MonthlyReminderSender
     }
 
     /**
-     * Channels of the scheduled reminder for the owner; empty when the owner switched it off.
+     * Channels of the reminder for the owner; empty when the owner switched it off.
      *
      * @return list<NotificationChannel>
      */
-    private function scheduledChannels(User $owner): array
+    private function reminderChannels(User $owner): array
     {
-        $channels = $this->channelResolver->resolve((int) $owner->getId(), MonthlyReminderNotificationType::SCHEDULED);
+        $channels = $this->channelResolver->resolve((int) $owner->getId(), MonthlyReminderNotificationType::TYPE);
 
         return array_values(array_filter([NotificationChannel::Email, NotificationChannel::InApp], $channels->has(...)));
     }
@@ -197,11 +195,11 @@ final readonly class MonthlyReminderSender
     private function deduplicationKey(int $hospitalId, string $period, MonthlyReminderTrigger $trigger, bool $isRetry, \DateTimeImmutable $queuedAt, ?string $requestId): string
     {
         return match ($trigger) {
-            MonthlyReminderTrigger::Admin => sprintf('%s:%d:%s', MonthlyReminderNotificationType::MANUAL, $hospitalId, $requestId ?? Uuid::v4()->toRfc4122()),
-            MonthlyReminderTrigger::Cli => sprintf('%s:%d:%s:cli:%s', MonthlyReminderNotificationType::SCHEDULED, $hospitalId, $period, $queuedAt->format('YmdHisu')),
+            MonthlyReminderTrigger::Admin => sprintf('%s:%d:manual:%s', MonthlyReminderNotificationType::TYPE, $hospitalId, $requestId ?? Uuid::v4()->toRfc4122()),
+            MonthlyReminderTrigger::Cli => sprintf('%s:%d:%s:cli:%s', MonthlyReminderNotificationType::TYPE, $hospitalId, $period, $queuedAt->format('YmdHisu')),
             MonthlyReminderTrigger::Scheduler => $isRetry
-                ? sprintf('%s:%d:%s:retry:%s', MonthlyReminderNotificationType::SCHEDULED, $hospitalId, $period, $queuedAt->format('YmdHis'))
-                : sprintf('%s:%d:%s', MonthlyReminderNotificationType::SCHEDULED, $hospitalId, $period),
+                ? sprintf('%s:%d:%s:retry:%s', MonthlyReminderNotificationType::TYPE, $hospitalId, $period, $queuedAt->format('YmdHis'))
+                : sprintf('%s:%d:%s', MonthlyReminderNotificationType::TYPE, $hospitalId, $period),
         };
     }
 }

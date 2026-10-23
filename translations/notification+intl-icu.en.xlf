@@ -5,6 +5,22 @@
       <tool tool-id="symfony" tool-name="Symfony" />
     </header>
     <body>
+      <trans-unit id="NtfB1F252D6" resname="announcement.new_feature.label">
+        <source>announcement.new_feature.label</source>
+        <target>New features</target>
+      </trans-unit>
+      <trans-unit id="Ntf72ED57FE" resname="announcement.new_feature.title">
+        <source>announcement.new_feature.title</source>
+        <target>{feature, select, notifications {New: notifications} other {New feature}}</target>
+      </trans-unit>
+      <trans-unit id="NtfCBA8A1E4" resname="announcement.new_feature.message">
+        <source>announcement.new_feature.message</source>
+        <target>{feature, select, notifications {From now on you are told here about finished imports and other news. Choose which notifications you get on the web, as toast or by email.} other {A new feature is available.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfE778D32C" resname="notification.index.settings">
+        <source>notification.index.settings</source>
+        <target>Notification settings</target>
+      </trans-unit>
       <trans-unit id="NtfB6E533FC" resname="engagement.monthly_reminder.label">
         <source>engagement.monthly_reminder.label</source>
         <target>Monthly data submission reminder</target>
@@ -15,18 +31,6 @@
       </trans-unit>
       <trans-unit id="Ntf944D8F20" resname="engagement.monthly_reminder.message">
         <source>engagement.monthly_reminder.message</source>
-        <target>Please upload the allocations of {period, date, ::MMMMyyyy}.</target>
-      </trans-unit>
-      <trans-unit id="NtfEB76D961" resname="engagement.monthly_reminder_manual.label">
-        <source>engagement.monthly_reminder_manual.label</source>
-        <target>Reminder sent by an administrator</target>
-      </trans-unit>
-      <trans-unit id="Ntf829FA7A5" resname="engagement.monthly_reminder_manual.title">
-        <source>engagement.monthly_reminder_manual.title</source>
-        <target>Reminder: data for {hospitalName}</target>
-      </trans-unit>
-      <trans-unit id="NtfB219520A" resname="engagement.monthly_reminder_manual.message">
-        <source>engagement.monthly_reminder_manual.message</source>
         <target>Please upload the allocations of {period, date, ::MMMMyyyy}.</target>
       </trans-unit>
       <trans-unit id="NtfE7985812" resname="notification.email.action">
@@ -197,30 +201,6 @@
         <source>notification.empty.unread_description</source>
         <target>You have no unread notifications.</target>
       </trans-unit>
-      <trans-unit id="Ntf7B7CC0E9" resname="demo.import_finished.title">
-        <source>demo.import_finished.title</source>
-        <target>Import "{importName}" finished</target>
-      </trans-unit>
-      <trans-unit id="NtfB05E095F" resname="demo.import_finished.message">
-        <source>demo.import_finished.message</source>
-        <target>{rows, number} rows were processed. (Demo)</target>
-      </trans-unit>
-      <trans-unit id="Ntf58DAAD66" resname="demo.hospital.title">
-        <source>demo.hospital.title</source>
-        <target>New data for {hospitalName}</target>
-      </trans-unit>
-      <trans-unit id="NtfE7DDAF6F" resname="demo.hospital.message">
-        <source>demo.hospital.message</source>
-        <target>This demo entry refers to {hospitalName}. (Demo)</target>
-      </trans-unit>
-      <trans-unit id="Ntf92EC08C9" resname="demo.admin_only.title">
-        <source>demo.admin_only.title</source>
-        <target>Administrative notice</target>
-      </trans-unit>
-      <trans-unit id="NtfA1FBE3A2" resname="demo.admin_only.message">
-        <source>demo.admin_only.message</source>
-        <target>Only administrators can see this entry. (Demo)</target>
-      </trans-unit>
       <trans-unit id="Ntf71FA27AC" resname="notification.action.read">
         <source>notification.action.read</source>
         <target>Mark as read</target>
@@ -356,18 +336,6 @@
       <trans-unit id="NtfE4407E27" resname="participation.activated.label">
         <source>participation.activated.label</source>
         <target>Participation activated</target>
-      </trans-unit>
-      <trans-unit id="Ntf83FFEAA7" resname="demo.import_finished.label">
-        <source>demo.import_finished.label</source>
-        <target>Demo: import finished</target>
-      </trans-unit>
-      <trans-unit id="Ntf55341535" resname="demo.hospital.label">
-        <source>demo.hospital.label</source>
-        <target>Demo: new hospital data</target>
-      </trans-unit>
-      <trans-unit id="Ntf2150C740" resname="demo.admin_only.label">
-        <source>demo.admin_only.label</source>
-        <target>Demo: note for administrators</target>
       </trans-unit>
       <trans-unit id="Ntf4DD92465" resname="admin.user_registered.title">
         <source>admin.user_registered.title</source>

@@ -26,8 +26,8 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
 | `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `user.first_import` | Imports | in-app, toast | the import's creator | the creator's first successful import is recorded |
-| `engagement.monthly_reminder` | Reports | email (in-app optional) | the hospital owner | the scheduled monthly reminder is due (first working day) or sent from the CLI |
-| `engagement.monthly_reminder_manual` | Reports | email (mandatory, not configurable) | the hospital owner | an administrator sends the reminder by hand |
+| `engagement.monthly_reminder` | Reports | email (web optional) | the hospital owner | the monthly reminder is due (first working day), an administrator sends it by hand, or it is sent from the CLI |
+| `announcement.new_feature` | Announcements | web | every enabled user | a new feature is introduced (parameter `feature`); the notification system itself was announced by a migration at deploy time |
 | `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
 | `admin.user_registered` | Administration | in-app, email | all admins (each chooses in the settings) | a user registers |
 | `admin.import_failed` | Administration | in-app, email | all admins (each chooses in the settings) | an import run ends as failed (text from the reason code) |
@@ -44,7 +44,8 @@ The first-import milestone is stored in `user_import_milestone` (Import context)
 `Engagement` still decides when a reminder is due, keeps one `monthly_reminder_dispatch` row per hospital, upload month and trigger, and the 5-minute guard for manual sends. The reminder itself is published as a notification to the hospital owner; its email is rendered with the reminder design by `MonthlyReminderEmailCustomizer` when it is delivered (for the reference date stored with the notification) and carries the dispatch id, so the dispatch status keeps following the mail events. The in-app entry links to the upload page.
 
 - Owners switch the scheduled reminder off or add the in-app entry on the settings page. The former user flag `receives_monthly_submission_reminder = false` was migrated to an email override; the column is no longer read and will be dropped in a later release. An owner who keeps only the in-app entry gets no email; the dispatch is marked as sent at once.
-- Deduplication: `engagement.monthly_reminder:{hospitalId}:{uploadMonth}` for scheduled reminders, with a `:retry:{time}` suffix when a failed dispatch is retried; CLI sends (`app:reminder:preview --send`) are always new. Manual reminders use `engagement.monthly_reminder_manual:{hospitalId}:{requestId}`: every rendered admin action carries a new request id, so a repeated submission of the same action sends nothing new.
+- Deduplication: `engagement.monthly_reminder:{hospitalId}:{uploadMonth}` for scheduled reminders, with a `:retry:{time}` suffix when a failed dispatch is retried; CLI sends (`app:reminder:preview --send`) are always new. Manual reminders use `engagement.monthly_reminder:{hospitalId}:manual:{requestId}`: every rendered admin action carries a new request id, so a repeated submission of the same action sends nothing new.
+- Manual reminders follow the owner's settings like scheduled ones: an owner who switched the email off gets only the web entry; an owner who switched the reminder off completely gets nothing, and the admin sees "opted out". There is no separate type and no way to bypass the owner's choice (also not from `app:reminder:preview`).
 - The former own delay between bulk emails (`MAILER_BULK_DELAY_MS`) is gone; the rate limiter of `async_mail` spaces emails.
 
 ## Email delivery
@@ -114,7 +115,7 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 ## Inbox
 
 - **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count, the **5 newest unread** entries with their relative time (fewer if fewer are unread) and a link to the overview with the total number of entries.
-- **Overview:** `/notifications` lists entries newest first, **25 per page**, with the tabs *All* and *Unread* (`?filter=unread`). "Older" and "Newer" page with keyset cursors on `created_at, id` (`?before=` / `?after=`); filter and page are kept after every action. A notice below the list explains the retention periods.
+- **Overview:** `/notifications` lists entries newest first (the gear icon top right opens the notification settings), **25 per page**, with the tabs *All* and *Unread* (`?filter=unread`). "Older" and "Newer" page with keyset cursors on `created_at, id` (`?before=` / `?after=`); filter and page are kept after every action. A notice below the list explains the retention periods.
 - **Single entries:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, remove.
 - **Action bar** above the list, one place for all other actions:
   - without a selection: *mark all as read* and *remove all* (confirmation dialog). With the *Unread* filter active, *remove all* only removes unread entries; read ones stay.
@@ -175,18 +176,7 @@ Email can already be chosen for types that offer it; it is delivered once email 
 
 ## Trying it locally
 
-Real entries come from imports (upload a file and let the worker process it) and from activating participation. For a quick look without that, the `dev` command `app:notification:demo` creates demo entries for a user through the real publisher:
-
-```bash
-php bin/console app:notification:demo <username-or-email> --count=30
-```
-
-- `--count` normal entries with a link (default 3); more than 25 show the paging of the overview.
-- One hospital-scoped entry about a hospital the user cannot access, so it is shown redacted (skipped when the user can access every hospital, e.g. admins).
-- One admin-only entry, hidden for users without `ROLE_ADMIN`.
-- `--clear` removes all notifications of the user first.
-
-The command and its demo types live in `src/DataFixtures/Notification/` and exist only in `dev` and `test`.
+Real entries come from the producers: upload an import and let it be processed, activate a user's participation, register a user or send feedback (admin notifications), or send a monthly reminder from the admin area. With `symfony serve` and Mailpit, emails arrive at once in `dev` (delivery jobs run synchronously there).
 
 ## Storage
 
