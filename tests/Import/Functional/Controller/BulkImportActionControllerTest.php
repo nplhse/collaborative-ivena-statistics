@@ -266,6 +266,8 @@ final class BulkImportActionControllerTest extends WebTestCase
     private function import(User $creator, Hospital $hospital, string $name, ImportStatus $status = ImportStatus::COMPLETED): Import
     {
         return ImportFactory::createOne([
+            // The factory's random date can fall before the list's default "created from" filter and hide the import.
+            'createdAt' => new \DateTimeImmutable('2025-06-01 12:00:00'),
             'name' => $name,
             'hospital' => $hospital,
             'createdBy' => $creator,
