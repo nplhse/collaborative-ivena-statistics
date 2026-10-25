@@ -111,6 +111,17 @@ final class ListImportController extends AbstractController
                 confirmMessage: $this->trans('import.bulk.reprocess.confirm_message'),
                 confirmLabel: $this->trans('import.bulk.reprocess.confirm'),
             ),
+            new DataTableBulkAction(
+                name: BulkImportActionController::ACTION_DELETE,
+                label: $this->trans('import.bulk.delete.label'),
+                icon: 'tabler:trash',
+                variant: 'outline-danger',
+                confirmTitleOne: $this->trans('import.bulk.delete.confirm_title.one'),
+                confirmTitleOther: $this->trans('import.bulk.delete.confirm_title.other', ['count' => '%count%']),
+                confirmMessage: $this->trans('import.bulk.delete.confirm_message'),
+                confirmLabel: $this->trans('import.bulk.delete.confirm'),
+                confirmVariant: 'danger',
+            ),
         ];
     }
 

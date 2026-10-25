@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\UI\Http\Controller;
 
 use App\Import\Application\DTO\ImportBulkActionResult;
+use App\Import\Application\Service\ImportBulkDeletionService;
 use App\Import\Application\Service\ImportBulkReprocessService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Security\Voter\ImportVoter;
@@ -30,8 +31,11 @@ final class BulkImportActionController extends AbstractController
 
     public const string ACTION_REPROCESS = 'reprocess';
 
+    public const string ACTION_DELETE = 'delete';
+
     public function __construct(
         private readonly ImportBulkReprocessService $reprocessService,
+        private readonly ImportBulkDeletionService $deletionService,
         private readonly TranslatorInterface $translator,
     ) {
     }
@@ -51,22 +55,30 @@ final class BulkImportActionController extends AbstractController
             return $this->redirectToRoute('app_import_index');
         }
 
+        $canDelete = fn (Import $import): bool => $this->isGranted(ImportVoter::DELETE, $import);
         $action = $request->request->getString('bulk_action');
-        $result = match ($action) {
-            self::ACTION_REPROCESS => $this->reprocessService->reprocess(
+
+        if (self::ACTION_REPROCESS === $action) {
+            $result = $this->reprocessService->reprocess(
                 $ids,
                 $user->getId(),
-                fn (Import $import): bool => $this->isGranted(ImportVoter::DELETE, $import),
+                $canDelete,
                 fn (Import $import): bool => $this->isGranted(ImportVoter::REPROCESS, $import),
-            ),
-            default => throw new BadRequestHttpException(\sprintf('Unknown bulk action "%s".', $action)),
-        };
+            );
+            $this->report($result, 'flash.import.bulk.reprocess_queued');
 
-        $this->report($result, 'flash.import.bulk.reprocess_queued');
+            return null === $result->batchRunId
+                ? $this->redirectToRoute('app_import_index')
+                : $this->redirectToRoute('app_import_index', ['batch' => $result->batchRunId]);
+        }
 
-        return null === $result->batchRunId
-            ? $this->redirectToRoute('app_import_index')
-            : $this->redirectToRoute('app_import_index', ['batch' => $result->batchRunId]);
+        if (self::ACTION_DELETE === $action) {
+            $this->report($this->deletionService->queue($ids, (int) $user->getId(), $canDelete), 'flash.import.bulk.delete_queued');
+
+            return $this->redirectToRoute('app_import_index');
+        }
+
+        throw new BadRequestHttpException(\sprintf('Unknown bulk action "%s".', $action));
     }
 
     private function report(ImportBulkActionResult $result, string $handledKey): void
