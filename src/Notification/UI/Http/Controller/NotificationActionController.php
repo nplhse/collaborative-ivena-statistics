@@ -9,6 +9,7 @@ use App\Notification\Application\Contract\NotificationInboxWriterInterface;
 use App\Notification\Application\Inbox\InboxEntry;
 use App\Notification\UI\Http\SafeTargetPath;
 use App\Notification\UI\ViewModel\NotificationViewFactory;
+use App\Shared\UI\Http\BulkSelection;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -40,9 +41,6 @@ final class NotificationActionController extends AbstractController
     public const string BULK_READ = 'read';
 
     public const string BULK_REMOVE = 'remove';
-
-    /** Upper limit for one bulk request; a page shows 25 entries. */
-    private const int BULK_MAX_IDS = 100;
 
     public function __construct(
         private readonly NotificationInboxQueryInterface $inboxQuery,
@@ -106,7 +104,7 @@ final class NotificationActionController extends AbstractController
     {
         $this->assertCsrf(self::CSRF_BULK, $request);
 
-        $ids = $this->selectedIds($request);
+        $ids = BulkSelection::ids($request);
         if ([] === $ids) {
             $this->addFlash('warning', new TranslatableMessage('notification.flash.none_selected', domain: 'notification'));
 
@@ -147,26 +145,6 @@ final class NotificationActionController extends AbstractController
         ));
 
         return $this->redirectToRoute('app_notification_index', $unreadOnly ? ['filter' => NotificationInboxController::FILTER_UNREAD] : []);
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function selectedIds(Request $request): array
-    {
-        $raw = $request->request->all('ids');
-        if (\count($raw) > self::BULK_MAX_IDS) {
-            throw new BadRequestHttpException(\sprintf('At most %d notifications can be changed at once.', self::BULK_MAX_IDS));
-        }
-
-        $ids = [];
-        foreach ($raw as $value) {
-            if (\is_string($value) && 1 === preg_match('/^[1-9]\d{0,9}$/', $value)) {
-                $ids[(int) $value] = (int) $value;
-            }
-        }
-
-        return array_values($ids);
     }
 
     private function ownEntry(User $user, int $id): InboxEntry

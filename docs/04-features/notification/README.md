@@ -121,7 +121,7 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 - **Action bar** above the list, one place for all other actions:
   - without a selection: *mark all as read* and *remove all* (confirmation dialog). With the *Unread* filter active, *remove all* only removes unread entries; read ones stay.
   - with a selection (one by one or all on the page): *mark as read*, *remove* (confirmation) and *clear selection* (`POST /notifications/bulk`, at most 100 ids per request; ids of other users are ignored).
-  - the switch between both states is the Stimulus controller `notification-bulk`.
+  - the switch between both states is the generic Stimulus controller `bulk-selection` (also used by DataTable bulk actions).
 - The POST actions are CSRF-protected and only accept same-site return paths.
 - **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
 

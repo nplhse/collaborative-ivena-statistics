@@ -314,8 +314,8 @@ final class NotificationActionControllerTest extends DatabaseWebTestCase
         self::assertCount(1, $crawler->filter('[data-testid="notification-selection-actions"].d-none'));
         self::assertCount(1, $crawler->filter('[data-testid="notification-bulk-clear"]'));
         $card = $crawler->filter('[data-testid="notification-inbox"]');
-        self::assertSame('checkbox-select-all notification-bulk', $card->attr('data-controller'));
-        self::assertSame('%count% selected', $card->attr('data-notification-bulk-selected-label-value'));
+        self::assertSame('bulk-selection', $card->attr('data-controller'));
+        self::assertSame('%count% selected', $card->attr('data-bulk-selection-selected-label-value'));
         self::assertSame('/notifications/remove-all', $crawler->filter('#notification-remove-all-modal form')->attr('action'));
     }
 
