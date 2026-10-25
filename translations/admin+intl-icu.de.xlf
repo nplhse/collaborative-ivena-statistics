@@ -749,6 +749,10 @@
         <source>admin.import.action.batch_items</source>
         <target>Batch-Lauf-Einträge</target>
       </trans-unit>
+      <trans-unit id="admImportJobRunsDe" resname="admin.import.action.job_runs">
+        <source>admin.import.action.job_runs</source>
+        <target>Job-Läufe</target>
+      </trans-unit>
       <trans-unit id="admFsContentDe" resname="admin.fieldset.content">
         <source>admin.fieldset.content</source>
         <target>Inhalt</target>

@@ -12,7 +12,7 @@ Legend: **Full** = create/edit/delete; **Read** = index/detail only; **—** = n
 | Hospital | `HospitalCrudController` | Full | coordinates, access grants and timestamps on detail |
 | HospitalAccessGrant | `HospitalAccessGrantCrudController` | Full | permission mask UI |
 | Allocation | `AllocationCrudController` | Full | secondary transport/indications, notes |
-| Import | `ImportCrudController` | Limited edit | no NEW (pipeline-created); file metadata and blame on detail; links to rejects and batch items |
+| Import | `ImportCrudController` | Limited edit | no NEW (pipeline-created); file metadata and blame on detail; links to rejects, batch items and job runs |
 | ImportReject | `ImportRejectCrudController` | Read | |
 | ImportBatchRun | `ImportBatchRunCrudController` | Read | |
 | ImportBatchRunItem | `ImportBatchRunItemCrudController` | Read | |
@@ -42,6 +42,7 @@ Allocation, Assignment, Department, DispatchArea, IndicationNormalized, Indicati
 |--------|-----------------|------|-------|
 | AuditEntry | `AuditLogCrudController` | Read | concise index (time, intent, action, entity, changed fields, actor); origin, request ID and diffs on detail; time-range and notification actions kept |
 | CookieConsent | `CookieConsentCrudController` | Read | version and `updatedAt` on detail; no `createdAt` getter |
+| JobRun | `JobRunCrudController` | Read | `job_run` (ADR 018), read-only entity over a DBAL-written table; filters for job, status, trigger, hospital, start and thresholds; shortcuts; metrics table and error on detail; linked from the import detail page |
 | Feedback | `FeedbackCrudController` | Limited | no manual create |
 
 Failed messages stay a custom list/detail Twig view, not EasyAdmin CRUD.

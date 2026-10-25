@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\UI\Http\Controller\Import;
 
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
+use App\Admin\UI\Http\Controller\JobRun\JobRunCrudController;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Domain\Entity\Import;
@@ -100,12 +101,30 @@ final class ImportCrudController extends AbstractCrudController
                 ])
                 ->generateUrl());
 
+        $jobRuns = Action::new(
+            'importJobRuns',
+            new TranslatableMessage('admin.import.action.job_runs', domain: 'admin'),
+            'fas fa-stopwatch',
+        )
+            ->linkToUrl(fn (Import $import): string => $this->adminUrlGenerator
+                ->unsetAll()
+                ->setController(JobRunCrudController::class)
+                ->setAction(Action::INDEX)
+                ->set(EA::FILTERS, [
+                    'importId' => [
+                        'comparison' => ComparisonType::EQ,
+                        'value' => $import->getId(),
+                    ],
+                ])
+                ->generateUrl());
+
         return $actions
             ->disable(Action::NEW)
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_EDIT, Action::INDEX)
             ->add(Crud::PAGE_DETAIL, $rejects)
-            ->add(Crud::PAGE_DETAIL, $batchItems);
+            ->add(Crud::PAGE_DETAIL, $batchItems)
+            ->add(Crud::PAGE_DETAIL, $jobRuns);
     }
 
     #[\Override]
