@@ -23,6 +23,8 @@ use App\Notification\Domain\Enum\NotificationPriority;
     availableChannels: [NotificationChannel::InApp, NotificationChannel::Email, NotificationChannel::Toast],
     priority: NotificationPriority::High,
     accessScope: NotificationAccessScope::Hospital,
+    toastGroup: 'import.run_outcome',
+    toastGroupRoute: 'app_import_index',
 )]
 final class ImportFailedNotification extends AppNotification
 {

@@ -38,9 +38,9 @@
     <div
         class="card"
         data-testid="notification-inbox"
-        data-controller="checkbox-select-all notification-bulk"
-        data-notification-bulk-default-label-value="{{ 'notification.bulk.select_page'|trans({}, 'notification') }}"
-        data-notification-bulk-selected-label-value="{{ 'notification.bulk.selected'|trans({count: '%count%'}, 'notification') }}"
+        data-controller="bulk-selection"
+        data-bulk-selection-default-label-value="{{ 'notification.bulk.select_page'|trans({}, 'notification') }}"
+        data-bulk-selection-selected-label-value="{{ 'notification.bulk.selected'|trans({count: '%count%'}, 'notification') }}"
     >
         <div class="card-header">
             <ul class="nav nav-tabs card-header-tabs" data-testid="notification-inbox-filter">
@@ -75,14 +75,13 @@
                     <input
                         type="checkbox"
                         class="form-check-input"
-                        data-checkbox-select-all-target="toggle"
-                        data-notification-bulk-target="toggle"
-                        data-action="change->checkbox-select-all#toggleAll change->notification-bulk#update"
+                        data-bulk-selection-target="toggle"
+                        data-action="change->bulk-selection#toggleAll"
                         data-testid="notification-select-all"
                     >
-                    <span class="form-check-label" data-notification-bulk-target="label" aria-live="polite">{{ 'notification.bulk.select_page'|trans({}, 'notification') }}</span>
+                    <span class="form-check-label" data-bulk-selection-target="label" aria-live="polite">{{ 'notification.bulk.select_page'|trans({}, 'notification') }}</span>
                 </label>
-                <div class="d-flex flex-wrap gap-2" data-notification-bulk-target="allActions" data-testid="notification-all-actions">
+                <div class="d-flex flex-wrap gap-2" data-bulk-selection-target="allActions" data-testid="notification-all-actions">
                     {% if state.unreadCount > 0 %}
                         {{ include('@Notification/inbox/_read_all_form.html.twig', {
                             target: path('app_notification_index', filterParams),
@@ -99,12 +98,12 @@
                     method="post"
                     action="{{ path('app_notification_bulk') }}"
                     class="d-flex d-none flex-wrap gap-2"
-                    data-notification-bulk-target="selectionActions"
+                    data-bulk-selection-target="selectionActions"
                     data-testid="notification-selection-actions"
                 >
                     <input type="hidden" name="_token" value="{{ csrf_token(constant('App\\Notification\\UI\\Http\\Controller\\NotificationActionController::CSRF_BULK')) }}">
                     <input type="hidden" name="_target" value="{{ currentPath }}">
-                    <button type="button" class="btn btn-sm btn-link" data-action="notification-bulk#clear" data-testid="notification-bulk-clear">
+                    <button type="button" class="btn btn-sm btn-link" data-action="bulk-selection#clear" data-testid="notification-bulk-clear">
                         {{ 'notification.bulk.clear'|trans({}, 'notification') }}
                     </button>
                     <button

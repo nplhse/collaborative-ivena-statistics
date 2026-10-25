@@ -1,0 +1,28 @@
+{# One confirmation dialog per action that needs it. bulk-selection writes the selected count into the title. #}
+{% for action in bulkActions|filter(action => action.requiresConfirmation) %}
+    <twig:Modal id="{{ bulkId }}-confirm-{{ action.name }}" title="{{ action.label }}" data-testid="data-table-bulk-confirm-{{ action.name }}">
+        <div class="modal-body">
+            <p
+                class="fw-medium"
+                data-bulk-selection-target="countText"
+                data-count-one="{{ action.confirmTitleOne }}"
+                data-count-other="{{ action.confirmTitleOther }}"
+                data-testid="data-table-bulk-confirm-title"
+            >{{ action.confirmTitleOther }}</p>
+            {% if action.confirmMessage %}
+                <p class="mb-0">{{ action.confirmMessage }}</p>
+            {% endif %}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">{{ 'action.cancel'|trans({}, 'messages') }}</button>
+            <button
+                type="submit"
+                form="{{ bulkId }}-form"
+                name="bulk_action"
+                value="{{ action.name }}"
+                class="btn btn-{{ action.confirmVariant }}"
+                data-testid="data-table-bulk-confirm-submit-{{ action.name }}"
+            >{{ action.confirmLabel ?? action.label }}</button>
+        </div>
+    </twig:Modal>
+{% endfor %}

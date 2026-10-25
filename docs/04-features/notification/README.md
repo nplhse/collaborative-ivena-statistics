@@ -22,9 +22,12 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 
 | Type | Category | Default channels | Recipients | Published when |
 |------|----------|------------------|------------|----------------|
-| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; reprocess or console run: its initiator; batch runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
+| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; reprocess or console run: its initiator; batch and bulk reprocess runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
-| `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
+| `import.batch_finished` | Imports | in-app, toast | the user who started the batch (`--notify-user` or bulk reprocess) | the last item of a batch finished and none failed ([details](../import/batch-requeue.md#completion-and-summary)) |
+| `import.batch_failed` | Imports | in-app, toast (high priority) | as above | the last item of a batch finished and at least one failed |
+| `import.bulk_deleted` | Imports | in-app, toast | the user who started a bulk deletion on the import list | the background deletion finished without failures ([details](../import/bulk-actions.md#delete-selected-imports)) |
+| `import.bulk_delete_failed` | Imports | in-app, toast (high priority) | as above | the background deletion finished and at least one import could not be deleted |
 | `user.first_import` | Imports | in-app, toast | the import's creator (hospital-scoped; not announced when the import is gone) | the creator's first successful import is recorded |
 | `engagement.monthly_reminder` | Reports | email (web optional) | the hospital owner | the monthly reminder is due (first working day), an administrator sends it by hand, or it is sent from the CLI |
 | `announcement.new_feature` | Announcements | web | every enabled user | a new feature is introduced (parameter `feature`); the notification system itself was announced by a migration at deploy time |
@@ -90,6 +93,7 @@ final class ImportRunFinishedNotification extends AppNotification
 ```
 
 3. Add the translations `{type}.title`, `{type}.message` and `{type}.label` (name on the settings page) to the translation domain of the definition (default: `notification`).
+   Optional: `toastGroup` (dotted identifier, needs the toast channel) collapses several toasts of the group in one poll into one; `toastGroupRoute` is the route it links to (default: unread notifications). Add `notification.toast_group.{group}.title` and `.message`; they receive `count` and one count per type of the group, named after the type with `_` for `.` (e.g. `import_failed`).
 4. Publish from a subscriber of the context's own application event through `NotificationPublisherInterface`:
 
 ```php
@@ -121,7 +125,7 @@ The class is found automatically: `NotificationDefinitionPass` collects every cl
 - **Action bar** above the list, one place for all other actions:
   - without a selection: *mark all as read* and *remove all* (confirmation dialog). With the *Unread* filter active, *remove all* only removes unread entries; read ones stay.
   - with a selection (one by one or all on the page): *mark as read*, *remove* (confirmation) and *clear selection* (`POST /notifications/bulk`, at most 100 ids per request; ids of other users are ignored).
-  - the switch between both states is the Stimulus controller `notification-bulk`.
+  - the switch between both states is the generic Stimulus controller `bulk-selection` (also used by DataTable bulk actions).
 - The POST actions are CSRF-protected and only accept same-site return paths.
 - **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
 
@@ -132,6 +136,7 @@ Types with the toast channel get a 5-minute toast window when they are published
 - **Active** means the tab is visible and the user interacted (pointer, keyboard, scroll) within the last 10 minutes. The time of the last interaction is kept in `localStorage` (`notification:last-interaction`), so it survives navigation and is shared by the user's tabs.
 - **Initial render:** every page renders `version` and the unread dot through `NotificationSnapshotProvider` and never claims toasts. Once the context is active, the Stimulus controller `notification-poll` polls immediately, then every 30–60 s (random jitter). Inactive tabs stop and resume on interaction or visibility. Page loads within 10 s of the last poll of any tab reuse it.
 - **Endpoint:** `GET /notifications/poll?version=N` claims pending toasts independently of the version (`toast_claimed_at`, one conditional update, at most once per toast) and answers `204 No Content` when the version is unchanged and no toast was claimed. Otherwise the JSON carries `version`, `unreadCount`, `badgeLabel`, up to 3 toasts and a summary of further ones (`more`). Toast texts follow the inbox visibility rules: hidden entries are left out, redacted ones keep their generic text.
+- **Grouping:** toasts of one answer whose types share a `toastGroup` are collapsed into one toast when there are at least two (#720). `import.completed` and `import.failed` form `import.run_outcome`: "5 imports processed, 1 failed", linking to the import list. The grouped toast takes the place of the group's first toast and the highest priority of its members, so a failure keeps the warning colour and stays until closed. Only toasts claimed in the same poll are grouped (a 30–60 s window); imports finishing minutes apart still toast separately. The inbox entries stay separate. `NotificationToastGrouper` does the work; entries of unknown types stay as they are.
 - **Load:** the endpoint sends `Cache-Control: no-store`, is skipped by request analytics and Sentry tracing, and is limited to 30 requests per minute and user (`notification_poll`, `429` with `Retry-After`).
 - **Tabs:** results are shared via `BroadcastChannel` (`app-notifications`), so other tabs update their badge without polling. When the version changes, a dropdown that was already opened reloads.
 - **Display:** the Stimulus controller `notification-toasts` shows toasts bottom right (`#notification-toasts`, kept across Turbo visits). Severity follows the priority (low: secondary, normal: primary, high: warning, urgent: danger). High and urgent toasts use `role="alert"` and stay until closed; the others hide after 10 s unless hovered or focused. A claim means "handed to a browser", not "seen": a lost response leaves the entry only in the inbox.

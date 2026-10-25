@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\Repository;
 
 use App\Import\Domain\Entity\ImportBatchRun;
+use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportBatchRunStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -21,19 +23,26 @@ final class ImportBatchRunRepository extends ServiceEntityRepository
         parent::__construct($registry, ImportBatchRun::class);
     }
 
+    /**
+     * The latest console batch that `app:import:requeue-all --resume` may continue. Bulk reprocess
+     * batches from the import list (`source: ui`) are never resumed from the console.
+     */
     public function findLatestIncomplete(): ?ImportBatchRun
     {
-        return $this->createQueryBuilder('r')
-            ->where('r.status IN (:statuses)')
-            ->setParameter('statuses', [
-                ImportBatchRunStatus::Running,
-                ImportBatchRunStatus::Interrupted,
-                ImportBatchRunStatus::Failed,
-            ])
-            ->orderBy('r.id', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $id = $this->getEntityManager()->getConnection()->fetchOne(
+            "SELECT id FROM import_batch_run WHERE status IN (:statuses) AND (options ->> 'source') IS DISTINCT FROM :ui ORDER BY id DESC LIMIT 1",
+            [
+                'statuses' => [
+                    ImportBatchRunStatus::Running->value,
+                    ImportBatchRunStatus::Interrupted->value,
+                    ImportBatchRunStatus::Failed->value,
+                ],
+                'ui' => ImportBatchRun::SOURCE_UI,
+            ],
+            ['statuses' => ArrayParameterType::STRING],
+        );
+
+        return false === $id ? null : $this->find((int) $id);
     }
 
     /**
@@ -60,6 +69,32 @@ final class ImportBatchRunRepository extends ServiceEntityRepository
             ['from' => $from, 'to' => $to],
             ['from' => Types::DATETIME_IMMUTABLE, 'to' => Types::DATETIME_IMMUTABLE],
         ));
+    }
+
+    /**
+     * Returns the managed instance of a batch. Processing an import in the same process (sync transport,
+     * tests) clears the entity manager per chunk, which detaches entities held by the caller.
+     */
+    public function managed(ImportBatchRun $run): ImportBatchRun
+    {
+        if ($this->getEntityManager()->contains($run)) {
+            return $run;
+        }
+
+        return $this->find($run->getId()) ?? throw new \LogicException(\sprintf('Import batch run #%d is gone.', (int) $run->getId()));
+    }
+
+    /**
+     * @see managed()
+     */
+    public function managedItem(ImportBatchRunItem $item): ImportBatchRunItem
+    {
+        $em = $this->getEntityManager();
+        if ($em->contains($item)) {
+            return $item;
+        }
+
+        return $em->find(ImportBatchRunItem::class, $item->getId()) ?? throw new \LogicException(\sprintf('Import batch run item #%d is gone.', (int) $item->getId()));
     }
 
     public function save(ImportBatchRun $run): void

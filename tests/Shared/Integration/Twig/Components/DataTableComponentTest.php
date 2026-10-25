@@ -6,6 +6,7 @@ namespace App\Tests\Shared\Integration\Twig\Components;
 
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
 use App\Shared\UI\Twig\Components\DataTable;
+use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -28,6 +29,82 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('Legacy', $html);
         self::assertStringContainsString('Legacy cell', $html);
         self::assertStringNotContainsString('<thead>', $html);
+    }
+
+    public function testBulkSelectionIsOffWithoutActions(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [['id' => 1, 'name' => 'Alpha']],
+            'bulkFormAction' => '/bulk',
+            'bulkCsrfToken' => 'token',
+        ]);
+
+        self::assertStringNotContainsString('bulk-selection', $html);
+        self::assertStringNotContainsString('name="ids[]"', $html);
+    }
+
+    public function testRendersBulkSelectionToolbarAndCountConfirmation(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [
+                ['id' => 7, 'name' => 'Alpha', 'selectable' => true],
+                ['id' => 8, 'name' => 'Beta', 'selectable' => false],
+            ],
+            'bulkActions' => [
+                new DataTableBulkAction('reprocess', 'Reprocess', 'tabler:refresh'),
+                new DataTableBulkAction(
+                    'delete',
+                    'Delete',
+                    'tabler:trash',
+                    'outline-danger',
+                    confirmTitleOne: 'Really delete this import?',
+                    confirmTitleOther: 'Really delete these %count% imports?',
+                    confirmMessage: 'This cannot be undone.',
+                    confirmLabel: 'Delete now',
+                    confirmVariant: 'danger',
+                ),
+            ],
+            'bulkFormAction' => '/import/bulk',
+            'bulkCsrfToken' => 'csrf-value',
+            'bulkId' => 'import-bulk',
+            'bulkSelectableProperty' => 'selectable',
+        ]);
+
+        self::assertStringContainsString('data-controller="bulk-selection"', $html);
+        self::assertStringContainsString('data-bulk-selection-selected-label-value="%count% selected"', $html);
+        self::assertStringContainsString('data-testid="data-table-bulk-select-all"', $html);
+        self::assertSame(1, substr_count($html, 'name="ids[]"'), 'Rows without the selectable flag get no checkbox.');
+        self::assertStringContainsString('value="7"', $html);
+        self::assertStringContainsString('form="import-bulk-form"', $html);
+        self::assertStringContainsString('aria-label="Select row 7"', $html);
+
+        self::assertStringContainsString('<form id="import-bulk-form" method="post" action="/import/bulk"', $html);
+        self::assertStringContainsString('name="_token" value="csrf-value"', $html);
+        self::assertMatchesRegularExpression('/type="submit"\s+name="bulk_action"\s+value="reprocess"/', $html, 'Actions without confirmation submit directly.');
+        self::assertStringContainsString('data-bs-target="#import-bulk-confirm-delete"', $html);
+
+        self::assertStringContainsString('id="import-bulk-confirm-delete"', $html);
+        self::assertStringContainsString('data-count-one="Really delete this import?"', $html);
+        self::assertStringContainsString('data-count-other="Really delete these %count% imports?"', $html);
+        self::assertStringContainsString('This cannot be undone.', $html);
+        self::assertMatchesRegularExpression('/form="import-bulk-form"\s+name="bulk_action"\s+value="delete"\s+class="btn btn-danger"/', $html);
+        self::assertStringContainsString('Delete now', $html);
+        self::assertStringNotContainsString('id="import-bulk-confirm-reprocess"', $html);
+    }
+
+    public function testEmptyBulkTableSpansTheSelectionColumn(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [],
+            'bulkActions' => [new DataTableBulkAction('reprocess', 'Reprocess')],
+            'bulkFormAction' => '/bulk',
+            'bulkCsrfToken' => 'token',
+        ]);
+
+        self::assertStringContainsString('colspan="2"', $html);
     }
 
     public function testRendersEmptyStateForDeclarativeTable(): void

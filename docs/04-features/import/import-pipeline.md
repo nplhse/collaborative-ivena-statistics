@@ -87,7 +87,7 @@ To clean up historical import-generated `Assessment` `create` audit entries, see
 
 ## Deletion cleanup
 
-When an import is deleted (UI or admin), `ImportDeletionService` removes:
+When an import is deleted (UI, admin or a [bulk deletion](bulk-actions.md#delete-selected-imports) in the worker), `ImportDeletionService` removes:
 
 - The import database record and its `import_run` history (database cascade)
 - Related allocations, assessments, MCI cases, and projection rows

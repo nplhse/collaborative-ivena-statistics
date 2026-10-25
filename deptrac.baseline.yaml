@@ -225,6 +225,8 @@ deptrac:
       - App\Import\Infrastructure\Adapter\SplCsvRowReader
       - App\Import\Infrastructure\Adapter\SplCsvStreamFactory
       - App\Import\Infrastructure\Charset\EncodingDetector
+    App\Import\Application\MessageHandler\DeleteImportsMessageHandler:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\Application\MessageHandler\ImportAllocationsMessageHandler:
       - App\Import\Infrastructure\Repository\ImportRepository
     App\Import\Application\MessageHandler\ImportClosuresMessageHandler:
@@ -240,6 +242,11 @@ deptrac:
     App\Import\Application\Service\ImportAllocationsDispatcher:
       - App\Import\Infrastructure\Repository\ImportRepository
       - App\User\Domain\Entity\User
+    App\Import\Application\Service\ImportBulkDeletionService:
+      - App\Import\Infrastructure\Repository\ImportRepository
+    App\Import\Application\Service\ImportBulkReprocessService:
+      - App\Import\Infrastructure\Repository\ImportBatchRunRepository
+      - App\Import\Infrastructure\Repository\ImportRepository
     App\Import\Application\Service\ImportCreatorPermissionCheck:
       - App\User\Domain\Entity\User
       - App\User\Domain\Security\UserRole
@@ -294,6 +301,9 @@ deptrac:
     App\Import\UI\Console\NotifyUserResolver:
       - App\User\Domain\Entity\User
       - App\User\Infrastructure\Repository\UserRepository
+    App\Import\UI\Http\Controller\BulkImportActionController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+      - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\DeleteImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\DownloadImportSourceFileController:
@@ -301,7 +311,9 @@ deptrac:
     App\Import\UI\Http\Controller\ImportStatusController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Import\UI\Http\Controller\ListImportController:
+      - App\Import\Infrastructure\Query\ImportBatchProgressQuery
       - App\Import\Infrastructure\Query\ListImportsQuery
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
       - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\NewImportController:
       - App\User\Domain\Entity\User
