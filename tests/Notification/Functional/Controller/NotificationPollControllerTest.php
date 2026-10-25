@@ -103,6 +103,46 @@ final class NotificationPollControllerTest extends DatabaseWebTestCase
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM notification WHERE toast_claimed_at IS NULL'), 'hidden toasts are claimed but not shown');
     }
 
+    public function testCollapsesImportToastsOfOnePollIntoOneToast(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsRoleUser($client);
+        NotificationRecipientStateFactory::createOne(['user' => $user, 'version' => 1]);
+        $this->pendingToast($user, ['priority' => NotificationPriority::Low, 'titleKey' => 'test.example.title']);
+        foreach (['Januar', 'Februar'] as $month) {
+            $this->importToast($user, 'import.completed', $month, NotificationPriority::Normal);
+        }
+        $this->importToast($user, 'import.failed', 'März', NotificationPriority::High);
+
+        $data = $this->poll($client, 1);
+
+        self::assertCount(2, $data['toasts'], 'one grouped toast plus the toast of another type');
+        self::assertSame([
+            'id' => null,
+            'title' => '3 imports processed, 1 failed',
+            'message' => 'See the import list and your notifications for each result.',
+            'url' => '/import',
+            'severity' => 'warning',
+            'important' => true,
+        ], $data['toasts'][1], 'the group takes the highest priority, so the failure stays visible');
+        self::assertNull($data['more']);
+        self::assertSame(3, (int) $this->connection()->fetchOne("SELECT COUNT(*) FROM notification WHERE type LIKE 'import.%' AND read_at IS NULL"), 'the inbox keeps one entry per import');
+    }
+
+    public function testASingleImportToastIsNotGrouped(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsRoleUser($client);
+        NotificationRecipientStateFactory::createOne(['user' => $user, 'version' => 1]);
+        $notification = $this->importToast($user, 'import.completed', 'Januar', NotificationPriority::Normal);
+
+        $data = $this->poll($client, 1);
+
+        self::assertCount(1, $data['toasts']);
+        self::assertSame($notification->getId(), $data['toasts'][0]['id']);
+        self::assertSame('Import "Januar" finished', $data['toasts'][0]['title']);
+    }
+
     public function testRejectsPollsBeyondTheRateLimit(): void
     {
         $client = self::createClient();
@@ -145,6 +185,17 @@ final class NotificationPollControllerTest extends DatabaseWebTestCase
             'recipient' => $user,
             'toastPendingUntil' => new \DateTimeImmutable('+5 minutes'),
             ...$attributes,
+        ]);
+    }
+
+    private function importToast(User $user, string $type, string $importName, NotificationPriority $priority): \App\Notification\Domain\Entity\Notification
+    {
+        return $this->pendingToast($user, [
+            'type' => $type,
+            'priority' => $priority,
+            'titleKey' => $type.'.title',
+            'messageKey' => $type.'.message',
+            'parameters' => ['importName' => $importName, 'hospitalName' => 'Klinikum Test', 'rowsTotal' => 5, 'rowsOk' => 5, 'rowsRejected' => 0, 'reason' => 'no_rows'],
         ]);
     }
 

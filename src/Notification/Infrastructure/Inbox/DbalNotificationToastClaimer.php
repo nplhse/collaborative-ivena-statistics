@@ -57,7 +57,7 @@ final readonly class DbalNotificationToastClaimer implements NotificationToastCl
                 UPDATE notification n SET toast_claimed_at = :now
                 FROM claimable
                 WHERE n.id = claimable.id AND n.toast_claimed_at IS NULL
-                RETURNING %s, n.priority',
+                RETURNING %s, n.priority, n.type',
                 max(1, $limit),
                 $columns,
             ),
@@ -72,6 +72,7 @@ final readonly class DbalNotificationToastClaimer implements NotificationToastCl
             static fn (array $row): ClaimedToast => new ClaimedToast(
                 InboxEntryRowMapper::map($row),
                 NotificationPriority::from((string) $row['priority']),
+                (string) $row['type'],
             ),
             $rows,
         );

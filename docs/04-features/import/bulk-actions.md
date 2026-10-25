@@ -39,3 +39,7 @@ The confirmation names the current count ("Really delete these 7 imports?", sing
 3. **Summary** to the initiator: `import.bulk_deleted` ("7 imports deleted") or, with failures, `import.bulk_delete_failed` (high priority, "5 of 7 imports deleted, 2 could not be deleted"). Both link to the import list. The deduplication key contains the operation id, so a Messenger retry sends no second summary.
 
 There is no durable record of a bulk deletion: a lost summary is not reconciled (the deletion itself is complete either way). Pending imports may be deleted; their queued run then finds no import and ends without effect.
+
+## Toasts for several imports
+
+Independently started imports keep one notification each in the inbox. When several of their toasts arrive in the same poll, they are shown as one toast ("5 imports processed, 1 failed") that links to the import list ([notification README](../notification/README.md#toasts-and-polling)). Bulk reprocessing and bulk deletion send one summary anyway.
