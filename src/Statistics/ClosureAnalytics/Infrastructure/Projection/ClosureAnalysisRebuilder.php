@@ -19,15 +19,91 @@ final readonly class ClosureAnalysisRebuilder
 
     /**
      * @param list<int>|null $hospitalIds null rebuilds every hospital that has sources or events
+     *
+     * @return array<int, ClosureAnalysisChange> per rebuilt hospital
      */
-    public function rebuild(?array $hospitalIds = null): void
+    public function rebuild(?array $hospitalIds = null): array
     {
         $ids = $hospitalIds ?? $this->hospitalIds();
+        $changes = [];
         foreach ($ids as $hospitalId) {
-            $this->connection->transactional(function () use ($hospitalId): void {
+            $changes[$hospitalId] = $this->connection->transactional(function () use ($hospitalId): ClosureAnalysisChange {
+                $before = $this->eventSignatures($hospitalId);
                 $this->rebuildHospital($hospitalId);
+
+                return $this->compare($before, $this->eventSignatures($hospitalId));
             });
         }
+
+        return $changes;
+    }
+
+    /**
+     * Event ids are stable (upsert on grouping_key); an event changed when its intervals,
+     * departments or care levels changed.
+     *
+     * @return array<int, array{signature: string, start: string, end: string}>
+     */
+    private function eventSignatures(int $hospitalId): array
+    {
+        /** @var list<array{id: int|string, signature: string, starts_at: string, ends_at: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+SELECT e.id, e.starts_at, e.ends_at,
+       md5(string_agg(
+           concat_ws('|', ai.speciality_id, ai.department_id, ai.starts_at, ai.ends_at, levels.care_levels),
+           ',' ORDER BY ai.starts_at, ai.ends_at, ai.speciality_id, ai.department_id, levels.care_levels
+       )) AS signature
+FROM closure_event e
+INNER JOIN closure_analysis_interval ai ON ai.event_id = e.id
+LEFT JOIN LATERAL (
+    SELECT string_agg(cl.care_level, ',' ORDER BY cl.care_level) AS care_levels
+    FROM closure_analysis_care_level cl WHERE cl.analysis_interval_id = ai.id
+) levels ON TRUE
+WHERE e.hospital_id = :hospital
+GROUP BY e.id, e.starts_at, e.ends_at
+SQL,
+            ['hospital' => $hospitalId],
+            ['hospital' => Types::INTEGER],
+        );
+        $signatures = [];
+        foreach ($rows as $row) {
+            $signatures[(int) $row['id']] = ['signature' => $row['signature'], 'start' => $row['starts_at'], 'end' => $row['ends_at']];
+        }
+
+        return $signatures;
+    }
+
+    /**
+     * @param array<int, array{signature: string, start: string, end: string}> $before
+     * @param array<int, array{signature: string, start: string, end: string}> $after
+     */
+    private function compare(array $before, array $after): ClosureAnalysisChange
+    {
+        $changed = [];
+        $removed = [];
+        $ranges = [];
+        foreach ($after as $eventId => $event) {
+            $previous = $before[$eventId] ?? null;
+            if (null !== $previous && $previous['signature'] === $event['signature']) {
+                continue;
+            }
+            $changed[] = $eventId;
+            $ranges[] = [new \DateTimeImmutable($event['start']), new \DateTimeImmutable($event['end'])];
+            if (null !== $previous) {
+                $ranges[] = [new \DateTimeImmutable($previous['start']), new \DateTimeImmutable($previous['end'])];
+            }
+        }
+        foreach ($before as $eventId => $event) {
+            if (!isset($after[$eventId])) {
+                $removed[] = $eventId;
+                $ranges[] = [new \DateTimeImmutable($event['start']), new \DateTimeImmutable($event['end'])];
+            }
+        }
+        sort($changed);
+        sort($removed);
+
+        return new ClosureAnalysisChange($changed, $removed, $ranges);
     }
 
     /**
@@ -298,10 +374,11 @@ WHERE candidate.hospital_id = :hospital
       INNER JOIN import AS high_import ON high_import.id = high_source.import_id
       INNER JOIN closure_analysis_interval AS high_interval ON high_interval.id = high_source.analysis_interval_id
       WHERE low_source.analysis_interval_id = candidate.analysis_interval_low_id
-        AND low_import.export_ends_at IS NOT NULL
-        AND high_import.export_starts_at IS NOT NULL
-        AND low_interval.ends_at = low_import.export_ends_at
-        AND high_interval.starts_at = high_import.export_starts_at
+        -- low and high are ordered by id, not by time, so the earlier interval may be either one.
+        AND (
+            (low_interval.ends_at = low_import.export_ends_at AND high_interval.starts_at = high_import.export_starts_at)
+            OR (high_interval.ends_at = high_import.export_ends_at AND low_interval.starts_at = low_import.export_starts_at)
+        )
   )
 SQL,
             ['hospital' => $hospitalId],

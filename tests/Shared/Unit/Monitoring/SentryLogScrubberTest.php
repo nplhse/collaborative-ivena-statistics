@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Monitoring;
 
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryClosureRebuildFilter;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryEventScrubber;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryLogScrubber;
 use PHPUnit\Framework\TestCase;
@@ -17,7 +18,7 @@ final class SentryLogScrubberTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $this->scrubber = new SentryLogScrubber(new SentryEventScrubber());
+        $this->scrubber = new SentryLogScrubber(new SentryEventScrubber(), new SentryClosureRebuildFilter());
     }
 
     public function testAllowsImportSummary(): void

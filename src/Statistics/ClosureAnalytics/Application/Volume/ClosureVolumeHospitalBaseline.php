@@ -58,7 +58,7 @@ final readonly class ClosureVolumeHospitalBaseline
                     $hourly[substr($key, \strlen($prefix))] = $count;
                 }
             }
-            $slots = $this->calendar->build($from, $this->config->referenceWeeks, $hourly, $coveredDays, []);
+            $slots = $this->calendar->build($from, $this->config->window->totalWeeks(), $hourly, $coveredDays, []);
             $rates = $this->ratesForSlots($slots);
             foreach ($buckets as $bucket) {
                 $rate = $rates[$bucket->weekday.'|'.$bucket->hour];

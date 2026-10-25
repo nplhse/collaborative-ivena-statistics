@@ -15,8 +15,8 @@ final readonly class RebuildClosureVolumeProjectionHandler
     {
     }
 
-    public function __invoke(RebuildClosureVolumeProjection $_message): void
+    public function __invoke(RebuildClosureVolumeProjection $message): void
     {
-        $this->rebuilder->consume();
+        $this->rebuilder->consume($message->waitForLock);
     }
 }

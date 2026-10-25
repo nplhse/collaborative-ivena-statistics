@@ -41,7 +41,7 @@ final class ClosureVolumeChartFactory
             } else {
                 $grouped[$key]['expected'] += $draft->expectedArea;
             }
-            $hospitalKey = $draft->urgencyCode.'|'.$key;
+            $hospitalKey = $draft->metric->value.'|'.$key;
             if (!isset($grouped[$key]['seen'][$hospitalKey])) {
                 $grouped[$key]['seen'][$hospitalKey] = true;
                 if (null === $draft->observedHospital) {
@@ -108,9 +108,6 @@ final class ClosureVolumeChartFactory
             $bucketKey = $draft->bucketStart->format('Y-m-d H:i:s');
             $bucketOrder[$bucketKey] = $draft->bucketStart;
             $seriesKey = $this->barSeriesKey($draft);
-            if (null === $seriesKey) {
-                continue;
-            }
             if (null === $draft->observedArea) {
                 continue;
             }
@@ -131,20 +128,14 @@ final class ClosureVolumeChartFactory
         return $series;
     }
 
-    private function barSeriesKey(ClosureVolumeHourDraft $draft): ?string
+    private function barSeriesKey(ClosureVolumeHourDraft $draft): string
     {
-        if ('resus' === $draft->stratum) {
-            return 'resus';
-        }
-        if ('cathlab' === $draft->stratum) {
-            return 'cathlab';
-        }
-
-        return match ($draft->urgencyCode) {
-            1 => 'sk1',
-            2 => 'sk2',
-            3 => 'sk3',
-            default => null,
+        return match ($draft->metric) {
+            ClosureVolumeMetricKind::Emergency => 'sk1',
+            ClosureVolumeMetricKind::Inpatient => 'sk2',
+            ClosureVolumeMetricKind::Outpatient => 'sk3',
+            ClosureVolumeMetricKind::Resus => 'resus',
+            ClosureVolumeMetricKind::Cathlab => 'cathlab',
         };
     }
 

@@ -6,6 +6,7 @@ namespace App\Statistics\UI\Console\Command;
 
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,23 +22,40 @@ final readonly class RebuildClosureVolumeProjectionCommand
     {
     }
 
-    public function __invoke(SymfonyStyle $io, OutputInterface $output): int
-    {
+    /**
+     * @param list<string> $hospital
+     */
+    public function __invoke(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        #[Option(description: 'Rebuild only these hospital ids (repeatable)')]
+        array $hospital = [],
+        #[Option(description: 'Reference window for comparison runs: symmetric (configured default) or backward (all weeks before the event)')]
+        ?string $referenceWindow = null,
+    ): int {
+        $hospitalIds = [] === $hospital ? null : array_values(array_unique(array_map(intval(...), $hospital)));
         $io->title('Rebuilding closure volume projection');
+        if (null !== $referenceWindow) {
+            $io->note(sprintf('Reference window: %s.', $referenceWindow));
+        }
         $startedAt = microtime(true);
         $progress = new ProgressBar($output);
         $progress->setFormat(' %current%/%max% events [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%');
-        $started = false;
+        $currentPass = 0;
 
         try {
-            $hospitals = $this->rebuilder->rebuild(function (int $done, int $total) use ($progress, &$started): void {
-                if (!$started) {
-                    $progress->setMaxSteps(max(1, $total));
-                    $progress->start();
-                    $started = true;
+            $hospitals = $this->rebuilder->rebuild(function (int $done, int $total, int $pass) use ($progress, $output, $io, &$currentPass): void {
+                if ($pass !== $currentPass) {
+                    if (0 !== $currentPass) {
+                        $progress->finish();
+                        $output->writeln('');
+                        $io->note(sprintf('Pass %d: rebuild requests arrived during pass %d, rebuilding %d events again.', $pass, $currentPass, $total));
+                    }
+                    $progress->start(max(1, $total));
+                    $currentPass = $pass;
                 }
                 $progress->setProgress(min($done, max(1, $total)));
-            });
+            }, $hospitalIds, $referenceWindow);
         } catch (\Throwable $exception) {
             $progress->finish();
             $output->writeln('');
@@ -49,11 +67,20 @@ final readonly class RebuildClosureVolumeProjectionCommand
         $progress->finish();
         $output->writeln('');
         $io->success(sprintf(
-            'Closure volume projection rebuilt for %d hospitals (%.2fs, partition peak %d bytes).',
+            'Closure volume projection rebuilt for %d hospitals (%.2fs, partition peak %d bytes, process peak %.1f MB).',
             $hospitals,
             microtime(true) - $startedAt,
             $this->rebuilder->maxPartitionBytes(),
+            memory_get_peak_usage(true) / 1048576,
         ));
+        $steps = $this->rebuilder->lastProfile();
+        if ([] !== $steps) {
+            $io->table(['Step', 'Seconds', 'Queries'], array_map(
+                static fn (string $step, array $profile): array => [$step, sprintf('%.1f', $profile['seconds']), $profile['queries']],
+                array_keys($steps),
+                array_values($steps),
+            ));
+        }
 
         return Command::SUCCESS;
     }

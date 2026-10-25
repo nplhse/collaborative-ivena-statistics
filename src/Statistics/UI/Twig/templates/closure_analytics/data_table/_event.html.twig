@@ -6,3 +6,4 @@
 >
     {{ ('stats.closure.events.' ~ row.type.value)|trans({}, 'statistics') }}
 </a>
+{{ include('@Statistics/closure_analytics/_provisional_badge.html.twig', {reason: row.provisionalReason}) }}

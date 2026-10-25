@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Application\DTO;
 
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
+
 final readonly class ClosureEventRow
 {
     /**
@@ -23,7 +25,16 @@ final readonly class ClosureEventRow
         public int $observedMinutes,
         public array $children = [],
         public string $hospitalPublicId = '',
+        public ?ClosureVolumeProvisionalReason $provisionalReason = null,
     ) {
+    }
+
+    /**
+     * Volume results can still change: imports do not yet cover the reference window after the event.
+     */
+    public function provisional(): bool
+    {
+        return $this->provisionalReason instanceof ClosureVolumeProvisionalReason;
     }
 
     public function grouped(): bool

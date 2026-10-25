@@ -23,6 +23,13 @@
                 {{ 'stats.closure.volume.detail_series_lead'|trans({}, 'statistics') }}
             {% endif %}
         </p>
+        {% if volumeDetail.comparisonMetrics is not empty %}
+            {% set metricLabels = {emergency: 'sk1', inpatient: 'sk2', outpatient: 'sk3', resus: 'resus', cathlab: 'cathlab'} %}
+            <p class="text-muted small mb-0 mt-1" data-testid="stats-closure-volume-metric-relevance">
+                {{ 'stats.closure.volume.metrics_closed'|trans({metrics: volumeDetail.closedMetrics|map(m => ('stats.closure.volume.stratum.' ~ metricLabels[m.value])|trans({}, 'statistics'))|join(', ')}, 'statistics') }}
+                {{ 'stats.closure.volume.metrics_comparison'|trans({metrics: volumeDetail.comparisonMetrics|map(m => ('stats.closure.volume.stratum.' ~ metricLabels[m.value])|trans({}, 'statistics'))|join(', ')}, 'statistics') }}
+            </p>
+        {% endif %}
     </div>
     {% if not volumeDetail.built %}
         <div class="card"><div class="card-body text-muted">{{ 'stats.closure.volume.not_built'|trans({}, 'statistics') }}</div></div>

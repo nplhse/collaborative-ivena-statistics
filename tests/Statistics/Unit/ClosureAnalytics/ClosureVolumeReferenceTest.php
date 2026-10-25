@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\ClosureAnalytics;
 
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchor;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBurdenAggregator;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBurdenSlice;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
@@ -11,6 +12,8 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeDeviation;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHospitalBaseline;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeInterval;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeNeighbourIndex;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumePopulation;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeQuality;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
@@ -19,6 +22,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCon
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceMode;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSlot;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRelevance;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeWindowAggregator;
 use PHPUnit\Framework\TestCase;
@@ -86,19 +90,19 @@ final class ClosureVolumeReferenceTest extends TestCase
         ));
 
         $covered = ['2026-05-05' => true];
-        $matching = new ClosureVolumeReferenceCalendar()->matchingSlots(
-            $cutoff,
-            8,
+        $tallies = new ClosureVolumeReferenceCalendar()->tallyWindow(
+            [[$cutoff->modify('-8 weeks'), $cutoff]],
             2,
             2,
-            ['2026-05-05 10:00:00' => 2, '2026-05-05 11:00:00' => 3],
+            ['sk1' => ['2026-05-05 10:00:00' => 2, '2026-05-05 11:00:00' => 3]],
             $covered,
             [],
         );
-        self::assertNotEmpty($matching);
-        foreach ($matching as $slot) {
-            self::assertSame(2, $slot->dayTimeBucket);
-        }
+        self::assertSame([6, 7, 8, 9, 10, 11], array_keys($tallies['sk1']));
+        self::assertSame(1, $tallies['sk1'][10]->primaryCount);
+        self::assertSame(2, $tallies['sk1'][10]->primarySum);
+        self::assertSame(6, $tallies['sk1'][10]->fallbackCount);
+        self::assertSame(5, $tallies['sk1'][10]->fallbackSum);
     }
 
     public function testZeroExpectationKeepsAbsoluteDeviationAndDropsRelative(): void
@@ -144,18 +148,17 @@ final class ClosureVolumeReferenceTest extends TestCase
         $selected = $this->selector(4)->select(2, 10, 2, $slots);
         self::assertSame(ClosureVolumeReferenceMode::DayTimeBucket, $selected->mode);
         $calendar = new ClosureVolumeReferenceCalendar();
-        $tallied = $this->selector(4)->fromTallies(...$calendar->tally(
-            $cutoff,
-            8,
+        $tallied = $this->selector(4)->fromTally($calendar->tallyWindow(
+            [[$cutoff->modify('-8 weeks'), $cutoff]],
             2,
-            10,
             2,
-            $counts,
+            ['sk1' => $counts],
             $covered,
-            $calendar->blockedHours([$blocking]),
-        ));
+            ['sk1' => $calendar->blockedHours([$blocking])],
+        )['sk1'][10]);
         self::assertSame($selected->mode, $tallied->mode);
         self::assertSame($selected->slotCount, $tallied->slotCount);
+        self::assertSame(1, $tallied->blockedSlotCount, 'The blocked 10:00 slot of 12 May.');
         self::assertEqualsWithDelta($selected->hourlyRate ?? 0.0, $tallied->hourlyRate ?? 0.0, 0.0001);
     }
 
@@ -173,15 +176,15 @@ final class ClosureVolumeReferenceTest extends TestCase
             $closure,
             new \DateTimeImmutable('2026-06-03 12:00:00', ClosureVolumeClock::zone()),
             [],
-            [],
-            $this->rateMap('7|1|base', $slots),
-            $this->rateMap('1|base', $slots),
+            $this->rateMap($slots),
+            $this->rateMap($slots),
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
+            null,
         );
         $during = array_values(array_filter(
             $drafts,
-            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure && 'base' === $draft->stratum && 1 === $draft->urgencyCode,
+            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure,
         ));
 
         $expected = 0.0;
@@ -203,16 +206,16 @@ final class ClosureVolumeReferenceTest extends TestCase
         $drafts = $this->planner()->plan(
             $closure,
             new \DateTimeImmutable('2026-06-03 12:00:00', ClosureVolumeClock::zone()),
-            ['7|1|base|2026-06-02 10:00:00|2026-06-02 10:30:00' => 3],
-            ['1|base|2026-06-02 10:00:00|2026-06-02 10:30:00' => 9],
-            $this->rateMap('7|1|base', $slots),
-            $this->rateMap('1|base', $slots),
+            ['d|7|emergency|2026-06-02 10:00:00|2026-06-02 10:30:00' => 3, 'h|emergency|2026-06-02 10:00:00|2026-06-02 10:30:00' => 9],
+            $this->rateMap($slots),
+            $this->rateMap($slots),
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
+            null,
         );
         $during = array_values(array_filter(
             $drafts,
-            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure && 'base' === $draft->stratum,
+            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure,
         ));
 
         self::assertCount(1, $during);
@@ -228,35 +231,23 @@ final class ClosureVolumeReferenceTest extends TestCase
         $firstEnd = new \DateTimeImmutable('2026-06-02 10:20:00', $zone);
         $secondStart = new \DateTimeImmutable('2026-06-02 10:40:00', $zone);
         $secondEnd = new \DateTimeImmutable('2026-06-02 10:50:00', $zone);
-        $closure = new ClosureVolumeInterval(
-            4,
-            1,
-            7,
-            [1],
-            $firstStart,
-            $secondEnd,
-            'emergency',
-            0,
-            'department',
-            4,
-            [[$firstStart, $firstEnd], [$secondStart, $secondEnd]],
-        );
+        $closure = new ClosureVolumeAnchor(4, 1, 'department', 0, 7, ClosureVolumeMetricKind::Emergency, ClosureVolumeRelevance::Closed, 1, [[$firstStart, $firstEnd], [$secondStart, $secondEnd]]);
         $drafts = $this->planner()->plan(
             $closure,
             new \DateTimeImmutable('2026-06-03 12:00:00', $zone),
             [
-                '7|1|base|2026-06-02 10:10:00|2026-06-02 10:20:00' => 2,
-                '7|1|base|2026-06-02 10:40:00|2026-06-02 10:50:00' => 5,
+                'd|7|emergency|2026-06-02 10:10:00|2026-06-02 10:20:00' => 2,
+                'd|7|emergency|2026-06-02 10:40:00|2026-06-02 10:50:00' => 5,
             ],
             [],
             [],
-            [],
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
+            null,
         );
         $during = array_values(array_filter(
             $drafts,
-            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure && 'base' === $draft->stratum && 1 === $draft->urgencyCode,
+            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure,
         ));
 
         self::assertCount(2, $during);
@@ -275,16 +266,16 @@ final class ClosureVolumeReferenceTest extends TestCase
         $drafts = $this->planner()->plan(
             $closure,
             new \DateTimeImmutable('2026-06-03 12:00:00', ClosureVolumeClock::zone()),
-            ['7|1|base' => ['2026-06-02 10:00:00' => 4]],
-            ['1|base' => ['2026-06-02 10:00:00' => 9]],
-            $this->rateMap('7|1|base', $slots),
-            $this->rateMap('1|base', $slots),
+            ['d|7|emergency' => ['2026-06-02 10:00:00' => 4], 'h|emergency' => ['2026-06-02 10:00:00' => 9]],
+            $this->rateMap($slots),
+            $this->rateMap($slots),
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
+            null,
         );
         $during = array_values(array_filter(
             $drafts,
-            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure && 'base' === $draft->stratum && 1 === $draft->urgencyCode,
+            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure,
         ));
 
         self::assertCount(1, $during);
@@ -327,7 +318,7 @@ final class ClosureVolumeReferenceTest extends TestCase
     public function testUncoveredObservationIsNotZeroAndNeighbourInfluencesOnlyTheMargin(): void
     {
         $closure = $this->closure('2026-06-02 10:00:00', '2026-06-02 11:00:00');
-        $neighbour = $this->closure('2026-06-02 09:00:00', '2026-06-02 10:00:00', 8);
+        $neighbour = $this->neighbour('2026-06-02 09:00:00', '2026-06-02 10:00:00', 8);
         $slots = [];
         for ($week = 1; $week <= 4; ++$week) {
             $day = new \DateTimeImmutable('2026-06-02')->modify(sprintf('-%d weeks', $week))->format('Y-m-d');
@@ -338,16 +329,13 @@ final class ClosureVolumeReferenceTest extends TestCase
             $closure,
             new \DateTimeImmutable('2026-06-03 12:00:00', ClosureVolumeClock::zone()),
             [],
-            [],
-            $this->rateMap('7|1|base', $slots),
-            $this->rateMap('1|base', $slots),
+            $this->rateMap($slots),
+            $this->rateMap($slots),
             ['2026-06-01' => true],
-            [$neighbour],
+            ClosureVolumeNeighbourIndex::fromIntervals([$neighbour]),
+            null,
         );
-        $base = array_values(array_filter(
-            $drafts,
-            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => 'base' === $draft->stratum && 1 === $draft->urgencyCode,
-        ));
+        $base = $drafts;
         $during = array_values(array_filter($base, static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->inClosure));
         $pre = array_values(array_filter(
             $base,
@@ -368,9 +356,9 @@ final class ClosureVolumeReferenceTest extends TestCase
             [],
             [],
             [],
-            [],
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
+            null,
         );
         $post = array_values(array_filter($drafts, static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->bucketStart >= $closure->endsAt));
         self::assertSame([], $post);
@@ -395,9 +383,9 @@ final class ClosureVolumeReferenceTest extends TestCase
         $aggregator = new ClosureVolumeBurdenAggregator();
         $cutoff = new \DateTimeImmutable('2026-06-02 10:00:00');
         $totals = $aggregator->aggregate([
-            new ClosureVolumeBurdenSlice(1, 7, 1, 'base', '2026-06-02 10:00:00', 2, 4, 3600, 3600, $cutoff),
-            new ClosureVolumeBurdenSlice(1, 7, 1, 'base', '2026-06-02 10:00:00', 9, 9, 3600, 3600, $cutoff->modify('+1 hour')),
-            new ClosureVolumeBurdenSlice(1, 8, 1, 'base', '2026-06-02 10:00:00', 1, 1, 3600, 3600, $cutoff),
+            new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 10:00:00', 2, 4, 3600, 3600, $cutoff),
+            new ClosureVolumeBurdenSlice(1, 7, 'emergency', '2026-06-02 10:00:00', 9, 9, 3600, 3600, $cutoff->modify('+1 hour')),
+            new ClosureVolumeBurdenSlice(1, 8, 'emergency', '2026-06-02 10:00:00', 1, 1, 3600, 3600, $cutoff),
         ]);
 
         self::assertEqualsWithDelta(3.0, $totals->observedArea ?? 0.0, 0.0001);
@@ -418,7 +406,7 @@ final class ClosureVolumeReferenceTest extends TestCase
     public function testHospitalBaselineKeepsEachHospitalSeparateBeforeTheShare(): void
     {
         $baseline = new ClosureVolumeHospitalBaseline(
-            new ClosureVolumeReferenceConfig(8, 4),
+            new ClosureVolumeReferenceConfig(8, 0, 4),
             new ClosureVolumeReferenceCalendar(),
             $this->selector(4),
         );
@@ -460,25 +448,23 @@ final class ClosureVolumeReferenceTest extends TestCase
                 $slots[] = $this->slot(sprintf('%s %02d:00:00', $day, $hour), 2);
             }
         }
-        $neighbour = $this->closure('2026-06-02 11:00:00', '2026-06-02 12:00:00', 8);
+        $neighbour = $this->neighbour('2026-06-02 11:00:00', '2026-06-02 12:00:00', 8);
         $drafts = $this->planner()->plan(
             $closure,
             new \DateTimeImmutable('2026-06-03 00:00:00', ClosureVolumeClock::zone()),
             [
-                '7|1|base|2026-06-02 10:00:00|2026-06-02 11:00:00' => 4,
-                '7|1|base|2026-06-02 11:00:00|2026-06-02 12:00:00' => 2,
-                '7|1|base|2026-06-02 12:00:00|2026-06-02 13:00:00' => 1,
+                'd|7|emergency|2026-06-02 10:00:00|2026-06-02 11:00:00' => 4,
+                'd|7|emergency|2026-06-02 11:00:00|2026-06-02 12:00:00' => 2,
+                'd|7|emergency|2026-06-02 12:00:00|2026-06-02 13:00:00' => 1,
+                'h|emergency|2026-06-02 12:00:00|2026-06-02 13:00:00' => 6,
             ],
-            ['1|base|2026-06-02 12:00:00|2026-06-02 13:00:00' => 6],
-            $this->rateMap('7|1|base', $slots),
-            $this->rateMap('1|base', $slots),
+            $this->rateMap($slots),
+            $this->rateMap($slots),
             ['2026-06-02' => true],
-            [$neighbour],
+            ClosureVolumeNeighbourIndex::fromIntervals([$neighbour]),
+            null,
         );
-        $base = array_values(array_filter(
-            $drafts,
-            static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => 'base' === $draft->stratum && 1 === $draft->urgencyCode,
-        ));
+        $base = $drafts;
         $aggregator = new ClosureVolumeWindowAggregator();
         $windows = $aggregator->aggregate($base, $closure->startsAt, $closure->endsAt, new \DateTimeImmutable('2026-06-03 00:00:00', ClosureVolumeClock::zone()), true);
         $pre1 = $this->window($windows, 'pre_1');
@@ -493,7 +479,7 @@ final class ClosureVolumeReferenceTest extends TestCase
 
     private function selector(int $minimum): ClosureVolumeReferenceSelector
     {
-        return new ClosureVolumeReferenceSelector(new ClosureVolumeReferenceConfig(8, $minimum));
+        return new ClosureVolumeReferenceSelector(new ClosureVolumeReferenceConfig(8, 0, $minimum));
     }
 
     private function planner(): ClosureVolumeHourPlanner
@@ -506,12 +492,12 @@ final class ClosureVolumeReferenceTest extends TestCase
      *
      * @return array<string, ClosureVolumeRate>
      */
-    private function rateMap(string $series, array $slots): array
+    private function rateMap(array $slots): array
     {
         $selector = $this->selector(4);
         $rates = [];
         foreach ($slots as $slot) {
-            $key = $series.'|'.$slot->weekday.'|'.$slot->hour;
+            $key = $slot->weekday.'|'.$slot->hour;
             if (isset($rates[$key])) {
                 continue;
             }
@@ -534,7 +520,24 @@ final class ClosureVolumeReferenceTest extends TestCase
         );
     }
 
-    private function closure(string $start, string $end, int $id = 4): ClosureVolumeInterval
+    private function closure(string $start, string $end): ClosureVolumeAnchor
+    {
+        $zone = ClosureVolumeClock::zone();
+
+        return new ClosureVolumeAnchor(
+            4,
+            1,
+            'department',
+            0,
+            7,
+            ClosureVolumeMetricKind::Emergency,
+            ClosureVolumeRelevance::Closed,
+            1,
+            [[new \DateTimeImmutable($start, $zone), new \DateTimeImmutable($end, $zone)]],
+        );
+    }
+
+    private function neighbour(string $start, string $end, int $id): ClosureVolumeInterval
     {
         return ClosureVolumeInterval::fromParts(
             $id,

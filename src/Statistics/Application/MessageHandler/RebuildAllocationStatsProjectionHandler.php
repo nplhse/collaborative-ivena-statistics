@@ -33,13 +33,28 @@ final readonly class RebuildAllocationStatsProjectionHandler
         $needsRefresh = $this->changeDetector->willIntroduceNewHospitals($message->importId);
 
         $this->rebuilder->rebuildForImport($message->importId);
-        $hospitalId = $this->connection->fetchOne(
-            'SELECT hospital_id FROM import WHERE id = :id',
+        // Only closure events whose reference can reach this import's allocations need a new volume.
+        $import = $this->connection->fetchAssociative(
+            <<<'SQL'
+SELECT i.hospital_id,
+       COALESCE(i.export_starts_at, rows.first_at) AS range_from,
+       COALESCE(i.export_ends_at, rows.last_at + INTERVAL '1 second') AS range_to
+FROM import i
+LEFT JOIN LATERAL (
+    SELECT MIN(created_at) AS first_at, MAX(created_at) AS last_at
+    FROM allocation_stats_projection WHERE import_id = i.id
+) rows ON i.export_starts_at IS NULL OR i.export_ends_at IS NULL
+WHERE i.id = :id
+SQL,
             ['id' => $message->importId],
             ['id' => ParameterType::INTEGER],
         );
-        if (is_numeric($hospitalId)) {
-            $this->closureRebuildScheduler->requestVolume((int) $hospitalId);
+        if (\is_array($import) && is_numeric($import['hospital_id'])) {
+            $this->closureRebuildScheduler->requestVolume(
+                (int) $import['hospital_id'],
+                \is_string($import['range_from']) ? new \DateTimeImmutable($import['range_from']) : null,
+                \is_string($import['range_to']) ? new \DateTimeImmutable($import['range_to']) : null,
+            );
         }
 
         if (!$needsRefresh) {

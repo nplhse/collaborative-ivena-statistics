@@ -11,6 +11,7 @@ final readonly class ClosureVolumeRate
         public ClosureVolumeReferenceMode $mode,
         public int $slotCount,
         public int $assignmentCount,
+        public int $blockedSlotCount = 0,
     ) {
     }
 

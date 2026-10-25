@@ -9,8 +9,7 @@ final readonly class ClosureVolumeBurdenSlice
     public function __construct(
         public int $hospitalId,
         public int $departmentId,
-        public int $urgencyCode,
-        public string $stratum,
+        public string $metric,
         public string $bucketStart,
         public ?float $observedArea,
         public ?float $expectedArea,

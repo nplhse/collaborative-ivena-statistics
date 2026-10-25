@@ -23,7 +23,7 @@ final readonly class ClosureVolumeReadModel
     {
         $hospitalIds = $this->hospitalIds($criteria);
         if ([] === $hospitalIds || !$this->query->hasRows($hospitalIds)) {
-            return ClosureVolumeBurdenView::unavailable($stratum, $this->config->referenceWeeks, $this->config->minimumReferenceSlots);
+            return ClosureVolumeBurdenView::unavailable($stratum, $this->config->window, $this->config->minimumReferenceSlots);
         }
 
         $now = ClosureVolumeClock::now();
@@ -39,8 +39,7 @@ final readonly class ClosureVolumeReadModel
             $slices[] = new ClosureVolumeBurdenSlice(
                 (int) $row['hospital_id'],
                 (int) $row['department_id'],
-                (int) $row['urgency_code'],
-                (string) $row['stratum'],
+                (string) $row['metric_kind'],
                 ClosureVolumeClock::wall($start)->format('Y-m-d H:i:s'),
                 $this->nullableFloat($row['observed_area']),
                 $this->nullableFloat($row['expected_area']),
@@ -64,7 +63,7 @@ final readonly class ClosureVolumeReadModel
             ClosureVolumeDeviation::share($totals->expectedArea, $hospital['expected']),
             $totals->partialReference || $hospital['partial'],
             $totals->partialObservation,
-            $this->config->referenceWeeks,
+            $this->config->window,
             $this->config->minimumReferenceSlots,
         );
     }
@@ -110,7 +109,7 @@ final readonly class ClosureVolumeReadModel
                 $this->emptyChart(),
                 [],
                 null,
-                $this->config->referenceWeeks,
+                $this->config->window,
                 $this->config->minimumReferenceSlots,
                 $affectedDepartments,
             );
@@ -157,10 +156,35 @@ final readonly class ClosureVolumeReadModel
             $chart,
             $this->query->otherClosures($hospitalId, $hospitalIds, $departmentIds, $eventId, $contextStart, $contextEnd),
             null === $comparison ? null : ['pre' => $comparison[0]->kind, 'post' => $comparison[1]->kind],
-            $this->config->referenceWeeks,
+            $this->config->window,
             $this->config->minimumReferenceSlots,
             $affectedDepartments,
+            ...$this->metricsByRelevance($eventId, $hospitalIds),
         );
+    }
+
+    /**
+     * @param list<int> $hospitalIds
+     *
+     * @return array{closedMetrics: list<ClosureVolumeMetricKind>, comparisonMetrics: list<ClosureVolumeMetricKind>}
+     */
+    private function metricsByRelevance(int $eventId, array $hospitalIds): array
+    {
+        $relevance = $this->query->metricRelevance($eventId, $hospitalIds);
+        $closed = [];
+        $comparison = [];
+        foreach (ClosureVolumeMetricKind::all() as $metric) {
+            if (!isset($relevance[$metric->value])) {
+                continue;
+            }
+            if ($relevance[$metric->value]) {
+                $closed[] = $metric;
+            } else {
+                $comparison[] = $metric;
+            }
+        }
+
+        return ['closedMetrics' => $closed, 'comparisonMetrics' => $comparison];
     }
 
     /**
@@ -186,7 +210,7 @@ final readonly class ClosureVolumeReadModel
             return ['expected' => null, 'partial' => false];
         }
         $from = ClosureVolumeClock::wall($from);
-        $refFrom = $from->modify(sprintf('-%d weeks', $this->config->referenceWeeks));
+        $refFrom = $from->modify(sprintf('-%d weeks', $this->config->window->totalWeeks()));
         $byHospital = [];
         foreach ($this->query->hospitalHours($hospitalIds, $refFrom, $to) as $row) {
             $hospitalId = (int) $row['hospital_id'];
@@ -228,7 +252,7 @@ final readonly class ClosureVolumeReadModel
         /** @var array<string, ClosureVolumeHourDraft> $unique */
         $unique = [];
         foreach ($drafts as $draft) {
-            $key = $draft->scope.'|'.$draft->specialityId.'|'.$draft->departmentId.'|'.$draft->urgencyCode.'|'.$draft->stratum.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
+            $key = $draft->scope.'|'.$draft->specialityId.'|'.$draft->departmentId.'|'.$draft->metric->value.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
             $existing = $unique[$key] ?? null;
             if (!$existing instanceof ClosureVolumeHourDraft || $draft->referenceCutoff < $existing->referenceCutoff) {
                 $unique[$key] = $draft;

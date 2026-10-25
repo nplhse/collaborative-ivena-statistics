@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\Monitoring;
 
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryBeforeSendCallback;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryClosureRebuildFilter;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryEventScrubber;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryLogScrubber;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +30,8 @@ final class SentryBeforeSendCallbackTest extends TestCase
     private function sentryCallback(): SentryBeforeSendCallback
     {
         $scrubber = new SentryEventScrubber();
+        $closureRebuildFilter = new SentryClosureRebuildFilter();
 
-        return new SentryBeforeSendCallback($scrubber, new SentryLogScrubber($scrubber));
+        return new SentryBeforeSendCallback($scrubber, new SentryLogScrubber($scrubber, $closureRebuildFilter), $closureRebuildFilter);
     }
 }

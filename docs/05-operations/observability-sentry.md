@@ -1,6 +1,6 @@
 # Sentry (beta monitoring)
 
-This application uses `sentry/sentry-symfony` for error monitoring, structured logs, and automatic performance tracing across HTTP, Messenger, and Doctrine.
+This application uses `sentry/sentry-symfony` for error monitoring, structured logs, and automatic performance tracing of HTTP requests, console commands, and Doctrine queries. Messenger jobs have no transaction of their own: a worker runs inside the `messenger:consume` console transaction. Closure rebuilds record their own transaction (see below).
 
 ## Environment variables
 
@@ -9,7 +9,7 @@ This application uses `sentry/sentry-symfony` for error monitoring, structured l
 | `SENTRY_DSN` | Sentry project DSN; leave empty to disable |
 | `SENTRY_ENVIRONMENT` | Optional; falls back to `APP_ENV` (`local`, `dev`, `staging`, `beta`, `prod`) |
 | `SENTRY_RELEASE` | Optional; falls back to `App\Kernel::APP_VERSION` (`app.version`) |
-| `SENTRY_TRACES_SAMPLE_RATE` | Share of transactions to trace (`0.0`–`1.0`) |
+| `SENTRY_TRACES_SAMPLE_RATE` | Share of transactions to trace (`0.0`–`1.0`); applied by `SentryTracesSampler`, closure rebuilds are always sampled |
 | `SENTRY_ENABLE_LOGS` | Enable structured logs (`true` / `false`) |
 | `SENTRY_CSP_REPORT_URI` | Optional Sentry CSP report endpoint; prod only — see [content-security-policy.md](content-security-policy.md) |
 
@@ -18,7 +18,8 @@ For beta deployments, set a DSN, `SENTRY_ENVIRONMENT=beta`, and `SENTRY_TRACES_S
 ## Integration
 
 - **Bundle:** [`config/packages/sentry.yaml`](../../config/packages/sentry.yaml) — errors, HTTP/Messenger/Doctrine tracing, and structured logs.
-- **Monolog:** [`config/packages/monolog.yaml`](../../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
+- **Monolog:** [`config/packages/monolog.yaml`](../../config/packages/monolog.yaml) — `sentry_logs_import` (`import` channel, info and above), `sentry_logs_closure_rebuild` (`closure_rebuild` channel, info and above) and `sentry_logs_main` (other channels, warning and above).
+- **Sampling:** [`SentryTracesSampler`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryTracesSampler.php) — once a `traces_sampler` is set, Sentry ignores `traces_sample_rate`, so the sampler applies the global rate itself and returns `1.0` for the ops in `FULLY_SAMPLED_OPS` (`closure.rebuild`).
 - **Scrubbing:** [`SentryEventScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryEventScrubber.php) and [`SentryLogScrubber`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryLogScrubber.php) filter events, breadcrumbs, and log attributes before send.
 - **Request context:** [`SentryRequestContextSubscriber`](../../src/Shared/Infrastructure/Monitoring/Http/SentryRequestContextSubscriber.php) sets user (ID/username), `route`, `bounded_context`, `origin`, and `request_id`.
 
@@ -63,6 +64,39 @@ Unexpected errors inside voters, permission services, or other authorization log
 | `reject.row_type_unknown` | no (local only) |
 
 Per-row reject logs stay in `var/log/import.*.log` or, in production, on stderr (JSON).
+
+## Closure rebuild monitoring
+
+Every closure volume rebuild run ([`ClosureRebuildTelemetry`](../../src/Statistics/ClosureAnalytics/Infrastructure/Monitoring/ClosureRebuildTelemetry.php)) records:
+
+- **Database:** one row in `closure_rebuild_run` (trigger `console` / `messenger` / `scheduler`, status `running` / `succeeded` / `failed` / `abandoned`, hospital ids, passes, events, weekly partitions, hours written, requests, duration, publish duration, peak memory, error class and message). This is the long-term record for comparing rebuild phases, independent of Sentry retention. A row still `running` when the next run takes the lock belongs to a dead process and is marked `abandoned`.
+- **Sentry transaction** `closure_rebuild` (op `closure.rebuild`), sampled at 100 %, with spans `closure.rebuild.analysis`, `.pass`, `.late_claim`, `.hospital`, `.partition` and `.publish`. The transaction is kept off the scope, so Doctrine query spans stay with the surrounding console transaction.
+- **Logs** on the `closure_rebuild` channel: `closure_rebuild.summary` (info, one per run), `closure_rebuild.threshold_exceeded` (warning), `closure_rebuild.failed` (error, class only), `closure_rebuild.run_abandoned` (warning). Locally they go to `var/log/closure_rebuild.<env>.log`, in production to stderr (JSON), and to Sentry Logs.
+
+Thresholds (`ClosureRebuildTelemetry` constants), reported in `threshold_exceeded` and as transaction tag `threshold_exceeded`:
+
+| Threshold | Value | Label |
+|-----------|-------|-------|
+| Duration | > 30 min | `slow` |
+| Duration above the former lock TTL | > 2 h | `long_run` |
+| Peak memory (worker limit 256 MB) | > 200 MB | `memory` |
+| More than one pass | > 1 | `passes` |
+
+### Alert rules (Sentry UI)
+
+The transaction carries the tags `status` (`succeeded` / `failed`), `passes` and `threshold_exceeded` (`none` or a comma list), so metric alerts on transactions cover all cases:
+
+1. **Alerts → Create alert → Performance / Transactions:** filter `transaction:closure_rebuild !threshold_exceeded:none`, `count()` above 0 in 1 hour, environment `beta` / `prod`.
+2. Same with filter `transaction:closure_rebuild status:failed`.
+3. If the Sentry plan offers alerts on logs, `message:closure_rebuild.threshold_exceeded` and `message:closure_rebuild.failed` work as well.
+
+Unhandled exceptions of a failed rebuild still create a regular issue.
+
+### What leaves the system
+
+[`SentryClosureRebuildFilter`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryClosureRebuildFilter.php) enforces an allowlist in `before_send_transaction` and `before_send_log` for the `closure_rebuild` transaction and for `closure_rebuild.*` / `closure_volume.*` logs: run ids, hospital ids, counts, durations and fixed labels only. Foreign spans (for example SQL), span descriptions, unknown keys and free-text strings are dropped. No hospital or department names, no closure periods (partition spans carry no week), no error messages (they stay in `closure_rebuild_run`).
+
+Before relying on this in production, confirm the Sentry organisation's data region (EU) and that the DPA covers operational telemetry with hospital ids.
 
 ## Privacy
 

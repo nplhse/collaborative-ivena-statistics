@@ -17,13 +17,13 @@ final readonly class ClosureVolumeBurdenView
         public ?float $share,
         public bool $partialReference,
         public bool $partialObservation,
-        public int $referenceWeeks,
+        public ClosureVolumeReferenceWindow $referenceWindow,
         public int $minimumReferenceSlots,
     ) {
     }
 
-    public static function unavailable(ClosureVolumeStratum $stratum, int $referenceWeeks, int $minimumReferenceSlots): self
+    public static function unavailable(ClosureVolumeStratum $stratum, ClosureVolumeReferenceWindow $referenceWindow, int $minimumReferenceSlots): self
     {
-        return new self($stratum, false, null, null, null, null, null, null, false, false, $referenceWeeks, $minimumReferenceSlots);
+        return new self($stratum, false, null, null, null, null, null, null, false, false, $referenceWindow, $minimumReferenceSlots);
     }
 }

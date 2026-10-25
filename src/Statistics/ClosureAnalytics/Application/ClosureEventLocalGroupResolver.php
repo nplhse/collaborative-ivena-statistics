@@ -44,9 +44,11 @@ final readonly class ClosureEventLocalGroupResolver
             return [];
         }
 
-        $eventKeys = $this->eventKeysForSourceGroups($hospitalId, array_keys($grouped));
+        // IVENA group ids are usually numeric; PHP turns numeric array keys into int.
+        $eventKeys = $this->eventKeysForSourceGroups($hospitalId, array_map(strval(...), array_keys($grouped)));
         $refs = [];
         foreach ($grouped as $sourceGroupId => $data) {
+            $sourceGroupId = (string) $sourceGroupId;
             $units = array_keys($data['units']);
             sort($units, SORT_NATURAL | SORT_FLAG_CASE);
             $label = 1 === \count($units) ? $units[0] : $sourceGroupId;

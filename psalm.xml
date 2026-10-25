@@ -95,6 +95,7 @@
                 <directory name="src/Import/Infrastructure/Mapping/" />
                 <directory name="src/Import/Infrastructure/Resolver/" />
                 <directory name="src/Import/Infrastructure/Repository/" />
+                <directory name="src/Import/Infrastructure/Query/" />
                 <directory name="src/Import/Infrastructure/Analysis/" />
                 <directory name="src/Statistics/" />
                 <directory name="src/Engagement/" />
