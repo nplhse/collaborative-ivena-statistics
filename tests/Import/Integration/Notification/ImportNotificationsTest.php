@@ -117,6 +117,19 @@ final class ImportNotificationsTest extends DatabaseKernelTestCase
         self::assertSame([], $this->types($owner));
     }
 
+    public function testReprocessRunNotifiesOnlyTheUserWhoStartedIt(): void
+    {
+        $creator = UserFactory::createOne();
+        $owner = UserFactory::createOne();
+        $importId = $this->createImport($creator, $owner, 'Juni');
+
+        $run = $this->lifecycle->register($importId, ImportRunTrigger::Reprocess, $owner->getId());
+        $this->finish($importId, $run, new ImportRunOutcome(ImportRunStatus::Completed, 5, 5, 0));
+
+        self::assertSame(['import.completed'], $this->types($owner));
+        self::assertSame(['user.first_import'], $this->types($creator), 'the creator only gets the milestone');
+    }
+
     public function testConsoleRunWithoutInitiatorAndBatchRunsNotifyNobody(): void
     {
         $creator = UserFactory::createOne();

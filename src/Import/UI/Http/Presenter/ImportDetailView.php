@@ -15,6 +15,7 @@ final readonly class ImportDetailView
         public string $importedRecordsLabel,
         public bool $showsDeduplication,
         public string $deleteConfirmation,
+        public string $reprocessConfirmation,
         public array $recordActions,
     ) {
     }

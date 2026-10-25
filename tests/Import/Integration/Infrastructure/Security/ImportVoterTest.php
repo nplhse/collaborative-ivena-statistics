@@ -32,11 +32,26 @@ final class ImportVoterTest extends KernelTestCase
 
     private ImportVoter $voter;
 
+    /** @var list<string> */
+    private array $storedFiles = [];
+
     #[\Override]
     protected function setUp(): void
     {
         self::bootKernel();
         $this->voter = self::getContainer()->get(ImportVoter::class);
+    }
+
+    #[\Override]
+    protected function tearDown(): void
+    {
+        foreach ($this->storedFiles as $file) {
+            @unlink($file);
+            @rmdir(\dirname($file));
+        }
+        $this->storedFiles = [];
+
+        parent::tearDown();
     }
 
     public function testViewGrantedForHospitalOwner(): void
@@ -264,6 +279,116 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
+    public function testReprocessGrantedForHospitalOwnerWhoCreatedTheImport(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, filePath: $this->storedFile());
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
+    public function testReprocessGrantedForAdmin(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, filePath: $this->storedFile());
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
+    public function testReprocessDeniedForForeignParticipant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $intruder = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, filePath: $this->storedFile());
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($intruder), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
+    public function testReprocessDeniedWhenTheSourceFileIsGone(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner);
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::REPROCESS]),
+        );
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::DELETE]),
+        );
+    }
+
+    public function testReprocessDeniedWhenTheCreatorLostTheImportPermission(): void
+    {
+        $admin = UserFactory::new()->asAdmin()->create();
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator, filePath: $this->storedFile());
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::REPROCESS]),
+        );
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
+    public function testReprocessGrantedWhileTheCreatorKeepsAnImportGrant(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $creator = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, $creator, filePath: $this->storedFile());
+
+        HospitalAccessGrantFactory::createOne([
+            'hospital' => $import->getHospital(),
+            'user' => $creator,
+            'permissions' => HospitalPermissionMask::fromPermissions([HospitalPermission::Import]),
+            'createdBy' => $owner,
+        ]);
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($creator), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
+    public function testClosureReprocessDeniedWhenTheCreatorLostTheBetaRole(): void
+    {
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_CLOSURE_BETA']]);
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]);
+        $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE, filePath: $this->storedFile());
+
+        self::assertSame(
+            Voter::ACCESS_DENIED,
+            $this->voter->vote($this->createToken($admin), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
+    public function testClosureReprocessGrantedWhenTheCreatorHasTheBetaRole(): void
+    {
+        $owner = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA']]);
+        $import = $this->createImportForOwner($owner, type: ImportType::CLOSURE, filePath: $this->storedFile());
+
+        self::assertSame(
+            Voter::ACCESS_GRANTED,
+            $this->voter->vote($this->createToken($owner), $import, [ImportVoter::REPROCESS]),
+        );
+    }
+
     public function testSupportsTypeForImportOnly(): void
     {
         self::assertTrue($this->voter->supportsType(Import::class));
@@ -296,7 +421,7 @@ final class ImportVoterTest extends KernelTestCase
         );
     }
 
-    private function createImportForOwner(object $owner, ?object $createdBy = null, ImportType $type = ImportType::ALLOCATION): object
+    private function createImportForOwner(object $owner, ?object $createdBy = null, ImportType $type = ImportType::ALLOCATION, string $filePath = '/tmp/test.csv'): object
     {
         $createdBy ??= $owner;
         $state = StateFactory::createOne();
@@ -313,8 +438,28 @@ final class ImportVoterTest extends KernelTestCase
             'createdBy' => $createdBy,
             'type' => $type,
             'status' => ImportStatus::PENDING,
-            'filePath' => '/tmp/test.csv',
+            'filePath' => $filePath,
         ]);
+    }
+
+    /**
+     * Writes a source file under the imports base directory and returns its stored path.
+     */
+    private function storedFile(): string
+    {
+        $importsBaseDir = (string) self::getContainer()->getParameter('app.imports_base_dir');
+        $projectDir = (string) self::getContainer()->getParameter('kernel.project_dir');
+        $testToken = getenv('TEST_TOKEN') ?: '0';
+        $targetDir = $importsBaseDir.'/_tests/'.$testToken.'/'.bin2hex(random_bytes(4));
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+            self::fail('Unable to create imports test directory: '.$targetDir);
+        }
+
+        $absolutePath = $targetDir.'/source.csv';
+        file_put_contents($absolutePath, "a;b\n");
+        $this->storedFiles[] = $absolutePath;
+
+        return ltrim(substr($absolutePath, \strlen($projectDir)), '/');
     }
 
     private function createToken(User $user): UsernamePasswordToken

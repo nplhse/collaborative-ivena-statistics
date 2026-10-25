@@ -265,24 +265,35 @@
                         </div>
 
                         <div class="col-12">
-                            <twig:Card title="{{ 'label.import.section.quick_actions'|trans({}, 'import') }}">
-                                <div class="btn-list">
+                            <twig:Card title="{{ 'label.import.section.actions'|trans({}, 'import') }}">
+                                <div class="d-grid gap-2">
                                     {% for action in detail.recordActions %}
-                                        <a class="btn btn-{{ action.variant }}" href="{{ action.url }}">
-                                            <twig:ux:icon :name="action.icon" class="w-3 h-3" /> {{ action.label }}
+                                        <a class="btn btn-{{ action.variant }} w-100 justify-content-center" href="{{ action.url }}">
+                                            <twig:ux:icon :name="action.icon" class="w-3 h-3" />&nbsp;{{ action.label }}
                                         </a>
                                     {% endfor %}
-                                {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) %}
-                                    {% if import.status.value == 'Running' %}
-                                        <button type="button" class="btn btn-outline-danger" disabled title="{{ 'import.delete.running_blocked_hint'|trans({}, 'import') }}">
-                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans({}, 'import') }}
-                                        </button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#import-delete-modal">
-                                            <twig:ux:icon name="tabler:trash" class="w-3 h-3" /> {{ 'import.action.delete'|trans({}, 'import') }}
-                                        </button>
+                                    {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::REPROCESS'), import) %}
+                                        {% if import.status.value == 'Running' %}
+                                            <button type="button" class="btn btn-outline-primary w-100 justify-content-center" disabled title="{{ 'import.reprocess.running_blocked_hint'|trans({}, 'import') }}">
+                                                <twig:ux:icon name="tabler:refresh" class="w-3 h-3" />&nbsp;{{ 'import.action.reprocess'|trans({}, 'import') }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-outline-primary w-100 justify-content-center" data-bs-toggle="modal" data-bs-target="#import-reprocess-modal">
+                                                <twig:ux:icon name="tabler:refresh" class="w-3 h-3" />&nbsp;{{ 'import.action.reprocess'|trans({}, 'import') }}
+                                            </button>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
+                                    {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) %}
+                                        {% if import.status.value == 'Running' %}
+                                            <button type="button" class="btn btn-outline-danger w-100 justify-content-center" disabled title="{{ 'import.delete.running_blocked_hint'|trans({}, 'import') }}">
+                                                <twig:ux:icon name="tabler:trash" class="w-3 h-3" />&nbsp;{{ 'import.action.delete'|trans({}, 'import') }}
+                                            </button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-outline-danger w-100 justify-content-center" data-bs-toggle="modal" data-bs-target="#import-delete-modal">
+                                                <twig:ux:icon name="tabler:trash" class="w-3 h-3" />&nbsp;{{ 'import.action.delete'|trans({}, 'import') }}
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
                                 </div>
                             </twig:Card>
                         </div>
@@ -291,6 +302,19 @@
             </div>
         </div>
     </div>
+
+    {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::REPROCESS'), import) and import.status.value != 'Running' %}
+        <twig:ConfirmModal
+            id="import-reprocess-modal"
+            :title="'import.reprocess.modal.title'|trans({}, 'import')"
+            :message="detail.reprocessConfirmation"
+            :action="path('app_import_reprocess', {id: import.id})"
+            :csrfToken="csrf_token('import_reprocess_' ~ import.id)"
+            :confirmLabel="'import.reprocess.modal.confirm'|trans({}, 'import')"
+            :cancelLabel="'action.cancel'|trans({}, 'messages')"
+            confirmVariant="primary"
+        />
+    {% endif %}
 
     {% if is_granted(constant('App\\Import\\Infrastructure\\Security\\Voter\\ImportVoter::DELETE'), import) and import.status.value != 'Running' %}
         <twig:ConfirmModal

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\Application\MessageHandler;
 
-use App\Allocation\Application\Service\HospitalPermissionAccess;
-use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
@@ -21,6 +19,7 @@ use App\Import\Application\Factory\RejectWriterFactory;
 use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationDeduplicationService;
+use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Application\Service\ImportRunCommitGuard;
@@ -52,7 +51,7 @@ final readonly class ImportAllocationsMessageHandler
         private EventDispatcherInterface $dispatcher,
         private ImportPreviousRunCleanupService $previousRunCleanupService,
         private ImportAllocationDeduplicationService $deduplicationService,
-        private HospitalPermissionAccess $hospitalPermissionAccess,
+        private ImportCreatorPermissionCheck $creatorPermissionCheck,
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
         private ImportFileStorage $fileStorage,
@@ -295,7 +294,7 @@ final readonly class ImportAllocationsMessageHandler
      */
     private function resolveSourceFile(Import $import): string|ImportRunReasonCode
     {
-        $permissionFailure = $this->resolvePermissionFailure($import);
+        $permissionFailure = $this->creatorPermissionCheck->failureFor($import);
         if ($permissionFailure instanceof ImportRunReasonCode) {
             return $permissionFailure;
         }
@@ -411,25 +410,5 @@ final readonly class ImportAllocationsMessageHandler
     private function runtimeSince(float $started): int
     {
         return (int) \round((\microtime(true) - $started) * 1000.0);
-    }
-
-    private function resolvePermissionFailure(Import $import): ?ImportRunReasonCode
-    {
-        $createdBy = $import->getCreatedBy();
-        if (!$createdBy instanceof \App\User\Domain\Entity\User) {
-            return ImportRunReasonCode::MissingCreator;
-        }
-
-        $hospital = $import->getHospital();
-        $hospitalId = $hospital?->getId();
-        if (null === $hospitalId) {
-            return ImportRunReasonCode::MissingHospital;
-        }
-
-        if (!$this->hospitalPermissionAccess->hasPermission($createdBy, $hospitalId, HospitalPermission::Import)) {
-            return ImportRunReasonCode::MissingImportPermission;
-        }
-
-        return null;
     }
 }

@@ -45,7 +45,8 @@ final readonly class ImportDetailViewFactory
                 typeLabel: $this->trans('label.import.type.allocation'),
                 importedRecordsLabel: $this->trans('import.summary.allocations_imported', ['count' => $importedCount]),
                 showsDeduplication: true,
-                deleteConfirmation: $this->deleteConfirmation($import, 'import.delete.modal.body'),
+                deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body'),
+                reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body'),
                 recordActions: [
                     new ImportDetailAction(
                         label: $this->trans('import.action.preview_rows'),
@@ -57,7 +58,7 @@ final readonly class ImportDetailViewFactory
                         label: $this->trans('import.action.preview_mci_cases'),
                         url: $this->urlGenerator->generate('app_explore_mci_case_list', ['importId' => $id]),
                         icon: 'tabler:ambulance',
-                        variant: 'outline-secondary',
+                        variant: 'outline-primary',
                     ),
                 ],
             ),
@@ -65,7 +66,8 @@ final readonly class ImportDetailViewFactory
                 typeLabel: $this->trans('label.import.type.closure'),
                 importedRecordsLabel: $this->trans('import.summary.closures_imported', ['count' => $importedCount]),
                 showsDeduplication: false,
-                deleteConfirmation: $this->deleteConfirmation($import, 'import.delete.modal.body.closure'),
+                deleteConfirmation: $this->confirmation($import, 'import.delete.modal.body.closure'),
+                reprocessConfirmation: $this->confirmation($import, 'import.reprocess.modal.body.closure'),
                 recordActions: [
                     new ImportDetailAction(
                         label: $this->trans('import.action.open_closure_analytics'),
@@ -89,7 +91,7 @@ final readonly class ImportDetailViewFactory
         return $this->urlGenerator->generate(self::CLOSURE_ANALYTICS_ROUTE, $parameters);
     }
 
-    private function deleteConfirmation(Import $import, string $key): string
+    private function confirmation(Import $import, string $key): string
     {
         $name = $import->getName();
         if (null === $name || '' === $name) {

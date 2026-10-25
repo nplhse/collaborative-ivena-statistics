@@ -321,7 +321,7 @@ Mandatory channels are shown as ticked, disabled checkboxes with an explanation;
 
 #### Import runs (`import.completed`, `import.failed`)
 
-A **run** is one deliberate processing request: an upload, `StartImportCommand`, or one item of a requeue batch.
+A **run** is one deliberate processing request: an upload, `StartImportCommand`, a reprocess from the import detail page (added with issue #719), or one item of a requeue batch.
 
 **Durable run record.** Every run is persisted as an `ImportRun` in the `Import` context. It is the operational source for asynchronous processing and reconciliation; the audit log stays supplementary. An `ImportRun` stores:
 
@@ -352,6 +352,7 @@ A **run** is one deliberate processing request: an upload, `StartImportCommand`,
 
 - For a normal run: the user who created the import (`Import::createdBy`), plus the hospital owner if that is a different user.
 - For a run started by an admin: **only that admin**. A console run without `--notify-user` sends no user notification.
+- For a reprocess from the import detail page (trigger `reprocess`): **only the user who started it**.
 - Runs that belong to a batch send no notification of their own (see below).
 
 #### First successful import (`user.first_import`)

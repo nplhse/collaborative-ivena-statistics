@@ -25,6 +25,8 @@ final class UsageEventName
 
     public const string IMPORT_COMPLETED = 'import.completed';
 
+    public const string IMPORT_REPROCESSED = 'import.reprocessed';
+
     public const string EXPLORE_ALLOCATION_OPENED = 'explore.allocation.opened';
 
     public const string EXPLORE_HOSPITAL_OPENED = 'explore.hospital.opened';
