@@ -4,11 +4,20 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Pagination;
 
+/**
+ * Encodes the boundary row of a keyset page.
+ *
+ * A forward cursor holds the last row of a page and points to the rows after it;
+ * a backward cursor holds the first row and points to the rows before it.
+ */
 final class CursorCodec
 {
-    private const int VERSION = 1;
+    private const int VERSION = 2;
 
-    public function encode(string $sortBy, string $orderBy, string|int $sortValue, int $id): string
+    /** Version 1 cursors had no direction and always pointed forward. */
+    private const int LEGACY_VERSION = 1;
+
+    public function encode(string $sortBy, string $orderBy, string|int $sortValue, int $id, bool $forward = true): string
     {
         $payload = [
             'v' => self::VERSION,
@@ -16,13 +25,14 @@ final class CursorCodec
             'orderBy' => $orderBy,
             'sortValue' => $sortValue,
             'id' => $id,
+            'direction' => $forward ? 'next' : 'prev',
         ];
 
         return base64_encode(json_encode($payload, JSON_THROW_ON_ERROR));
     }
 
     /**
-     * @return array{sortBy: string, orderBy: string, sortValue: string|int, id: int}
+     * @return array{sortBy: string, orderBy: string, sortValue: string|int, id: int, forward: bool}
      */
     public function decode(string $cursor): array
     {
@@ -48,7 +58,7 @@ final class CursorCodec
             }
         }
 
-        if (self::VERSION !== $payload['v']) {
+        if (self::VERSION !== $payload['v'] && self::LEGACY_VERSION !== $payload['v']) {
             throw new \InvalidArgumentException('Unsupported cursor version.');
         }
 
@@ -60,11 +70,17 @@ final class CursorCodec
             throw new \InvalidArgumentException('Cursor sortValue has invalid type.');
         }
 
+        $direction = self::LEGACY_VERSION === $payload['v'] ? 'next' : ($payload['direction'] ?? null);
+        if ('next' !== $direction && 'prev' !== $direction) {
+            throw new \InvalidArgumentException('Cursor direction must be "next" or "prev".');
+        }
+
         return [
             'sortBy' => $payload['sortBy'],
             'orderBy' => $payload['orderBy'],
             'sortValue' => $payload['sortValue'],
             'id' => $payload['id'],
+            'forward' => 'next' === $direction,
         ];
     }
 }

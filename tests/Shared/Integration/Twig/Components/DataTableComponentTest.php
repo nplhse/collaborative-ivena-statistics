@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\Pagination\NumberedPaginationInterface;
 use Symfony\UX\Pagination\PaginatorInterface;
+use Symfony\UX\Pagination\Test\PaginatorFactory;
 use Symfony\UX\TwigComponent\Test\InteractsWithTwigComponents;
 
 final class DataTableComponentTest extends KernelTestCase
@@ -236,6 +237,36 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringNotContainsString('Showing approx.', $html);
         self::assertStringContainsString('id="result-count"', $html);
         self::assertStringContainsString('card-footer', $html);
+    }
+
+    public function testNativeUxCursorPaginationRendersPreviousNextFooter(): void
+    {
+        $requestStack = self::getContainer()->get(RequestStack::class);
+        self::assertInstanceOf(RequestStack::class, $requestStack);
+        $requestStack->push(Request::create('/explore/allocation', 'GET', [
+            '_route' => 'app_explore_allocation_list',
+        ]));
+
+        $rows = [['id' => 1, 'name' => 'Kiel'], ['id' => 2, 'name' => 'Lübeck'], ['id' => 3, 'name' => 'Flensburg']];
+        $html = (string) $this->renderTwigComponent('DataTable', [
+            'paginationRoute' => 'app_explore_allocation_list',
+            'paginator' => PaginatorFactory::create()
+                ->cursor($rows)
+                ->orderBy('id', 'ASC')
+                ->context('data-table-test')
+                ->perPage(2)
+                ->cursor(null)
+                ->paginate(),
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'type' => 'text'],
+            ],
+        ]);
+
+        self::assertStringContainsString('Lübeck', $html);
+        self::assertStringNotContainsString('Flensburg', $html);
+        self::assertStringContainsString('Showing results.', $html);
+        self::assertMatchesRegularExpression('/href="[^"]*cursor=[^"]+"/', $html);
+        self::assertStringContainsString('page-item disabled', $html, 'The first page has a disabled previous link.');
     }
 
     public function testEmptyCursorTableKeepsHiddenResultCountForHeaderMirror(): void
