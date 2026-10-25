@@ -189,6 +189,36 @@ SQL,
         );
     }
 
+    public function testReportsChangedAndRemovedEventsForTheIncrementalPlanner(): void
+    {
+        self::bootKernel();
+        $seed = $this->seed();
+        $connection = self::getContainer()->get(Connection::class);
+        $analysis = self::getContainer()->get(ClosureAnalysisRebuilder::class);
+        $this->insert($connection, $seed, '2026-03-01 08:00:00', '2026-03-01 10:00:00', 'emergency', 'no_bed_capacity', 'kept', $seed['importId']);
+        $grown = $this->insert($connection, $seed, '2026-03-05 08:00:00', '2026-03-05 10:00:00', 'emergency', 'no_bed_capacity', 'grown', $seed['importId']);
+        $gone = $this->insert($connection, $seed, '2026-03-09 08:00:00', '2026-03-09 10:00:00', 'emergency', 'no_bed_capacity', 'gone', $seed['importId']);
+
+        $first = $analysis->rebuild([$seed['hospitalId']])[$seed['hospitalId']];
+        self::assertCount(3, $first->changedEventIds, 'Every event is new.');
+        self::assertTrue($analysis->rebuild([$seed['hospitalId']])[$seed['hospitalId']]->isEmpty(), 'An unchanged rebuild reports nothing.');
+
+        $eventOf = static fn (string $group): int => (int) $connection->fetchOne('SELECT id FROM closure_event WHERE source_group_id = ?', [$group]);
+        $grownEvent = $eventOf('grown');
+        $goneEvent = $eventOf('gone');
+        $connection->executeStatement("UPDATE closure_interval SET care_level = 'other' WHERE id = ?", [$grown]);
+        $connection->executeStatement('DELETE FROM closure_interval WHERE id = ?', [$gone]);
+
+        $change = $analysis->rebuild([$seed['hospitalId']])[$seed['hospitalId']];
+
+        self::assertSame([$grownEvent], $change->changedEventIds);
+        self::assertSame([$goneEvent], $change->removedEventIds);
+        self::assertSame(
+            ['2026-03-05 08:00', '2026-03-05 08:00', '2026-03-09 08:00'],
+            array_map(static fn (array $range): string => $range[0]->format('Y-m-d H:i'), $change->changedRanges),
+        );
+    }
+
     /**
      * @return array{hospitalId: int, departmentId: int, specialityId: int, importId: int, secondImportId: int}
      */
