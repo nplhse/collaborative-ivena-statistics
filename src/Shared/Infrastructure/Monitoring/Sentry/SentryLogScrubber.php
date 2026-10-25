@@ -25,7 +25,7 @@ final readonly class SentryLogScrubber
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private SentryEventScrubber $eventScrubber,
-        private SentryClosureRebuildFilter $closureRebuildFilter,
+        private SentryJobRunFilter $jobRunFilter,
     ) {
     }
 
@@ -36,8 +36,8 @@ final readonly class SentryLogScrubber
         }
 
         $attributes = $log->attributes()->toSimpleArray();
-        $scrubbed = $this->closureRebuildFilter->isClosureLog($log->getBody())
-            ? $this->closureRebuildFilter->filterLogAttributes($attributes)
+        $scrubbed = $this->jobRunFilter->isJobRunLog($log->getBody())
+            ? $this->jobRunFilter->filterLogAttributes($log->getBody(), $attributes)
             : $this->eventScrubber->scrubArray($attributes);
 
         foreach (array_keys($attributes) as $key) {

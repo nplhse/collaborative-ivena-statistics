@@ -23,7 +23,7 @@ final readonly class SentryBeforeSendCallback
     public function __construct(
         private SentryEventScrubber $scrubber,
         private SentryLogScrubber $logScrubber,
-        private SentryClosureRebuildFilter $closureRebuildFilter,
+        private SentryJobRunFilter $jobRunFilter,
     ) {
     }
 
@@ -44,9 +44,7 @@ final readonly class SentryBeforeSendCallback
             if (!$event instanceof Event) {
                 return $event;
             }
-            if ($this->closureRebuildFilter->isClosureTransaction($event)) {
-                $event = $this->closureRebuildFilter->filterTransaction($event);
-            }
+            $event = $this->jobRunFilter->filterTransaction($event);
 
             if (\in_array($event->getTransaction(), self::UNTRACED_TRANSACTIONS, true)) {
                 return null;

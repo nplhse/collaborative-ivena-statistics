@@ -43,6 +43,8 @@ final class AppExtension extends Extension
         $container->setParameter('app.closure_volume.reference_weeks_after', $config['closure_volume']['reference_weeks_after']);
         $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
 
+        $container->setParameter('app.job_runs', $config['job_runs']);
+
         // Feedback spam settings
         $spamConfig = $config['feedback']['spam'];
         $container->setParameter('app.feedback.spam.min_submission_seconds', $spamConfig['min_submission_seconds']);

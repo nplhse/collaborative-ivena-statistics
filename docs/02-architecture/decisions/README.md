@@ -32,6 +32,7 @@ Each ADR includes:
 | [014](014-persisted-user-activity-projection.md) | Persistierte User-Activity-Projektion | accepted |
 | [015](015-closure-volume-metrics-and-reference-window.md) | Closure volume metrics, symmetric reference window, and incremental rebuild | accepted |
 | [016](016-notification-system.md) | Multi-channel notification system with declarative definitions and user preferences | accepted |
+| [018](018-job-run-monitoring.md) | One run log and shared telemetry for long-running background jobs | accepted |
 
 ## Template
 
