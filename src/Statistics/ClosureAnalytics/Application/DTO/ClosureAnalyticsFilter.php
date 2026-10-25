@@ -11,13 +11,14 @@ use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 final readonly class ClosureAnalyticsFilter
 {
     /**
-     * @param list<int>                        $departmentIds
-     * @param list<int>                        $specialityIds
-     * @param list<value-of<ClosureCareLevel>> $careLevels
-     * @param list<value-of<ClosureReason>>    $reasons
-     * @param list<string>                     $closureUnits
-     * @param list<value-of<ClosureEventType>> $eventTypes
-     * @param list<int>                        $hospitalIds
+     * @param list<int>                          $departmentIds
+     * @param list<int>                          $specialityIds
+     * @param list<value-of<ClosureCareLevel>>   $careLevels
+     * @param list<value-of<ClosureReason>>      $reasons
+     * @param list<string>                       $closureUnits
+     * @param list<value-of<ClosureEventType>>   $eventTypes
+     * @param list<int>                          $hospitalIds
+     * @param list<value-of<ClosureResultState>> $resultStates
      */
     public function __construct(
         public array $departmentIds = [],
@@ -31,6 +32,7 @@ final readonly class ClosureAnalyticsFilter
         public array $hospitalIds = [],
         public bool $hospitalIdsSubmitted = false,
         public ?ClosureProfileRef $profile = null,
+        public array $resultStates = [],
     ) {
     }
 

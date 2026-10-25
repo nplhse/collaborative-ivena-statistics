@@ -159,7 +159,32 @@ final readonly class ClosureVolumeReadModel
             $this->config->window,
             $this->config->minimumReferenceSlots,
             $affectedDepartments,
+            ...$this->metricsByRelevance($eventId, $hospitalIds),
         );
+    }
+
+    /**
+     * @param list<int> $hospitalIds
+     *
+     * @return array{closedMetrics: list<ClosureVolumeMetricKind>, comparisonMetrics: list<ClosureVolumeMetricKind>}
+     */
+    private function metricsByRelevance(int $eventId, array $hospitalIds): array
+    {
+        $relevance = $this->query->metricRelevance($eventId, $hospitalIds);
+        $closed = [];
+        $comparison = [];
+        foreach (ClosureVolumeMetricKind::all() as $metric) {
+            if (!isset($relevance[$metric->value])) {
+                continue;
+            }
+            if ($relevance[$metric->value]) {
+                $closed[] = $metric;
+            } else {
+                $comparison[] = $metric;
+            }
+        }
+
+        return ['closedMetrics' => $closed, 'comparisonMetrics' => $comparison];
     }
 
     /**

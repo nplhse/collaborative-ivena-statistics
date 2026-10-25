@@ -22,6 +22,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
             'closureTo' => '2026-03-01',
             'closureEventTypes' => ['cluster', 'invalid', 'single', 'cluster'],
             'closureHospitals' => ['12', '12', '0', 'invalid', '7'],
+            'closureResultStates' => ['provisional', 'pending', 'provisional'],
         ]);
 
         $filter = ClosureAnalyticsFilterRequestResolver::fromRequest($request);
@@ -34,6 +35,7 @@ final class ClosureAnalyticsFilterRequestResolverTest extends TestCase
         self::assertSame('2026-03-01', $filter->fromDate);
         self::assertSame('2026-03-15', $filter->toDate);
         self::assertSame(['cluster', 'single'], $filter->eventTypes);
+        self::assertSame(['provisional'], $filter->resultStates);
         self::assertSame([12, 7], $filter->hospitalIds);
         self::assertTrue($filter->hospitalIdsSubmitted);
         self::assertSame('2026-03-01 00:00:00', $filter->periodFrom()?->format('Y-m-d H:i:s'));

@@ -45,6 +45,7 @@ final readonly class ClosureAnalyticsCriteriaFactory
                 : [],
             $closureFilter->eventTypes,
             profile: $closureFilter->profile,
+            resultStates: $closureFilter->resultStates,
         );
     }
 }

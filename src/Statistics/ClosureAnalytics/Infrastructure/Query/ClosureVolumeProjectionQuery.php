@@ -153,6 +153,33 @@ SQL, [
     }
 
     /**
+     * Whether the event closed each metric in at least one of its departments.
+     *
+     * @param list<int> $hospitalIds
+     *
+     * @return array<string, bool> metric => closed
+     */
+    public function metricRelevance(int $eventId, array $hospitalIds): array
+    {
+        if ($eventId <= 0 || [] === $hospitalIds) {
+            return [];
+        }
+        /** @var array<string, bool|int|string> $rows */
+        $rows = $this->connection->fetchAllKeyValue(
+            <<<'SQL'
+SELECT metric_kind, bool_or(closure_relevance <> 'none') AS closed
+FROM closure_volume_hour
+WHERE event_id = :event_id AND scope = 'department' AND hospital_id IN (:hospital_ids)
+GROUP BY metric_kind
+SQL,
+            ['event_id' => $eventId, 'hospital_ids' => $hospitalIds],
+            ['event_id' => ParameterType::INTEGER, 'hospital_ids' => ArrayParameterType::INTEGER],
+        );
+
+        return array_map($this->boolean(...), $rows);
+    }
+
+    /**
      * @param list<int> $hospitalIds
      *
      * @return list<array<string, int|string>>

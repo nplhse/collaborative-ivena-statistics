@@ -6,6 +6,7 @@ namespace App\Statistics\ClosureAnalytics\Infrastructure\Query;
 
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureResultState;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileKind;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 use Doctrine\DBAL\ArrayParameterType;
@@ -86,6 +87,7 @@ final class ClosureTemporalSql
             $params['closure_event_types'] = $criteria->eventTypes;
             $types['closure_event_types'] = ArrayParameterType::STRING;
         }
+        $resultStateWhere = self::resultStateWhere($criteria->resultStates);
         $profilePrefix = '';
         $profileWhere = 'TRUE';
         if ($criteria->profile instanceof ClosureProfileRef) {
@@ -176,7 +178,7 @@ closure_clipped AS (
 valid_closures AS (
     SELECT *
     FROM closure_clipped
-    WHERE clipped_start < clipped_end AND {$eventTypeWhere}
+    WHERE clipped_start < clipped_end AND {$eventTypeWhere} AND {$resultStateWhere}
 ),
 import_spans AS (
     SELECT import_id, hospital_id, MIN(starts_utc) AS span_start, MAX(ends_utc) AS span_end
@@ -274,5 +276,27 @@ hospital_windows AS (
 SQL;
 
         return [$sql, $params, $types];
+    }
+
+    /**
+     * An event's provisional flag is the same on all of its volume rows, so one row decides.
+     * Events without volume rows match neither state.
+     *
+     * @param list<string> $states
+     */
+    private static function resultStateWhere(array $states): string
+    {
+        $final = \in_array(ClosureResultState::Final->value, $states, true);
+        $provisional = \in_array(ClosureResultState::Provisional->value, $states, true);
+        if (!$final && !$provisional) {
+            return 'TRUE';
+        }
+        $condition = match (true) {
+            $final && $provisional => 'TRUE',
+            $final => 'NOT h.provisional',
+            default => 'h.provisional',
+        };
+
+        return "EXISTS (SELECT 1 FROM closure_volume_hour h WHERE h.event_id = CAST(event_key AS bigint) AND {$condition})";
     }
 }

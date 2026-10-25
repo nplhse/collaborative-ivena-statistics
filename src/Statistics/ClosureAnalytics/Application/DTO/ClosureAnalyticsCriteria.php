@@ -20,6 +20,7 @@ final readonly class ClosureAnalyticsCriteria
      * @param list<string> $closureUnits
      * @param list<string> $eventTypes
      * @param list<int>    $hospitalIds
+     * @param list<string> $resultStates  `final` and/or `provisional`; empty means every event
      */
     public function __construct(
         public StatisticsScopeCriteria $scope,
@@ -34,6 +35,7 @@ final readonly class ClosureAnalyticsCriteria
         public array $eventTypes = [],
         public array $hospitalIds = [],
         public ?ClosureProfileRef $profile = null,
+        public array $resultStates = [],
     ) {
     }
 
@@ -52,6 +54,7 @@ final readonly class ClosureAnalyticsCriteria
             $this->eventTypes,
             $this->hospitalIds,
             $this->profile,
+            $this->resultStates,
         );
     }
 
@@ -70,6 +73,7 @@ final readonly class ClosureAnalyticsCriteria
             $this->eventTypes,
             $this->hospitalIds,
             $profile,
+            $this->resultStates,
         );
     }
 

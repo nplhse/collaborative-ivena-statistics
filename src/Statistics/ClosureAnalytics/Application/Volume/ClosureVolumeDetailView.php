@@ -12,6 +12,8 @@ final readonly class ClosureVolumeDetailView
      * @param list<array{start: string, end: string, label: string}> $otherClosures
      * @param array{pre: string, post: string}|null                  $comparison
      * @param list<array{name: string, careLevels: list<string>}>    $affectedDepartments
+     * @param list<ClosureVolumeMetricKind>                          $closedMetrics       metrics the event closed in at least one department
+     * @param list<ClosureVolumeMetricKind>                          $comparisonMetrics   metrics calculated for comparison only
      */
     public function __construct(
         public ClosureVolumeStratum $stratum,
@@ -28,6 +30,8 @@ final readonly class ClosureVolumeDetailView
         public ClosureVolumeReferenceWindow $referenceWindow,
         public int $minimumReferenceSlots,
         public array $affectedDepartments = [],
+        public array $closedMetrics = [],
+        public array $comparisonMetrics = [],
     ) {
     }
 }

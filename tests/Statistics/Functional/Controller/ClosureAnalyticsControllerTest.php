@@ -1270,6 +1270,32 @@ SQL,
         self::assertStringNotContainsString('population=', $specialityScopeHref);
     }
 
+    public function testProvisionalEventsAreMarkedAndFiltered(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        [$hospitalId] = $this->seedGroupedClosures($user);
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+        $eventId = $this->closureEventId($hospitalId, 'functional-group');
+
+        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course', $eventId));
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-event-provisional"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-volume-metric-relevance"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events?scope=public&period=all_time&closureResultStates[]=provisional');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-filter-result-states"] option[value="provisional"][selected]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time&closureResultStates[]=provisional');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-event-provisional"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time&closureResultStates[]=final');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="closure-event-provisional"]');
+    }
+
     public function testEventCourseVolumeSeriesScopeToggle(): void
     {
         $client = self::createClient();

@@ -54,6 +54,7 @@
                         <span class="badge {{ event.grouped ? 'bg-blue-lt text-blue' : (event.clustered ? 'bg-azure-lt text-azure' : 'bg-purple-lt text-purple-lt-fg') }}">
                             {{ ('stats.closure.events.' ~ event.type.value)|trans({}, 'statistics') }}
                         </span>
+                        {{ include('@Statistics/closure_analytics/_provisional_badge.html.twig', {reason: event.provisionalReason}) }}
                     </div>
                     {% if event.grouped and localGroups|length == 1 and localGroups[0].showSourceGroupId %}
                         <div class="list-inline-item small text-muted" data-testid="closure-event-source-group-id">{{ localGroups[0].sourceGroupId }}</div>

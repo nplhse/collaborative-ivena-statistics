@@ -140,6 +140,23 @@
         <div class="form-text">{{ 'stats.closure.filter.multiple_hint'|trans({}, 'statistics') }}</div>
     </div>
 
+    <div class="mb-4">
+        <label class="form-label" for="closure-filter-result-states">{{ 'stats.closure.filter.result_states'|trans({}, 'statistics') }}</label>
+        <select id="closure-filter-result-states"
+                name="closureResultStates[]"
+                class="form-select"
+                multiple
+                size="2"
+                data-testid="closure-filter-result-states">
+            {% for choice in closureFilterDrawer.choices.resultStates %}
+                <option value="{{ choice.value }}" {{ choice.value in closureFilterDrawer.values.resultStates ? 'selected' }}>
+                    {{ choice.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-text">{{ 'stats.closure.filter.result_states_hint'|trans({}, 'statistics') }}</div>
+    </div>
+
     {% if closureFilterDrawer.showClosureUnits %}
         <div class="mb-4">
             <label class="form-label" for="closure-filter-units">{{ 'stats.closure.filter.closure_units'|trans({}, 'statistics') }}</label>

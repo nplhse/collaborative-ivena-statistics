@@ -26,6 +26,8 @@ use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchorBuilder;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeQuality;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
@@ -36,6 +38,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuilder;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
@@ -199,6 +202,38 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertTrue((bool) $provisional['provisional'], 'Import periods are not derived, so nothing confirms the window after the event.');
         self::assertSame('awaiting_allocations', $provisional['reason']);
         self::assertSame('4/4', $connection->fetchOne('SELECT reference_window FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
+
+        $events = self::getContainer()->get(ClosureEventQuery::class);
+        $criteria = $this->criteria([$seed['hospitalId']]);
+        $event = $events->fetchEvent($criteria, (string) $eventId);
+        self::assertNotNull($event);
+        self::assertTrue($event->provisional());
+        self::assertSame(ClosureVolumeProvisionalReason::AwaitingAllocations, $event->provisionalReason);
+        self::assertSame(1, $events->countEvents($this->withResultStates($criteria, ['provisional'])));
+        self::assertSame(0, $events->countEvents($this->withResultStates($criteria, ['final'])));
+        self::assertSame(1, $events->countEvents($this->withResultStates($criteria, ['final', 'provisional'])));
+
+        $detail = self::getContainer()->get(ClosureVolumeReadModel::class)->detail($criteria, $eventId, $seed['hospitalId'], ClosureVolumeStratum::All);
+        self::assertSame([ClosureVolumeMetricKind::Emergency], $detail->closedMetrics);
+        self::assertSame(
+            [ClosureVolumeMetricKind::Inpatient, ClosureVolumeMetricKind::Outpatient, ClosureVolumeMetricKind::Resus, ClosureVolumeMetricKind::Cathlab],
+            $detail->comparisonMetrics,
+        );
+    }
+
+    /**
+     * @param list<string> $states
+     */
+    private function withResultStates(ClosureAnalyticsCriteria $criteria, array $states): ClosureAnalyticsCriteria
+    {
+        return new ClosureAnalyticsCriteria(
+            $criteria->scope,
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+            hospitalIds: $criteria->hospitalIds,
+            resultStates: $states,
+        );
     }
 
     public function testResourceMetricsAreClosedOnlyWhileEveryUrgencyIs(): void
