@@ -204,8 +204,8 @@ hospitals in one transaction. An error drops the build table.
 `app:statistics:rebuild-closure-volume-projection` rebuilds analysis and volume
 for every hospital, or for the hospitals given with `--hospital`. There is no
 projection version. `--reference-window=backward` uses all reference weeks
-before the event; it exists for comparison runs only, and `closure_rebuild_run`
-records the window of every run (`4/4`, `8/0`).
+before the event; it exists for comparison runs only, and `job_run.metrics`
+records the window of every run (`reference_window`: `4/4`, `8/0`).
 
 The schema change of ADR 015 (`Version20261025103722`) recreates
 `closure_volume_hour` empty and queues a full `volume` request. Either the
@@ -215,7 +215,7 @@ of the given hospitals with `--hospital`) before its first pass, so only
 requests that arrive while it runs cause a second pass.
 
 Each run records seconds and SQL statements per step; the command prints the
-table and `closure_rebuild_run.query_count` keeps the statement count. Context
+table and `job_run.metrics` keeps the statement count (`queries`). Context
 hours look up influencing closures in an index per population and metric
 (`ClosureVolumeNeighbourIndex`), reference slots are shared by every population
 with the same event extent, and the build table is written with `COPY`.
@@ -243,10 +243,10 @@ An hourly scheduler message (minute 40) consumes requests nobody picked up, for
 example after a killed console rebuild. It skips the run while another rebuild
 holds the lock.
 
-Each run is recorded in `closure_rebuild_run` and as Sentry transaction
+Each run is recorded in `job_run` (job `closure_rebuild`, ADR 018) and as Sentry transaction
 `closure_rebuild`, with a summary log and threshold warnings on the
 `closure_rebuild` channel. See
-[observability-sentry.md](../../05-operations/observability-sentry.md#closure-rebuild-monitoring).
+[observability-sentry.md](../../05-operations/observability-sentry.md#closure-rebuild).
 
 Event pages use the numeric `closure_event.id`. The route parameter is still
 named `eventKey` and accepts only digits.

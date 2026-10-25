@@ -36,6 +36,30 @@ app:
         reference_weeks_after: 4
         minimum_reference_slots: 4
 
+    # Thresholds per background job run (ADR 018); jobs without values only record their runs.
+    # Measured 2026-10-25 on the development data (docs/05-operations/observability-sentry.md, "Measured runs").
+    job_runs:
+        allocation_import:
+            slow_seconds: 120
+            long_seconds: 900
+            memory_mb: 200
+        closure_import:
+            slow_seconds: 120
+            long_seconds: 600
+            memory_mb: 200
+        allocation_projection_rebuild:
+            slow_seconds: 30
+            long_seconds: 300
+            memory_mb: 200
+        allocation_projection_full_rebuild:
+            slow_seconds: 600
+            long_seconds: 1800
+            memory_mb: 200
+        closure_rebuild:
+            slow_seconds: 1800
+            long_seconds: 7200
+            memory_mb: 200
+
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).
         thresholds:

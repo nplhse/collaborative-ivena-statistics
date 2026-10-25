@@ -201,7 +201,7 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertIsArray($provisional);
         self::assertTrue((bool) $provisional['provisional'], 'Import periods are not derived, so nothing confirms the window after the event.');
         self::assertSame('awaiting_allocations', $provisional['reason']);
-        self::assertSame('4/4', $connection->fetchOne('SELECT reference_window FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
+        self::assertSame('4/4', $connection->fetchOne("SELECT metrics->>'reference_window' FROM job_run WHERE job = 'closure_rebuild' ORDER BY started_at DESC, id DESC LIMIT 1"));
 
         $events = self::getContainer()->get(ClosureEventQuery::class);
         $criteria = $this->criteria([$seed['hospitalId']]);
@@ -255,7 +255,7 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
             "SELECT COUNT(DISTINCT metric_kind) FROM closure_volume_hour WHERE event_id = :id AND scope = 'department' AND in_closure",
             ['id' => $eventId],
         ));
-        self::assertSame('8/0', $connection->fetchOne('SELECT reference_window FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
+        self::assertSame('8/0', $connection->fetchOne("SELECT metrics->>'reference_window' FROM job_run WHERE job = 'closure_rebuild' ORDER BY started_at DESC, id DESC LIMIT 1"));
     }
 
     public function testSeveralHospitalsShareTheSummedDenominator(): void

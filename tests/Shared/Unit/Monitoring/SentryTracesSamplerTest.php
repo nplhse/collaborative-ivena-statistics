@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Shared\Unit\Monitoring;
 
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryTracesSampler;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildSentryProfile;
 use PHPUnit\Framework\TestCase;
 use Sentry\Tracing\SamplingContext;
 use Sentry\Tracing\TransactionContext;
 
 final class SentryTracesSamplerTest extends TestCase
 {
-    public function testClosureRebuildsAreSampledCompletely(): void
+    public function testJobRunOpsAreSampledCompletely(): void
     {
-        self::assertSame(1.0, new SentryTracesSampler(0.2)($this->context('closure.rebuild')));
+        self::assertSame(1.0, new SentryTracesSampler(0.2, [new ClosureRebuildSentryProfile()])($this->context('closure.rebuild')));
+        self::assertSame(0.2, new SentryTracesSampler(0.2)($this->context('closure.rebuild')), 'Only ops of a registered profile.');
     }
 
     public function testOtherTransactionsKeepTheGlobalRate(): void

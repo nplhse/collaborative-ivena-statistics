@@ -171,7 +171,7 @@ final class ClosureVolumeIncrementalRebuildTest extends KernelTestCase
     {
         $rebuild = self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class);
         $rebuild->consume();
-        $events = (int) $this->connection()->fetchOne('SELECT events FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1');
+        $events = (int) $this->connection()->fetchOne("SELECT metrics->>'events' FROM job_run WHERE job = 'closure_rebuild' ORDER BY started_at DESC, id DESC LIMIT 1");
         $incremental = $this->rows();
         self::assertNotEmpty($incremental);
 

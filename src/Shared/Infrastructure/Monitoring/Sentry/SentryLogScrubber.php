@@ -20,12 +20,15 @@ final readonly class SentryLogScrubber
         'import.reject_file.deleted',
         'import.source_file.deleted',
         'import.file.delete_failed',
+        'import.run.summary',
+        'import.run.threshold_exceeded',
+        'import.run.retries_exhausted',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private SentryEventScrubber $eventScrubber,
-        private SentryClosureRebuildFilter $closureRebuildFilter,
+        private SentryJobRunFilter $jobRunFilter,
     ) {
     }
 
@@ -36,8 +39,8 @@ final readonly class SentryLogScrubber
         }
 
         $attributes = $log->attributes()->toSimpleArray();
-        $scrubbed = $this->closureRebuildFilter->isClosureLog($log->getBody())
-            ? $this->closureRebuildFilter->filterLogAttributes($attributes)
+        $scrubbed = $this->jobRunFilter->isJobRunLog($log->getBody())
+            ? $this->jobRunFilter->filterLogAttributes($log->getBody(), $attributes)
             : $this->eventScrubber->scrubArray($attributes);
 
         foreach (array_keys($attributes) as $key) {

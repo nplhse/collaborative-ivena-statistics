@@ -86,15 +86,17 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
         self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE consumed_at IS NULL'));
         self::assertFalse($connection->createSchemaManager()->tablesExist(['closure_volume_hour_build']));
 
-        $run = $connection->fetchAssociative('SELECT * FROM closure_rebuild_run');
+        $run = $connection->fetchAssociative("SELECT * FROM job_run WHERE job = 'closure_rebuild'");
         self::assertIsArray($run);
+        $metrics = json_decode((string) $run['metrics'], true);
+        self::assertIsArray($metrics);
         self::assertSame('console', $run['triggered_by']);
         self::assertSame('succeeded', $run['status']);
-        self::assertSame([$seed['hospitalId']], json_decode((string) $run['hospital_ids'], true));
-        self::assertSame(1, (int) $run['passes']);
-        self::assertSame(1, (int) $run['request_count']);
-        self::assertGreaterThan(0, (int) $run['query_count']);
-        self::assertSame((int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour'), (int) $run['hours_written']);
+        self::assertSame([$seed['hospitalId']], $metrics['hospital_ids']);
+        self::assertSame(1, $metrics['passes']);
+        self::assertSame(1, $metrics['requests']);
+        self::assertGreaterThan(0, $metrics['queries']);
+        self::assertSame((int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour'), $metrics['hours_written']);
     }
 
     #[Test]
@@ -120,7 +122,7 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
         $tester->assertCommandIsSuccessful();
         self::assertStringContainsString('Open requests processed', $tester->getDisplay());
         self::assertStringContainsString('No unconsumed requests.', $tester->getDisplay());
-        self::assertSame('console', $connection->fetchOne('SELECT triggered_by FROM closure_rebuild_run'));
+        self::assertSame('console', $connection->fetchOne("SELECT triggered_by FROM job_run WHERE job = 'closure_rebuild'"));
         self::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour WHERE hospital_id = ?', [$seed['hospitalId']]));
     }
 
@@ -153,11 +155,11 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
 
         self::assertSame([1, 2], array_keys($passes));
         self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE consumed_at IS NULL'));
-        $run = $connection->fetchAssociative('SELECT passes, events, request_count FROM closure_rebuild_run');
-        self::assertIsArray($run);
-        self::assertSame(2, (int) $run['passes']);
-        self::assertSame(2, (int) $run['events'], 'One event in each pass.');
-        self::assertSame(1, (int) $run['request_count']);
+        $metrics = json_decode((string) $connection->fetchOne("SELECT metrics FROM job_run WHERE job = 'closure_rebuild'"), true);
+        self::assertIsArray($metrics);
+        self::assertSame(2, $metrics['passes']);
+        self::assertSame(2, $metrics['events'], 'One event in each pass.');
+        self::assertSame(1, $metrics['requests']);
     }
 
     /**

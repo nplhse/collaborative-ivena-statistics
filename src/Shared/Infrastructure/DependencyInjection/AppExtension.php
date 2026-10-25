@@ -43,6 +43,8 @@ final class AppExtension extends Extension
         $container->setParameter('app.closure_volume.reference_weeks_after', $config['closure_volume']['reference_weeks_after']);
         $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
 
+        $container->setParameter('app.job_runs', $config['job_runs']);
+
         // Storage monitoring (ADR 017)
         $storageConfig = $config['storage'];
         $container->setParameter('app.storage.thresholds.notice_percent', $storageConfig['thresholds']['notice_percent']);

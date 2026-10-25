@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\MessageHandler;
 
+use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
@@ -25,15 +26,55 @@ final readonly class RebuildAllocationStatsProjectionHandler
         private ClosureRebuildRequestInterface $closureRebuildScheduler,
         private Connection $connection,
         private LoggerInterface $logger,
+        private AllocationProjectionRunTelemetryInterface $telemetry,
     ) {
     }
 
     public function __invoke(RebuildAllocationStatsProjection $message): void
     {
-        $needsRefresh = $this->changeDetector->willIntroduceNewHospitals($message->importId);
+        $this->telemetry->begin($message->importId, 'messenger');
+        try {
+            $this->rebuild($message->importId);
+        } catch (\Throwable $e) {
+            $this->telemetry->end($e);
 
-        $this->rebuilder->rebuildForImport($message->importId);
-        // Only closure events whose reference can reach this import's allocations need a new volume.
+            throw $e;
+        }
+        $this->telemetry->end();
+    }
+
+    private function rebuild(int $importId): void
+    {
+        $needsRefresh = $this->telemetry->measure(
+            'projection.change_detection',
+            fn (): bool => $this->changeDetector->willIntroduceNewHospitals($importId),
+        );
+
+        $this->telemetry->rebuilt($this->rebuilder->rebuildForImport($importId));
+        $this->telemetry->measure('projection.closure_request', fn () => $this->requestClosureVolume($importId));
+
+        if (!$needsRefresh) {
+            return;
+        }
+
+        $this->telemetry->measure(
+            'projection.mv_refresh',
+            fn (): array => $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]),
+            ['groups' => 1],
+        );
+        $this->telemetry->materializedViewsRefreshed();
+
+        $this->logger->info('statistics_materialized_view.refreshed_after_structural_change', [
+            'import_id' => $importId,
+            'reason' => 'new_hospital',
+        ]);
+    }
+
+    /**
+     * Only closure events whose reference can reach this import's allocations need a new volume.
+     */
+    private function requestClosureVolume(int $importId): void
+    {
         $import = $this->connection->fetchAssociative(
             <<<'SQL'
 SELECT i.hospital_id,
@@ -46,7 +87,7 @@ LEFT JOIN LATERAL (
 ) rows ON i.export_starts_at IS NULL OR i.export_ends_at IS NULL
 WHERE i.id = :id
 SQL,
-            ['id' => $message->importId],
+            ['id' => $importId],
             ['id' => ParameterType::INTEGER],
         );
         if (\is_array($import) && is_numeric($import['hospital_id'])) {
@@ -56,16 +97,5 @@ SQL,
                 \is_string($import['range_to']) ? new \DateTimeImmutable($import['range_to']) : null,
             );
         }
-
-        if (!$needsRefresh) {
-            return;
-        }
-
-        $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]);
-
-        $this->logger->info('statistics_materialized_view.refreshed_after_structural_change', [
-            'import_id' => $message->importId,
-            'reason' => 'new_hospital',
-        ]);
     }
 }

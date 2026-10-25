@@ -20,11 +20,16 @@ use App\Allocation\Infrastructure\Factory\SecondaryTransportFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
+use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use App\Statistics\UI\Console\Command\RebuildAllocationStatsProjectionCommand;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -78,6 +83,22 @@ final class RebuildAllocationStatsProjectionCommandTest extends KernelTestCase
         self::assertStringContainsString('Projection table truncated.', $display);
         self::assertStringContainsString('Refreshing materialized views', $display);
         self::assertStringContainsString('Projection rebuild finished. Imports processed: 2', $display);
+
+        $run = $connection->fetchAssociative("SELECT * FROM job_run WHERE job = 'allocation_projection_full_rebuild'");
+        self::assertIsArray($run, 'A console rebuild of every import is one run.');
+        self::assertSame('console', $run['triggered_by']);
+        self::assertSame('succeeded', $run['status']);
+        self::assertNull($run['import_id']);
+        $metrics = json_decode((string) $run['metrics'], true);
+        self::assertIsArray($metrics);
+        self::assertSame(2, $metrics['imports']);
+        self::assertSame($projectionCount, $metrics['rows_written']);
+        self::assertSame(0, $metrics['rows_deleted'], 'The table was truncated before.');
+        self::assertTrue($metrics['mv_refreshed']);
+        foreach (['truncate_ms', 'rebuild_imports_ms', 'delete_ms', 'insert_ms', 'mv_refresh_ms'] as $step) {
+            self::assertIsInt($metrics[$step], $step);
+        }
+        self::assertSame(0, (int) $connection->fetchOne("SELECT COUNT(*) FROM job_run WHERE job = 'allocation_projection_rebuild'"), 'No run per import.');
     }
 
     #[Test]
@@ -93,6 +114,72 @@ final class RebuildAllocationStatsProjectionCommandTest extends KernelTestCase
 
         self::assertSame(0, $exitCode);
         self::assertStringContainsString('Projection table remains empty. Materialized views refreshed.', $tester->getDisplay());
+
+        $run = self::getContainer()->get(Connection::class)->fetchAssociative("SELECT status, metrics FROM job_run WHERE job = 'allocation_projection_full_rebuild'");
+        self::assertIsArray($run);
+        self::assertSame('succeeded', $run['status']);
+        $metrics = json_decode((string) $run['metrics'], true);
+        self::assertIsArray($metrics);
+        self::assertArrayNotHasKey('imports', $metrics);
+        self::assertTrue($metrics['mv_refreshed']);
+    }
+
+    #[Test]
+    public function aFailedMaterializedViewRefreshFailsTheRun(): void
+    {
+        self::bootKernel();
+        $refresher = $this->createStub(MaterializedViewRefresherInterface::class);
+        $refresher->method('refresh')->willReturn([['view' => 'mv_overview', 'success' => true, 'message' => 'Refreshed.'], ['view' => 'mv_state', 'success' => false, 'message' => 'Refresh failed.']]);
+        $this->seedProjectionImport();
+
+        $tester = new CommandTester($this->command(refresher: $refresher));
+
+        self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString('Refresh failed.', $tester->getDisplay());
+        $run = self::getContainer()->get(Connection::class)->fetchAssociative("SELECT status, error_class FROM job_run WHERE job = 'allocation_projection_full_rebuild'");
+        self::assertSame(['status' => 'failed', 'error_class' => \RuntimeException::class], $run);
+    }
+
+    #[Test]
+    public function aRebuildErrorFailsTheRunWithItsError(): void
+    {
+        self::bootKernel();
+        $rebuilder = $this->createStub(AllocationStatsProjectionRebuildInterface::class);
+        $rebuilder->method('rebuildForImport')->willThrowException(new \LogicException('rebuild broke'));
+        $this->seedProjectionImport();
+
+        $tester = new CommandTester($this->command(rebuilder: $rebuilder));
+
+        self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString('Projection rebuild failed: rebuild broke', $tester->getDisplay());
+        $run = self::getContainer()->get(Connection::class)->fetchAssociative("SELECT status, error_class, error_message FROM job_run WHERE job = 'allocation_projection_full_rebuild'");
+        self::assertSame(['status' => 'failed', 'error_class' => \LogicException::class, 'error_message' => 'rebuild broke'], $run);
+    }
+
+    private function seedProjectionImport(): void
+    {
+        $seed = $this->seedReferenceGraph();
+        $import = ImportFactory::createOne([
+            'name' => 'Projection Failure Import',
+            'hospital' => $seed['hospital'],
+            'createdBy' => $seed['user'],
+        ]);
+        AllocationFactory::createOne($this->allocationDefaults($seed, $import, 30, '2025-03-01 08:00:00', '2025-03-01 08:30:00'));
+    }
+
+    private function command(
+        ?AllocationStatsProjectionRebuildInterface $rebuilder = null,
+        ?MaterializedViewRefresherInterface $refresher = null,
+    ): RebuildAllocationStatsProjectionCommand {
+        $container = self::getContainer();
+
+        return new RebuildAllocationStatsProjectionCommand(
+            $container->get(Connection::class),
+            $container->get(EntityManagerInterface::class),
+            $rebuilder ?? $container->get(AllocationStatsProjectionRebuildInterface::class),
+            $refresher ?? $container->get(MaterializedViewRefresherInterface::class),
+            $container->get(AllocationProjectionRunTelemetryInterface::class),
+        );
     }
 
     #[Test]

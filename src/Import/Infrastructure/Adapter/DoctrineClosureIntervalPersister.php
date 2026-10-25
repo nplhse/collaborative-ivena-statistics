@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Infrastructure\Adapter;
 
 use App\Import\Application\Service\ImportRunCommitGuard;
+use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -18,6 +19,7 @@ final class DoctrineClosureIntervalPersister
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ImportRunCommitGuard $commitGuard,
+        private readonly ImportRunTelemetry $telemetry,
         private readonly int $batchSize = 250,
     ) {
     }
@@ -34,8 +36,10 @@ final class DoctrineClosureIntervalPersister
 
     public function flush(): void
     {
+        $started = hrtime(true);
         $this->commitGuard->flush($this->em);
         $this->clear();
+        $this->telemetry->addPersistTime(hrtime(true) - $started, true);
     }
 
     public function clear(): void

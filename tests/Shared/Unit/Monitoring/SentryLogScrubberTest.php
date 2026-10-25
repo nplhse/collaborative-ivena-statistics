@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Monitoring;
 
-use App\Shared\Infrastructure\Monitoring\Sentry\SentryClosureRebuildFilter;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryEventScrubber;
+use App\Shared\Infrastructure\Monitoring\Sentry\SentryJobRunFilter;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryLogScrubber;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildSentryProfile;
 use PHPUnit\Framework\TestCase;
 use Sentry\Logs\Log;
 use Sentry\Logs\LogLevel;
@@ -18,7 +19,7 @@ final class SentryLogScrubberTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $this->scrubber = new SentryLogScrubber(new SentryEventScrubber(), new SentryClosureRebuildFilter());
+        $this->scrubber = new SentryLogScrubber(new SentryEventScrubber(), new SentryJobRunFilter([new ClosureRebuildSentryProfile()]));
     }
 
     public function testAllowsImportSummary(): void
