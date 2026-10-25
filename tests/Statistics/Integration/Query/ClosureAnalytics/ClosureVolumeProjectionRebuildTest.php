@@ -24,15 +24,21 @@ use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeQuality;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
+use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuilder;
 use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
+use Symfony\Component\ErrorHandler\BufferingLogger;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -225,6 +231,43 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
             ['event_id' => $eventId],
         );
         self::assertGreaterThan($departmentObserved, $specialityObserved);
+    }
+
+    public function testFailureInsideAnAbortedTransactionKeepsTheOriginalException(): void
+    {
+        self::bootKernel();
+        $container = self::getContainer();
+        $connection = $container->get(Connection::class);
+        $logger = new BufferingLogger();
+        $rebuilder = new ClosureVolumeProjectionRebuilder(
+            $connection,
+            $container->get(ClosureVolumeReferenceConfig::class),
+            $container->get(ClosureVolumeReferenceCalendar::class),
+            $container->get(ClosureVolumeHourPlanner::class),
+            $container->get(ClosureVolumeReferenceSelector::class),
+            $logger,
+        );
+        // The test runs inside a transaction: a failed statement aborts it, so the clean-up DROP fails too.
+        $connection->beginTransaction();
+        $rebuilder->beforePublishHook = static function () use ($connection): void {
+            try {
+                $connection->executeStatement('SELECT 1 FROM closure_volume_missing_table');
+            } catch (\Throwable $failed) {
+                throw new \RuntimeException('publish failed', 0, $failed);
+            }
+        };
+
+        try {
+            $rebuilder->rebuild();
+            self::fail('The publish hook should abort the rebuild.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('publish failed', $exception->getMessage());
+        } finally {
+            $connection->rollBack();
+        }
+
+        $messages = array_map(static fn (array $entry): string => (string) $entry[1], $logger->cleanLogs());
+        self::assertContains('closure_volume.build_table_cleanup_failed', $messages);
     }
 
     public function testOngoingClosureHasNoFollowUpAndDoesNotTreatTheFutureAsZero(): void
