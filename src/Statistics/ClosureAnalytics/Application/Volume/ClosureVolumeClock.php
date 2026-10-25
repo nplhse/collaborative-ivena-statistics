@@ -43,6 +43,9 @@ final class ClosureVolumeClock
     }
 
     /**
+     * Buckets are keyed by their wall-clock hour, like the stored timestamps. When the clocks go back,
+     * the repeated hour (e.g. 02:00–03:00) is one bucket that measures both passes (up to 7200 seconds).
+     *
      * @return list<ClosureVolumeBucket>
      */
     public static function split(\DateTimeImmutable $start, \DateTimeImmutable $end): array
@@ -65,6 +68,22 @@ final class ClosureVolumeClock
             }
             $pieceEndAt = new \DateTimeImmutable('@'.$pieceEnd)->setTimezone(self::zone());
             $hour = (int) $at->format('G');
+            $previous = [] === $buckets ? null : $buckets[array_key_last($buckets)];
+            if ($previous instanceof ClosureVolumeBucket && $previous->start->format('Y-m-d H') === $at->format('Y-m-d H')) {
+                // Second pass of the repeated hour after the clocks went back.
+                array_pop($buckets);
+                $buckets[] = new ClosureVolumeBucket(
+                    $previous->start,
+                    $pieceEndAt,
+                    $previous->weekday,
+                    $previous->hour,
+                    $previous->dayTimeBucket,
+                    $previous->seconds + ($pieceEnd - $cursor),
+                );
+                $cursor = $pieceEnd;
+
+                continue;
+            }
             $buckets[] = new ClosureVolumeBucket(
                 $at,
                 $pieceEndAt,
