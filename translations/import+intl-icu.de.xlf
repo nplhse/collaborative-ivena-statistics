@@ -449,6 +449,30 @@
         <source>import.batch.clear</source>
         <target>Alle Importe anzeigen</target>
       </trans-unit>
+      <trans-unit id="impBlkDelLblDe" resname="import.bulk.delete.label">
+        <source>import.bulk.delete.label</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelOneDe" resname="import.bulk.delete.confirm_title.one">
+        <source>import.bulk.delete.confirm_title.one</source>
+        <target>Wirklich diesen Import löschen?</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelOthDe" resname="import.bulk.delete.confirm_title.other">
+        <source>import.bulk.delete.confirm_title.other</source>
+        <target>Wirklich diese {count} Importe löschen?</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelMsgDe" resname="import.bulk.delete.confirm_message">
+        <source>import.bulk.delete.confirm_message</source>
+        <target>Mit den Importen werden ihre Zuweisungen bzw. Schließungsintervalle, MANV-Fälle, Projektionen, abgelehnten Zeilen und Originaldateien entfernt; Statistiken und Schließungsanalyse werden neu berechnet. Laufende Importe werden übersprungen. Das Löschen läuft im Hintergrund, Sie erhalten eine Benachrichtigung, sobald es abgeschlossen ist. Diese Aktion kann nicht rückgängig gemacht werden.</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelCfDe" resname="import.bulk.delete.confirm">
+        <source>import.bulk.delete.confirm</source>
+        <target>Endgültig löschen</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelQDe" resname="flash.import.bulk.delete_queued">
+        <source>flash.import.bulk.delete_queued</source>
+        <target>{count, plural, one {# Import wird} other {# Importe werden}} im Hintergrund gelöscht. Sie erhalten eine Benachrichtigung, sobald das Löschen abgeschlossen ist.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

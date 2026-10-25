@@ -384,7 +384,7 @@ Batch states, the suppression of per-import notifications and the summary are in
 - The orchestrator runs the same check after closing the dispatch phase, for batches whose items all finished before the dispatch phase ended.
 - Reconciliation runs the check for every batch with `dispatchClosedAt` set and `processingFinishedAt` empty, and re-publishes summaries of batches finished within the 24-hour window.
 - **Summary counts:** completed, partial, failed and superseded items, each reported separately, plus a link to the batch run. The summary goes to the initiator only.
-- *Update (#720):* bulk reprocessing from the import list creates the same batches (`options.source = ui`), so the summary is no longer admin-only. It links to the import list filtered to the batch, and a batch with failures uses the separate high-priority type `import.batch_failed`.
+- *Update (#720):* bulk reprocessing from the import list creates the same batches (`options.source = ui`), so the summary is no longer admin-only. It links to the import list filtered to the batch, and a batch with failures uses the separate high-priority type `import.batch_failed`. Bulk deletions from the import list send `import.bulk_deleted` / `import.bulk_delete_failed`; they have no durable business record, so a lost summary is not reconciled (accepted: the deletion itself is complete).
 
 #### Monthly reminder (`engagement.monthly_reminder`)
 

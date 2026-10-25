@@ -26,6 +26,8 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
 | `import.batch_finished` | Imports | in-app, toast | the user who started the batch (`--notify-user` or bulk reprocess) | the last item of a batch finished and none failed ([details](../import/batch-requeue.md#completion-and-summary)) |
 | `import.batch_failed` | Imports | in-app, toast (high priority) | as above | the last item of a batch finished and at least one failed |
+| `import.bulk_deleted` | Imports | in-app, toast | the user who started a bulk deletion on the import list | the background deletion finished without failures ([details](../import/bulk-actions.md#delete-selected-imports)) |
+| `import.bulk_delete_failed` | Imports | in-app, toast (high priority) | as above | the background deletion finished and at least one import could not be deleted |
 | `user.first_import` | Imports | in-app, toast | the import's creator (hospital-scoped; not announced when the import is gone) | the creator's first successful import is recorded |
 | `engagement.monthly_reminder` | Reports | email (web optional) | the hospital owner | the monthly reminder is due (first working day), an administrator sends it by hand, or it is sent from the CLI |
 | `announcement.new_feature` | Announcements | web | every enabled user | a new feature is introduced (parameter `feature`); the notification system itself was announced by a migration at deploy time |

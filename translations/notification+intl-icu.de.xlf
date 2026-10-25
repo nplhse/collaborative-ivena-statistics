@@ -389,6 +389,30 @@
         <source>import.batch_failed.label</source>
         <target>Mehrere Importe verarbeitet, mit Fehlern</target>
       </trans-unit>
+      <trans-unit id="NtfBulkDelTitleDe" resname="import.bulk_deleted.title">
+        <source>import.bulk_deleted.title</source>
+        <target>{deleted, plural, one {# Import} other {# Importe}} gelöscht</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelMsgDe" resname="import.bulk_deleted.message">
+        <source>import.bulk_deleted.message</source>
+        <target>{skipped, plural, =0 {Die ausgewählten Importe wurden mit ihren Daten entfernt.} one {# Import wurde übersprungen, weil er gerade verarbeitet wurde oder nicht mehr gelöscht werden durfte.} other {# Importe wurden übersprungen, weil sie gerade verarbeitet wurden oder nicht mehr gelöscht werden durften.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelLabelDe" resname="import.bulk_deleted.label">
+        <source>import.bulk_deleted.label</source>
+        <target>Mehrere Importe gelöscht</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelFailTitleDe" resname="import.bulk_delete_failed.title">
+        <source>import.bulk_delete_failed.title</source>
+        <target>{deleted, number} von {total, plural, one {# Import} other {# Importen}} gelöscht, {failed, plural, one {# konnte} other {# konnten}} nicht gelöscht werden</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelFailMsgDe" resname="import.bulk_delete_failed.message">
+        <source>import.bulk_delete_failed.message</source>
+        <target>{skipped, plural, =0 {} one {# Import wurde übersprungen. } other {# Importe wurden übersprungen. }}Die nicht gelöschten Importe stehen weiterhin in der Importliste.</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelFailLabelDe" resname="import.bulk_delete_failed.label">
+        <source>import.bulk_delete_failed.label</source>
+        <target>Mehrere Importe gelöscht, mit Fehlern</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
