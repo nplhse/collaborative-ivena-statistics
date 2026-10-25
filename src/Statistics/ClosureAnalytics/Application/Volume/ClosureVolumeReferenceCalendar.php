@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Application\Volume;
 
 /**
- * Builds comparable full clock hours before a cutoff.
- * Uncovered days are omitted. A hour that overlaps a closure of the same population is omitted entirely.
+ * Builds comparable full clock hours inside a reference window.
+ * Uncovered days are omitted. An hour that overlaps a closure of the same population is omitted entirely.
  */
 final class ClosureVolumeReferenceCalendar
 {
@@ -48,182 +48,72 @@ final class ClosureVolumeReferenceCalendar
     }
 
     /**
-     * Comparable hours of one weekday and day-time bucket inside the reference window.
-     * Hours listed in $blockedHours are omitted entirely.
+     * One calendar walk per weekday and day-time block over every window range and series.
+     * A slot must lie fully inside one range; uncovered days are skipped, and a covered hour
+     * blocked for a series is counted as blocked instead of entering that series' reference.
      *
-     * @param array<string, int>  $hourlyCounts key Y-m-d H:00:00
-     * @param array<string, true> $coveredDays
-     * @param array<string, true> $blockedHours key Y-m-d H:00:00
+     * @param list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}> $ranges          wall-clock [from, to)
+     * @param array<string, array<string, int>>                         $hourlyBySeries  series => Y-m-d H:00:00 => count
+     * @param array<string, true>                                       $coveredDays
+     * @param array<string, array<string, true>>                        $blockedBySeries series => Y-m-d H:00:00 => true
      *
-     * @return list<ClosureVolumeReferenceSlot>
+     * @return array<string, array<int, ClosureVolumeReferenceTally>> series => hour => tally
      */
-    public function matchingSlots(
-        \DateTimeImmutable $cutoff,
-        int $weeks,
+    public function tallyWindow(
+        array $ranges,
         int $weekday,
         int $dayTimeBucket,
-        array $hourlyCounts,
+        array $hourlyBySeries,
         array $coveredDays,
-        array $blockedHours,
+        array $blockedBySeries,
     ): array {
-        $cutoff = ClosureVolumeClock::wall($cutoff);
-        $refStart = $cutoff->modify(sprintf('-%d weeks', $weeks));
         $hourFrom = ($dayTimeBucket - 1) * 6;
-        $day = $cutoff->setTime(0, 0);
-        $shift = ((int) $day->format('N') - $weekday + 7) % 7;
-        if (0 !== $shift) {
-            $day = $day->modify(sprintf('-%d days', $shift));
-        }
-        $first = $refStart->setTime(0, 0);
-        $slots = [];
-        for ($week = 0; $week <= $weeks && $day >= $first; ++$week) {
-            $dayKey = $day->format('Y-m-d');
-            if (isset($coveredDays[$dayKey])) {
-                for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
-                    $slot = $this->slot($dayKey, $hour, $refStart, $cutoff, $hourlyCounts, $blockedHours);
-                    if ($slot instanceof ClosureVolumeReferenceSlot) {
-                        $slots[] = $slot;
-                    }
-                }
+        $series = array_keys($hourlyBySeries + $blockedBySeries);
+        /** @var array<string, array<int, array{0: int, 1: int, 2: int}>> $hours count, sum, blocked */
+        $hours = [];
+        foreach ($series as $key) {
+            for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
+                $hours[$key][$hour] = [0, 0, 0];
             }
-            $day = $day->modify('-7 days');
         }
-
-        return $slots;
-    }
-
-    /**
-     * Counts of the exact hour and of its day-time bucket inside the reference window.
-     * The result matches {@see self::matchingSlots()} followed by the reference selector.
-     *
-     * @param array<string, int>  $hourlyCounts key Y-m-d H:00:00
-     * @param array<string, true> $coveredDays
-     * @param array<string, true> $blockedHours key Y-m-d H:00:00
-     *
-     * @return array{0: int, 1: int, 2: int, 3: int} primary count, primary sum, fallback count, fallback sum
-     */
-    public function tally(
-        \DateTimeImmutable $cutoff,
-        int $weeks,
-        int $weekday,
-        int $hour,
-        int $dayTimeBucket,
-        array $hourlyCounts,
-        array $coveredDays,
-        array $blockedHours,
-    ): array {
-        $cutoff = ClosureVolumeClock::wall($cutoff);
-        $refStart = $cutoff->modify(sprintf('-%d weeks', $weeks));
-        $hourFrom = ($dayTimeBucket - 1) * 6;
-        $day = $cutoff->setTime(0, 0);
-        $shift = ((int) $day->format('N') - $weekday + 7) % 7;
-        if (0 !== $shift) {
-            $day = $day->modify(sprintf('-%d days', $shift));
-        }
-        $first = $refStart->setTime(0, 0);
-        $primaryCount = 0;
-        $primarySum = 0;
-        $fallbackCount = 0;
-        $fallbackSum = 0;
-        for ($week = 0; $week <= $weeks && $day >= $first; ++$week) {
-            $dayKey = $day->format('Y-m-d');
-            if (isset($coveredDays[$dayKey])) {
-                for ($candidate = $hourFrom; $candidate < $hourFrom + 6; ++$candidate) {
-                    $count = $this->comparableCount($dayKey, $candidate, $refStart, $cutoff, $hourlyCounts, $blockedHours);
-                    if (null === $count) {
+        foreach ($ranges as [$from, $to]) {
+            $from = ClosureVolumeClock::wall($from);
+            $to = ClosureVolumeClock::wall($to);
+            $day = $from->setTime(0, 0);
+            $shift = ($weekday - (int) $day->format('N') + 7) % 7;
+            if (0 !== $shift) {
+                $day = $day->modify(sprintf('+%d days', $shift));
+            }
+            for (; $day < $to; $day = $day->modify('+7 days')) {
+                $dayKey = $day->format('Y-m-d');
+                if (!isset($coveredDays[$dayKey])) {
+                    continue;
+                }
+                for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
+                    $hourKey = $this->hourInRange($dayKey, $hour, $from, $to);
+                    if (null === $hourKey) {
                         continue;
                     }
-                    ++$fallbackCount;
-                    $fallbackSum += $count;
-                    if ($candidate === $hour) {
-                        ++$primaryCount;
-                        $primarySum += $count;
-                    }
-                }
-            }
-            $day = $day->modify('-7 days');
-        }
-
-        return [$primaryCount, $primarySum, $fallbackCount, $fallbackSum];
-    }
-
-    /**
-     * One calendar walk for every hour of a day-time block and every stratum.
-     * The fallback totals are identical for each hour of the block.
-     *
-     * @param array<string, array<string, int>> $hourlyByStratum stratum => hour key => count
-     * @param array<string, true>               $coveredDays
-     * @param array<string, true>               $blockedHours
-     *
-     * @return array<string, array<int, array{0: int, 1: int, 2: int, 3: int}>>
-     */
-    public function tallyBlock(
-        \DateTimeImmutable $cutoff,
-        int $weeks,
-        int $weekday,
-        int $dayTimeBucket,
-        array $hourlyByStratum,
-        array $coveredDays,
-        array $blockedHours,
-    ): array {
-        $cutoff = ClosureVolumeClock::wall($cutoff);
-        $refStart = $cutoff->modify(sprintf('-%d weeks', $weeks));
-        $hourFrom = ($dayTimeBucket - 1) * 6;
-        $day = $cutoff->setTime(0, 0);
-        $shift = ((int) $day->format('N') - $weekday + 7) % 7;
-        if (0 !== $shift) {
-            $day = $day->modify(sprintf('-%d days', $shift));
-        }
-        $first = $refStart->setTime(0, 0);
-        $strata = array_keys($hourlyByStratum);
-        if ([] === $strata) {
-            $strata = ['base', 'resus', 'cathlab'];
-        }
-        /** @var array<string, array{count: int, sum: int}> $fallback */
-        $fallback = [];
-        /** @var array<string, array<int, array{count: int, sum: int}>> $primary */
-        $primary = [];
-        foreach ($strata as $stratum) {
-            $fallback[$stratum] = ['count' => 0, 'sum' => 0];
-            for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
-                $primary[$stratum][$hour] = ['count' => 0, 'sum' => 0];
-            }
-        }
-        for ($week = 0; $week <= $weeks && $day >= $first; ++$week) {
-            $dayKey = $day->format('Y-m-d');
-            if (isset($coveredDays[$dayKey])) {
-                for ($candidate = $hourFrom; $candidate < $hourFrom + 6; ++$candidate) {
-                    foreach ($strata as $stratum) {
-                        $count = $this->comparableCount(
-                            $dayKey,
-                            $candidate,
-                            $refStart,
-                            $cutoff,
-                            $hourlyByStratum[$stratum] ?? [],
-                            $blockedHours,
-                        );
-                        if (null === $count) {
+                    foreach ($series as $key) {
+                        if (isset($blockedBySeries[$key][$hourKey])) {
+                            ++$hours[$key][$hour][2];
                             continue;
                         }
-                        ++$fallback[$stratum]['count'];
-                        $fallback[$stratum]['sum'] += $count;
-                        ++$primary[$stratum][$candidate]['count'];
-                        $primary[$stratum][$candidate]['sum'] += $count;
+                        ++$hours[$key][$hour][0];
+                        $hours[$key][$hour][1] += $hourlyBySeries[$key][$hourKey] ?? 0;
                     }
                 }
             }
-            $day = $day->modify('-7 days');
         }
 
         $result = [];
-        foreach ($strata as $stratum) {
-            for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
-                $result[$stratum][$hour] = [
-                    $primary[$stratum][$hour]['count'],
-                    $primary[$stratum][$hour]['sum'],
-                    $fallback[$stratum]['count'],
-                    $fallback[$stratum]['sum'],
-                ];
+        foreach ($hours as $key => $byHour) {
+            $fallback = [0, 0, 0];
+            foreach ($byHour as [$count, $sum, $blocked]) {
+                $fallback = [$fallback[0] + $count, $fallback[1] + $sum, $fallback[2] + $blocked];
+            }
+            foreach ($byHour as $hour => [$count, $sum, $blocked]) {
+                $result[$key][$hour] = new ClosureVolumeReferenceTally($count, $sum, $blocked, $fallback[0], $fallback[1], $fallback[2]);
             }
         }
 
@@ -307,6 +197,20 @@ final class ClosureVolumeReferenceCalendar
         array $hourlyCounts,
         array $blockedHours,
     ): ?int {
+        $hourKey = $this->hourInRange($dayKey, $hour, $refStart, $cutoff);
+        if (null === $hourKey || isset($blockedHours[$hourKey])) {
+            return null;
+        }
+
+        return $hourlyCounts[$hourKey] ?? 0;
+    }
+
+    /**
+     * Key of a wall-clock hour that exists on that day and lies fully inside [from, to).
+     * A skipped spring hour does not exist; the repeated autumn hour is one bucket.
+     */
+    private function hourInRange(string $dayKey, int $hour, \DateTimeImmutable $from, \DateTimeImmutable $to): ?string
+    {
         $hourStart = \DateTimeImmutable::createFromFormat(
             '!Y-m-d H:i:s',
             sprintf('%s %02d:00:00', $dayKey, $hour),
@@ -318,15 +222,11 @@ final class ClosureVolumeReferenceCalendar
         if ((int) $hourStart->format('G') !== $hour || $hourStart->format('Y-m-d') !== $dayKey) {
             return null;
         }
-
         $hourEnd = new \DateTimeImmutable('@'.($hourStart->getTimestamp() + 3600))->setTimezone(ClosureVolumeClock::zone());
-        if ($hourStart < $refStart || $hourEnd > $cutoff) {
-            return null;
-        }
-        if (isset($blockedHours[$hourStart->format('Y-m-d H:00:00')])) {
+        if ($hourStart < $from || $hourEnd > $to) {
             return null;
         }
 
-        return $hourlyCounts[$hourStart->format('Y-m-d H:00:00')] ?? 0;
+        return $hourStart->format('Y-m-d H:00:00');
     }
 }

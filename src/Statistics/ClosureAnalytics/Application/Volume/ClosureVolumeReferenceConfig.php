@@ -11,13 +11,14 @@ final readonly class ClosureVolumeReferenceConfig
     /** @var list<int> */
     public const array WINDOW_HOURS = [1, 3, 6];
 
+    public ClosureVolumeReferenceWindow $window;
+
     public function __construct(
-        public int $referenceWeeks = 8,
+        int $referenceWeeksBefore = 4,
+        int $referenceWeeksAfter = 4,
         public int $minimumReferenceSlots = 4,
     ) {
-        if ($this->referenceWeeks < 1) {
-            throw new \InvalidArgumentException('Reference weeks must be positive.');
-        }
+        $this->window = new ClosureVolumeReferenceWindow($referenceWeeksBefore, $referenceWeeksAfter);
         if ($this->minimumReferenceSlots < 1) {
             throw new \InvalidArgumentException('Minimum reference slots must be positive.');
         }

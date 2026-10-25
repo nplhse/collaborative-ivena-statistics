@@ -7,10 +7,11 @@ namespace App\Statistics\Application\Contract;
 interface ClosureVolumeProjectionRebuildInterface
 {
     /**
-     * @param callable(int $processed, int $total, int $pass): void|null $onHospital  pass 2 rebuilds hospitals with late requests
-     * @param list<int>|null                                             $hospitalIds null rebuilds every hospital
+     * @param callable(int $processed, int $total, int $pass): void|null $onHospital      pass 2 rebuilds hospitals with late requests
+     * @param list<int>|null                                             $hospitalIds     null rebuilds every hospital
+     * @param string|null                                                $referenceWindow `symmetric` (configured default) or `backward`, for comparison runs
      */
-    public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null): int;
+    public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null, ?string $referenceWindow = null): int;
 
     /**
      * Rebuilds what open rebuild requests ask for. Without $waitForLock it returns at once while another rebuild runs.

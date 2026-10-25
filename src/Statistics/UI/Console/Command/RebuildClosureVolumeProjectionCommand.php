@@ -30,9 +30,14 @@ final readonly class RebuildClosureVolumeProjectionCommand
         OutputInterface $output,
         #[Option(description: 'Rebuild only these hospital ids (repeatable)')]
         array $hospital = [],
+        #[Option(description: 'Reference window for comparison runs: symmetric (configured default) or backward (all weeks before the event)')]
+        ?string $referenceWindow = null,
     ): int {
         $hospitalIds = [] === $hospital ? null : array_values(array_unique(array_map(intval(...), $hospital)));
         $io->title('Rebuilding closure volume projection');
+        if (null !== $referenceWindow) {
+            $io->note(sprintf('Reference window: %s.', $referenceWindow));
+        }
         $startedAt = microtime(true);
         $progress = new ProgressBar($output);
         $progress->setFormat(' %current%/%max% events [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%');
@@ -50,7 +55,7 @@ final readonly class RebuildClosureVolumeProjectionCommand
                     $currentPass = $pass;
                 }
                 $progress->setProgress(min($done, max(1, $total)));
-            }, $hospitalIds);
+            }, $hospitalIds, $referenceWindow);
         } catch (\Throwable $exception) {
             $progress->finish();
             $output->writeln('');

@@ -80,7 +80,8 @@ services:
 
     App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig:
         arguments:
-            $referenceWeeks: '%app.closure_volume.reference_weeks%'
+            $referenceWeeksBefore: '%app.closure_volume.reference_weeks_before%'
+            $referenceWeeksAfter: '%app.closure_volume.reference_weeks_after%'
             $minimumReferenceSlots: '%app.closure_volume.minimum_reference_slots%'
 
     App\User\Infrastructure\Registration\RegistrationIdentityGuard:

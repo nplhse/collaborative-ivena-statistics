@@ -86,19 +86,19 @@ final class ClosureVolumeReferenceTest extends TestCase
         ));
 
         $covered = ['2026-05-05' => true];
-        $matching = new ClosureVolumeReferenceCalendar()->matchingSlots(
-            $cutoff,
-            8,
+        $tallies = new ClosureVolumeReferenceCalendar()->tallyWindow(
+            [[$cutoff->modify('-8 weeks'), $cutoff]],
             2,
             2,
-            ['2026-05-05 10:00:00' => 2, '2026-05-05 11:00:00' => 3],
+            ['sk1' => ['2026-05-05 10:00:00' => 2, '2026-05-05 11:00:00' => 3]],
             $covered,
             [],
         );
-        self::assertNotEmpty($matching);
-        foreach ($matching as $slot) {
-            self::assertSame(2, $slot->dayTimeBucket);
-        }
+        self::assertSame([6, 7, 8, 9, 10, 11], array_keys($tallies['sk1']));
+        self::assertSame(1, $tallies['sk1'][10]->primaryCount);
+        self::assertSame(2, $tallies['sk1'][10]->primarySum);
+        self::assertSame(6, $tallies['sk1'][10]->fallbackCount);
+        self::assertSame(5, $tallies['sk1'][10]->fallbackSum);
     }
 
     public function testZeroExpectationKeepsAbsoluteDeviationAndDropsRelative(): void
@@ -144,18 +144,17 @@ final class ClosureVolumeReferenceTest extends TestCase
         $selected = $this->selector(4)->select(2, 10, 2, $slots);
         self::assertSame(ClosureVolumeReferenceMode::DayTimeBucket, $selected->mode);
         $calendar = new ClosureVolumeReferenceCalendar();
-        $tallied = $this->selector(4)->fromTallies(...$calendar->tally(
-            $cutoff,
-            8,
+        $tallied = $this->selector(4)->fromTally($calendar->tallyWindow(
+            [[$cutoff->modify('-8 weeks'), $cutoff]],
             2,
-            10,
             2,
-            $counts,
+            ['sk1' => $counts],
             $covered,
-            $calendar->blockedHours([$blocking]),
-        ));
+            ['sk1' => $calendar->blockedHours([$blocking])],
+        )['sk1'][10]);
         self::assertSame($selected->mode, $tallied->mode);
         self::assertSame($selected->slotCount, $tallied->slotCount);
+        self::assertSame(1, $tallied->blockedSlotCount, 'The blocked 10:00 slot of 12 May.');
         self::assertEqualsWithDelta($selected->hourlyRate ?? 0.0, $tallied->hourlyRate ?? 0.0, 0.0001);
     }
 
@@ -418,7 +417,7 @@ final class ClosureVolumeReferenceTest extends TestCase
     public function testHospitalBaselineKeepsEachHospitalSeparateBeforeTheShare(): void
     {
         $baseline = new ClosureVolumeHospitalBaseline(
-            new ClosureVolumeReferenceConfig(8, 4),
+            new ClosureVolumeReferenceConfig(8, 0, 4),
             new ClosureVolumeReferenceCalendar(),
             $this->selector(4),
         );
@@ -493,7 +492,7 @@ final class ClosureVolumeReferenceTest extends TestCase
 
     private function selector(int $minimum): ClosureVolumeReferenceSelector
     {
-        return new ClosureVolumeReferenceSelector(new ClosureVolumeReferenceConfig(8, $minimum));
+        return new ClosureVolumeReferenceSelector(new ClosureVolumeReferenceConfig(8, 0, $minimum));
     }
 
     private function planner(): ClosureVolumeHourPlanner

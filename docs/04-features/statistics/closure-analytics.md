@@ -409,10 +409,14 @@ evaluation. Shock room (`requires_resus`) and cardiac catheter
 to the urgency views. No ABCD score and no conspicuous-score threshold exist in
 the allocation model, so that view is not offered.
 
-The reference for a closure ends at its start. It uses the previous 8 weeks
-(`app.closure_volume.reference_weeks`) of the same weekday and clock hour, and
-only hours that lie fully inside import coverage and outside known closures of
-the same population. A partly closed reference hour is dropped. At least 4 such
+The reference for a closure is symmetric (ADR 015): 4 weeks before its start
+(`app.closure_volume.reference_weeks_before`) and 4 weeks after its end
+(`app.closure_volume.reference_weeks_after`), of the same weekday and clock
+hour. The closure itself, including gaps between its segments, is never part of
+it. Only hours that lie fully inside one side of the window, inside import
+coverage and outside known closures of the same population are used.
+`app:statistics:rebuild-closure-volume-projection --reference-window=backward`
+rebuilds with all weeks before the closure, for comparisons only. A partly closed reference hour is dropped. At least 4 such
 hours are required (`app.closure_volume.minimum_reference_slots`). Otherwise the
 same weekday and the existing day-time bucket (night, morning, afternoon,
 evening) are used, again with at least 4 hours. Below that, the expectation is

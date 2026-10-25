@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Projection;
 
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Uid\Uuid;
@@ -26,6 +28,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         private readonly ClosureRebuildScheduler $scheduler,
         private readonly LockFactory $lockFactory,
         private readonly ClosureRebuildTelemetry $telemetry,
+        private readonly ClosureVolumeReferenceConfig $config,
     ) {
     }
 
@@ -33,8 +36,9 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
      * @param list<int>|null $hospitalIds
      */
     #[\Override]
-    public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null): int
+    public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null, ?string $referenceWindow = null): int
     {
+        $window = null === $referenceWindow ? null : ClosureVolumeReferenceWindow::named($referenceWindow, $this->config->window);
         $lock = $this->lockFactory->createLock(self::LOCK, null);
         if (!$lock->acquire(true)) {
             throw new \RuntimeException('Closure volume projection rebuild is already running.');
@@ -46,7 +50,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         try {
             $this->rebuildAnalysis($hospitalIds);
 
-            return $this->publishVolume($runId, $onHospital, $hospitalIds, ClosureRebuildClaim::empty());
+            return $this->publishVolume($runId, $onHospital, $hospitalIds, ClosureRebuildClaim::empty(), $window);
         } catch (\Throwable $exception) {
             $error = $exception;
             throw $exception;
@@ -132,8 +136,13 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
      * @param callable(int $processed, int $total, int $pass): void|null $onHospital
      * @param list<int>|null                                             $hospitalIds
      */
-    private function publishVolume(string $runId, ?callable $onHospital, ?array $hospitalIds, ClosureRebuildClaim $claimed): int
-    {
+    private function publishVolume(
+        string $runId,
+        ?callable $onHospital,
+        ?array $hospitalIds,
+        ClosureRebuildClaim $claimed,
+        ?ClosureVolumeReferenceWindow $window = null,
+    ): int {
         try {
             $hospitals = $this->rebuilder->rebuild(
                 $onHospital,
@@ -157,6 +166,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                         'refresh' => $late->all ? $this->analysis->hospitalIds() : $late->hospitalIds,
                     ];
                 },
+                $window,
             );
         } catch (\Throwable $exception) {
             $this->scheduler->release($claimed->requestIds, $exception);

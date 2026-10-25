@@ -15,6 +15,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
 use Doctrine\DBAL\ArrayParameterType;
@@ -44,6 +45,8 @@ final class ClosureVolumeProjectionRebuilder
     /** @var \Closure(): void|null */
     public ?\Closure $beforePublishHook = null;
 
+    private ClosureVolumeReferenceWindow $window;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly ClosureVolumeAnchorBuilder $anchorBuilder,
@@ -66,8 +69,13 @@ final class ClosureVolumeProjectionRebuilder
      * @param list<int>|null                                                       $hospitalIds     null replaces the whole projection
      * @param callable(list<int>|null): array{full: bool, refresh: list<int>}|null $expandHospitals
      */
-    public function rebuild(?callable $onProgress = null, ?array $hospitalIds = null, ?callable $expandHospitals = null): int
-    {
+    public function rebuild(
+        ?callable $onProgress = null,
+        ?array $hospitalIds = null,
+        ?callable $expandHospitals = null,
+        ?ClosureVolumeReferenceWindow $window = null,
+    ): int {
+        $this->window = $window ?? $this->config->window;
         $this->maxPartitionBytes = 0;
         $this->partitionSamples = [];
         $silenced = $this->silenceDoctrineLog();
@@ -275,10 +283,9 @@ SQL,
                 $to = $anchor->endsAt;
             }
         }
-        $windowStart = $from
-            ->modify(sprintf('-%d weeks', $this->config->referenceWeeks))
-            ->modify(sprintf('-%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
-        $windowEnd = $to->modify(sprintf('+%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
+        [$windowStart, $windowEnd] = $this->window->loadRange($from, $to);
+        $windowStart = $windowStart->modify(sprintf('-%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
+        $windowEnd = $windowEnd->modify(sprintf('+%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
         if ($windowEnd > $now) {
             $windowEnd = $now;
         }
@@ -633,7 +640,8 @@ SQL,
         array &$cache,
     ): array {
         $rates = [];
-        $cutoffKey = $anchor->startsAt->format('Y-m-d H:i:s');
+        $ranges = $this->window->ranges($anchor->startsAt, $anchor->endsAt);
+        $cutoffKey = $anchor->startsAt->format('Y-m-d H:i:s').'|'.$anchor->endsAt->format('Y-m-d H:i:s');
         foreach ($anchor->urgencies as $urgency) {
             $blockedHours = match ($anchor->scope) {
                 'speciality' => $blockedSpeciality[$anchor->specialityId.'|'.$urgency] ?? [],
@@ -649,31 +657,27 @@ SQL,
                 $cacheKey = $cutoffKey.'|'.$anchor->scope.'|'.$prefix.'|'.$weekday.'|'.$dayTimeBucket;
                 if (!isset($cache[$cacheKey])) {
                     $hourlyByStratum = [];
+                    $blockedByStratum = [];
                     foreach (['base', 'resus', 'cathlab'] as $stratum) {
                         $series = $referenceCounts[$prefix.'|'.$stratum] ?? [];
                         $hourlyByStratum[$stratum] = \is_array($series) ? $series : [];
+                        $blockedByStratum[$stratum] = $blockedHours;
                     }
-                    $block = $this->calendar->tallyBlock(
-                        $anchor->startsAt,
-                        $this->config->referenceWeeks,
+                    $block = $this->calendar->tallyWindow(
+                        $ranges,
                         $weekday,
                         $dayTimeBucket,
                         $hourlyByStratum,
                         $coveredDays,
-                        $blockedHours,
+                        $blockedByStratum,
                     );
                     $cache[$cacheKey] = [];
                     foreach ($block as $stratum => $hours) {
-                        foreach ($hours as $hour => $tallies) {
-                            $cache[$cacheKey][$stratum.'|'.$hour] = $this->selector->fromTallies(
-                                $tallies[0],
-                                $tallies[1],
-                                $tallies[2],
-                                $tallies[3],
-                            );
+                        foreach ($hours as $hour => $tally) {
+                            $cache[$cacheKey][$stratum.'|'.$hour] = $this->selector->fromTally($tally);
                         }
                     }
-                    unset($block, $hourlyByStratum);
+                    unset($block, $hourlyByStratum, $blockedByStratum);
                 }
                 foreach (['base', 'resus', 'cathlab'] as $stratum) {
                     $hourFrom = ($dayTimeBucket - 1) * 6;
