@@ -9,6 +9,7 @@ use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\UnsupportedImportTypeException;
 use App\Import\Application\Service\ImportStartDispatcher;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +22,7 @@ final class ImportStartDispatcherTest extends TestCase
         $import->setType(ImportType::ALLOCATION);
         $entityManager = $this->entityManagerReturning(42, $import);
         $allocations = $this->createMock(ImportWorkflowDispatcherInterface::class);
-        $allocations->expects($this->once())->method('dispatch')->with(42);
+        $allocations->expects($this->once())->method('dispatch')->with(42, ImportRunTrigger::Console, null);
         $closures = $this->createMock(ImportWorkflowDispatcherInterface::class);
         $closures->expects($this->never())->method('dispatch');
 
@@ -38,7 +39,7 @@ final class ImportStartDispatcherTest extends TestCase
         $allocations = $this->createMock(ImportWorkflowDispatcherInterface::class);
         $allocations->expects($this->never())->method('dispatch');
         $closures = $this->createMock(ImportWorkflowDispatcherInterface::class);
-        $closures->expects($this->once())->method('dispatch')->with(9);
+        $closures->expects($this->once())->method('dispatch')->with(9, ImportRunTrigger::Console, null);
 
         $type = $this->dispatcher($entityManager, $allocations, $closures)->dispatch(9);
 

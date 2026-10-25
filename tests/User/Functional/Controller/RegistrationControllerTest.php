@@ -130,7 +130,7 @@ final class RegistrationControllerTest extends WebTestCase
         $suffix = bin2hex(random_bytes(4));
         $recipientEmail = sprintf('admin-notify-%s@example.test', $suffix);
         UserFactory::new()
-            ->asNotificationRecipient()
+            ->asAdmin()
             ->create([
                 'username' => sprintf('admin-notify-%s', $suffix),
                 'email' => $recipientEmail,
@@ -161,25 +161,17 @@ final class RegistrationControllerTest extends WebTestCase
             }
         }
 
-        self::assertQueuedEmailCount(2);
-
-        $adminNotification = null;
+        $adminNotifications = [];
         foreach (self::getMailerMessages() as $message) {
-            if (!$message instanceof Email) {
-                continue;
+            if ($message instanceof Email && str_contains((string) $message->getSubject(), 'New user registration')) {
+                $adminNotifications[] = $message;
             }
-
-            if (!str_contains((string) $message->getSubject(), 'New user registration')) {
-                continue;
-            }
-
-            self::assertEmailAddressContains($message, 'to', $recipientEmail);
-            $adminNotification = $message;
-            break;
         }
 
-        self::assertInstanceOf(TemplatedEmail::class, $adminNotification);
-        self::assertEmailSubjectContains($adminNotification, 'New user registration');
+        self::assertCount(1, $adminNotifications, 'the admin mail is sent once, through the notification system only');
+        self::assertInstanceOf(TemplatedEmail::class, $adminNotifications[0]);
+        self::assertEmailAddressContains($adminNotifications[0], 'to', $recipientEmail);
+        self::assertEmailSubjectContains($adminNotifications[0], 'New user registration: '.$username);
     }
 
     public function testRegistrationWithBlockedEmailDomainShowsGenericCheckEmailWithoutCreatingUser(): void

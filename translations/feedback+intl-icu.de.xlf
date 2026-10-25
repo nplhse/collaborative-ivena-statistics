@@ -113,6 +113,10 @@
         <source>feedback.widget.title</source>
         <target>Feedback</target>
       </trans-unit>
+      <trans-unit id="FbkEmlGstDe" resname="feedback.email.actor.guest">
+        <source>feedback.email.actor.guest</source>
+        <target>Gast</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

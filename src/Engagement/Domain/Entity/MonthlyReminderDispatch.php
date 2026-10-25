@@ -38,7 +38,23 @@ class MonthlyReminderDispatch
         private ?string $failureReason = null,
         #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
         private ?\DateTimeImmutable $deliveredAt = null,
+        /** Identifies the current send attempt; a reused dispatch gets a new one with every attempt. */
+        #[ORM\Column(length: 36, nullable: true)]
+        private ?string $attemptId = null,
     ) {
+    }
+
+    public function getAttemptId(): ?string
+    {
+        return $this->attemptId;
+    }
+
+    /**
+     * Starts a new send attempt. Failures of earlier attempts carry their own id and no longer apply.
+     */
+    public function startAttempt(string $attemptId): void
+    {
+        $this->attemptId = $attemptId;
     }
 
     public function getId(): ?int

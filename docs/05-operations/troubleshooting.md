@@ -26,7 +26,7 @@ journalctl --user -u messenger -f
 | Statistics look outdated | Messenger worker not processing projection rebuild, manual projection SQL, or hospital metadata changed without re-import | Check worker queue; run `app:statistics:refresh-mviews` if projection was changed outside the app |
 | Hospital STEMIs missing after May 2025 while NSTEMI looks fine | Mixed-quote IVENA CSV stored `STEMI / \OMI\""` as an unreviewed raw; stats join `indication_normalized_id` | Production runbook: [repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md) |
 | Audit log full of `Assessment` / `create` entries | Assessments were audited during import before fix #288 | `app:audit:purge-import-assessments --dry-run`, then `--execute`; see [audit-log-maintenance.md](audit-log-maintenance.md) |
-| Feedback saved, no admin mail | No eligible recipients | Check Admin + Receives Feedback roles |
+| Feedback saved, no admin mail | No eligible recipients, or the admins switched the email off | Check that an enabled, verified user has the Admin role and has *Feedback received* → E-Mail ticked under Settings → Notifications |
 | Cannot delete a user in EasyAdmin | User still owns a hospital or other rows reference the account | Reassign hospital ownership; disable the account if it must stay; see [admin-entity-coverage.md](admin-entity-coverage.md#user-accounts) |
 | Mail links point to `localhost` | Missing/wrong `APP_URL` in prod | Fix `APP_URL`, clear cache, restart worker |
 

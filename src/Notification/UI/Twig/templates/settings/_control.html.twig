@@ -1,0 +1,34 @@
+{# One cell of the preferences table: a checkbox, disabled for channels the user cannot change. #}
+{% set channelLabel = ('notification.channel.' ~ control.channel.value)|trans({}, 'notification') %}
+{% set controlLabel = 'notification.preferences.control_label'|trans({subject: subject, channel: channelLabel}, 'notification') %}
+{% if control.configurable %}
+    {% set field = form.preferences[control.fieldName] %}
+    <label class="form-check form-check-single d-inline-block mb-0">
+        {{ form_widget(field, {attr: {
+            'aria-label': controlLabel,
+            'data-testid': 'preference-' ~ control.fieldName,
+            'data-notification-preferences-target': control.scope.value == 'category' ? 'category' : 'type',
+            'data-channel': control.channel.value,
+            'data-row': control.scope.value ~ '-' ~ control.key,
+            'data-mixed': control.mixed ? 'true' : 'false',
+            'data-action': control.scope.value == 'category' ? 'notification-preferences#categoryChanged' : 'notification-preferences#typeChanged',
+        }}) }}
+    </label>
+{% elseif control.kind.value in ['mandatory', 'fixed'] %}
+    {% set hintId = 'preference-hint-' ~ control.fieldName %}
+    {% set hint = (control.kind.value == 'mandatory' ? 'notification.preferences.mandatory_hint' : 'notification.preferences.fixed_hint')|trans({}, 'notification') %}
+    <label class="form-check form-check-single d-inline-block mb-0" title="{{ hint }}">
+        <input
+            type="checkbox"
+            class="form-check-input"
+            disabled
+            {{ control.checked ? 'checked' : '' }}
+            aria-label="{{ controlLabel }}"
+            aria-describedby="{{ hintId }}"
+            data-testid="preference-{{ control.kind.value }}-{{ control.fieldName }}"
+        >
+        <span id="{{ hintId }}" class="visually-hidden">{{ hint }}</span>
+    </label>
+{% else %}
+    <span class="text-secondary" aria-label="{{ 'notification.preferences.unavailable'|trans({}, 'notification') }}" title="{{ 'notification.preferences.unavailable'|trans({}, 'notification') }}">–</span>
+{% endif %}

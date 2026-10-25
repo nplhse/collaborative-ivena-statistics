@@ -1,0 +1,44 @@
+{% set unread = this.unreadCount %}
+{% set label = 'notification.bell.label'|trans({count: unread}, 'notification') %}
+<div {{ attributes.defaults({
+    class: 'nav-item dropdown me-1 me-md-2',
+    'data-testid': 'notification-bell',
+    'data-notification-version': this.version,
+    'data-controller': 'notification-poll',
+    'data-notification-poll-url-value': path('app_notification_poll'),
+    'data-notification-poll-version-value': this.version,
+}) }}>
+    <a
+        href="{{ path('app_notification_index') }}"
+        class="nav-link px-0 justify-content-center"
+        data-bs-toggle="dropdown"
+        data-bs-auto-close="outside"
+        aria-expanded="false"
+        aria-label="{{ label }}"
+        title="{{ label }}"
+        data-notification-poll-target="link"
+    >
+        <span class="notification-bell-icon" data-notification-poll-target="icon">
+            <twig:ux:icon name="tabler:bell" class="icon" />
+            {% if unread > 0 %}
+                {# Empty badge: rendered as a dot on the top right corner of the icon. #}
+                <span class="badge bg-red" data-testid="notification-bell-badge" data-unread-count="{{ unread }}"></span>
+            {% endif %}
+        </span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card notification-dropdown-menu">
+        <turbo-frame
+            id="notification-dropdown"
+            data-notification-poll-target="frame"
+            src="{{ path('app_notification_dropdown', {target: this.currentPath}) }}"
+            loading="lazy"
+        >
+            <div class="card">
+                <div class="card-body text-center text-secondary py-4" aria-busy="true">
+                    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+                    <span class="visually-hidden">{{ 'notification.loading'|trans({}, 'notification') }}</span>
+                </div>
+            </div>
+        </turbo-frame>
+    </div>
+</div>

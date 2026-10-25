@@ -1,6 +1,6 @@
 # Transactional mail
 
-Registration verification, password reset, participation welcome mail, and feedback admin notifications are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
+Registration verification and password reset are sent through a central mail layer ([`TransactionalMailer`](../../src/Shared/Infrastructure/Mail/TransactionalMailer.php)).
 
 A **participation welcome email** is sent when an administrator first grants `ROLE_PARTICIPANT` (signed grant link or EasyAdmin user form). Re-saving an already active participant does not send it again. The mail uses the user's username for the greeting, links back to the dashboard, and lists a few next steps based on whether the user owns hospitals.
 
@@ -64,13 +64,17 @@ php bin/console debug:config framework router --env=prod | grep default_uri
 |----------|---------|
 | `MAILER_REPLY_TO` | Reply-to address on all transactional mail |
 
-## Feedback notifications (role-based recipients)
+## Admin notifications (role-based recipients)
 
-`FEEDBACK_ADMIN_EMAIL` is **no longer used**. Feedback admin mail is sent to users who have **both** `ROLE_ADMIN` and `ROLE_FEEDBACK_RECIPIENT` (EasyAdmin: **Receives Feedback**).
+New registrations, failed imports and feedback reach administrators through the notification system ([notifications](../04-features/notification/README.md#notification-types)): in the inbox and, by default, by email. `FEEDBACK_ADMIN_EMAIL` is **no longer used**.
 
-Additional requirements: account enabled, email verified, non-empty email address.
+| Type | Recipients |
+|------|------------|
+| `admin.user_registered`, `admin.import_failed`, `admin.feedback_received` | users with `ROLE_ADMIN` |
 
-If no matching user exists, feedback is still stored but no email is sent. Check logs for `feedback.admin_mail_skipped` with reason `no_feedback_recipients`.
+Additional requirements: account enabled, email verified, non-empty email address. Each admin chooses per type on the settings page *Notifications* whether to get it by email, in the web inbox, both or not at all. (The former roles *Receives notifications* / *Receives Feedback* were replaced by these settings; admins without them were migrated with the types switched off.)
+
+If no matching user exists, the registration, import or feedback is still stored but nobody is notified.
 
 ## Async delivery in production
 
@@ -89,7 +93,7 @@ Configure SPF, DKIM, and DMARC for the domain used in `MAILER_FROM`.
 
 1. Set `MAILER_DSN`, `MAILER_FROM`, and `APP_URL` in server `.env.local`.
 2. Confirm the Messenger worker is active.
-3. Assign **Receives Feedback** to at least one verified admin.
+3. Make sure at least one verified admin has *Feedback received* → E-Mail ticked under Settings → Notifications.
 4. Smoke-test: register a user, request a password reset, grant participant access, submit feedback.
 5. If mail does not arrive, check `messenger:stats`, `messenger:failed:show`, and `journalctl --user -u messenger -f`.
 
@@ -99,9 +103,9 @@ Feedback admin notifications include a short, URL-stripped message preview (max 
 
 | Symptom | Likely cause |
 |---------|----------------|
-| No verification / reset / feedback mail | `MAILER_DSN` missing or worker not consuming `async_mail` |
+| No verification / reset / notification mail | `MAILER_DSN` missing or worker not consuming `async_mail` (notification mails also need `async_priority_low`) |
 | Reset link or mail images use `http://localhost` | `APP_URL` unset or wrong; restart worker after change |
-| Feedback saved but no admin email | No user with Admin + Receives Feedback |
+| Feedback saved but no admin email | No verified admin, or the admins switched the feedback email off in their notification settings |
 | Mail in spam | SPF/DKIM/DMARC or `MAILER_FROM` not aligned with SMTP provider |
 | `554 5.7.1 Spam message rejected` (or other SMTP 5xx) | Permanent rejection by the MTA (often spammy user content in outbound mail). Message goes to the `failed` transport **without** the usual 5 retries. Do **not** blindly retry; inspect content, delete the failed message, and fix the source (e.g. feedback spam). |
 

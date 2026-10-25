@@ -80,16 +80,4 @@ final class UserFactory extends PersistentObjectFactory
     {
         return $this->with(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
     }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function asFeedbackRecipient(): self
-    {
-        return $this->with(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_FEEDBACK_RECIPIENT']]);
-    }
-
-    /** @psalm-suppress PossiblyUnusedMethod */
-    public function asNotificationRecipient(): self
-    {
-        return $this->with(['roles' => ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_RECEIVES_NOTIFICATION']]);
-    }
 }

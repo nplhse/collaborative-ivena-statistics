@@ -1,0 +1,197 @@
+# Notifications
+
+Personal notifications for users: a persistent in-app inbox, toasts for active sessions and, later, email. The architecture is decided in [ADR 016](../../02-architecture/decisions/016-notification-system.md); this page describes what exists today and how to use it.
+
+## Status
+
+| Part | State |
+|------|-------|
+| Definitions, registry, validation | available |
+| Publisher with deduplication and recipient state | available |
+| Channel resolution (defaults, mandatory channels, overrides) | available |
+| In-app UI (bell, dropdown, overview, read/remove) | available |
+| Retention and daily recount | available |
+| Toasts and polling | available |
+| Import notifications incl. batch summary | available |
+| Email delivery | available |
+| Preferences (storage and settings page) | available |
+| Monthly reminder and its opt-out | available |
+| Admin notifications | available |
+
+## Notification types
+
+| Type | Category | Default channels | Recipients | Published when |
+|------|----------|------------------|------------|----------------|
+| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; console run: its initiator; batch runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
+| `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
+| `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
+| `user.first_import` | Imports | in-app, toast | the import's creator (hospital-scoped; not announced when the import is gone) | the creator's first successful import is recorded |
+| `engagement.monthly_reminder` | Reports | email (web optional) | the hospital owner | the monthly reminder is due (first working day), an administrator sends it by hand, or it is sent from the CLI |
+| `announcement.new_feature` | Announcements | web | every enabled user | a new feature is introduced (parameter `feature`); the notification system itself was announced by a migration at deploy time |
+| `participation.activated` | Account | in-app, toast, email (mandatory: the welcome mail) | the activated user | an administrator activates participation |
+| `admin.user_registered` | Administration | in-app, email | all admins (each chooses in the settings) | a user registers |
+| `admin.import_failed` | Administration | in-app, email | all admins (each chooses in the settings) | an import run ends as failed (text from the reason code) |
+| `admin.feedback_received` | Administration | in-app, email | all admins (each chooses in the settings) | someone sends feedback |
+
+Import types are hospital-scoped (redacted after access is revoked) and link to the import. One run yields at most one import notification (deduplication key `import.run_finished:{runId}`); superseded runs and runs from messages queued before import runs existed yield none.
+
+Admin types are role-scoped (`requiredRole: ROLE_ADMIN`, hidden after the role is revoked) and configurable; email is a default, not mandatory. Recipients come from `AdminNotificationRecipientResolverInterface` (User): all enabled, verified users with `ROLE_ADMIN`; each admin chooses on the settings page which admin types to receive and on which channels (the former opt-in roles were migrated to switched-off types and removed). Each admin gets their own entry, once per user (`admin.user_registered:{userId}`), run (`admin.import_failed:{runId}`, only runs that ended as failed) or feedback entry (`admin.feedback_received:{feedbackId}`). The notification stores only ids, the username, import and hospital names, counts and the reason code. The emails keep their former layout through customizers in the owning contexts; they load the user or feedback entry at delivery time, so the signed grant link and the feedback preview (`FeedbackMailPreview`, links removed) are never stored. Email addresses, user agent, page query and context of a feedback stay in the admin area. Admin types are not reconciled: a crash between the business commit and publishing loses the notification (ADR 016).
+
+The first-import milestone is stored in `user_import_milestone` (Import context) in the same transaction as the run's end and is never recorded twice. The migration marks users who already had a successful import, so existing users are not congratulated after the deploy.
+
+### Monthly reminder
+
+`Engagement` still decides when a reminder is due, keeps one `monthly_reminder_dispatch` row per hospital, upload month and trigger, and the 5-minute guard for manual sends. The reminder itself is published as a notification to the hospital owner; its email is rendered with the reminder design by `MonthlyReminderEmailCustomizer` when it is delivered (for the reference date stored with the notification) and carries the dispatch id and the send attempt (`X-COIS-Monthly-Reminder-Dispatch-Id`, `-Attempt-Id`), so an accepted email marks the dispatch as sent, but only while it is still queued for that attempt. A delivery that fails for good before the mailer (owner disabled, delivery job out of retries) fails the dispatch as well (`MonthlyReminderDeliveryFailureSubscriber` on `NotificationDeliveryFailed`), so it does not block the next scheduled attempt. Every send attempt stores a new `attempt_id` on the dispatch and in the notification parameters; a success or failure only changes the dispatch while it is still queued for exactly that attempt, so late mail events of an earlier attempt never change a newer one. Failures reach Engagement only through `NotificationDeliveryFailed`; the mail subscriber handles successes only. The in-app entry links to the upload page.
+
+- Owners switch the scheduled reminder off or add the in-app entry on the settings page. The former user flag `receives_monthly_submission_reminder = false` was migrated to an email override; the column is no longer read and will be dropped in a later release. An owner who keeps only the in-app entry gets no email; the dispatch is marked as sent at once.
+- Deduplication: `engagement.monthly_reminder:{hospitalId}:{uploadMonth}` for scheduled reminders, with a `:retry:{time}` suffix when a failed dispatch is retried; CLI sends (`app:reminder:preview --send`) are always new. Manual reminders use `engagement.monthly_reminder:{hospitalId}:manual:{requestId}`: every rendered admin action carries a new request id, so a repeated submission of the same action sends nothing new.
+- Manual reminders follow the owner's settings like scheduled ones: an owner who switched the email off gets only the web entry; an owner who switched the reminder off completely gets nothing, and the admin sees "opted out". There is no separate type and no way to bypass the owner's choice (also not from `app:reminder:preview`).
+- The former own delay between bulk emails (`MAILER_BULK_DELAY_MS`) is gone; the rate limiter of `async_mail` spaces emails.
+
+## Email delivery
+
+When a type resolves the email channel for a recipient, the publisher stores one row in `notification_delivery` (`pending`) and dispatches `DeliverNotificationMessage` (`async_priority_low`) in the same transaction. Types that resolve only email get an instance outside the inbox (`in_app_visible = false`) and do not touch the badge.
+
+- `DeliverNotificationMessageHandler` locks the delivery (`SELECT … FOR UPDATE`), stops unless it is still `pending`, builds the email and hands it to Symfony Notifier with exactly the email channel. Notifier stores a `SendEmailMessage` on `async_mail`; the delivery becomes `queued` in the same transaction.
+- `NotificationDeliveryStatusSubscriber` sets `sent` when the mail transport accepted the email and `failed` when the email (`transport_failed`) or the delivery job (`delivery_job_failed`) is given up. Recipients without a usable address or with a disabled account fail with `recipient_unavailable`. Failed deliveries are never restarted; they never change the business result. A final failure dispatches `NotificationDeliveryFailed` (type, parameters, reason code) for the producer, in the same transaction as the status change: if the producer cannot record it, the delivery job rolls back and is retried. When Messenger gave up a job, the hourly reconciliation announces the failure again (`FailedDeliveryReconciler`), without sending anything.
+- **Access at publication:** an email is only planned when the recipient may see the content now (hospital access, required role, as in the inbox). Otherwise only the inbox entry is stored and shown redacted or hidden. Emails planned earlier are not cancelled by a later revocation.
+- The email is built by `NotificationEmailFactory` in the recipient's locale: by default the generic `@Notification/email/notification.html.twig` with title, message and an absolute link to the entry. A context can give a type its own mail with a `NotificationEmailCustomizerInterface` (e.g. the participation welcome mail in User). The header `X-Notification-Delivery-Id` connects the mail events with the delivery.
+- Publishing the same deduplication key again creates nothing new but dispatches deliveries of that instance that are still `pending` after 5 minutes. The hourly job (and `app:notification:reconcile`) dispatches deliveries that are still `pending` after 15 minutes again, whatever their age and independent of the reconciliation range: oldest first, at most 500 per run.
+- Local: in `dev`, `DeliverNotificationMessage` and `SendEmailMessage` run synchronously in the request that publishes the notification, so emails reach Mailpit without a worker. Start the app with the Symfony CLI (`symfony serve`, `symfony console`), which provides `MAILER_DSN` for Mailpit; plain `bin/console` uses `null://null` from `.env`. In production both stay asynchronous.
+
+## Recovery
+
+Notifications are published after the business transaction commits. If the process dies in between, the hourly job `ReconcileNotificationsMessage` (minute 17) re-publishes the outcomes of the last 24 hours from durable records; deduplication skips those that were delivered. Producers take part through `NotificationReconcilerInterface` (Import: finished `import_run` rows, recorded milestones and finished batches; backfilled milestones without a run are never announced; batches that were closed but never completed are completed).
+
+After a longer outage, reconcile a chosen range by hand. It may not reach further back than the shortest deduplication period (7 days by default):
+
+```bash
+php bin/console app:notification:reconcile --from="2026-10-20 08:00" --to="2026-10-21 08:00"
+```
+
+Without options the command covers the last 24 hours, like the job.
+
+## Adding a notification type
+
+1. Create a class in the context that owns the event, e.g. `src/Import/Infrastructure/Notification/`, that extends `AppNotification`.
+2. Declare the type with `#[NotificationDefinition]`:
+
+```php
+#[NotificationDefinition(
+    type: 'import.run_finished',
+    category: NotificationCategory::Imports,
+    defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
+    availableChannels: [NotificationChannel::InApp, NotificationChannel::Email, NotificationChannel::Toast],
+    accessScope: NotificationAccessScope::Hospital,
+)]
+final class ImportRunFinishedNotification extends AppNotification
+{
+}
+```
+
+3. Add the translations `{type}.title`, `{type}.message` and `{type}.label` (name on the settings page) to the translation domain of the definition (default: `notification`).
+4. Publish from a subscriber of the context's own application event through `NotificationPublisherInterface`:
+
+```php
+$this->notificationPublisher->publish(new NotificationRequest(
+    type: 'import.run_finished',
+    recipientUserIds: [$userId],
+    deduplicationKey: sprintf('import.run_finished:%s', $runId),
+    parameters: ['importName' => $importName],
+    action: new NotificationAction('app_import_show', ['id' => $importId]),
+    scopeReferenceId: $hospitalId,
+));
+```
+
+The class is found automatically: `NotificationDefinitionPass` collects every class with the attribute at container compile time and fails the build when a definition is invalid (duplicate type, default channel outside the available channels, toast without in-app, deduplication TTL not longer than 24 hours, …).
+
+## Rules for producers
+
+- **Deduplication key:** deterministic per business fact. Publishing the same key for the same recipient again within the TTL (default 7 days) creates nothing.
+- **No raw data:** parameters and metadata contain only stable identifiers, display names the recipient may see, counts and reason codes. Never exception messages, import rows or file contents.
+- **Hospital scope:** types with `accessScope: Hospital` need `scopeReferenceId` (the hospital id).
+- **Role scope:** types with `accessScope: Role` declare `requiredRole` (e.g. `ROLE_ADMIN`) in the definition.
+- **Errors:** invalid requests throw. Storage errors for a single recipient are logged as `notification.publish_failed` and never thrown, so they cannot change the outcome of the caller.
+
+## Inbox
+
+- **Bell:** `NotificationBell` in the header shows an unread dot from `notification_recipient_state` (one primary-key lookup); the count is in its label. Its dropdown loads lazily from `/notifications/dropdown` and shows the unread count, the **5 newest unread** entries with their relative time (fewer if fewer are unread) and a link to the overview with the total number of entries.
+- **Overview:** `/notifications` lists entries newest first (the gear icon top right opens the notification settings), **25 per page**, with the tabs *All* and *Unread* (`?filter=unread`). "Older" and "Newer" page with keyset cursors on `created_at, id` (`?before=` / `?after=`); filter and page are kept after every action. A notice below the list explains the retention periods.
+- **Single entries:** open (`GET /notifications/{id}/open` marks the entry as read and redirects to its stored route), mark as read, remove.
+- **Action bar** above the list, one place for all other actions:
+  - without a selection: *mark all as read* and *remove all* (confirmation dialog). With the *Unread* filter active, *remove all* only removes unread entries; read ones stay.
+  - with a selection (one by one or all on the page): *mark as read*, *remove* (confirmation) and *clear selection* (`POST /notifications/bulk`, at most 100 ids per request; ids of other users are ignored).
+  - the switch between both states is the Stimulus controller `notification-bulk`.
+- The POST actions are CSRF-protected and only accept same-site return paths.
+- **Ownership:** every query is scoped to the current user; entries of other users are not found (404).
+
+### Toasts and polling
+
+Types with the toast channel get a 5-minute toast window when they are published (`toast_pending_until`). The bell keeps itself current by short polling; toasts are shown only to **active** browser contexts.
+
+- **Active** means the tab is visible and the user interacted (pointer, keyboard, scroll) within the last 10 minutes. The time of the last interaction is kept in `localStorage` (`notification:last-interaction`), so it survives navigation and is shared by the user's tabs.
+- **Initial render:** every page renders `version` and the unread dot through `NotificationSnapshotProvider` and never claims toasts. Once the context is active, the Stimulus controller `notification-poll` polls immediately, then every 30–60 s (random jitter). Inactive tabs stop and resume on interaction or visibility. Page loads within 10 s of the last poll of any tab reuse it.
+- **Endpoint:** `GET /notifications/poll?version=N` claims pending toasts independently of the version (`toast_claimed_at`, one conditional update, at most once per toast) and answers `204 No Content` when the version is unchanged and no toast was claimed. Otherwise the JSON carries `version`, `unreadCount`, `badgeLabel`, up to 3 toasts and a summary of further ones (`more`). Toast texts follow the inbox visibility rules: hidden entries are left out, redacted ones keep their generic text.
+- **Load:** the endpoint sends `Cache-Control: no-store`, is skipped by request analytics and Sentry tracing, and is limited to 30 requests per minute and user (`notification_poll`, `429` with `Retry-After`).
+- **Tabs:** results are shared via `BroadcastChannel` (`app-notifications`), so other tabs update their badge without polling. When the version changes, a dropdown that was already opened reloads.
+- **Display:** the Stimulus controller `notification-toasts` shows toasts bottom right (`#notification-toasts`, kept across Turbo visits). Severity follows the priority (low: secondary, normal: primary, high: warning, urgent: danger). High and urgent toasts use `role="alert"` and stay until closed; the others hide after 10 s unless hovered or focused. A claim means "handed to a browser", not "seen": a lost response leaves the entry only in the inbox.
+
+### Visibility after permission changes
+
+Permissions are checked whenever entries are rendered:
+
+| Access scope | Viewer lost access | Shown as |
+|--------------|--------------------|----------|
+| `none` | – | normal entry |
+| `hospital` | no `View` permission on the hospital any more | generic text without names, counts or link |
+| `role` | the definition's `requiredRole` is not reachable any more | hidden |
+
+Hospital access comes from `NotificationHospitalAccessInterface`, implemented in Allocation with `HospitalPermissionAccess`. Badge counts may lag behind permission changes until the daily recount.
+
+### Retention
+
+`CleanUpNotificationsMessage` runs daily at 02:45 (scheduler):
+
+- deletes read entries 30 days after they were read, unread entries 90 days after creation, removed entries and instances without inbox entry, but only when all their deliveries reached `sent` or `failed` at least 30 days ago (removing an entry never cancels its email);
+- deletes expired deduplication keys;
+- recounts `unread_count` per recipient with the visibility rules above and increments `version` where it changed.
+
+## Preferences
+
+Users choose how they want to be notified on **Settings → Notifications** (`/settings/notifications`, `NotificationSettingsController` in the Notification context; the page uses the settings layout of the User context).
+
+- **Layout:** one table per category with a column per channel (labelled *Web*, *E-Mail*, *Toast*; the in-app channel is called "Web" on the page; only channels some offered type has). The first row sets the whole category; *Set n notifications individually* expands the rows of its types. Categories with type overrides start expanded.
+- **One checkbox per channel** shows whether the channel is used now: for a type its own override, else the category override, else the type's default; for a category its override, else the common default of its types. When the configurable types of a category are currently set differently for a channel, the category checkbox is shown partly ticked (indeterminate), also right after loading the page.
+- **Saving stores only differences** (`NotificationPreferenceMatrix::changesFor()`):
+  - a category checkbox stores an override, or removes it when it matches the common default of its types;
+  - a type checkbox stores an override only when it differs from what the type inherits after this save (the new category setting, else the default); an override that matches it is removed, also when the checkbox itself was not touched;
+  - an untouched type without its own setting keeps following its category.
+  - On the page, the Stimulus controller `notification-preferences` applies a category change to all configurable types of that channel, and marks the category as partly ticked when a single type is changed so that its types differ. Toast and web are coupled per row: ticking toast also ticks web, unticking web also unticks toast (toasts are only shown with web notifications; the resolver drops toast without in-app anyway). Saving then leaves the types without own settings, so they follow the category. Without JavaScript only the category changes; types with an own different setting keep it.
+- **Disabled checkboxes:** mandatory channels (always sent) are ticked and disabled; channels of non-configurable types show their fixed state, disabled. Both carry an explanation as tooltip and as visually hidden text linked with `aria-describedby`. They are not form fields: a submitted value for them is rejected. Channels a type does not offer show a dash. A category checkbox covers only the configurable types that offer the channel and do not make it mandatory.
+- **Access:** role-scoped types (e.g. `import.batch_finished`) are listed only for users with the required role (role hierarchy included). The form only accepts controls it rendered, so other types cannot be configured by a crafted request.
+- **Layout details:** checkboxes and the dash of channels a type does not offer are centered in their cells.
+
+Resolution when publishing, per channel: type override → category override → definition default; overrides of non-configurable types are ignored, mandatory channels are always added, and toast is dropped without in-app (`NotificationChannelResolver`). The publisher reads the overrides through `NotificationPreferenceStoreInterface` (`DbalNotificationPreferenceStore`).
+
+Email can already be chosen for types that offer it; it is delivered once email delivery (step 6) is available.
+
+## Trying it locally
+
+Real entries come from the producers: upload an import and let it be processed, activate a user's participation, register a user or send feedback (admin notifications), or send a monthly reminder from the admin area. With `symfony serve` and Mailpit, emails arrive at once in `dev` (delivery jobs run synchronously there).
+
+## Storage
+
+| Table | Purpose |
+|-------|---------|
+| `notification` | Inbox entry per recipient (translation keys and parameters, action route, access scope and required role, toast window) |
+| `notification_deduplication` | Duplicate protection per recipient and key, independent of the inbox entry |
+| `notification_recipient_state` | `version` and `unread_count` per recipient for badge and polling |
+| `notification_delivery` | One external delivery (email) per instance and channel with status, attempts and reason code |
+| `user_notification_preference` | Preference overrides only: `(user, scope = category or type, key, channel, enabled)`, unique per user, scope, key and channel; deleted with the user |
+
+The publisher writes these tables with DBAL inside one transaction per recipient (a savepoint when the caller already has a transaction open), so it never flushes pending entity changes of the caller.
+
+## Related documentation
+
+- [ADR 016](../../02-architecture/decisions/016-notification-system.md)
+- [../../02-architecture/extension-points.md](../../02-architecture/extension-points.md)

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="NtfB1F252D6" resname="announcement.new_feature.label">
+        <source>announcement.new_feature.label</source>
+        <target>Neue Funktionen</target>
+      </trans-unit>
+      <trans-unit id="Ntf72ED57FE" resname="announcement.new_feature.title">
+        <source>announcement.new_feature.title</source>
+        <target>{feature, select, notifications {Neu: Benachrichtigungen} other {Neue Funktion}}</target>
+      </trans-unit>
+      <trans-unit id="NtfCBA8A1E4" resname="announcement.new_feature.message">
+        <source>announcement.new_feature.message</source>
+        <target>{feature, select, notifications {Neuigkeiten wie z. B. abgeschlossene Importe erscheinen ab jetzt hier. Wie Sie benachrichtigt werden wollen, legen Sie selbst in den Einstellungen fest.} other {Eine neue Funktion steht bereit.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfE778D32C" resname="notification.index.settings">
+        <source>notification.index.settings</source>
+        <target>Benachrichtigungseinstellungen</target>
+      </trans-unit>
+      <trans-unit id="NtfB6E533FC" resname="engagement.monthly_reminder.label">
+        <source>engagement.monthly_reminder.label</source>
+        <target>Monatliche Erinnerung an die Datenlieferung</target>
+      </trans-unit>
+      <trans-unit id="NtfDBB956CA" resname="engagement.monthly_reminder.title">
+        <source>engagement.monthly_reminder.title</source>
+        <target>Zeit für Ihre Daten: {hospitalName}</target>
+      </trans-unit>
+      <trans-unit id="Ntf944D8F20" resname="engagement.monthly_reminder.message">
+        <source>engagement.monthly_reminder.message</source>
+        <target>Bitte laden Sie die Zuweisungen für {period, date, ::MMMMyyyy} hoch.</target>
+      </trans-unit>
+      <trans-unit id="NtfE7985812" resname="notification.email.action">
+        <source>notification.email.action</source>
+        <target>Öffnen</target>
+      </trans-unit>
+      <trans-unit id="NtfD84C7C14" resname="notification.email.inbox">
+        <source>notification.email.inbox</source>
+        <target>Alle Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf72CD762A" resname="import.batch_finished.title">
+        <source>import.batch_finished.title</source>
+        <target>Batch-Re-Import #{batchId} abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf838AD818" resname="import.batch_finished.message">
+        <source>import.batch_finished.message</source>
+        <target>{total, plural, one {# Import} other {# Importe}}: {completed, number} abgeschlossen, {partial, number} mit abgelehnten Zeilen, {failed, number} fehlgeschlagen, {superseded, number} durch einen neueren Lauf ersetzt.</target>
+      </trans-unit>
+      <trans-unit id="Ntf7705325B" resname="notification.toast.more">
+        <source>notification.toast.more</source>
+        <target>{count, plural, one {# weitere Benachrichtigung} other {# weitere Benachrichtigungen}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf44B845CD" resname="notification.toast.close">
+        <source>notification.toast.close</source>
+        <target>Schließen</target>
+      </trans-unit>
+      <trans-unit id="NtfC9FD997B" resname="notification.toast.open">
+        <source>notification.toast.open</source>
+        <target>Anzeigen</target>
+      </trans-unit>
+      <trans-unit id="NtfDA3B927C" resname="import.completed.title">
+        <source>import.completed.title</source>
+        <target>Import „{importName}“ abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf8921F49C" resname="import.completed.message">
+        <source>import.completed.message</source>
+        <target>{hospitalName}: {rowsOk, number} von {rowsTotal, number} Zeilen übernommen{rowsRejected, plural, =0 {.} one {, # Zeile abgelehnt.} other {, # Zeilen abgelehnt.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfAAAB7C51" resname="import.failed.title">
+        <source>import.failed.title</source>
+        <target>Import „{importName}“ fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Ntf5CF406A2" resname="import.failed.message">
+        <source>import.failed.message</source>
+        <target>{hospitalName}: {reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf85A987C7" resname="user.first_import.title">
+        <source>user.first_import.title</source>
+        <target>Ihr erster Import ist da!</target>
+      </trans-unit>
+      <trans-unit id="NtfA8436D46" resname="user.first_import.message">
+        <source>user.first_import.message</source>
+        <target>Glückwunsch: „{importName}“ wurde erfolgreich verarbeitet. Ihre Daten fließen jetzt in die Statistiken ein.</target>
+      </trans-unit>
+      <trans-unit id="Ntf875B8E08" resname="participation.activated.title">
+        <source>participation.activated.title</source>
+        <target>Ihre Teilnahme ist aktiviert</target>
+      </trans-unit>
+      <trans-unit id="NtfC7E6A712" resname="participation.activated.message">
+        <source>participation.activated.message</source>
+        <target>Sie können jetzt Daten importieren und alle Auswertungen nutzen.</target>
+      </trans-unit>
+      <trans-unit id="NtfD2FEBF6B" resname="notification.dropdown.show_all">
+        <source>notification.dropdown.show_all</source>
+        <target>{count, plural, =0 {Zu den Benachrichtigungen} one {# Benachrichtigung anzeigen} other {Alle # Benachrichtigungen anzeigen}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1FD72BCA" resname="notification.dropdown.empty">
+        <source>notification.dropdown.empty</source>
+        <target>Keine ungelesenen Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="NtfBAAE5495" resname="notification.action.remove_all_unread">
+        <source>notification.action.remove_all_unread</source>
+        <target>Alle ungelesenen entfernen</target>
+      </trans-unit>
+      <trans-unit id="Ntf3F45CDBE" resname="notification.remove_all.modal.title_unread">
+        <source>notification.remove_all.modal.title_unread</source>
+        <target>Alle ungelesenen Benachrichtigungen entfernen?</target>
+      </trans-unit>
+      <trans-unit id="Ntf87AA883F" resname="notification.remove_all.modal.body_unread">
+        <source>notification.remove_all.modal.body_unread</source>
+        <target>Alle Ihre ungelesenen Benachrichtigungen werden aus Ihrem Posteingang entfernt. Gelesene bleiben erhalten. Das lässt sich nicht rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="NtfEAC5C279" resname="notification.bulk.selected">
+        <source>notification.bulk.selected</source>
+        <target>{count} ausgewählt</target>
+      </trans-unit>
+      <trans-unit id="NtfA439C272" resname="notification.bulk.clear">
+        <source>notification.bulk.clear</source>
+        <target>Auswahl aufheben</target>
+      </trans-unit>
+      <trans-unit id="Ntf8C034F13" resname="notification.action.remove_all">
+        <source>notification.action.remove_all</source>
+        <target>Alle entfernen</target>
+      </trans-unit>
+      <trans-unit id="NtfD23CD63B" resname="notification.remove_all.modal.title">
+        <source>notification.remove_all.modal.title</source>
+        <target>Alle Benachrichtigungen entfernen?</target>
+      </trans-unit>
+      <trans-unit id="NtfAE6A2954" resname="notification.remove_all.modal.body">
+        <source>notification.remove_all.modal.body</source>
+        <target>Alle Ihre Benachrichtigungen, gelesene und ungelesene, werden aus Ihrem Posteingang entfernt. Das lässt sich nicht rückgängig machen.</target>
+      </trans-unit>
+      <trans-unit id="Ntf5BE42711" resname="notification.bulk.select_page">
+        <source>notification.bulk.select_page</source>
+        <target>Alle auf dieser Seite auswählen</target>
+      </trans-unit>
+      <trans-unit id="NtfD0CF1C3D" resname="notification.bulk.select_item">
+        <source>notification.bulk.select_item</source>
+        <target>Benachrichtigung auswählen: {title}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1CDD29D7" resname="notification.bulk.confirm_remove">
+        <source>notification.bulk.confirm_remove</source>
+        <target>Ausgewählte Benachrichtigungen entfernen?</target>
+      </trans-unit>
+      <trans-unit id="Ntf181696BE" resname="notification.flash.none_selected">
+        <source>notification.flash.none_selected</source>
+        <target>Es wurden keine Benachrichtigungen ausgewählt.</target>
+      </trans-unit>
+      <trans-unit id="NtfA2938B9C" resname="notification.flash.marked_read">
+        <source>notification.flash.marked_read</source>
+        <target>{count, plural, =0 {Keine Benachrichtigung wurde als gelesen markiert.} one {# Benachrichtigung wurde als gelesen markiert.} other {# Benachrichtigungen wurden als gelesen markiert.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf95DA62FE" resname="notification.flash.removed">
+        <source>notification.flash.removed</source>
+        <target>{count, plural, =0 {Keine Benachrichtigung wurde entfernt.} one {# Benachrichtigung wurde entfernt.} other {# Benachrichtigungen wurden entfernt.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf6D33508A" resname="notification.pagination.label">
+        <source>notification.pagination.label</source>
+        <target>Seiten der Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf90EBFF54" resname="notification.pagination.newer">
+        <source>notification.pagination.newer</source>
+        <target>Neuere</target>
+      </trans-unit>
+      <trans-unit id="NtfCB297C92" resname="notification.pagination.older">
+        <source>notification.pagination.older</source>
+        <target>Ältere</target>
+      </trans-unit>
+      <trans-unit id="Ntf5817EBBC" resname="notification.pagination.page_empty">
+        <source>notification.pagination.page_empty</source>
+        <target>Auf dieser Seite gibt es keine Benachrichtigungen mehr.</target>
+      </trans-unit>
+      <trans-unit id="NtfEEFA08F7" resname="notification.pagination.first">
+        <source>notification.pagination.first</source>
+        <target>Zu den neuesten Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="NtfE061826E" resname="notification.retention_notice">
+        <source>notification.retention_notice</source>
+        <target>Gelesene Benachrichtigungen werden nach 30 Tagen automatisch gelöscht, ungelesene nach 90 Tagen.</target>
+      </trans-unit>
+      <trans-unit id="NtfAE55BB36" resname="notification.unread_count">
+        <source>notification.unread_count</source>
+        <target>{count, plural, one {# ungelesen} other {# ungelesen}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf94CD6456" resname="notification.filter.all">
+        <source>notification.filter.all</source>
+        <target>Alle</target>
+      </trans-unit>
+      <trans-unit id="NtfB5BFC91F" resname="notification.filter.unread">
+        <source>notification.filter.unread</source>
+        <target>Ungelesen</target>
+      </trans-unit>
+      <trans-unit id="Ntf3A2D1010" resname="notification.empty.unread_title">
+        <source>notification.empty.unread_title</source>
+        <target>Alles gelesen</target>
+      </trans-unit>
+      <trans-unit id="NtfE25C6646" resname="notification.empty.unread_description">
+        <source>notification.empty.unread_description</source>
+        <target>Sie haben keine ungelesenen Benachrichtigungen.</target>
+      </trans-unit>
+      <trans-unit id="Ntf71FA27AC" resname="notification.action.read">
+        <source>notification.action.read</source>
+        <target>Als gelesen markieren</target>
+      </trans-unit>
+      <trans-unit id="NtfC3295454" resname="notification.action.read_all">
+        <source>notification.action.read_all</source>
+        <target>Alle als gelesen markieren</target>
+      </trans-unit>
+      <trans-unit id="Ntf4A641482" resname="notification.action.remove">
+        <source>notification.action.remove</source>
+        <target>Entfernen</target>
+      </trans-unit>
+      <trans-unit id="NtfED9D293F" resname="notification.bell.label">
+        <source>notification.bell.label</source>
+        <target>{count, plural, =0 {Benachrichtigungen} one {Benachrichtigungen, # ungelesen} other {Benachrichtigungen, # ungelesen}}</target>
+      </trans-unit>
+      <trans-unit id="NtfBD976864" resname="notification.empty.description">
+        <source>notification.empty.description</source>
+        <target>Hier erfahren Sie, wenn etwas Sie betrifft, zum Beispiel wenn ein Import abgeschlossen ist.</target>
+      </trans-unit>
+      <trans-unit id="NtfC38B99A5" resname="notification.empty.title">
+        <source>notification.empty.title</source>
+        <target>Noch keine Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="NtfBC7DA15F" resname="notification.index.subtitle">
+        <source>notification.index.subtitle</source>
+        <target>{count, plural, =0 {Sie haben keine ungelesenen Benachrichtigungen.} one {Sie haben # ungelesene Benachrichtigung.} other {Sie haben # ungelesene Benachrichtigungen.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf4709D7CF" resname="notification.loading">
+        <source>notification.loading</source>
+        <target>Benachrichtigungen werden geladen …</target>
+      </trans-unit>
+      <trans-unit id="NtfE5BBDA0A" resname="notification.redacted.message">
+        <source>notification.redacted.message</source>
+        <target>Sie haben keinen Zugriff mehr auf die Klinik, um die es in dieser Benachrichtigung ging.</target>
+      </trans-unit>
+      <trans-unit id="NtfCF01A719" resname="notification.redacted.title">
+        <source>notification.redacted.title</source>
+        <target>Benachrichtigung zu einer Klinik</target>
+      </trans-unit>
+      <trans-unit id="NtfB8613ED5" resname="notification.title">
+        <source>notification.title</source>
+        <target>Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf3E8A7704" resname="notification.unread">
+        <source>notification.unread</source>
+        <target>Ungelesen</target>
+      </trans-unit>
+      <trans-unit id="Ntf2FBEF284" resname="notification.preferences.intro">
+        <source>notification.preferences.intro</source>
+        <target>Legen Sie fest, wie Sie über Ereignisse informiert werden. Ein Haken in der Zeile einer Kategorie gilt für alle ihre Benachrichtigungen, die Sie nicht einzeln geändert haben.</target>
+      </trans-unit>
+      <trans-unit id="NtfAA7B724A" resname="notification.preferences.category_row">
+        <source>notification.preferences.category_row</source>
+        <target>Alle Benachrichtigungen dieser Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Ntf2B2991EB" resname="notification.preferences.types_toggle">
+        <source>notification.preferences.types_toggle</source>
+        <target>{count, plural, one {# Benachrichtigung einzeln einstellen} other {# Benachrichtigungen einzeln einstellen}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf4B23BD12" resname="notification.preferences.control_label">
+        <source>notification.preferences.control_label</source>
+        <target>{subject}: {channel}</target>
+      </trans-unit>
+      <trans-unit id="NtfCB7FDF61" resname="notification.preferences.mandatory_hint">
+        <source>notification.preferences.mandatory_hint</source>
+        <target>Diese Benachrichtigung wird immer auf diesem Weg zugestellt und lässt sich nicht abschalten.</target>
+      </trans-unit>
+      <trans-unit id="Ntf3F158C51" resname="notification.preferences.fixed_hint">
+        <source>notification.preferences.fixed_hint</source>
+        <target>Diese Benachrichtigung lässt sich nicht einstellen.</target>
+      </trans-unit>
+      <trans-unit id="Ntf42F961A6" resname="notification.preferences.unavailable">
+        <source>notification.preferences.unavailable</source>
+        <target>Nicht verfügbar</target>
+      </trans-unit>
+      <trans-unit id="Ntf4F8A970F" resname="notification.preferences.empty">
+        <source>notification.preferences.empty</source>
+        <target>Für Ihr Konto gibt es keine einstellbaren Benachrichtigungen.</target>
+      </trans-unit>
+      <trans-unit id="Ntf7263502F" resname="notification.channel.in_app">
+        <source>notification.channel.in_app</source>
+        <target>Web</target>
+      </trans-unit>
+      <trans-unit id="Ntf5BFDF5D2" resname="notification.channel.email">
+        <source>notification.channel.email</source>
+        <target>E-Mail</target>
+      </trans-unit>
+      <trans-unit id="NtfF1AEC408" resname="notification.channel.toast">
+        <source>notification.channel.toast</source>
+        <target>Toast</target>
+      </trans-unit>
+      <trans-unit id="Ntf65D5D8D3" resname="notification.category.imports">
+        <source>notification.category.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="Ntf260269C4" resname="notification.category.analyses_exports">
+        <source>notification.category.analyses_exports</source>
+        <target>Auswertungen und Exporte</target>
+      </trans-unit>
+      <trans-unit id="NtfCA0416B3" resname="notification.category.account">
+        <source>notification.category.account</source>
+        <target>Konto</target>
+      </trans-unit>
+      <trans-unit id="NtfB84E513D" resname="notification.category.reports">
+        <source>notification.category.reports</source>
+        <target>Berichte</target>
+      </trans-unit>
+      <trans-unit id="Ntf1B8EA53F" resname="notification.category.announcements">
+        <source>notification.category.announcements</source>
+        <target>Ankündigungen</target>
+      </trans-unit>
+      <trans-unit id="Ntf162B4673" resname="notification.category.administration">
+        <source>notification.category.administration</source>
+        <target>Administration</target>
+      </trans-unit>
+      <trans-unit id="Ntf36DEF39B" resname="import.completed.label">
+        <source>import.completed.label</source>
+        <target>Import abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf0C8DA30A" resname="import.failed.label">
+        <source>import.failed.label</source>
+        <target>Import fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Ntf9E64AC41" resname="import.batch_finished.label">
+        <source>import.batch_finished.label</source>
+        <target>Batch-Re-Import abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="Ntf9244EACB" resname="user.first_import.label">
+        <source>user.first_import.label</source>
+        <target>Erster erfolgreicher Import</target>
+      </trans-unit>
+      <trans-unit id="NtfE4407E27" resname="participation.activated.label">
+        <source>participation.activated.label</source>
+        <target>Teilnahme aktiviert</target>
+      </trans-unit>
+      <trans-unit id="Ntf4DD92465" resname="admin.user_registered.title">
+        <source>admin.user_registered.title</source>
+        <target>Neue Benutzerregistrierung: {username}</target>
+      </trans-unit>
+      <trans-unit id="Ntf6C4F84B2" resname="admin.user_registered.message">
+        <source>admin.user_registered.message</source>
+        <target>{username} hat sich registriert und benötigt möglicherweise Teilnehmerberechtigungen.</target>
+      </trans-unit>
+      <trans-unit id="NtfE832E381" resname="admin.user_registered.label">
+        <source>admin.user_registered.label</source>
+        <target>Neue Benutzerregistrierungen</target>
+      </trans-unit>
+      <trans-unit id="NtfD747025B" resname="admin.import_failed.title">
+        <source>admin.import_failed.title</source>
+        <target>Import „{importName}“ fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="Ntf870A2E86" resname="admin.import_failed.message">
+        <source>admin.import_failed.message</source>
+        <target>{hospitalName}: {reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} processing_error {Die Verarbeitung ist fehlgeschlagen.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf1474BAF4" resname="admin.import_failed.reason">
+        <source>admin.import_failed.reason</source>
+        <target>{reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} processing_error {Die Verarbeitung ist fehlgeschlagen.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf3429DD8A" resname="admin.import_failed.label">
+        <source>admin.import_failed.label</source>
+        <target>Fehlgeschlagene Importe</target>
+      </trans-unit>
+      <trans-unit id="NtfF91586F0" resname="admin.feedback_received.title">
+        <source>admin.feedback_received.title</source>
+        <target>Neues Feedback: {category, select, bug {Fehlermeldung} improvement {Verbesserungsvorschlag} question {Frage} other {Sonstiges}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf25A8E604" resname="admin.feedback_received.message">
+        <source>admin.feedback_received.message</source>
+        <target>{sender, select, guest {Ein Gast} other {{username}}} hat Feedback gesendet.</target>
+      </trans-unit>
+      <trans-unit id="Ntf5B0D5B41" resname="admin.feedback_received.label">
+        <source>admin.feedback_received.label</source>
+        <target>Neues Feedback</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

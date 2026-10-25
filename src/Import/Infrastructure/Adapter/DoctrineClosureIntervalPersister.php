@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\Adapter;
 
+use App\Import\Application\Service\ImportRunCommitGuard;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -16,6 +17,7 @@ final class DoctrineClosureIntervalPersister
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly ImportRunCommitGuard $commitGuard,
         private readonly int $batchSize = 250,
     ) {
     }
@@ -32,7 +34,7 @@ final class DoctrineClosureIntervalPersister
 
     public function flush(): void
     {
-        $this->em->flush();
+        $this->commitGuard->flush($this->em);
         $this->clear();
     }
 

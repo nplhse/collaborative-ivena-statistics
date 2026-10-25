@@ -8,6 +8,7 @@ use App\Import\Application\Contracts\AllocationPersisterInterface;
 use App\Import\Application\Contracts\AllocationRowProcessorInterface;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowTypeDetectorInterface;
+use App\Import\Application\Exception\ImportRunSupersededException;
 use App\Import\Application\Exception\RowRejectException;
 use App\Import\Application\Service\AllocationImporter;
 use App\Import\Application\Service\AllocationRowProcessorRegistry;
@@ -236,5 +237,57 @@ final class AllocationImporterTest extends TestCase
         } finally {
             self::assertTrue($closeTrackingRejectWriter->closed);
         }
+    }
+
+    public function testSupersededRunDropsThePendingChunkAndRethrows(): void
+    {
+        $reader = InMemoryRowReader::fromAssocRows([['foo' => 'bar']]);
+        $detector = $this->createStub(RowTypeDetectorInterface::class);
+        $detector->method('detect')->willReturn(AllocationRowType::ALLOCATION);
+        $registry = new AllocationRowProcessorRegistry([$this->createNoopProcessor(AllocationRowType::ALLOCATION)]);
+        $superseded = new ImportRunSupersededException(1, 'run');
+
+        $persister = $this->createMock(AllocationPersisterInterface::class);
+        $persister->method('flush')->willThrowException($superseded);
+        $persister->expects($this->exactly(2))->method('clear');
+
+        $rejectWriter = $this->createMock(RejectWriterInterface::class);
+        $rejectWriter->expects($this->once())->method('close')->willThrowException($superseded);
+
+        $importer = new AllocationImporter($reader, $detector, $registry, $persister, $rejectWriter, $this->createStub(LoggerInterface::class));
+
+        $this->expectExceptionObject($superseded);
+
+        $importer->import(new Import());
+    }
+
+    public function testFailingRejectWriterCloseDoesNotHideTheOriginalError(): void
+    {
+        $reader = InMemoryRowReader::fromAssocRows([['foo' => 'bar']]);
+        $detector = $this->createStub(RowTypeDetectorInterface::class);
+        $detector->method('detect')->willReturn(AllocationRowType::ALLOCATION);
+        $registry = new AllocationRowProcessorRegistry([
+            $this->createThrowingProcessor(AllocationRowType::ALLOCATION, new \RuntimeException('deadlock')),
+        ]);
+
+        $rejectWriter = $this->createStub(RejectWriterInterface::class);
+        $rejectWriter->method('close')->willThrowException(new \LogicException('entity manager closed'));
+
+        $logger = $this->createStub(LoggerInterface::class);
+        $logged = [];
+        $logger->method('critical')->willReturnCallback(static function (string $message) use (&$logged): void {
+            $logged[] = $message;
+        });
+
+        $importer = new AllocationImporter($reader, $detector, $registry, $this->createStub(AllocationPersisterInterface::class), $rejectWriter, $logger);
+
+        try {
+            $importer->import(new Import());
+            self::fail('The original error must be rethrown.');
+        } catch (\RuntimeException $e) {
+            self::assertSame('deadlock', $e->getMessage());
+        }
+
+        self::assertContains('import.abort.reject_close_failed', $logged);
     }
 }

@@ -37,25 +37,23 @@
                             <td style="padding:32px;">
                                 <div style="font-size:13px;line-height:1.5;color:{{ fg }};margin-bottom:16px;">
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.category'|trans({}, 'feedback') }}:</strong>
-                                    {{ categoryLabel }}<br/>
+                                    {{ ('feedback.category.' ~ category)|trans({}, 'feedback') }}<br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.from'|trans({}, 'feedback') }}:</strong>
-                                    {% set u = feedback.submittedBy %}
-                                    {% if u is not null %}
-                                        {{ 'feedback.email.actor.user'|trans(({username: u.userIdentifier}), 'feedback') }}
-                                        {% if u.email %} &lt;{{ u.email }}&gt;{% endif %}
+                                    {% if username %}
+                                        {{ 'feedback.email.actor.user'|trans(({username: username}), 'feedback') }}
                                     {% else %}
-                                        {{ feedback.guestEmail|default('—') }}
+                                        {{ 'feedback.email.actor.guest'|trans({}, 'feedback') }}
                                     {% endif %}
                                     <br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.page'|trans({}, 'feedback') }}:</strong>
-                                    <a href="{{ feedback.pageUrl }}" style="color:{{ link }};text-decoration:none;">{{ feedback.pagePath }}</a><br/>
+                                    {{ pagePath }}<br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.route'|trans({}, 'feedback') }}:</strong>
-                                    {{ feedback.routeName|default('—') }}<br/>
+                                    {{ routeName|default('—') }}<br/>
                                     <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.time'|trans({}, 'feedback') }}:</strong>
-                                    {{ feedback.createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
-                                    {% if feedback.appVersion %}<br/>
+                                    {{ createdAt|date('d.m.Y H:i', 'Europe/Berlin') }}
+                                    {% if appVersion %}<br/>
                                         <strong style="font-weight:600;color:{{ fgHeading }};">{{ 'feedback.email.label.app_version'|trans({}, 'feedback') }}:</strong>
-                                        {{ feedback.appVersion }}
+                                        {{ appVersion }}
                                     {% endif %}
                                 </div>
                                 <div style="background-color:{{ quoteBg }};border-radius:8px;padding:14px 16px;display:inline-block;width:calc(100% - 32px);box-sizing:border-box;">
@@ -69,18 +67,12 @@
                                         {% endif %}
                                     </p>
                                 </div>
-                                {% if feedback.userAgent %}
-                                    <div style="margin-top:24px;font-size:12px;color:{{ fg }};">
-                                        <strong style="font-weight:600;color:{{ fgHeading }};">User-Agent:</strong>
-                                        {{ feedback.userAgent|e('html') }}
-                                    </div>
-                                {% endif %}
-                                <pre style="margin-top:24px;background-color:#354258;color:#ffffff;padding:12px;border-radius:8px;font-size:12px;line-height:1.45;overflow:auto;white-space:pre-wrap;word-break:break-word;">{{ contextJson }}</pre>
                             </td>
                         </tr>
                     </table>
                 </div>
                 <div style="text-align:center;margin-top:20px;font-size:12px;color:#8491a1;">
+                    {% if inboxUrl %}<a href="{{ inboxUrl }}" style="color:#8491a1;">{{ 'notification.email.inbox'|trans({}, 'notification') }}</a><br/>{% endif %}
                     {{ 'email.footer.transactional'|trans(({app: app_title}), 'user') }}
                 </div>
             </td>

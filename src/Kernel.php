@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Notification\Infrastructure\DependencyInjection\NotificationDefinitionPass;
 use App\Shared\Infrastructure\DependencyInjection\AppExtension;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -20,6 +21,12 @@ final class Kernel extends BaseKernel
         parent::boot();
 
         date_default_timezone_set('Europe/Berlin');
+    }
+
+    #[\Override]
+    protected function build(ContainerBuilder $container): void
+    {
+        NotificationDefinitionPass::register($container);
     }
 
     #[\Override]

@@ -4,50 +4,53 @@ declare(strict_types=1);
 
 namespace App\User\Infrastructure\EventSubscriber;
 
-use App\Shared\Application\Notification\AdminNotification;
-use App\Shared\Application\Notification\AdminNotificationSenderInterface;
-use App\Shared\Application\Notification\AdminNotificationType;
-use App\User\Application\Contract\AdminUserDetailUrlGeneratorInterface;
-use App\User\Application\Contract\GrantParticipantUrlGeneratorInterface;
+use App\Notification\Application\Contract\NotificationPublisherInterface;
+use App\Notification\Application\Publishing\NotificationAction;
+use App\Notification\Application\Publishing\NotificationRequest;
+use App\User\Application\Contract\AdminNotificationRecipientResolverInterface;
 use App\User\Application\Event\UserRegistered;
 use App\User\Domain\Entity\User;
+use App\User\Infrastructure\Notification\AdminUserRegisteredNotification;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
+/**
+ * Tells the administrators about a new registration (`admin.user_registered`). A user registers once,
+ * so the deduplication key is the user id. Only the username is stored; the email adds the links.
+ */
 #[AsEventListener(event: UserRegistered::class, method: 'onUserRegistered')]
 final readonly class UserRegisteredNotificationSubscriber
 {
-    /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private UserRepository $userRepository,
-        private AdminUserDetailUrlGeneratorInterface $adminUserUrlGenerator,
-        private GrantParticipantUrlGeneratorInterface $grantParticipantUrlGenerator,
-        private AdminNotificationSenderInterface $adminNotificationSender,
+        private AdminNotificationRecipientResolverInterface $recipients,
+        private NotificationPublisherInterface $publisher,
     ) {
     }
 
     public function onUserRegistered(UserRegistered $event): void
     {
         $user = $this->userRepository->find($event->userId);
-        if (!$user instanceof User) {
+        $userId = $user?->getId();
+        if (!$user instanceof User || null === $userId) {
             return;
         }
 
-        $userId = $user->getId();
-        if (null === $userId) {
+        $recipientIds = $this->recipients->recipientIds();
+        if ([] === $recipientIds) {
             return;
         }
 
-        $this->adminNotificationSender->send(new AdminNotification(
-            type: AdminNotificationType::UserRegistered,
-            templateContext: [
+        $this->publisher->publish(new NotificationRequest(
+            type: AdminUserRegisteredNotification::TYPE,
+            recipientUserIds: $recipientIds,
+            deduplicationKey: \sprintf('%s:%d', AdminUserRegisteredNotification::TYPE, $userId),
+            parameters: [
+                'userId' => $userId,
                 'username' => $user->getUserIdentifier(),
-                'userEmail' => $user->getEmail() ?? '—',
-                'registeredAt' => new \DateTimeImmutable(),
-                'userManagementUrl' => $this->adminUserUrlGenerator->detailUrl($userId),
-                'grantParticipantUrl' => $this->grantParticipantUrlGenerator->generate($userId),
             ],
-            referenceId: (string) $userId,
+            action: new NotificationAction('app_admin_dashboard_user_detail', ['entityId' => $userId]),
+            metadata: ['reference' => \sprintf('user:%d', $userId)],
         ));
     }
 }

@@ -22,7 +22,6 @@
 | `MAILER_DSN` | Mail transport | required in production |
 | `MAILER_FROM` | Sender address | transactional mail |
 | `MAILER_REPLY_TO` | Reply-to address | optional |
-| `MAILER_BULK_DELAY_MS` | Delay between bulk reminder emails | default `3000` |
 | `APP_URL` | Public base URL | required in prod for correct links |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
 | `APP_CONTENT_DEFAULT_LOCALE` | CMS page content fallback locale | default `en`; set `de` in production |

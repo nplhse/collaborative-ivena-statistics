@@ -11,8 +11,10 @@ use App\Import\Application\Exception\ImportTypeMismatchException;
 use App\Import\Application\Exception\UnsupportedImportTypeException;
 use App\Import\Application\ImportDispatchExitCode;
 use App\Import\Application\Service\ImportStartDispatcher;
+use App\Import\UI\Console\NotifyUserResolver;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
@@ -23,6 +25,7 @@ final readonly class StartImportCommand
 {
     public function __construct(
         private ImportStartDispatcher $dispatcher,
+        private NotifyUserResolver $notifyUserResolver,
     ) {
     }
 
@@ -30,9 +33,19 @@ final readonly class StartImportCommand
         SymfonyStyle $io,
         #[Argument(description: 'ID of the Import entity (required)', name: 'importId')]
         int $importId,
+        #[Option(description: 'Username of the user who started this run and is told about its outcome', name: 'notify-user')]
+        ?string $notifyUser = null,
     ): int {
         try {
-            $type = $this->dispatcher->dispatch($importId);
+            $initiatedByUserId = $this->notifyUserResolver->resolve($notifyUser);
+        } catch (\InvalidArgumentException $e) {
+            $io->error($e->getMessage());
+
+            return ImportDispatchExitCode::CRITICAL;
+        }
+
+        try {
+            $type = $this->dispatcher->dispatch($importId, $initiatedByUserId);
         } catch (ImportNotFoundException|ImportCreatorMissingException|ImportTypeMismatchException|UnsupportedImportTypeException|DispatchException $e) {
             $io->error($e->getMessage());
 
