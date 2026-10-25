@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\MessageHandler;
 
+use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
 use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use App\Statistics\Application\Contract\ProjectionOverviewChangeDetectorInterface;
+use App\Statistics\Application\DTO\AllocationStatsProjectionRebuildResult;
 use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
 use App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
@@ -24,7 +26,8 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
         $rebuilder = $this->createMock(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->expects($this->once())
             ->method('rebuildForImport')
-            ->with($importId);
+            ->with($importId)
+            ->willReturn(new AllocationStatsProjectionRebuildResult(0, 1));
 
         $changeDetector = $this->createMock(ProjectionOverviewChangeDetectorInterface::class);
         $changeDetector->expects($this->once())
@@ -51,6 +54,7 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
             $scheduler,
             $connection,
             $this->createStub(LoggerInterface::class),
+            $this->telemetry(),
         );
         $handler(new RebuildAllocationStatsProjection($importId));
     }
@@ -62,7 +66,8 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
         $rebuilder = $this->createMock(AllocationStatsProjectionRebuildInterface::class);
         $rebuilder->expects($this->once())
             ->method('rebuildForImport')
-            ->with($importId);
+            ->with($importId)
+            ->willReturn(new AllocationStatsProjectionRebuildResult(0, 1));
 
         $changeDetector = $this->createMock(ProjectionOverviewChangeDetectorInterface::class);
         $changeDetector->expects($this->once())
@@ -100,7 +105,16 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
             $scheduler,
             $connection,
             $logger,
+            $this->telemetry(),
         );
         $handler(new RebuildAllocationStatsProjection($importId));
+    }
+
+    private function telemetry(): AllocationProjectionRunTelemetryInterface
+    {
+        $telemetry = $this->createStub(AllocationProjectionRunTelemetryInterface::class);
+        $telemetry->method('measure')->willReturnCallback(static fn (string $op, \Closure $work): mixed => $work());
+
+        return $telemetry;
     }
 }

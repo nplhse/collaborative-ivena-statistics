@@ -3,6 +3,7 @@ monolog:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
         - import
         - closure_rebuild
+        - projection_rebuild
         - security
 
 when@dev:
@@ -35,6 +36,11 @@ when@dev:
                 path: "%kernel.logs_dir%/closure_rebuild.dev.log"
                 level: info
                 channels: ["closure_rebuild"]
+            projection_rebuild:
+                type: stream
+                path: "%kernel.logs_dir%/projection_rebuild.dev.log"
+                level: info
+                channels: ["projection_rebuild"]
             sentry_logs_import:
                 type: service
                 id: app.monolog.sentry_logs_import
@@ -45,11 +51,16 @@ when@dev:
                 id: app.monolog.sentry_logs_closure_rebuild
                 level: info
                 channels: ["closure_rebuild"]
+            sentry_logs_projection_rebuild:
+                type: service
+                id: app.monolog.sentry_logs_projection_rebuild
+                level: info
+                channels: ["projection_rebuild"]
             sentry_logs_main:
                 type: service
                 id: app.monolog.sentry_logs_main
                 level: warning
-                channels: ["!event", "!import", "!closure_rebuild"]
+                channels: ["!event", "!import", "!closure_rebuild", "!projection_rebuild"]
             security:
                 type: stream
                 path: "%kernel.logs_dir%/security.dev.log"
@@ -79,6 +90,11 @@ when@test:
                 path: "%kernel.logs_dir%/closure_rebuild.test.log"
                 level: info
                 channels: ["closure_rebuild"]
+            projection_rebuild_test:
+                type: stream
+                path: "%kernel.logs_dir%/projection_rebuild.test.log"
+                level: info
+                channels: ["projection_rebuild"]
             sentry_logs_import:
                 type: service
                 id: app.monolog.sentry_logs_import
@@ -89,11 +105,16 @@ when@test:
                 id: app.monolog.sentry_logs_closure_rebuild
                 level: info
                 channels: ["closure_rebuild"]
+            sentry_logs_projection_rebuild:
+                type: service
+                id: app.monolog.sentry_logs_projection_rebuild
+                level: info
+                channels: ["projection_rebuild"]
             sentry_logs_main:
                 type: service
                 id: app.monolog.sentry_logs_main
                 level: warning
-                channels: ["!event", "!import", "!closure_rebuild"]
+                channels: ["!event", "!import", "!closure_rebuild", "!projection_rebuild"]
             security:
                 type: stream
                 path: "%kernel.logs_dir%/security.test.log"
@@ -135,6 +156,12 @@ when@prod:
                 level: info
                 formatter: monolog.formatter.json
                 channels: ["closure_rebuild"]
+            projection_rebuild_stderr:
+                type: stream
+                path: php://stderr
+                level: info
+                formatter: monolog.formatter.json
+                channels: ["projection_rebuild"]
             sentry_logs_import:
                 type: service
                 id: app.monolog.sentry_logs_import
@@ -145,11 +172,16 @@ when@prod:
                 id: app.monolog.sentry_logs_closure_rebuild
                 level: info
                 channels: ["closure_rebuild"]
+            sentry_logs_projection_rebuild:
+                type: service
+                id: app.monolog.sentry_logs_projection_rebuild
+                level: info
+                channels: ["projection_rebuild"]
             sentry_logs_main:
                 type: service
                 id: app.monolog.sentry_logs_main
                 level: warning
-                channels: ["!event", "!import", "!closure_rebuild"]
+                channels: ["!event", "!import", "!closure_rebuild", "!projection_rebuild"]
             security:
                 type: stream
                 path: php://stderr

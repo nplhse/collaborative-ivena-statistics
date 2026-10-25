@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\Infrastructure\Query;
 
+use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\DTO\AllocationStatsProjectionRebuildResult;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 
@@ -14,6 +16,7 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
     public function __construct(
         private Connection $connection,
         private LoggerInterface $logger,
+        private AllocationProjectionRunTelemetryInterface $telemetry,
     ) {
     }
 
@@ -34,17 +37,17 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
     }
 
     #[\Override]
-    public function rebuildForImport(int $importId): void
+    public function rebuildForImport(int $importId): AllocationStatsProjectionRebuildResult
     {
         $this->connection->beginTransaction();
 
         try {
-            $this->deleteForImport($importId);
+            $deletedRows = $this->telemetry->measure('projection.delete', fn (): int => $this->deleteForImport($importId));
 
-            $insertedRows = $this->connection->executeStatement(
+            $insertedRows = $this->telemetry->measure('projection.insert', fn (): int => $this->connection->executeStatement(
                 $this->insertSelectSql(),
                 ['importId' => $importId],
-            );
+            ));
 
             $this->connection->commit();
 
@@ -52,6 +55,8 @@ final readonly class AllocationStatsProjectionRebuilder implements AllocationSta
                 'import_id' => $importId,
                 'rows' => $insertedRows,
             ]);
+
+            return new AllocationStatsProjectionRebuildResult($deletedRows, $insertedRows);
         } catch (\Throwable $e) {
             $this->connection->rollBack();
             $this->logger->error('allocation_stats_projection.rebuild_failed', [

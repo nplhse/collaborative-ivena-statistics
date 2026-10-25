@@ -123,7 +123,7 @@ final class ImportRunTelemetryTest extends ImportAllocationsMessageHandlerTestCa
         $telemetry->addPersistTime(1_000, true);
         $telemetry->end('completed');
 
-        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM job_run'));
+        self::assertSame(0, (int) $this->connection()->fetchOne("SELECT COUNT(*) FROM job_run WHERE job IN ('allocation_import', 'closure_import')"));
         self::assertSame([], $this->contextsOf($logger->cleanLogs(), 'import.run.summary'));
     }
 

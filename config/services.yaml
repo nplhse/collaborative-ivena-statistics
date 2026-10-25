@@ -113,6 +113,11 @@ services:
         arguments:
             - !php/const Monolog\Logger::INFO
 
+    app.monolog.sentry_logs_projection_rebuild:
+        class: Sentry\SentryBundle\Monolog\LogsHandler
+        arguments:
+            - !php/const Monolog\Logger::INFO
+
     sentry.callback.traces_sampler:
         class: App\Shared\Infrastructure\Monitoring\Sentry\SentryTracesSampler
         arguments:
