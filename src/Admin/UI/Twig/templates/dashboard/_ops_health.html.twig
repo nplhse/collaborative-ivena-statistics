@@ -14,11 +14,15 @@
             </div>
             <div class="d-flex flex-wrap gap-2">
                 {% for item in ops_health.items %}
-                    <span class="badge rounded-pill ea-ops-health-badge bg-{{ item.severity }} text-white d-inline-flex align-items-center gap-2 px-3 py-2">
-                        <i class="{{ item.icon }}" aria-hidden="true"></i>
-                        <span class="fw-semibold">{{ item.labelKey|trans({}, 'admin') }}:</span>
-                        <span>{{ item.value }}</span>
-                    </span>
+                    {% if item.key == 'storage' %}
+                        {{ include('@Admin/dashboard/_ops_health_storage.html.twig') }}
+                    {% else %}
+                        <span class="badge rounded-pill ea-ops-health-badge bg-{{ item.severity }} text-white d-inline-flex align-items-center gap-2 px-3 py-2">
+                            <i class="{{ item.icon }}" aria-hidden="true"></i>
+                            <span class="fw-semibold">{{ item.labelKey|trans({}, 'admin') }}:</span>
+                            <span>{{ item.value }}</span>
+                        </span>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>

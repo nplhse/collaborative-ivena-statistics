@@ -42,6 +42,7 @@ use App\Admin\UI\Http\Controller\User\UserCrudController;
 use App\Analytics\Application\Service\AnalyticsDashboardService;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\Kpi\Application\Service\KpiDashboardService;
+use App\Storage\Application\View\StorageReportService;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
@@ -68,6 +69,7 @@ final class DashboardController extends AbstractDashboardController
         private readonly OperationalDashboardService $operationalDashboardService,
         private readonly MessengerStatsRepository $messengerStatsRepository,
         private readonly AnalyticsDashboardService $analyticsDashboardService,
+        private readonly StorageReportService $storageReportService,
     ) {
     }
 
@@ -79,6 +81,8 @@ final class DashboardController extends AbstractDashboardController
             'kpi_chart' => $this->kpiDashboardService->getChart(),
             'failed_imports' => $this->kpiDashboardService->getFailedImportsDashboard(),
             'ops_cards' => $this->operationalDashboardService->getOpsCards(),
+            'ops_storage' => $this->operationalDashboardService->getStorageSummary(),
+            'ops_storage_url' => $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_storage')->generateUrl(),
             'ops_health' => $this->operationalDashboardService->getHealthStatus(),
             'recent_notifications' => $this->operationalDashboardService->getRecentNotificationEvents(),
             'dashboard_sections' => $this->buildDashboardSections(),
@@ -98,6 +102,16 @@ final class DashboardController extends AbstractDashboardController
         return $this->render('@Admin/operations/failed_messages_index.html.twig', [
             'messages' => $this->messengerStatsRepository->findFailedMessages(),
             'total_count' => $this->messengerStatsRepository->countFailedMessages(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/storage', name: 'operations_storage')]
+    public function storage(): Response
+    {
+        return $this->render('@Admin/operations/storage/index.html.twig', [
+            'disk_usage' => $this->storageReportService->diskUsage(),
+            'imports_url' => $this->adminUrlGenerator->setController(ImportCrudController::class)->generateUrl(),
+            'media_url' => $this->adminUrlGenerator->setController(MediaCrudController::class)->generateUrl(),
         ]);
     }
 
@@ -405,6 +419,12 @@ final class DashboardController extends AbstractDashboardController
                         'controller' => CookieConsentCrudController::class,
                     ],
                     [
+                        'label' => 'Disk usage',
+                        'description' => 'Storage by category, location and history',
+                        'icon' => 'fas fa-hard-drive',
+                        'route' => 'app_admin_dashboard_operations_storage',
+                    ],
+                    [
                         'label' => 'Failed messages',
                         'description' => 'Inspect messenger failed queue',
                         'icon' => 'fas fa-triangle-exclamation',
@@ -492,6 +512,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::section('System');
         yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
         yield MenuItem::linkTo(CookieConsentCrudController::class, 'Cookie consents', 'fas fa-cookie-bite');
+        yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
         yield MenuItem::linkToRoute('Failed messages', 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
         yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, 'Monthly reminders', 'fas fa-envelope');
     }

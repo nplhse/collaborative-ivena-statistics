@@ -185,17 +185,23 @@ final class ClosureProfileQueryTest extends KernelTestCase
 
         $profiles = self::getContainer()->get(ClosureProfileQuery::class);
         $criteria = $this->criteria($seed['hospitalId'], '2026-01-01', '2027-01-01');
-        $page = $profiles->recurringGroupPage($criteria, new ClosureRecurringProfileTableQuery(1, 25, 'eventCount', 'desc', ''));
-        self::assertGreaterThanOrEqual(1, $page->total);
-        self::assertNotEmpty($page->rows);
-        self::assertSame('Profile Speciality A', $page->rows[0]->specialities[0]);
+        $rows = $profiles->recurringGroupRows($criteria, new ClosureRecurringProfileTableQuery('eventCount', 'desc', ''));
+        self::assertNotEmpty($rows);
+        self::assertSame('Profile Speciality A', $rows[0]->specialities[0]);
 
-        $filtered = $profiles->recurringGroupPage($criteria, new ClosureRecurringProfileTableQuery(1, 25, 'eventCount', 'desc', 'Closed Profile Department'));
-        self::assertGreaterThanOrEqual(1, $filtered->total);
-        self::assertNotEmpty($filtered->rows);
+        $filtered = $profiles->recurringGroupRows($criteria, new ClosureRecurringProfileTableQuery('eventCount', 'desc', 'Closed Profile Department'));
+        self::assertNotEmpty($filtered);
 
-        $missing = $profiles->recurringGroupPage($criteria, new ClosureRecurringProfileTableQuery(1, 25, 'eventCount', 'desc', 'Does Not Exist'));
-        self::assertSame(0, $missing->total);
+        $missing = $profiles->recurringGroupRows($criteria, new ClosureRecurringProfileTableQuery('eventCount', 'desc', 'Does Not Exist'));
+        self::assertSame([], $missing);
+
+        $withoutHospitals = new ClosureAnalyticsCriteria(
+            new StatisticsScopeCriteria([]),
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+        );
+        self::assertSame([], $profiles->recurringGroupRows($withoutHospitals, new ClosureRecurringProfileTableQuery('eventCount', 'desc', '')));
     }
 
     public function testCourseWeightsEventsExcludesMissingValuesAndDedupesOverlap(): void

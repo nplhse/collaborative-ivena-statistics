@@ -1,0 +1,5 @@
+<a href="{{ item.detailUrl }}" class="badge rounded-pill ea-ops-health-badge bg-{{ item.severity }} text-white text-decoration-none d-inline-flex align-items-center gap-2 px-3 py-2" data-health-check="storage">
+    <i class="{{ item.icon }}" aria-hidden="true"></i>
+    <span class="fw-semibold">{{ item.labelKey|trans({}, 'admin') }}:</span>
+    <span>{{ item.value }}</span>
+</a>

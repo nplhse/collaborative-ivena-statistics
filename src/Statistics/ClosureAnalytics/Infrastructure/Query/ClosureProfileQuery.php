@@ -22,7 +22,6 @@ use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfilePhaseTotal
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileSpecialityLink;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileView;
-use App\Statistics\ClosureAnalytics\Application\Profile\ClosureRecurringProfilePage;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureRecurringProfileRow;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureRecurringProfileTableQuery;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
@@ -101,12 +100,20 @@ SQL, $params, $types);
         return $this->nonRedundantGroupItems($criteria, $base, $params, $types, null);
     }
 
-    public function recurringGroupPage(
+    /**
+     * All recurring profiles that match the search, sorted for the table.
+     *
+     * Rows are grouped, filtered and sorted in PHP, so the whole list is built
+     * anyway; callers page it themselves and take the total from the same list.
+     *
+     * @return list<ClosureRecurringProfileRow>
+     */
+    public function recurringGroupRows(
         ClosureAnalyticsCriteria $criteria,
         ClosureRecurringProfileTableQuery $tableQuery,
-    ): ClosureRecurringProfilePage {
+    ): array {
         if ([] === ($criteria->scope->hospitalIds ?? [])) {
-            return new ClosureRecurringProfilePage([], 0);
+            return [];
         }
 
         [$base, $params, $types] = ClosureTemporalSql::base($criteria);
@@ -150,14 +157,7 @@ SQL, $params, $types);
             $tableQuery->orderBy,
         ));
 
-        $total = \count($rows);
-        $offset = $tableQuery->offset();
-        $limit = max(1, min(100, $tableQuery->limit));
-
-        return new ClosureRecurringProfilePage(
-            \array_slice($rows, $offset, $limit),
-            $total,
-        );
+        return $rows;
     }
 
     private function compareRecurringProfileRows(

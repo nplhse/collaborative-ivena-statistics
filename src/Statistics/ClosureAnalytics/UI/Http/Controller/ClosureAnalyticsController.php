@@ -23,7 +23,6 @@ use App\Statistics\ClosureAnalytics\Application\ClosureUnitTableRows;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
-use App\Statistics\ClosureAnalytics\Application\Profile\ClosureRecurringProfileTableQuery;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
@@ -196,23 +195,12 @@ final class ClosureAnalyticsController extends AbstractController
             $preferences->sortBy,
             $preferences->orderBy,
         );
+        // One query builds the full list; rows and total both come from it.
+        $profileRows = $this->profiles->recurringGroupRows($criteria, $tableState->toTableQuery());
         $recurringProfiles = $this->paginator
             ->fromCallbacks(
-                function (int $offset, int $limit) use ($criteria, $tableState): array {
-                    $page = max(1, (int) floor($offset / max(1, $limit)) + 1);
-
-                    return $this->profiles->recurringGroupPage(
-                        $criteria,
-                        new ClosureRecurringProfileTableQuery(
-                            $page,
-                            $limit,
-                            $tableState->sortBy,
-                            $tableState->orderBy,
-                            $tableState->profileQ,
-                        ),
-                    )->rows;
-                },
-                fn (): int => $this->profiles->recurringGroupPage($criteria, $tableState->toTableQuery())->total,
+                static fn (int $offset, int $limit): array => \array_slice($profileRows, $offset, $limit),
+                static fn (): int => \count($profileRows),
             )
             ->perPage(max(1, $tableState->limit))
             ->pageParameter(ClosureRecurringProfileTableState::PAGE_PARAM)

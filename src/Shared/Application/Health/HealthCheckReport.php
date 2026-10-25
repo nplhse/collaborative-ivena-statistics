@@ -10,11 +10,13 @@ final readonly class HealthCheckReport
 {
     /**
      * @param array<string, string> $checks
+     * @param list<string>          $publicCheckKeys contributed checks shown on GET /health besides the database
      */
     public function __construct(
         public HealthCheckStatus $status,
         public string $version,
         public array $checks,
+        private array $publicCheckKeys = [],
     ) {
     }
 
@@ -42,7 +44,8 @@ final readonly class HealthCheckReport
     }
 
     /**
-     * Slim public payload for GET /health (no version, no messenger details).
+     * Slim public payload for GET /health (no version, no messenger details). Public contributed checks
+     * (e.g. storage) add only their status string.
      *
      * @return array{status: string, checks: array<string, string>}
      */
@@ -51,6 +54,12 @@ final readonly class HealthCheckReport
         $checks = [];
         if (isset($this->checks['database'])) {
             $checks['database'] = $this->checks['database'];
+        }
+
+        foreach ($this->publicCheckKeys as $key) {
+            if (isset($this->checks[$key])) {
+                $checks[$key] = $this->checks[$key];
+            }
         }
 
         return [

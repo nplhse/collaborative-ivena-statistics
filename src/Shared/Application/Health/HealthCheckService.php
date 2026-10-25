@@ -7,16 +7,23 @@ namespace App\Shared\Application\Health;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final readonly class HealthCheckService
 {
     private const string FAILED_QUEUE_NAME = 'failed';
 
-    /** @psalm-suppress PossiblyUnusedMethod */
+    /**
+     * @param iterable<HealthCheckContributorInterface> $contributors
+     *
+     * @psalm-suppress PossiblyUnusedMethod
+     */
     public function __construct(
         private Connection $connection,
         #[Autowire(param: 'app.version')]
         private string $appVersion,
+        #[AutowireIterator(HealthCheckContributorInterface::TAG)]
+        private iterable $contributors = [],
     ) {
     }
 
@@ -35,26 +42,29 @@ final readonly class HealthCheckService
             );
         }
 
+        $status = HealthCheckStatus::Healthy;
         $checks = ['database' => 'ok'];
         $failedCount = $this->countFailedMessages();
 
         if ($failedCount > 0) {
             $checks['messenger_failed'] = sprintf('%d failed message(s)', $failedCount);
-
-            return new HealthCheckReport(
-                HealthCheckStatus::Degraded,
-                $this->appVersion,
-                $checks,
-            );
+            $status = HealthCheckStatus::Degraded;
+        } else {
+            $checks['messenger_failed'] = 'ok';
         }
 
-        $checks['messenger_failed'] = 'ok';
+        $publicKeys = [];
+        foreach ($this->contributors as $contributor) {
+            $result = $contributor->check();
+            $checks[$result->key] = $result->value;
+            $status = $status->worst($result->status);
 
-        return new HealthCheckReport(
-            HealthCheckStatus::Healthy,
-            $this->appVersion,
-            $checks,
-        );
+            if ($result->public) {
+                $publicKeys[] = $result->key;
+            }
+        }
+
+        return new HealthCheckReport($status, $this->appVersion, $checks, $publicKeys);
     }
 
     private function countFailedMessages(): int
