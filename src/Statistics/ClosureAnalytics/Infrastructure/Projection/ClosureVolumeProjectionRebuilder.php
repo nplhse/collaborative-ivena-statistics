@@ -66,6 +66,9 @@ final class ClosureVolumeProjectionRebuilder
     /** @var array<string, list<array{0: int, 1: string}>> reference slots per event extent, weekday and day-time block; one partition */
     private array $slotCache = [];
 
+    /** @var array<int, list<int>> hospitals rebuilt for these events only (ADR 015 phase 4); others are rebuilt whole */
+    private array $eventScope = [];
+
     public function __construct(
         private readonly Connection $connection,
         private readonly ClosureVolumeAnchorBuilder $anchorBuilder,
@@ -88,14 +91,17 @@ final class ClosureVolumeProjectionRebuilder
      * @param callable(int $processed, int $total, int $pass): void|null           $onProgress      pass 2 rebuilds hospitals with late requests
      * @param list<int>|null                                                       $hospitalIds     null replaces the whole projection
      * @param callable(list<int>|null): array{full: bool, refresh: list<int>}|null $expandHospitals
+     * @param array<int, list<int>>                                                $eventScope      hospital => events to rebuild; listed hospitals keep their other events, late claims rebuild a hospital whole
      */
     public function rebuild(
         ?callable $onProgress = null,
         ?array $hospitalIds = null,
         ?callable $expandHospitals = null,
         ?ClosureVolumeReferenceWindow $window = null,
+        array $eventScope = [],
     ): int {
         $this->window = $window ?? $this->config->window;
+        $this->eventScope = null === $hospitalIds ? [] : $eventScope;
         $this->telemetry->referenceWindow($this->window);
         $this->profile->reset();
         $this->maxPartitionBytes = 0;
@@ -134,6 +140,10 @@ final class ClosureVolumeProjectionRebuilder
                 $decision = $expandHospitals($full ? null : $ids);
                 $this->telemetry->finishSpan(['full' => $decision['full'], 'hospital_ids' => $decision['refresh']]);
                 $refresh = $decision['refresh'];
+                // Late claims rebuild their hospitals whole.
+                foreach ($refresh as $hospitalId) {
+                    unset($this->eventScope[$hospitalId]);
+                }
                 $missing = $decision['full']
                     ? array_values(array_diff($this->hospitalIds(), array_values(array_unique([...$ids, ...$refresh]))))
                     : [];
@@ -163,6 +173,7 @@ final class ClosureVolumeProjectionRebuilder
                 }
                 if ($decision['full']) {
                     $full = true;
+                    $this->eventScope = [];
                     $ids = $this->hospitalIds();
                 } elseif ([] !== $refresh) {
                     $ids = array_values(array_unique([...$ids, ...$refresh]));
@@ -211,12 +222,31 @@ final class ClosureVolumeProjectionRebuilder
             return;
         }
         $this->connection->transactional(function () use ($hospitalIds): void {
-            /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
-            $this->connection->executeStatement(
-                'DELETE FROM closure_volume_hour WHERE hospital_id IN (:ids)',
-                ['ids' => $hospitalIds],
-                ['ids' => ArrayParameterType::INTEGER],
-            );
+            $whole = array_values(array_diff($hospitalIds, array_keys($this->eventScope)));
+            if ([] !== $whole) {
+                /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
+                $this->connection->executeStatement(
+                    'DELETE FROM closure_volume_hour WHERE hospital_id IN (:ids)',
+                    ['ids' => $whole],
+                    ['ids' => ArrayParameterType::INTEGER],
+                );
+            }
+            foreach ($this->eventScope as $hospitalId => $eventIds) {
+                if (!\in_array($hospitalId, $hospitalIds, true)) {
+                    continue;
+                }
+                // Rebuilt events are replaced; events the analysis removed lose their rows.
+                /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
+                $this->connection->executeStatement(
+                    <<<'SQL'
+DELETE FROM closure_volume_hour h
+WHERE h.hospital_id = :hospital
+  AND (h.event_id IN (:events) OR NOT EXISTS (SELECT 1 FROM closure_event e WHERE e.id = h.event_id))
+SQL,
+                    ['hospital' => $hospitalId, 'events' => [] === $eventIds ? [0] : $eventIds],
+                    ['hospital' => ParameterType::INTEGER, 'events' => ArrayParameterType::INTEGER],
+                );
+            }
             $this->connection->executeStatement(
                 <<<'SQL'
 INSERT INTO closure_volume_hour (
@@ -246,10 +276,16 @@ SQL,
      */
     private function rebuildHospital(int $hospitalId, array $pending, int &$done, int $total, ?callable $onProgress): array
     {
+        $scope = $this->eventScope[$hospitalId] ?? null;
+        if ([] === $scope) {
+            return $pending;
+        }
+        /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
         $bounds = $this->connection->fetchAssociative(
-            'SELECT MIN(starts_at) AS min_start, MAX(starts_at) AS max_start FROM closure_event WHERE hospital_id = :hospital',
-            ['hospital' => $hospitalId],
-            ['hospital' => ParameterType::INTEGER],
+            'SELECT MIN(starts_at) AS min_start, MAX(starts_at) AS max_start FROM closure_event WHERE hospital_id = :hospital'
+            .(null === $scope ? '' : ' AND id IN (:events)'),
+            ['hospital' => $hospitalId, 'events' => $scope ?? []],
+            ['hospital' => ParameterType::INTEGER, 'events' => ArrayParameterType::INTEGER],
         );
         if (!\is_array($bounds) || !\is_string($bounds['min_start']) || '' === $bounds['min_start']) {
             return $pending;
@@ -293,7 +329,7 @@ SQL,
     ): array {
         $started = microtime(true);
         $before = memory_get_usage(false);
-        $rows = $this->profile->time('anchors', fn (): array => $this->anchorRows($hospitalId, $weekStart, $weekEnd), 1);
+        $rows = $this->profile->time('anchors', fn (): array => $this->anchorRows($hospitalId, $weekStart, $weekEnd, $this->eventScope[$hospitalId] ?? null), 1);
         if ([] === $rows) {
             return $pending;
         }
@@ -393,13 +429,16 @@ SQL,
     }
 
     /**
+     * @param list<int>|null $eventIds null for every event of the hospital
+     *
      * @return list<array<string, int|string>>
      */
-    private function anchorRows(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to): array
+    private function anchorRows(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to, ?array $eventIds): array
     {
+        $eventSql = null === $eventIds ? '' : 'AND e.id IN (:events)';
         /** @var list<array<string, int|string>> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
+            <<<SQL
 SELECT e.id AS event_id, ai.speciality_id, ai.department_id, ai.starts_at, ai.ends_at, cl.care_level
 FROM closure_event e
 INNER JOIN closure_analysis_interval ai ON ai.event_id = e.id
@@ -407,17 +446,20 @@ INNER JOIN closure_analysis_care_level cl ON cl.analysis_interval_id = ai.id
 WHERE e.hospital_id = :hospital
   AND e.starts_at >= :from
   AND e.starts_at < :to
+  {$eventSql}
 ORDER BY e.id ASC, ai.starts_at ASC
 SQL,
             [
                 'hospital' => $hospitalId,
                 'from' => $from->format('Y-m-d H:i:s'),
                 'to' => $to->format('Y-m-d H:i:s'),
+                'events' => $eventIds ?? [],
             ],
             [
                 'hospital' => ParameterType::INTEGER,
                 'from' => ParameterType::STRING,
                 'to' => ParameterType::STRING,
+                'events' => ArrayParameterType::INTEGER,
             ],
         );
 
@@ -1046,13 +1088,22 @@ SQL);
      */
     private function countEvents(array $hospitalIds): int
     {
-        if ([] === $hospitalIds) {
-            return 0;
+        $whole = [];
+        $scoped = 0;
+        foreach ($hospitalIds as $hospitalId) {
+            if (isset($this->eventScope[$hospitalId])) {
+                $scoped += \count($this->eventScope[$hospitalId]);
+            } else {
+                $whole[] = $hospitalId;
+            }
+        }
+        if ([] === $whole) {
+            return $scoped;
         }
 
-        return (int) $this->connection->fetchOne(
+        return $scoped + (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM closure_event WHERE hospital_id IN (:ids)',
-            ['ids' => $hospitalIds],
+            ['ids' => $whole],
             ['ids' => ArrayParameterType::INTEGER],
         );
     }

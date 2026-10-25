@@ -29,6 +29,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         private readonly LockFactory $lockFactory,
         private readonly ClosureRebuildTelemetry $telemetry,
         private readonly ClosureVolumeReferenceConfig $config,
+        private readonly ClosureVolumeRebuildPlanner $planner,
     ) {
     }
 
@@ -103,14 +104,13 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                 }
                 $this->telemetry->claimedRequests(\count($work->requestIds));
                 try {
-                    if (!$analysis->isEmpty()) {
-                        $this->rebuildAnalysis($analysis->all ? null : $analysis->hospitalIds);
-                    }
+                    $changes = $analysis->isEmpty() ? [] : $this->rebuildAnalysis($analysis->all ? null : $analysis->hospitalIds);
+                    $scope = $this->eventScope($work, $changes);
                 } catch (\Throwable $exception) {
                     $this->scheduler->release($work->requestIds, $exception);
                     throw $exception;
                 }
-                $this->publishVolume($runId, null, $work->all ? null : $work->hospitalIds, $work);
+                $this->publishVolume($runId, null, $work->all ? null : $work->hospitalIds, $work, null, $scope);
             }
         } catch (\Throwable $exception) {
             $error = $exception;
@@ -138,11 +138,49 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
     /**
      * @param list<int>|null $hospitalIds
      */
-    private function rebuildAnalysis(?array $hospitalIds): void
+    /**
+     * @param list<int>|null $hospitalIds
+     *
+     * @return array<int, ClosureAnalysisChange>
+     */
+    private function rebuildAnalysis(?array $hospitalIds): array
     {
         $this->telemetry->startSpan('closure.rebuild.analysis', ['full' => null === $hospitalIds, 'hospital_ids' => $hospitalIds ?? []]);
-        $this->analysis->rebuild($hospitalIds);
+        $changes = $this->analysis->rebuild($hospitalIds);
         $this->telemetry->finishSpan();
+
+        return $changes;
+    }
+
+    /**
+     * Events to rebuild per hospital whose requests all carry a range (ADR 015 phase 4).
+     * Hospitals left out are rebuilt whole.
+     *
+     * @param array<int, ClosureAnalysisChange> $changes
+     *
+     * @return array<int, list<int>>
+     */
+    private function eventScope(ClosureRebuildClaim $work, array $changes): array
+    {
+        if ($work->all) {
+            return [];
+        }
+        $scope = [];
+        foreach ($work->hospitalIds as $hospitalId) {
+            $ranges = $work->rangesFor($hospitalId);
+            if (null === $ranges) {
+                continue;
+            }
+            $change = $changes[$hospitalId] ?? null;
+            $scope[$hospitalId] = $this->planner->affectedEvents(
+                $hospitalId,
+                [...$ranges, ...($change->changedRanges ?? [])],
+                $change->changedEventIds ?? [],
+                $this->config->window,
+            );
+        }
+
+        return $scope;
     }
 
     /**
@@ -150,6 +188,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
      *
      * @param callable(int $processed, int $total, int $pass): void|null $onHospital
      * @param list<int>|null                                             $hospitalIds
+     * @param array<int, list<int>>                                      $eventScope  hospitals rebuilt for these events only
      */
     private function publishVolume(
         string $runId,
@@ -157,6 +196,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         ?array $hospitalIds,
         ClosureRebuildClaim $claimed,
         ?ClosureVolumeReferenceWindow $window = null,
+        array $eventScope = [],
     ): int {
         try {
             $hospitals = $this->rebuilder->rebuild(
@@ -182,6 +222,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                     ];
                 },
                 $window,
+                $eventScope,
             );
         } catch (\Throwable $exception) {
             $this->scheduler->release($claimed->requestIds, $exception);
