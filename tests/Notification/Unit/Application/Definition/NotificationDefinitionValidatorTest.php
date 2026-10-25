@@ -22,6 +22,26 @@ final class NotificationDefinitionValidatorTest extends TestCase
         self::assertSame([], new NotificationDefinitionValidator()->validate(self::definition(accessScope: NotificationAccessScope::Role, requiredRole: 'ROLE_ADMIN')));
     }
 
+    public function testValidatesToastGroups(): void
+    {
+        $toast = [NotificationChannel::InApp, NotificationChannel::Toast];
+        $validator = new NotificationDefinitionValidator();
+
+        self::assertSame([], $validator->validate(new NotificationDefinition('test.example', NotificationCategory::Imports, $toast, $toast, toastGroup: 'test.group', toastGroupRoute: 'app_import_index')));
+        self::assertStringContainsString(
+            'toastGroup must be a lowercase dotted identifier',
+            implode(' | ', $validator->validate(new NotificationDefinition('test.example', NotificationCategory::Imports, $toast, $toast, toastGroup: 'Group'))),
+        );
+        self::assertStringContainsString(
+            'a toastGroup needs the toast channel',
+            implode(' | ', $validator->validate(new NotificationDefinition('test.example', NotificationCategory::Imports, [NotificationChannel::InApp], [NotificationChannel::InApp], toastGroup: 'test.group'))),
+        );
+        self::assertStringContainsString(
+            'toastGroupRoute is only allowed with a toastGroup',
+            implode(' | ', $validator->validate(new NotificationDefinition('test.example', NotificationCategory::Imports, $toast, $toast, toastGroupRoute: 'app_import_index'))),
+        );
+    }
+
     /**
      * @param list<NotificationChannel> $defaultChannels
      * @param list<NotificationChannel> $availableChannels

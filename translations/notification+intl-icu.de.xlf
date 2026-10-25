@@ -413,6 +413,14 @@
         <source>import.bulk_delete_failed.label</source>
         <target>Mehrere Importe gelöscht, mit Fehlern</target>
       </trans-unit>
+      <trans-unit id="NtfToastGrpImpTitleDe" resname="notification.toast_group.import.run_outcome.title">
+        <source>notification.toast_group.import.run_outcome.title</source>
+        <target>{count, plural, one {# Import} other {# Importe}} verarbeitet{import_failed, plural, =0 {} other {, # fehlgeschlagen}}</target>
+      </trans-unit>
+      <trans-unit id="NtfToastGrpImpMsgDe" resname="notification.toast_group.import.run_outcome.message">
+        <source>notification.toast_group.import.run_outcome.message</source>
+        <target>Die einzelnen Ergebnisse finden Sie in der Importliste und in Ihren Benachrichtigungen.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

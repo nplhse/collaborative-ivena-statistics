@@ -413,6 +413,14 @@
         <source>import.bulk_delete_failed.label</source>
         <target>Several imports deleted with failures</target>
       </trans-unit>
+      <trans-unit id="NtfToastGrpImpTitleEn" resname="notification.toast_group.import.run_outcome.title">
+        <source>notification.toast_group.import.run_outcome.title</source>
+        <target>{count, plural, one {# import} other {# imports}} processed{import_failed, plural, =0 {} other {, # failed}}</target>
+      </trans-unit>
+      <trans-unit id="NtfToastGrpImpMsgEn" resname="notification.toast_group.import.run_outcome.message">
+        <source>notification.toast_group.import.run_outcome.message</source>
+        <target>See the import list and your notifications for each result.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -7,6 +7,7 @@ namespace App\Notification\UI\Http\Controller;
 use App\Notification\Application\Inbox\ClaimedToast;
 use App\Notification\Application\Snapshot\NotificationSnapshotProvider;
 use App\Notification\Domain\Enum\NotificationPriority;
+use App\Notification\UI\ViewModel\NotificationToastGrouper;
 use App\Notification\UI\ViewModel\NotificationView;
 use App\Notification\UI\ViewModel\NotificationViewFactory;
 use App\User\Domain\Entity\User;
@@ -42,6 +43,7 @@ final class NotificationPollController extends AbstractController
         private readonly NotificationSnapshotProvider $snapshotProvider,
         private readonly NotificationViewFactory $viewFactory,
         private readonly TranslatorInterface $translator,
+        private readonly NotificationToastGrouper $toastGrouper,
     ) {
     }
 
@@ -84,30 +86,54 @@ final class NotificationPollController extends AbstractController
     }
 
     /**
-     * Applies the inbox visibility rules: hidden entries are left out, redacted ones keep generic texts.
+     * Applies the inbox visibility rules (hidden entries are left out, redacted ones keep generic texts),
+     * then collapses toasts of the same toast group into one.
      *
      * @param list<ClaimedToast> $claimed
      *
-     * @return list<array{id: int, title: string, message: string, url: string|null, severity: string, important: bool}>
+     * @return list<array<string, mixed>> id, title, message, url, severity, important
      */
     private function toasts(User $user, array $claimed): array
     {
-        $priorities = [];
+        $byId = [];
         foreach ($claimed as $toast) {
-            $priorities[$toast->entry->id] = $toast->priority;
+            $byId[$toast->entry->id] = $toast;
+        }
+
+        $toasts = [];
+        foreach ($this->viewFactory->build($user, array_map(static fn (ClaimedToast $toast): \App\Notification\Application\Inbox\InboxEntry => $toast->entry, $claimed)) as $view) {
+            $claimedToast = $byId[$view->id] ?? null;
+            if (!$claimedToast instanceof ClaimedToast) {
+                continue;
+            }
+            $toasts[] = [
+                'toast' => $this->toast($view),
+                'type' => $claimedToast->type,
+                'priority' => $claimedToast->priority,
+            ];
         }
 
         return array_map(
-            fn (NotificationView $view): array => [
-                'id' => $view->id,
-                'title' => $this->translator->trans($view->titleKey, $view->parameters, $view->translationDomain),
-                'message' => $this->translator->trans($view->messageKey, $view->parameters, $view->translationDomain),
-                'url' => $view->hasLink ? $this->generateUrl('app_notification_open', ['id' => $view->id]) : null,
-                'severity' => $this->severity($priorities[$view->id] ?? NotificationPriority::Normal),
-                'important' => \in_array($priorities[$view->id] ?? null, [NotificationPriority::High, NotificationPriority::Urgent], true),
+            fn (array $entry): array => [
+                ...$entry['toast'],
+                'severity' => $this->severity($entry['priority']),
+                'important' => \in_array($entry['priority'], [NotificationPriority::High, NotificationPriority::Urgent], true),
             ],
-            $this->viewFactory->build($user, array_map(static fn (ClaimedToast $toast): \App\Notification\Application\Inbox\InboxEntry => $toast->entry, $claimed)),
+            $this->toastGrouper->group($toasts),
         );
+    }
+
+    /**
+     * @return array{id: int, title: string, message: string, url: string|null}
+     */
+    private function toast(NotificationView $view): array
+    {
+        return [
+            'id' => $view->id,
+            'title' => $this->translator->trans($view->titleKey, $view->parameters, $view->translationDomain),
+            'message' => $this->translator->trans($view->messageKey, $view->parameters, $view->translationDomain),
+            'url' => $view->hasLink ? $this->generateUrl('app_notification_open', ['id' => $view->id]) : null,
+        ];
     }
 
     private function severity(NotificationPriority $priority): string
