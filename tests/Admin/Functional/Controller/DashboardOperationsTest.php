@@ -17,7 +17,9 @@ use App\Storage\Domain\Enum\MeasurementMode;
 use App\Storage\Domain\Enum\StorageCategory;
 use App\Storage\Domain\Enum\StorageLocation;
 use App\Storage\Domain\ValueObject\StorageMeasurementItem;
+use App\Tests\Support\Storage\StorageMeasurementBuilder;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +40,7 @@ final class DashboardOperationsTest extends WebTestCase
             ->create([
                 'username' => 'ops-admin-'.bin2hex(random_bytes(4)),
             ]);
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
 
         $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/admin');
@@ -46,7 +49,7 @@ final class DashboardOperationsTest extends WebTestCase
         $text = $crawler->text();
         self::assertStringContainsString('Operations', $text);
         self::assertStringContainsString('Failed messages', $text);
-        self::assertStringContainsString('No storage measurement yet', $text);
+        self::assertStringContainsString('Configured budget', $crawler->filter('.ea-storage-card')->text());
         self::assertStringNotContainsString('Total storage', $text);
         self::assertStringNotContainsString('Imports / media', $text);
         self::assertStringContainsString('Recent notifications', $text);
@@ -106,6 +109,45 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertCount(2, $card->filter('.ea-storage-bar__segment'));
     }
 
+    public function testHealthCardShowsStorageDetailsAndLinksToDiskUsage(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $this->store(StorageMeasurementBuilder::measuredAt(
+            new \DateTimeImmutable('2026-10-25 03:30'),
+            CapacityLevel::Warning,
+            usedBytes: 9 * 1024 ** 3,
+        ));
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $item = $crawler->filter('[data-health-check="storage"]');
+        self::assertCount(1, $item);
+        self::assertStringEndsWith('/admin/operations/storage', (string) $item->attr('href'));
+        self::assertStringContainsString('bg-warning', (string) $item->attr('class'));
+
+        $text = $item->text();
+        self::assertStringContainsString('Storage:', $text);
+        self::assertStringContainsString('9.00 GB of 10.00 GB (budget)', $text);
+        self::assertStringContainsString('10 % free', $text);
+        self::assertStringContainsString('Level: warning', $text);
+        self::assertStringContainsString('measured 2026-10-25 03:30', $text);
+    }
+
+    public function testWithoutMeasurementHealthIsDegradedAndTheStorageCardIsEmpty(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Degraded', $crawler->filter('.ea-ops-health-banner')->text());
+        self::assertSame('Storage: unavailable', $crawler->filter('[data-health-check="storage"]')->text());
+        self::assertStringContainsString('No storage measurement yet', $crawler->filter('.ea-storage-card')->text());
+    }
+
     public function testFailedImportsDashboardShows30DayFilterAndViewAllLink(): void
     {
         $client = self::createClient();
@@ -149,6 +191,13 @@ final class DashboardOperationsTest extends WebTestCase
         $badge = $this->findFailedImportsBadge($crawler);
         self::assertNotNull($badge);
         self::assertSame('2', trim($badge->text()));
+    }
+
+    private function store(StorageMeasurement $measurement): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($measurement);
+        $entityManager->flush();
     }
 
     private function findFailedImportsBadge(Crawler $crawler): ?Crawler

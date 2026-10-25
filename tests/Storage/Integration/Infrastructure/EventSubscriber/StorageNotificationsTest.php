@@ -52,7 +52,7 @@ final class StorageNotificationsTest extends DatabaseKernelTestCase
         self::assertSame('high', $rows[0]['priority']);
         self::assertSame('role', $rows[0]['access_scope']);
         self::assertSame('ROLE_ADMIN', $rows[0]['required_role']);
-        self::assertSame('app_admin_dashboard', $rows[0]['action_route']);
+        self::assertSame('app_admin_dashboard_operations_storage', $rows[0]['action_route']);
         $parameters = json_decode((string) $rows[0]['parameters'], true);
         self::assertIsArray($parameters);
         self::assertSame(['escalated', 'normal', 'critical'], [$parameters['direction'], $parameters['from'], $parameters['to']]);

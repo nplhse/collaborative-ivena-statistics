@@ -12,6 +12,8 @@ final readonly class HealthCheckItemDto
         public string $value,
         public string $severity,
         public string $icon,
+        public ?string $detailUrl = null,
+        public ?StorageHealthDetailsDto $storage = null,
     ) {
     }
 }

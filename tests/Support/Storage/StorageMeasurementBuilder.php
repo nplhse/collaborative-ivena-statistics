@@ -11,7 +11,8 @@ use App\Storage\Domain\Enum\MeasurementMode;
 use App\Storage\Domain\ValueObject\StorageMeasurementItem;
 
 /**
- * Stored-looking storage measurements for notification tests: a budget of 1000 bytes by default.
+ * Stored-looking storage measurements: create() for notification tests (a budget of 1000 bytes by default),
+ * measuredAt() for health and dashboard tests that depend on the measurement time.
  */
 final class StorageMeasurementBuilder
 {
@@ -53,5 +54,32 @@ final class StorageMeasurementBuilder
         }
 
         return $measurement;
+    }
+
+    /**
+     * A measurement taken at the given time, with realistic sizes (4 GB of a 10 GB budget by default).
+     */
+    public static function measuredAt(
+        \DateTimeImmutable $measuredAt,
+        CapacityLevel $level = CapacityLevel::Normal,
+        ?int $usedBytes = 4 * 1024 ** 3,
+        CapacitySource $source = CapacitySource::Budget,
+        ?int $capacityBytes = 10 * 1024 ** 3,
+    ): StorageMeasurement {
+        return new StorageMeasurement(
+            measuredOn: $measuredAt,
+            measuredAt: $measuredAt,
+            durationMs: 1200,
+            mode: MeasurementMode::Standalone,
+            usedBytes: $usedBytes,
+            databaseBytes: null === $usedBytes ? null : 1024 ** 3,
+            capacitySource: $source,
+            capacityBytes: CapacitySource::None === $source ? null : $capacityBytes,
+            budgetBytes: CapacitySource::Budget === $source ? $capacityBytes : null,
+            filesystemTotalBytes: null,
+            filesystemFreeBytes: null,
+            level: $level,
+            items: [],
+        );
     }
 }

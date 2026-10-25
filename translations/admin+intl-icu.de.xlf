@@ -505,6 +505,66 @@
         <source>ops.health.check.messenger_failed</source>
         <target>Messenger fehlgeschlagen</target>
       </trans-unit>
+      <trans-unit id="opsHlth07de" resname="ops.health.check.storage">
+        <source>ops.health.check.storage</source>
+        <target>Speicher</target>
+      </trans-unit>
+      <trans-unit id="opsHlth08de" resname="ops.health.storage.usage">
+        <source>ops.health.storage.usage</source>
+        <target>{used} von {capacity} ({source})</target>
+      </trans-unit>
+      <trans-unit id="opsHlth09de" resname="ops.health.storage.usage_without_capacity">
+        <source>ops.health.storage.usage_without_capacity</source>
+        <target>{used} belegt, keine Kapazitätsreferenz</target>
+      </trans-unit>
+      <trans-unit id="opsHlth10de" resname="ops.health.storage.usage_unknown">
+        <source>ops.health.storage.usage_unknown</source>
+        <target>Belegung nicht gemessen</target>
+      </trans-unit>
+      <trans-unit id="opsHlth11de" resname="ops.health.storage.remaining">
+        <source>ops.health.storage.remaining</source>
+        <target>{percent} % frei</target>
+      </trans-unit>
+      <trans-unit id="opsHlth12de" resname="ops.health.storage.measured_at">
+        <source>ops.health.storage.measured_at</source>
+        <target>gemessen {measured_at}</target>
+      </trans-unit>
+      <trans-unit id="opsHlth13de" resname="ops.health.storage.source.budget">
+        <source>ops.health.storage.source.budget</source>
+        <target>Budget</target>
+      </trans-unit>
+      <trans-unit id="opsHlth14de" resname="ops.health.storage.source.filesystem">
+        <source>ops.health.storage.source.filesystem</source>
+        <target>Dateisystem</target>
+      </trans-unit>
+      <trans-unit id="opsHlth15de" resname="ops.health.storage.source.none">
+        <source>ops.health.storage.source.none</source>
+        <target>keine Referenz</target>
+      </trans-unit>
+      <trans-unit id="opsHlth16de" resname="ops.health.storage.level.normal">
+        <source>ops.health.storage.level.normal</source>
+        <target>Stufe: normal</target>
+      </trans-unit>
+      <trans-unit id="opsHlth17de" resname="ops.health.storage.level.notice">
+        <source>ops.health.storage.level.notice</source>
+        <target>Stufe: Hinweis</target>
+      </trans-unit>
+      <trans-unit id="opsHlth18de" resname="ops.health.storage.level.warning">
+        <source>ops.health.storage.level.warning</source>
+        <target>Stufe: Warnung</target>
+      </trans-unit>
+      <trans-unit id="opsHlth19de" resname="ops.health.storage.level.critical">
+        <source>ops.health.storage.level.critical</source>
+        <target>Stufe: kritisch</target>
+      </trans-unit>
+      <trans-unit id="opsHlth20de" resname="ops.health.storage.level.exceeded">
+        <source>ops.health.storage.level.exceeded</source>
+        <target>Stufe: überschritten</target>
+      </trans-unit>
+      <trans-unit id="opsHlth21de" resname="ops.health.storage.level.unknown">
+        <source>ops.health.storage.level.unknown</source>
+        <target>Stufe: unbekannt</target>
+      </trans-unit>
       <trans-unit id="opsNot01de" resname="ops.notifications.title">
         <source>ops.notifications.title</source>
         <target>Aktuelle Benachrichtigungen</target>
