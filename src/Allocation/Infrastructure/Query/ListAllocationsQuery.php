@@ -33,15 +33,38 @@ final readonly class ListAllocationsQuery
     ) {
     }
 
-    public function getPaginator(AllocationQueryParametersDTO $queryParametersDTO, ?User $user = null): CursorPaginator
-    {
+    /**
+     * Optional columns that need their own join, keyed by column key: [relation, alias].
+     * They are read for the rows of the current page only, so the keyset query keeps its plan.
+     *
+     * @var array<string, array{string, string}>
+     */
+    private const array OPTIONAL_JOINS = [
+        'speciality' => ['a.speciality', 'spec'],
+        'department' => ['a.department', 'dep'],
+        'assignment' => ['a.assignment', 'asg'],
+        'occasion' => ['a.occasion', 'occ'],
+    ];
+
+    /**
+     * @param list<string> $optionalColumns visible optional columns; only these are joined
+     * @param int|null     $pageSize        page size to use instead of the query's `limit` (a saved preference)
+     */
+    public function getPaginator(
+        AllocationQueryParametersDTO $queryParametersDTO,
+        ?User $user = null,
+        array $optionalColumns = [],
+        ?int $pageSize = null,
+    ): CursorPaginator {
+        $limit = max(1, $pageSize ?? $queryParametersDTO->limit);
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('a.id, a.publicId, a.createdAt, a.arrivalAt, a.departmentWasClosed, s.id as state_id, s.name as state, da.id as dispatchArea_id, da.name as dispatchArea,
                 h.id as hospital_id, h.publicId as hospital_public_id, h.name as hospital, h.tier, h.size, h.location, a.gender, a.age, a.requiresResus, a.requiresCathlab, a.isCPR, a.isVentilated, a.isShock,
                 a.isPregnant, a.isWorkAccident, a.isWithPhysician, a.urgency, i.name as infection, iraw.name as indicationRawName, iraw.code indicationRawCode,
                 inor.name as indicationNormalizedName, inor.code as indicationNormalizedCode,
                 iraw2.name as secondaryIndicationRawName, iraw2.code as secondaryIndicationRawCode,
-                inor2.name as secondaryIndicationNormalizedName, inor2.code as secondaryIndicationNormalizedCode')
+                inor2.name as secondaryIndicationNormalizedName, inor2.code as secondaryIndicationNormalizedCode,
+                a.transportType, st.name as secondaryTransport')
             ->from(Allocation::class, 'a')
             ->leftJoin(
                 State::class,
@@ -109,16 +132,16 @@ final readonly class ListAllocationsQuery
         $estimatedNumResults = $this->estimateNumResults($qb);
 
         $cursor = $this->decodeCursor($queryParametersDTO);
-        $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, $cursor);
+        $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, $cursor, $limit);
 
         // Paging back reached the first rows but found fewer than a page (rows were
         // deleted in between): show a regular, full first page instead.
-        if (null !== $cursor && !$cursor['forward'] && !$slice['hasMore'] && \count($slice['rows']) < $queryParametersDTO->limit) {
+        if (null !== $cursor && !$cursor['forward'] && !$slice['hasMore'] && \count($slice['rows']) < $limit) {
             $cursor = null;
-            $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, null);
+            $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, null, $limit);
         }
 
-        $rows = $slice['rows'];
+        $rows = $this->withOptionalColumns($slice['rows'], $optionalColumns);
         $nextCursor = null;
         $previousCursor = null;
         if ([] !== $rows) {
@@ -136,11 +159,47 @@ final readonly class ListAllocationsQuery
 
         return new CursorPaginator(
             $rows,
-            $queryParametersDTO->limit,
+            $limit,
             $nextCursor,
             $previousCursor,
             $estimatedNumResults,
             null !== $cursor ? $queryParametersDTO->cursor : null,
+        );
+    }
+
+    /**
+     * Adds the names of the visible optional columns to the page rows with one query by id.
+     *
+     * @param list<array<string, mixed>> $rows
+     * @param list<string>               $optionalColumns
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function withOptionalColumns(array $rows, array $optionalColumns): array
+    {
+        $joins = array_intersect_key(self::OPTIONAL_JOINS, array_flip($optionalColumns));
+        if ([] === $rows || [] === $joins) {
+            return $rows;
+        }
+
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('a.id')
+            ->from(Allocation::class, 'a')
+            ->where('a.id IN (:ids)')
+            ->setParameter('ids', array_map(static fn (array $row): mixed => $row['id'], $rows));
+        foreach ($joins as $column => [$relation, $alias]) {
+            $qb->leftJoin($relation, $alias)->addSelect(\sprintf('%s.name AS %s', $alias, $column));
+        }
+
+        $names = [];
+        /** @var array<string, mixed> $row */
+        foreach ($qb->getQuery()->getArrayResult() as $row) {
+            $names[(int) $row['id']] = $row;
+        }
+
+        return array_map(
+            static fn (array $row): array => [...$row, ...($names[(int) $row['id']] ?? [])],
+            $rows,
         );
     }
 
@@ -174,7 +233,7 @@ final readonly class ListAllocationsQuery
      *
      * @return array{rows: list<array<string, mixed>>, hasMore: bool}
      */
-    private function fetchSlice(QueryBuilder $source, AllocationQueryParametersDTO $queryParametersDTO, string $sortField, ?array $cursor): array
+    private function fetchSlice(QueryBuilder $source, AllocationQueryParametersDTO $queryParametersDTO, string $sortField, ?array $cursor, int $limit): array
     {
         $qb = clone $source;
         $forward = null === $cursor || $cursor['forward'];
@@ -206,12 +265,12 @@ final readonly class ListAllocationsQuery
         $qb
             ->orderBy($sortField, $direction)
             ->addOrderBy('a.id', $direction)
-            ->setMaxResults($queryParametersDTO->limit + 1);
+            ->setMaxResults($limit + 1);
 
         /** @var list<array<string, mixed>> $results */
         $results = $qb->getQuery()->getArrayResult();
-        $hasMore = \count($results) > $queryParametersDTO->limit;
-        $rows = \array_slice($results, 0, $queryParametersDTO->limit);
+        $hasMore = \count($results) > $limit;
+        $rows = \array_slice($results, 0, $limit);
 
         return [
             'rows' => $forward ? $rows : array_reverse($rows),

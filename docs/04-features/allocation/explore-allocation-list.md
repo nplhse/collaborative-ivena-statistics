@@ -68,6 +68,12 @@ The list uses keyset (cursor) pagination, not `OFFSET`, because `allocation` is 
 
 `CursorPaginator` implements the Symfony UX `CursorPaginationInterface`, so `DataTable` treats it like any UX cursor pagination. A full switch to the UX Doctrine cursor adapter was evaluated in [#651](https://github.com/nplhse/collaborative-ivena-statistics/issues/651) and kept back: it builds the same unbounded OR predicate, routes our entity-class joins through Doctrine's two-query paginator, has no estimated count and is still experimental.
 
+## Columns
+
+`AllocationListColumns` defines the columns and the preference schema `explore.allocations` (column picker, column order, page size; default 50 rows). Users can show gender, transport type, speciality, department, assignment, occasion and secondary transport in addition to the default columns. Timestamps are required; the row action stays fixed at the end.
+
+Sorting stays on `arrivalAt` and `age`, the two keyset keys. Speciality, department, assignment and occasion need a join: `ListAllocationsQuery` reads their names for the ids of the current page only, after the keyset query. Joining them into the keyset query took 113 ms instead of 43 ms per page on the demo database; the page lookup adds about 5 ms. Filters, the filter reset and paging keep the chosen columns.
+
 ## Code locations
 
 | Area | Path |
@@ -78,4 +84,5 @@ The list uses keyset (cursor) pagination, not `OFFSET`, because `allocation` is 
 | Created-at range | `src/Allocation/Application/Allocations/AllocationCreatedAtRangeParser.php` |
 | SQL filter | `src/Allocation/Application/Export/AllocationListFilterApplicator.php` |
 | Keyset query | `src/Allocation/Infrastructure/Query/ListAllocationsQuery.php`, `src/Shared/Infrastructure/Pagination/` |
+| Columns | `src/Allocation/UI/Twig/AllocationListColumns.php` |
 | UI | Shared `FilterDrawer` / `FilterDrawerTrigger` Twig components (`src/Shared/UI/Twig/Components/`); allocation-specific fields in `src/Allocation/UI/Twig/templates/allocations/_allocation_filter_drawer.html.twig` |

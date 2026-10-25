@@ -42,6 +42,7 @@ final readonly class DataTablePreferenceSchema
         array $sortKeys = [],
         ?string $defaultSortBy = null,
         string $defaultOrderBy = 'desc',
+        int $defaultPageSize = 25,
     ): self {
         $order = [];
         $visible = [];
@@ -66,6 +67,7 @@ final readonly class DataTablePreferenceSchema
             $order,
             $visible,
             $required,
+            defaultPageSize: $defaultPageSize,
             sortKeys: $sortKeys,
             defaultSortBy: $defaultSortBy,
             defaultOrderBy: $defaultOrderBy,
