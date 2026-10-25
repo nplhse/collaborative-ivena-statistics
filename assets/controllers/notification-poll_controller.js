@@ -169,6 +169,8 @@ export default class extends Controller {
 
         this.versionValue = version;
         this.renderBadge(unreadCount, badgeLabel);
+        // Other places showing the count (the user menu) follow along.
+        this.dispatch('changed', { target: window, detail: { unreadCount, badgeLabel } });
 
         // A loaded dropdown would show stale entries; reload it, an unloaded one loads lazily anyway.
         if (this.hasFrameTarget && this.frameTarget.hasAttribute('complete')) {

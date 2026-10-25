@@ -87,7 +87,7 @@ final class DashboardActivityControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'activity-actor');
         self::assertSelectorTextContains('body', 'Hello Post');
         self::assertSelectorTextContains('body', 'Plain Clinic');
-        self::assertSelectorNotExists('a[href^="/explore/user/"]');
+        self::assertSelectorNotExists('[data-testid="dashboard-activity-item"] a[href^="/explore/user/"]', 'the feed does not link to profiles');
         self::assertSelectorNotExists('a[href^="/explore/hospital/"]');
         self::assertSelectorTextNotContains('body', 'Hidden Clinic');
         $this->assertRelativeTimestampMarkup($crawler, 'dashboard-activity-item');
@@ -118,7 +118,7 @@ final class DashboardActivityControllerTest extends WebTestCase
         $crawler = $client->request(Request::METHOD_GET, '/dashboard/activity');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('a[href^="/explore/user/"]');
+        self::assertSelectorExists('[data-testid="dashboard-activity-item"] a[href^="/explore/user/"]');
         self::assertCount(5, $crawler->filter('[data-testid="dashboard-activity-item"]'));
         self::assertSelectorNotExists('[data-testid="dashboard-activity-next"]');
         self::assertSelectorNotExists('[data-testid="dashboard-activity-load-more"]');

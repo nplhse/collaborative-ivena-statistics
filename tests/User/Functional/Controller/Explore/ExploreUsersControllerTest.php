@@ -532,6 +532,65 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertStringNotContainsString('feed-secret@example.test', $client->getResponse()->getContent() ?: '');
     }
 
+    public function testNonParticipantMayOpenOwnProfileWithoutExploreLinks(): void
+    {
+        $client = self::createClient();
+        $viewer = $this->loginAsRoleUser($client);
+        HospitalAccessGrantFactory::createOne([
+            'user' => $viewer,
+            'hospital' => HospitalFactory::createOne([
+                'name' => 'Grant Klinik',
+                'owner' => UserFactory::createOne(),
+            ]),
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="user-badge-self"]');
+        self::assertSelectorTextContains('[data-testid="user-profile-hospitals"]', 'Grant Klinik');
+        self::assertSelectorNotExists('[data-testid="user-profile-back-to-list"]');
+        self::assertCount(0, $crawler->filter('a[href^="/explore/hospital"]'), 'hospital pages are Explore, which needs ROLE_PARTICIPANT');
+        self::assertCount(0, $crawler->filter('.breadcrumb a[href="/explore"], .breadcrumb a[href="/explore/user"]'));
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString().'/activity');
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testNonParticipantMayNotOpenOtherProfiles(): void
+    {
+        $client = $this->createClientAsRoleUser();
+        $other = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::PARTICIPANT]]);
+
+        $client->request(Request::METHOD_GET, '/explore/user/'.$other->getPublicIdString());
+
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testNonParticipantStaysLockedOutOfTheRestOfExplore(): void
+    {
+        $client = $this->createClientAsRoleUser();
+
+        $client->request(Request::METHOD_GET, '/explore');
+        self::assertResponseStatusCodeSame(403);
+
+        $client->request(Request::METHOD_GET, '/explore/user/00000000-0000-0000-0000-000000000001/something');
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testParticipantProfileStillLinksIntoExplore(): void
+    {
+        $client = self::createClient();
+        $viewer = $this->loginAsParticipant($client);
+        HospitalFactory::createOne(['name' => 'Own Klinik', 'owner' => $viewer]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user/'.$viewer->getPublicIdString());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="user-profile-back-to-list"]');
+        self::assertGreaterThan(0, $crawler->filter('a[href^="/explore/hospital"]')->count());
+    }
+
     public function testJoinOnlyProfileDoesNotRenderLazyActivityFrame(): void
     {
         $client = $this->createClientAsParticipant();

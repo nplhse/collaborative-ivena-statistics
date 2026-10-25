@@ -102,7 +102,7 @@ final class ActivityTimelineControllerTest extends WebTestCase
         self::assertSelectorTextContains('body', 'timeline-actor');
         self::assertSelectorTextContains('body', 'Hello Post');
         self::assertSelectorTextContains('body', 'Plain Clinic');
-        self::assertSelectorNotExists('a[href^="/explore/user/"]');
+        self::assertSelectorNotExists('[data-testid="activity-timeline-item"] a[href^="/explore/user/"]', 'the timeline does not link to profiles');
         self::assertSelectorNotExists('a[href^="/explore/hospital/"]');
         self::assertSelectorTextNotContains('body', 'Hidden Clinic');
         self::assertSelectorExists('[data-testid="activity-timeline-item"] time[datetime]');
@@ -146,7 +146,7 @@ final class ActivityTimelineControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="activity-timeline-type-post_published"].active');
-        self::assertSelectorExists('a[href^="/explore/user/"]');
+        self::assertSelectorExists('[data-testid="activity-timeline-item"] a[href^="/explore/user/"]');
         self::assertCount(10, $crawler->filter('[data-testid="activity-timeline-item"]'));
         self::assertSelectorExists('[data-testid="activity-timeline-next"]');
         self::assertSelectorExists('turbo-frame[data-testid="activity-timeline-next"][loading="lazy"]');
