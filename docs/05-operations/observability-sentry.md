@@ -65,22 +65,46 @@ Unexpected errors inside voters, permission services, or other authorization log
 
 Per-row reject logs stay in `var/log/import.*.log` or, in production, on stderr (JSON).
 
-## Closure rebuild monitoring
+## Background job runs
+
+Long-running background jobs share one run log and one set of telemetry rules ([ADR 018](../02-architecture/decisions/018-job-run-monitoring.md)):
+
+- **Database:** one row per run and attempt in `job_run`: `job`, `triggered_by`, `status` (`running` / `succeeded` / `failed` / `abandoned`, imports add their own), `attempt`, import / import run / hospital ids, start and end (`TIMESTAMPTZ`), `duration_ms`, `peak_memory_bytes`, `thresholds_exceeded`, `error_class`, `error_message` (local only) and job-specific counters in `metrics` (`jsonb`). It is the long-term record for comparing runs, independent of Sentry retention. Writing it never fails the job; a failed write logs `job_run.record_failed`.
+- **Sentry transaction** per run, kept off the scope, so Doctrine query spans stay with the surrounding worker or console transaction. The ops of every job are sampled at 100 % by [`SentryTracesSampler`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryTracesSampler.php); everything else keeps `SENTRY_TRACES_SAMPLE_RATE`.
+- **Thresholds** per job in `config/packages/app.yaml` under `app.job_runs.<job>` (`slow_seconds`, `long_seconds`, `memory_mb`). A missing value is not checked; a job without values only records its runs.
+- **Allowlist:** each job registers a [`JobRunSentryProfile`](../../src/Shared/Infrastructure/Monitoring/JobRun/JobRunSentryProfile.php) (transaction, sampled ops, span op prefix, log prefixes, allowed keys). [`SentryJobRunFilter`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryJobRunFilter.php) applies it in `before_send_transaction` and `before_send_log`: ids, counts, durations and fixed labels only. Foreign spans (for example SQL), span descriptions, unknown keys and free-text strings are dropped.
+
+Compare runs of one job:
+
+```sql
+SELECT started_at, triggered_by, status, duration_ms / 1000 AS s,
+       peak_memory_bytes / 1048576 AS mb, thresholds_exceeded, metrics
+FROM job_run
+WHERE job = 'closure_rebuild'
+ORDER BY started_at DESC
+LIMIT 20;
+```
+
+Before relying on this in production, confirm the Sentry organisation's data region (EU) and that the DPA covers operational telemetry with hospital ids.
+
+### Closure rebuild
 
 Every closure volume rebuild run ([`ClosureRebuildTelemetry`](../../src/Statistics/ClosureAnalytics/Infrastructure/Monitoring/ClosureRebuildTelemetry.php)) records:
 
-- **Database:** one row in `closure_rebuild_run` (trigger `console` / `messenger` / `scheduler`, status `running` / `succeeded` / `failed` / `abandoned`, hospital ids, passes, events, weekly partitions, hours written, requests, duration, publish duration, peak memory, error class and message). This is the long-term record for comparing rebuild phases, independent of Sentry retention. A row still `running` when the next run takes the lock belongs to a dead process and is marked `abandoned`.
-- **Sentry transaction** `closure_rebuild` (op `closure.rebuild`), sampled at 100 %, with spans `closure.rebuild.analysis`, `.pass`, `.late_claim`, `.hospital`, `.partition` and `.publish`. The transaction is kept off the scope, so Doctrine query spans stay with the surrounding console transaction.
+- **`job_run`** with job `closure_rebuild`, trigger `console` / `messenger` / `scheduler`. `metrics`: `full`, `hospital_ids`, `passes`, `events`, `partitions`, `hours_written`, `publish_ms`, `requests`, `queries`, `reference_window`. A row still `running` when the next run takes the lock belongs to a dead process and is marked `abandoned`.
+- **Sentry transaction** `closure_rebuild` (op `closure.rebuild`) with spans `closure.rebuild.analysis`, `.pass`, `.late_claim`, `.hospital`, `.partition` and `.publish`.
 - **Logs** on the `closure_rebuild` channel: `closure_rebuild.summary` (info, one per run), `closure_rebuild.threshold_exceeded` (warning), `closure_rebuild.failed` (error, class only), `closure_rebuild.run_abandoned` (warning). Locally they go to `var/log/closure_rebuild.<env>.log`, in production to stderr (JSON), and to Sentry Logs.
 
-Thresholds (`ClosureRebuildTelemetry` constants), reported in `threshold_exceeded` and as transaction tag `threshold_exceeded`:
+Thresholds (`app.job_runs.closure_rebuild`), reported in `threshold_exceeded` and as transaction tag `threshold_exceeded`:
 
 | Threshold | Value | Label |
 |-----------|-------|-------|
 | Duration | > 30 min | `slow` |
 | Duration above the former lock TTL | > 2 h | `long_run` |
 | Peak memory (worker limit 256 MB) | > 200 MB | `memory` |
-| More than one pass | > 1 | `passes` |
+| More than one pass (in code) | > 1 | `passes` |
+
+Its profile ([`ClosureRebuildSentryProfile`](../../src/Statistics/ClosureAnalytics/Infrastructure/Monitoring/ClosureRebuildSentryProfile.php)) covers the `closure_rebuild` transaction and `closure_rebuild.*` / `closure_volume.*` logs. No hospital or department names, no closure periods (partition spans carry no week), no error messages.
 
 ### Alert rules (Sentry UI)
 
@@ -91,12 +115,6 @@ The transaction carries the tags `status` (`succeeded` / `failed`), `passes` and
 3. If the Sentry plan offers alerts on logs, `message:closure_rebuild.threshold_exceeded` and `message:closure_rebuild.failed` work as well.
 
 Unhandled exceptions of a failed rebuild still create a regular issue.
-
-### What leaves the system
-
-[`SentryClosureRebuildFilter`](../../src/Shared/Infrastructure/Monitoring/Sentry/SentryClosureRebuildFilter.php) enforces an allowlist in `before_send_transaction` and `before_send_log` for the `closure_rebuild` transaction and for `closure_rebuild.*` / `closure_volume.*` logs: run ids, hospital ids, counts, durations and fixed labels only. Foreign spans (for example SQL), span descriptions, unknown keys and free-text strings are dropped. No hospital or department names, no closure periods (partition spans carry no week), no error messages (they stay in `closure_rebuild_run`).
-
-Before relying on this in production, confirm the Sentry organisation's data region (EU) and that the DPA covers operational telemetry with hospital ids.
 
 ## Privacy
 

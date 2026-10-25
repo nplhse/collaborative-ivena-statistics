@@ -36,6 +36,13 @@ app:
         reference_weeks_after: 4
         minimum_reference_slots: 4
 
+    # Thresholds per background job run (ADR 018); jobs without values only record their runs.
+    job_runs:
+        closure_rebuild:
+            slow_seconds: 1800
+            long_seconds: 7200
+            memory_mb: 200
+
     feedback:
         spam:
             min_submission_seconds: 4

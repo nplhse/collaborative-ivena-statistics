@@ -273,7 +273,7 @@ final class ClosureRebuildSchedulerTest extends KernelTestCase
 
         self::assertSame([1], array_keys($passes), 'A full rebuild covers every open request without a second pass.');
         self::assertSame(2, $this->consumed());
-        self::assertSame(2, (int) $this->connection()->fetchOne('SELECT request_count FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
+        self::assertSame(2, (int) $this->connection()->fetchOne("SELECT metrics->>'requests' FROM job_run WHERE job = 'closure_rebuild' ORDER BY started_at DESC, id DESC LIMIT 1"));
     }
 
     public function testAHospitalRebuildTakesOnlyTheRequestsOfItsHospitals(): void

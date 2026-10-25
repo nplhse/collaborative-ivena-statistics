@@ -74,4 +74,21 @@ final class AppConfigurationTest extends TestCase
 
         self::assertSame([], $processed['registration']['blocked_email_domains']);
     }
+
+    public function testJobRunThresholdsDefaultToUnchecked(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [[
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+            'job_runs' => [
+                'closure_rebuild' => ['slow_seconds' => 1800, 'memory_mb' => 200],
+            ],
+        ]]);
+
+        self::assertSame(
+            ['closure_rebuild' => ['slow_seconds' => 1800, 'memory_mb' => 200, 'long_seconds' => null]],
+            $processed['job_runs'],
+        );
+    }
 }

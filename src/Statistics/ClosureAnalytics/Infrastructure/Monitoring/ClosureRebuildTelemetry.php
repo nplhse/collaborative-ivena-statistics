@@ -4,42 +4,30 @@ declare(strict_types=1);
 
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Monitoring;
 
-use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunRecorder;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunThresholdConfig;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunThresholds;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunTrace;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ParameterType;
-use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Sentry\State\HubInterface;
-use Sentry\Tracing\Span;
-use Sentry\Tracing\SpanContext;
-use Sentry\Tracing\SpanStatus;
-use Sentry\Tracing\Transaction;
-use Sentry\Tracing\TransactionContext;
 
 /**
- * Records one closure rebuild run: a row in closure_rebuild_run, a Sentry transaction with spans
- * per pass, hospital, weekly partition and publish, one summary log and threshold warnings.
+ * Records one closure rebuild run: a job_run row, a Sentry transaction with spans per pass, hospital,
+ * weekly partition and publish, one summary log and threshold warnings.
  *
  * Only run ids, hospital ids, counts and durations leave the system; no names and no closure periods.
- * The transaction is kept off the Sentry scope so Doctrine query spans stay with the console or worker transaction.
  * Outside begin()/end(), for example when the rebuilder runs on its own in tests, spans and the run row are skipped.
  */
 final class ClosureRebuildTelemetry
 {
+    public const string JOB = 'closure_rebuild';
     public const string TRANSACTION = 'closure_rebuild';
     public const string OP = 'closure.rebuild';
-    public const int SLOW_SECONDS = 1800;
-    public const int LONG_SECONDS = 7200;
-    public const int MEMORY_WARNING_BYTES = 200 * 1024 * 1024;
 
     private ?string $runId = null;
     private string $trigger = '';
-    private float $startedAt = 0.0;
-    private ?Transaction $transaction = null;
-
-    /** @var list<Span> */
-    private array $spans = [];
+    private ?JobRunTrace $trace = null;
 
     /** @var list<int> */
     private array $hospitalIds = [];
@@ -54,8 +42,8 @@ final class ClosureRebuildTelemetry
     private ?string $referenceWindow = null;
 
     public function __construct(
-        private readonly Connection $connection,
-        private readonly ClockInterface $clock,
+        private readonly JobRunRecorder $recorder,
+        private readonly JobRunThresholdConfig $thresholdConfig,
         private readonly HubInterface $hub,
         private readonly LoggerInterface $closureRebuildLogger,
     ) {
@@ -71,34 +59,22 @@ final class ClosureRebuildTelemetry
         $this->reset();
         $this->runId = $runId;
         $this->trigger = $trigger;
-        $this->startedAt = microtime(true);
         $this->full = null === $hospitalIds;
         $this->hospitalIds = $hospitalIds ?? [];
-        memory_reset_peak_usage();
 
-        $this->record(function () use ($runId): void {
-            $abandoned = $this->connection->executeStatement(
-                "UPDATE closure_rebuild_run SET status = 'abandoned', finished_at = :now WHERE status = 'running' AND id <> :run",
-                ['now' => $this->now(), 'run' => $runId],
-            );
-            if ($abandoned > 0) {
-                $this->closureRebuildLogger->warning('closure_rebuild.run_abandoned', ['run_id' => $runId, 'runs' => $abandoned]);
-            }
-            $this->connection->insert('closure_rebuild_run', [
-                'id' => $runId,
-                'triggered_by' => $this->trigger,
-                'status' => 'running',
-                'full_rebuild' => $this->full,
-                'hospital_ids' => json_encode($this->hospitalIds, \JSON_THROW_ON_ERROR),
-                'started_at' => $this->now(),
-            ], ['full_rebuild' => ParameterType::BOOLEAN]);
-        });
+        $abandoned = $this->recorder->abandonRunning(self::JOB, $runId);
+        if ($abandoned > 0) {
+            $this->closureRebuildLogger->warning('closure_rebuild.run_abandoned', ['run_id' => $runId, 'runs' => $abandoned]);
+        }
+        $this->recorder->start($runId, self::JOB, $trigger, ['full' => $this->full, 'hospital_ids' => $this->hospitalIds]);
 
-        $context = TransactionContext::make()->setName(self::TRANSACTION)->setOp(self::OP)->setOrigin('manual.closure_rebuild');
-        $context->setTags(['trigger' => $trigger, 'scope' => $this->full ? 'full' : 'hospitals']);
-        $context->setData(['run_id' => $runId]);
-        $this->transaction = $this->hub->startTransaction($context);
-        $this->spans = [$this->transaction];
+        $this->trace = JobRunTrace::start(
+            $this->hub,
+            self::TRANSACTION,
+            self::OP,
+            ['trigger' => $trigger, 'scope' => $this->full ? 'full' : 'hospitals'],
+            ['run_id' => $runId],
+        );
     }
 
     /**
@@ -106,11 +82,7 @@ final class ClosureRebuildTelemetry
      */
     public function startSpan(string $op, array $data = []): void
     {
-        $parent = [] === $this->spans ? null : $this->spans[array_key_last($this->spans)];
-        if (!$parent instanceof Span) {
-            return;
-        }
-        $this->spans[] = $parent->startChild(SpanContext::make()->setOp($op)->setData($data));
+        $this->trace?->startSpan($op, $data);
     }
 
     /**
@@ -118,12 +90,7 @@ final class ClosureRebuildTelemetry
      */
     public function finishSpan(array $data = []): void
     {
-        if (\count($this->spans) <= 1) {
-            return;
-        }
-        $span = array_pop($this->spans);
-        $span->setData($data);
-        $span->finish();
+        $this->trace?->finishSpan($data);
     }
 
     /**
@@ -180,16 +147,31 @@ final class ClosureRebuildTelemetry
 
     public function end(?\Throwable $error = null): void
     {
-        if (null === $this->runId) {
+        if (null === $this->runId || !$this->trace instanceof JobRunTrace) {
             return;
         }
-        while (\count($this->spans) > 1) {
-            $this->finishSpan();
-        }
-        $seconds = microtime(true) - $this->startedAt;
-        $peak = memory_get_peak_usage(true);
+        $trace = $this->trace;
+        $seconds = $trace->seconds();
+        $peak = $trace->peakMemoryBytes();
+        $durationMs = $trace->durationMs();
         $status = $error instanceof \Throwable ? 'failed' : 'succeeded';
-        $summary = [
+        $publishMs = null === $this->publishSeconds ? null : (int) round($this->publishSeconds * 1000.0);
+        $exceeded = self::exceededThresholds($this->thresholdConfig->for(self::JOB), $seconds, $peak, $this->passes);
+
+        $this->recorder->finish($this->runId, self::JOB, $status, $durationMs, $peak, $exceeded, [
+            'full' => $this->full,
+            'hospital_ids' => $this->hospitalIds,
+            'passes' => $this->passes,
+            'events' => $this->events,
+            'partitions' => $this->partitions,
+            'hours_written' => $this->hoursWritten,
+            'publish_ms' => $publishMs,
+            'requests' => $this->requestCount,
+            'queries' => $this->queryCount,
+            'reference_window' => $this->referenceWindow,
+        ], $error);
+
+        $this->closureRebuildLogger->info('closure_rebuild.summary', [
             'run_id' => $this->runId,
             'trigger' => $this->trigger,
             'status' => $status,
@@ -201,40 +183,15 @@ final class ClosureRebuildTelemetry
             'hours_written' => $this->hoursWritten,
             'requests' => $this->requestCount,
             'queries' => $this->queryCount,
-            'duration_ms' => (int) round($seconds * 1000.0),
-            'publish_ms' => null === $this->publishSeconds ? null : (int) round($this->publishSeconds * 1000.0),
+            'duration_ms' => $durationMs,
+            'publish_ms' => $publishMs,
             'peak_memory_bytes' => $peak,
-        ];
-
-        $runId = $this->runId;
-        $this->record(function () use ($runId, $status, $summary, $peak, $error): void {
-            $this->connection->update('closure_rebuild_run', [
-                'status' => $status,
-                'full_rebuild' => $this->full,
-                'hospital_ids' => json_encode($this->hospitalIds, \JSON_THROW_ON_ERROR),
-                'finished_at' => $this->now(),
-                'duration_ms' => $summary['duration_ms'],
-                'passes' => $this->passes,
-                'events' => $this->events,
-                'partitions' => $this->partitions,
-                'hours_written' => $this->hoursWritten,
-                'publish_ms' => $summary['publish_ms'],
-                'peak_memory_bytes' => $peak,
-                'request_count' => $this->requestCount,
-                'query_count' => $this->queryCount,
-                'reference_window' => $this->referenceWindow,
-                'error_class' => $error instanceof \Throwable ? $error::class : null,
-                'error_message' => $error instanceof \Throwable ? mb_substr($error->getMessage(), 0, 2000) : null,
-            ], ['id' => $runId], ['full_rebuild' => ParameterType::BOOLEAN]);
-        });
-
-        $this->closureRebuildLogger->info('closure_rebuild.summary', $summary);
-        $exceeded = self::exceededThresholds($seconds, $peak, $this->passes);
+        ]);
         if ([] !== $exceeded) {
             $this->closureRebuildLogger->warning('closure_rebuild.threshold_exceeded', [
                 'run_id' => $this->runId,
                 'thresholds' => implode(',', $exceeded),
-                'duration_ms' => $summary['duration_ms'],
+                'duration_ms' => $durationMs,
                 'peak_memory_bytes' => $peak,
                 'passes' => $this->passes,
             ]);
@@ -244,41 +201,34 @@ final class ClosureRebuildTelemetry
             $this->closureRebuildLogger->error('closure_rebuild.failed', ['run_id' => $this->runId, 'error_class' => $error::class]);
         }
 
-        if ($this->transaction instanceof Transaction) {
-            $this->transaction->setData([
+        $trace->finish(
+            $error instanceof \Throwable,
+            [
+                'status' => $status,
+                'scope' => $this->full ? 'full' : 'hospitals',
+                'passes' => (string) $this->passes,
+                'threshold_exceeded' => [] === $exceeded ? 'none' : implode(',', $exceeded),
+            ],
+            [
                 'hospital_ids' => $this->hospitalIds,
                 'passes' => $this->passes,
                 'events' => $this->events,
                 'partitions' => $this->partitions,
                 'hours_written' => $this->hoursWritten,
                 'peak_memory_bytes' => $peak,
-            ]);
-            $this->transaction->setTags([
-                'status' => $status,
-                'scope' => $this->full ? 'full' : 'hospitals',
-                'passes' => (string) $this->passes,
-                'threshold_exceeded' => [] === $exceeded ? 'none' : implode(',', $exceeded),
-            ]);
-            $this->transaction->setStatus($error instanceof \Throwable ? SpanStatus::internalError() : SpanStatus::ok());
-            $this->transaction->finish();
-        }
+            ],
+        );
         $this->reset();
     }
 
     /**
+     * Duration and memory from app.job_runs.closure_rebuild, plus a second pass within one run.
+     *
      * @return list<string>
      */
-    public static function exceededThresholds(float $seconds, int $peakBytes, int $passes): array
+    public static function exceededThresholds(JobRunThresholds $thresholds, float $seconds, int $peakBytes, int $passes): array
     {
-        $exceeded = [];
-        if ($seconds > self::LONG_SECONDS) {
-            $exceeded[] = 'long_run';
-        } elseif ($seconds > self::SLOW_SECONDS) {
-            $exceeded[] = 'slow';
-        }
-        if ($peakBytes > self::MEMORY_WARNING_BYTES) {
-            $exceeded[] = 'memory';
-        }
+        $exceeded = $thresholds->exceeded($seconds, $peakBytes);
         if ($passes > 1) {
             $exceeded[] = 'passes';
         }
@@ -286,23 +236,10 @@ final class ClosureRebuildTelemetry
         return $exceeded;
     }
 
-    /**
-     * Monitoring must not fail the rebuild, for example when the database connection is gone after an error.
-     */
-    private function record(\Closure $write): void
-    {
-        try {
-            $write();
-        } catch (\Throwable $exception) {
-            $this->closureRebuildLogger->warning('closure_rebuild.run_record_failed', ['run_id' => $this->runId, 'error_class' => $exception::class]);
-        }
-    }
-
     private function reset(): void
     {
         $this->runId = null;
-        $this->transaction = null;
-        $this->spans = [];
+        $this->trace = null;
         $this->hospitalIds = [];
         $this->full = false;
         $this->passes = 0;
@@ -313,10 +250,5 @@ final class ClosureRebuildTelemetry
         $this->requestCount = 0;
         $this->queryCount = null;
         $this->referenceWindow = null;
-    }
-
-    private function now(): string
-    {
-        return $this->clock->now()->setTimezone(ClosureVolumeClock::zone())->format('Y-m-d H:i:s');
     }
 }

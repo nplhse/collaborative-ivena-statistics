@@ -22,15 +22,22 @@ final class ClosureRebuildRunTest extends KernelTestCase
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->consume();
 
         $run = $this->onlyRun();
+        self::assertSame('closure_rebuild', $run['job']);
         self::assertSame('messenger', $run['triggered_by']);
         self::assertSame('succeeded', $run['status']);
-        self::assertFalse($run['full_rebuild']);
-        self::assertSame([40, 64], json_decode((string) $run['hospital_ids'], true));
-        self::assertSame(1, (int) $run['passes']);
-        self::assertSame(2, (int) $run['request_count']);
+        self::assertSame(1, (int) $run['attempt']);
         self::assertNotNull($run['finished_at']);
         self::assertGreaterThan(0, (int) $run['peak_memory_bytes']);
-        self::assertNotNull($run['publish_ms']);
+        // Peak memory is that of the test process (coverage, ParaTest), so only the run's own thresholds are checked here.
+        self::assertNotContains('passes', explode(',', (string) $run['thresholds_exceeded']));
+        self::assertNotContains('slow', explode(',', (string) $run['thresholds_exceeded']));
+        $metrics = json_decode((string) $run['metrics'], true);
+        self::assertIsArray($metrics);
+        self::assertFalse($metrics['full']);
+        self::assertSame([40, 64], $metrics['hospital_ids']);
+        self::assertSame(1, $metrics['passes']);
+        self::assertSame(2, $metrics['requests']);
+        self::assertIsInt($metrics['publish_ms']);
     }
 
     public function testAFailedRunKeepsTheErrorLocally(): void
@@ -58,24 +65,32 @@ final class ClosureRebuildRunTest extends KernelTestCase
         self::bootKernel();
         $rebuild = self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class);
         $rebuild->consume(false);
-        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM closure_rebuild_run'));
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM job_run'));
 
-        $this->connection()->insert('closure_rebuild_run', [
+        $this->connection()->insert('job_run', [
             'id' => 'killed-run',
+            'job' => 'closure_rebuild',
             'triggered_by' => 'console',
             'status' => 'running',
-            'full_rebuild' => 'true',
-            'hospital_ids' => '[]',
-            'started_at' => '2026-10-14 15:57:14',
+            'started_at' => '2026-10-14 15:57:14+02:00',
+        ]);
+        // A running import belongs to another job and stays untouched.
+        $this->connection()->insert('job_run', [
+            'id' => 'running-import',
+            'job' => 'allocation_import',
+            'triggered_by' => 'worker',
+            'status' => 'running',
+            'started_at' => '2026-10-14 15:57:14+02:00',
         ]);
         $this->insertOpenRequest('volume', 40);
         $rebuild->consume(false);
 
         self::assertSame(
             ['abandoned', 'succeeded'],
-            $this->connection()->fetchFirstColumn("SELECT status FROM closure_rebuild_run ORDER BY CASE WHEN id = 'killed-run' THEN 0 ELSE 1 END"),
+            $this->connection()->fetchFirstColumn("SELECT status FROM job_run WHERE job = 'closure_rebuild' ORDER BY CASE WHEN id = 'killed-run' THEN 0 ELSE 1 END"),
         );
-        self::assertSame('scheduler', $this->connection()->fetchOne("SELECT triggered_by FROM closure_rebuild_run WHERE id <> 'killed-run'"));
+        self::assertSame('running', $this->connection()->fetchOne("SELECT status FROM job_run WHERE id = 'running-import'"));
+        self::assertSame('scheduler', $this->connection()->fetchOne("SELECT triggered_by FROM job_run WHERE job = 'closure_rebuild' AND id <> 'killed-run'"));
     }
 
     /**
@@ -83,7 +98,7 @@ final class ClosureRebuildRunTest extends KernelTestCase
      */
     private function onlyRun(): array
     {
-        $runs = $this->connection()->fetchAllAssociative('SELECT * FROM closure_rebuild_run');
+        $runs = $this->connection()->fetchAllAssociative('SELECT * FROM job_run');
         self::assertCount(1, $runs);
 
         return $runs[0];
