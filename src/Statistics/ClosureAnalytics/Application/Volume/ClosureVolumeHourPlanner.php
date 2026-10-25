@@ -32,7 +32,6 @@ final readonly class ClosureVolumeHourPlanner
      * @param array<string, ClosureVolumeRate>      $areaRates     key "{weekday}|{hour}"
      * @param array<string, ClosureVolumeRate>      $hospitalRates key "{weekday}|{hour}"
      * @param array<string, true>                   $coveredDays
-     * @param list<ClosureVolumeInterval>           $neighbours
      *
      * @return list<ClosureVolumeHourDraft>
      */
@@ -43,12 +42,14 @@ final readonly class ClosureVolumeHourPlanner
         array $areaRates,
         array $hospitalRates,
         array $coveredDays,
-        array $neighbours,
+        ClosureVolumeNeighbourIndex $neighbours,
         ?ClosureVolumeProvisionalReason $provisional,
     ): array {
         $now = ClosureVolumeClock::wall($now);
         $areaSeries = self::series($anchor->scope, $anchor->specialityId, $anchor->departmentId, $anchor->metric);
         $hospitalSeries = self::hospitalSeries($anchor->metric);
+        $context = sprintf('%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS);
+        $influencing = $neighbours->influencing($anchor, $anchor->startsAt->modify('-'.$context), $anchor->endsAt->modify('+'.$context));
         $drafts = [];
         foreach ($this->ranges($anchor, $now) as [$inClosure, $buckets]) {
             foreach ($buckets as $bucket) {
@@ -81,7 +82,7 @@ final readonly class ClosureVolumeHourPlanner
                     $areaRate->blockedSlotCount,
                     $areaRate->assignmentCount,
                     $areaRate->mode->value,
-                    $this->influenced($bucket, $inClosure, $anchor, $neighbours),
+                    $this->influenced($bucket, $inClosure, $influencing),
                     $this->quality($covered, $areaRate->mode)->value,
                     $anchor->relevance,
                     $anchor->closedDepartmentCount,
@@ -188,40 +189,18 @@ final readonly class ClosureVolumeHourPlanner
     }
 
     /**
-     * A context hour is influenced when another event closes the same metric in the same population.
-     * Resource metrics count as closed only by an interval that opens SK1–SK3 at once.
+     * A context hour is influenced when another event closes the same metric in the same population
+     * ({@see ClosureVolumeNeighbourIndex::influencing()} already selected those closures).
      *
-     * @param list<ClosureVolumeInterval> $neighbours
+     * @param list<ClosureVolumeInterval> $influencing
      */
-    private function influenced(ClosureVolumeBucket $bucket, bool $inClosure, ClosureVolumeAnchor $anchor, array $neighbours): bool
+    private function influenced(ClosureVolumeBucket $bucket, bool $inClosure, array $influencing): bool
     {
         if ($inClosure) {
             return false;
         }
-        foreach ($neighbours as $neighbour) {
-            if ($neighbour->eventId === $anchor->eventId || !$this->samePopulation($anchor, $neighbour)) {
-                continue;
-            }
-            foreach ($anchor->metric->bindingUrgencies() as $urgency) {
-                if (!$neighbour->coversUrgency($urgency)) {
-                    continue 2;
-                }
-            }
-            if ($neighbour->startsAt < $bucket->end && $neighbour->endsAt > $bucket->start) {
-                return true;
-            }
-        }
 
-        return false;
-    }
-
-    private function samePopulation(ClosureVolumeAnchor $anchor, ClosureVolumeInterval $neighbour): bool
-    {
-        return match ($anchor->scope) {
-            'speciality' => $neighbour->specialityId === $anchor->specialityId,
-            'hospital' => true,
-            default => $neighbour->departmentId === $anchor->departmentId,
-        };
+        return array_any($influencing, fn (ClosureVolumeInterval $neighbour): bool => $neighbour->startsAt < $bucket->end && $neighbour->endsAt > $bucket->start);
     }
 
     private function missingRate(): ClosureVolumeRate

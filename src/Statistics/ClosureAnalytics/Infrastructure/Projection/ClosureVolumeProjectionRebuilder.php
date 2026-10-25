@@ -12,6 +12,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeInterval;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeNeighbourIndex;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumePopulation;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
@@ -40,6 +41,15 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final class ClosureVolumeProjectionRebuilder
 {
     private const int INSERT_BATCH = 200;
+
+    /** Rows per COPY; large enough to amortise the round trip, small enough to keep drafts out of the peak. */
+    private const int COPY_BATCH = 2000;
+
+    private const string BUILD_COLUMNS = 'event_id, scope, hospital_id, speciality_id, department_id, metric_kind, '
+        .'bucket_start, bucket_end, in_closure, observed_area, expected_area, '
+        .'observed_hospital, expected_hospital, evaluable_seconds, bucket_seconds, '
+        .'reference_slot_count, blocked_slot_count, reference_assignment_count, reference_mode, influenced, quality, '
+        .'closure_relevance, closed_department_count, provisional, provisional_reason, reference_cutoff';
 
     public int $maxPartitionBytes = 0;
 
@@ -325,6 +335,7 @@ SQL,
             $this->fillPartialCounts($hospitalId, $anchors, $now, $counts);
         });
         $blocked = $this->profile->time('blocking', fn (): array => $this->blockedMaps($neighbours, $windowStart, $windowEnd));
+        $neighbourIndex = $this->profile->time('neighbours', static fn (): ClosureVolumeNeighbourIndex => ClosureVolumeNeighbourIndex::fromIntervals($neighbours));
         $provisional = [];
         foreach ($eventEnds as $eventId => $end) {
             $provisional[$eventId] = ClosureVolumeProvisionalReason::forEvent($end, $this->window, $coverage, $closureCoverage);
@@ -347,10 +358,10 @@ SQL,
                 $areaRates,
                 $hospitalRates,
                 $coveredDays,
-                $neighbours,
+                $neighbourIndex,
                 $provisional[$anchor->eventId] ?? null,
             )));
-            if (\count($pending) >= self::INSERT_BATCH) {
+            if (\count($pending) >= $this->batchSize()) {
                 $pending = $this->flush($pending, false);
             }
         }
@@ -360,7 +371,7 @@ SQL,
             $onProgress(min($done, $total), $total);
         }
 
-        unset($anchors, $neighbours, $counts, $coveredDays, $blocked, $rateCache, $eventEnds, $provisional);
+        unset($anchors, $neighbours, $neighbourIndex, $counts, $coveredDays, $blocked, $rateCache, $eventEnds, $provisional);
         gc_collect_cycles();
         $retained = max(0, memory_get_usage(false) - $before);
         $this->partitionSamples[] = $retained;
@@ -754,8 +765,9 @@ SQL,
      */
     private function flush(array $pending, bool $force): array
     {
-        while (\count($pending) >= self::INSERT_BATCH || ($force && [] !== $pending)) {
-            $batch = \array_splice($pending, 0, self::INSERT_BATCH);
+        $size = $this->batchSize();
+        while (\count($pending) >= $size || ($force && [] !== $pending)) {
+            $batch = \array_splice($pending, 0, $size);
             $this->insertBatch($batch);
             unset($batch);
         }
@@ -772,6 +784,12 @@ SQL,
             return;
         }
         $this->telemetry->countHoursWritten(\count($batch));
+        $native = $this->connection->getNativeConnection();
+        if ($native instanceof \Pdo\Pgsql) {
+            $this->copyBatch($native, $batch);
+
+            return;
+        }
         $values = [];
         $params = [];
         $types = [];
@@ -827,6 +845,63 @@ SQL,
         );
         $this->profile->record('insert', microtime(true) - $started, 1);
         $this->forgetDebugQueries();
+    }
+
+    private function batchSize(): int
+    {
+        return $this->connection->getNativeConnection() instanceof \Pdo\Pgsql ? self::COPY_BATCH : self::INSERT_BATCH;
+    }
+
+    /**
+     * COPY in text format: tab-separated, \N for NULL. No written value contains a tab,
+     * newline or backslash (ids, fixed labels, numbers and timestamps only).
+     *
+     * @param list<ClosureVolumeHourDraft> $batch
+     */
+    private function copyBatch(\Pdo\Pgsql $native, array $batch): void
+    {
+        $started = microtime(true);
+        $rows = [];
+        foreach ($batch as $draft) {
+            $rows[] = implode("\t", [
+                $draft->eventId,
+                $draft->scope,
+                $draft->hospitalId,
+                $draft->specialityId,
+                $draft->departmentId,
+                $draft->metric->value,
+                $draft->bucketStart->format('Y-m-d H:i:s'),
+                $draft->bucketEnd->format('Y-m-d H:i:s'),
+                $draft->inClosure ? 't' : 'f',
+                $this->copyNumeric($draft->observedArea),
+                $this->copyNumeric($draft->expectedArea),
+                $this->copyNumeric($draft->observedHospital),
+                $this->copyNumeric($draft->expectedHospital),
+                $draft->evaluableSeconds,
+                $draft->bucketSeconds,
+                $draft->referenceSlotCount,
+                $draft->blockedSlotCount,
+                $draft->referenceAssignmentCount,
+                $draft->referenceMode,
+                $draft->influenced ? 't' : 'f',
+                $draft->quality,
+                $draft->relevance->value,
+                $draft->closedDepartmentCount,
+                $draft->provisional ? 't' : 'f',
+                $draft->provisionalReason instanceof ClosureVolumeProvisionalReason ? $draft->provisionalReason->value : '\N',
+                $draft->referenceCutoff->format('Y-m-d H:i:s'),
+            ]);
+        }
+        // The driver's default NULL marker is the text-format \N used above.
+        if (!$native->copyFromArray('closure_volume_hour_build', $rows, "\t", fields: self::BUILD_COLUMNS)) {
+            throw new \RuntimeException('COPY into closure_volume_hour_build failed.');
+        }
+        $this->profile->record('insert', microtime(true) - $started, 1);
+    }
+
+    private function copyNumeric(?float $value): string
+    {
+        return null === $value ? '\N' : sprintf('%.4F', $value);
     }
 
     /**

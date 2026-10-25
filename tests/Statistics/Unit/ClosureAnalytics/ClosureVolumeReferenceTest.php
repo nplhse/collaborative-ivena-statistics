@@ -13,6 +13,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHospitalBase
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeInterval;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeNeighbourIndex;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumePopulation;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeQuality;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
@@ -178,7 +179,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             $this->rateMap($slots),
             $this->rateMap($slots),
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
             null,
         );
         $during = array_values(array_filter(
@@ -209,7 +210,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             $this->rateMap($slots),
             $this->rateMap($slots),
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
             null,
         );
         $during = array_values(array_filter(
@@ -241,7 +242,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             [],
             [],
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
             null,
         );
         $during = array_values(array_filter(
@@ -269,7 +270,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             $this->rateMap($slots),
             $this->rateMap($slots),
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
             null,
         );
         $during = array_values(array_filter(
@@ -331,7 +332,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             $this->rateMap($slots),
             $this->rateMap($slots),
             ['2026-06-01' => true],
-            [$neighbour],
+            ClosureVolumeNeighbourIndex::fromIntervals([$neighbour]),
             null,
         );
         $base = $drafts;
@@ -356,7 +357,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             [],
             [],
             ['2026-06-02' => true],
-            [],
+            ClosureVolumeNeighbourIndex::fromIntervals([]),
             null,
         );
         $post = array_values(array_filter($drafts, static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft $draft): bool => $draft->bucketStart >= $closure->endsAt));
@@ -460,7 +461,7 @@ final class ClosureVolumeReferenceTest extends TestCase
             $this->rateMap($slots),
             $this->rateMap($slots),
             ['2026-06-02' => true],
-            [$neighbour],
+            ClosureVolumeNeighbourIndex::fromIntervals([$neighbour]),
             null,
         );
         $base = $drafts;
