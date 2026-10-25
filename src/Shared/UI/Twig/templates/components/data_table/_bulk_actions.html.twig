@@ -1,0 +1,34 @@
+{# Selection actions, shown next to the sort and column buttons while rows are selected.
+   The row checkboxes belong to this form. #}
+<form
+    id="{{ bulkId }}-form"
+    method="post"
+    action="{{ bulkFormAction }}"
+    class="data-table-bulk-actions d-flex d-none flex-wrap gap-2"
+    data-turbo-frame="_top"
+    data-bulk-selection-target="toolbar"
+    data-testid="data-table-bulk-actions"
+>
+    <input type="hidden" name="_token" value="{{ bulkCsrfToken }}">
+    {% for action in bulkActions %}
+        {% if action.requiresConfirmation %}
+            <button
+                type="button"
+                class="btn btn-sm btn-{{ action.variant }}"
+                data-bs-toggle="modal"
+                data-bs-target="#{{ bulkId }}-confirm-{{ action.name }}"
+                data-testid="data-table-bulk-action-{{ action.name }}"
+            >
+        {% else %}
+            <button
+                type="submit"
+                name="bulk_action"
+                value="{{ action.name }}"
+                class="btn btn-sm btn-{{ action.variant }}"
+                data-testid="data-table-bulk-action-{{ action.name }}"
+            >
+        {% endif %}
+            {% if action.icon %}<twig:ux:icon :name="action.icon" class="icon" />{% endif %}{{ action.label }}
+        </button>
+    {% endfor %}
+</form>

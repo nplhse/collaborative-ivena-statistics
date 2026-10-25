@@ -11,7 +11,7 @@ namespace App\Shared\UI\Twig\DataTable;
  * `confirmTitleOne` for one row, `confirmTitleOther` (with a `%count%` placeholder) for several.
  * Without a confirmation the button submits the selection directly.
  *
- * @psalm-suppress PossiblyUnusedProperty Consumed by data_table/_bulk_toolbar.html.twig.
+ * @psalm-suppress PossiblyUnusedProperty Consumed by data_table/_bulk_actions.html.twig.
  */
 final readonly class DataTableBulkAction
 {

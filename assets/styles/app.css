@@ -151,13 +151,45 @@
 
 .data-table-toolbar {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     align-items: center;
     gap: 0.5rem;
 }
 
+/* One header for selection actions (left) and table settings (right). */
+.data-table-header {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+}
+
+.data-table-header__actions {
+    margin-left: auto;
+}
+
+/* Same vertical pull as Tabler's .card-actions, so the header keeps its height when rows get selected. */
+.data-table-header .data-table-bulk-selection {
+    margin-block: -0.5rem;
+}
+
+/* On narrow screens the header wraps; without the pull the lines do not overlap. */
+@media (max-width: 575.98px) {
+    .data-table-header--bulk .data-table-bulk-selection,
+    .data-table-header--bulk .data-table-header__actions {
+        margin-block: 0;
+    }
+}
+
+/* Icon-only settings buttons (tables with bulk actions): no extra icon margin, so the icon sits centered. */
+.data-table-toolbar .btn-icon-only .icon {
+    margin: 0;
+}
+
 .data-table-toolbar > .btn,
 .data-table-toolbar > .btn-group > .btn,
-.data-table-toolbar > .btn-group > .btn-group > .btn {
+.data-table-toolbar > .btn-group > .btn-group > .btn,
+.data-table-bulk-actions .btn,
+.data-table-bulk-selection .btn {
     font-size: 0.75rem;
     padding: 0.125rem 0.4rem;
     min-height: 1.5rem;
@@ -169,7 +201,8 @@
 
 .data-table-toolbar > .btn .icon,
 .data-table-toolbar > .btn-group > .btn .icon,
-.data-table-toolbar > .btn-group > .btn-group > .btn .icon {
+.data-table-toolbar > .btn-group > .btn-group > .btn .icon,
+.data-table-bulk-actions .btn .icon {
     width: 0.8125rem;
     height: 0.8125rem;
 }

@@ -1,0 +1,11 @@
+{# Left part of the card header while rows are selected: the count and "clear selection". #}
+<div
+    class="data-table-bulk-selection d-flex d-none align-items-center gap-2"
+    data-bulk-selection-target="toolbar"
+    data-testid="data-table-bulk-selection"
+>
+    <span class="fw-medium" data-bulk-selection-target="label" aria-live="polite" data-testid="data-table-bulk-count"></span>
+    <button type="button" class="btn btn-sm btn-link" data-action="bulk-selection#clear" data-testid="data-table-bulk-clear">
+        {{ 'label.data_table.bulk.clear'|trans({}, 'shared') }}
+    </button>
+</div>

@@ -348,7 +348,9 @@ filters, search, analysis scope/period and row sorting are never persisted.
 The picker saves once after checkbox/order changes. When column visibility is
 enabled, the header shows compact outlined button groups: a page-supplied
 `toolbar` (for example the events/intervals switch), then sort plus columns in
-one group with short labels.
+one group with short labels. Tables with bulk actions show sort and columns as
+icons only (tooltip and `aria-label` keep the name), because the selection
+actions share the same header row.
 Reset in a flyover restores the application defaults for that area, not the last
 unsaved or last persisted change: the sort flyover resets sort and page size
 (including persisted page size) without touching columns; the column flyover
@@ -427,7 +429,7 @@ Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom c
 Opt-in row selection for actions on several rows. Set `bulkActions` (list of `DataTableBulkAction`), `bulkFormAction` and `bulkCsrfToken`; selection is off while one of them is missing.
 
 - A checkbox column comes first, with a header checkbox for all rows of the current page. `bulkIdProperty` (default `id`) is posted as `ids[]`; rows whose `bulkSelectableProperty` is falsy get no checkbox.
-- While rows are selected, a toolbar above the table shows the count, the actions and *Clear selection*. All checkboxes and buttons belong to one POST form (`<bulkId>-form`) that sends `ids[]`, `bulk_action` and `_token`.
+- While rows are selected, the card header shows the count and *Clear selection* on the left, and the actions on the right next to the sort and column icons (same gap as between the other buttons). The header is always rendered for bulk tables and keeps its height, so the rows do not move when the first one is selected. On narrow screens the header wraps and grows. All checkboxes and buttons belong to one POST form (`<bulkId>-form`) that sends `ids[]`, `bulk_action` and `_token`.
 - An action with `confirmTitleOne` / `confirmTitleOther` opens a dialog first. Its question names the current count ("Really delete these 7 imports?"); `%count%` in `confirmTitleOther` is replaced on the client. Give the action an explicit `confirmVariant` (`danger` for destructive actions).
 - The selection only covers the current page. Paging, sorting or filtering reloads the page and clears it.
 - Server side, read the ids with `App\Shared\UI\Http\BulkSelection::ids($request)` (at most 100, invalid values dropped) and check every id again: the page state is not trusted.
