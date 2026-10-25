@@ -1,4 +1,11 @@
 <div{{ attributes }}>
+    {% if this.bulkEnabled %}
+    <div
+        data-controller="bulk-selection"
+        data-bulk-selection-selected-label-value="{{ 'label.data_table.bulk.selected'|trans({count: '%count%'}, 'shared') }}"
+        data-testid="data-table-bulk"
+    >
+    {% endif %}
     <div class="card data-table-card">
         {% if title or this.shouldShowHeaderActions %}
             <div class="card-header">
@@ -39,6 +46,10 @@
             </div>
         {% endif %}
 
+        {% if this.bulkEnabled %}
+            {{ include('@Shared/components/data_table/_bulk_toolbar.html.twig') }}
+        {% endif %}
+
         <div class="card-body p-0{% if loading %} position-relative{% endif %}">
             {% if loading %}
                 <div class="data-table-loading" aria-busy="true">
@@ -64,4 +75,8 @@
             </div>
         {% endif %}
     </div>
+    {% if this.bulkEnabled %}
+        {{ include('@Shared/components/data_table/_bulk_confirm_modals.html.twig') }}
+    </div>
+    {% endif %}
 </div>

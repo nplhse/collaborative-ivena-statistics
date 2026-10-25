@@ -137,9 +137,9 @@
         <source>label.btn.import</source>
         <target>Start import</target>
       </trans-unit>
-      <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
-        <source>label.import.section.quick_actions</source>
-        <target>Quick actions</target>
+      <trans-unit id="UcQSwTu" resname="label.import.section.actions">
+        <source>label.import.section.actions</source>
+        <target>Actions</target>
       </trans-unit>
       <trans-unit id="ssEMXJ8" resname="label.import.section.run">
         <source>label.import.section.run</source>
@@ -344,6 +344,134 @@
       <trans-unit id="impDelClosEn" resname="import.delete.modal.body.closure">
         <source>import.delete.modal.body.closure</source>
         <target>Are you sure you want to permanently delete "{name}"? All closure intervals and related data will be removed. This action cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impRepActEn" resname="import.action.reprocess">
+        <source>import.action.reprocess</source>
+        <target>Reprocess import</target>
+      </trans-unit>
+      <trans-unit id="impRepTitEn" resname="import.reprocess.modal.title">
+        <source>import.reprocess.modal.title</source>
+        <target>Reprocess import?</target>
+      </trans-unit>
+      <trans-unit id="impRepBodEn" resname="import.reprocess.modal.body">
+        <source>import.reprocess.modal.body</source>
+        <target>"{name}" will be processed again from the stored source file. The allocations imported so far by this import are replaced and the statistics are recalculated afterwards.</target>
+      </trans-unit>
+      <trans-unit id="impRepBodClEn" resname="import.reprocess.modal.body.closure">
+        <source>import.reprocess.modal.body.closure</source>
+        <target>"{name}" will be processed again from the stored source file. The closure intervals imported so far by this import are replaced and the closure analysis is recalculated afterwards.</target>
+      </trans-unit>
+      <trans-unit id="impRepConfEn" resname="import.reprocess.modal.confirm">
+        <source>import.reprocess.modal.confirm</source>
+        <target>Reprocess</target>
+      </trans-unit>
+      <trans-unit id="impRepRunHEn" resname="import.reprocess.running_blocked_hint">
+        <source>import.reprocess.running_blocked_hint</source>
+        <target>This import is currently running and cannot be reprocessed.</target>
+      </trans-unit>
+      <trans-unit id="impRepQueEn" resname="flash.import.reprocess_queued">
+        <source>flash.import.reprocess_queued</source>
+        <target>The import has been queued for reprocessing.</target>
+      </trans-unit>
+      <trans-unit id="impRepRunFEn" resname="flash.import.reprocess_running_blocked">
+        <source>flash.import.reprocess_running_blocked</source>
+        <target>This import is currently running and cannot be reprocessed.</target>
+      </trans-unit>
+      <trans-unit id="impRepFailEn" resname="flash.import.reprocess_failed">
+        <source>flash.import.reprocess_failed</source>
+        <target>The import could not be queued for reprocessing. Please try again later.</target>
+      </trans-unit>
+      <trans-unit id="impBlkReLblEn" resname="import.bulk.reprocess.label">
+        <source>import.bulk.reprocess.label</source>
+        <target>Reprocess</target>
+      </trans-unit>
+      <trans-unit id="impBlkReOneEn" resname="import.bulk.reprocess.confirm_title.one">
+        <source>import.bulk.reprocess.confirm_title.one</source>
+        <target>Reprocess this import?</target>
+      </trans-unit>
+      <trans-unit id="impBlkReOthEn" resname="import.bulk.reprocess.confirm_title.other">
+        <source>import.bulk.reprocess.confirm_title.other</source>
+        <target>Reprocess these {count} imports?</target>
+      </trans-unit>
+      <trans-unit id="impBlkReMsgEn" resname="import.bulk.reprocess.confirm_message">
+        <source>import.bulk.reprocess.confirm_message</source>
+        <target>The selected imports are processed again from their stored source files; their current data is replaced. Imports that are running or whose source file is missing are skipped. You are notified once all of them are done.</target>
+      </trans-unit>
+      <trans-unit id="impBlkReCfEn" resname="import.bulk.reprocess.confirm">
+        <source>import.bulk.reprocess.confirm</source>
+        <target>Reprocess</target>
+      </trans-unit>
+      <trans-unit id="impBlkNoneEn" resname="flash.import.bulk.none_selected">
+        <source>flash.import.bulk.none_selected</source>
+        <target>Please select at least one import.</target>
+      </trans-unit>
+      <trans-unit id="impBlkReQEn" resname="flash.import.bulk.reprocess_queued">
+        <source>flash.import.bulk.reprocess_queued</source>
+        <target>{count, plural, one {# import was} other {# imports were}} queued for reprocessing. You are notified once all of them are done.</target>
+      </trans-unit>
+      <trans-unit id="impBlkSkipEn" resname="flash.import.bulk.skipped">
+        <source>flash.import.bulk.skipped</source>
+        <target>{count, plural, one {# import was} other {# imports were}} skipped: {reasons}.</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsBusyEn" resname="flash.import.bulk.reason.busy">
+        <source>flash.import.bulk.reason.busy</source>
+        <target>{count} already queued or processing</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsSrcEn" resname="flash.import.bulk.reason.source_missing">
+        <source>flash.import.bulk.reason.source_missing</source>
+        <target>{count} without source file</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsCrEn" resname="flash.import.bulk.reason.creator_permission">
+        <source>flash.import.bulk.reason.creator_permission</source>
+        <target>{count} whose creator may no longer import</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsDispEn" resname="flash.import.bulk.reason.dispatch_failed">
+        <source>flash.import.bulk.reason.dispatch_failed</source>
+        <target>{count} could not be queued</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsForbEn" resname="flash.import.bulk.reason.forbidden">
+        <source>flash.import.bulk.reason.forbidden</source>
+        <target>{count} without permission</target>
+      </trans-unit>
+      <trans-unit id="impBatchRunEn" resname="import.batch.progress.running">
+        <source>import.batch.progress.running</source>
+        <target>Reprocessing {total, plural, one {# import} other {# imports}}: {succeeded, number} completed, {failed, number} failed, {open, number} open.</target>
+      </trans-unit>
+      <trans-unit id="impBatchFinEn" resname="import.batch.progress.finished">
+        <source>import.batch.progress.finished</source>
+        <target>Reprocessing of {total, plural, one {# import} other {# imports}} finished: {succeeded, number} succeeded, {failed, number} failed{superseded, plural, =0 {} other {, # replaced by a newer run}}.</target>
+      </trans-unit>
+      <trans-unit id="impBatchFltEn" resname="import.batch.filtered">
+        <source>import.batch.filtered</source>
+        <target>Only the imports of one reprocessing are shown.</target>
+      </trans-unit>
+      <trans-unit id="impBatchClrEn" resname="import.batch.clear">
+        <source>import.batch.clear</source>
+        <target>Show all imports</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelLblEn" resname="import.bulk.delete.label">
+        <source>import.bulk.delete.label</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelOneEn" resname="import.bulk.delete.confirm_title.one">
+        <source>import.bulk.delete.confirm_title.one</source>
+        <target>Really delete this import?</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelOthEn" resname="import.bulk.delete.confirm_title.other">
+        <source>import.bulk.delete.confirm_title.other</source>
+        <target>Really delete these {count} imports?</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelMsgEn" resname="import.bulk.delete.confirm_message">
+        <source>import.bulk.delete.confirm_message</source>
+        <target>Together with the imports, their allocations or closure intervals, MCI cases, projections, rejected rows and source files are removed; statistics and the closure analysis are recalculated. Running imports are skipped. Deleting runs in the background; you are notified once it is done. This cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelCfEn" resname="import.bulk.delete.confirm">
+        <source>import.bulk.delete.confirm</source>
+        <target>Delete permanently</target>
+      </trans-unit>
+      <trans-unit id="impBlkDelQEn" resname="flash.import.bulk.delete_queued">
+        <source>flash.import.bulk.delete_queued</source>
+        <target>{count, plural, one {# import is} other {# imports are}} being deleted in the background. You are notified once deleting is done.</target>
       </trans-unit>
     </body>
   </file>

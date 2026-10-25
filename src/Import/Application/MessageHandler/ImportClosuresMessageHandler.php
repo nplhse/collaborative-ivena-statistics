@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\Application\MessageHandler;
 
-use App\Allocation\Application\Service\HospitalPermissionAccess;
-use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
 use App\Import\Application\Contracts\RejectWriterInterface;
@@ -23,6 +21,7 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
+use App\Import\Application\Service\ImportCreatorPermissionCheck;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
@@ -37,8 +36,6 @@ use App\Import\Domain\Service\ImportEvaluation;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
-use App\User\Domain\Entity\User;
-use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
@@ -58,7 +55,7 @@ final readonly class ImportClosuresMessageHandler
         private LoggerInterface $importLogger,
         private EventDispatcherInterface $dispatcher,
         private ImportPreviousRunCleanupService $previousRunCleanupService,
-        private HospitalPermissionAccess $hospitalPermissionAccess,
+        private ImportCreatorPermissionCheck $creatorPermissionCheck,
         private AuditContext $auditContext,
         private ManagerRegistry $managerRegistry,
         private ImportFileStorage $fileStorage,
@@ -430,25 +427,6 @@ final readonly class ImportClosuresMessageHandler
             return ImportRunReasonCode::TypeMismatch;
         }
 
-        $createdBy = $import->getCreatedBy();
-        if (!$createdBy instanceof User) {
-            return ImportRunReasonCode::MissingCreator;
-        }
-
-        if (!\in_array(UserRole::CLOSURE_BETA, $createdBy->getRoles(), true)) {
-            return ImportRunReasonCode::MissingClosureRole;
-        }
-
-        $hospital = $import->getHospital();
-        $hospitalId = $hospital?->getId();
-        if (null === $hospitalId) {
-            return ImportRunReasonCode::MissingHospital;
-        }
-
-        if (!$this->hospitalPermissionAccess->hasPermission($createdBy, $hospitalId, HospitalPermission::Import)) {
-            return ImportRunReasonCode::MissingImportPermission;
-        }
-
-        return null;
+        return $this->creatorPermissionCheck->failureFor($import);
     }
 }

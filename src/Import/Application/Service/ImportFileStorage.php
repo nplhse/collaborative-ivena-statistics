@@ -44,6 +44,22 @@ final readonly class ImportFileStorage
         return $candidate;
     }
 
+    /**
+     * Whether the stored file still exists inside the imports base directory.
+     */
+    public function exists(?string $storedPath): bool
+    {
+        if (null === $storedPath) {
+            return false;
+        }
+
+        try {
+            return \is_file($this->resolve($storedPath));
+        } catch (ImportFilePathOutsideBaseException) {
+            return false;
+        }
+    }
+
     public function toRelative(string $absolutePath): string
     {
         $relative = Path::makeRelative($absolutePath, $this->projectDir);

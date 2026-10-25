@@ -57,6 +57,16 @@ final class ImportFileStorageTest extends TestCase
         );
     }
 
+    public function testExistsOnlyForStoredFilesInsideBase(): void
+    {
+        $this->filesystem->dumpFile(Path::join($this->importsBaseDir, 'stored.csv'), "a;b\n");
+
+        self::assertTrue($this->storage->exists('var/imports/stored.csv'));
+        self::assertFalse($this->storage->exists('var/imports/missing.csv'));
+        self::assertFalse($this->storage->exists('../outside.csv'));
+        self::assertFalse($this->storage->exists(null));
+    }
+
     public function testResolveAcceptsAbsolutePathInsideBase(): void
     {
         $abs = Path::join($this->importsBaseDir, 'absolute.csv');

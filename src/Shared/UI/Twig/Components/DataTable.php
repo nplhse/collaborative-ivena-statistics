@@ -7,6 +7,7 @@ namespace App\Shared\UI\Twig\Components;
 use App\Shared\Infrastructure\Pagination\CursorPaginator;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\BadgeView;
+use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
 use App\Shared\UI\Twig\DataTable\DataTableValueResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,12 +116,79 @@ final class DataTable
 
     public ?string $turboFrame = null;
 
+    /**
+     * Bulk actions for selected rows. Selection is enabled when actions, a form action and a CSRF token are set.
+     *
+     * @var list<DataTableBulkAction>
+     */
+    public array $bulkActions = [];
+
+    public ?string $bulkFormAction = null;
+
+    public ?string $bulkCsrfToken = null;
+
+    /** Unique per page; also prefixes the confirmation dialog ids. */
+    public string $bulkId = 'data-table-bulk';
+
+    /** Row property holding the id that is posted as `ids[]`. */
+    public string $bulkIdProperty = 'id';
+
+    /** Row property that must be truthy for the row to get a checkbox; null selects every row. */
+    public ?string $bulkSelectableProperty = null;
+
+    /**
+     * Ids of the rows that get a checkbox, for example those the user may change; null selects every row.
+     *
+     * @var list<int|string>|null
+     */
+    public ?array $bulkSelectableIds = null;
+
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly DataTableValueResolver $valueResolver,
         private readonly BadgePalette $badgePalette,
     ) {
+    }
+
+    public function isBulkEnabled(): bool
+    {
+        return [] !== $this->bulkActions
+            && null !== $this->bulkFormAction
+            && '' !== $this->bulkFormAction
+            && null !== $this->bulkCsrfToken;
+    }
+
+    /**
+     * @param object|array<string, mixed> $row
+     */
+    public function bulkRowId(object|array $row): ?string
+    {
+        $id = $this->valueResolver->scalar($this->valueResolver->read($row, $this->bulkIdProperty));
+
+        return null === $id || '' === $id ? null : $id;
+    }
+
+    /**
+     * @param object|array<string, mixed> $row
+     */
+    public function isBulkSelectable(object|array $row): bool
+    {
+        $id = $this->bulkRowId($row);
+        if (null === $id) {
+            return false;
+        }
+
+        if (null !== $this->bulkSelectableIds && !\in_array($id, array_map(strval(...), $this->bulkSelectableIds), true)) {
+            return false;
+        }
+
+        return null === $this->bulkSelectableProperty || (bool) $this->valueResolver->read($row, $this->bulkSelectableProperty);
+    }
+
+    public function getColumnCount(): int
+    {
+        return \count($this->getVisibleColumns()) + ($this->isBulkEnabled() ? 1 : 0);
     }
 
     public function isDeclarative(): bool

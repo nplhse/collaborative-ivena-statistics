@@ -74,8 +74,8 @@ final readonly class ImportRunNotifier
                 $run->getImport()->getCreatedBy()?->getId(),
                 $run->getImport()->getHospital()?->getOwner()?->getId(),
             ],
-            ImportRunTrigger::Console => [$run->getInitiatedBy()?->getId()],
-            ImportRunTrigger::BatchRequeue => [],
+            ImportRunTrigger::Console, ImportRunTrigger::Reprocess => [$run->getInitiatedBy()?->getId()],
+            ImportRunTrigger::BatchRequeue, ImportRunTrigger::BulkReprocess => [],
         };
 
         return array_values(array_unique(array_filter($ids, static fn (?int $id): bool => null !== $id)));

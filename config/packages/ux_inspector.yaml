@@ -1,0 +1,8 @@
+# Symfony UX Inspector: development-only debugging tool, see docs/03-development/frontend.md.
+# The bundle is registered for the dev environment only (config/bundles.php) and
+# stays off whenever kernel.debug is false.
+when@dev:
+    ux_inspector:
+        enabled: true
+        pull_tab: true
+        exclude_paths: ['/_profiler', '/_wdt', '/_error', '/_fragment']

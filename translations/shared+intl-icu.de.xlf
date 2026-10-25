@@ -501,6 +501,22 @@
         <source>help.data_table.sort</source>
         <target>Sortierung und Seitengröße festlegen.</target>
       </trans-unit>
+      <trans-unit id="lblDtBulkSelDe" resname="label.data_table.bulk.selected">
+        <source>label.data_table.bulk.selected</source>
+        <target>{count} ausgewählt</target>
+      </trans-unit>
+      <trans-unit id="lblDtBulkClrDe" resname="label.data_table.bulk.clear">
+        <source>label.data_table.bulk.clear</source>
+        <target>Auswahl aufheben</target>
+      </trans-unit>
+      <trans-unit id="lblDtBulkPageDe" resname="label.data_table.bulk.select_page">
+        <source>label.data_table.bulk.select_page</source>
+        <target>Alle Einträge dieser Seite auswählen</target>
+      </trans-unit>
+      <trans-unit id="lblDtBulkRowDe" resname="label.data_table.bulk.select_row">
+        <source>label.data_table.bulk.select_row</source>
+        <target>Eintrag {id} auswählen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

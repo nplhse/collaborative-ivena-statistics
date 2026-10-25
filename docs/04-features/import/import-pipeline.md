@@ -87,7 +87,7 @@ To clean up historical import-generated `Assessment` `create` audit entries, see
 
 ## Deletion cleanup
 
-When an import is deleted (UI or admin), `ImportDeletionService` removes:
+When an import is deleted (UI, admin or a [bulk deletion](bulk-actions.md#delete-selected-imports) in the worker), `ImportDeletionService` removes:
 
 - The import database record and its `import_run` history (database cascade)
 - Related allocations, assessments, MCI cases, and projection rows
@@ -98,6 +98,10 @@ When an import is deleted (UI or admin), `ImportDeletionService` removes:
 Reimports intentionally keep the source file; only result data from the previous run is cleared. See [batch-requeue.md](batch-requeue.md).
 
 File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesystem::remove()`). Failed deletions are logged as `import.file.delete_failed`.
+
+## Reprocessing
+
+An existing import can be processed again from its stored source file with **Reprocess import** on the detail page, or with `app:import:start`. Both register a new run; the handler removes the data of the previous run first. Details: [import-runs.md](import-runs.md#reprocessing-from-the-detail-page)
 
 ## Source file download (admin)
 

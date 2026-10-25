@@ -31,4 +31,7 @@ final class ConfirmModal
     public string $cancelLabel;
 
     public string $size = 'sm';
+
+    /** Bootstrap button variant of the confirm button. */
+    public string $confirmVariant = 'danger';
 }

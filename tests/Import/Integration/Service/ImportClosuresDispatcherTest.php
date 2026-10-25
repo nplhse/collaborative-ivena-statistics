@@ -25,6 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 final class ImportClosuresDispatcherTest extends DatabaseKernelTestCase
 {
@@ -93,6 +94,43 @@ final class ImportClosuresDispatcherTest extends DatabaseKernelTestCase
         $runs = self::getContainer()->get(ImportRunRepository::class)->findByImportId((int) $import->getId());
         self::assertCount(1, $runs);
         self::assertSame(ImportRunTrigger::Console, $runs[0]->getTrigger());
+    }
+
+    public function testDispatchRestoresTheLoggedInUsersToken(): void
+    {
+        $import = $this->closureImport();
+        $bus = $this->createStub(MessageBusInterface::class);
+        $bus->method('dispatch')->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $tokenStorage = self::getContainer()->get(TokenStorageInterface::class);
+        $token = new UsernamePasswordToken($admin, 'main', $admin->getRoles());
+        $tokenStorage->setToken($token);
+
+        $this->dispatcher($bus)->dispatch((int) $import->getId(), ImportRunTrigger::Reprocess, $admin->getId());
+
+        self::assertSame($token, $tokenStorage->getToken(), 'Clearing the token would log the user out after a reprocess.');
+        $runs = self::getContainer()->get(ImportRunRepository::class)->findByImportId((int) $import->getId());
+        self::assertSame(ImportRunTrigger::Reprocess, $runs[0]->getTrigger());
+        self::assertSame($admin->getId(), $runs[0]->getInitiatedBy()?->getId());
+    }
+
+    public function testFailedDispatchAlsoRestoresTheToken(): void
+    {
+        $import = $this->closureImport();
+        $bus = $this->createStub(MessageBusInterface::class);
+        $bus->method('dispatch')->willThrowException(new \RuntimeException('bus down'));
+        $admin = UserFactory::createOne(['roles' => ['ROLE_USER', 'ROLE_ADMIN']]);
+        $tokenStorage = self::getContainer()->get(TokenStorageInterface::class);
+        $token = new UsernamePasswordToken($admin, 'main', $admin->getRoles());
+        $tokenStorage->setToken($token);
+
+        try {
+            $this->dispatcher($bus)->dispatch((int) $import->getId(), ImportRunTrigger::Reprocess, $admin->getId());
+            self::fail('Expected a DispatchException.');
+        } catch (DispatchException) {
+        }
+
+        self::assertSame($token, $tokenStorage->getToken());
     }
 
     private function dispatcher(?MessageBusInterface $bus = null): ImportClosuresDispatcher

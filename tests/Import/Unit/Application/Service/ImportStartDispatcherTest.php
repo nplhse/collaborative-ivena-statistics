@@ -46,6 +46,19 @@ final class ImportStartDispatcherTest extends TestCase
         self::assertSame(ImportType::CLOSURE, $type);
     }
 
+    public function testTriggerAndInitiatorArePassedToTheWorkflowDispatcher(): void
+    {
+        $import = new Import();
+        $import->setType(ImportType::ALLOCATION);
+        $entityManager = $this->entityManagerReturning(42, $import);
+        $allocations = $this->createMock(ImportWorkflowDispatcherInterface::class);
+        $allocations->expects($this->once())->method('dispatch')->with(42, ImportRunTrigger::Reprocess, 5);
+        $closures = $this->createMock(ImportWorkflowDispatcherInterface::class);
+        $closures->expects($this->never())->method('dispatch');
+
+        $this->dispatcher($entityManager, $allocations, $closures)->dispatch(42, 5, ImportRunTrigger::Reprocess);
+    }
+
     public function testMissingImportThrowsNotFound(): void
     {
         $entityManager = $this->createMock(EntityManagerInterface::class);

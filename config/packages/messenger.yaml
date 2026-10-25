@@ -46,6 +46,7 @@ framework:
 
             App\Import\Application\Message\ImportAllocationsMessage: async_priority_high
             App\Import\Application\Message\ImportClosuresMessage: async_priority_high
+            App\Import\Application\Message\DeleteImportsMessage: async_priority_low
             App\Statistics\Application\Message\RebuildAllocationStatsProjection: async_priority_low
             App\Statistics\Application\Message\RebuildClosureVolumeProjection: async_priority_low
             App\Kpi\Application\Message\GenerateDailyKpisMessage: async_priority_low
@@ -73,6 +74,7 @@ when@test:
             routing:
                 App\Import\Application\Message\ImportAllocationsMessage: sync
                 App\Import\Application\Message\ImportClosuresMessage: sync
+                App\Import\Application\Message\DeleteImportsMessage: sync
                 App\Statistics\Application\Message\RebuildAllocationStatsProjection: sync
                 App\Statistics\Application\Message\RebuildClosureVolumeProjection: sync
                 App\Kpi\Application\Message\GenerateDailyKpisMessage: sync

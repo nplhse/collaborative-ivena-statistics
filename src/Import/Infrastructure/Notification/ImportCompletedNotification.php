@@ -21,6 +21,8 @@ use App\Notification\Domain\Enum\NotificationChannel;
     defaultChannels: [NotificationChannel::InApp, NotificationChannel::Toast],
     availableChannels: [NotificationChannel::InApp, NotificationChannel::Email, NotificationChannel::Toast],
     accessScope: NotificationAccessScope::Hospital,
+    toastGroup: 'import.run_outcome',
+    toastGroupRoute: 'app_import_index',
 )]
 final class ImportCompletedNotification extends AppNotification
 {
