@@ -29,6 +29,7 @@ use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\AbstractException;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -123,6 +124,28 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         self::assertSame([], $failed);
         self::assertSame(ImportStatus::PENDING, $this->imports->find($id)?->getStatus());
         self::assertCount(0, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
+    }
+
+    public function testACompletedRunIsRecordedInJobRunWithTheCountersOfTheImport(): void
+    {
+        ['id' => $id] = $this->arrangeRunnableImport();
+        $run = self::getContainer()->get(ImportRunLifecycle::class)->register($id, ImportRunTrigger::Console);
+
+        $this->handler->__invoke(new ImportClosuresMessage($id, $run->getId()->toRfc4122()));
+
+        $connection = self::getContainer()->get(Connection::class);
+        $jobRun = $connection->fetchAssociative('SELECT * FROM job_run WHERE import_id = ?', [$id]);
+        self::assertIsArray($jobRun);
+        self::assertSame('closure_import', $jobRun['job']);
+        self::assertSame('completed', $jobRun['status']);
+        self::assertSame($run->getId()->toRfc4122(), $jobRun['import_run_id']);
+        $metrics = json_decode((string) $jobRun['metrics'], true);
+        self::assertIsArray($metrics);
+        self::assertSame(1, $metrics['rows_total']);
+        self::assertSame(1, $metrics['rows_ok']);
+        self::assertSame(0, $metrics['rows_rejected']);
+        self::assertArrayNotHasKey('rows_deduplicated', $metrics, 'Closure imports have no deduplication.');
+        self::assertGreaterThanOrEqual(1, $metrics['chunks']);
     }
 
     public function testRunWithMissingCsvEndsAsFailedWithReasonCode(): void

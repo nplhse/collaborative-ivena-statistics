@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Adapter;
 
 use App\Import\Application\Contracts\AllocationPersisterInterface;
 use App\Import\Application\Service\ImportRunCommitGuard;
+use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineAllocationPersister implements AllocationPersisterInterface
@@ -15,6 +16,7 @@ final class DoctrineAllocationPersister implements AllocationPersisterInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ImportRunCommitGuard $commitGuard,
+        private readonly ImportRunTelemetry $telemetry,
         private readonly int $batchSize = 250,
     ) {
     }
@@ -33,8 +35,10 @@ final class DoctrineAllocationPersister implements AllocationPersisterInterface
     #[\Override]
     public function flush(): void
     {
+        $started = hrtime(true);
         $this->commitGuard->flush($this->em);
         $this->clear();
+        $this->telemetry->addPersistTime(hrtime(true) - $started, true);
     }
 
     #[\Override]

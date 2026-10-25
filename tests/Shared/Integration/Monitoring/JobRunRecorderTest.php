@@ -79,13 +79,15 @@ final class JobRunRecorderTest extends KernelTestCase
         self::assertSame('run-1', $logger->records[0][1]['run_id']);
     }
 
-    public function testTheClosureRebuildIsSampledCompletelyInTheContainer(): void
+    public function testEveryJobIsSampledCompletelyInTheContainer(): void
     {
         self::bootKernel();
         $sampler = self::getContainer()->get('sentry.callback.traces_sampler');
         self::assertInstanceOf(SentryTracesSampler::class, $sampler);
 
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('closure.rebuild'))));
+        self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('import.allocations'))));
+        self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('import.closures'))));
     }
 
     private function recorder(MockClock $clock): JobRunRecorder
