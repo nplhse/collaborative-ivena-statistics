@@ -13,10 +13,15 @@ use App\Statistics\Application\DTO\AllocationStatsProjectionRebuildResult;
  */
 interface AllocationProjectionRunTelemetryInterface
 {
-    public function begin(int $importId, string $trigger): void;
+    /**
+     * @param int|null $importId null for the rebuild of every import (job allocation_projection_full_rebuild)
+     */
+    public function begin(?int $importId, string $trigger): void;
 
     /**
      * Runs one step of the rebuild in its own span and records its duration as `<step>_ms`.
+     * Steps inside another step (delete and insert of each import in a full rebuild) are summed into one
+     * phase span per op below it, so a rebuild of many imports stays within Sentry's span limit.
      *
      * @template T
      *

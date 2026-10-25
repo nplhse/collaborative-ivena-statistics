@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Statistics\UI\Console\Command;
 
+use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use App\Statistics\Infrastructure\MaterializedView\MaterializedViewRefresher;
+use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
 use App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +28,8 @@ final readonly class RebuildAllocationStatsProjectionCommand
         private Connection $connection,
         private EntityManagerInterface $entityManager,
         private AllocationStatsProjectionRebuildInterface $rebuilder,
-        private MaterializedViewRefresher $materializedViewRefresher,
+        private MaterializedViewRefresherInterface $materializedViewRefresher,
+        private AllocationProjectionRunTelemetryInterface $telemetry,
     ) {
     }
 
@@ -36,15 +38,17 @@ final readonly class RebuildAllocationStatsProjectionCommand
         $io->title('Rebuilding allocation_stats_projection');
 
         $startedAt = microtime(true);
+        $this->telemetry->begin(null, 'console');
 
         try {
-            $this->truncateProjectionTable();
+            $this->telemetry->measure('projection.truncate', $this->truncateProjectionTable(...));
             $io->writeln('<info>Projection table truncated.</info>');
 
             $importIds = $this->fetchImportIdsFromAllocations();
             if ([] === $importIds) {
                 $io->writeln('<info>No allocations found. Refreshing materialized views for empty projection.</info>');
                 $this->refreshOverviewMaterializedViews($io);
+                $this->telemetry->end();
 
                 $io->success('Projection table remains empty. Materialized views refreshed.');
 
@@ -54,29 +58,34 @@ final readonly class RebuildAllocationStatsProjectionCommand
             $progress = new ProgressBar($output, \count($importIds));
             $progress->start();
 
-            foreach ($importIds as $index => $importId) {
-                $this->rebuilder->rebuildForImport($importId);
-                $progress->advance();
+            $this->telemetry->measure('projection.rebuild_imports', function () use ($importIds, $progress): void {
+                foreach ($importIds as $index => $importId) {
+                    $this->telemetry->rebuilt($this->rebuilder->rebuildForImport($importId));
+                    $progress->advance();
 
-                if (0 === (($index + 1) % self::GC_EVERY_N_IMPORTS)) {
-                    gc_collect_cycles();
+                    if (0 === (($index + 1) % self::GC_EVERY_N_IMPORTS)) {
+                        gc_collect_cycles();
+                    }
                 }
-            }
+            }, ['imports' => \count($importIds)]);
 
             $progress->finish();
             $output->writeln('');
 
             $io->section('Refreshing materialized views');
             if ($this->refreshOverviewMaterializedViews($io)) {
+                $this->telemetry->end(new \RuntimeException('Some materialized view refreshes failed.'));
                 $io->warning('Projection rebuild completed but some materialized view refreshes failed.');
 
                 return Command::FAILURE;
             }
         } catch (\Throwable $e) {
+            $this->telemetry->end($e);
             $io->error(sprintf('Projection rebuild failed: %s', $e->getMessage()));
 
             return Command::FAILURE;
         }
+        $this->telemetry->end();
 
         $durationSeconds = microtime(true) - $startedAt;
         $io->success(sprintf(
@@ -109,7 +118,13 @@ final readonly class RebuildAllocationStatsProjectionCommand
     private function refreshOverviewMaterializedViews(SymfonyStyle $io): bool
     {
         $failed = false;
-        foreach ($this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]) as $refreshResult) {
+        $results = $this->telemetry->measure(
+            'projection.mv_refresh',
+            fn (): array => $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]),
+            ['groups' => 1],
+        );
+        $this->telemetry->materializedViewsRefreshed();
+        foreach ($results as $refreshResult) {
             if ($refreshResult['success']) {
                 $io->success($refreshResult['message']);
             } else {

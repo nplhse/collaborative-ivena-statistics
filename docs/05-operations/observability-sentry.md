@@ -139,7 +139,11 @@ Every rebuild of the allocation stats projection for one import ([`AllocationPro
 - **Sentry transaction** `allocation_projection_rebuild` (op `projection.allocation_stats`, sampled at 100 %) with spans `projection.change_detection`, `projection.delete`, `projection.insert`, `projection.closure_request` and `projection.mv_refresh` (only when the import brings a new hospital).
 - **Logs** on the `projection_rebuild` channel: `projection_rebuild.summary` (info, one per run), `projection_rebuild.threshold_exceeded` (warning), `projection_rebuild.failed` (error, class only). Locally in `var/log/projection_rebuild.<env>.log`, in production on stderr (JSON) and in Sentry Logs.
 
-Thresholds: not set yet (`app.job_runs.allocation_projection_rebuild`), so the rebuild only records its runs until step 5 of #693.
+The console rebuild of every import (`app:statistics:rebuild-projection`) is one run with job `allocation_projection_full_rebuild`, trigger `console` and no import id, so it is compared and limited apart from the rebuilds per import. Its spans are `projection.truncate`, `projection.rebuild_imports` and `projection.mv_refresh`; below `projection.rebuild_imports`, `projection.delete` and `projection.insert` carry the **summed** time of all imports (`summed: true`), like the phase spans of imports. `metrics` add `imports`, `truncate_ms` and `rebuild_imports_ms`; rows are summed over all imports. A failed materialized view refresh fails the run. A full rebuild still `running` when the next one starts is marked `abandoned`.
+
+`app:import:start` only dispatches the import message, so its runs are recorded by the worker with trigger `console` (see Imports).
+
+Thresholds: not set yet (`app.job_runs.allocation_projection_rebuild` / `allocation_projection_full_rebuild`), so the rebuilds only record their runs until step 5 of #693.
 
 ### Alert rules (Sentry UI)
 
