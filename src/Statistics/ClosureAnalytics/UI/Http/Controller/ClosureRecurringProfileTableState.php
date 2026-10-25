@@ -76,8 +76,6 @@ final readonly class ClosureRecurringProfileTableState
     public function toTableQuery(): ClosureRecurringProfileTableQuery
     {
         return new ClosureRecurringProfileTableQuery(
-            $this->page,
-            $this->limit,
             $this->sortBy,
             $this->orderBy,
             $this->profileQ,
