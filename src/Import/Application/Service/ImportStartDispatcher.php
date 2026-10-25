@@ -8,6 +8,7 @@ use App\Import\Application\Contracts\ImportWorkflowDispatcherInterface;
 use App\Import\Application\Exception\ImportNotFoundException;
 use App\Import\Application\Exception\UnsupportedImportTypeException;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,10 +28,15 @@ final readonly class ImportStartDispatcher
     /**
      * Starts a new run of an existing import with the workflow of its type.
      *
-     * @param int|null $initiatedByUserId user who deliberately started the run and is told about its outcome
+     * @param int|null                $initiatedByUserId user who deliberately started the run and is told about its outcome
+     * @param ImportBatchRunItem|null $batchRunItem      batch item the run belongs to (bulk reprocess)
      */
-    public function dispatch(int $importId, ?int $initiatedByUserId = null, ImportRunTrigger $trigger = ImportRunTrigger::Console): ImportType
-    {
+    public function dispatch(
+        int $importId,
+        ?int $initiatedByUserId = null,
+        ImportRunTrigger $trigger = ImportRunTrigger::Console,
+        ?ImportBatchRunItem $batchRunItem = null,
+    ): ImportType {
         $import = $this->entityManager->find(Import::class, $importId);
 
         if (!$import instanceof Import) {
@@ -44,8 +50,8 @@ final readonly class ImportStartDispatcher
         }
 
         match ($type) {
-            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, $trigger, $initiatedByUserId),
-            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, $trigger, $initiatedByUserId),
+            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, $trigger, $initiatedByUserId, $batchRunItem),
+            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, $trigger, $initiatedByUserId, $batchRunItem),
         };
 
         return $type;

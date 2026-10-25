@@ -381,6 +381,74 @@
         <source>flash.import.reprocess_failed</source>
         <target>Der Import konnte nicht zur erneuten Verarbeitung eingereiht werden. Bitte versuchen Sie es später erneut.</target>
       </trans-unit>
+      <trans-unit id="impBlkReLblDe" resname="import.bulk.reprocess.label">
+        <source>import.bulk.reprocess.label</source>
+        <target>Neu verarbeiten</target>
+      </trans-unit>
+      <trans-unit id="impBlkReOneDe" resname="import.bulk.reprocess.confirm_title.one">
+        <source>import.bulk.reprocess.confirm_title.one</source>
+        <target>Diesen Import neu verarbeiten?</target>
+      </trans-unit>
+      <trans-unit id="impBlkReOthDe" resname="import.bulk.reprocess.confirm_title.other">
+        <source>import.bulk.reprocess.confirm_title.other</source>
+        <target>Diese {count} Importe neu verarbeiten?</target>
+      </trans-unit>
+      <trans-unit id="impBlkReMsgDe" resname="import.bulk.reprocess.confirm_message">
+        <source>import.bulk.reprocess.confirm_message</source>
+        <target>Die ausgewählten Importe werden aus ihren gespeicherten Originaldateien erneut verarbeitet; ihre bisherigen Daten werden ersetzt. Importe, die gerade laufen oder deren Originaldatei fehlt, werden übersprungen. Sobald alle fertig sind, erhalten Sie eine Benachrichtigung.</target>
+      </trans-unit>
+      <trans-unit id="impBlkReCfDe" resname="import.bulk.reprocess.confirm">
+        <source>import.bulk.reprocess.confirm</source>
+        <target>Neu verarbeiten</target>
+      </trans-unit>
+      <trans-unit id="impBlkNoneDe" resname="flash.import.bulk.none_selected">
+        <source>flash.import.bulk.none_selected</source>
+        <target>Bitte wählen Sie mindestens einen Import aus.</target>
+      </trans-unit>
+      <trans-unit id="impBlkReQDe" resname="flash.import.bulk.reprocess_queued">
+        <source>flash.import.bulk.reprocess_queued</source>
+        <target>{count, plural, one {# Import wurde} other {# Importe wurden}} zur Neuverarbeitung eingereiht. Sobald alle fertig sind, erhalten Sie eine Benachrichtigung.</target>
+      </trans-unit>
+      <trans-unit id="impBlkSkipDe" resname="flash.import.bulk.skipped">
+        <source>flash.import.bulk.skipped</source>
+        <target>{count, plural, one {# Import wurde} other {# Importe wurden}} übersprungen: {reasons}.</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsBusyDe" resname="flash.import.bulk.reason.busy">
+        <source>flash.import.bulk.reason.busy</source>
+        <target>{count} bereits eingereiht oder in Verarbeitung</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsSrcDe" resname="flash.import.bulk.reason.source_missing">
+        <source>flash.import.bulk.reason.source_missing</source>
+        <target>{count} ohne Originaldatei</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsCrDe" resname="flash.import.bulk.reason.creator_permission">
+        <source>flash.import.bulk.reason.creator_permission</source>
+        <target>{count}, deren Ersteller keine Importberechtigung mehr hat</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsDispDe" resname="flash.import.bulk.reason.dispatch_failed">
+        <source>flash.import.bulk.reason.dispatch_failed</source>
+        <target>{count} konnten nicht eingereiht werden</target>
+      </trans-unit>
+      <trans-unit id="impBlkRsForbDe" resname="flash.import.bulk.reason.forbidden">
+        <source>flash.import.bulk.reason.forbidden</source>
+        <target>{count} ohne Berechtigung</target>
+      </trans-unit>
+      <trans-unit id="impBatchRunDe" resname="import.batch.progress.running">
+        <source>import.batch.progress.running</source>
+        <target>Neuverarbeitung von {total, plural, one {# Import} other {# Importen}}: {succeeded, number} abgeschlossen, {failed, number} fehlgeschlagen, {open, number} offen.</target>
+      </trans-unit>
+      <trans-unit id="impBatchFinDe" resname="import.batch.progress.finished">
+        <source>import.batch.progress.finished</source>
+        <target>Neuverarbeitung von {total, plural, one {# Import} other {# Importen}} abgeschlossen: {succeeded, number} erfolgreich, {failed, number} fehlgeschlagen{superseded, plural, =0 {} other {, # durch einen neueren Lauf ersetzt}}.</target>
+      </trans-unit>
+      <trans-unit id="impBatchFltDe" resname="import.batch.filtered">
+        <source>import.batch.filtered</source>
+        <target>Es werden nur die Importe einer Neuverarbeitung angezeigt.</target>
+      </trans-unit>
+      <trans-unit id="impBatchClrDe" resname="import.batch.clear">
+        <source>import.batch.clear</source>
+        <target>Alle Importe anzeigen</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

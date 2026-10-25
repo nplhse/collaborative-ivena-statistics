@@ -8,6 +8,7 @@
 | [import-runs.md](import-runs.md) | Durable runs: lifecycle, superseded runs, error classification, `--notify-user` |
 | [closure-import.md](closure-import.md) | IVENA closure-list import (beta role) |
 | [batch-requeue.md](batch-requeue.md) | Sequential reimport with checkpoints |
+| [bulk-actions.md](bulk-actions.md) | Select imports on the list and reprocess them as one batch |
 | [reject-analysis.md](reject-analysis.md) | Aggregate and export rejects |
 | [reference-catalog.md](reference-catalog.md) | Import/export/propose, prod runbook, reject gaps |
 | [reference-catalog-yaml.md](reference-catalog-yaml.md) | Schema of `fixtures/reference/catalog.yaml` (sections, fields, identity) |

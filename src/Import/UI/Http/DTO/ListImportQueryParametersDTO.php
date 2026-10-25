@@ -43,6 +43,13 @@ final readonly class ListImportQueryParametersDTO
     )]
     public ?string $createdUntil;
 
+    /** Only the imports of this bulk reprocess batch. */
+    #[Assert\When(
+        expression: 'this.batch !== null',
+        constraints: [new Assert\GreaterThan(0)],
+    )]
+    public ?int $batch;
+
     public function __construct(
         #[Assert\GreaterThan(0)]
         public int $page = 1,
@@ -67,6 +74,8 @@ final readonly class ListImportQueryParametersDTO
         ?string $createdFrom = null,
 
         ?string $createdUntil = null,
+
+        int|string|null $batch = null,
     ) {
         $this->search = $this->emptyStringToNull($search);
         $this->hospitalId = $this->normalizePositiveInt($hospitalId);
@@ -74,6 +83,7 @@ final readonly class ListImportQueryParametersDTO
         $this->status = $this->emptyStringToNull($status);
         $this->createdFrom = $this->emptyStringToNull($createdFrom) ?? self::DEFAULT_CREATED_FROM;
         $this->createdUntil = $this->emptyStringToNull($createdUntil) ?? self::defaultCreatedUntil();
+        $this->batch = $this->normalizePositiveInt($batch);
     }
 
     public static function defaultCreatedUntil(): string

@@ -50,7 +50,8 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertTrue($this->isChecked($crawler, 'type-import-completed-toast'));
         self::assertSelectorExists('[data-testid="preference-type-import.completed"]');
         self::assertSelectorExists('[data-testid="preference-type-participation.activated"]');
-        self::assertSelectorNotExists('[data-testid="preference-type-import.batch_finished"]', 'role-scoped types need the role');
+        self::assertSelectorNotExists('[data-testid="preference-type-admin.import_failed"]', 'role-scoped types need the role');
+        self::assertSelectorExists('[data-testid="preference-type-import.batch_finished"]', 'batch summaries go to any user who started a bulk reprocess');
         self::assertSelectorNotExists('[data-testid="preference-category-administration"]');
         self::assertSelectorExists('#notification-preferences-types-imports.collapse:not(.show)');
         self::assertSelectorNotExists('[data-controller="notification-preferences"] select', 'no three-state selects any more');
@@ -65,7 +66,7 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         $client->request(Request::METHOD_GET, '/settings/notifications');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('[data-testid="preference-type-import.batch_finished"]');
+        self::assertSelectorExists('[data-testid="preference-type-admin.import_failed"]');
     }
 
     public function testMandatoryAndFixedChannelsAreDisabledCheckboxesWithAnExplanation(): void
@@ -209,7 +210,7 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         $token = (string) $crawler->filter('input[name="'.self::FORM.'[_token]"]')->attr('value');
         $client->request(Request::METHOD_POST, '/settings/notifications', [self::FORM => [
             '_token' => $token,
-            'preferences' => ['type-import-batch_finished-in_app' => '1'],
+            'preferences' => ['type-admin-import_failed-in_app' => '1'],
         ]]);
 
         self::assertResponseIsUnprocessable();

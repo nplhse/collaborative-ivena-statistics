@@ -43,7 +43,7 @@
       </trans-unit>
       <trans-unit id="Ntf72CD762A" resname="import.batch_finished.title">
         <source>import.batch_finished.title</source>
-        <target>Batch re-import #{batchId} finished</target>
+        <target>{total, plural, one {# import} other {# imports}} processed successfully</target>
       </trans-unit>
       <trans-unit id="Ntf838AD818" resname="import.batch_finished.message">
         <source>import.batch_finished.message</source>
@@ -327,7 +327,7 @@
       </trans-unit>
       <trans-unit id="Ntf9E64AC41" resname="import.batch_finished.label">
         <source>import.batch_finished.label</source>
-        <target>Batch re-import finished</target>
+        <target>Several imports processed</target>
       </trans-unit>
       <trans-unit id="Ntf9244EACB" resname="user.first_import.label">
         <source>user.first_import.label</source>
@@ -376,6 +376,18 @@
       <trans-unit id="Ntf5B0D5B41" resname="admin.feedback_received.label">
         <source>admin.feedback_received.label</source>
         <target>New feedback</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailTitleEn" resname="import.batch_failed.title">
+        <source>import.batch_failed.title</source>
+        <target>{succeeded, number} of {total, plural, one {# import} other {# imports}} completed, {failed, plural, one {# requires} other {# require}} attention</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailMsgEn" resname="import.batch_failed.message">
+        <source>import.batch_failed.message</source>
+        <target>{total, plural, one {# import} other {# imports}}: {completed, number} completed, {partial, number} with rejected rows, {failed, number} failed, {superseded, number} replaced by a newer run.</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailLabelEn" resname="import.batch_failed.label">
+        <source>import.batch_failed.label</source>
+        <target>Several imports processed with failures</target>
       </trans-unit>
     </body>
   </file>

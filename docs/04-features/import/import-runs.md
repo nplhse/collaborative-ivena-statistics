@@ -10,8 +10,8 @@ An **import run** is one deliberate processing request for an import: an upload,
 |-------|---------|
 | `id` | Run id (UUID v7). Carried by the Messenger message |
 | `import_id` | The import. Runs are deleted with it (`ON DELETE CASCADE`) |
-| `trigger` | Where the run came from: `upload` (UI upload), `reprocess` ("Reprocess import" on the detail page), `console` (`app:import:start`), `batch_requeue` (one item of `app:import:requeue-all`) |
-| `initiated_by_id` | User who deliberately started the run: the uploading user, the user who clicked "Reprocess import", the `--notify-user` of a console or batch run, or `NULL` (console run without `--notify-user`) |
+| `trigger` | Where the run came from: `upload` (UI upload), `reprocess` ("Reprocess import" on the detail page), `console` (`app:import:start`), `batch_requeue` (one item of `app:import:requeue-all`), `bulk_reprocess` (one import of a [bulk reprocess](bulk-actions.md) on the import list) |
+| `initiated_by_id` | User who deliberately started the run: the uploading user, the user who clicked "Reprocess import", the `--notify-user` of a console or batch run, the user who started a bulk reprocess, or `NULL` (console run without `--notify-user`) |
 | `status` | `queued`, `running`, `completed`, `partial`, `failed`, `superseded` |
 | `created_at`, `started_at`, `finished_at` | Registration, first processing attempt, terminal transition |
 | `rows_total`, `rows_ok`, `rows_rejected` | Outcome counts of a completed, partial or failed evaluation |
@@ -21,7 +21,7 @@ An **import run** is one deliberate processing request for an import: an upload,
 
 A requeue batch item (`import_batch_run_item.import_run_id`) references the run registered for it.
 
-`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `reprocess` run notifies only the user who started it; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` runs send no notification of their own, they are summarized per batch ([batch-requeue.md](batch-requeue.md#completion-and-summary)). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
+`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `reprocess` run notifies only the user who started it; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` and `bulk_reprocess` runs send no notification of their own, they are summarized per batch ([batch-requeue.md](batch-requeue.md#completion-and-summary)). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
 
 ## Lifecycle
 
