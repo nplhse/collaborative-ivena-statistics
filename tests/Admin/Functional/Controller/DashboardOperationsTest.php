@@ -49,7 +49,7 @@ final class DashboardOperationsTest extends WebTestCase
         $text = $crawler->text();
         self::assertStringContainsString('Operations', $text);
         self::assertStringContainsString('Failed messages', $text);
-        self::assertStringContainsString('No storage measurement yet', $text);
+        self::assertStringContainsString('Configured budget', $crawler->filter('.ea-storage-card')->text());
         self::assertStringNotContainsString('Total storage', $text);
         self::assertStringNotContainsString('Imports / media', $text);
         self::assertStringContainsString('Recent notifications', $text);
@@ -136,7 +136,7 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertStringContainsString('measured 2026-10-25 03:30', $text);
     }
 
-    public function testHealthCardShowsMissingStorageMeasurement(): void
+    public function testWithoutMeasurementHealthIsDegradedAndTheStorageCardIsEmpty(): void
     {
         $client = self::createClient();
         $client->loginUser(UserFactory::new()->asAdmin()->create());
@@ -145,6 +145,7 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertStringContainsString('Degraded', $crawler->filter('.ea-ops-health-banner')->text());
         self::assertSame('Storage: unavailable', $crawler->filter('[data-health-check="storage"]')->text());
+        self::assertStringContainsString('No storage measurement yet', $crawler->filter('.ea-storage-card')->text());
     }
 
     public function testFailedImportsDashboardShows30DayFilterAndViewAllLink(): void
