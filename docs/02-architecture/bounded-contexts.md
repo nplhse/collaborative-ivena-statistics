@@ -18,6 +18,7 @@ Each bounded context under `src/` follows the layered structure described in [ov
 | `Onboarding` | Participant dashboard onboarding steps and progress |
 | `Engagement` | Monthly submission reminders and related mail content |
 | `Notification` | Personal notifications: definitions, preferences, inbox and delivery (ADR 016) |
+| `Storage` | Storage monitoring: daily measurement, capacity levels, storage health check and admin notifications (ADR 017) |
 | `DataFixtures` | Reference YAML, pattern-based demo data, dev/test fixture groups |
 
 ## Statistics submodules
