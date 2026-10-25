@@ -42,6 +42,13 @@ final class AppExtension extends Extension
         $container->setParameter('app.closure_volume.reference_weeks', $config['closure_volume']['reference_weeks']);
         $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
 
+        // Storage monitoring (ADR 017)
+        $storageConfig = $config['storage'];
+        $container->setParameter('app.storage.thresholds.notice_percent', $storageConfig['thresholds']['notice_percent']);
+        $container->setParameter('app.storage.thresholds.warning_percent', $storageConfig['thresholds']['warning_percent']);
+        $container->setParameter('app.storage.thresholds.critical_percent', $storageConfig['thresholds']['critical_percent']);
+        $container->setParameter('app.storage.measurement_max_age_hours', $storageConfig['measurement_max_age_hours']);
+
         // Feedback spam settings
         $spamConfig = $config['feedback']['spam'];
         $container->setParameter('app.feedback.spam.min_submission_seconds', $spamConfig['min_submission_seconds']);

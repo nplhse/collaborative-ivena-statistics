@@ -6,6 +6,7 @@ namespace App\Tests\Shared\Unit\DependencyInjection;
 
 use App\Shared\Infrastructure\DependencyInjection\AppConfiguration;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 
 final class AppConfigurationTest extends TestCase
@@ -73,5 +74,49 @@ final class AppConfigurationTest extends TestCase
         ]]);
 
         self::assertSame([], $processed['registration']['blocked_email_domains']);
+    }
+
+    public function testStorageDefaultsAreApplied(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(
+            ['notice_percent' => 80, 'warning_percent' => 90, 'critical_percent' => 99],
+            $processed['storage']['thresholds'],
+        );
+        self::assertSame(36, $processed['storage']['measurement_max_age_hours']);
+    }
+
+    public function testStorageThresholdsMustIncrease(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('Storage thresholds must increase strictly');
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'storage' => ['thresholds' => ['notice_percent' => 90, 'warning_percent' => 90, 'critical_percent' => 99]],
+        ]]);
+    }
+
+    public function testStorageThresholdsStayBelowHundred(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        new Processor()->processConfiguration(new AppConfiguration(), [[
+            ...$this->minimalConfig(),
+            'storage' => ['thresholds' => ['critical_percent' => 100]],
+        ]]);
+    }
+
+    /**
+     * @return array{title: string, short_title: string, default_locale: string}
+     */
+    private function minimalConfig(): array
+    {
+        return [
+            'title' => 'App title',
+            'short_title' => 'APP',
+            'default_locale' => 'en',
+        ];
     }
 }

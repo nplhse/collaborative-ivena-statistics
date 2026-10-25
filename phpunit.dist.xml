@@ -36,6 +36,7 @@
             <directory>tests/Notification/Unit</directory>
             <directory>tests/Shared/Unit</directory>
             <directory>tests/Statistics/Unit</directory>
+            <directory>tests/Storage/Unit</directory>
             <directory>tests/User/Unit</directory>
         </testsuite>
 
@@ -51,6 +52,7 @@
             <directory>tests/Onboarding/Integration</directory>
             <directory>tests/Shared/Integration</directory>
             <directory>tests/Statistics/Integration</directory>
+            <directory>tests/Storage/Integration</directory>
             <directory>tests/User/Integration</directory>
         </testsuite>
 
