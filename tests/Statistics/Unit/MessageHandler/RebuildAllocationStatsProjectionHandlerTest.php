@@ -36,9 +36,13 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
         $materializedViewRefresher->expects($this->never())->method('refresh');
 
         $scheduler = $this->createMock(ClosureRebuildRequestInterface::class);
-        $scheduler->expects($this->once())->method('requestVolume')->with(15);
+        $scheduler->expects($this->once())->method('requestVolume')->with(
+            15,
+            self::equalTo(new \DateTimeImmutable('2026-03-01 00:00:00')),
+            self::equalTo(new \DateTimeImmutable('2026-04-01 00:00:00')),
+        );
         $connection = $this->createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn(15);
+        $connection->method('fetchAssociative')->willReturn(['hospital_id' => 15, 'range_from' => '2026-03-01 00:00:00', 'range_to' => '2026-04-01 00:00:00']);
 
         $handler = new RebuildAllocationStatsProjectionHandler(
             $rebuilder,
@@ -81,9 +85,13 @@ final class RebuildAllocationStatsProjectionHandlerTest extends TestCase
             );
 
         $scheduler = $this->createMock(ClosureRebuildRequestInterface::class);
-        $scheduler->expects($this->once())->method('requestVolume')->with(15);
+        $scheduler->expects($this->once())->method('requestVolume')->with(
+            15,
+            self::equalTo(new \DateTimeImmutable('2026-03-01 00:00:00')),
+            self::equalTo(new \DateTimeImmutable('2026-04-01 00:00:00')),
+        );
         $connection = $this->createStub(Connection::class);
-        $connection->method('fetchOne')->willReturn(15);
+        $connection->method('fetchAssociative')->willReturn(['hospital_id' => 15, 'range_from' => '2026-03-01 00:00:00', 'range_to' => '2026-04-01 00:00:00']);
 
         $handler = new RebuildAllocationStatsProjectionHandler(
             $rebuilder,

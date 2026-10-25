@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace App\Statistics\Application\Contract;
 
 /**
- * @psalm-type RebuildRequestRow = array{id: int, kind: string, hospital_id: ?int, requested_at: string, claimed_at: ?string, claimed_by: ?string, claim_attempts: int, failed_at: ?string, last_error: ?string}
+ * @psalm-type RebuildRequestRow = array{id: int, kind: string, hospital_id: ?int, requested_at: string, claimed_at: ?string, claimed_by: ?string, claim_attempts: int, failed_at: ?string, last_error: ?string, range_from: ?string, range_to: ?string}
  */
 interface ClosureRebuildRequestInterface
 {
     /**
-     * @return bool false when the hospital has no closure data or an open request already covers it
+     * $from/$to limit the follow-up volume rebuild to events whose load range intersects them;
+     * without a range the whole hospital is rebuilt.
+     *
+     * @return bool false when the hospital has no closure data or an open request already covers it (it is widened)
      */
-    public function requestAnalysis(?int $hospitalId): bool;
+    public function requestAnalysis(?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): bool;
 
     /**
      * Skipped like requestAnalysis() when the hospital has no closure data or an open request already covers it.
      */
-    public function requestVolume(?int $hospitalId): void;
+    public function requestVolume(?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): void;
 
     /**
      * Requests that are not consumed yet: open, claimed by a run, or failed.

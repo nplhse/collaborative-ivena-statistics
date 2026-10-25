@@ -42,7 +42,12 @@ final readonly class ImportCompletedSubscriber
         }
         if (ImportType::CLOSURE === $import->getType()) {
             $hospitalId = $import->getHospital()?->getId();
-            $this->closureRebuildScheduler->requestAnalysis(\is_int($hospitalId) ? $hospitalId : null);
+            // The export period also bounds where closure coverage changed, which can finalise provisional events.
+            $this->closureRebuildScheduler->requestAnalysis(
+                \is_int($hospitalId) ? $hospitalId : null,
+                $import->getExportStartsAt(),
+                $import->getExportEndsAt(),
+            );
         }
     }
 }

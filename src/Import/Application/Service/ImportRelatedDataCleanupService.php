@@ -79,10 +79,11 @@ final readonly class ImportRelatedDataCleanupService
         if ($scheduleRebuild) {
             $hospitalId = $import->getHospital()?->getId();
             $hospitalId = \is_int($hospitalId) ? $hospitalId : null;
+            // The import's export period bounds the removed data; without one the whole hospital is rebuilt.
             if ($counts['closure_intervals'] > 0) {
-                $this->closureRebuildScheduler->requestAnalysis($hospitalId);
+                $this->closureRebuildScheduler->requestAnalysis($hospitalId, $import->getExportStartsAt(), $import->getExportEndsAt());
             } elseif ($counts['allocations'] > 0) {
-                $this->closureRebuildScheduler->requestVolume($hospitalId);
+                $this->closureRebuildScheduler->requestVolume($hospitalId, $import->getExportStartsAt(), $import->getExportEndsAt());
             }
         }
 

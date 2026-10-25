@@ -42,11 +42,12 @@ final readonly class ClosureRebuildRequestsCommand
         }
 
         $io->table(
-            ['Id', 'Kind', 'Hospital', 'Requested', 'State', 'Attempts', 'Last error'],
+            ['Id', 'Kind', 'Hospital', 'Range', 'Requested', 'State', 'Attempts', 'Last error'],
             array_map(static fn (array $row): array => [
                 $row['id'],
                 $row['kind'],
                 $row['hospital_id'] ?? 'all',
+                null === $row['range_from'] || null === $row['range_to'] ? 'whole hospital' : substr($row['range_from'], 0, 10).' – '.substr($row['range_to'], 0, 10),
                 $row['requested_at'],
                 match (true) {
                     null !== $row['failed_at'] => 'failed '.$row['failed_at'],

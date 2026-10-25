@@ -39,15 +39,15 @@ final readonly class ClosureRebuildScheduler implements ClosureRebuildRequestInt
     }
 
     #[\Override]
-    public function requestAnalysis(?int $hospitalId): bool
+    public function requestAnalysis(?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): bool
     {
-        return $this->request('analysis', $hospitalId);
+        return $this->request('analysis', $hospitalId, $from, $to);
     }
 
     #[\Override]
-    public function requestVolume(?int $hospitalId): void
+    public function requestVolume(?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): void
     {
-        $this->request('volume', $hospitalId);
+        $this->request('volume', $hospitalId, $from, $to);
     }
 
     /**
@@ -73,7 +73,7 @@ final readonly class ClosureRebuildScheduler implements ClosureRebuildRequestInt
             $params['hospital_ids'] = $hospitalIds;
             $types['hospital_ids'] = ArrayParameterType::INTEGER;
         }
-        /** @var list<array{id: int|string, hospital_id: int|string|null, claim_attempts: int|string, orphaned_by: ?string}> $rows */
+        /** @var list<array{id: int|string, hospital_id: int|string|null, claim_attempts: int|string, orphaned_by: ?string, range_from: ?string, range_to: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<SQL
 UPDATE closure_rebuild_request AS r
@@ -85,7 +85,7 @@ FROM (
     {$hospitalSql}
 ) AS pending
 WHERE r.id = pending.id
-RETURNING r.id, r.hospital_id, r.claim_attempts, pending.orphaned_by
+RETURNING r.id, r.hospital_id, r.claim_attempts, pending.orphaned_by, r.range_from, r.range_to
 SQL,
             $params,
             $types,
@@ -96,6 +96,8 @@ SQL,
 
         $all = false;
         $ids = [];
+        /** @var array<int, list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>|null> $ranges */
+        $ranges = [];
         $requestIds = [];
         $retried = [];
         $orphaned = [];
@@ -113,6 +115,12 @@ SQL,
             $hospitalId = (int) $row['hospital_id'];
             if (!\in_array($hospitalId, $ids, true)) {
                 $ids[] = $hospitalId;
+                $ranges[$hospitalId] = [];
+            }
+            if (null === $row['range_from'] || null === $row['range_to']) {
+                $ranges[$hospitalId] = null;
+            } elseif (null !== $ranges[$hospitalId]) {
+                $ranges[$hospitalId][] = [new \DateTimeImmutable($row['range_from']), new \DateTimeImmutable($row['range_to'])];
             }
         }
         sort($ids);
@@ -124,7 +132,7 @@ SQL,
             $this->logger->warning('closure_rebuild.request_retried', ['kind' => $kind, 'request_ids' => $retried, 'run' => $runId]);
         }
 
-        return new ClosureRebuildClaim($all, $all ? [] : $ids, $requestIds);
+        return new ClosureRebuildClaim($all, $all ? [] : $ids, $requestIds, $all ? [] : $ranges);
     }
 
     /**
@@ -197,7 +205,7 @@ SQL,
     #[\Override]
     public function unconsumed(?int $hospitalId): array
     {
-        $sql = 'SELECT id, kind, hospital_id, requested_at, claimed_at, claimed_by, claim_attempts, failed_at, last_error FROM closure_rebuild_request WHERE consumed_at IS NULL';
+        $sql = 'SELECT id, kind, hospital_id, requested_at, claimed_at, claimed_by, claim_attempts, failed_at, last_error, range_from, range_to FROM closure_rebuild_request WHERE consumed_at IS NULL';
         $params = [];
         $types = [];
         if (null !== $hospitalId) {
@@ -205,7 +213,7 @@ SQL,
             $params['hospital'] = $hospitalId;
             $types['hospital'] = ParameterType::INTEGER;
         }
-        /** @var list<array{id: int|string, kind: string, hospital_id: int|string|null, requested_at: string, claimed_at: ?string, claimed_by: ?string, claim_attempts: int|string, failed_at: ?string, last_error: ?string}> $rows */
+        /** @var list<array{id: int|string, kind: string, hospital_id: int|string|null, requested_at: string, claimed_at: ?string, claimed_by: ?string, claim_attempts: int|string, failed_at: ?string, last_error: ?string, range_from: ?string, range_to: ?string}> $rows */
         $rows = $this->connection->fetchAllAssociative($sql.' ORDER BY id ASC', $params, $types);
 
         return array_map(static fn (array $row): array => [
@@ -218,6 +226,8 @@ SQL,
             'claim_attempts' => (int) $row['claim_attempts'],
             'failed_at' => $row['failed_at'],
             'last_error' => $row['last_error'],
+            'range_from' => $row['range_from'],
+            'range_to' => $row['range_to'],
         ], $rows);
     }
 
@@ -273,34 +283,67 @@ SQL,
      * An open analysis request covers volume, and a request for all hospitals covers each one.
      * Claimed requests do not count: their run may have read the data before this change.
      */
-    private function request(string $kind, ?int $hospitalId): bool
+    /**
+     * A range limits the volume rebuild to events whose load range intersects it; without one the
+     * whole hospital is rebuilt. An open request that already covers the hospital is widened instead
+     * of queuing a second one (a missing range wins; two ranges become their hull).
+     */
+    private function request(string $kind, ?int $hospitalId, ?\DateTimeImmutable $from = null, ?\DateTimeImmutable $to = null): bool
     {
         $covering = 'volume' === $kind ? ['analysis', 'volume'] : ['analysis'];
+        $ranged = null !== $hospitalId && $from instanceof \DateTimeImmutable && $to instanceof \DateTimeImmutable && $from < $to;
+        $params = [
+            'kind' => $kind,
+            'hospital' => $hospitalId,
+            'now' => $this->now(),
+            'covering' => $covering,
+            'from' => $ranged ? ClosureVolumeClock::wall($from)->format('Y-m-d H:i:s') : null,
+            'to' => $ranged ? ClosureVolumeClock::wall($to)->format('Y-m-d H:i:s') : null,
+        ];
+        $types = [
+            'kind' => ParameterType::STRING,
+            'hospital' => null === $hospitalId ? ParameterType::NULL : ParameterType::INTEGER,
+            'now' => ParameterType::STRING,
+            'covering' => ArrayParameterType::STRING,
+            'from' => $ranged ? ParameterType::STRING : ParameterType::NULL,
+            'to' => $ranged ? ParameterType::STRING : ParameterType::NULL,
+        ];
+        /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
+        $widened = $this->connection->fetchOne(
+            <<<'SQL'
+UPDATE closure_rebuild_request
+SET range_from = CASE WHEN range_from IS NULL OR CAST(:from AS TIMESTAMP(0)) IS NULL THEN NULL ELSE LEAST(range_from, CAST(:from AS TIMESTAMP(0))) END,
+    range_to = CASE WHEN range_to IS NULL OR CAST(:to AS TIMESTAMP(0)) IS NULL THEN NULL ELSE GREATEST(range_to, CAST(:to AS TIMESTAMP(0))) END
+WHERE id = (
+    SELECT id FROM closure_rebuild_request
+    WHERE kind IN (:covering)
+    AND consumed_at IS NULL AND failed_at IS NULL AND claimed_by IS NULL
+    AND (hospital_id IS NULL OR hospital_id = :hospital)
+    ORDER BY hospital_id NULLS FIRST, id
+    LIMIT 1
+)
+RETURNING id
+SQL,
+            $params,
+            $types,
+        );
+        if (false !== $widened) {
+            return false;
+        }
         /** @psalm-suppress InvalidArgument Doctrine DBAL array parameter types */
         $queued = $this->connection->fetchOne(
             <<<'SQL'
-INSERT INTO closure_rebuild_request (kind, hospital_id, requested_at)
-SELECT :kind, CAST(:hospital AS INT), CAST(:now AS TIMESTAMP(0))
+INSERT INTO closure_rebuild_request (kind, hospital_id, requested_at, range_from, range_to)
+SELECT :kind, CAST(:hospital AS INT), CAST(:now AS TIMESTAMP(0)), CAST(:from AS TIMESTAMP(0)), CAST(:to AS TIMESTAMP(0))
 WHERE (
     CAST(:hospital AS INT) IS NULL
     OR EXISTS (SELECT 1 FROM closure_interval WHERE hospital_id = :hospital)
     OR EXISTS (SELECT 1 FROM closure_event WHERE hospital_id = :hospital)
 )
-AND NOT EXISTS (
-    SELECT 1 FROM closure_rebuild_request
-    WHERE kind IN (:covering)
-    AND consumed_at IS NULL AND failed_at IS NULL AND claimed_by IS NULL
-    AND (hospital_id IS NULL OR hospital_id = :hospital)
-)
 RETURNING id
 SQL,
-            ['kind' => $kind, 'hospital' => $hospitalId, 'now' => $this->now(), 'covering' => $covering],
-            [
-                'kind' => ParameterType::STRING,
-                'hospital' => null === $hospitalId ? ParameterType::NULL : ParameterType::INTEGER,
-                'now' => ParameterType::STRING,
-                'covering' => ArrayParameterType::STRING,
-            ],
+            $params,
+            $types,
         );
         if (false === $queued) {
             return false;

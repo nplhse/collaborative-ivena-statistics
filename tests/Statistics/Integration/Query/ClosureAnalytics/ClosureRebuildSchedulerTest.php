@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
+use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureRebuildClaim;
 use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureRebuildScheduler;
 use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuilder;
 use App\User\Domain\Factory\UserFactory;
@@ -172,6 +173,51 @@ final class ClosureRebuildSchedulerTest extends KernelTestCase
         $scheduler->requestVolume(null);
         $scheduler->requestVolume($hospital);
         self::assertSame(4, $this->requests(), 'An open request for all hospitals covers each one.');
+    }
+
+    public function testAnOpenRangedRequestIsWidenedAndAWholeHospitalRequestWins(): void
+    {
+        [$scheduler] = $this->scheduler('2026-10-14 10:00:00');
+        $hospital = $this->hospitalWithClosures();
+        $range = fn (): array|false => $this->connection()->fetchAssociative('SELECT range_from, range_to FROM closure_rebuild_request');
+
+        $scheduler->requestVolume($hospital, new \DateTimeImmutable('2026-03-01'), new \DateTimeImmutable('2026-04-01'));
+        $scheduler->requestVolume($hospital, new \DateTimeImmutable('2026-05-01'), new \DateTimeImmutable('2026-06-01'));
+        self::assertSame(1, $this->requests());
+        self::assertSame(['range_from' => '2026-03-01 00:00:00', 'range_to' => '2026-06-01 00:00:00'], $range());
+
+        self::assertTrue($scheduler->requestAnalysis($hospital, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-02-01')));
+        self::assertSame(2, $this->requests(), 'A volume request does not cover an analysis.');
+        $scheduler->requestVolume($hospital);
+        self::assertSame(2, $this->requests());
+        self::assertSame(
+            [null, null],
+            array_values($this->connection()->fetchAssociative("SELECT range_from, range_to FROM closure_rebuild_request WHERE kind = 'volume'") ?: []),
+            'A request without range widens the oldest covering request to the whole hospital.',
+        );
+        self::assertSame(
+            ['range_from' => '2026-01-01 00:00:00', 'range_to' => '2026-02-01 00:00:00'],
+            $this->connection()->fetchAssociative("SELECT range_from, range_to FROM closure_rebuild_request WHERE kind = 'analysis'"),
+        );
+    }
+
+    public function testAClaimCarriesTheRangesPerHospital(): void
+    {
+        [$scheduler] = $this->scheduler('2026-10-14 10:00:00');
+        $ranged = $this->hospitalWithClosures();
+        $whole = $this->hospitalWithClosures();
+        $scheduler->requestVolume($ranged, new \DateTimeImmutable('2026-03-01'), new \DateTimeImmutable('2026-04-01'));
+        $scheduler->requestVolume($whole);
+
+        $claim = $scheduler->claim('run-1', 'volume');
+
+        self::assertFalse($claim->all);
+        $ranges = $claim->rangesFor($ranged);
+        self::assertNotNull($ranges);
+        self::assertCount(1, $ranges);
+        self::assertSame('2026-03-01 00:00', $ranges[0][0]->format('Y-m-d H:i'));
+        self::assertNull($claim->rangesFor($whole));
+        self::assertNull($claim->merge(new ClosureRebuildClaim(false, [$ranged], [99]))->rangesFor($ranged), 'Merging with a whole-hospital claim drops the ranges.');
     }
 
     public function testAClaimedRequestDoesNotCoverANewChange(): void
