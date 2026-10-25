@@ -23,7 +23,7 @@ final readonly class ClosureVolumeReadModel
     {
         $hospitalIds = $this->hospitalIds($criteria);
         if ([] === $hospitalIds || !$this->query->hasRows($hospitalIds)) {
-            return ClosureVolumeBurdenView::unavailable($stratum, $this->config->window->totalWeeks(), $this->config->minimumReferenceSlots);
+            return ClosureVolumeBurdenView::unavailable($stratum, $this->config->window, $this->config->minimumReferenceSlots);
         }
 
         $now = ClosureVolumeClock::now();
@@ -63,7 +63,7 @@ final readonly class ClosureVolumeReadModel
             ClosureVolumeDeviation::share($totals->expectedArea, $hospital['expected']),
             $totals->partialReference || $hospital['partial'],
             $totals->partialObservation,
-            $this->config->window->totalWeeks(),
+            $this->config->window,
             $this->config->minimumReferenceSlots,
         );
     }
@@ -109,7 +109,7 @@ final readonly class ClosureVolumeReadModel
                 $this->emptyChart(),
                 [],
                 null,
-                $this->config->window->totalWeeks(),
+                $this->config->window,
                 $this->config->minimumReferenceSlots,
                 $affectedDepartments,
             );
@@ -156,7 +156,7 @@ final readonly class ClosureVolumeReadModel
             $chart,
             $this->query->otherClosures($hospitalId, $hospitalIds, $departmentIds, $eventId, $contextStart, $contextEnd),
             null === $comparison ? null : ['pre' => $comparison[0]->kind, 'post' => $comparison[1]->kind],
-            $this->config->window->totalWeeks(),
+            $this->config->window,
             $this->config->minimumReferenceSlots,
             $affectedDepartments,
         );

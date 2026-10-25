@@ -25,7 +25,7 @@ final readonly class ClosureVolumeDetailView
         public array $chart,
         public array $otherClosures,
         public ?array $comparison,
-        public int $referenceWeeks,
+        public ClosureVolumeReferenceWindow $referenceWindow,
         public int $minimumReferenceSlots,
         public array $affectedDepartments = [],
     ) {
