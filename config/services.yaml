@@ -125,7 +125,9 @@ services:
 
 when@test:
     services:
+        # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):
+        # a rebuild in another worker must not hold the lock a test asserts on.
         app.lock.store:
             class: Symfony\Component\Lock\Store\FlockStore
             arguments:
-                - '%kernel.cache_dir%/lock'
+                - '%kernel.cache_dir%/lock%env(default::TEST_TOKEN)%'
