@@ -34,10 +34,11 @@ A new context `src/Storage/{Domain,Application,Infrastructure,UI}` with its own 
 - Files are counted with their **allocated size** (`st_blocks * 512`), because hosting limits count blocks, not logical sizes.
 - **Every inode is counted once** (set of `device:inode`), so hardlinks between releases or into `shared/` do not inflate the total.
 - **Symlinks are never followed.** Shared content is measured once at its real location.
-- The measurement root is walked **once**. Each file gets exactly one *location* and one *category* by ordered path rules (first match wins). Files no rule matches are `other.unclassified`. Overlap between categories is impossible by construction.
+- The measurement root is walked **once**. Each file and directory gets exactly one *location* and one *category* by ordered path rules (first match wins). Nothing is excluded: `node_modules/` or `.git/` count as application files if they exist. Overlap between categories is impossible by construction.
+- A directory that cannot be listed is skipped and its item is flagged `incomplete` (its size is a lower bound); a location that cannot be read at all is `failed`.
 - PostgreSQL is measured separately with `pg_database_size(current_database())`, plus the largest tables via `pg_total_relation_size()`. It lives outside the deploy path and cannot overlap with files.
 
-The total used for evaluation is **files + database**.
+The measured usage is **files + database**. It only exists when both could be measured.
 
 ### Deployment layout
 
@@ -77,7 +78,7 @@ The six categories form the segmented bar on the dashboard. The Disk Usage page 
 `CapacityProviderInterface` returns the reference the usage is compared with. Implementations:
 
 - **Configured budget** (`STORAGE_BUDGET_BYTES`, replacing `APP_ADMIN_STORAGE_LIMIT_BYTES`, which is read as a fallback for one release). Default reference.
-- **Filesystem** (`disk_total_space()` / `disk_free_space()`). Always recorded as information; used as the reference only with `STORAGE_CAPACITY_SOURCE=filesystem`, because on shared hosting it describes the host disk, not the account.
+- **Filesystem** (`disk_total_space()` / `disk_free_space()`). Always recorded as information; used as the reference only with `STORAGE_CAPACITY_SOURCE=filesystem`, because on shared hosting it describes the host disk, not the account. It is compared with the filesystem-wide usage (total − free), because everything on the disk competes for the same space. If the filesystem does not report plausible values, the budget is used instead.
 - No reference → level `unknown`.
 
 Each measurement stores the reference source and value. The UI labels it ("Configured budget", "Filesystem") and never presents it as a hosting quota. A quota provider can be added later behind the same interface.
@@ -103,7 +104,7 @@ The first three thresholds are configurable in `config/packages/app.yaml` (`app.
 
 **`storage_capacity_alert`**: a single row with the last notified level and when it changed. Deduplication keys of the notification system expire and cannot express "same level as yesterday".
 
-Missing parts are stored as `null` with a status, never as 0. If the file walk fails, the total is `null` and the level is `unknown`.
+Missing parts are stored as `null` with a status, never as 0. If the file walk or the database size fails, the total is `null` and the level is `unknown`, whatever the reference.
 
 ### Scheduled measurement and console command
 

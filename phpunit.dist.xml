@@ -70,6 +70,7 @@
             <directory>tests/Onboarding/Functional</directory>
             <directory>tests/Shared/Functional</directory>
             <directory>tests/Statistics/Functional</directory>
+            <directory>tests/Storage/Functional</directory>
             <directory>tests/User/Functional</directory>
         </testsuite>
 

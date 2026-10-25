@@ -14,4 +14,7 @@ enum MeasurementItemFlag: string
 
     /** A path in shared/ that no symlink of the current release points to. */
     case UnusedSharedPath = 'unused_shared_path';
+
+    /** Some paths of this item could not be read; its size is a lower bound. */
+    case Incomplete = 'incomplete';
 }

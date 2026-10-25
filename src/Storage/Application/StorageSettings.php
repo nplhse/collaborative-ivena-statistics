@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * Typed storage monitoring configuration (ADR 017): thresholds and maximum measurement age from `app.storage`,
  * budget and capacity reference from STORAGE_BUDGET_BYTES and STORAGE_CAPACITY_SOURCE.
  *
- * @psalm-suppress UnusedClass Not wired yet; the measurement service and the health check use it.
+ * @psalm-suppress PossiblyUnusedProperty Not wired yet; the storage health check reads measurementMaxAgeHours.
  */
 final readonly class StorageSettings
 {
@@ -24,6 +24,7 @@ final readonly class StorageSettings
     /** Which reference to compare usage with; never None, that follows from a missing budget. */
     public CapacitySource $preferredCapacitySource;
 
+    /** @psalm-suppress PossiblyUnusedMethod Wired by the container. */
     public function __construct(
         #[Autowire(param: 'app.storage.thresholds.notice_percent')]
         int $noticePercent,
