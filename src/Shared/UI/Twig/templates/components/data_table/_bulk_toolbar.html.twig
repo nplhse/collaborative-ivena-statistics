@@ -1,6 +1,7 @@
-{# Shown while rows are selected: count, actions and "clear selection". The row checkboxes belong to this form. #}
+{# Shown while rows are selected: count, actions and "clear selection". The row checkboxes belong to this form.
+   Not a .card-body: Tabler draws a top border on ".card-body + .card-body" even while this one is hidden. #}
 <div
-    class="card-body border-bottom py-2 d-flex d-none flex-wrap align-items-center gap-2"
+    class="data-table-bulk-toolbar px-3 py-2 border-bottom d-flex d-none flex-wrap align-items-center gap-2"
     data-bulk-selection-target="toolbar"
     data-testid="data-table-bulk-toolbar"
 >
