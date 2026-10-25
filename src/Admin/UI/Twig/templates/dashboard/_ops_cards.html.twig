@@ -15,17 +15,6 @@
                             </div>
                         </div>
                         <p class="ea-kpi-value mb-1">{{ card.value }}</p>
-                        {% if card.trendBytes is not null %}
-                            {% set trendUp = card.trendBytes > 0 %}
-                            <p class="ea-ops-card-trend mb-0 small {{ trendUp ? 'text-success' : 'text-secondary' }}">
-                                <i class="fas {{ trendUp ? 'fa-arrow-trend-up' : 'fa-minus' }} me-1" aria-hidden="true"></i>
-                                {% if trendUp %}
-                                    {{ 'ops.card.trend_up'|trans({'%size%': card.trendBytes|format_bytes}, 'admin') }}
-                                {% else %}
-                                    {{ 'ops.card.trend_flat'|trans({}, 'admin') }}
-                                {% endif %}
-                            </p>
-                        {% endif %}
                     </div>
                 </div>
                 {% if card.detailUrl %}

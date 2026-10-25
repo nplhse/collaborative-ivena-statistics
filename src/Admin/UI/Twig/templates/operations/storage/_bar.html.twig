@@ -1,0 +1,30 @@
+{# Segmented storage bar: categories in display order, then usage outside the application; the empty rest is free capacity. #}
+<div class="ea-storage-bar{{ large|default(false) ? ' ea-storage-bar--lg' : '' }}"
+     role="img"
+     aria-label="{{ 'storage.bar.aria'|trans({percent: summary.barUsedPercent}, 'storage') }}">
+    {% for segment in summary.segments %}
+        {% if segment.widthPercent > 0 %}
+            <span class="ea-storage-bar__segment"
+                  style="width: {{ segment.widthPercent }}%; background-color: {{ segment.color }};"
+                  title="{{ segment.labelKey|trans({}, 'storage') }}: {{ segment.bytes|format_bytes }}"></span>
+        {% endif %}
+    {% endfor %}
+</div>
+{% if legend|default(true) %}
+    <ul class="ea-storage-legend list-unstyled d-flex flex-wrap column-gap-3 row-gap-1 mt-2 mb-0 small">
+        {% for segment in summary.segments %}
+            <li class="d-inline-flex align-items-center gap-1">
+                <span class="ea-storage-legend__dot" style="background-color: {{ segment.color }};" aria-hidden="true"></span>
+                <span class="text-secondary">{{ segment.labelKey|trans({}, 'storage') }}</span>
+                <span class="fw-semibold">{{ segment.bytes|format_bytes }}</span>
+            </li>
+        {% endfor %}
+        {% if summary.hasCapacity and summary.remainingBytes > 0 %}
+            <li class="d-inline-flex align-items-center gap-1">
+                <span class="ea-storage-legend__dot ea-storage-legend__dot--free" aria-hidden="true"></span>
+                <span class="text-secondary">{{ 'storage.segment.free'|trans({}, 'storage') }}</span>
+                <span class="fw-semibold">{{ summary.remainingBytes|format_bytes }}</span>
+            </li>
+        {% endif %}
+    </ul>
+{% endif %}
