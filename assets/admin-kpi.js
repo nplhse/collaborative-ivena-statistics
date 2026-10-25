@@ -12,3 +12,9 @@ application.register('checkbox-select-all', CheckboxSelectAllController);
 application.register('confirm-submit', ConfirmSubmitController);
 application.register('copy-to-clipboard', CopyToClipboardController);
 application.register('vich-file-preview', VichFilePreviewController);
+
+// Lets the Symfony UX Inspector read controller details in the admin area. The
+// <ux-inspector> element is only injected in the dev environment with debug on.
+if (document.getElementById('ux-inspector')) {
+    window.Stimulus = application;
+}

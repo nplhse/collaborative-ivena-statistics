@@ -59,6 +59,27 @@ Four Live Components in `src/`:
 
 Routes: `config/routes/ux_live_component.yaml`
 
+## Debugging with UX Inspector
+
+[Symfony UX Inspector](https://symfony.com/bundles/ux-inspector/current/index.html) shows the Stimulus controllers, Live Components and Turbo frames on the current page. It is a development tool only:
+
+- `symfony/ux-inspector` is a `require-dev` package, and the bundle is registered for `dev` only (`config/bundles.php`).
+- Routes and config are wrapped in `when@dev` (`config/routes/ux_inspector.yaml`, `config/packages/ux_inspector.yaml`). The bundle also stays off when `kernel.debug` is false.
+- The dev firewall covers `/_ux/inspector.js`, so loading the script never starts a session.
+- [`UxInspectorNotExposedTest`](../../tests/Shared/Functional/Security/UxInspectorNotExposedTest.php) fails if the bundle is registered outside `dev`.
+
+**Opening it:** click the small pull tab on the right edge of the page, or type `u` then `x` outside a form field. It works on every HTML page, including EasyAdmin, and next to the Web Debug Toolbar (the toolbar itself is ignored). The profiler, `/_wdt`, `/_error` and `/_fragment` are excluded.
+
+**What it shows:**
+
+- Stimulus: values (with defaults), CSS classes, targets (also missing ones), actions (also missing methods), outlets and parent/child controllers.
+- Live Components: LiveProps, models, actions, listeners, loading and polling settings, child components.
+- Activity log ("Show activity"): Live Component requests, model changes and re-renders, Turbo frame loads and streams, controller events dispatched via `data-action`.
+
+**Stimulus connection:** `assets/bootstrap.js` sets `window.Stimulus = app` when `app.debug` is true (it follows `kernel.debug`). This lets the Inspector read controller details beyond the HTML attributes. It reuses the existing Stimulus application; no application code reads `window.Stimulus`. EasyAdmin pages start their own small Stimulus application in `assets/admin-kpi.js`; it is connected the same way, but only when the `<ux-inspector>` element is on the page (dev with debug on).
+
+**Limits:** the Inspector is experimental and its API may change, so nothing in the application may depend on it. It only reads the page. Stimulus `connect()` and `disconnect()` are not shown in the activity log. It needs a modern browser (Baseline 2024).
+
 ## Colocated templates
 
 Twig templates are colocated with controllers under `src/*/UI/Twig/templates/`. See [../02-architecture/decisions/004-colocated-templates.md](../02-architecture/decisions/004-colocated-templates.md).

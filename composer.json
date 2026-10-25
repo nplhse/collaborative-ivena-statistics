@@ -188,6 +188,7 @@
         "symfony/debug-bundle": "8.1.*",
         "symfony/maker-bundle": "^1.67",
         "symfony/stopwatch": "8.1.*",
+        "symfony/ux-inspector": "^3.6",
         "symfony/web-profiler-bundle": "8.1.*",
         "vimeo/psalm": "^6.16.1",
         "vincentlanglet/twig-cs-fixer": "^4.0",

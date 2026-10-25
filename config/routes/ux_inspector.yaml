@@ -1,0 +1,4 @@
+# Symfony UX Inspector: development-only debugging tool, see docs/03-development/frontend.md.
+when@dev:
+    ux_inspector:
+        resource: '@UXInspectorBundle/config/routes.php'
