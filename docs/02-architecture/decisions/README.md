@@ -31,6 +31,7 @@ Each ADR includes:
 | [013](013-page-multilingual-content.md) | Multilingual CMS page content via PageTranslation | accepted |
 | [014](014-persisted-user-activity-projection.md) | Persistierte User-Activity-Projektion | accepted |
 | [016](016-notification-system.md) | Multi-channel notification system with declarative definitions and user preferences | accepted |
+| [017](017-storage-monitoring.md) | Storage monitoring with daily measurements, capacity levels and admin alerts | accepted |
 
 ## Template
 
