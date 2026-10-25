@@ -162,6 +162,26 @@ final class ClosureVolumeReferenceWindowTest extends TestCase
         self::assertNull(ClosureVolumeProvisionalReason::forEvent($end, new ClosureVolumeReferenceWindow(8, 0), $untilMayEnd, $untilMayEnd), 'Without weeks after the event, covering its end is enough.');
     }
 
+    public function testWindowSlotsSkipTheMissingSpringHourAndAreReusedPerSeries(): void
+    {
+        $calendar = new ClosureVolumeReferenceCalendar();
+        // Sunday 29 March 2026: clocks jump from 02:00 to 03:00.
+        $ranges = new ClosureVolumeReferenceWindow(2, 0)->ranges($this->at('2026-04-05 06:00'), $this->at('2026-04-05 07:00'));
+
+        $slots = $calendar->windowSlots($ranges, 7, 1, ['2026-03-29' => true]);
+
+        self::assertSame([0, 1, 3, 4, 5], array_column($slots, 0));
+        self::assertSame('2026-03-29 03:00:00', $slots[2][1]);
+        self::assertSame($slots, $calendar->windowSlots($ranges, 7, 1, ['2026-03-29' => true]), 'Cached clock hours give the same slots.');
+
+        $tallies = $calendar->tallySlots($slots, 1, ['2026-03-29 03:00:00' => 4], ['2026-03-29 04:00:00' => true]);
+        self::assertSame(1, $tallies[3]->primaryCount);
+        self::assertSame(4, $tallies[3]->primarySum);
+        self::assertSame(0, $tallies[2]->primaryCount);
+        self::assertSame(4, $tallies[0]->fallbackCount);
+        self::assertSame(1, $tallies[0]->fallbackBlocked);
+    }
+
     public function testMetricKindsMapUrgenciesAndResources(): void
     {
         self::assertSame(ClosureVolumeMetricKind::Inpatient, ClosureVolumeMetricKind::forUrgency(2));

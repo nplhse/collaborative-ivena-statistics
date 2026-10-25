@@ -63,6 +63,9 @@ final class ClosureVolumeProjectionRebuilder
 
     public readonly ClosureRebuildProfile $profile;
 
+    /** @var array<string, list<array{0: int, 1: string}>> reference slots per event extent, weekday and day-time block; one partition */
+    private array $slotCache = [];
+
     public function __construct(
         private readonly Connection $connection,
         private readonly ClosureVolumeAnchorBuilder $anchorBuilder,
@@ -342,6 +345,7 @@ SQL,
         }
         /** @var array<string, array<int, ClosureVolumeRate>> $rateCache */
         $rateCache = [];
+        $this->slotCache = [];
 
         foreach ($anchors as $anchor) {
             $groups = $this->referenceGroups($anchor, $now);
@@ -371,6 +375,7 @@ SQL,
             $onProgress(min($done, $total), $total);
         }
 
+        $this->slotCache = [];
         unset($anchors, $neighbours, $neighbourIndex, $counts, $coveredDays, $blocked, $rateCache, $eventEnds, $provisional);
         gc_collect_cycles();
         $retained = max(0, memory_get_usage(false) - $before);
@@ -711,12 +716,13 @@ SQL,
         foreach ($groups as [$weekday, $dayTimeBucket]) {
             $cacheKey = $windowKey.'|'.$series.'|'.$weekday.'|'.$dayTimeBucket;
             if (!isset($cache[$cacheKey])) {
-                $tallies = $this->calendar->tallyWindow($ranges, $weekday, $dayTimeBucket, ['m' => $hourly], $coveredDays, ['m' => $blockedHours]);
+                // The slots depend on the event extent only; every population and metric with that extent shares them.
+                $slotKey = 'slots|'.$windowKey.'|'.$weekday.'|'.$dayTimeBucket;
+                $slots = $this->slotCache[$slotKey] ??= $this->calendar->windowSlots($ranges, $weekday, $dayTimeBucket, $coveredDays);
                 $cache[$cacheKey] = [];
-                foreach ($tallies['m'] as $hour => $tally) {
+                foreach ($this->calendar->tallySlots($slots, $dayTimeBucket, $hourly, $blockedHours) as $hour => $tally) {
                     $cache[$cacheKey][$hour] = $this->selector->fromTally($tally);
                 }
-                unset($tallies);
             }
             foreach ($cache[$cacheKey] as $hour => $rate) {
                 $rates[$weekday.'|'.$hour] = $rate;

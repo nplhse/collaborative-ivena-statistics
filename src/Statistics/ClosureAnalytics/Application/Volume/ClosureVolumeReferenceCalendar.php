@@ -10,6 +10,11 @@ namespace App\Statistics\ClosureAnalytics\Application\Volume;
  */
 final class ClosureVolumeReferenceCalendar
 {
+    private const int CLOCK_HOUR_CACHE = 20000;
+
+    /** @var array<string, array{0: int, 1: int, 2: string}|null> */
+    private array $clockHours = [];
+
     /**
      * @param array<string, int>          $hourlyCounts key Y-m-d H:00:00
      * @param array<string, true>         $coveredDays
@@ -67,18 +72,33 @@ final class ClosureVolumeReferenceCalendar
         array $coveredDays,
         array $blockedBySeries,
     ): array {
-        $hourFrom = ($dayTimeBucket - 1) * 6;
-        $series = array_keys($hourlyBySeries + $blockedBySeries);
-        /** @var array<string, array<int, array{0: int, 1: int, 2: int}>> $hours count, sum, blocked */
-        $hours = [];
-        foreach ($series as $key) {
-            for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
-                $hours[$key][$hour] = [0, 0, 0];
-            }
+        $slots = $this->windowSlots($ranges, $weekday, $dayTimeBucket, $coveredDays);
+        $result = [];
+        foreach (array_keys($hourlyBySeries + $blockedBySeries) as $series) {
+            $result[$series] = $this->tallySlots($slots, $dayTimeBucket, $hourlyBySeries[$series] ?? [], $blockedBySeries[$series] ?? []);
         }
+
+        return $result;
+    }
+
+    /**
+     * Covered hours of one weekday and day-time block that lie fully inside one range.
+     * The list depends on the event extent, not on the series, so callers can reuse it.
+     *
+     * @param list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}> $ranges      wall-clock [from, to)
+     * @param array<string, true>                                       $coveredDays
+     *
+     * @return list<array{0: int, 1: string}> clock hour, Y-m-d H:00:00
+     */
+    public function windowSlots(array $ranges, int $weekday, int $dayTimeBucket, array $coveredDays): array
+    {
+        $hourFrom = ($dayTimeBucket - 1) * 6;
+        $slots = [];
         foreach ($ranges as [$from, $to]) {
             $from = ClosureVolumeClock::wall($from);
             $to = ClosureVolumeClock::wall($to);
+            $fromTs = $from->getTimestamp();
+            $toTs = $to->getTimestamp();
             $day = $from->setTime(0, 0);
             $shift = ($weekday - (int) $day->format('N') + 7) % 7;
             if (0 !== $shift) {
@@ -90,31 +110,47 @@ final class ClosureVolumeReferenceCalendar
                     continue;
                 }
                 for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
-                    $hourKey = $this->hourInRange($dayKey, $hour, $from, $to);
-                    if (null === $hourKey) {
-                        continue;
-                    }
-                    foreach ($series as $key) {
-                        if (isset($blockedBySeries[$key][$hourKey])) {
-                            ++$hours[$key][$hour][2];
-                            continue;
-                        }
-                        ++$hours[$key][$hour][0];
-                        $hours[$key][$hour][1] += $hourlyBySeries[$key][$hourKey] ?? 0;
+                    $slot = $this->clockHour($dayKey, $hour);
+                    if (null !== $slot && $slot[0] >= $fromTs && $slot[1] <= $toTs) {
+                        $slots[] = [$hour, $slot[2]];
                     }
                 }
             }
         }
 
+        return $slots;
+    }
+
+    /**
+     * @param list<array{0: int, 1: string}> $slots   from {@see self::windowSlots()}
+     * @param array<string, int>             $hourly  Y-m-d H:00:00 => count
+     * @param array<string, true>            $blocked Y-m-d H:00:00 => true
+     *
+     * @return array<int, ClosureVolumeReferenceTally> hour => tally
+     */
+    public function tallySlots(array $slots, int $dayTimeBucket, array $hourly, array $blocked): array
+    {
+        $hourFrom = ($dayTimeBucket - 1) * 6;
+        /** @var array<int, array{0: int, 1: int, 2: int}> $hours count, sum, blocked */
+        $hours = [];
+        for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
+            $hours[$hour] = [0, 0, 0];
+        }
+        foreach ($slots as [$hour, $key]) {
+            if (isset($blocked[$key])) {
+                ++$hours[$hour][2];
+                continue;
+            }
+            ++$hours[$hour][0];
+            $hours[$hour][1] += $hourly[$key] ?? 0;
+        }
+        $fallback = [0, 0, 0];
+        foreach ($hours as [$count, $sum, $blockedCount]) {
+            $fallback = [$fallback[0] + $count, $fallback[1] + $sum, $fallback[2] + $blockedCount];
+        }
         $result = [];
-        foreach ($hours as $key => $byHour) {
-            $fallback = [0, 0, 0];
-            foreach ($byHour as [$count, $sum, $blocked]) {
-                $fallback = [$fallback[0] + $count, $fallback[1] + $sum, $fallback[2] + $blocked];
-            }
-            foreach ($byHour as $hour => [$count, $sum, $blocked]) {
-                $result[$key][$hour] = new ClosureVolumeReferenceTally($count, $sum, $blocked, $fallback[0], $fallback[1], $fallback[2]);
-            }
+        foreach ($hours as $hour => [$count, $sum, $blockedCount]) {
+            $result[$hour] = new ClosureVolumeReferenceTally($count, $sum, $blockedCount, $fallback[0], $fallback[1], $fallback[2]);
         }
 
         return $result;
@@ -207,26 +243,44 @@ final class ClosureVolumeReferenceCalendar
 
     /**
      * Key of a wall-clock hour that exists on that day and lies fully inside [from, to).
-     * A skipped spring hour does not exist; the repeated autumn hour is one bucket.
      */
     private function hourInRange(string $dayKey, int $hour, \DateTimeImmutable $from, \DateTimeImmutable $to): ?string
     {
+        $slot = $this->clockHour($dayKey, $hour);
+        if (null === $slot || $slot[0] < $from->getTimestamp() || $slot[1] > $to->getTimestamp()) {
+            return null;
+        }
+
+        return $slot[2];
+    }
+
+    /**
+     * Start and end instant and key of a wall-clock hour, or null when the hour does not exist
+     * (skipped spring hour). The repeated autumn hour is its first pass, one hour long.
+     * Calendar hours never change, so they are cached; the cache is dropped when it grows large.
+     *
+     * @return array{0: int, 1: int, 2: string}|null
+     */
+    private function clockHour(string $dayKey, int $hour): ?array
+    {
+        $key = $dayKey.'|'.$hour;
+        if (\array_key_exists($key, $this->clockHours)) {
+            return $this->clockHours[$key];
+        }
+        if (\count($this->clockHours) >= self::CLOCK_HOUR_CACHE) {
+            $this->clockHours = [];
+        }
         $hourStart = \DateTimeImmutable::createFromFormat(
             '!Y-m-d H:i:s',
             sprintf('%s %02d:00:00', $dayKey, $hour),
             ClosureVolumeClock::zone(),
         );
-        if (!$hourStart instanceof \DateTimeImmutable) {
-            return null;
-        }
-        if ((int) $hourStart->format('G') !== $hour || $hourStart->format('Y-m-d') !== $dayKey) {
-            return null;
-        }
-        $hourEnd = new \DateTimeImmutable('@'.($hourStart->getTimestamp() + 3600))->setTimezone(ClosureVolumeClock::zone());
-        if ($hourStart < $from || $hourEnd > $to) {
-            return null;
+        $slot = null;
+        if ($hourStart instanceof \DateTimeImmutable && (int) $hourStart->format('G') === $hour && $hourStart->format('Y-m-d') === $dayKey) {
+            $start = $hourStart->getTimestamp();
+            $slot = [$start, $start + 3600, $hourStart->format('Y-m-d H:00:00')];
         }
 
-        return $hourStart->format('Y-m-d H:00:00');
+        return $this->clockHours[$key] = $slot;
     }
 }
