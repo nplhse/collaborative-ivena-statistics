@@ -403,7 +403,7 @@ Opt-in row selection for actions on several rows. Set `bulkActions` (list of `Da
 
 ### Footer
 
-Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type.
+Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type: any `Symfony\UX\Pagination\CursorPaginationInterface` (the UX `CursorPagination` or the hand-written `CursorPaginator`) gets previous/next links, every other `PaginationInterface` gets page numbers through `ux_pagination`. DataTable builds the previous/next URLs itself from `getPreviousCursor()` / `getNextCursor()` so they keep the table's route, filters, sort and page size; the query parameter is `cursorParam` (default `cursor`). The result range shows an estimate when the paginator offers `estimatedNumResults`, otherwise a generic line.
 
 List pages also show the same range in the PageHeader `context` slot (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 

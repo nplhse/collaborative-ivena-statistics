@@ -52,21 +52,21 @@ final class ListAllocationsSecondaryIndicationFilterTest extends KernelTestCase
         AllocationFactory::createOne(['secondaryIndicationNormalized' => $target] + $shared);
         AllocationFactory::createOne(['secondaryIndicationNormalized' => $other] + $shared);
 
-        $noneResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $noneResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             secondaryIndication: 'none',
-        ))->getResults());
+        ))->getItems();
         self::assertCount(1, $noneResults);
         self::assertNull($noneResults[0]['secondaryIndicationNormalizedName']);
 
-        $idResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $idResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             secondaryIndication: (string) $target->getId(),
-        ))->getResults());
+        ))->getItems();
         self::assertCount(1, $idResults);
         self::assertSame('Target Secondary', $idResults[0]['secondaryIndicationNormalizedName']);
 
-        $ignoredAny = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $ignoredAny = $this->query->getPaginator(new AllocationQueryParametersDTO(
             secondaryIndication: 'any',
-        ))->getResults());
+        ))->getItems();
         self::assertCount(3, $ignoredAny);
     }
 

@@ -47,7 +47,7 @@ final class ListAllocationsUrgencyFilterTest extends KernelTestCase
             urgency: (string) AllocationUrgency::INPATIENT->value,
         ));
 
-        self::assertCount(1, iterator_to_array($paginator->getResults()));
+        self::assertCount(1, $paginator->getItems());
     }
 
     public function testIgnoresInvalidUrgencyFilter(): void
@@ -60,7 +60,7 @@ final class ListAllocationsUrgencyFilterTest extends KernelTestCase
             urgency: 'not-a-urgency',
         ));
 
-        self::assertCount(2, iterator_to_array($paginator->getResults()));
+        self::assertCount(2, $paginator->getItems());
     }
 
     /**

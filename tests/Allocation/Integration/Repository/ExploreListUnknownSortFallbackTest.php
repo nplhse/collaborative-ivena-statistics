@@ -167,6 +167,6 @@ final class ExploreListUnknownSortFallbackTest extends KernelTestCase
             ->get(ListAllocationsQuery::class)
             ->getPaginator(new AllocationQueryParametersDTO(sortBy: 'unknown'));
 
-        self::assertCount(0, iterator_to_array($paginator->getResults()));
+        self::assertCount(0, $paginator->getItems());
     }
 }

@@ -56,6 +56,18 @@ Legacy URLs `?isInfectious=1` / `?isInfectious=0` still work (any / none). Speci
 
 Labels: `label.all_allocations` (empty infection option), `label.all_secondary_indications`, `label.no_secondary_indication`, `label.no_secondary_transport`, `label.any_secondary_transport`, `label.no_occasion`, `label.no_infection`, `label.any_infection`. The infection and secondary-indication selects separate those special options from the catalog list with a disabled divider.
 
+## Pagination
+
+The list uses keyset (cursor) pagination, not `OFFSET`, because `allocation` is the largest table. Pages are ordered by the sort field (`arrivalAt` or `age`) plus `id` as a tie-breaker, in the same direction. That keeps the order stable when many rows share a timestamp or age.
+
+- **Cursor** — `CursorCodec` stores the boundary row (sort value + id), the sort it belongs to and a direction. A *next* cursor holds the last row of a page; a *previous* cursor holds the first row. A cursor for another sort, or one that cannot be decoded, is ignored and the first page is shown. Version 1 cursors (no direction) still work and point forward.
+- **Predicate** — `sort <= :v AND (sort < :v OR (sort = :v AND id < :id))` for descending pages (mirrored for ascending). The leading bound lets PostgreSQL start the index scan (`idx_allocation_arrival_at_id`, `idx_allocation_age_id`) at the cursor row. Without it, the OR alone made PostgreSQL scan and discard every row before the cursor: on 2.3 million rows a deep page took about 80–180 ms warm and over a second cold, now well under 1 ms.
+- **Previous** — paging back runs the same query in the opposite order and reverses the rows. When paging back reaches the start with fewer rows than a page (rows were deleted meanwhile), a normal first page is loaded instead. The first page has no previous link.
+- **Limit + 1** — one extra row tells whether another page exists in that direction.
+- **Count** — the footer shows an estimate from `EXPLAIN` (`ListAllocationsQuery::estimateNumResults`), not an exact `COUNT(*)`.
+
+`CursorPaginator` implements the Symfony UX `CursorPaginationInterface`, so `DataTable` treats it like any UX cursor pagination. A full switch to the UX Doctrine cursor adapter was evaluated in [#651](https://github.com/nplhse/collaborative-ivena-statistics/issues/651) and kept back: it builds the same unbounded OR predicate, routes our entity-class joins through Doctrine's two-query paginator, has no estimated count and is still experimental.
+
 ## Code locations
 
 | Area | Path |
@@ -65,4 +77,5 @@ Labels: `label.all_allocations` (empty infection option), `label.all_secondary_i
 | Filter criteria | `src/Allocation/Application/Allocations/AllocationListFilterCriteriaFactory.php` |
 | Created-at range | `src/Allocation/Application/Allocations/AllocationCreatedAtRangeParser.php` |
 | SQL filter | `src/Allocation/Application/Export/AllocationListFilterApplicator.php` |
+| Keyset query | `src/Allocation/Infrastructure/Query/ListAllocationsQuery.php`, `src/Shared/Infrastructure/Pagination/` |
 | UI | Shared `FilterDrawer` / `FilterDrawerTrigger` Twig components (`src/Shared/UI/Twig/Components/`); allocation-specific fields in `src/Allocation/UI/Twig/templates/allocations/_allocation_filter_drawer.html.twig` |
