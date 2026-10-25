@@ -1,0 +1,7 @@
+{% if row.fileSize is not null %}
+    <span class="text-nowrap" title="{{ row.fileSize|number_format(0, ',', '.') }} B">
+        {{- row.fileSize >= 1048576
+            ? (row.fileSize / 1048576.0)|number_format(2, ',', '.') ~ ' MB'
+            : (row.fileSize / 1024.0)|number_format(0, ',', '.') ~ ' KB' -}}
+    </span>
+{% endif %}

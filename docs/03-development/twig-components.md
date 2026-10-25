@@ -377,7 +377,7 @@ class implements `DataTablePreferenceDefinitionInterface`, builds its schema wit
 `DataTablePreferenceSchema::fromColumns()`, and owns the public `SORT_KEYS` that
 the query DTO's `Assert\Choice` uses. The controller resolves the saved state
 with `DataTablePreferenceQueryState::fromRequest()` and
-`DataTablePreferenceService::resolve()`. `ListColumn` (Allocation UI) builds the
+`DataTablePreferenceService::resolve()`. `DataTableColumns` (Shared) builds the
 usual configurable, sortable and last-change columns.
 
 Optional columns that count or join other data (indication occurrences, raw

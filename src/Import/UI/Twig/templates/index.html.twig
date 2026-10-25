@@ -19,22 +19,20 @@
             <twig:FilterDrawerTrigger
                 drawerId="import-filters"
                 :activeCount="activeFilterCount"
-                resetUrl="{{ activeFilterCount > 0 ? path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) : null }}"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_import_index', data_table_view_query()|merge(search is not empty ? {search: search} : {})) : null }}"
                 openTestId="import-filters-drawer-trigger"
                 clearTestId="import-filters-clear"
+                keepViewState
             />
 
             <form
                 method="GET"
                 action="{{ path('app_import_index') }}"
-                data-controller="autosubmit"
+                data-controller="autosubmit query-state"
+                data-query-state-omit-value="{{ ['search']|json_encode }}"
                 data-turbo-frame="import-list"
             >
-                {% for key, value in app.request.query.all %}
-                    {% if key != 'search' and value is not iterable %}
-                        <input type="hidden" name="{{ key }}" value="{{ value }}">
-                    {% endif %}
-                {% endfor %}
+                {{ include('@Shared/components/data_table/_query_hidden_fields.html.twig', {omit: ['search']}) }}
                 <div class="input-icon">
                     <input
                         type="search"
@@ -90,7 +88,7 @@
             {% endif %}
             <twig:Alert :type="batchType" :message="batchMessage" icon="tabler:refresh" data-testid="import-batch-progress">
                 <twig:block name="actions">
-                    <a class="btn btn-sm" href="{{ path('app_import_index') }}" target="_top" data-testid="import-batch-clear">{{ 'import.batch.clear'|trans({}, 'import') }}</a>
+                    <a class="btn btn-sm" href="{{ path('app_import_index', data_table_view_query()) }}" target="_top" data-testid="import-batch-clear">{{ 'import.batch.clear'|trans({}, 'import') }}</a>
                 </twig:block>
             </twig:Alert>
         {% endif %}
@@ -109,19 +107,19 @@
             :bulkCsrfToken="csrf_token(constant('App\\Import\\UI\\Http\\Controller\\BulkImportActionController::CSRF_TOKEN'))"
             :bulkSelectableIds="bulkSelectableIds"
             bulkId="import-bulk"
-            :columns="[
-                { key: 'type', type: 'badge', label: 'label.type', property: 'type', sortable: true, sortKey: 'type', width: 'col-1', badgePalette: 'import_type' },
-                { key: 'name', type: 'link', label: 'label.name', property: 'name', sortable: true, sortKey: 'name', width: 'col-3', route: 'app_import_show', routeParams: {id: 'id'} },
-                { key: 'status', type: 'badge', label: 'label.status', property: 'status', sortable: true, sortKey: 'status', width: 'col-1', badgePalette: 'import_status' },
-                { key: 'hospital', type: 'link', label: 'label.hospital', property: 'hospital', sortable: true, sortKey: 'hospital', width: 'col-2', route: 'app_explore_hospital_show', routeParams: {publicId: 'hospital.publicId'} },
-                { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt', width: 'col-2' },
-                { key: 'lastChange', type: 'datetime', label: 'label.last_changed_at', property: 'updatedAt', fallbackProperty: 'createdAt', sortable: true, sortKey: 'lastChange', width: 'col-2' },
-                { key: 'lastChangedBy', type: 'user', label: 'label.last_changed_by', property: 'updatedBy', fallbackProperty: 'createdBy', width: 'col-2' },
-            ]"
+            :columns="importColumns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="importPreferences.visibleColumns"
+            :columnOrder="importPreferences.columnOrder"
+            :preferenceKey="importPreferenceKey"
+            :preferenceSaveUrl="path('app_data_table_preferences_save')"
+            :preferenceCsrfToken="csrf_token('data_table_preference_' ~ importPreferenceKey)"
+            :preferenceReturnUrl="app.request.requestUri"
         >
             <twig:block name="empty_actions">
                 {% if listIsFiltered %}
-                    <a class="btn btn-primary" href="{{ path('app_import_index', {sortBy: sortBy, orderBy: orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                    <a class="btn btn-primary" href="{{ path('app_import_index', data_table_view_query()) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
                 {% elseif canImport %}
                     <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.import.initial.cta'|trans({}, 'import') }}</a>
                 {% else %}
@@ -135,12 +133,13 @@
         id="import-filters"
         formId="import-filter-form"
         formAction="{{ path('app_import_index') }}"
-        resetUrl="{{ path('app_import_index', {search: search, sortBy: sortBy, orderBy: orderBy}) }}"
+        resetUrl="{{ path('app_import_index', data_table_view_query()|merge(search is not empty ? {search: search} : {})) }}"
         testId="import-filters-drawer"
         cancelTestId="import-filters-cancel"
         applyTestId="import-filters-apply"
         resetTestId="import-filters-reset"
-        :keepQueryKeys="['search', 'sortBy', 'orderBy']"
+        :keepQueryKeys="['search']"
+        keepViewState
     >
                 <div class="mb-3">
                     <label class="form-label" for="import-filter-hospital">{{ 'label.hospital'|trans({}, 'messages') }}</label>

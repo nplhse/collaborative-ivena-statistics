@@ -96,19 +96,33 @@ final readonly class ListImportsQuery
             ))->setParameter('search', $search);
         }
 
-        $sortField = match ($query->sortBy) {
+        // The id tie-breaker keeps rows with equal sort values on a stable page.
+        $qb->orderBy(self::sortField($query->sortBy), $query->orderBy)
+            ->addOrderBy('i.id', $query->orderBy);
+
+        return $qb;
+    }
+
+    /**
+     * Maps a public sort key of the import list (see ImportListColumns::SORT_KEYS) to its DQL field.
+     */
+    public static function sortField(string $sortBy): string
+    {
+        return match ($sortBy) {
             'hospital' => 'h.name',
             'lastChange' => 'sortDate',
             'status' => 'i.status',
-            'createdAt' => 'i.createdAt',
-            'id' => 'i.id',
             'type' => 'i.type',
             'name' => 'i.name',
+            'rowCount' => 'i.rowCount',
+            'rowsPassed' => 'i.rowsPassed',
+            'rowsRejected' => 'i.rowsRejected',
+            'rowsDeduplicated' => 'i.rowsDeduplicated',
+            'fileSize' => 'i.fileSize',
+            'runTime' => 'i.runTime',
+            'runCount' => 'i.runCount',
+            'exportPeriod' => 'i.exportStartsAt',
             default => 'i.createdAt',
         };
-
-        $qb->orderBy($sortField, $query->orderBy);
-
-        return $qb;
     }
 }

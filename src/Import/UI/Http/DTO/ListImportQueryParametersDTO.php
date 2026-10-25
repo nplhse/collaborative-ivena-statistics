@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\UI\Http\DTO;
 
 use App\Import\Domain\Enum\ImportStatus;
+use App\Import\UI\Twig\ImportListColumns;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class ListImportQueryParametersDTO
@@ -58,10 +59,10 @@ final readonly class ListImportQueryParametersDTO
         public int $limit = 25,
 
         #[Assert\Choice(choices: ['asc', 'desc'])]
-        public string $orderBy = 'desc',
+        public string $orderBy = ImportListColumns::DEFAULT_ORDER_BY,
 
-        #[Assert\Choice(choices: ['id', 'type', 'name', 'status', 'hospital', 'lastChange', 'createdAt'])]
-        public string $sortBy = 'createdAt',
+        #[Assert\Choice(choices: ImportListColumns::SORT_KEYS)]
+        public string $sortBy = ImportListColumns::DEFAULT_SORT_BY,
 
         ?string $search = null,
 

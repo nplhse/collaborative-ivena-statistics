@@ -6,6 +6,7 @@ namespace App\Allocation\UI\Twig;
 
 use App\Shared\Application\DataTable\DataTablePreferenceDefinitionInterface;
 use App\Shared\Application\DataTable\DataTablePreferenceSchema;
+use App\Shared\UI\Twig\DataTable\DataTableColumns;
 
 /**
  * Columns of the Explore hospital list. The sort keys are the single source for the
@@ -52,16 +53,16 @@ final class HospitalListColumns implements DataTablePreferenceDefinitionInterfac
                 'route' => 'app_explore_hospital_show',
                 'routeParams' => ['publicId' => 'publicId'],
             ],
-            ListColumn::sortable('dispatchArea', 'label.dispatch_area', 'text', ['property' => 'dispatchArea']),
-            ListColumn::sortable('state', 'label.state', 'text', ['property' => 'state']),
-            ListColumn::sortable('location', 'label.location', 'badge', ['property' => 'location', 'badgePalette' => 'hospital_location', 'nowrap' => true]),
-            ListColumn::sortable('tier', 'label.tier', 'badge', ['property' => 'tier', 'badgePalette' => 'hospital_tier', 'nowrap' => true]),
-            ListColumn::sortable('size', 'label.size', 'badge', ['property' => 'size', 'badgePalette' => 'hospital_size', 'numberProperty' => 'beds', 'nowrap' => true]),
-            ListColumn::sortable('beds', 'label.hospital_beds', 'number', ['property' => 'beds', 'align' => 'end', 'visible' => false, 'format' => ['decimals' => 0]]),
-            ListColumn::sortable('postalCode', 'label.address.postal_code', 'text', ['property' => 'address.postalCode', 'visible' => false, 'nowrap' => true]),
-            ListColumn::sortable('city', 'label.address.city', 'text', ['property' => 'address.city', 'visible' => false]),
-            ListColumn::sortable('participatingSince', 'label.participating_since', 'datetime', ['property' => 'participatingSince', 'visible' => false, 'format' => 'd.m.Y', 'nowrap' => true]),
-            ListColumn::sortable('lastChange', 'label.last_change', 'custom', ['cellTemplate' => '@Allocation/hospitals/_cell_last_change.html.twig', 'nowrap' => true]),
+            DataTableColumns::sortable('dispatchArea', 'label.dispatch_area', 'text', ['property' => 'dispatchArea']),
+            DataTableColumns::sortable('state', 'label.state', 'text', ['property' => 'state']),
+            DataTableColumns::sortable('location', 'label.location', 'badge', ['property' => 'location', 'badgePalette' => 'hospital_location', 'nowrap' => true]),
+            DataTableColumns::sortable('tier', 'label.tier', 'badge', ['property' => 'tier', 'badgePalette' => 'hospital_tier', 'nowrap' => true]),
+            DataTableColumns::sortable('size', 'label.size', 'badge', ['property' => 'size', 'badgePalette' => 'hospital_size', 'numberProperty' => 'beds', 'nowrap' => true]),
+            DataTableColumns::sortable('beds', 'label.hospital_beds', 'number', ['property' => 'beds', 'align' => 'end', 'visible' => false, 'format' => ['decimals' => 0]]),
+            DataTableColumns::sortable('postalCode', 'label.address.postal_code', 'text', ['property' => 'address.postalCode', 'visible' => false, 'nowrap' => true]),
+            DataTableColumns::sortable('city', 'label.address.city', 'text', ['property' => 'address.city', 'visible' => false]),
+            DataTableColumns::sortable('participatingSince', 'label.participating_since', 'datetime', ['property' => 'participatingSince', 'visible' => false, 'format' => 'd.m.Y', 'nowrap' => true]),
+            DataTableColumns::sortable('lastChange', 'label.last_change', 'custom', ['cellTemplate' => '@Allocation/hospitals/_cell_last_change.html.twig', 'nowrap' => true]),
         ];
     }
 

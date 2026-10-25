@@ -1,0 +1,5 @@
+{% if row.runTime is not null %}
+    <span class="text-nowrap">
+        {{- row.runTime > 1000 ? (row.runTime / 1000.0)|number_format(2, ',', '.') ~ ' s' : row.runTime ~ ' ms' -}}
+    </span>
+{% endif %}

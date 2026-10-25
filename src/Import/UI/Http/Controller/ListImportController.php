@@ -12,9 +12,13 @@ use App\Import\Infrastructure\Query\ImportBatchProgressQuery;
 use App\Import\Infrastructure\Query\ListImportsQuery;
 use App\Import\Infrastructure\Security\Voter\ImportVoter;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
+use App\Import\UI\Twig\ImportListColumns;
+use App\Shared\Application\DataTable\DataTablePreferenceService;
+use App\Shared\UI\Http\DataTablePreferenceQueryState;
 use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
 use App\User\Domain\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
@@ -35,10 +39,13 @@ final class ListImportController extends AbstractController
         private readonly PaginatorInterface $paginator,
         private readonly ImportBatchProgressQuery $batchProgressQuery,
         private readonly TranslatorInterface $translator,
+        private readonly ImportListColumns $columns,
+        private readonly DataTablePreferenceService $dataTablePreferences,
     ) {
     }
 
     public function __invoke(
+        Request $request,
         #[MapQueryString] ListImportQueryParametersDTO $query,
     ): Response {
         $user = $this->getUser();
@@ -46,9 +53,21 @@ final class ListImportController extends AbstractController
             throw new AccessDeniedException('You must be logged in to view imports.');
         }
 
+        $schema = $this->columns->preferenceSchema();
+        $queryPreferences = DataTablePreferenceQueryState::fromRequest($request);
+        $preferences = $this->dataTablePreferences->resolve(
+            $user,
+            $schema,
+            $queryPreferences->visibleColumns,
+            $queryPreferences->columnOrder,
+            $queryPreferences->pageSize,
+        );
+        // An explicit limit wins (shared links); otherwise the user's saved page size applies.
+        $perPage = $request->query->has('limit') ? $query->limit : $preferences->pageSize;
+
         $paginator = $this->paginator
             ->query($this->listImportsQuery->listQuery($user, $query))
-            ->perPage($query->limit > 0 ? $query->limit : 1)
+            ->perPage(max(1, $perPage))
             ->paginate();
 
         $bulkSelectableIds = $this->bulkSelectableIds($paginator);
@@ -59,6 +78,9 @@ final class ListImportController extends AbstractController
             'search' => $query->search,
             'sortBy' => $query->sortBy,
             'orderBy' => $query->orderBy,
+            'importColumns' => ImportListColumns::columns(),
+            'importPreferences' => $preferences,
+            'importPreferenceKey' => $schema->key,
             'filters' => $query,
             'activeFilterCount' => $this->countActiveFilters($query),
             'hospitals' => $this->hospitalRepository->findAccessibleHospitalSummaries($user),
