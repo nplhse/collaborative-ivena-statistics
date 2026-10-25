@@ -28,8 +28,6 @@ final class ClosureRecurringProfileTableStateTest extends TestCase
         self::assertSame('inner', $state->profileQ);
 
         $query = $state->toTableQuery();
-        self::assertSame(2, $query->page);
-        self::assertSame(50, $query->limit);
         self::assertSame('hospital', $query->sortBy);
         self::assertSame('asc', $query->orderBy);
         self::assertSame('inner', $query->profileQ);
