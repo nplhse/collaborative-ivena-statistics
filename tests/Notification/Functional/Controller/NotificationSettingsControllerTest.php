@@ -51,6 +51,8 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         self::assertSelectorExists('[data-testid="preference-type-import.completed"]');
         self::assertSelectorExists('[data-testid="preference-type-participation.activated"]');
         self::assertSelectorNotExists('[data-testid="preference-type-admin.import_failed"]', 'role-scoped types need the role');
+        self::assertSelectorNotExists('[data-testid="preference-type-storage.capacity_alert"]');
+        self::assertSelectorNotExists('[data-testid="preference-type-storage.daily_report"]');
         self::assertSelectorExists('[data-testid="preference-type-import.batch_finished"]', 'batch summaries go to any user who started a bulk reprocess');
         self::assertSelectorNotExists('[data-testid="preference-category-administration"]');
         self::assertSelectorExists('#notification-preferences-types-imports.collapse:not(.show)');
@@ -63,10 +65,15 @@ final class NotificationSettingsControllerTest extends DatabaseWebTestCase
         $client = self::createClient();
         $client->loginUser(UserFactory::createOne(['roles' => ['ROLE_ADMIN']]));
 
-        $client->request(Request::METHOD_GET, '/settings/notifications');
+        $crawler = $client->request(Request::METHOD_GET, '/settings/notifications');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="preference-type-admin.import_failed"]');
+        self::assertSelectorTextContains('[data-testid="preference-type-storage.capacity_alert"]', 'Storage alert');
+        self::assertSelectorTextContains('[data-testid="preference-type-storage.daily_report"]', 'Daily storage report');
+        self::assertTrue($this->isChecked($crawler, 'type-storage-capacity_alert-email'));
+        self::assertFalse($this->isChecked($crawler, 'type-storage-daily_report-email'), 'the daily report is opt-in');
+        self::assertFalse($this->isChecked($crawler, 'type-storage-daily_report-in_app'));
     }
 
     public function testMandatoryAndFixedChannelsAreDisabledCheckboxesWithAnExplanation(): void

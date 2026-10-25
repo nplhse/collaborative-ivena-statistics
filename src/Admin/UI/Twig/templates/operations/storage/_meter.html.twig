@@ -1,0 +1,4 @@
+<div class="progress ea-storage-meter" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ 'storage.kpi.used_percent'|trans({percent: percent}, 'storage') }}">
+    <div class="progress-bar bg-{{ style }}" style="width: {{ min(percent, 100) }}%;"></div>
+</div>
+<div class="text-end small text-secondary mt-1">{{ 'storage.kpi.used_percent'|trans({percent: percent}, 'storage') }}</div>

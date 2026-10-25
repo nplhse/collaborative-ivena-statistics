@@ -103,6 +103,12 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:analytics:aggregate` | Aggregate completed usage-analytics days and purge expired raw events. Scheduler equivalent; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md). |
 | `app:reminder:preview --hospital-id=ID` | Preview or send monthly submission reminder email. |
 
+### Storage
+
+| Command | Purpose |
+|---|---|
+| `app:storage:analyze` | Measure storage usage now and print it by category and location. Dry run by default; `--persist` stores today's measurement like the scheduled job and triggers storage alerts and the daily report unless `--no-notify` is given. `--format=json`, `-v` lists every contributor. Exit code `1` when files or database could not be measured or another measurement is running. See [../04-features/storage/README.md](../04-features/storage/README.md). |
+
 ### Content
 
 | Command | Purpose |
@@ -154,3 +160,4 @@ Some commands mirror scheduled Messenger jobs:
 | Every 6 hours | `GenerateDailyKpisMessage` | `app:kpi:aggregate --days=2` (similar window) |
 | Daily 08:00 Europe/Berlin | `SendMonthlySubmissionRemindersMessage` | `app:reminder:preview --hospital-id=ID --send` (per hospital) |
 | Daily 02:15 Europe/Berlin | `AggregateDailyAnalyticsMessage` | `app:analytics:aggregate` (yesterday + catch-up + cleanup) |
+| Daily 03:30 Europe/Berlin | `MeasureStorageMessage` | `app:storage:analyze --persist` |

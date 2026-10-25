@@ -35,6 +35,8 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 | `admin.user_registered` | Administration | in-app, email | all admins (each chooses in the settings) | a user registers |
 | `admin.import_failed` | Administration | in-app, email | all admins (each chooses in the settings) | an import run ends as failed (text from the reason code) |
 | `admin.feedback_received` | Administration | in-app, email | all admins (each chooses in the settings) | someone sends feedback |
+| `storage.capacity_alert` | Administration | in-app, email (high priority) | all admins (each chooses in the settings) | the storage capacity level rises or falls compared with the level last notified ([details](../storage/README.md#notifications)) |
+| `storage.daily_report` | Administration | none (opt-in: in-app, email) | admins who switched it on | a storage measurement is stored and announced ([details](../storage/README.md#notifications)) |
 
 Import types are hospital-scoped (redacted after access is revoked) and link to the import. One run yields at most one import notification (deduplication key `import.run_finished:{runId}`); superseded runs and runs from messages queued before import runs existed yield none.
 

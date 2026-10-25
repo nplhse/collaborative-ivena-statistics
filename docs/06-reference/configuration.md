@@ -34,6 +34,8 @@
 | `ANALYTICS_RAW_RETENTION_DAYS` | Days of detailed usage-analytics rows to keep | default `30`; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md) |
 | `OPENROUTESERVICE_API_KEY` | OpenRouteService key for `app:geo:geocode-hospitals` and `app:geo:fetch-isochrones` | optional; empty skips both commands. Maps read stored GeoJSON only. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
 | `FIXTURES_SCALE` | Dev fixture volume multiplier | `1`–`10`; see [../03-development/fixtures.md](../03-development/fixtures.md) |
+| `STORAGE_BUDGET_BYTES` | Storage budget in bytes, the default capacity reference | empty or `0` = no budget (level `unknown`); falls back to the former `APP_ADMIN_STORAGE_LIMIT_BYTES`. See [Storage monitoring](#storage-monitoring) |
+| `STORAGE_CAPACITY_SOURCE` | Capacity reference: `budget` or `filesystem` | default `budget`; `filesystem` only on a dedicated server or VPS |
 
 ## Application configuration (`app.yaml`)
 
@@ -52,8 +54,19 @@ Custom app settings in `config/packages/app.yaml` (via `AppExtension`):
 | `app.feedback.spam.*` | — | Feedback spam detection thresholds |
 | `app.meta.copyright_start_year` | `2025` | Start year for footer copyright range (`© 2025–{current year}`) |
 | `app.meta.hoster.name` / `app.meta.hoster.url` | `Uberspace` / `https://uberspace.de` | Optional hosting provider shown in the footer meta line |
+| `app.storage.thresholds.notice_percent` / `warning_percent` / `critical_percent` | `80` / `90` / `99` | Storage levels in percent of the capacity reference; must increase strictly and stay below 100 (checked at container build) |
+| `app.storage.measurement_max_age_hours` | `36` | A storage measurement older than this is `stale` for Application Health |
 
 See [../02-architecture/decisions/005-reject-writer-strategy.md](../02-architecture/decisions/005-reject-writer-strategy.md).
+
+## Storage monitoring
+
+Daily storage measurement, levels and alerts ([feature guide](../04-features/storage/README.md), [ADR 017](../02-architecture/decisions/017-storage-monitoring.md)):
+
+- **Budget:** `STORAGE_BUDGET_BYTES` in `shared/.env.local`, e.g. `10737418240` for 10 GiB. Compared with files + database. `APP_ADMIN_STORAGE_LIMIT_BYTES` is still read when `STORAGE_BUDGET_BYTES` is not set; move the value over, the fallback will be removed.
+- **Reference:** `STORAGE_CAPACITY_SOURCE=filesystem` compares the filesystem-wide usage with the filesystem size instead. On shared hosting this is the host disk, so keep `budget` there. Without plausible filesystem values the budget is used.
+- **Levels:** `app.storage.thresholds.*` in `config/packages/app.yaml` (application configuration, not environment variables, so the container build can validate them). `exceeded` always starts at 100 %.
+- **Freshness:** `app.storage.measurement_max_age_hours` decides when the health check reports `stale`.
 
 ## Database
 

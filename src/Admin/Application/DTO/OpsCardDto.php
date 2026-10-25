@@ -12,7 +12,6 @@ final readonly class OpsCardDto
         public string $icon,
         public ?string $detailUrl = null,
         public string $style = 'primary',
-        public ?int $trendBytes = null,
     ) {
     }
 }

@@ -8,20 +8,22 @@ use App\Admin\Application\DTO\HealthCheckItemDto;
 use App\Admin\Application\DTO\HealthStatusDto;
 use App\Admin\Application\DTO\MessengerStatsDto;
 use App\Admin\Application\DTO\OpsCardDto;
-use App\Admin\Application\DTO\StorageMetricsDto;
 use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
 use App\Shared\Application\Health\HealthCheckService;
 use App\Shared\Infrastructure\Audit\Repository\AuditEntryRepository;
+use App\Storage\Application\DTO\StorageSummary;
+use App\Storage\Application\View\StorageReportService;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 
 final readonly class OperationalDashboardService
 {
     public function __construct(
         private MessengerStatsRepository $messengerStatsRepository,
-        private StorageMetricsService $storageMetricsService,
+        private StorageReportService $storageReportService,
         private HealthCheckService $healthCheckService,
         private AuditEntryRepository $auditEntryRepository,
         private AdminUrlGeneratorInterface $adminUrlGenerator,
+        private StorageHealthItemFactory $storageHealthItemFactory,
     ) {
     }
 
@@ -42,9 +44,12 @@ final readonly class OperationalDashboardService
         );
     }
 
-    public function getStorageMetrics(): StorageMetricsDto
+    /**
+     * The latest persisted storage measurement for the compact dashboard card; null before the first one.
+     */
+    public function getStorageSummary(): ?StorageSummary
     {
-        return $this->storageMetricsService->getMetrics();
+        return $this->storageReportService->summary();
     }
 
     /**
@@ -53,7 +58,6 @@ final readonly class OperationalDashboardService
     public function getOpsCards(): array
     {
         $messenger = $this->getMessengerStats();
-        $storage = $this->getStorageMetrics();
 
         return [
             new OpsCardDto(
@@ -74,24 +78,6 @@ final readonly class OperationalDashboardService
                 value: (string) $messenger->pendingCountFor('low'),
                 icon: 'fas fa-hourglass-half',
                 style: $messenger->pendingCountFor('low') > 0 ? 'info' : 'primary',
-            ),
-            new OpsCardDto(
-                labelKey: 'ops.card.storage_total',
-                value: $this->formatBytes($storage->totalBytes()),
-                icon: 'fas fa-hard-drive',
-                trendBytes: $storage->filesBytesLast30Days(),
-            ),
-            new OpsCardDto(
-                labelKey: 'ops.card.database_size',
-                value: $this->formatBytes($storage->databaseBytes),
-                icon: 'fas fa-database',
-                trendBytes: 0,
-            ),
-            new OpsCardDto(
-                labelKey: 'ops.card.imports_media',
-                value: $this->formatBytes($storage->filesBytes()),
-                icon: 'fa fa-database',
-                trendBytes: $storage->filesBytesLast30Days(),
             ),
         ];
     }
@@ -133,6 +119,7 @@ final readonly class OperationalDashboardService
                     severity: 'ok' === $value ? 'success' : ('skipped' === $value ? 'warning' : 'warning'),
                     icon: 'ok' === $value ? 'fas fa-envelope-circle-check' : 'fas fa-triangle-exclamation',
                 ),
+                'storage' => $this->storageHealthItemFactory->create($value),
                 default => new HealthCheckItemDto(
                     key: $key,
                     labelKey: 'ops.health.check.'.$key,
@@ -151,22 +138,5 @@ final readonly class OperationalDashboardService
         return $this->adminUrlGenerator
             ->setRoute('app_admin_dashboard_operations_failed_messages')
             ->generateUrl();
-    }
-
-    private function formatBytes(int $bytes): string
-    {
-        if ($bytes < 1024) {
-            return $bytes.' B';
-        }
-
-        if ($bytes < 1024 * 1024) {
-            return sprintf('%.1f KB', $bytes / 1024);
-        }
-
-        if ($bytes < 1024 * 1024 * 1024) {
-            return sprintf('%.1f MB', $bytes / (1024 * 1024));
-        }
-
-        return sprintf('%.2f GB', $bytes / (1024 * 1024 * 1024));
     }
 }
