@@ -179,6 +179,31 @@ final class ListAllocationsPaginationTest extends ListAllocationsControllerTestC
         self::assertSame($firstIds, $invalidIds);
     }
 
+    public function testCursorFromAnotherSortStartsOnTheFirstPage(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+        foreach ([20, 35, 50, 65] as $age) {
+            AllocationFactory::createOne(['age' => $age]);
+        }
+
+        $byArrival = $client->request(Request::METHOD_GET, '/explore/allocation?limit=2&sortBy=arrivalAt&orderBy=desc');
+        $nextHref = $this->findNextPageHref($byArrival);
+        self::assertNotNull($nextHref);
+        parse_str((string) parse_url($nextHref, PHP_URL_QUERY), $query);
+        self::assertIsString($query['cursor'] ?? null);
+
+        $firstByAge = $client->request(Request::METHOD_GET, '/explore/allocation?limit=2&sortBy=age&orderBy=asc');
+        $withForeignCursor = $client->request(
+            Request::METHOD_GET,
+            '/explore/allocation?limit=2&sortBy=age&orderBy=asc&cursor='.urlencode($query['cursor']),
+        );
+
+        self::assertResponseIsSuccessful();
+        self::assertSame($this->extractAllocationIds($firstByAge), $this->extractAllocationIds($withForeignCursor));
+        self::assertNull($this->findPreviousPageHref($withForeignCursor));
+    }
+
     public function testLimitPlusOneBehaviourAndFilterPersistence(): void
     {
         $client = $this->createClientAsParticipant();
