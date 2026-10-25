@@ -777,6 +777,10 @@
         <source>label.loading</source>
         <target>Loading</target>
       </trans-unit>
+      <trans-unit id="EnPartSince1" resname="label.participating_since">
+        <source>label.participating_since</source>
+        <target>Participating since</target>
+      </trans-unit>
       <trans-unit id="wwkgz5d" resname="label.participation">
         <source>label.participation</source>
         <target>Participation</target>

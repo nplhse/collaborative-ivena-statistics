@@ -169,6 +169,45 @@ final class FilterDrawerTest extends TestCase
         ], $component->getPreservedQueryFields());
     }
 
+    public function testKeepViewStateAlsoKeepsSortPageSizeAndColumns(): void
+    {
+        $component = $this->drawer(new Request([
+            'search' => 'klinik',
+            'tier' => 'full',
+            'sortBy' => 'beds',
+            'orderBy' => 'desc',
+            'limit' => '50',
+            'columns' => 'name,beds',
+            'columnOrder' => 'beds,name',
+            'page' => '2',
+        ]));
+        $component->keepQueryKeys = ['search'];
+        $component->keepViewState = true;
+
+        self::assertSame(
+            ['search', 'sortBy', 'orderBy', 'limit', 'columns', 'columnOrder'],
+            $component->getKeptQueryKeys(),
+        );
+        self::assertSame([
+            'search' => 'klinik',
+            'sortBy' => 'beds',
+            'orderBy' => 'desc',
+            'limit' => '50',
+            'columns' => 'name,beds',
+            'columnOrder' => 'beds,name',
+        ], $component->getPreservedQueryFields());
+    }
+
+    public function testKeptQueryKeysAreEmptyInPreserveQueryMode(): void
+    {
+        $component = $this->drawer();
+        $component->preserveQuery = true;
+        $component->keepQueryKeys = ['search'];
+        $component->keepViewState = true;
+
+        self::assertSame([], $component->getKeptQueryKeys());
+    }
+
     private function drawer(?Request $request = null): FilterDrawer
     {
         $stack = new RequestStack();

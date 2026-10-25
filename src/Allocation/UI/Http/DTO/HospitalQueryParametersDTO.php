@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\DTO;
 
+use App\Allocation\UI\Twig\HospitalListColumns;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class HospitalQueryParametersDTO
@@ -16,10 +17,10 @@ final readonly class HospitalQueryParametersDTO
         public int $limit = 25,
 
         #[Assert\Choice(choices: ['asc', 'desc'])]
-        public string $orderBy = 'asc',
+        public string $orderBy = HospitalListColumns::DEFAULT_ORDER_BY,
 
-        #[Assert\Choice(choices: ['id', 'name', 'dispatchArea', 'state', 'location', 'tier', 'size', 'lastChange'])]
-        public string $sortBy = 'name',
+        #[Assert\Choice(choices: HospitalListColumns::SORT_KEYS)]
+        public string $sortBy = HospitalListColumns::DEFAULT_SORT_BY,
 
         public ?string $search = null,
 

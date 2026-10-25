@@ -114,32 +114,7 @@ final class ClosureEventTableColumns implements DataTablePreferenceDefinitionInt
     #[\Override]
     public function preferenceSchema(): DataTablePreferenceSchema
     {
-        $columns = self::columns();
-        $order = [];
-        $visible = [];
-        $required = [];
-        foreach ($columns as $column) {
-            $key = $column['key'] ?? null;
-            if (!\is_string($key)) {
-                continue;
-            }
-            $order[] = $key;
-            $isVisible = false !== ($column['visible'] ?? true);
-            $isRequired = true === ($column['required'] ?? false);
-            if ($isVisible || $isRequired) {
-                $visible[] = $key;
-            }
-            if ($isRequired) {
-                $required[] = $key;
-            }
-        }
-
-        return new DataTablePreferenceSchema(
-            self::PREFERENCE_KEY,
-            $order,
-            $visible,
-            $required,
-        );
+        return DataTablePreferenceSchema::fromColumns(self::PREFERENCE_KEY, self::columns());
     }
 
     /**

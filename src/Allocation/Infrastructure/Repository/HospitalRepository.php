@@ -193,17 +193,7 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
             ->leftJoin('h.dispatchArea', 'da')
         ;
 
-        $field = match ($queryParametersDTO->sortBy) {
-            'dispatchArea' => 'da.name',
-            'state' => 's.name',
-            'id' => 'h.id',
-            'name' => 'h.name',
-            'location' => 'h.location',
-            'tier' => 'h.tier',
-            'size' => 'h.size',
-            'lastChange' => 'h.updatedAt',
-            default => 'h.name',
-        };
+        $field = self::hospitalListSortField($queryParametersDTO->sortBy);
 
         if (null !== $queryParametersDTO->tier && '' !== $queryParametersDTO->tier) {
             $qb->andWhere('h.tier = :tier')
@@ -238,7 +228,9 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
                 );
         }
 
-        $qb->orderBy($field, $queryParametersDTO->orderBy);
+        // The id tie-breaker keeps rows with equal sort values on a stable page.
+        $qb->orderBy($field, $queryParametersDTO->orderBy)
+            ->addOrderBy('h.id', $queryParametersDTO->orderBy);
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('h.name', ':search'))
@@ -247,6 +239,26 @@ final class HospitalRepository extends ServiceEntityRepository implements Hospit
         }
 
         return $qb;
+    }
+
+    /**
+     * Maps a public sort key of the hospital list (see HospitalListColumns::SORT_KEYS) to its DQL field.
+     */
+    public static function hospitalListSortField(string $sortBy): string
+    {
+        return match ($sortBy) {
+            'dispatchArea' => 'da.name',
+            'state' => 's.name',
+            'location' => 'h.location',
+            'tier' => 'h.tier',
+            'size' => 'h.size',
+            'beds' => 'h.beds',
+            'postalCode' => 'h.address.postalCode',
+            'city' => 'h.address.city',
+            'participatingSince' => 'h.participatingSince',
+            'lastChange' => 'sortDate',
+            default => 'h.name',
+        };
     }
 
     /**

@@ -10,9 +10,14 @@ use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Allocation\UI\Twig\HospitalListColumns;
+use App\Shared\Domain\Entity\DataTablePreference;
 use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -193,5 +198,196 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertSelectorExists('#hospital-filter-form input[type="hidden"][name="sortBy"][value="name"]');
         self::assertSelectorExists('#hospital-filter-form input[type="hidden"][name="orderBy"][value="desc"]');
         self::assertSelectorNotExists('#hospital-filter-form input[type="hidden"][name="page"]');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function sortKeys(): iterable
+    {
+        foreach (HospitalListColumns::SORT_KEYS as $sortKey) {
+            yield $sortKey => [$sortKey];
+        }
+    }
+
+    #[DataProvider('sortKeys')]
+    public function testEverySortKeyIsAcceptedInBothDirections(string $sortKey): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createMany(3);
+
+        foreach (['asc', 'desc'] as $orderBy) {
+            $crawler = $client->request(Request::METHOD_GET, '/explore/hospital?sortBy='.$sortKey.'&orderBy='.$orderBy);
+
+            self::assertResponseIsSuccessful();
+            self::assertCount(3, $crawler->filter('table.table tbody tr'));
+        }
+    }
+
+    public function testTableCanBeSortedByBeds(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['name' => 'Small Clinic', 'beds' => 120]);
+        HospitalFactory::createOne(['name' => 'Large Clinic', 'beds' => 1100]);
+        HospitalFactory::createOne(['name' => 'Medium Clinic', 'beds' => 450]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital?sortBy=beds&orderBy=desc');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['Large Clinic', 'Medium Clinic', 'Small Clinic'], $this->names($crawler));
+    }
+
+    public function testPagesStayDisjointWhenManyRowsShareTheSortValue(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createMany(30, ['tier' => HospitalTier::FULL]);
+
+        $first = $this->names($client->request(Request::METHOD_GET, '/explore/hospital?sortBy=tier&limit=25&page=1'));
+        $second = $this->names($client->request(Request::METHOD_GET, '/explore/hospital?sortBy=tier&limit=25&page=2'));
+
+        self::assertCount(25, $first);
+        self::assertCount(5, $second);
+        self::assertSame([], array_intersect($first, $second));
+    }
+
+    public function testDefaultViewHidesOptionalColumnsAndOffersThemInTheColumnPicker(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital');
+
+        self::assertResponseIsSuccessful();
+        $headers = $crawler->filter('table.table thead th')->each(static fn (Crawler $th): string => trim($th->text()));
+        self::assertContains('Dispatch Area', $headers);
+        self::assertNotContains('Beds', $headers);
+        self::assertNotContains('City', $headers);
+        self::assertSelectorExists('[data-testid="data-table-columns"]');
+        self::assertSelectorExists('form[action="/account/data-table-preferences"] input[name="tableKey"][value="'.HospitalListColumns::PREFERENCE_KEY.'"]');
+        self::assertSelectorExists('form[action="/account/data-table-preferences"] input[name="visibleColumns[]"][value="beds"]:not([checked])');
+        self::assertSelectorExists('form[action="/account/data-table-preferences"] input[name="visibleColumns[]"][value="name"][disabled]');
+    }
+
+    public function testColumnsFromTheUrlOverrideTheDefaultView(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['name' => 'City Clinic', 'beds' => 321]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital?columns=name,beds,city');
+
+        self::assertResponseIsSuccessful();
+        $headers = array_values(array_filter(
+            $crawler->filter('table.table thead th')->each(static fn (Crawler $th): string => trim($th->text())),
+        ));
+        self::assertSame(['Name', 'Beds', 'City'], $headers);
+        self::assertStringContainsString('321', $crawler->filter('table.table tbody tr')->text());
+    }
+
+    public function testSavedColumnsAndPageSizeAreApplied(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createMany(30);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital');
+        $token = (string) $crawler->filter('form[action="/account/data-table-preferences"] input[name="_token"]')->attr('value');
+
+        $client->request(Request::METHOD_POST, '/account/data-table-preferences', [
+            '_token' => $token,
+            'tableKey' => HospitalListColumns::PREFERENCE_KEY,
+            'returnUrl' => '/explore/hospital?tier=full&columns=name',
+            'action' => 'save',
+            'visibleColumns' => ['name', 'beds', 'tier'],
+            'columnOrder' => ['beds', 'name', 'dispatchArea', 'state', 'location', 'tier', 'size', 'postalCode', 'city', 'participatingSince', 'lastChange'],
+            'pageSize' => '50',
+        ]);
+
+        self::assertResponseRedirects('/explore/hospital?tier=full');
+        $preference = self::getContainer()->get(EntityManagerInterface::class)
+            ->getRepository(DataTablePreference::class)
+            ->findOneBy(['tableKey' => HospitalListColumns::PREFERENCE_KEY]);
+        self::assertInstanceOf(DataTablePreference::class, $preference);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital?search=a&tier=');
+
+        self::assertResponseIsSuccessful();
+        $headers = $crawler->filter('table.table thead th')->each(static fn (Crawler $th): string => trim($th->text()));
+        // The participation icon is not part of the picker and stays the first column.
+        self::assertSame(['', 'Beds', 'Name', 'Tier'], $headers);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital');
+        self::assertCount(30, $crawler->filter('table.table tbody tr'));
+    }
+
+    public function testFilterSearchAndResetKeepTheViewState(): void
+    {
+        $client = $this->createClientAsParticipant();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['tier' => HospitalTier::FULL]);
+
+        $crawler = $client->request(
+            Request::METHOD_GET,
+            '/explore/hospital?tier=Full&search=klinik&sortBy=beds&orderBy=desc&limit=50&columns=name,beds&columnOrder=beds,name&page=2',
+        );
+
+        self::assertResponseIsSuccessful();
+
+        // The filter drawer keeps search and view state; its own selects carry the filters.
+        foreach (['search' => 'klinik', 'sortBy' => 'beds', 'orderBy' => 'desc', 'limit' => '50', 'columns' => 'name,beds', 'columnOrder' => 'beds,name'] as $key => $value) {
+            self::assertSelectorExists(sprintf('#hospital-filter-form input[type="hidden"][name="%s"][value="%s"][data-query-state-field]', $key, $value));
+        }
+        self::assertSelectorNotExists('#hospital-filter-form input[type="hidden"][name="tier"]');
+        self::assertSelectorNotExists('#hospital-filter-form input[type="hidden"][name="page"]');
+        self::assertSelectorExists('#hospital-filter-form[data-controller~="query-state"]');
+
+        // The search form keeps filters and view state, but not the search itself or the page.
+        $searchForm = $crawler->filter('form[data-turbo-frame="hospital-list"]');
+        self::assertSame('query-state', explode(' ', (string) $searchForm->attr('data-controller'))[1] ?? null);
+        $hidden = $searchForm->filter('input[type="hidden"]')->each(
+            static fn (Crawler $input): array => [(string) $input->attr('name') => (string) $input->attr('value')],
+        );
+        self::assertSame([
+            'tier' => 'Full',
+            'sortBy' => 'beds',
+            'orderBy' => 'desc',
+            'limit' => '50',
+            'columns' => 'name,beds',
+            'columnOrder' => 'beds,name',
+        ], array_merge(...$hidden));
+
+        // Resetting filters keeps the view, but drops filters and search.
+        foreach (['hospital-filters-reset', 'hospital-filters-clear'] as $testId) {
+            $href = (string) $crawler->filter(sprintf('[data-testid="%s"]', $testId))->attr('href');
+            parse_str((string) parse_url($href, \PHP_URL_QUERY), $query);
+            self::assertSame([
+                'sortBy' => 'beds',
+                'orderBy' => 'desc',
+                'limit' => '50',
+                'columns' => 'name,beds',
+                'columnOrder' => 'beds,name',
+            ], $query, $testId);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function names(Crawler $crawler): array
+    {
+        return $crawler->filter('table.table tbody tr')->each(
+            static fn (Crawler $row): string => trim($row->filter('td')->eq(1)->text()),
+        );
     }
 }
