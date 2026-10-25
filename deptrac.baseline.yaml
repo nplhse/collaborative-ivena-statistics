@@ -229,8 +229,6 @@ deptrac:
       - App\Import\Infrastructure\Repository\ImportRepository
     App\Import\Application\MessageHandler\ImportClosuresMessageHandler:
       - App\Import\Infrastructure\Repository\ImportRepository
-      - App\User\Domain\Entity\User
-      - App\User\Domain\Security\UserRole
     App\Import\Application\Service\AllocationRowProcessor:
       - App\Import\Infrastructure\Mapping\AllocationImportFactory
     App\Import\Application\Service\ClosureImporter:
@@ -242,6 +240,9 @@ deptrac:
     App\Import\Application\Service\ImportAllocationsDispatcher:
       - App\Import\Infrastructure\Repository\ImportRepository
       - App\User\Domain\Entity\User
+    App\Import\Application\Service\ImportCreatorPermissionCheck:
+      - App\User\Domain\Entity\User
+      - App\User\Domain\Security\UserRole
     App\Import\Application\Service\ImportDeletionService:
       - App\Import\Infrastructure\Repository\ImportBatchRunItemRepository
     App\Import\Application\Service\ImportListAccess:
@@ -307,6 +308,9 @@ deptrac:
       - App\User\Domain\Security\UserRole
     App\Import\UI\Http\Controller\ProcessingImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
+    App\Import\UI\Http\Controller\ReprocessImportController:
+      - App\Import\Infrastructure\Security\Voter\ImportVoter
+      - App\User\Domain\Entity\User
     App\Import\UI\Http\Controller\ShowImportController:
       - App\Import\Infrastructure\Security\Voter\ImportVoter
     App\Kpi\Application\Service\KpiAggregationService:

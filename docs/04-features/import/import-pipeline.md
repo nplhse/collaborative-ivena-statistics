@@ -99,6 +99,10 @@ Reimports intentionally keep the source file; only result data from the previous
 
 File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesystem::remove()`). Failed deletions are logged as `import.file.delete_failed`.
 
+## Reprocessing
+
+An existing import can be processed again from its stored source file with **Reprocess import** on the detail page, or with `app:import:start`. Both register a new run; the handler removes the data of the previous run first. Details: [import-runs.md](import-runs.md#reprocessing-from-the-detail-page)
+
 ## Source file download (admin)
 
 Administrators can download the original uploaded CSV from the import detail page (`/import/{id}`). The file is served through `DownloadImportSourceFileController` at `/import/{id}/source-file` — not via a public path under `var/imports/`.

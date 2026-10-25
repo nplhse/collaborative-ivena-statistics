@@ -2,7 +2,7 @@
 
 **Audience:** Developers and operators who start, requeue or debug imports.
 
-An **import run** is one deliberate processing request for an import: an upload, one `app:import:start` call, or one item of an `app:import:requeue-all` batch. Every run is stored as an `ImportRun` row (`import_run` table) in the `Import` context. Background and rules: [ADR 016](../../02-architecture/decisions/016-notification-system.md#import-runs-importrun_finished).
+An **import run** is one deliberate processing request for an import: an upload, a reprocess from the import detail page, one `app:import:start` call, or one item of an `app:import:requeue-all` batch. Every run is stored as an `ImportRun` row (`import_run` table) in the `Import` context. Background and rules: [ADR 016](../../02-architecture/decisions/016-notification-system.md#import-runs-importrun_finished).
 
 ## What a run stores
 
@@ -10,8 +10,8 @@ An **import run** is one deliberate processing request for an import: an upload,
 |-------|---------|
 | `id` | Run id (UUID v7). Carried by the Messenger message |
 | `import_id` | The import. Runs are deleted with it (`ON DELETE CASCADE`) |
-| `trigger` | Where the run came from: `upload` (UI upload), `console` (`app:import:start`), `batch_requeue` (one item of `app:import:requeue-all`) |
-| `initiated_by_id` | User who deliberately started the run: the uploading user, the `--notify-user` of a console or batch run, or `NULL` (console run without `--notify-user`) |
+| `trigger` | Where the run came from: `upload` (UI upload), `reprocess` ("Reprocess import" on the detail page), `console` (`app:import:start`), `batch_requeue` (one item of `app:import:requeue-all`) |
+| `initiated_by_id` | User who deliberately started the run: the uploading user, the user who clicked "Reprocess import", the `--notify-user` of a console or batch run, or `NULL` (console run without `--notify-user`) |
 | `status` | `queued`, `running`, `completed`, `partial`, `failed`, `superseded` |
 | `created_at`, `started_at`, `finished_at` | Registration, first processing attempt, terminal transition |
 | `rows_total`, `rows_ok`, `rows_rejected` | Outcome counts of a completed, partial or failed evaluation |
@@ -21,7 +21,7 @@ An **import run** is one deliberate processing request for an import: an upload,
 
 A requeue batch item (`import_batch_run_item.import_run_id`) references the run registered for it.
 
-`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` runs send no notification of their own, they are summarized per batch ([batch-requeue.md](batch-requeue.md#completion-and-summary)). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
+`trigger` and `initiated_by_id` together decide who is told about the outcome (ADR 016): an `upload` run notifies the import's creator and the hospital owner; a `reprocess` run notifies only the user who started it; a `console` run notifies only its initiator (nobody without `--notify-user`); `batch_requeue` runs send no notification of their own, they are summarized per batch ([batch-requeue.md](batch-requeue.md#completion-and-summary)). See [../notification/README.md](../notification/README.md#notification-types). A run that reaches the creator's first successful import also records the milestone in `user_import_milestone`.
 
 ## Lifecycle
 
@@ -55,6 +55,20 @@ queued ──▶ running ──▶ completed | partial | failed
 Retryable errors no longer mark the import `FAILED` immediately. While Messenger retries, the import stays `Running`.
 
 A redelivered message (run already `running`) first removes the chunks that the failed attempt committed, using the same cleanup as a reimport. The cleanup deletes rows inside a guarded commit, so a superseded run never deletes data of a newer run; the materialized view refresh and the reject file deletion follow after the commit.
+
+## Reprocessing from the detail page
+
+The import detail page (`/import/{id}`) has a **Reprocess import** button next to *Delete import*. After a confirmation dialog, `ReprocessImportController` (`POST /import/{id}/reprocess`, CSRF token `import_reprocess_<id>`) calls `ImportStartDispatcher` with trigger `reprocess` and the current user as initiator, then redirects to the processing page. It uses the same workflow as `app:import:start`, so every import type is supported without choosing a workflow.
+
+The button is shown only when `ImportVoter::REPROCESS` grants it:
+
+- the user may delete the import (admin, hospital owner, or the creator while they can access the hospital), and
+- the creator may still process it (`ImportCreatorPermissionCheck`: import permission for the hospital, and `ROLE_CLOSURE_BETA` for closure imports; the message handlers use the same check), and
+- the stored source file still exists.
+
+While the import is `Running` the button is disabled, and a request that arrives anyway is rejected with a flash message. A `Pending` import can be reprocessed; the new run supersedes the queued one.
+
+The workflow dispatchers set the import creator as audit user while they register the run and restore the previous token afterwards, so the logged-in user stays signed in.
 
 ## Starting runs from the console
 

@@ -137,9 +137,9 @@
         <source>label.btn.import</source>
         <target>Start import</target>
       </trans-unit>
-      <trans-unit id="UcQSwTu" resname="label.import.section.quick_actions">
-        <source>label.import.section.quick_actions</source>
-        <target>Quick actions</target>
+      <trans-unit id="UcQSwTu" resname="label.import.section.actions">
+        <source>label.import.section.actions</source>
+        <target>Actions</target>
       </trans-unit>
       <trans-unit id="ssEMXJ8" resname="label.import.section.run">
         <source>label.import.section.run</source>
@@ -344,6 +344,42 @@
       <trans-unit id="impDelClosEn" resname="import.delete.modal.body.closure">
         <source>import.delete.modal.body.closure</source>
         <target>Are you sure you want to permanently delete "{name}"? All closure intervals and related data will be removed. This action cannot be undone.</target>
+      </trans-unit>
+      <trans-unit id="impRepActEn" resname="import.action.reprocess">
+        <source>import.action.reprocess</source>
+        <target>Reprocess import</target>
+      </trans-unit>
+      <trans-unit id="impRepTitEn" resname="import.reprocess.modal.title">
+        <source>import.reprocess.modal.title</source>
+        <target>Reprocess import?</target>
+      </trans-unit>
+      <trans-unit id="impRepBodEn" resname="import.reprocess.modal.body">
+        <source>import.reprocess.modal.body</source>
+        <target>"{name}" will be processed again from the stored source file. The allocations imported so far by this import are replaced and the statistics are recalculated afterwards.</target>
+      </trans-unit>
+      <trans-unit id="impRepBodClEn" resname="import.reprocess.modal.body.closure">
+        <source>import.reprocess.modal.body.closure</source>
+        <target>"{name}" will be processed again from the stored source file. The closure intervals imported so far by this import are replaced and the closure analysis is recalculated afterwards.</target>
+      </trans-unit>
+      <trans-unit id="impRepConfEn" resname="import.reprocess.modal.confirm">
+        <source>import.reprocess.modal.confirm</source>
+        <target>Reprocess</target>
+      </trans-unit>
+      <trans-unit id="impRepRunHEn" resname="import.reprocess.running_blocked_hint">
+        <source>import.reprocess.running_blocked_hint</source>
+        <target>This import is currently running and cannot be reprocessed.</target>
+      </trans-unit>
+      <trans-unit id="impRepQueEn" resname="flash.import.reprocess_queued">
+        <source>flash.import.reprocess_queued</source>
+        <target>The import has been queued for reprocessing.</target>
+      </trans-unit>
+      <trans-unit id="impRepRunFEn" resname="flash.import.reprocess_running_blocked">
+        <source>flash.import.reprocess_running_blocked</source>
+        <target>This import is currently running and cannot be reprocessed.</target>
+      </trans-unit>
+      <trans-unit id="impRepFailEn" resname="flash.import.reprocess_failed">
+        <source>flash.import.reprocess_failed</source>
+        <target>The import could not be queued for reprocessing. Please try again later.</target>
       </trans-unit>
     </body>
   </file>

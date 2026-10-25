@@ -49,8 +49,10 @@ final readonly class ImportAllocationsDispatcher implements ImportWorkflowDispat
             throw new ImportCreatorMissingException($importId);
         }
 
-        $token = new PostAuthenticationToken($user, 'main', $user->getRoles());
-        $this->tokenStorage->setToken($token);
+        // The creator is the audit user of the registration. Restore the previous token afterwards:
+        // in a web request it belongs to the logged-in user, and clearing it would log them out.
+        $previousToken = $this->tokenStorage->getToken();
+        $this->tokenStorage->setToken(new PostAuthenticationToken($user, 'main', $user->getRoles()));
 
         try {
             // Registration and message are committed together; a failure leaves neither behind.
@@ -71,7 +73,7 @@ final readonly class ImportAllocationsDispatcher implements ImportWorkflowDispat
         } catch (\Throwable $e) {
             throw new DispatchException($importId, $e);
         } finally {
-            $this->tokenStorage->setToken(null);
+            $this->tokenStorage->setToken($previousToken);
         }
     }
 }

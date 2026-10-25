@@ -24,7 +24,12 @@ final readonly class ImportStartDispatcher
     ) {
     }
 
-    public function dispatch(int $importId, ?int $initiatedByUserId = null): ImportType
+    /**
+     * Starts a new run of an existing import with the workflow of its type.
+     *
+     * @param int|null $initiatedByUserId user who deliberately started the run and is told about its outcome
+     */
+    public function dispatch(int $importId, ?int $initiatedByUserId = null, ImportRunTrigger $trigger = ImportRunTrigger::Console): ImportType
     {
         $import = $this->entityManager->find(Import::class, $importId);
 
@@ -39,8 +44,8 @@ final readonly class ImportStartDispatcher
         }
 
         match ($type) {
-            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, ImportRunTrigger::Console, $initiatedByUserId),
-            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, ImportRunTrigger::Console, $initiatedByUserId),
+            ImportType::ALLOCATION => $this->allocationsDispatcher->dispatch($importId, $trigger, $initiatedByUserId),
+            ImportType::CLOSURE => $this->closuresDispatcher->dispatch($importId, $trigger, $initiatedByUserId),
         };
 
         return $type;

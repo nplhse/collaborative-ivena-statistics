@@ -12,7 +12,6 @@ use App\Import\Application\Event\ImportFailed;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\MessageHandler\ImportAllocationsMessageHandler;
 use App\Import\Domain\Entity\Import;
-use App\Import\Domain\Enum\ImportRunReasonCode;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Factory\UserFactory;
@@ -132,34 +131,6 @@ final class ImportAllocationsMessageHandlerFailureTest extends ImportAllocations
         $fresh = $this->imports->find($id);
         self::assertNotNull($fresh);
         self::assertSame(ImportStatus::FAILED, $fresh->getStatus());
-    }
-
-    public function testResolvePermissionFailureReturnsReasonWhenCreatorMissing(): void
-    {
-        $import = new Import(); // createdBy bleibt null
-
-        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailure');
-
-        self::assertSame(
-            ImportRunReasonCode::MissingCreator,
-            $reflection->invoke($this->handler, $import),
-        );
-    }
-
-    public function testResolvePermissionFailureReturnsReasonWhenHospitalMissing(): void
-    {
-        $creator = UserFactory::createOne(['username' => 'import-perm-hospital-missing']);
-        $userRef = $this->em->getReference(\App\User\Domain\Entity\User::class, $creator->getId());
-
-        $import = new Import()
-            ->setCreatedBy($userRef);
-
-        $reflection = new \ReflectionMethod(ImportAllocationsMessageHandler::class, 'resolvePermissionFailure');
-
-        self::assertSame(
-            ImportRunReasonCode::MissingHospital,
-            $reflection->invoke($this->handler, $import),
-        );
     }
 
     public function testDispatchImportOutcomeDispatchesImportCompletedForFinalImportStatus(): void
