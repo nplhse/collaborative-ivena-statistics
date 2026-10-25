@@ -16,9 +16,6 @@ interface StorageMeasurementRepositoryInterface
      */
     public function save(StorageMeasurement $measurement): StorageMeasurement;
 
-    /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
-     */
     public function latest(): ?StorageMeasurement;
 
     /**

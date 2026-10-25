@@ -22,6 +22,7 @@ final readonly class OperationalDashboardService
         private HealthCheckService $healthCheckService,
         private AuditEntryRepository $auditEntryRepository,
         private AdminUrlGeneratorInterface $adminUrlGenerator,
+        private StorageHealthItemFactory $storageHealthItemFactory,
     ) {
     }
 
@@ -133,6 +134,7 @@ final readonly class OperationalDashboardService
                     severity: 'ok' === $value ? 'success' : ('skipped' === $value ? 'warning' : 'warning'),
                     icon: 'ok' === $value ? 'fas fa-envelope-circle-check' : 'fas fa-triangle-exclamation',
                 ),
+                'storage' => $this->storageHealthItemFactory->create($value),
                 default => new HealthCheckItemDto(
                     key: $key,
                     labelKey: 'ops.health.check.'.$key,

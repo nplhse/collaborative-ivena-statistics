@@ -1,0 +1,23 @@
+<a href="{{ item.detailUrl }}" class="badge rounded-pill ea-ops-health-badge bg-{{ item.severity }} text-white text-decoration-none d-inline-flex flex-wrap align-items-center gap-2 px-3 py-2" data-health-check="storage">
+    <i class="{{ item.icon }}" aria-hidden="true"></i>
+    <span class="fw-semibold">{{ item.labelKey|trans({}, 'admin') }}:</span>
+    <span>{{ item.value }}</span>
+    {% set storage = item.storage %}
+    {% if storage is not null %}
+        <span class="fw-normal">
+            ·
+            {% if storage.used is not null and storage.capacity is not null %}
+                {{ 'ops.health.storage.usage'|trans({used: storage.used, capacity: storage.capacity, source: storage.capacitySourceLabelKey|trans({}, 'admin')}, 'admin') }}
+            {% elseif storage.used is not null %}
+                {{ 'ops.health.storage.usage_without_capacity'|trans({used: storage.used}, 'admin') }}
+            {% else %}
+                {{ 'ops.health.storage.usage_unknown'|trans({}, 'admin') }}
+            {% endif %}
+            {% if storage.remainingPercent is not null %}
+                · {{ 'ops.health.storage.remaining'|trans({percent: storage.remainingPercent}, 'admin') }}
+            {% endif %}
+            · {{ storage.levelLabelKey|trans({}, 'admin') }}
+            · {{ 'ops.health.storage.measured_at'|trans({measured_at: storage.measuredAt|date('Y-m-d H:i')}, 'admin') }}
+        </span>
+    {% endif %}
+</a>
