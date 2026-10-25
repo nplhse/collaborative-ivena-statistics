@@ -28,6 +28,14 @@ final class DataTableQueryStateTest extends TestCase
         );
     }
 
+    public function testScalarFieldsSkipNumericAndEmptyKeys(): void
+    {
+        self::assertSame(
+            ['tier' => 'full'],
+            DataTableQueryState::scalarFields([0 => 'positional', '' => 'blank', 'tier' => 'full']),
+        );
+    }
+
     public function testViewFieldsKeepOnlySortPageSizeAndColumns(): void
     {
         self::assertSame(
