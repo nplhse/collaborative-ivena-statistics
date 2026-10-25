@@ -26,8 +26,6 @@ final readonly class CapacityThresholds
 
     /**
      * Unknown without a usage or without a positive capacity.
-     *
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the capacity evaluator uses it.
      */
     public function levelFor(?int $usedBytes, ?int $capacityBytes): CapacityLevel
     {
