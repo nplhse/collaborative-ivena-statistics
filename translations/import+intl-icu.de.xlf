@@ -61,6 +61,10 @@
         <source>import.field.duplicationRate</source>
         <target>Duplikatsrate</target>
       </trans-unit>
+      <trans-unit id="DeImpExpPer1" resname="import.field.exportPeriod">
+        <source>import.field.exportPeriod</source>
+        <target>Exportzeitraum</target>
+      </trans-unit>
       <trans-unit id="Deb64e06c5" resname="import.field.fileExtension">
         <source>import.field.fileExtension</source>
         <target>Erweiterung</target>

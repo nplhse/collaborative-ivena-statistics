@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Allocation\UI\Twig;
-
-use App\Shared\UI\Twig\DataTable\DataTableColumnType;
+namespace App\Shared\UI\Twig\DataTable;
 
 /**
- * Small builders for the declarative column configs of the Explore lists.
+ * Small builders for declarative DataTable column configs of lists with a column picker.
  */
-final class ListColumn
+final class DataTableColumns
 {
     /**
      * A column the user may show, hide and move.

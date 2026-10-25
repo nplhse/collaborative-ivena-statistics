@@ -1,0 +1,5 @@
+{% if row.exportStartsAt is not null or row.exportEndsAt is not null %}
+    <span class="text-nowrap">
+        {{- row.exportStartsAt ? row.exportStartsAt|date('d.m.Y') : '…' }} – {{ row.exportEndsAt ? row.exportEndsAt|date('d.m.Y') : '…' -}}
+    </span>
+{% endif %}
