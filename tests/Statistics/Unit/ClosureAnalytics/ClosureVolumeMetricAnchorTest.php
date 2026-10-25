@@ -19,7 +19,7 @@ final class ClosureVolumeMetricAnchorTest extends TestCase
         $anchors = new ClosureVolumeAnchorBuilder()->metricAnchors(
             [$this->row(1, 7, 11, '10:00', '14:00', 'emergency')],
             40,
-            [7 => [11]],
+            [1 => [7 => [11]]],
         );
 
         self::assertCount(15, $anchors);
@@ -85,7 +85,7 @@ final class ClosureVolumeMetricAnchorTest extends TestCase
             $this->row(1, 7, 12, '12:00', '18:00', 'other'),
         ];
 
-        $anchors = $builder->metricAnchors($rows, 40, [7 => [11, 12, 13], 8 => [21]]);
+        $anchors = $builder->metricAnchors($rows, 40, [1 => [7 => [11, 12, 13], 8 => [21]]]);
 
         $speciality = $this->find($anchors, 'speciality', ClosureVolumeMetricKind::Emergency);
         self::assertSame(ClosureVolumeRelevance::Partial, $speciality->relevance);
@@ -98,7 +98,7 @@ final class ClosureVolumeMetricAnchorTest extends TestCase
         self::assertSame(ClosureVolumeRelevance::Partial, $hospital->relevance);
         self::assertSame(2, $hospital->closedDepartmentCount);
 
-        $closed = $builder->metricAnchors($rows, 40, [7 => [11, 12]]);
+        $closed = $builder->metricAnchors($rows, 40, [1 => [7 => [11, 12]]]);
         self::assertSame(ClosureVolumeRelevance::Closed, $this->find($closed, 'speciality', ClosureVolumeMetricKind::Emergency)->relevance);
         self::assertSame(ClosureVolumeRelevance::Partial, $this->find($closed, 'speciality', ClosureVolumeMetricKind::Inpatient)->relevance);
         self::assertSame(ClosureVolumeRelevance::Closed, $this->find($closed, 'hospital', ClosureVolumeMetricKind::Emergency)->relevance);

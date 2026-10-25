@@ -17,12 +17,13 @@ final readonly class ClosureVolumeAnchorBuilder
      * or the hospital binds a metric where any of its departments does; relevance compares the
      * closed departments with all known departments of the population.
      *
-     * @param list<array<string, int|string>> $rows                    event_id, speciality_id, department_id, starts_at, ends_at, care_level
-     * @param array<int, list<int>>           $departmentsBySpeciality known departments of the hospital per speciality; closed ones are added
+     * @param list<array<string, int|string>>   $rows             event_id, speciality_id, department_id, starts_at, ends_at, care_level
+     * @param array<int, array<int, list<int>>> $knownDepartments event id => speciality => known departments of the hospital
+     *                                                            (allocations in the event's own load range); closed ones are added
      *
      * @return list<ClosureVolumeAnchor>
      */
-    public function metricAnchors(array $rows, int $hospitalId, array $departmentsBySpeciality): array
+    public function metricAnchors(array $rows, int $hospitalId, array $knownDepartments): array
     {
         // A department is a population per speciality: the same department can close under two specialities.
         /** @var array<int, array<string, array{speciality: int, department: int, all: list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>, urgency: array<int, list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>>}>> $events */
@@ -43,16 +44,14 @@ final readonly class ClosureVolumeAnchorBuilder
             }
         }
 
-        $known = [];
-        foreach ($departmentsBySpeciality as $specialityId => $departmentIds) {
-            foreach ($departmentIds as $departmentId) {
-                $known[$specialityId][$departmentId] = true;
-            }
-        }
-
         $anchors = [];
         foreach ($events as $eventId => $members) {
-            $specialityUniverse = $known;
+            $specialityUniverse = [];
+            foreach ($knownDepartments[$eventId] ?? [] as $specialityId => $departmentIds) {
+                foreach ($departmentIds as $departmentId) {
+                    $specialityUniverse[$specialityId][$departmentId] = true;
+                }
+            }
             foreach ($members as $member) {
                 $specialityUniverse[$member['speciality']][$member['department']] = true;
             }

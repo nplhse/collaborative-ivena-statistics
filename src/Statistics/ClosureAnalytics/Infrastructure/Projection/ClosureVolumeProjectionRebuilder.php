@@ -304,6 +304,8 @@ SQL,
         $now = ClosureVolumeClock::now();
         /** @var array<int, \DateTimeImmutable> $eventEnds */
         $eventEnds = [];
+        /** @var array<int, \DateTimeImmutable> $eventStarts */
+        $eventStarts = [];
         $from = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $rows[0]['starts_at']));
         $to = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $rows[0]['ends_at']));
         foreach ($rows as $row) {
@@ -314,6 +316,9 @@ SQL,
             $eventId = (int) $row['event_id'];
             if (!isset($eventEnds[$eventId]) || $end > $eventEnds[$eventId]) {
                 $eventEnds[$eventId] = $end;
+            }
+            if (!isset($eventStarts[$eventId]) || $start < $eventStarts[$eventId]) {
+                $eventStarts[$eventId] = $start;
             }
         }
         [$windowStart, $windowEnd] = $this->window->loadRange($from, $to);
@@ -327,13 +332,14 @@ SQL,
         }
 
         $neighbours = $this->profile->time('neighbours', fn (): array => $this->neighbours($hospitalId, $windowStart, $windowEnd), 1);
-        [$counts, $coveredDays, $departmentsBySpeciality] = $this->profile->time('hourly_counts', fn (): array => $this->hourlyCounts($hospitalId, $windowStart, $windowEnd));
+        [$counts, $coveredDays, $departmentDays] = $this->profile->time('hourly_counts', fn (): array => $this->hourlyCounts($hospitalId, $windowStart, $windowEnd));
         if ($coverage instanceof ClosureCoverage) {
             // Import export periods are authoritative; a covered day without allocations is a real zero.
             $coveredDays = $coverage->coveredDays($windowStart->setTime(0, 0), $windowEnd);
         }
-        $anchors = $this->profile->time('anchors', fn (): array => $this->anchorBuilder->metricAnchors($rows, $hospitalId, $departmentsBySpeciality));
-        unset($rows, $departmentsBySpeciality);
+        $knownDepartments = $this->knownDepartments($departmentDays, $eventStarts, $eventEnds, $now);
+        $anchors = $this->profile->time('anchors', fn (): array => $this->anchorBuilder->metricAnchors($rows, $hospitalId, $knownDepartments));
+        unset($rows, $departmentDays, $knownDepartments);
         $this->profile->time('partial_counts', function () use ($hospitalId, $anchors, $now, &$counts): void {
             $this->fillPartialCounts($hospitalId, $anchors, $now, $counts);
         });
@@ -525,9 +531,9 @@ SQL,
     }
 
     /**
-     * Hourly counts per series, the days that had allocations and the known departments per speciality.
+     * Hourly counts per series, the days that had allocations, and the days each department had allocations.
      *
-     * @return array{0: array<string, array<string, int>|int>, 1: array<string, true>, 2: array<int, list<int>>}
+     * @return array{0: array<string, array<string, int>|int>, 1: array<string, true>, 2: array<int, array<int, array<string, true>>>}
      */
     private function hourlyCounts(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to): array
     {
@@ -560,7 +566,7 @@ SQL,
             function (array $row) use (&$counts, &$covered, &$departments): void {
                 $hour = (string) $row['hour_start'];
                 $covered[substr($hour, 0, 10)] = true;
-                $departments[(int) $row['speciality_id']][(int) $row['department_id']] = true;
+                $departments[(int) $row['speciality_id']][(int) $row['department_id']][substr($hour, 0, 10)] = true;
                 foreach ($this->metricCounts($row) as $metric => $count) {
                     foreach ($this->seriesKeys((int) $row['department_id'], (int) $row['speciality_id'], $metric) as $series) {
                         $counts[$series][$hour] = ($counts[$series][$hour] ?? 0) + $count;
@@ -570,7 +576,47 @@ SQL,
         );
         $this->forgetDebugQueries();
 
-        return [$counts, $covered, array_map(array_keys(...), $departments)];
+        return [$counts, $covered, $departments];
+    }
+
+    /**
+     * Departments a speciality or the hospital knows for an event: those with allocations on a day of the
+     * event's own load range. It must not depend on the other events of the partition, or an incremental
+     * rebuild of one event would classify closed and partial differently than a full one.
+     *
+     * @param array<int, array<int, array<string, true>>> $departmentDays speciality => department => Y-m-d => true
+     * @param array<int, \DateTimeImmutable>              $eventStarts
+     * @param array<int, \DateTimeImmutable>              $eventEnds
+     *
+     * @return array<int, array<int, list<int>>> event => speciality => departments
+     */
+    private function knownDepartments(array $departmentDays, array $eventStarts, array $eventEnds, \DateTimeImmutable $now): array
+    {
+        $known = [];
+        foreach ($eventStarts as $eventId => $start) {
+            [$from, $to] = $this->window->loadRange($start, $eventEnds[$eventId]);
+            $from = $from->modify(sprintf('-%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
+            $to = $to->modify(sprintf('+%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
+            if ($to > $now) {
+                $to = $now;
+            }
+            $days = [];
+            for ($day = $from->setTime(0, 0); $day < $to; $day = $day->modify('+1 day')) {
+                $days[] = $day->format('Y-m-d');
+            }
+            foreach ($departmentDays as $specialityId => $departments) {
+                foreach ($departments as $departmentId => $present) {
+                    foreach ($days as $day) {
+                        if (isset($present[$day])) {
+                            $known[$eventId][$specialityId][] = $departmentId;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $known;
     }
 
     /**
