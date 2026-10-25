@@ -28,7 +28,9 @@ final class ClosureRebuildRunTest extends KernelTestCase
         self::assertSame(1, (int) $run['attempt']);
         self::assertNotNull($run['finished_at']);
         self::assertGreaterThan(0, (int) $run['peak_memory_bytes']);
-        self::assertNull($run['thresholds_exceeded']);
+        // Peak memory is that of the test process (coverage, ParaTest), so only the run's own thresholds are checked here.
+        self::assertNotContains('passes', explode(',', (string) $run['thresholds_exceeded']));
+        self::assertNotContains('slow', explode(',', (string) $run['thresholds_exceeded']));
         $metrics = json_decode((string) $run['metrics'], true);
         self::assertIsArray($metrics);
         self::assertFalse($metrics['full']);
