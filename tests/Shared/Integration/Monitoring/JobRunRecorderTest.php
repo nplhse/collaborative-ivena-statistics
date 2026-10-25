@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Integration\Monitoring;
 
+use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use App\Shared\Infrastructure\Monitoring\JobRun\JobRunRecorder;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunThresholdConfig;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryTracesSampler;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
+use App\Statistics\Infrastructure\Monitoring\AllocationProjectionRunTelemetry;
 use Doctrine\DBAL\Connection;
 use Psr\Log\AbstractLogger;
 use Psr\Log\NullLogger;
@@ -102,6 +106,26 @@ final class JobRunRecorderTest extends KernelTestCase
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('import.allocations'))));
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('import.closures'))));
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('projection.allocation_stats'))));
+    }
+
+    public function testEveryJobHasConfiguredThresholds(): void
+    {
+        self::bootKernel();
+        $config = self::getContainer()->get(JobRunThresholdConfig::class);
+
+        foreach ([
+            ImportRunTelemetry::JOB_ALLOCATIONS,
+            ImportRunTelemetry::JOB_CLOSURES,
+            AllocationProjectionRunTelemetry::JOB,
+            AllocationProjectionRunTelemetry::JOB_FULL,
+            ClosureRebuildTelemetry::JOB,
+        ] as $job) {
+            $thresholds = $config->for($job);
+            self::assertNotNull($thresholds->slowSeconds, $job);
+            self::assertNotNull($thresholds->longSeconds, $job);
+            self::assertSame(200 * 1024 * 1024, $thresholds->memoryBytes, $job.': warn below the worker memory limit of 256 MB.');
+            self::assertLessThan($thresholds->longSeconds, $thresholds->slowSeconds, $job);
+        }
     }
 
     private function recorder(MockClock $clock): JobRunRecorder
