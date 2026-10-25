@@ -6,6 +6,7 @@ namespace App\Import\Application\MessageHandler;
 
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Import\Application\Audit\ImportRunSuppressedAuditClasses;
+use App\Import\Application\Contracts\ImportRunTelemetryInterface;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Application\Contracts\RowReaderInterface;
 use App\Import\Application\DTO\ImportRunContext;
@@ -30,6 +31,7 @@ use App\Import\Application\Service\ImportRunErrorClassifier;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunReasonCode;
+use App\Import\Domain\Enum\ImportRunStatus;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Domain\Service\ImportEvaluation;
@@ -65,6 +67,7 @@ final readonly class ImportClosuresMessageHandler
         private ImportRunLifecycle $runLifecycle,
         private ImportRunCommitGuard $commitGuard,
         private ImportExportPeriodDeriver $exportPeriodDeriver,
+        private ImportRunTelemetryInterface $telemetry,
     ) {
     }
 
@@ -145,9 +148,11 @@ final readonly class ImportClosuresMessageHandler
             return;
         }
 
+        $this->telemetry->begin($context, $import);
         $source = $this->resolveSourceFile($import);
         if ($source instanceof ImportRunReasonCode) {
-            $this->runLifecycle->fail($context, $source);
+            $failed = $this->runLifecycle->fail($context, $source);
+            $this->telemetry->end($failed ? ImportRunStatus::Failed->value : ImportRunStatus::Superseded->value);
 
             return;
         }
@@ -157,48 +162,64 @@ final readonly class ImportClosuresMessageHandler
 
         $started = \microtime(true);
         $cleanedPreviousRun = false;
+        $status = ImportRunStatus::Failed->value;
+        $error = null;
         $this->auditContext->pushSuppressedEntityAudit(ImportRunSuppressedAuditClasses::fqcnList());
         $this->commitGuard->activate($context);
         try {
             // A resumed run may have committed chunks before it failed; remove them like a previous run's data.
             // The cleanup is a guarded commit, so it never deletes data of a newer run.
             if ($import->hasRunBefore() || $context->resumed) {
+                $this->telemetry->startSpan('import.cleanup');
                 $this->previousRunCleanupService->cleanup($import);
+                $this->telemetry->finishSpan();
                 $cleanedPreviousRun = true;
             }
 
             $import->markAsRunning();
             $this->flushWithImportIntent('import.run.started', $import);
 
-            $writer = $this->rejectWriterFactory->create();
+            $writer = $this->telemetry->timedRejectWriter($this->rejectWriterFactory->create());
             $writer->start($import);
 
+            $this->telemetry->startSpan('import.profile', ['hospital_id' => $hospitalId]);
             $profile = $this->hospitalProfile($hospitalId, $source);
-            $reader = $this->rowReaderFactory->createFromCsvFile($source);
+            $this->telemetry->finishSpan();
+            $reader = $this->telemetry->timedReader($this->rowReaderFactory->createFromCsvFile($source));
+            $this->telemetry->startRows();
             $summary = $this->importFactory->create($reader, $writer)->import($import, $profile);
+            $this->telemetry->rowsImported($summary);
             $runtimeMs = $this->runtimeSince($started);
 
-            $this->runLifecycle->finish(
+            $this->telemetry->startSpan('import.finish');
+            $outcome = $this->runLifecycle->finish(
                 $context,
                 function (Import $fresh) use ($summary, $writer, $runtimeMs): ImportRunOutcome {
                     $this->applyResult($fresh, $summary, $writer, $runtimeMs);
+                    $this->telemetry->evaluated($fresh);
 
                     return ImportRunOutcome::fromEvaluatedImport($fresh);
                 },
             );
+            $this->telemetry->finishSpan();
+            $status = $outcome instanceof ImportRunOutcome ? $outcome->status->value : ImportRunStatus::Superseded->value;
         } catch (ImportRunSupersededException) {
+            $status = ImportRunStatus::Superseded->value;
             $this->importLogger->info('closure.import.run.superseded_during_processing', [
                 'id' => $context->importId,
                 'run_id' => $context->runId->toRfc4122(),
             ]);
             $this->entityManager()->clear();
         } catch (\Throwable $e) {
+            $error = $e;
+            $status = ImportRunErrorClassifier::isRetryable($e) ? ImportRunTelemetryInterface::STATUS_RETRYING : ImportRunStatus::Failed->value;
             if ($cleanedPreviousRun) {
                 $this->closureRebuildScheduler->requestAnalysis($hospitalId);
             }
 
             $this->handleRunError($context, $e, $this->runtimeSince($started));
         } finally {
+            $this->telemetry->end($status, $error);
             $this->commitGuard->deactivate();
             $this->auditContext->popSuppressedEntityAudit();
         }

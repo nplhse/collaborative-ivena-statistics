@@ -29,41 +29,74 @@ final readonly class JobRunRecorder
     }
 
     /**
-     * Marks running rows of the job as abandoned. Call it only while the job's lock is held,
-     * so every other running row belongs to a dead process.
+     * Marks running rows of the job as abandoned; they belong to a dead process.
+     * Without an import run, call it only while the job's lock is held, so every other running row of the job is dead.
+     * Jobs without a lock (imports) pass their import run: a running row of the same import run belongs to an
+     * earlier attempt whose worker died.
      *
      * @return int the number of abandoned runs
      */
-    public function abandonRunning(string $job, string $exceptRunId): int
+    public function abandonRunning(string $job, string $exceptRunId, ?string $importRunId = null): int
     {
         $abandoned = 0;
-        $this->write($job, $exceptRunId, function () use ($job, $exceptRunId, &$abandoned): void {
-            $abandoned = $this->connection->executeStatement(
-                'UPDATE job_run SET status = :abandoned, finished_at = :now WHERE job = :job AND status = :running AND id <> :run',
-                [
-                    'abandoned' => self::STATUS_ABANDONED,
-                    'now' => $this->now(),
-                    'job' => $job,
-                    'running' => self::STATUS_RUNNING,
-                    'run' => $exceptRunId,
-                ],
-            );
+        $this->write($job, $exceptRunId, function () use ($job, $exceptRunId, $importRunId, &$abandoned): void {
+            $sql = 'UPDATE job_run SET status = :abandoned, finished_at = :now WHERE job = :job AND status = :running AND id <> :run';
+            $params = [
+                'abandoned' => self::STATUS_ABANDONED,
+                'now' => $this->now(),
+                'job' => $job,
+                'running' => self::STATUS_RUNNING,
+                'run' => $exceptRunId,
+            ];
+            if (null !== $importRunId) {
+                $sql .= ' AND import_run_id = :importRun';
+                $params['importRun'] = $importRunId;
+            }
+            $abandoned = $this->connection->executeStatement($sql, $params);
         });
 
         return $abandoned;
     }
 
     /**
+     * Earlier attempts of an import run, so a Messenger retry gets the next attempt number. 0 when the read fails.
+     */
+    public function attemptsOf(string $job, string $importRunId): int
+    {
+        $attempts = 0;
+        $this->write($job, $importRunId, function () use ($job, $importRunId, &$attempts): void {
+            $attempts = (int) $this->connection->fetchOne(
+                'SELECT COUNT(*) FROM job_run WHERE job = :job AND import_run_id = :importRun',
+                ['job' => $job, 'importRun' => $importRunId],
+            );
+        });
+
+        return $attempts;
+    }
+
+    /**
      * @param array<string, int|bool|string|list<int>|null> $metrics
      */
-    public function start(string $runId, string $job, string $trigger, array $metrics = []): void
-    {
-        $this->write($job, $runId, function () use ($runId, $job, $trigger, $metrics): void {
+    public function start(
+        string $runId,
+        string $job,
+        string $trigger,
+        array $metrics = [],
+        int $attempt = 1,
+        ?int $importId = null,
+        ?string $importRunId = null,
+        ?int $hospitalId = null,
+    ): void {
+        $this->write($job, $runId, function () use ($runId, $job, $trigger, $metrics, $attempt, $importId, $importRunId, $hospitalId): void {
             $this->connection->insert('job_run', [
                 'id' => $runId,
                 'job' => $job,
                 'triggered_by' => $trigger,
                 'status' => self::STATUS_RUNNING,
+                'attempt' => $attempt,
+                'import_id' => $importId,
+                'import_run_id' => $importRunId,
+                'hospital_id' => $hospitalId,
                 'started_at' => $this->now(),
                 'metrics' => $metrics,
             ], ['metrics' => Types::JSON]);

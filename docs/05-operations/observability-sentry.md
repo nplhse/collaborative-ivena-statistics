@@ -60,6 +60,8 @@ Unexpected errors inside voters, permission services, or other authorization log
 | `import.reject_file.deleted` | yes |
 | `import.source_file.deleted` | yes |
 | `import.file.delete_failed` | yes |
+| `import.run.summary` | yes (allowlisted attributes only) |
+| `import.run.threshold_exceeded` | yes (allowlisted attributes only) |
 | `reject.row_rejected` | no (local only) |
 | `reject.row_type_unknown` | no (local only) |
 
@@ -105,6 +107,29 @@ Thresholds (`app.job_runs.closure_rebuild`), reported in `threshold_exceeded` an
 | More than one pass (in code) | > 1 | `passes` |
 
 Its profile ([`ClosureRebuildSentryProfile`](../../src/Statistics/ClosureAnalytics/Infrastructure/Monitoring/ClosureRebuildSentryProfile.php)) covers the `closure_rebuild` transaction and `closure_rebuild.*` / `closure_volume.*` logs. No hospital or department names, no closure periods (partition spans carry no week), no error messages.
+
+### Imports
+
+Every attempt of an allocation or closure import run ([`ImportRunTelemetry`](../../src/Import/Infrastructure/Monitoring/ImportRunTelemetry.php)) records:
+
+- **`job_run`** with job `allocation_import` or `closure_import`, the trigger of the import run (`upload`, `console`, `batch_requeue`, `reprocess`, `bulk_reprocess`), `import_id`, `import_run_id`, `hospital_id` and `attempt`. Status: `completed`, `partial`, `failed`, `superseded` or `retrying` (a retryable error; Messenger retries the same import run, which becomes the next attempt). A row still `running` when the next attempt of the same import run starts belongs to a dead worker and is marked `abandoned`. `metrics`: `rows_total`, `rows_ok`, `rows_rejected`, `rows_deduplicated` (allocation only, taken from the evaluated import), `chunks`, `read_ms`, `map_ms`, `persist_ms`. `import_run` stays the domain record of the run.
+- **Sentry transaction** `import_run` (op `import.allocations` / `import.closures`) with spans `import.cleanup`, `import.profile` (closure hospital scan), `import.rows`, `import.deduplicate` and `import.finish`. Below `import.rows`, the spans `import.read`, `import.map` and `import.persist` carry the **summed** time of each phase (`summed: true`): reading and parsing the file, detecting and mapping rows, and flushing chunks plus writing rejected rows. They are laid out one after another, so the waterfall shows the share of each phase, not when it happened.
+- **Logs** on the `import` channel: `import.run.summary` (info, one per attempt) and `import.run.threshold_exceeded` (warning).
+
+Thresholds: not set yet (`app.job_runs.allocation_import` / `closure_import`), so imports only record their runs; they follow from the measured runs (#693, step 5). `attempts` is reported for every attempt after the first. Messages without a run id (legacy) are not recorded.
+
+Compare the phases of the slowest allocation imports:
+
+```sql
+SELECT started_at, import_id, status, duration_ms / 1000 AS s,
+       (metrics->>'rows_total')::int AS rows,
+       metrics->>'read_ms' AS read_ms, metrics->>'map_ms' AS map_ms, metrics->>'persist_ms' AS persist_ms,
+       peak_memory_bytes / 1048576 AS mb
+FROM job_run
+WHERE job = 'allocation_import'
+ORDER BY duration_ms DESC NULLS LAST
+LIMIT 20;
+```
 
 ### Alert rules (Sentry UI)
 

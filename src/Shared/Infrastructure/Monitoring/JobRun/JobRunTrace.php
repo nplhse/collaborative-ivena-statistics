@@ -75,6 +75,30 @@ final class JobRunTrace
         $span->finish();
     }
 
+    /**
+     * Adds finished child spans to the innermost open span for work that is interleaved in a loop, such as reading,
+     * mapping and persisting rows. Each span carries the summed time of its phase; the spans are laid out one after
+     * another from the parent's start, so the waterfall shows the share of each phase, not when it happened.
+     *
+     * @param array<string, array{seconds: float, data: array<string, int|bool>}> $phases op => summed seconds and data
+     */
+    public function addPhaseSpans(array $phases): void
+    {
+        if ($this->finished) {
+            return;
+        }
+        $parent = $this->spans[array_key_last($this->spans)];
+        $at = $parent->getStartTimestamp();
+        foreach ($phases as $op => $phase) {
+            $seconds = max(0.0, $phase['seconds']);
+            $span = $parent->startChild(
+                SpanContext::make()->setOp($op)->setStartTimestamp($at)->setData([...$phase['data'], 'summed' => true]),
+            );
+            $at += $seconds;
+            $span->finish($at);
+        }
+    }
+
     public function seconds(): float
     {
         return microtime(true) - $this->startedAt;

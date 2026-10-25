@@ -15,6 +15,7 @@ use App\Import\Application\Service\ClosureRowProcessor;
 use App\Import\Application\Service\ImportRunCommitGuard;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister;
+use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use App\Tests\Import\Doubles\Service\Adapter\InMemoryRowReader;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -77,7 +78,7 @@ final class ClosureImporterAbortTest extends DatabaseKernelTestCase
         $importer = new ClosureImporter(
             InMemoryRowReader::fromAssocRows([]),
             self::getContainer()->get(ClosureRowProcessor::class),
-            new DoctrineClosureIntervalPersister($em, $guard),
+            new DoctrineClosureIntervalPersister($em, $guard, self::getContainer()->get(ImportRunTelemetry::class)),
             $rejectWriter,
             self::getContainer()->get(LoggerInterface::class),
         );

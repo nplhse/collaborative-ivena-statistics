@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Shared\Unit\Monitoring;
 
+use App\Import\Infrastructure\Monitoring\ImportRunSentryProfile;
 use App\Shared\Infrastructure\Monitoring\JobRun\JobRunSentryProfile;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryJobRunFilter;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildSentryProfile;
@@ -95,6 +96,44 @@ final class SentryJobRunFilterTest extends TestCase
         self::assertSame(['trigger' => 'console'], $filtered->getTags());
     }
 
+    public function testImportRunLogsAndTransactionsKeepOnlyIdsAndCounts(): void
+    {
+        $filter = $this->filter();
+
+        self::assertTrue($filter->isJobRunLog('import.run.summary'));
+        self::assertTrue($filter->isJobRunLog('import.run.threshold_exceeded'));
+        self::assertFalse($filter->isJobRunLog('import.run.retryable_error'), 'Other import logs keep the generic scrubber.');
+        self::assertSame(
+            ['import_id' => 7, 'hospital_id' => 40, 'job' => 'allocation_import', 'rows_total' => 120, 'read_ms' => 31, 'error_class' => \RuntimeException::class],
+            $filter->filterLogAttributes('import.run.summary', [
+                'import_id' => 7,
+                'hospital_id' => 40,
+                'job' => 'allocation_import',
+                'rows_total' => 120,
+                'read_ms' => 31,
+                'error_class' => \RuntimeException::class,
+                'msg' => 'SQLSTATE: Klinikum Beispiel',
+                'reason' => 'Datei /var/imports/2026/10/klinikum.csv fehlt',
+                'file' => 'klinikum.csv',
+                'hospital' => 'Klinikum Beispiel',
+            ]),
+        );
+
+        $event = Event::createTransaction();
+        $event->setTransaction('import_run');
+        $event->setTags(['job' => 'allocation_import', 'trigger' => 'upload', 'file' => '/var/imports/klinikum beispiel.csv']);
+        $read = new Span(SpanContext::make()->setOp('import.read')->setDescription('klinikum.csv')->setData(['ms' => 31, 'summed' => true, 'path' => '/var/imports/x.csv']));
+        $query = new Span(SpanContext::make()->setOp('db.sql.query')->setDescription('INSERT INTO allocation'));
+        $event->setSpans([$read, $query]);
+
+        $filtered = $filter->filterTransaction($event);
+
+        self::assertSame([$read], $filtered->getSpans());
+        self::assertNull($read->getDescription());
+        self::assertSame(['ms' => 31, 'summed' => true, 'path' => '[Filtered]'], $read->getData());
+        self::assertSame(['job' => 'allocation_import', 'trigger' => 'upload'], $filtered->getTags());
+    }
+
     private function filter(): SentryJobRunFilter
     {
         $testJob = new class implements JobRunSentryProfile {
@@ -129,6 +168,6 @@ final class SentryJobRunFilterTest extends TestCase
             }
         };
 
-        return new SentryJobRunFilter([new ClosureRebuildSentryProfile(), $testJob]);
+        return new SentryJobRunFilter([new ClosureRebuildSentryProfile(), new ImportRunSentryProfile(), $testJob]);
     }
 }

@@ -20,6 +20,8 @@ final readonly class SentryLogScrubber
         'import.reject_file.deleted',
         'import.source_file.deleted',
         'import.file.delete_failed',
+        'import.run.summary',
+        'import.run.threshold_exceeded',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */
