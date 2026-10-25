@@ -131,6 +131,16 @@ ORDER BY duration_ms DESC NULLS LAST
 LIMIT 20;
 ```
 
+### Allocation stats projection rebuild
+
+Every rebuild of the allocation stats projection for one import ([`AllocationProjectionRunTelemetry`](../../src/Statistics/Infrastructure/Monitoring/AllocationProjectionRunTelemetry.php), Messenger handler `RebuildAllocationStatsProjectionHandler`) records:
+
+- **`job_run`** with job `allocation_projection_rebuild`, trigger `messenger`, `import_id` and `hospital_id`; status `succeeded` or `failed` (the error is rethrown, so Messenger retries it as a new row). A row still `running` for the same import when the message is redelivered belongs to a dead worker and is marked `abandoned`. `metrics`: `rows_deleted`, `rows_written`, `mv_refreshed` and the time per step (`change_detection_ms`, `delete_ms`, `insert_ms`, `closure_request_ms`, `mv_refresh_ms`).
+- **Sentry transaction** `allocation_projection_rebuild` (op `projection.allocation_stats`, sampled at 100 %) with spans `projection.change_detection`, `projection.delete`, `projection.insert`, `projection.closure_request` and `projection.mv_refresh` (only when the import brings a new hospital).
+- **Logs** on the `projection_rebuild` channel: `projection_rebuild.summary` (info, one per run), `projection_rebuild.threshold_exceeded` (warning), `projection_rebuild.failed` (error, class only). Locally in `var/log/projection_rebuild.<env>.log`, in production on stderr (JSON) and in Sentry Logs.
+
+Thresholds: not set yet (`app.job_runs.allocation_projection_rebuild`), so the rebuild only records its runs until step 5 of #693.
+
 ### Alert rules (Sentry UI)
 
 The transaction carries the tags `status` (`succeeded` / `failed`), `passes` and `threshold_exceeded` (`none` or a comma list), so metric alerts on transactions cover all cases:

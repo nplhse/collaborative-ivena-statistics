@@ -93,7 +93,7 @@ final class ImportAllocationsMessageHandlerJobRunTest extends ImportAllocationsM
 
         $this->handler->__invoke(new ImportAllocationsMessage($id, $old->getId()->toRfc4122()));
 
-        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM job_run WHERE import_id = ?', [$id]));
+        self::assertSame(0, (int) $this->connection()->fetchOne("SELECT COUNT(*) FROM job_run WHERE job = 'allocation_import' AND import_id = ?", [$id]));
     }
 
     /**
@@ -101,7 +101,7 @@ final class ImportAllocationsMessageHandlerJobRunTest extends ImportAllocationsM
      */
     private function onlyJobRun(int $importId): array
     {
-        $rows = $this->connection()->fetchAllAssociative('SELECT * FROM job_run WHERE import_id = ?', [$importId]);
+        $rows = $this->connection()->fetchAllAssociative("SELECT * FROM job_run WHERE job = 'allocation_import' AND import_id = ?", [$importId]);
         self::assertCount(1, $rows);
 
         return $rows[0];

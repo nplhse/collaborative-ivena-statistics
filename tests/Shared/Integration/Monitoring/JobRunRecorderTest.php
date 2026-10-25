@@ -55,6 +55,19 @@ final class JobRunRecorderTest extends KernelTestCase
         );
     }
 
+    public function testJobsWithoutALockOnlyAbandonRowsOfTheSameImport(): void
+    {
+        $recorder = $this->recorder(new MockClock());
+        $this->connection()->insert('job_run', ['id' => 'import-40', 'job' => 'test_job', 'triggered_by' => 'messenger', 'status' => 'running', 'import_id' => 40, 'started_at' => '2026-10-25 16:00:00+00:00']);
+        $this->connection()->insert('job_run', ['id' => 'import-41', 'job' => 'test_job', 'triggered_by' => 'messenger', 'status' => 'running', 'import_id' => 41, 'started_at' => '2026-10-25 16:00:00+00:00']);
+
+        self::assertSame(1, $recorder->abandonRunning('test_job', 'current', importId: 40));
+        self::assertSame(
+            ['import-40' => 'abandoned', 'import-41' => 'running'],
+            $this->connection()->fetchAllKeyValue('SELECT id, status FROM job_run ORDER BY id'),
+        );
+    }
+
     public function testAFailedWriteIsLoggedAndDoesNotFailTheJob(): void
     {
         $logger = new class extends AbstractLogger {
@@ -88,6 +101,7 @@ final class JobRunRecorderTest extends KernelTestCase
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('closure.rebuild'))));
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('import.allocations'))));
         self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('import.closures'))));
+        self::assertSame(1.0, $sampler(SamplingContext::getDefault(TransactionContext::make()->setOp('projection.allocation_stats'))));
     }
 
     private function recorder(MockClock $clock): JobRunRecorder

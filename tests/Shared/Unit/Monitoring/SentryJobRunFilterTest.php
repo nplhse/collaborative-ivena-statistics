@@ -8,6 +8,7 @@ use App\Import\Infrastructure\Monitoring\ImportRunSentryProfile;
 use App\Shared\Infrastructure\Monitoring\JobRun\JobRunSentryProfile;
 use App\Shared\Infrastructure\Monitoring\Sentry\SentryJobRunFilter;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildSentryProfile;
+use App\Statistics\Infrastructure\Monitoring\AllocationProjectionSentryProfile;
 use PHPUnit\Framework\TestCase;
 use Sentry\Event;
 use Sentry\Tracing\Span;
@@ -134,6 +135,33 @@ final class SentryJobRunFilterTest extends TestCase
         self::assertSame(['job' => 'allocation_import', 'trigger' => 'upload'], $filtered->getTags());
     }
 
+    public function testProjectionRebuildLogsKeepOnlyIdsCountsAndDurations(): void
+    {
+        $filter = $this->filter();
+
+        self::assertTrue($filter->isJobRunLog('projection_rebuild.summary'));
+        self::assertSame(
+            ['import_id' => 7, 'rows_written' => 420, 'mv_refreshed' => true, 'insert_ms' => 88, 'error_class' => \RuntimeException::class],
+            $filter->filterLogAttributes('projection_rebuild.failed', [
+                'import_id' => 7,
+                'rows_written' => 420,
+                'mv_refreshed' => true,
+                'insert_ms' => 88,
+                'error_class' => \RuntimeException::class,
+                'message' => 'SQLSTATE: duplicate key (hospital)=(Klinikum Beispiel)',
+            ]),
+        );
+
+        $event = Event::createTransaction();
+        $event->setTransaction('allocation_projection_rebuild');
+        $insert = new Span(SpanContext::make()->setOp('projection.insert')->setDescription('INSERT INTO allocation_stats_projection'));
+        $query = new Span(SpanContext::make()->setOp('db.sql.query')->setDescription('INSERT INTO allocation_stats_projection'));
+        $event->setSpans([$insert, $query]);
+
+        self::assertSame([$insert], $filter->filterTransaction($event)->getSpans());
+        self::assertNull($insert->getDescription());
+    }
+
     private function filter(): SentryJobRunFilter
     {
         $testJob = new class implements JobRunSentryProfile {
@@ -168,6 +196,6 @@ final class SentryJobRunFilterTest extends TestCase
             }
         };
 
-        return new SentryJobRunFilter([new ClosureRebuildSentryProfile(), new ImportRunSentryProfile(), $testJob]);
+        return new SentryJobRunFilter([new ClosureRebuildSentryProfile(), new ImportRunSentryProfile(), new AllocationProjectionSentryProfile(), $testJob]);
     }
 }

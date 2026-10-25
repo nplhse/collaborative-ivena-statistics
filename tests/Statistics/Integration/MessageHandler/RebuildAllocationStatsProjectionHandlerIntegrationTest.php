@@ -17,12 +17,19 @@ use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Statistics\Application\Contract\AllocationProjectionRunTelemetryInterface;
+use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
+use App\Statistics\Application\Contract\MaterializedViewRefresherInterface;
+use App\Statistics\Application\Contract\ProjectionOverviewChangeDetectorInterface;
 use App\Statistics\Application\Message\RebuildAllocationStatsProjection;
 use App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler;
 use App\Statistics\Infrastructure\Entity\ProjectionStateHospitalCount;
 use App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
@@ -71,6 +78,82 @@ final class RebuildAllocationStatsProjectionHandlerIntegrationTest extends Kerne
         self::assertSame(1, $row->getHospitalCount());
     }
 
+    public function testEachRebuildIsRecordedInJobRunWithItsRows(): void
+    {
+        $importId = $this->seedImport('HandlerJobRun');
+
+        ($this->projectionHandler)(new RebuildAllocationStatsProjection($importId));
+        ($this->projectionHandler)(new RebuildAllocationStatsProjection($importId));
+
+        $connection = self::getContainer()->get(Connection::class);
+        $runs = $connection->fetchAllAssociative(
+            "SELECT * FROM job_run WHERE job = 'allocation_projection_rebuild' AND import_id = ? ORDER BY started_at, id",
+            [$importId],
+        );
+        self::assertCount(2, $runs);
+        $written = (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = ?', [$importId]);
+        self::assertGreaterThan(0, $written);
+
+        $first = json_decode((string) $runs[0]['metrics'], true);
+        $second = json_decode((string) $runs[1]['metrics'], true);
+        self::assertIsArray($first);
+        self::assertIsArray($second);
+        self::assertSame('succeeded', $runs[0]['status']);
+        self::assertSame('messenger', $runs[0]['triggered_by']);
+        self::assertSame($this->hospitalIdForImport($importId), (int) $runs[0]['hospital_id']);
+        self::assertSame(0, $first['rows_deleted']);
+        self::assertSame($written, $first['rows_written']);
+        self::assertTrue($first['mv_refreshed'], 'The first import brings a new hospital.');
+        foreach (['change_detection_ms', 'delete_ms', 'insert_ms', 'closure_request_ms', 'mv_refresh_ms'] as $step) {
+            self::assertIsInt($first[$step], $step);
+        }
+        self::assertSame($written, $second['rows_deleted'], 'A rebuild replaces the rows of the previous one.');
+        self::assertSame($written, $second['rows_written']);
+        self::assertFalse($second['mv_refreshed']);
+        self::assertArrayNotHasKey('mv_refresh_ms', $second);
+    }
+
+    public function testAFailedRebuildIsRecordedAndRethrown(): void
+    {
+        $importId = $this->seedImport('HandlerJobRunFailure');
+        $container = self::getContainer();
+        $rebuilder = $this->createStub(AllocationStatsProjectionRebuildInterface::class);
+        $rebuilder->method('rebuildForImport')->willThrowException(new \RuntimeException('SQLSTATE: HandlerJobRunFailureHospital'));
+        $handler = new RebuildAllocationStatsProjectionHandler(
+            $rebuilder,
+            $container->get(ProjectionOverviewChangeDetectorInterface::class),
+            $container->get(MaterializedViewRefresherInterface::class),
+            $container->get(ClosureRebuildRequestInterface::class),
+            $container->get(Connection::class),
+            $container->get(LoggerInterface::class),
+            $container->get(AllocationProjectionRunTelemetryInterface::class),
+        );
+
+        try {
+            $handler(new RebuildAllocationStatsProjection($importId));
+            self::fail('The rebuild error must reach Messenger.');
+        } catch (\RuntimeException $e) {
+            self::assertSame('SQLSTATE: HandlerJobRunFailureHospital', $e->getMessage());
+        }
+
+        $run = $container->get(Connection::class)->fetchAssociative(
+            "SELECT status, error_class, error_message, metrics FROM job_run WHERE job = 'allocation_projection_rebuild' AND import_id = ?",
+            [$importId],
+        );
+        self::assertIsArray($run);
+        self::assertSame('failed', $run['status']);
+        self::assertSame(\RuntimeException::class, $run['error_class']);
+        self::assertSame('SQLSTATE: HandlerJobRunFailureHospital', $run['error_message'], 'The message stays local in job_run.');
+        $metrics = json_decode((string) $run['metrics'], true);
+        self::assertIsArray($metrics);
+        self::assertArrayNotHasKey('rows_written', $metrics);
+    }
+
+    private function hospitalIdForImport(int $importId): int
+    {
+        return (int) self::getContainer()->get(Connection::class)->fetchOne('SELECT hospital_id FROM import WHERE id = ?', [$importId]);
+    }
+
     private function seedImport(string $prefix): int
     {
         $user = UserFactory::createOne(['username' => strtolower($prefix).'-'.bin2hex(random_bytes(4))]);
@@ -111,7 +194,7 @@ final class RebuildAllocationStatsProjectionHandlerIntegrationTest extends Kerne
 
     private function stateIdForImport(int $importId): int
     {
-        $stateId = self::getContainer()->get(\Doctrine\DBAL\Connection::class)->fetchOne(
+        $stateId = self::getContainer()->get(Connection::class)->fetchOne(
             'SELECT state_id FROM allocation WHERE import_id = :importId LIMIT 1',
             ['importId' => $importId],
         );

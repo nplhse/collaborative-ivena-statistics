@@ -134,7 +134,7 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         $this->handler->__invoke(new ImportClosuresMessage($id, $run->getId()->toRfc4122()));
 
         $connection = self::getContainer()->get(Connection::class);
-        $jobRun = $connection->fetchAssociative('SELECT * FROM job_run WHERE import_id = ?', [$id]);
+        $jobRun = $connection->fetchAssociative("SELECT * FROM job_run WHERE job = 'closure_import' AND import_id = ?", [$id]);
         self::assertIsArray($jobRun);
         self::assertSame('closure_import', $jobRun['job']);
         self::assertSame('completed', $jobRun['status']);

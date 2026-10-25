@@ -31,15 +31,15 @@ final readonly class JobRunRecorder
     /**
      * Marks running rows of the job as abandoned; they belong to a dead process.
      * Without an import run, call it only while the job's lock is held, so every other running row of the job is dead.
-     * Jobs without a lock (imports) pass their import run: a running row of the same import run belongs to an
-     * earlier attempt whose worker died.
+     * Jobs without a lock pass what they run for (import run or import): a running row of the same import run or
+     * import belongs to an earlier attempt whose worker died.
      *
      * @return int the number of abandoned runs
      */
-    public function abandonRunning(string $job, string $exceptRunId, ?string $importRunId = null): int
+    public function abandonRunning(string $job, string $exceptRunId, ?string $importRunId = null, ?int $importId = null): int
     {
         $abandoned = 0;
-        $this->write($job, $exceptRunId, function () use ($job, $exceptRunId, $importRunId, &$abandoned): void {
+        $this->write($job, $exceptRunId, function () use ($job, $exceptRunId, $importRunId, $importId, &$abandoned): void {
             $sql = 'UPDATE job_run SET status = :abandoned, finished_at = :now WHERE job = :job AND status = :running AND id <> :run';
             $params = [
                 'abandoned' => self::STATUS_ABANDONED,
@@ -51,6 +51,10 @@ final readonly class JobRunRecorder
             if (null !== $importRunId) {
                 $sql .= ' AND import_run_id = :importRun';
                 $params['importRun'] = $importRunId;
+            }
+            if (null !== $importId) {
+                $sql .= ' AND import_id = :import';
+                $params['import'] = $importId;
             }
             $abandoned = $this->connection->executeStatement($sql, $params);
         });
