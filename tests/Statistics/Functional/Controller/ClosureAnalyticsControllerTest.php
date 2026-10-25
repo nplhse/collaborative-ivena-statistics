@@ -27,6 +27,7 @@ use App\Tests\Support\Security\InteractsWithAuthenticatedUser;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use App\User\Domain\Security\UserRole;
+use Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -152,6 +153,38 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-closure-profiles-page"]');
         $searchValue = $client->getCrawler()->filter('[data-testid="closure-recurring-profile-search-input"]')->attr('value');
         self::assertSame('Functional', $searchValue);
+    }
+
+    public function testRecurringProfilesRunTheGroupingQueryOnce(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        [$hospitalId] = $this->seedGroupedClosures($user);
+
+        $client->enableProfiler();
+        $client->request(
+            Request::METHOD_GET,
+            sprintf('/statistics/closure-analytics/profiles?scope=hospital&hospital=%d&period=all_time', $hospitalId),
+        );
+        $this->assertResponseIsSuccessful();
+
+        $profile = $client->getProfile();
+        self::assertNotFalse($profile);
+        $collector = $profile->getCollector('db');
+        self::assertInstanceOf(DoctrineDataCollector::class, $collector);
+
+        $groupingRuns = 0;
+        foreach ($collector->getQueries() as $connectionQueries) {
+            foreach ($connectionQueries as $query) {
+                $sql = preg_replace('/\s+/', ' ', (string) $query['sql']) ?? '';
+                if (str_contains($sql, 'g.profile_key, g.members, g.event_count FROM grouped g')) {
+                    ++$groupingRuns;
+                }
+            }
+        }
+
+        // Rows and total of the paginated table come from the same result.
+        self::assertSame(1, $groupingRuns);
     }
 
     public function testEventTablePaginatesAndPreservesAnalysisState(): void

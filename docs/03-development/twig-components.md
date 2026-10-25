@@ -407,6 +407,8 @@ Left: page-size 25/50/100, then the result range (`#result-count`) to its right.
 
 List pages also show the same range in the PageHeader `context` slot (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 
+Which pagination a list should use is described in [pagination.md](pagination.md).
+
 `pagination.results` and `pagination.sortArrow` stay for page-size menus and sort indicators. Numbered page links render through `ux_pagination`. `Card` does not paginate.
 
 ## EmptyState

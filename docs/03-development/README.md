@@ -14,6 +14,7 @@
 | [translations.md](translations.md) | Guide | Symfony domains, extract/lint workflow |
 | [frontend.md](frontend.md) | Concept | Stimulus, Asset Mapper, Live Components |
 | [twig-components.md](twig-components.md) | Concept | Shared Card, Alert, ActiveFilters, and FilterDrawer primitives |
+| [pagination.md](pagination.md) | Concept | When to use numbered, lookahead, cursor or no pagination |
 
 ## Reading order
 
