@@ -13,18 +13,16 @@ interface StorageMeasurementRepositoryInterface
 {
     /**
      * Stores the measurement. If its day already has one, that row takes over the new values and is returned.
-     *
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the scheduled measurement and the Admin pages use it.
      */
     public function save(StorageMeasurement $measurement): StorageMeasurement;
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the scheduled measurement and the Admin pages use it.
+     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
      */
     public function latest(): ?StorageMeasurement;
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the scheduled measurement and the Admin pages use it.
+     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
      */
     public function findForDay(\DateTimeImmutable $day): ?StorageMeasurement;
 
@@ -33,7 +31,7 @@ interface StorageMeasurementRepositoryInterface
      *
      * @return list<StorageMeasurement>
      *
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the scheduled measurement and the Admin pages use it.
+     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
      */
     public function findSince(\DateTimeImmutable $day): array;
 }

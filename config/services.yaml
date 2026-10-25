@@ -115,7 +115,7 @@ services:
 
 when@test:
     services:
+        # Per-process locks: ParaTest runs test processes in parallel, and a lock file shared through the cache
+        # directory would let a lock held in one process make a scheduled job in another process skip its run.
         app.lock.store:
-            class: Symfony\Component\Lock\Store\FlockStore
-            arguments:
-                - '%kernel.cache_dir%/lock'
+            class: Symfony\Component\Lock\Store\InMemoryStore
