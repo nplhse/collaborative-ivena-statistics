@@ -41,7 +41,7 @@ final class StorageSummaryBuilderTest extends TestCase
         self::assertSame(36, $summary->maxAgeHours);
         self::assertTrue($summary->hasCapacity());
         self::assertFalse($summary->isExceeded());
-        self::assertSame('success', $summary->levelStyle());
+        self::assertSame('success', $summary->levelTextStyle());
 
         self::assertSame(
             ['database', 'imports', 'media', 'application', 'temporary', 'other'],
@@ -78,7 +78,7 @@ final class StorageSummaryBuilderTest extends TestCase
         self::assertSame(8000, $summary->comparedUsedBytes);
         self::assertSame(2000, $summary->remainingBytes);
         self::assertSame(80.0, $summary->usedPercent);
-        self::assertSame('info', $summary->levelStyle());
+        self::assertSame('warning', $summary->levelTextStyle());
 
         $outside = $summary->segments[6];
         self::assertSame(StorageBarSegment::OUTSIDE_APPLICATION, $outside->key);
@@ -105,7 +105,7 @@ final class StorageSummaryBuilderTest extends TestCase
         self::assertSame(75.0, $summary->segments[0]->widthPercent);
         self::assertSame(25.0, $summary->segments[4]->widthPercent);
         self::assertSame(100.0, $summary->barUsedPercent());
-        self::assertSame('danger', $summary->levelStyle());
+        self::assertSame('danger', $summary->levelTextStyle());
     }
 
     public function testWithoutReferenceOrUsageThereIsNoRemainingCapacity(): void
@@ -126,7 +126,7 @@ final class StorageSummaryBuilderTest extends TestCase
         self::assertNull($summary->usedPercent);
         self::assertFalse($summary->hasCapacity());
         self::assertFalse($summary->isExceeded());
-        self::assertSame('secondary', $summary->levelStyle());
+        self::assertSame('secondary', $summary->levelTextStyle());
         self::assertSame(0.0, $summary->barUsedPercent());
     }
 
@@ -146,8 +146,11 @@ final class StorageSummaryBuilderTest extends TestCase
      */
     public static function levelStyles(): iterable
     {
+        yield 'normal' => [CapacityLevel::Normal, 'success'];
+        yield 'notice' => [CapacityLevel::Notice, 'warning'];
         yield 'warning' => [CapacityLevel::Warning, 'warning'];
         yield 'critical' => [CapacityLevel::Critical, 'danger'];
+        yield 'exceeded' => [CapacityLevel::Exceeded, 'danger'];
     }
 
     #[DataProvider('levelStyles')]
@@ -155,7 +158,7 @@ final class StorageSummaryBuilderTest extends TestCase
     {
         $summary = $this->builder()->build(StorageViewFixtures::measurement(used: 950, level: $level));
 
-        self::assertSame($style, $summary->levelStyle());
+        self::assertSame($style, $summary->levelTextStyle());
     }
 
     private function builder(string $now = '2026-10-25 12:00'): StorageSummaryBuilder

@@ -5,9 +5,6 @@
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-hard-drive fa-lg text-secondary" aria-hidden="true"></i>
                     <span class="text-secondary small">{{ 'storage.card.title'|trans({}, 'storage') }}</span>
-                    {% if ops_storage %}
-                        {{ include('@Admin/operations/storage/_level_badge.html.twig', {summary: ops_storage}) }}
-                    {% endif %}
                 </div>
                 <a href="{{ ops_storage_url }}" class="btn btn-sm btn-outline-secondary">
                     {{ 'storage.card.details'|trans({}, 'storage') }}<i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
@@ -28,20 +25,21 @@
                         {% endif %}
                         <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ ops_storage.capacitySource.labelKey|trans({}, 'storage') }}</span>
                     </div>
-                    {% if ops_storage.remainingBytes is not null %}
-                        <span class="small {{ ops_storage.isExceeded ? 'text-danger fw-semibold' : 'text-secondary' }}">
-                            {% if ops_storage.isExceeded %}
-                                {{ 'storage.card.exceeded_by'|trans({size: (0 - ops_storage.remainingBytes)|format_bytes, percent: ops_storage.usedPercent}, 'storage') }}
-                            {% else %}
-                                {{ 'storage.card.remaining'|trans({size: ops_storage.remainingBytes|format_bytes, percent: ops_storage.usedPercent}, 'storage') }}
-                            {% endif %}
-                        </span>
-                    {% endif %}
+                    <span class="small d-inline-flex flex-wrap align-items-center gap-1 ea-storage-card__status">
+                        {% if ops_storage.remainingBytes is not null %}
+                            <span class="{{ ops_storage.isExceeded ? 'text-danger fw-semibold' : 'text-secondary' }}">
+                                {% if ops_storage.isExceeded %}
+                                    {{ 'storage.card.exceeded_by'|trans({size: (0 - ops_storage.remainingBytes)|format_bytes, percent: ops_storage.usedPercent}, 'storage') }}
+                                {% else %}
+                                    {{ 'storage.card.remaining'|trans({size: ops_storage.remainingBytes|format_bytes, percent: ops_storage.usedPercent}, 'storage') }}
+                                {% endif %}
+                            </span>
+                            <span class="text-secondary" aria-hidden="true">·</span>
+                        {% endif %}
+                        {{ include('@Admin/operations/storage/_measured_at.html.twig', {summary: ops_storage}) }}
+                    </span>
                 </div>
                 {{ include('@Admin/operations/storage/_bar.html.twig', {summary: ops_storage}) }}
-                <div class="small mt-2">
-                    {{ include('@Admin/operations/storage/_measured_at.html.twig', {summary: ops_storage}) }}
-                </div>
             {% endif %}
         </div>
     </div>

@@ -57,6 +57,13 @@ final class DiskUsageControllerTest extends WebTestCase
             self::assertStringContainsString($expected, $text);
         }
 
+        $kpiLabels = $crawler->filter('.ea-storage-kpis .card-body > div:first-child')->each(static fn ($label): string => trim($label->text()));
+        self::assertSame(['Capacity', 'Used', 'Remaining', 'Level', 'Last measurement', 'Mode'], $kpiLabels, 'capacity first, then used and remaining');
+        $level = $crawler->filter('.ea-storage-kpis [data-storage-level]');
+        self::assertSame('Normal', trim($level->text()));
+        self::assertStringContainsString('text-success', (string) $level->attr('class'));
+        self::assertCount(0, $crawler->filter('.ea-storage-kpis .badge')->reduce(static fn ($badge): bool => str_contains($badge->text(), 'Normal')), 'the level is text, not a badge');
+
         self::assertStringContainsString('20261024', $text, 'release names are shown');
         self::assertStringContainsString('+95.4 MB', $text, 'database growth since the week before');
         self::assertStringNotContainsString('Outdated', $text);
