@@ -69,6 +69,9 @@ final readonly class ClosureVolumeSnapshotCommand
     private function compare(SymfonyStyle $io, string $name, ?int $hospital, float $tolerance): int
     {
         $result = $this->snapshots->compare($name, $hospital, $tolerance);
+        if ($result['legacy']) {
+            $io->note('Legacy snapshot (urgency × stratum): comparing department rows of urgency metrics the event closed.');
+        }
         $io->definitionList(
             ['Snapshot rows' => $result['snapshot_rows']],
             ['Current rows' => $result['current_rows']],

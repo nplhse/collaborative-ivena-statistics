@@ -73,7 +73,7 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
 
         self::assertSame($rows, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour'));
         self::assertSame(0, (int) $connection->fetchOne(
-            'SELECT COUNT(*) FROM (SELECT 1 FROM closure_volume_hour GROUP BY event_id, scope, speciality_id, department_id, urgency_code, stratum, bucket_start HAVING COUNT(*) > 1) duplicated',
+            'SELECT COUNT(*) FROM (SELECT 1 FROM closure_volume_hour GROUP BY event_id, scope, speciality_id, department_id, metric_kind, bucket_start HAVING COUNT(*) > 1) duplicated',
         ));
         self::assertGreaterThan(0, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM closure_volume_hour WHERE event_id = :id AND scope = :scope AND in_closure = TRUE',
@@ -134,8 +134,8 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         $volume->rebuild();
 
         $before = $connection->fetchAssociative(
-            "SELECT reference_mode, reference_slot_count, expected_area FROM closure_volume_hour WHERE event_id = :id AND scope = 'speciality' AND in_closure = TRUE AND stratum = :stratum AND urgency_code = 1",
-            ['id' => $eventId, 'stratum' => 'base'],
+            "SELECT reference_mode, reference_slot_count, expected_area FROM closure_volume_hour WHERE event_id = :id AND scope = 'speciality' AND in_closure = TRUE AND metric_kind = :metric",
+            ['id' => $eventId, 'metric' => 'emergency'],
         );
         self::assertIsArray($before);
         self::assertSame('weekday_hour', $before['reference_mode']);
@@ -145,21 +145,82 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-05-12 10:00:00', '2026-05-12 11:00:00', 'blocked-reference');
         $volume->rebuild();
         $blocked = $connection->fetchAssociative(
-            "SELECT reference_mode, expected_area FROM closure_volume_hour WHERE event_id = :id AND scope = 'speciality' AND in_closure = TRUE AND stratum = :stratum AND urgency_code = 1",
-            ['id' => $eventId, 'stratum' => 'base'],
+            "SELECT reference_mode, expected_area, blocked_slot_count FROM closure_volume_hour WHERE event_id = :id AND scope = 'speciality' AND in_closure = TRUE AND metric_kind = :metric",
+            ['id' => $eventId, 'metric' => 'emergency'],
         );
         self::assertIsArray($blocked);
         self::assertSame('day_time_bucket', $blocked['reference_mode']);
+        self::assertSame(1, (int) $blocked['blocked_slot_count'], 'The closed 12 May 10:00 slot is counted, not used.');
         self::assertLessThan(1.0, (float) $blocked['expected_area']);
 
         AllocationFactory::createOne($this->allocation($seed, $seed['department'], '2026-05-05 10:20:00'));
         $this->rebuildAllocations($seed['importId']);
         $volume->rebuild();
         $changed = $connection->fetchOne(
-            "SELECT expected_area FROM closure_volume_hour WHERE event_id = :id AND scope = 'speciality' AND in_closure = TRUE AND stratum = :stratum AND urgency_code = 1",
-            ['id' => $eventId, 'stratum' => 'base'],
+            "SELECT expected_area FROM closure_volume_hour WHERE event_id = :id AND scope = 'speciality' AND in_closure = TRUE AND metric_kind = :metric",
+            ['id' => $eventId, 'metric' => 'emergency'],
         );
         self::assertNotEqualsWithDelta((float) $blocked['expected_area'], (float) $changed, 0.0001);
+    }
+
+    public function testEveryPopulationGetsAllMetricsWithTheirClosureRelevance(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedComparableTuesday();
+        $connection = self::getContainer()->get(Connection::class);
+        $emergency = $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-06-02 10:00:00', '2026-06-02 11:00:00', 'sk1-only');
+        $this->rebuildAllocations($seed['importId']);
+        $this->rebuildClosureAnalysis();
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+        $eventId = $this->eventIdForClosure($connection, $emergency);
+
+        /** @var array<string, string> $relevance */
+        $relevance = $connection->fetchAllKeyValue(
+            "SELECT DISTINCT metric_kind, closure_relevance FROM closure_volume_hour WHERE event_id = :id AND scope = 'department'",
+            ['id' => $eventId],
+        );
+        ksort($relevance);
+        self::assertSame([
+            'cathlab' => 'none',
+            'emergency' => 'closed',
+            'inpatient' => 'none',
+            'outpatient' => 'none',
+            'resus' => 'none',
+        ], $relevance);
+        self::assertSame(['department', 'hospital', 'speciality'], $connection->fetchFirstColumn(
+            'SELECT DISTINCT scope FROM closure_volume_hour WHERE event_id = :id ORDER BY scope',
+            ['id' => $eventId],
+        ));
+        $provisional = $connection->fetchAssociative(
+            'SELECT bool_and(provisional) AS provisional, MIN(provisional_reason) AS reason FROM closure_volume_hour WHERE event_id = :id',
+            ['id' => $eventId],
+        );
+        self::assertIsArray($provisional);
+        self::assertTrue((bool) $provisional['provisional'], 'Import periods are not derived, so nothing confirms the window after the event.');
+        self::assertSame('awaiting_allocations', $provisional['reason']);
+        self::assertSame('4/4', $connection->fetchOne('SELECT reference_window FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
+    }
+
+    public function testResourceMetricsAreClosedOnlyWhileEveryUrgencyIs(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedComparableTuesday();
+        $connection = self::getContainer()->get(Connection::class);
+        $whole = $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-06-02 10:00:00', '2026-06-02 11:00:00', 'whole-department', careLevel: 'other');
+        $this->rebuildAllocations($seed['importId']);
+        $this->rebuildClosureAnalysis();
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild(null, null, 'backward');
+        $eventId = $this->eventIdForClosure($connection, $whole);
+
+        self::assertSame(0, (int) $connection->fetchOne(
+            "SELECT COUNT(*) FROM closure_volume_hour WHERE event_id = :id AND scope = 'department' AND closure_relevance <> 'closed'",
+            ['id' => $eventId],
+        ));
+        self::assertSame(5, (int) $connection->fetchOne(
+            "SELECT COUNT(DISTINCT metric_kind) FROM closure_volume_hour WHERE event_id = :id AND scope = 'department' AND in_closure",
+            ['id' => $eventId],
+        ));
+        self::assertSame('8/0', $connection->fetchOne('SELECT reference_window FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
     }
 
     public function testSeveralHospitalsShareTheSummedDenominator(): void
@@ -226,11 +287,11 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertGreaterThan(0.0, $departmentView->during->observedArea);
 
         $departmentObserved = (float) $connection->fetchOne(
-            "SELECT COALESCE(SUM(observed_area), 0) FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'department' AND in_closure = TRUE AND stratum = 'base'",
+            "SELECT COALESCE(SUM(observed_area), 0) FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'department' AND in_closure = TRUE AND metric_kind IN ('emergency', 'inpatient', 'outpatient') AND closure_relevance <> 'none'",
             ['event_id' => $eventId],
         );
         $specialityObserved = (float) $connection->fetchOne(
-            "SELECT COALESCE(SUM(observed_area), 0) FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'speciality' AND in_closure = TRUE AND stratum = 'base'",
+            "SELECT COALESCE(SUM(observed_area), 0) FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'speciality' AND in_closure = TRUE AND metric_kind IN ('emergency', 'inpatient', 'outpatient') AND closure_relevance <> 'none'",
             ['event_id' => $eventId],
         );
         self::assertGreaterThan($departmentObserved, $specialityObserved);
@@ -320,7 +381,7 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
 
         // 02:00–03:00 happens twice on 25 October 2026 in Europe/Berlin: one wall-clock bucket of 7200 seconds.
         $rows = $connection->fetchAllAssociative(
-            "SELECT bucket_start, bucket_seconds FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'department' AND in_closure = TRUE AND stratum = 'base' AND urgency_code = 1 ORDER BY bucket_start",
+            "SELECT bucket_start, bucket_seconds FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'department' AND in_closure = TRUE AND metric_kind = 'emergency' ORDER BY bucket_start",
             ['event_id' => $this->eventIdForClosure($connection, $closure)],
         );
         self::assertSame(
@@ -432,6 +493,7 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         string $groupId,
         ?int $hospitalId = null,
         ?int $importId = null,
+        string $careLevel = 'emergency',
     ): int {
         $connection->insert('closure_interval', [
             'hospital_id' => $hospitalId ?? $seed['hospitalId'],
@@ -440,7 +502,7 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
             'department_id' => $departmentId,
             'starts_at' => $startsAt,
             'ends_at' => $endsAt,
-            'care_level' => 'emergency',
+            'care_level' => $careLevel,
             'reason' => 'no_bed_capacity',
             'facility_kind' => 'clinic',
             'closure_unit' => 'volume unit',

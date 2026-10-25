@@ -7,6 +7,9 @@ namespace App\Statistics\ClosureAnalytics\Infrastructure\Query;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRelevance;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
 use Doctrine\DBAL\ArrayParameterType;
@@ -46,22 +49,15 @@ final readonly class ClosureVolumeProjectionQuery
             return [];
         }
         [$base, $params, $types] = ClosureTemporalSql::base($criteria);
-        $params['volume_stratum'] = $stratum->storageStratum();
+        $params['volume_metrics'] = $stratum->metricValues();
         $params['volume_scope'] = ClosureVolumeSeriesScope::Department->sqlValue();
-        $types['volume_stratum'] = ParameterType::STRING;
+        $types['volume_metrics'] = ArrayParameterType::STRING;
         $types['volume_scope'] = ParameterType::STRING;
-        $urgencySql = '';
-        $urgency = $stratum->urgencyCode();
-        if (null !== $urgency) {
-            $urgencySql = 'AND h.urgency_code = :volume_urgency';
-            $params['volume_urgency'] = $urgency;
-            $types['volume_urgency'] = ParameterType::INTEGER;
-        }
 
         /** @var list<array<string, int|string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(<<<SQL
 WITH {$base}
-SELECT h.hospital_id, h.speciality_id, h.department_id, h.urgency_code, h.stratum,
+SELECT h.hospital_id, h.speciality_id, h.department_id, h.metric_kind,
        h.bucket_start, h.bucket_end, h.observed_area, h.expected_area,
        h.bucket_seconds, h.reference_cutoff
 FROM closure_volume_hour h
@@ -71,8 +67,8 @@ JOIN (
 ) matched ON matched.event_id = h.event_id
 WHERE h.scope = :volume_scope
   AND h.in_closure = TRUE
-  AND h.stratum = :volume_stratum
-  {$urgencySql}
+  AND h.metric_kind IN (:volume_metrics)
+  AND h.closure_relevance <> 'none'
 SQL, $params, $types);
 
         return $rows;
@@ -95,37 +91,26 @@ SQL, $params, $types);
         $params = [
             'event_id' => $eventId,
             'hospital_ids' => $hospitalIds,
-            'volume_stratum' => $stratum->storageStratum(),
+            'volume_metrics' => $stratum->metricValues(),
             'volume_scope' => $scope->sqlValue(),
         ];
         $types = [
             'event_id' => ParameterType::INTEGER,
             'hospital_ids' => ArrayParameterType::INTEGER,
-            'volume_stratum' => ParameterType::STRING,
+            'volume_metrics' => ArrayParameterType::STRING,
             'volume_scope' => ParameterType::STRING,
         ];
-        $urgencySql = '';
-        $urgency = $stratum->urgencyCode();
-        if (null !== $urgency) {
-            $urgencySql = 'AND urgency_code = :volume_urgency';
-            $params['volume_urgency'] = $urgency;
-            $types['volume_urgency'] = ParameterType::INTEGER;
-        }
 
         /** @var list<array<string, int|string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(<<<SQL
-SELECT event_id, scope, speciality_id, hospital_id, department_id, urgency_code, stratum,
-       bucket_start, bucket_end, in_closure, observed_area, expected_area,
-       observed_hospital, expected_hospital, evaluable_seconds, bucket_seconds,
-       reference_slot_count, reference_assignment_count, reference_mode, influenced,
-       quality, reference_cutoff
+SELECT {$this->columns()}
 FROM closure_volume_hour
 WHERE event_id = :event_id
   AND scope = :volume_scope
   AND hospital_id IN (:hospital_ids)
-  AND stratum = :volume_stratum
-  {$urgencySql}
-ORDER BY bucket_start ASC, urgency_code ASC, speciality_id ASC, department_id ASC
+  AND metric_kind IN (:volume_metrics)
+  AND closure_relevance <> 'none'
+ORDER BY bucket_start ASC, metric_kind ASC, speciality_id ASC, department_id ASC
 SQL, $params, $types);
 
         return array_map($this->draft(...), $rows);
@@ -147,17 +132,13 @@ SQL, $params, $types);
 
         /** @var list<array<string, int|string|null>> $rows */
         $rows = $this->connection->fetchAllAssociative(<<<SQL
-SELECT event_id, scope, speciality_id, hospital_id, department_id, urgency_code, stratum,
-       bucket_start, bucket_end, in_closure, observed_area, expected_area,
-       observed_hospital, expected_hospital, evaluable_seconds, bucket_seconds,
-       reference_slot_count, reference_assignment_count, reference_mode, influenced,
-       quality, reference_cutoff
+SELECT {$this->columns()}
 FROM closure_volume_hour
 WHERE event_id = :event_id
   AND scope = :volume_scope
   AND hospital_id IN (:hospital_ids)
-  AND stratum IN ('base', 'resus', 'cathlab')
-ORDER BY bucket_start ASC, urgency_code ASC, speciality_id ASC, department_id ASC, stratum ASC
+  AND closure_relevance <> 'none'
+ORDER BY bucket_start ASC, metric_kind ASC, speciality_id ASC, department_id ASC
 SQL, [
             'event_id' => $eventId,
             'hospital_ids' => $hospitalIds,
@@ -338,17 +319,29 @@ SQL,
         return $others;
     }
 
+    private function columns(): string
+    {
+        return 'event_id, scope, speciality_id, hospital_id, department_id, metric_kind, '
+            .'bucket_start, bucket_end, in_closure, observed_area, expected_area, '
+            .'observed_hospital, expected_hospital, evaluable_seconds, bucket_seconds, '
+            .'reference_slot_count, blocked_slot_count, reference_assignment_count, reference_mode, influenced, '
+            .'quality, closure_relevance, closed_department_count, provisional, provisional_reason, reference_cutoff';
+    }
+
     /**
      * @param array<string, int|string|null> $row
      */
     private function draft(array $row): ClosureVolumeHourDraft
     {
+        $reason = $row['provisional_reason'];
+
         return new ClosureVolumeHourDraft(
             (int) $row['event_id'],
             (int) $row['hospital_id'],
+            (string) $row['scope'],
+            (int) $row['speciality_id'],
             (int) $row['department_id'],
-            (int) $row['urgency_code'],
-            (string) $row['stratum'],
+            ClosureVolumeMetricKind::from((string) $row['metric_kind']),
             ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['bucket_start'])),
             ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['bucket_end'])),
             $this->boolean($row['in_closure']),
@@ -359,13 +352,16 @@ SQL,
             (int) $row['evaluable_seconds'],
             (int) $row['bucket_seconds'],
             (int) $row['reference_slot_count'],
+            (int) $row['blocked_slot_count'],
             (int) $row['reference_assignment_count'],
             (string) $row['reference_mode'],
             $this->boolean($row['influenced']),
             (string) $row['quality'],
+            ClosureVolumeRelevance::from((string) $row['closure_relevance']),
+            (int) $row['closed_department_count'],
+            $this->boolean($row['provisional']),
+            null === $reason || '' === $reason ? null : ClosureVolumeProvisionalReason::from((string) $reason),
             ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['reference_cutoff'])),
-            (string) ($row['scope'] ?? 'speciality'),
-            (int) ($row['speciality_id'] ?? 0),
         );
     }
 

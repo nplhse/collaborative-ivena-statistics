@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Monitoring;
 
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Psr\Clock\ClockInterface;
@@ -49,6 +50,7 @@ final class ClosureRebuildTelemetry
     private int $hoursWritten = 0;
     private ?float $publishSeconds = null;
     private int $requestCount = 0;
+    private ?string $referenceWindow = null;
 
     public function __construct(
         private readonly Connection $connection,
@@ -154,6 +156,14 @@ final class ClosureRebuildTelemetry
         $this->publishSeconds = ($this->publishSeconds ?? 0.0) + $seconds;
     }
 
+    /**
+     * Recorded per run so comparison runs with another window stay apart from routine ones.
+     */
+    public function referenceWindow(ClosureVolumeReferenceWindow $window): void
+    {
+        $this->referenceWindow = sprintf('%d/%d', $window->weeksBefore, $window->weeksAfter);
+    }
+
     public function claimedRequests(int $count): void
     {
         $this->requestCount += $count;
@@ -201,6 +211,7 @@ final class ClosureRebuildTelemetry
                 'publish_ms' => $summary['publish_ms'],
                 'peak_memory_bytes' => $peak,
                 'request_count' => $this->requestCount,
+                'reference_window' => $this->referenceWindow,
                 'error_class' => $error instanceof \Throwable ? $error::class : null,
                 'error_message' => $error instanceof \Throwable ? mb_substr($error->getMessage(), 0, 2000) : null,
             ], ['id' => $runId], ['full_rebuild' => ParameterType::BOOLEAN]);
@@ -289,6 +300,7 @@ final class ClosureRebuildTelemetry
         $this->hoursWritten = 0;
         $this->publishSeconds = null;
         $this->requestCount = 0;
+        $this->referenceWindow = null;
     }
 
     private function now(): string

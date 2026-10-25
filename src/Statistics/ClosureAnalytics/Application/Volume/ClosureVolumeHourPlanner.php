@@ -5,57 +5,90 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Application\Volume;
 
 /**
- * Plans hourly projection rows for one closure. Counts and reference slots are supplied by the caller.
+ * Plans hourly projection rows for one event, population and metric.
+ * Counts and reference rates are supplied by the caller.
  */
 final readonly class ClosureVolumeHourPlanner
 {
-    private const array STRATA = ['base', 'resus', 'cathlab'];
+    /**
+     * Count series of a population and metric. Hospital counts double as the hospital-scope area.
+     */
+    public static function series(string $scope, int $specialityId, int $departmentId, ClosureVolumeMetricKind $metric): string
+    {
+        return match ($scope) {
+            'speciality' => 's|'.$specialityId.'|'.$metric->value,
+            'hospital' => 'h|'.$metric->value,
+            default => 'd|'.$departmentId.'|'.$metric->value,
+        };
+    }
+
+    public static function hospitalSeries(ClosureVolumeMetricKind $metric): string
+    {
+        return 'h|'.$metric->value;
+    }
 
     /**
-     * @param array<string, int|array<string, int>> $areaCounts     flat partial keys or "{series}" => hour => count
-     * @param array<string, int|array<string, int>> $hospitalCounts flat partial keys or "{series}" => hour => count
-     * @param array<string, ClosureVolumeRate>      $areaRates      key "{dept}|{urgency}|{stratum}|{weekday}|{hour}"
-     * @param array<string, ClosureVolumeRate>      $hospitalRates  key "{urgency}|{stratum}|{weekday}|{hour}"
+     * @param array<string, int|array<string, int>> $counts        "{series}" => hour => count, or flat partial keys "{series}|{start}|{end}"
+     * @param array<string, ClosureVolumeRate>      $areaRates     key "{weekday}|{hour}"
+     * @param array<string, ClosureVolumeRate>      $hospitalRates key "{weekday}|{hour}"
      * @param array<string, true>                   $coveredDays
      * @param list<ClosureVolumeInterval>           $neighbours
      *
      * @return list<ClosureVolumeHourDraft>
      */
     public function plan(
-        ClosureVolumeInterval $closure,
+        ClosureVolumeAnchor $anchor,
         \DateTimeImmutable $now,
-        array $areaCounts,
-        array $hospitalCounts,
+        array $counts,
         array $areaRates,
         array $hospitalRates,
         array $coveredDays,
         array $neighbours,
+        ?ClosureVolumeProvisionalReason $provisional,
     ): array {
         $now = ClosureVolumeClock::wall($now);
+        $areaSeries = self::series($anchor->scope, $anchor->specialityId, $anchor->departmentId, $anchor->metric);
+        $hospitalSeries = self::hospitalSeries($anchor->metric);
         $drafts = [];
-        foreach ($this->ranges($closure, $now) as [$inClosure, $buckets]) {
-            foreach ($closure->urgencies as $urgency) {
-                foreach (self::STRATA as $stratum) {
-                    $areaKey = $this->areaSeries($closure, $urgency, $stratum);
-                    $hospitalKey = $urgency.'|'.$stratum;
-                    foreach ($buckets as $bucket) {
-                        $drafts[] = $this->draft(
-                            $closure,
-                            $bucket,
-                            $inClosure,
-                            $urgency,
-                            $stratum,
-                            $areaCounts,
-                            $hospitalCounts,
-                            $areaRates,
-                            $hospitalRates,
-                            $coveredDays,
-                            $neighbours,
-                            $areaKey,
-                            $hospitalKey,
-                        );
-                    }
-                }
+        foreach ($this->ranges($anchor, $now) as [$inClosure, $buckets]) {
+            foreach ($buckets as $bucket) {
+                $rateKey = $bucket->weekday.'|'.$bucket->hour;
+                $areaRate = $areaRates[$rateKey] ?? $this->missingRate();
+                $hospitalRate = $hospitalRates[$rateKey] ?? $this->missingRate();
+                $covered = isset($coveredDays[$bucket->start->format('Y-m-d')]);
+                $hourStart = $bucket->start->format('Y-m-d H:i:s');
+                $fullHour = '00:00' === $bucket->start->format('i:s')
+                    && $bucket->end->getTimestamp() === $bucket->start->getTimestamp() + 3600;
+                $bucketKey = $hourStart.'|'.$bucket->end->format('Y-m-d H:i:s');
+
+                $drafts[] = new ClosureVolumeHourDraft(
+                    $anchor->eventId,
+                    $anchor->hospitalId,
+                    $anchor->scope,
+                    $anchor->specialityId,
+                    $anchor->departmentId,
+                    $anchor->metric,
+                    $bucket->start,
+                    $bucket->end,
+                    $inClosure,
+                    $this->observed($covered, $counts, $areaSeries, $bucketKey, $fullHour, $hourStart),
+                    $areaRate->expectedForSeconds($bucket->seconds),
+                    $this->observed($covered, $counts, $hospitalSeries, $bucketKey, $fullHour, $hourStart),
+                    $hospitalRate->expectedForSeconds($bucket->seconds),
+                    $covered ? $bucket->seconds : 0,
+                    $bucket->seconds,
+                    $areaRate->slotCount,
+                    $areaRate->blockedSlotCount,
+                    $areaRate->assignmentCount,
+                    $areaRate->mode->value,
+                    $this->influenced($bucket, $inClosure, $anchor, $neighbours),
+                    $this->quality($covered, $areaRate->mode)->value,
+                    $anchor->relevance,
+                    $anchor->closedDepartmentCount,
+                    $provisional instanceof ClosureVolumeProvisionalReason,
+                    $provisional,
+                    $anchor->startsAt,
+                );
             }
         }
 
@@ -63,26 +96,26 @@ final readonly class ClosureVolumeHourPlanner
     }
 
     /**
+     * Context before the first segment, the segments, gaps between them and context after the last one.
+     *
      * @return list<array{0: bool, 1: list<ClosureVolumeBucket>}>
      */
-    public function ranges(ClosureVolumeInterval $closure, \DateTimeImmutable $now): array
+    public function ranges(ClosureVolumeAnchor $anchor, \DateTimeImmutable $now): array
     {
-        $segments = [] === $closure->segments
-            ? [[$closure->startsAt, $closure->endsAt]]
-            : $closure->segments;
-        if ($closure->startsAt >= $now && $closure->startsAt->modify(sprintf('-%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS)) >= $now) {
+        $context = sprintf('%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS);
+        if ($anchor->startsAt >= $now && $anchor->startsAt->modify('-'.$context) >= $now) {
             return [];
         }
 
         $ranges = [];
-        $preStart = $closure->startsAt->modify(sprintf('-%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
-        $preEnd = $closure->startsAt < $now ? $closure->startsAt : $now;
+        $preStart = $anchor->startsAt->modify('-'.$context);
+        $preEnd = $anchor->startsAt < $now ? $anchor->startsAt : $now;
         if ($preStart < $preEnd) {
             $ranges[] = [false, ClosureVolumeClock::split($preStart, $preEnd)];
         }
 
         $previousEnd = null;
-        foreach ($segments as [$segmentStart, $segmentEnd]) {
+        foreach ($anchor->segments as [$segmentStart, $segmentEnd]) {
             if (null !== $previousEnd && $previousEnd < $segmentStart) {
                 $gapEnd = $segmentStart < $now ? $segmentStart : $now;
                 if ($previousEnd < $gapEnd) {
@@ -96,78 +129,17 @@ final readonly class ClosureVolumeHourPlanner
             $previousEnd = null === $previousEnd || $segmentEnd > $previousEnd ? $segmentEnd : $previousEnd;
         }
 
-        if ($closure->endsAt <= $now) {
-            $postEnd = $closure->endsAt->modify(sprintf('+%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS));
+        if ($anchor->endsAt <= $now) {
+            $postEnd = $anchor->endsAt->modify('+'.$context);
             if ($postEnd > $now) {
                 $postEnd = $now;
             }
-            if ($closure->endsAt < $postEnd) {
-                $ranges[] = [false, ClosureVolumeClock::split($closure->endsAt, $postEnd)];
+            if ($anchor->endsAt < $postEnd) {
+                $ranges[] = [false, ClosureVolumeClock::split($anchor->endsAt, $postEnd)];
             }
         }
 
         return $ranges;
-    }
-
-    /**
-     * @param array<string, int|array<string, int>> $areaCounts
-     * @param array<string, int|array<string, int>> $hospitalCounts
-     * @param array<string, ClosureVolumeRate>      $areaRates
-     * @param array<string, ClosureVolumeRate>      $hospitalRates
-     * @param array<string, true>                   $coveredDays
-     * @param list<ClosureVolumeInterval>           $neighbours
-     */
-    private function draft(
-        ClosureVolumeInterval $closure,
-        ClosureVolumeBucket $bucket,
-        bool $inClosure,
-        int $urgency,
-        string $stratum,
-        array $areaCounts,
-        array $hospitalCounts,
-        array $areaRates,
-        array $hospitalRates,
-        array $coveredDays,
-        array $neighbours,
-        string $areaKey,
-        string $hospitalKey,
-    ): ClosureVolumeHourDraft {
-        $rateKey = $bucket->weekday.'|'.$bucket->hour;
-        $areaRate = $areaRates[$areaKey.'|'.$rateKey] ?? $this->missingRate();
-        $hospitalRate = $hospitalRates[$hospitalKey.'|'.$rateKey] ?? $this->missingRate();
-        $covered = isset($coveredDays[$bucket->start->format('Y-m-d')]);
-        $hourStart = $bucket->start->format('Y-m-d H:i:s');
-        $fullHour = '00:00' === $bucket->start->format('i:s')
-            && $bucket->end->getTimestamp() === $bucket->start->getTimestamp() + 3600;
-        $bucketKey = $hourStart.'|'.$bucket->end->format('Y-m-d H:i:s');
-        $observedArea = $this->observed($covered, $areaCounts, $areaKey.'|'.$bucketKey, $fullHour, $areaKey, $hourStart);
-        $observedHospital = $this->observed($covered, $hospitalCounts, $hospitalKey.'|'.$bucketKey, $fullHour, $hospitalKey, $hourStart);
-        $quality = $this->quality($covered, $areaRate->mode);
-
-        return new ClosureVolumeHourDraft(
-            $closure->eventId > 0 ? $closure->eventId : $closure->id,
-            $closure->hospitalId,
-            $closure->departmentId,
-            $urgency,
-            $stratum,
-            $bucket->start,
-            $bucket->end,
-            $inClosure,
-            $observedArea,
-            $areaRate->expectedForSeconds($bucket->seconds),
-            $observedHospital,
-            $hospitalRate->expectedForSeconds($bucket->seconds),
-            $covered ? $bucket->seconds : 0,
-            $bucket->seconds,
-            $areaRate->slotCount,
-            $areaRate->assignmentCount,
-            $areaRate->mode->value,
-            $this->influenced($bucket, $inClosure, $closure, $urgency, $neighbours),
-            $quality->value,
-            $closure->startsAt,
-            $closure->scope,
-            $closure->specialityId,
-        );
     }
 
     /**
@@ -180,14 +152,15 @@ final readonly class ClosureVolumeHourPlanner
     private function observed(
         bool $covered,
         array $counts,
-        string $flatKey,
-        bool $fullHour,
         string $series,
+        string $bucketKey,
+        bool $fullHour,
         string $hourStart,
     ): ?int {
         if (!$covered) {
             return null;
         }
+        $flatKey = $series.'|'.$bucketKey;
         if (!$fullHour && isset($counts[$flatKey]) && \is_int($counts[$flatKey])) {
             return $counts[$flatKey];
         }
@@ -199,15 +172,6 @@ final readonly class ClosureVolumeHourPlanner
         }
 
         return 0;
-    }
-
-    private function areaSeries(ClosureVolumeInterval $closure, int $urgency, string $stratum): string
-    {
-        return match ($closure->scope) {
-            'speciality' => 's|'.$closure->specialityId.'|'.$urgency.'|'.$stratum,
-            'hospital' => $urgency.'|'.$stratum,
-            default => $closure->departmentId.'|'.$urgency.'|'.$stratum,
-        };
     }
 
     private function quality(bool $covered, ClosureVolumeReferenceMode $mode): ClosureVolumeQuality
@@ -224,24 +188,24 @@ final readonly class ClosureVolumeHourPlanner
     }
 
     /**
+     * A context hour is influenced when another event closes the same metric in the same population.
+     * Resource metrics count as closed only by an interval that opens SK1–SK3 at once.
+     *
      * @param list<ClosureVolumeInterval> $neighbours
      */
-    private function influenced(
-        ClosureVolumeBucket $bucket,
-        bool $inClosure,
-        ClosureVolumeInterval $closure,
-        int $urgency,
-        array $neighbours,
-    ): bool {
+    private function influenced(ClosureVolumeBucket $bucket, bool $inClosure, ClosureVolumeAnchor $anchor, array $neighbours): bool
+    {
         if ($inClosure) {
             return false;
         }
         foreach ($neighbours as $neighbour) {
-            if ($this->sameAnchor($closure, $neighbour) || !$this->samePopulation($closure, $neighbour)) {
+            if ($neighbour->eventId === $anchor->eventId || !$this->samePopulation($anchor, $neighbour)) {
                 continue;
             }
-            if (!$neighbour->coversUrgency($urgency)) {
-                continue;
+            foreach ($anchor->metric->bindingUrgencies() as $urgency) {
+                if (!$neighbour->coversUrgency($urgency)) {
+                    continue 2;
+                }
             }
             if ($neighbour->startsAt < $bucket->end && $neighbour->endsAt > $bucket->start) {
                 return true;
@@ -251,21 +215,12 @@ final readonly class ClosureVolumeHourPlanner
         return false;
     }
 
-    private function sameAnchor(ClosureVolumeInterval $closure, ClosureVolumeInterval $neighbour): bool
+    private function samePopulation(ClosureVolumeAnchor $anchor, ClosureVolumeInterval $neighbour): bool
     {
-        if ($closure->eventId > 0 && $neighbour->eventId > 0) {
-            return $neighbour->eventId === $closure->eventId;
-        }
-
-        return $neighbour->id === $closure->id;
-    }
-
-    private function samePopulation(ClosureVolumeInterval $closure, ClosureVolumeInterval $neighbour): bool
-    {
-        return match ($closure->scope) {
-            'speciality' => $neighbour->specialityId === $closure->specialityId,
+        return match ($anchor->scope) {
+            'speciality' => $neighbour->specialityId === $anchor->specialityId,
             'hospital' => true,
-            default => $neighbour->departmentId === $closure->departmentId,
+            default => $neighbour->departmentId === $anchor->departmentId,
         };
     }
 

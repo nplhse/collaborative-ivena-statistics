@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Statistics\Unit\ClosureAnalytics;
 
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureCoverage;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceMode;
@@ -144,6 +146,20 @@ final class ClosureVolumeReferenceWindowTest extends TestCase
         self::assertSame(28, $rate->slotCount);
         self::assertSame(2, $rate->blockedSlotCount);
         self::assertEqualsWithDelta(4 / 28, $rate->hourlyRate ?? 0.0, 0.0001);
+    }
+
+    public function testEventStaysProvisionalUntilBothImportsCoverTheWindowAfterIt(): void
+    {
+        $window = new ClosureVolumeReferenceWindow(4, 4);
+        $end = $this->at('2026-05-12 12:00');
+        $untilJune = ClosureCoverage::fromRanges([[$this->at('2026-05-01 00:00'), $this->at('2026-07-01 00:00')]]);
+        $untilMayEnd = ClosureCoverage::fromRanges([[$this->at('2026-05-01 00:00'), $this->at('2026-06-01 00:00')]]);
+
+        self::assertNull(ClosureVolumeProvisionalReason::forEvent($end, $window, $untilJune, $untilJune));
+        self::assertSame(ClosureVolumeProvisionalReason::AwaitingAllocations, ClosureVolumeProvisionalReason::forEvent($end, $window, $untilMayEnd, $untilJune));
+        self::assertSame(ClosureVolumeProvisionalReason::AwaitingClosures, ClosureVolumeProvisionalReason::forEvent($end, $window, $untilJune, $untilMayEnd));
+        self::assertSame(ClosureVolumeProvisionalReason::AwaitingAllocations, ClosureVolumeProvisionalReason::forEvent($end, $window, null, $untilJune), 'Underived coverage confirms nothing.');
+        self::assertNull(ClosureVolumeProvisionalReason::forEvent($end, new ClosureVolumeReferenceWindow(8, 0), $untilMayEnd, $untilMayEnd), 'Without weeks after the event, covering its end is enough.');
     }
 
     public function testMetricKindsMapUrgenciesAndResources(): void

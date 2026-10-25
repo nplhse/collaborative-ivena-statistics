@@ -29,7 +29,7 @@ final readonly class ClosureVolumeDiagnosticsCommand
     ): int {
         $io->title('Closure volume diagnostics');
 
-        $io->section('Reference quality (stratum base, current projection)');
+        $io->section('Reference quality (urgency metrics closed by the event, current projection)');
         $io->table(
             ['Hospital', 'Scope', 'Rows', 'Weekday/hour', 'Day-time bucket', 'Insufficient', 'Insufficient %', 'Events w/ insufficient closure rows'],
             array_map(static fn (array $row): array => [

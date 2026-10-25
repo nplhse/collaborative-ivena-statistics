@@ -116,6 +116,25 @@ final class ClosureVolumeMetricAnchorTest extends TestCase
         self::assertSame(ClosureVolumeRelevance::Closed, $this->find($anchors, 'hospital', ClosureVolumeMetricKind::Outpatient)->relevance);
     }
 
+    public function testDepartmentClosedUnderTwoSpecialitiesIsOnePopulationPerSpeciality(): void
+    {
+        $anchors = new ClosureVolumeAnchorBuilder()->metricAnchors([
+            $this->row(1, 7, 11, '10:00', '14:00', 'emergency'),
+            $this->row(1, 8, 11, '12:00', '16:00', 'inpatient'),
+        ], 40, []);
+
+        $departments = array_values(array_filter(
+            $anchors,
+            static fn (ClosureVolumeAnchor $anchor): bool => 'department' === $anchor->scope && ClosureVolumeMetricKind::Emergency === $anchor->metric,
+        ));
+        self::assertSame([7, 8], array_map(static fn (ClosureVolumeAnchor $anchor): int => $anchor->specialityId, $departments));
+        self::assertSame(ClosureVolumeRelevance::Closed, $departments[0]->relevance);
+        self::assertSame(ClosureVolumeRelevance::None, $departments[1]->relevance);
+        $hospital = $this->find($anchors, 'hospital', ClosureVolumeMetricKind::Emergency);
+        self::assertSame(1, $hospital->closedDepartmentCount, 'The department counts once for the hospital.');
+        self::assertSame(ClosureVolumeRelevance::Closed, $hospital->relevance);
+    }
+
     public function testSegmentUnionMergesTouchingAndIntersectionNeedsOverlap(): void
     {
         $union = ClosureVolumeSegments::union([

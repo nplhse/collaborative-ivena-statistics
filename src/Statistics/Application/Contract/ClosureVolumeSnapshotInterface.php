@@ -6,9 +6,12 @@ namespace App\Statistics\Application\Contract;
 
 /**
  * Named copies of closure_volume_hour to verify that a refactoring keeps or explains its results.
+ * Snapshots taken before ADR 015 (urgency × stratum) are compared on department-level urgency
+ * metrics closed by the event, the rows both models share.
  *
  * @psalm-type SnapshotSummary = array{name: string, rows: int}
  * @psalm-type SnapshotComparison = array{
+ *     legacy: bool,
  *     snapshot_rows: int,
  *     current_rows: int,
  *     only_in_snapshot: int,

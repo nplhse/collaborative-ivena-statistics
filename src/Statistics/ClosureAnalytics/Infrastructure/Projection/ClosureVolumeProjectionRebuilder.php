@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Statistics\ClosureAnalytics\Infrastructure\Projection;
 
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureCoverage;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchor;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchorBuilder;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeInterval;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumePopulation;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeRate;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
@@ -76,6 +79,7 @@ final class ClosureVolumeProjectionRebuilder
         ?ClosureVolumeReferenceWindow $window = null,
     ): int {
         $this->window = $window ?? $this->config->window;
+        $this->telemetry->referenceWindow($this->window);
         $this->maxPartitionBytes = 0;
         $this->partitionSamples = [];
         $silenced = $this->silenceDoctrineLog();
@@ -196,15 +200,17 @@ final class ClosureVolumeProjectionRebuilder
             $this->connection->executeStatement(
                 <<<'SQL'
 INSERT INTO closure_volume_hour (
-    event_id, scope, hospital_id, speciality_id, department_id, urgency_code, stratum,
+    event_id, scope, hospital_id, speciality_id, department_id, metric_kind,
     bucket_start, bucket_end, in_closure, observed_area, expected_area, observed_hospital,
-    expected_hospital, evaluable_seconds, bucket_seconds, reference_slot_count,
-    reference_assignment_count, reference_mode, influenced, quality, reference_cutoff
+    expected_hospital, evaluable_seconds, bucket_seconds, reference_slot_count, blocked_slot_count,
+    reference_assignment_count, reference_mode, influenced, quality, closure_relevance,
+    closed_department_count, provisional, provisional_reason, reference_cutoff
 )
-SELECT event_id, scope, hospital_id, speciality_id, department_id, urgency_code, stratum,
-       bucket_start, bucket_end, in_closure, observed_area, expected_area, observed_hospital,
-       expected_hospital, evaluable_seconds, bucket_seconds, reference_slot_count,
-       reference_assignment_count, reference_mode, influenced, quality, reference_cutoff
+SELECT event_id, scope, hospital_id, speciality_id, department_id, metric_kind,
+    bucket_start, bucket_end, in_closure, observed_area, expected_area, observed_hospital,
+    expected_hospital, evaluable_seconds, bucket_seconds, reference_slot_count, blocked_slot_count,
+    reference_assignment_count, reference_mode, influenced, quality, closure_relevance,
+    closed_department_count, provisional, provisional_reason, reference_cutoff
 FROM closure_volume_hour_build
 SQL,
             );
@@ -234,11 +240,12 @@ SQL,
         if (!$coverage instanceof ClosureCoverage) {
             $this->logger->info('closure_volume.coverage_fallback', ['hospital_id' => $hospitalId]);
         }
+        $closureCoverage = $this->coverage->closures($hospitalId);
         $weekStart = new \DateTimeImmutable($bounds['min_start'])->setTime(0, 0);
         $last = new \DateTimeImmutable((string) $bounds['max_start'])->modify('+1 day');
         while ($weekStart < $last) {
             $weekEnd = $weekStart->modify('+7 days');
-            $pending = $this->rebuildPartition($hospitalId, $weekStart, $weekEnd, $coverage, $pending, $done, $total, $onProgress);
+            $pending = $this->rebuildPartition($hospitalId, $weekStart, $weekEnd, $coverage, $closureCoverage, $pending, $done, $total, $onProgress);
             $weekStart = $weekEnd;
         }
         $this->telemetry->finishSpan();
@@ -257,6 +264,7 @@ SQL,
         \DateTimeImmutable $weekStart,
         \DateTimeImmutable $weekEnd,
         ?ClosureCoverage $coverage,
+        ?ClosureCoverage $closureCoverage,
         array $pending,
         int &$done,
         int $total,
@@ -264,8 +272,8 @@ SQL,
     ): array {
         $started = microtime(true);
         $before = memory_get_usage(false);
-        $anchors = $this->anchors($hospitalId, $weekStart, $weekEnd);
-        if ([] === $anchors) {
+        $rows = $this->anchorRows($hospitalId, $weekStart, $weekEnd);
+        if ([] === $rows) {
             return $pending;
         }
         // Partition spans carry ids and counts only, not the week, so closure periods stay local.
@@ -273,14 +281,18 @@ SQL,
         $this->telemetry->countPartition();
 
         $now = ClosureVolumeClock::now();
-        $from = $anchors[0]->startsAt;
-        $to = $anchors[0]->endsAt;
-        foreach ($anchors as $anchor) {
-            if ($anchor->startsAt < $from) {
-                $from = $anchor->startsAt;
-            }
-            if ($anchor->endsAt > $to) {
-                $to = $anchor->endsAt;
+        /** @var array<int, \DateTimeImmutable> $eventEnds */
+        $eventEnds = [];
+        $from = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $rows[0]['starts_at']));
+        $to = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $rows[0]['ends_at']));
+        foreach ($rows as $row) {
+            $start = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['starts_at']));
+            $end = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['ends_at']));
+            $from = $start < $from ? $start : $from;
+            $to = $end > $to ? $end : $to;
+            $eventId = (int) $row['event_id'];
+            if (!isset($eventEnds[$eventId]) || $end > $eventEnds[$eventId]) {
+                $eventEnds[$eventId] = $end;
             }
         }
         [$windowStart, $windowEnd] = $this->window->loadRange($from, $to);
@@ -294,41 +306,47 @@ SQL,
         }
 
         $neighbours = $this->neighbours($hospitalId, $windowStart, $windowEnd);
-        [$areaCounts, $hospitalCounts, $coveredDays] = $this->hourlyCounts($hospitalId, $windowStart, $windowEnd);
+        [$counts, $coveredDays, $departmentsBySpeciality] = $this->hourlyCounts($hospitalId, $windowStart, $windowEnd);
         if ($coverage instanceof ClosureCoverage) {
             // Import export periods are authoritative; a covered day without allocations is a real zero.
             $coveredDays = $coverage->coveredDays($windowStart->setTime(0, 0), $windowEnd);
         }
-        $this->fillPartialCounts($hospitalId, $anchors, $now, $areaCounts, $hospitalCounts);
-        [$blockedDepartment, $blockedSpeciality] = $this->blockedMaps($neighbours, $windowStart, $windowEnd);
-        /** @var array<string, array<string, ClosureVolumeRate>> $rateCache */
+        $anchors = $this->anchorBuilder->metricAnchors($rows, $hospitalId, $departmentsBySpeciality);
+        unset($rows, $departmentsBySpeciality);
+        $this->fillPartialCounts($hospitalId, $anchors, $now, $counts);
+        $blocked = $this->blockedMaps($neighbours, $windowStart, $windowEnd);
+        $provisional = [];
+        foreach ($eventEnds as $eventId => $end) {
+            $provisional[$eventId] = ClosureVolumeProvisionalReason::forEvent($end, $this->window, $coverage, $closureCoverage);
+        }
+        /** @var array<string, array<int, ClosureVolumeRate>> $rateCache */
         $rateCache = [];
 
-        $seenEvents = [];
         foreach ($anchors as $anchor) {
             $groups = $this->referenceGroups($anchor, $now);
+            $series = ClosureVolumeHourPlanner::series($anchor->scope, $anchor->specialityId, $anchor->departmentId, $anchor->metric);
+            $hospitalSeries = ClosureVolumeHourPlanner::hospitalSeries($anchor->metric);
             $pending = array_merge($pending, $this->planner->plan(
                 $anchor,
                 $now,
-                $areaCounts,
-                $hospitalCounts,
-                $this->referenceRates($anchor, $groups, $areaCounts, $coveredDays, $blockedDepartment, $blockedSpeciality, $rateCache),
-                $this->referenceRates($this->hospitalAnchor($anchor), $groups, $hospitalCounts, $coveredDays, [], [], $rateCache),
+                $counts,
+                $this->referenceRates($anchor, $series, $groups, $counts, $coveredDays, 'hospital' === $anchor->scope ? [] : ($blocked[$series] ?? []), $rateCache),
+                $this->referenceRates($anchor, $hospitalSeries, $groups, $counts, $coveredDays, [], $rateCache),
                 $coveredDays,
                 $neighbours,
+                $provisional[$anchor->eventId] ?? null,
             ));
             if (\count($pending) >= self::INSERT_BATCH) {
                 $pending = $this->flush($pending, false);
             }
-            $seenEvents[$anchor->eventId] = true;
         }
-        $events = \count($seenEvents);
+        $events = \count($eventEnds);
         $done += $events;
         if (null !== $onProgress) {
             $onProgress(min($done, $total), $total);
         }
 
-        unset($anchors, $neighbours, $areaCounts, $hospitalCounts, $coveredDays, $blockedDepartment, $blockedSpeciality, $rateCache, $seenEvents);
+        unset($anchors, $neighbours, $counts, $coveredDays, $blocked, $rateCache, $eventEnds, $provisional);
         gc_collect_cycles();
         $retained = max(0, memory_get_usage(false) - $before);
         $this->partitionSamples[] = $retained;
@@ -339,9 +357,9 @@ SQL,
     }
 
     /**
-     * @return list<ClosureVolumeInterval>
+     * @return list<array<string, int|string>>
      */
-    private function anchors(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to): array
+    private function anchorRows(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to): array
     {
         /** @var list<array<string, int|string>> $rows */
         $rows = $this->connection->fetchAllAssociative(
@@ -367,24 +385,7 @@ SQL,
             ],
         );
 
-        return $this->anchorBuilder->fromRows($rows, $hospitalId);
-    }
-
-    private function hospitalAnchor(ClosureVolumeInterval $anchor): ClosureVolumeInterval
-    {
-        return new ClosureVolumeInterval(
-            $anchor->id,
-            $anchor->hospitalId,
-            0,
-            $anchor->urgencies,
-            $anchor->startsAt,
-            $anchor->endsAt,
-            $anchor->careLevel,
-            0,
-            'hospital',
-            $anchor->eventId,
-            $anchor->segments,
-        );
+        return $rows;
     }
 
     /**
@@ -423,6 +424,7 @@ SQL,
                     $urgencies[$urgency] = $urgency;
                 }
             }
+            ksort($urgencies);
             $start = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['starts_at']));
             $end = ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['ends_at']));
             $neighbours[] = new ClosureVolumeInterval(
@@ -445,41 +447,63 @@ SQL,
     }
 
     /**
+     * Reference hours blocked per series (ADR 015). A department blocks an urgency metric while an
+     * interval opens that urgency, and a resource metric while SK1–SK3 are closed in the same hour,
+     * possibly by several intervals. A speciality blocks a metric where any of its departments does.
+     *
      * @param list<ClosureVolumeInterval> $neighbours
      *
-     * @return array{0: array<string, array<string, true>>, 1: array<string, array<string, true>>}
+     * @return array<string, array<string, true>> series => Y-m-d H:00:00 => true
      */
     private function blockedMaps(array $neighbours, \DateTimeImmutable $notBefore, \DateTimeImmutable $notAfter): array
     {
+        /** @var array<int, array<int, list<ClosureVolumeInterval>>> $byDepartment */
         $byDepartment = [];
-        $bySpeciality = [];
+        /** @var array<int, array<int, true>> $specialities department => speciality => true */
+        $specialities = [];
         foreach ($neighbours as $neighbour) {
+            $specialities[$neighbour->departmentId][$neighbour->specialityId] = true;
             foreach ($neighbour->urgencies as $urgency) {
-                $byDepartment[$neighbour->departmentId.'|'.$urgency][] = $neighbour;
-                $bySpeciality[$neighbour->specialityId.'|'.$urgency][] = $neighbour;
+                $byDepartment[$neighbour->departmentId][$urgency][] = $neighbour;
             }
         }
-        $department = [];
-        foreach ($byDepartment as $key => $intervals) {
-            $department[$key] = $this->calendar->blockedHours($intervals, $notBefore, $notAfter);
+        $blocked = [];
+        foreach ($byDepartment as $departmentId => $byUrgency) {
+            $hours = [];
+            foreach ($byUrgency as $urgency => $intervals) {
+                $hours[$urgency] = $this->calendar->blockedHours($intervals, $notBefore, $notAfter);
+            }
+            foreach (ClosureVolumeMetricKind::all() as $metric) {
+                $metricHours = null;
+                foreach ($metric->bindingUrgencies() as $urgency) {
+                    $urgencyHours = $hours[$urgency] ?? [];
+                    $metricHours = null === $metricHours ? $urgencyHours : array_intersect_key($metricHours, $urgencyHours);
+                }
+                if (null === $metricHours || [] === $metricHours) {
+                    continue;
+                }
+                $blocked['d|'.$departmentId.'|'.$metric->value] = $metricHours;
+                foreach (array_keys($specialities[$departmentId] ?? []) as $specialityId) {
+                    $key = 's|'.$specialityId.'|'.$metric->value;
+                    $blocked[$key] = ($blocked[$key] ?? []) + $metricHours;
+                }
+            }
         }
-        $speciality = [];
-        foreach ($bySpeciality as $key => $intervals) {
-            $speciality[$key] = $this->calendar->blockedHours($intervals, $notBefore, $notAfter);
-        }
-        unset($byDepartment, $bySpeciality);
+        unset($byDepartment, $specialities);
 
-        return [$department, $speciality];
+        return $blocked;
     }
 
     /**
-     * @return array{0: array<string, array<string, int>|int>, 1: array<string, array<string, int>|int>, 2: array<string, true>}
+     * Hourly counts per series, the days that had allocations and the known departments per speciality.
+     *
+     * @return array{0: array<string, array<string, int>|int>, 1: array<string, true>, 2: array<int, list<int>>}
      */
     private function hourlyCounts(int $hospitalId, \DateTimeImmutable $from, \DateTimeImmutable $to): array
     {
-        $area = [];
-        $hospital = [];
+        $counts = [];
         $covered = [];
+        $departments = [];
         $this->stream(
             <<<'SQL'
 SELECT department_id, speciality_id, urgency_code,
@@ -503,34 +527,57 @@ SQL,
                 'from' => Types::STRING,
                 'to' => Types::STRING,
             ],
-            function (array $row) use (&$area, &$hospital, &$covered): void {
+            function (array $row) use (&$counts, &$covered, &$departments): void {
                 $hour = (string) $row['hour_start'];
                 $covered[substr($hour, 0, 10)] = true;
-                foreach (['base' => 'base_count', 'resus' => 'resus_count', 'cathlab' => 'cathlab_count'] as $stratum => $column) {
-                    $count = (int) $row[$column];
-                    if (0 === $count) {
-                        continue;
+                $departments[(int) $row['speciality_id']][(int) $row['department_id']] = true;
+                foreach ($this->metricCounts($row) as $metric => $count) {
+                    foreach ($this->seriesKeys((int) $row['department_id'], (int) $row['speciality_id'], $metric) as $series) {
+                        $counts[$series][$hour] = ($counts[$series][$hour] ?? 0) + $count;
                     }
-                    $departmentKey = $row['department_id'].'|'.$row['urgency_code'].'|'.$stratum;
-                    $specialityKey = 's|'.$row['speciality_id'].'|'.$row['urgency_code'].'|'.$stratum;
-                    $hospitalKey = $row['urgency_code'].'|'.$stratum;
-                    $area[$departmentKey][$hour] = $count;
-                    $area[$specialityKey][$hour] = ($area[$specialityKey][$hour] ?? 0) + $count;
-                    $hospital[$hospitalKey][$hour] = ($hospital[$hospitalKey][$hour] ?? 0) + $count;
                 }
             },
         );
         $this->forgetDebugQueries();
 
-        return [$area, $hospital, $covered];
+        return [$counts, $covered, array_map(array_keys(...), $departments)];
     }
 
     /**
-     * @param list<ClosureVolumeInterval>           $anchors
-     * @param array<string, array<string, int>|int> $areaCounts
-     * @param array<string, array<string, int>|int> $hospitalCounts
+     * @param array<string, mixed> $row urgency_code, base_count, resus_count, cathlab_count
+     *
+     * @return array<string, int> metric => count, zero counts left out
      */
-    private function fillPartialCounts(int $hospitalId, array $anchors, \DateTimeImmutable $now, array &$areaCounts, array &$hospitalCounts): void
+    private function metricCounts(array $row): array
+    {
+        $counts = [];
+        $urgency = is_numeric($row['urgency_code'] ?? null) ? (int) $row['urgency_code'] : 0;
+        if ($urgency >= 1 && $urgency <= 3 && (int) $row['base_count'] > 0) {
+            $counts[ClosureVolumeMetricKind::forUrgency($urgency)->value] = (int) $row['base_count'];
+        }
+        if ((int) $row['resus_count'] > 0) {
+            $counts[ClosureVolumeMetricKind::Resus->value] = (int) $row['resus_count'];
+        }
+        if ((int) $row['cathlab_count'] > 0) {
+            $counts[ClosureVolumeMetricKind::Cathlab->value] = (int) $row['cathlab_count'];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function seriesKeys(int $departmentId, int $specialityId, string $metric): array
+    {
+        return ['d|'.$departmentId.'|'.$metric, 's|'.$specialityId.'|'.$metric, 'h|'.$metric];
+    }
+
+    /**
+     * @param list<ClosureVolumeAnchor>             $anchors
+     * @param array<string, array<string, int>|int> $counts
+     */
+    private function fillPartialCounts(int $hospitalId, array $anchors, \DateTimeImmutable $now, array &$counts): void
     {
         $ranges = [];
         foreach ($anchors as $anchor) {
@@ -545,17 +592,16 @@ SQL,
             }
         }
         foreach (array_chunk($ranges, 80, true) as $chunk) {
-            $this->queryPartialChunk($hospitalId, $chunk, $areaCounts, $hospitalCounts);
+            $this->queryPartialChunk($hospitalId, $chunk, $counts);
         }
         unset($ranges);
     }
 
     /**
      * @param array<string, array{0: \DateTimeImmutable, 1: \DateTimeImmutable}> $ranges
-     * @param array<string, array<string, int>|int>                              $areaCounts
-     * @param array<string, array<string, int>|int>                              $hospitalCounts
+     * @param array<string, array<string, int>|int>                              $counts
      */
-    private function queryPartialChunk(int $hospitalId, array $ranges, array &$areaCounts, array &$hospitalCounts): void
+    private function queryPartialChunk(int $hospitalId, array $ranges, array &$counts): void
     {
         $values = [];
         $params = ['hospital' => $hospitalId];
@@ -586,19 +632,12 @@ SQL,
         /** @var list<array<string, int|string>> $rows */
         $rows = $this->connection->fetchAllAssociative($sql, $params, $types);
         foreach ($rows as $row) {
-            foreach (['base' => 'base_count', 'resus' => 'resus_count', 'cathlab' => 'cathlab_count'] as $stratum => $column) {
-                $count = (int) $row[$column];
-                if (0 === $count) {
-                    continue;
+            $bucketKey = (string) $row['bucket_key'];
+            foreach ($this->metricCounts($row) as $metric => $count) {
+                foreach ($this->seriesKeys((int) $row['department_id'], (int) $row['speciality_id'], $metric) as $series) {
+                    $existing = $counts[$series.'|'.$bucketKey] ?? 0;
+                    $counts[$series.'|'.$bucketKey] = (\is_int($existing) ? $existing : 0) + $count;
                 }
-                $bucketKey = (string) $row['bucket_key'];
-                $areaCounts[$row['department_id'].'|'.$row['urgency_code'].'|'.$stratum.'|'.$bucketKey] = $count;
-                $specialityKey = 's|'.$row['speciality_id'].'|'.$row['urgency_code'].'|'.$stratum.'|'.$bucketKey;
-                $existingArea = $areaCounts[$specialityKey] ?? 0;
-                $areaCounts[$specialityKey] = (\is_int($existingArea) ? $existingArea : 0) + $count;
-                $hospitalKey = $row['urgency_code'].'|'.$stratum.'|'.$bucketKey;
-                $existingHospital = $hospitalCounts[$hospitalKey] ?? 0;
-                $hospitalCounts[$hospitalKey] = (\is_int($existingHospital) ? $existingHospital : 0) + $count;
             }
         }
         unset($rows);
@@ -608,7 +647,7 @@ SQL,
     /**
      * @return array<string, array{0: int, 1: int}>
      */
-    private function referenceGroups(ClosureVolumeInterval $anchor, \DateTimeImmutable $now): array
+    private function referenceGroups(ClosureVolumeAnchor $anchor, \DateTimeImmutable $now): array
     {
         $groups = [];
         foreach ($this->planner->ranges($anchor, $now) as [, $buckets]) {
@@ -621,70 +660,40 @@ SQL,
     }
 
     /**
-     * @param array<string, array{0: int, 1: int}>            $groups
-     * @param array<string, array<string, int>|int>           $referenceCounts
-     * @param array<string, true>                             $coveredDays
-     * @param array<string, array<string, true>>              $blockedDepartment
-     * @param array<string, array<string, true>>              $blockedSpeciality
-     * @param array<string, array<string, ClosureVolumeRate>> $cache
+     * @param array<string, array{0: int, 1: int}>         $groups
+     * @param array<string, array<string, int>|int>        $counts
+     * @param array<string, true>                          $coveredDays
+     * @param array<string, true>                          $blockedHours
+     * @param array<string, array<int, ClosureVolumeRate>> $cache
      *
-     * @return array<string, ClosureVolumeRate>
+     * @return array<string, ClosureVolumeRate> key "{weekday}|{hour}"
      */
     private function referenceRates(
-        ClosureVolumeInterval $anchor,
+        ClosureVolumeAnchor $anchor,
+        string $series,
         array $groups,
-        array $referenceCounts,
+        array $counts,
         array $coveredDays,
-        array $blockedDepartment,
-        array $blockedSpeciality,
+        array $blockedHours,
         array &$cache,
     ): array {
         $rates = [];
         $ranges = $this->window->ranges($anchor->startsAt, $anchor->endsAt);
-        $cutoffKey = $anchor->startsAt->format('Y-m-d H:i:s').'|'.$anchor->endsAt->format('Y-m-d H:i:s');
-        foreach ($anchor->urgencies as $urgency) {
-            $blockedHours = match ($anchor->scope) {
-                'speciality' => $blockedSpeciality[$anchor->specialityId.'|'.$urgency] ?? [],
-                'hospital' => [],
-                default => $blockedDepartment[$anchor->departmentId.'|'.$urgency] ?? [],
-            };
-            $prefix = match ($anchor->scope) {
-                'speciality' => 's|'.$anchor->specialityId.'|'.$urgency,
-                'hospital' => (string) $urgency,
-                default => $anchor->departmentId.'|'.$urgency,
-            };
-            foreach ($groups as [$weekday, $dayTimeBucket]) {
-                $cacheKey = $cutoffKey.'|'.$anchor->scope.'|'.$prefix.'|'.$weekday.'|'.$dayTimeBucket;
-                if (!isset($cache[$cacheKey])) {
-                    $hourlyByStratum = [];
-                    $blockedByStratum = [];
-                    foreach (['base', 'resus', 'cathlab'] as $stratum) {
-                        $series = $referenceCounts[$prefix.'|'.$stratum] ?? [];
-                        $hourlyByStratum[$stratum] = \is_array($series) ? $series : [];
-                        $blockedByStratum[$stratum] = $blockedHours;
-                    }
-                    $block = $this->calendar->tallyWindow(
-                        $ranges,
-                        $weekday,
-                        $dayTimeBucket,
-                        $hourlyByStratum,
-                        $coveredDays,
-                        $blockedByStratum,
-                    );
-                    $cache[$cacheKey] = [];
-                    foreach ($block as $stratum => $hours) {
-                        foreach ($hours as $hour => $tally) {
-                            $cache[$cacheKey][$stratum.'|'.$hour] = $this->selector->fromTally($tally);
-                        }
-                    }
-                    unset($block, $hourlyByStratum, $blockedByStratum);
+        $windowKey = $anchor->startsAt->format('Y-m-d H:i:s').'|'.$anchor->endsAt->format('Y-m-d H:i:s');
+        $hourly = $counts[$series] ?? [];
+        $hourly = \is_array($hourly) ? $hourly : [];
+        foreach ($groups as [$weekday, $dayTimeBucket]) {
+            $cacheKey = $windowKey.'|'.$series.'|'.$weekday.'|'.$dayTimeBucket;
+            if (!isset($cache[$cacheKey])) {
+                $tallies = $this->calendar->tallyWindow($ranges, $weekday, $dayTimeBucket, ['m' => $hourly], $coveredDays, ['m' => $blockedHours]);
+                $cache[$cacheKey] = [];
+                foreach ($tallies['m'] as $hour => $tally) {
+                    $cache[$cacheKey][$hour] = $this->selector->fromTally($tally);
                 }
-                foreach (['base', 'resus', 'cathlab'] as $stratum) {
-                    $hourFrom = ($dayTimeBucket - 1) * 6;
-                    for ($hour = $hourFrom; $hour < $hourFrom + 6; ++$hour) {
-                        $rates[$prefix.'|'.$stratum.'|'.$weekday.'|'.$hour] = $cache[$cacheKey][$stratum.'|'.$hour];
-                    }
-                }
+                unset($tallies);
+            }
+            foreach ($cache[$cacheKey] as $hour => $rate) {
+                $rates[$weekday.'|'.$hour] = $rate;
             }
         }
 
@@ -750,68 +759,63 @@ SQL,
         $params = [];
         $types = [];
         foreach ($batch as $index => $draft) {
-            $values[] = sprintf(
-                '(:e%d, :sc%d, :h%d, :sp%d, :d%d, :u%d, :st%d, :bs%d, :be%d, :ic%d, :oa%d, :ea%d, :oh%d, :eh%d, :es%d, :sec%d, :rs%d, :ra%d, :rm%d, :inf%d, :q%d, :rc%d)',
-                $index, $index, $index, $index, $index, $index, $index, $index, $index, $index,
-                $index, $index, $index, $index, $index, $index, $index, $index, $index, $index, $index, $index,
-            );
-            $params['e'.$index] = $draft->closureIntervalId;
-            $params['sc'.$index] = $draft->scope;
-            $params['h'.$index] = $draft->hospitalId;
-            $params['sp'.$index] = $draft->specialityId;
-            $params['d'.$index] = $draft->departmentId;
-            $params['u'.$index] = $draft->urgencyCode;
-            $params['st'.$index] = $draft->stratum;
-            $params['bs'.$index] = $draft->bucketStart->format('Y-m-d H:i:s');
-            $params['be'.$index] = $draft->bucketEnd->format('Y-m-d H:i:s');
-            $params['ic'.$index] = $draft->inClosure;
-            $params['oa'.$index] = null === $draft->observedArea ? null : sprintf('%.4F', $draft->observedArea);
-            $params['ea'.$index] = null === $draft->expectedArea ? null : sprintf('%.4F', $draft->expectedArea);
-            $params['oh'.$index] = null === $draft->observedHospital ? null : sprintf('%.4F', $draft->observedHospital);
-            $params['eh'.$index] = null === $draft->expectedHospital ? null : sprintf('%.4F', $draft->expectedHospital);
-            $params['es'.$index] = $draft->evaluableSeconds;
-            $params['sec'.$index] = $draft->bucketSeconds;
-            $params['rs'.$index] = $draft->referenceSlotCount;
-            $params['ra'.$index] = $draft->referenceAssignmentCount;
-            $params['rm'.$index] = $draft->referenceMode;
-            $params['inf'.$index] = $draft->influenced;
-            $params['q'.$index] = $draft->quality;
-            $params['rc'.$index] = $draft->referenceCutoff->format('Y-m-d H:i:s');
-            $types['e'.$index] = ParameterType::INTEGER;
-            $types['sc'.$index] = ParameterType::STRING;
-            $types['h'.$index] = ParameterType::INTEGER;
-            $types['sp'.$index] = ParameterType::INTEGER;
-            $types['d'.$index] = ParameterType::INTEGER;
-            $types['u'.$index] = ParameterType::INTEGER;
-            $types['st'.$index] = ParameterType::STRING;
-            $types['bs'.$index] = ParameterType::STRING;
-            $types['be'.$index] = ParameterType::STRING;
-            $types['ic'.$index] = ParameterType::BOOLEAN;
-            $types['oa'.$index] = null === $draft->observedArea ? ParameterType::NULL : ParameterType::STRING;
-            $types['ea'.$index] = null === $draft->expectedArea ? ParameterType::NULL : ParameterType::STRING;
-            $types['oh'.$index] = null === $draft->observedHospital ? ParameterType::NULL : ParameterType::STRING;
-            $types['eh'.$index] = null === $draft->expectedHospital ? ParameterType::NULL : ParameterType::STRING;
-            $types['es'.$index] = ParameterType::INTEGER;
-            $types['sec'.$index] = ParameterType::INTEGER;
-            $types['rs'.$index] = ParameterType::INTEGER;
-            $types['ra'.$index] = ParameterType::INTEGER;
-            $types['rm'.$index] = ParameterType::STRING;
-            $types['inf'.$index] = ParameterType::BOOLEAN;
-            $types['q'.$index] = ParameterType::STRING;
-            $types['rc'.$index] = ParameterType::STRING;
+            $row = [
+                'e' => [$draft->eventId, ParameterType::INTEGER],
+                'sc' => [$draft->scope, ParameterType::STRING],
+                'h' => [$draft->hospitalId, ParameterType::INTEGER],
+                'sp' => [$draft->specialityId, ParameterType::INTEGER],
+                'd' => [$draft->departmentId, ParameterType::INTEGER],
+                'mk' => [$draft->metric->value, ParameterType::STRING],
+                'bs' => [$draft->bucketStart->format('Y-m-d H:i:s'), ParameterType::STRING],
+                'be' => [$draft->bucketEnd->format('Y-m-d H:i:s'), ParameterType::STRING],
+                'ic' => [$draft->inClosure, ParameterType::BOOLEAN],
+                'oa' => $this->numeric($draft->observedArea),
+                'ea' => $this->numeric($draft->expectedArea),
+                'oh' => $this->numeric($draft->observedHospital),
+                'eh' => $this->numeric($draft->expectedHospital),
+                'es' => [$draft->evaluableSeconds, ParameterType::INTEGER],
+                'sec' => [$draft->bucketSeconds, ParameterType::INTEGER],
+                'rs' => [$draft->referenceSlotCount, ParameterType::INTEGER],
+                'bl' => [$draft->blockedSlotCount, ParameterType::INTEGER],
+                'ra' => [$draft->referenceAssignmentCount, ParameterType::INTEGER],
+                'rm' => [$draft->referenceMode, ParameterType::STRING],
+                'inf' => [$draft->influenced, ParameterType::BOOLEAN],
+                'q' => [$draft->quality, ParameterType::STRING],
+                'rel' => [$draft->relevance->value, ParameterType::STRING],
+                'cd' => [$draft->closedDepartmentCount, ParameterType::INTEGER],
+                'pv' => [$draft->provisional, ParameterType::BOOLEAN],
+                'pr' => null === $draft->provisionalReason ? [null, ParameterType::NULL] : [$draft->provisionalReason->value, ParameterType::STRING],
+                'rc' => [$draft->referenceCutoff->format('Y-m-d H:i:s'), ParameterType::STRING],
+            ];
+            $placeholders = [];
+            foreach ($row as $name => [$value, $type]) {
+                $placeholders[] = ':'.$name.$index;
+                $params[$name.$index] = $value;
+                $types[$name.$index] = $type;
+            }
+            $values[] = '('.implode(', ', $placeholders).')';
         }
         /** @psalm-suppress InvalidArgument Doctrine DBAL parameter types include SQL NULL */
         $this->connection->executeStatement(
             'INSERT INTO closure_volume_hour_build ('
-            .'event_id, scope, hospital_id, speciality_id, department_id, urgency_code, stratum, '
+            .'event_id, scope, hospital_id, speciality_id, department_id, metric_kind, '
             .'bucket_start, bucket_end, in_closure, observed_area, expected_area, '
             .'observed_hospital, expected_hospital, evaluable_seconds, bucket_seconds, '
-            .'reference_slot_count, reference_assignment_count, reference_mode, influenced, quality, reference_cutoff'
+            .'reference_slot_count, blocked_slot_count, reference_assignment_count, reference_mode, influenced, quality, '
+            .'closure_relevance, closed_department_count, provisional, provisional_reason, reference_cutoff'
             .') VALUES '.implode(', ', $values),
             $params,
             $types,
         );
         $this->forgetDebugQueries();
+    }
+
+    /**
+     * @return array{0: string|null, 1: ParameterType}
+     */
+    private function numeric(?float $value): array
+    {
+        return null === $value ? [null, ParameterType::NULL] : [sprintf('%.4F', $value), ParameterType::STRING];
     }
 
     /**
@@ -840,8 +844,7 @@ CREATE TABLE closure_volume_hour_build (
     hospital_id INT NOT NULL,
     speciality_id INT NOT NULL,
     department_id INT NOT NULL,
-    urgency_code SMALLINT NOT NULL,
-    stratum VARCHAR(16) NOT NULL,
+    metric_kind VARCHAR(16) NOT NULL,
     bucket_start TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     bucket_end TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     in_closure BOOLEAN NOT NULL,
@@ -852,17 +855,22 @@ CREATE TABLE closure_volume_hour_build (
     evaluable_seconds INT NOT NULL,
     bucket_seconds INT NOT NULL,
     reference_slot_count INT NOT NULL,
+    blocked_slot_count INT NOT NULL,
     reference_assignment_count INT NOT NULL,
     reference_mode VARCHAR(32) NOT NULL,
     influenced BOOLEAN NOT NULL,
     quality VARCHAR(32) NOT NULL,
+    closure_relevance VARCHAR(16) NOT NULL,
+    closed_department_count INT NOT NULL,
+    provisional BOOLEAN NOT NULL,
+    provisional_reason VARCHAR(32) DEFAULT NULL,
     reference_cutoff TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
     PRIMARY KEY (id)
 )
 SQL);
-        $this->connection->executeStatement('CREATE UNIQUE INDEX uniq_closure_volume_hour_build_grain ON closure_volume_hour_build (event_id, scope, speciality_id, department_id, urgency_code, stratum, bucket_start)');
-        $this->connection->executeStatement('CREATE INDEX idx_closure_volume_hour_build_population ON closure_volume_hour_build (hospital_id, scope, speciality_id, department_id, urgency_code, stratum, bucket_start)');
-        $this->connection->executeStatement('CREATE INDEX idx_closure_volume_hour_build_event ON closure_volume_hour_build (event_id, scope, stratum, in_closure, bucket_start)');
+        $this->connection->executeStatement('CREATE UNIQUE INDEX uniq_closure_volume_hour_build_grain ON closure_volume_hour_build (event_id, scope, speciality_id, department_id, metric_kind, bucket_start)');
+        $this->connection->executeStatement('CREATE INDEX idx_closure_volume_hour_build_population ON closure_volume_hour_build (hospital_id, scope, speciality_id, department_id, metric_kind, bucket_start)');
+        $this->connection->executeStatement('CREATE INDEX idx_closure_volume_hour_build_event ON closure_volume_hour_build (event_id, scope, metric_kind, in_closure, bucket_start)');
     }
 
     private function swap(): void

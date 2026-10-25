@@ -47,7 +47,7 @@ final class ClosureVolumeDiagnosticsTest extends KernelTestCase
         self::assertSame(0, $identical['changed_rows'] + $identical['only_in_snapshot'] + $identical['only_in_current']);
 
         $connection->executeStatement(
-            "UPDATE closure_volume_hour SET expected_area = coalesce(expected_area, 0) + 1 WHERE id = (SELECT MIN(id) FROM closure_volume_hour WHERE stratum = 'base')",
+            "UPDATE closure_volume_hour SET expected_area = coalesce(expected_area, 0) + 1 WHERE id = (SELECT MIN(id) FROM closure_volume_hour WHERE metric_kind = 'emergency')",
         );
         $changed = $snapshots->compare('baseline');
         self::assertSame(1, $changed['changed_rows']);
@@ -56,6 +56,36 @@ final class ClosureVolumeDiagnosticsTest extends KernelTestCase
 
         $snapshots->drop('baseline');
         self::assertSame([], $snapshots->list());
+    }
+
+    #[Test]
+    public function legacySnapshotIsComparedOnDepartmentUrgencyMetricsTheEventClosed(): void
+    {
+        $connection = $this->buildProjection();
+        $snapshots = self::getContainer()->get(ClosureVolumeSnapshotInterface::class);
+        // A snapshot in the pre-ADR 015 shape: urgency × stratum, rows only for closed urgencies.
+        $connection->executeStatement(<<<'SQL'
+CREATE TABLE closure_volume_snapshot_legacy AS
+SELECT event_id, scope, hospital_id, speciality_id, department_id,
+       CASE metric_kind WHEN 'emergency' THEN 1 WHEN 'inpatient' THEN 2 ELSE 3 END AS urgency_code,
+       'base'::varchar AS stratum,
+       bucket_start, bucket_end, in_closure, observed_area, expected_area, observed_hospital, expected_hospital,
+       evaluable_seconds, bucket_seconds, reference_slot_count, reference_assignment_count, reference_mode,
+       influenced, quality, reference_cutoff
+FROM closure_volume_hour
+WHERE scope = 'department' AND metric_kind IN ('emergency', 'inpatient', 'outpatient') AND closure_relevance = 'closed'
+SQL);
+        $connection->executeStatement(
+            "INSERT INTO closure_volume_snapshot_legacy SELECT event_id, scope, hospital_id, speciality_id, department_id, urgency_code, 'resus', bucket_start, bucket_end, in_closure, observed_area, expected_area, observed_hospital, expected_hospital, evaluable_seconds, bucket_seconds, reference_slot_count, reference_assignment_count, reference_mode, influenced, quality, reference_cutoff FROM closure_volume_snapshot_legacy",
+        );
+
+        $result = $snapshots->compare('legacy');
+
+        self::assertTrue($result['legacy']);
+        self::assertGreaterThan(0, $result['snapshot_rows']);
+        self::assertSame($result['snapshot_rows'], $result['current_rows'], 'Legacy resus rows and comparison-only metrics stay out.');
+        self::assertSame(0, $result['changed_rows'] + $result['only_in_snapshot'] + $result['only_in_current']);
+        self::assertArrayNotHasKey('closure_relevance', $result['changed_columns']);
     }
 
     #[Test]

@@ -10,14 +10,16 @@ use Doctrine\DBAL\ParameterType;
 
 /**
  * Stores snapshots as plain tables `closure_volume_snapshot_<name>` next to closure_volume_hour.
- * Keys and value columns follow the current grain (event × scope × population × urgency × stratum × bucket).
+ * Keys and value columns follow the current grain (event × scope × population × metric × bucket).
+ * A legacy snapshot (urgency × stratum, before ADR 015) maps `base` rows of urgency 1–3 to the
+ * urgency metrics and is compared with department rows the event closed.
  */
 final readonly class ClosureVolumeSnapshotStore implements ClosureVolumeSnapshotInterface
 {
     private const string PREFIX = 'closure_volume_snapshot_';
 
     /** @var list<string> */
-    private const array KEYS = ['event_id', 'scope', 'speciality_id', 'department_id', 'urgency_code', 'stratum', 'bucket_start'];
+    private const array KEYS = ['event_id', 'scope', 'speciality_id', 'department_id', 'metric_kind', 'bucket_start'];
 
     /** @var list<string> */
     private const array NUMERIC = [
@@ -27,6 +29,14 @@ final readonly class ClosureVolumeSnapshotStore implements ClosureVolumeSnapshot
 
     /** @var list<string> */
     private const array EXACT = ['in_closure', 'reference_mode', 'influenced', 'quality', 'bucket_end', 'reference_cutoff'];
+
+    /** @var list<string> columns that only exist since ADR 015 */
+    private const array NUMERIC_CURRENT = ['blocked_slot_count', 'closed_department_count'];
+
+    /** @var list<string> */
+    private const array EXACT_CURRENT = ['closure_relevance', 'provisional', 'provisional_reason'];
+
+    private const string LEGACY_METRIC = "CASE urgency_code WHEN 1 THEN 'emergency' WHEN 2 THEN 'inpatient' WHEN 3 THEN 'outpatient' END";
 
     public function __construct(private Connection $connection)
     {
@@ -48,13 +58,16 @@ final readonly class ClosureVolumeSnapshotStore implements ClosureVolumeSnapshot
     {
         $table = $this->table($name);
         $this->assertExists($table);
+        $legacy = $this->isLegacy($table);
         $filter = null === $hospitalId ? 'TRUE' : 'hospital_id = '.$hospitalId;
         $join = implode(' AND ', array_map(static fn (string $key): string => "s.{$key} = c.{$key}", self::KEYS));
+        $numeric = $legacy ? self::NUMERIC : [...self::NUMERIC, ...self::NUMERIC_CURRENT];
+        $exact = $legacy ? self::EXACT : [...self::EXACT, ...self::EXACT_CURRENT];
         $diffs = [];
-        foreach (self::NUMERIC as $column) {
+        foreach ($numeric as $column) {
             $diffs[$column] = "((s.{$column} IS NULL) <> (c.{$column} IS NULL) OR abs(s.{$column} - c.{$column}) > CAST(:tolerance AS numeric))";
         }
-        foreach (self::EXACT as $column) {
+        foreach ($exact as $column) {
             $diffs[$column] = "(s.{$column} IS DISTINCT FROM c.{$column})";
         }
         $anyDiff = implode(' OR ', $diffs);
@@ -63,9 +76,18 @@ final readonly class ClosureVolumeSnapshotStore implements ClosureVolumeSnapshot
             array_keys($diffs),
             $diffs,
         ));
+        if ($legacy) {
+            $columns = implode(', ', ['event_id', 'scope', 'hospital_id', 'speciality_id', 'department_id', 'bucket_start', ...self::NUMERIC, ...self::EXACT]);
+            $metric = self::LEGACY_METRIC;
+            $snapshot = "SELECT {$columns}, {$metric} AS metric_kind FROM {$table} WHERE {$filter} AND stratum = 'base' AND scope = 'department' AND urgency_code IN (1, 2, 3)";
+            $current = "SELECT * FROM closure_volume_hour WHERE {$filter} AND scope = 'department' AND metric_kind IN ('emergency', 'inpatient', 'outpatient') AND closure_relevance = 'closed'";
+        } else {
+            $snapshot = "SELECT * FROM {$table} WHERE {$filter}";
+            $current = "SELECT * FROM closure_volume_hour WHERE {$filter}";
+        }
         $base = <<<SQL
-FROM (SELECT * FROM {$table} WHERE {$filter}) s
-FULL OUTER JOIN (SELECT * FROM closure_volume_hour WHERE {$filter}) c ON {$join}
+FROM ({$snapshot}) s
+FULL OUTER JOIN ({$current}) c ON {$join}
 SQL;
         /** @var array<string, int|string> $row */
         $row = $this->connection->fetchAssociative(
@@ -103,6 +125,7 @@ SQL,
         }
 
         return [
+            'legacy' => $legacy,
             'snapshot_rows' => (int) $row['snapshot_rows'],
             'current_rows' => (int) $row['current_rows'],
             'only_in_snapshot' => (int) $row['only_in_snapshot'],
@@ -144,6 +167,14 @@ SQL,
         }
 
         return self::PREFIX.$name;
+    }
+
+    private function isLegacy(string $table): bool
+    {
+        return false !== $this->connection->fetchOne(
+            "SELECT 1 FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = :table AND column_name = 'stratum'",
+            ['table' => $table],
+        );
     }
 
     private function assertExists(string $table): void

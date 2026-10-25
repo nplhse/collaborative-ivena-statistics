@@ -393,27 +393,27 @@ per_event_bucket AS (
     SELECT b.hour_offset,
            b.event_id,
            COALESCE(SUM(
-               CASE WHEN h.stratum = 'base' AND h.urgency_code = 1
+               CASE WHEN h.metric_kind = 'emergency'
                    THEN h.observed_area * EXTRACT(EPOCH FROM (LEAST(h.bucket_end, b.bin_end) - GREATEST(h.bucket_start, b.bin_start))) / NULLIF(h.bucket_seconds, 0)
                END
            ), 0)::int AS sk1,
            COALESCE(SUM(
-               CASE WHEN h.stratum = 'base' AND h.urgency_code = 2
+               CASE WHEN h.metric_kind = 'inpatient'
                    THEN h.observed_area * EXTRACT(EPOCH FROM (LEAST(h.bucket_end, b.bin_end) - GREATEST(h.bucket_start, b.bin_start))) / NULLIF(h.bucket_seconds, 0)
                END
            ), 0)::int AS sk2,
            COALESCE(SUM(
-               CASE WHEN h.stratum = 'base' AND h.urgency_code = 3
+               CASE WHEN h.metric_kind = 'outpatient'
                    THEN h.observed_area * EXTRACT(EPOCH FROM (LEAST(h.bucket_end, b.bin_end) - GREATEST(h.bucket_start, b.bin_start))) / NULLIF(h.bucket_seconds, 0)
                END
            ), 0)::int AS sk3,
            COALESCE(SUM(
-               CASE WHEN h.stratum = 'resus'
+               CASE WHEN h.metric_kind = 'resus'
                    THEN h.observed_area * EXTRACT(EPOCH FROM (LEAST(h.bucket_end, b.bin_end) - GREATEST(h.bucket_start, b.bin_start))) / NULLIF(h.bucket_seconds, 0)
                END
            ), 0)::int AS resus,
            COALESCE(SUM(
-               CASE WHEN h.stratum = 'cathlab'
+               CASE WHEN h.metric_kind = 'cathlab'
                    THEN h.observed_area * EXTRACT(EPOCH FROM (LEAST(h.bucket_end, b.bin_end) - GREATEST(h.bucket_start, b.bin_start))) / NULLIF(h.bucket_seconds, 0)
                END
            ), 0)::int AS cathlab
@@ -421,7 +421,7 @@ per_event_bucket AS (
     INNER JOIN closure_volume_hour h
         ON h.event_id = b.event_id
        AND h.scope = 'speciality'
-       AND h.stratum IN ('base', 'resus', 'cathlab')
+       AND h.closure_relevance <> 'none'
        AND h.bucket_start < b.bin_end
        AND h.bucket_end > b.bin_start
        AND h.observed_area IS NOT NULL
@@ -704,6 +704,7 @@ SELECT COUNT(*)::int AS event_count,
            FROM closure_volume_hour h
            WHERE h.event_id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
              AND h.scope = 'speciality'
+             AND h.closure_relevance <> 'none'
              AND h.quality IN ('reliable', 'limited')
              AND h.evaluable_seconds > 0
              {$speciality}
@@ -1462,7 +1463,7 @@ SQL, $params, $types);
         $rates = $this->connection->fetchAssociative(<<<SQL
 WITH {$base},
 usable AS (
-    SELECT h.event_id, h.speciality_id, h.department_id, h.urgency_code, h.stratum,
+    SELECT h.event_id, h.speciality_id, h.department_id, h.metric_kind,
            h.bucket_start, h.observed_area, h.expected_area, h.evaluable_seconds, h.reference_cutoff
     FROM closure_volume_hour h
     WHERE h.event_id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
@@ -1499,7 +1500,7 @@ SQL, $params, $types);
         $volume = $this->connection->fetchAssociative(<<<SQL
 WITH {$base},
 usable AS (
-    SELECT h.speciality_id, h.department_id, h.urgency_code, h.stratum, h.bucket_start,
+    SELECT h.speciality_id, h.department_id, h.metric_kind, h.bucket_start,
            h.observed_area, h.expected_area, h.reference_cutoff, h.event_id
     FROM closure_volume_hour h
     WHERE h.event_id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
@@ -1516,13 +1517,13 @@ FROM (
     SELECT (array_agg(observed_area ORDER BY reference_cutoff ASC))[1] AS observed_area,
            (array_agg(expected_area ORDER BY reference_cutoff ASC))[1] AS expected_area
     FROM usable
-    GROUP BY speciality_id, department_id, urgency_code, stratum, bucket_start
+    GROUP BY speciality_id, department_id, metric_kind, bucket_start
 ) deduped
 SQL, $params, $types);
         $reused = false !== $this->connection->fetchOne(<<<SQL
 WITH {$base},
 usable AS (
-    SELECT h.event_id, h.speciality_id, h.department_id, h.urgency_code, h.stratum, h.bucket_start
+    SELECT h.event_id, h.speciality_id, h.department_id, h.metric_kind, h.bucket_start
     FROM closure_volume_hour h
     WHERE h.event_id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
       AND {$stratumSql}
@@ -1535,7 +1536,7 @@ usable AS (
 )
 SELECT 1
 FROM usable
-GROUP BY speciality_id, department_id, urgency_code, stratum, bucket_start
+GROUP BY speciality_id, department_id, metric_kind, bucket_start
 HAVING COUNT(DISTINCT event_id) > 1
 LIMIT 1
 SQL, $params, $types);
@@ -1598,17 +1599,10 @@ SQL, $params, $types);
      */
     private function stratumSql(ClosureVolumeStratum $stratum, array &$params, array &$types): string
     {
-        $params['profile_stratum'] = $stratum->storageStratum();
-        $types['profile_stratum'] = Types::STRING;
-        $sql = "h.scope = 'speciality' AND h.stratum = :profile_stratum";
-        $urgency = $stratum->urgencyCode();
-        if (null !== $urgency) {
-            $params['profile_urgency'] = $urgency;
-            $types['profile_urgency'] = ParameterType::INTEGER;
-            $sql .= ' AND h.urgency_code = :profile_urgency';
-        }
+        $params['profile_metrics'] = $stratum->metricValues();
+        $types['profile_metrics'] = ArrayParameterType::STRING;
 
-        return $sql;
+        return "h.scope = 'speciality' AND h.metric_kind IN (:profile_metrics) AND h.closure_relevance <> 'none'";
     }
 
     /**

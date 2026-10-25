@@ -32,7 +32,8 @@ SELECT hospital_id, scope,
        COUNT(*) FILTER (WHERE reference_mode = 'insufficient')::int AS insufficient,
        COUNT(DISTINCT event_id) FILTER (WHERE reference_mode = 'insufficient' AND in_closure)::int AS events_with_insufficient_closure_rows
 FROM closure_volume_hour
-WHERE stratum = 'base'
+WHERE metric_kind IN ('emergency', 'inpatient', 'outpatient')
+  AND closure_relevance <> 'none'
   AND (CAST(:hospital AS int) IS NULL OR hospital_id = CAST(:hospital AS int))
 GROUP BY hospital_id, scope
 ORDER BY hospital_id, scope

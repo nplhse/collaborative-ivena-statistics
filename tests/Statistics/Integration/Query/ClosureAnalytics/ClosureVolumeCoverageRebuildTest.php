@@ -81,7 +81,7 @@ final class ClosureVolumeCoverageRebuildTest extends KernelTestCase
             "SELECT h.observed_area
              FROM closure_volume_hour h
              INNER JOIN closure_event e ON e.id = h.event_id
-             WHERE e.source_group_id = 'quiet-day-group' AND h.scope = 'department' AND h.stratum = 'base' AND h.in_closure
+             WHERE e.source_group_id = 'quiet-day-group' AND h.scope = 'department' AND h.metric_kind IN ('emergency', 'inpatient', 'outpatient') AND h.closure_relevance <> 'none' AND h.in_closure
              ORDER BY h.bucket_start
              LIMIT 1",
         );

@@ -39,8 +39,7 @@ final readonly class ClosureVolumeReadModel
             $slices[] = new ClosureVolumeBurdenSlice(
                 (int) $row['hospital_id'],
                 (int) $row['department_id'],
-                (int) $row['urgency_code'],
-                (string) $row['stratum'],
+                (string) $row['metric_kind'],
                 ClosureVolumeClock::wall($start)->format('Y-m-d H:i:s'),
                 $this->nullableFloat($row['observed_area']),
                 $this->nullableFloat($row['expected_area']),
@@ -228,7 +227,7 @@ final readonly class ClosureVolumeReadModel
         /** @var array<string, ClosureVolumeHourDraft> $unique */
         $unique = [];
         foreach ($drafts as $draft) {
-            $key = $draft->scope.'|'.$draft->specialityId.'|'.$draft->departmentId.'|'.$draft->urgencyCode.'|'.$draft->stratum.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
+            $key = $draft->scope.'|'.$draft->specialityId.'|'.$draft->departmentId.'|'.$draft->metric->value.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
             $existing = $unique[$key] ?? null;
             if (!$existing instanceof ClosureVolumeHourDraft || $draft->referenceCutoff < $existing->referenceCutoff) {
                 $unique[$key] = $draft;

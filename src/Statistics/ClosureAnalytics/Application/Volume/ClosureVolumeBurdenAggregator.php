@@ -21,7 +21,7 @@ final class ClosureVolumeBurdenAggregator
             if ($slice->overlapSeconds <= 0) {
                 continue;
             }
-            $key = $slice->hospitalId.'|'.$slice->specialityId.'|'.$slice->departmentId.'|'.$slice->urgencyCode.'|'.$slice->stratum.'|'.$slice->bucketStart;
+            $key = $slice->hospitalId.'|'.$slice->specialityId.'|'.$slice->departmentId.'|'.$slice->metric.'|'.$slice->bucketStart;
             $existing = $unique[$key] ?? null;
             if (!$existing instanceof ClosureVolumeBurdenSlice || $slice->referenceCutoff < $existing->referenceCutoff) {
                 $unique[$key] = $slice;
