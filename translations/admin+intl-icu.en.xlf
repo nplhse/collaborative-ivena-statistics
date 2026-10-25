@@ -477,29 +477,9 @@
         <source>ops.card.queue_low</source>
         <target>Low-priority queue</target>
       </trans-unit>
-      <trans-unit id="opsCard04" resname="ops.card.database_size">
-        <source>ops.card.database_size</source>
-        <target>Database size</target>
-      </trans-unit>
-      <trans-unit id="opsCard05" resname="ops.card.storage_total">
-        <source>ops.card.storage_total</source>
-        <target>Total storage</target>
-      </trans-unit>
       <trans-unit id="opsCard06" resname="ops.card.reminders_this_month">
         <source>ops.card.reminders_this_month</source>
         <target>Reminders this month</target>
-      </trans-unit>
-      <trans-unit id="opsCard07" resname="ops.card.imports_media">
-        <source>ops.card.imports_media</source>
-        <target>Imports / media</target>
-      </trans-unit>
-      <trans-unit id="opsCard08" resname="ops.card.trend_up">
-        <source>ops.card.trend_up</source>
-        <target>+{size} in 30 days</target>
-      </trans-unit>
-      <trans-unit id="opsCard09" resname="ops.card.trend_flat">
-        <source>ops.card.trend_flat</source>
-        <target>No change (30 days)</target>
       </trans-unit>
       <trans-unit id="opsHlth01" resname="ops.health.status.healthy">
         <source>ops.health.status.healthy</source>
@@ -584,50 +564,6 @@
       <trans-unit id="opsHlth21" resname="ops.health.storage.level.unknown">
         <source>ops.health.storage.level.unknown</source>
         <target>Level: unknown</target>
-      </trans-unit>
-      <trans-unit id="opsStor01" resname="ops.storage.title">
-        <source>ops.storage.title</source>
-        <target>Storage usage</target>
-      </trans-unit>
-      <trans-unit id="opsStor02" resname="ops.storage.database">
-        <source>ops.storage.database</source>
-        <target>Database</target>
-      </trans-unit>
-      <trans-unit id="opsStor03" resname="ops.storage.imports">
-        <source>ops.storage.imports</source>
-        <target>CSV imports</target>
-      </trans-unit>
-      <trans-unit id="opsStor04" resname="ops.storage.media">
-        <source>ops.storage.media</source>
-        <target>Media uploads</target>
-      </trans-unit>
-      <trans-unit id="opsStor05" resname="ops.storage.growth_30d">
-        <source>ops.storage.growth_30d</source>
-        <target>Growth (last 30 days)</target>
-      </trans-unit>
-      <trans-unit id="opsStor06" resname="ops.storage.growth_imports">
-        <source>ops.storage.growth_imports</source>
-        <target>Imports: {size}</target>
-      </trans-unit>
-      <trans-unit id="opsStor07" resname="ops.storage.growth_media">
-        <source>ops.storage.growth_media</source>
-        <target>Media: {size}</target>
-      </trans-unit>
-      <trans-unit id="opsStor08" resname="ops.storage.application_code">
-        <source>ops.storage.application_code</source>
-        <target>Application code</target>
-      </trans-unit>
-      <trans-unit id="opsStor09" resname="ops.storage.of_limit">
-        <source>ops.storage.of_limit</source>
-        <target>of {limit}</target>
-      </trans-unit>
-      <trans-unit id="opsStor10" resname="ops.storage.used">
-        <source>ops.storage.used</source>
-        <target>{size} used</target>
-      </trans-unit>
-      <trans-unit id="opsStor11" resname="ops.storage.total_used">
-        <source>ops.storage.total_used</source>
-        <target>{size} total</target>
       </trans-unit>
       <trans-unit id="opsNot01" resname="ops.notifications.title">
         <source>ops.notifications.title</source>

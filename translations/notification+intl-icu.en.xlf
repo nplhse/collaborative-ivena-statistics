@@ -421,6 +421,110 @@
         <source>notification.toast_group.import.run_outcome.message</source>
         <target>See the import list and your notifications for each result.</target>
       </trans-unit>
+      <trans-unit id="NtfF49AE2C2" resname="storage.capacity_alert.title">
+        <source>storage.capacity_alert.title</source>
+        <target>{direction, select, escalated {{to, select, notice {Storage is filling up} warning {Storage is almost full} critical {Storage is critically full} exceeded {Storage capacity exceeded} other {Storage level changed}}} resolved {Storage usage is back to normal} other {Storage usage has dropped to {to, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}}}</target>
+      </trans-unit>
+      <trans-unit id="NtfF667FE99" resname="storage.capacity_alert.message">
+        <source>storage.capacity_alert.message</source>
+        <target>{direction, select, escalated {The storage level rose from “{from, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}” to “{to, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}”.} resolved {The storage level fell from “{from, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}” back to “normal”.} other {The storage level fell from “{from, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}” to “{to, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}”.}} {reference, select, budget {{usedPercent, number} % of the configured budget is in use ({comparedUsed} of {capacity}), {remaining} remain.} filesystem {{usedPercent, number} % of the filesystem is in use ({comparedUsed} of {capacity}), {remaining} are free.} other {The remaining capacity is unknown.}}{direction, select, escalated {{to, select, critical { Check the disk usage and free up space soon.} exceeded { Check the disk usage and free up space now.} other {}}} other {}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf67F67CC9" resname="storage.capacity_alert.label">
+        <source>storage.capacity_alert.label</source>
+        <target>Storage alert</target>
+      </trans-unit>
+      <trans-unit id="NtfB1CC0A62" resname="storage.daily_report.title">
+        <source>storage.daily_report.title</source>
+        <target>Daily storage report: {usage, select, measured {{used} used} other {measurement incomplete}}</target>
+      </trans-unit>
+      <trans-unit id="NtfE808360D" resname="storage.daily_report.message">
+        <source>storage.daily_report.message</source>
+        <target>{usage, select, measured {The application uses {used}.} other {The storage could not be measured completely.}} {reference, select, budget {Of the configured budget of {capacity}, {remaining} ({remainingPercent, number} %) remain.} filesystem {Of the filesystem’s {capacity}, {remaining} ({remainingPercent, number} %) are free.} unavailable {The remaining capacity is unknown.} other {No capacity reference is configured.}} {changeDirection, select, up {That is {change} more than {daysSincePrevious, plural, one {the day before} other {# days before}}. } down {That is {change} less than {daysSincePrevious, plural, one {the day before} other {# days before}}. } none {No change since {daysSincePrevious, plural, one {the day before} other {# days before}}. } other {}}Largest category: {category1, select, database {Database} imports {Imports} media {Media} application {Application} temporary {Temporary files} other {Other}} ({category1Size}).</target>
+      </trans-unit>
+      <trans-unit id="Ntf4464643F" resname="storage.daily_report.label">
+        <source>storage.daily_report.label</source>
+        <target>Daily storage report</target>
+      </trans-unit>
+      <trans-unit id="NtfC546F82C" resname="storage.email.action">
+        <source>storage.email.action</source>
+        <target>Open disk usage</target>
+      </trans-unit>
+      <trans-unit id="NtfD4F76DB5" resname="storage.email.level">
+        <source>storage.email.level</source>
+        <target>Level</target>
+      </trans-unit>
+      <trans-unit id="NtfF6FA55C3" resname="storage.email.level_value">
+        <source>storage.email.level_value</source>
+        <target>{level, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}</target>
+      </trans-unit>
+      <trans-unit id="NtfCDDF411A" resname="storage.email.level_change">
+        <source>storage.email.level_change</source>
+        <target>{from, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}} → {to, select, normal {normal} notice {notice} warning {warning} critical {critical} exceeded {exceeded} other {unknown}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf66BDECAE" resname="storage.email.used">
+        <source>storage.email.used</source>
+        <target>Used by the application</target>
+      </trans-unit>
+      <trans-unit id="NtfB5710ABD" resname="storage.email.database">
+        <source>storage.email.database</source>
+        <target>Database</target>
+      </trans-unit>
+      <trans-unit id="Ntf08739848" resname="storage.email.capacity">
+        <source>storage.email.capacity</source>
+        <target>{capacitySource, select, budget {Configured budget} filesystem {Filesystem} other {Capacity reference}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf145375E0" resname="storage.email.compared_used">
+        <source>storage.email.compared_used</source>
+        <target>In use</target>
+      </trans-unit>
+      <trans-unit id="NtfFB9C8383" resname="storage.email.remaining">
+        <source>storage.email.remaining</source>
+        <target>Remaining</target>
+      </trans-unit>
+      <trans-unit id="NtfFD6E6BD6" resname="storage.email.remaining_value">
+        <source>storage.email.remaining_value</source>
+        <target>{remaining} ({remainingPercent, number} %)</target>
+      </trans-unit>
+      <trans-unit id="NtfB3E12CF5" resname="storage.email.no_reference">
+        <source>storage.email.no_reference</source>
+        <target>{reference, select, unavailable {unknown} other {not configured}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf34EA0017" resname="storage.email.change">
+        <source>storage.email.change</source>
+        <target>Change</target>
+      </trans-unit>
+      <trans-unit id="Ntf0E3E8EA7" resname="storage.email.change_value">
+        <source>storage.email.change_value</source>
+        <target>{changeDirection, select, up {+{change}} down {−{change}} none {±0} other {–}}{changeDirection, select, unknown {} other { since {daysSincePrevious, plural, one {the day before} other {# days before}}}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf51C18708" resname="storage.email.largest_categories">
+        <source>storage.email.largest_categories</source>
+        <target>Largest categories</target>
+      </trans-unit>
+      <trans-unit id="NtfDAFA9607" resname="storage.email.previous_releases">
+        <source>storage.email.previous_releases</source>
+        <target>Previous releases</target>
+      </trans-unit>
+      <trans-unit id="Ntf4A365E36" resname="storage.email.previous_releases_value">
+        <source>storage.email.previous_releases_value</source>
+        <target>{count, plural, =0 {none} one {# release, {size}} other {# releases, {size}}}</target>
+      </trans-unit>
+      <trans-unit id="Ntf075736B4" resname="storage.email.shared">
+        <source>storage.email.shared</source>
+        <target>Shared directory</target>
+      </trans-unit>
+      <trans-unit id="NtfBA1E4830" resname="storage.email.unavailable">
+        <source>storage.email.unavailable</source>
+        <target>not measured</target>
+      </trans-unit>
+      <trans-unit id="NtfB84AF2F0" resname="storage.email.compared_used_value">
+        <source>storage.email.compared_used_value</source>
+        <target>{comparedUsed} ({usedPercent, number} %)</target>
+      </trans-unit>
+      <trans-unit id="NtfA3C9D2EF" resname="storage.email.category_value">
+        <source>storage.email.category_value</source>
+        <target>{category, select, database {Database} imports {Imports} media {Media} application {Application} temporary {Temporary files} other {Other}}: {size}</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

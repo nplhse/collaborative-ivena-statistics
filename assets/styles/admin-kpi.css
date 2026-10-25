@@ -102,3 +102,58 @@
 .ea-vich-image-static {
     cursor: initial;
 }
+
+/* Storage card and Disk Usage page (ADR 017). Bootstrap variables keep light and dark mode readable. */
+.ea-storage-bar {
+    display: flex;
+    height: 0.875rem;
+    overflow: hidden;
+    border-radius: 0.4375rem;
+    background-color: var(--bs-tertiary-bg, #f1f3f5);
+    box-shadow: inset 0 0 0 1px var(--bs-border-color-translucent, rgba(0, 0, 0, 0.08));
+}
+
+.ea-storage-bar__segment + .ea-storage-bar__segment {
+    box-shadow: inset 2px 0 0 var(--bs-body-bg, #fff);
+}
+
+.ea-storage-bar--lg {
+    height: 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.ea-storage-bar__segment {
+    display: block;
+    flex: 0 0 auto;
+    min-width: 2px;
+    height: 100%;
+}
+
+.ea-storage-legend__dot {
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+}
+
+.ea-storage-legend__dot--free {
+    background-color: var(--bs-tertiary-bg, #f1f3f5);
+    box-shadow: inset 0 0 0 1px var(--bs-border-color, #dee2e6);
+}
+
+.ea-storage-table .ea-storage-group + .ea-storage-group {
+    border-top: 2px solid var(--bs-border-color, #dee2e6);
+}
+
+.ea-storage-table .ea-storage-group__item td {
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+.ea-storage-meter {
+    height: 0.5rem;
+}
+
+.ea-storage-chart {
+    min-height: 320px;
+}

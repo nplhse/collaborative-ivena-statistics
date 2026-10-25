@@ -18,11 +18,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final readonly class StorageHealthItemFactory
 {
-    /**
-     * Target of the item link. Switches to `app_admin_dashboard_operations_storage` (Disk Usage page)
-     * once that page exists (ADR 017, step 4/5).
-     */
-    public const string DISK_USAGE_ROUTE = 'app_admin_dashboard';
+    /** Target of the item link: the Disk Usage page. */
+    public const string DISK_USAGE_ROUTE = 'app_admin_dashboard_operations_storage';
 
     public function __construct(
         private StorageMeasurementRepositoryInterface $measurements,

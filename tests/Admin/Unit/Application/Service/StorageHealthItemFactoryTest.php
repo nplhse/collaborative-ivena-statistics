@@ -19,7 +19,7 @@ final class StorageHealthItemFactoryTest extends TestCase
     public function testShowsUsageCapacityRemainingLevelAndTimeAndLinksToDiskUsage(): void
     {
         $measuredAt = new \DateTimeImmutable('2026-10-25 03:30');
-        $measurement = StorageMeasurementBuilder::create($measuredAt, CapacityLevel::Warning, usedBytes: 9 * 1024 ** 3);
+        $measurement = StorageMeasurementBuilder::measuredAt($measuredAt, CapacityLevel::Warning, usedBytes: 9 * 1024 ** 3);
 
         $item = $this->factory($measurement)->create('warning');
 
@@ -28,7 +28,7 @@ final class StorageHealthItemFactoryTest extends TestCase
         self::assertSame('warning', $item->value);
         self::assertSame('warning', $item->severity);
         self::assertSame('fas fa-triangle-exclamation', $item->icon);
-        self::assertSame('/admin', $item->detailUrl);
+        self::assertSame('/admin/operations/storage', $item->detailUrl);
         self::assertNotNull($item->storage);
         self::assertSame('9.00 GB', $item->storage->used);
         self::assertSame('10.00 GB', $item->storage->capacity);
@@ -40,7 +40,7 @@ final class StorageHealthItemFactoryTest extends TestCase
 
     public function testRemainingPercentNeverGoesBelowZero(): void
     {
-        $measurement = StorageMeasurementBuilder::create(new \DateTimeImmutable(), CapacityLevel::Exceeded, usedBytes: 12 * 1024 ** 3);
+        $measurement = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable(), CapacityLevel::Exceeded, usedBytes: 12 * 1024 ** 3);
 
         $item = $this->factory($measurement)->create('exceeded');
 
@@ -50,8 +50,8 @@ final class StorageHealthItemFactoryTest extends TestCase
 
     public function testWithoutReferenceOrTotalThereIsNoRemainingPercent(): void
     {
-        $withoutReference = StorageMeasurementBuilder::create(new \DateTimeImmutable(), CapacityLevel::Unknown, source: CapacitySource::None);
-        $withoutTotal = StorageMeasurementBuilder::create(new \DateTimeImmutable(), CapacityLevel::Unknown, usedBytes: null);
+        $withoutReference = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable(), CapacityLevel::Unknown, source: CapacitySource::None);
+        $withoutTotal = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable(), CapacityLevel::Unknown, usedBytes: null);
 
         $notConfigured = $this->factory($withoutReference)->create('not_configured');
         $incomplete = $this->factory($withoutTotal)->create('incomplete');
@@ -90,7 +90,7 @@ final class StorageHealthItemFactoryTest extends TestCase
 
         self::assertSame('warning', $item->severity);
         self::assertNull($item->storage);
-        self::assertSame('/admin', $item->detailUrl);
+        self::assertSame('/admin/operations/storage', $item->detailUrl);
     }
 
     private function factory(?StorageMeasurement $latest): StorageHealthItemFactory
@@ -99,7 +99,7 @@ final class StorageHealthItemFactoryTest extends TestCase
         $repository->method('latest')->willReturn($latest);
 
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
-        $urlGenerator->method('generate')->with(StorageHealthItemFactory::DISK_USAGE_ROUTE)->willReturn('/admin');
+        $urlGenerator->method('generate')->with(StorageHealthItemFactory::DISK_USAGE_ROUTE)->willReturn('/admin/operations/storage');
 
         return new StorageHealthItemFactory($repository, $urlGenerator);
     }

@@ -13,13 +13,8 @@ interface StorageCapacityAlertStoreInterface
 {
     /**
      * Normal until a level has been recorded.
-     *
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the storage alert subscriber uses it.
      */
     public function lastNotifiedLevel(): CapacityLevel;
 
-    /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the storage alert subscriber uses it.
-     */
     public function recordNotified(CapacityLevel $level, \DateTimeImmutable $changedOn, \DateTimeImmutable $now): void;
 }

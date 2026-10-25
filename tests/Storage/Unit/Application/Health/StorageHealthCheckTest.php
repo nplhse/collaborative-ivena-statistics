@@ -37,7 +37,7 @@ final class StorageHealthCheckTest extends TestCase
     #[DataProvider('levels')]
     public function testMapsTheLevelOfAFreshMeasurement(CapacityLevel $level, StorageHealthState $state, HealthCheckStatus $status): void
     {
-        $measurement = StorageMeasurementBuilder::create(new \DateTimeImmutable('2026-10-25 03:30'), $level);
+        $measurement = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('2026-10-25 03:30'), $level);
 
         $result = $this->check($measurement)->check();
 
@@ -47,7 +47,7 @@ final class StorageHealthCheckTest extends TestCase
 
     public function testWithoutCapacityReferenceIsNotConfiguredAndHealthy(): void
     {
-        $measurement = StorageMeasurementBuilder::create(
+        $measurement = StorageMeasurementBuilder::measuredAt(
             new \DateTimeImmutable('2026-10-25 03:30'),
             CapacityLevel::Unknown,
             source: CapacitySource::None,
@@ -61,7 +61,7 @@ final class StorageHealthCheckTest extends TestCase
 
     public function testWithoutTotalIsIncompleteAndDegradedEvenWithoutReference(): void
     {
-        $measurement = StorageMeasurementBuilder::create(
+        $measurement = StorageMeasurementBuilder::measuredAt(
             new \DateTimeImmutable('2026-10-25 03:30'),
             CapacityLevel::Unknown,
             usedBytes: null,
@@ -76,7 +76,7 @@ final class StorageHealthCheckTest extends TestCase
 
     public function testAMeasurementOlderThanTheMaximumAgeIsStaleAndDegraded(): void
     {
-        $measurement = StorageMeasurementBuilder::create(new \DateTimeImmutable('2026-10-24 11:59:59'));
+        $measurement = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('2026-10-24 11:59:59'));
 
         $result = $this->check($measurement, maxAgeHours: 24)->check();
 
@@ -86,14 +86,14 @@ final class StorageHealthCheckTest extends TestCase
 
     public function testAMeasurementExactlyAtTheMaximumAgeIsStillFresh(): void
     {
-        $measurement = StorageMeasurementBuilder::create(new \DateTimeImmutable('2026-10-24 12:00:00'));
+        $measurement = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('2026-10-24 12:00:00'));
 
         self::assertSame('ok', $this->check($measurement, maxAgeHours: 24)->check()->value);
     }
 
     public function testAStaleCriticalMeasurementIsNotReportedAsCurrentLevel(): void
     {
-        $measurement = StorageMeasurementBuilder::create(new \DateTimeImmutable('2026-10-20 03:30'), CapacityLevel::Critical);
+        $measurement = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('2026-10-20 03:30'), CapacityLevel::Critical);
 
         $result = $this->check($measurement)->check();
 
@@ -111,7 +111,7 @@ final class StorageHealthCheckTest extends TestCase
 
     public function testContributesAPublicStorageCheckWithTheStateString(): void
     {
-        $measurement = StorageMeasurementBuilder::create(new \DateTimeImmutable('2026-10-25 03:30'), CapacityLevel::Warning);
+        $measurement = StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('2026-10-25 03:30'), CapacityLevel::Warning);
 
         $result = $this->check($measurement)->check();
 

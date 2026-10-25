@@ -8,7 +8,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 
 /**
- * Stores preference overrides directly, e.g. a user who switched off a reminder.
+ * Stores preference overrides directly, e.g. a user who switched off a reminder or opted in to a report.
  */
 final readonly class NotificationPreferenceTestState
 {
@@ -21,6 +21,14 @@ final readonly class NotificationPreferenceTestState
     {
         $this->connection->executeStatement(
             "INSERT INTO user_notification_preference (user_id, scope, preference_key, channel, enabled) VALUES (?, 'type', ?, ?, false)",
+            [$user->getId(), $type, $channel],
+        );
+    }
+
+    public function switchOn(User $user, string $type, string $channel = 'email'): void
+    {
+        $this->connection->executeStatement(
+            "INSERT INTO user_notification_preference (user_id, scope, preference_key, channel, enabled) VALUES (?, 'type', ?, ?, true)",
             [$user->getId(), $type, $channel],
         );
     }

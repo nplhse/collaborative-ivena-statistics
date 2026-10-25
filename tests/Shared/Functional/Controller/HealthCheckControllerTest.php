@@ -19,7 +19,7 @@ final class HealthCheckControllerTest extends WebTestCase
     public function testHealthEndpointIsPublicAndReturnsSlimJson(): void
     {
         $client = self::createClient();
-        $this->store(StorageMeasurementBuilder::create(new \DateTimeImmutable('-1 hour')));
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
 
         $payload = $this->requestHealth($client);
 
@@ -35,7 +35,7 @@ final class HealthCheckControllerTest extends WebTestCase
     public function testCriticalStorageMakesTheEndpointUnhealthyWithoutShowingSizes(): void
     {
         $client = self::createClient();
-        $this->store(StorageMeasurementBuilder::create(new \DateTimeImmutable('-1 hour'), CapacityLevel::Critical, usedBytes: 10 * 1024 ** 3 - 1));
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour'), CapacityLevel::Critical, usedBytes: 10 * 1024 ** 3 - 1));
 
         $payload = $this->requestHealth($client);
 
@@ -47,7 +47,7 @@ final class HealthCheckControllerTest extends WebTestCase
     public function testStaleStorageMeasurementDegradesTheEndpoint(): void
     {
         $client = self::createClient();
-        $this->store(StorageMeasurementBuilder::create(new \DateTimeImmutable('-3 days')));
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-3 days')));
 
         $payload = $this->requestHealth($client);
 

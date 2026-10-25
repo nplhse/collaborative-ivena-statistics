@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="de" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony" />
+    </header>
+    <body>
+      <trans-unit id="StgD7399EC9" resname="storage.menu.disk_usage">
+        <source>storage.menu.disk_usage</source>
+        <target>Speicherbelegung</target>
+      </trans-unit>
+      <trans-unit id="Stg2232D264" resname="storage.page.title">
+        <source>storage.page.title</source>
+        <target>Speicherbelegung</target>
+      </trans-unit>
+      <trans-unit id="Stg7C87DC74" resname="storage.card.title">
+        <source>storage.card.title</source>
+        <target>Speicher</target>
+      </trans-unit>
+      <trans-unit id="Stg6EC73554" resname="storage.card.details">
+        <source>storage.card.details</source>
+        <target>Details</target>
+      </trans-unit>
+      <trans-unit id="StgB269DF4D" resname="storage.card.of_capacity">
+        <source>storage.card.of_capacity</source>
+        <target>von {capacity}</target>
+      </trans-unit>
+      <trans-unit id="Stg77319E52" resname="storage.card.remaining">
+        <source>storage.card.remaining</source>
+        <target>{size} frei · {percent, number} % belegt</target>
+      </trans-unit>
+      <trans-unit id="Stg5FEADAC1" resname="storage.card.exceeded_by">
+        <source>storage.card.exceeded_by</source>
+        <target>Um {size} überschritten · {percent, number} % belegt</target>
+      </trans-unit>
+      <trans-unit id="StgFC4044F8" resname="storage.bar.aria">
+        <source>storage.bar.aria</source>
+        <target>Speicherbelegung: {percent, number} % des Balkens</target>
+      </trans-unit>
+      <trans-unit id="Stg7D3EAA4C" resname="storage.segment.free">
+        <source>storage.segment.free</source>
+        <target>Frei</target>
+      </trans-unit>
+      <trans-unit id="StgAA79FD04" resname="storage.segment.outside_application">
+        <source>storage.segment.outside_application</source>
+        <target>Außerhalb der Anwendung</target>
+      </trans-unit>
+      <trans-unit id="Stg4AF3DFA8" resname="storage.measured_at">
+        <source>storage.measured_at</source>
+        <target>Gemessen am {date}</target>
+      </trans-unit>
+      <trans-unit id="Stg563C0C51" resname="storage.stale.badge">
+        <source>storage.stale.badge</source>
+        <target>Veraltet</target>
+      </trans-unit>
+      <trans-unit id="Stg9F5D1AFE" resname="storage.stale.hint">
+        <source>storage.stale.hint</source>
+        <target>Die letzte Messung ist älter als {hours} Stunden. Prüfen Sie, ob Scheduler und Messenger-Worker laufen.</target>
+      </trans-unit>
+      <trans-unit id="StgAA99129B" resname="storage.empty.title">
+        <source>storage.empty.title</source>
+        <target>Noch keine Speichermessung</target>
+      </trans-unit>
+      <trans-unit id="Stg25BA3E87" resname="storage.empty.hint">
+        <source>storage.empty.hint</source>
+        <target>Die tägliche Messung läuft um 03:30 Uhr. Für eine sofortige Messung ausführen:</target>
+      </trans-unit>
+      <trans-unit id="StgC3045448" resname="storage.empty.page_hint">
+        <source>storage.empty.page_hint</source>
+        <target>Die Seite zeigt die letzte gespeicherte Messung. Die tägliche Messung läuft um 03:30 Uhr; für eine sofortige Messung diesen Befehl auf dem Server ausführen:</target>
+      </trans-unit>
+      <trans-unit id="Stg49D12B8D" resname="storage.kpi.used">
+        <source>storage.kpi.used</source>
+        <target>Belegt</target>
+      </trans-unit>
+      <trans-unit id="Stg403D61AA" resname="storage.kpi.capacity">
+        <source>storage.kpi.capacity</source>
+        <target>Kapazität</target>
+      </trans-unit>
+      <trans-unit id="StgC8755D8A" resname="storage.kpi.remaining">
+        <source>storage.kpi.remaining</source>
+        <target>Verbleibend</target>
+      </trans-unit>
+      <trans-unit id="Stg1466B998" resname="storage.kpi.exceeded_by">
+        <source>storage.kpi.exceeded_by</source>
+        <target>Überschritten um</target>
+      </trans-unit>
+      <trans-unit id="Stg9CFB699B" resname="storage.kpi.used_percent">
+        <source>storage.kpi.used_percent</source>
+        <target>{percent, number} % belegt</target>
+      </trans-unit>
+      <trans-unit id="Stg1ABF3D90" resname="storage.kpi.level">
+        <source>storage.kpi.level</source>
+        <target>Stufe</target>
+      </trans-unit>
+      <trans-unit id="Stg16A592C7" resname="storage.kpi.last_measurement">
+        <source>storage.kpi.last_measurement</source>
+        <target>Letzte Messung</target>
+      </trans-unit>
+      <trans-unit id="Stg738A501E" resname="storage.kpi.duration">
+        <source>storage.kpi.duration</source>
+        <target>Dauer {seconds, number} s</target>
+      </trans-unit>
+      <trans-unit id="StgA75C0F3E" resname="storage.kpi.mode">
+        <source>storage.kpi.mode</source>
+        <target>Modus</target>
+      </trans-unit>
+      <trans-unit id="StgFA281A6A" resname="storage.mode.deployer">
+        <source>storage.mode.deployer</source>
+        <target>Deployer</target>
+      </trans-unit>
+      <trans-unit id="Stg997A7C4F" resname="storage.mode.deployer.hint">
+        <source>storage.mode.deployer.hint</source>
+        <target>Releases und Shared-Verzeichnis</target>
+      </trans-unit>
+      <trans-unit id="StgEFE9FE68" resname="storage.mode.standalone">
+        <source>storage.mode.standalone</source>
+        <target>Eigenständig</target>
+      </trans-unit>
+      <trans-unit id="Stg1D7FE323" resname="storage.mode.standalone.hint">
+        <source>storage.mode.standalone.hint</source>
+        <target>Nur das Projektverzeichnis</target>
+      </trans-unit>
+      <trans-unit id="Stg392DF77C" resname="storage.level.normal">
+        <source>storage.level.normal</source>
+        <target>Normal</target>
+      </trans-unit>
+      <trans-unit id="Stg50A5DA5A" resname="storage.level.notice">
+        <source>storage.level.notice</source>
+        <target>Hinweis</target>
+      </trans-unit>
+      <trans-unit id="StgBE822F2F" resname="storage.level.warning">
+        <source>storage.level.warning</source>
+        <target>Warnung</target>
+      </trans-unit>
+      <trans-unit id="Stg8E6D8DA4" resname="storage.level.critical">
+        <source>storage.level.critical</source>
+        <target>Kritisch</target>
+      </trans-unit>
+      <trans-unit id="Stg3547A232" resname="storage.level.exceeded">
+        <source>storage.level.exceeded</source>
+        <target>Überschritten</target>
+      </trans-unit>
+      <trans-unit id="Stg53EA142E" resname="storage.level.unknown">
+        <source>storage.level.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="StgA471139A" resname="storage.capacity_source.budget">
+        <source>storage.capacity_source.budget</source>
+        <target>Konfiguriertes Budget</target>
+      </trans-unit>
+      <trans-unit id="Stg21C79FFE" resname="storage.capacity_source.filesystem">
+        <source>storage.capacity_source.filesystem</source>
+        <target>Dateisystem</target>
+      </trans-unit>
+      <trans-unit id="StgF7701852" resname="storage.capacity_source.none">
+        <source>storage.capacity_source.none</source>
+        <target>Keine Referenz</target>
+      </trans-unit>
+      <trans-unit id="Stg86C8F7A7" resname="storage.category.database">
+        <source>storage.category.database</source>
+        <target>Datenbank</target>
+      </trans-unit>
+      <trans-unit id="Stg3C9636BF" resname="storage.category.imports">
+        <source>storage.category.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="StgF138D408" resname="storage.category.media">
+        <source>storage.category.media</source>
+        <target>Medien</target>
+      </trans-unit>
+      <trans-unit id="Stg20C567B1" resname="storage.category.application">
+        <source>storage.category.application</source>
+        <target>Anwendung</target>
+      </trans-unit>
+      <trans-unit id="Stg01B45349" resname="storage.category.temporary">
+        <source>storage.category.temporary</source>
+        <target>Temporär</target>
+      </trans-unit>
+      <trans-unit id="Stg424C4024" resname="storage.category.other">
+        <source>storage.category.other</source>
+        <target>Sonstiges</target>
+      </trans-unit>
+      <trans-unit id="Stg7A626C79" resname="storage.location.current_release">
+        <source>storage.location.current_release</source>
+        <target>Aktuelles Release</target>
+      </trans-unit>
+      <trans-unit id="Stg789F93CA" resname="storage.location.previous_release">
+        <source>storage.location.previous_release</source>
+        <target>Früheres Release</target>
+      </trans-unit>
+      <trans-unit id="Stg50E066AE" resname="storage.location.shared">
+        <source>storage.location.shared</source>
+        <target>Shared-Verzeichnis</target>
+      </trans-unit>
+      <trans-unit id="Stg3253EC44" resname="storage.location.deploy_root">
+        <source>storage.location.deploy_root</source>
+        <target>Deploy-Verzeichnis (Rest)</target>
+      </trans-unit>
+      <trans-unit id="Stg422D5897" resname="storage.location.project">
+        <source>storage.location.project</source>
+        <target>Projektverzeichnis</target>
+      </trans-unit>
+      <trans-unit id="StgE0E7513E" resname="storage.location.database">
+        <source>storage.location.database</source>
+        <target>Datenbank</target>
+      </trans-unit>
+      <trans-unit id="Stg43883DA1" resname="storage.contributor.var_cache">
+        <source>storage.contributor.var_cache</source>
+        <target>Cache (var/cache)</target>
+      </trans-unit>
+      <trans-unit id="Stg2D02D9E6" resname="storage.contributor.var_log">
+        <source>storage.contributor.var_log</source>
+        <target>Logs (var/log)</target>
+      </trans-unit>
+      <trans-unit id="Stg5CBEF391" resname="storage.contributor.var_imports">
+        <source>storage.contributor.var_imports</source>
+        <target>Importdateien</target>
+      </trans-unit>
+      <trans-unit id="StgFBD83AD1" resname="storage.contributor.import_rejects">
+        <source>storage.contributor.import_rejects</source>
+        <target>Abgelehnte Importzeilen</target>
+      </trans-unit>
+      <trans-unit id="Stg2D2EE1FA" resname="storage.contributor.media_uploads">
+        <source>storage.contributor.media_uploads</source>
+        <target>Hochgeladene Medien</target>
+      </trans-unit>
+      <trans-unit id="Stg80EDDDE5" resname="storage.contributor.geodata">
+        <source>storage.contributor.geodata</source>
+        <target>Geodaten</target>
+      </trans-unit>
+      <trans-unit id="StgDB976366" resname="storage.contributor.var_other">
+        <source>storage.contributor.var_other</source>
+        <target>Weitere Dateien in var/</target>
+      </trans-unit>
+      <trans-unit id="Stg80066032" resname="storage.contributor.vendor">
+        <source>storage.contributor.vendor</source>
+        <target>PHP-Abhängigkeiten (vendor)</target>
+      </trans-unit>
+      <trans-unit id="Stg001F7DCE" resname="storage.contributor.node_modules">
+        <source>storage.contributor.node_modules</source>
+        <target>Node-Module</target>
+      </trans-unit>
+      <trans-unit id="Stg0CF52E4A" resname="storage.contributor.assets">
+        <source>storage.contributor.assets</source>
+        <target>Gebaute Assets</target>
+      </trans-unit>
+      <trans-unit id="Stg5EADD26A" resname="storage.contributor.git">
+        <source>storage.contributor.git</source>
+        <target>Git-Repository</target>
+      </trans-unit>
+      <trans-unit id="Stg313B96A5" resname="storage.contributor.env_local">
+        <source>storage.contributor.env_local</source>
+        <target>Lokale Umgebungsdatei</target>
+      </trans-unit>
+      <trans-unit id="Stg907111C4" resname="storage.contributor.deploy_metadata">
+        <source>storage.contributor.deploy_metadata</source>
+        <target>Deployer-Metadaten (.dep)</target>
+      </trans-unit>
+      <trans-unit id="Stg1EF2590E" resname="storage.contributor.unclassified">
+        <source>storage.contributor.unclassified</source>
+        <target>Nicht zugeordnet</target>
+      </trans-unit>
+      <trans-unit id="StgAF96A356" resname="storage.contributor.shared_other">
+        <source>storage.contributor.shared_other</source>
+        <target>Weitere Shared-Dateien</target>
+      </trans-unit>
+      <trans-unit id="Stg94A7610E" resname="storage.contributor.database">
+        <source>storage.contributor.database</source>
+        <target>PostgreSQL-Datenbank</target>
+      </trans-unit>
+      <trans-unit id="Stg2AAE2CB7" resname="storage.contributor.source">
+        <source>storage.contributor.source</source>
+        <target>Quellcode</target>
+      </trans-unit>
+      <trans-unit id="StgB3CFF214" resname="storage.contributor.project">
+        <source>storage.contributor.project</source>
+        <target>Projektverzeichnis</target>
+      </trans-unit>
+      <trans-unit id="Stg66A8A77F" resname="storage.contributor.shared">
+        <source>storage.contributor.shared</source>
+        <target>Shared-Verzeichnis</target>
+      </trans-unit>
+      <trans-unit id="Stg023B21E7" resname="storage.contributor.release">
+        <source>storage.contributor.release</source>
+        <target>Release-Verzeichnis</target>
+      </trans-unit>
+      <trans-unit id="StgBFA27EC3" resname="storage.contributor.deploy_root">
+        <source>storage.contributor.deploy_root</source>
+        <target>Deploy-Verzeichnis</target>
+      </trans-unit>
+      <trans-unit id="Stg4A155BEE" resname="storage.flag.leftover_in_release">
+        <source>storage.flag.leftover_in_release</source>
+        <target>Datenreste</target>
+      </trans-unit>
+      <trans-unit id="Stg36C28D3E" resname="storage.flag.leftover_in_release.hint">
+        <source>storage.flag.leftover_in_release.hint</source>
+        <target>Dieses alte Release enthält noch ein echtes Verzeichnis, wo das aktuelle Release nach shared/ verlinkt.</target>
+      </trans-unit>
+      <trans-unit id="Stg43540992" resname="storage.flag.unused_shared_path">
+        <source>storage.flag.unused_shared_path</source>
+        <target>Ungenutzter Shared-Pfad</target>
+      </trans-unit>
+      <trans-unit id="StgCB7E1B67" resname="storage.flag.unused_shared_path.hint">
+        <source>storage.flag.unused_shared_path.hint</source>
+        <target>Kein Symlink des aktuellen Releases zeigt auf diesen Pfad in shared/.</target>
+      </trans-unit>
+      <trans-unit id="Stg966D1531" resname="storage.flag.incomplete">
+        <source>storage.flag.incomplete</source>
+        <target>Unvollständig</target>
+      </trans-unit>
+      <trans-unit id="Stg31C3F943" resname="storage.flag.incomplete.hint">
+        <source>storage.flag.incomplete.hint</source>
+        <target>Einige Pfade waren nicht lesbar; die Größe ist eine Untergrenze.</target>
+      </trans-unit>
+      <trans-unit id="StgEB5A2854" resname="storage.status.measured">
+        <source>storage.status.measured</source>
+        <target>Gemessen</target>
+      </trans-unit>
+      <trans-unit id="Stg5C5AD961" resname="storage.status.incomplete">
+        <source>storage.status.incomplete</source>
+        <target>Unvollständig</target>
+      </trans-unit>
+      <trans-unit id="Stg5640D75D" resname="storage.status.failed">
+        <source>storage.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="StgD769A1E0" resname="storage.section.breakdown">
+        <source>storage.section.breakdown</source>
+        <target>Aufteilung</target>
+      </trans-unit>
+      <trans-unit id="StgD22F6D67" resname="storage.section.categories">
+        <source>storage.section.categories</source>
+        <target>Kategorien</target>
+      </trans-unit>
+      <trans-unit id="Stg731976FD" resname="storage.section.locations">
+        <source>storage.section.locations</source>
+        <target>Speicherorte</target>
+      </trans-unit>
+      <trans-unit id="Stg217C366D" resname="storage.section.capacity">
+        <source>storage.section.capacity</source>
+        <target>Kapazität</target>
+      </trans-unit>
+      <trans-unit id="StgD706EDC2" resname="storage.section.history">
+        <source>storage.section.history</source>
+        <target>Verlauf</target>
+      </trans-unit>
+      <trans-unit id="Stg3749CFB1" resname="storage.section.tables">
+        <source>storage.section.tables</source>
+        <target>Größte Datenbanktabellen</target>
+      </trans-unit>
+      <trans-unit id="Stg404D4372" resname="storage.categories.no_comparison">
+        <source>storage.categories.no_comparison</source>
+        <target>Noch keine Messung von vor 7 oder 30 Tagen</target>
+      </trans-unit>
+      <trans-unit id="Stg85D5A37C" resname="storage.categories.compared">
+        <source>storage.categories.compared</source>
+        <target>Änderungen seit {week} (7 Tage) und {month} (30 Tage)</target>
+      </trans-unit>
+      <trans-unit id="StgC27004AE" resname="storage.table.category">
+        <source>storage.table.category</source>
+        <target>Kategorie</target>
+      </trans-unit>
+      <trans-unit id="Stg9AA294A4" resname="storage.table.location">
+        <source>storage.table.location</source>
+        <target>Speicherort</target>
+      </trans-unit>
+      <trans-unit id="StgD65F2663" resname="storage.table.size">
+        <source>storage.table.size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="Stg96FBBAFC" resname="storage.table.share">
+        <source>storage.table.share</source>
+        <target>Anteil</target>
+      </trans-unit>
+      <trans-unit id="Stg7D2122D2" resname="storage.table.share_database">
+        <source>storage.table.share_database</source>
+        <target>Anteil an der Datenbank</target>
+      </trans-unit>
+      <trans-unit id="Stg93EF169C" resname="storage.table.delta_7">
+        <source>storage.table.delta_7</source>
+        <target>7 Tage</target>
+      </trans-unit>
+      <trans-unit id="Stg699D2A5C" resname="storage.table.delta_30">
+        <source>storage.table.delta_30</source>
+        <target>30 Tage</target>
+      </trans-unit>
+      <trans-unit id="Stg44CC9EE6" resname="storage.table.status">
+        <source>storage.table.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="Stg8FD4A8E0" resname="storage.table.table">
+        <source>storage.table.table</source>
+        <target>Tabelle</target>
+      </trans-unit>
+      <trans-unit id="Stg4E080341" resname="storage.link.imports">
+        <source>storage.link.imports</source>
+        <target>Importe öffnen</target>
+      </trans-unit>
+      <trans-unit id="StgAA12A80B" resname="storage.link.media">
+        <source>storage.link.media</source>
+        <target>Mediathek öffnen</target>
+      </trans-unit>
+      <trans-unit id="StgE3CD340D" resname="storage.locations.standalone_hint">
+        <source>storage.locations.standalone_hint</source>
+        <target>Eigenständiger Modus: Alle Dateien liegen im Projektverzeichnis; es gibt keine Releases und kein Shared-Verzeichnis.</target>
+      </trans-unit>
+      <trans-unit id="Stg32B135A4" resname="storage.capacity.reference">
+        <source>storage.capacity.reference</source>
+        <target>Referenz</target>
+      </trans-unit>
+      <trans-unit id="Stg79660CB1" resname="storage.capacity.budget">
+        <source>storage.capacity.budget</source>
+        <target>Budget</target>
+      </trans-unit>
+      <trans-unit id="Stg9E6CB56A" resname="storage.capacity.application_usage">
+        <source>storage.capacity.application_usage</source>
+        <target>Belegung der Anwendung</target>
+      </trans-unit>
+      <trans-unit id="StgF0DC4FBE" resname="storage.capacity.no_budget">
+        <source>storage.capacity.no_budget</source>
+        <target>Kein Budget konfiguriert. Setzen Sie</target>
+      </trans-unit>
+      <trans-unit id="Stg9E621032" resname="storage.capacity.filesystem_total">
+        <source>storage.capacity.filesystem_total</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="Stg87DC0BA3" resname="storage.capacity.filesystem_used">
+        <source>storage.capacity.filesystem_used</source>
+        <target>Belegt im Dateisystem</target>
+      </trans-unit>
+      <trans-unit id="StgB3B5A973" resname="storage.capacity.filesystem_free">
+        <source>storage.capacity.filesystem_free</source>
+        <target>Frei</target>
+      </trans-unit>
+      <trans-unit id="StgCA5D6BE8" resname="storage.capacity.filesystem_hint">
+        <source>storage.capacity.filesystem_hint</source>
+        <target>Bei Shared Hosting ist das die Festplatte des Hosts, nicht das Limit des Accounts.</target>
+      </trans-unit>
+      <trans-unit id="Stg1C9E270A" resname="storage.capacity.no_filesystem">
+        <source>storage.capacity.no_filesystem</source>
+        <target>Das Dateisystem hat seine Größe nicht gemeldet.</target>
+      </trans-unit>
+      <trans-unit id="Stg5710B703" resname="storage.capacity.thresholds">
+        <source>storage.capacity.thresholds</source>
+        <target>Stufen: Hinweis ab {notice} %, Warnung ab {warning} %, kritisch ab {critical} %, überschritten ab 100 %.</target>
+      </trans-unit>
+      <trans-unit id="StgF1EA007B" resname="storage.history.capacity">
+        <source>storage.history.capacity</source>
+        <target>Kapazität</target>
+      </trans-unit>
+      <trans-unit id="Stg35DF8BB2" resname="storage.history.range">
+        <source>storage.history.range</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="Stg0F6260C3" resname="storage.history.days">
+        <source>storage.history.days</source>
+        <target>{count} Tage</target>
+      </trans-unit>
+      <trans-unit id="StgCE9FEC3F" resname="storage.history.empty">
+        <source>storage.history.empty</source>
+        <target>Keine Messungen in diesem Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="Stg0375A944" resname="storage.tables.live">
+        <source>storage.tables.live</source>
+        <target>Live gelesen, nicht gespeichert</target>
+      </trans-unit>
+      <trans-unit id="Stg2FEA8524" resname="storage.tables.none">
+        <source>storage.tables.none</source>
+        <target>Keine Tabellen gefunden.</target>
+      </trans-unit>
+      <trans-unit id="Stg5FEF4BFF" resname="storage.tables.unavailable">
+        <source>storage.tables.unavailable</source>
+        <target>Die Datenbank hat keine Tabellengrößen gemeldet.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
