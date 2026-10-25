@@ -10,6 +10,7 @@ use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Notification\Application\Message\CleanUpNotificationsMessage;
 use App\Notification\Application\Message\ReconcileNotificationsMessage;
 use App\Shared\Infrastructure\Scheduler\DefaultScheduleProvider;
+use App\Storage\Application\Message\MeasureStorageMessage;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Scheduler\Generator\MessageContext;
 use Symfony\Component\Scheduler\RecurringMessage;
@@ -18,12 +19,12 @@ use Symfony\Component\Scheduler\Trigger\StaticMessageProvider;
 
 final class DefaultScheduleProviderKernelTest extends KernelTestCase
 {
-    public function testContainerWiresKpiReminderAnalyticsAndNotificationContributions(): void
+    public function testContainerWiresKpiReminderAnalyticsNotificationAndStorageContributions(): void
     {
         self::bootKernel();
         $provider = self::getContainer()->get(DefaultScheduleProvider::class);
         $recurringMessages = $provider->getSchedule()->getRecurringMessages();
-        self::assertCount(5, $recurringMessages);
+        self::assertCount(6, $recurringMessages);
 
         $classes = [];
         foreach ($recurringMessages as $recurringMessage) {
@@ -47,5 +48,6 @@ final class DefaultScheduleProviderKernelTest extends KernelTestCase
         self::assertContains(AggregateDailyAnalyticsMessage::class, $classes);
         self::assertContains(CleanUpNotificationsMessage::class, $classes);
         self::assertContains(ReconcileNotificationsMessage::class, $classes);
+        self::assertContains(MeasureStorageMessage::class, $classes);
     }
 }

@@ -8,6 +8,8 @@ use App\Storage\Application\ByteFormatter;
 use App\Storage\Application\Measurement\StorageAnalysis;
 use App\Storage\Application\Measurement\StorageAnalyzer;
 use App\Storage\Application\Measurement\StorageBreakdown;
+use App\Storage\Application\Measurement\StorageMeasurementInProgress;
+use App\Storage\Application\Measurement\StorageMeasurementRecorder;
 use App\Storage\Application\Measurement\StorageTotal;
 use App\Storage\Domain\Enum\MeasurementItemFlag;
 use App\Storage\Domain\ValueObject\StorageMeasurementItem;
@@ -19,11 +21,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Measures the storage now and prints the breakdown (ADR 017, "Scheduled measurement and console command").
- * Nothing is stored. Exits with 1 when files or database could not be measured.
+ * A dry run by default; --persist stores the day's measurement like the scheduled job and, unless --no-notify,
+ * triggers storage alerts and the daily report. Exits with 1 when files or database could not be measured.
  */
 #[AsCommand(
     name: 'app:storage:analyze',
-    description: 'Measure storage usage now and show it by category and location (dry run, nothing is stored).',
+    description: 'Measure storage usage now and show it by category and location (dry run unless --persist).',
 )]
 final readonly class AnalyzeStorageCommand
 {
@@ -31,6 +34,7 @@ final readonly class AnalyzeStorageCommand
 
     public function __construct(
         private StorageAnalyzer $analyzer,
+        private StorageMeasurementRecorder $recorder,
     ) {
     }
 
@@ -38,6 +42,10 @@ final readonly class AnalyzeStorageCommand
         SymfonyStyle $io,
         #[Option(description: 'Output format: table or json')]
         string $format = 'table',
+        #[Option(description: 'Store the measurement as today\'s row (replaces an earlier run of the same day)')]
+        bool $persist = false,
+        #[Option(description: 'With --persist: do not trigger storage alerts and the daily report')]
+        bool $noNotify = false,
     ): int {
         if (!\in_array($format, self::FORMATS, true)) {
             $io->error(sprintf('Unknown format "%s"; use table or json.', $format));
@@ -45,12 +53,37 @@ final readonly class AnalyzeStorageCommand
             return Command::INVALID;
         }
 
-        $analysis = $this->analyzer->analyze();
+        if ($noNotify && !$persist) {
+            $io->error('--no-notify only applies together with --persist.');
+
+            return Command::INVALID;
+        }
+
+        if ($persist) {
+            try {
+                $recorded = $this->recorder->record(announce: !$noNotify);
+            } catch (StorageMeasurementInProgress) {
+                $io->error('Another storage measurement is running; try again when it has finished.');
+
+                return Command::FAILURE;
+            }
+
+            $analysis = $recorded->analysis;
+            $stored = [
+                'measured_on' => $recorded->measurement->getMeasuredOn()->format('Y-m-d'),
+                'replaced_earlier_run' => $recorded->replacedEarlierRun,
+                'announced' => $recorded->announced,
+            ];
+        } else {
+            $analysis = $this->analyzer->analyze();
+            $stored = null;
+        }
 
         if ('json' === $format) {
-            $io->writeln(json_encode($this->payload($analysis), \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR), OutputInterface::OUTPUT_RAW);
+            $io->writeln(json_encode([...$this->payload($analysis), 'stored' => $stored], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR), OutputInterface::OUTPUT_RAW);
         } else {
             $this->render($io, $analysis);
+            $io->note($this->storedNote($stored));
         }
 
         return $analysis->isComplete() ? Command::SUCCESS : Command::FAILURE;
@@ -118,8 +151,23 @@ final readonly class AnalyzeStorageCommand
         if ([] !== $analysis->failures) {
             $io->warning(array_merge([sprintf('%d part(s) could not be measured:', \count($analysis->failures))], \array_slice($analysis->failures, 0, 20)));
         }
+    }
 
-        $io->note('Dry run: nothing was stored.');
+    /**
+     * @param array{measured_on: string, replaced_earlier_run: bool, announced: bool}|null $stored
+     */
+    private function storedNote(?array $stored): string
+    {
+        if (null === $stored) {
+            return 'Dry run: nothing was stored.';
+        }
+
+        return sprintf(
+            'Stored as the measurement of %s%s. %s',
+            $stored['measured_on'],
+            $stored['replaced_earlier_run'] ? ', replacing the earlier run of that day' : '',
+            $stored['announced'] ? 'Storage alerts and the daily report were triggered.' : 'Storage alerts and the daily report were not triggered (--no-notify).',
+        );
     }
 
     /**

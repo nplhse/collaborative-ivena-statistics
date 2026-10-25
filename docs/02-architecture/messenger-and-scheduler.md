@@ -11,7 +11,7 @@ Configured in `config/packages/messenger.yaml`:
 | Transport | Purpose |
 |-----------|---------|
 | `async_priority_high` | Import processing |
-| `async_priority_low` | Statistics rebuild, KPI aggregation, analytics aggregation, notification retention and reconciliation |
+| `async_priority_low` | Statistics rebuild, KPI aggregation, analytics aggregation, notification retention and reconciliation, storage measurement |
 | `async_mail` | Transactional and bulk mail (rate-limited) |
 | `scheduler_default` | Symfony Scheduler messages |
 | `failed` | Failed message store |
@@ -46,6 +46,7 @@ In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 | `15 2 * * *` (daily 02:15 Europe/Berlin) | `AggregateDailyAnalyticsMessage` |
 | `45 2 * * *` (daily 02:45 Europe/Berlin) | `CleanUpNotificationsMessage` |
 | `17 * * * *` (hourly) | `ReconcileNotificationsMessage` |
+| `30 3 * * *` (daily 03:30 Europe/Berlin) | `MeasureStorageMessage` (ADR 017) |
 
 The scheduler requires a running worker consuming `scheduler_default`. Locally: `make consume`.
 
