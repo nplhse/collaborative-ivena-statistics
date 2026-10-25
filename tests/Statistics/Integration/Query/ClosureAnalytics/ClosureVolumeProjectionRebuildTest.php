@@ -32,12 +32,14 @@ use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
 final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
     use RebuildsClosureAnalysis;
 
@@ -232,6 +234,8 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         $connection = self::getContainer()->get(Connection::class);
         $closure = $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-06-02 10:00:00', '2099-01-01 00:00:00', 'ongoing');
         $this->rebuildAllocations($seed['importId']);
+        // A fixed "now" keeps the ongoing closure's hours independent of the day the suite runs.
+        self::mockTime(new \DateTimeImmutable('2026-06-10 12:00:00', new \DateTimeZone('Europe/Berlin')));
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
 
         $detail = self::getContainer()->get(ClosureVolumeReadModel::class)->detail(
@@ -254,6 +258,30 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertSame(ClosureVolumeQuality::Ongoing, $post->quality);
         self::assertNull($post->observedArea);
         self::assertNull($detail->comparison);
+    }
+
+    public function testClosureAcrossTheFallBackNightHasOneBucketForTheRepeatedHour(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedComparableTuesday();
+        $connection = self::getContainer()->get(Connection::class);
+        $closure = $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-10-25 01:00:00', '2026-10-25 04:00:00', 'fall-back');
+        $this->rebuildAllocations($seed['importId']);
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+
+        // 02:00–03:00 happens twice on 25 October 2026 in Europe/Berlin: one wall-clock bucket of 7200 seconds.
+        $rows = $connection->fetchAllAssociative(
+            "SELECT bucket_start, bucket_seconds FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'department' AND in_closure = TRUE AND stratum = 'base' AND urgency_code = 1 ORDER BY bucket_start",
+            ['event_id' => $this->eventIdForClosure($connection, $closure)],
+        );
+        self::assertSame(
+            [
+                ['bucket_start' => '2026-10-25 01:00:00', 'bucket_seconds' => 3600],
+                ['bucket_start' => '2026-10-25 02:00:00', 'bucket_seconds' => 7200],
+                ['bucket_start' => '2026-10-25 03:00:00', 'bucket_seconds' => 3600],
+            ],
+            array_map(static fn (array $row): array => ['bucket_start' => (string) $row['bucket_start'], 'bucket_seconds' => (int) $row['bucket_seconds']], $rows),
+        );
     }
 
     /**
