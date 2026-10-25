@@ -19,6 +19,7 @@ use App\Statistics\Application\Mapping\StatisticsAgeGroupBucketSql;
 use App\Statistics\Application\TimeSeries\TimeSeriesAxisFiller;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\Infrastructure\Query\IndicationDashboard\Dto\IndicationDashboardMetricsRow;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class IndicationDashboardAssembler
@@ -53,6 +54,7 @@ final readonly class IndicationDashboardAssembler
 
     public function __construct(
         private TranslatorInterface $translator,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -81,7 +83,7 @@ final readonly class IndicationDashboardAssembler
             return new IndicationChartSeries($labels, $values);
         }
 
-        $filled = TimeSeriesAxisFiller::fill($grain, $bounds, $countsByKey, $now ?? new \DateTimeImmutable('now'));
+        $filled = TimeSeriesAxisFiller::fill($grain, $bounds, $countsByKey, $now ?? $this->clock->now());
         $labels = [];
         $values = [];
         foreach ($filled as $point) {

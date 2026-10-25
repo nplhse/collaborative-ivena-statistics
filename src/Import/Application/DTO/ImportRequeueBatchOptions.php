@@ -16,6 +16,7 @@ final readonly class ImportRequeueBatchOptions
         public bool $resume = false,
         public ?int $runId = null,
         public int $maxRetriesPerImport = 3,
+        public ?int $initiatedByUserId = null,
     ) {
     }
 
@@ -33,6 +34,7 @@ final readonly class ImportRequeueBatchOptions
             'resume' => $this->resume,
             'runId' => $this->runId,
             'maxRetriesPerImport' => $this->maxRetriesPerImport,
+            'initiatedByUserId' => $this->initiatedByUserId,
         ];
     }
 }

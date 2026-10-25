@@ -169,7 +169,7 @@ final class ClosureRebuildTelemetry
         }
         $seconds = microtime(true) - $this->startedAt;
         $peak = memory_get_peak_usage(true);
-        $status = null === $error ? 'succeeded' : 'failed';
+        $status = $error instanceof \Throwable ? 'failed' : 'succeeded';
         $summary = [
             'run_id' => $this->runId,
             'trigger' => $this->trigger,
@@ -201,8 +201,8 @@ final class ClosureRebuildTelemetry
                 'publish_ms' => $summary['publish_ms'],
                 'peak_memory_bytes' => $peak,
                 'request_count' => $this->requestCount,
-                'error_class' => null === $error ? null : $error::class,
-                'error_message' => null === $error ? null : mb_substr($error->getMessage(), 0, 2000),
+                'error_class' => $error instanceof \Throwable ? $error::class : null,
+                'error_message' => $error instanceof \Throwable ? mb_substr($error->getMessage(), 0, 2000) : null,
             ], ['id' => $runId], ['full_rebuild' => ParameterType::BOOLEAN]);
         });
 
@@ -217,7 +217,7 @@ final class ClosureRebuildTelemetry
                 'passes' => $this->passes,
             ]);
         }
-        if (null !== $error) {
+        if ($error instanceof \Throwable) {
             // Only the class leaves the system; the message may quote SQL with data.
             $this->closureRebuildLogger->error('closure_rebuild.failed', ['run_id' => $this->runId, 'error_class' => $error::class]);
         }
@@ -237,7 +237,7 @@ final class ClosureRebuildTelemetry
                 'passes' => (string) $this->passes,
                 'threshold_exceeded' => [] === $exceeded ? 'none' : implode(',', $exceeded),
             ]);
-            $this->transaction->setStatus(null === $error ? SpanStatus::ok() : SpanStatus::internalError());
+            $this->transaction->setStatus($error instanceof \Throwable ? SpanStatus::internalError() : SpanStatus::ok());
             $this->transaction->finish();
         }
         $this->reset();

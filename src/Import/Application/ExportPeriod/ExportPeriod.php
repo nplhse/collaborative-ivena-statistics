@@ -46,13 +46,7 @@ final readonly class ExportPeriod
      */
     public static function coveredBy(self $candidate, array $periods): bool
     {
-        foreach (self::merge($periods) as $period) {
-            if ($period->startsAt <= $candidate->startsAt && $period->endsAt >= $candidate->endsAt) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(self::merge($periods), fn (ExportPeriod $period): bool => $period->startsAt <= $candidate->startsAt && $period->endsAt >= $candidate->endsAt);
     }
 
     public function equals(self $other): bool

@@ -18,7 +18,7 @@ final class ExportPeriodDerivation
      */
     public static function forAllocations(?\DateTimeImmutable $firstCreatedAt, ?\DateTimeImmutable $lastCreatedAt): ?ExportPeriod
     {
-        if (null === $firstCreatedAt || null === $lastCreatedAt) {
+        if (!$firstCreatedAt instanceof \DateTimeImmutable || !$lastCreatedAt instanceof \DateTimeImmutable) {
             return null;
         }
 
@@ -37,7 +37,7 @@ final class ExportPeriodDerivation
         ?\DateTimeImmutable $lastEndsAt,
         array $allocationPeriods,
     ): ?ExportPeriod {
-        if (null === $firstStartsAt || null === $lastEndsAt) {
+        if (!$firstStartsAt instanceof \DateTimeImmutable || !$lastEndsAt instanceof \DateTimeImmutable) {
             return null;
         }
         $startsAt = self::floorDay($firstStartsAt);

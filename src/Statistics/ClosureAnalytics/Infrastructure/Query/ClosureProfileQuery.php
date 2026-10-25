@@ -31,6 +31,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Types;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class ClosureProfileQuery
@@ -46,6 +47,7 @@ final readonly class ClosureProfileQuery
         private TranslatorInterface $translator,
         private ClosureProfileGroupUnitRedundancy $groupUnitRedundancy,
         private ClosureProfilePackedMembersParser $packedMembersParser,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -1117,7 +1119,7 @@ SQL, $params, $types);
         }
 
         $columns = self::COVERAGE_YEAR_COLUMNS;
-        $currentYear = (int) new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin'))->format('Y');
+        $currentYear = (int) $this->clock->now()->setTimezone(new \DateTimeZone('Europe/Berlin'))->format('Y');
         $minYear = min(array_keys($countsByYear));
         $maxYear = max(array_keys($countsByYear));
         $startYear = $minYear < self::COVERAGE_YEAR_ORIGIN

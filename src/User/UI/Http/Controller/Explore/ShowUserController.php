@@ -8,6 +8,7 @@ use App\User\Application\Contract\PublishedPostPreviewMapInterface;
 use App\User\Application\Explore\PostPublishedActivitySlugs;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Explore\UserProfileFactory;
+use App\User\Infrastructure\Security\Voter\UserProfileVoter;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +35,8 @@ final class ShowUserController extends AbstractController
         if (!$profileUser->isEnabled()) {
             throw $this->createNotFoundException();
         }
+
+        $this->denyAccessUnlessGranted(UserProfileVoter::VIEW, $profileUser);
 
         $viewer = $this->getUser();
         $profile = $this->userProfileFactory->create(

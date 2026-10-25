@@ -7,20 +7,28 @@
 {% block header %}
     {% embed '@Shared/_embeds/header.html.twig' %}
         {% block header_after %}
-            {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+            {# Users without ROLE_PARTICIPANT may only open their own profile, not the rest of Explore. #}
+            {% if is_granted('ROLE_PARTICIPANT') %}
+                {{ include('@Shared/_includes/subnav_explore.html.twig') }}
+            {% endif %}
         {% endblock %}
     {% endembed %}
 {% endblock %}
 
 {% block page_header %}
+    {% set can_explore = is_granted('ROLE_PARTICIPANT') %}
     <div class="container-xl">
-        <twig:Breadcrumbs
-            :items="[
-                    { label: 'link.explore', path: path('app_explore_index') },
-                    { label: 'link.users', path: path('app_explore_user_list') },
-                    { label: profile.username, translatable: false }
-                ]"
-        />
+        {% if can_explore %}
+            <twig:Breadcrumbs
+                :items="[
+                        { label: 'link.explore', path: path('app_explore_index') },
+                        { label: 'link.users', path: path('app_explore_user_list') },
+                        { label: profile.username, translatable: false }
+                    ]"
+            />
+        {% else %}
+            <twig:Breadcrumbs :items="[{ label: profile.username, translatable: false }]" />
+        {% endif %}
 
         <div class="row align-items-center" data-testid="user-profile-header">
             <div class="col-auto">
@@ -58,19 +66,25 @@
                     {% endif %}
                     {% for hospital in profile.hospitals %}
                         <div class="list-inline-item">
-                            <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" class="link-secondary">{{ hospital.name }}</a>
+                            {% if can_explore %}
+                                <a href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}" class="link-secondary">{{ hospital.name }}</a>
+                            {% else %}
+                                {{ hospital.name }}
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
             </div>
-            <div class="col-auto ms-auto">
-                <div class="btn-list">
-                    <a class="btn" href="{{ path('app_explore_user_list') }}">
-                        <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
-                        {{ 'label.back_to_list'|trans({}, 'messages') }}
-                    </a>
+            {% if can_explore %}
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <a class="btn" href="{{ path('app_explore_user_list') }}" data-testid="user-profile-back-to-list">
+                            <twig:ux:icon name="tabler:chevron-left" class="me-2" width="1em" height="1em" />
+                            {{ 'label.back_to_list'|trans({}, 'messages') }}
+                        </a>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -143,11 +157,13 @@
                         icon="tabler:building-hospital"
                     />
                 {% else %}
+                    {% set can_explore = is_granted('ROLE_PARTICIPANT') %}
+                    {% set hospital_tag = can_explore ? 'a' : 'div' %}
                     <div class="list-group list-group-flush">
                         {% for hospital in profile.hospitals %}
-                            <a
-                                href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}"
-                                class="list-group-item list-group-item-action"
+                            <{{ hospital_tag }}
+                                {% if can_explore %}href="{{ path('app_explore_hospital_show', {publicId: hospital.publicId}) }}"{% endif %}
+                                class="list-group-item{% if can_explore %} list-group-item-action{% endif %}"
                                 data-testid="user-profile-hospital"
                             >
                                 <div class="row align-items-start">
@@ -188,7 +204,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                            </a>
+                            </{{ hospital_tag }}>
                         {% endfor %}
                     </div>
                 {% endif %}

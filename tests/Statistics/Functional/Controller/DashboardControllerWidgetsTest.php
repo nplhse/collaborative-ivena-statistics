@@ -19,10 +19,13 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\HttpFoundation\Request;
 
 final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
 {
+    use ClockSensitiveTrait;
+
     public function testStatisticsOverviewIsDisplayed(): void
     {
         $client = $this->createClientAsRoleUser();
@@ -76,6 +79,9 @@ final class DashboardControllerWidgetsTest extends DashboardControllerTestCase
 
     public function testOverviewRendersHospitalInsightsWhenBenchmarkDataIsSufficient(): void
     {
+        // The month baseline is the rolling 12-month window, so the fixed 2026
+        // data needs a fixed "now" to stay inside it.
+        self::mockTime(new \DateTimeImmutable('2026-07-15 12:00:00'));
         $client = $this->createClientAsRoleUser();
         $this->seedOverviewHospitalInsightsScenario();
 

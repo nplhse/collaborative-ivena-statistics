@@ -1,0 +1,19 @@
+{% set unread = this.unreadCount %}
+<a {{ attributes.defaults({
+    href: path('app_notification_index'),
+    class: 'dropdown-item',
+    'data-testid': 'user-menu-notifications',
+    'data-controller': 'notification-count',
+    'data-action': 'notification-poll:changed@window->notification-count#update',
+    'aria-label': 'notification.bell.label'|trans({count: unread}, 'notification'),
+}) }}>
+    <twig:ux:icon name="tabler:bell" class="icon" />
+    {{ 'notification.title'|trans({}, 'notification') }}
+    <span
+        class="badge bg-primary text-primary-fg ms-auto{% if unread == 0 %} d-none{% endif %}"
+        data-notification-count-target="badge"
+        data-testid="user-menu-notifications-badge"
+        data-unread-count="{{ unread }}"
+        aria-hidden="true"
+    >{{ unread > 99 ? '99+' : unread }}</span>
+</a>

@@ -1,0 +1,31 @@
+{#
+    Toast area for notifications (ADR 016, "In-app UI"). Kept across Turbo visits so a toast does not
+    vanish on navigation. The template is filled by the notification-toasts controller with text only.
+#}
+<div
+    id="notification-toasts"
+    class="toast-container position-fixed bottom-0 end-0 p-3 notification-toasts"
+    data-turbo-permanent
+    data-controller="notification-toasts"
+    data-action="notification:toasts@window->notification-toasts#show"
+    data-testid="notification-toasts"
+>
+    <template data-notification-toasts-target="template">
+        <div class="toast show" aria-atomic="true" data-testid="notification-toast">
+            <div class="toast-header">
+                <span class="badge me-2" data-role="dot" aria-hidden="true"></span>
+                <strong class="me-auto text-truncate" data-role="title"></strong>
+                <button
+                    type="button"
+                    class="btn-close"
+                    aria-label="{{ 'notification.toast.close'|trans({}, 'notification') }}"
+                    data-action="notification-toasts#dismiss"
+                ></button>
+            </div>
+            <div class="toast-body">
+                <div data-role="message"></div>
+                <a href="#" class="btn btn-sm mt-2 d-none" data-role="link">{{ 'notification.toast.open'|trans({}, 'notification') }}</a>
+            </div>
+        </div>
+    </template>
+</div>

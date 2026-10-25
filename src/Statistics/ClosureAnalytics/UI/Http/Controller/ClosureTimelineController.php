@@ -14,6 +14,7 @@ use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,6 +32,7 @@ final class ClosureTimelineController extends AbstractController
         private readonly ClosureAnalyticsCriteriaFactory $criteriaFactory,
         private readonly ClosureTemporalQuery $temporalQuery,
         private readonly ClosureAnalyticsScopeRedirector $scopeRedirector,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -140,7 +142,9 @@ final class ClosureTimelineController extends AbstractController
             return $criteria;
         }
 
-        $to = new \DateTimeImmutable('first day of this month 00:00:00', new \DateTimeZone('Europe/Berlin'));
+        $to = $this->clock->now()
+            ->setTimezone(new \DateTimeZone('Europe/Berlin'))
+            ->modify('first day of this month 00:00:00');
         $from = $to->modify('-12 months');
 
         return $criteria->withPeriod(new StatisticsPeriodBounds($from, $to));

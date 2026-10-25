@@ -1,0 +1,38 @@
+<turbo-frame id="notification-dropdown">
+    <div class="card" data-testid="notification-dropdown">
+        <div class="card-header">
+            <h3 class="card-title">
+                {{ 'notification.title'|trans({}, 'notification') }}
+                {% if state.unreadCount > 0 %}
+                    {% set unread_label = 'notification.unread_count'|trans({count: state.unreadCount}, 'notification') %}
+                    <span
+                        class="badge bg-primary text-primary-fg ms-2"
+                        title="{{ unread_label }}"
+                        aria-hidden="true"
+                        data-testid="notification-dropdown-unread-count"
+                    >{{ state.unreadCount > 99 ? '99+' : state.unreadCount }}</span>
+                    <span class="visually-hidden">{{ unread_label }}</span>
+                {% endif %}
+            </h3>
+            {% if state.unreadCount > 0 %}
+                <div class="card-actions">
+                    {{ include('@Notification/inbox/_read_all_form.html.twig', {target: target, icon_only: true}) }}
+                </div>
+            {% endif %}
+        </div>
+        {% if notifications is empty %}
+            <div class="card-body text-secondary" data-testid="notification-dropdown-empty">
+                {{ 'notification.dropdown.empty'|trans({}, 'notification') }}
+            </div>
+        {% else %}
+            <div class="list-group list-group-flush list-group-hoverable">
+                {% for notification in notifications %}
+                    {{ include('@Notification/inbox/_dropdown_item.html.twig', {notification: notification, target: target}) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <a href="{{ path('app_notification_index') }}" class="card-footer text-center text-secondary text-decoration-none" data-turbo-frame="_top" data-testid="notification-dropdown-show-all">
+            {{ 'notification.dropdown.show_all'|trans({count: total}, 'notification') }}
+        </a>
+    </div>
+</turbo-frame>

@@ -104,7 +104,7 @@ final class ClosureExportBoundaryTest extends KernelTestCase
             $deriver->apply($import);
         }
         $entityManager->flush();
-        self::assertSame(2, $deriver->refreshClosureImports($seed['hospitalId']));
+        $deriver->refreshClosureImports($seed['hospitalId']);
         $entityManager->clear();
     }
 

@@ -88,17 +88,13 @@ final readonly class MonthlyReminderPreviewCommand
                 return Command::FAILURE;
             }
 
-            $trigger = $input->ignoreOptOut
-                ? MonthlyReminderTrigger::Admin
-                : MonthlyReminderTrigger::Cli;
-
-            $errors = $this->reminderSender->sendForHospital($hospital, $trigger, $referenceDate);
+            $errors = $this->reminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Cli, $referenceDate);
             if ([] !== $errors) {
                 foreach ($errors as $errorKey) {
                     $io->error($this->translator->trans($errorKey, [], 'engagement'));
                 }
                 if ('monthly_reminder.error.opted_out' === ($errors[0] ?? null)) {
-                    $io->note('Use --ignore-opt-out to send anyway for manual testing.');
+                    $io->note('The owner switched the monthly reminder off in their notification settings.');
                 }
 
                 return Command::FAILURE;

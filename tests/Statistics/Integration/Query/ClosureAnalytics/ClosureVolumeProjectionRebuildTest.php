@@ -24,20 +24,31 @@ use App\Statistics\Application\DTO\StatisticsPeriodBounds;
 use App\Statistics\Application\DTO\StatisticsScopeCriteria;
 use App\Statistics\Application\TimeSeries\TimeSeriesGrain;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchorBuilder;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeQuality;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReadModel;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCalendar;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeSeriesScope;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
+use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuilder;
+use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
 use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
+use Symfony\Component\ErrorHandler\BufferingLogger;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 #[ResetDatabase]
 final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
 {
+    use ClockSensitiveTrait;
     use Factories;
     use RebuildsClosureAnalysis;
 
@@ -225,6 +236,46 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertGreaterThan($departmentObserved, $specialityObserved);
     }
 
+    public function testFailureInsideAnAbortedTransactionKeepsTheOriginalException(): void
+    {
+        self::bootKernel();
+        $container = self::getContainer();
+        $connection = $container->get(Connection::class);
+        $logger = new BufferingLogger();
+        $rebuilder = new ClosureVolumeProjectionRebuilder(
+            $connection,
+            $container->get(ClosureVolumeAnchorBuilder::class),
+            $container->get(ClosureVolumeReferenceConfig::class),
+            $container->get(ClosureVolumeReferenceCalendar::class),
+            $container->get(ClosureVolumeHourPlanner::class),
+            $container->get(ClosureVolumeReferenceSelector::class),
+            $container->get(ClosureCoverageQuery::class),
+            $container->get(ClosureRebuildTelemetry::class),
+            $logger,
+        );
+        // The test runs inside a transaction: a failed statement aborts it, so the clean-up DROP fails too.
+        $connection->beginTransaction();
+        $rebuilder->beforePublishHook = static function () use ($connection): void {
+            try {
+                $connection->executeStatement('SELECT 1 FROM closure_volume_missing_table');
+            } catch (\Throwable $failed) {
+                throw new \RuntimeException('publish failed', 0, $failed);
+            }
+        };
+
+        try {
+            $rebuilder->rebuild();
+            self::fail('The publish hook should abort the rebuild.');
+        } catch (\RuntimeException $exception) {
+            self::assertSame('publish failed', $exception->getMessage());
+        } finally {
+            $connection->rollBack();
+        }
+
+        $messages = array_map(static fn (array $entry): string => (string) $entry[1], $logger->cleanLogs());
+        self::assertContains('closure_volume.build_table_cleanup_failed', $messages);
+    }
+
     public function testOngoingClosureHasNoFollowUpAndDoesNotTreatTheFutureAsZero(): void
     {
         self::bootKernel();
@@ -232,6 +283,8 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         $connection = self::getContainer()->get(Connection::class);
         $closure = $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-06-02 10:00:00', '2099-01-01 00:00:00', 'ongoing');
         $this->rebuildAllocations($seed['importId']);
+        // A fixed "now" keeps the ongoing closure's hours independent of the day the suite runs.
+        self::mockTime(new \DateTimeImmutable('2026-06-10 12:00:00', new \DateTimeZone('Europe/Berlin')));
         self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
 
         $detail = self::getContainer()->get(ClosureVolumeReadModel::class)->detail(
@@ -254,6 +307,30 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertSame(ClosureVolumeQuality::Ongoing, $post->quality);
         self::assertNull($post->observedArea);
         self::assertNull($detail->comparison);
+    }
+
+    public function testClosureAcrossTheFallBackNightHasOneBucketForTheRepeatedHour(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedComparableTuesday();
+        $connection = self::getContainer()->get(Connection::class);
+        $closure = $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-10-25 01:00:00', '2026-10-25 04:00:00', 'fall-back');
+        $this->rebuildAllocations($seed['importId']);
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+
+        // 02:00–03:00 happens twice on 25 October 2026 in Europe/Berlin: one wall-clock bucket of 7200 seconds.
+        $rows = $connection->fetchAllAssociative(
+            "SELECT bucket_start, bucket_seconds FROM closure_volume_hour WHERE event_id = :event_id AND scope = 'department' AND in_closure = TRUE AND stratum = 'base' AND urgency_code = 1 ORDER BY bucket_start",
+            ['event_id' => $this->eventIdForClosure($connection, $closure)],
+        );
+        self::assertSame(
+            [
+                ['bucket_start' => '2026-10-25 01:00:00', 'bucket_seconds' => 3600],
+                ['bucket_start' => '2026-10-25 02:00:00', 'bucket_seconds' => 7200],
+                ['bucket_start' => '2026-10-25 03:00:00', 'bucket_seconds' => 3600],
+            ],
+            array_map(static fn (array $row): array => ['bucket_start' => (string) $row['bucket_start'], 'bucket_seconds' => (int) $row['bucket_seconds']], $rows),
+        );
     }
 
     /**

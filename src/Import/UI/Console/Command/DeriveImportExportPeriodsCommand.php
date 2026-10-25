@@ -123,7 +123,7 @@ final readonly class DeriveImportExportPeriodsCommand
     {
         $startsAt = $import->getExportStartsAt();
         $endsAt = $import->getExportEndsAt();
-        if (null === $startsAt || null === $endsAt || $endsAt <= $startsAt) {
+        if (!$startsAt instanceof \DateTimeImmutable || !$endsAt instanceof \DateTimeImmutable || $endsAt <= $startsAt) {
             return null;
         }
 
@@ -132,7 +132,7 @@ final readonly class DeriveImportExportPeriodsCommand
 
     private function same(?ExportPeriod $left, ?ExportPeriod $right): bool
     {
-        if (null === $left || null === $right) {
+        if (!$left instanceof ExportPeriod || !$right instanceof ExportPeriod) {
             return $left === $right;
         }
 
@@ -141,7 +141,7 @@ final readonly class DeriveImportExportPeriodsCommand
 
     private function label(?ExportPeriod $period): string
     {
-        if (null === $period) {
+        if (!$period instanceof ExportPeriod) {
             return '–';
         }
 

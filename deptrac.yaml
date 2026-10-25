@@ -131,6 +131,30 @@ deptrac:
                     type: directory
                     value: src/Content/UI/.*
         -
+            name: Notification_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/Domain/.*
+        -
+            name: Notification_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/Application/.*
+        -
+            name: Notification_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/Infrastructure/.*
+        -
+            name: Notification_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Notification/UI/.*
+        -
             name: Onboarding_Domain
             collectors:
                 -
@@ -481,6 +505,7 @@ deptrac:
             - Allocation_Application
             - Allocation_Domain
             - Import_Domain
+            - Notification_Application
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -563,6 +588,8 @@ deptrac:
             - Kpi_Domain
             - Kpi_Infrastructure
             - Kpi_UI
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -591,6 +618,8 @@ deptrac:
             - Allocation_UI
             - Engagement_Application
             - Engagement_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -636,6 +665,8 @@ deptrac:
         Feedback_Infrastructure:
             - Feedback_Application
             - Feedback_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -682,6 +713,8 @@ deptrac:
             - Allocation_UI
             - Import_Application
             - Import_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure
@@ -800,6 +833,47 @@ deptrac:
             - Shared_Domain
             - Shared_Infrastructure
             - Shared_UI
+        Notification_Application:
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Notification_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Notification_Infrastructure:
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
+        Notification_UI:
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - User_Application
+            - User_Domain
+            - User_Infrastructure
+            - User_UI
         Onboarding_Application:
             - Analytics_Application
             - Analytics_Domain
@@ -963,6 +1037,8 @@ deptrac:
             - Shared_UI
         User_Infrastructure:
             - Allocation_Domain
+            - Notification_Application
+            - Notification_Domain
             - Shared_Application
             - Shared_Domain
             - Shared_Infrastructure

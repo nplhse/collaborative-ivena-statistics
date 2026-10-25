@@ -64,10 +64,8 @@ final readonly class ImportExportPeriodDeriver
     /**
      * Closure periods depend on allocation coverage. Re-derives them after an allocation
      * import and requests a closure analysis rebuild when one of them changed.
-     *
-     * @return int number of closure imports whose period changed
      */
-    public function refreshClosureImports(int $hospitalId): int
+    public function refreshClosureImports(int $hospitalId): void
     {
         $imports = $this->entityManager->getRepository(Import::class)->findBy([
             'hospital' => $hospitalId,
@@ -75,7 +73,7 @@ final readonly class ImportExportPeriodDeriver
             'status' => [ImportStatus::COMPLETED, ImportStatus::PARTIAL],
         ]);
         if ([] === $imports) {
-            return 0;
+            return;
         }
         $periods = $this->ranges->allocationExportPeriods($hospitalId);
         $changed = 0;
@@ -88,8 +86,6 @@ final readonly class ImportExportPeriodDeriver
             $this->entityManager->flush();
             $this->closureRebuildScheduler->requestAnalysis($hospitalId);
         }
-
-        return $changed;
     }
 
     /**

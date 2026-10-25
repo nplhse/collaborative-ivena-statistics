@@ -307,6 +307,23 @@ final class ClosureVolumeReferenceTest extends TestCase
         self::assertNotContains(2, array_map(static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBucket $bucket): int => $bucket->hour, $buckets));
     }
 
+    public function testFallBackKeepsTheRepeatedHourInOneBucket(): void
+    {
+        $buckets = ClosureVolumeClock::split(
+            new \DateTimeImmutable('2026-10-25 01:30:00', ClosureVolumeClock::zone()),
+            new \DateTimeImmutable('2026-10-25 03:30:00', ClosureVolumeClock::zone()),
+        );
+
+        self::assertSame(
+            ['2026-10-25 01:30:00' => 1800, '2026-10-25 02:00:00' => 7200, '2026-10-25 03:00:00' => 1800],
+            array_combine(
+                array_map(static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBucket $bucket): string => $bucket->start->format('Y-m-d H:i:s'), $buckets),
+                array_map(static fn (\App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBucket $bucket): int => $bucket->seconds, $buckets),
+            ),
+        );
+        self::assertSame('2026-10-25 03:00:00', $buckets[1]->end->format('Y-m-d H:i:s'));
+    }
+
     public function testUncoveredObservationIsNotZeroAndNeighbourInfluencesOnlyTheMargin(): void
     {
         $closure = $this->closure('2026-06-02 10:00:00', '2026-06-02 11:00:00');

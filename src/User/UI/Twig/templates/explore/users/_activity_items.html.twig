@@ -77,7 +77,7 @@
                     {% endif %}
                 {% elseif activity.hospitalName %}
                     <div class="text-secondary">
-                        {% if activity.hospitalPublicId %}
+                        {% if activity.hospitalPublicId and is_granted('ROLE_PARTICIPANT') %}
                             <a href="{{ path('app_explore_hospital_show', {publicId: activity.hospitalPublicId}) }}" target="_top">
                                 {{ activity.hospitalName }}
                             </a>

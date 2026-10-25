@@ -52,7 +52,7 @@ final class ImportExportPeriodDeriverTest extends KernelTestCase
         self::assertTrue($deriver->apply($allocationImport));
         $entityManager->flush();
 
-        self::assertSame(1, $deriver->refreshClosureImports($seed['hospitalId']));
+        $deriver->refreshClosureImports($seed['hospitalId']);
         $entityManager->clear();
 
         $allocationImport = $entityManager->find(Import::class, $seed['allocationImportId']);

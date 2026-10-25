@@ -154,7 +154,7 @@ final class ClosureVolumeProjectionRebuilder
             $this->telemetry->finishSpan();
             $this->telemetry->published($full, $ids, microtime(true) - $publishStartedAt);
         } catch (\Throwable $exception) {
-            $this->connection->executeStatement('DROP TABLE IF EXISTS closure_volume_hour_build');
+            $this->dropBuildTableAfterFailure($exception);
             throw $exception;
         } finally {
             $this->restoreDoctrineLog($silenced);
@@ -808,6 +808,22 @@ SQL,
             $types,
         );
         $this->forgetDebugQueries();
+    }
+
+    /**
+     * Best-effort clean-up: inside an aborted outer transaction the DROP fails as well,
+     * and that failure must not hide the exception that stopped the rebuild.
+     */
+    private function dropBuildTableAfterFailure(\Throwable $cause): void
+    {
+        try {
+            $this->connection->executeStatement('DROP TABLE IF EXISTS closure_volume_hour_build');
+        } catch (\Throwable $cleanup) {
+            $this->logger->warning('closure_volume.build_table_cleanup_failed', [
+                'cause' => $cause->getMessage(),
+                'exception' => $cleanup,
+            ]);
+        }
     }
 
     private function createBuildTable(): void

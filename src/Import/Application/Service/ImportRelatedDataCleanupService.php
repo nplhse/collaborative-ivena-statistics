@@ -7,6 +7,7 @@ namespace App\Import\Application\Service;
 use App\Allocation\Infrastructure\Repository\AllocationRepository;
 use App\Allocation\Infrastructure\Repository\ClosureIntervalRepository;
 use App\Allocation\Infrastructure\Repository\MciCaseRepository;
+use App\Import\Application\DTO\ImportDataRemoval;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Repository\ImportRejectRepository;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
@@ -38,6 +39,15 @@ final readonly class ImportRelatedDataCleanupService
 
     public function removeAll(Import $import, bool $scheduleRebuild = true): void
     {
+        $this->completeRemoval($import, $this->removeRows($import), $scheduleRebuild);
+    }
+
+    /**
+     * Deletes the import's result rows in one transaction, or as part of the caller's transaction.
+     * Call completeRemoval() after that transaction has committed.
+     */
+    public function removeRows(Import $import): ImportDataRemoval
+    {
         $importId = (int) $import->getId();
         $needsMaterializedViewRefresh = $this->projectionOverviewChangeDetector->willRemoveHospitalsFromProjection($importId);
 
@@ -54,6 +64,18 @@ final readonly class ImportRelatedDataCleanupService
             ];
         });
 
+        return new ImportDataRemoval($counts, $needsMaterializedViewRefresh);
+    }
+
+    /**
+     * Follow-up work that must not run inside the deleting transaction: rebuild requests,
+     * materialized view refresh (CONCURRENTLY cannot run in a transaction) and logging.
+     */
+    public function completeRemoval(Import $import, ImportDataRemoval $removal, bool $scheduleRebuild): void
+    {
+        $importId = (int) $import->getId();
+        $counts = $removal->counts;
+
         if ($scheduleRebuild) {
             $hospitalId = $import->getHospital()?->getId();
             $hospitalId = \is_int($hospitalId) ? $hospitalId : null;
@@ -64,7 +86,7 @@ final readonly class ImportRelatedDataCleanupService
             }
         }
 
-        if ($needsMaterializedViewRefresh) {
+        if ($removal->needsMaterializedViewRefresh) {
             $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]);
             $this->importLogger->info('statistics_materialized_view.refreshed_after_structural_change', [
                 'import_id' => $importId,
@@ -85,11 +107,12 @@ final readonly class ImportRelatedDataCleanupService
 
     public function deleteRejectFile(Import $import): void
     {
-        $this->fileStorage->delete(
-            $import->getRejectFilePath(),
-            'import.reject_file.deleted',
-            (int) $import->getId(),
-        );
+        $this->deleteRejectFileAt($import->getRejectFilePath(), (int) $import->getId());
+    }
+
+    public function deleteRejectFileAt(?string $rejectFilePath, int $importId): void
+    {
+        $this->fileStorage->delete($rejectFilePath, 'import.reject_file.deleted', $importId);
     }
 
     public function deleteSourceFile(Import $import): void

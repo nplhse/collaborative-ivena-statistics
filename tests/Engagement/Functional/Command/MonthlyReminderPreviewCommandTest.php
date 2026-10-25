@@ -63,7 +63,6 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => sprintf('preview-de-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
             'locale' => 'de',
         ]);
         $state = StateFactory::createOne();
@@ -161,22 +160,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
             '--send' => true,
             '--date' => '2026-06-17',
         ]));
-        self::assertStringContainsString('Use --ignore-opt-out', $tester->getDisplay());
-    }
-
-    public function testSendSucceedsWithIgnoreOptOut(): void
-    {
-        self::bootKernel();
-        $hospital = $this->createHospital(optedOut: true);
-        $tester = new CommandTester(self::getContainer()->get(MonthlyReminderPreviewCommand::class));
-
-        self::assertSame(Command::SUCCESS, $tester->execute([
-            '--hospital-id' => (string) $hospital->getId(),
-            '--send' => true,
-            '--ignore-opt-out' => true,
-            '--date' => '2026-06-17',
-        ]));
-        self::assertStringContainsString('Sent reminder to', $tester->getDisplay());
+        self::assertStringContainsString('switched the monthly reminder off', $tester->getDisplay());
     }
 
     public function testWritesHtmlPreviewToFile(): void
@@ -204,8 +188,10 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => sprintf('preview-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => !$optedOut,
         ]);
+        if ($optedOut) {
+            $this->optOut($owner);
+        }
         $state = StateFactory::createOne();
         $dispatchArea = DispatchAreaFactory::createOne(['state' => $state]);
 
@@ -221,7 +207,6 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $owner = UserFactory::createOne([
             'email' => sprintf('preview-de-personalized-%s@example.test', bin2hex(random_bytes(4))),
             'isVerified' => true,
-            'receivesMonthlySubmissionReminder' => true,
             'locale' => 'de',
         ]);
         $state = StateFactory::createOne();
@@ -286,5 +271,12 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         $rebuilder->rebuildForImport((int) $import->getId());
 
         return $hospital;
+    }
+
+    private function optOut(object $owner): void
+    {
+        \assert($owner instanceof \App\User\Domain\Entity\User);
+        new \App\Tests\Support\Notification\NotificationPreferenceTestState(self::getContainer()->get(\Doctrine\DBAL\Connection::class))
+            ->switchOff($owner, \App\Engagement\Application\MonthlyReminderNotificationType::TYPE);
     }
 }

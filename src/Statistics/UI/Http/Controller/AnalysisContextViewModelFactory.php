@@ -13,6 +13,7 @@ use App\Statistics\UI\Application\StatisticsFilterFormChoiceProvider;
 use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,6 +26,7 @@ final readonly class AnalysisContextViewModelFactory
         private ClosureAnalyticsHospitalScope $closureHospitalScope,
         private UrlGeneratorInterface $urlGenerator,
         private TranslatorInterface $translator,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -40,7 +42,7 @@ final readonly class AnalysisContextViewModelFactory
         AnalysisContextScopeMode $scopeMode = AnalysisContextScopeMode::Standard,
     ): AnalysisContextViewModel {
         $locale = $request->getLocale();
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $currentYear = (int) $now->format('Y');
         $currentMonth = (int) $now->format('n');
         $currentQuarter = (int) ceil($currentMonth / 3);
