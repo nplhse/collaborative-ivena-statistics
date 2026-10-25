@@ -120,6 +120,12 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         return $this->maxPartitionBytes;
     }
 
+    #[\Override]
+    public function lastProfile(): array
+    {
+        return $this->rebuilder->profile->steps();
+    }
+
     /**
      * @param list<int>|null $hospitalIds
      */

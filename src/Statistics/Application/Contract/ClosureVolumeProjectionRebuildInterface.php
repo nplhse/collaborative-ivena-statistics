@@ -19,4 +19,11 @@ interface ClosureVolumeProjectionRebuildInterface
     public function consume(bool $waitForLock = true): void;
 
     public function maxPartitionBytes(): int;
+
+    /**
+     * Seconds and SQL statements per step of the last volume build, slowest first.
+     *
+     * @return array<string, array{seconds: float, queries: int}>
+     */
+    public function lastProfile(): array;
 }

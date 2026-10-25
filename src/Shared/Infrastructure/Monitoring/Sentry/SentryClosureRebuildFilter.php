@@ -36,6 +36,7 @@ final readonly class SentryClosureRebuildFilter
         'passes',
         'peak_memory_bytes',
         'publish_ms',
+        'queries',
         'request_ids',
         'requests',
         'retained_bytes',

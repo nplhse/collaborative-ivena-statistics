@@ -50,6 +50,7 @@ final class ClosureRebuildTelemetry
     private int $hoursWritten = 0;
     private ?float $publishSeconds = null;
     private int $requestCount = 0;
+    private ?int $queryCount = null;
     private ?string $referenceWindow = null;
 
     public function __construct(
@@ -141,6 +142,14 @@ final class ClosureRebuildTelemetry
         ++$this->partitions;
     }
 
+    /**
+     * SQL statements the volume build issued in this run (ADR 015 phase 3 acceptance).
+     */
+    public function countQueries(int $queries): void
+    {
+        $this->queryCount = $queries;
+    }
+
     public function countHoursWritten(int $hours): void
     {
         $this->hoursWritten += $hours;
@@ -191,6 +200,7 @@ final class ClosureRebuildTelemetry
             'partitions' => $this->partitions,
             'hours_written' => $this->hoursWritten,
             'requests' => $this->requestCount,
+            'queries' => $this->queryCount,
             'duration_ms' => (int) round($seconds * 1000.0),
             'publish_ms' => null === $this->publishSeconds ? null : (int) round($this->publishSeconds * 1000.0),
             'peak_memory_bytes' => $peak,
@@ -211,6 +221,7 @@ final class ClosureRebuildTelemetry
                 'publish_ms' => $summary['publish_ms'],
                 'peak_memory_bytes' => $peak,
                 'request_count' => $this->requestCount,
+                'query_count' => $this->queryCount,
                 'reference_window' => $this->referenceWindow,
                 'error_class' => $error instanceof \Throwable ? $error::class : null,
                 'error_message' => $error instanceof \Throwable ? mb_substr($error->getMessage(), 0, 2000) : null,
@@ -300,6 +311,7 @@ final class ClosureRebuildTelemetry
         $this->hoursWritten = 0;
         $this->publishSeconds = null;
         $this->requestCount = 0;
+        $this->queryCount = null;
         $this->referenceWindow = null;
     }
 

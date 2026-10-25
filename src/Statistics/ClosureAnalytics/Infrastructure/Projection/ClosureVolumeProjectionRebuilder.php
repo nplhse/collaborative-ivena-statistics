@@ -19,6 +19,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCal
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceSelector;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
+use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildProfile;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureCoverageQuery;
 use Doctrine\DBAL\ArrayParameterType;
@@ -50,6 +51,8 @@ final class ClosureVolumeProjectionRebuilder
 
     private ClosureVolumeReferenceWindow $window;
 
+    public readonly ClosureRebuildProfile $profile;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly ClosureVolumeAnchorBuilder $anchorBuilder,
@@ -65,6 +68,7 @@ final class ClosureVolumeProjectionRebuilder
         #[Autowire(service: 'monolog.logger.doctrine')]
         private readonly ?LoggerInterface $doctrineLogger = null,
     ) {
+        $this->profile = new ClosureRebuildProfile();
     }
 
     /**
@@ -80,6 +84,7 @@ final class ClosureVolumeProjectionRebuilder
     ): int {
         $this->window = $window ?? $this->config->window;
         $this->telemetry->referenceWindow($this->window);
+        $this->profile->reset();
         $this->maxPartitionBytes = 0;
         $this->partitionSamples = [];
         $silenced = $this->silenceDoctrineLog();
@@ -93,6 +98,7 @@ final class ClosureVolumeProjectionRebuilder
             $pass = 1;
             $done = 0;
             $total = $this->countEvents($ids);
+            $this->profile->countQueries('setup', null === $hospitalIds ? 7 : 6);
             $report = null === $onProgress ? null : static function (int $processed, int $events) use ($onProgress, &$pass): void {
                 $onProgress($processed, $events, $pass);
             };
@@ -162,9 +168,10 @@ final class ClosureVolumeProjectionRebuilder
             }
             $publishStartedAt = microtime(true);
             $this->telemetry->startSpan('closure.rebuild.publish', ['full' => $full, 'hospital_ids' => $ids]);
-            $this->publish($full, $ids);
+            $this->profile->time('publish', fn () => $this->publish($full, $ids), $full ? 5 : 3);
             $this->telemetry->finishSpan();
             $this->telemetry->published($full, $ids, microtime(true) - $publishStartedAt);
+            $this->telemetry->countQueries($this->profile->queries());
         } catch (\Throwable $exception) {
             $this->dropBuildTableAfterFailure($exception);
             throw $exception;
@@ -236,6 +243,7 @@ SQL,
         }
 
         $this->telemetry->startSpan('closure.rebuild.hospital', ['hospital_id' => $hospitalId]);
+        $this->profile->countQueries('setup', 3);
         $coverage = $this->coverage->allocations($hospitalId);
         if (!$coverage instanceof ClosureCoverage) {
             $this->logger->info('closure_volume.coverage_fallback', ['hospital_id' => $hospitalId]);
@@ -272,7 +280,7 @@ SQL,
     ): array {
         $started = microtime(true);
         $before = memory_get_usage(false);
-        $rows = $this->anchorRows($hospitalId, $weekStart, $weekEnd);
+        $rows = $this->profile->time('anchors', fn (): array => $this->anchorRows($hospitalId, $weekStart, $weekEnd), 1);
         if ([] === $rows) {
             return $pending;
         }
@@ -305,16 +313,18 @@ SQL,
             $windowEnd = $windowStart->modify('+1 second');
         }
 
-        $neighbours = $this->neighbours($hospitalId, $windowStart, $windowEnd);
-        [$counts, $coveredDays, $departmentsBySpeciality] = $this->hourlyCounts($hospitalId, $windowStart, $windowEnd);
+        $neighbours = $this->profile->time('neighbours', fn (): array => $this->neighbours($hospitalId, $windowStart, $windowEnd), 1);
+        [$counts, $coveredDays, $departmentsBySpeciality] = $this->profile->time('hourly_counts', fn (): array => $this->hourlyCounts($hospitalId, $windowStart, $windowEnd));
         if ($coverage instanceof ClosureCoverage) {
             // Import export periods are authoritative; a covered day without allocations is a real zero.
             $coveredDays = $coverage->coveredDays($windowStart->setTime(0, 0), $windowEnd);
         }
-        $anchors = $this->anchorBuilder->metricAnchors($rows, $hospitalId, $departmentsBySpeciality);
+        $anchors = $this->profile->time('anchors', fn (): array => $this->anchorBuilder->metricAnchors($rows, $hospitalId, $departmentsBySpeciality));
         unset($rows, $departmentsBySpeciality);
-        $this->fillPartialCounts($hospitalId, $anchors, $now, $counts);
-        $blocked = $this->blockedMaps($neighbours, $windowStart, $windowEnd);
+        $this->profile->time('partial_counts', function () use ($hospitalId, $anchors, $now, &$counts): void {
+            $this->fillPartialCounts($hospitalId, $anchors, $now, $counts);
+        });
+        $blocked = $this->profile->time('blocking', fn (): array => $this->blockedMaps($neighbours, $windowStart, $windowEnd));
         $provisional = [];
         foreach ($eventEnds as $eventId => $end) {
             $provisional[$eventId] = ClosureVolumeProvisionalReason::forEvent($end, $this->window, $coverage, $closureCoverage);
@@ -326,16 +336,20 @@ SQL,
             $groups = $this->referenceGroups($anchor, $now);
             $series = ClosureVolumeHourPlanner::series($anchor->scope, $anchor->specialityId, $anchor->departmentId, $anchor->metric);
             $hospitalSeries = ClosureVolumeHourPlanner::hospitalSeries($anchor->metric);
-            $pending = array_merge($pending, $this->planner->plan(
+            [$areaRates, $hospitalRates] = $this->profile->time('reference_rates', fn (): array => [
+                $this->referenceRates($anchor, $series, $groups, $counts, $coveredDays, 'hospital' === $anchor->scope ? [] : ($blocked[$series] ?? []), $rateCache),
+                $this->referenceRates($anchor, $hospitalSeries, $groups, $counts, $coveredDays, [], $rateCache),
+            ]);
+            $pending = array_merge($pending, $this->profile->time('plan', fn (): array => $this->planner->plan(
                 $anchor,
                 $now,
                 $counts,
-                $this->referenceRates($anchor, $series, $groups, $counts, $coveredDays, 'hospital' === $anchor->scope ? [] : ($blocked[$series] ?? []), $rateCache),
-                $this->referenceRates($anchor, $hospitalSeries, $groups, $counts, $coveredDays, [], $rateCache),
+                $areaRates,
+                $hospitalRates,
                 $coveredDays,
                 $neighbours,
                 $provisional[$anchor->eventId] ?? null,
-            ));
+            )));
             if (\count($pending) >= self::INSERT_BATCH) {
                 $pending = $this->flush($pending, false);
             }
@@ -631,6 +645,7 @@ SQL,
             .'GROUP BY rng.bucket_key, a.department_id, a.speciality_id, a.urgency_code';
         /** @var list<array<string, int|string>> $rows */
         $rows = $this->connection->fetchAllAssociative($sql, $params, $types);
+        $this->profile->countQueries('partial_counts');
         foreach ($rows as $row) {
             $bucketKey = (string) $row['bucket_key'];
             foreach ($this->metricCounts($row) as $metric => $count) {
@@ -710,8 +725,10 @@ SQL,
         $this->connection->beginTransaction();
         try {
             $this->connection->executeStatement('DECLARE closure_hour_cur NO SCROLL CURSOR FOR '.$sql, $params, $types);
+            $this->profile->countQueries('hourly_counts', 4);
             while (true) {
                 $rows = $this->connection->fetchAllAssociative('FETCH 1000 FROM closure_hour_cur');
+                $this->profile->countQueries('hourly_counts');
                 if ([] === $rows) {
                     break;
                 }
@@ -795,6 +812,7 @@ SQL,
             }
             $values[] = '('.implode(', ', $placeholders).')';
         }
+        $started = microtime(true);
         /** @psalm-suppress InvalidArgument Doctrine DBAL parameter types include SQL NULL */
         $this->connection->executeStatement(
             'INSERT INTO closure_volume_hour_build ('
@@ -807,6 +825,7 @@ SQL,
             $params,
             $types,
         );
+        $this->profile->record('insert', microtime(true) - $started, 1);
         $this->forgetDebugQueries();
     }
 

@@ -73,6 +73,14 @@ final readonly class RebuildClosureVolumeProjectionCommand
             $this->rebuilder->maxPartitionBytes(),
             memory_get_peak_usage(true) / 1048576,
         ));
+        $steps = $this->rebuilder->lastProfile();
+        if ([] !== $steps) {
+            $io->table(['Step', 'Seconds', 'Queries'], array_map(
+                static fn (string $step, array $profile): array => [$step, sprintf('%.1f', $profile['seconds']), $profile['queries']],
+                array_keys($steps),
+                array_values($steps),
+            ));
+        }
 
         return Command::SUCCESS;
     }
