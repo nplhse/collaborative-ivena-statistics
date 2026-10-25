@@ -265,6 +265,17 @@ final class DataTable
         return [] !== $this->getColumnVisibilityChoices();
     }
 
+    /**
+     * Tables with bulk actions always show the header: the selection actions appear in it,
+     * so the rows below do not move when the first row gets selected.
+     */
+    public function getShouldShowHeader(): bool
+    {
+        return (null !== $this->title && '' !== $this->title)
+            || $this->getShouldShowHeaderActions()
+            || $this->isBulkEnabled();
+    }
+
     public function getShouldShowHeaderActions(): bool
     {
         return $this->getShouldShowColumnVisibility()

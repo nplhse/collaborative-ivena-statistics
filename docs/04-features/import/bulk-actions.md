@@ -6,7 +6,7 @@ The import list (`/import`) can reprocess or delete several imports at once (#72
 
 - Checkboxes appear only on rows the user may change: the same rule as deleting a single import (`ImportVoter::DELETE`: admin, hospital owner, or the creator while they can access the hospital). Viewing an import is not enough. Without any such row, the list has no selection column.
 - *Select all* covers the current page only. Paging, sorting, searching or filtering reloads the list and clears the selection.
-- While rows are selected, a toolbar shows the count, the actions and *Clear selection*.
+- While rows are selected, the table header shows the count, *Clear selection* and the actions, next to the sort and column icons.
 - `POST /import/bulk` (`BulkImportActionController`, CSRF token `import_bulk`, at most 100 ids) checks every id again; the page is not trusted. The form submits outside the list's Turbo frame so the result flash is shown.
 
 ## Reprocess selected imports
