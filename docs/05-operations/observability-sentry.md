@@ -116,7 +116,7 @@ Every attempt of an allocation or closure import run ([`ImportRunTelemetry`](../
 - **Sentry transaction** `import_run` (op `import.allocations` / `import.closures`) with spans `import.cleanup`, `import.profile` (closure hospital scan), `import.rows`, `import.deduplicate` and `import.finish`. Below `import.rows`, the spans `import.read`, `import.map` and `import.persist` carry the **summed** time of each phase (`summed: true`): reading and parsing the file, detecting and mapping rows, and flushing chunks plus writing rejected rows. They are laid out one after another, so the waterfall shows the share of each phase, not when it happened.
 - **Logs** on the `import` channel: `import.run.summary` (info, one per attempt) and `import.run.threshold_exceeded` (warning).
 
-Thresholds: not set yet (`app.job_runs.allocation_import` / `closure_import`), so imports only record their runs; they follow from the measured runs (#693, step 5). `attempts` is reported for every attempt after the first. Messages without a run id (legacy) are not recorded.
+Thresholds (`app.job_runs.allocation_import` / `closure_import`, see [Measured runs](#measured-runs)): `slow` above 120 s, `long_run` above 15 min (allocation) / 10 min (closure), `memory` above 200 MB. `attempts` is reported for every attempt after the first. Messages without a run id (legacy) are not recorded.
 
 Compare the phases of the slowest allocation imports:
 
@@ -143,17 +143,66 @@ The console rebuild of every import (`app:statistics:rebuild-projection`) is one
 
 `app:import:start` only dispatches the import message, so its runs are recorded by the worker with trigger `console` (see Imports).
 
-Thresholds: not set yet (`app.job_runs.allocation_projection_rebuild` / `allocation_projection_full_rebuild`), so the rebuilds only record their runs until step 5 of #693.
+Thresholds (see [Measured runs](#measured-runs)): per import (`app.job_runs.allocation_projection_rebuild`) `slow` above 30 s and `long_run` above 5 min; full rebuild (`allocation_projection_full_rebuild`) `slow` above 10 min and `long_run` above 30 min; `memory` above 200 MB for both.
+
+### Measured runs
+
+Thresholds were derived on 2026-10-25 from a copy of the development database (same data as production), in `prod` mode without debug, each run in a fresh worker (`messenger:consume --limit=1 --memory-limit=256M`). Durations on production hardware may differ; adjust `app.job_runs` once `job_run` holds production runs (query below).
+
+| Job | Runs | Duration | Peak memory | Threshold `slow` / `long_run` |
+|-----|------|----------|-------------|-------------------------------|
+| `allocation_import` | 6 (1,882–9,772 rows) | 5–23 s; all imports since 2021: p95 32 s | 44 MB | 120 s / 15 min |
+| `closure_import` | 2 (13,130 and 15,187 rows) | 15–16 s | 38–40 MB | 120 s / 10 min |
+| `allocation_projection_rebuild` | 12 | 0.7–2.4 s | 26 MB | 30 s / 5 min |
+| `allocation_projection_full_rebuild` | 1 (1,094 imports, 2.29 M rows) | 131 s (insert 123 s) | 22 MB | 10 min / 30 min |
+| `closure_rebuild` | 22 + 1 | per hospital p95 562 s, full max 1,586 s | 106 MB | 30 min / 2 h (unchanged) |
+
+`memory` is 200 MB for every job: a warning below the worker limit of 256 MB, far above the measured peaks.
+
+In allocation imports, persisting takes 60–70 % of the row loop, mapping about 20 %, reading about 6 %.
+
+**Overhead:** the same imports with the code before #693 and with telemetry, alternating, two rounds for the largest and the smallest import:
+
+| Import | Rows | Without telemetry | With telemetry |
+|--------|------|-------------------|----------------|
+| 995 | 9,772 | 21.2 s / 18.7 s | 20.6 s / 18.0 s |
+| 1123 | 1,882 | 4.1 s / 3.7 s | 3.9 s / 3.4 s |
+| 1118 | 6,591 | 12.4 s | 12.4 s |
+| 941 | 6,439 | 12.2 s | 11.7 s |
+| 1116 (closure) | 13,130 | 14.2 s | 14.6 s |
+| 1117 (closure) | 15,187 | 16.3 s | 16.0 s |
+
+The differences go both ways and stay within the run-to-run variation, so the overhead is not measurable. Without a DSN the Sentry SDK does not record spans; with a DSN the cost is a few hundred spans per run, sent after the run.
+
+Check the thresholds against production runs:
+
+```sql
+SELECT job, count(*) AS runs,
+       percentile_cont(0.95) WITHIN GROUP (ORDER BY duration_ms) / 1000 AS p95_s,
+       max(duration_ms) / 1000 AS max_s,
+       max(peak_memory_bytes) / 1048576 AS max_mb,
+       count(*) FILTER (WHERE thresholds_exceeded IS NOT NULL) AS exceeded
+FROM job_run
+WHERE started_at > now() - interval '30 days' AND status <> 'running'
+GROUP BY job
+ORDER BY job;
+```
 
 ### Alert rules (Sentry UI)
 
-The transaction carries the tags `status` (`succeeded` / `failed`), `passes` and `threshold_exceeded` (`none` or a comma list), so metric alerts on transactions cover all cases:
+Every job transaction carries the tags `status` and `threshold_exceeded` (`none` or a comma list of `slow`, `long_run`, `memory`, `passes`, `attempts`), so metric alerts on transactions cover all jobs. Configure in Sentry for environment `beta` / `prod`:
 
-1. **Alerts → Create alert → Performance / Transactions:** filter `transaction:closure_rebuild !threshold_exceeded:none`, `count()` above 0 in 1 hour, environment `beta` / `prod`.
-2. Same with filter `transaction:closure_rebuild status:failed`.
-3. If the Sentry plan offers alerts on logs, `message:closure_rebuild.threshold_exceeded` and `message:closure_rebuild.failed` work as well.
+| Alert | Type | Filter | Condition |
+|-------|------|--------|-----------|
+| Threshold exceeded | Performance / Transactions | `transaction:[closure_rebuild,import_run,allocation_projection_rebuild] !threshold_exceeded:none` | `count()` > 0 in 1 h |
+| Failed run | Performance / Transactions | `transaction:[closure_rebuild,import_run,allocation_projection_rebuild] status:failed` | `count()` > 0 in 1 h |
+| Failure rate | Performance / Transactions | `transaction:import_run` | `failure_rate()` > 10 % in 1 day |
+| Slow trend | Performance / Transactions | `transaction:import_run` (and per transaction) | `p95(transaction.duration)` above twice the `slow` threshold in 1 day |
+| Logs (if the plan offers log alerts) | Logs | `message:*.threshold_exceeded` or `message:closure_rebuild.failed` / `message:projection_rebuild.failed` | any in 1 h |
 
-Unhandled exceptions of a failed rebuild still create a regular issue.
+`threshold_exceeded` containing `long_run` means a run took longer than the former lock TTL (closure rebuild) or far longer than any measured run of its job (imports and projection rebuilds, still well within the worker's `--time-limit=3600`). An import status `retrying` is not a failure; a run whose retries are exhausted ends as `failed` in `import_run`, and its last attempt is `retrying` in `job_run`.
+
+Unhandled exceptions of a failed run still create a regular issue. "No completed import within the expected cycle" is a separate follow-up (scheduled check, not a run alert).
 
 ## Privacy
 

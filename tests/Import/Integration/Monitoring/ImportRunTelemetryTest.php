@@ -138,7 +138,8 @@ final class ImportRunTelemetryTest extends ImportAllocationsMessageHandlerTestCa
 
         return [new ImportRunTelemetry(
             $container->get(JobRunRecorder::class),
-            $container->get(JobRunThresholdConfig::class),
+            // No duration or memory limits: the test process memory (coverage, ParaTest) must not decide the result.
+            new JobRunThresholdConfig([]),
             $container->get(HubInterface::class),
             $this->connection(),
             $logger,
