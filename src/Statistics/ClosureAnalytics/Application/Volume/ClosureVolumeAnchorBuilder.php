@@ -70,6 +70,146 @@ final readonly class ClosureVolumeAnchorBuilder
     }
 
     /**
+     * All five metrics for every department, speciality and the hospital an event touches (ADR 015).
+     *
+     * A department binds an urgency metric while an interval opens that urgency, and a resource
+     * metric while SK1–SK3 are closed at the same time, possibly by several intervals. A speciality
+     * or the hospital binds a metric where any of its departments does; relevance compares the
+     * closed departments with all known departments of the population.
+     *
+     * @param list<array<string, int|string>> $rows                    event_id, speciality_id, department_id, starts_at, ends_at, care_level
+     * @param array<int, list<int>>           $departmentsBySpeciality known departments of the hospital per speciality; closed ones are added
+     *
+     * @return list<ClosureVolumeAnchor>
+     */
+    public function metricAnchors(array $rows, int $hospitalId, array $departmentsBySpeciality): array
+    {
+        /** @var array<int, array<int, array{speciality: int, all: list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>, urgency: array<int, list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>>}>> $events */
+        $events = [];
+        foreach ($rows as $row) {
+            $eventId = (int) $row['event_id'];
+            $departmentId = (int) $row['department_id'];
+            $segment = [
+                ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['starts_at'])),
+                ClosureVolumeClock::wall(new \DateTimeImmutable((string) $row['ends_at'])),
+            ];
+            $events[$eventId][$departmentId] ??= ['speciality' => (int) $row['speciality_id'], 'all' => [], 'urgency' => []];
+            $events[$eventId][$departmentId]['all'][] = $segment;
+            foreach (ClosureVolumePopulation::urgenciesForCareLevel((string) $row['care_level']) as $urgency) {
+                $events[$eventId][$departmentId]['urgency'][$urgency][] = $segment;
+            }
+        }
+
+        $known = [];
+        foreach ($departmentsBySpeciality as $specialityId => $departmentIds) {
+            foreach ($departmentIds as $departmentId) {
+                $known[$specialityId][$departmentId] = true;
+            }
+        }
+
+        $anchors = [];
+        foreach ($events as $eventId => $departments) {
+            $specialityUniverse = $known;
+            $hospitalUniverse = [];
+            foreach ($departments as $departmentId => $department) {
+                $specialityUniverse[$department['speciality']][$departmentId] = true;
+            }
+            foreach ($specialityUniverse as $members) {
+                $hospitalUniverse += $members;
+            }
+
+            /** @var array<int, array<string, list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>>> $bound department => metric => segments */
+            $bound = [];
+            foreach ($departments as $departmentId => $department) {
+                foreach (ClosureVolumeMetricKind::all() as $metric) {
+                    $lists = [];
+                    foreach ($metric->bindingUrgencies() as $urgency) {
+                        $lists[] = $department['urgency'][$urgency] ?? [];
+                    }
+                    $bound[$departmentId][$metric->value] = ClosureVolumeSegments::intersect($lists);
+                }
+            }
+
+            foreach ($departments as $departmentId => $department) {
+                $all = ClosureVolumeSegments::union($department['all']);
+                foreach (ClosureVolumeMetricKind::all() as $metric) {
+                    $segments = $bound[$departmentId][$metric->value];
+                    $anchors[] = new ClosureVolumeAnchor(
+                        $eventId,
+                        $hospitalId,
+                        'department',
+                        $department['speciality'],
+                        $departmentId,
+                        $metric,
+                        [] === $segments ? ClosureVolumeRelevance::None : ClosureVolumeRelevance::Closed,
+                        [] === $segments ? 0 : 1,
+                        [] === $segments ? $all : $segments,
+                    );
+                }
+            }
+
+            $bySpeciality = [];
+            foreach ($departments as $departmentId => $department) {
+                $bySpeciality[$department['speciality']][] = $departmentId;
+            }
+            foreach ($bySpeciality as $specialityId => $departmentIds) {
+                $anchors = [...$anchors, ...$this->aggregateAnchors($eventId, $hospitalId, 'speciality', $specialityId, $departmentIds, \count($specialityUniverse[$specialityId] ?? []), $departments, $bound)];
+            }
+            $anchors = [...$anchors, ...$this->aggregateAnchors($eventId, $hospitalId, 'hospital', 0, array_keys($departments), \count($hospitalUniverse), $departments, $bound)];
+        }
+
+        return $anchors;
+    }
+
+    /**
+     * @param list<int>                                                                                                                                                                          $departmentIds closed departments of the population in this event
+     * @param array<int, array{speciality: int, all: list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>, urgency: array<int, list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>>}> $departments
+     * @param array<int, array<string, list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}>>>                                                                                               $bound
+     *
+     * @return list<ClosureVolumeAnchor>
+     */
+    private function aggregateAnchors(
+        int $eventId,
+        int $hospitalId,
+        string $scope,
+        int $specialityId,
+        array $departmentIds,
+        int $universe,
+        array $departments,
+        array $bound,
+    ): array {
+        $all = [];
+        foreach ($departmentIds as $departmentId) {
+            $all = [...$all, ...$departments[$departmentId]['all']];
+        }
+        $all = ClosureVolumeSegments::union($all);
+        $anchors = [];
+        foreach (ClosureVolumeMetricKind::all() as $metric) {
+            $segments = [];
+            $closed = 0;
+            foreach ($departmentIds as $departmentId) {
+                if ([] !== $bound[$departmentId][$metric->value]) {
+                    ++$closed;
+                    $segments = [...$segments, ...$bound[$departmentId][$metric->value]];
+                }
+            }
+            $anchors[] = new ClosureVolumeAnchor(
+                $eventId,
+                $hospitalId,
+                $scope,
+                $specialityId,
+                0,
+                $metric,
+                ClosureVolumeRelevance::forCount($closed, max($universe, $closed)),
+                $closed,
+                0 === $closed ? $all : ClosureVolumeSegments::union($segments),
+            );
+        }
+
+        return $anchors;
+    }
+
+    /**
      * @param list<int>                                                 $urgencies
      * @param list<array{0: \DateTimeImmutable, 1: \DateTimeImmutable}> $segments
      */
