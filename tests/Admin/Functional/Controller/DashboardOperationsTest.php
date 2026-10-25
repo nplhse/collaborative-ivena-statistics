@@ -104,17 +104,18 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertStringContainsString('Configured budget', $text);
         self::assertStringContainsString('7.00 GB free', $text);
         self::assertStringContainsString('30 % used', $text);
-        self::assertStringContainsString('Normal', $text);
+        self::assertStringNotContainsString('Normal', $text, 'the level is not repeated on the card');
+        self::assertStringContainsString('30 % used · Measured', (string) preg_replace('/\s+/', ' ', $card->filter('.ea-storage-card__status')->text()));
         self::assertStringNotContainsString('quota', strtolower($text));
         self::assertCount(2, $card->filter('.ea-storage-bar__segment'));
     }
 
-    public function testHealthCardShowsStorageDetailsAndLinksToDiskUsage(): void
+    public function testHealthCardShowsOnlyTheStorageValueAndLinksToDiskUsage(): void
     {
         $client = self::createClient();
         $admin = UserFactory::new()->asAdmin()->create();
         $this->store(StorageMeasurementBuilder::measuredAt(
-            new \DateTimeImmutable('2026-10-25 03:30'),
+            new \DateTimeImmutable('-1 hour'),
             CapacityLevel::Warning,
             usedBytes: 9 * 1024 ** 3,
         ));
@@ -128,12 +129,7 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertStringEndsWith('/admin/operations/storage', (string) $item->attr('href'));
         self::assertStringContainsString('bg-warning', (string) $item->attr('class'));
 
-        $text = $item->text();
-        self::assertStringContainsString('Storage:', $text);
-        self::assertStringContainsString('9.00 GB of 10.00 GB (budget)', $text);
-        self::assertStringContainsString('10 % free', $text);
-        self::assertStringContainsString('Level: warning', $text);
-        self::assertStringContainsString('measured 2026-10-25 03:30', $text);
+        self::assertSame('Storage: warning', $item->text());
     }
 
     public function testWithoutMeasurementHealthIsDegradedAndTheStorageCardIsEmpty(): void

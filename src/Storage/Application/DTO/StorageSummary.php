@@ -48,11 +48,17 @@ final readonly class StorageSummary
     }
 
     /**
-     * Bootstrap contextual style for the level badge.
+     * Text colour of the level on the Disk Usage page: green for normal, yellow for notice and warning,
+     * red for critical and exceeded, grey when unknown.
      */
-    public function levelStyle(): string
+    public function levelTextStyle(): string
     {
-        return LevelStyle::for($this->level);
+        return match ($this->level) {
+            CapacityLevel::Normal => 'success',
+            CapacityLevel::Notice, CapacityLevel::Warning => 'warning',
+            CapacityLevel::Critical, CapacityLevel::Exceeded => 'danger',
+            CapacityLevel::Unknown => 'secondary',
+        };
     }
 
     /**

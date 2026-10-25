@@ -45,18 +45,18 @@
         {% set summary = disk_usage.summary %}
         {% set capacity = disk_usage.capacity %}
 
-        <div class="row g-3 mb-4">
-            <div class="col-sm-6 col-xl-2">
-                <div class="card h-100"><div class="card-body">
-                    <div class="text-secondary small">{{ 'storage.kpi.used'|trans({}, 'storage') }}</div>
-                    <div class="fs-3 fw-bold">{{ summary.usedBytes is not null ? summary.usedBytes|format_bytes : '–' }}</div>
-                </div></div>
-            </div>
+        <div class="row g-3 mb-4 ea-storage-kpis">
             <div class="col-sm-6 col-xl-2">
                 <div class="card h-100"><div class="card-body">
                     <div class="text-secondary small">{{ 'storage.kpi.capacity'|trans({}, 'storage') }}</div>
                     <div class="fs-3 fw-bold">{{ summary.hasCapacity ? summary.capacityBytes|format_bytes : '–' }}</div>
                     <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ summary.capacitySource.labelKey|trans({}, 'storage') }}</span>
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'storage.kpi.used'|trans({}, 'storage') }}</div>
+                    <div class="fs-3 fw-bold">{{ summary.usedBytes is not null ? summary.usedBytes|format_bytes : '–' }}</div>
                 </div></div>
             </div>
             <div class="col-sm-6 col-xl-2">
@@ -72,8 +72,8 @@
             </div>
             <div class="col-sm-6 col-xl-2">
                 <div class="card h-100"><div class="card-body">
-                    <div class="text-secondary small mb-1">{{ 'storage.kpi.level'|trans({}, 'storage') }}</div>
-                    <div class="fs-5">{{ include('@Admin/operations/storage/_level_badge.html.twig') }}</div>
+                    <div class="text-secondary small">{{ 'storage.kpi.level'|trans({}, 'storage') }}</div>
+                    <div class="fs-3 fw-bold text-{{ summary.levelTextStyle }}" data-storage-level="{{ summary.level.value }}">{{ summary.level.labelKey|trans({}, 'storage') }}</div>
                 </div></div>
             </div>
             <div class="col-sm-6 col-xl-2">
