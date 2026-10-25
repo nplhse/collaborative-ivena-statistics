@@ -95,7 +95,7 @@ One `CapacityEvaluator` computes the level from usage and reference. The dashboa
 | from 100 % | `exceeded` | unhealthy |
 | no reference | `unknown` | healthy (`not_configured`) |
 
-The first three thresholds are configurable (`STORAGE_NOTICE_PERCENT`, `STORAGE_WARNING_PERCENT`, `STORAGE_CRITICAL_PERCENT`); `exceeded` is always 100 %. The container build fails if they are not strictly increasing and below 100.
+The first three thresholds are configurable in `config/packages/app.yaml` (`app.storage.thresholds.notice_percent`, `warning_percent`, `critical_percent`); `exceeded` is always 100 %. They are application configuration, not environment variables, so the container build can reject thresholds that are not strictly increasing and below 100.
 
 ### Persistence
 
@@ -141,7 +141,7 @@ Both link to the Disk Usage page. Neither triggers a new measurement.
 
 - `Shared\Application\Health` gets an extension point `HealthCheckContributorInterface` (tagged iterator). `HealthCheckService` runs the contributors after the database check; the overall status is the worst of all checks.
 - `StorageHealthCheck` in `Storage` reads the latest measurement (one indexed query) and maps the level as in the table above.
-- A measurement older than `STORAGE_MEASUREMENT_MAX_AGE_HOURS` (default 36) is `stale`; none at all is `unavailable`. Both are degraded. An old measurement is never reported as healthy.
+- A measurement older than `app.storage.measurement_max_age_hours` (default 36) is `stale`; none at all is `unavailable`. Both are degraded. An old measurement is never reported as healthy.
 - The public `/health` endpoint may become degraded or unhealthy because of storage. It shows only the check's status string, never sizes. The Admin health card shows usage and remaining capacity and links to the Disk Usage page.
 
 ## Consequences

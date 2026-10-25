@@ -35,6 +35,14 @@ app:
         reference_weeks: 8
         minimum_reference_slots: 4
 
+    storage:
+        # Usage in percent of the capacity reference at which each level starts (ADR 017).
+        thresholds:
+            notice_percent: 80
+            warning_percent: 90
+            critical_percent: 99
+        measurement_max_age_hours: 36
+
     feedback:
         spam:
             min_submission_seconds: 4
