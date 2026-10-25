@@ -401,13 +401,17 @@ The primary series is the closed department (`scope = department` in
 `closure_volume_hour`). The closed departments and care levels are listed in
 the UI. On the event course tab, an optional speciality reference overlay uses
 `scope = speciality` (broader than the closed units). The hospital series is
-context. Care levels
-emergency, inpatient and outpatient limit the population to SK 1, SK 2 and SK 3.
-Care level `other` is stored as `other` and opens SK1–SK3 only in this
-evaluation. Shock room (`requires_resus`) and cardiac catheter
-(`requires_cathlab`) are separate views and must not be added to each other or
-to the urgency views. No ABCD score and no conspicuous-score threshold exist in
-the allocation model, so that view is not offered.
+context. Every population carries five metrics (ADR 015): SK 1, SK 2, SK 3,
+shock room (`requires_resus`) and cardiac catheter (`requires_cathlab`). Care
+levels emergency, inpatient and outpatient close SK 1, SK 2 and SK 3; care level
+`other` is stored as `other` and closes SK1–SK3 only in this evaluation. Shock
+room and cardiac catheter count allocations of every urgency and count as
+closed only while SK1–SK3 are closed in the same department at the same time.
+They must not be added to each other or to the urgency metrics. Metrics an
+event did not close are calculated for comparison only; the event page names
+both groups, and its figures count the closed SK metrics. No ABCD score and no
+conspicuous-score threshold exist in the allocation model, so that view is not
+offered.
 
 The reference for a closure is symmetric (ADR 015): 4 weeks before its start
 (`app.closure_volume.reference_weeks_before`) and 4 weeks after its end
@@ -424,11 +428,20 @@ missing rather than zero. Expectation for a span is the hourly rate times the
 actual epoch seconds, so a twelve-hour closure is not half of an average day.
 Durations use Europe/Berlin, including 23- and 25-hour daylight-saving days.
 
-A Berlin calendar day counts as covered only when the hospital has at least one
-row in `allocation_stats_projection` on that day. Days without any assignment
-are left out of the reference and are not stored as zero observations. Inside a
-covered day, zero assignments in the closed department are real zeros. A genuine
-hospital-wide zero day cannot be distinguished from a missing import.
+Coverage comes from the derived export periods of the hospital's imports. A
+covered day without assignments is a real zero. Only while no period is derived
+does a Berlin calendar day count as covered when the hospital has at least one
+row in `allocation_stats_projection` on that day; then a genuine hospital-wide
+zero day cannot be distinguished from a missing import. Uncovered days are left
+out of the reference and are not stored as zero observations.
+
+An event is **provisional** while the imports do not yet cover the four weeks
+after it: first assignments (`awaiting_allocations`), then closures
+(`awaiting_closures`). Its results can still change with later imports. The
+event list and the event page show a "provisional" badge with the reason, and
+the filter drawer offers a result status filter (final, provisional). The filter
+applies to the list, the KPIs, the profiles and the export; events without
+volume results match neither state.
 
 The context around an event is 6 hours before the start and 6 hours after the
 end. Overview figures are clipped to the selected period and to now. A clock
