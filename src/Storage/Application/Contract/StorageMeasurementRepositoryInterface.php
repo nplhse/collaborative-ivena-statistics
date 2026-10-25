@@ -21,9 +21,6 @@ interface StorageMeasurementRepositoryInterface
      */
     public function latest(): ?StorageMeasurement;
 
-    /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
-     */
     public function findForDay(\DateTimeImmutable $day): ?StorageMeasurement;
 
     /**

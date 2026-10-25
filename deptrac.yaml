@@ -1080,6 +1080,8 @@ deptrac:
             - Shared_UI
             - Storage_Application
             - Storage_Domain
+            - User_Application
+            - User_Domain
         Storage_UI:
             - Shared_Application
             - Shared_Domain

@@ -10,8 +10,6 @@ use App\Storage\Domain\Enum\CapacityLevel;
  * A measurement was stored and should be announced (ADR 017, "Scheduled measurement and console command").
  * Dispatched synchronously after the row is written; storage alerts and the daily report subscribe to it.
  * Not dispatched for `app:storage:analyze --persist --no-notify`.
- *
- * @psalm-suppress PossiblyUnusedProperty Read by the storage notification subscribers.
  */
 final readonly class StorageMeasured
 {
