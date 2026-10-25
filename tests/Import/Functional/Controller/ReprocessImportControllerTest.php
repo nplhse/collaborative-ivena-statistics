@@ -7,6 +7,7 @@ namespace App\Tests\Import\Functional\Controller;
 use App\Allocation\Infrastructure\Factory\DispatchAreaFactory;
 use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
@@ -18,6 +19,8 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -130,6 +133,34 @@ final class ReprocessImportControllerTest extends WebTestCase
         self::assertResponseRedirects('/import/'.$importId);
         $client->followRedirect();
         self::assertSelectorTextContains('body', 'This import is currently running and cannot be reprocessed.');
+
+        self::assertSame([], self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId));
+    }
+
+    public function testFailedDispatchShowsAnErrorAndLeavesNoRun(): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        // Replaced before the first request initializes the bus; only import messages fail.
+        self::getContainer()->set(MessageBusInterface::class, new class implements MessageBusInterface {
+            public function dispatch(object $message, array $stamps = []): Envelope
+            {
+                if ($message instanceof ImportAllocationsMessage) {
+                    throw new \RuntimeException('bus down');
+                }
+
+                return new Envelope($message, $stamps);
+            }
+        });
+        [$owner, $importId] = $this->createImport();
+
+        $client->loginUser($owner);
+        $crawler = $client->request(Request::METHOD_GET, '/import/'.$importId);
+        $client->submit($crawler->filter('#import-reprocess-modal form')->form());
+
+        self::assertResponseRedirects('/import/'.$importId);
+        $client->followRedirect();
+        self::assertSelectorTextContains('body', 'The import could not be queued for reprocessing.');
 
         self::assertSame([], self::getContainer()->get(ImportRunRepository::class)->findByImportId($importId));
     }
