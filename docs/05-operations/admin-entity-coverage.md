@@ -61,6 +61,7 @@ Failed messages stay a custom list/detail Twig view, not EasyAdmin CRUD.
 |------|------------|---------|
 | Dashboard ops panel | `DashboardController` | Messenger, health, storage |
 | Failed messages | `DashboardController` (`operations_failed_messages`) | Inspect `messenger_messages` failed queue |
+| Disk usage | `DashboardController` (`operations_storage`) | Storage by category, location and history from the daily measurement (ADR 017) |
 | Usage analytics | `DashboardController` (`operations_usage_analytics_*`) | Overview, adoption, journeys, filters, performance |
 
 ## User accounts

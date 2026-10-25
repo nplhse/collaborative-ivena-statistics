@@ -16,6 +16,7 @@
 | [kpi/](kpi/) | Daily KPI aggregation |
 | [analytics/](analytics/) | Server-side usage analytics |
 | [notification/](notification/) | Personal notifications: inbox, toasts, email |
+| [storage/](storage/) | Storage monitoring: daily measurement, Disk Usage page, capacity alerts |
 
 ## Reading order
 
