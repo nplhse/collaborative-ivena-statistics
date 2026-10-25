@@ -371,10 +371,49 @@ the controller/query must validate the public sort key and perform the actual
 database ordering. Add a stable tie-breaker (for example the id) to the
 ordering so rows with equal values do not jump between pages.
 
-#### Explore lists with a column picker
+`emptyValue`, datetime `timezone`, number `format`, and `nowrap` are optional
+presentation metadata. Domain-specific formatting remains a `custom` cell.
 
-Keep the columns in a PHP class next to the list (`HospitalListColumns` in
-Allocation, `Closure*TableColumns` in Statistics) instead of inline Twig. The
+Badge palettes live in `BadgePalette` (hospital location/tier/size, allocation urgency, import type/status). The `badges.render` and `import_status` macros use the same source.
+
+```twig
+<twig:DataTable
+    :paginator="paginator"
+    :paginationRoute="pagination_route"
+    :sortBy="sortBy"
+    :orderBy="orderBy"
+    :columns="catalog_list_columns('app_explore_state_show')"
+/>
+```
+
+Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom cells for composed markup (indication blocks, user roles) stay as `type: custom`.
+
+#### Lists with a column picker
+
+Not every list gets a picker (#756). A list qualifies when it has several
+meaningful attributes, users compare rows, and different users want different
+columns. Simple name lists, navigation lists and tables whose order carries
+meaning stay as they are.
+
+| List | Preference key | Optional columns | Sort keys |
+|---|---|---|---|
+| Explore hospitals | `explore.hospitals` | beds, postal code, city, participating since | all columns |
+| Explore indications, raw tab | `explore.indications.raw` | occurrences, reviewed at/by, first matched at, created at | all but target and reviewer |
+| Explore indications, normalized tab | `explore.indications.normalized` | note, groups, raw indications, occurrences | code, name, raw count, occurrences, last change |
+| Explore allocations | `explore.allocations` | gender, transport type, speciality, department, assignment, occasion, secondary transport | arrival time and age only (keyset pagination) |
+| Imports | `import.list` | row counts, file size, run time, run count, export period | all but last changed by |
+| Closure analytics: units, events, intervals, recurring profiles | `statistics.closure_analytics.*` | see the column classes | see the column classes |
+
+Without a picker on purpose: the simple catalogs (departments, specialities,
+assignments, occasions, infections, secondary transports, states, dispatch
+areas, indication groups), MCI cases, the user directory, the review worklist
+(sorting only), Admin Import Rejects, and every `RankingTable`, matrix and
+Analysis Explorer table. A mobile card view for DataTable is a separate issue.
+
+Keep the columns in a PHP class next to the list (`HospitalListColumns`,
+`IndicationRawListColumns`, `IndicationNormalizedListColumns` and
+`AllocationListColumns` in Allocation, `ImportListColumns` in Import,
+`Closure*TableColumns` in Statistics) instead of inline Twig. The
 class implements `DataTablePreferenceDefinitionInterface`, builds its schema with
 `DataTablePreferenceSchema::fromColumns()`, and owns the public `SORT_KEYS` that
 the query DTO's `Assert\Choice` uses. The controller resolves the saved state
@@ -383,9 +422,11 @@ with `DataTablePreferenceQueryState::fromRequest()` and
 usual configurable, sortable and last-change columns.
 
 Optional columns that count or join other data (indication occurrences, raw
-counts, groups) are read for the ids of the current page only, and only when the
-column is visible. The controller passes them to the cells through
-`cellContext`; see `ListIndicationController`. To sort by such a count, add the
+counts, groups, allocation speciality/department/assignment/occasion) are read
+for the ids of the current page only, and only when the column is visible. The
+indication list passes them to the cells through `cellContext`
+(`ListIndicationController`); the allocation list merges them into its rows
+after the keyset query (`ListAllocationsQuery`). To sort by such a count, add the
 count as a hidden select only for that sort key. Count each indexed column in a
 separate subquery and combine them with the DQL function `ADD_SUBQUERIES(...)`:
 one count with `OR` cannot use an index-only scan and took about ten times
@@ -407,22 +448,6 @@ the `query-state` Stimulus controller that refreshes them from the current URL:
   `@Shared/components/data_table/_query_hidden_fields.html.twig` with
   `{omit: ['search']}`.
 - Reset links rendered on the server use `path(route, data_table_view_query())`.
-`emptyValue`, datetime `timezone`, number `format`, and `nowrap` are optional
-presentation metadata. Domain-specific formatting remains a `custom` cell.
-
-Badge palettes live in `BadgePalette` (hospital location/tier/size, allocation urgency, import type/status). The `badges.render` and `import_status` macros use the same source.
-
-```twig
-<twig:DataTable
-    :paginator="paginator"
-    :paginationRoute="pagination_route"
-    :sortBy="sortBy"
-    :orderBy="orderBy"
-    :columns="catalog_list_columns('app_explore_state_show')"
-/>
-```
-
-Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom cells for composed markup (indication blocks, user roles) stay as `type: custom`.
 
 ### Bulk actions
 
