@@ -28,6 +28,7 @@ use App\Admin\UI\Http\Controller\IndicationGroup\IndicationGroupCrudController;
 use App\Admin\UI\Http\Controller\IndicationNormalized\IndicationNormalizedCrudController;
 use App\Admin\UI\Http\Controller\IndicationRaw\IndicationRawCrudController;
 use App\Admin\UI\Http\Controller\Infection\InfectionCrudController;
+use App\Admin\UI\Http\Controller\JobRun\JobRunCrudController;
 use App\Admin\UI\Http\Controller\MciCase\MciCaseCrudController;
 use App\Admin\UI\Http\Controller\Media\MediaCrudController;
 use App\Admin\UI\Http\Controller\Occasion\OccasionCrudController;
@@ -514,6 +515,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(CookieConsentCrudController::class, 'Cookie consents', 'fas fa-cookie-bite');
         yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
         yield MenuItem::linkToRoute('Failed messages', 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
+        yield MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch');
         yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, 'Monthly reminders', 'fas fa-envelope');
     }
 }

@@ -801,6 +801,354 @@
         <source>admin_notification.email.label.reason</source>
         <target>Reason</target>
       </trans-unit>
+      <trans-unit id="admJobRunMenu" resname="admin.job_run.menu">
+        <source>admin.job_run.menu</source>
+        <target>Job runs</target>
+      </trans-unit>
+      <trans-unit id="admJobRunEntitySingular" resname="admin.job_run.entity.singular">
+        <source>admin.job_run.entity.singular</source>
+        <target>Job run</target>
+      </trans-unit>
+      <trans-unit id="admJobRunEntityPlural" resname="admin.job_run.entity.plural">
+        <source>admin.job_run.entity.plural</source>
+        <target>Job runs</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionShortcuts" resname="admin.job_run.action.shortcuts">
+        <source>admin.job_run.action.shortcuts</source>
+        <target>Shortcuts</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionFailed" resname="admin.job_run.action.failed">
+        <source>admin.job_run.action.failed</source>
+        <target>Failed runs</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionThresholdsExceeded" resname="admin.job_run.action.thresholds_exceeded">
+        <source>admin.job_run.action.thresholds_exceeded</source>
+        <target>Thresholds exceeded</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionLast24h" resname="admin.job_run.action.last_24h">
+        <source>admin.job_run.action.last_24h</source>
+        <target>Last 24 hours</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionAttempts" resname="admin.job_run.action.attempts">
+        <source>admin.job_run.action.attempts</source>
+        <target>All attempts of this import run</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionRunsOfImport" resname="admin.job_run.action.runs_of_import">
+        <source>admin.job_run.action.runs_of_import</source>
+        <target>Runs of this import</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionRunsOfJob" resname="admin.job_run.action.runs_of_job">
+        <source>admin.job_run.action.runs_of_job</source>
+        <target>Runs of this job</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldId" resname="admin.job_run.field.id">
+        <source>admin.job_run.field.id</source>
+        <target>Run ID</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldJob" resname="admin.job_run.field.job">
+        <source>admin.job_run.field.job</source>
+        <target>Job</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldStatus" resname="admin.job_run.field.status">
+        <source>admin.job_run.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldTrigger" resname="admin.job_run.field.trigger">
+        <source>admin.job_run.field.trigger</source>
+        <target>Trigger</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldAttempt" resname="admin.job_run.field.attempt">
+        <source>admin.job_run.field.attempt</source>
+        <target>Attempt</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldHospital" resname="admin.job_run.field.hospital">
+        <source>admin.job_run.field.hospital</source>
+        <target>Hospital</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldImport" resname="admin.job_run.field.import">
+        <source>admin.job_run.field.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldImportRun" resname="admin.job_run.field.import_run">
+        <source>admin.job_run.field.import_run</source>
+        <target>Import run</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldStartedAt" resname="admin.job_run.field.started_at">
+        <source>admin.job_run.field.started_at</source>
+        <target>Started</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldFinishedAt" resname="admin.job_run.field.finished_at">
+        <source>admin.job_run.field.finished_at</source>
+        <target>Finished</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldDuration" resname="admin.job_run.field.duration">
+        <source>admin.job_run.field.duration</source>
+        <target>Duration</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldPeakMemory" resname="admin.job_run.field.peak_memory">
+        <source>admin.job_run.field.peak_memory</source>
+        <target>Peak memory</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldThresholdsExceeded" resname="admin.job_run.field.thresholds_exceeded">
+        <source>admin.job_run.field.thresholds_exceeded</source>
+        <target>Thresholds exceeded</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldErrorClass" resname="admin.job_run.field.error_class">
+        <source>admin.job_run.field.error_class</source>
+        <target>Error class</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldErrorMessage" resname="admin.job_run.field.error_message">
+        <source>admin.job_run.field.error_message</source>
+        <target>Error message</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldMetrics" resname="admin.job_run.field.metrics">
+        <source>admin.job_run.field.metrics</source>
+        <target>Metrics</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFilterThresholdsNone" resname="admin.job_run.filter.thresholds.none">
+        <source>admin.job_run.filter.thresholds.none</source>
+        <target>No</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFilterThresholdsSome" resname="admin.job_run.filter.thresholds.some">
+        <source>admin.job_run.filter.thresholds.some</source>
+        <target>Yes</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetRun" resname="admin.job_run.fieldset.run">
+        <source>admin.job_run.fieldset.run</source>
+        <target>Run</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetScope" resname="admin.job_run.fieldset.scope">
+        <source>admin.job_run.fieldset.scope</source>
+        <target>Scope</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetTiming" resname="admin.job_run.fieldset.timing">
+        <source>admin.job_run.fieldset.timing</source>
+        <target>Duration and memory</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetError" resname="admin.job_run.fieldset.error">
+        <source>admin.job_run.fieldset.error</source>
+        <target>Error</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetMetrics" resname="admin.job_run.fieldset.metrics">
+        <source>admin.job_run.fieldset.metrics</source>
+        <target>Metrics</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAllocationImport" resname="admin.job_run.job.allocation_import">
+        <source>admin.job_run.job.allocation_import</source>
+        <target>Allocation import</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobClosureImport" resname="admin.job_run.job.closure_import">
+        <source>admin.job_run.job.closure_import</source>
+        <target>Closure import</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAllocationProjectionRebuild" resname="admin.job_run.job.allocation_projection_rebuild">
+        <source>admin.job_run.job.allocation_projection_rebuild</source>
+        <target>Allocation statistics rebuild (import)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAllocationProjectionFullRebuild" resname="admin.job_run.job.allocation_projection_full_rebuild">
+        <source>admin.job_run.job.allocation_projection_full_rebuild</source>
+        <target>Allocation statistics rebuild (full)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobClosureRebuild" resname="admin.job_run.job.closure_rebuild">
+        <source>admin.job_run.job.closure_rebuild</source>
+        <target>Closure volume rebuild</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusRunning" resname="admin.job_run.status.running">
+        <source>admin.job_run.status.running</source>
+        <target>Running</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusSucceeded" resname="admin.job_run.status.succeeded">
+        <source>admin.job_run.status.succeeded</source>
+        <target>Succeeded</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusPartial" resname="admin.job_run.status.partial">
+        <source>admin.job_run.status.partial</source>
+        <target>Partial</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusFailed" resname="admin.job_run.status.failed">
+        <source>admin.job_run.status.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusRetrying" resname="admin.job_run.status.retrying">
+        <source>admin.job_run.status.retrying</source>
+        <target>Retrying</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusSuperseded" resname="admin.job_run.status.superseded">
+        <source>admin.job_run.status.superseded</source>
+        <target>Superseded</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusAbandoned" resname="admin.job_run.status.abandoned">
+        <source>admin.job_run.status.abandoned</source>
+        <target>Abandoned</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerMessenger" resname="admin.job_run.trigger.messenger">
+        <source>admin.job_run.trigger.messenger</source>
+        <target>Worker</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerScheduler" resname="admin.job_run.trigger.scheduler">
+        <source>admin.job_run.trigger.scheduler</source>
+        <target>Scheduler</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerConsole" resname="admin.job_run.trigger.console">
+        <source>admin.job_run.trigger.console</source>
+        <target>Console</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerUpload" resname="admin.job_run.trigger.upload">
+        <source>admin.job_run.trigger.upload</source>
+        <target>Upload</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerBatchRequeue" resname="admin.job_run.trigger.batch_requeue">
+        <source>admin.job_run.trigger.batch_requeue</source>
+        <target>Batch requeue</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerReprocess" resname="admin.job_run.trigger.reprocess">
+        <source>admin.job_run.trigger.reprocess</source>
+        <target>Reprocess</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerBulkReprocess" resname="admin.job_run.trigger.bulk_reprocess">
+        <source>admin.job_run.trigger.bulk_reprocess</source>
+        <target>Bulk reprocess</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerUnknown" resname="admin.job_run.trigger.unknown">
+        <source>admin.job_run.trigger.unknown</source>
+        <target>Unknown</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdSlow" resname="admin.job_run.threshold.slow">
+        <source>admin.job_run.threshold.slow</source>
+        <target>Slow</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdLongRun" resname="admin.job_run.threshold.long_run">
+        <source>admin.job_run.threshold.long_run</source>
+        <target>Long run</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdMemory" resname="admin.job_run.threshold.memory">
+        <source>admin.job_run.threshold.memory</source>
+        <target>Memory</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdPasses" resname="admin.job_run.threshold.passes">
+        <source>admin.job_run.threshold.passes</source>
+        <target>Several passes</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdAttempts" resname="admin.job_run.threshold.attempts">
+        <source>admin.job_run.threshold.attempts</source>
+        <target>Retried</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsTotal" resname="admin.job_run.metric.rows_total">
+        <source>admin.job_run.metric.rows_total</source>
+        <target>Rows total</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsOk" resname="admin.job_run.metric.rows_ok">
+        <source>admin.job_run.metric.rows_ok</source>
+        <target>Rows imported</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsRejected" resname="admin.job_run.metric.rows_rejected">
+        <source>admin.job_run.metric.rows_rejected</source>
+        <target>Rows rejected</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsDeduplicated" resname="admin.job_run.metric.rows_deduplicated">
+        <source>admin.job_run.metric.rows_deduplicated</source>
+        <target>Rows deduplicated</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricChunks" resname="admin.job_run.metric.chunks">
+        <source>admin.job_run.metric.chunks</source>
+        <target>Chunks written</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReadMs" resname="admin.job_run.metric.read_ms">
+        <source>admin.job_run.metric.read_ms</source>
+        <target>Read time</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMapMs" resname="admin.job_run.metric.map_ms">
+        <source>admin.job_run.metric.map_ms</source>
+        <target>Map time</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPersistMs" resname="admin.job_run.metric.persist_ms">
+        <source>admin.job_run.metric.persist_ms</source>
+        <target>Persist time</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricImports" resname="admin.job_run.metric.imports">
+        <source>admin.job_run.metric.imports</source>
+        <target>Imports</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsDeleted" resname="admin.job_run.metric.rows_deleted">
+        <source>admin.job_run.metric.rows_deleted</source>
+        <target>Rows deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsWritten" resname="admin.job_run.metric.rows_written">
+        <source>admin.job_run.metric.rows_written</source>
+        <target>Rows written</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMvRefreshed" resname="admin.job_run.metric.mv_refreshed">
+        <source>admin.job_run.metric.mv_refreshed</source>
+        <target>Materialized views refreshed</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricChangeDetectionMs" resname="admin.job_run.metric.change_detection_ms">
+        <source>admin.job_run.metric.change_detection_ms</source>
+        <target>Change detection</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeleteMs" resname="admin.job_run.metric.delete_ms">
+        <source>admin.job_run.metric.delete_ms</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricInsertMs" resname="admin.job_run.metric.insert_ms">
+        <source>admin.job_run.metric.insert_ms</source>
+        <target>Insert</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricClosureRequestMs" resname="admin.job_run.metric.closure_request_ms">
+        <source>admin.job_run.metric.closure_request_ms</source>
+        <target>Closure rebuild request</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMvRefreshMs" resname="admin.job_run.metric.mv_refresh_ms">
+        <source>admin.job_run.metric.mv_refresh_ms</source>
+        <target>Materialized view refresh</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricTruncateMs" resname="admin.job_run.metric.truncate_ms">
+        <source>admin.job_run.metric.truncate_ms</source>
+        <target>Truncate</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRebuildImportsMs" resname="admin.job_run.metric.rebuild_imports_ms">
+        <source>admin.job_run.metric.rebuild_imports_ms</source>
+        <target>Rebuild of all imports</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFull" resname="admin.job_run.metric.full">
+        <source>admin.job_run.metric.full</source>
+        <target>Full rebuild</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHospitalIds" resname="admin.job_run.metric.hospital_ids">
+        <source>admin.job_run.metric.hospital_ids</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPasses" resname="admin.job_run.metric.passes">
+        <source>admin.job_run.metric.passes</source>
+        <target>Passes</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricEvents" resname="admin.job_run.metric.events">
+        <source>admin.job_run.metric.events</source>
+        <target>Closure events</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPartitions" resname="admin.job_run.metric.partitions">
+        <source>admin.job_run.metric.partitions</source>
+        <target>Partitions</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHoursWritten" resname="admin.job_run.metric.hours_written">
+        <source>admin.job_run.metric.hours_written</source>
+        <target>Hours written</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPublishMs" resname="admin.job_run.metric.publish_ms">
+        <source>admin.job_run.metric.publish_ms</source>
+        <target>Publish time</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRequests" resname="admin.job_run.metric.requests">
+        <source>admin.job_run.metric.requests</source>
+        <target>Requests handled</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricQueries" resname="admin.job_run.metric.queries">
+        <source>admin.job_run.metric.queries</source>
+        <target>Queries</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReferenceWindow" resname="admin.job_run.metric.reference_window">
+        <source>admin.job_run.metric.reference_window</source>
+        <target>Reference window</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

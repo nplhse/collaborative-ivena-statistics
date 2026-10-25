@@ -801,6 +801,354 @@
         <source>admin_notification.email.label.reason</source>
         <target>Grund</target>
       </trans-unit>
+      <trans-unit id="admJobRunMenuDe" resname="admin.job_run.menu">
+        <source>admin.job_run.menu</source>
+        <target>Job-Läufe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunEntitySingularDe" resname="admin.job_run.entity.singular">
+        <source>admin.job_run.entity.singular</source>
+        <target>Job-Lauf</target>
+      </trans-unit>
+      <trans-unit id="admJobRunEntityPluralDe" resname="admin.job_run.entity.plural">
+        <source>admin.job_run.entity.plural</source>
+        <target>Job-Läufe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionShortcutsDe" resname="admin.job_run.action.shortcuts">
+        <source>admin.job_run.action.shortcuts</source>
+        <target>Schnellfilter</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionFailedDe" resname="admin.job_run.action.failed">
+        <source>admin.job_run.action.failed</source>
+        <target>Fehlgeschlagene Läufe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionThresholdsExceededDe" resname="admin.job_run.action.thresholds_exceeded">
+        <source>admin.job_run.action.thresholds_exceeded</source>
+        <target>Schwellen überschritten</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionLast24hDe" resname="admin.job_run.action.last_24h">
+        <source>admin.job_run.action.last_24h</source>
+        <target>Letzte 24 Stunden</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionAttemptsDe" resname="admin.job_run.action.attempts">
+        <source>admin.job_run.action.attempts</source>
+        <target>Alle Versuche dieses Import-Laufs</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionRunsOfImportDe" resname="admin.job_run.action.runs_of_import">
+        <source>admin.job_run.action.runs_of_import</source>
+        <target>Läufe dieses Imports</target>
+      </trans-unit>
+      <trans-unit id="admJobRunActionRunsOfJobDe" resname="admin.job_run.action.runs_of_job">
+        <source>admin.job_run.action.runs_of_job</source>
+        <target>Läufe dieses Jobs</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldIdDe" resname="admin.job_run.field.id">
+        <source>admin.job_run.field.id</source>
+        <target>Lauf-ID</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldJobDe" resname="admin.job_run.field.job">
+        <source>admin.job_run.field.job</source>
+        <target>Job</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldStatusDe" resname="admin.job_run.field.status">
+        <source>admin.job_run.field.status</source>
+        <target>Status</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldTriggerDe" resname="admin.job_run.field.trigger">
+        <source>admin.job_run.field.trigger</source>
+        <target>Auslöser</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldAttemptDe" resname="admin.job_run.field.attempt">
+        <source>admin.job_run.field.attempt</source>
+        <target>Versuch</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldHospitalDe" resname="admin.job_run.field.hospital">
+        <source>admin.job_run.field.hospital</source>
+        <target>Krankenhaus</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldImportDe" resname="admin.job_run.field.import">
+        <source>admin.job_run.field.import</source>
+        <target>Import</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldImportRunDe" resname="admin.job_run.field.import_run">
+        <source>admin.job_run.field.import_run</source>
+        <target>Import-Lauf</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldStartedAtDe" resname="admin.job_run.field.started_at">
+        <source>admin.job_run.field.started_at</source>
+        <target>Gestartet</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldFinishedAtDe" resname="admin.job_run.field.finished_at">
+        <source>admin.job_run.field.finished_at</source>
+        <target>Beendet</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldDurationDe" resname="admin.job_run.field.duration">
+        <source>admin.job_run.field.duration</source>
+        <target>Dauer</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldPeakMemoryDe" resname="admin.job_run.field.peak_memory">
+        <source>admin.job_run.field.peak_memory</source>
+        <target>Speicher (Spitze)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldThresholdsExceededDe" resname="admin.job_run.field.thresholds_exceeded">
+        <source>admin.job_run.field.thresholds_exceeded</source>
+        <target>Überschrittene Schwellen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldErrorClassDe" resname="admin.job_run.field.error_class">
+        <source>admin.job_run.field.error_class</source>
+        <target>Fehlerklasse</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldErrorMessageDe" resname="admin.job_run.field.error_message">
+        <source>admin.job_run.field.error_message</source>
+        <target>Fehlermeldung</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldMetricsDe" resname="admin.job_run.field.metrics">
+        <source>admin.job_run.field.metrics</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFilterThresholdsNoneDe" resname="admin.job_run.filter.thresholds.none">
+        <source>admin.job_run.filter.thresholds.none</source>
+        <target>Nein</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFilterThresholdsSomeDe" resname="admin.job_run.filter.thresholds.some">
+        <source>admin.job_run.filter.thresholds.some</source>
+        <target>Ja</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetRunDe" resname="admin.job_run.fieldset.run">
+        <source>admin.job_run.fieldset.run</source>
+        <target>Lauf</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetScopeDe" resname="admin.job_run.fieldset.scope">
+        <source>admin.job_run.fieldset.scope</source>
+        <target>Bezug</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetTimingDe" resname="admin.job_run.fieldset.timing">
+        <source>admin.job_run.fieldset.timing</source>
+        <target>Dauer und Speicher</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetErrorDe" resname="admin.job_run.fieldset.error">
+        <source>admin.job_run.fieldset.error</source>
+        <target>Fehler</target>
+      </trans-unit>
+      <trans-unit id="admJobRunFieldsetMetricsDe" resname="admin.job_run.fieldset.metrics">
+        <source>admin.job_run.fieldset.metrics</source>
+        <target>Kennzahlen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAllocationImportDe" resname="admin.job_run.job.allocation_import">
+        <source>admin.job_run.job.allocation_import</source>
+        <target>Zuweisungsimport</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobClosureImportDe" resname="admin.job_run.job.closure_import">
+        <source>admin.job_run.job.closure_import</source>
+        <target>Schließungsimport</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAllocationProjectionRebuildDe" resname="admin.job_run.job.allocation_projection_rebuild">
+        <source>admin.job_run.job.allocation_projection_rebuild</source>
+        <target>Neuaufbau Zuweisungsstatistik (Import)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAllocationProjectionFullRebuildDe" resname="admin.job_run.job.allocation_projection_full_rebuild">
+        <source>admin.job_run.job.allocation_projection_full_rebuild</source>
+        <target>Neuaufbau Zuweisungsstatistik (komplett)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobClosureRebuildDe" resname="admin.job_run.job.closure_rebuild">
+        <source>admin.job_run.job.closure_rebuild</source>
+        <target>Neuaufbau Schließungsvolumen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusRunningDe" resname="admin.job_run.status.running">
+        <source>admin.job_run.status.running</source>
+        <target>Läuft</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusSucceededDe" resname="admin.job_run.status.succeeded">
+        <source>admin.job_run.status.succeeded</source>
+        <target>Erfolgreich</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusPartialDe" resname="admin.job_run.status.partial">
+        <source>admin.job_run.status.partial</source>
+        <target>Teilweise</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusFailedDe" resname="admin.job_run.status.failed">
+        <source>admin.job_run.status.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusRetryingDe" resname="admin.job_run.status.retrying">
+        <source>admin.job_run.status.retrying</source>
+        <target>Wird wiederholt</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusSupersededDe" resname="admin.job_run.status.superseded">
+        <source>admin.job_run.status.superseded</source>
+        <target>Abgelöst</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusAbandonedDe" resname="admin.job_run.status.abandoned">
+        <source>admin.job_run.status.abandoned</source>
+        <target>Abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerMessengerDe" resname="admin.job_run.trigger.messenger">
+        <source>admin.job_run.trigger.messenger</source>
+        <target>Worker</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerSchedulerDe" resname="admin.job_run.trigger.scheduler">
+        <source>admin.job_run.trigger.scheduler</source>
+        <target>Scheduler</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerConsoleDe" resname="admin.job_run.trigger.console">
+        <source>admin.job_run.trigger.console</source>
+        <target>Konsole</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerUploadDe" resname="admin.job_run.trigger.upload">
+        <source>admin.job_run.trigger.upload</source>
+        <target>Upload</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerBatchRequeueDe" resname="admin.job_run.trigger.batch_requeue">
+        <source>admin.job_run.trigger.batch_requeue</source>
+        <target>Batch-Neustart</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerReprocessDe" resname="admin.job_run.trigger.reprocess">
+        <source>admin.job_run.trigger.reprocess</source>
+        <target>Neuverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerBulkReprocessDe" resname="admin.job_run.trigger.bulk_reprocess">
+        <source>admin.job_run.trigger.bulk_reprocess</source>
+        <target>Sammel-Neuverarbeitung</target>
+      </trans-unit>
+      <trans-unit id="admJobRunTriggerUnknownDe" resname="admin.job_run.trigger.unknown">
+        <source>admin.job_run.trigger.unknown</source>
+        <target>Unbekannt</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdSlowDe" resname="admin.job_run.threshold.slow">
+        <source>admin.job_run.threshold.slow</source>
+        <target>Langsam</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdLongRunDe" resname="admin.job_run.threshold.long_run">
+        <source>admin.job_run.threshold.long_run</source>
+        <target>Sehr lang</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdMemoryDe" resname="admin.job_run.threshold.memory">
+        <source>admin.job_run.threshold.memory</source>
+        <target>Speicher</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdPassesDe" resname="admin.job_run.threshold.passes">
+        <source>admin.job_run.threshold.passes</source>
+        <target>Mehrere Durchläufe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunThresholdAttemptsDe" resname="admin.job_run.threshold.attempts">
+        <source>admin.job_run.threshold.attempts</source>
+        <target>Wiederholt</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsTotalDe" resname="admin.job_run.metric.rows_total">
+        <source>admin.job_run.metric.rows_total</source>
+        <target>Zeilen gesamt</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsOkDe" resname="admin.job_run.metric.rows_ok">
+        <source>admin.job_run.metric.rows_ok</source>
+        <target>Zeilen importiert</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsRejectedDe" resname="admin.job_run.metric.rows_rejected">
+        <source>admin.job_run.metric.rows_rejected</source>
+        <target>Zeilen zurückgewiesen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsDeduplicatedDe" resname="admin.job_run.metric.rows_deduplicated">
+        <source>admin.job_run.metric.rows_deduplicated</source>
+        <target>Zeilen dedupliziert</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricChunksDe" resname="admin.job_run.metric.chunks">
+        <source>admin.job_run.metric.chunks</source>
+        <target>Geschriebene Blöcke</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReadMsDe" resname="admin.job_run.metric.read_ms">
+        <source>admin.job_run.metric.read_ms</source>
+        <target>Lesezeit</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMapMsDe" resname="admin.job_run.metric.map_ms">
+        <source>admin.job_run.metric.map_ms</source>
+        <target>Zuordnungszeit</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPersistMsDe" resname="admin.job_run.metric.persist_ms">
+        <source>admin.job_run.metric.persist_ms</source>
+        <target>Speicherzeit</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricImportsDe" resname="admin.job_run.metric.imports">
+        <source>admin.job_run.metric.imports</source>
+        <target>Importe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsDeletedDe" resname="admin.job_run.metric.rows_deleted">
+        <source>admin.job_run.metric.rows_deleted</source>
+        <target>Zeilen gelöscht</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsWrittenDe" resname="admin.job_run.metric.rows_written">
+        <source>admin.job_run.metric.rows_written</source>
+        <target>Zeilen geschrieben</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMvRefreshedDe" resname="admin.job_run.metric.mv_refreshed">
+        <source>admin.job_run.metric.mv_refreshed</source>
+        <target>Materialized Views aktualisiert</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricChangeDetectionMsDe" resname="admin.job_run.metric.change_detection_ms">
+        <source>admin.job_run.metric.change_detection_ms</source>
+        <target>Änderungserkennung</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeleteMsDe" resname="admin.job_run.metric.delete_ms">
+        <source>admin.job_run.metric.delete_ms</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricInsertMsDe" resname="admin.job_run.metric.insert_ms">
+        <source>admin.job_run.metric.insert_ms</source>
+        <target>Einfügen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricClosureRequestMsDe" resname="admin.job_run.metric.closure_request_ms">
+        <source>admin.job_run.metric.closure_request_ms</source>
+        <target>Anforderung Schließungs-Neuaufbau</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricMvRefreshMsDe" resname="admin.job_run.metric.mv_refresh_ms">
+        <source>admin.job_run.metric.mv_refresh_ms</source>
+        <target>Aktualisierung Materialized Views</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricTruncateMsDe" resname="admin.job_run.metric.truncate_ms">
+        <source>admin.job_run.metric.truncate_ms</source>
+        <target>Leeren</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRebuildImportsMsDe" resname="admin.job_run.metric.rebuild_imports_ms">
+        <source>admin.job_run.metric.rebuild_imports_ms</source>
+        <target>Neuaufbau aller Importe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFullDe" resname="admin.job_run.metric.full">
+        <source>admin.job_run.metric.full</source>
+        <target>Kompletter Neuaufbau</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHospitalIdsDe" resname="admin.job_run.metric.hospital_ids">
+        <source>admin.job_run.metric.hospital_ids</source>
+        <target>Krankenhäuser</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPassesDe" resname="admin.job_run.metric.passes">
+        <source>admin.job_run.metric.passes</source>
+        <target>Durchläufe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricEventsDe" resname="admin.job_run.metric.events">
+        <source>admin.job_run.metric.events</source>
+        <target>Schließungsereignisse</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPartitionsDe" resname="admin.job_run.metric.partitions">
+        <source>admin.job_run.metric.partitions</source>
+        <target>Partitionen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHoursWrittenDe" resname="admin.job_run.metric.hours_written">
+        <source>admin.job_run.metric.hours_written</source>
+        <target>Geschriebene Stunden</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPublishMsDe" resname="admin.job_run.metric.publish_ms">
+        <source>admin.job_run.metric.publish_ms</source>
+        <target>Veröffentlichungszeit</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRequestsDe" resname="admin.job_run.metric.requests">
+        <source>admin.job_run.metric.requests</source>
+        <target>Bearbeitete Anforderungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricQueriesDe" resname="admin.job_run.metric.queries">
+        <source>admin.job_run.metric.queries</source>
+        <target>Abfragen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricReferenceWindowDe" resname="admin.job_run.metric.reference_window">
+        <source>admin.job_run.metric.reference_window</source>
+        <target>Referenzzeitraum</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
