@@ -36,17 +36,13 @@ class IndicationRawRepository extends ServiceEntityRepository
             ->addSelect('(CASE WHEN i.updatedAt IS NOT NULL THEN i.updatedAt ELSE i.createdAt END) AS HIDDEN sortDate')
         ;
 
-        if ('lastChange' === $queryParametersDTO->sortBy) {
-            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
-        } else {
-            $sortField = match ($queryParametersDTO->sortBy) {
-                'id' => 'i.id',
-                'name' => 'i.name',
-                'code' => 'i.code',
-                default => 'i.code',
-            };
-            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
+        if ('occurrence' === $queryParametersDTO->sortBy) {
+            $qb->addSelect($this->occurrenceCountSelect().' AS HIDDEN occurrenceCount');
         }
+
+        // The id tie-breaker keeps rows with equal sort values on a stable page.
+        $qb->orderBy(self::listSortField($queryParametersDTO->sortBy), $queryParametersDTO->orderBy)
+            ->addOrderBy('i.id', $queryParametersDTO->orderBy);
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('LOWER(i.name)', ':search'))
@@ -55,6 +51,35 @@ class IndicationRawRepository extends ServiceEntityRepository
         }
 
         return $qb;
+    }
+
+    /**
+     * Maps a public sort key of the raw indication list (see IndicationRawListColumns::SORT_KEYS) to its DQL field.
+     */
+    public static function listSortField(string $sortBy): string
+    {
+        return match ($sortBy) {
+            'name' => 'i.name',
+            'reviewStatus' => 'i.reviewStatus',
+            'occurrence' => 'occurrenceCount',
+            'reviewedAt' => 'i.reviewedAt',
+            'firstMatchedAt' => 'i.firstMatchedAt',
+            'createdAt' => 'i.createdAt',
+            'lastChange' => 'sortDate',
+            default => 'i.code',
+        };
+    }
+
+    /**
+     * How often the raw indication `i` occurs as primary or secondary indication. Counting each
+     * indexed column on its own is about ten times faster than one count with `OR`.
+     */
+    private function occurrenceCountSelect(): string
+    {
+        return sprintf(
+            'ADD_SUBQUERIES((SELECT COUNT(o1.indicationRaw) FROM %1$s o1 WHERE o1.indicationRaw = i), (SELECT COUNT(o2.secondaryIndicationRaw) FROM %1$s o2 WHERE o2.secondaryIndicationRaw = i))',
+            Allocation::class,
+        );
     }
 
     public function reviewWorklistQuery(IndicationRawReviewWorklistQueryDTO $query): QueryBuilder
@@ -134,9 +159,7 @@ class IndicationRawRepository extends ServiceEntityRepository
         $direction = 'desc' === $query->orderBy ? 'DESC' : 'ASC';
 
         if ('occurrence' === $query->sortBy) {
-            $qb->addSelect(
-                '(SELECT COUNT(a.id) FROM '.Allocation::class.' a WHERE a.indicationRaw = i OR a.secondaryIndicationRaw = i) AS HIDDEN occurrenceCount'
-            )
+            $qb->addSelect($this->occurrenceCountSelect().' AS HIDDEN occurrenceCount')
                 ->orderBy('occurrenceCount', $direction)
                 ->addOrderBy('i.createdAt', 'ASC')
                 ->addOrderBy('i.id', 'ASC');

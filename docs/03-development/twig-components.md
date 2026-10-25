@@ -377,7 +377,17 @@ class implements `DataTablePreferenceDefinitionInterface`, builds its schema wit
 `DataTablePreferenceSchema::fromColumns()`, and owns the public `SORT_KEYS` that
 the query DTO's `Assert\Choice` uses. The controller resolves the saved state
 with `DataTablePreferenceQueryState::fromRequest()` and
-`DataTablePreferenceService::resolve()`.
+`DataTablePreferenceService::resolve()`. `ListColumn` (Allocation UI) builds the
+usual configurable, sortable and last-change columns.
+
+Optional columns that count or join other data (indication occurrences, raw
+counts, groups) are read for the ids of the current page only, and only when the
+column is visible. The controller passes them to the cells through
+`cellContext`; see `ListIndicationController`. To sort by such a count, add the
+count as a hidden select only for that sort key. Count each indexed column in a
+separate subquery and combine them with the DQL function `ADD_SUBQUERIES(...)`:
+one count with `OR` cannot use an index-only scan and took about ten times
+longer on the demo database (3.6 s instead of 0.35 s for the raw indications).
 
 #### Keeping the view while filtering
 

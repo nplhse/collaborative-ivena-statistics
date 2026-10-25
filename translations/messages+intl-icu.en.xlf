@@ -585,6 +585,10 @@
         <source>label.indication.code</source>
         <target>Code</target>
       </trans-unit>
+      <trans-unit id="EnDtIndic1" resname="label.indication.first_matched_at">
+        <source>label.indication.first_matched_at</source>
+        <target>First matched at</target>
+      </trans-unit>
       <trans-unit id="kpEIeqH" resname="label.indication.normalized">
         <source>label.indication.normalized</source>
         <target>Normalized Indication</target>
@@ -1047,6 +1051,10 @@
         <source>label.indication.first_matched_by</source>
         <target>First matched by</target>
       </trans-unit>
+      <trans-unit id="EnDtIndic2" resname="label.indication.groups">
+        <source>label.indication.groups</source>
+        <target>Groups</target>
+      </trans-unit>
       <trans-unit id="IndLblMPb" resname="label.indication.match_proposed_by">
         <source>label.indication.match_proposed_by</source>
         <target>Match proposed by</target>
@@ -1066,6 +1074,14 @@
       <trans-unit id="IndLblPTg" resname="label.indication.proposed_target">
         <source>label.indication.proposed_target</source>
         <target>Proposed target</target>
+      </trans-unit>
+      <trans-unit id="EnDtIndic3" resname="label.indication.raw_count">
+        <source>label.indication.raw_count</source>
+        <target>Raw indications</target>
+      </trans-unit>
+      <trans-unit id="EnDtIndic4" resname="label.indication.reviewed_at">
+        <source>label.indication.reviewed_at</source>
+        <target>Reviewed at</target>
       </trans-unit>
       <trans-unit id="IndLblCAt" resname="label.created_at">
         <source>label.created_at</source>

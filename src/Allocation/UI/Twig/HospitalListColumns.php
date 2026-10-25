@@ -52,16 +52,16 @@ final class HospitalListColumns implements DataTablePreferenceDefinitionInterfac
                 'route' => 'app_explore_hospital_show',
                 'routeParams' => ['publicId' => 'publicId'],
             ],
-            self::sortable('dispatchArea', 'label.dispatch_area', 'text', ['property' => 'dispatchArea']),
-            self::sortable('state', 'label.state', 'text', ['property' => 'state']),
-            self::sortable('location', 'label.location', 'badge', ['property' => 'location', 'badgePalette' => 'hospital_location', 'nowrap' => true]),
-            self::sortable('tier', 'label.tier', 'badge', ['property' => 'tier', 'badgePalette' => 'hospital_tier', 'nowrap' => true]),
-            self::sortable('size', 'label.size', 'badge', ['property' => 'size', 'badgePalette' => 'hospital_size', 'numberProperty' => 'beds', 'nowrap' => true]),
-            self::sortable('beds', 'label.hospital_beds', 'number', ['property' => 'beds', 'align' => 'end', 'visible' => false, 'format' => ['decimals' => 0]]),
-            self::sortable('postalCode', 'label.address.postal_code', 'text', ['property' => 'address.postalCode', 'visible' => false, 'nowrap' => true]),
-            self::sortable('city', 'label.address.city', 'text', ['property' => 'address.city', 'visible' => false]),
-            self::sortable('participatingSince', 'label.participating_since', 'datetime', ['property' => 'participatingSince', 'visible' => false, 'format' => 'd.m.Y', 'nowrap' => true]),
-            self::sortable('lastChange', 'label.last_change', 'custom', ['cellTemplate' => '@Allocation/hospitals/_cell_last_change.html.twig', 'nowrap' => true]),
+            ListColumn::sortable('dispatchArea', 'label.dispatch_area', 'text', ['property' => 'dispatchArea']),
+            ListColumn::sortable('state', 'label.state', 'text', ['property' => 'state']),
+            ListColumn::sortable('location', 'label.location', 'badge', ['property' => 'location', 'badgePalette' => 'hospital_location', 'nowrap' => true]),
+            ListColumn::sortable('tier', 'label.tier', 'badge', ['property' => 'tier', 'badgePalette' => 'hospital_tier', 'nowrap' => true]),
+            ListColumn::sortable('size', 'label.size', 'badge', ['property' => 'size', 'badgePalette' => 'hospital_size', 'numberProperty' => 'beds', 'nowrap' => true]),
+            ListColumn::sortable('beds', 'label.hospital_beds', 'number', ['property' => 'beds', 'align' => 'end', 'visible' => false, 'format' => ['decimals' => 0]]),
+            ListColumn::sortable('postalCode', 'label.address.postal_code', 'text', ['property' => 'address.postalCode', 'visible' => false, 'nowrap' => true]),
+            ListColumn::sortable('city', 'label.address.city', 'text', ['property' => 'address.city', 'visible' => false]),
+            ListColumn::sortable('participatingSince', 'label.participating_since', 'datetime', ['property' => 'participatingSince', 'visible' => false, 'format' => 'd.m.Y', 'nowrap' => true]),
+            ListColumn::sortable('lastChange', 'label.last_change', 'custom', ['cellTemplate' => '@Allocation/hospitals/_cell_last_change.html.twig', 'nowrap' => true]),
         ];
     }
 
@@ -75,23 +75,5 @@ final class HospitalListColumns implements DataTablePreferenceDefinitionInterfac
             defaultSortBy: self::DEFAULT_SORT_BY,
             defaultOrderBy: self::DEFAULT_ORDER_BY,
         );
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     *
-     * @return array<string, mixed>
-     */
-    private static function sortable(string $key, string $label, string $type, array $config): array
-    {
-        return [
-            'key' => $key,
-            'type' => $type,
-            'label' => $label,
-            'sortable' => true,
-            'sortKey' => $key,
-            'configurable' => true,
-            ...$config,
-        ];
     }
 }

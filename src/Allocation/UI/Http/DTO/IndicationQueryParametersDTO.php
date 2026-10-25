@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Http\DTO;
 
+use App\Allocation\UI\Twig\IndicationNormalizedListColumns;
+use App\Allocation\UI\Twig\IndicationRawListColumns;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class IndicationQueryParametersDTO
@@ -18,7 +20,8 @@ final readonly class IndicationQueryParametersDTO
         #[Assert\Choice(choices: ['asc', 'desc'])]
         public string $orderBy = 'asc',
 
-        #[Assert\Choice(choices: ['id', 'name', 'code', 'lastChange'])]
+        // Both tabs share this DTO; a key of the other tab falls back to the code.
+        #[Assert\Choice(choices: [...IndicationNormalizedListColumns::SORT_KEYS, ...IndicationRawListColumns::SORT_KEYS])]
         public string $sortBy = 'code',
 
         public ?string $search = null,
