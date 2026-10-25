@@ -31,6 +31,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 final readonly class DeleteImportsMessageHandler
 {
     public function __construct(
+        private EntityManagerInterface $entityManager,
         private ManagerRegistry $managerRegistry,
         private ImportDeletionService $deletionService,
         private ImportRelatedDataCleanupService $relatedDataCleanup,
@@ -48,7 +49,7 @@ final readonly class DeleteImportsMessageHandler
         $refreshOverview = false;
 
         foreach ($message->importIds as $importId) {
-            $import = $this->entityManager()->find(Import::class, $importId);
+            $import = $this->entityManager->find(Import::class, $importId);
             if (!$import instanceof Import) {
                 // Deleted meanwhile, or by an earlier attempt of this message.
                 $deleted[] = $importId;
@@ -78,7 +79,7 @@ final readonly class DeleteImportsMessageHandler
                     'ex' => $e::class,
                     'msg' => $e->getMessage(),
                 ]);
-                // A failed flush closes the entity manager; the next import needs a fresh one.
+                // A failed flush closes the entity manager; resetting reopens the injected one for the next import.
                 $this->managerRegistry->resetManager();
             }
         }
@@ -101,15 +102,5 @@ final readonly class DeleteImportsMessageHandler
             skipped: $skipped,
             failed: $failed,
         ));
-    }
-
-    private function entityManager(): EntityManagerInterface
-    {
-        $em = $this->managerRegistry->getManager();
-        if (!$em instanceof EntityManagerInterface) {
-            throw new \LogicException('Expected Doctrine ORM EntityManager.');
-        }
-
-        return $em;
     }
 }

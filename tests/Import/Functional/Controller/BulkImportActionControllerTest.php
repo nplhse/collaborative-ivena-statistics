@@ -158,6 +158,32 @@ final class BulkImportActionControllerTest extends WebTestCase
         self::assertSame('import.bulk_deleted', $connection->fetchOne('SELECT type FROM notification WHERE recipient_id = ?', [$owner->getId()]));
     }
 
+    public function testNothingEligibleQueuesNothingAndOnlyReportsTheSkips(): void
+    {
+        $client = self::createClient();
+        $owner = $this->participant();
+        $running = $this->import($owner, $this->hospital($owner), 'Running', ImportStatus::RUNNING);
+        $foreignOwner = $this->participant();
+        $foreign = $this->import($foreignOwner, $this->hospital($foreignOwner), 'Foreign');
+        $client->loginUser($owner);
+        $token = $this->bulkToken($client);
+
+        $client->request(Request::METHOD_POST, '/import/bulk', ['_token' => $token, 'bulk_action' => 'reprocess', 'ids' => [(string) $running->getId()]]);
+        self::assertResponseRedirects('/import', null, 'no batch, so the list is not filtered');
+        $client->followRedirect();
+        self::assertSelectorTextContains('body', '1 import was skipped: 1 already queued or processing.');
+
+        $client->request(Request::METHOD_POST, '/import/bulk', ['_token' => $token, 'bulk_action' => 'delete', 'ids' => [(string) $foreign->getId()]]);
+        self::assertResponseRedirects('/import');
+        $client->followRedirect();
+        self::assertSelectorTextContains('body', '1 import was skipped: 1 without permission.');
+        self::assertSelectorTextNotContains('body', 'being deleted in the background');
+
+        $connection = self::getContainer()->get(Connection::class);
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM import_batch_run'));
+        self::assertSame(2, (int) $connection->fetchOne('SELECT COUNT(*) FROM import'));
+    }
+
     public function testBatchFilterOfAnotherUserShowsNoProgress(): void
     {
         $client = self::createClient();
