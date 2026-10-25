@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Import\Infrastructure\EventSubscriber;
 
+use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Message\ImportRunMessageInterface;
 use App\Import\Application\Service\ImportRunLifecycle;
+use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -19,6 +22,7 @@ final readonly class ImportRunRetriesExhaustedSubscriber
     public function __construct(
         private ImportRunLifecycle $runLifecycle,
         private LoggerInterface $importLogger,
+        private ImportRunTelemetry $telemetry,
     ) {
     }
 
@@ -35,7 +39,13 @@ final readonly class ImportRunRetriesExhaustedSubscriber
         }
 
         try {
-            $this->runLifecycle->failAfterRetriesExhausted($message);
+            if ($this->runLifecycle->failAfterRetriesExhausted($message)) {
+                $this->telemetry->retriesExhausted(
+                    $message->getImportId(),
+                    (string) $message->getRunId(),
+                    $message instanceof ImportClosuresMessage ? ImportType::CLOSURE : ImportType::ALLOCATION,
+                );
+            }
         } catch (\Throwable $e) {
             // Never break the worker here. The run stays open and the log names it.
             $this->importLogger->critical('import.run.retries_exhausted_not_recorded', [

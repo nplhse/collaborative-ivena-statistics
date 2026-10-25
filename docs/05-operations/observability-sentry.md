@@ -62,6 +62,7 @@ Unexpected errors inside voters, permission services, or other authorization log
 | `import.file.delete_failed` | yes |
 | `import.run.summary` | yes (allowlisted attributes only) |
 | `import.run.threshold_exceeded` | yes (allowlisted attributes only) |
+| `import.run.retries_exhausted` | yes (allowlisted attributes only) |
 | `reject.row_rejected` | no (local only) |
 | `reject.row_type_unknown` | no (local only) |
 
@@ -114,7 +115,8 @@ Every attempt of an allocation or closure import run ([`ImportRunTelemetry`](../
 
 - **`job_run`** with job `allocation_import` or `closure_import`, the trigger of the import run (`upload`, `console`, `batch_requeue`, `reprocess`, `bulk_reprocess`), `import_id`, `import_run_id`, `hospital_id` and `attempt`. Status: `completed`, `partial`, `failed`, `superseded` or `retrying` (a retryable error; Messenger retries the same import run, which becomes the next attempt). A row still `running` when the next attempt of the same import run starts belongs to a dead worker and is marked `abandoned`. `metrics`: `rows_total`, `rows_ok`, `rows_rejected`, `rows_deduplicated` (allocation only, taken from the evaluated import), `chunks`, `read_ms`, `map_ms`, `persist_ms`. `import_run` stays the domain record of the run.
 - **Sentry transaction** `import_run` (op `import.allocations` / `import.closures`) with spans `import.cleanup`, `import.profile` (closure hospital scan), `import.rows`, `import.deduplicate` and `import.finish`. Below `import.rows`, the spans `import.read`, `import.map` and `import.persist` carry the **summed** time of each phase (`summed: true`): reading and parsing the file, detecting and mapping rows, and flushing chunks plus writing rejected rows. They are laid out one after another, so the waterfall shows the share of each phase, not when it happened.
-- **Logs** on the `import` channel: `import.run.summary` (info, one per attempt) and `import.run.threshold_exceeded` (warning).
+- **Logs** on the `import` channel: `import.run.summary` (info, one per attempt), `import.run.threshold_exceeded` (warning) and `import.run.retries_exhausted` (warning).
+- **Retries exhausted:** when Messenger gives up on the message, `ImportRunRetriesExhaustedSubscriber` ends the import run as failed and the last attempt in `job_run` changes from `retrying` to `failed`. Its Sentry transaction was already sent with `retrying`, so `import.run.retries_exhausted` (run, import run and import id, job, attempt) is the signal for alerts.
 
 Thresholds (`app.job_runs.allocation_import` / `closure_import`, see [Measured runs](#measured-runs)): `slow` above 120 s, `long_run` above 15 min (allocation) / 10 min (closure), `memory` above 200 MB. `attempts` is reported for every attempt after the first. Messages without a run id (legacy) are not recorded.
 
@@ -198,9 +200,9 @@ Every job transaction carries the tags `status` and `threshold_exceeded` (`none`
 | Failed run | Performance / Transactions | `transaction:[closure_rebuild,import_run,allocation_projection_rebuild] status:failed` | `count()` > 0 in 1 h |
 | Failure rate | Performance / Transactions | `transaction:import_run` | `failure_rate()` > 10 % in 1 day |
 | Slow trend | Performance / Transactions | `transaction:import_run` (and per transaction) | `p95(transaction.duration)` above twice the `slow` threshold in 1 day |
-| Logs (if the plan offers log alerts) | Logs | `message:*.threshold_exceeded` or `message:closure_rebuild.failed` / `message:projection_rebuild.failed` | any in 1 h |
+| Logs (if the plan offers log alerts) | Logs | `message:*.threshold_exceeded`, `message:import.run.retries_exhausted`, `message:closure_rebuild.failed` / `message:projection_rebuild.failed` | any in 1 h |
 
-`threshold_exceeded` containing `long_run` means a run took longer than the former lock TTL (closure rebuild) or far longer than any measured run of its job (imports and projection rebuilds, still well within the worker's `--time-limit=3600`). An import status `retrying` is not a failure; a run whose retries are exhausted ends as `failed` in `import_run`, and its last attempt is `retrying` in `job_run`.
+`threshold_exceeded` containing `long_run` means a run took longer than the former lock TTL (closure rebuild) or far longer than any measured run of its job (imports and projection rebuilds, still well within the worker's `--time-limit=3600`). An import status `retrying` is not a failure. When the retries of an import are exhausted, the last attempt becomes `failed` in `job_run` and `import.run.retries_exhausted` is logged; alert on it like on a failed run (log alert `message:import.run.retries_exhausted`). Every retried attempt also reports `attempts` in `threshold_exceeded`.
 
 Unhandled exceptions of a failed run still create a regular issue. "No completed import within the expected cycle" is a separate follow-up (scheduled check, not a run alert).
 

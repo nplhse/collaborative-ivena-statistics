@@ -63,6 +63,34 @@ final readonly class JobRunRecorder
     }
 
     /**
+     * Sets the status of the last attempt of an import run when it still has the expected one,
+     * for example a retrying attempt after Messenger gave up on the message.
+     *
+     * @return array{id: string, attempt: int}|null the changed attempt, null when none matched or the write failed
+     */
+    public function changeLastAttemptStatus(string $job, string $importRunId, string $from, string $to): ?array
+    {
+        $changed = null;
+        $this->write($job, $importRunId, function () use ($job, $importRunId, $from, $to, &$changed): void {
+            $row = $this->connection->fetchAssociative(
+                <<<'SQL'
+UPDATE job_run SET status = :to
+WHERE id = (
+    SELECT id FROM job_run WHERE job = :job AND import_run_id = :importRun ORDER BY attempt DESC, started_at DESC LIMIT 1
+) AND status = :from
+RETURNING id, attempt
+SQL,
+                ['to' => $to, 'job' => $job, 'importRun' => $importRunId, 'from' => $from],
+            );
+            if (\is_array($row)) {
+                $changed = ['id' => (string) $row['id'], 'attempt' => (int) $row['attempt']];
+            }
+        });
+
+        return $changed;
+    }
+
+    /**
      * Earlier attempts of an import run, so a Messenger retry gets the next attempt number. 0 when the read fails.
      */
     public function attemptsOf(string $job, string $importRunId): int

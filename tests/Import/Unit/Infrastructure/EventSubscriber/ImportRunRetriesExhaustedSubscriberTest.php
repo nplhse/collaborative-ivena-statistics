@@ -10,11 +10,16 @@ use App\Import\Application\Service\ImportBatchCompletion;
 use App\Import\Application\Service\ImportMilestoneRecorder;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
+use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use App\Shared\Infrastructure\Audit\AuditContext;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunRecorder;
+use App\Shared\Infrastructure\Monitoring\JobRun\JobRunThresholdConfig;
 use Doctrine\DBAL\Connection;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Sentry\State\HubInterface;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -62,6 +67,13 @@ final class ImportRunRetriesExhaustedSubscriberTest extends TestCase
         return new ImportRunRetriesExhaustedSubscriber(
             new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder(), new ImportBatchCompletion($this->createStub(Connection::class), $this->createStub(ImportBatchSummaryPublisherInterface::class), $logger)),
             $logger,
+            new ImportRunTelemetry(
+                new JobRunRecorder($this->createStub(Connection::class), new MockClock(), $logger),
+                new JobRunThresholdConfig([]),
+                $this->createStub(HubInterface::class),
+                $this->createStub(Connection::class),
+                $logger,
+            ),
         );
     }
 

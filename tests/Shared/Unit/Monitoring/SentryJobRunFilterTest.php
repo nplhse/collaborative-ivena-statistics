@@ -103,6 +103,7 @@ final class SentryJobRunFilterTest extends TestCase
 
         self::assertTrue($filter->isJobRunLog('import.run.summary'));
         self::assertTrue($filter->isJobRunLog('import.run.threshold_exceeded'));
+        self::assertTrue($filter->isJobRunLog('import.run.retries_exhausted'));
         self::assertFalse($filter->isJobRunLog('import.run.retryable_error'), 'Other import logs keep the generic scrubber.');
         self::assertSame(
             ['import_id' => 7, 'hospital_id' => 40, 'job' => 'allocation_import', 'rows_total' => 120, 'read_ms' => 31, 'error_class' => \RuntimeException::class],
