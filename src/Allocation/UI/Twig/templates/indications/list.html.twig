@@ -32,9 +32,11 @@
             <form
                 method="GET"
                 action="{{ path('app_explore_indication_list') }}"
-                data-controller="autosubmit"
+                data-controller="autosubmit query-state"
+                data-query-state-omit-value="{{ ['search', 'type']|json_encode }}"
                 data-turbo-frame="indication-list"
             >
+                {{ include('@Shared/components/data_table/_query_hidden_fields.html.twig', {omit: ['search', 'type']}) }}
                 <div class="input-icon">
                     <input
                         type="search"
@@ -74,23 +76,6 @@
             <twig:Alert type="info" :message="'label.searching_for'|trans(({term: search}), 'messages')" />
         {% endif %}
 
-        {% if active_type == 'raw' %}
-            {% set indication_columns = [
-                {key: 'code', type: 'badge', label: 'label.indication.code', property: 'code', sortable: true, sortKey: 'code', width: 'col-1'},
-                {key: 'name', type: 'custom', label: 'label.name', sortable: true, sortKey: 'name', width: 'col-3', cellTemplate: '@Allocation/indications/_cell_raw_name.html.twig'},
-                {key: 'reviewStatus', type: 'custom', label: 'label.indication.review_status', width: 'col-2', cellTemplate: '@Allocation/indications/_cell_review_status.html.twig'},
-                {key: 'normalized', type: 'custom', label: 'label.normalized', width: 'col-2', cellTemplate: '@Allocation/indications/_cell_normalized_target.html.twig'},
-                {key: 'lastChange', type: 'datetime', label: 'label.last_changed_at', property: 'updatedAt', fallbackProperty: 'createdAt', sortable: true, sortKey: 'lastChange', width: 'col-2'},
-                {key: 'lastChangedBy', type: 'user', label: 'label.last_changed_by', property: 'updatedBy', fallbackProperty: 'createdBy', width: 'col-2'},
-            ] %}
-        {% else %}
-            {% set indication_columns = [
-                {key: 'code', type: 'badge', label: 'label.indication.code', property: 'code', sortable: true, sortKey: 'code', width: 'col-1'},
-                {key: 'name', type: 'custom', label: 'label.name', sortable: true, sortKey: 'name', width: 'col-7', cellTemplate: '@Allocation/indications/_cell_normalized_name.html.twig'},
-                {key: 'lastChange', type: 'datetime', label: 'label.last_changed_at', property: 'updatedAt', fallbackProperty: 'createdAt', sortable: true, sortKey: 'lastChange', width: 'col-2'},
-                {key: 'lastChangedBy', type: 'user', label: 'label.last_changed_by', property: 'updatedBy', fallbackProperty: 'createdBy', width: 'col-2'},
-            ] %}
-        {% endif %}
         <twig:DataTable
             :paginator="paginator"
             :paginationRoute="pagination_route"
@@ -100,11 +85,20 @@
             emptyTitle="{{ (search is not empty ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
             emptyDescription="{{ (search is not empty ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
             emptyIcon="{{ search is not empty ? 'tabler:filter-off' : 'tabler:inbox' }}"
-            :columns="indication_columns"
+            :columns="indicationColumns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="indicationPreferences.visibleColumns"
+            :columnOrder="indicationPreferences.columnOrder"
+            :preferenceKey="indicationPreferencesPersisted ? indicationPreferenceKey : null"
+            :preferenceSaveUrl="indicationPreferencesPersisted ? path('app_data_table_preferences_save') : null"
+            :preferenceCsrfToken="indicationPreferencesPersisted ? csrf_token('data_table_preference_' ~ indicationPreferenceKey) : null"
+            :preferenceReturnUrl="indicationPreferencesPersisted ? app.request.requestUri : null"
+            :cellContext="cellContext"
         >
             <twig:block name="empty_actions">
                 {% if search is not empty %}
-                    <a class="btn btn-primary" href="{{ path(pagination_route, {type: active_type, sortBy: sortBy, orderBy: orderBy}) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                    <a class="btn btn-primary" href="{{ path(pagination_route, data_table_view_query()|merge({type: active_type})) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
                 {% endif %}
             </twig:block>
         </twig:DataTable>

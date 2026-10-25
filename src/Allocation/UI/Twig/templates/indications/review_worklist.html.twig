@@ -100,8 +100,8 @@
             emptyIcon="{{ query.search is not empty ? 'tabler:filter-off' : 'tabler:inbox' }}"
             :cellContext="{ occurrence_counts: occurrence_counts, query: query }"
             :columns="[
-                { key: 'code', type: 'badge', label: 'label.indication.code', property: 'code' },
-                { key: 'name', type: 'text', label: 'label.name', property: 'name' },
+                { key: 'code', type: 'badge', label: 'label.indication.code', property: 'code', sortable: true, sortKey: 'code' },
+                { key: 'name', type: 'text', label: 'label.name', property: 'name', sortable: true, sortKey: 'name' },
                 { key: 'reviewStatus', type: 'custom', label: 'label.indication.review_status', cellTemplate: '@Allocation/indications/_cell_worklist_status.html.twig' },
                 { key: 'occurrence', type: 'custom', label: 'label.indication.occurrences', sortable: true, sortKey: 'occurrence', cellTemplate: '@Allocation/indications/_cell_occurrence.html.twig' },
                 { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt' },

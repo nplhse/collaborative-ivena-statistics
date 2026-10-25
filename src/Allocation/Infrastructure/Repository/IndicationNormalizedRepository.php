@@ -30,17 +30,18 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
             ->addSelect('(CASE WHEN i.updatedAt IS NOT NULL THEN i.updatedAt ELSE i.createdAt END) AS HIDDEN sortDate')
         ;
 
-        if ('lastChange' === $queryParametersDTO->sortBy) {
-            $qb->orderBy('sortDate', $queryParametersDTO->orderBy);
-        } else {
-            $sortField = match ($queryParametersDTO->sortBy) {
-                'id' => 'i.id',
-                'name' => 'i.name',
-                'code' => 'i.code',
-                default => 'i.code',
-            };
-            $qb->orderBy($sortField, $queryParametersDTO->orderBy);
+        if ('occurrence' === $queryParametersDTO->sortBy) {
+            $qb->addSelect(sprintf(
+                'ADD_SUBQUERIES((SELECT COUNT(o1.indicationNormalized) FROM %1$s o1 WHERE o1.indicationNormalized = i), (SELECT COUNT(o2.secondaryIndicationNormalized) FROM %1$s o2 WHERE o2.secondaryIndicationNormalized = i)) AS HIDDEN occurrenceCount',
+                Allocation::class,
+            ));
+        } elseif ('rawCount' === $queryParametersDTO->sortBy) {
+            $qb->addSelect('SIZE(i.children) AS HIDDEN rawCount');
         }
+
+        // The id tie-breaker keeps rows with equal sort values on a stable page.
+        $qb->orderBy(self::listSortField($queryParametersDTO->sortBy), $queryParametersDTO->orderBy)
+            ->addOrderBy('i.id', $queryParametersDTO->orderBy);
 
         if (null !== $queryParametersDTO->search) {
             $qb->andWhere($qb->expr()->like('LOWER(i.name)', ':search'))
@@ -49,6 +50,20 @@ final class IndicationNormalizedRepository extends ServiceEntityRepository
         }
 
         return $qb;
+    }
+
+    /**
+     * Maps a public sort key of the normalized indication list (see IndicationNormalizedListColumns::SORT_KEYS) to its DQL field.
+     */
+    public static function listSortField(string $sortBy): string
+    {
+        return match ($sortBy) {
+            'name' => 'i.name',
+            'rawCount' => 'rawCount',
+            'occurrence' => 'occurrenceCount',
+            'lastChange' => 'sortDate',
+            default => 'i.code',
+        };
     }
 
     /**
