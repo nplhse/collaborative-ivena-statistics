@@ -22,9 +22,10 @@ Personal notifications for users: a persistent in-app inbox, toasts for active s
 
 | Type | Category | Default channels | Recipients | Published when |
 |------|----------|------------------|------------|----------------|
-| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; reprocess or console run: its initiator; batch runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
+| `import.completed` | Imports | in-app, toast | upload: creator and hospital owner; reprocess or console run: its initiator; batch and bulk reprocess runs: nobody (see `import.batch_finished`) | an import run ends as completed or partial |
 | `import.failed` | Imports | in-app, toast | as above | an import run ends as failed (text from the reason code) |
-| `import.batch_finished` | Imports | in-app, toast | the batch's `--notify-user` (admins only; hidden without `ROLE_ADMIN`) | the last item of a batch re-import finished ([details](../import/batch-requeue.md#completion-and-summary)) |
+| `import.batch_finished` | Imports | in-app, toast | the user who started the batch (`--notify-user` or bulk reprocess) | the last item of a batch finished and none failed ([details](../import/batch-requeue.md#completion-and-summary)) |
+| `import.batch_failed` | Imports | in-app, toast (high priority) | as above | the last item of a batch finished and at least one failed |
 | `user.first_import` | Imports | in-app, toast | the import's creator (hospital-scoped; not announced when the import is gone) | the creator's first successful import is recorded |
 | `engagement.monthly_reminder` | Reports | email (web optional) | the hospital owner | the monthly reminder is due (first working day), an administrator sends it by hand, or it is sent from the CLI |
 | `announcement.new_feature` | Announcements | web | every enabled user | a new feature is introduced (parameter `feature`); the notification system itself was announced by a migration at deploy time |

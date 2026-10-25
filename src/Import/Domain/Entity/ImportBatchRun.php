@@ -14,6 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'import_batch_run')]
 class ImportBatchRun
 {
+    /** `options.source` of a bulk reprocess started from the import list. Console batches have no source. */
+    public const string SOURCE_UI = 'ui';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -85,6 +88,13 @@ class ImportBatchRun
     public function getOptions(): array
     {
         return $this->options;
+    }
+
+    public function getInitiatedByUserId(): ?int
+    {
+        $initiator = $this->options['initiatedByUserId'] ?? null;
+
+        return \is_int($initiator) ? $initiator : null;
     }
 
     public function getStartedAt(): \DateTimeImmutable

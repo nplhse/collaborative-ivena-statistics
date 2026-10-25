@@ -7,7 +7,7 @@ namespace App\Import\Domain\Enum;
 /**
  * Where a run came from. Decides who is told about its outcome (ADR 016):
  * an upload notifies the import's creator (and the hospital owner), a console or reprocess run only its initiator,
- * a batch run nobody.
+ * a batch or bulk reprocess run nobody (its batch sends one summary).
  */
 enum ImportRunTrigger: string
 {
@@ -19,4 +19,6 @@ enum ImportRunTrigger: string
     case BatchRequeue = 'batch_requeue';
     /** A user reprocessed an existing import from its detail page. */
     case Reprocess = 'reprocess';
+    /** One import of a bulk reprocess from the import list; the batch sends one summary. */
+    case BulkReprocess = 'bulk_reprocess';
 }

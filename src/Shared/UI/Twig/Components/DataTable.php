@@ -136,6 +136,13 @@ final class DataTable
     /** Row property that must be truthy for the row to get a checkbox; null selects every row. */
     public ?string $bulkSelectableProperty = null;
 
+    /**
+     * Ids of the rows that get a checkbox, for example those the user may change; null selects every row.
+     *
+     * @var list<int|string>|null
+     */
+    public ?array $bulkSelectableIds = null;
+
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly UrlGeneratorInterface $urlGenerator,
@@ -167,7 +174,12 @@ final class DataTable
      */
     public function isBulkSelectable(object|array $row): bool
     {
-        if (null === $this->bulkRowId($row)) {
+        $id = $this->bulkRowId($row);
+        if (null === $id) {
+            return false;
+        }
+
+        if (null !== $this->bulkSelectableIds && !\in_array($id, array_map(strval(...), $this->bulkSelectableIds), true)) {
             return false;
         }
 

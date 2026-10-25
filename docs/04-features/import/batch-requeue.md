@@ -81,12 +81,14 @@ Item status `queued` means the message was handed to Messenger, not that the CSV
 
 ## Completion and summary
 
-When every item is dispatched, the batch gets the status `finished` and `dispatch_closed_at`. Processing goes on in the worker. As soon as no item is `pending`, `running`, `queued` or `interrupted` any more, the batch gets `processing_finished_at` and the user given with `--notify-user` receives one summary (`import.batch_finished`, admins only): completed, partial, failed (including `dispatch_failed` and `skipped`) and superseded items, with a link to the batch in the admin area. Runs of a batch send no notification of their own.
+When every item is dispatched, the batch gets the status `finished` and `dispatch_closed_at`. Processing goes on in the worker. As soon as no item is `pending`, `running`, `queued` or `interrupted` any more, the batch gets `processing_finished_at` and the user given with `--notify-user` (or the user who started a [bulk reprocess](bulk-actions.md)) receives one summary: `import.batch_finished` when nothing failed, otherwise `import.batch_failed` (high priority). It counts completed, partial, failed (including `dispatch_failed` and `skipped`) and superseded items and links to the import list filtered to the batch (`/import?batch=<id>`); the admin area still shows the batch under *Import batch runs*. Runs of a batch send no notification of their own.
 
 - The check locks the batch row and runs in the transaction that ends an item's run (or registers a newer run for its import), and once more when the dispatch phase closes. The summary is published in that transaction (ADR 016).
 - Batches that are `interrupted` or `failed` (max retries) do not close their dispatch phase and get no summary until a resumed run finishes them.
 - The hourly notification reconciliation completes batches that were closed but never completed and publishes lost summaries of the last 24 hours again.
 - Batches finished before this feature were marked as processed by the migration; nobody gets a summary for them.
+
+Bulk reprocess batches from the import list (`options.source = ui`) close their dispatch phase right away and are never continued by `--resume`.
 
 ## Reimport cleanup
 

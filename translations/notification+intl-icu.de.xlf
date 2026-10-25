@@ -43,7 +43,7 @@
       </trans-unit>
       <trans-unit id="Ntf72CD762A" resname="import.batch_finished.title">
         <source>import.batch_finished.title</source>
-        <target>Batch-Re-Import #{batchId} abgeschlossen</target>
+        <target>{total, plural, one {# Import} other {# Importe}} erfolgreich verarbeitet</target>
       </trans-unit>
       <trans-unit id="Ntf838AD818" resname="import.batch_finished.message">
         <source>import.batch_finished.message</source>
@@ -327,7 +327,7 @@
       </trans-unit>
       <trans-unit id="Ntf9E64AC41" resname="import.batch_finished.label">
         <source>import.batch_finished.label</source>
-        <target>Batch-Re-Import abgeschlossen</target>
+        <target>Mehrere Importe verarbeitet</target>
       </trans-unit>
       <trans-unit id="Ntf9244EACB" resname="user.first_import.label">
         <source>user.first_import.label</source>
@@ -376,6 +376,18 @@
       <trans-unit id="Ntf5B0D5B41" resname="admin.feedback_received.label">
         <source>admin.feedback_received.label</source>
         <target>Neues Feedback</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailTitleDe" resname="import.batch_failed.title">
+        <source>import.batch_failed.title</source>
+        <target>{succeeded, number} von {total, plural, one {# Import} other {# Importen}} abgeschlossen, {failed, plural, one {# benötigt} other {# benötigen}} Aufmerksamkeit</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailMsgDe" resname="import.batch_failed.message">
+        <source>import.batch_failed.message</source>
+        <target>{total, plural, one {# Import} other {# Importe}}: {completed, number} abgeschlossen, {partial, number} mit abgelehnten Zeilen, {failed, number} fehlgeschlagen, {superseded, number} durch einen neueren Lauf ersetzt.</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailLabelDe" resname="import.batch_failed.label">
+        <source>import.batch_failed.label</source>
+        <target>Mehrere Importe verarbeitet, mit Fehlern</target>
       </trans-unit>
     </body>
   </file>
