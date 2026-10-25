@@ -24,16 +24,60 @@ final class StorageMeasurementTest extends TestCase
         self::assertEquals([$item], $measurement->getItems());
     }
 
-    public function testReplacesValuesWithANewerMeasurementOfTheSameDay(): void
+    public function testExposesEveryValue(): void
     {
-        $measurement = $this->measurement(used: 100);
-        $newer = $this->measurement(day: '2026-10-25 14:00', used: 900, level: CapacityLevel::Warning);
+        $measurement = $this->measurement();
+
+        self::assertNull($measurement->getId());
+        self::assertSame('2026-10-25 03:30', $measurement->getMeasuredAt()->format('Y-m-d H:i'));
+        self::assertSame(1200, $measurement->getDurationMs());
+        self::assertSame(MeasurementMode::Standalone, $measurement->getMode());
+        self::assertSame(100, $measurement->getUsedBytes());
+        self::assertSame(40, $measurement->getDatabaseBytes());
+        self::assertSame(CapacitySource::Budget, $measurement->getCapacitySource());
+        self::assertSame(1000, $measurement->getCapacityBytes());
+        self::assertSame(1000, $measurement->getBudgetBytes());
+        self::assertSame(5000, $measurement->getFilesystemTotalBytes());
+        self::assertSame(2500, $measurement->getFilesystemFreeBytes());
+        self::assertSame(CapacityLevel::Normal, $measurement->getLevel());
+        self::assertSame([], $measurement->getItems());
+    }
+
+    public function testReplacesEveryValueWithANewerMeasurementOfTheSameDay(): void
+    {
+        $measurement = $this->measurement();
+        $item = new StorageMeasurementItem(StorageLocation::Shared, StorageCategory::Imports, 'var_imports', 700, locationDetail: 'var/imports');
+        $newer = new StorageMeasurement(
+            measuredOn: new \DateTimeImmutable('2026-10-25 14:00'),
+            measuredAt: new \DateTimeImmutable('2026-10-25 14:00'),
+            durationMs: 9000,
+            mode: MeasurementMode::Deployer,
+            usedBytes: 4800,
+            databaseBytes: 300,
+            capacitySource: CapacitySource::Filesystem,
+            capacityBytes: 5000,
+            budgetBytes: null,
+            filesystemTotalBytes: 5000,
+            filesystemFreeBytes: 200,
+            level: CapacityLevel::Critical,
+            items: [$item],
+        );
 
         $measurement->replaceWith($newer);
 
-        self::assertSame(900, $measurement->getUsedBytes());
-        self::assertSame(CapacityLevel::Warning, $measurement->getLevel());
+        self::assertSame('2026-10-25 00:00', $measurement->getMeasuredOn()->format('Y-m-d H:i'));
         self::assertSame('2026-10-25 14:00', $measurement->getMeasuredAt()->format('Y-m-d H:i'));
+        self::assertSame(9000, $measurement->getDurationMs());
+        self::assertSame(MeasurementMode::Deployer, $measurement->getMode());
+        self::assertSame(4800, $measurement->getUsedBytes());
+        self::assertSame(300, $measurement->getDatabaseBytes());
+        self::assertSame(CapacitySource::Filesystem, $measurement->getCapacitySource());
+        self::assertSame(5000, $measurement->getCapacityBytes());
+        self::assertNull($measurement->getBudgetBytes());
+        self::assertSame(5000, $measurement->getFilesystemTotalBytes());
+        self::assertSame(200, $measurement->getFilesystemFreeBytes());
+        self::assertSame(CapacityLevel::Critical, $measurement->getLevel());
+        self::assertEquals([$item], $measurement->getItems());
     }
 
     public function testDoesNotReplaceWithAnotherDay(): void
@@ -108,8 +152,8 @@ final class StorageMeasurementTest extends TestCase
             capacitySource: $source,
             capacityBytes: $capacity,
             budgetBytes: $capacity,
-            filesystemTotalBytes: null,
-            filesystemFreeBytes: null,
+            filesystemTotalBytes: 5000,
+            filesystemFreeBytes: 2500,
             level: $level,
             items: $items,
         );
