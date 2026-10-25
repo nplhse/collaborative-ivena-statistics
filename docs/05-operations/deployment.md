@@ -114,6 +114,8 @@ Manual checks that `app:env:check` cannot perform:
 - [ ] Optional: `SENTRY_CSP_REPORT_URI` set and CSP violations appear in Sentry — see [content-security-policy.md#sentry-integration](content-security-policy.md#sentry-integration)
 - [ ] Backups scheduled on Uberspace (cron — see [backup-restore.md](backup-restore.md))
 - [ ] Sentry Uptime Monitor on `GET /health` — see [health-check.md](health-check.md)
+- [ ] Storage budget set: `STORAGE_BUDGET_BYTES` in `shared/.env.local` (replaces `APP_ADMIN_STORAGE_LIMIT_BYTES`) — see [../06-reference/configuration.md](../06-reference/configuration.md#storage-monitoring)
+- [ ] First storage measurement stored, so health is not `unavailable` until the scheduled run at 03:30: `cd ~/www/current && php bin/console app:storage:analyze --persist` — see [../04-features/storage/README.md](../04-features/storage/README.md)
 
 ### P1 - before first invite (beta)
 

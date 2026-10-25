@@ -28,6 +28,7 @@ twig:
         '%kernel.project_dir%/src/User/UI/Twig/templates': User
         '%kernel.project_dir%/src/Shared/UI/Twig/templates': Shared
         '%kernel.project_dir%/src/Statistics/UI/Twig/templates': Statistics
+        '%kernel.project_dir%/src/Storage/UI/Twig/templates': Storage
 
     form_themes:
         - 'bootstrap_5_layout.html.twig'

@@ -317,6 +317,30 @@ deptrac:
                     type: directory
                     value: src/Admin/UI/.*
         -
+            name: Storage_Domain
+            collectors:
+                -
+                    type: directory
+                    value: src/Storage/Domain/.*
+        -
+            name: Storage_Application
+            collectors:
+                -
+                    type: directory
+                    value: src/Storage/Application/.*
+        -
+            name: Storage_Infrastructure
+            collectors:
+                -
+                    type: directory
+                    value: src/Storage/Infrastructure/.*
+        -
+            name: Storage_UI
+            collectors:
+                -
+                    type: directory
+                    value: src/Storage/UI/.*
+        -
             name: Install_Application
             collectors:
                 -
@@ -375,6 +399,10 @@ deptrac:
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Storage_Application
+            - Storage_Domain
+            - Storage_Infrastructure
+            - Storage_UI
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -425,6 +453,10 @@ deptrac:
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Storage_Application
+            - Storage_Domain
+            - Storage_Infrastructure
+            - Storage_UI
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -475,6 +507,10 @@ deptrac:
             - Statistics_Domain
             - Statistics_Infrastructure
             - Statistics_UI
+            - Storage_Application
+            - Storage_Domain
+            - Storage_Infrastructure
+            - Storage_UI
             - User_Application
             - User_Domain
             - User_Infrastructure
@@ -1022,6 +1058,37 @@ deptrac:
             - User_Domain
             - User_Infrastructure
             - User_UI
+        Storage_Application:
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Storage_Domain
+        Storage_Domain:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+        Storage_Infrastructure:
+            - Notification_Application
+            - Notification_Domain
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Storage_Application
+            - Storage_Domain
+            - User_Application
+            - User_Domain
+        Storage_UI:
+            - Shared_Application
+            - Shared_Domain
+            - Shared_Infrastructure
+            - Shared_UI
+            - Storage_Application
+            - Storage_Domain
         User_Application:
             - Allocation_Domain
             - Shared_Application

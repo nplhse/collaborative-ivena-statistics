@@ -9,7 +9,17 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Storage\Application\Contract\StorageMeasurementRepositoryInterface;
+use App\Storage\Domain\Entity\StorageMeasurement;
+use App\Storage\Domain\Enum\CapacityLevel;
+use App\Storage\Domain\Enum\CapacitySource;
+use App\Storage\Domain\Enum\MeasurementMode;
+use App\Storage\Domain\Enum\StorageCategory;
+use App\Storage\Domain\Enum\StorageLocation;
+use App\Storage\Domain\ValueObject\StorageMeasurementItem;
+use App\Tests\Support\Storage\StorageMeasurementBuilder;
 use App\User\Domain\Factory\UserFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +40,7 @@ final class DashboardOperationsTest extends WebTestCase
             ->create([
                 'username' => 'ops-admin-'.bin2hex(random_bytes(4)),
             ]);
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
 
         $client->loginUser($admin);
         $crawler = $client->request(Request::METHOD_GET, '/admin');
@@ -38,9 +49,9 @@ final class DashboardOperationsTest extends WebTestCase
         $text = $crawler->text();
         self::assertStringContainsString('Operations', $text);
         self::assertStringContainsString('Failed messages', $text);
-        self::assertStringContainsString('Total storage', $text);
-        self::assertStringContainsString('Database', $text);
-        self::assertStringContainsString('Imports / media', $text);
+        self::assertStringContainsString('Configured budget', $crawler->filter('.ea-storage-card')->text());
+        self::assertStringNotContainsString('Total storage', $text);
+        self::assertStringNotContainsString('Imports / media', $text);
         self::assertStringContainsString('Recent notifications', $text);
         self::assertStringContainsString('Healthy', $text);
         self::assertStringNotContainsString('Reminders this month', $text);
@@ -54,7 +65,83 @@ final class DashboardOperationsTest extends WebTestCase
 
         self::assertCount(1, $crawler->filter('[data-controller="admin-kpi-chart"]'));
         self::assertCount(0, $crawler->filter('[data-controller="admin-ops-chart"]'));
-        self::assertGreaterThan(0, $crawler->filter('.ea-ops-card-trend')->count());
+        self::assertCount(1, $crawler->filter('.ea-storage-card'));
+        self::assertCount(1, $crawler->filter('.ea-storage-card a[href*="/admin/operations/storage"]'));
+    }
+
+    public function testDashboardShowsTheCompactStorageCardFromTheLatestMeasurement(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+
+        self::getContainer()->get(StorageMeasurementRepositoryInterface::class)->save(new StorageMeasurement(
+            measuredOn: new \DateTimeImmutable('today', new \DateTimeZone('Europe/Berlin')),
+            measuredAt: new \DateTimeImmutable('-1 hour'),
+            durationMs: 1000,
+            mode: MeasurementMode::Standalone,
+            usedBytes: 3 * 1024 ** 3,
+            databaseBytes: 1024 ** 3,
+            capacitySource: CapacitySource::Budget,
+            capacityBytes: 10 * 1024 ** 3,
+            budgetBytes: 10 * 1024 ** 3,
+            filesystemTotalBytes: null,
+            filesystemFreeBytes: null,
+            level: CapacityLevel::Normal,
+            items: [
+                new StorageMeasurementItem(StorageLocation::Database, StorageCategory::Database, 'database', 1024 ** 3),
+                new StorageMeasurementItem(StorageLocation::Project, StorageCategory::Application, 'vendor', 2 * 1024 ** 3),
+            ],
+        ));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $card = $crawler->filter('.ea-storage-card');
+        self::assertCount(1, $card);
+        $text = $card->text();
+        self::assertStringContainsString('3.00 GB', $text);
+        self::assertStringContainsString('of 10.00 GB', $text);
+        self::assertStringContainsString('Configured budget', $text);
+        self::assertStringContainsString('7.00 GB free', $text);
+        self::assertStringContainsString('30 % used', $text);
+        self::assertStringNotContainsString('Normal', $text, 'the level is not repeated on the card');
+        self::assertStringContainsString('30 % used · Measured', (string) preg_replace('/\s+/', ' ', $card->filter('.ea-storage-card__status')->text()));
+        self::assertStringNotContainsString('quota', strtolower($text));
+        self::assertCount(2, $card->filter('.ea-storage-bar__segment'));
+    }
+
+    public function testHealthCardShowsOnlyTheStorageValueAndLinksToDiskUsage(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::new()->asAdmin()->create();
+        $this->store(StorageMeasurementBuilder::measuredAt(
+            new \DateTimeImmutable('-1 hour'),
+            CapacityLevel::Warning,
+            usedBytes: 9 * 1024 ** 3,
+        ));
+
+        $client->loginUser($admin);
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $item = $crawler->filter('[data-health-check="storage"]');
+        self::assertCount(1, $item);
+        self::assertStringEndsWith('/admin/operations/storage', (string) $item->attr('href'));
+        self::assertStringContainsString('bg-warning', (string) $item->attr('class'));
+
+        self::assertSame('Storage: warning', $item->text());
+    }
+
+    public function testWithoutMeasurementHealthIsDegradedAndTheStorageCardIsEmpty(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Degraded', $crawler->filter('.ea-ops-health-banner')->text());
+        self::assertSame('Storage: unavailable', $crawler->filter('[data-health-check="storage"]')->text());
+        self::assertStringContainsString('No storage measurement yet', $crawler->filter('.ea-storage-card')->text());
     }
 
     public function testFailedImportsDashboardShows30DayFilterAndViewAllLink(): void
@@ -100,6 +187,13 @@ final class DashboardOperationsTest extends WebTestCase
         $badge = $this->findFailedImportsBadge($crawler);
         self::assertNotNull($badge);
         self::assertSame('2', trim($badge->text()));
+    }
+
+    private function store(StorageMeasurement $measurement): void
+    {
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $entityManager->persist($measurement);
+        $entityManager->flush();
     }
 
     private function findFailedImportsBadge(Crawler $crawler): ?Crawler
