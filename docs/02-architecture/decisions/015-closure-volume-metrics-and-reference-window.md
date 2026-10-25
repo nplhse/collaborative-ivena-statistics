@@ -40,7 +40,9 @@ Under-estimated coverage only keeps events provisional longer. Over-estimated co
 
 **Processing.**
 
-- `closure_reference_hour` stores observed hourly counts per population without event-specific exclusions. It is refreshed by re-aggregating affected hours after allocation imports.
+- Allocation counts are aggregated from `allocation_stats_projection` per rebuild partition, as before. A materialised hourly reference table was planned here and dropped after measuring (see Alternatives).
+- Rebuild time is spent in PHP planning, writing and reference rates; these are optimised instead: closures that can influence a context hour are looked up per population and time instead of scanned, and the build table is written with `COPY`.
+- Every run records seconds and SQL statements per step; `closure_rebuild_run.query_count` keeps the statement count.
 - `closure_volume_hour` becomes a narrow result table keyed by `event_id, scope, speciality_id, department_id, bucket_start, metric_kind`. It keeps population and hospital observed/expected values.
 - An SQL-based planner selects events whose observation or reference window intersects changed data. Results are replaced atomically per event batch.
 - Closure processing runs only for hospitals with `closure_event` rows. A full rebuild remains available for recovery and migrations.
@@ -73,6 +75,7 @@ Under-estimated coverage only keeps events provisional longer. Over-estimated co
 - **Load the full hospital window into PHP (benchmark variant A)** — rejected for routine imports; exceeds the worker memory budget
 - **Per-window reference loading or bounded LRU cache (variants E1/E2)** — rejected; thousands of near-unique windows cause query explosion and cache churn
 - **Projection state machine per hospital** — rejected for now; an existence check on `closure_event` suffices
+- **Materialised hourly reference table (`closure_reference_hour`) with batched loading** — dropped on 25 October 2026 after profiling the rebuild on production data (hospitals 40, 64, 77): loading allocation counts took under 0.5 s per hospital, while planning the hour rows took 38–55 %, inserting 24–27 % and reference rates 6–19 % of 184–561 s. The table would have added refresh logic after every allocation import for about 0.1 % of the run time
 
 ## References
 
