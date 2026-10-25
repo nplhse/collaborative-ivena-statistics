@@ -194,6 +194,14 @@ final class ClosureProfileQueryTest extends KernelTestCase
 
         $missing = $profiles->recurringGroupRows($criteria, new ClosureRecurringProfileTableQuery('eventCount', 'desc', 'Does Not Exist'));
         self::assertSame([], $missing);
+
+        $withoutHospitals = new ClosureAnalyticsCriteria(
+            new StatisticsScopeCriteria([]),
+            $criteria->period,
+            $criteria->timeSeriesGrain,
+            $criteria->filter,
+        );
+        self::assertSame([], $profiles->recurringGroupRows($withoutHospitals, new ClosureRecurringProfileTableQuery('eventCount', 'desc', '')));
     }
 
     public function testCourseWeightsEventsExcludesMissingValuesAndDedupesOverlap(): void
