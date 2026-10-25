@@ -2,8 +2,8 @@
     id="allocation-filters"
     formId="allocation-filter-form"
     formAction="{{ path('app_explore_allocation_list') }}"
-    resetUrl="{{ path('app_explore_allocation_list') }}"
-    :keepQueryKeys="['sortBy', 'orderBy']"
+    resetUrl="{{ path('app_explore_allocation_list', data_table_view_query()) }}"
+    keepViewState
     :resetBtnClass="''"
     testId="allocation-filters-drawer"
     cancelTestId="allocation-filters-cancel"
