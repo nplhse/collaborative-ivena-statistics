@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Statistics\UI\Console\Command;
 
 use App\Statistics\Application\Contract\ClosureRebuildRequestInterface;
+use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -12,12 +13,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:statistics:closure-rebuild-requests',
-    description: 'List unconsumed closure rebuild requests and re-queue failed ones.',
+    description: 'List unconsumed closure rebuild requests, re-queue failed ones or process open ones now.',
 )]
 final readonly class ClosureRebuildRequestsCommand
 {
-    public function __construct(private ClosureRebuildRequestInterface $requests)
-    {
+    public function __construct(
+        private ClosureRebuildRequestInterface $requests,
+        private ClosureVolumeProjectionRebuildInterface $rebuild,
+    ) {
     }
 
     public function __invoke(
@@ -26,12 +29,27 @@ final readonly class ClosureRebuildRequestsCommand
         ?int $hospital = null,
         #[Option(description: 'Return failed requests to the queue and schedule a rebuild')]
         bool $retryFailed = false,
+        #[Option(description: 'Process the open requests now, as the worker does (incremental where they carry a range)')]
+        bool $run = false,
     ): int {
         $io->title('Closure rebuild requests');
 
         if ($retryFailed) {
             $count = $this->requests->retryFailed($hospital);
             $io->success(sprintf('%d failed requests re-queued.', $count));
+        }
+        if ($run) {
+            $started = microtime(true);
+            $this->rebuild->consume(true, 'console');
+            $io->success(sprintf('Open requests processed (%.1fs).', microtime(true) - $started));
+            $steps = $this->rebuild->lastProfile();
+            if ([] !== $steps) {
+                $io->table(['Step', 'Seconds', 'Queries'], array_map(
+                    static fn (string $step, array $profile): array => [$step, sprintf('%.1f', $profile['seconds']), $profile['queries']],
+                    array_keys($steps),
+                    array_values($steps),
+                ));
+            }
         }
 
         $rows = $this->requests->unconsumed($hospital);

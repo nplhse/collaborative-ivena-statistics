@@ -173,8 +173,28 @@ second rebuild; a failure after that cleanup does. A successful completion
 schedules one analysis. Deleting a source schedules analysis for that hospital;
 deleting only allocations schedules volume.
 
-`closure_rebuild_request` stores the hospital and the kind (`analysis` or
-`volume`). The handler claims open requests under the lock
+Rebuilds are incremental (ADR 015 phase 4). A request carries the changed range
+(`range_from`/`range_to`): an allocation import its export period (or the range
+of its allocations), a closure import and deleted import data the import's
+export period. Coverage changes and failed re-runs carry no range. An open
+request that already covers the hospital is widened instead of queuing a second
+one; a missing range wins. The analysis rebuild reports which events it created,
+changed or removed (a signature over their intervals). `ClosureVolumeRebuildPlanner`
+then selects, per hospital, the events whose load range
+`[start − 4 weeks − 6 h, end + 4 weeks + 6 h)` intersects a changed range or the
+old/new extent of a changed event, the created and changed events, and every
+event that is still provisional. Only those events are rebuilt; publishing
+replaces their rows and drops rows of removed events in one transaction. A
+request without range, a request for all hospitals and late claims rebuild whole
+hospitals. Results do not depend on which events are rebuilt together: an
+event's known departments come from its own load range.
+`ClosureVolumeIncrementalRebuildTest` compares every incremental case with a full
+rebuild. On the production dump, a simulated monthly allocation import for
+hospital 40 rebuilt 105 of 822 events in 7.4 s (full: 60 s), a monthly closure
+import 207 events in 16.1 s, both identical to a full rebuild.
+
+`closure_rebuild_request` stores the hospital, the kind (`analysis` or
+`volume`) and the range. The handler claims open requests under the lock
 `closure-volume-projection`. Requests for the same hospitals that arrive during
 the run are claimed before publish and rebuilt in a second pass, which the
 console progress shows; a console rebuild takes requests it already covers
@@ -215,8 +235,9 @@ A request moves through these states (all timestamps Europe/Berlin):
 - **released:** a failed run clears the claim and stores `last_error`; the next
   run retries it. Messenger retries the message three times.
 - **failed:** after three claims (failed or orphaned) `failed_at` parks the
-  request. `app:statistics:closure-rebuild-requests` lists unconsumed requests;
-  `--retry-failed` re-queues failed ones with a fresh budget.
+  request. `app:statistics:closure-rebuild-requests` lists unconsumed requests
+  with their range; `--retry-failed` re-queues failed ones with a fresh budget,
+  `--run` processes the open ones now as the worker would.
 
 An hourly scheduler message (minute 40) consumes requests nobody picked up, for
 example after a killed console rebuild. It skips the run while another rebuild

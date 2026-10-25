@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
+use App\Statistics\UI\Console\Command\ClosureRebuildRequestsCommand;
 use App\Statistics\UI\Console\Command\RebuildClosureVolumeProjectionCommand;
 use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
@@ -94,6 +95,33 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
         self::assertSame(1, (int) $run['request_count']);
         self::assertGreaterThan(0, (int) $run['query_count']);
         self::assertSame((int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour'), (int) $run['hours_written']);
+    }
+
+    #[Test]
+    public function requestsCommandProcessesOpenRequestsLikeTheWorker(): void
+    {
+        self::bootKernel();
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get(Connection::class);
+        $seed = $this->seedClosureGraph($connection);
+        $this->rebuildClosureAnalysis();
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($seed['importId']);
+        $connection->insert('closure_rebuild_request', [
+            'kind' => 'volume',
+            'hospital_id' => $seed['hospitalId'],
+            'requested_at' => '2026-10-14 15:58:55',
+            'range_from' => '2026-01-01 00:00:00',
+            'range_to' => '2026-12-31 00:00:00',
+        ]);
+
+        $tester = new CommandTester(self::getContainer()->get(ClosureRebuildRequestsCommand::class));
+        $tester->execute(['--run' => true]);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Open requests processed', $tester->getDisplay());
+        self::assertStringContainsString('No unconsumed requests.', $tester->getDisplay());
+        self::assertSame('console', $connection->fetchOne('SELECT triggered_by FROM closure_rebuild_run'));
+        self::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour WHERE hospital_id = ?', [$seed['hospitalId']]));
     }
 
     #[Test]

@@ -71,7 +71,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
     }
 
     #[\Override]
-    public function consume(bool $waitForLock = true): void
+    public function consume(bool $waitForLock = true, ?string $trigger = null): void
     {
         $lock = $this->lockFactory->createLock(self::LOCK, null);
         if (!$lock->acquire($waitForLock)) {
@@ -99,7 +99,7 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
                 }
                 if (!$began) {
                     // No run is recorded when the check finds nothing to do.
-                    $this->telemetry->begin($runId, $waitForLock ? 'messenger' : 'scheduler', $work->all ? null : $work->hospitalIds);
+                    $this->telemetry->begin($runId, $trigger ?? ($waitForLock ? 'messenger' : 'scheduler'), $work->all ? null : $work->hospitalIds);
                     $began = true;
                 }
                 $this->telemetry->claimedRequests(\count($work->requestIds));

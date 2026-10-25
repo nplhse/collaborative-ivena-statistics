@@ -16,7 +16,7 @@ interface ClosureVolumeProjectionRebuildInterface
     /**
      * Rebuilds what open rebuild requests ask for. Without $waitForLock it returns at once while another rebuild runs.
      */
-    public function consume(bool $waitForLock = true): void;
+    public function consume(bool $waitForLock = true, ?string $trigger = null): void;
 
     public function maxPartitionBytes(): int;
 
