@@ -21,17 +21,12 @@ interface StorageMeasurementRepositoryInterface
      */
     public function latest(): ?StorageMeasurement;
 
-    /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
-     */
     public function findForDay(\DateTimeImmutable $day): ?StorageMeasurement;
 
     /**
      * Measurements from the given day on, oldest first.
      *
      * @return list<StorageMeasurement>
-     *
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
      */
     public function findSince(\DateTimeImmutable $day): array;
 }
