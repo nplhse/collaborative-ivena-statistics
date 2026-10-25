@@ -25,17 +25,20 @@
             <twig:FilterDrawerTrigger
                 drawerId="hospital-filters"
                 :activeCount="activeFilterCount"
-                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_hospital_list') : null }}"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_hospital_list', data_table_view_query()) : null }}"
                 openTestId="hospital-filters-drawer-trigger"
                 clearTestId="hospital-filters-clear"
+                keepViewState
             />
 
             <form
                 method="GET"
                 action="{{ path('app_explore_hospital_list') }}"
-                data-controller="autosubmit"
+                data-controller="autosubmit query-state"
+                data-query-state-omit-value="{{ ['search']|json_encode }}"
                 data-turbo-frame="hospital-list"
             >
+                {{ include('@Shared/components/data_table/_query_hidden_fields.html.twig', {omit: ['search']}) }}
                 <div class="input-icon">
                     <input
                         type="search"
@@ -83,20 +86,19 @@
             emptyTitle="{{ (activeFilterCount > 0 ? 'empty.filtered.title' : 'empty.catalog.title')|trans({}, 'shared') }}"
             emptyDescription="{{ (activeFilterCount > 0 ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
             emptyIcon="{{ activeFilterCount > 0 ? 'tabler:filter-off' : 'tabler:building-hospital' }}"
-            :columns="[
-                { key: 'participating', type: 'boolean', label: '', property: 'participating' },
-                { key: 'name', type: 'link', label: 'label.name', property: 'name', sortable: true, sortKey: 'name', width: 'col-3', route: 'app_explore_hospital_show', routeParams: {publicId: 'publicId'} },
-                { key: 'dispatchArea', type: 'text', label: 'label.dispatch_area', property: 'dispatchArea', sortable: true, sortKey: 'dispatchArea', width: 'col-2' },
-                { key: 'state', type: 'text', label: 'label.state', property: 'state', sortable: true, sortKey: 'state', width: 'col-2' },
-                { key: 'location', type: 'badge', label: 'label.location', property: 'location', sortable: true, sortKey: 'location', width: 'col-1', badgePalette: 'hospital_location' },
-                { key: 'tier', type: 'badge', label: 'label.tier', property: 'tier', sortable: true, sortKey: 'tier', width: 'col-1', badgePalette: 'hospital_tier' },
-                { key: 'size', type: 'badge', label: 'label.size', property: 'size', sortable: true, sortKey: 'size', width: 'col-1', badgePalette: 'hospital_size', numberProperty: 'beds' },
-                { key: 'lastChange', type: 'custom', label: 'label.last_change', sortable: true, sortKey: 'lastChange', width: 'col-2', cellTemplate: '@Allocation/hospitals/_cell_last_change.html.twig' },
-            ]"
+            :columns="hospitalColumns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="hospitalPreferences.visibleColumns"
+            :columnOrder="hospitalPreferences.columnOrder"
+            :preferenceKey="hospitalPreferencesPersisted ? hospitalPreferenceKey : null"
+            :preferenceSaveUrl="hospitalPreferencesPersisted ? path('app_data_table_preferences_save') : null"
+            :preferenceCsrfToken="hospitalPreferencesPersisted ? csrf_token('data_table_preference_' ~ hospitalPreferenceKey) : null"
+            :preferenceReturnUrl="hospitalPreferencesPersisted ? app.request.requestUri : null"
         >
             <twig:block name="empty_actions">
                 {% if activeFilterCount > 0 %}
-                    <a class="btn btn-primary" href="{{ path('app_explore_hospital_list') }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                    <a class="btn btn-primary" href="{{ path('app_explore_hospital_list', data_table_view_query()) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
                 {% endif %}
             </twig:block>
         </twig:DataTable>
@@ -106,12 +108,13 @@
         id="hospital-filters"
         formId="hospital-filter-form"
         formAction="{{ path('app_explore_hospital_list') }}"
-        resetUrl="{{ path('app_explore_hospital_list') }}"
+        resetUrl="{{ path('app_explore_hospital_list', data_table_view_query()) }}"
         testId="hospital-filters-drawer"
         cancelTestId="hospital-filters-cancel"
         applyTestId="hospital-filters-apply"
         resetTestId="hospital-filters-reset"
-        :keepQueryKeys="['search', 'sortBy', 'orderBy']"
+        :keepQueryKeys="['search']"
+        keepViewState
     >
                 <div class="mb-3">
                     <label class="form-label">{{ 'label.tier'|trans({}, 'messages') }}</label>

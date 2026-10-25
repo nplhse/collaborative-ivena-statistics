@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\UI\Twig\Components;
 
+use App\Shared\UI\Twig\DataTable\DataTableQueryState;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
 #[AsTwigComponent(name: 'FilterDrawerTrigger', template: '@Shared/components/FilterDrawerTrigger.html.twig')]
@@ -21,6 +22,17 @@ final class FilterDrawerTrigger
     public ?string $clearTestId = null;
 
     public ?string $countTestId = null;
+
+    /** The clear link keeps the current DataTable view state (sort, page size, columns). */
+    public bool $keepViewState = false;
+
+    /**
+     * @return list<string>
+     */
+    public function getViewQueryKeys(): array
+    {
+        return DataTableQueryState::VIEW_KEYS;
+    }
 
     public function shouldShowClearButton(): bool
     {

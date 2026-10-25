@@ -249,6 +249,31 @@ final class DataTableTest extends TestCase
         ));
     }
 
+    public function testFixedColumnsKeepTheirSlotWhenTheOrderChanges(): void
+    {
+        $table = $this->table(Request::create('/explore/hospital'));
+        $table->columnVisibilityEnabled = true;
+        $table->columnOrderingEnabled = true;
+        // A saved order only knows the picker columns; the fixed icon column is appended by the service.
+        $table->columnOrder = ['beds', 'name', 'tier', 'icon'];
+        $table->columns = [
+            ['key' => 'icon', 'label' => ''],
+            ['key' => 'name', 'label' => 'Name', 'required' => true],
+            ['key' => 'tier', 'label' => 'Tier', 'configurable' => true],
+            ['key' => 'beds', 'label' => 'Beds', 'configurable' => true],
+            ['key' => 'actions', 'label' => ''],
+        ];
+
+        self::assertSame(['icon', 'beds', 'name', 'tier', 'actions'], array_map(
+            static fn (DataTableColumn $column): string => $column->key,
+            $table->getVisibleColumns(),
+        ));
+        self::assertSame(['beds', 'name', 'tier'], array_map(
+            static fn (array $choice): string => $choice['column']->key,
+            $table->getColumnVisibilityChoices(),
+        ));
+    }
+
     public function testCursorFooterUrlsAndHiddenWhenEmpty(): void
     {
         $table = $this->table(Request::create('/explore/allocation', 'GET', [

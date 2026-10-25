@@ -1,0 +1,5 @@
+{# Keeps the current list query (filters, sort, page size, columns) in a GET form; pagination is dropped.
+   Pair the form with the `query-state` Stimulus controller so values stay current after Turbo frame navigation. #}
+{% for key, value in data_table_query_fields(omit|default([])) %}
+    <input type="hidden" name="{{ key }}" value="{{ value }}" data-query-state-field>
+{% endfor %}

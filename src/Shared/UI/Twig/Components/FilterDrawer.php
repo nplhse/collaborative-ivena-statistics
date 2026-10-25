@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\UI\Twig\Components;
 
+use App\Shared\UI\Twig\DataTable\DataTableQueryState;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
@@ -11,9 +12,6 @@ use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 #[AsTwigComponent(name: 'FilterDrawer', template: '@Shared/components/FilterDrawer.html.twig')]
 final class FilterDrawer
 {
-    /** @var list<string> */
-    public const array DROP_QUERY_KEYS = ['page', 'cursor', 'after', 'before'];
-
     /** @psalm-suppress PropertyNotSetInConstructor Hydrated by Twig Component attributes. */
     public string $id;
 
@@ -53,6 +51,9 @@ final class FilterDrawer
      */
     public array $keepQueryKeys = [];
 
+    /** Also keep the DataTable view state (sort, page size, columns) on Apply. */
+    public bool $keepViewState = false;
+
     public function __construct(
         private readonly RequestStack $requestStack,
     ) {
@@ -88,6 +89,31 @@ final class FilterDrawer
     }
 
     /**
+     * Query keys the `query-state` Stimulus controller refreshes from the current URL on Apply.
+     * Empty in `preserveQuery` mode, where every key except `omitQueryKeys` is refreshed.
+     *
+     * @return list<string>
+     */
+    public function getKeptQueryKeys(): array
+    {
+        if ($this->preserveQuery) {
+            return [];
+        }
+
+        return array_values(array_unique($this->keepViewState
+            ? [...$this->keepQueryKeys, ...DataTableQueryState::VIEW_KEYS]
+            : $this->keepQueryKeys));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getViewQueryKeys(): array
+    {
+        return DataTableQueryState::VIEW_KEYS;
+    }
+
+    /**
      * Outer query keys copied as hidden inputs on Apply. Pagination keys are never kept.
      *
      * @return array<string, string>
@@ -103,45 +129,16 @@ final class FilterDrawer
         $query = $request->query->all();
 
         if ($this->preserveQuery) {
-            return $this->scalarFields($query, $this->omitQueryKeys);
+            return DataTableQueryState::scalarFields($query, $this->omitQueryKeys);
         }
 
         $keep = [];
-        foreach ($this->keepQueryKeys as $key) {
+        foreach ($this->getKeptQueryKeys() as $key) {
             if (\array_key_exists($key, $query)) {
                 $keep[$key] = $query[$key];
             }
         }
 
-        return $this->scalarFields($keep, []);
-    }
-
-    /**
-     * @param array<array-key, mixed> $query
-     * @param list<string>            $omit
-     *
-     * @return array<string, string>
-     */
-    private function scalarFields(array $query, array $omit): array
-    {
-        $fields = [];
-        foreach ($query as $key => $value) {
-            if (!\is_string($key) || '' === $key) {
-                continue;
-            }
-            if (\in_array($key, self::DROP_QUERY_KEYS, true) || \in_array($key, $omit, true)) {
-                continue;
-            }
-            if (!\is_scalar($value)) {
-                continue;
-            }
-            $string = (string) $value;
-            if ('' === $string) {
-                continue;
-            }
-            $fields[$key] = $string;
-        }
-
-        return $fields;
+        return DataTableQueryState::scalarFields($keep);
     }
 }

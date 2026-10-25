@@ -14,9 +14,18 @@
     </div>
 
     <div class="offcanvas-body">
-        <form method="get" action="{{ formAction }}" id="{{ formId }}" data-controller="filter-drawer" data-action="submit->filter-drawer#omitEmptyDates"{% if formTestId %} data-testid="{{ formTestId }}"{% endif %}>
+        {% set keptQueryKeys = this.keptQueryKeys %}
+        <form
+            method="get"
+            action="{{ formAction }}"
+            id="{{ formId }}"
+            data-controller="filter-drawer{% if preserveQuery or keptQueryKeys is not empty %} query-state{% endif %}"
+            data-action="submit->filter-drawer#omitEmptyDates"
+            {% if preserveQuery %}data-query-state-omit-value="{{ omitQueryKeys|json_encode }}"{% elseif keptQueryKeys is not empty %}data-query-state-keys-value="{{ keptQueryKeys|json_encode }}"{% endif %}
+            {% if formTestId %}data-testid="{{ formTestId }}"{% endif %}
+        >
             {% for key, value in this.preservedQueryFields %}
-                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                <input type="hidden" name="{{ key }}" value="{{ value }}" data-query-state-field>
             {% endfor %}
             {% block content %}{% endblock %}
         </form>
@@ -25,7 +34,12 @@
     <div class="offcanvas-footer border-top p-3 d-flex justify-content-between align-items-center gap-2">
         <div>
             {% if this.resetVisible %}
-                <a href="{{ resetUrl }}" class="btn{{ resetBtnClass }}" data-testid="{{ resetTestId }}">
+                <a
+                    href="{{ resetUrl }}"
+                    class="btn{{ resetBtnClass }}"
+                    data-testid="{{ resetTestId }}"
+                    {% if keepViewState %}data-controller="query-state" data-query-state-keys-value="{{ this.viewQueryKeys|json_encode }}"{% endif %}
+                >
                     {{ 'action.reset'|trans({}, 'messages') }}
                 </a>
             {% endif %}

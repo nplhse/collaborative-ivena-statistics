@@ -359,10 +359,42 @@ column, direction, and page size; applying it keeps the rest of the query
 (including filters). Clearing the URL drops `sortBy`, `orderBy`, and `limit`.
 The column flyover lists `#` position, name, then move buttons.
 
+Only columns the picker lists (`configurable` or `required`) move when the order
+changes. Fixed columns, such as an icon column without a label, keep their slot
+from the definition.
+
 Sorting is also opt-in per column (`sortable: true`, optionally `sortKey`). The
 component renders a sort menu and header `aria-sort` links;
 the controller/query must validate the public sort key and perform the actual
-database ordering.
+database ordering. Add a stable tie-breaker (for example the id) to the
+ordering so rows with equal values do not jump between pages.
+
+#### Explore lists with a column picker
+
+Keep the columns in a PHP class next to the list (`HospitalListColumns` in
+Allocation, `Closure*TableColumns` in Statistics) instead of inline Twig. The
+class implements `DataTablePreferenceDefinitionInterface`, builds its schema with
+`DataTablePreferenceSchema::fromColumns()`, and owns the public `SORT_KEYS` that
+the query DTO's `Assert\Choice` uses. The controller resolves the saved state
+with `DataTablePreferenceQueryState::fromRequest()` and
+`DataTablePreferenceService::resolve()`.
+
+#### Keeping the view while filtering
+
+Filtering, searching, and resetting filters must not drop sort, page size, or
+column state. Search, filter drawer, and reset links usually sit outside the
+list's Turbo frame, so their server-rendered state goes stale once the frame
+advances the URL. Use the shared pieces, which pair server-rendered fields with
+the `query-state` Stimulus controller that refreshes them from the current URL:
+
+- `FilterDrawer keepViewState` keeps `sortBy`, `orderBy`, `limit`, `columns`,
+  and `columnOrder` on Apply and in its reset link.
+- `FilterDrawerTrigger keepViewState` does the same for the clear button.
+- A search form adds `data-controller="autosubmit query-state"`,
+  `data-query-state-omit-value` with its own field, and includes
+  `@Shared/components/data_table/_query_hidden_fields.html.twig` with
+  `{omit: ['search']}`.
+- Reset links rendered on the server use `path(route, data_table_view_query())`.
 `emptyValue`, datetime `timezone`, number `format`, and `nowrap` are optional
 presentation metadata. Domain-specific formatting remains a `custom` cell.
 
