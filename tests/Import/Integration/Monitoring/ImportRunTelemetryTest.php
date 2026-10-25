@@ -11,6 +11,8 @@ use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportRunTrigger;
+use App\Import\Domain\Enum\ImportType;
+use App\Import\Infrastructure\EventSubscriber\ImportRunRetriesExhaustedSubscriber;
 use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use App\Import\Infrastructure\Monitoring\TimedRejectWriter;
 use App\Import\Infrastructure\Monitoring\TimedRowReader;
@@ -22,6 +24,8 @@ use App\Tests\Import\Integration\MessageHandler\ImportAllocationsMessageHandlerT
 use Doctrine\DBAL\Connection;
 use Sentry\State\HubInterface;
 use Symfony\Component\ErrorHandler\BufferingLogger;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
 final class ImportRunTelemetryTest extends ImportAllocationsMessageHandlerTestCase
 {
@@ -68,6 +72,53 @@ final class ImportRunTelemetryTest extends ImportAllocationsMessageHandlerTestCa
         self::assertSame($context->importId, $summaries[1]['import_id']);
         self::assertArrayNotHasKey('msg', $summaries[0], 'Error messages stay local.');
         self::assertCount(1, $this->contextsOf($logs, 'import.run.threshold_exceeded'));
+    }
+
+    public function testTheLastRetryingAttemptFailsWhenMessengerGivesUp(): void
+    {
+        [$telemetry] = $this->telemetry();
+        [$context, $import] = $this->startedRun();
+        $message = new ImportAllocationsMessage($context->importId, $context->runId->toRfc4122());
+        $telemetry->begin($context, $import);
+        $telemetry->end(ImportRunTelemetryInterface::STATUS_RETRYING, new \RuntimeException('deadlock'));
+
+        self::getContainer()->get(ImportRunRetriesExhaustedSubscriber::class)
+            ->onMessageFailed(new WorkerMessageFailedEvent(new Envelope($message), 'async_priority_high', new \RuntimeException('deadlock')));
+
+        self::assertSame('failed', $this->connection()->fetchOne('SELECT status FROM import_run WHERE id = ?', [$context->runId->toRfc4122()]));
+        self::assertSame(
+            [['status' => 'failed', 'attempt' => 1, 'error_class' => \RuntimeException::class]],
+            $this->connection()->fetchAllAssociative('SELECT status, attempt, error_class FROM job_run WHERE import_run_id = ?', [$context->runId->toRfc4122()]),
+        );
+
+        // A second notification for the same run changes nothing.
+        [$again, $logger] = $this->telemetry();
+        $again->retriesExhausted($context->importId, $context->runId->toRfc4122(), ImportType::ALLOCATION);
+        self::assertSame([], $this->contextsOf($logger->cleanLogs(), 'import.run.retries_exhausted'));
+    }
+
+    public function testRetriesExhaustedLogsTheFailedAttempt(): void
+    {
+        [$telemetry, $logger] = $this->telemetry();
+        [$context, $import] = $this->startedRun();
+        $telemetry->begin($context, $import);
+        $telemetry->end(ImportRunTelemetryInterface::STATUS_RETRYING);
+        $telemetry->begin($context, $import);
+        $telemetry->end(ImportRunTelemetryInterface::STATUS_RETRYING);
+        $logger->cleanLogs();
+
+        $telemetry->retriesExhausted($context->importId, $context->runId->toRfc4122(), ImportType::ALLOCATION);
+
+        $logs = $this->contextsOf($logger->cleanLogs(), 'import.run.retries_exhausted');
+        self::assertCount(1, $logs);
+        self::assertSame(2, $logs[0]['attempt']);
+        self::assertSame('allocation_import', $logs[0]['job']);
+        self::assertSame($context->importId, $logs[0]['import_id']);
+        self::assertSame(
+            ['retrying', 'failed'],
+            $this->connection()->fetchFirstColumn('SELECT status FROM job_run WHERE import_run_id = ? ORDER BY attempt', [$context->runId->toRfc4122()]),
+            'Only the last attempt fails; the earlier one was retried.',
+        );
     }
 
     public function testARunningAttemptOfADeadWorkerIsAbandoned(): void

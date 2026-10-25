@@ -231,6 +231,28 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
     }
 
     /**
+     * Messenger gave up on the run's message and the lifecycle ended the run as failed: its last attempt,
+     * recorded as retrying, becomes failed too. The Sentry transaction of that attempt is already sent,
+     * so `import.run.retries_exhausted` is the signal for alerts.
+     */
+    public function retriesExhausted(int $importId, string $importRunId, ImportType $type): void
+    {
+        $job = ImportType::CLOSURE === $type ? self::JOB_CLOSURES : self::JOB_ALLOCATIONS;
+        $attempt = $this->recorder->changeLastAttemptStatus($job, $importRunId, self::STATUS_RETRYING, 'failed');
+        if (null === $attempt) {
+            return;
+        }
+
+        $this->importLogger->warning('import.run.retries_exhausted', [
+            'run_id' => $attempt['id'],
+            'import_run_id' => $importRunId,
+            'import_id' => $importId,
+            'job' => $job,
+            'attempt' => $attempt['attempt'],
+        ]);
+    }
+
+    /**
      * Called by TimedRowReader with the time spent advancing the reader.
      */
     public function addReadTime(int $nanoseconds): void

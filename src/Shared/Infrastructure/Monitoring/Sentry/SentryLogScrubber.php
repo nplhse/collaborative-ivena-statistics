@@ -22,6 +22,7 @@ final readonly class SentryLogScrubber
         'import.file.delete_failed',
         'import.run.summary',
         'import.run.threshold_exceeded',
+        'import.run.retries_exhausted',
     ];
 
     /** @psalm-suppress PossiblyUnusedMethod */

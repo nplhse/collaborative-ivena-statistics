@@ -35,7 +35,7 @@ final readonly class ImportRunSentryProfile implements JobRunSentryProfile
     #[\Override]
     public function logPrefixes(): array
     {
-        return ['import.run.summary', 'import.run.threshold_exceeded'];
+        return ['import.run.summary', 'import.run.threshold_exceeded', 'import.run.retries_exhausted'];
     }
 
     #[\Override]
