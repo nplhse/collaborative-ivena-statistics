@@ -177,7 +177,8 @@ deleting only allocations schedules volume.
 `volume`). The handler claims open requests under the lock
 `closure-volume-projection`. Requests for the same hospitals that arrive during
 the run are claimed before publish and rebuilt in a second pass, which the
-console progress shows. The previous table stays readable until commit. A full
+console progress shows; a console rebuild takes requests it already covers
+before its first pass. The previous table stays readable until commit. A full
 rebuild swaps the side table. A partial rebuild replaces only the affected
 hospitals in one transaction. An error drops the build table.
 `app:statistics:rebuild-closure-volume-projection` rebuilds analysis and volume
@@ -187,9 +188,17 @@ before the event; it exists for comparison runs only, and `closure_rebuild_run`
 records the window of every run (`4/4`, `8/0`).
 
 The schema change of ADR 015 (`Version20261025103722`) recreates
-`closure_volume_hour` empty and queues a full `volume` request. Let the worker
-consume it after the deploy. A console full rebuild started while the request
-is open claims it only after its first pass and rebuilds everything twice.
+`closure_volume_hour` empty and queues a full `volume` request. Either the
+worker consumes it, or a console full rebuild takes it: a console rebuild
+claims the open requests it covers (all of them for a full rebuild, only those
+of the given hospitals with `--hospital`) before its first pass, so only
+requests that arrive while it runs cause a second pass.
+
+Each run records seconds and SQL statements per step; the command prints the
+table and `closure_rebuild_run.query_count` keeps the statement count. Context
+hours look up influencing closures in an index per population and metric
+(`ClosureVolumeNeighbourIndex`), reference slots are shared by every population
+with the same event extent, and the build table is written with `COPY`.
 
 A request is queued only for hospitals with `closure_interval` or
 `closure_event` rows, and only when no open, unclaimed request covers it: an

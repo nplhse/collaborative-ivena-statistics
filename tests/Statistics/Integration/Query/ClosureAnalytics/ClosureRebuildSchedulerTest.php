@@ -213,6 +213,40 @@ final class ClosureRebuildSchedulerTest extends KernelTestCase
         self::assertSame(2, $this->consumed());
     }
 
+    public function testAConsoleRebuildTakesTheRequestsItCoversBeforeItsFirstPass(): void
+    {
+        self::bootKernel();
+        $this->insertOpenRequest('volume', null);
+        $this->insertOpenRequest('analysis', 40);
+        $rebuild = self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class);
+        $passes = [];
+
+        $rebuild->rebuild(static function (int $done, int $total, int $pass) use (&$passes): void {
+            $passes[$pass] = true;
+        });
+
+        self::assertSame([1], array_keys($passes), 'A full rebuild covers every open request without a second pass.');
+        self::assertSame(2, $this->consumed());
+        self::assertSame(2, (int) $this->connection()->fetchOne('SELECT request_count FROM closure_rebuild_run ORDER BY started_at DESC, id DESC LIMIT 1'));
+    }
+
+    public function testAHospitalRebuildTakesOnlyTheRequestsOfItsHospitals(): void
+    {
+        self::bootKernel();
+        $this->insertOpenRequest('volume', 40);
+        $this->insertOpenRequest('volume', 41);
+        $rebuild = self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class);
+        $passes = [];
+
+        $rebuild->rebuild(static function (int $done, int $total, int $pass) use (&$passes): void {
+            $passes[$pass] = true;
+        }, [40]);
+
+        self::assertSame([1], array_keys($passes));
+        self::assertSame([40], array_map(intval(...), $this->connection()->fetchFirstColumn('SELECT hospital_id FROM closure_rebuild_request WHERE consumed_at IS NOT NULL')));
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE hospital_id = 41 AND claimed_at IS NOT NULL'), 'The request for hospital 41 stays open for the worker.');
+    }
+
     public function testTheHourlyCheckSkipsWhileAnotherRebuildHoldsTheLock(): void
     {
         self::bootKernel();

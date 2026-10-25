@@ -48,9 +48,18 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
         $this->telemetry->begin($runId, 'console', $hospitalIds);
         $error = null;
         try {
-            $this->rebuildAnalysis($hospitalIds);
+            // Requests this run covers are taken now, so they do not trigger a second pass after the first one.
+            $claimed = $this->scheduler->claim($runId, 'analysis', $hospitalIds, false)
+                ->merge($this->scheduler->claim($runId, 'volume', $hospitalIds, false));
+            $this->telemetry->claimedRequests(\count($claimed->requestIds));
+            try {
+                $this->rebuildAnalysis($hospitalIds);
+            } catch (\Throwable $exception) {
+                $this->scheduler->release($claimed->requestIds, $exception);
+                throw $exception;
+            }
 
-            return $this->publishVolume($runId, $onHospital, $hospitalIds, ClosureRebuildClaim::empty(), $window);
+            return $this->publishVolume($runId, $onHospital, $hospitalIds, $claimed, $window);
         } catch (\Throwable $exception) {
             $error = $exception;
             throw $exception;

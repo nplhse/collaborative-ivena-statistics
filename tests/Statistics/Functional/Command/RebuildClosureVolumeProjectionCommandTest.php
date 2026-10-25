@@ -16,6 +16,7 @@ use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
 use App\Statistics\UI\Console\Command\RebuildClosureVolumeProjectionCommand;
 use App\Tests\Statistics\Support\RebuildsClosureAnalysis;
 use App\User\Domain\Factory\UserFactory;
@@ -57,7 +58,7 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
     }
 
     #[Test]
-    public function lateAnalysisRequestRunsAVisibleSecondPassAndTheCommandFinishes(): void
+    public function requestQueuedBeforeTheRunIsTakenWithoutASecondPass(): void
     {
         self::bootKernel();
         /** @var Connection $connection */
@@ -65,7 +66,7 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
         $seed = $this->seedClosureGraph($connection);
         $this->rebuildClosureAnalysis();
         self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($seed['importId']);
-        // Queued like derive-export-periods --apply does while a rebuild is running; the rebuild claims it after its first pass.
+        // Queued like derive-export-periods --apply does; a rebuild that covers the hospital takes it before its first pass.
         $connection->insert('closure_rebuild_request', [
             'kind' => 'analysis',
             'hospital_id' => $seed['hospitalId'],
@@ -79,13 +80,9 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
 
         $tester->assertCommandIsSuccessful();
         $display = $tester->getDisplay();
-        self::assertStringContainsString('Pass 2: rebuild requests arrived during pass 1', $display);
+        self::assertStringNotContainsString('Pass 2', $display);
         self::assertStringContainsString('Closure volume projection rebuilt for 1 hospitals', $display);
         self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE consumed_at IS NULL'));
-        self::assertGreaterThan(
-            0,
-            (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour WHERE hospital_id = ?', [$seed['hospitalId']]),
-        );
         self::assertFalse($connection->createSchemaManager()->tablesExist(['closure_volume_hour_build']));
 
         $run = $connection->fetchAssociative('SELECT * FROM closure_rebuild_run');
@@ -93,15 +90,46 @@ final class RebuildClosureVolumeProjectionCommandTest extends KernelTestCase
         self::assertSame('console', $run['triggered_by']);
         self::assertSame('succeeded', $run['status']);
         self::assertSame([$seed['hospitalId']], json_decode((string) $run['hospital_ids'], true));
+        self::assertSame(1, (int) $run['passes']);
+        self::assertSame(1, (int) $run['request_count']);
+        self::assertGreaterThan(0, (int) $run['query_count']);
+        self::assertSame((int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour'), (int) $run['hours_written']);
+    }
+
+    #[Test]
+    public function requestArrivingDuringTheFirstPassRunsASecondPass(): void
+    {
+        self::bootKernel();
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get(Connection::class);
+        $seed = $this->seedClosureGraph($connection);
+        $this->rebuildClosureAnalysis();
+        self::getContainer()->get(AllocationStatsProjectionRebuildInterface::class)->rebuildForImport($seed['importId']);
+        $passes = [];
+        $queued = false;
+
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild(
+            static function (int $done, int $total, int $pass) use ($connection, $seed, &$passes, &$queued): void {
+                $passes[$pass] = true;
+                if (!$queued && $done > 0) {
+                    $queued = true;
+                    $connection->insert('closure_rebuild_request', [
+                        'kind' => 'analysis',
+                        'hospital_id' => $seed['hospitalId'],
+                        'requested_at' => '2026-10-14 15:58:55',
+                    ]);
+                }
+            },
+            [$seed['hospitalId']],
+        );
+
+        self::assertSame([1, 2], array_keys($passes));
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE consumed_at IS NULL'));
+        $run = $connection->fetchAssociative('SELECT passes, events, request_count FROM closure_rebuild_run');
+        self::assertIsArray($run);
         self::assertSame(2, (int) $run['passes']);
         self::assertSame(2, (int) $run['events'], 'One event in each pass.');
         self::assertSame(1, (int) $run['request_count']);
-        self::assertGreaterThan(0, (int) $run['partitions']);
-        self::assertSame(
-            (int) $connection->fetchOne('SELECT COUNT(*) FROM closure_volume_hour') * 2,
-            (int) $run['hours_written'],
-            'Both passes wrote the hospital.',
-        );
     }
 
     /**

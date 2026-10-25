@@ -54,9 +54,10 @@ final readonly class ClosureRebuildScheduler implements ClosureRebuildRequestInt
      * Marks open and orphaned requests as claimed by $runId. They stay unconsumed until complete().
      * Must be called while holding the rebuild lock.
      *
-     * @param list<int>|null $hospitalIds null claims every open request; a list also claims requests for all hospitals
+     * @param list<int>|null $hospitalIds         null claims every open request; a list also claims requests for all hospitals
+     * @param bool           $includeAllHospitals false leaves requests for all hospitals to a run that rebuilds them
      */
-    public function claim(string $runId, string $kind, ?array $hospitalIds = null): ClosureRebuildClaim
+    public function claim(string $runId, string $kind, ?array $hospitalIds = null, bool $includeAllHospitals = true): ClosureRebuildClaim
     {
         if ([] === $hospitalIds) {
             return ClosureRebuildClaim::empty();
@@ -66,7 +67,9 @@ final readonly class ClosureRebuildScheduler implements ClosureRebuildRequestInt
         $types = ['kind' => ParameterType::STRING, 'now' => ParameterType::STRING, 'run' => ParameterType::STRING];
         $hospitalSql = '';
         if (null !== $hospitalIds) {
-            $hospitalSql = 'AND (hospital_id IS NULL OR hospital_id IN (:hospital_ids))';
+            $hospitalSql = $includeAllHospitals
+                ? 'AND (hospital_id IS NULL OR hospital_id IN (:hospital_ids))'
+                : 'AND hospital_id IN (:hospital_ids)';
             $params['hospital_ids'] = $hospitalIds;
             $types['hospital_ids'] = ArrayParameterType::INTEGER;
         }
