@@ -9,6 +9,14 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Storage\Application\Contract\StorageMeasurementRepositoryInterface;
+use App\Storage\Domain\Entity\StorageMeasurement;
+use App\Storage\Domain\Enum\CapacityLevel;
+use App\Storage\Domain\Enum\CapacitySource;
+use App\Storage\Domain\Enum\MeasurementMode;
+use App\Storage\Domain\Enum\StorageCategory;
+use App\Storage\Domain\Enum\StorageLocation;
+use App\Storage\Domain\ValueObject\StorageMeasurementItem;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
@@ -38,9 +46,9 @@ final class DashboardOperationsTest extends WebTestCase
         $text = $crawler->text();
         self::assertStringContainsString('Operations', $text);
         self::assertStringContainsString('Failed messages', $text);
-        self::assertStringContainsString('Total storage', $text);
-        self::assertStringContainsString('Database', $text);
-        self::assertStringContainsString('Imports / media', $text);
+        self::assertStringContainsString('No storage measurement yet', $text);
+        self::assertStringNotContainsString('Total storage', $text);
+        self::assertStringNotContainsString('Imports / media', $text);
         self::assertStringContainsString('Recent notifications', $text);
         self::assertStringContainsString('Healthy', $text);
         self::assertStringNotContainsString('Reminders this month', $text);
@@ -54,7 +62,48 @@ final class DashboardOperationsTest extends WebTestCase
 
         self::assertCount(1, $crawler->filter('[data-controller="admin-kpi-chart"]'));
         self::assertCount(0, $crawler->filter('[data-controller="admin-ops-chart"]'));
-        self::assertGreaterThan(0, $crawler->filter('.ea-ops-card-trend')->count());
+        self::assertCount(1, $crawler->filter('.ea-storage-card'));
+        self::assertCount(1, $crawler->filter('.ea-storage-card a[href*="/admin/operations/storage"]'));
+    }
+
+    public function testDashboardShowsTheCompactStorageCardFromTheLatestMeasurement(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+
+        self::getContainer()->get(StorageMeasurementRepositoryInterface::class)->save(new StorageMeasurement(
+            measuredOn: new \DateTimeImmutable('today', new \DateTimeZone('Europe/Berlin')),
+            measuredAt: new \DateTimeImmutable('-1 hour'),
+            durationMs: 1000,
+            mode: MeasurementMode::Standalone,
+            usedBytes: 3 * 1024 ** 3,
+            databaseBytes: 1024 ** 3,
+            capacitySource: CapacitySource::Budget,
+            capacityBytes: 10 * 1024 ** 3,
+            budgetBytes: 10 * 1024 ** 3,
+            filesystemTotalBytes: null,
+            filesystemFreeBytes: null,
+            level: CapacityLevel::Normal,
+            items: [
+                new StorageMeasurementItem(StorageLocation::Database, StorageCategory::Database, 'database', 1024 ** 3),
+                new StorageMeasurementItem(StorageLocation::Project, StorageCategory::Application, 'vendor', 2 * 1024 ** 3),
+            ],
+        ));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $card = $crawler->filter('.ea-storage-card');
+        self::assertCount(1, $card);
+        $text = $card->text();
+        self::assertStringContainsString('3.00 GB', $text);
+        self::assertStringContainsString('of 10.00 GB', $text);
+        self::assertStringContainsString('Configured budget', $text);
+        self::assertStringContainsString('7.00 GB free', $text);
+        self::assertStringContainsString('30 % used', $text);
+        self::assertStringContainsString('Normal', $text);
+        self::assertStringNotContainsString('quota', strtolower($text));
+        self::assertCount(2, $card->filter('.ea-storage-bar__segment'));
     }
 
     public function testFailedImportsDashboardShows30DayFilterAndViewAllLink(): void

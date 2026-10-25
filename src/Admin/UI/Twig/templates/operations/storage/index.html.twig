@@ -1,0 +1,348 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'storage.page.title'|trans({}, 'storage') }}{% endblock %}
+
+{% macro status_badge(failed, complete) %}
+    {% if failed %}
+        <span class="badge bg-danger">{{ 'storage.status.failed'|trans({}, 'storage') }}</span>
+    {% elseif not complete %}
+        <span class="badge bg-warning text-dark">{{ 'storage.status.incomplete'|trans({}, 'storage') }}</span>
+    {% else %}
+        <span class="badge bg-success-subtle text-success-emphasis">{{ 'storage.status.measured'|trans({}, 'storage') }}</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro flags(flags) %}
+    {% for flag in flags %}
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" title="{{ ('storage.flag.' ~ flag.value ~ '.hint')|trans({}, 'storage') }}">{{ ('storage.flag.' ~ flag.value)|trans({}, 'storage') }}</span>
+    {% endfor %}
+{% endmacro %}
+
+{% macro delta(bytes) %}
+    {% if bytes is null %}
+        <span class="text-secondary">–</span>
+    {% else %}
+        <span class="{{ bytes > 0 ? 'text-body' : 'text-secondary' }}">{{ bytes|format_bytes_delta }}</span>
+    {% endif %}
+{% endmacro %}
+
+{% block main %}
+    {% if disk_usage is null %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-hard-drive fa-2x text-secondary mb-3" aria-hidden="true"></i>
+                <h2 class="h5">{{ 'storage.empty.title'|trans({}, 'storage') }}</h2>
+                <p class="text-secondary mb-2">{{ 'storage.empty.page_hint'|trans({}, 'storage') }}</p>
+                <code>bin/console app:storage:analyze --persist</code>
+            </div>
+        </div>
+    {% else %}
+        {% set summary = disk_usage.summary %}
+        {% set capacity = disk_usage.capacity %}
+
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'storage.kpi.used'|trans({}, 'storage') }}</div>
+                    <div class="fs-3 fw-bold">{{ summary.usedBytes is not null ? summary.usedBytes|format_bytes : '–' }}</div>
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'storage.kpi.capacity'|trans({}, 'storage') }}</div>
+                    <div class="fs-3 fw-bold">{{ summary.hasCapacity ? summary.capacityBytes|format_bytes : '–' }}</div>
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis border">{{ summary.capacitySource.labelKey|trans({}, 'storage') }}</span>
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ summary.isExceeded ? 'storage.kpi.exceeded_by'|trans({}, 'storage') : 'storage.kpi.remaining'|trans({}, 'storage') }}</div>
+                    {% if summary.remainingBytes is null %}
+                        <div class="fs-3 fw-bold">–</div>
+                    {% else %}
+                        <div class="fs-3 fw-bold{{ summary.isExceeded ? ' text-danger' : '' }}">{{ (summary.isExceeded ? 0 - summary.remainingBytes : summary.remainingBytes)|format_bytes }}</div>
+                        <div class="text-secondary small">{{ 'storage.kpi.used_percent'|trans({percent: summary.usedPercent}, 'storage') }}</div>
+                    {% endif %}
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small mb-1">{{ 'storage.kpi.level'|trans({}, 'storage') }}</div>
+                    <div class="fs-5">{{ include('@Admin/operations/storage/_level_badge.html.twig') }}</div>
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'storage.kpi.last_measurement'|trans({}, 'storage') }}</div>
+                    <div class="fs-5 fw-bold">{{ summary.measuredAt|date('d.m.Y H:i', 'Europe/Berlin') }}</div>
+                    {% if summary.stale %}
+                        <span class="badge bg-warning text-dark" title="{{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}">{{ 'storage.stale.badge'|trans({}, 'storage') }}</span>
+                    {% else %}
+                        <div class="text-secondary small">{{ 'storage.kpi.duration'|trans({seconds: (summary.durationMs / 1000)|round(1)}, 'storage') }}</div>
+                    {% endif %}
+                </div></div>
+            </div>
+            <div class="col-sm-6 col-xl-2">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-secondary small">{{ 'storage.kpi.mode'|trans({}, 'storage') }}</div>
+                    <div class="fs-5 fw-bold">{{ ('storage.mode.' ~ summary.mode.value)|trans({}, 'storage') }}</div>
+                    <div class="text-secondary small">{{ ('storage.mode.' ~ summary.mode.value ~ '.hint')|trans({}, 'storage') }}</div>
+                </div></div>
+            </div>
+        </div>
+
+        {% if summary.stale %}
+            <div class="alert alert-warning d-flex align-items-center gap-2" role="status">
+                <i class="fas fa-clock-rotate-left" aria-hidden="true"></i>
+                <span>{{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}</span>
+            </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header">{{ 'storage.section.breakdown'|trans({}, 'storage') }}</div>
+            <div class="card-body">
+                {{ include('@Admin/operations/storage/_bar.html.twig', {large: true}) }}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex flex-wrap justify-content-between gap-2">
+                <span>{{ 'storage.section.categories'|trans({}, 'storage') }}</span>
+                <span class="text-secondary small">
+                    {% if disk_usage.compared7DaysOn is null and disk_usage.compared30DaysOn is null %}
+                        {{ 'storage.categories.no_comparison'|trans({}, 'storage') }}
+                    {% else %}
+                        {{ 'storage.categories.compared'|trans({
+                            week: disk_usage.compared7DaysOn ? disk_usage.compared7DaysOn|date('d.m.Y') : '–',
+                            month: disk_usage.compared30DaysOn ? disk_usage.compared30DaysOn|date('d.m.Y') : '–',
+                        }, 'storage') }}
+                    {% endif %}
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle ea-storage-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'storage.table.category'|trans({}, 'storage') }}</th>
+                            <th class="text-end">{{ 'storage.table.size'|trans({}, 'storage') }}</th>
+                            <th class="text-end">{{ 'storage.table.share'|trans({}, 'storage') }}</th>
+                            <th class="text-end">{{ 'storage.table.delta_7'|trans({}, 'storage') }}</th>
+                            <th class="text-end">{{ 'storage.table.delta_30'|trans({}, 'storage') }}</th>
+                            <th>{{ 'storage.table.status'|trans({}, 'storage') }}</th>
+                        </tr>
+                    </thead>
+                    {% for row in disk_usage.categories %}
+                        <tbody class="ea-storage-group">
+                            <tr class="ea-storage-group__head">
+                                <th scope="row" class="fw-semibold">
+                                    <span class="ea-storage-legend__dot me-1" style="background-color: {{ row.category.color }};" aria-hidden="true"></span>
+                                    <i class="{{ row.category.icon }} text-secondary me-1" aria-hidden="true"></i>
+                                    {{ row.category.labelKey|trans({}, 'storage') }}
+                                    {% if row.category.value == 'imports' %}
+                                        <a href="{{ imports_url }}" class="small ms-2">{{ 'storage.link.imports'|trans({}, 'storage') }}</a>
+                                    {% elseif row.category.value == 'media' %}
+                                        <a href="{{ media_url }}" class="small ms-2">{{ 'storage.link.media'|trans({}, 'storage') }}</a>
+                                    {% endif %}
+                                </th>
+                                <td class="text-end fw-semibold">{{ row.bytes|format_bytes }}</td>
+                                <td class="text-end">{{ row.sharePercent|number_format(1, ',', '.') }} %</td>
+                                <td class="text-end">{{ _self.delta(row.delta7Days) }}</td>
+                                <td class="text-end">{{ _self.delta(row.delta30Days) }}</td>
+                                <td>{{ _self.status_badge(row.failed, row.complete) }} {{ _self.flags(row.flags) }}</td>
+                            </tr>
+                            {% for contributor in row.contributors %}
+                                <tr class="ea-storage-group__item small">
+                                    <td class="ps-5">{{ contributor.labelKey|trans({}, 'storage') }} <span class="font-monospace text-secondary ms-1">{{ contributor.contributor }}</span></td>
+                                    <td class="text-end">{{ contributor.bytes is not null ? contributor.bytes|format_bytes : '–' }}</td>
+                                    <td class="text-end">{{ contributor.sharePercent is not null ? contributor.sharePercent|number_format(1, ',', '.') ~ ' %' : '–' }}</td>
+                                    <td class="text-end">{{ _self.delta(contributor.delta7Days) }}</td>
+                                    <td class="text-end">{{ _self.delta(contributor.delta30Days) }}</td>
+                                    <td>{{ _self.status_badge(contributor.status.value != 'measured', 'incomplete' not in contributor.flags|map(f => f.value)) }} {{ _self.flags(contributor.flags|filter(f => f.value != 'incomplete')) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-7">
+                <div class="card h-100">
+                    <div class="card-header">{{ 'storage.section.locations'|trans({}, 'storage') }}</div>
+                    {% if not disk_usage.isDeployer %}
+                        <div class="card-body pb-0">
+                            <p class="text-secondary small mb-0">{{ 'storage.locations.standalone_hint'|trans({}, 'storage') }}</p>
+                        </div>
+                    {% endif %}
+                    <div class="table-responsive">
+                        <table class="table mb-0 align-middle ea-storage-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'storage.table.location'|trans({}, 'storage') }}</th>
+                                    <th class="text-end">{{ 'storage.table.size'|trans({}, 'storage') }}</th>
+                                    <th class="text-end">{{ 'storage.table.share'|trans({}, 'storage') }}</th>
+                                    <th>{{ 'storage.table.status'|trans({}, 'storage') }}</th>
+                                </tr>
+                            </thead>
+                            {% for row in disk_usage.locations %}
+                                <tbody class="ea-storage-group">
+                                    <tr class="ea-storage-group__head">
+                                        <th scope="row" class="fw-semibold">
+                                            {{ row.location.labelKey|trans({}, 'storage') }}
+                                            {% if row.detail %}<span class="font-monospace fw-normal ms-1">{{ row.detail }}</span>{% endif %}
+                                        </th>
+                                        <td class="text-end fw-semibold">{{ row.bytes|format_bytes }}</td>
+                                        <td class="text-end">{{ row.sharePercent|number_format(1, ',', '.') }} %</td>
+                                        <td>{{ _self.status_badge(row.failed, row.complete) }} {{ _self.flags(row.flags|filter(f => f.value != 'incomplete')) }}</td>
+                                    </tr>
+                                    {% for contributor in row.contributors|filter(c => row.contributors|length > 1 or c.flags is not empty) %}
+                                        <tr class="ea-storage-group__item small">
+                                            <td class="ps-4">
+                                                <span class="ea-storage-legend__dot me-1" style="background-color: {{ contributor.category.color }};" title="{{ contributor.category.labelKey|trans({}, 'storage') }}" aria-hidden="true"></span>
+                                                {{ contributor.labelKey|trans({}, 'storage') }}
+                                            </td>
+                                            <td class="text-end">{{ contributor.bytes is not null ? contributor.bytes|format_bytes : '–' }}</td>
+                                            <td class="text-end">{{ contributor.sharePercent is not null ? contributor.sharePercent|number_format(1, ',', '.') ~ ' %' : '–' }}</td>
+                                            <td>{{ _self.flags(contributor.flags|filter(f => f.value != 'incomplete')) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-5">
+                <div class="card h-100">
+                    <div class="card-header">{{ 'storage.section.capacity'|trans({}, 'storage') }}</div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h3 class="h6 mb-0">{{ 'storage.capacity_source.budget'|trans({}, 'storage') }}</h3>
+                                {% if capacity.activeSource.value == 'budget' %}
+                                    <span class="badge bg-primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</span>
+                                {% endif %}
+                            </div>
+                            {% if capacity.hasBudget %}
+                                <dl class="row small mb-1">
+                                    <dt class="col-6 fw-normal text-secondary">{{ 'storage.capacity.budget'|trans({}, 'storage') }}</dt>
+                                    <dd class="col-6 text-end mb-1">{{ capacity.budgetBytes|format_bytes }}</dd>
+                                    <dt class="col-6 fw-normal text-secondary">{{ 'storage.capacity.application_usage'|trans({}, 'storage') }}</dt>
+                                    <dd class="col-6 text-end mb-1">{{ capacity.budgetUsedBytes is not null ? capacity.budgetUsedBytes|format_bytes : '–' }}</dd>
+                                </dl>
+                                {% if capacity.budgetUsedPercent is not null %}
+                                    {{ include('@Admin/operations/storage/_meter.html.twig', {percent: capacity.budgetUsedPercent, style: capacity.budgetStyle}) }}
+                                {% endif %}
+                            {% else %}
+                                <p class="text-secondary small mb-0">{{ 'storage.capacity.no_budget'|trans({}, 'storage') }} <code>STORAGE_BUDGET_BYTES</code></p>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h3 class="h6 mb-0">{{ 'storage.capacity_source.filesystem'|trans({}, 'storage') }}</h3>
+                                {% if capacity.activeSource.value == 'filesystem' %}
+                                    <span class="badge bg-primary">{{ 'storage.capacity.reference'|trans({}, 'storage') }}</span>
+                                {% endif %}
+                            </div>
+                            {% if capacity.hasFilesystem %}
+                                <dl class="row small mb-1">
+                                    <dt class="col-6 fw-normal text-secondary">{{ 'storage.capacity.filesystem_total'|trans({}, 'storage') }}</dt>
+                                    <dd class="col-6 text-end mb-1">{{ capacity.filesystemTotalBytes|format_bytes }}</dd>
+                                    <dt class="col-6 fw-normal text-secondary">{{ 'storage.capacity.filesystem_used'|trans({}, 'storage') }}</dt>
+                                    <dd class="col-6 text-end mb-1">{{ capacity.filesystemUsedBytes|format_bytes }}</dd>
+                                    <dt class="col-6 fw-normal text-secondary">{{ 'storage.capacity.filesystem_free'|trans({}, 'storage') }}</dt>
+                                    <dd class="col-6 text-end mb-1">{{ capacity.filesystemFreeBytes|format_bytes }}</dd>
+                                </dl>
+                                {% if capacity.filesystemUsedPercent is not null %}
+                                    {{ include('@Admin/operations/storage/_meter.html.twig', {percent: capacity.filesystemUsedPercent, style: capacity.filesystemStyle}) }}
+                                {% endif %}
+                                <p class="text-secondary small mt-2 mb-0">{{ 'storage.capacity.filesystem_hint'|trans({}, 'storage') }}</p>
+                            {% else %}
+                                <p class="text-secondary small mb-0">{{ 'storage.capacity.no_filesystem'|trans({}, 'storage') }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="text-secondary small mb-0">
+                            {{ 'storage.capacity.thresholds'|trans({notice: capacity.thresholds.noticePercent, warning: capacity.thresholds.warningPercent, critical: capacity.thresholds.criticalPercent}, 'storage') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4"
+             data-controller="storage-history-chart"
+             data-storage-history-chart-chart-value="{{ disk_usage.history.toChartValue|json_encode|e('html_attr') }}"
+             data-storage-history-chart-labels-value="{{ {
+                 database: 'storage.category.database'|trans({}, 'storage'),
+                 imports: 'storage.category.imports'|trans({}, 'storage'),
+                 media: 'storage.category.media'|trans({}, 'storage'),
+                 application: 'storage.category.application'|trans({}, 'storage'),
+                 temporary: 'storage.category.temporary'|trans({}, 'storage'),
+                 other: 'storage.category.other'|trans({}, 'storage'),
+                 capacity: 'storage.history.capacity'|trans({}, 'storage'),
+             }|json_encode|e('html_attr') }}"
+             data-storage-history-chart-range-value="30">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span>{{ 'storage.section.history'|trans({}, 'storage') }}</span>
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{ 'storage.history.range'|trans({}, 'storage') }}">
+                    {% for days in [7, 30, 90, 365] %}
+                        <button type="button"
+                                class="btn btn-outline-secondary{{ days == 30 ? ' active' : '' }}"
+                                aria-pressed="{{ days == 30 ? 'true' : 'false' }}"
+                                data-storage-history-chart-target="rangeButton"
+                                data-action="storage-history-chart#selectRange"
+                                data-storage-history-chart-days-param="{{ days }}">
+                            {{ 'storage.history.days'|trans({count: days}, 'storage') }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="ea-storage-chart" data-storage-history-chart-target="chart"></div>
+                <p class="text-secondary small mb-0" data-storage-history-chart-target="empty" hidden>{{ 'storage.history.empty'|trans({}, 'storage') }}</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between">
+                <span>{{ 'storage.section.tables'|trans({}, 'storage') }}</span>
+                <span class="text-secondary small">{{ 'storage.tables.live'|trans({}, 'storage') }}</span>
+            </div>
+            {% if disk_usage.largestTables is null %}
+                <div class="card-body">
+                    <p class="text-secondary mb-0">{{ 'storage.tables.unavailable'|trans({}, 'storage') }}</p>
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0 ea-storage-tables">
+                        <thead>
+                            <tr>
+                                <th>{{ 'storage.table.table'|trans({}, 'storage') }}</th>
+                                <th class="text-end">{{ 'storage.table.size'|trans({}, 'storage') }}</th>
+                                <th class="text-end">{{ 'storage.table.share_database'|trans({}, 'storage') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for table in disk_usage.largestTables %}
+                                {% set share = disk_usage.tableSharePercent(table) %}
+                                <tr>
+                                    <td class="font-monospace">{{ table.name }}</td>
+                                    <td class="text-end">{{ table.bytes|format_bytes }}</td>
+                                    <td class="text-end">{{ share is not null ? share|number_format(1, ',', '.') ~ ' %' : '–' }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="3" class="text-secondary">{{ 'storage.tables.none'|trans({}, 'storage') }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

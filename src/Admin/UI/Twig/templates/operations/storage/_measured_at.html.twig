@@ -1,0 +1,6 @@
+<span class="text-secondary">{{ 'storage.measured_at'|trans({date: summary.measuredAt|date('d.m.Y H:i', 'Europe/Berlin')}, 'storage') }}</span>
+{% if summary.stale %}
+    <span class="badge bg-warning text-dark ms-1" title="{{ 'storage.stale.hint'|trans({hours: summary.maxAgeHours}, 'storage') }}">
+        <i class="fas fa-clock-rotate-left me-1" aria-hidden="true"></i>{{ 'storage.stale.badge'|trans({}, 'storage') }}
+    </span>
+{% endif %}

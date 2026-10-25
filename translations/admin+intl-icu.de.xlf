@@ -477,29 +477,9 @@
         <source>ops.card.queue_low</source>
         <target>Low-Priority-Warteschlange</target>
       </trans-unit>
-      <trans-unit id="opsCard04de" resname="ops.card.database_size">
-        <source>ops.card.database_size</source>
-        <target>Datenbankgröße</target>
-      </trans-unit>
-      <trans-unit id="opsCard05de" resname="ops.card.storage_total">
-        <source>ops.card.storage_total</source>
-        <target>Gesamtspeicher</target>
-      </trans-unit>
       <trans-unit id="opsCard06de" resname="ops.card.reminders_this_month">
         <source>ops.card.reminders_this_month</source>
         <target>Erinnerungen diesen Monat</target>
-      </trans-unit>
-      <trans-unit id="opsCard07de" resname="ops.card.imports_media">
-        <source>ops.card.imports_media</source>
-        <target>Importe / Medien</target>
-      </trans-unit>
-      <trans-unit id="opsCard08de" resname="ops.card.trend_up">
-        <source>ops.card.trend_up</source>
-        <target>+{size} in 30 Tagen</target>
-      </trans-unit>
-      <trans-unit id="opsCard09de" resname="ops.card.trend_flat">
-        <source>ops.card.trend_flat</source>
-        <target>Keine Änderung (30 Tage)</target>
       </trans-unit>
       <trans-unit id="opsHlth01de" resname="ops.health.status.healthy">
         <source>ops.health.status.healthy</source>
@@ -524,50 +504,6 @@
       <trans-unit id="opsHlth06de" resname="ops.health.check.messenger_failed">
         <source>ops.health.check.messenger_failed</source>
         <target>Messenger fehlgeschlagen</target>
-      </trans-unit>
-      <trans-unit id="opsStor01de" resname="ops.storage.title">
-        <source>ops.storage.title</source>
-        <target>Speichernutzung</target>
-      </trans-unit>
-      <trans-unit id="opsStor02de" resname="ops.storage.database">
-        <source>ops.storage.database</source>
-        <target>Datenbank</target>
-      </trans-unit>
-      <trans-unit id="opsStor03de" resname="ops.storage.imports">
-        <source>ops.storage.imports</source>
-        <target>CSV-Importe</target>
-      </trans-unit>
-      <trans-unit id="opsStor04de" resname="ops.storage.media">
-        <source>ops.storage.media</source>
-        <target>Medien-Uploads</target>
-      </trans-unit>
-      <trans-unit id="opsStor05de" resname="ops.storage.growth_30d">
-        <source>ops.storage.growth_30d</source>
-        <target>Wachstum (letzte 30 Tage)</target>
-      </trans-unit>
-      <trans-unit id="opsStor06de" resname="ops.storage.growth_imports">
-        <source>ops.storage.growth_imports</source>
-        <target>Importe: {size}</target>
-      </trans-unit>
-      <trans-unit id="opsStor07de" resname="ops.storage.growth_media">
-        <source>ops.storage.growth_media</source>
-        <target>Medien: {size}</target>
-      </trans-unit>
-      <trans-unit id="opsStor08de" resname="ops.storage.application_code">
-        <source>ops.storage.application_code</source>
-        <target>Quellcode</target>
-      </trans-unit>
-      <trans-unit id="opsStor09de" resname="ops.storage.of_limit">
-        <source>ops.storage.of_limit</source>
-        <target>von {limit}</target>
-      </trans-unit>
-      <trans-unit id="opsStor10de" resname="ops.storage.used">
-        <source>ops.storage.used</source>
-        <target>{size} belegt</target>
-      </trans-unit>
-      <trans-unit id="opsStor11de" resname="ops.storage.total_used">
-        <source>ops.storage.total_used</source>
-        <target>{size} gesamt</target>
       </trans-unit>
       <trans-unit id="opsNot01de" resname="ops.notifications.title">
         <source>ops.notifications.title</source>

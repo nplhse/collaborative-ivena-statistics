@@ -17,7 +17,7 @@ interface StorageMeasurementRepositoryInterface
     public function save(StorageMeasurement $measurement): StorageMeasurement;
 
     /**
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
+     * The measurement of the most recent day, if any.
      */
     public function latest(): ?StorageMeasurement;
 
@@ -30,8 +30,6 @@ interface StorageMeasurementRepositoryInterface
      * Measurements from the given day on, oldest first.
      *
      * @return list<StorageMeasurement>
-     *
-     * @psalm-suppress PossiblyUnusedMethod Not wired yet; the Admin pages use it.
      */
     public function findSince(\DateTimeImmutable $day): array;
 }
