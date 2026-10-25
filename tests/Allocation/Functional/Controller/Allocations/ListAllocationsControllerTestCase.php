@@ -72,14 +72,35 @@ abstract class ListAllocationsControllerTestCase extends WebTestCase
 
     protected function findNextPageHref(Crawler $crawler): ?string
     {
+        return $this->findPaginationHref($crawler, ['Next', 'Weiter']);
+    }
+
+    protected function findPreviousPageHref(Crawler $crawler): ?string
+    {
+        return $this->findPaginationHref($crawler, ['Previous', 'Zurück']);
+    }
+
+    /**
+     * Returns the href of an enabled pagination link; disabled links point to "#".
+     *
+     * @param list<string> $labels
+     */
+    private function findPaginationHref(Crawler $crawler, array $labels): ?string
+    {
         $links = $crawler->filter('ul.pagination a.page-link');
         foreach ($links as $link) {
             if (!$link instanceof \DOMElement) {
                 continue;
             }
             $text = trim($link->textContent);
-            if (str_contains($text, 'Next') || str_contains($text, 'Weiter')) {
-                return $link->getAttribute('href');
+            $href = $link->getAttribute('href');
+            if ('' === $href || '#' === $href) {
+                continue;
+            }
+            foreach ($labels as $label) {
+                if (str_contains($text, $label)) {
+                    return $href;
+                }
             }
         }
 

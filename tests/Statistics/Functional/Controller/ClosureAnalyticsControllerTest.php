@@ -14,6 +14,9 @@ use App\Allocation\Infrastructure\Factory\IndicationNormalizedFactory;
 use App\Allocation\Infrastructure\Factory\IndicationRawFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Import\Domain\Enum\ImportExportPeriodSource;
+use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Factory\ImportFactory;
 use App\Shared\Application\DataTable\DataTablePreferenceService;
 use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
@@ -1267,6 +1270,32 @@ SQL,
         self::assertStringNotContainsString('population=', $specialityScopeHref);
     }
 
+    public function testProvisionalEventsAreMarkedAndFiltered(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        [$hospitalId] = $this->seedGroupedClosures($user);
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+        $eventId = $this->closureEventId($hospitalId, 'functional-group');
+
+        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics/events/%d?scope=public&period=all_time&tab=course', $eventId));
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-event-provisional"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-volume-metric-relevance"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/events?scope=public&period=all_time&closureResultStates[]=provisional');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-filter-result-states"] option[value="provisional"][selected]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time&closureResultStates[]=provisional');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="closure-event-provisional"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?scope=public&period=all_time&closureResultStates[]=final');
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="closure-event-provisional"]');
+    }
+
     public function testEventCourseVolumeSeriesScopeToggle(): void
     {
         $client = self::createClient();
@@ -1300,6 +1329,43 @@ SQL,
         $html = $client->getCrawler()->filter('[data-closure-analytics-charts-payload-value]')->attr('data-closure-analytics-charts-payload-value');
         self::assertNotNull($html);
         self::assertStringNotContainsString('"referenceAreaRatio":', $html);
+    }
+
+    public function testOverviewShowsImportGapsOnlyForASingleHospital(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        $state = StateFactory::createOne();
+        $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
+        $hospital = HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatch, 'owner' => $user, 'createdBy' => $user]);
+        HospitalFactory::createOne(['state' => $state, 'dispatchArea' => $dispatch, 'owner' => $user, 'createdBy' => $user]);
+        foreach ([['2026-01-01', '2026-02-01'], ['2026-03-01', '2026-04-01'], ['2026-04-02', '2026-05-01']] as [$startsAt, $endsAt]) {
+            ImportFactory::createOne([
+                'hospital' => $hospital,
+                'createdBy' => $user,
+                'type' => ImportType::ALLOCATION,
+                'status' => ImportStatus::COMPLETED,
+                'exportStartsAt' => new \DateTimeImmutable($startsAt),
+                'exportEndsAt' => new \DateTimeImmutable($endsAt),
+                'exportPeriodSource' => ImportExportPeriodSource::DERIVED,
+            ]);
+        }
+        ImportFactory::createOne(['hospital' => $hospital, 'createdBy' => $user, 'type' => ImportType::CLOSURE, 'status' => ImportStatus::COMPLETED]);
+
+        $client->request(Request::METHOD_GET, sprintf('/statistics/closure-analytics?scope=hospital&hospital=%d&period=all_time', $hospital->getId()));
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-data-coverage"]');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-data-coverage-allocations"]', '01.01.2026 – 30.04.2026');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-data-coverage-allocations-gaps"]', '01.02.2026 – 28.02.2026 (28 days)');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-data-coverage-allocations-gaps"]', '01.04.2026 (1 day)');
+        $this->assertSelectorExists('[data-testid="stats-closure-data-coverage-closures-without-period"]');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-data-coverage-closures-gaps"]');
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?scope=public&period=all_time');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-testid="stats-closure-data-coverage"]', 'Two accessible hospitals: no single hospital to describe.');
     }
 
     private function currentMonthStart(): \DateTimeImmutable

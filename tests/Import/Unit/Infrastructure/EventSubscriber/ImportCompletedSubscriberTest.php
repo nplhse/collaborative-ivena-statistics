@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Import\Unit\Infrastructure\EventSubscriber;
 
+use App\Import\Application\Contracts\ImportSourceRangeReaderInterface;
 use App\Import\Application\Event\ImportCompleted;
+use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\EventSubscriber\ImportCompletedSubscriber;
@@ -40,7 +42,7 @@ final class ImportCompletedSubscriberTest extends TestCase
             ))
             ->willReturnCallback(static fn (object $message): Envelope => new Envelope($message));
 
-        $subscriber = new ImportCompletedSubscriber($messageBus, $entityManager, $this->createStub(ClosureRebuildRequestInterface::class));
+        $subscriber = new ImportCompletedSubscriber($messageBus, $entityManager, $this->createStub(ClosureRebuildRequestInterface::class), $this->deriver());
         $subscriber->onImportCompleted(new ImportCompleted($importId));
     }
 
@@ -58,7 +60,16 @@ final class ImportCompletedSubscriberTest extends TestCase
         $scheduler = $this->createMock(ClosureRebuildRequestInterface::class);
         $scheduler->expects($this->once())->method('requestAnalysis')->with(4);
 
-        $subscriber = new ImportCompletedSubscriber($this->createStub(MessageBusInterface::class), $entityManager, $scheduler);
+        $subscriber = new ImportCompletedSubscriber($this->createStub(MessageBusInterface::class), $entityManager, $scheduler, $this->deriver());
         $subscriber->onImportCompleted(new ImportCompleted(7));
+    }
+
+    private function deriver(): ImportExportPeriodDeriver
+    {
+        return new ImportExportPeriodDeriver(
+            $this->createStub(ImportSourceRangeReaderInterface::class),
+            $this->createStub(EntityManagerInterface::class),
+            $this->createStub(ClosureRebuildRequestInterface::class),
+        );
     }
 }

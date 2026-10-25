@@ -76,12 +76,16 @@ services:
         arguments: ['@app.lock.store']
 
     App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface: '@App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureVolumeProjectionRebuild'
+    App\Statistics\Application\Contract\ClosureVolumeSnapshotInterface: '@App\Statistics\ClosureAnalytics\Infrastructure\Diagnostics\ClosureVolumeSnapshotStore'
+    App\Statistics\Application\Contract\ClosureVolumeDiagnosticsInterface: '@App\Statistics\ClosureAnalytics\Infrastructure\Diagnostics\ClosureVolumeDiagnostics'
+    App\Import\Application\Contracts\ImportSourceRangeReaderInterface: '@App\Import\Infrastructure\Query\DoctrineImportSourceRangeReader'
 
     Symfony\Component\Lock\LockFactory: '@app.lock.factory'
 
     App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceConfig:
         arguments:
-            $referenceWeeks: '%app.closure_volume.reference_weeks%'
+            $referenceWeeksBefore: '%app.closure_volume.reference_weeks_before%'
+            $referenceWeeksAfter: '%app.closure_volume.reference_weeks_after%'
             $minimumReferenceSlots: '%app.closure_volume.minimum_reference_slots%'
 
     App\User\Infrastructure\Registration\RegistrationIdentityGuard:
@@ -108,6 +112,16 @@ services:
         arguments:
             - !php/const Monolog\Logger::INFO
 
+    app.monolog.sentry_logs_closure_rebuild:
+        class: Sentry\SentryBundle\Monolog\LogsHandler
+        arguments:
+            - !php/const Monolog\Logger::INFO
+
+    sentry.callback.traces_sampler:
+        class: App\Shared\Infrastructure\Monitoring\Sentry\SentryTracesSampler
+        arguments:
+            $tracesSampleRate: '%env(float:SENTRY_TRACES_SAMPLE_RATE)%'
+
     app.monolog.sentry_logs_main:
         class: Sentry\SentryBundle\Monolog\LogsHandler
         arguments:
@@ -115,7 +129,9 @@ services:
 
 when@test:
     services:
-        # Per-process locks: ParaTest runs test processes in parallel, and a lock file shared through the cache
-        # directory would let a lock held in one process make a scheduled job in another process skip its run.
+        # One lock directory per ParaTest worker, like its test database (dbname_suffix with TEST_TOKEN):
+        # a rebuild in another worker must not hold the lock a test asserts on.
         app.lock.store:
-            class: Symfony\Component\Lock\Store\InMemoryStore
+            class: Symfony\Component\Lock\Store\FlockStore
+            arguments:
+                - '%kernel.cache_dir%/lock%env(default::TEST_TOKEN)%'

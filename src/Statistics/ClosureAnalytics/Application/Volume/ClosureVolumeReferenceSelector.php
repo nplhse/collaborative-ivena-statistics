@@ -52,6 +52,22 @@ final readonly class ClosureVolumeReferenceSelector
     }
 
     /**
+     * Same rule as {@see self::fromTallies()}; the blocked count belongs to the level that was used.
+     */
+    public function fromTally(ClosureVolumeReferenceTally $tally): ClosureVolumeRate
+    {
+        $minimum = $this->config->minimumReferenceSlots;
+        if ($tally->primaryCount >= $minimum) {
+            return new ClosureVolumeRate($tally->primarySum / $tally->primaryCount, ClosureVolumeReferenceMode::WeekdayHour, $tally->primaryCount, $tally->primarySum, $tally->primaryBlocked);
+        }
+        if ($tally->fallbackCount >= $minimum) {
+            return new ClosureVolumeRate($tally->fallbackSum / $tally->fallbackCount, ClosureVolumeReferenceMode::DayTimeBucket, $tally->fallbackCount, $tally->fallbackSum, $tally->fallbackBlocked);
+        }
+
+        return new ClosureVolumeRate(null, ClosureVolumeReferenceMode::Insufficient, $tally->fallbackCount, $tally->fallbackSum, $tally->fallbackBlocked);
+    }
+
+    /**
      * @param list<ClosureVolumeReferenceSlot> $slots
      */
     private function rate(array $slots, ClosureVolumeReferenceMode $mode): ClosureVolumeRate

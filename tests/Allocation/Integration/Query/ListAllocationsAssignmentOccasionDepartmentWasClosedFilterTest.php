@@ -55,27 +55,27 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
             'departmentWasClosed' => false,
         ] + $shared);
 
-        $assignmentResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $assignmentResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             assignment: (int) $assignmentA->getId(),
-        ))->getResults());
+        ))->getItems();
         self::assertCount(1, $assignmentResults);
 
-        $occasionResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $occasionResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             occasion: (string) $occasionA->getId(),
-        ))->getResults());
+        ))->getItems();
         self::assertCount(1, $occasionResults);
 
-        $closedResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $closedResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             departmentWasClosed: 1,
-        ))->getResults());
+        ))->getItems();
         self::assertCount(1, $closedResults);
         self::assertTrue($closedResults[0]['departmentWasClosed']);
 
-        $combinedResults = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $combinedResults = $this->query->getPaginator(new AllocationQueryParametersDTO(
             assignment: (int) $assignmentA->getId(),
             occasion: (string) $occasionA->getId(),
             departmentWasClosed: 1,
-        ))->getResults());
+        ))->getItems();
         self::assertCount(1, $combinedResults);
     }
 
@@ -91,10 +91,10 @@ final class ListAllocationsAssignmentOccasionDepartmentWasClosedFilterTest exten
             'createdAt' => new \DateTimeImmutable('2026-05-15 10:00:00'),
         ] + $shared);
 
-        $results = iterator_to_array($this->query->getPaginator(new AllocationQueryParametersDTO(
+        $results = $this->query->getPaginator(new AllocationQueryParametersDTO(
             createdFrom: '2026-03-01T00:00:00',
             createdToExclusive: '2026-04-01T00:00:00',
-        ))->getResults());
+        ))->getItems();
 
         self::assertCount(1, $results);
     }

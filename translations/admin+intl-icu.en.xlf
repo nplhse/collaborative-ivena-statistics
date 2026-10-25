@@ -709,6 +709,14 @@
         <source>admin.fieldset.hospitals</source>
         <target>Hospital associations</target>
       </trans-unit>
+      <trans-unit id="admFsExportPeriod" resname="admin.fieldset.export_period">
+        <source>admin.fieldset.export_period</source>
+        <target>Export period</target>
+      </trans-unit>
+      <trans-unit id="admImportExportPeriodHelp" resname="admin.import.export_period.help">
+        <source>admin.import.export_period.help</source>
+        <target>Derived from imported rows. Editing the period marks it as manual; set the source back to "derived" to let the next derivation overwrite it.</target>
+      </trans-unit>
       <trans-unit id="admFsMetadata" resname="admin.fieldset.metadata">
         <source>admin.fieldset.metadata</source>
         <target>Metadata</target>

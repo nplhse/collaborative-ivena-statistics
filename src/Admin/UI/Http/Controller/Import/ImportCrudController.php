@@ -6,7 +6,9 @@ namespace App\Admin\UI\Http\Controller\Import;
 
 use App\Admin\UI\Http\Controller\ImportReject\ImportRejectCrudController;
 use App\Import\Application\Service\ImportDeletionService;
+use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportExportPeriodSource;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,6 +43,7 @@ final class ImportCrudController extends AbstractCrudController
     public function __construct(
         private readonly ImportDeletionService $importDeletionService,
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly ImportExportPeriodDeriver $exportPeriodDeriver,
     ) {
     }
 
@@ -155,6 +158,18 @@ final class ImportCrudController extends AbstractCrudController
         yield IntegerField::new('runTime', 'Runtime (ms)')
             ->onlyOnDetail();
 
+        yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.export_period', domain: 'admin'))
+            ->setHelp(new TranslatableMessage('admin.import.export_period.help', domain: 'admin'));
+        yield DateTimeField::new('exportStartsAt', 'Export starts at')
+            ->setFormat('dd.MM.yy HH:mm')
+            ->hideOnIndex();
+        yield DateTimeField::new('exportEndsAt', 'Export ends at (exclusive)')
+            ->setFormat('dd.MM.yy HH:mm')
+            ->hideOnIndex();
+        yield ChoiceField::new('exportPeriodSource', 'Export period source')
+            ->setChoices(ImportExportPeriodSource::cases())
+            ->hideOnIndex();
+
         yield FormField::addFieldset(new TranslatableMessage('admin.fieldset.file', domain: 'admin'));
         yield TextField::new('filePath', 'Source file')
             ->onlyOnDetail();
@@ -179,6 +194,29 @@ final class ImportCrudController extends AbstractCrudController
             ->onlyOnDetail();
         yield AssociationField::new('updatedBy', 'Updated by')
             ->onlyOnDetail();
+    }
+
+    /**
+     * An edited export period becomes manual unless the source was explicitly reset to derived.
+     * Closure Analytics reads the period as coverage, so the hospital is rebuilt.
+     */
+    #[\Override]
+    public function updateEntity(EntityManagerInterface $entityManager, object $entityInstance): void
+    {
+        $unitOfWork = $entityManager->getUnitOfWork();
+        $unitOfWork->computeChangeSets();
+        $changes = $unitOfWork->getEntityChangeSet($entityInstance);
+        $periodChanged = isset($changes['exportStartsAt']) || isset($changes['exportEndsAt']);
+        if ($periodChanged && !isset($changes['exportPeriodSource'])) {
+            $entityInstance->setExportPeriodSource(ImportExportPeriodSource::MANUAL);
+        }
+
+        parent::updateEntity($entityManager, $entityInstance);
+
+        $hospitalId = $entityInstance->getHospital()?->getId();
+        if (($periodChanged || isset($changes['exportPeriodSource'])) && \is_int($hospitalId)) {
+            $this->exportPeriodDeriver->notifyCoverageChanged($hospitalId);
+        }
     }
 
     #[\Override]

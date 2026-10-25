@@ -259,15 +259,19 @@ final class DataTableTest extends TestCase
             [['publicId' => '1']],
             25,
             'next-cursor',
-            null,
+            'prev-cursor',
             1200,
         );
         $table->columns = [DataTableColumn::fromArray(['key' => 'name', 'label' => 'Name'])];
 
         self::assertTrue($table->isCursorPaginator());
+        self::assertFalse($table->isUxPaginator());
         self::assertTrue($table->getShouldShowFooter());
-        self::assertNotNull($table->cursorPreviousUrl());
+        self::assertStringContainsString('cursor=prev-cursor', (string) $table->cursorPreviousUrl());
         self::assertStringContainsString('cursor=next-cursor', (string) $table->cursorNextUrl());
+
+        $table->paginator = new CursorPaginator([['publicId' => '1']], 25, 'next-cursor');
+        self::assertNull($table->cursorPreviousUrl(), 'The first page has no previous link, even with a cursor in the URL.');
 
         $table->paginator = new CursorPaginator([], 25, null);
         self::assertFalse($table->getShouldShowFooter());
@@ -399,6 +403,48 @@ final class DataTableTest extends TestCase
         self::assertStringContainsString('limit=25', $links[0]['url']);
         self::assertStringContainsString('page=1', $links[0]['url']);
         self::assertStringContainsString('search=alpha', $links[0]['url']);
+    }
+
+    public function testNativeUxCursorPaginationSwitchesToPreviousNextNavigation(): void
+    {
+        $rows = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $rows[] = ['id' => $i, 'name' => 'Row '.$i];
+        }
+
+        $table = $this->table(Request::create('/explore/allocation', 'GET', ['limit' => '2', 'sortBy' => 'age']));
+        $table->paginationRoute = 'app_explore_allocation_list';
+        $firstPage = PaginatorFactory::create()
+            ->cursor($rows)
+            ->orderBy('id', 'ASC')
+            ->context('data-table-test')
+            ->perPage(2)
+            ->cursor(null)
+            ->paginate();
+        $table->paginator = $firstPage;
+
+        self::assertTrue($table->isCursorPaginator());
+        self::assertFalse($table->isUxPaginator());
+        self::assertSame(2, $table->getPageSize());
+        self::assertCount(2, $table->getRowItems());
+        self::assertNull($table->cursorPreviousUrl());
+
+        $nextUrl = (string) $table->cursorNextUrl();
+        self::assertStringContainsString('cursor='.urlencode((string) $firstPage->getNextCursor()), $nextUrl);
+        self::assertStringContainsString('limit=2', $nextUrl, 'Cursor links keep the table query.');
+        self::assertStringContainsString('sortBy=age', $nextUrl);
+
+        $table->paginator = PaginatorFactory::create()
+            ->cursor($rows)
+            ->orderBy('id', 'ASC')
+            ->context('data-table-test')
+            ->perPage(2)
+            ->cursor($firstPage->getNextCursor())
+            ->paginate();
+        self::assertNotNull($table->cursorPreviousUrl());
+
+        $limitLink = $table->getPageSizeLinks()[0]['url'];
+        self::assertStringNotContainsString('cursor=', $limitLink, 'Changing the page size starts over.');
     }
 
     public function testPaginationRouteFallsBackToCurrentRequest(): void

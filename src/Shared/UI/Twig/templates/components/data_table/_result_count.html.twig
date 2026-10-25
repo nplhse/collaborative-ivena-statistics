@@ -1,7 +1,9 @@
-{% if paginator.estimatedNumResults is defined %}
-    {% if paginator.estimatedNumResults %}
+{# Cursor paginations (CursorPaginationInterface) have no exact total; some offer an estimate. #}
+{% if paginator.nextCursor is defined %}
+    {% set estimatedTotal = paginator.estimatedNumResults is defined ? paginator.estimatedNumResults : null %}
+    {% if estimatedTotal %}
         {{ 'label.pagination_numbers_estimated'|trans({
-            total: paginator.estimatedNumResults|number_format(0, ',', '.'),
+            total: estimatedTotal|number_format(0, ',', '.'),
             pages: paginator.estimatedLastPage|number_format(0, ',', '.'),
         }, 'messages') }}
     {% else %}

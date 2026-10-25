@@ -17,6 +17,7 @@ use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Import\Application\Service\ImportDeletionService;
+use App\Import\Application\Service\ImportRelatedDataCleanupService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Entity\ImportBatchRun;
 use App\Import\Domain\Entity\ImportBatchRunItem;
@@ -164,6 +165,31 @@ final class ImportDeletionServiceTest extends KernelTestCase
             );
 
             $this->deletionService->delete($import);
+
+            $this->em->clear();
+            self::assertNull($this->em->find(ProjectionHospitalDimension::class, $hospitalId));
+        } finally {
+            if (\is_file($csvPath)) {
+                @unlink($csvPath);
+            }
+        }
+    }
+
+    public function testDeferredRefreshLeavesTheViewToTheCaller(): void
+    {
+        ['import' => $import, 'csvPath' => $csvPath, 'hospitalId' => $hospitalId] = $this->arrangeImportWithAllocation('DeleteDeferred');
+
+        try {
+            self::assertTrue($this->deletionService->delete($import, refreshMaterializedView: false), 'the hospital left the projection');
+
+            $this->em->clear();
+            self::assertInstanceOf(
+                ProjectionHospitalDimension::class,
+                $this->em->find(ProjectionHospitalDimension::class, $hospitalId),
+                'the view is not refreshed yet',
+            );
+
+            self::getContainer()->get(ImportRelatedDataCleanupService::class)->refreshOverview(['import_ids' => []]);
 
             $this->em->clear();
             self::assertNull($this->em->find(ProjectionHospitalDimension::class, $hospitalId));

@@ -110,7 +110,7 @@ final class ListImportControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertGreaterThanOrEqual(2, $rows->count());
-        $firstName = \trim($rows->eq(0)->filter('td')->eq(1)->text(''));
+        $firstName = \trim($rows->eq(0)->filter('td')->eq(2)->text(''));
         self::assertSame('XYZ Hospital Import', $firstName);
     }
 
@@ -325,7 +325,7 @@ final class ListImportControllerTest extends WebTestCase
 
         $crawler = $this->requestAsUser($client, $owner, '/import?sortBy=createdAt&orderBy=desc');
 
-        $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(1)->text(''));
+        $firstName = \trim($crawler->filter('table.table tbody tr')->eq(0)->filter('td')->eq(2)->text(''));
         self::assertSame('Newer Import', $firstName);
     }
 

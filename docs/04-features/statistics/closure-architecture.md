@@ -63,38 +63,86 @@ intervals as one clinical event.
 
 Overlapping or half-open adjacent intervals of the same department that belong
 to different events are marked in `closure_relation_candidate` (`overlap`,
-`adjacent`). `export_boundary` is used only when both imports have a known
-export period and the intervals sit on those bounds. `import.export_starts_at`
-and `import.export_ends_at` stay null unless the period is actually known. The
-span from the earliest start to the latest end remains an estimate, not proof
-of coverage. Without a known export period a pause is unknown coverage, not a
-confirmed gap. Hospital-phase gaps stay computable and are labelled as gaps
-inside that estimate.
+`adjacent`). `export_boundary` is used only when both imports have an export
+period and the intervals sit on those bounds.
+
+IVENA files carry no export period, so `import.export_starts_at` and
+`import.export_ends_at` are derived from the imported rows when an import
+completes (`export_period_source = derived`, ADR 015):
+
+- allocation imports cover whole days from the first to the last `created_at`
+- closure imports cover whole days from the first start to the last end; they
+  are widened to calendar months only when allocation imports of the same
+  hospital cover those whole months
+- an administrator can correct a period in the admin area
+  (`export_period_source = manual`); derivation never overwrites it
+
+The derivation is conservative: an under-estimated period only marks more data
+as missing. `app:import:derive-export-periods` backfills existing imports. The
+volume rebuild reads the union of allocation export periods as coverage, so a
+covered hour without allocations counts as zero and an uncovered hour as
+missing. While a hospital has a completed import without a derived period, the
+rebuild falls back to "day with at least one allocation". Hospital-phase gaps
+stay computable and are labelled as gaps inside that estimate.
 
 ## Phases and counting
 
-Phases are a derived view. Per population, overlapping and immediately adjacent
-half-open intervals `[start, end)` are united:
+Phases are a derived view (ADR 015). A population is hospital, scope,
+speciality and department, without urgency. Every event gets rows for each
+closed department (per speciality, because a department can close under two
+specialities), the specialities of those departments, and the hospital. Every
+population carries all five metrics: `emergency` (SK1), `inpatient` (SK2),
+`outpatient` (SK3), `resus` and `cathlab`. Resource metrics count allocations
+of any urgency and are never added to the SK total.
 
-- department and care level
-- speciality and care level, meaning at least one child department was closed
-- the existing hospital phases, named separately
+A closure binds a metric to a population:
+
+- urgency metric: an interval whose care level opens that urgency (`other`
+  opens SK1–SK3); overlapping and adjacent half-open intervals are united
+- `resus` / `cathlab`: hours in which SK1, SK2 and SK3 are closed in the same
+  department at the same time, possibly by several intervals
+- speciality and hospital: where any of their departments binds the metric
+
+`closure_relevance` is `closed` (department binds the metric, or every known
+department of a speciality/hospital does), `partial` (some departments do;
+`closed_department_count` keeps how many) or `none` (calculated for comparison
+only, using the population's whole closure extent). Known departments are the
+departments with allocations in the loaded window plus the closed ones; there
+is no hospital–department table. Burden, profiles and the event figures count
+only `closed` and `partial`.
 
 The context window is 6 hours before the start and 6 hours after the end. Hour
 pieces stay the grain and are clipped at the bounds. Detail windows are 1, 3,
-and 6 hours. The reference is still 8 weeks and at least 4 slots, with qualities
-`reliable`, `limited`, `insufficient`, and `incomplete`. Zero allocations,
-missing coverage, and an insufficient reference stay distinct.
+and 6 hours.
 
-Influence applies only outside the closure itself:
+The reference is symmetric: 4 weeks before the start
+(`app.closure_volume.reference_weeks_before`) and 4 weeks after the end
+(`app.closure_volume.reference_weeks_after`). The event extent, including gaps
+between its segments, is never part of it; context hours are. Weekday/hour
+needs at least 4 slots, then the day-time bucket, again at least 4 slots, with
+qualities `reliable`, `limited`, `insufficient`, and `incomplete`. Zero
+allocations, missing coverage, and an insufficient reference stay distinct.
 
-- department: another report of the same department and care level
-- speciality: another report of the same speciality and care level, including another department
-- hospital: another report of the same hospital and care level
+Reference blocking is metric-specific. An urgency metric drops hours in which
+the department has an interval opening that urgency. `resus` and `cathlab` drop
+only hours in which SK1–SK3 are closed in the same department. A speciality
+drops an hour for a metric when any of its departments blocks it; counts of
+single departments are never subtracted. The hospital is not blocked.
+`blocked_slot_count` keeps how many covered slots blocking removed from the
+level that was used.
 
-The projection grain is event, level, speciality, department, care level,
-stratum, and hour piece. Null scope ids are stored as `0` so the unique index
-applies. Each partial interval counts allocations with
+Influence applies only outside the closure itself: another event closes the
+same metric in the same population (department, speciality or hospital).
+Resource metrics count as closed only by an interval that opens SK1–SK3.
+
+An event is `provisional` while allocation coverage (`awaiting_allocations`)
+or, after that, closure coverage (`awaiting_closures`) does not reach
+`event_end + 4 weeks`. Coverage that is not derived yet confirms nothing. The
+flag and reason are stored on every row of the event and become final with the
+next rebuild after the missing import.
+
+The projection grain is event, scope, speciality, department, metric, and hour
+piece. Null scope ids are stored as `0` so the unique index applies. Each partial interval counts allocations with
 `created_at >= bucket_start AND created_at < bucket_end`. A later partial of
 the same clock hour is not zeroed because an earlier partial was already seen.
 A pre-aggregated full hour is used only when the piece is exactly that hour.
@@ -105,11 +153,12 @@ time and absolute seconds are unchanged, including daylight-saving days.
 
 Analysis is built per hospital in PostgreSQL. PHP does not materialise every
 closure. The volume build walks one hospital in weekly partitions of event
-start. It loads only the neighbours and assignment hours required for eight
-reference weeks, spanning closures, and six hours of context. It writes only
+start. It loads only the neighbours and assignment hours required for the
+reference weeks before the first and after the last closure of the partition
+and six hours of context. It writes only
 events whose start lies in the partition. The same reference block is computed
-once per population, cutoff, weekday, and day-time bucket and reused for the
-six hours. That cache ends with the partition.
+once per series (population and metric), event extent, weekday, and day-time
+bucket and reused for the six hours. That cache ends with the partition.
 
 The worker limit stays `--memory-limit=256M`. `memory_limit` is not raised.
 Large scans are SQL aggregations or a cursor with `FETCH`. Inserts flush about
@@ -124,14 +173,80 @@ second rebuild; a failure after that cleanup does. A successful completion
 schedules one analysis. Deleting a source schedules analysis for that hospital;
 deleting only allocations schedules volume.
 
-`closure_rebuild_request` stores the hospital and the kind (`analysis` or
-`volume`). The handler takes open requests under the lock
+Rebuilds are incremental (ADR 015 phase 4). A request carries the changed range
+(`range_from`/`range_to`): an allocation import its export period (or the range
+of its allocations), a closure import and deleted import data the import's
+export period. Coverage changes and failed re-runs carry no range. An open
+request that already covers the hospital is widened instead of queuing a second
+one; a missing range wins. The analysis rebuild reports which events it created,
+changed or removed (a signature over their intervals). `ClosureVolumeRebuildPlanner`
+then selects, per hospital, the events whose load range
+`[start − 4 weeks − 6 h, end + 4 weeks + 6 h)` intersects a changed range or the
+old/new extent of a changed event, the created and changed events, and every
+event that is still provisional. Only those events are rebuilt; publishing
+replaces their rows and drops rows of removed events in one transaction. A
+request without range, a request for all hospitals and late claims rebuild whole
+hospitals. Results do not depend on which events are rebuilt together: an
+event's known departments come from its own load range.
+`ClosureVolumeIncrementalRebuildTest` compares every incremental case with a full
+rebuild. On the production dump, a simulated monthly allocation import for
+hospital 40 rebuilt 105 of 822 events in 7.4 s (full: 60 s), a monthly closure
+import 207 events in 16.1 s, both identical to a full rebuild.
+
+`closure_rebuild_request` stores the hospital, the kind (`analysis` or
+`volume`) and the range. The handler claims open requests under the lock
 `closure-volume-projection`. Requests for the same hospitals that arrive during
-the run are included before publish. The previous table stays readable until
-commit. A full rebuild swaps the side table. A partial rebuild replaces only
-the affected hospitals in one transaction. An error drops the build table.
+the run are claimed before publish and rebuilt in a second pass, which the
+console progress shows; a console rebuild takes requests it already covers
+before its first pass. The previous table stays readable until commit. A full
+rebuild swaps the side table. A partial rebuild replaces only the affected
+hospitals in one transaction. An error drops the build table.
 `app:statistics:rebuild-closure-volume-projection` rebuilds analysis and volume
-for every hospital. There is no projection version.
+for every hospital, or for the hospitals given with `--hospital`. There is no
+projection version. `--reference-window=backward` uses all reference weeks
+before the event; it exists for comparison runs only, and `closure_rebuild_run`
+records the window of every run (`4/4`, `8/0`).
+
+The schema change of ADR 015 (`Version20261025103722`) recreates
+`closure_volume_hour` empty and queues a full `volume` request. Either the
+worker consumes it, or a console full rebuild takes it: a console rebuild
+claims the open requests it covers (all of them for a full rebuild, only those
+of the given hospitals with `--hospital`) before its first pass, so only
+requests that arrive while it runs cause a second pass.
+
+Each run records seconds and SQL statements per step; the command prints the
+table and `closure_rebuild_run.query_count` keeps the statement count. Context
+hours look up influencing closures in an index per population and metric
+(`ClosureVolumeNeighbourIndex`), reference slots are shared by every population
+with the same event extent, and the build table is written with `COPY`.
+
+A request is queued only for hospitals with `closure_interval` or
+`closure_event` rows, and only when no open, unclaimed request covers it: an
+open `analysis` covers `volume`, and a request for all hospitals covers each
+one. Claimed or failed requests never cover a new change.
+
+A request moves through these states (all timestamps Europe/Berlin):
+
+- **open:** not claimed.
+- **claimed:** `claimed_at` and `claimed_by` (the run id) are set. Only the lock
+  holder claims, and the semaphore lock ends with its process, so a request
+  claimed by another run belongs to a run that died and is claimed again.
+- **consumed:** `consumed_at` is set after the publish.
+- **released:** a failed run clears the claim and stores `last_error`; the next
+  run retries it. Messenger retries the message three times.
+- **failed:** after three claims (failed or orphaned) `failed_at` parks the
+  request. `app:statistics:closure-rebuild-requests` lists unconsumed requests
+  with their range; `--retry-failed` re-queues failed ones with a fresh budget,
+  `--run` processes the open ones now as the worker would.
+
+An hourly scheduler message (minute 40) consumes requests nobody picked up, for
+example after a killed console rebuild. It skips the run while another rebuild
+holds the lock.
+
+Each run is recorded in `closure_rebuild_run` and as Sentry transaction
+`closure_rebuild`, with a summary log and threshold warnings on the
+`closure_rebuild` channel. See
+[observability-sentry.md](../../05-operations/observability-sentry.md#closure-rebuild-monitoring).
 
 Event pages use the numeric `closure_event.id`. The route parameter is still
 named `eventKey` and accepts only digits.

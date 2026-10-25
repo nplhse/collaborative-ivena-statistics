@@ -14,9 +14,8 @@
                 name="ids[]"
                 value="{{ notification.id }}"
                 form="notification-bulk-form"
-                data-checkbox-select-all-target="item"
-                data-notification-bulk-target="item"
-                data-action="change->checkbox-select-all#syncToggle change->notification-bulk#update"
+                data-bulk-selection-target="item"
+                data-action="change->bulk-selection#update"
                 aria-label="{{ 'notification.bulk.select_item'|trans({title: title}, 'notification') }}"
                 data-testid="notification-item-select"
             >

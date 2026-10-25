@@ -6,6 +6,7 @@ namespace App\Import\Infrastructure\Query;
 
 use App\Import\Application\Service\ImportListAccess;
 use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Entity\ImportBatchRunItem;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\UI\Http\DTO\ListImportQueryParametersDTO;
@@ -80,6 +81,11 @@ final readonly class ListImportsQuery
                 $qb->andWhere('i.createdAt < :createdUntilExclusive')
                     ->setParameter('createdUntilExclusive', $untilExclusive, Types::DATETIME_IMMUTABLE);
             }
+        }
+
+        if (null !== $query->batch) {
+            $qb->andWhere(\sprintf('i.id IN (SELECT item.importId FROM %s item WHERE IDENTITY(item.run) = :batch)', ImportBatchRunItem::class))
+                ->setParameter('batch', $query->batch);
         }
 
         if (null !== $query->search && '' !== trim($query->search)) {

@@ -32,7 +32,8 @@ app:
             - .ru
 
     closure_volume:
-        reference_weeks: 8
+        reference_weeks_before: 4
+        reference_weeks_after: 4
         minimum_reference_slots: 4
 
     storage:

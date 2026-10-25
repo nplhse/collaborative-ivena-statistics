@@ -74,6 +74,27 @@
             {{ activeFilters.import_filter_badges(filters, hospitals, owners) }}
         {% endif %}
 
+        {% if batch %}
+            {% if batchProgress %}
+                {% set batchMessage = (batchProgress.finished ? 'import.batch.progress.finished' : 'import.batch.progress.running')|trans({
+                    total: batchProgress.total,
+                    succeeded: batchProgress.succeeded,
+                    failed: batchProgress.failed,
+                    superseded: batchProgress.superseded,
+                    open: batchProgress.open,
+                }, 'import') %}
+                {% set batchType = batchProgress.finished ? (batchProgress.failed > 0 ? 'warning' : 'success') : 'info' %}
+            {% else %}
+                {% set batchMessage = 'import.batch.filtered'|trans({}, 'import') %}
+                {% set batchType = 'info' %}
+            {% endif %}
+            <twig:Alert :type="batchType" :message="batchMessage" icon="tabler:refresh" data-testid="import-batch-progress">
+                <twig:block name="actions">
+                    <a class="btn btn-sm" href="{{ path('app_import_index') }}" target="_top" data-testid="import-batch-clear">{{ 'import.batch.clear'|trans({}, 'import') }}</a>
+                </twig:block>
+            </twig:Alert>
+        {% endif %}
+
         {% set listIsFiltered = activeFilterCount > 0 %}
         <twig:DataTable
             :paginator="paginator"
@@ -83,6 +104,11 @@
             emptyTitle="{{ (listIsFiltered ? 'empty.filtered.title' : (canImport ? 'empty.import.initial.title' : 'empty.import.no_permission.title'))|trans({}, listIsFiltered ? 'shared' : 'import') }}"
             emptyDescription="{{ (listIsFiltered ? 'empty.filtered.description' : (canImport ? 'empty.import.initial.description' : 'empty.import.no_permission.description'))|trans({}, listIsFiltered ? 'shared' : 'import') }}"
             emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : 'tabler:database-import' }}"
+            :bulkActions="bulkActions"
+            :bulkFormAction="path('app_import_bulk')"
+            :bulkCsrfToken="csrf_token(constant('App\\Import\\UI\\Http\\Controller\\BulkImportActionController::CSRF_TOKEN'))"
+            :bulkSelectableIds="bulkSelectableIds"
+            bulkId="import-bulk"
             :columns="[
                 { key: 'type', type: 'badge', label: 'label.type', property: 'type', sortable: true, sortKey: 'type', width: 'col-1', badgePalette: 'import_type' },
                 { key: 'name', type: 'link', label: 'label.name', property: 'name', sortable: true, sortKey: 'name', width: 'col-3', route: 'app_import_show', routeParams: {id: 'id'} },

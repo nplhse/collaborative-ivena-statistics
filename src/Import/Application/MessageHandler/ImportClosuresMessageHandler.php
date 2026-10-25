@@ -22,6 +22,7 @@ use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
+use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
 use App\Import\Application\Service\ImportRunCommitGuard;
@@ -63,6 +64,7 @@ final readonly class ImportClosuresMessageHandler
         private ClosureRebuildRequestInterface $closureRebuildScheduler,
         private ImportRunLifecycle $runLifecycle,
         private ImportRunCommitGuard $commitGuard,
+        private ImportExportPeriodDeriver $exportPeriodDeriver,
     ) {
     }
 
@@ -234,6 +236,8 @@ final readonly class ImportClosuresMessageHandler
         if ($summary->rejected > 0 && \is_string($absRejectPath) && '' !== $absRejectPath) {
             $fresh->setRejectFilePath($this->fileStorage->toRelative($absRejectPath));
         }
+
+        $this->exportPeriodDeriver->apply($fresh);
 
         ImportEvaluation::apply($fresh, $summary, $runtimeMs);
     }

@@ -76,6 +76,18 @@ final class NotificationDefinitionValidator
             $errors[] = 'requiredRole is only allowed for role-scoped types';
         }
 
+        if (null !== $definition->toastGroup && 1 !== preg_match(self::TYPE_PATTERN, $definition->toastGroup)) {
+            $errors[] = 'the toastGroup must be a lowercase dotted identifier such as "import.run_outcome"';
+        }
+
+        if (null !== $definition->toastGroup && !\in_array(NotificationChannel::Toast, $definition->availableChannels, true)) {
+            $errors[] = 'a toastGroup needs the toast channel';
+        }
+
+        if (null !== $definition->toastGroupRoute && null === $definition->toastGroup) {
+            $errors[] = 'toastGroupRoute is only allowed with a toastGroup';
+        }
+
         if (!$definition->configurable && [] === $definition->defaultChannels && [] === $definition->mandatoryChannels) {
             $errors[] = 'a non-configurable type needs a default or mandatory channel';
         }

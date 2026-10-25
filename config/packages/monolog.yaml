@@ -2,6 +2,7 @@ monolog:
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
         - import
+        - closure_rebuild
         - security
 
 when@dev:
@@ -29,16 +30,26 @@ when@dev:
                 path: "%kernel.logs_dir%/import.dev.log"
                 level: info
                 channels: ["import"]
+            closure_rebuild:
+                type: stream
+                path: "%kernel.logs_dir%/closure_rebuild.dev.log"
+                level: info
+                channels: ["closure_rebuild"]
             sentry_logs_import:
                 type: service
                 id: app.monolog.sentry_logs_import
                 level: info
                 channels: ["import"]
+            sentry_logs_closure_rebuild:
+                type: service
+                id: app.monolog.sentry_logs_closure_rebuild
+                level: info
+                channels: ["closure_rebuild"]
             sentry_logs_main:
                 type: service
                 id: app.monolog.sentry_logs_main
                 level: warning
-                channels: ["!event", "!import"]
+                channels: ["!event", "!import", "!closure_rebuild"]
             security:
                 type: stream
                 path: "%kernel.logs_dir%/security.dev.log"
@@ -63,16 +74,26 @@ when@test:
                 path: "%kernel.logs_dir%/import.test.log"
                 level: info
                 channels: ["import"]
+            closure_rebuild_test:
+                type: stream
+                path: "%kernel.logs_dir%/closure_rebuild.test.log"
+                level: info
+                channels: ["closure_rebuild"]
             sentry_logs_import:
                 type: service
                 id: app.monolog.sentry_logs_import
                 level: info
                 channels: ["import"]
+            sentry_logs_closure_rebuild:
+                type: service
+                id: app.monolog.sentry_logs_closure_rebuild
+                level: info
+                channels: ["closure_rebuild"]
             sentry_logs_main:
                 type: service
                 id: app.monolog.sentry_logs_main
                 level: warning
-                channels: ["!event", "!import"]
+                channels: ["!event", "!import", "!closure_rebuild"]
             security:
                 type: stream
                 path: "%kernel.logs_dir%/security.test.log"
@@ -108,16 +129,27 @@ when@prod:
                 level: info
                 formatter: monolog.formatter.json
                 channels: ["import"]
+            closure_rebuild_stderr:
+                type: stream
+                path: php://stderr
+                level: info
+                formatter: monolog.formatter.json
+                channels: ["closure_rebuild"]
             sentry_logs_import:
                 type: service
                 id: app.monolog.sentry_logs_import
                 level: info
                 channels: ["import"]
+            sentry_logs_closure_rebuild:
+                type: service
+                id: app.monolog.sentry_logs_closure_rebuild
+                level: info
+                channels: ["closure_rebuild"]
             sentry_logs_main:
                 type: service
                 id: app.monolog.sentry_logs_main
                 level: warning
-                channels: ["!event", "!import"]
+                channels: ["!event", "!import", "!closure_rebuild"]
             security:
                 type: stream
                 path: php://stderr

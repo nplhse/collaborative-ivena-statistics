@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Shared\UI\Twig\Components;
 
-use App\Shared\Infrastructure\Pagination\CursorPaginator;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\BadgeView;
+use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
 use App\Shared\UI\Twig\DataTable\DataTableValueResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\UX\Pagination\CursorPaginationInterface;
 use Symfony\UX\Pagination\PaginationInterface;
 use Symfony\UX\TwigComponent\Attribute\AsTwigComponent;
 
@@ -27,8 +28,16 @@ final class DataTable
     /** @psalm-suppress PossiblyUnusedProperty Consumed by DataTable.html.twig. */
     public ?string $title = null;
 
-    /** @var PaginationInterface<mixed>|CursorPaginator|null */
-    public PaginationInterface|CursorPaginator|null $paginator = null;
+    /**
+     * Numbered or cursor pagination; the footer picks page numbers or previous/next
+     * from the type (CursorPaginationInterface means previous/next).
+     *
+     * @var PaginationInterface<mixed>|null
+     */
+    public ?PaginationInterface $paginator = null;
+
+    /** Query parameter that carries the cursor in previous/next links. */
+    public string $cursorParam = 'cursor';
 
     public ?string $paginationRoute = null;
 
@@ -115,12 +124,79 @@ final class DataTable
 
     public ?string $turboFrame = null;
 
+    /**
+     * Bulk actions for selected rows. Selection is enabled when actions, a form action and a CSRF token are set.
+     *
+     * @var list<DataTableBulkAction>
+     */
+    public array $bulkActions = [];
+
+    public ?string $bulkFormAction = null;
+
+    public ?string $bulkCsrfToken = null;
+
+    /** Unique per page; also prefixes the confirmation dialog ids. */
+    public string $bulkId = 'data-table-bulk';
+
+    /** Row property holding the id that is posted as `ids[]`. */
+    public string $bulkIdProperty = 'id';
+
+    /** Row property that must be truthy for the row to get a checkbox; null selects every row. */
+    public ?string $bulkSelectableProperty = null;
+
+    /**
+     * Ids of the rows that get a checkbox, for example those the user may change; null selects every row.
+     *
+     * @var list<int|string>|null
+     */
+    public ?array $bulkSelectableIds = null;
+
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly DataTableValueResolver $valueResolver,
         private readonly BadgePalette $badgePalette,
     ) {
+    }
+
+    public function isBulkEnabled(): bool
+    {
+        return [] !== $this->bulkActions
+            && null !== $this->bulkFormAction
+            && '' !== $this->bulkFormAction
+            && null !== $this->bulkCsrfToken;
+    }
+
+    /**
+     * @param object|array<string, mixed> $row
+     */
+    public function bulkRowId(object|array $row): ?string
+    {
+        $id = $this->valueResolver->scalar($this->valueResolver->read($row, $this->bulkIdProperty));
+
+        return null === $id || '' === $id ? null : $id;
+    }
+
+    /**
+     * @param object|array<string, mixed> $row
+     */
+    public function isBulkSelectable(object|array $row): bool
+    {
+        $id = $this->bulkRowId($row);
+        if (null === $id) {
+            return false;
+        }
+
+        if (null !== $this->bulkSelectableIds && !\in_array($id, array_map(strval(...), $this->bulkSelectableIds), true)) {
+            return false;
+        }
+
+        return null === $this->bulkSelectableProperty || (bool) $this->valueResolver->read($row, $this->bulkSelectableProperty);
+    }
+
+    public function getColumnCount(): int
+    {
+        return \count($this->getVisibleColumns()) + ($this->isBulkEnabled() ? 1 : 0);
     }
 
     public function isDeclarative(): bool
@@ -322,15 +398,7 @@ final class DataTable
             return $this->iterableToList($this->rows);
         }
 
-        if ($this->paginator instanceof PaginationInterface) {
-            return $this->paginator->getItems();
-        }
-
-        if ($this->paginator instanceof CursorPaginator) {
-            return $this->iterableToList($this->paginator->getResults());
-        }
-
-        return [];
+        return $this->paginator?->getItems() ?? [];
     }
 
     public function hasRows(): bool
@@ -340,31 +408,25 @@ final class DataTable
 
     public function isCursorPaginator(): bool
     {
-        return $this->paginator instanceof CursorPaginator;
+        return $this->paginator instanceof CursorPaginationInterface;
     }
 
+    /**
+     * Numbered (offset) pagination, rendered as page links through ux_pagination.
+     */
     public function isUxPaginator(): bool
     {
-        return $this->paginator instanceof PaginationInterface;
+        return $this->paginator instanceof PaginationInterface && !$this->isCursorPaginator();
     }
 
     public function getPageSize(): int
     {
-        $paginator = $this->paginator;
-        if ($paginator instanceof PaginationInterface) {
-            return $paginator->getItemsPerPage();
-        }
-
-        if ($paginator instanceof CursorPaginator) {
-            return $paginator->getPageSize();
-        }
-
-        return 25;
+        return $this->paginator?->getItemsPerPage() ?? 25;
     }
 
     public function getShouldShowFooter(): bool
     {
-        return $this->showPaginationFooter && null !== $this->paginator && $this->hasRows();
+        return $this->showPaginationFooter && $this->paginator instanceof PaginationInterface && $this->hasRows();
     }
 
     /**
@@ -483,7 +545,7 @@ final class DataTable
         foreach (self::PAGE_SIZES as $size) {
             $params = [$this->limitParam => $size];
             if ($this->isCursorPaginator()) {
-                $params['cursor'] = null;
+                $params[$this->cursorParam] = null;
             } else {
                 $params[$this->pageParam] = 1;
             }
@@ -498,33 +560,35 @@ final class DataTable
         return $links;
     }
 
+    /**
+     * Links are built here rather than taken from the paginator so they keep this
+     * table's route, filters, sort and page size for every cursor implementation.
+     */
     public function cursorPreviousUrl(): ?string
     {
-        $request = $this->currentRequest();
-        if (!$request instanceof Request) {
+        if (!$this->paginator instanceof CursorPaginationInterface) {
             return null;
         }
 
-        $cursor = $request->query->get('cursor');
-        if (!\is_string($cursor) || '' === $cursor) {
-            return null;
-        }
-
-        return $this->buildUrl(['cursor' => null], dropPagination: true);
+        return $this->cursorUrl($this->paginator->getPreviousCursor());
     }
 
     public function cursorNextUrl(): ?string
     {
-        if (!$this->paginator instanceof CursorPaginator || !$this->paginator->hasNextPage()) {
+        if (!$this->paginator instanceof CursorPaginationInterface) {
             return null;
         }
 
-        $cursor = $this->paginator->getNextCursor();
+        return $this->cursorUrl($this->paginator->getNextCursor());
+    }
+
+    private function cursorUrl(?string $cursor): ?string
+    {
         if (null === $cursor || '' === $cursor) {
             return null;
         }
 
-        return $this->buildUrl(['cursor' => $cursor], dropPagination: false);
+        return $this->buildUrl([$this->cursorParam => $cursor], dropPagination: true);
     }
 
     public function getResolvedPaginationRoute(): ?string

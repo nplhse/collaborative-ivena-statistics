@@ -8,6 +8,7 @@ use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureResultState;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,6 +24,7 @@ final class ClosureAnalyticsFilterRequestResolver
     public const string FROM = 'closureFrom';
     public const string TO = 'closureTo';
     public const string EVENT_TYPES = 'closureEventTypes';
+    public const string RESULT_STATES = 'closureResultStates';
     public const string PROFILE = 'closureProfile';
 
     /** @var list<string> */
@@ -37,6 +39,7 @@ final class ClosureAnalyticsFilterRequestResolver
         self::FROM,
         self::TO,
         self::EVENT_TYPES,
+        self::RESULT_STATES,
     ];
 
     public static function fromRequest(Request $request): ClosureAnalyticsFilter
@@ -55,6 +58,7 @@ final class ClosureAnalyticsFilterRequestResolver
             self::positiveIds($request, self::HOSPITALS),
             self::hospitalIdsSubmitted($request),
             ClosureProfileRef::fromQuery($request->query->getString(self::PROFILE)),
+            self::resultStates($request),
         );
     }
 
@@ -139,6 +143,23 @@ final class ClosureAnalyticsFilterRequestResolver
         );
 
         /* @var list<value-of<ClosureEventType>> $values */
+        return array_values(array_unique($values));
+    }
+
+    /**
+     * Both states together mean every event with volume results; that is not the same as no filter.
+     *
+     * @return list<value-of<ClosureResultState>>
+     */
+    private static function resultStates(Request $request): array
+    {
+        $allowed = array_column(ClosureResultState::cases(), 'value');
+        $values = array_filter(
+            self::values($request, self::RESULT_STATES),
+            static fn (mixed $value): bool => \is_string($value) && \in_array($value, $allowed, true),
+        );
+
+        /* @var list<value-of<ClosureResultState>> $values */
         return array_values(array_unique($values));
     }
 

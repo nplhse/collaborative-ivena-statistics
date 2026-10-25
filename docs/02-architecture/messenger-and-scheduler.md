@@ -24,6 +24,7 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 |---------|-----------|
 | `ImportAllocationsMessage` | `async_priority_high` |
 | `ImportClosuresMessage` | `async_priority_high` |
+| `DeleteImportsMessage` (bulk deletion from the import list) | `async_priority_low` |
 | `RebuildAllocationStatsProjection` | `async_priority_low` |
 | `GenerateDailyKpisMessage` | `async_priority_low` |
 | `SendMonthlySubmissionRemindersMessage` | `async_priority_low` |

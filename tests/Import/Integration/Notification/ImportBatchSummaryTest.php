@@ -70,15 +70,17 @@ final class ImportBatchSummaryTest extends DatabaseKernelTestCase
         $context = $this->start($third);
         self::assertTrue($this->lifecycle->fail($context, ImportRunReasonCode::NoRows));
 
-        // The initiator gets one summary; as an admin they also get the failed run like every admin.
-        self::assertSame(['admin.import_failed', 'import.batch_finished'], $this->types($admin));
-        $row = $this->connection->fetchAssociative("SELECT parameters, action_route, action_parameters, access_scope, required_role FROM notification WHERE recipient_id = ? AND type = 'import.batch_finished'", [$admin->getId()]);
+        // The initiator gets one summary, the high-priority variant because one run failed;
+        // as an admin they also get the failed run like every admin.
+        self::assertSame(['admin.import_failed', 'import.batch_failed'], $this->types($admin));
+        $row = $this->connection->fetchAssociative("SELECT parameters, action_route, action_parameters, access_scope, required_role, priority FROM notification WHERE recipient_id = ? AND type = 'import.batch_failed'", [$admin->getId()]);
         self::assertIsArray($row);
         self::assertSame(
-            ['batchId' => $batch->getId(), 'total' => 3, 'completed' => 1, 'partial' => 1, 'failed' => 1, 'superseded' => 0],
+            ['batchId' => $batch->getId(), 'total' => 3, 'succeeded' => 2, 'completed' => 1, 'partial' => 1, 'failed' => 1, 'superseded' => 0],
             json_decode((string) $row['parameters'], true),
         );
-        self::assertSame(['app_admin_dashboard_import_batch_run_detail', ['entityId' => $batch->getId()], 'role', 'ROLE_ADMIN'], [
+        self::assertSame('high', $row['priority']);
+        self::assertSame(['app_import_index', ['batch' => $batch->getId()], 'none', null], [
             $row['action_route'],
             json_decode((string) $row['action_parameters'], true),
             $row['access_scope'],
@@ -88,7 +90,7 @@ final class ImportBatchSummaryTest extends DatabaseKernelTestCase
         self::assertNotNull($this->connection->fetchOne('SELECT processing_finished_at FROM import_batch_run WHERE id = ?', [$batch->getId()]));
 
         self::assertFalse($this->completion->complete((int) $batch->getId()), 'a finished batch is not finished again');
-        self::assertSame(['admin.import_failed', 'import.batch_finished'], $this->types($admin), 'still one summary');
+        self::assertSame(['admin.import_failed', 'import.batch_failed'], $this->types($admin), 'still one summary');
     }
 
     public function testBatchWhoseItemsFinishedDuringDispatchCompletesWhenTheDispatchCloses(): void
@@ -119,7 +121,7 @@ final class ImportBatchSummaryTest extends DatabaseKernelTestCase
         // An upload for the second import replaces the batch run before it finished.
         $this->lifecycle->register($second->getImport()->getId() ?? 0, ImportRunTrigger::Upload, $admin->getId());
 
-        self::assertSame(['import.batch_finished'], $this->types($admin));
+        self::assertSame(['import.batch_failed'], $this->types($admin), 'the undispatched item counts as failed');
         $parameters = json_decode((string) $this->connection->fetchOne('SELECT parameters FROM notification WHERE recipient_id = ?', [$admin->getId()]), true);
         self::assertIsArray($parameters);
         self::assertSame([3, 1, 1, 1], [$parameters['total'], $parameters['completed'], $parameters['failed'], $parameters['superseded']]);

@@ -246,7 +246,7 @@ final readonly class ClosureVolumeWindowAggregator
     }
 
     /**
-     * Hospital totals are stored on every department row. Count each urgency-hour once.
+     * Hospital totals are stored on every department row. Count each metric-hour once.
      *
      * @param list<ClosureVolumeHourDraft> $drafts
      *
@@ -260,7 +260,7 @@ final readonly class ClosureVolumeWindowAggregator
         $observedKnown = true;
         $expectedKnown = true;
         foreach ($drafts as $draft) {
-            $key = $draft->urgencyCode.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
+            $key = $draft->metric->value.'|'.$draft->bucketStart->format('Y-m-d H:i:s');
             if (isset($seen[$key])) {
                 continue;
             }

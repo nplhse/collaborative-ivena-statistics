@@ -37,6 +37,31 @@ enum ClosureVolumeStratum: string
         };
     }
 
+    /**
+     * Stored metrics this view sums. `all` is the total of the three urgency metrics.
+     *
+     * @return list<ClosureVolumeMetricKind>
+     */
+    public function metrics(): array
+    {
+        return match ($this) {
+            self::All => ClosureVolumeMetricKind::urgencyMetrics(),
+            self::Sk1 => [ClosureVolumeMetricKind::Emergency],
+            self::Sk2 => [ClosureVolumeMetricKind::Inpatient],
+            self::Sk3 => [ClosureVolumeMetricKind::Outpatient],
+            self::Resus => [ClosureVolumeMetricKind::Resus],
+            self::Cathlab => [ClosureVolumeMetricKind::Cathlab],
+        };
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function metricValues(): array
+    {
+        return array_map(static fn (ClosureVolumeMetricKind $metric): string => $metric->value, $this->metrics());
+    }
+
     /** @return list<self> */
     public static function choices(): array
     {

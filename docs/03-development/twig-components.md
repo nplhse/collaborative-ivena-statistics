@@ -380,9 +380,30 @@ Badge palettes live in `BadgePalette` (hospital location/tier/size, allocation u
 
 Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom cells for composed markup (indication blocks, user roles) stay as `type: custom`.
 
+### Bulk actions
+
+Opt-in row selection for actions on several rows. Set `bulkActions` (list of `DataTableBulkAction`), `bulkFormAction` and `bulkCsrfToken`; selection is off while one of them is missing.
+
+- A checkbox column comes first, with a header checkbox for all rows of the current page. `bulkIdProperty` (default `id`) is posted as `ids[]`; rows whose `bulkSelectableProperty` is falsy get no checkbox.
+- While rows are selected, a toolbar above the table shows the count, the actions and *Clear selection*. All checkboxes and buttons belong to one POST form (`<bulkId>-form`) that sends `ids[]`, `bulk_action` and `_token`.
+- An action with `confirmTitleOne` / `confirmTitleOther` opens a dialog first. Its question names the current count ("Really delete these 7 imports?"); `%count%` in `confirmTitleOther` is replaced on the client. Give the action an explicit `confirmVariant` (`danger` for destructive actions).
+- The selection only covers the current page. Paging, sorting or filtering reloads the page and clears it.
+- Server side, read the ids with `App\Shared\UI\Http\BulkSelection::ids($request)` (at most 100, invalid values dropped) and check every id again: the page state is not trusted.
+- The Stimulus controller is `bulk-selection`; the notification inbox uses it as well.
+
+```twig
+<twig:DataTable
+    :paginator="paginator"
+    :columns="columns"
+    :bulkActions="bulkActions"
+    :bulkFormAction="path('app_example_bulk')"
+    :bulkCsrfToken="csrf_token('example_bulk')"
+/>
+```
+
 ### Footer
 
-Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type.
+Left: page-size 25/50/100, then the result range (`#result-count`) to its right. Right: offset page numbers or cursor previous/next. Hidden when there are no rows; an invisible `#result-count` remains so Turbo can update the page-header copy. Offset vs cursor is detected from the paginator type: any `Symfony\UX\Pagination\CursorPaginationInterface` (the UX `CursorPagination` or the hand-written `CursorPaginator`) gets previous/next links, every other `PaginationInterface` gets page numbers through `ux_pagination`. DataTable builds the previous/next URLs itself from `getPreviousCursor()` / `getNextCursor()` so they keep the table's route, filters, sort and page size; the query parameter is `cursorParam` (default `cursor`). The result range shows an estimate when the paginator offers `estimatedNumResults`, otherwise a generic line.
 
 List pages also show the same range in the PageHeader `context` slot (`#page-result-count`). The `result-count-mirror` Stimulus controller copies `#result-count` into the header after `turbo:frame-load`.
 

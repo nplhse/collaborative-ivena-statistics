@@ -27,6 +27,7 @@ use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileDepartment
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileRef;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureProfileView;
 use App\Statistics\ClosureAnalytics\Application\Profile\ClosureRecurringProfileTableQuery;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeMetricKind;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeStratum;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureEventQuery;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureProfileQuery;
@@ -426,8 +427,7 @@ SQL, [
             'hospital_id' => $seed['hospitalId'],
             'speciality_id' => $specialityId,
             'department_id' => 0,
-            'urgency_code' => $urgency,
-            'stratum' => 'base',
+            'metric_kind' => ClosureVolumeMetricKind::forUrgency($urgency)->value,
             'bucket_start' => $bucketStart,
             'bucket_end' => $bucketEnd,
             'in_closure' => $inClosure ? 1 : 0,
@@ -436,10 +436,14 @@ SQL, [
             'evaluable_seconds' => 3600,
             'bucket_seconds' => 3600,
             'reference_slot_count' => 8,
+            'blocked_slot_count' => 0,
             'reference_assignment_count' => 8,
             'reference_mode' => 'weekday_hour',
             'influenced' => 0,
             'quality' => $quality,
+            'closure_relevance' => 'closed',
+            'closed_department_count' => 1,
+            'provisional' => 0,
             'reference_cutoff' => $cutoff,
         ]);
     }

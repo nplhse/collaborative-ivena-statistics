@@ -4,6 +4,18 @@
     <table class="table card-table">
         <thead>
             <tr>
+                {% if this.bulkEnabled %}
+                    <th scope="col" class="w-1">
+                        <input
+                            type="checkbox"
+                            class="form-check-input m-0 align-middle"
+                            data-bulk-selection-target="toggle"
+                            data-action="change->bulk-selection#toggleAll"
+                            aria-label="{{ 'label.data_table.bulk.select_page'|trans({}, 'shared') }}"
+                            data-testid="data-table-bulk-select-all"
+                        >
+                    </th>
+                {% endif %}
                 {% for column in this.visibleColumns %}
                     {% set headerClasses = [
                         column.width,
@@ -30,6 +42,23 @@
         <tbody>
             {% for row in this.rowItems %}
                 <tr{% if this.rowCssClass(row) %} class="{{ this.rowCssClass(row) }}"{% endif %}{% if rowTestId %} data-testid="{{ rowTestId }}"{% endif %}>
+                    {% if this.bulkEnabled %}
+                        <td class="w-1">
+                            {% if this.bulkSelectable(row) %}
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input m-0 align-middle"
+                                    name="ids[]"
+                                    value="{{ this.bulkRowId(row) }}"
+                                    form="{{ bulkId }}-form"
+                                    data-bulk-selection-target="item"
+                                    data-action="change->bulk-selection#update"
+                                    aria-label="{{ 'label.data_table.bulk.select_row'|trans({id: this.bulkRowId(row)}, 'shared') }}"
+                                    data-testid="data-table-bulk-select-row"
+                                >
+                            {% endif %}
+                        </td>
+                    {% endif %}
                     {% for column in this.visibleColumns %}
                         {% set cellClasses = [
                             column.align ? 'text-' ~ column.align : null,
@@ -46,7 +75,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="{{ this.visibleColumns|length }}">
+                    <td colspan="{{ this.columnCount }}">
                         <twig:EmptyState
                             title="{{ emptyTitle ?? 'label.search_no_results'|trans({}, 'messages') }}"
                             description="{{ emptyDescription ?? 'help.search_no_results'|trans({}, 'shared') }}"

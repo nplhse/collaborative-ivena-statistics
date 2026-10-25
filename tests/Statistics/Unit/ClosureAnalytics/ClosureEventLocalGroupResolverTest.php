@@ -37,9 +37,27 @@ final class ClosureEventLocalGroupResolverTest extends TestCase
         self::assertNull($groups[1]->eventKey);
     }
 
+    public function testResolveKeepsNumericSourceGroupIdsAsStrings(): void
+    {
+        $connection = $this->createStub(Connection::class);
+        $connection->method('fetchAllKeyValue')->willReturn([215633 => '861']);
+
+        $resolver = new ClosureEventLocalGroupResolver($connection);
+        $groups = $resolver->resolve(40, '861', [
+            $this->member(sourceGroupId: '215633', closureUnit: 'Ward A'),
+            $this->member(sourceGroupId: '215633', closureUnit: 'Ward B'),
+        ]);
+
+        self::assertCount(1, $groups);
+        self::assertSame('215633', $groups[0]->sourceGroupId);
+        self::assertSame('215633', $groups[0]->label, 'Two units fall back to the group id as label.');
+        self::assertSame('861', $groups[0]->eventKey);
+        self::assertTrue($groups[0]->current);
+    }
+
     public function testResolveMarksCurrentGroupEvent(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createStub(Connection::class);
         $connection->method('fetchAllKeyValue')->willReturn(['grp-a' => '7']);
 
         $resolver = new ClosureEventLocalGroupResolver($connection);

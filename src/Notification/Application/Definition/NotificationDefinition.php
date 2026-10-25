@@ -24,6 +24,10 @@ final readonly class NotificationDefinition
      * @param list<NotificationChannel> $mandatoryChannels channels used regardless of preferences
      * @param string                    $deduplicationTtl  ISO 8601 duration of the duplicate protection
      * @param string|null               $requiredRole      role a viewer needs for role-scoped types, e.g. "ROLE_ADMIN"
+     * @param string|null               $toastGroup        toasts of types with the same group that arrive in one poll are
+     *                                                     shown as one toast; texts: "notification.toast_group.{group}.title"
+     * @param string|null               $toastGroupRoute   route (without parameters) the grouped toast links to; null links
+     *                                                     to the unread notifications
      *
      * @psalm-suppress PossiblyUnusedMethod Instantiated through reflection from the attribute.
      */
@@ -39,6 +43,8 @@ final readonly class NotificationDefinition
         public string $deduplicationTtl = 'P7D',
         public string $translationDomain = 'notification',
         public ?string $requiredRole = null,
+        public ?string $toastGroup = null,
+        public ?string $toastGroupRoute = null,
     ) {
     }
 

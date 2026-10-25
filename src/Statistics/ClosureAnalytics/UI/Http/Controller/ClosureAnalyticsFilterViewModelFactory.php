@@ -10,6 +10,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsCriteria;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureAnalyticsFilter;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
+use App\Statistics\ClosureAnalytics\Application\DTO\ClosureResultState;
 use App\Statistics\ClosureAnalytics\Infrastructure\Query\ClosureTemporalQuery;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -27,7 +28,7 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
      *   filterKeys: list<string>,
      *   showClosureUnits: bool,
      *   showHospitals: bool,
-     *   values: array{departments: list<int>, specialities: list<int>, careLevels: list<string>, reasons: list<string>, closureUnits: list<string>, fromDate: ?string, toDate: ?string, eventTypes: list<string>, hospitals: list<int>},
+     *   values: array{departments: list<int>, specialities: list<int>, careLevels: list<string>, reasons: list<string>, closureUnits: list<string>, fromDate: ?string, toDate: ?string, eventTypes: list<string>, resultStates: list<string>, hospitals: list<int>},
      *   choices: array{
      *     departments: list<array{id: int, name: string}>,
      *     specialities: list<array{id: int, name: string}>,
@@ -35,6 +36,7 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
      *     careLevels: list<array{value: string, name: string}>,
      *     reasons: list<array{value: string, name: string}>,
      *     eventTypes: list<array{value: string, name: string}>,
+     *     resultStates: list<array{value: string, name: string}>,
      *     closureUnits: list<array{value: string, name: string}>
      *   },
      *   badges: list<array{label: string, value: string}>
@@ -74,6 +76,13 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
                 'name' => $this->eventTypeLabel($eventType),
             ],
             ClosureEventType::cases(),
+        );
+        $resultStates = array_map(
+            fn (ClosureResultState $state): array => [
+                'value' => $state->value,
+                'name' => $this->resultStateLabel($state),
+            ],
+            ClosureResultState::cases(),
         );
 
         $badges = [];
@@ -121,6 +130,15 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
             ),
             'statistics',
         );
+        $this->addBadge(
+            $badges,
+            'stats.closure.filter.result_states',
+            array_map(
+                fn (string $value): string => $this->resultStateLabel(ClosureResultState::from($value)),
+                $filter->resultStates,
+            ),
+            'statistics',
+        );
         if ($showClosureUnits) {
             $this->addBadge(
                 $badges,
@@ -144,6 +162,7 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
                 'fromDate' => $filter->fromDate,
                 'toDate' => $filter->toDate,
                 'eventTypes' => $filter->eventTypes,
+                'resultStates' => $filter->resultStates,
                 'hospitals' => $showHospitals ? $filter->hospitalIds : [],
             ],
             'choices' => [
@@ -153,6 +172,7 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
                 'careLevels' => $careLevels,
                 'reasons' => $reasons,
                 'eventTypes' => $eventTypes,
+                'resultStates' => $resultStates,
                 'closureUnits' => $closureUnits,
             ],
             'badges' => $badges,
@@ -176,6 +196,11 @@ final readonly class ClosureAnalyticsFilterViewModelFactory
     private function reasonLabel(ClosureReason $reason): string
     {
         return $this->translator->trans('stats.closure.reason.'.$reason->value, domain: 'statistics');
+    }
+
+    private function resultStateLabel(ClosureResultState $state): string
+    {
+        return $this->translator->trans('stats.closure.result_state.'.$state->value, domain: 'statistics');
     }
 
     private function eventTypeLabel(ClosureEventType $eventType): string

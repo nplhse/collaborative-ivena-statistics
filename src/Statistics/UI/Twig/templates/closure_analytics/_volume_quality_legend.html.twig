@@ -1,5 +1,5 @@
 <div class="card-footer p-3" data-testid="stats-closure-volume-quality-legend">
-    <p class="text-muted small mb-0">{{ 'stats.closure.volume.detail_lead'|trans({weeks: volumeDetail.referenceWeeks, slots: volumeDetail.minimumReferenceSlots}, 'statistics') }}</p>
+    <p class="text-muted small mb-0">{{ 'stats.closure.volume.detail_lead'|trans({before: volumeDetail.referenceWindow.weeksBefore, after: volumeDetail.referenceWindow.weeksAfter, slots: volumeDetail.minimumReferenceSlots}, 'statistics') }}</p>
     <details class="closure-volume-quality-legend mt-3">
         <summary class="small text-muted text-decoration-underline">
             {{ 'stats.closure.volume.quality_legend.title'|trans({}, 'statistics') }}

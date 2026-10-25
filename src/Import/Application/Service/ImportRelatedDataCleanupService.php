@@ -37,9 +37,14 @@ final readonly class ImportRelatedDataCleanupService
     ) {
     }
 
-    public function removeAll(Import $import, bool $scheduleRebuild = true): void
+    /**
+     * @param bool $refreshMaterializedView false defers a needed view refresh to the caller (bulk deletion)
+     *
+     * @return bool true when a view refresh is needed but was deferred
+     */
+    public function removeAll(Import $import, bool $scheduleRebuild = true, bool $refreshMaterializedView = true): bool
     {
-        $this->completeRemoval($import, $this->removeRows($import), $scheduleRebuild);
+        return $this->completeRemoval($import, $this->removeRows($import), $scheduleRebuild, $refreshMaterializedView);
     }
 
     /**
@@ -70,8 +75,10 @@ final readonly class ImportRelatedDataCleanupService
     /**
      * Follow-up work that must not run inside the deleting transaction: rebuild requests,
      * materialized view refresh (CONCURRENTLY cannot run in a transaction) and logging.
+     *
+     * @return bool true when a view refresh is needed but was deferred
      */
-    public function completeRemoval(Import $import, ImportDataRemoval $removal, bool $scheduleRebuild): void
+    public function completeRemoval(Import $import, ImportDataRemoval $removal, bool $scheduleRebuild, bool $refreshMaterializedView = true): bool
     {
         $importId = (int) $import->getId();
         $counts = $removal->counts;
@@ -79,19 +86,17 @@ final readonly class ImportRelatedDataCleanupService
         if ($scheduleRebuild) {
             $hospitalId = $import->getHospital()?->getId();
             $hospitalId = \is_int($hospitalId) ? $hospitalId : null;
+            // The import's export period bounds the removed data; without one the whole hospital is rebuilt.
             if ($counts['closure_intervals'] > 0) {
-                $this->closureRebuildScheduler->requestAnalysis($hospitalId);
+                $this->closureRebuildScheduler->requestAnalysis($hospitalId, $import->getExportStartsAt(), $import->getExportEndsAt());
             } elseif ($counts['allocations'] > 0) {
-                $this->closureRebuildScheduler->requestVolume($hospitalId);
+                $this->closureRebuildScheduler->requestVolume($hospitalId, $import->getExportStartsAt(), $import->getExportEndsAt());
             }
         }
 
-        if ($removal->needsMaterializedViewRefresh) {
-            $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]);
-            $this->importLogger->info('statistics_materialized_view.refreshed_after_structural_change', [
-                'import_id' => $importId,
-                'reason' => 'hospital_removed',
-            ]);
+        $deferredRefresh = $removal->needsMaterializedViewRefresh && !$refreshMaterializedView;
+        if ($removal->needsMaterializedViewRefresh && $refreshMaterializedView) {
+            $this->refreshOverview(['import_id' => $importId]);
         }
 
         $this->logCleanup(
@@ -103,6 +108,22 @@ final readonly class ImportRelatedDataCleanupService
             $counts['closure_intervals'],
             $counts['mci_cases'],
         );
+
+        return $deferredRefresh;
+    }
+
+    /**
+     * Refreshes the overview view after imports left the projection; called once after a bulk deletion.
+     *
+     * @param array<string, int|list<int>> $context log context
+     */
+    public function refreshOverview(array $context): void
+    {
+        $this->materializedViewRefresher->refresh([StatisticsMaterializedViewGroups::OVERVIEW]);
+        $this->importLogger->info('statistics_materialized_view.refreshed_after_structural_change', [
+            ...$context,
+            'reason' => 'hospital_removed',
+        ]);
     }
 
     public function deleteRejectFile(Import $import): void

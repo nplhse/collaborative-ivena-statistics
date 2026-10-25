@@ -14,6 +14,7 @@ final readonly class ClaimedToast
     public function __construct(
         public InboxEntry $entry,
         public NotificationPriority $priority,
+        public string $type,
     ) {
     }
 }

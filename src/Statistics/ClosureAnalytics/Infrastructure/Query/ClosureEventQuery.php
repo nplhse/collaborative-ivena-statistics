@@ -11,6 +11,7 @@ use App\Statistics\ClosureAnalytics\Application\DTO\ClosureEventType;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureIntervalTableRow;
 use App\Statistics\ClosureAnalytics\Application\DTO\ClosureSameDayInterval;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeProvisionalReason;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 
@@ -205,7 +206,9 @@ SELECT :event_key AS event_key, ss.event_type, ss.hospital_id, ss.hospital_name,
         FROM sweep WHERE active_count > 0 AND segment_start < segment_end) AS actual_minutes,
        (SELECT ROUND(SUM(EXTRACT(EPOCH FROM (o.segment_end - o.segment_start)) / 60.0))::int
         FROM observed_segments o WHERE o.hospital_id = ss.hospital_id) AS observed_minutes,
-       ec.children
+       ec.children,
+       (SELECT h.provisional_reason FROM closure_volume_hour h
+        WHERE h.event_id = CAST(:event_key AS bigint) AND h.provisional LIMIT 1) AS provisional_reason
 FROM selected_stats ss
 CROSS JOIN event_children ec
 SQL, $params, $types);
@@ -268,6 +271,7 @@ SQL, $params, $types);
             (int) $row['observed_minutes'],
             $this->eventChildren($row['children'] ?? null),
             (string) ($row['hospital_public_id'] ?? ''),
+            ClosureVolumeProvisionalReason::tryFrom((string) ($row['provisional_reason'] ?? '')),
         );
     }
 
@@ -333,7 +337,9 @@ SELECT e.event_key, e.event_type, e.hospital_id, h.name AS hospital_name, h.publ
        ROUND(e.summed_minutes)::int AS summed_minutes,
        ROUND(a.actual_minutes)::int AS actual_minutes,
        ROUND(o.observed_minutes)::int AS observed_minutes,
-       e.children::text AS children
+       e.children::text AS children,
+       (SELECT h.provisional_reason FROM closure_volume_hour h
+        WHERE h.event_id = CAST(e.event_key AS bigint) AND h.provisional LIMIT 1) AS provisional_reason
 FROM event_totals e
 JOIN listed_event_actual a USING (event_key)
 JOIN hospital_observed o ON o.hospital_id = e.hospital_id

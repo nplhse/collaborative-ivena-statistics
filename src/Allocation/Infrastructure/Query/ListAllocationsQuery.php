@@ -21,6 +21,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 
 final readonly class ListAllocationsQuery
 {
@@ -107,81 +108,132 @@ final readonly class ListAllocationsQuery
 
         $estimatedNumResults = $this->estimateNumResults($qb);
 
-        $cursorPayload = null;
-        if (null !== $queryParametersDTO->cursor) {
-            try {
-                $decodedCursor = $this->cursorCodec->decode($queryParametersDTO->cursor);
-                if (
-                    $decodedCursor['sortBy'] === $queryParametersDTO->sortBy
-                    && $decodedCursor['orderBy'] === $queryParametersDTO->orderBy
-                ) {
-                    $cursorPayload = $decodedCursor;
-                }
-            } catch (\InvalidArgumentException) {
-                $cursorPayload = null;
+        $cursor = $this->decodeCursor($queryParametersDTO);
+        $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, $cursor);
+
+        // Paging back reached the first rows but found fewer than a page (rows were
+        // deleted in between): show a regular, full first page instead.
+        if (null !== $cursor && !$cursor['forward'] && !$slice['hasMore'] && \count($slice['rows']) < $queryParametersDTO->limit) {
+            $cursor = null;
+            $slice = $this->fetchSlice($qb, $queryParametersDTO, $sortField, null);
+        }
+
+        $rows = $slice['rows'];
+        $nextCursor = null;
+        $previousCursor = null;
+        if ([] !== $rows) {
+            $isBackward = null !== $cursor && !$cursor['forward'];
+            $hasNextPage = $isBackward || $slice['hasMore'];
+            $hasPreviousPage = $isBackward ? $slice['hasMore'] : null !== $cursor;
+
+            if ($hasNextPage) {
+                $nextCursor = $this->encodeCursor($queryParametersDTO, $rows[\array_key_last($rows)], true);
+            }
+            if ($hasPreviousPage) {
+                $previousCursor = $this->encodeCursor($queryParametersDTO, $rows[0], false);
             }
         }
 
-        if (null !== $cursorPayload) {
-            $sortValue = 'age' === $queryParametersDTO->sortBy
-                ? (int) $cursorPayload['sortValue']
-                : new \DateTimeImmutable((string) $cursorPayload['sortValue']);
+        return new CursorPaginator(
+            $rows,
+            $queryParametersDTO->limit,
+            $nextCursor,
+            $previousCursor,
+            $estimatedNumResults,
+            null !== $cursor ? $queryParametersDTO->cursor : null,
+        );
+    }
 
-            $isDescending = 'desc' === $queryParametersDTO->orderBy;
-            $mainComparison = $isDescending
-                ? $qb->expr()->lt($sortField, ':cursorSortValue')
-                : $qb->expr()->gt($sortField, ':cursorSortValue');
-
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    $mainComparison,
-                    $qb->expr()->andX(
-                        $qb->expr()->eq($sortField, ':cursorSortValue'),
-                        $isDescending
-                            ? $qb->expr()->lt('a.id', ':cursorId')
-                            : $qb->expr()->gt('a.id', ':cursorId')
-                    )
-                )
-            )
-                ->setParameter(
-                    'cursorSortValue',
-                    $sortValue,
-                    'age' === $queryParametersDTO->sortBy ? ParameterType::INTEGER : Types::DATETIME_IMMUTABLE
-                )
-                ->setParameter('cursorId', $cursorPayload['id'], ParameterType::INTEGER);
+    /**
+     * @return array{sortValue: string|int, id: int, forward: bool}|null
+     */
+    private function decodeCursor(AllocationQueryParametersDTO $queryParametersDTO): ?array
+    {
+        if (null === $queryParametersDTO->cursor || '' === $queryParametersDTO->cursor) {
+            return null;
         }
 
+        try {
+            $decoded = $this->cursorCodec->decode($queryParametersDTO->cursor);
+        } catch (\InvalidArgumentException) {
+            return null;
+        }
+
+        // A cursor from another sort order points nowhere useful: start over.
+        if ($decoded['sortBy'] !== $queryParametersDTO->sortBy || $decoded['orderBy'] !== $queryParametersDTO->orderBy) {
+            return null;
+        }
+
+        return ['sortValue' => $decoded['sortValue'], 'id' => $decoded['id'], 'forward' => $decoded['forward']];
+    }
+
+    /**
+     * Fetches one page after (forward) or before (backward) the cursor row, in display order.
+     *
+     * @param array{sortValue: string|int, id: int, forward: bool}|null $cursor
+     *
+     * @return array{rows: list<array<string, mixed>>, hasMore: bool}
+     */
+    private function fetchSlice(QueryBuilder $source, AllocationQueryParametersDTO $queryParametersDTO, string $sortField, ?array $cursor): array
+    {
+        $qb = clone $source;
+        $forward = null === $cursor || $cursor['forward'];
+        // Paging backward walks the index the other way and reverses the rows afterwards.
+        $ascending = ('asc' === $queryParametersDTO->orderBy) === $forward;
+
+        if (null !== $cursor) {
+            $isAge = 'age' === $queryParametersDTO->sortBy;
+            $strict = $ascending ? '>' : '<';
+            $bound = $ascending ? '>=' : '<=';
+
+            // The leading bound lets PostgreSQL start the index scan at the cursor row.
+            // Without it, the OR alone makes it scan and discard every row before the cursor.
+            $qb->andWhere(sprintf(
+                '%1$s %2$s :cursorSortValue AND (%1$s %3$s :cursorSortValue OR (%1$s = :cursorSortValue AND a.id %3$s :cursorId))',
+                $sortField,
+                $bound,
+                $strict,
+            ))
+                ->setParameter(
+                    'cursorSortValue',
+                    $isAge ? (int) $cursor['sortValue'] : new \DateTimeImmutable((string) $cursor['sortValue']),
+                    $isAge ? ParameterType::INTEGER : Types::DATETIME_IMMUTABLE,
+                )
+                ->setParameter('cursorId', $cursor['id'], ParameterType::INTEGER);
+        }
+
+        $direction = $ascending ? 'ASC' : 'DESC';
         $qb
-            ->orderBy($sortField, $queryParametersDTO->orderBy)
-            ->addOrderBy('a.id', $queryParametersDTO->orderBy)
+            ->orderBy($sortField, $direction)
+            ->addOrderBy('a.id', $direction)
             ->setMaxResults($queryParametersDTO->limit + 1);
 
         /** @var list<array<string, mixed>> $results */
         $results = $qb->getQuery()->getArrayResult();
-        $hasNextPage = \count($results) > $queryParametersDTO->limit;
-        $visibleResults = \array_slice($results, 0, $queryParametersDTO->limit);
+        $hasMore = \count($results) > $queryParametersDTO->limit;
+        $rows = \array_slice($results, 0, $queryParametersDTO->limit);
 
-        $nextCursor = null;
-        if ($hasNextPage && [] !== $visibleResults) {
-            $lastItem = $visibleResults[\array_key_last($visibleResults)];
-            $sortValue = 'age' === $queryParametersDTO->sortBy
-                ? (int) $lastItem['age']
-                : $this->formatDateTimeValue($lastItem['arrivalAt']);
+        return [
+            'rows' => $forward ? $rows : array_reverse($rows),
+            'hasMore' => $hasMore,
+        ];
+    }
 
-            $nextCursor = $this->cursorCodec->encode(
-                $queryParametersDTO->sortBy,
-                $queryParametersDTO->orderBy,
-                $sortValue,
-                (int) $lastItem['id'],
-            );
-        }
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function encodeCursor(AllocationQueryParametersDTO $queryParametersDTO, array $row, bool $forward): string
+    {
+        $sortValue = 'age' === $queryParametersDTO->sortBy
+            ? (int) $row['age']
+            : $this->formatDateTimeValue($row['arrivalAt']);
 
-        return new CursorPaginator(
-            $visibleResults,
-            $queryParametersDTO->limit,
-            $nextCursor,
-            null,
-            $estimatedNumResults,
+        return $this->cursorCodec->encode(
+            $queryParametersDTO->sortBy,
+            $queryParametersDTO->orderBy,
+            $sortValue,
+            (int) $row['id'],
+            $forward,
         );
     }
 
@@ -194,7 +246,7 @@ final readonly class ListAllocationsQuery
         return (string) $value;
     }
 
-    private function estimateNumResults(\Doctrine\ORM\QueryBuilder $qb): ?int
+    private function estimateNumResults(QueryBuilder $qb): ?int
     {
         $estimateQb = clone $qb;
         $estimateQb

@@ -43,7 +43,7 @@
       </trans-unit>
       <trans-unit id="Ntf72CD762A" resname="import.batch_finished.title">
         <source>import.batch_finished.title</source>
-        <target>Batch-Re-Import #{batchId} abgeschlossen</target>
+        <target>{total, plural, one {# Import} other {# Importe}} erfolgreich verarbeitet</target>
       </trans-unit>
       <trans-unit id="Ntf838AD818" resname="import.batch_finished.message">
         <source>import.batch_finished.message</source>
@@ -327,7 +327,7 @@
       </trans-unit>
       <trans-unit id="Ntf9E64AC41" resname="import.batch_finished.label">
         <source>import.batch_finished.label</source>
-        <target>Batch-Re-Import abgeschlossen</target>
+        <target>Mehrere Importe verarbeitet</target>
       </trans-unit>
       <trans-unit id="Ntf9244EACB" resname="user.first_import.label">
         <source>user.first_import.label</source>
@@ -376,6 +376,50 @@
       <trans-unit id="Ntf5B0D5B41" resname="admin.feedback_received.label">
         <source>admin.feedback_received.label</source>
         <target>Neues Feedback</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailTitleDe" resname="import.batch_failed.title">
+        <source>import.batch_failed.title</source>
+        <target>{succeeded, number} von {total, plural, one {# Import} other {# Importen}} abgeschlossen, {failed, plural, one {# benötigt} other {# benötigen}} Aufmerksamkeit</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailMsgDe" resname="import.batch_failed.message">
+        <source>import.batch_failed.message</source>
+        <target>{total, plural, one {# Import} other {# Importe}}: {completed, number} abgeschlossen, {partial, number} mit abgelehnten Zeilen, {failed, number} fehlgeschlagen, {superseded, number} durch einen neueren Lauf ersetzt.</target>
+      </trans-unit>
+      <trans-unit id="NtfBatchFailLabelDe" resname="import.batch_failed.label">
+        <source>import.batch_failed.label</source>
+        <target>Mehrere Importe verarbeitet, mit Fehlern</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelTitleDe" resname="import.bulk_deleted.title">
+        <source>import.bulk_deleted.title</source>
+        <target>{deleted, plural, one {# Import} other {# Importe}} gelöscht</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelMsgDe" resname="import.bulk_deleted.message">
+        <source>import.bulk_deleted.message</source>
+        <target>{skipped, plural, =0 {Die ausgewählten Importe wurden mit ihren Daten entfernt.} one {# Import wurde übersprungen, weil er gerade verarbeitet wurde oder nicht mehr gelöscht werden durfte.} other {# Importe wurden übersprungen, weil sie gerade verarbeitet wurden oder nicht mehr gelöscht werden durften.}}</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelLabelDe" resname="import.bulk_deleted.label">
+        <source>import.bulk_deleted.label</source>
+        <target>Mehrere Importe gelöscht</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelFailTitleDe" resname="import.bulk_delete_failed.title">
+        <source>import.bulk_delete_failed.title</source>
+        <target>{deleted, number} von {total, plural, one {# Import} other {# Importen}} gelöscht, {failed, plural, one {# konnte} other {# konnten}} nicht gelöscht werden</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelFailMsgDe" resname="import.bulk_delete_failed.message">
+        <source>import.bulk_delete_failed.message</source>
+        <target>{skipped, plural, =0 {} one {# Import wurde übersprungen. } other {# Importe wurden übersprungen. }}Die nicht gelöschten Importe stehen weiterhin in der Importliste.</target>
+      </trans-unit>
+      <trans-unit id="NtfBulkDelFailLabelDe" resname="import.bulk_delete_failed.label">
+        <source>import.bulk_delete_failed.label</source>
+        <target>Mehrere Importe gelöscht, mit Fehlern</target>
+      </trans-unit>
+      <trans-unit id="NtfToastGrpImpTitleDe" resname="notification.toast_group.import.run_outcome.title">
+        <source>notification.toast_group.import.run_outcome.title</source>
+        <target>{count, plural, one {# Import} other {# Importe}} verarbeitet{import_failed, plural, =0 {} other {, # fehlgeschlagen}}</target>
+      </trans-unit>
+      <trans-unit id="NtfToastGrpImpMsgDe" resname="notification.toast_group.import.run_outcome.message">
+        <source>notification.toast_group.import.run_outcome.message</source>
+        <target>Die einzelnen Ergebnisse finden Sie in der Importliste und in Ihren Benachrichtigungen.</target>
       </trans-unit>
     </body>
   </file>
