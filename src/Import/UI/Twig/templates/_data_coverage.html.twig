@@ -1,0 +1,135 @@
+{# Data coverage of the import detail page. `coverage` is an ImportCoverageView. #}
+{% set isClosure = import.type.value == 'Closure' %}
+<twig:Card title="{{ 'label.import.section.data_coverage'|trans({}, 'import') }}" data-testid="import-data-coverage">
+    {% if not coverage.available %}
+        <p class="text-secondary mb-0" data-testid="import-data-coverage-fallback">
+            <twig:ux:icon name="tabler:info-circle" class="w-3 h-3" />
+            {{ ('import.coverage.state.' ~ coverage.state.value)|trans({}, 'import') }}
+        </p>
+    {% else %}
+        <div class="datagrid" data-testid="import-data-coverage-metrics">
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'import.coverage.field.period'|trans({}, 'import') }}</div>
+                <div class="datagrid-content" data-testid="import-data-coverage-period">
+                    {{ coverage.firstDay }} – {{ coverage.lastDay }}
+                    <span class="text-secondary">({{ 'import.coverage.days'|trans({count: coverage.periodDays}, 'import') }})</span>
+                </div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'import.coverage.field.first_at'|trans({}, 'import') }}</div>
+                <div class="datagrid-content">{{ coverage.firstAt }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">{{ 'import.coverage.field.last_at'|trans({}, 'import') }}</div>
+                <div class="datagrid-content">{{ coverage.lastAt }}</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">
+                    {{ (isClosure ? 'import.coverage.field.days_with_closures' : 'import.coverage.field.days_with_data')|trans({}, 'import') }}
+                </div>
+                <div class="datagrid-content" data-testid="import-data-coverage-days">
+                    <strong>{{ 'import.coverage.days_of_period'|trans({covered: coverage.daysWithData, total: coverage.periodDays}, 'import') }}</strong>
+                </div>
+            </div>
+            {% if coverage.detectsGaps %}
+                <div class="datagrid-item">
+                    <div class="datagrid-title">{{ 'import.coverage.field.days_without_data'|trans({}, 'import') }}</div>
+                    <div class="datagrid-content">
+                        {% if coverage.daysWithoutData > 0 %}
+                            <span class="status status-yellow">{{ coverage.daysWithoutData|number_format(0, ',', '.') }}</span>
+                        {% else %}
+                            <span class="status status-green">0</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if not coverage.detectsGaps %}
+            <div class="text-secondary small mt-3">{{ 'import.coverage.closure_hint'|trans({}, 'import') }}</div>
+        {% endif %}
+
+        <div class="mt-3">
+            {% if coverage.weeks is empty %}
+                <div class="text-secondary small">{{ 'import.coverage.heatmap.omitted'|trans({}, 'import') }}</div>
+            {% else %}
+                {% set cellKey = isClosure ? 'import.coverage.heatmap.cell.closure' : 'import.coverage.heatmap.cell' %}
+                {# 2024-01-01 is a Monday; only Monday, Wednesday and Friday are labelled, as on GitHub. #}
+                {% set weekdayLabels = [0, 2, 4]|map(offset => ('2024-01-01'|date_modify('+' ~ offset ~ ' days'))|format_date(pattern: 'EEEEEE')) %}
+                {% set weekCount = coverage.weeks|length %}
+                <div class="import-coverage-calendar{{ weekCount <= 10 ? ' is-short' : (weekCount <= 26 ? ' is-medium' : '') }}"
+                     role="img"
+                     aria-label="{{ 'import.coverage.heatmap.label'|trans({}, 'import') }}: {{ 'import.coverage.days_of_period'|trans({covered: coverage.daysWithData, total: coverage.periodDays}, 'import') }}"
+                     data-testid="import-data-coverage-heatmap">
+                    <div class="import-coverage-weekdays" aria-hidden="true">
+                        <span class="import-coverage-month"></span>
+                        {% for index in 0..6 %}
+                            <span>{{ index is even and index < 6 ? weekdayLabels[index // 2] : '' }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="import-coverage-weeks">
+                        {% for week in coverage.weeks %}
+                            <div class="import-coverage-week">
+                                <span class="import-coverage-month" aria-hidden="true">{{ week.month ? week.month|format_date(pattern: 'MMM', timezone: 'UTC') : '' }}</span>
+                                {% for cell in week.days %}
+                                    {% if cell.kind == 'outside' %}
+                                        <span class="import-coverage-cell is-outside"></span>
+                                    {% else %}
+                                        <span class="import-coverage-cell is-{{ cell.kind }}{{ cell.level > 0 ? ' is-level-' ~ cell.level : '' }}"
+                                              title="{{ cellKey|trans({day: cell.day, count: cell.count}, 'import') }}"></span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="import-coverage-legend text-secondary small mt-2">
+                    <span class="import-coverage-legend-scale">
+                        {{ 'import.coverage.heatmap.legend.less'|trans({}, 'import') }}
+                        {% for level in 1..4 %}
+                            <span class="import-coverage-cell is-data is-level-{{ level }}"></span>
+                        {% endfor %}
+                        {{ 'import.coverage.heatmap.legend.more'|trans({}, 'import') }}
+                    </span>
+                    {% if coverage.detectsGaps %}
+                        <span><span class="import-coverage-cell is-gap"></span> {{ 'import.coverage.heatmap.legend.gap'|trans({}, 'import') }}</span>
+                    {% else %}
+                        <span><span class="import-coverage-cell is-none"></span> {{ 'import.coverage.heatmap.legend.none'|trans({}, 'import') }}</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        {% if coverage.detectsGaps %}
+            <div class="mt-4" data-testid="import-data-coverage-gaps">
+                {% if coverage.hasGaps %}
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="fw-medium">
+                            <twig:ux:icon name="tabler:alert-triangle" class="w-3 h-3 text-warning" />
+                            {{ 'import.coverage.gaps.title'|trans({}, 'import') }}
+                        </span>
+                        <span class="badge bg-yellow-lt">{{ 'import.coverage.gaps.summary'|trans({count: coverage.gaps|length, days: coverage.gapDays}, 'import') }}</span>
+                    </div>
+                    {{ include('@Import/_data_coverage_gaps_table.html.twig', {gaps: coverage.visibleGaps, withHeader: true}) }}
+                    {% if coverage.collapsedGaps is not empty %}
+                        <details class="import-coverage-gaps-details">
+                            <summary class="btn btn-link px-0 py-1">
+                                <span class="import-coverage-gaps-details__show">{{ 'import.coverage.gaps.show_all'|trans({count: coverage.gaps|length}, 'import') }}</span>
+                                <span class="import-coverage-gaps-details__hide">{{ 'import.coverage.gaps.show_less'|trans({}, 'import') }}</span>
+                            </summary>
+                            <div class="import-coverage-gaps-details__rows">
+                                {{ include('@Import/_data_coverage_gaps_table.html.twig', {gaps: coverage.collapsedGaps, withHeader: false}) }}
+                            </div>
+                        </details>
+                    {% endif %}
+                    <div class="text-secondary small mt-2">{{ 'import.coverage.gaps.hint'|trans({}, 'import') }}</div>
+                {% else %}
+                    <div class="text-secondary">
+                        <twig:ux:icon name="tabler:circle-check" class="w-3 h-3 text-success" />
+                        {{ 'import.coverage.gaps.none'|trans({}, 'import') }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endif %}
+</twig:Card>

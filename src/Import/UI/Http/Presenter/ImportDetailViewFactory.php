@@ -6,6 +6,7 @@ namespace App\Import\UI\Http\Presenter;
 
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\UI\Http\Presenter\Coverage\ImportCoverageViewFactory;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -23,6 +24,7 @@ final readonly class ImportDetailViewFactory
     public function __construct(
         private TranslatorInterface $translator,
         private UrlGeneratorInterface $urlGenerator,
+        private ImportCoverageViewFactory $coverageViewFactory,
     ) {
     }
 
@@ -39,6 +41,7 @@ final readonly class ImportDetailViewFactory
         }
 
         $importedCount = $import->getRowsPassed() ?? 0;
+        $coverage = $this->coverageViewFactory->create($import);
 
         return match ($type) {
             ImportType::ALLOCATION => new ImportDetailView(
@@ -61,6 +64,7 @@ final readonly class ImportDetailViewFactory
                         variant: 'outline-primary',
                     ),
                 ],
+                coverage: $coverage,
             ),
             ImportType::CLOSURE => new ImportDetailView(
                 typeLabel: $this->trans('label.import.type.closure'),
@@ -76,6 +80,7 @@ final readonly class ImportDetailViewFactory
                         variant: 'outline-primary',
                     ),
                 ],
+                coverage: $coverage,
             ),
         };
     }
