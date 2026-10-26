@@ -132,6 +132,40 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertSame('Storage: warning', $item->text());
     }
 
+    public function testMessengerAndSchedulerChecksShowTheirSeverityAndLinkToTheirPages(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
+        $utc = new \DateTimeZone('UTC');
+        self::getContainer()->get(EntityManagerInterface::class)->getConnection()->insert('messenger_messages', [
+            'body' => 'x',
+            'headers' => '{}',
+            'queue_name' => 'low',
+            'created_at' => new \DateTimeImmutable('-50 minutes', $utc)->format('Y-m-d H:i:s'),
+            'available_at' => new \DateTimeImmutable('-50 minutes', $utc)->format('Y-m-d H:i:s'),
+        ]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('Unhealthy', $crawler->filter('.ea-ops-health-banner')->text());
+
+        $backlog = $crawler->filter('[data-health-check="messenger_backlog"]');
+        self::assertSame('Messenger backlog: oldest message waits 50 min (low)', $backlog->text());
+        self::assertStringContainsString('bg-warning', (string) $backlog->attr('class'));
+        self::assertStringContainsString('/admin/operations/messenger', (string) $backlog->attr('href'));
+
+        $stalled = $crawler->filter('[data-health-check="messenger_stalled"]');
+        self::assertStringContainsString('bg-danger', (string) $stalled->attr('class'));
+        self::assertSame('Messenger processing: 1 message(s) waiting, no handling recorded', $stalled->text());
+
+        self::assertStringContainsString('bg-success', (string) $crawler->filter('[data-health-check="messenger_retries"]')->attr('class'));
+        $jobs = $crawler->filter('[data-health-check="scheduled_jobs"]');
+        self::assertSame('Scheduled jobs: ok', $jobs->text());
+        self::assertStringEndsWith('/admin/job-run', (string) $jobs->attr('href'));
+    }
+
     public function testWithoutMeasurementHealthIsDegradedAndTheStorageCardIsEmpty(): void
     {
         $client = self::createClient();

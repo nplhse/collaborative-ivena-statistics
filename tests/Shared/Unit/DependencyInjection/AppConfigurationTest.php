@@ -101,6 +101,19 @@ final class AppConfigurationTest extends TestCase
         self::assertSame(['routine_days' => 180, 'other_days' => 730], $processed['job_runs_retention']);
     }
 
+    public function testMessengerHealthDefaultsAreAppliedAndTheBacklogLimitsMustIncrease(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(
+            ['backlog_warning_minutes' => 30, 'backlog_critical_minutes' => 120, 'stalled_after_minutes' => 15, 'retry_rate_warning_percent' => 10, 'retry_min_attempts' => 20],
+            $processed['messenger_monitoring']['health'],
+        );
+
+        $this->expectException(InvalidConfigurationException::class);
+        new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig() + ['messenger_monitoring' => ['health' => ['backlog_warning_minutes' => 120, 'backlog_critical_minutes' => 60]]]]);
+    }
+
     public function testStorageDefaultsAreApplied(): void
     {
         $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);

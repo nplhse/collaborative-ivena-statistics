@@ -9,15 +9,22 @@ use Symfony\Component\HttpFoundation\Response;
 final readonly class HealthCheckReport
 {
     /**
-     * @param array<string, string> $checks
-     * @param list<string>          $publicCheckKeys contributed checks shown on GET /health besides the database
+     * @param array<string, string>            $checks
+     * @param list<string>                     $publicCheckKeys contributed checks shown on GET /health besides the database
+     * @param array<string, HealthCheckStatus> $statuses        status of each check, for ops surfaces
      */
     public function __construct(
         public HealthCheckStatus $status,
         public string $version,
         public array $checks,
         private array $publicCheckKeys = [],
+        public array $statuses = [],
     ) {
+    }
+
+    public function statusOf(string $key): HealthCheckStatus
+    {
+        return $this->statuses[$key] ?? HealthCheckStatus::Healthy;
     }
 
     public function httpStatusCode(): int

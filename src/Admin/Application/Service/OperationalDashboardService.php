@@ -9,7 +9,9 @@ use App\Admin\Application\DTO\HealthStatusDto;
 use App\Admin\Application\DTO\MessengerStatsDto;
 use App\Admin\Application\DTO\OpsCardDto;
 use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
+use App\Shared\Application\Health\HealthCheckReport;
 use App\Shared\Application\Health\HealthCheckService;
+use App\Shared\Application\Health\HealthCheckStatus;
 use App\Shared\Infrastructure\Audit\Repository\AuditEntryRepository;
 use App\Storage\Application\DTO\StorageSummary;
 use App\Storage\Application\View\StorageReportService;
@@ -17,6 +19,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 
 final readonly class OperationalDashboardService
 {
+    /** The admin job run list; named as a string, so Application does not depend on the UI layer. */
+    private const string JOB_RUN_CONTROLLER = \App\Admin\UI\Http\Controller\JobRun\JobRunCrudController::class;
+
     public function __construct(
         private MessengerStatsRepository $messengerStatsRepository,
         private StorageReportService $storageReportService,
@@ -40,7 +45,7 @@ final readonly class OperationalDashboardService
             status: $report->status,
             appVersion: $report->version,
             checks: $report->checks,
-            items: $this->mapHealthCheckItems($report->checks),
+            items: $this->mapHealthCheckItems($report),
         );
     }
 
@@ -95,15 +100,13 @@ final readonly class OperationalDashboardService
     }
 
     /**
-     * @param array<string, string> $checks
-     *
      * @return list<HealthCheckItemDto>
      */
-    private function mapHealthCheckItems(array $checks): array
+    private function mapHealthCheckItems(HealthCheckReport $report): array
     {
         $items = [];
 
-        foreach ($checks as $key => $value) {
+        foreach ($report->checks as $key => $value) {
             $items[] = match ($key) {
                 'database' => new HealthCheckItemDto(
                     key: $key,
@@ -120,6 +123,8 @@ final readonly class OperationalDashboardService
                     icon: 'ok' === $value ? 'fas fa-envelope-circle-check' : 'fas fa-triangle-exclamation',
                 ),
                 'storage' => $this->storageHealthItemFactory->create($value),
+                'messenger_backlog', 'messenger_stalled', 'messenger_retries' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-tower-broadcast', $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_messenger')->generateUrl()),
+                'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
                 default => new HealthCheckItemDto(
                     key: $key,
                     labelKey: 'ops.health.check.'.$key,
@@ -131,6 +136,25 @@ final readonly class OperationalDashboardService
         }
 
         return $items;
+    }
+
+    /**
+     * A check whose severity follows its health status (ADR 019), linking to the page that explains it.
+     */
+    private function statusItem(string $key, string $value, HealthCheckStatus $status, string $icon, string $detailUrl): HealthCheckItemDto
+    {
+        return new HealthCheckItemDto(
+            key: $key,
+            labelKey: 'ops.health.check.'.$key,
+            value: $value,
+            severity: match ($status) {
+                HealthCheckStatus::Healthy => 'success',
+                HealthCheckStatus::Degraded => 'warning',
+                HealthCheckStatus::Unhealthy => 'danger',
+            },
+            icon: HealthCheckStatus::Healthy === $status ? $icon : 'fas fa-triangle-exclamation',
+            detailUrl: $detailUrl,
+        );
     }
 
     private function generateFailedMessagesUrl(): string

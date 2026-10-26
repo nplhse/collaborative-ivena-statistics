@@ -81,15 +81,16 @@ Every job started by the Symfony Scheduler writes a `job_run` row, also short on
 
 ### Health
 
-The checks become contributors (`HealthCheckContributorInterface`); none of them is public.
+The new checks are contributors (`HealthCheckContributorInterface`, `src/Shared/Infrastructure/Monitoring/Health`); none of them is public, but each one counts towards the overall status of `/health`. The report keeps the status of every check, so the admin dashboard shows each one with its own severity and links it to the Messenger page or the job runs.
 
-- `messenger_failed`: moves from `HealthCheckService` into a contributor, unchanged (degraded while `failed` holds messages).
-- `messenger_backlog`: degraded or unhealthy when the oldest pending message of a queue is older than the configured limit.
-- `messenger_stalled`: unhealthy when messages are pending and no attempt was recorded within the configured time. An empty queue or an idle worker is never a failure.
-- `messenger_retries`: degraded when the retry rate of the last 24 hours is above the configured limit and enough attempts were recorded.
-- `scheduled_jobs`: degraded when a job is overdue, unhealthy when it is overdue by more than twice its interval.
+- `messenger_failed` stays in `HealthCheckService`, unchanged (degraded while `failed` holds messages; `skipped` when the database is unreachable).
+- `messenger_backlog`: degraded when the oldest message that is ready to be handled waits longer than `backlog_warning_minutes` (30), unhealthy beyond `backlog_critical_minutes` (120). Delayed messages and the failure queue do not count.
+- `messenger_stalled`: unhealthy when messages have been ready for longer than `stalled_after_minutes` (15) and no worker recorded any attempt for as long. An empty queue or an idle worker is never a failure.
+- `messenger_retries`: degraded when more than `retry_rate_warning_percent` (10) of the attempts of the last 24 hours were retried, judged only from `retry_min_attempts` (20) attempts on.
+- `scheduled_jobs`: degraded when a job has no finished run within its `overdue_after_minutes`, unhealthy beyond twice that, and degraded when its last finished run failed. A skipped run counts as a run. A job that never ran counts from the oldest `job_run` row, so a new job is not overdue right after its deploy.
+  - `closure_rebuild` has no interval: its hourly check writes a run only when there is work. The other hourly jobs (`notification_reconcile`, `messenger_queue_sample`) show whether the scheduler runs.
 
-Limits live in `app.messenger_monitoring` in `config/packages/app.yaml`.
+Limits live in `app.messenger_monitoring.health` in `config/packages/app.yaml`; the intervals in `app.job_runs`.
 
 ### Retention
 
