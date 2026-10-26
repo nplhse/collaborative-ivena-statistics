@@ -60,7 +60,7 @@ app:
             slow_seconds: 1800
             long_seconds: 7200
             memory_mb: 200
-            overdue_after_minutes: 120
+            # No overdue_after_minutes: the hourly check records a run only when there is work.
         # Scheduler jobs (ADR 019): only the expected interval until measured runs give thresholds.
         kpi_daily:
             overdue_after_minutes: 420

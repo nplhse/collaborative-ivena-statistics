@@ -509,6 +509,22 @@
         <source>ops.health.check.storage</source>
         <target>Storage</target>
       </trans-unit>
+      <trans-unit id="opsHlthMsg01" resname="ops.health.check.messenger_backlog">
+        <source>ops.health.check.messenger_backlog</source>
+        <target>Messenger backlog</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg02" resname="ops.health.check.messenger_stalled">
+        <source>ops.health.check.messenger_stalled</source>
+        <target>Messenger processing</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg03" resname="ops.health.check.messenger_retries">
+        <source>ops.health.check.messenger_retries</source>
+        <target>Messenger retries</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg04" resname="ops.health.check.scheduled_jobs">
+        <source>ops.health.check.scheduled_jobs</source>
+        <target>Scheduled jobs</target>
+      </trans-unit>
       <trans-unit id="opsNot01" resname="ops.notifications.title">
         <source>ops.notifications.title</source>
         <target>Recent notifications</target>
