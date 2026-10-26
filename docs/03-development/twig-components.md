@@ -508,6 +508,10 @@ Limitations: declarative tables only (ignored with the `content` block). Not mea
 | Explore indications, raw tab | name | `lg` |
 | Explore indications, normalized tab | name | `md` |
 | Indication review worklist | name (review button via `mobileMenuTemplate`) | `md` |
+| Explore MCI cases | case title | `md` |
+| Explore users | username | `md` |
+| Explore dispatch areas, specialities | name | `md` |
+| Explore departments, assignments, indication groups, infections, secondary transports, occasions, states | name | `sm` |
 
 ### Footer
 
