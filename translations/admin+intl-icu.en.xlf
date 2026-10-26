@@ -813,6 +813,26 @@
         <source>ops.messenger.footnote</source>
         <target>Counts only messages handled by a worker. A failure that Messenger retries counts as a retry, not as failed; "failed for good" means no retry follows. Exception details are in Sentry and in the failure queue.</target>
       </trans-unit>
+      <trans-unit id="opsMsgHist01" resname="ops.messenger.section.history">
+        <source>ops.messenger.section.history</source>
+        <target>History</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist02" resname="ops.messenger.empty.history">
+        <source>ops.messenger.empty.history</source>
+        <target>No message was handled and no queue sample was taken in this period.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist03" resname="ops.messenger.history.backlog">
+        <source>ops.messenger.history.backlog</source>
+        <target>Backlog</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist04" resname="ops.messenger.history.hint.hour">
+        <source>ops.messenger.history.hint.hour</source>
+        <target>One point per hour. The backlog is sampled hourly (pending messages without the failure queue); gaps mean no sample was taken.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist05" resname="ops.messenger.history.hint.day">
+        <source>ops.messenger.history.hint.day</source>
+        <target>One point per day; the backlog shows the highest hourly sample of the day.</target>
+      </trans-unit>
       <trans-unit id="opsRd01" resname="ops.reminder_dispatch.title">
         <source>ops.reminder_dispatch.title</source>
         <target>Monthly reminder dispatches</target>
@@ -1165,6 +1185,14 @@
         <source>admin.job_run.job.storage_measurement</source>
         <target>Storage measurement</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobMessengerQueueSample" resname="admin.job_run.job.messenger_queue_sample">
+        <source>admin.job_run.job.messenger_queue_sample</source>
+        <target>Messenger queue sample</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMonitoringRetention" resname="admin.job_run.job.monitoring_retention">
+        <source>admin.job_run.job.monitoring_retention</source>
+        <target>Monitoring cleanup</target>
+      </trans-unit>
       <trans-unit id="admJobRunStatusRunning" resname="admin.job_run.status.running">
         <source>admin.job_run.status.running</source>
         <target>Running</target>
@@ -1436,6 +1464,42 @@
       <trans-unit id="admJobRunMetricFailures" resname="admin.job_run.metric.failures">
         <source>admin.job_run.metric.failures</source>
         <target>Failures</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPending" resname="admin.job_run.metric.pending">
+        <source>admin.job_run.metric.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricWaiting" resname="admin.job_run.metric.waiting">
+        <source>admin.job_run.metric.waiting</source>
+        <target>Waiting for retry</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFailed" resname="admin.job_run.metric.failed">
+        <source>admin.job_run.metric.failed</source>
+        <target>In failure queue</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOldestPendingAgeSeconds" resname="admin.job_run.metric.oldest_pending_age_seconds">
+        <source>admin.job_run.metric.oldest_pending_age_seconds</source>
+        <target>Oldest pending (seconds)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFoldedDailyRows" resname="admin.job_run.metric.folded_daily_rows">
+        <source>admin.job_run.metric.folded_daily_rows</source>
+        <target>Daily rows written</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedHourlyRows" resname="admin.job_run.metric.deleted_hourly_rows">
+        <source>admin.job_run.metric.deleted_hourly_rows</source>
+        <target>Hourly rows deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedFailures" resname="admin.job_run.metric.deleted_failures">
+        <source>admin.job_run.metric.deleted_failures</source>
+        <target>Failures deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedQueueSamples" resname="admin.job_run.metric.deleted_queue_samples">
+        <source>admin.job_run.metric.deleted_queue_samples</source>
+        <target>Queue samples deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedJobRuns" resname="admin.job_run.metric.deleted_job_runs">
+        <source>admin.job_run.metric.deleted_job_runs</source>
+        <target>Job runs deleted</target>
       </trans-unit>
     </body>
   </file>

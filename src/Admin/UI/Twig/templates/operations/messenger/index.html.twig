@@ -93,6 +93,30 @@
         </div>
     </div>
 
+    <div class="card mb-4 ea-messenger-history">
+        <div class="card-header">{{ 'ops.messenger.section.history'|trans({}, 'admin') }}</div>
+        {% if report.history.empty %}
+            <div class="card-body text-secondary">{{ 'ops.messenger.empty.history'|trans({}, 'admin') }}</div>
+        {% else %}
+            <div class="card-body"
+                 data-controller="messenger-history-chart"
+                 data-messenger-history-chart-chart-value="{{ report.history.toChartValue|json_encode|e('html_attr') }}"
+                 data-messenger-history-chart-labels-value="{{ {
+                     handled: 'ops.messenger.kpi.handled'|trans({}, 'admin'),
+                     retried: 'ops.messenger.table.retried'|trans({}, 'admin'),
+                     failed: 'ops.messenger.kpi.failed'|trans({}, 'admin'),
+                     duration: 'ops.messenger.kpi.duration'|trans({}, 'admin'),
+                     backlog: 'ops.messenger.history.backlog'|trans({}, 'admin'),
+                 }|json_encode|e('html_attr') }}">
+                <div class="row g-3">
+                    <div class="col-xl-6"><div data-messenger-history-chart-target="messages"></div></div>
+                    <div class="col-xl-6"><div data-messenger-history-chart-target="timing"></div></div>
+                </div>
+                <p class="text-secondary small mb-0 mt-2">{{ ('ops.messenger.history.hint.' ~ report.history.granularity)|trans({}, 'admin') }}</p>
+            </div>
+        {% endif %}
+    </div>
+
     <div class="card mb-4">
         <div class="card-header">{{ 'ops.messenger.section.transports'|trans({}, 'admin') }}</div>
         <div class="table-responsive">

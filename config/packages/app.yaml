@@ -74,6 +74,10 @@ app:
             overdue_after_minutes: 120
         storage_measurement:
             overdue_after_minutes: 1500
+        messenger_queue_sample:
+            overdue_after_minutes: 120
+        monitoring_retention:
+            overdue_after_minutes: 1500
 
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).

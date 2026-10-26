@@ -57,6 +57,8 @@ Only messages handled by a worker are counted. Messages handled synchronously (`
 
 Queue state is read live from `messenger_messages` (Doctrine transport, ADR 003): pending messages, messages waiting for a retry (`available_at` in the future), the age of the oldest pending message, messages in `failed`. The Symfony Scheduler transport has no queue; the page shows its queue values as "not measurable" and relies on the job level instead.
 
+For the backlog history, the hourly scheduler job `messenger_queue_sample` stores one row per hour in `messenger_queue_sample`: pending, waiting and failed messages and the age of the oldest pending one, over all queues except `failed`. A gap in the samples means the scheduler or the worker did not run.
+
 ### Job level: every scheduler job writes `job_run`
 
 Every job started by the Symfony Scheduler writes a `job_run` row, also short ones (KPI, analytics aggregation, notification cleanup and reconciliation, storage measurement, monthly reminder).
@@ -91,13 +93,13 @@ Limits live in `app.messenger_monitoring` in `config/packages/app.yaml`.
 
 ### Retention
 
-A daily scheduler job (itself recorded in `job_run`):
+A daily scheduler job `monitoring_retention` (03:50 Europe/Berlin, itself recorded in `job_run`):
 
 - folds hourly rows of `messenger_metric` older than 90 days into daily rows and deletes the hourly rows; daily rows are kept;
-- deletes rows of `messenger_failure` older than 30 days;
+- deletes rows of `messenger_failure` older than 30 days and of `messenger_queue_sample` older than 90 days;
 - deletes `job_run` rows older than 180 days with status `succeeded` or `skipped` and no exceeded threshold; every other row is kept for 730 days.
 
-The values live in `app.messenger_monitoring.retention` and `app.job_runs_retention`.
+The values live in `app.messenger_monitoring.retention` (`hourly_days`, `failure_days`, `queue_sample_days`; hourly rows and samples stay at least 31 days, because the 30-day view reads them) and `app.job_runs_retention` (`routine_days`, `other_days`).
 
 ## Consequences
 

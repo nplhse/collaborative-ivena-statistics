@@ -813,6 +813,26 @@
         <source>ops.messenger.footnote</source>
         <target>Gezählt werden nur Nachrichten, die ein Worker verarbeitet. Ein Fehler, den Messenger wiederholt, zählt als Wiederholung, nicht als fehlgeschlagen; „endgültig fehlgeschlagen“ heißt, es folgt keine Wiederholung. Details zu Exceptions stehen in Sentry und in der Fehler-Queue.</target>
       </trans-unit>
+      <trans-unit id="opsMsgHist01de" resname="ops.messenger.section.history">
+        <source>ops.messenger.section.history</source>
+        <target>Verlauf</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist02de" resname="ops.messenger.empty.history">
+        <source>ops.messenger.empty.history</source>
+        <target>In diesem Zeitraum wurde keine Nachricht verarbeitet und keine Warteschlangen-Stichprobe genommen.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist03de" resname="ops.messenger.history.backlog">
+        <source>ops.messenger.history.backlog</source>
+        <target>Rückstau</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist04de" resname="ops.messenger.history.hint.hour">
+        <source>ops.messenger.history.hint.hour</source>
+        <target>Ein Punkt pro Stunde. Der Rückstau wird stündlich gemessen (wartende Nachrichten ohne Fehler-Queue); Lücken heißen, dass keine Messung stattfand.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist05de" resname="ops.messenger.history.hint.day">
+        <source>ops.messenger.history.hint.day</source>
+        <target>Ein Punkt pro Tag; der Rückstau zeigt die höchste stündliche Messung des Tages.</target>
+      </trans-unit>
       <trans-unit id="opsRd01de" resname="ops.reminder_dispatch.title">
         <source>ops.reminder_dispatch.title</source>
         <target>Monatliche Erinnerungsversände</target>
@@ -1165,6 +1185,14 @@
         <source>admin.job_run.job.storage_measurement</source>
         <target>Speichermessung</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobMessengerQueueSampleDe" resname="admin.job_run.job.messenger_queue_sample">
+        <source>admin.job_run.job.messenger_queue_sample</source>
+        <target>Messenger-Warteschlangen-Stichprobe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMonitoringRetentionDe" resname="admin.job_run.job.monitoring_retention">
+        <source>admin.job_run.job.monitoring_retention</source>
+        <target>Bereinigung Monitoring</target>
+      </trans-unit>
       <trans-unit id="admJobRunStatusRunningDe" resname="admin.job_run.status.running">
         <source>admin.job_run.status.running</source>
         <target>Läuft</target>
@@ -1436,6 +1464,42 @@
       <trans-unit id="admJobRunMetricFailuresDe" resname="admin.job_run.metric.failures">
         <source>admin.job_run.metric.failures</source>
         <target>Fehler</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPendingDe" resname="admin.job_run.metric.pending">
+        <source>admin.job_run.metric.pending</source>
+        <target>Wartend</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricWaitingDe" resname="admin.job_run.metric.waiting">
+        <source>admin.job_run.metric.waiting</source>
+        <target>Wartet auf Wiederholung</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFailedDe" resname="admin.job_run.metric.failed">
+        <source>admin.job_run.metric.failed</source>
+        <target>In Fehler-Queue</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOldestPendingAgeSecondsDe" resname="admin.job_run.metric.oldest_pending_age_seconds">
+        <source>admin.job_run.metric.oldest_pending_age_seconds</source>
+        <target>Älteste wartende (Sekunden)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFoldedDailyRowsDe" resname="admin.job_run.metric.folded_daily_rows">
+        <source>admin.job_run.metric.folded_daily_rows</source>
+        <target>Geschriebene Tageszeilen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedHourlyRowsDe" resname="admin.job_run.metric.deleted_hourly_rows">
+        <source>admin.job_run.metric.deleted_hourly_rows</source>
+        <target>Gelöschte Stundenzeilen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedFailuresDe" resname="admin.job_run.metric.deleted_failures">
+        <source>admin.job_run.metric.deleted_failures</source>
+        <target>Gelöschte Fehler</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedQueueSamplesDe" resname="admin.job_run.metric.deleted_queue_samples">
+        <source>admin.job_run.metric.deleted_queue_samples</source>
+        <target>Gelöschte Stichproben</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedJobRunsDe" resname="admin.job_run.metric.deleted_job_runs">
+        <source>admin.job_run.metric.deleted_job_runs</source>
+        <target>Gelöschte Job-Läufe</target>
       </trans-unit>
     </body>
   </file>

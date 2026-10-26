@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Application\Service\Messenger;
 
 use App\Admin\Application\DTO\Messenger\MessengerCountsDto;
+use App\Admin\Application\DTO\Messenger\MessengerHistoryDto;
 use App\Admin\Application\DTO\Messenger\MessengerMessageTypeRowDto;
 use App\Admin\Application\DTO\Messenger\MessengerMonitoringReportDto;
 use App\Admin\Application\DTO\Messenger\MessengerTransportRowDto;
@@ -32,6 +33,8 @@ final readonly class MessengerMonitoringService
     public const string FAILED_QUEUE = 'failed';
 
     private const int FAILURE_ROWS = 20;
+
+    private const string TIMEZONE = 'Europe/Berlin';
 
     public function __construct(
         private MessengerMonitoringRepository $repository,
@@ -78,7 +81,38 @@ final readonly class MessengerMonitoringService
             $transports,
             $messageTypes,
             $this->repository->failures($since, self::FAILURE_ROWS),
+            $this->history($now, $since, $period),
         );
+    }
+
+    /**
+     * One point per hour, or per day (Europe/Berlin) for the 30-day period, from the start of the period to now.
+     */
+    private function history(\DateTimeImmutable $now, \DateTimeImmutable $since, MessengerMonitoringPeriod $period): MessengerHistoryDto
+    {
+        $daily = MessengerMonitoringPeriod::Month === $period;
+        $counts = $this->repository->countsOverTime($since, $daily);
+        $backlog = $this->repository->backlogOverTime($since, $daily);
+
+        $utc = new \DateTimeZone('UTC');
+        $berlin = new \DateTimeZone(self::TIMEZONE);
+        $bucket = $daily ? $since->setTimezone($berlin)->setTime(0, 0) : $since;
+        $step = $daily ? '+1 day' : '+1 hour';
+
+        $buckets = $handled = $failed = $retried = $duration = $samples = [];
+        while ($bucket <= $now) {
+            $key = $bucket->setTimezone($utc)->format(\DATE_ATOM);
+            $row = $counts[$key] ?? ['handled' => 0, 'failed' => 0, 'retried' => 0, 'attempts' => 0, 'durationMsSum' => 0];
+            $buckets[] = $bucket;
+            $handled[] = $row['handled'];
+            $failed[] = $row['failed'];
+            $retried[] = $row['retried'];
+            $duration[] = 0 === $row['attempts'] ? null : (int) round($row['durationMsSum'] / $row['attempts']);
+            $samples[] = $backlog[$key] ?? null;
+            $bucket = $bucket->modify($step);
+        }
+
+        return new MessengerHistoryDto($daily ? 'day' : 'hour', $buckets, $handled, $failed, $retried, $duration, $samples);
     }
 
     /**
