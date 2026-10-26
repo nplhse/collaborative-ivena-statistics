@@ -75,6 +75,7 @@
                 <directory name="src/*/Application/Sitemap/DTO/" />
                 <directory name="src/Shared/Application/Navigation/DTO/" />
                 <directory name="src/*/UI/Http/DTO/" />
+                <directory name="src/Allocation/Application/ReferenceCatalog/Package/" />
                 <directory name="src/Import/Infrastructure/Adapter/" />
                 <directory name="src/Statistics/" />
             </errorLevel>
@@ -87,6 +88,7 @@
                 <directory name="src/*/Infrastructure/Factory/" />
                 <directory name="src/*/UI/Twig/Components" />
                 <directory name="src/*/UI/Form/" />
+                <directory name="src/Allocation/Application/ReferenceCatalog/Package/Validation/" />
                 <directory name="src/*/UI/Twig" />
                 <directory name="src/*/UI/Http/Controller" />
                 <directory name="src/*/UI/Console/Command" />
