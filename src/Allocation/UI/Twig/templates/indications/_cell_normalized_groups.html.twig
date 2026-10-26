@@ -1,0 +1,4 @@
+{% set groups = context.normalized_groups[row.id]|default([]) %}
+{% for group in groups %}
+    <span class="badge bg-secondary-lt me-1">{{ group }}</span>
+{% endfor %}

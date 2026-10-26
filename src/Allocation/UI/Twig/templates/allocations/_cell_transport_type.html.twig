@@ -1,0 +1,5 @@
+{% if row.transportType is not null %}
+    {{ row.transportType.label|trans }}
+{% else %}
+    {{ 'field.transportType.unknown'|trans({}, 'messages') }}
+{% endif %}

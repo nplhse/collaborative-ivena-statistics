@@ -9,6 +9,7 @@ use App\Allocation\Application\Allocations\AllocationCreatedAtRangeParser;
 use App\Allocation\Application\Allocations\AllocationListHospitalScopeResolver;
 use App\Allocation\Application\Export\DTO\AllocationListFilterCriteria;
 use App\Allocation\Application\Filter\OptionalRelationFilter;
+use App\Allocation\UI\Twig\AllocationListColumns;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class AllocationQueryParametersDTO
@@ -26,7 +27,7 @@ final readonly class AllocationQueryParametersDTO
         #[Assert\Choice(choices: ['asc', 'desc'])]
         public string $orderBy = 'desc',
 
-        #[Assert\Choice(choices: ['age', 'arrivalAt'])]
+        #[Assert\Choice(choices: AllocationListColumns::SORT_KEYS)]
         public string $sortBy = 'arrivalAt',
 
         #[Assert\GreaterThan(0)]

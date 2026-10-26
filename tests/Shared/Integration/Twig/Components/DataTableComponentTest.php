@@ -8,6 +8,7 @@ use App\Shared\Infrastructure\Pagination\CursorPaginator;
 use App\Shared\UI\Twig\Components\DataTable;
 use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\Pagination\NumberedPaginationInterface;
@@ -81,7 +82,9 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('form="import-bulk-form"', $html);
         self::assertStringContainsString('aria-label="Select row 7"', $html);
 
-        self::assertStringContainsString('<form id="import-bulk-form" method="post" action="/import/bulk"', $html);
+        $form = new Crawler($html)->filter('form#import-bulk-form');
+        self::assertSame('post', $form->attr('method'));
+        self::assertSame('/import/bulk', $form->attr('action'));
         self::assertStringContainsString('name="_token" value="csrf-value"', $html);
         self::assertMatchesRegularExpression('/type="submit"\s+name="bulk_action"\s+value="reprocess"/', $html, 'Actions without confirmation submit directly.');
         self::assertStringContainsString('data-bs-target="#import-bulk-confirm-delete"', $html);
@@ -93,6 +96,62 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertMatchesRegularExpression('/form="import-bulk-form"\s+name="bulk_action"\s+value="delete"\s+class="btn btn-danger"/', $html);
         self::assertStringContainsString('Delete now', $html);
         self::assertStringNotContainsString('id="import-bulk-confirm-reprocess"', $html);
+    }
+
+    public function testBulkActionsShareTheHeaderWithIconOnlySettings(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', $this->pickerProps() + [
+            'bulkActions' => [new DataTableBulkAction('reprocess', 'Reprocess')],
+            'bulkFormAction' => '/import/bulk',
+            'bulkCsrfToken' => 'token',
+        ]));
+
+        $header = $crawler->filter('[data-testid="data-table-header"]');
+        self::assertCount(1, $header);
+        self::assertCount(1, $crawler->filter('.card-header'), 'Selection actions and settings share one header row.');
+        // Count and "clear" on the left; the actions sit right next to sort and columns.
+        self::assertCount(1, $header->filter('[data-testid="data-table-bulk-selection"].d-none'));
+        $toolbar = $header->filter('[data-testid="data-table-toolbar"]');
+        self::assertCount(1, $toolbar->filter('[data-testid="data-table-bulk-actions"].d-none'));
+        self::assertCount(1, $toolbar->filter('[data-testid="data-table-configure"]'));
+        self::assertSame(
+            ['data-table-bulk-actions', 'data-table-configure'],
+            $toolbar->children()->each(static fn (Crawler $child): string => (string) $child->attr('data-testid')),
+        );
+        foreach (['data-table-sort', 'data-table-columns'] as $testId) {
+            $button = $header->filter(sprintf('[data-testid="%s"]', $testId));
+            self::assertCount(1, $button->filter('span.visually-hidden'), $testId.' shows its icon only.');
+            self::assertStringContainsString('btn-icon-only', (string) $button->attr('class'));
+            self::assertNotSame('', (string) $button->attr('aria-label'));
+        }
+    }
+
+    public function testSettingsKeepTheirLabelsWithoutBulkActions(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', $this->pickerProps()));
+
+        self::assertCount(0, $crawler->filter('[data-testid="data-table-bulk-actions"]'));
+        foreach (['data-table-sort', 'data-table-columns'] as $testId) {
+            $button = $crawler->filter(sprintf('[data-testid="%s"]', $testId));
+            self::assertCount(0, $button->filter('span.visually-hidden'), $testId);
+            self::assertCount(1, $button->filter('span.data-table-toolbar__label'), $testId);
+            self::assertStringNotContainsString('btn-icon-only', (string) $button->attr('class'), $testId);
+        }
+    }
+
+    public function testBulkTableWithoutSettingsStillReservesTheHeader(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [['id' => 1, 'name' => 'Alpha']],
+            'bulkActions' => [new DataTableBulkAction('reprocess', 'Reprocess')],
+            'bulkFormAction' => '/bulk',
+            'bulkCsrfToken' => 'token',
+        ]));
+
+        self::assertCount(1, $crawler->filter('[data-testid="data-table-header"] [data-testid="data-table-bulk-selection"]'));
+        self::assertCount(1, $crawler->filter('[data-testid="data-table-header"] [data-testid="data-table-bulk-actions"]'));
+        self::assertCount(0, $crawler->filter('[data-testid="data-table-configure"]'));
     }
 
     public function testEmptyBulkTableSpansTheSelectionColumn(): void
@@ -468,6 +527,23 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertStringContainsString('name="action" value="reset-sort"', $html);
         self::assertStringContainsString('name="action" value="save"', $html);
         self::assertMatchesRegularExpression('/<th[^>]*>.*Location.*<th[^>]*>.*Name/s', $html);
+    }
+
+    /**
+     * A table with a sort menu and a column picker.
+     *
+     * @return array<string, mixed>
+     */
+    private function pickerProps(): array
+    {
+        return [
+            'columnVisibilityEnabled' => true,
+            'rows' => [['id' => 1, 'name' => 'Kiel', 'location' => 'Urban']],
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'sortable' => true, 'required' => true],
+                ['key' => 'location', 'label' => 'label.location', 'configurable' => true],
+            ],
+        ];
     }
 
     /**

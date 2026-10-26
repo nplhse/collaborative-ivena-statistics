@@ -1,7 +1,7 @@
 <div class="btn-group">
     <button
         type="button"
-        class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-no-caret"
+        class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-no-caret{% if this.bulkEnabled %} btn-icon-only{% endif %}"
         data-bs-toggle="dropdown"
         data-bs-auto-close="outside"
         aria-expanded="false"
@@ -10,7 +10,7 @@
         data-testid="data-table-sort"
     >
         <twig:ux:icon name="tabler:arrows-sort" class="icon" />
-        {{ 'label.data_table.sort'|trans({}, 'shared') }}
+        <span class="{{ this.bulkEnabled ? 'visually-hidden' : 'data-table-toolbar__label' }}">{{ 'label.data_table.sort'|trans({}, 'shared') }}</span>
     </button>
     <div class="dropdown-menu dropdown-menu-end data-table-popover">
         <div class="data-table-popover__header">

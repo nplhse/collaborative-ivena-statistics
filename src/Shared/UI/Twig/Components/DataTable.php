@@ -265,6 +265,17 @@ final class DataTable
         return [] !== $this->getColumnVisibilityChoices();
     }
 
+    /**
+     * Tables with bulk actions always show the header: the selection actions appear in it,
+     * so the rows below do not move when the first row gets selected.
+     */
+    public function getShouldShowHeader(): bool
+    {
+        return (null !== $this->title && '' !== $this->title)
+            || $this->getShouldShowHeaderActions()
+            || $this->isBulkEnabled();
+    }
+
     public function getShouldShowHeaderActions(): bool
     {
         return $this->getShouldShowColumnVisibility()
@@ -725,19 +736,29 @@ final class DataTable
             return $columns;
         }
 
-        $byKey = [];
+        // Only columns the picker lists can move; fixed columns (e.g. an icon) keep their slot.
+        $movable = [];
         foreach ($columns as $column) {
-            $byKey[$column->key] = $column;
-        }
-
-        $ordered = [];
-        foreach ([...$requested, ...array_keys($byKey)] as $key) {
-            if (isset($byKey[$key]) && !isset($ordered[$key])) {
-                $ordered[$key] = $byKey[$key];
+            if ($column->configurable || $column->required) {
+                $movable[$column->key] = $column;
             }
         }
 
-        return array_values($ordered);
+        $orderedMovable = [];
+        foreach ([...$requested, ...array_keys($movable)] as $key) {
+            if (isset($movable[$key]) && !isset($orderedMovable[$key])) {
+                $orderedMovable[$key] = $movable[$key];
+            }
+        }
+        $orderedMovable = array_values($orderedMovable);
+
+        $ordered = [];
+        $next = 0;
+        foreach ($columns as $column) {
+            $ordered[] = isset($movable[$column->key]) ? $orderedMovable[$next++] : $column;
+        }
+
+        return $ordered;
     }
 
     private function columnVisibilityUrl(DataTableColumn $toggled): string

@@ -348,7 +348,9 @@ filters, search, analysis scope/period and row sorting are never persisted.
 The picker saves once after checkbox/order changes. When column visibility is
 enabled, the header shows compact outlined button groups: a page-supplied
 `toolbar` (for example the events/intervals switch), then sort plus columns in
-one group with short labels.
+one group with short labels. Tables with bulk actions show sort and columns as
+icons only (tooltip and `aria-label` keep the name), because the selection
+actions share the same header row.
 Reset in a flyover restores the application defaults for that area, not the last
 unsaved or last persisted change: the sort flyover resets sort and page size
 (including persisted page size) without touching columns; the column flyover
@@ -359,10 +361,16 @@ column, direction, and page size; applying it keeps the rest of the query
 (including filters). Clearing the URL drops `sortBy`, `orderBy`, and `limit`.
 The column flyover lists `#` position, name, then move buttons.
 
+Only columns the picker lists (`configurable` or `required`) move when the order
+changes. Fixed columns, such as an icon column without a label, keep their slot
+from the definition.
+
 Sorting is also opt-in per column (`sortable: true`, optionally `sortKey`). The
 component renders a sort menu and header `aria-sort` links;
 the controller/query must validate the public sort key and perform the actual
-database ordering.
+database ordering. Add a stable tie-breaker (for example the id) to the
+ordering so rows with equal values do not jump between pages.
+
 `emptyValue`, datetime `timezone`, number `format`, and `nowrap` are optional
 presentation metadata. Domain-specific formatting remains a `custom` cell.
 
@@ -380,12 +388,73 @@ Badge palettes live in `BadgePalette` (hospital location/tier/size, allocation u
 
 Catalog clones can use `catalog_list_columns(showRoute, extraColumns)`. Custom cells for composed markup (indication blocks, user roles) stay as `type: custom`.
 
+#### Lists with a column picker
+
+Not every list gets a picker (#756). A list qualifies when it has several
+meaningful attributes, users compare rows, and different users want different
+columns. Simple name lists, navigation lists and tables whose order carries
+meaning stay as they are.
+
+| List | Preference key | Optional columns | Sort keys |
+|---|---|---|---|
+| Explore hospitals | `explore.hospitals` | beds, postal code, city, participating since | all columns |
+| Explore indications, raw tab | `explore.indications.raw` | occurrences, reviewed at/by, first matched at, created at | all but target and reviewer |
+| Explore indications, normalized tab | `explore.indications.normalized` | note, groups, raw indications, occurrences | code, name, raw count, occurrences, last change |
+| Explore allocations | `explore.allocations` | gender, transport type, speciality, department, assignment, occasion, secondary transport | arrival time and age only (keyset pagination) |
+| Imports | `import.list` | row counts, file size, run time, run count, export period | all but last changed by |
+| Closure analytics: units, events, intervals, recurring profiles | `statistics.closure_analytics.*` | see the column classes | see the column classes |
+
+Without a picker on purpose: the simple catalogs (departments, specialities,
+assignments, occasions, infections, secondary transports, states, dispatch
+areas, indication groups), MCI cases, the user directory, the review worklist
+(sorting only), Admin Import Rejects, and every `RankingTable`, matrix and
+Analysis Explorer table. A mobile card view for DataTable is a separate issue.
+
+Keep the columns in a PHP class next to the list (`HospitalListColumns`,
+`IndicationRawListColumns`, `IndicationNormalizedListColumns` and
+`AllocationListColumns` in Allocation, `ImportListColumns` in Import,
+`Closure*TableColumns` in Statistics) instead of inline Twig. The
+class implements `DataTablePreferenceDefinitionInterface`, builds its schema with
+`DataTablePreferenceSchema::fromColumns()`, and owns the public `SORT_KEYS` that
+the query DTO's `Assert\Choice` uses. The controller resolves the saved state
+with `DataTablePreferenceQueryState::fromRequest()` and
+`DataTablePreferenceService::resolve()`. `DataTableColumns` (Shared) builds the
+usual configurable, sortable and last-change columns.
+
+Optional columns that count or join other data (indication occurrences, raw
+counts, groups, allocation speciality/department/assignment/occasion) are read
+for the ids of the current page only, and only when the column is visible. The
+indication list passes them to the cells through `cellContext`
+(`ListIndicationController`); the allocation list merges them into its rows
+after the keyset query (`ListAllocationsQuery`). To sort by such a count, add the
+count as a hidden select only for that sort key. Count each indexed column in a
+separate subquery and combine them with the DQL function `ADD_SUBQUERIES(...)`:
+one count with `OR` cannot use an index-only scan and took about ten times
+longer on the demo database (3.6 s instead of 0.35 s for the raw indications).
+
+#### Keeping the view while filtering
+
+Filtering, searching, and resetting filters must not drop sort, page size, or
+column state. Search, filter drawer, and reset links usually sit outside the
+list's Turbo frame, so their server-rendered state goes stale once the frame
+advances the URL. Use the shared pieces, which pair server-rendered fields with
+the `query-state` Stimulus controller that refreshes them from the current URL:
+
+- `FilterDrawer keepViewState` keeps `sortBy`, `orderBy`, `limit`, `columns`,
+  and `columnOrder` on Apply and in its reset link.
+- `FilterDrawerTrigger keepViewState` does the same for the clear button.
+- A search form adds `data-controller="autosubmit query-state"`,
+  `data-query-state-omit-value` with its own field, and includes
+  `@Shared/components/data_table/_query_hidden_fields.html.twig` with
+  `{omit: ['search']}`.
+- Reset links rendered on the server use `path(route, data_table_view_query())`.
+
 ### Bulk actions
 
 Opt-in row selection for actions on several rows. Set `bulkActions` (list of `DataTableBulkAction`), `bulkFormAction` and `bulkCsrfToken`; selection is off while one of them is missing.
 
 - A checkbox column comes first, with a header checkbox for all rows of the current page. `bulkIdProperty` (default `id`) is posted as `ids[]`; rows whose `bulkSelectableProperty` is falsy get no checkbox.
-- While rows are selected, a toolbar above the table shows the count, the actions and *Clear selection*. All checkboxes and buttons belong to one POST form (`<bulkId>-form`) that sends `ids[]`, `bulk_action` and `_token`.
+- While rows are selected, the card header shows the count and *Clear selection* on the left, and the actions on the right next to the sort and column icons (same gap as between the other buttons). The header is always rendered for bulk tables and keeps its height, so the rows do not move when the first one is selected. On narrow screens the header wraps and grows. All checkboxes and buttons belong to one POST form (`<bulkId>-form`) that sends `ids[]`, `bulk_action` and `_token`.
 - An action with `confirmTitleOne` / `confirmTitleOther` opens a dialog first. Its question names the current count ("Really delete these 7 imports?"); `%count%` in `confirmTitleOther` is replaced on the client. Give the action an explicit `confirmVariant` (`danger` for destructive actions).
 - The selection only covers the current page. Paging, sorting or filtering reloads the page and clears it.
 - Server side, read the ids with `App\Shared\UI\Http\BulkSelection::ids($request)` (at most 100, invalid values dropped) and check every id again: the page state is not trusted.

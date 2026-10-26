@@ -27,7 +27,8 @@
             <twig:FilterDrawerTrigger
                 drawerId="allocation-filters"
                 :activeCount="activeFilterCount"
-                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_allocation_list') : null }}"
+                resetUrl="{{ activeFilterCount > 0 ? path('app_explore_allocation_list', data_table_view_query()) : null }}"
+                keepViewState
             />
         </twig:block>
     </twig:PageHeader>
@@ -52,19 +53,19 @@
             emptyIcon="{{ listIsFiltered ? 'tabler:filter-off' : 'tabler:ambulance' }}"
             rowClassProperty="departmentWasClosed"
             rowClass="allocation-row-department-closed"
-            :columns="[
-                { key: 'timestamps', type: 'custom', label: 'label.timestamps', sortable: true, sortKey: 'arrivalAt', width: 'col-2', cellTemplate: '@Allocation/allocations/_cell_timestamps.html.twig' },
-                { key: 'age', type: 'custom', label: 'label.age', sortable: true, sortKey: 'age', width: 'col-1', cellTemplate: '@Allocation/allocations/_cell_age.html.twig' },
-                { key: 'hospital', type: 'custom', label: 'label.hospital', width: 'col-3', cellTemplate: '@Allocation/allocations/_cell_hospital.html.twig' },
-                { key: 'indication', type: 'custom', label: 'label.indication', width: 'col-3', cellTemplate: '@Allocation/allocations/_cell_indication.html.twig' },
-                { key: 'urgency', type: 'badge', label: 'label.urgency', property: 'urgency', width: 'col-1', badgePalette: 'allocation_urgency' },
-                { key: 'properties', type: 'custom', label: 'label.properties', width: 'col-1', cellTemplate: '@Allocation/allocations/_cell_properties.html.twig' },
-                { key: 'actions', type: 'actions', label: '', width: 'col-1', route: 'app_explore_allocation_show', routeParams: {publicId: 'publicId'} },
-            ]"
+            :columns="allocationColumns"
+            columnVisibilityEnabled
+            columnOrderingEnabled
+            :visibleColumnKeys="allocationPreferences.visibleColumns"
+            :columnOrder="allocationPreferences.columnOrder"
+            :preferenceKey="allocationPreferencesPersisted ? allocationPreferenceKey : null"
+            :preferenceSaveUrl="allocationPreferencesPersisted ? path('app_data_table_preferences_save') : null"
+            :preferenceCsrfToken="allocationPreferencesPersisted ? csrf_token('data_table_preference_' ~ allocationPreferenceKey) : null"
+            :preferenceReturnUrl="allocationPreferencesPersisted ? app.request.requestUri : null"
         >
             <twig:block name="empty_actions">
                 {% if listIsFiltered %}
-                    <a class="btn btn-primary" href="{{ path('app_explore_allocation_list') }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
+                    <a class="btn btn-primary" href="{{ path('app_explore_allocation_list', data_table_view_query()) }}">{{ 'empty.filtered.cta'|trans({}, 'shared') }}</a>
                 {% elseif canImport %}
                     <a class="btn btn-primary" href="{{ path('app_import_new') }}" target="_top">{{ 'empty.allocation.initial.cta'|trans({}, 'allocation') }}</a>
                 {% else %}

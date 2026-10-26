@@ -36,6 +36,9 @@ SQL,
     }
 
     /**
+     * Counts per raw indication of one page. Each count uses the allocation index of its column,
+     * instead of grouping the whole allocation table.
+     *
      * @param list<int> $rawIds
      *
      * @return array<int, array{occurrence_count: int, primary_count: int, secondary_count: int}>
@@ -49,23 +52,17 @@ SQL,
         /** @var list<array{raw_id: int|string, occurrence_count: int|string, primary_count: int|string, secondary_count: int|string}> $rows */
         $rows = $this->connection->executeQuery(
             <<<'SQL'
-SELECT r.id AS raw_id,
-       COALESCE(p.cnt, 0) + COALESCE(s.cnt, 0) AS occurrence_count,
-       COALESCE(p.cnt, 0) AS primary_count,
-       COALESCE(s.cnt, 0) AS secondary_count
-FROM indication_raw r
-LEFT JOIN (
-    SELECT indication_raw_id AS raw_id, COUNT(*)::int AS cnt
-    FROM allocation
-    GROUP BY indication_raw_id
-) p ON p.raw_id = r.id
-LEFT JOIN (
-    SELECT secondary_indication_raw_id AS raw_id, COUNT(*)::int AS cnt
-    FROM allocation
-    WHERE secondary_indication_raw_id IS NOT NULL
-    GROUP BY secondary_indication_raw_id
-) s ON s.raw_id = r.id
-WHERE r.id IN (:rawIds)
+SELECT c.raw_id,
+       c.primary_count + c.secondary_count AS occurrence_count,
+       c.primary_count,
+       c.secondary_count
+FROM (
+    SELECT r.id AS raw_id,
+           (SELECT COUNT(*)::int FROM allocation a WHERE a.indication_raw_id = r.id) AS primary_count,
+           (SELECT COUNT(*)::int FROM allocation a WHERE a.secondary_indication_raw_id = r.id) AS secondary_count
+    FROM indication_raw r
+    WHERE r.id IN (:rawIds)
+) c
 SQL,
             ['rawIds' => $rawIds],
             ['rawIds' => ArrayParameterType::INTEGER],

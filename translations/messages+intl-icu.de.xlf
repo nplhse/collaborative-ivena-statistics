@@ -745,9 +745,17 @@
         <source>label.indication.code</source>
         <target>Code</target>
       </trans-unit>
+      <trans-unit id="DeDtIndic1" resname="label.indication.first_matched_at">
+        <source>label.indication.first_matched_at</source>
+        <target>Erstmals zugeordnet am</target>
+      </trans-unit>
       <trans-unit id="De6f5b323b" resname="label.indication.first_matched_by">
         <source>label.indication.first_matched_by</source>
         <target>Erstmals zugeordnet von</target>
+      </trans-unit>
+      <trans-unit id="DeDtIndic2" resname="label.indication.groups">
+        <source>label.indication.groups</source>
+        <target>Gruppen</target>
       </trans-unit>
       <trans-unit id="IndLblMPbDe" resname="label.indication.match_proposed_by">
         <source>label.indication.match_proposed_by</source>
@@ -769,6 +777,10 @@
         <source>label.indication.raw</source>
         <target>Indikation (original)</target>
       </trans-unit>
+      <trans-unit id="DeDtIndic3" resname="label.indication.raw_count">
+        <source>label.indication.raw_count</source>
+        <target>Roh-Indikationen</target>
+      </trans-unit>
       <trans-unit id="IndLblRAbDe" resname="label.indication.review_approved_by">
         <source>label.indication.review_approved_by</source>
         <target>Freigegeben von</target>
@@ -784,6 +796,10 @@
       <trans-unit id="Ded39ae759" resname="label.indication.review_status">
         <source>label.indication.review_status</source>
         <target>Prüfstatus</target>
+      </trans-unit>
+      <trans-unit id="DeDtIndic4" resname="label.indication.reviewed_at">
+        <source>label.indication.reviewed_at</source>
+        <target>Geprüft am</target>
       </trans-unit>
       <trans-unit id="IndLblRVbDe" resname="label.indication.reviewed_by">
         <source>label.indication.reviewed_by</source>
@@ -1024,6 +1040,10 @@
       <trans-unit id="De7dda9df9" resname="label.parent_page">
         <source>label.parent_page</source>
         <target>Übergeordnete Seite</target>
+      </trans-unit>
+      <trans-unit id="DePartSince1" resname="label.participating_since">
+        <source>label.participating_since</source>
+        <target>Teilnahme seit</target>
       </trans-unit>
       <trans-unit id="De1800cf4f" resname="label.participation">
         <source>label.participation</source>

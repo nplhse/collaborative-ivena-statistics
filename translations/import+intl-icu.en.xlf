@@ -57,6 +57,10 @@
         <source>import.delete.running_blocked_hint</source>
         <target>This import is currently running and cannot be deleted.</target>
       </trans-unit>
+      <trans-unit id="EnImpExpPer1" resname="import.field.exportPeriod">
+        <source>import.field.exportPeriod</source>
+        <target>Export period</target>
+      </trans-unit>
       <trans-unit id="T_sGody" resname="import.field.fileExtension">
         <source>import.field.fileExtension</source>
         <target>Extension</target>

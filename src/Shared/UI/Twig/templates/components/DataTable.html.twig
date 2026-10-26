@@ -7,12 +7,18 @@
     >
     {% endif %}
     <div class="card data-table-card">
-        {% if title or this.shouldShowHeaderActions %}
-            <div class="card-header">
+        {% if this.shouldShowHeader %}
+            <div class="card-header data-table-header{% if this.bulkEnabled %} data-table-header--bulk{% endif %}" data-testid="data-table-header">
                 {% if title %}<h3 class="card-title">{{ title }}</h3>{% endif %}
-                {% if this.shouldShowHeaderActions %}
-                    <div class="card-actions">
+                {% if this.bulkEnabled %}
+                    {{ include('@Shared/components/data_table/_bulk_selection.html.twig') }}
+                {% endif %}
+                {% if this.shouldShowHeaderActions or this.bulkEnabled %}
+                    <div class="card-actions data-table-header__actions">
                         <div class="data-table-toolbar" data-testid="data-table-toolbar">
+                            {% if this.bulkEnabled %}
+                                {{ include('@Shared/components/data_table/_bulk_actions.html.twig') }}
+                            {% endif %}
                             {% block toolbar %}{% endblock %}
                             {% if this.shouldShowSortMenu or this.shouldShowColumnVisibility %}
                                 <div
@@ -44,10 +50,6 @@
                     {% endfor %}
                 </ul>
             </div>
-        {% endif %}
-
-        {% if this.bulkEnabled %}
-            {{ include('@Shared/components/data_table/_bulk_toolbar.html.twig') }}
         {% endif %}
 
         <div class="card-body p-0{% if loading %} position-relative{% endif %}">

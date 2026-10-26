@@ -29,6 +29,51 @@ final readonly class DataTablePreferenceSchema
         }
     }
 
+    /**
+     * Builds the schema from declarative DataTable column configs: every keyed column is
+     * part of the order, `visible` (default true) or `required` columns are visible by default.
+     *
+     * @param list<array<string, mixed>> $columns
+     * @param list<string>               $sortKeys
+     */
+    public static function fromColumns(
+        string $key,
+        array $columns,
+        array $sortKeys = [],
+        ?string $defaultSortBy = null,
+        string $defaultOrderBy = 'desc',
+        int $defaultPageSize = 25,
+    ): self {
+        $order = [];
+        $visible = [];
+        $required = [];
+        foreach ($columns as $column) {
+            $columnKey = $column['key'] ?? null;
+            if (!\is_string($columnKey) || '' === $columnKey) {
+                continue;
+            }
+            $order[] = $columnKey;
+            $isRequired = true === ($column['required'] ?? false);
+            if ($isRequired || false !== ($column['visible'] ?? true)) {
+                $visible[] = $columnKey;
+            }
+            if ($isRequired) {
+                $required[] = $columnKey;
+            }
+        }
+
+        return new self(
+            $key,
+            $order,
+            $visible,
+            $required,
+            defaultPageSize: $defaultPageSize,
+            sortKeys: $sortKeys,
+            defaultSortBy: $defaultSortBy,
+            defaultOrderBy: $defaultOrderBy,
+        );
+    }
+
     /** @psalm-suppress PossiblyUnusedMethod Used by tests and future consumers. */
     public function defaults(): DataTablePreferenceState
     {
