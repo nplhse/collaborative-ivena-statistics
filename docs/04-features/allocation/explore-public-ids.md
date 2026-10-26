@@ -7,6 +7,8 @@ One-time (or resumable) backfill of `public_id` UUID v4 (RFC 4122) columns for e
 - Existing detail resources: `hospital`, `allocation`, `mci_case`, `secondary_transport`, `indication_raw`
 - Catalog reference tables: `indication_normalized`, `indication_group`, `assignment`, `department`, `speciality`, `occasion`, `infection`, `state`, `dispatch_area`
 
+Since migration `Version20261026215253` the twelve reference tables (all of the above except `allocation` and `mci_case`) require `public_id` (ADR 020); the backfill finds nothing to do there. It still covers `user`, `allocation` and `mci_case`.
+
 ## Prerequisites
 
 - Migrations `Version20260708183119` and `Version20260729120000` applied (`public_id` nullable `VARCHAR(36)` + partial unique indexes)
