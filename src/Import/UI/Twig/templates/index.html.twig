@@ -107,6 +107,9 @@
             :bulkCsrfToken="csrf_token(constant('App\\Import\\UI\\Http\\Controller\\BulkImportActionController::CSRF_TOKEN'))"
             :bulkSelectableIds="bulkSelectableIds"
             bulkId="import-bulk"
+            mobileLayout="cards"
+            mobilePrimaryColumn="name"
+            mobileBreakpoint="lg"
             :columns="importColumns"
             columnVisibilityEnabled
             columnOrderingEnabled
