@@ -1,11 +1,19 @@
 {% import '@Shared/_macros/pagination.html.twig' as pagination %}
+{#
+    Cards layout (mobileLayout="cards"): one markup for every screen width, CSS turns rows into cards
+    below md. Explicit roles keep the table semantics when CSS changes the display of table elements
+    (Safari/VoiceOver drops them otherwise). Card labels are aria-hidden: screen readers already get the
+    column header.
+#}
+{% set cards = this.mobileCards %}
 
-<div class="table-responsive">
-    <table class="table card-table">
-        <thead>
-            <tr>
+<div class="table-responsive{% if cards %} data-table-cards data-table-cards--{{ this.mobileBreakpointMode.value }}{% endif %}"{% if cards %} data-testid="data-table-cards"{% endif %}>
+    <table class="table card-table"{% if cards %} role="table"{% endif %}>
+        <thead{% if cards %} role="rowgroup"{% endif %}>
+            <tr{% if cards %} role="row"{% endif %}>
                 {% if this.bulkEnabled %}
-                    <th scope="col" class="w-1">
+                    <th scope="col" class="w-1{% if cards %} data-table-cell--select{% endif %}"{% if cards %} role="columnheader"{% endif %}>
+                        {% if cards %}<label class="data-table-select-page">{% endif %}
                         <input
                             type="checkbox"
                             class="form-check-input m-0 align-middle"
@@ -14,6 +22,10 @@
                             aria-label="{{ 'label.data_table.bulk.select_page'|trans({}, 'shared') }}"
                             data-testid="data-table-bulk-select-all"
                         >
+                        {% if cards %}
+                            <span class="data-table-cell__label" aria-hidden="true">{{ 'label.data_table.bulk.select_page'|trans({}, 'shared') }}</span>
+                        </label>
+                        {% endif %}
                     </th>
                 {% endif %}
                 {% for column in this.visibleColumns %}
@@ -25,6 +37,7 @@
                     <th
                         scope="col"
                         {% if headerClasses %}class="{{ headerClasses|join(' ') }}"{% endif %}
+                        {% if cards %}role="columnheader"{% endif %}
                         {% if column.sortable %}aria-sort="{{ this.sortDirection(column) ?? 'none' }}"{% endif %}
                     >
                         {% if column.sortable %}
@@ -39,11 +52,11 @@
                 {% endfor %}
             </tr>
         </thead>
-        <tbody>
+        <tbody{% if cards %} role="rowgroup"{% endif %}>
             {% for row in this.rowItems %}
-                <tr{% if this.rowCssClass(row) %} class="{{ this.rowCssClass(row) }}"{% endif %}{% if rowTestId %} data-testid="{{ rowTestId }}"{% endif %}>
+                <tr{% if this.rowCssClass(row) %} class="{{ this.rowCssClass(row) }}"{% endif %}{% if cards %} role="row"{% endif %}{% if rowTestId %} data-testid="{{ rowTestId }}"{% endif %}>
                     {% if this.bulkEnabled %}
-                        <td class="w-1">
+                        <td class="w-1{% if cards %} data-table-cell--select{% endif %}"{% if cards %} role="cell"{% endif %}>
                             {% if this.bulkSelectable(row) %}
                                 <input
                                     type="checkbox"
@@ -63,19 +76,34 @@
                         {% set cellClasses = [
                             column.align ? 'text-' ~ column.align : null,
                             column.options.nowrap|default(false) ? 'text-nowrap' : null,
+                            cards and this.mobilePrimary(column) ? 'data-table-cell--primary' : null,
+                            cards and this.mobileAction(column) ? (this.mobileActionMenu(column) ? 'data-table-cell--actions' : 'data-table-cell--actions-extra') : null,
                         ]|filter(value => value) %}
-                        <td{% if cellClasses %} class="{{ cellClasses|join(' ') }}"{% endif %}>
-                            {{ include('@Shared/components/data_table/_cell.html.twig', {
+                        {% set cellContent %}
+                            {{- include('@Shared/components/data_table/_cell.html.twig', {
                                 row: row,
                                 column: column,
                                 value: this.cellValue(row, column),
-                            }) }}
+                            }) -}}
+                        {% endset %}
+                        <td{% if cellClasses %} class="{{ cellClasses|join(' ') }}"{% endif %}{% if cards %} role="cell"{% endif %}>
+                            {% if cards %}
+                                {% if this.mobileLabel(column) %}
+                                    <span class="data-table-cell__label" aria-hidden="true">{{ this.mobileLabelText(column)|trans({}, column.labelDomain) }}</span>
+                                {% endif %}
+                                <div class="data-table-cell__value">{{ cellContent }}</div>
+                                {% if this.mobileActionMenu(column) %}
+                                    {{ include('@Shared/components/data_table/_card_menu.html.twig', {row: row}) }}
+                                {% endif %}
+                            {% else %}
+                                {{ cellContent }}
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
             {% else %}
-                <tr>
-                    <td colspan="{{ this.columnCount }}">
+                <tr{% if cards %} class="data-table-row--empty" role="row"{% endif %}>
+                    <td colspan="{{ this.columnCount }}"{% if cards %} role="cell"{% endif %}>
                         <twig:EmptyState
                             title="{{ emptyTitle ?? 'label.search_no_results'|trans({}, 'messages') }}"
                             description="{{ emptyDescription ?? 'help.search_no_results'|trans({}, 'shared') }}"

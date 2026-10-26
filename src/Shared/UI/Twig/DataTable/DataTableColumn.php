@@ -76,6 +76,10 @@ final readonly class DataTableColumn
             'emptyValue',
             'timezone',
             'nowrap',
+            // Mobile cards: label for columns without a header label, row actions for the card menu.
+            'mobileLabel',
+            'mobileAction',
+            'mobileMenuTemplate',
         ] as $optionKey) {
             if (\array_key_exists($optionKey, $config)) {
                 $options[$optionKey] = $config[$optionKey];

@@ -529,6 +529,171 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertMatchesRegularExpression('/<th[^>]*>.*Location.*<th[^>]*>.*Name/s', $html);
     }
 
+    public function testScrollLayoutKeepsThePlainTableMarkup(): void
+    {
+        $html = (string) $this->renderTwigComponent('DataTable', $this->pickerProps() + ['mobilePrimaryColumn' => 'name']);
+
+        self::assertStringNotContainsString('data-table-cards', $html);
+        self::assertStringNotContainsString('data-table-cell__label', $html);
+        self::assertStringNotContainsString('data-table-cell--primary', $html);
+        self::assertStringNotContainsString('role="table"', $html);
+        self::assertStringNotContainsString('role="cell"', $html);
+    }
+
+    public function testCardsLabelEveryVisibleCellInColumnOrder(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'columnVisibilityEnabled' => true,
+            'columnOrderingEnabled' => true,
+            'visibleColumnKeys' => ['location', 'dispatch'],
+            'columnOrder' => ['dispatch', 'name', 'location', 'state'],
+            'rows' => [['name' => 'Kiel', 'location' => 'Urban', 'dispatch' => 'Nord', 'state' => 'SH']],
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name', 'required' => true],
+                ['key' => 'location', 'label' => 'label.location', 'configurable' => true],
+                ['key' => 'dispatch', 'label' => 'label.dispatch_area', 'configurable' => true],
+                ['key' => 'state', 'label' => 'label.state', 'configurable' => true],
+            ],
+        ]));
+
+        self::assertCount(1, $crawler->filter('[data-testid="data-table-cards"] table[role="table"]'));
+        self::assertCount(2, $crawler->filter('[role="rowgroup"]'));
+        $headers = $crawler->filter('thead th[role="columnheader"]')->each(static fn (Crawler $th): string => trim($th->text()));
+        $cells = $crawler->filter('tbody td[role="cell"]');
+        $labels = $cells->each(static fn (Crawler $td): string => trim($td->filter('.data-table-cell__label')->text()));
+        $values = $cells->each(static fn (Crawler $td): string => trim($td->filter('.data-table-cell__value')->text()));
+
+        self::assertSame(['Dispatch Area', 'Name', 'Location'], $headers);
+        self::assertSame($headers, $labels, 'Labels follow the visible columns and their order.');
+        self::assertSame(['Nord', 'Kiel', 'Urban'], $values);
+        self::assertCount(3, $crawler->filter('.data-table-cell__label[aria-hidden="true"]'), 'Headers announce the column; labels stay silent.');
+        self::assertStringNotContainsString('SH', $crawler->filter('tbody')->html(), 'Hidden columns get no card field.');
+    }
+
+    public function testCardsBreakpointBecomesAContainerClass(): void
+    {
+        $props = [
+            'mobileLayout' => 'cards',
+            'columns' => [['key' => 'name', 'label' => 'label.name']],
+            'rows' => [['name' => 'Kiel']],
+        ];
+
+        $default = new Crawler((string) $this->renderTwigComponent('DataTable', $props));
+        self::assertSame(
+            'table-responsive data-table-cards data-table-cards--md',
+            $default->filter('[data-testid="data-table-cards"]')->attr('class'),
+        );
+
+        $wide = new Crawler((string) $this->renderTwigComponent('DataTable', $props + ['mobileBreakpoint' => 'lg']));
+        self::assertCount(1, $wide->filter('[data-testid="data-table-cards"].data-table-cards--lg'));
+    }
+
+    public function testCardsShowTheTitleAndActionsWithoutLabels(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'mobilePrimaryColumn' => 'name',
+            'rows' => [['publicId' => '0193f5e2-7c4a-7d1b-9a2e-3f4b5c6d7e8f', 'name' => 'Kiel', 'participating' => true, 'location' => 'Urban']],
+            'columns' => [
+                ['key' => 'participating', 'label' => '', 'type' => 'boolean'],
+                ['key' => 'name', 'label' => 'label.name', 'sortable' => true],
+                ['key' => 'location', 'label' => 'label.location'],
+                ['key' => 'actions', 'label' => '', 'type' => 'actions', 'route' => 'app_explore_hospital_show', 'routeParams' => ['publicId' => 'publicId']],
+            ],
+        ]));
+
+        $title = $crawler->filter('td.data-table-cell--primary');
+        self::assertCount(1, $title);
+        self::assertSame('Kiel', trim($title->text()));
+        self::assertCount(0, $title->filter('.data-table-cell__label'));
+
+        $actions = $crawler->filter('td.data-table-cell--actions');
+        self::assertCount(1, $actions);
+        self::assertCount(0, $actions->filter('.data-table-cell__label'));
+        self::assertCount(1, $actions->filter('.data-table-cell__value a.btn-action[href]'), 'The table keeps the inline action.');
+        $menu = $actions->filter('.data-table-actions-menu');
+        self::assertCount(1, $menu->filter('button[data-bs-toggle="dropdown"][aria-label="Actions"]'));
+        $item = $menu->filter('.dropdown-menu a.dropdown-item');
+        self::assertCount(1, $item, 'Cards offer the same action in the menu.');
+        self::assertSame('Show details', trim($item->text()));
+        self::assertSame($actions->filter('.data-table-cell__value a')->attr('href'), $item->attr('href'));
+
+        self::assertCount(1, $crawler->filter('tbody .data-table-cell__label'), 'Only the location gets a label.');
+        self::assertCount(1, $crawler->filter('[data-testid="data-table-sort"]'), 'Cards bring the sort menu without the column picker.');
+    }
+
+    public function testCardsMenuCollectsEveryActionColumn(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'mobilePrimaryColumn' => 'name',
+            'rows' => [['publicId' => '0193f5e2-7c4a-7d1b-9a2e-3f4b5c6d7e8f', 'name' => 'Kiel', 'review' => 'Review now']],
+            'columns' => [
+                ['key' => 'name', 'label' => 'label.name'],
+                ['key' => 'show', 'label' => '', 'type' => 'actions', 'actionLabel' => 'Open', 'route' => 'app_explore_hospital_show', 'routeParams' => ['publicId' => 'publicId']],
+                ['key' => 'review', 'label' => '', 'type' => 'text', 'mobileAction' => true],
+            ],
+        ]));
+
+        self::assertCount(1, $crawler->filter('td.data-table-cell--actions'), 'The first action cell holds the menu.');
+        self::assertCount(1, $crawler->filter('td.data-table-cell--actions-extra'), 'Further action cells are hidden in cards.');
+        self::assertCount(1, $crawler->filter('.data-table-actions-menu'));
+        self::assertSame(
+            ['Open', 'Review now'],
+            $crawler->filter('.data-table-actions-menu .dropdown-menu > *')->each(static fn (Crawler $item): string => trim($item->text())),
+        );
+        self::assertCount(0, $crawler->filter('tbody .data-table-cell__label'), 'Action columns get no card label.');
+    }
+
+    public function testCardsUseTheMobileLabelForColumnsWithoutHeader(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'rows' => [['participating' => true]],
+            'columns' => [
+                ['key' => 'participating', 'label' => '', 'type' => 'boolean', 'mobileLabel' => 'label.is_participating'],
+            ],
+        ]));
+
+        self::assertSame('', trim($crawler->filter('thead th')->text()), 'The table header stays empty.');
+        self::assertSame('Participation', trim($crawler->filter('tbody .data-table-cell__label')->text()));
+    }
+
+    public function testCardsKeepSelectPageVisibleAndRowCheckboxes(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'mobilePrimaryColumn' => 'name',
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [['id' => 7, 'name' => 'Alpha']],
+            'bulkActions' => [new DataTableBulkAction('reprocess', 'Reprocess')],
+            'bulkFormAction' => '/bulk',
+            'bulkCsrfToken' => 'token',
+        ]));
+
+        $selectPage = $crawler->filter('thead th.data-table-cell--select label.data-table-select-page');
+        self::assertCount(1, $selectPage);
+        self::assertCount(1, $selectPage->filter('input[data-bulk-selection-target="toggle"]'));
+        self::assertSame('Select all rows on this page', trim($selectPage->filter('.data-table-cell__label')->text()));
+        self::assertCount(1, $crawler->filter('tbody td.data-table-cell--select input[name="ids[]"][value="7"]'));
+    }
+
+    public function testCardsRenderTheEmptyStateAsAPlainRow(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'mobilePrimaryColumn' => 'name',
+            'columns' => [['key' => 'name', 'label' => 'label.name', 'type' => 'text']],
+            'rows' => [],
+        ]));
+
+        $row = $crawler->filter('tbody tr.data-table-row--empty');
+        self::assertCount(1, $row);
+        self::assertCount(1, $row->filter('.empty-title'));
+        self::assertCount(0, $crawler->filter('tbody .data-table-cell__label'));
+    }
+
     /**
      * A table with a sort menu and a column picker.
      *
