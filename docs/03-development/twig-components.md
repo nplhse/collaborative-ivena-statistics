@@ -512,6 +512,12 @@ Limitations: declarative tables only (ignored with the `content` block). Not mea
 | Explore users | username | `md` |
 | Explore dispatch areas, specialities | name | `md` |
 | Explore departments, assignments, indication groups, infections, secondary transports, occasions, states | name | `sm` |
+| Closure analytics: events and intervals | event | `lg` |
+| Closure analytics: recurring profiles | configuration (open-profile link via `mobileMenuTemplate`) | `lg` |
+| Closure analytics: closure units, profile composition | name / speciality | `lg` |
+| Closure analytics: assignments of an event | start | `sm` |
+
+Closure events (about 1,140 px) and recurring profiles (about 1,570 px) are wider than `lg`; between 992 px and their width they still scroll. A wider breakpoint was considered and left out on purpose.
 
 ### Footer
 
