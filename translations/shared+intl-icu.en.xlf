@@ -517,6 +517,14 @@
         <source>label.data_table.bulk.select_row</source>
         <target>Select row {id}</target>
       </trans-unit>
+      <trans-unit id="lblDtRowActionsEn" resname="label.data_table.row_actions">
+        <source>label.data_table.row_actions</source>
+        <target>Actions</target>
+      </trans-unit>
+      <trans-unit id="lblDtRowShowEn" resname="label.data_table.row_show">
+        <source>label.data_table.row_show</source>
+        <target>Show details</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

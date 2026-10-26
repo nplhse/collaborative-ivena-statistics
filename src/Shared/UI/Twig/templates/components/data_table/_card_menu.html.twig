@@ -1,0 +1,46 @@
+{#
+    "More" menu of a mobile card: the items of every action column of the row. It sits in the first
+    action cell; CSS shows it only in the cards layout, where the inline action buttons are hidden.
+    The fixed popper strategy keeps the menu from being clipped by .table-responsive.
+#}
+<div class="dropdown data-table-actions-menu">
+    <button
+        type="button"
+        class="btn btn-action"
+        data-bs-toggle="dropdown"
+        data-bs-popper-config='{"strategy":"fixed"}'
+        aria-expanded="false"
+        aria-label="{{ 'label.data_table.row_actions'|trans({}, 'shared') }}"
+        title="{{ 'label.data_table.row_actions'|trans({}, 'shared') }}"
+        data-testid="data-table-row-actions"
+    >
+        <twig:ux:icon name="tabler:dots-vertical" class="icon" />
+    </button>
+    <div class="dropdown-menu dropdown-menu-end">
+        {% for column in this.mobileActionColumns %}
+            {% if column.type.value == 'actions' %}
+                {% set href = this.cellHref(row, column) %}
+                {% if href %}
+                    <a class="dropdown-item" href="{{ href }}" target="{{ column.options.target|default('_top') }}">
+                        {{ column.options.actionLabel|default(false) ? column.options.actionLabel|trans({}, column.labelDomain) : 'label.data_table.row_show'|trans({}, 'shared') }}
+                    </a>
+                {% endif %}
+            {% elseif column.options.mobileMenuTemplate is defined %}
+                {{ include(column.options.mobileMenuTemplate, {
+                    row: row,
+                    column: column,
+                    value: this.cellValue(row, column),
+                    context: this.cellContext,
+                }) }}
+            {% else %}
+                <div class="dropdown-item-text">
+                    {{ include('@Shared/components/data_table/_cell.html.twig', {
+                        row: row,
+                        column: column,
+                        value: this.cellValue(row, column),
+                    }) }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>

@@ -8,6 +8,8 @@ use App\Shared\Infrastructure\Pagination\CursorPaginator;
 use App\Shared\UI\Twig\Components\DataTable;
 use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
+use App\Shared\UI\Twig\DataTable\DataTableMobileBreakpoint;
+use App\Shared\UI\Twig\DataTable\DataTableMobileLayout;
 use App\Shared\UI\Twig\DataTable\DataTableValueResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -489,6 +491,107 @@ final class DataTableTest extends TestCase
         $blank->paginationRoute = '';
         $blank->columns = [['key' => 'name', 'label' => 'Name', 'sortable' => true]];
         self::assertSame('#', $blank->sortUrl($blank->getVisibleColumns()[0]));
+    }
+
+    public function testMobileLayoutDefaultsToScrollAndRejectsUnknownValues(): void
+    {
+        $table = $this->table(Request::create('/import'));
+        $table->columns = [['key' => 'name', 'label' => 'Name']];
+
+        self::assertSame(DataTableMobileLayout::Scroll, $table->getMobileLayoutMode());
+        self::assertFalse($table->isMobileCards());
+
+        $table->mobileLayout = 'stack';
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown DataTable mobileLayout "stack"; use one of: scroll, cards.');
+        $table->getMobileLayoutMode();
+    }
+
+    public function testMobileBreakpointDefaultsToMdAndRejectsUnknownValues(): void
+    {
+        $table = $this->table(Request::create('/import'));
+
+        self::assertSame(DataTableMobileBreakpoint::Md, $table->getMobileBreakpointMode());
+
+        $table->mobileBreakpoint = 'lg';
+        self::assertSame(DataTableMobileBreakpoint::Lg, $table->getMobileBreakpointMode());
+
+        $table->mobileBreakpoint = '900px';
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown DataTable mobileBreakpoint "900px"; use one of: sm, md, lg.');
+        $table->getMobileBreakpointMode();
+    }
+
+    public function testMobileCardsNeedDeclarativeColumnsAndShowTheSortMenu(): void
+    {
+        $table = $this->table(Request::create('/import'));
+        $table->mobileLayout = 'cards';
+
+        self::assertFalse($table->isMobileCards(), 'The content escape hatch renders its own table.');
+
+        $table->columns = [
+            ['key' => 'name', 'label' => 'Name', 'sortable' => true],
+            ['key' => 'status', 'label' => 'Status'],
+        ];
+
+        self::assertTrue($table->isMobileCards());
+        self::assertTrue($table->getShouldShowSortMenu(), 'Cards hide the sortable headers, so the menu takes over.');
+
+        $table->columns = [['key' => 'status', 'label' => 'Status']];
+        self::assertFalse($table->getShouldShowSortMenu(), 'Nothing to sort, no menu.');
+    }
+
+    public function testMobileLabelsSkipTheTitleActionsAndUnlabelledColumns(): void
+    {
+        $table = $this->table(Request::create('/import'));
+        $table->columns = [
+            ['key' => 'name', 'label' => 'Name'],
+            ['key' => 'status', 'label' => 'Status'],
+            ['key' => 'participating', 'label' => '', 'type' => 'boolean'],
+            ['key' => 'actions', 'label' => 'Actions', 'type' => 'actions'],
+        ];
+        $table->mobilePrimaryColumn = 'name';
+        [$name, $status, $participating, $actions] = $table->getVisibleColumns();
+
+        self::assertFalse($table->isMobilePrimary($name), 'Scroll tables have no card title.');
+        self::assertFalse($table->hasMobileLabel($status), 'Scroll tables have no card labels.');
+
+        $table->mobileLayout = 'cards';
+
+        self::assertTrue($table->isMobilePrimary($name));
+        self::assertFalse($table->isMobilePrimary($status));
+        self::assertFalse($table->hasMobileLabel($name));
+        self::assertTrue($table->hasMobileLabel($status));
+        self::assertFalse($table->hasMobileLabel($participating));
+        self::assertFalse($table->hasMobileLabel($actions));
+    }
+
+    public function testMobileLabelOverrideAndActionColumns(): void
+    {
+        $table = $this->table(Request::create('/explore/hospital'));
+        $table->mobileLayout = 'cards';
+        $table->columns = [
+            ['key' => 'participating', 'label' => '', 'type' => 'boolean', 'mobileLabel' => 'label.is_participating'],
+            ['key' => 'name', 'label' => 'Name'],
+            ['key' => 'show', 'label' => '', 'type' => 'actions'],
+            ['key' => 'review', 'label' => 'Review', 'type' => 'custom', 'mobileAction' => true],
+        ];
+        [$participating, $name, $show, $review] = $table->getVisibleColumns();
+
+        self::assertTrue($table->hasMobileLabel($participating));
+        self::assertSame('label.is_participating', $table->mobileLabelText($participating));
+        self::assertSame('Name', $table->mobileLabelText($name));
+
+        self::assertFalse($table->isMobileAction($name));
+        self::assertTrue($table->isMobileAction($show));
+        self::assertTrue($table->isMobileAction($review));
+        self::assertFalse($table->hasMobileLabel($review), 'Action columns go into the menu, not into a labelled field.');
+        self::assertSame(['show', 'review'], array_map(static fn (DataTableColumn $column): string => $column->key, $table->getMobileActionColumns()));
+        self::assertTrue($table->isMobileActionMenu($show));
+        self::assertFalse($table->isMobileActionMenu($review));
+
+        $table->mobileLayout = 'scroll';
+        self::assertSame([], $table->getMobileActionColumns(), 'Tables keep their inline actions.');
     }
 
     private function table(Request $request): DataTable
