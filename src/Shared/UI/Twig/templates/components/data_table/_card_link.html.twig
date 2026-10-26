@@ -1,0 +1,15 @@
+{#
+    Card footer link for a table whose only row action is a detail link (`actions` column). CSS shows it
+    only in the cards layout, where the inline icon button is hidden.
+#}
+{% set href = this.cellHref(row, column) %}
+{% if href %}
+    <a
+        class="btn btn-sm btn-outline-primary w-100 data-table-action-link"
+        href="{{ href }}"
+        target="{{ column.options.target|default('_top') }}"
+        data-testid="data-table-row-link"
+    >
+        {{ column.options.actionLabel|default(false) ? column.options.actionLabel|trans({}, column.labelDomain) : 'label.data_table.row_details_link'|trans({}, 'shared') }}
+    </a>
+{% endif %}

@@ -594,6 +594,38 @@ final class DataTableTest extends TestCase
         self::assertSame([], $table->getMobileActionColumns(), 'Tables keep their inline actions.');
     }
 
+    public function testTitlePartsOrderAndDirectAction(): void
+    {
+        $table = $this->table(Request::create('/explore/allocation'));
+        $table->columns = [
+            ['key' => 'times', 'label' => 'Times', 'mobileLabel' => false],
+            ['key' => 'indication', 'label' => 'Indication'],
+            ['key' => 'urgency', 'label' => 'Urgency'],
+            ['key' => 'show', 'label' => '', 'type' => 'actions'],
+        ];
+        $table->mobilePrimaryColumn = 'indication';
+        $table->mobileTitleColumns = ['urgency'];
+        $table->mobileColumnOrder = ['times'];
+        [$times, $indication, $urgency] = $table->getVisibleColumns();
+
+        self::assertNull($table->mobileOrder($times), 'Scroll tables set no card order.');
+        self::assertFalse($table->isMobileDirectAction());
+
+        $table->mobileLayout = 'cards';
+
+        self::assertSame(-1, $table->mobileOrder($times));
+        self::assertNull($table->mobileOrder($urgency));
+        self::assertFalse($table->hasMobileLabel($times), 'mobileLabel: false drops the label.');
+        self::assertTrue($table->isMobileTitlePart($urgency));
+        self::assertFalse($table->isMobileTitlePart($indication), 'The title itself is not a title part.');
+        self::assertSame(2, $table->mobileTitleRow($urgency));
+        self::assertFalse($table->hasMobileLabel($urgency));
+        self::assertTrue($table->isMobileDirectAction(), 'A single detail action is shown as a link.');
+
+        $table->columns[] = ['key' => 'review', 'label' => 'Review', 'type' => 'custom', 'mobileAction' => true];
+        self::assertFalse($table->isMobileDirectAction(), 'Several actions keep the menu.');
+    }
+
     private function table(Request $request): DataTable
     {
         $stack = new RequestStack([$request]);

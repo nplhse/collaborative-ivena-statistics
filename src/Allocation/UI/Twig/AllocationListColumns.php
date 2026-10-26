@@ -37,6 +37,7 @@ final class AllocationListColumns implements DataTablePreferenceDefinitionInterf
                 'required' => true,
                 'configurable' => false,
                 'cellTemplate' => '@Allocation/allocations/_cell_timestamps.html.twig',
+                'mobileLabel' => false,
             ]),
             DataTableColumns::sortable('age', 'label.age', 'custom', ['cellTemplate' => '@Allocation/allocations/_cell_age.html.twig']),
             DataTableColumns::configurable('hospital', 'label.hospital', 'custom', ['cellTemplate' => '@Allocation/allocations/_cell_hospital.html.twig']),

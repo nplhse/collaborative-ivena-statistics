@@ -608,16 +608,14 @@ final class DataTableComponentTest extends KernelTestCase
         self::assertSame('Kiel', trim($title->text()));
         self::assertCount(0, $title->filter('.data-table-cell__label'));
 
-        $actions = $crawler->filter('td.data-table-cell--actions');
-        self::assertCount(1, $actions);
+        $actions = $crawler->filter('td.data-table-cell--action-link');
+        self::assertCount(1, $actions, 'A single detail action becomes a link, not a menu.');
         self::assertCount(0, $actions->filter('.data-table-cell__label'));
+        self::assertCount(0, $actions->filter('.data-table-actions-menu'));
         self::assertCount(1, $actions->filter('.data-table-cell__value a.btn-action[href]'), 'The table keeps the inline action.');
-        $menu = $actions->filter('.data-table-actions-menu');
-        self::assertCount(1, $menu->filter('button[data-bs-toggle="dropdown"][aria-label="Actions"]'));
-        $item = $menu->filter('.dropdown-menu a.dropdown-item');
-        self::assertCount(1, $item, 'Cards offer the same action in the menu.');
-        self::assertSame('Show details', trim($item->text()));
-        self::assertSame($actions->filter('.data-table-cell__value a')->attr('href'), $item->attr('href'));
+        $link = $actions->filter('a[data-testid="data-table-row-link"]');
+        self::assertSame('View details', trim($link->text()));
+        self::assertSame($actions->filter('.data-table-cell__value a')->attr('href'), $link->attr('href'));
 
         self::assertCount(1, $crawler->filter('tbody .data-table-cell__label'), 'Only the location gets a label.');
         self::assertCount(1, $crawler->filter('[data-testid="data-table-sort"]'), 'Cards bring the sort menu without the column picker.');
@@ -658,6 +656,37 @@ final class DataTableComponentTest extends KernelTestCase
 
         self::assertSame('', trim($crawler->filter('thead th')->text()), 'The table header stays empty.');
         self::assertSame('Participation', trim($crawler->filter('tbody .data-table-cell__label')->text()));
+    }
+
+    public function testCardsGroupTitlePartsAndOrderTheFields(): void
+    {
+        $crawler = new Crawler((string) $this->renderTwigComponent('DataTable', [
+            'mobileLayout' => 'cards',
+            'mobilePrimaryColumn' => 'indication',
+            'mobileTitleColumns' => ['urgency'],
+            'mobileColumnOrder' => ['hospital', 'age'],
+            'rows' => [['times' => '10:00', 'age' => '42', 'hospital' => 'Kiel', 'indication' => 'Stroke', 'urgency' => 'Emergency']],
+            'columns' => [
+                ['key' => 'times', 'label' => 'Times', 'mobileLabel' => false],
+                ['key' => 'age', 'label' => 'Age'],
+                ['key' => 'hospital', 'label' => 'label.hospital'],
+                ['key' => 'indication', 'label' => 'label.indication'],
+                ['key' => 'urgency', 'label' => 'label.urgency'],
+            ],
+        ]));
+
+        $row = $crawler->filter('tbody tr')->first();
+        $title = $row->filter('td.data-table-cell--title');
+        self::assertSame('Emergency', trim($title->text()), 'The urgency joins the title box without a label.');
+        self::assertSame('grid-row: 2', $title->attr('style'));
+        self::assertSame('order: -2', $row->filter('td')->eq(2)->attr('style'), 'The hospital comes first.');
+        self::assertSame('order: -1', $row->filter('td')->eq(1)->attr('style'), 'The age comes second.');
+        self::assertNull($row->filter('td')->eq(0)->attr('style'), 'Other fields keep the table order.');
+        self::assertSame(
+            ['Age', 'Hospital'],
+            $row->filter('.data-table-cell__label')->each(static fn (Crawler $label): string => trim($label->text())),
+            'mobileLabel: false drops the label of the times.',
+        );
     }
 
     public function testCardsKeepSelectPageVisibleAndRowCheckboxes(): void

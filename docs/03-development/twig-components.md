@@ -488,13 +488,16 @@ Opt-in layout for narrow tables (#692): when the table is narrower than its brea
 - `mobileLayout`: `scroll` (default) or `cards` (`DataTableMobileLayout`); other values throw.
 - `mobileBreakpoint`: `sm` (576 px), `md` (768 px, default) or `lg` (992 px) (`DataTableMobileBreakpoint`); other values throw. It is a **container query on the table's own width**, not a media query on the viewport: a table in a narrow column or a split view switches earlier, a full-width table on a tablet later. Choose it by content: the table should switch where it would otherwise need horizontal scrolling. The import list with its default columns needs about 1,060 px, so an iPad mini in portrait (744 px viewport, 726 px table) correctly shows cards; tables with few short columns can use `sm`.
 - `mobilePrimaryColumn`: column key shown as the card title, without a label. When the user hides that column, the card has no title and every value is a label/value pair.
+- `mobileTitleColumns`: further column keys shown inside the title box, below the title, right-aligned and without a label (for example the urgency badge under the indication).
+- `mobileColumnOrder`: column keys that come first in the card, right below the title; the other fields keep the table order (CSS `order`, no effect in the table).
+- Column option `mobileLabel: false` drops a cell's card label when the cell labels its parts itself: wrap each part in `.data-table-cell__pair` with a `.data-table-cell__label` (shown in cards only), as `@Allocation/allocations/_cell_timestamps.html.twig` does.
 - One markup for all widths, switched by CSS only (`.data-table-cards` in `assets/styles/app.css`, Tabler variables, so light and dark mode follow the theme). Container query conditions cannot use CSS variables, so the CSS has one `@container` block per breakpoint; keep the three blocks identical apart from the width. Labels are real elements rendered in Twig from the same translated column labels as the headers, inside the same loop over the visible columns, so hidden and reordered columns stay correct.
 - Accessibility: the table gets explicit `role` attributes, because Safari/VoiceOver drops table semantics when CSS changes the `display` of table elements. `<thead>` is clipped (`.visually-hidden` technique), not removed, so cells keep their column header and `aria-sort`; a header becomes visible while its sort link has keyboard focus. Card labels are `aria-hidden` so screen readers do not announce the column twice.
 - Sorting on phones goes through the sort menu, which card tables always show (also without the column picker).
 - Bulk selection: the row checkbox sits top right in the card, a selected card is outlined, and *Select all rows on this page* stays visible above the cards.
 - No label for the title and for action columns. Columns with an empty header label (an icon column) get no label either, unless they set `mobileLabel` (translation key, same `labelDomain`): it labels the value in cards only, the table header stays empty. Long values wrap; `nowrap`, `align: end` and centred cell content only apply to the table layout.
-- Card header row: title, then the row checkbox (bulk tables), then a "more" button (`tabler:dots-vertical`) with every row action. `actions` columns become a *Show details* item (or their `actionLabel`); custom columns join the menu with `mobileAction: true` and render their items with `mobileMenuTemplate` (`dropdown-item` markup; without it the cell content is shown as menu text). In the table layout the inline buttons stay and the menu is hidden.
-- Highlighted rows: a row class that colours its cells in the table (for example `allocation-row-department-closed`) should also set `--data-table-row-highlight`; cards then colour only the title, not the whole card, and the row's own icon carries the meaning.
+- Card header row: title, then the row checkbox (bulk tables), then a "more" button (`tabler:dots-vertical`) with every row action. When the only row action is a single `actions` column (a detail link), the card shows a full-width link *View details* (or the column's `actionLabel`) at its end instead of the menu. `actions` columns become a *Show details* item (or their `actionLabel`); custom columns join the menu with `mobileAction: true` and render their items with `mobileMenuTemplate` (`dropdown-item` markup; without it the cell content is shown as menu text). In the table layout the inline buttons stay and the menu is hidden.
+- Highlighted rows: a row class that colours its cells in the table (for example `allocation-row-department-closed`) should also set `--data-table-row-highlight`; cards then colour only the title box (title and `mobileTitleColumns`), not the whole card.
 - The empty state is a plain row (`data-table-row--empty`), not a card.
 - Filtering, pagination, page size, column preferences and exports do not change: the option only adds classes, roles and labels to the rendered table.
 
@@ -503,12 +506,12 @@ Limitations: declarative tables only (ignored with the `content` block). Not mea
 | List | Title | Breakpoint |
 |---|---|---|
 | Imports (`/import`) | name | `lg` |
-| Explore allocations | timestamps | `lg` |
+| Explore allocations | indication + urgency (title box); then hospital, age, times; detail link | `lg` |
 | Explore hospitals | name (participation icon labelled with `mobileLabel`) | `lg` |
 | Explore indications, raw tab | name | `lg` |
 | Explore indications, normalized tab | name | `md` |
 | Indication review worklist | name (review button via `mobileMenuTemplate`) | `md` |
-| Explore MCI cases | case title | `md` |
+| Explore MCI cases | case title; then hospital, times; detail link | `md` |
 | Explore users | username | `md` |
 | Explore dispatch areas, specialities | name | `md` |
 | Explore departments, assignments, indication groups, infections, secondary transports, occasions, states | name | `sm` |

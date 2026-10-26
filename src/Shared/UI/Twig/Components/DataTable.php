@@ -138,6 +138,20 @@ final class DataTable
     public ?string $mobilePrimaryColumn = null;
 
     /**
+     * Column keys shown inside the card title box, below the primary column and without a label.
+     *
+     * @var list<string>
+     */
+    public array $mobileTitleColumns = [];
+
+    /**
+     * Column keys that come first in a card, right below the title; the other fields keep the table order.
+     *
+     * @var list<string>
+     */
+    public array $mobileColumnOrder = [];
+
+    /**
      * Table width below which the cards layout applies: `sm` (576 px), `md` (768 px, default) or `lg` (992 px).
      *
      * @see DataTableMobileBreakpoint
@@ -338,14 +352,63 @@ final class DataTable
 
     /**
      * Cards label every value except the title and row actions. Columns without a header label (an icon
-     * column) can set `mobileLabel` to get a label in cards only.
+     * column) can set `mobileLabel` to get a label in cards only; `mobileLabel: false` drops the label for
+     * cells that label their parts themselves.
      */
     public function hasMobileLabel(DataTableColumn $column): bool
     {
         return $this->isMobileCards()
             && !$this->isMobilePrimary($column)
+            && !$this->isMobileTitlePart($column)
             && !$this->isMobileAction($column)
+            && false !== $column->option('mobileLabel')
             && '' !== $this->mobileLabelText($column);
+    }
+
+    /**
+     * A column of `mobileTitleColumns` that joins the title box (the title itself is the primary column).
+     */
+    public function isMobileTitlePart(DataTableColumn $column): bool
+    {
+        return $this->isMobileCards()
+            && !$this->isMobilePrimary($column)
+            && \in_array($column->key, $this->mobileTitleColumns, true);
+    }
+
+    /**
+     * Grid row of a title part: the title is row 1, the parts follow in the configured order.
+     */
+    public function mobileTitleRow(DataTableColumn $column): ?int
+    {
+        if (!$this->isMobileTitlePart($column)) {
+            return null;
+        }
+
+        return (int) array_search($column->key, $this->mobileTitleColumns, true) + 2;
+    }
+
+    /**
+     * A single `actions` column (a detail link) shows as a link in the card instead of the "more" menu.
+     */
+    public function isMobileDirectAction(): bool
+    {
+        $actions = $this->getMobileActionColumns();
+
+        return 1 === \count($actions) && DataTableColumnType::Actions === $actions[0]->type;
+    }
+
+    /**
+     * CSS order of a card field: columns in `mobileColumnOrder` get a negative order so they come first.
+     */
+    public function mobileOrder(DataTableColumn $column): ?int
+    {
+        if (!$this->isMobileCards()) {
+            return null;
+        }
+
+        $position = array_search($column->key, $this->mobileColumnOrder, true);
+
+        return false === $position ? null : (int) $position - \count($this->mobileColumnOrder);
     }
 
     /** Translation key of the card label: `mobileLabel` when set, otherwise the header label. */

@@ -77,7 +77,8 @@
                             column.align ? 'text-' ~ column.align : null,
                             column.options.nowrap|default(false) ? 'text-nowrap' : null,
                             cards and this.mobilePrimary(column) ? 'data-table-cell--primary' : null,
-                            cards and this.mobileAction(column) ? (this.mobileActionMenu(column) ? 'data-table-cell--actions' : 'data-table-cell--actions-extra') : null,
+                            cards and this.mobileTitlePart(column) ? 'data-table-cell--title' : null,
+                            cards and this.mobileAction(column) ? (this.mobileActionMenu(column) ? (this.mobileDirectAction ? 'data-table-cell--action-link' : 'data-table-cell--actions') : 'data-table-cell--actions-extra') : null,
                         ]|filter(value => value) %}
                         {% set cellContent %}
                             {{- include('@Shared/components/data_table/_cell.html.twig', {
@@ -86,14 +87,25 @@
                                 value: this.cellValue(row, column),
                             }) -}}
                         {% endset %}
-                        <td{% if cellClasses %} class="{{ cellClasses|join(' ') }}"{% endif %}{% if cards %} role="cell"{% endif %}>
+                        {# Card placement only: order and grid-row have no effect in the table layout. #}
+                        {% set mobileOrder = cards ? this.mobileOrder(column) : null %}
+                        {% set mobileTitleRow = cards ? this.mobileTitleRow(column) : null %}
+                        {% set cellStyles = [
+                            mobileOrder is not null ? 'order: ' ~ mobileOrder : null,
+                            mobileTitleRow is not null ? 'grid-row: ' ~ mobileTitleRow : null,
+                        ]|filter(value => value) %}
+                        <td{% if cellClasses %} class="{{ cellClasses|join(' ') }}"{% endif %}{% if cards %} role="cell"{% endif %}{% if cellStyles %} style="{{ cellStyles|join('; ') }}"{% endif %}>
                             {% if cards %}
                                 {% if this.mobileLabel(column) %}
                                     <span class="data-table-cell__label" aria-hidden="true">{{ this.mobileLabelText(column)|trans({}, column.labelDomain) }}</span>
                                 {% endif %}
                                 <div class="data-table-cell__value">{{ cellContent }}</div>
                                 {% if this.mobileActionMenu(column) %}
-                                    {{ include('@Shared/components/data_table/_card_menu.html.twig', {row: row}) }}
+                                    {% if this.mobileDirectAction %}
+                                        {{ include('@Shared/components/data_table/_card_link.html.twig', {row: row, column: column}) }}
+                                    {% else %}
+                                        {{ include('@Shared/components/data_table/_card_menu.html.twig', {row: row}) }}
+                                    {% endif %}
                                 {% endif %}
                             {% else %}
                                 {{ cellContent }}

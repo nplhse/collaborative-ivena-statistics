@@ -32,7 +32,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
         self::assertCount(1, $crawler->filter('table.table tbody tr')->first()->filter('td')->last()->filter('.btn-actions a'));
     }
 
-    public function testListUsesMobileCardsWithTheRowActionInTheMenu(): void
+    public function testListUsesMobileCardsWithTheIndicationAsTitleAndADetailLink(): void
     {
         $client = $this->createClientAsParticipant();
         $this->seedDependencies();
@@ -43,12 +43,13 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
         self::assertResponseIsSuccessful();
         self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg');
         $row = $crawler->filter('table.table tbody tr')->first();
-        self::assertCount(1, $row->filter('td.data-table-cell--primary'), 'The timestamps are the card title.');
-        $actions = $row->filter('td.data-table-cell--actions');
+        self::assertCount(1, $row->filter('td.data-table-cell--primary'), 'The indication is the card title.');
+        self::assertCount(1, $row->filter('td.data-table-cell--title'), 'The urgency joins the title box.');
+        $actions = $row->filter('td.data-table-cell--action-link');
         self::assertSame(
             $actions->filter('.btn-actions a')->attr('href'),
-            $actions->filter('.data-table-actions-menu a.dropdown-item')->attr('href'),
-            'The card menu offers the same detail link as the table.',
+            $actions->filter('a[data-testid="data-table-row-link"]')->attr('href'),
+            'The card link opens the same details as the table.',
         );
     }
 
