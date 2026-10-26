@@ -78,6 +78,9 @@
         {% endif %}
 
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="name"
+            mobileBreakpoint="md"
             :paginator="paginator"
             :paginationRoute="pagination_route"
             :sortBy="sortBy"

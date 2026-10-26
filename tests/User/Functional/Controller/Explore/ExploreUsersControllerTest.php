@@ -67,6 +67,19 @@ final class ExploreUsersControllerTest extends WebTestCase
         self::assertStringNotContainsString('alpha-secret@example.test', $client->getResponse()->getContent() ?: '');
     }
 
+    public function testListUsesCardsWithTheUsernameAsTitle(): void
+    {
+        $client = $this->createClientAsParticipant();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/user');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--md');
+        $row = $crawler->filter('table.table tbody tr')->first();
+        self::assertCount(1, $row->filter('td.data-table-cell--primary a'), 'The username links to the profile.');
+        self::assertCount(0, $row->filter('td.data-table-cell--primary .data-table-cell__label'));
+    }
+
     public function testUserOnlyRoleShowsUserBadgeOnListAndProfile(): void
     {
         $client = $this->createClientAsParticipant();
