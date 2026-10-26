@@ -45,11 +45,11 @@ A reference package is one JSON file:
 - `meta`: `format` (`ivena-reference-catalog`), `version`, `exported_at`, `app_version`, `source_environment`, `complete`, `types`, `counts` per type, `checksum` (SHA-256 over the canonical encoding of the data sections), `sources`, `notes`.
 - One section per type: `states`, `dispatch_areas`, `departments`, `specialities`, `assignments`, `occasions`, `infections`, `secondary_transports`, `indications_normalized`, `indications_raw`, `indication_groups`, `hospitals`.
 
-Identity is the entity's `publicId`. References inside the package use these ids; names stay in the file for readability and for matching. Aliases are nested under their department or speciality; their identity is owner plus normalized name. Codes and postal codes are strings.
+Identity is the entity's `publicId`. References inside the package use these ids; names stay in the file for readability and for matching. Aliases are nested under their department or speciality; their identity is the normalized name, which is unique per alias type. Codes and postal codes are strings.
 
 Content per type, beyond the current fields:
 
-- Raw indications: `target` and `normalized` as ids (or null for unmapped entries), review status, comment, `reviewed_at`, `first_matched_at`.
+- Raw indications: `target` as id (null for unmapped entries), review status, comment, `reviewed_at`, `first_matched_at`. `normalized` is a copy of `target` that the import reads; it is not exported and is set to `target` on import.
 - Normalized indications: `note`.
 - Indication groups: `description`, `sort_order`, members as normalized indication ids (exact membership).
 - Hospitals: id, coordinates (optional).
@@ -78,7 +78,7 @@ All violations are reported together with their path and value. One violation st
 ### Import modes
 
 - **Additive (`--mode=add`)**: inserts what is missing. A row is matched by id, then by natural key. Same id with another natural key, or same natural key with another id, is a conflict and fails the import. Existing rows are not changed. The command states that this is not a restore.
-- **Restore (`--mode=replace`)**: requires a complete package (`meta.complete`). It checks every table that references a reference table, including `allocation`, `mci_case`, `import`, `closure_interval`, `kpi_daily`, `monthly_reminder_dispatch`, `hospital_access_grant`, hospital owners and projection tables keyed by hospital or catalog ids. Any dependent row is a blocker; the import lists all blockers and stops. Without blockers it deletes the whole catalog including aliases and join tables and inserts the package in one transaction, keeping the ids from the file. A failure leaves the old catalog in place. Restore never deletes operational data or permissions.
+- **Restore (`--mode=replace`)**: requires a complete package (`meta.complete`). It checks every table that references a reference table, with or without a foreign key: operational data (`allocation`, `mci_case`, `import`, `closure_interval`, `monthly_reminder_dispatch`), permissions (`hospital_access_grant`, hospital owners) and projections (`allocation_stats_projection`, `closure_event`, `closure_analysis_interval`, `closure_volume_hour`, `kpi_daily`, `job_run` and the others listed in the inventory). Several of these foreign keys cascade, so a delete would remove their rows silently. Any dependent row is a blocker; the import lists all blockers and stops. Without blockers it deletes the whole catalog including aliases and join tables and inserts the package in one transaction, keeping the ids from the file. A failure leaves the old catalog in place. Restore never deletes operational data or permissions.
 - **Dry run** for both modes: per type the rows to create, skip, conflict or delete, and the blockers.
 - After an import that wrote rows, the reference data cache is cleared. The command names projections that need a rebuild; after a restore without blockers there is no operational data to rebuild.
 
