@@ -111,5 +111,11 @@ final class ImportCrudControllerTest extends WebTestCase
         self::assertStringContainsString('Created by', $body);
         self::assertSelectorExists('a.action-importRejects');
         self::assertSelectorExists('a.action-importBatchItems');
+
+        $jobRuns = $crawler->filter('a.action-importJobRuns');
+        self::assertCount(1, $jobRuns);
+        $href = urldecode((string) $jobRuns->attr('href'));
+        self::assertStringContainsString('/admin/job-run', $href);
+        self::assertStringContainsString('filters[importId][value]='.$import->getId(), $href);
     }
 }

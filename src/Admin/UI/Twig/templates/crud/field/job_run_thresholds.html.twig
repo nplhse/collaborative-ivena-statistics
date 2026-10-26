@@ -1,0 +1,8 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% if field.formattedValue is empty %}
+    <span class="text-body-secondary">—</span>
+{% else %}
+    {% for label in field.formattedValue %}
+        <twig:ea:Badge variant="warning">{{ label|trans }}</twig:ea:Badge>
+    {% endfor %}
+{% endif %}

@@ -88,6 +88,18 @@ ORDER BY started_at DESC
 LIMIT 20;
 ```
 
+### Job runs in the admin area
+
+Admins (`ROLE_ADMIN`) find the runs without SQL under **Admin → System → Job runs** (`/admin/job-run`). The list is read-only; nothing in the UI writes `job_run`.
+
+- **List:** newest first, 50 per page. Columns: start, job, trigger (badge), status (badge), duration, peak memory and exceeded thresholds; attempt, hospital and import are on the detail page. Duration and peak memory can be sorted to find the slowest or largest runs.
+- **Filters:** job, status, trigger, hospital, start time (before, after, between), thresholds exceeded (yes / no), import id and import run id. The hospital filter matches `hospital_id`; closure rebuilds keep their hospitals in `metrics.hospital_ids` and are not found by it.
+- **Shortcuts:** failed runs, runs with exceeded thresholds, runs of the last 24 hours.
+- **Detail:** all columns, the error class and message of a failed run, and `metrics` as a table with labels and readable values (phase times of imports, rows and materialized view refresh of projection rebuilds, passes and partitions of closure rebuilds). Links lead to the other attempts of the same import run, to all runs of the import and to all runs of the job.
+- **From an import:** the import's detail page in admin links to its runs ("Job runs"), which covers the import attempts and the projection rebuild of that import.
+
+The admin list reads the table through the read-only entity `JobRun`; job, trigger and status are plain strings, so a value without a label is shown as stored.
+
 Before relying on this in production, confirm the Sentry organisation's data region (EU) and that the DPA covers operational telemetry with hospital ids.
 
 ### Closure rebuild

@@ -42,6 +42,7 @@ Application handlers reach the telemetry only through a port in their context's 
 ## Consequences
 
 - One query compares runs of all jobs; the ops list of runs (follow-up issue) needs one table.
+- The admin list of runs (issue #755) reads `job_run` through the read-only entity `JobRun` (`src/Shared/Infrastructure/Monitoring/JobRun/Entity`). It maps the table without foreign keys and with plain strings for job, trigger and status; `JobRunRecorder` keeps writing via DBAL.
 - `metrics` keys are not checked by the database. Each telemetry class documents its keys, and tests read them.
 - Thresholds of the closure rebuild moved from class constants to `app.job_runs.closure_rebuild` (same values).
 - `closure_rebuild_run` no longer exists. Queries on it read `job_run WHERE job = 'closure_rebuild'` and `metrics` instead (`request_count` → `requests`, `query_count` → `queries`, `full_rebuild` → `full`).

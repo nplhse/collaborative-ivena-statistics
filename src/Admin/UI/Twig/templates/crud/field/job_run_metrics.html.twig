@@ -1,0 +1,15 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% if field.formattedValue is empty %}
+    <span class="text-body-secondary">—</span>
+{% else %}
+    <table class="table table-sm w-auto mb-0">
+        <tbody>
+            {% for row in field.formattedValue %}
+                <tr>
+                    <th scope="row" class="fw-normal text-body-secondary" title="{{ row.key }}">{{ row.label|trans }}</th>
+                    <td class="font-monospace text-end ps-4">{{ row.value }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

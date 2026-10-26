@@ -1,0 +1,6 @@
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{% if field.value is null %}
+    <span class="text-body-secondary">—</span>
+{% else %}
+    <a href="{{ field.formattedValue }}">#{{ field.value }}</a>
+{% endif %}
