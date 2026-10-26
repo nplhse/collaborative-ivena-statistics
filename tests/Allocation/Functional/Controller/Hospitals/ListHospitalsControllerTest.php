@@ -246,7 +246,10 @@ final class ListHospitalsControllerTest extends WebTestCase
         $client = $this->createClientAsParticipant();
         StateFactory::createOne();
         DispatchAreaFactory::createOne();
-        HospitalFactory::createMany(30, ['tier' => HospitalTier::FULL]);
+        // Unique names: the faker draws hospital names from a small pool, and a repeated name would look like
+        // a hospital shown on both pages.
+        $names = array_map(static fn (int $number): string => \sprintf('Paging Hospital %02d', $number), range(1, 30));
+        HospitalFactory::createSequence(array_map(static fn (string $name): array => ['name' => $name, 'tier' => HospitalTier::FULL], $names));
 
         $first = $this->names($client->request(Request::METHOD_GET, '/explore/hospital?sortBy=tier&limit=25&page=1'));
         $second = $this->names($client->request(Request::METHOD_GET, '/explore/hospital?sortBy=tier&limit=25&page=2'));
@@ -254,6 +257,7 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertCount(25, $first);
         self::assertCount(5, $second);
         self::assertSame([], array_intersect($first, $second));
+        self::assertEqualsCanonicalizing($names, [...$first, ...$second], 'every hospital appears on exactly one page');
     }
 
     public function testDefaultViewHidesOptionalColumnsAndOffersThemInTheColumnPicker(): void
