@@ -1683,6 +1683,136 @@ a.catalog-year-heatmap-cell:focus-visible {
     opacity: 0.9;
 }
 
+/* Import detail: daily data coverage, GitHub-style (weeks as columns, Monday to Sunday) */
+.import-coverage-calendar {
+    --import-coverage-cell: 0.625rem;
+    --import-coverage-gap: 3px;
+    display: flex;
+    gap: var(--import-coverage-gap);
+    max-width: 100%;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--tblr-secondary, #6c7a91);
+}
+
+.import-coverage-calendar.is-medium {
+    --import-coverage-cell: 1rem;
+    --import-coverage-gap: 4px;
+}
+
+.import-coverage-calendar.is-short {
+    --import-coverage-cell: 1.25rem;
+    --import-coverage-gap: 4px;
+}
+
+.import-coverage-weekdays,
+.import-coverage-week {
+    display: grid;
+    grid-template-rows: 1rem repeat(7, var(--import-coverage-cell));
+    gap: var(--import-coverage-gap);
+}
+
+.import-coverage-weekdays span {
+    display: flex;
+    align-items: center;
+    padding-right: 0.25rem;
+}
+
+.import-coverage-weeks {
+    display: flex;
+    gap: var(--import-coverage-gap);
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.import-coverage-week {
+    grid-template-columns: var(--import-coverage-cell);
+}
+
+.import-coverage-month {
+    overflow: visible;
+    white-space: nowrap;
+}
+
+.import-coverage-cell {
+    display: inline-block;
+    width: var(--import-coverage-cell, 0.75rem);
+    height: var(--import-coverage-cell, 0.75rem);
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.import-coverage-cell.is-data { background: color-mix(in srgb, var(--tblr-primary, #206bc4) 35%, var(--tblr-bg-surface-secondary, #f1f5f9)); }
+.import-coverage-cell.is-level-2 { background: color-mix(in srgb, var(--tblr-primary, #206bc4) 55%, var(--tblr-bg-surface-secondary, #f1f5f9)); }
+.import-coverage-cell.is-level-3 { background: color-mix(in srgb, var(--tblr-primary, #206bc4) 78%, var(--tblr-bg-surface-secondary, #f1f5f9)); }
+.import-coverage-cell.is-level-4 { background: var(--tblr-primary, #206bc4); }
+
+.import-coverage-cell.is-none {
+    background: var(--tblr-bg-surface-secondary, #f1f5f9);
+    box-shadow: inset 0 0 0 1px var(--tblr-border-color, #e6e7e9);
+}
+
+.import-coverage-cell.is-gap {
+    background: color-mix(in srgb, var(--tblr-yellow, #f59f00) 20%, transparent);
+    box-shadow: inset 0 0 0 1px var(--tblr-yellow, #f59f00);
+}
+
+.import-coverage-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+}
+
+.import-coverage-legend .import-coverage-cell {
+    --import-coverage-cell: 0.75rem;
+}
+
+.import-coverage-legend-scale {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.import-coverage-gaps-table {
+    table-layout: fixed;
+}
+
+.import-coverage-gaps-table__date {
+    width: 8rem;
+}
+
+.import-coverage-gaps-details[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.import-coverage-gaps-details > summary {
+    order: 2;
+    cursor: pointer;
+    list-style: none;
+}
+
+.import-coverage-gaps-details > summary::marker,
+.import-coverage-gaps-details > summary::-webkit-details-marker {
+    display: none;
+    content: none;
+}
+
+.import-coverage-gaps-details__rows {
+    order: 1;
+}
+
+.import-coverage-gaps-details__hide,
+.import-coverage-gaps-details[open] .import-coverage-gaps-details__show {
+    display: none;
+}
+
+.import-coverage-gaps-details[open] .import-coverage-gaps-details__hide {
+    display: inline;
+}
+
 .data-quality-drawer {
     --bs-offcanvas-width: min(28rem, 100vw);
 }

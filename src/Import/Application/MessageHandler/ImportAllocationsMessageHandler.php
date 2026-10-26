@@ -21,6 +21,7 @@ use App\Import\Application\Factory\RowReaderFactory;
 use App\Import\Application\Message\ImportAllocationsMessage;
 use App\Import\Application\Service\ImportAllocationDeduplicationService;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
+use App\Import\Application\Service\ImportDataCoverageCalculator;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
@@ -61,6 +62,7 @@ final readonly class ImportAllocationsMessageHandler
         private ImportRunLifecycle $runLifecycle,
         private ImportRunCommitGuard $commitGuard,
         private ImportExportPeriodDeriver $exportPeriodDeriver,
+        private ImportDataCoverageCalculator $dataCoverageCalculator,
         private ImportRunTelemetryInterface $telemetry,
     ) {
     }
@@ -248,6 +250,7 @@ final readonly class ImportAllocationsMessageHandler
 
         // Before deduplication, so rows replaced by later imports still count for this file.
         $this->exportPeriodDeriver->apply($fresh);
+        $this->dataCoverageCalculator->apply($fresh);
 
         $this->telemetry->startSpan('import.deduplicate');
         $dedupResult = $this->deduplicationService->deduplicateForImport($fresh);

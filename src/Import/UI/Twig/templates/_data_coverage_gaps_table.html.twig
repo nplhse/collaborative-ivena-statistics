@@ -1,0 +1,26 @@
+{# Potential gaps of the data coverage card. Without header, the table continues the one above. #}
+<div class="table-responsive">
+    <table class="table table-sm table-vcenter mb-0 import-coverage-gaps-table">
+        <colgroup>
+            <col class="import-coverage-gaps-table__date">
+            <col class="import-coverage-gaps-table__date">
+            <col>
+        </colgroup>
+        <thead{% if not withHeader %} class="visually-hidden"{% endif %}>
+            <tr>
+                <th>{{ 'import.coverage.gaps.column.from'|trans({}, 'import') }}</th>
+                <th>{{ 'import.coverage.gaps.column.to'|trans({}, 'import') }}</th>
+                <th class="text-end">{{ 'import.coverage.gaps.column.days'|trans({}, 'import') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for gap in gaps %}
+                <tr data-testid="import-data-coverage-gap">
+                    <td>{{ gap.firstDay }}</td>
+                    <td>{{ gap.lastDay }}</td>
+                    <td class="text-end">{{ 'import.coverage.days'|trans({count: gap.days}, 'import') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
