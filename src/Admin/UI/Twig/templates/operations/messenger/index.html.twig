@@ -1,0 +1,221 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/admin-kpi.css') }}">
+{% endblock %}
+
+{% block content_title %}{{ 'ops.messenger.title'|trans({}, 'admin') }}{% endblock %}
+
+{% macro rate(value) %}
+    {% if value is null %}<span class="text-secondary">–</span>{% else %}{{ value|number_format(1, ',', '.') }} %{% endif %}
+{% endmacro %}
+
+{% macro duration(ms) %}
+    {% if ms is null %}
+        <span class="text-secondary">–</span>
+    {% elseif ms >= 1000 %}
+        <span class="text-nowrap">{{ (ms / 1000)|number_format(1, ',', '.') }} s</span>
+    {% else %}
+        <span class="text-nowrap">{{ ms }} ms</span>
+    {% endif %}
+{% endmacro %}
+
+{% macro time(at) %}
+    {% if at is null %}<span class="text-secondary">–</span>{% else %}<span class="text-nowrap">{{ at|date('d.m.Y H:i', 'Europe/Berlin') }}</span>{% endif %}
+{% endmacro %}
+
+{% block main %}
+    {% set totals = report.totals %}
+    <div class="ea-messenger-page">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <p class="text-secondary mb-0">{{ 'ops.messenger.help'|trans({}, 'admin') }}</p>
+        <div class="btn-group" role="group" aria-label="{{ 'ops.messenger.period.label'|trans({}, 'admin') }}">
+            {% for period in periods %}
+                <a href="{{ ea_url().setRoute('app_admin_dashboard_operations_messenger', {period: period.value}) }}"
+                   class="btn btn-sm {{ period == report.period ? 'btn-primary' : 'btn-outline-secondary' }}"
+                   {% if period == report.period %}aria-current="true"{% endif %}>{{ period.labelKey|trans({}, 'admin') }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4 ea-messenger-kpis">
+        <div class="col-sm-6 col-xl-2">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.handled'|trans({}, 'admin') }}</div>
+                <div class="fs-3 fw-bold" data-messenger-kpi="handled">{{ totals.handled|number_format(0, ',', '.') }}</div>
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.after_retry'|trans({count: totals.handledAfterRetry}, 'admin') }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.failed'|trans({}, 'admin') }}</div>
+                <div class="fs-3 fw-bold{{ totals.failed > 0 ? ' text-danger' : '' }}" data-messenger-kpi="failed">{{ totals.failed|number_format(0, ',', '.') }}</div>
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.success_rate'|trans({}, 'admin') }}: {{ _self.rate(totals.successRate) }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.retried'|trans({}, 'admin') }}</div>
+                <div class="fs-3 fw-bold{{ totals.retried > 0 ? ' text-warning' : '' }}" data-messenger-kpi="retried">{{ totals.retried|number_format(0, ',', '.') }}</div>
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.retry_rate'|trans({}, 'admin') }}: {{ _self.rate(totals.retryRate) }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.duration'|trans({}, 'admin') }}</div>
+                <div class="fs-3 fw-bold" data-messenger-kpi="duration">{{ _self.duration(totals.averageDurationMs) }}</div>
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.duration_max'|trans({}, 'admin') }}: {{ _self.duration(totals.attempts > 0 ? totals.durationMsMax : null) }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.pending'|trans({}, 'admin') }}</div>
+                <div class="fs-3 fw-bold" data-messenger-kpi="pending">{{ report.pending|number_format(0, ',', '.') }}</div>
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.waiting'|trans({count: report.waitingForRetry}, 'admin') }}</div>
+            </div></div>
+        </div>
+        <div class="col-sm-6 col-xl-2">
+            <div class="card h-100"><div class="card-body">
+                <div class="text-secondary small">{{ 'ops.messenger.kpi.last_activity'|trans({}, 'admin') }}</div>
+                {% if report.lastActivityAt is null %}
+                    <div class="fs-3 fw-bold" data-messenger-kpi="last-activity">–</div>
+                {% else %}
+                    <div class="fs-5 fw-bold" data-messenger-kpi="last-activity">{{ report.lastActivityAt|date('d.m.Y', 'Europe/Berlin') }}<br>{{ report.lastActivityAt|date('H:i', 'Europe/Berlin') }}</div>
+                {% endif %}
+                {% if report.failedQueue > 0 %}
+                    <a class="badge bg-danger text-decoration-none" href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages') }}">{{ 'ops.messenger.kpi.failed_queue'|trans({count: report.failedQueue}, 'admin') }}</a>
+                {% else %}
+                    <div class="text-secondary small">{{ 'ops.messenger.kpi.failed_queue'|trans({count: 0}, 'admin') }}</div>
+                {% endif %}
+            </div></div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">{{ 'ops.messenger.section.transports'|trans({}, 'admin') }}</div>
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle ea-messenger-transports">
+                <thead>
+                    <tr>
+                        <th>{{ 'ops.messenger.table.transport'|trans({}, 'admin') }}</th>
+                        <th class="text-end">{{ 'ops.messenger.table.pending'|trans({}, 'admin') }}</th>
+                        <th class="text-end">{{ 'ops.messenger.table.waiting'|trans({}, 'admin') }}</th>
+                        <th>{{ 'ops.messenger.table.oldest_pending'|trans({}, 'admin') }}</th>
+                        <th class="text-end">{{ 'ops.messenger.table.handled'|trans({}, 'admin') }}</th>
+                        <th class="text-end">{{ 'ops.messenger.table.retried'|trans({}, 'admin') }}</th>
+                        <th class="text-end">{{ 'ops.messenger.table.failed'|trans({}, 'admin') }}</th>
+                        <th>{{ 'ops.messenger.table.last_activity'|trans({}, 'admin') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report.transports %}
+                        <tr data-transport="{{ row.name }}">
+                            <th scope="row" class="fw-semibold"><code>{{ row.name }}</code></th>
+                            {% if row.hasQueue %}
+                                <td class="text-end">{{ row.pending }}</td>
+                                <td class="text-end">{{ row.waitingForRetry }}</td>
+                                <td>{{ _self.time(row.oldestPendingAt) }}</td>
+                            {% else %}
+                                <td colspan="3" class="text-secondary small" title="{{ 'ops.messenger.not_measurable.hint'|trans({}, 'admin') }}">{{ 'ops.messenger.not_measurable'|trans({}, 'admin') }}</td>
+                            {% endif %}
+                            <td class="text-end">{{ row.counts.handled }}</td>
+                            <td class="text-end">{{ row.counts.retried }}</td>
+                            <td class="text-end{{ row.counts.failed > 0 ? ' text-danger fw-semibold' : '' }}">{{ row.counts.failed }}</td>
+                            <td>{{ _self.time(row.counts.lastActivityAt) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">{{ 'ops.messenger.section.message_types'|trans({}, 'admin') }}</div>
+        {% if report.messageTypes is empty %}
+            <div class="card-body text-secondary">{{ 'ops.messenger.empty.message_types'|trans({}, 'admin') }}</div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle ea-messenger-types">
+                    <thead>
+                        <tr>
+                            <th>{{ 'ops.messenger.table.message_type'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.attempts'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.handled'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.failed'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.success_rate'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.retry_rate'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.duration'|trans({}, 'admin') }}</th>
+                            <th>{{ 'ops.messenger.table.last_activity'|trans({}, 'admin') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in report.messageTypes %}
+                            <tr>
+                                <th scope="row">
+                                    <span class="fw-semibold" title="{{ row.messageClass }}">{{ row.shortName }}</span>
+                                    <div class="small fw-normal">{% for transport in row.transports %}<code>{{ transport }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</div>
+                                </th>
+                                <td class="text-end">{{ row.counts.attempts }}</td>
+                                <td class="text-end">{{ row.counts.handled }}</td>
+                                <td class="text-end{{ row.counts.failed > 0 ? ' text-danger fw-semibold' : '' }}">{{ row.counts.failed }}</td>
+                                <td class="text-end">{{ _self.rate(row.counts.successRate) }}</td>
+                                <td class="text-end{{ row.counts.retried > 0 ? ' text-warning' : '' }}">{{ _self.rate(row.counts.retryRate) }}</td>
+                                <td class="text-end">
+                                    {{ _self.duration(row.counts.averageDurationMs) }}
+                                    <div class="small text-secondary">{{ 'ops.messenger.kpi.duration_max'|trans({}, 'admin') }}: {{ _self.duration(row.counts.durationMsMax) }}</div>
+                                </td>
+                                <td>{{ _self.time(row.counts.lastActivityAt) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex flex-wrap justify-content-between gap-2">
+            <span>{{ 'ops.messenger.section.failures'|trans({}, 'admin') }}</span>
+            <span class="small">
+                <a href="{{ ea_url().setRoute('app_admin_dashboard_operations_failed_messages') }}">{{ 'ops.messenger.link.failed_messages'|trans({}, 'admin') }}</a>
+                ·
+                <a href="{{ ea_url().setController('App\\Admin\\UI\\Http\\Controller\\JobRun\\JobRunCrudController').setAction('index') }}">{{ 'ops.messenger.link.job_runs'|trans({}, 'admin') }}</a>
+            </span>
+        </div>
+        {% if report.failures is empty %}
+            <div class="card-body text-secondary">{{ 'ops.messenger.empty.failures'|trans({}, 'admin') }}</div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle ea-messenger-failures">
+                    <thead>
+                        <tr>
+                            <th>{{ 'ops.messenger.table.message_type'|trans({}, 'admin') }}</th>
+                            <th>{{ 'ops.messenger.table.exception'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.failed_attempts'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.retried'|trans({}, 'admin') }}</th>
+                            <th class="text-end">{{ 'ops.messenger.table.given_up'|trans({}, 'admin') }}</th>
+                            <th>{{ 'ops.messenger.table.last_failure'|trans({}, 'admin') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in report.failures %}
+                            <tr>
+                                <th scope="row" class="fw-semibold"><span title="{{ row.messageClass }}">{{ row.messageShortName }}</span></th>
+                                <td><code title="{{ row.errorClass }}">{{ row.errorShortName }}</code></td>
+                                <td class="text-end">{{ row.attempts }}</td>
+                                <td class="text-end">{{ row.retried }}</td>
+                                <td class="text-end{{ row.final > 0 ? ' text-danger fw-semibold' : '' }}">{{ row.final }}</td>
+                                <td>{{ _self.time(row.lastOccurredAt) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <p class="text-secondary small mb-0">{{ 'ops.messenger.footnote'|trans({}, 'admin') }}</p>
+    </div>
+{% endblock %}

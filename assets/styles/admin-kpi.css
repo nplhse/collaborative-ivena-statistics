@@ -157,3 +157,9 @@
 .ea-storage-chart {
     min-height: 320px;
 }
+
+/* Messenger page: wide tables scroll inside their card instead of widening the admin content area. */
+.ea-messenger-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
