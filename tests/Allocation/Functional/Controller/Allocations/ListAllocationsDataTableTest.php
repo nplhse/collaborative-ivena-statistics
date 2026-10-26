@@ -32,6 +32,26 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
         self::assertCount(1, $crawler->filter('table.table tbody tr')->first()->filter('td')->last()->filter('.btn-actions a'));
     }
 
+    public function testListUsesMobileCardsWithTheRowActionInTheMenu(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->seedDependencies();
+        AllocationFactory::createOne();
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/allocation');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg');
+        $row = $crawler->filter('table.table tbody tr')->first();
+        self::assertCount(1, $row->filter('td.data-table-cell--primary'), 'The timestamps are the card title.');
+        $actions = $row->filter('td.data-table-cell--actions');
+        self::assertSame(
+            $actions->filter('.btn-actions a')->attr('href'),
+            $actions->filter('.data-table-actions-menu a.dropdown-item')->attr('href'),
+            'The card menu offers the same detail link as the table.',
+        );
+    }
+
     public function testOptionalColumnsShowNamesAndKeepTheRowActionLast(): void
     {
         $client = $this->createClientAsParticipant();
@@ -55,7 +75,7 @@ final class ListAllocationsDataTableTest extends ListAllocationsControllerTestCa
             $this->headers($crawler),
         );
         $cells = $crawler->filter('table.table tbody tr')->first()->filter('td')->each(
-            static fn (Crawler $cell): string => trim(preg_replace('/\s+/', ' ', $cell->text()) ?? ''),
+            static fn (Crawler $cell): string => trim(preg_replace('/\s+/', ' ', ($cell->filter('.data-table-cell__value')->count() > 0 ? $cell->filter('.data-table-cell__value') : $cell)->text()) ?? ''),
         );
         self::assertSame(
             ['Male', 'Ground', 'Innere Medizin', 'Kardiologie', 'Test Assignment', 'Test Occasion', 'Kapazitätsengpass'],

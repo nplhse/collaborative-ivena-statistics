@@ -44,6 +44,9 @@
 
         {% set listIsFiltered = activeFilterCount > 0 %}
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="timestamps"
+            mobileBreakpoint="lg"
             :paginator="paginator"
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
