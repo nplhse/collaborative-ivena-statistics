@@ -8,10 +8,12 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Domain\Enum\ImportExportPeriodSource;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\Domain\ValueObject\ImportDataCoverage;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -95,6 +97,16 @@ class Import implements \Stringable
 
     #[ORM\Column(length: 16, nullable: true, enumType: ImportExportPeriodSource::class)]
     private ?ImportExportPeriodSource $exportPeriodSource = null;
+
+    /**
+     * Derived summary of the days the imported records cover (see ImportDataCoverage).
+     * Null until the import finished once with this feature.
+     *
+     * @var array<string, mixed>|null
+     */
+    #[Audit\AuditIgnore]
+    #[ORM\Column(type: Types::JSON, nullable: true, options: ['jsonb' => true])]
+    private ?array $dataCoverage = null;
 
     #[ORM\Column()]
     private \DateTimeImmutable $createdAt;
@@ -415,6 +427,26 @@ class Import implements \Stringable
         $this->exportStartsAt = $startsAt;
         $this->exportEndsAt = $endsAt;
         $this->exportPeriodSource = $source;
+
+        return true;
+    }
+
+    public function getDataCoverage(): ?ImportDataCoverage
+    {
+        return ImportDataCoverage::fromArray($this->dataCoverage);
+    }
+
+    /**
+     * @return bool true when the stored summary changed
+     */
+    public function applyDataCoverage(?ImportDataCoverage $coverage): bool
+    {
+        $data = $coverage?->toArray();
+        // Loose comparison: jsonb does not keep the key order.
+        if ($data == $this->dataCoverage) {
+            return false;
+        }
+        $this->dataCoverage = $data;
 
         return true;
     }

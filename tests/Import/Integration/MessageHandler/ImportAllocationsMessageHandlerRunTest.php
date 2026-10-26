@@ -196,6 +196,10 @@ final class ImportAllocationsMessageHandlerRunTest extends ImportAllocationsMess
         self::assertSame(1, $fresh->getRowsDeduplicated());
         self::assertSame(0, $fresh->getRowsDeduplicatedDiscarded());
         self::assertSame(1, $fresh->getRowsDeduplicatedReplaced());
+        $coverage = $fresh->getDataCoverage();
+        self::assertNotNull($coverage, 'Coverage is stored when the run finishes.');
+        self::assertSame(1, $coverage->records);
+        self::assertSame(['2025-01-07' => 1], $coverage->dailyCounts);
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
