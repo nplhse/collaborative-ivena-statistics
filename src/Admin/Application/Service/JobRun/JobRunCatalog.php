@@ -43,6 +43,18 @@ final class JobRunCatalog
         'abandoned' => 'dark',
     ];
 
+    /** Trigger => badge type; user actions stand out, automatic runs stay quiet. Unknown triggers get "secondary". */
+    public const array TRIGGER_BADGES = [
+        'messenger' => 'secondary',
+        'scheduler' => 'secondary',
+        'console' => 'dark',
+        'upload' => 'primary',
+        'reprocess' => 'info',
+        'bulk_reprocess' => 'info',
+        'batch_requeue' => 'info',
+        'unknown' => 'light',
+    ];
+
     /** @var list<string> */
     public const array THRESHOLDS = ['slow', 'long_run', 'memory', 'passes', 'attempts'];
 

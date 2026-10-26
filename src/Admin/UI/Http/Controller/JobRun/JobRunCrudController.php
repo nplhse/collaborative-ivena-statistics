@@ -144,20 +144,24 @@ final class JobRunCrudController extends AbstractCrudController
         yield ChoiceField::new('job', $this->t('field.job'))
             ->setTranslatableChoices(static fn (?JobRun $run): array => JobRunCatalog::jobChoices($run?->getJob()));
         yield ChoiceField::new('triggeredBy', $this->t('field.trigger'))
-            ->setTranslatableChoices(static fn (?JobRun $run): array => JobRunCatalog::triggerChoices($run?->getTriggeredBy()));
+            ->setTranslatableChoices(static fn (?JobRun $run): array => JobRunCatalog::triggerChoices($run?->getTriggeredBy()))
+            ->renderAsBadges(JobRunCatalog::TRIGGER_BADGES);
         yield ChoiceField::new('status', $this->t('field.status'))
             ->setTranslatableChoices(static fn (?JobRun $run): array => JobRunCatalog::statusChoices($run?->getStatus()))
             ->renderAsBadges(JobRunCatalog::STATUSES);
-        yield IntegerField::new('attempt', $this->t('field.attempt'));
+        yield IntegerField::new('attempt', $this->t('field.attempt'))
+            ->onlyOnDetail();
         yield TextField::new('id', $this->t('field.id'))
             ->onlyOnDetail();
 
         yield FormField::addFieldset($this->t('fieldset.scope'));
         yield IntegerField::new('hospitalId', $this->t('field.hospital'))
-            ->formatValue(fn (?int $id): string => $this->formatter->hospital($id));
+            ->formatValue(fn (?int $id): string => $this->formatter->hospital($id))
+            ->onlyOnDetail();
         yield IntegerField::new('importId', $this->t('field.import'))
             ->setTemplatePath('@Admin/crud/field/job_run_import.html.twig')
-            ->formatValue(fn (?int $id): ?string => null === $id ? null : $this->importDetailUrl($id));
+            ->formatValue(fn (?int $id): ?string => null === $id ? null : $this->importDetailUrl($id))
+            ->onlyOnDetail();
         yield TextField::new('importRunId', $this->t('field.import_run'))
             ->onlyOnDetail();
 

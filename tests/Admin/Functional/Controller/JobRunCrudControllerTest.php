@@ -146,7 +146,23 @@ final class JobRunCrudControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(['run-south'], $this->rowIds($crawler));
-        self::assertStringContainsString('Klinikum Süd', $crawler->filter('tr[data-id="run-south"]')->text());
+        self::assertStringNotContainsString('Klinikum Süd', $crawler->filter('tr[data-id="run-south"]')->text());
+
+        $crawler = $client->request(Request::METHOD_GET, self::INDEX.'/run-south');
+        self::assertStringContainsString('Klinikum Süd', $crawler->text());
+    }
+
+    public function testTheListShowsOnlyTheKeyColumnsAndTheTriggerAsBadge(): void
+    {
+        $client = $this->adminClient();
+        $this->record('run-a', 'allocation_import', 'succeeded', trigger: 'upload', importId: 7);
+
+        $crawler = $client->request(Request::METHOD_GET, self::INDEX);
+
+        $columns = $crawler->filter('table.datagrid thead th[data-column]')->each(static fn (Crawler $th): string => (string) $th->attr('data-column'));
+        self::assertSame(['startedAt', 'job', 'triggeredBy', 'status', 'durationMs', 'peakMemoryBytes', 'thresholdBadges'], $columns);
+        self::assertCount(1, $crawler->filter('tr[data-id="run-a"] td[data-column="triggeredBy"] .badge-primary'));
+        self::assertCount(0, $crawler->filter('tr[data-id="run-a"] a[href*="/admin/import/7"]'));
     }
 
     public function testShortcutsLinkToFilteredLists(): void

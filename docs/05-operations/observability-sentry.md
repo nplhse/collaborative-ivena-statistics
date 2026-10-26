@@ -92,7 +92,7 @@ LIMIT 20;
 
 Admins (`ROLE_ADMIN`) find the runs without SQL under **Admin → System → Job runs** (`/admin/job-run`). The list is read-only; nothing in the UI writes `job_run`.
 
-- **List:** newest first, 50 per page. Columns: start, job, trigger, status, attempt, hospital, import (links to the import), duration, peak memory and exceeded thresholds. Duration and peak memory can be sorted to find the slowest or largest runs.
+- **List:** newest first, 50 per page. Columns: start, job, trigger (badge), status (badge), duration, peak memory and exceeded thresholds; attempt, hospital and import are on the detail page. Duration and peak memory can be sorted to find the slowest or largest runs.
 - **Filters:** job, status, trigger, hospital, start time (before, after, between), thresholds exceeded (yes / no), import id and import run id. The hospital filter matches `hospital_id`; closure rebuilds keep their hospitals in `metrics.hospital_ids` and are not found by it.
 - **Shortcuts:** failed runs, runs with exceeded thresholds, runs of the last 24 hours.
 - **Detail:** all columns, the error class and message of a failed run, and `metrics` as a table with labels and readable values (phase times of imports, rows and materialized view refresh of projection rebuilds, passes and partitions of closure rebuilds). Links lead to the other attempts of the same import run, to all runs of the import and to all runs of the job.
