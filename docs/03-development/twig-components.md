@@ -498,7 +498,16 @@ Opt-in layout for narrow tables (#692): when the table is narrower than its brea
 - The empty state is a plain row (`data-table-row--empty`), not a card.
 - Filtering, pagination, page size, column preferences and exports do not change: the option only adds classes, roles and labels to the rendered table.
 
-Limitations: declarative tables only (ignored with the `content` block). Not meant for matrices, grouped headers, comparison tables or `RankingTable`; enable it per table, never globally. Enabled on: Imports (`/import`, `mobileBreakpoint="lg"`).
+Limitations: declarative tables only (ignored with the `content` block). Not meant for matrices, grouped headers, comparison tables or `RankingTable`; enable it per table, never globally. Enabled on (title, breakpoint):
+
+| List | Title | Breakpoint |
+|---|---|---|
+| Imports (`/import`) | name | `lg` |
+| Explore allocations | timestamps | `lg` |
+| Explore hospitals | name (participation icon labelled with `mobileLabel`) | `lg` |
+| Explore indications, raw tab | name | `lg` |
+| Explore indications, normalized tab | name | `md` |
+| Indication review worklist | name (review button via `mobileMenuTemplate`) | `md` |
 
 ### Footer
 
