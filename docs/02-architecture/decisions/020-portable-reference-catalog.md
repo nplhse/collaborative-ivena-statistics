@@ -135,7 +135,7 @@ This ADR sets the direction for patterns; the work is split across issues:
 |------|-------|
 | Remove the tracked YAML patterns and the commands that write them; plain default distributions in code, in the existing pattern shape and keyed by the synthetic catalog, so the current fixtures keep working | #740 |
 | Pattern package format and validation, conditional sampling along the chain, coherence rules, default distributions, hospital profiles, scenarios | #792 |
-| Export of real patterns from production, privacy review | separate small issue after #792 |
+| Export of real patterns from production, privacy review | #797 (after #792) |
 | Individual demo hospitals using pattern packages | #791 |
 
 Direction for the later parts:
@@ -153,7 +153,7 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - Cells below a minimum case count are merged into `other`. If exactly one cell of a table would be merged, a second one is merged too, so the hidden value cannot be computed from the total. All tables of a segment use the same base data, so combining tables does not reveal more than each table.
 - Shares are rounded.
 - A pattern package is private data: it never becomes part of tracked fixtures, and the code defaults are never generated from it automatically.
-- The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the export issue.
+- The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the export issue (#797).
 
 ## Consequences
 
@@ -185,5 +185,5 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - ADR 002 (hospital permission bitmask)
 - ADR 012 (Explore data catalog)
 - ADR 015 (closure volume metrics)
-- Issues #740, #791, #792
+- Issues #740, #791, #792, #797
 - Inventory: `docs/04-features/import/reference-catalog-inventory.md` (step 1 of #740)
