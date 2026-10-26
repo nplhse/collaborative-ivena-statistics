@@ -312,7 +312,9 @@
     font-size: 0.8125rem;
 }
 
-.data-table-cards .data-table-actions-menu {
+.data-table-cards .data-table-actions-menu,
+.data-table-cards .data-table-action-link,
+.data-table-cell__pair > .data-table-cell__label {
     display: none;
 }
 
@@ -364,6 +366,21 @@
 .data-table-cards > .table > tbody > tr > td.data-table-cell--actions {
     grid-column: 3;
     grid-row: 1;
+}
+
+/* Title parts (mobileTitleColumns) sit below the title; their grid-row comes from the markup. */
+.data-table-cards > .table > tbody > tr > td.data-table-cell--title {
+    grid-column: 1;
+}
+
+/* Without a checkbox or menu next to it, the title box uses the full card width. */
+.data-table-cards > .table > tbody > tr:not(:has(> td.data-table-cell--select, > td.data-table-cell--actions)) > td:is(.data-table-cell--primary, .data-table-cell--title) {
+    grid-column: 1 / -1;
+}
+
+/* A single detail action becomes a link at the end of the card. */
+.data-table-cards > .table > tbody > tr > td.data-table-cell--action-link {
+    order: 1000;
 }
 
 @container data-table-cards (max-width: 575.98px) {
@@ -451,6 +468,18 @@
         overflow-wrap: anywhere;
     }
 
+    /* Cells that label their parts (mobileLabel: false) use the same label/value columns. */
+    .data-table-cards--sm .data-table-cell__pair {
+        display: grid;
+        grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: baseline;
+    }
+
+    .data-table-cards--sm .data-table-cell__pair + .data-table-cell__pair {
+        margin-top: 0.5rem;
+    }
+
     /* Cell templates that centre their content (boolean icons) align with the other values. */
     .data-table-cards--sm .data-table-cell__value > .text-center {
         text-align: start !important;
@@ -475,6 +504,35 @@
         background-color: var(--data-table-row-highlight, transparent) !important;
         font-size: 1rem;
         font-weight: var(--tblr-font-weight-medium);
+    }
+
+    /* Title box: the title and its parts share one background (--data-table-row-highlight). Negative
+       margins close the row gap between them without overlapping: the highlight is translucent. */
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--title {
+        display: block;
+        margin: -0.25rem -0.5rem -0.25rem;
+        padding: 0 0.5rem 0.25rem;
+        border-radius: 0 0 var(--tblr-border-radius) var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        text-align: end !important;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr:has(> td.data-table-cell--title) > td.data-table-cell--primary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--action-link {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .data-table-cards--sm td.data-table-cell--action-link > .data-table-cell__value {
+        display: none;
+    }
+
+    .data-table-cards--sm .data-table-action-link {
+        display: block;
     }
 
     .data-table-cards--sm .data-table-cell--select .form-check-input {
@@ -590,6 +648,18 @@
         overflow-wrap: anywhere;
     }
 
+    /* Cells that label their parts (mobileLabel: false) use the same label/value columns. */
+    .data-table-cards--md .data-table-cell__pair {
+        display: grid;
+        grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: baseline;
+    }
+
+    .data-table-cards--md .data-table-cell__pair + .data-table-cell__pair {
+        margin-top: 0.5rem;
+    }
+
     /* Cell templates that centre their content (boolean icons) align with the other values. */
     .data-table-cards--md .data-table-cell__value > .text-center {
         text-align: start !important;
@@ -614,6 +684,35 @@
         background-color: var(--data-table-row-highlight, transparent) !important;
         font-size: 1rem;
         font-weight: var(--tblr-font-weight-medium);
+    }
+
+    /* Title box: the title and its parts share one background (--data-table-row-highlight). Negative
+       margins close the row gap between them without overlapping: the highlight is translucent. */
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--title {
+        display: block;
+        margin: -0.25rem -0.5rem -0.25rem;
+        padding: 0 0.5rem 0.25rem;
+        border-radius: 0 0 var(--tblr-border-radius) var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        text-align: end !important;
+    }
+
+    .data-table-cards--md > .table > tbody > tr:has(> td.data-table-cell--title) > td.data-table-cell--primary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--action-link {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .data-table-cards--md td.data-table-cell--action-link > .data-table-cell__value {
+        display: none;
+    }
+
+    .data-table-cards--md .data-table-action-link {
+        display: block;
     }
 
     .data-table-cards--md .data-table-cell--select .form-check-input {
@@ -729,6 +828,18 @@
         overflow-wrap: anywhere;
     }
 
+    /* Cells that label their parts (mobileLabel: false) use the same label/value columns. */
+    .data-table-cards--lg .data-table-cell__pair {
+        display: grid;
+        grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: baseline;
+    }
+
+    .data-table-cards--lg .data-table-cell__pair + .data-table-cell__pair {
+        margin-top: 0.5rem;
+    }
+
     /* Cell templates that centre their content (boolean icons) align with the other values. */
     .data-table-cards--lg .data-table-cell__value > .text-center {
         text-align: start !important;
@@ -753,6 +864,35 @@
         background-color: var(--data-table-row-highlight, transparent) !important;
         font-size: 1rem;
         font-weight: var(--tblr-font-weight-medium);
+    }
+
+    /* Title box: the title and its parts share one background (--data-table-row-highlight). Negative
+       margins close the row gap between them without overlapping: the highlight is translucent. */
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--title {
+        display: block;
+        margin: -0.25rem -0.5rem -0.25rem;
+        padding: 0 0.5rem 0.25rem;
+        border-radius: 0 0 var(--tblr-border-radius) var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        text-align: end !important;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr:has(> td.data-table-cell--title) > td.data-table-cell--primary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--action-link {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .data-table-cards--lg td.data-table-cell--action-link > .data-table-cell__value {
+        display: none;
+    }
+
+    .data-table-cards--lg .data-table-action-link {
+        display: block;
     }
 
     .data-table-cards--lg .data-table-cell--select .form-check-input {

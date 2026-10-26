@@ -525,6 +525,10 @@
         <source>label.data_table.row_show</source>
         <target>Show details</target>
       </trans-unit>
+      <trans-unit id="lblDtRowDetailsLinkEn" resname="label.data_table.row_details_link">
+        <source>label.data_table.row_details_link</source>
+        <target>View details</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
