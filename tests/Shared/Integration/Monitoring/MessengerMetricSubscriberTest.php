@@ -46,6 +46,23 @@ final class MessengerMetricSubscriberTest extends KernelTestCase
         );
     }
 
+    public function testAnAttemptWithoutAReceivedEventCountsWithoutDuration(): void
+    {
+        $clock = new MockClock('2026-10-26 08:15:00', 'UTC');
+        $subscriber = $this->subscriber($clock);
+        $envelope = new Envelope(new MeasureStorageMessage());
+
+        $subscriber->onReceived(new WorkerMessageReceivedEvent($envelope, self::TRANSPORT));
+        $subscriber->onHandled(new WorkerMessageHandledEvent($envelope, self::TRANSPORT));
+        $clock->sleep(2);
+        // The start belongs to the attempt above; a second handled event has none.
+        $subscriber->onHandled(new WorkerMessageHandledEvent($envelope, self::TRANSPORT));
+
+        $metric = $this->metric();
+        self::assertSame(2, $metric['attempts']);
+        self::assertSame(0, $metric['duration_ms_sum']);
+    }
+
     public function testAFailureRecordsTheHandlerExceptionAndTheAttemptNumber(): void
     {
         $clock = new MockClock('2026-10-26 08:15:00', 'UTC');
