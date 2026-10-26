@@ -209,7 +209,7 @@ Consequences for a restore:
 
 ## Indications and the PZC list
 
-The normalized indications follow the official PZC list "Patientenzuweisungscode und Rückmeldeindikation" (AG PZC bundesweit, released by the IVENA Anwenderbeirat Hessen, distributed through the IVENA web portal; version 1.3.11 of 13 June 2025, 208 codes). It is not stored in the repository. The maintainer understands that the list may be used freely; the terms of use are verified and recorded here before the official wording is committed (ADR 020).
+The normalized indications follow the official PZC list "Patientenzuweisungscode und Rückmeldeindikation" (AG PZC bundesweit, released by the IVENA Anwenderbeirat Hessen, distributed through the IVENA web portal; version 1.3.11 of 13 June 2025, 208 codes). The project treats it as publicly available reference data and uses it, citing the source, under fair-use reasoning and in the interest of better analysis of the data; no separate copyright review was carried out. The document itself is not stored in the repository.
 
 Comparison with the curated catalog on 2026-10-26:
 
