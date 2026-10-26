@@ -6,6 +6,7 @@ namespace App\Analytics\Application\MessageHandler;
 
 use App\Analytics\Application\Contract\AnalyticsScheduledAggregationRunnerInterface;
 use App\Analytics\Application\Message\AggregateDailyAnalyticsMessage;
+use App\Shared\Application\JobRun\CurrentJobRunInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -19,6 +20,7 @@ final readonly class AggregateDailyAnalyticsMessageHandler
         private AnalyticsScheduledAggregationRunnerInterface $scheduledAggregationService,
         private LockFactory $lockFactory,
         private LoggerInterface $logger,
+        private CurrentJobRunInterface $jobRun,
     ) {
     }
 
@@ -27,6 +29,7 @@ final readonly class AggregateDailyAnalyticsMessageHandler
         $lock = $this->lockFactory->createLock(self::LOCK_KEY);
 
         if (!$lock->acquire()) {
+            $this->jobRun->markSkipped('already_running');
             $this->logger->info('Scheduled analytics aggregation skipped: another run is already in progress.', [
                 'lock_key' => self::LOCK_KEY,
                 'message' => $message::class,
@@ -41,6 +44,13 @@ final readonly class AggregateDailyAnalyticsMessageHandler
             ]);
 
             $result = $this->scheduledAggregationService->run();
+            $this->jobRun->addMetrics([
+                'days_processed' => $result->daysProcessed,
+                'raw_requests' => $result->totalRawRequests,
+                'raw_events' => $result->totalRawEvents,
+                'aggregate_rows' => $result->totalAggregateRows,
+                'raw_rows_deleted' => $result->rawRowsDeleted,
+            ]);
 
             $this->logger->info('Scheduled analytics aggregation finished successfully.', [
                 'dates' => $result->dates,

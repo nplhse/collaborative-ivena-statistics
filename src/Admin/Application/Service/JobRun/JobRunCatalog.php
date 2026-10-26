@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace App\Admin\Application\Service\JobRun;
 
+use App\Analytics\Infrastructure\Scheduler\AnalyticsScheduleContribution;
+use App\Engagement\Infrastructure\Scheduler\ReminderScheduleContribution;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
+use App\Kpi\Infrastructure\Scheduler\KpiScheduleContribution;
+use App\Notification\Infrastructure\Scheduler\NotificationScheduleContribution;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use App\Statistics\Infrastructure\Monitoring\AllocationProjectionRunTelemetry;
+use App\Storage\Infrastructure\Scheduler\StorageScheduleContribution;
 use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Contracts\Translation\TranslatableInterface;
 
 /**
- * Known values of job_run (ADR 018) with their admin labels and badge colors.
+ * Known values of job_run (ADR 018, ADR 019) with their admin labels and badge colors.
  * job_run stores plain strings, so a value missing here is shown as it is instead of failing.
  */
 final class JobRunCatalog
@@ -30,12 +35,19 @@ final class JobRunCatalog
         AllocationProjectionRunTelemetry::JOB,
         AllocationProjectionRunTelemetry::JOB_FULL,
         ClosureRebuildTelemetry::JOB,
+        KpiScheduleContribution::JOB,
+        ReminderScheduleContribution::JOB,
+        AnalyticsScheduleContribution::JOB,
+        NotificationScheduleContribution::JOB_CLEANUP,
+        NotificationScheduleContribution::JOB_RECONCILE,
+        StorageScheduleContribution::JOB,
     ];
 
     /** Status => badge type. */
     public const array STATUSES = [
         'running' => 'info',
         'succeeded' => 'success',
+        'skipped' => 'light',
         'partial' => 'warning',
         'failed' => 'danger',
         'retrying' => 'warning',
@@ -116,6 +128,42 @@ final class JobRunCatalog
             'queries' => self::FORMAT_COUNT,
             'reference_window' => self::FORMAT_TEXT,
         ],
+        KpiScheduleContribution::JOB => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'days_processed' => self::FORMAT_COUNT,
+            'days_with_data' => self::FORMAT_COUNT,
+            'rows' => self::FORMAT_COUNT,
+        ],
+        ReminderScheduleContribution::JOB => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'hospitals' => self::FORMAT_COUNT,
+            'queued' => self::FORMAT_COUNT,
+            'skipped' => self::FORMAT_COUNT,
+        ],
+        AnalyticsScheduleContribution::JOB => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'days_processed' => self::FORMAT_COUNT,
+            'raw_requests' => self::FORMAT_COUNT,
+            'raw_events' => self::FORMAT_COUNT,
+            'aggregate_rows' => self::FORMAT_COUNT,
+            'raw_rows_deleted' => self::FORMAT_COUNT,
+        ],
+        NotificationScheduleContribution::JOB_CLEANUP => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'deleted_notifications' => self::FORMAT_COUNT,
+            'deleted_deduplication_keys' => self::FORMAT_COUNT,
+            'corrected_recipients' => self::FORMAT_COUNT,
+        ],
+        NotificationScheduleContribution::JOB_RECONCILE => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'published' => self::FORMAT_COUNT,
+            'deliveries_resumed' => self::FORMAT_COUNT,
+        ],
+        StorageScheduleContribution::JOB => [
+            'skip_reason' => self::FORMAT_TEXT,
+            'level' => self::FORMAT_TEXT,
+            'failures' => self::FORMAT_COUNT,
+        ],
     ];
 
     /**
@@ -127,6 +175,9 @@ final class JobRunCatalog
         'closure_request_ms', 'mv_refresh_ms', 'truncate_ms', 'rebuild_imports_ms',
         'full', 'hospital_ids', 'passes', 'events', 'partitions', 'hours_written', 'publish_ms', 'requests', 'queries',
         'reference_window',
+        'skip_reason', 'days_processed', 'days_with_data', 'rows', 'hospitals', 'queued', 'skipped', 'raw_requests',
+        'raw_events', 'aggregate_rows', 'raw_rows_deleted', 'deleted_notifications', 'deleted_deduplication_keys',
+        'corrected_recipients', 'published', 'deliveries_resumed', 'level', 'failures',
     ];
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Storage\Application\MessageHandler;
 
+use App\Shared\Application\JobRun\CurrentJobRunInterface;
 use App\Storage\Application\Measurement\StorageMeasurementInProgress;
 use App\Storage\Application\Measurement\StorageMeasurementRecorder;
 use App\Storage\Application\Message\MeasureStorageMessage;
@@ -19,6 +20,7 @@ final readonly class MeasureStorageMessageHandler
     public function __construct(
         private StorageMeasurementRecorder $recorder,
         private LoggerInterface $logger,
+        private CurrentJobRunInterface $jobRun,
     ) {
     }
 
@@ -27,6 +29,7 @@ final readonly class MeasureStorageMessageHandler
         try {
             $recorded = $this->recorder->record();
         } catch (StorageMeasurementInProgress) {
+            $this->jobRun->markSkipped('already_running');
             $this->logger->info('Scheduled storage measurement skipped: another measurement is in progress.', [
                 'message' => $message::class,
             ]);
@@ -35,6 +38,10 @@ final readonly class MeasureStorageMessageHandler
         }
 
         $measurement = $recorded->measurement;
+        $this->jobRun->addMetrics([
+            'level' => $measurement->getLevel()->value,
+            'failures' => \count($recorded->analysis->failures),
+        ]);
         $this->logger->info('Scheduled storage measurement stored.', [
             'measured_on' => $measurement->getMeasuredOn()->format('Y-m-d'),
             'used_bytes' => $measurement->getUsedBytes(),

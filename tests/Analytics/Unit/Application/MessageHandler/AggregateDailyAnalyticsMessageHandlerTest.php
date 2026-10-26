@@ -8,6 +8,7 @@ use App\Analytics\Application\Contract\AnalyticsScheduledAggregationRunnerInterf
 use App\Analytics\Application\DTO\AnalyticsScheduledAggregationResult;
 use App\Analytics\Application\Message\AggregateDailyAnalyticsMessage;
 use App\Analytics\Application\MessageHandler\AggregateDailyAnalyticsMessageHandler;
+use App\Shared\Infrastructure\Monitoring\JobRun\CurrentJobRun;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -24,11 +25,15 @@ final class AggregateDailyAnalyticsMessageHandlerTest extends TestCase
 
     private LoggerInterface&MockObject $logger;
 
+    private CurrentJobRun $jobRun;
+
     private AggregateDailyAnalyticsMessageHandler $messageHandler;
 
     #[\Override]
     protected function setUp(): void
     {
+        $this->jobRun = new CurrentJobRun();
+        $this->jobRun->begin();
         $this->scheduledAggregationService = $this->createMock(AnalyticsScheduledAggregationRunnerInterface::class);
         $this->lockFactory = $this->createMock(LockFactory::class);
         $this->lock = $this->createMock(SharedLockInterface::class);
@@ -40,6 +45,7 @@ final class AggregateDailyAnalyticsMessageHandlerTest extends TestCase
             $this->scheduledAggregationService,
             $this->lockFactory,
             $this->logger,
+            $this->jobRun,
         );
     }
 
@@ -64,6 +70,8 @@ final class AggregateDailyAnalyticsMessageHandlerTest extends TestCase
         $this->logger->expects($this->exactly(2))->method('info');
 
         ($this->messageHandler)(new AggregateDailyAnalyticsMessage());
+
+        self::assertSame(['days_processed' => 2, 'raw_requests' => 10, 'raw_events' => 4, 'aggregate_rows' => 8, 'raw_rows_deleted' => 3], $this->jobRun->metrics());
     }
 
     public function testSkipsWhenLockCannotBeAcquired(): void
@@ -76,6 +84,8 @@ final class AggregateDailyAnalyticsMessageHandlerTest extends TestCase
         $this->logger->expects($this->once())->method('info');
 
         ($this->messageHandler)(new AggregateDailyAnalyticsMessage());
+
+        self::assertSame('already_running', $this->jobRun->skipReason());
     }
 
     public function testLogsAndRethrowsOnFailure(): void

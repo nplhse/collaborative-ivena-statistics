@@ -6,6 +6,7 @@ namespace App\Notification\Application\MessageHandler;
 
 use App\Notification\Application\Contract\NotificationRetentionInterface;
 use App\Notification\Application\Message\CleanUpNotificationsMessage;
+use App\Shared\Application\JobRun\CurrentJobRunInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -19,6 +20,7 @@ final readonly class CleanUpNotificationsMessageHandler
         private NotificationRetentionInterface $retention,
         private LockFactory $lockFactory,
         private LoggerInterface $logger,
+        private CurrentJobRunInterface $jobRun,
     ) {
     }
 
@@ -26,6 +28,7 @@ final readonly class CleanUpNotificationsMessageHandler
     {
         $lock = $this->lockFactory->createLock(self::LOCK_KEY);
         if (!$lock->acquire()) {
+            $this->jobRun->markSkipped('already_running');
             $this->logger->info('notification.retention.skipped', ['reason' => 'already_running', 'message' => $message::class]);
 
             return;
@@ -33,6 +36,11 @@ final readonly class CleanUpNotificationsMessageHandler
 
         try {
             $result = $this->retention->run();
+            $this->jobRun->addMetrics([
+                'deleted_notifications' => $result->deletedNotifications,
+                'deleted_deduplication_keys' => $result->deletedDeduplicationKeys,
+                'corrected_recipients' => $result->correctedRecipients,
+            ]);
 
             $this->logger->info('notification.retention.finished', [
                 'deleted_notifications' => $result->deletedNotifications,

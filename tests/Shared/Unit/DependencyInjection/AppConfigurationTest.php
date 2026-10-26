@@ -88,7 +88,7 @@ final class AppConfigurationTest extends TestCase
         ]]);
 
         self::assertSame(
-            ['closure_rebuild' => ['slow_seconds' => 1800, 'memory_mb' => 200, 'long_seconds' => null]],
+            ['closure_rebuild' => ['slow_seconds' => 1800, 'memory_mb' => 200, 'long_seconds' => null, 'overdue_after_minutes' => null]],
             $processed['job_runs'],
         );
     }

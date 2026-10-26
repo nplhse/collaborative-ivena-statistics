@@ -38,6 +38,8 @@ framework:
                 middleware:
                     - 'App\Shared\Infrastructure\Audit\Messenger\AuditMessengerMiddleware'
                     - 'App\Shared\Infrastructure\Mail\Messenger\SkipPermanentSmtpRetryMiddleware'
+                    # Records scheduler jobs in job_run (ADR 019); only for messages a worker received.
+                    - 'App\Shared\Infrastructure\Monitoring\JobRun\JobRunMiddleware'
 
         routing:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async_mail

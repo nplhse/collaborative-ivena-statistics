@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class JobRunThresholdConfig
 {
     /**
-     * @param array<string, array{slow_seconds: int|null, long_seconds: int|null, memory_mb: int|null}> $thresholds
+     * @param array<string, array{slow_seconds: int|null, long_seconds: int|null, memory_mb: int|null, overdue_after_minutes?: int|null}> $thresholds
      *
      * @psalm-suppress PossiblyUnusedMethod
      */

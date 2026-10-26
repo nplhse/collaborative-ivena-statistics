@@ -63,8 +63,9 @@ Every job started by the Symfony Scheduler writes a `job_run` row, also short on
 
 - Jobs with their own telemetry class (ADR 018: closure rebuild, imports, projection rebuilds) keep it.
 - Every other job is recorded by a Messenger middleware. Each context registers the message classes of its jobs with a job name in its Infrastructure layer; the message classes stay unchanged.
-- The trigger is `scheduler` for messages with a `ScheduledStamp`, `console` or `messenger` otherwise.
-- Handlers can add counters to `metrics` through a port in `Shared/Application/Contract` (for example `sent` and `skipped` of the monthly reminder). Handlers without counters need no change.
+- Only handling by a worker is recorded: the envelope has a `ReceivedStamp` and no `SentStamp`. The sync transport adds a `ReceivedStamp` too, but its envelope keeps the `SentStamp`, which a queued message loses; so synchronous handling (test routing, `sync://`) writes no row.
+- The trigger is `scheduler` for messages with a `ScheduledStamp`, `messenger` otherwise.
+- Handlers add counters to `metrics` and report skipped runs through `CurrentJobRunInterface` in `Shared/Application/JobRun` (for example `queued`, `skipped` and one `skipped_<reason>` per validation error of the monthly reminder). Outside a recorded run, the port does nothing.
 - New status `skipped`: the job ran but had nothing to do (monthly reminder outside the first working day, lock held by another run). A skipped run still proves that the scheduler and the worker are alive.
 - Each scheduler job has an expected interval in `app.job_runs.<job>.overdue_after_minutes`. A job without a finished run within that time is overdue.
 
