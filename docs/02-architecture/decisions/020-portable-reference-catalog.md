@@ -57,7 +57,7 @@ Content per type, beyond the current fields:
 
 Export output is deterministic: fixed key order, sorted by natural key and id, pretty-printed. Two exports of the same database differ only in `exported_at`.
 
-There is no backward compatibility. The YAML format and its reader, writer and fixture loader are removed. The importer accepts only the current `version`; a format change raises it and old files are exported again.
+There is no backward compatibility. The YAML format and its reader, writer and fixture loader are removed. The importer accepts only the current `version`; a format change raises it and old files are exported again. A package with another `format` or `version` is rejected before any other check, with a message that names the expected and the found version; it is never read in part.
 
 ### Validation before any write
 
@@ -68,6 +68,16 @@ A package is validated completely before anything is written, with Symfony compo
 3. Package rules: a class constraint on the package checks unique ids and natural keys per type, that every reference resolves, that mappings do not contradict each other, that `counts` and `checksum` match, and that `version` is the current one.
 
 All violations are reported together with their path and value. One violation stops the import.
+
+### Stable public ids, not stable database ids
+
+Portability guarantees stable public identities, not stable database primary keys. A restore keeps every `publicId` from the package, but the rows get new local ids.
+
+Anything that stores a local id of a reference row depends on one installation. The inventory lists what is known today: projections and materialized views, `job_run.hospital_id`, the audit log, the isochrone file path (state database id), saved Explorer views (`saved_explorer_view.config_json` with state, dispatch area and hospital ids), hospital-scoped notifications (`notification.scope_reference_id`), statistics filters in URLs and the reference data cache.
+
+- Rows in tables are covered by the restore's dependency check (blockers) or emptied by the development reset, and projections and caches are rebuilt.
+- Files and stored configuration that use local ids are listed in the inventory with their handling. The isochrone path moves to the state's `publicId` when prepared geographic data is reused (#791). Moving saved views and notifications to public ids is follow-up work, not part of #740.
+- New code that stores a reference to a catalog row outside the database row itself (files, JSON configuration, cache keys, URLs meant to be kept) uses the `publicId`.
 
 ### Actors and environment-specific fields
 
@@ -86,7 +96,11 @@ A package is a catalog, not a database backup. It does not restore users, permis
 
 ### Development reset
 
-Dependent development data is removed by an explicit command, `app:dev:reset-operational-data`, which refuses to run outside the development and test environments (the demo environment of #791 is added to the same check). It deletes allocations, MCI cases, imports, rejects, closures, KPIs, reminder dispatches, access grants and hospital owners, empties projections and refreshes materialized views. Users and the reference catalog stay.
+Dependent development data is removed by an explicit command, `app:dev:reset-operational-data`, which refuses to run outside the development and test environments (the demo environment of #791 is added to the same check). It deletes allocations, MCI cases, imports, rejects, closures, KPIs, reminder dispatches, access grants and hospital owners, empties projections and refreshes materialized views. Users and the reference catalog stay; afterwards users have no hospitals assigned.
+
+A reset or restore must not run while background work writes the same tables. Both commands refuse to start while the Doctrine Messenger queues hold pending or in-progress messages for the async transports, and tell the operator to stop the workers first (a held import or projection lock counts as well). Both run under one lock, so two resets or a reset and a restore cannot run at the same time.
+
+A complete rebuild of a demo installation (users, hospitals, data) is a separate operation of #791 and not covered by this reset.
 
 Local workflow for testing real input files:
 
@@ -98,7 +112,7 @@ Local workflow for testing real input files:
 
 ### Location
 
-Packages live in `var/`: reference packages in `var/reference/`, pattern packages in `var/patterns/`. The export writes there by default and the import reads from there by default (`--source` overrides it). `var/` is not tracked and not part of a release. In production, `var/reference` and `var/patterns` are Deployer shared directories, so an export survives the next deploy.
+Packages live in `var/`: reference packages in `var/reference/`, pattern packages in `var/patterns/`. The export writes there by default and the import reads from there by default (`--source` overrides it). `var/` is not tracked and not part of a release. In production, `var/reference` is a Deployer shared directory, so an export survives the next deploy; `var/patterns` follows with the pattern export.
 
 ### Synthetic reference data from Faker providers
 
@@ -107,28 +121,49 @@ Development, CI and a demo without private files use a synthetic catalog built i
 - The Faker providers in `src/Allocation/Infrastructure/Faker/Provider/` are extended and also back the Foundry factories, so tests, fixtures and the later generators of #792 share one source.
 - Where relationships matter, providers return consistent records rather than single strings.
 - Geography covers Hesse only: the state and exactly the dispatch areas known to the maps. The area provider takes its names from `config/case_flow/dispatch_area_geo_map.yaml`, so every synthetic area has a shape in `assets/geo/hessen-landkreise.geojson`. Hospital coordinates are drawn inside the district polygon from the same file.
-- The indication provider holds the official PZC list ("Patientenzuweisungscode und Rückmeldeindikation", AG PZC bundesweit, released by the IVENA Anwenderbeirat Hessen; version 1.3.11 of 13 June 2025) with its official wording, one entry per code, plus generated raw label variants. The list may be used freely. The curated label variants, extra rows per code, raw labels from real files, mappings and groups of the private catalog stay private; a test checks the provider against a denylist of known curated variants.
+- The indication provider holds the official PZC list ("Patientenzuweisungscode und Rückmeldeindikation", AG PZC bundesweit, released by the IVENA Anwenderbeirat Hessen; version 1.3.11 of 13 June 2025) with its official wording, one entry per code, plus generated raw label variants. **Precondition:** the terms of use of the list are verified and documented in the inventory before the official wording is committed; until then the provider uses the official codes with neutral synthetic labels. The curated label variants, extra rows per code, raw labels from real files, mappings and groups of the private catalog stay private; a test checks the provider against a denylist of known curated variants.
 - A builder composes the providers with a seed into a package and loads it through the same validation and import path as a real package.
+- The synthetic catalog is fully deterministic. Public ids are derived, not random: a name-based UUID (version 5) from a fixed project namespace, the type and the natural key. Choices that depend on chance (which towns, beds, coordinates, raw label variants) come from the seeded generator only, and the builder emits types and rows in a fixed order. The same seed and the same generator version produce the same package, byte for byte including the checksum; a test enforces this. A changed provider is a new generator version and may change the package.
 
 ### Distribution patterns
 
 Generated allocations follow distribution patterns. The tracked patterns are removed: they sample every feature independently and their values are close to uniform, which makes generated data look artificial.
 
+This ADR sets the direction for patterns; the work is split across issues:
+
+| Part | Where |
+|------|-------|
+| Remove the tracked YAML patterns and the commands that write them; plain default distributions in code, in the existing pattern shape and keyed by the synthetic catalog, so the current fixtures keep working | #740 |
+| Pattern package format, validation, export from production, privacy review | separate issue |
+| Conditional sampling along the chain, coherence rules, hospital profiles, scenarios | #792 |
+| Individual demo hospitals using pattern packages | #791 |
+
+Direction for the later parts:
+
 - A pattern package stores a chain of conditional distributions instead of independent ones: time (month, weekday, hour by day type), indication by hospital segment, then age band, sex, urgency, department and speciality by indication category (first PZC digit), then flags and the remaining features by category and urgency, plus transport time by urgency and a volume block per segment. A segment is a hospital type (tier and location, later a hospital profile of #792), never a single hospital. An optional `scenarios` section is reserved for #792.
-- `app:fixtures:export-patterns` exports a pattern package from production into `var/patterns/`. Privacy rules are part of the export: aggregates only, keyed by public values; conditioning on the indication category, not the single code; cells below a minimum case count merged into `other`; small segments dropped; shares rounded; no hospital ids or names.
-- Pattern packages are JSON and validated the same way as reference packages.
+- Pattern packages are JSON, live in `var/patterns/` and are validated the same way as reference packages.
 - Without a pattern package the generator uses default distributions defined in code: coarse shares (whole or five percent, common values only), written by hand and reviewed by the maintainer.
 - Coherence rules in code apply to every source (for example: pregnant patients are female and of child-bearing age, paediatric cases are younger than 18, CPR implies urgency 1 and a resuscitation room).
 - Generation is deterministic: the same pattern package, seed and settings give the same data. Each generated dataset records the package checksum (or `defaults`) and the seed.
+
+Privacy of pattern packages. Aggregated data is not anonymous by itself, so the export applies these rules and they are reviewed before a package is used outside the maintainer's own machine:
+
+- Aggregates only, keyed by public values; no hospital ids or names; conditioning on the indication category, not the single code.
+- A segment needs a minimum number of hospitals (proposal: 5) as well as a minimum number of cases, and no single hospital may contribute more than a set share of a segment's cases (proposal: 50 %); otherwise the segment is dropped.
+- Cells below a minimum case count are merged into `other`. If exactly one cell of a table would be merged, a second one is merged too, so the hidden value cannot be computed from the total. All tables of a segment use the same base data, so combining tables does not reveal more than each table.
+- Shares are rounded.
+- A pattern package is private data: it never becomes part of tracked fixtures, and the code defaults are never generated from it automatically.
+- The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the issue that builds the export.
 
 ## Consequences
 
 - Export → empty database → import → export gives the same package, apart from `exported_at`.
 - The reference entities' `public_id` becomes mandatory; a migration fills missing values.
-- The YAML catalog, the YAML pattern files, `ReferenceYamlLoader`, `ReferenceDataLoader` and `app:reference:load-indication-groups` are removed; the reference fixtures collapse into one fixture that loads the synthetic package.
+- The YAML catalog, the YAML pattern files with `app:fixtures:export-patterns` and `app:fixtures:validate-patterns`, `ReferenceYamlLoader`, `ReferenceDataLoader` and `app:reference:load-indication-groups` are removed; the reference fixtures collapse into one fixture that loads the synthetic package.
 - Tests, factories and scenarios that rely on real names, codes or catalog sizes change to the synthetic data.
 - Statistics and maps on a fresh clone show synthetic hospitals in the real Hesse districts.
-- Isochrone files are stored under `<state database id>/<hospital publicId>`; the state part depends on a local id. This is documented in the reference catalog inventory and changed when prepared geographic data is reused (#791).
+- Isochrone files, saved Explorer views and hospital-scoped notifications still store local ids; they are documented in the inventory and moved to public ids in later work (#791 for isochrones).
+- Synthetic public ids are name-based; a renamed synthetic entry gets a new id.
 - Restoring a private catalog into an installation with operational data is blocked until that data is reset; in production this means a restore is only possible on an empty installation.
 - The maintainer keeps private packages up to date by exporting from production.
 
@@ -140,6 +175,8 @@ Generated allocations follow distribution patterns. The tracked patterns are rem
 - **A full database dump instead of a package.** Rejected: it carries operational data, users and permissions, and cannot replace a synthetic catalog in a development database.
 - **Keep the curated catalog in the repository and only mark it private.** Rejected: the repository is public and its contents ship with every release.
 - **Indications only loosely inspired by the PZC list.** Rejected: real pattern packages are keyed by PZC code, and generated data looks real only with the official codes and wording.
+- **Random UUIDs for synthetic rows, fixed by the seed.** Rejected: ids would change whenever a provider draws one more random value; name-based ids stay the same as long as the natural key does.
+- **Build the whole pattern system in #740.** Rejected: it is an architecture topic of its own and overlaps with #792; #740 only removes the old patterns and keeps the fixtures working.
 
 ## Related
 

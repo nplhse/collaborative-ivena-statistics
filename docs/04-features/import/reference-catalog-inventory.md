@@ -173,6 +173,21 @@ Tables and views that store catalog ids **without** a foreign key:
 
 The audit log stores changes of the audited reference entities with their local ids; after a restore, old entries point to ids that no longer exist.
 
+## Local ids outside the catalog tables
+
+A restore keeps public ids but not local database ids (ADR 020). These places store local ids of reference rows:
+
+| Place | What | Handling |
+|-------|------|----------|
+| Projection tables and materialized views (see above) | hospital and catalog ids | blocker for a restore, emptied by the development reset, rebuilt or refreshed |
+| `job_run.hospital_id` | hospital of an import or rebuild run | blocker; emptied by the development reset |
+| `audit_log` | entity id in each change | kept; old entries no longer resolve after a restore |
+| `saved_explorer_view.config_json` | state, dispatch area and hospital ids in the saved filter scope | blocker for a restore; moving to public ids is follow-up work |
+| `notification.scope_reference_id` | hospital of a hospital-scoped notification | blocker for a restore; moving to public ids is follow-up work |
+| Statistics filters in URLs (`stateId`, `dispatchAreaId`, hospital ids) | bookmarks and shared links | not stored by the application; links break after a restore |
+| `var/geo/hospital-isochrones/<state id>/…` | isochrone files | path moves to the state public id with #791 |
+| `cache.allocation.reference_data` | Explore filter options | cleared after an import |
+
 Consequences for a restore:
 
 - Every operational, permission and projection table above is a blocker when it holds rows. The cascading foreign keys (`closure_event`, `kpi_daily`, `monthly_reminder_dispatch`, `hospital_access_grant`, `closure_analysis_interval`) would otherwise delete rows silently.
@@ -194,7 +209,7 @@ Consequences for a restore:
 
 ## Indications and the PZC list
 
-The normalized indications follow the official PZC list "Patientenzuweisungscode und Rückmeldeindikation" (AG PZC bundesweit, released by the IVENA Anwenderbeirat Hessen, distributed through the IVENA web portal; version 1.3.11 of 13 June 2025, 208 codes). The list may be used freely; it is not stored in the repository.
+The normalized indications follow the official PZC list "Patientenzuweisungscode und Rückmeldeindikation" (AG PZC bundesweit, released by the IVENA Anwenderbeirat Hessen, distributed through the IVENA web portal; version 1.3.11 of 13 June 2025, 208 codes). It is not stored in the repository. The maintainer understands that the list may be used freely; the terms of use are verified and recorded here before the official wording is committed (ADR 020).
 
 Comparison with the curated catalog on 2026-10-26:
 
