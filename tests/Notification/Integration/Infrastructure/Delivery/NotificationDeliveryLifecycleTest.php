@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Notification\Integration\Infrastructure\Delivery;
 
+use App\Notification\Application\Event\NotificationDeliverySent;
 use App\Notification\Application\Message\DeliverNotificationMessage;
+use App\Notification\Infrastructure\Delivery\NotificationDeliveryAnnouncer;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryQueue;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryStatusSubscriber;
 use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
@@ -15,9 +17,14 @@ use App\Tests\Support\Messenger\RecordingMessageBus;
 use Doctrine\DBAL\Connection;
 use Psr\Log\NullLogger;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mailer\Envelope as MailerEnvelope;
+use Symfony\Component\Mailer\Event\SentMessageEvent;
 use Symfony\Component\Mailer\Messenger\SendEmailMessage;
+use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\RawMessage;
 
@@ -39,7 +46,7 @@ final class NotificationDeliveryLifecycleTest extends DatabaseKernelTestCase
         $mail = $this->delivery('queued');
         $job = $this->delivery('pending');
         $sent = $this->delivery('sent');
-        $subscriber = new NotificationDeliveryStatusSubscriber($this->connection, new MockClock('2026-10-23 08:00:00'), new NullLogger(), self::getContainer()->get(\App\Notification\Infrastructure\Delivery\NotificationDeliveryFailureAnnouncer::class));
+        $subscriber = new NotificationDeliveryStatusSubscriber($this->connection, new MockClock('2026-10-23 08:00:00'), new NullLogger(), self::getContainer()->get(NotificationDeliveryAnnouncer::class));
 
         $subscriber->onMessageFailed($this->failed($this->emailMessage($mail), willRetry: true));
         self::assertSame(['queued', null], $this->state($mail), 'a retry follows');
@@ -56,13 +63,38 @@ final class NotificationDeliveryLifecycleTest extends DatabaseKernelTestCase
         self::assertSame(['sent', null], $this->state($sent), 'a sent delivery stays sent');
 
         // A delivery that is gone (e.g. deleted with its instance) announces nothing.
-        self::getContainer()->get(\App\Notification\Infrastructure\Delivery\NotificationDeliveryFailureAnnouncer::class)->announce(999_999, \App\Notification\Domain\Enum\NotificationDeliveryFailureReason::DeliveryJobFailed);
+        self::getContainer()->get(NotificationDeliveryAnnouncer::class)->announceFailed(999_999, \App\Notification\Domain\Enum\NotificationDeliveryFailureReason::DeliveryJobFailed);
     }
 
     /**
      * Stored pending deliveries are resumed whatever their age (the 24-hour window only limits the rebuilding of
      * business events); younger than 15 minutes they are left to the running job, and only pending ones count.
      */
+    public function testAnAcceptedEmailIsSentAndAnnouncedOnce(): void
+    {
+        $mail = $this->delivery('queued');
+        $announced = [];
+        self::getContainer()->get(EventDispatcherInterface::class)->addListener(
+            NotificationDeliverySent::class,
+            static function (NotificationDeliverySent $event) use (&$announced): void {
+                $announced[] = $event;
+            },
+        );
+        $subscriber = self::getContainer()->get(NotificationDeliveryStatusSubscriber::class);
+
+        $subscriber->onSent($this->sentEmail($mail));
+        $subscriber->onSent($this->sentEmail($mail));
+
+        self::assertSame(['sent', null], $this->state($mail));
+        self::assertCount(1, $announced, 'a delivery that is already sent is not announced again by the mail event');
+        self::assertSame($mail, $announced[0]->deliveryId);
+        self::assertSame((int) $this->connection->fetchOne('SELECT notification_id FROM notification_delivery WHERE id = ?', [$mail]), $announced[0]->notificationId);
+
+        // A delivery that is gone (e.g. deleted with its instance) announces nothing.
+        self::getContainer()->get(NotificationDeliveryAnnouncer::class)->announceSent(999_999);
+        self::assertCount(1, $announced);
+    }
+
     public function testPendingDeliveriesAreResumedWhateverTheirAge(): void
     {
         $twoDaysOld = $this->delivery('pending', '2026-10-21 07:00:00');
@@ -109,6 +141,14 @@ final class NotificationDeliveryLifecycleTest extends DatabaseKernelTestCase
         $email->getHeaders()->addTextHeader(NotificationEmailFactory::DELIVERY_ID_HEADER, (string) $deliveryId);
 
         return new SendEmailMessage($email);
+    }
+
+    private function sentEmail(int $deliveryId): SentMessageEvent
+    {
+        $email = new Email()->from('no-reply@example.test')->to('owner@example.test')->subject('Test')->text('Body');
+        $email->getHeaders()->addTextHeader(NotificationEmailFactory::DELIVERY_ID_HEADER, (string) $deliveryId);
+
+        return new SentMessageEvent(new SentMessage($email, new MailerEnvelope(new Address('no-reply@example.test'), [new Address('owner@example.test')])));
     }
 
     private function failed(object $message, bool $willRetry = false): WorkerMessageFailedEvent

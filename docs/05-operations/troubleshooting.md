@@ -20,6 +20,8 @@ journalctl --user -u messenger -f
 | Symptom | Likely cause | Quick fix |
 |---|---|---|
 | Imports/mail stuck in queue | Worker not running | Start/restart worker and inspect queue |
+| `/health` shows `messenger_stalled` or `messenger_backlog` | Worker stopped, or one long job blocks a queue | [messenger-monitoring.md](messenger-monitoring.md#messenger_stalled-or-messenger_backlog) |
+| `/health` shows `scheduled_jobs: overdue` | Worker does not consume `scheduler_default`, or the job fails | [messenger-monitoring.md](messenger-monitoring.md#scheduled_jobs) |
 | Excel upload rejected on import form | `.xls` / `.xlsx` not supported (CSV-only importer) | Export as CSV (`.csv` or `.txt`); see [import-pipeline.md](../04-features/import/import-pipeline.md#upload-validation) |
 | `import.failed.precondition` | Missing CSV or invalid path | Verify import file path and file availability |
 | Requeue exits with code `2` | Critical error / retry limit | Fix affected import, retry |

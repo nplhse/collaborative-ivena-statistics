@@ -7,6 +7,7 @@ namespace App\Tests\Notification\Functional\Command;
 use App\Notification\Application\Message\ReconcileNotificationsMessage;
 use App\Notification\Application\MessageHandler\ReconcileNotificationsMessageHandler;
 use App\Notification\Application\Reconciliation\NotificationReconciliation;
+use App\Shared\Infrastructure\Monitoring\JobRun\CurrentJobRun;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -64,14 +65,18 @@ final class ReconcileNotificationsCommandTest extends KernelTestCase
 
         try {
             $logger = new BufferingLogger();
+            $jobRun = new CurrentJobRun();
+            $jobRun->begin();
             $handler = new ReconcileNotificationsMessageHandler(
                 self::getContainer()->get(NotificationReconciliation::class),
                 self::getContainer()->get(LockFactory::class),
                 $logger,
+                $jobRun,
             );
             $handler(new ReconcileNotificationsMessage());
 
             self::assertSame(['notification.reconciliation.skipped'], array_column($logger->cleanLogs(), 1));
+            self::assertSame('already_running', $jobRun->skipReason());
         } finally {
             $lock->release();
         }

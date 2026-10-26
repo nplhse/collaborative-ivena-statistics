@@ -38,6 +38,8 @@ framework:
                 middleware:
                     - 'App\Shared\Infrastructure\Audit\Messenger\AuditMessengerMiddleware'
                     - 'App\Shared\Infrastructure\Mail\Messenger\SkipPermanentSmtpRetryMiddleware'
+                    # Records scheduler jobs in job_run (ADR 019); only for messages a worker received.
+                    - 'App\Shared\Infrastructure\Monitoring\JobRun\JobRunMiddleware'
 
         routing:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async_mail
@@ -57,6 +59,8 @@ framework:
             App\Notification\Application\Message\ReconcileNotificationsMessage: async_priority_low
             App\Notification\Application\Message\DeliverNotificationMessage: async_priority_low
             App\Storage\Application\Message\MeasureStorageMessage: async_priority_low
+            App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage: async_priority_low
+            App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: async_priority_low
 
 when@dev:
     framework:
@@ -86,4 +90,6 @@ when@test:
                 App\Notification\Application\Message\ReconcileNotificationsMessage: sync
                 App\Notification\Application\Message\DeliverNotificationMessage: sync
                 App\Storage\Application\Message\MeasureStorageMessage: sync
+                App\Shared\Application\Monitoring\Message\SampleMessengerQueuesMessage: sync
+                App\Shared\Application\Monitoring\Message\CleanUpMonitoringMessage: sync
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync

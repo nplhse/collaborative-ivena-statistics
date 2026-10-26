@@ -8,6 +8,7 @@ use App\Kpi\Application\Contract\KpiScheduledAggregationRunnerInterface;
 use App\Kpi\Application\DTO\KpiScheduledAggregationResult;
 use App\Kpi\Application\Message\GenerateDailyKpisMessage;
 use App\Kpi\Application\MessageHandler\GenerateDailyKpisMessageHandler;
+use App\Shared\Infrastructure\Monitoring\JobRun\CurrentJobRun;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -24,10 +25,14 @@ final class GenerateDailyKpisMessageHandlerTest extends TestCase
 
     private LoggerInterface&MockObject $logger;
 
+    private CurrentJobRun $jobRun;
+
     private GenerateDailyKpisMessageHandler $messageHandler;
 
     protected function setUp(): void
     {
+        $this->jobRun = new CurrentJobRun();
+        $this->jobRun->begin();
         $this->scheduledAggregationService = $this->createMock(KpiScheduledAggregationRunnerInterface::class);
         $this->lockFactory = $this->createMock(LockFactory::class);
         $this->lock = $this->createMock(SharedLockInterface::class);
@@ -39,6 +44,7 @@ final class GenerateDailyKpisMessageHandlerTest extends TestCase
             $this->scheduledAggregationService,
             $this->lockFactory,
             $this->logger,
+            $this->jobRun,
         );
     }
 
@@ -61,6 +67,8 @@ final class GenerateDailyKpisMessageHandlerTest extends TestCase
         $this->logger->expects($this->exactly(2))->method('info');
 
         ($this->messageHandler)(new GenerateDailyKpisMessage());
+
+        self::assertSame(['days_processed' => 2, 'days_with_data' => 1, 'rows' => 3], $this->jobRun->metrics());
     }
 
     public function testSkipsWhenLockCannotBeAcquired(): void
@@ -73,6 +81,8 @@ final class GenerateDailyKpisMessageHandlerTest extends TestCase
         $this->logger->expects($this->once())->method('info');
 
         ($this->messageHandler)(new GenerateDailyKpisMessage());
+
+        self::assertSame('already_running', $this->jobRun->skipReason());
     }
 
     public function testLogsAndRethrowsOnFailure(): void

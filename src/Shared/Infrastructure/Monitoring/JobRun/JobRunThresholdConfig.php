@@ -7,12 +7,12 @@ namespace App\Shared\Infrastructure\Monitoring\JobRun;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Thresholds per job from app.job_runs in config/packages/app.yaml.
+ * Thresholds and expected intervals per job from app.job_runs in config/packages/app.yaml.
  */
 final readonly class JobRunThresholdConfig
 {
     /**
-     * @param array<string, array{slow_seconds: int|null, long_seconds: int|null, memory_mb: int|null}> $thresholds
+     * @param array<string, array{slow_seconds: int|null, long_seconds: int|null, memory_mb: int|null, overdue_after_minutes?: int|null}> $thresholds
      *
      * @psalm-suppress PossiblyUnusedMethod
      */
@@ -20,6 +20,24 @@ final readonly class JobRunThresholdConfig
         #[Autowire(param: 'app.job_runs')]
         private array $thresholds,
     ) {
+    }
+
+    /**
+     * Expected interval of every scheduler job that has one (ADR 019).
+     *
+     * @return array<string, int> job => minutes
+     */
+    public function overdueIntervals(): array
+    {
+        $intervals = [];
+        foreach ($this->thresholds as $job => $limits) {
+            $minutes = $limits['overdue_after_minutes'] ?? null;
+            if (null !== $minutes) {
+                $intervals[$job] = $minutes;
+            }
+        }
+
+        return $intervals;
     }
 
     public function for(string $job): JobRunThresholds

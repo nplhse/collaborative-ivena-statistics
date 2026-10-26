@@ -36,7 +36,8 @@ app:
         reference_weeks_after: 4
         minimum_reference_slots: 4
 
-    # Thresholds per background job run (ADR 018); jobs without values only record their runs.
+    # Thresholds per background job run (ADR 018) and expected interval of scheduler jobs (ADR 019);
+    # jobs without values only record their runs.
     # Measured 2026-10-25 on the development data (docs/05-operations/observability-sentry.md, "Measured runs").
     job_runs:
         allocation_import:
@@ -59,6 +60,24 @@ app:
             slow_seconds: 1800
             long_seconds: 7200
             memory_mb: 200
+            # No overdue_after_minutes: the hourly check records a run only when there is work.
+        # Scheduler jobs (ADR 019): only the expected interval until measured runs give thresholds.
+        kpi_daily:
+            overdue_after_minutes: 420
+        monthly_reminder:
+            overdue_after_minutes: 1500
+        analytics_aggregation:
+            overdue_after_minutes: 1500
+        notification_cleanup:
+            overdue_after_minutes: 1500
+        notification_reconcile:
+            overdue_after_minutes: 120
+        storage_measurement:
+            overdue_after_minutes: 1500
+        messenger_queue_sample:
+            overdue_after_minutes: 120
+        monitoring_retention:
+            overdue_after_minutes: 1500
 
     storage:
         # Usage in percent of the capacity reference at which each level starts (ADR 017).

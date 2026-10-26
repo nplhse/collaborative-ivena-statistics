@@ -106,15 +106,15 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
     }
 
     /**
-     * Marks the dispatch as sent when it is still queued for exactly this attempt.
+     * Marks the dispatch as sent when it is still queued for exactly this attempt of this hospital.
      */
-    public function markAttemptSent(int $dispatchId, ?string $attemptId, \DateTimeImmutable $deliveredAt): void
+    public function markAttemptSent(int $dispatchId, int $hospitalId, ?string $attemptId, \DateTimeImmutable $deliveredAt): void
     {
         $updated = $this->getEntityManager()->getConnection()->executeStatement(
             <<<'SQL'
                 UPDATE monthly_reminder_dispatch
                 SET status = :sent, delivered_at = :delivered_at, failure_reason = NULL
-                WHERE id = :id AND status = :queued
+                WHERE id = :id AND hospital_id = :hospital AND status = :queued
                   AND attempt_id IS NOT DISTINCT FROM CAST(:attempt AS VARCHAR)
                 SQL,
             [
@@ -122,6 +122,7 @@ final class MonthlyReminderDispatchRepository extends ServiceEntityRepository
                 'queued' => MonthlyReminderDispatchStatus::Queued->value,
                 'delivered_at' => $deliveredAt,
                 'id' => $dispatchId,
+                'hospital' => $hospitalId,
                 'attempt' => $attemptId,
             ],
             ['delivered_at' => Types::DATETIME_IMMUTABLE],

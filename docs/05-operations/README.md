@@ -10,6 +10,7 @@
 |----------|------|-------------|
 | [deployment.md](deployment.md) | Guide | Deployer, prerequisites, deploy flow |
 | [messenger-workers.md](messenger-workers.md) | Guide | systemd worker setup on Uberspace |
+| [messenger-monitoring.md](messenger-monitoring.md) | Guide | Messenger page, scheduler job runs, health checks, retention, runbooks |
 | [transactional-mail.md](transactional-mail.md) | Guide | Mail transport, `APP_URL`, deliverability |
 | [backup-restore.md](backup-restore.md) | Guide | Database and file backups |
 | [observability-sentry.md](observability-sentry.md) | Guide | Sentry integration and monitoring |
@@ -25,11 +26,12 @@
 
 1. [deployment.md](deployment.md)
 2. [messenger-workers.md](messenger-workers.md)
-3. [backup-restore.md](backup-restore.md)
-4. [health-check.md](health-check.md)
-5. [troubleshooting.md](troubleshooting.md)
-6. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
-7. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
-8. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
+3. [messenger-monitoring.md](messenger-monitoring.md)
+4. [backup-restore.md](backup-restore.md)
+5. [health-check.md](health-check.md)
+6. [troubleshooting.md](troubleshooting.md)
+7. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
+8. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
+9. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
 
 Other role-based paths: [../README.md#reading-paths](../README.md#reading-paths)

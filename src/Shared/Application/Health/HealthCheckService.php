@@ -39,11 +39,13 @@ final readonly class HealthCheckService
                     'database' => 'unreachable',
                     'messenger_failed' => 'skipped',
                 ],
+                statuses: ['database' => HealthCheckStatus::Unhealthy],
             );
         }
 
         $status = HealthCheckStatus::Healthy;
         $checks = ['database' => 'ok'];
+        $statuses = ['database' => HealthCheckStatus::Healthy];
         $failedCount = $this->countFailedMessages();
 
         if ($failedCount > 0) {
@@ -52,11 +54,13 @@ final readonly class HealthCheckService
         } else {
             $checks['messenger_failed'] = 'ok';
         }
+        $statuses['messenger_failed'] = $status;
 
         $publicKeys = [];
         foreach ($this->contributors as $contributor) {
             $result = $contributor->check();
             $checks[$result->key] = $result->value;
+            $statuses[$result->key] = $result->status;
             $status = $status->worst($result->status);
 
             if ($result->public) {
@@ -64,7 +68,7 @@ final readonly class HealthCheckService
             }
         }
 
-        return new HealthCheckReport($status, $this->appVersion, $checks, $publicKeys);
+        return new HealthCheckReport($status, $this->appVersion, $checks, $publicKeys, $statuses);
     }
 
     private function countFailedMessages(): int

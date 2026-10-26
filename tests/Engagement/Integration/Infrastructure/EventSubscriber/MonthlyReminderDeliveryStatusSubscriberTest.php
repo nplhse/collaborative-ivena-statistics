@@ -9,9 +9,11 @@ use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Engagement\Domain\Entity\MonthlyReminderDispatch;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
 use App\Notification\Application\Event\NotificationDeliveryFailed;
+use App\Notification\Application\Event\NotificationDeliverySent;
 use App\Notification\Application\Message\DeliverNotificationMessage;
-use App\Notification\Infrastructure\Delivery\FailedDeliveryReconciler;
+use App\Notification\Infrastructure\Delivery\DeliveryOutcomeReconciler;
 use App\Notification\Infrastructure\Delivery\NotificationDeliveryStatusSubscriber;
+use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
 use App\Notification\Infrastructure\Factory\NotificationFactory;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Entity\User;
@@ -19,16 +21,102 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Mailer\Envelope as MailerEnvelope;
+use Symfony\Component\Mailer\Event\SentMessageEvent;
+use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
 
 /**
- * A reminder email that fails for good before the mailer must fail its dispatch too; otherwise the dispatch
- * stays queued and blocks the next scheduled attempt (ADR 016).
+ * The dispatch follows the outcome of its notification's delivery (ADR 016, ADR 019): sent when the email went
+ * out, failed when it failed for good (also before the mailer), otherwise the dispatch stays queued and blocks the
+ * next scheduled attempt.
  */
-final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelTestCase
+final class MonthlyReminderDeliveryStatusSubscriberTest extends DatabaseKernelTestCase
 {
+    public function testAnAcceptedEmailMarksTheDispatchAsSent(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = $this->dispatch($hospital);
+        $deliveryId = $this->reminderDelivery($owner, $hospital, $dispatch, 'queued');
+
+        $this->subscriber()->onSent($this->sentEmail($deliveryId));
+
+        self::assertSame('sent', $this->deliveryStatus($deliveryId));
+        self::assertSame([MonthlyReminderDispatchStatus::Sent, null], $this->dispatchState($dispatch));
+        self::assertNotNull($dispatch->getDeliveredAt());
+    }
+
+    /**
+     * Attempt A is delayed by mailer retries, an admin starts attempt B on the same dispatch, then A's email
+     * goes out after all: B is still running and must not be marked as sent by A.
+     */
+    public function testALateSuccessOfAnEarlierAttemptLeavesTheCurrentAttemptAlone(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = $this->dispatch($hospital);
+        $deliveryOfA = $this->reminderDelivery($owner, $hospital, $dispatch, 'queued', 'attempt-a');
+        $dispatch->startAttempt('attempt-b');
+        $this->entityManager()->flush();
+
+        $this->subscriber()->onSent($this->sentEmail($deliveryOfA));
+
+        self::assertSame('sent', $this->deliveryStatus($deliveryOfA));
+        self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'attempt B is still running');
+    }
+
+    public function testDispatchesFromBeforeAttemptIdsMatchNotificationsWithoutOne(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = new MonthlyReminderDispatch($hospital, '2026-09', 'scheduler', new \DateTimeImmutable(), MonthlyReminderDispatchStatus::Queued, 'owner@example.test');
+        $this->entityManager()->persist($dispatch);
+        $this->entityManager()->flush();
+        $deliveryId = $this->reminderDelivery($owner, $hospital, $dispatch, 'queued', null);
+
+        $this->subscriber()->onSent($this->sentEmail($deliveryId));
+
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $this->dispatchState($dispatch)[0]);
+    }
+
+    public function testASuccessForAnotherHospitalOrAnotherTypeLeavesTheDispatchAlone(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = $this->dispatch($hospital);
+        $otherHospital = HospitalFactory::createOne(['owner' => UserFactory::new()]);
+        $wrongHospital = $this->reminderDelivery($owner, $otherHospital, $dispatch, 'queued');
+        $otherType = $this->reminderDelivery($owner, $hospital, $dispatch, 'queued', 'attempt-a', 'import.completed');
+
+        $this->subscriber()->onSent($this->sentEmail($wrongHospital));
+        $this->subscriber()->onSent($this->sentEmail($otherType));
+
+        self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch));
+    }
+
+    /**
+     * The email is out, so a failing dispatch update must not fail the mail job (Messenger would send it again).
+     * The delivery stays sent, and the hourly reconciliation completes the dispatch later.
+     */
+    public function testReconciliationCompletesTheDispatchWhenTheSuccessCouldNotBeRecorded(): void
+    {
+        [$owner, $hospital] = $this->ownerWithHospital();
+        $dispatch = $this->dispatch($hospital);
+        $deliveryId = $this->reminderDelivery($owner, $hospital, $dispatch, 'queued');
+        $this->failNextAnnouncement(NotificationDeliverySent::class);
+
+        $this->subscriber()->onSent($this->sentEmail($deliveryId));
+
+        self::assertSame('sent', $this->deliveryStatus($deliveryId));
+        self::assertSame(MonthlyReminderDispatchStatus::Queued, $this->dispatchState($dispatch)[0]);
+
+        self::assertSame(1, $this->reconciler()->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour')));
+
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $this->dispatchState($dispatch)[0]);
+        self::assertEmailCount(0);
+    }
+
     public function testDisabledRecipientFailsTheDispatchBeforeTheMailer(): void
     {
         [$owner, $hospital] = $this->ownerWithHospital();
@@ -125,7 +213,7 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
         self::assertSame('failed', $this->deliveryStatus($deliveryId), 'the final state is kept');
         self::assertSame(MonthlyReminderDispatchStatus::Queued, $this->dispatchState($dispatch)[0]);
 
-        $reconciler = self::getContainer()->get(FailedDeliveryReconciler::class);
+        $reconciler = $this->reconciler();
         $this->failNextAnnouncement();
         self::assertSame(0, $reconciler->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour')), 'a failing producer is logged and skipped');
         self::assertSame(1, $reconciler->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour')));
@@ -143,7 +231,7 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
         $dispatch->startAttempt('attempt-b');
         $this->entityManager()->flush();
 
-        self::getContainer()->get(FailedDeliveryReconciler::class)->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour'));
+        $this->reconciler()->reconcile(new \DateTimeImmutable('-1 hour'), new \DateTimeImmutable('+1 hour'));
         self::getContainer()->get(NotificationDeliveryStatusSubscriber::class)->onMessageFailed(
             new WorkerMessageFailedEvent(new Envelope(new DeliverNotificationMessage($earlier)), 'async_priority_low', new \RuntimeException('late')),
         );
@@ -163,10 +251,8 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
         $dispatch->startAttempt('attempt-b');
         $this->entityManager()->flush();
 
-        $email = new \Symfony\Component\Mime\Email();
-        $email->getHeaders()->addTextHeader(\App\Notification\Infrastructure\Delivery\NotificationEmailFactory::DELIVERY_ID_HEADER, (string) $deliveryOfA);
-        $email->getHeaders()->addTextHeader(\App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER, (string) $dispatch->getId());
-        $email->getHeaders()->addTextHeader(\App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer::ATTEMPT_ID_HEADER, 'attempt-a');
+        $email = new Email();
+        $email->getHeaders()->addTextHeader(NotificationEmailFactory::DELIVERY_ID_HEADER, (string) $deliveryOfA);
         self::getContainer()->get(NotificationDeliveryStatusSubscriber::class)->onMessageFailed(
             new WorkerMessageFailedEvent(new Envelope(new \Symfony\Component\Mailer\Messenger\SendEmailMessage($email)), 'async_mail', new \RuntimeException('550 mailbox unavailable')),
         );
@@ -175,11 +261,14 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
         self::assertSame([MonthlyReminderDispatchStatus::Queued, null], $this->dispatchState($dispatch), 'attempt B is still running');
     }
 
-    private function failNextAnnouncement(): void
+    /**
+     * @param class-string $event
+     */
+    private function failNextAnnouncement(string $event = NotificationDeliveryFailed::class): void
     {
         $failed = false;
         self::getContainer()->get(EventDispatcherInterface::class)->addListener(
-            NotificationDeliveryFailed::class,
+            $event,
             static function () use (&$failed): void {
                 if (!$failed) {
                     $failed = true;
@@ -212,11 +301,11 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
         return $dispatch;
     }
 
-    private function reminderDelivery(User $owner, Hospital $hospital, MonthlyReminderDispatch $dispatch, string $status = 'pending', ?string $attemptId = 'attempt-a'): int
+    private function reminderDelivery(User $owner, Hospital $hospital, MonthlyReminderDispatch $dispatch, string $status = 'pending', ?string $attemptId = 'attempt-a', string $type = 'engagement.monthly_reminder'): int
     {
         $notification = NotificationFactory::createOne([
             'recipient' => $owner,
-            'type' => 'engagement.monthly_reminder',
+            'type' => $type,
             'titleKey' => 'engagement.monthly_reminder.title',
             'messageKey' => 'engagement.monthly_reminder.message',
             'inAppVisible' => false,
@@ -227,6 +316,24 @@ final class MonthlyReminderDeliveryFailureSubscriberTest extends DatabaseKernelT
             "INSERT INTO notification_delivery (notification_id, channel, status, attempt_count, created_at, status_changed_at) VALUES (?, 'email', ?, 0, NOW(), NOW()) RETURNING id",
             [$notification->getId(), $status],
         );
+    }
+
+    private function sentEmail(int $deliveryId): SentMessageEvent
+    {
+        $email = new Email()->from('no-reply@example.test')->to('owner@example.test')->subject('Reminder')->text('Reminder body');
+        $email->getHeaders()->addTextHeader(NotificationEmailFactory::DELIVERY_ID_HEADER, (string) $deliveryId);
+
+        return new SentMessageEvent(new SentMessage($email, new MailerEnvelope(new Address('no-reply@example.test'), [new Address('owner@example.test')])));
+    }
+
+    private function subscriber(): NotificationDeliveryStatusSubscriber
+    {
+        return self::getContainer()->get(NotificationDeliveryStatusSubscriber::class);
+    }
+
+    private function reconciler(): DeliveryOutcomeReconciler
+    {
+        return self::getContainer()->get(DeliveryOutcomeReconciler::class);
     }
 
     private function deliveryStatus(int $deliveryId): string

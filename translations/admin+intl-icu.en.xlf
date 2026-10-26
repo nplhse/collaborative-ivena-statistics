@@ -509,6 +509,26 @@
         <source>ops.health.check.storage</source>
         <target>Storage</target>
       </trans-unit>
+      <trans-unit id="opsHlthMsg00" resname="ops.health.check.messenger">
+        <source>ops.health.check.messenger</source>
+        <target>Messenger</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg01" resname="ops.health.check.messenger_backlog">
+        <source>ops.health.check.messenger_backlog</source>
+        <target>Messenger backlog</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg02" resname="ops.health.check.messenger_stalled">
+        <source>ops.health.check.messenger_stalled</source>
+        <target>Messenger processing</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg03" resname="ops.health.check.messenger_retries">
+        <source>ops.health.check.messenger_retries</source>
+        <target>Messenger retries</target>
+      </trans-unit>
+      <trans-unit id="opsHlthMsg04" resname="ops.health.check.scheduled_jobs">
+        <source>ops.health.check.scheduled_jobs</source>
+        <target>Scheduled jobs</target>
+      </trans-unit>
       <trans-unit id="opsNot01" resname="ops.notifications.title">
         <source>ops.notifications.title</source>
         <target>Recent notifications</target>
@@ -628,6 +648,210 @@
       <trans-unit id="opsFm24" resname="ops.failed_messages.flash.none_selected">
         <source>ops.failed_messages.flash.none_selected</source>
         <target>Select at least one failed message to delete.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg01" resname="ops.messenger.menu">
+        <source>ops.messenger.menu</source>
+        <target>Messenger</target>
+      </trans-unit>
+      <trans-unit id="opsMsg02" resname="ops.messenger.title">
+        <source>ops.messenger.title</source>
+        <target>Messenger monitoring</target>
+      </trans-unit>
+      <trans-unit id="opsMsg03" resname="ops.messenger.help">
+        <source>ops.messenger.help</source>
+        <target>Background message handling by the workers: outcomes, retries and duration in the selected period, queues as they are now.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg04" resname="ops.messenger.period.label">
+        <source>ops.messenger.period.label</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="opsMsg05" resname="ops.messenger.period.24h">
+        <source>ops.messenger.period.24h</source>
+        <target>24 hours</target>
+      </trans-unit>
+      <trans-unit id="opsMsg06" resname="ops.messenger.period.7d">
+        <source>ops.messenger.period.7d</source>
+        <target>7 days</target>
+      </trans-unit>
+      <trans-unit id="opsMsg07" resname="ops.messenger.period.30d">
+        <source>ops.messenger.period.30d</source>
+        <target>30 days</target>
+      </trans-unit>
+      <trans-unit id="opsMsg08" resname="ops.messenger.kpi.handled">
+        <source>ops.messenger.kpi.handled</source>
+        <target>Handled</target>
+      </trans-unit>
+      <trans-unit id="opsMsg09" resname="ops.messenger.kpi.after_retry">
+        <source>ops.messenger.kpi.after_retry</source>
+        <target>{count, plural, =0 {none after a retry} =1 {one after a retry} other {# after a retry}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsg10" resname="ops.messenger.kpi.failed">
+        <source>ops.messenger.kpi.failed</source>
+        <target>Failed for good</target>
+      </trans-unit>
+      <trans-unit id="opsMsg11" resname="ops.messenger.kpi.success_rate">
+        <source>ops.messenger.kpi.success_rate</source>
+        <target>Success rate</target>
+      </trans-unit>
+      <trans-unit id="opsMsg12" resname="ops.messenger.kpi.retried">
+        <source>ops.messenger.kpi.retried</source>
+        <target>Retries</target>
+      </trans-unit>
+      <trans-unit id="opsMsg13" resname="ops.messenger.kpi.retry_rate">
+        <source>ops.messenger.kpi.retry_rate</source>
+        <target>Retry rate</target>
+      </trans-unit>
+      <trans-unit id="opsMsg14" resname="ops.messenger.kpi.duration">
+        <source>ops.messenger.kpi.duration</source>
+        <target>Average duration</target>
+      </trans-unit>
+      <trans-unit id="opsMsg15" resname="ops.messenger.kpi.duration_max">
+        <source>ops.messenger.kpi.duration_max</source>
+        <target>Longest</target>
+      </trans-unit>
+      <trans-unit id="opsMsg16" resname="ops.messenger.kpi.pending">
+        <source>ops.messenger.kpi.pending</source>
+        <target>Pending now</target>
+      </trans-unit>
+      <trans-unit id="opsMsg17" resname="ops.messenger.kpi.waiting">
+        <source>ops.messenger.kpi.waiting</source>
+        <target>{count, plural, =0 {none waiting for a retry} =1 {one waiting for a retry} other {# waiting for a retry}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsg18" resname="ops.messenger.kpi.last_activity">
+        <source>ops.messenger.kpi.last_activity</source>
+        <target>Last activity</target>
+      </trans-unit>
+      <trans-unit id="opsMsg19" resname="ops.messenger.kpi.failed_queue">
+        <source>ops.messenger.kpi.failed_queue</source>
+        <target>{count, plural, =0 {Failure queue empty} =1 {One message in the failure queue} other {# messages in the failure queue}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsg20" resname="ops.messenger.section.transports">
+        <source>ops.messenger.section.transports</source>
+        <target>Transports</target>
+      </trans-unit>
+      <trans-unit id="opsMsg21" resname="ops.messenger.section.message_types">
+        <source>ops.messenger.section.message_types</source>
+        <target>Message types</target>
+      </trans-unit>
+      <trans-unit id="opsMsg22" resname="ops.messenger.section.failures">
+        <source>ops.messenger.section.failures</source>
+        <target>Recent failures</target>
+      </trans-unit>
+      <trans-unit id="opsMsg23" resname="ops.messenger.table.transport">
+        <source>ops.messenger.table.transport</source>
+        <target>Transport</target>
+      </trans-unit>
+      <trans-unit id="opsMsg24" resname="ops.messenger.table.pending">
+        <source>ops.messenger.table.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="opsMsg25" resname="ops.messenger.table.waiting">
+        <source>ops.messenger.table.waiting</source>
+        <target>Waiting for retry</target>
+      </trans-unit>
+      <trans-unit id="opsMsg26" resname="ops.messenger.table.oldest_pending">
+        <source>ops.messenger.table.oldest_pending</source>
+        <target>Oldest pending</target>
+      </trans-unit>
+      <trans-unit id="opsMsg27" resname="ops.messenger.table.handled">
+        <source>ops.messenger.table.handled</source>
+        <target>Handled</target>
+      </trans-unit>
+      <trans-unit id="opsMsg28" resname="ops.messenger.table.retried">
+        <source>ops.messenger.table.retried</source>
+        <target>Retried</target>
+      </trans-unit>
+      <trans-unit id="opsMsg29" resname="ops.messenger.table.failed">
+        <source>ops.messenger.table.failed</source>
+        <target>Failed</target>
+      </trans-unit>
+      <trans-unit id="opsMsg30" resname="ops.messenger.table.last_activity">
+        <source>ops.messenger.table.last_activity</source>
+        <target>Last activity</target>
+      </trans-unit>
+      <trans-unit id="opsMsg31" resname="ops.messenger.table.message_type">
+        <source>ops.messenger.table.message_type</source>
+        <target>Message type</target>
+      </trans-unit>
+      <trans-unit id="opsMsg32" resname="ops.messenger.table.attempts">
+        <source>ops.messenger.table.attempts</source>
+        <target>Attempts</target>
+      </trans-unit>
+      <trans-unit id="opsMsg33" resname="ops.messenger.table.success_rate">
+        <source>ops.messenger.table.success_rate</source>
+        <target>Success rate</target>
+      </trans-unit>
+      <trans-unit id="opsMsg34" resname="ops.messenger.table.retry_rate">
+        <source>ops.messenger.table.retry_rate</source>
+        <target>Retry rate</target>
+      </trans-unit>
+      <trans-unit id="opsMsg35" resname="ops.messenger.table.duration">
+        <source>ops.messenger.table.duration</source>
+        <target>Avg. duration</target>
+      </trans-unit>
+      <trans-unit id="opsMsg37" resname="ops.messenger.table.exception">
+        <source>ops.messenger.table.exception</source>
+        <target>Exception</target>
+      </trans-unit>
+      <trans-unit id="opsMsg38" resname="ops.messenger.table.failed_attempts">
+        <source>ops.messenger.table.failed_attempts</source>
+        <target>Failed attempts</target>
+      </trans-unit>
+      <trans-unit id="opsMsg39" resname="ops.messenger.table.given_up">
+        <source>ops.messenger.table.given_up</source>
+        <target>Given up</target>
+      </trans-unit>
+      <trans-unit id="opsMsg40" resname="ops.messenger.table.last_failure">
+        <source>ops.messenger.table.last_failure</source>
+        <target>Last failure</target>
+      </trans-unit>
+      <trans-unit id="opsMsg41" resname="ops.messenger.not_measurable">
+        <source>ops.messenger.not_measurable</source>
+        <target>No queue to measure</target>
+      </trans-unit>
+      <trans-unit id="opsMsg42" resname="ops.messenger.not_measurable.hint">
+        <source>ops.messenger.not_measurable.hint</source>
+        <target>The scheduler creates its messages when they are due; whether its jobs run shows in the job runs.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg43" resname="ops.messenger.empty.message_types">
+        <source>ops.messenger.empty.message_types</source>
+        <target>No message was handled by a worker in this period.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg44" resname="ops.messenger.empty.failures">
+        <source>ops.messenger.empty.failures</source>
+        <target>No failed attempts in this period.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg45" resname="ops.messenger.link.failed_messages">
+        <source>ops.messenger.link.failed_messages</source>
+        <target>Open failure queue</target>
+      </trans-unit>
+      <trans-unit id="opsMsg46" resname="ops.messenger.link.job_runs">
+        <source>ops.messenger.link.job_runs</source>
+        <target>Open job runs</target>
+      </trans-unit>
+      <trans-unit id="opsMsg47" resname="ops.messenger.footnote">
+        <source>ops.messenger.footnote</source>
+        <target>Counts only messages handled by a worker. A failure that Messenger retries counts as a retry, not as failed; "failed for good" means no retry follows. Exception details are in Sentry and in the failure queue.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist01" resname="ops.messenger.section.history">
+        <source>ops.messenger.section.history</source>
+        <target>History</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist02" resname="ops.messenger.empty.history">
+        <source>ops.messenger.empty.history</source>
+        <target>No message was handled and no queue sample was taken in this period.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist03" resname="ops.messenger.history.backlog">
+        <source>ops.messenger.history.backlog</source>
+        <target>Backlog</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist04" resname="ops.messenger.history.hint.hour">
+        <source>ops.messenger.history.hint.hour</source>
+        <target>One point per hour. The backlog is sampled hourly (pending messages without the failure queue); gaps mean no sample was taken.</target>
+      </trans-unit>
+      <trans-unit id="opsMsgHist05" resname="ops.messenger.history.hint.day">
+        <source>ops.messenger.history.hint.day</source>
+        <target>One point per day; the backlog shows the highest hourly sample of the day.</target>
       </trans-unit>
       <trans-unit id="opsRd01" resname="ops.reminder_dispatch.title">
         <source>ops.reminder_dispatch.title</source>
@@ -957,6 +1181,38 @@
         <source>admin.job_run.job.closure_rebuild</source>
         <target>Closure volume rebuild</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobKpiDaily" resname="admin.job_run.job.kpi_daily">
+        <source>admin.job_run.job.kpi_daily</source>
+        <target>KPI aggregation</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMonthlyReminder" resname="admin.job_run.job.monthly_reminder">
+        <source>admin.job_run.job.monthly_reminder</source>
+        <target>Monthly reminders</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAnalyticsAggregation" resname="admin.job_run.job.analytics_aggregation">
+        <source>admin.job_run.job.analytics_aggregation</source>
+        <target>Analytics aggregation</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobNotificationCleanup" resname="admin.job_run.job.notification_cleanup">
+        <source>admin.job_run.job.notification_cleanup</source>
+        <target>Notification cleanup</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobNotificationReconcile" resname="admin.job_run.job.notification_reconcile">
+        <source>admin.job_run.job.notification_reconcile</source>
+        <target>Notification reconciliation</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobStorageMeasurement" resname="admin.job_run.job.storage_measurement">
+        <source>admin.job_run.job.storage_measurement</source>
+        <target>Storage measurement</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMessengerQueueSample" resname="admin.job_run.job.messenger_queue_sample">
+        <source>admin.job_run.job.messenger_queue_sample</source>
+        <target>Messenger queue sample</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMonitoringRetention" resname="admin.job_run.job.monitoring_retention">
+        <source>admin.job_run.job.monitoring_retention</source>
+        <target>Monitoring cleanup</target>
+      </trans-unit>
       <trans-unit id="admJobRunStatusRunning" resname="admin.job_run.status.running">
         <source>admin.job_run.status.running</source>
         <target>Running</target>
@@ -984,6 +1240,10 @@
       <trans-unit id="admJobRunStatusAbandoned" resname="admin.job_run.status.abandoned">
         <source>admin.job_run.status.abandoned</source>
         <target>Abandoned</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusSkipped" resname="admin.job_run.status.skipped">
+        <source>admin.job_run.status.skipped</source>
+        <target>Skipped</target>
       </trans-unit>
       <trans-unit id="admJobRunTriggerMessenger" resname="admin.job_run.trigger.messenger">
         <source>admin.job_run.trigger.messenger</source>
@@ -1152,6 +1412,114 @@
       <trans-unit id="admJobRunMetricReferenceWindow" resname="admin.job_run.metric.reference_window">
         <source>admin.job_run.metric.reference_window</source>
         <target>Reference window</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricSkipReason" resname="admin.job_run.metric.skip_reason">
+        <source>admin.job_run.metric.skip_reason</source>
+        <target>Skip reason</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDaysProcessed" resname="admin.job_run.metric.days_processed">
+        <source>admin.job_run.metric.days_processed</source>
+        <target>Days processed</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDaysWithData" resname="admin.job_run.metric.days_with_data">
+        <source>admin.job_run.metric.days_with_data</source>
+        <target>Days with data</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRows" resname="admin.job_run.metric.rows">
+        <source>admin.job_run.metric.rows</source>
+        <target>Rows</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHospitals" resname="admin.job_run.metric.hospitals">
+        <source>admin.job_run.metric.hospitals</source>
+        <target>Hospitals</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricQueued" resname="admin.job_run.metric.queued">
+        <source>admin.job_run.metric.queued</source>
+        <target>Queued</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricSkipped" resname="admin.job_run.metric.skipped">
+        <source>admin.job_run.metric.skipped</source>
+        <target>Skipped</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRawRequests" resname="admin.job_run.metric.raw_requests">
+        <source>admin.job_run.metric.raw_requests</source>
+        <target>Raw requests</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRawEvents" resname="admin.job_run.metric.raw_events">
+        <source>admin.job_run.metric.raw_events</source>
+        <target>Raw events</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricAggregateRows" resname="admin.job_run.metric.aggregate_rows">
+        <source>admin.job_run.metric.aggregate_rows</source>
+        <target>Aggregate rows</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRawRowsDeleted" resname="admin.job_run.metric.raw_rows_deleted">
+        <source>admin.job_run.metric.raw_rows_deleted</source>
+        <target>Raw rows deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedNotifications" resname="admin.job_run.metric.deleted_notifications">
+        <source>admin.job_run.metric.deleted_notifications</source>
+        <target>Deleted notifications</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedDeduplicationKeys" resname="admin.job_run.metric.deleted_deduplication_keys">
+        <source>admin.job_run.metric.deleted_deduplication_keys</source>
+        <target>Deleted deduplication keys</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricCorrectedRecipients" resname="admin.job_run.metric.corrected_recipients">
+        <source>admin.job_run.metric.corrected_recipients</source>
+        <target>Corrected recipients</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPublished" resname="admin.job_run.metric.published">
+        <source>admin.job_run.metric.published</source>
+        <target>Published</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeliveriesResumed" resname="admin.job_run.metric.deliveries_resumed">
+        <source>admin.job_run.metric.deliveries_resumed</source>
+        <target>Deliveries resumed</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricLevel" resname="admin.job_run.metric.level">
+        <source>admin.job_run.metric.level</source>
+        <target>Level</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFailures" resname="admin.job_run.metric.failures">
+        <source>admin.job_run.metric.failures</source>
+        <target>Failures</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPending" resname="admin.job_run.metric.pending">
+        <source>admin.job_run.metric.pending</source>
+        <target>Pending</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricWaiting" resname="admin.job_run.metric.waiting">
+        <source>admin.job_run.metric.waiting</source>
+        <target>Waiting for retry</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFailed" resname="admin.job_run.metric.failed">
+        <source>admin.job_run.metric.failed</source>
+        <target>In failure queue</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricOldestPendingAgeSeconds" resname="admin.job_run.metric.oldest_pending_age_seconds">
+        <source>admin.job_run.metric.oldest_pending_age_seconds</source>
+        <target>Oldest pending (seconds)</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFoldedDailyRows" resname="admin.job_run.metric.folded_daily_rows">
+        <source>admin.job_run.metric.folded_daily_rows</source>
+        <target>Daily rows written</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedHourlyRows" resname="admin.job_run.metric.deleted_hourly_rows">
+        <source>admin.job_run.metric.deleted_hourly_rows</source>
+        <target>Hourly rows deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedFailures" resname="admin.job_run.metric.deleted_failures">
+        <source>admin.job_run.metric.deleted_failures</source>
+        <target>Failures deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedQueueSamples" resname="admin.job_run.metric.deleted_queue_samples">
+        <source>admin.job_run.metric.deleted_queue_samples</source>
+        <target>Queue samples deleted</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedJobRuns" resname="admin.job_run.metric.deleted_job_runs">
+        <source>admin.job_run.metric.deleted_job_runs</source>
+        <target>Job runs deleted</target>
       </trans-unit>
     </body>
   </file>

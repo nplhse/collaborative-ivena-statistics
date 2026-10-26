@@ -2,7 +2,7 @@
 
 Async messages use four transports (`async_priority_high`, `async_priority_low`, `async_mail`, `scheduler_default`) configured in [`config/packages/messenger.yaml`](../../config/packages/messenger.yaml).
 
-In production, email uses the dedicated `async_mail` transport with rate limiting and slower retries; other domain jobs use the priority queues. Scheduled KPI aggregation, monthly reminders, and analytics rollups use `scheduler_default`. Without a running worker, messages stay in the database.
+In production, email uses the dedicated `async_mail` transport with rate limiting and slower retries; other domain jobs use the priority queues. Scheduled jobs (KPI aggregation, monthly reminders, analytics rollups, notification cleanup and reconciliation, storage measurement, monitoring) use `scheduler_default`. Without a running worker, messages stay in the database.
 
 Related: [deployment.md](deployment.md), [transactional-mail.md](transactional-mail.md), [../02-architecture/messenger-and-scheduler.md](../02-architecture/messenger-and-scheduler.md)
 
@@ -68,6 +68,10 @@ php bin/console messenger:consume async_priority_high async_priority_low async_m
 ```
 
 Trigger an async action in the app (for example an import or statistics rebuild) and confirm messages are processed.
+
+## Monitoring
+
+**Admin → System → Messenger** shows handled, retried and failed messages, the queues and their history; scheduler jobs appear in **Job runs**. A stopped worker makes `/health` unhealthy (`messenger_stalled`) as soon as messages wait longer than 15 minutes. See [messenger-monitoring.md](messenger-monitoring.md).
 
 ## Logs
 
