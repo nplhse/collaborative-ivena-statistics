@@ -9,6 +9,7 @@ use App\Notification\Application\Message\CleanUpNotificationsMessage;
 use App\Notification\Application\MessageHandler\CleanUpNotificationsMessageHandler;
 use App\Notification\Application\Retention\NotificationRetentionResult;
 use App\Notification\Infrastructure\Factory\NotificationFactory;
+use App\Shared\Infrastructure\Monitoring\JobRun\CurrentJobRun;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\Tests\Support\Notification\NotificationTestState;
 use Doctrine\DBAL\Connection;
@@ -43,11 +44,14 @@ final class CleanUpNotificationsMessageHandlerTest extends DatabaseKernelTestCas
         };
         $lockFactory = new LockFactory(new InMemoryStore());
         $logger = new BufferingLogger();
-        $handler = new CleanUpNotificationsMessageHandler($retention, $lockFactory, $logger);
+        $jobRun = new CurrentJobRun();
+        $handler = new CleanUpNotificationsMessageHandler($retention, $lockFactory, $logger, $jobRun);
 
         $held = $lockFactory->createLock('notification-retention');
         $held->acquire();
+        $jobRun->begin();
         $handler(new CleanUpNotificationsMessage());
+        self::assertSame('already_running', $jobRun->skipReason());
         $held->release();
         $handler(new CleanUpNotificationsMessage());
 

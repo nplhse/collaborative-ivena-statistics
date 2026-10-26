@@ -957,6 +957,30 @@
         <source>admin.job_run.job.closure_rebuild</source>
         <target>Neuaufbau Schließungsvolumen</target>
       </trans-unit>
+      <trans-unit id="admJobRunJobKpiDailyDe" resname="admin.job_run.job.kpi_daily">
+        <source>admin.job_run.job.kpi_daily</source>
+        <target>KPI-Aggregation</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobMonthlyReminderDe" resname="admin.job_run.job.monthly_reminder">
+        <source>admin.job_run.job.monthly_reminder</source>
+        <target>Monatliche Erinnerungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobAnalyticsAggregationDe" resname="admin.job_run.job.analytics_aggregation">
+        <source>admin.job_run.job.analytics_aggregation</source>
+        <target>Analytics-Aggregation</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobNotificationCleanupDe" resname="admin.job_run.job.notification_cleanup">
+        <source>admin.job_run.job.notification_cleanup</source>
+        <target>Bereinigung Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobNotificationReconcileDe" resname="admin.job_run.job.notification_reconcile">
+        <source>admin.job_run.job.notification_reconcile</source>
+        <target>Abgleich Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunJobStorageMeasurementDe" resname="admin.job_run.job.storage_measurement">
+        <source>admin.job_run.job.storage_measurement</source>
+        <target>Speichermessung</target>
+      </trans-unit>
       <trans-unit id="admJobRunStatusRunningDe" resname="admin.job_run.status.running">
         <source>admin.job_run.status.running</source>
         <target>Läuft</target>
@@ -984,6 +1008,10 @@
       <trans-unit id="admJobRunStatusAbandonedDe" resname="admin.job_run.status.abandoned">
         <source>admin.job_run.status.abandoned</source>
         <target>Abgebrochen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunStatusSkippedDe" resname="admin.job_run.status.skipped">
+        <source>admin.job_run.status.skipped</source>
+        <target>Übersprungen</target>
       </trans-unit>
       <trans-unit id="admJobRunTriggerMessengerDe" resname="admin.job_run.trigger.messenger">
         <source>admin.job_run.trigger.messenger</source>
@@ -1152,6 +1180,78 @@
       <trans-unit id="admJobRunMetricReferenceWindowDe" resname="admin.job_run.metric.reference_window">
         <source>admin.job_run.metric.reference_window</source>
         <target>Referenzzeitraum</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricSkipReasonDe" resname="admin.job_run.metric.skip_reason">
+        <source>admin.job_run.metric.skip_reason</source>
+        <target>Grund fürs Überspringen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDaysProcessedDe" resname="admin.job_run.metric.days_processed">
+        <source>admin.job_run.metric.days_processed</source>
+        <target>Verarbeitete Tage</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDaysWithDataDe" resname="admin.job_run.metric.days_with_data">
+        <source>admin.job_run.metric.days_with_data</source>
+        <target>Tage mit Daten</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRowsDe" resname="admin.job_run.metric.rows">
+        <source>admin.job_run.metric.rows</source>
+        <target>Zeilen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricHospitalsDe" resname="admin.job_run.metric.hospitals">
+        <source>admin.job_run.metric.hospitals</source>
+        <target>Kliniken</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricQueuedDe" resname="admin.job_run.metric.queued">
+        <source>admin.job_run.metric.queued</source>
+        <target>Eingereiht</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricSkippedDe" resname="admin.job_run.metric.skipped">
+        <source>admin.job_run.metric.skipped</source>
+        <target>Übersprungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRawRequestsDe" resname="admin.job_run.metric.raw_requests">
+        <source>admin.job_run.metric.raw_requests</source>
+        <target>Rohdaten Anfragen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRawEventsDe" resname="admin.job_run.metric.raw_events">
+        <source>admin.job_run.metric.raw_events</source>
+        <target>Rohdaten Ereignisse</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricAggregateRowsDe" resname="admin.job_run.metric.aggregate_rows">
+        <source>admin.job_run.metric.aggregate_rows</source>
+        <target>Aggregierte Zeilen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricRawRowsDeletedDe" resname="admin.job_run.metric.raw_rows_deleted">
+        <source>admin.job_run.metric.raw_rows_deleted</source>
+        <target>Gelöschte Rohdaten</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedNotificationsDe" resname="admin.job_run.metric.deleted_notifications">
+        <source>admin.job_run.metric.deleted_notifications</source>
+        <target>Gelöschte Benachrichtigungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeletedDeduplicationKeysDe" resname="admin.job_run.metric.deleted_deduplication_keys">
+        <source>admin.job_run.metric.deleted_deduplication_keys</source>
+        <target>Gelöschte Deduplizierungsschlüssel</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricCorrectedRecipientsDe" resname="admin.job_run.metric.corrected_recipients">
+        <source>admin.job_run.metric.corrected_recipients</source>
+        <target>Korrigierte Empfänger</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricPublishedDe" resname="admin.job_run.metric.published">
+        <source>admin.job_run.metric.published</source>
+        <target>Veröffentlicht</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricDeliveriesResumedDe" resname="admin.job_run.metric.deliveries_resumed">
+        <source>admin.job_run.metric.deliveries_resumed</source>
+        <target>Wiederaufgenommene Zustellungen</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricLevelDe" resname="admin.job_run.metric.level">
+        <source>admin.job_run.metric.level</source>
+        <target>Stufe</target>
+      </trans-unit>
+      <trans-unit id="admJobRunMetricFailuresDe" resname="admin.job_run.metric.failures">
+        <source>admin.job_run.metric.failures</source>
+        <target>Fehler</target>
       </trans-unit>
     </body>
   </file>
