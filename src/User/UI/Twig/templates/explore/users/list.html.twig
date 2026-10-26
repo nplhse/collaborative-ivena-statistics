@@ -83,6 +83,9 @@
 
         {% set listIsFiltered = activeFilterCount > 0 or search is not empty %}
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="username"
+            mobileBreakpoint="md"
             :paginator="paginator"
             :rows="items"
             :paginationRoute="pagination_route"
