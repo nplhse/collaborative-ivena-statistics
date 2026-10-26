@@ -12,6 +12,7 @@
 | [reject-analysis.md](reject-analysis.md) | Aggregate and export rejects |
 | [reference-catalog.md](reference-catalog.md) | Import/export/propose, prod runbook, reject gaps |
 | [reference-catalog-yaml.md](reference-catalog-yaml.md) | Schema of `fixtures/reference/catalog.yaml` (sections, fields, identity) |
+| [reference-catalog-inventory.md](reference-catalog-inventory.md) | Reference types, field classification, dependent tables, geography (ADR 020) |
 | [repair-indication-corruption.md](repair-indication-corruption.md) | Issue 521: what broke, why STEMIs vanished from stats, production runbook (merge vs UI-match + backfill) |
 
 **Reading order:** import-pipeline → import-runs → batch-requeue (when needed) → reject-analysis (for diagnostics) → [reference-catalog.md](reference-catalog.md) (stammdaten gaps) → repair-indication-corruption (ops repair only, including production STEMI verification)
