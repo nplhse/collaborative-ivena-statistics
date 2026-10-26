@@ -106,7 +106,8 @@ final class IndicationListSortingTest extends KernelTestCase
         $stats = self::getContainer()->get(IndicationNormalizedListStatsQuery::class);
         $ids = [(int) $few->getId(), (int) $many->getId()];
         self::assertSame(3, $stats->fetchOccurrenceCounts($ids)[(int) $many->getId()]['occurrence_count']);
-        self::assertSame([(int) $few->getId() => 3, (int) $many->getId() => 1], $stats->fetchRawCounts($ids));
+        // The counts come from a GROUP BY without an order, so only the pairs are compared.
+        self::assertEquals([(int) $few->getId() => 3, (int) $many->getId() => 1], $stats->fetchRawCounts($ids));
     }
 
     public function testNormalizedGroupNamesFollowGroupOrder(): void
