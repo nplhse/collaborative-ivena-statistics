@@ -44,7 +44,7 @@ final class ListMciCasesControllerTest extends WebTestCase
         self::assertSelectorExists('a[href="/explore/mci_case?mciId='.rawurlencode(self::OTHER_MCI_ID).'"]');
     }
 
-    public function testCardsUseTheCaseTitleAndOfferTheDetailLinkInTheMenu(): void
+    public function testCardsUseTheCaseTitleAndADetailLink(): void
     {
         $client = $this->createClientAsParticipant();
         $this->createSharedAndOtherCases();
@@ -55,10 +55,10 @@ final class ListMciCasesControllerTest extends WebTestCase
         $row = $crawler->filter('table.table tbody tr')->first();
         self::assertCount(1, $row->filter('td.data-table-cell--primary'));
         self::assertNotSame('', trim($row->filter('td.data-table-cell--primary')->text()));
-        $actions = $row->filter('td.data-table-cell--actions');
+        $actions = $row->filter('td.data-table-cell--action-link');
         self::assertSame(
             $actions->filter('.btn-actions a')->attr('href'),
-            $actions->filter('.data-table-actions-menu a.dropdown-item')->attr('href'),
+            $actions->filter('a[data-testid="data-table-row-link"]')->attr('href'),
         );
     }
 

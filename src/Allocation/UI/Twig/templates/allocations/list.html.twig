@@ -45,7 +45,9 @@
         {% set listIsFiltered = activeFilterCount > 0 %}
         <twig:DataTable
             mobileLayout="cards"
-            mobilePrimaryColumn="timestamps"
+            mobilePrimaryColumn="indication"
+            :mobileTitleColumns="['urgency']"
+            :mobileColumnOrder="['hospital', 'age', 'timestamps']"
             mobileBreakpoint="lg"
             :paginator="paginator"
             :paginationRoute="pagination_route"
