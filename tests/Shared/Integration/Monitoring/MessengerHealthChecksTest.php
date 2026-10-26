@@ -91,6 +91,23 @@ final class MessengerHealthChecksTest extends KernelTestCase
         self::assertSame([HealthCheckStatus::Degraded, 'last run failed: daily_job'], $this->outcome($this->jobs($config)));
     }
 
+    public function testEnoughAttemptsWithFewRetriesAreHealthy(): void
+    {
+        $this->metric('-1 hour', attempts: 30, retried: 3);
+
+        self::assertSame([HealthCheckStatus::Healthy, 'ok'], $this->outcome($this->retries()), '10 % is still within the limit');
+    }
+
+    public function testWithoutAnyJobIntervalTheJobsAreNotChecked(): void
+    {
+        $this->finishedRun('some_job', 'failed', '-10 days');
+
+        self::assertSame([HealthCheckStatus::Healthy, 'ok'], $this->outcome($this->jobs(new JobRunThresholdConfig([
+            'some_job' => ['slow_seconds' => 10, 'long_seconds' => 20, 'memory_mb' => null],
+        ]))));
+        self::assertSame([], $this->query()->lastFinishedRuns([]));
+    }
+
     public function testLongJobListsAreShortened(): void
     {
         $intervals = [];
