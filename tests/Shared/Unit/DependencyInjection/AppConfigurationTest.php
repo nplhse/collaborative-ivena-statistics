@@ -93,6 +93,14 @@ final class AppConfigurationTest extends TestCase
         );
     }
 
+    public function testMonitoringRetentionDefaultsAreApplied(): void
+    {
+        $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);
+
+        self::assertSame(['hourly_days' => 90, 'failure_days' => 30, 'queue_sample_days' => 90], $processed['messenger_monitoring']['retention']);
+        self::assertSame(['routine_days' => 180, 'other_days' => 730], $processed['job_runs_retention']);
+    }
+
     public function testStorageDefaultsAreApplied(): void
     {
         $processed = new Processor()->processConfiguration(new AppConfiguration(), [$this->minimalConfig()]);

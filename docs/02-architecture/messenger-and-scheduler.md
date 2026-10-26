@@ -32,6 +32,7 @@ Default DSN: `doctrine://default?auto_setup=0` (PostgreSQL `messenger_messages` 
 | `CleanUpNotificationsMessage` | `async_priority_low` |
 | `ReconcileNotificationsMessage` | `async_priority_low` |
 | `DeliverNotificationMessage` | `async_priority_low` |
+| `SampleMessengerQueuesMessage`, `CleanUpMonitoringMessage` | `async_priority_low` |
 | `SendEmailMessage` (prod) | `async_mail` |
 
 In `dev`, mail is synchronous. In `test`, most messages use `sync`.
@@ -48,6 +49,8 @@ In `dev`, mail is synchronous. In `test`, most messages use `sync`.
 | `45 2 * * *` (daily 02:45 Europe/Berlin) | `CleanUpNotificationsMessage` |
 | `17 * * * *` (hourly) | `ReconcileNotificationsMessage` |
 | `30 3 * * *` (daily 03:30 Europe/Berlin) | `MeasureStorageMessage` (ADR 017) |
+| `5 * * * *` (hourly) | `SampleMessengerQueuesMessage` (queue backlog sample, ADR 019) |
+| `50 3 * * *` (daily 03:50 Europe/Berlin) | `CleanUpMonitoringMessage` (monitoring retention, ADR 019) |
 
 The scheduler requires a running worker consuming `scheduler_default`. Locally: `make consume`.
 

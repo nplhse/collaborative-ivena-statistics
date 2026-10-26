@@ -44,6 +44,8 @@ final class AppExtension extends Extension
         $container->setParameter('app.closure_volume.minimum_reference_slots', $config['closure_volume']['minimum_reference_slots']);
 
         $container->setParameter('app.job_runs', $config['job_runs']);
+        $container->setParameter('app.job_runs_retention', $config['job_runs_retention']);
+        $container->setParameter('app.messenger_monitoring.retention', $config['messenger_monitoring']['retention']);
 
         // Storage monitoring (ADR 017)
         $storageConfig = $config['storage'];

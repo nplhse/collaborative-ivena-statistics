@@ -33,6 +33,8 @@ final class MessengerMonitoringControllerTest extends WebTestCase
         self::assertStringContainsString('Messenger monitoring', $text);
         self::assertStringContainsString('No message was handled by a worker in this period.', $text);
         self::assertStringContainsString('No failed attempts in this period.', $text);
+        self::assertStringContainsString('No message was handled and no queue sample was taken in this period.', $text);
+        self::assertCount(0, $crawler->filter('[data-controller="messenger-history-chart"]'));
         self::assertSame(
             ['async_priority_high', 'async_priority_low', 'async_mail', 'scheduler_default', 'failed'],
             $crawler->filter('.ea-messenger-transports tbody tr')->each(static fn ($row): string => (string) $row->attr('data-transport')),
@@ -52,6 +54,8 @@ final class MessengerMonitoringControllerTest extends WebTestCase
         $this->queued('high', '-20 minutes', '-20 minutes');
         $this->queued('mail', '-5 minutes', '+10 minutes');
         $this->queued('failed', '-1 day', '-1 day');
+        $sampledAt = new \DateTimeImmutable('-1 hour', new \DateTimeZone('UTC'))->format('Y-m-d H:00:00+00:00');
+        $this->connection()->executeStatement('INSERT INTO messenger_queue_sample (sampled_at, pending, waiting, failed) VALUES (?, 7, 0, 1)', [$sampledAt]);
 
         $crawler = $client->request(Request::METHOD_GET, '/admin/operations/messenger');
 
@@ -73,6 +77,18 @@ final class MessengerMonitoringControllerTest extends WebTestCase
         $types = $crawler->filter('.ea-messenger-types tbody tr th span.fw-semibold')->each(static fn ($name): string => trim($name->text()));
         self::assertSame(['SendEmailMessage', 'ImportAllocationsMessage'], $types, 'most attempts first');
 
+        $chart = $crawler->filter('[data-controller="messenger-history-chart"]');
+        self::assertCount(1, $chart);
+        $history = json_decode((string) $chart->attr('data-messenger-history-chart-chart-value'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($history);
+        self::assertSame('hour', $history['granularity']);
+        self::assertCount(25, $history['buckets'], 'every hour from the start of the period to the current one');
+        self::assertSame(13, array_sum($history['handled']));
+        self::assertSame(1, array_sum($history['failed']));
+        self::assertSame(1, array_sum($history['retried']));
+        self::assertSame([7], array_values(array_filter($history['backlog'], static fn ($value): bool => null !== $value)), 'one hourly sample');
+        self::assertSame($sampledAt, new \DateTimeImmutable($history['buckets'][array_search(7, $history['backlog'], true)])->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:00:00+00:00'));
+
         $failure = $crawler->filter('.ea-messenger-failures tbody tr')->each(static fn ($cell): string => trim($cell->text()));
         self::assertCount(1, $failure);
         self::assertStringContainsString('DeadlockException', $failure[0]);
@@ -82,6 +98,17 @@ final class MessengerMonitoringControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSame('17', trim($crawler->filter('[data-messenger-kpi="handled"]')->text()), 'the older mail row is inside 7 days');
         self::assertSame('7 days', trim($crawler->filter('[aria-current="true"]')->text()));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin/operations/messenger?period=30d');
+
+        self::assertResponseIsSuccessful();
+        $history = json_decode((string) $crawler->filter('[data-controller="messenger-history-chart"]')->attr('data-messenger-history-chart-chart-value'), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($history);
+        self::assertSame('day', $history['granularity']);
+        self::assertGreaterThanOrEqual(30, \count($history['buckets']));
+        self::assertLessThanOrEqual(31, \count($history['buckets']));
+        self::assertSame(17, array_sum($history['handled']), 'daily points sum the hourly rows');
+        self::assertSame('00:00', new \DateTimeImmutable($history['buckets'][0])->setTimezone(new \DateTimeZone('Europe/Berlin'))->format('H:i'), 'days start at midnight in Berlin');
     }
 
     public function testTheTransportListMatchesTheMessengerConfiguration(): void

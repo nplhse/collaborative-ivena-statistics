@@ -127,6 +127,55 @@ SQL,
     }
 
     /**
+     * Summed counters per hour, or per day (Europe/Berlin) for daily buckets, since the given time.
+     *
+     * @return array<string, array{handled: int, failed: int, retried: int, attempts: int, durationMsSum: int}> bucket start (ATOM, UTC) => counters
+     */
+    public function countsOverTime(\DateTimeImmutable $since, bool $daily): array
+    {
+        $bucket = $daily ? "date_trunc('day', bucket_start AT TIME ZONE 'Europe/Berlin') AT TIME ZONE 'Europe/Berlin'" : 'bucket_start';
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT '.$bucket.' AS bucket, SUM(handled) AS handled, SUM(failed) AS failed, SUM(retried) AS retried, SUM(attempts) AS attempts, SUM(duration_ms_sum) AS duration_ms_sum'
+            ." FROM messenger_metric WHERE granularity = 'hour' AND bucket_start >= :since GROUP BY 1",
+            ['since' => $this->utc($since)],
+        );
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[new \DateTimeImmutable((string) $row['bucket'])->setTimezone(new \DateTimeZone('UTC'))->format(\DATE_ATOM)] = [
+                'handled' => (int) $row['handled'],
+                'failed' => (int) $row['failed'],
+                'retried' => (int) $row['retried'],
+                'attempts' => (int) $row['attempts'],
+                'durationMsSum' => (int) $row['duration_ms_sum'],
+            ];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Queue backlog (pending messages) per hour, or the day's maximum for daily buckets, since the given time.
+     *
+     * @return array<string, int> bucket start (ATOM, UTC) => pending messages
+     */
+    public function backlogOverTime(\DateTimeImmutable $since, bool $daily): array
+    {
+        $bucket = $daily ? "date_trunc('day', sampled_at AT TIME ZONE 'Europe/Berlin') AT TIME ZONE 'Europe/Berlin'" : 'sampled_at';
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT '.$bucket.' AS bucket, MAX(pending) AS pending FROM messenger_queue_sample WHERE sampled_at >= :since GROUP BY 1',
+            ['since' => $this->utc($since)],
+        );
+
+        $backlog = [];
+        foreach ($rows as $row) {
+            $backlog[new \DateTimeImmutable((string) $row['bucket'])->setTimezone(new \DateTimeZone('UTC'))->format(\DATE_ATOM)] = (int) $row['pending'];
+        }
+
+        return $backlog;
+    }
+
+    /**
      * The last handling attempt of any message, from hourly and daily rows.
      */
     public function lastActivity(): ?\DateTimeImmutable

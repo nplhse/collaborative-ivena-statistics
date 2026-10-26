@@ -10,6 +10,7 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use App\Kpi\Infrastructure\Scheduler\KpiScheduleContribution;
 use App\Notification\Infrastructure\Scheduler\NotificationScheduleContribution;
+use App\Shared\Infrastructure\Scheduler\MonitoringScheduleContribution;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use App\Statistics\Infrastructure\Monitoring\AllocationProjectionRunTelemetry;
 use App\Storage\Infrastructure\Scheduler\StorageScheduleContribution;
@@ -41,6 +42,8 @@ final class JobRunCatalog
         NotificationScheduleContribution::JOB_CLEANUP,
         NotificationScheduleContribution::JOB_RECONCILE,
         StorageScheduleContribution::JOB,
+        MonitoringScheduleContribution::JOB_QUEUE_SAMPLE,
+        MonitoringScheduleContribution::JOB_RETENTION,
     ];
 
     /** Status => badge type. */
@@ -164,6 +167,19 @@ final class JobRunCatalog
             'level' => self::FORMAT_TEXT,
             'failures' => self::FORMAT_COUNT,
         ],
+        MonitoringScheduleContribution::JOB_QUEUE_SAMPLE => [
+            'pending' => self::FORMAT_COUNT,
+            'waiting' => self::FORMAT_COUNT,
+            'failed' => self::FORMAT_COUNT,
+            'oldest_pending_age_seconds' => self::FORMAT_COUNT,
+        ],
+        MonitoringScheduleContribution::JOB_RETENTION => [
+            'folded_daily_rows' => self::FORMAT_COUNT,
+            'deleted_hourly_rows' => self::FORMAT_COUNT,
+            'deleted_failures' => self::FORMAT_COUNT,
+            'deleted_queue_samples' => self::FORMAT_COUNT,
+            'deleted_job_runs' => self::FORMAT_COUNT,
+        ],
     ];
 
     /**
@@ -178,6 +194,8 @@ final class JobRunCatalog
         'skip_reason', 'days_processed', 'days_with_data', 'rows', 'hospitals', 'queued', 'skipped', 'raw_requests',
         'raw_events', 'aggregate_rows', 'raw_rows_deleted', 'deleted_notifications', 'deleted_deduplication_keys',
         'corrected_recipients', 'published', 'deliveries_resumed', 'level', 'failures',
+        'pending', 'waiting', 'failed', 'oldest_pending_age_seconds', 'folded_daily_rows', 'deleted_hourly_rows',
+        'deleted_failures', 'deleted_queue_samples', 'deleted_job_runs',
     ];
 
     /**

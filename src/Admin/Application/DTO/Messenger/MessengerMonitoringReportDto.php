@@ -23,6 +23,7 @@ final readonly class MessengerMonitoringReportDto
         public array $transports,
         public array $messageTypes,
         public array $failures,
+        public MessengerHistoryDto $history,
     ) {
     }
 }
