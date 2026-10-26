@@ -134,8 +134,8 @@ This ADR sets the direction for patterns; the work is split across issues:
 | Part | Where |
 |------|-------|
 | Remove the tracked YAML patterns and the commands that write them; plain default distributions in code, in the existing pattern shape and keyed by the synthetic catalog, so the current fixtures keep working | #740 |
-| Pattern package format, validation, export from production, privacy review | separate issue |
-| Conditional sampling along the chain, coherence rules, hospital profiles, scenarios | #792 |
+| Pattern package format and validation, conditional sampling along the chain, coherence rules, default distributions, hospital profiles, scenarios | #792 |
+| Export of real patterns from production, privacy review | separate small issue after #792 |
 | Individual demo hospitals using pattern packages | #791 |
 
 Direction for the later parts:
@@ -153,7 +153,7 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - Cells below a minimum case count are merged into `other`. If exactly one cell of a table would be merged, a second one is merged too, so the hidden value cannot be computed from the total. All tables of a segment use the same base data, so combining tables does not reveal more than each table.
 - Shares are rounded.
 - A pattern package is private data: it never becomes part of tracked fixtures, and the code defaults are never generated from it automatically.
-- The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the issue that builds the export.
+- The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the export issue.
 
 ## Consequences
 
@@ -176,7 +176,8 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - **Keep the curated catalog in the repository and only mark it private.** Rejected: the repository is public and its contents ship with every release.
 - **Indications only loosely inspired by the PZC list.** Rejected: real pattern packages are keyed by PZC code, and generated data looks real only with the official codes and wording.
 - **Random UUIDs for synthetic rows, fixed by the seed.** Rejected: ids would change whenever a provider draws one more random value; name-based ids stay the same as long as the natural key does.
-- **Build the whole pattern system in #740.** Rejected: it is an architecture topic of its own and overlaps with #792; #740 only removes the old patterns and keeps the fixtures working.
+- **Build the whole pattern system in #740.** Rejected: it is an architecture topic of its own and belongs to the generator of #792; #740 only removes the old patterns and keeps the fixtures working.
+- **A separate issue for the pattern format.** Rejected: the format is the generator's data model and is built with it in #792. Only the export of real patterns is separate, because #792 works without real data and the privacy review is an acceptance step of its own.
 
 ## Related
 
