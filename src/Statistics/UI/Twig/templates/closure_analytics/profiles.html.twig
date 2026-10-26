@@ -38,6 +38,9 @@
 
             <div data-testid="closure-profile-groups">
                 <twig:DataTable
+                    mobileLayout="cards"
+                    mobilePrimaryColumn="configuration"
+                    mobileBreakpoint="lg"
                     title="{{ 'stats.closure.profile.groups'|trans({}, 'statistics') }}"
                     :paginator="recurringProfiles"
                     paginationRoute="app_stats_closure_analytics_profiles"

@@ -1,0 +1,6 @@
+{# Card menu item for a recurring profile; the table shows _recurring_profile_actions.html.twig instead. #}
+<a class="dropdown-item"
+   href="{{ path('app_stats_closure_profile_group', app.request.query.all|merge({hospitalId: row.hospitalId, profileKey: row.profileKey})) }}"
+   data-testid="closure-recurring-profile-menu-link">
+    {{ 'stats.closure.profile.recurring.open_profile'|trans({}, 'statistics') }}
+</a>

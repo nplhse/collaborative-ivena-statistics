@@ -9,6 +9,9 @@
             columnOrder: null,
         }) %}
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="event"
+            mobileBreakpoint="lg"
             title="{{ (table.view == 'intervals' ? 'stats.closure.table.intervals_title' : 'stats.closure.events.title')|trans({}, 'statistics') }}"
             :paginator="events"
             paginationRoute="app_stats_closure_analytics_details"

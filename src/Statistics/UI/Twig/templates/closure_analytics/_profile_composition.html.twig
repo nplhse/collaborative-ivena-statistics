@@ -4,6 +4,9 @@
         <div class="alert alert-info" data-testid="closure-profile-rule">{{ 'stats.closure.profile.rule'|trans({}, 'statistics') }}</div>
     {% endif %}
     <twig:DataTable
+        mobileLayout="cards"
+        mobilePrimaryColumn="speciality"
+        mobileBreakpoint="lg"
         :rows="compositionRows"
         :showPaginationFooter="false"
         rowTestId="closure-profile-composition-row"

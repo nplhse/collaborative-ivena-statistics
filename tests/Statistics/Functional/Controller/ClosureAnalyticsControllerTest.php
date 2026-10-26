@@ -155,6 +155,35 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         self::assertSame('Functional', $searchValue);
     }
 
+    public function testClosureTablesUseCardsWithTheirBreakpoints(): void
+    {
+        $client = self::createClient();
+        $user = $this->loginAsClosureBetaUser($client);
+        [$hospitalId] = $this->seedGroupedClosures($user);
+        $scope = sprintf('scope=hospital&hospital=%d&period=all_time', $hospitalId);
+
+        foreach (['events', 'intervals'] as $view) {
+            $crawler = $client->request(Request::METHOD_GET, '/statistics/closure-analytics/details?'.$scope.'&tableView='.$view);
+            $this->assertResponseIsSuccessful();
+            $this->assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg');
+            self::assertCount(1, $crawler->filter('table.table tbody tr')->first()->filter('td.data-table-cell--primary'), $view.': the event is the card title.');
+        }
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics?'.$scope);
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="stats-closure-units"] [data-testid="data-table-cards"].data-table-cards--lg');
+
+        $crawler = $client->request(Request::METHOD_GET, '/statistics/closure-analytics/profiles?'.$scope);
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg');
+        $row = $crawler->filter('table.table tbody tr')->first();
+        self::assertSame(
+            $row->filter('[data-testid="closure-recurring-profile-link"]')->attr('href'),
+            $row->filter('.data-table-actions-menu [data-testid="closure-recurring-profile-menu-link"]')->attr('href'),
+            'The card menu opens the same profile as the table button.',
+        );
+    }
+
     public function testRecurringProfilesRunTheGroupingQueryOnce(): void
     {
         $client = self::createClient();
@@ -650,7 +679,7 @@ final class ClosureAnalyticsControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge.bg-blue-lt.text-blue');
         $this->assertSelectorTextNotContains('[data-testid="stats-closure-intervals"]', 'functional-group');
         $this->assertSelectorExists('[data-testid="stats-closure-intervals"] a.badge[href*="/statistics/closure-analytics/events/"]');
-        $this->assertSelectorTextSame('[data-testid="stats-closure-intervals"] tbody tr td:nth-child(7)', '1');
+        $this->assertSelectorTextSame('[data-testid="stats-closure-intervals"] tbody tr td:nth-child(7) .data-table-cell__value', '1');
         $this->assertSelectorCount(2, '[data-testid="stats-closure-table-view"] .btn');
         $this->assertSelectorTextContains('[data-testid="stats-closure-table-view"]', 'Cluster');
         $this->assertSelectorTextContains('[data-testid="stats-closure-table-view"]', 'Single');
