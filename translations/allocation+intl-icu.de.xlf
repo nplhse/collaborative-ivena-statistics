@@ -489,6 +489,10 @@
         <source>label.mci_case.search</source>
         <target>MCI-ID oder Titel</target>
       </trans-unit>
+      <trans-unit id="MciTitleDe" resname="label.mci_case.title">
+        <source>label.mci_case.title</source>
+        <target>MANV-Titel</target>
+      </trans-unit>
       <trans-unit id="MciIdLabelDe" resname="label.mci_id">
         <source>label.mci_id</source>
         <target>MCI-ID</target>
