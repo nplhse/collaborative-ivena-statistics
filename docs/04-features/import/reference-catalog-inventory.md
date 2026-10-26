@@ -14,7 +14,7 @@ This page lists every type of reference data, how each field is classified, whic
 
 ## Reference types
 
-All entities below live in `src/Allocation/Domain/Entity/`. Except for the two alias entities, all use `HasPublicId` (nullable UUID `public_id`, filled on persist, unique where set) and are audited.
+All entities below live in `src/Allocation/Domain/Entity/`. Except for the two alias entities, all use `HasRequiredPublicId` (UUID `public_id`, required and unique, created on persist unless set before) and are audited.
 
 Fields that every type has and that are never exported:
 
@@ -134,8 +134,8 @@ Decision: the package carries `target` only. On import, `normalized` is set to `
 
 ## Constraints that matter for import
 
-- The only unique indexes on reference tables are `public_id` (partial, where not null) and `normalized_name` on the two alias tables. Names, the raw indication hash and `state + name` of dispatch areas are unique only by convention. The package validation checks them; existing duplicates in a database surface as export warnings.
-- `public_id` is nullable. Rows created before the column existed may have none; they get one before the first export.
+- The only unique indexes on reference tables are `public_id` and `normalized_name` on the two alias tables. Names, the raw indication hash and `state + name` of dispatch areas are unique only by convention. The package validation checks them; existing duplicates in a database surface as export warnings.
+- `public_id` is required since migration `Version20261026215253`, which filled missing values (step 2 of #740).
 
 ## Tables that depend on the catalog
 
