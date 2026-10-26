@@ -8,11 +8,11 @@ Related: [observability-sentry.md](observability-sentry.md), [deployment.md](dep
 
 | `status` | HTTP | Meaning |
 |--------|------|---------|
-| `healthy` | 200 | Database reachable, no failed Messenger messages, storage fine |
-| `degraded` | 200 | Database OK, but the failed queue has messages or storage is at `warning`, `stale`, `unavailable` or `incomplete`. Check the Admin ops dashboard |
-| `unhealthy` | 503 | Database unreachable, or storage `critical` / `exceeded` |
+| `healthy` | 200 | Database reachable, no failed Messenger messages, queues and scheduler jobs fine, storage fine |
+| `degraded` | 200 | Database OK, but the failed queue has messages, a queue falls behind, many messages are retried, a scheduler job is overdue or its last run failed, or storage is at `warning`, `stale`, `unavailable` or `incomplete`. Check the Admin ops dashboard |
+| `unhealthy` | 503 | Database unreachable, processing stalled, a queue far behind, a scheduler job overdue by more than twice its interval, or storage `critical` / `exceeded` |
 
-The overall status is the worst of all checks. Public JSON includes only `status`, `checks.database` and `checks.storage` (no app `version`, no `messenger_failed` count, no sizes or paths). Full details remain available in the Admin ops dashboard.
+The overall status is the worst of all checks. Public JSON includes only `status`, `checks.database` and `checks.storage` (no app `version`, no Messenger or scheduler details, no sizes or paths). Full details remain available in the Admin ops dashboard.
 
 Example:
 
@@ -28,6 +28,10 @@ curl -sS https://<host>/health | jq
 | `database` | yes | `SELECT 1`. If it fails, no other check runs (`messenger_failed` shows `skipped`) |
 | `messenger_failed` | no | Rows in the `failed` Messenger queue |
 | `storage` | yes | Latest stored storage measurement (ADR 017), one indexed query, no filesystem scan |
+| `messenger_backlog` | no | Oldest message ready to be handled (ADR 019) |
+| `messenger_stalled` | no | Ready messages without any handling attempt (ADR 019) |
+| `messenger_retries` | no | Retry rate of the last 24 hours (ADR 019) |
+| `scheduled_jobs` | no | Last finished run of every scheduler job (ADR 019) |
 
 Further checks come from services implementing `App\Shared\Application\Health\HealthCheckContributorInterface` (autoconfigured tag `app.health_check_contributor`). They run after the database check, in container order, and only mark themselves public when their value is a plain status string.
 
@@ -49,6 +53,19 @@ The storage check reads the latest row of `storage_measurement`, written daily a
 
 Thresholds are configured in `config/packages/app.yaml` (`app.storage.thresholds.*`). The Admin health card shows the storage item with usage, capacity and its source, remaining percentage, level and measurement time, and links to the storage details.
 
+### Messenger and scheduler checks
+
+Limits are configured under `app.messenger_monitoring.health` and `app.job_runs.<job>.overdue_after_minutes`; the values below are the defaults. "Ready" means in a queue other than `failed`, not delayed and not in progress. An empty queue or an idle worker is never a failure.
+
+| Check | `degraded` | `unhealthy` |
+|-------|------------|-------------|
+| `messenger_backlog` | oldest ready message waits more than 30 min | more than 120 min |
+| `messenger_stalled` | – | ready messages older than 15 min and no handling attempt for 15 min (worker stopped) |
+| `messenger_retries` | more than 10 % of the attempts of the last 24 h were retried (from 20 attempts on) | – |
+| `scheduled_jobs` | a job has no finished run within its interval, or its last run failed | a job has no finished run within twice its interval |
+
+The value is `ok` or a short reason, for example `oldest message waits 45 min (low)` or `overdue: kpi_daily (9 h)`. A skipped run counts as a run. A job that never ran counts from the oldest `job_run` row, so a new job is not overdue right after its deploy. Runbooks: [messenger-monitoring.md](messenger-monitoring.md#runbooks).
+
 ## Uptime monitoring
 
 For external uptime monitoring (Sentry Uptime or similar), point the monitor at `https://<APP_URL>/health` and expect HTTP **200**.
@@ -56,10 +73,10 @@ For external uptime monitoring (Sentry Uptime or similar), point the monitor at 
 | Condition | Uptime alert |
 |-----------|--------------|
 | Timeout or connection failure | yes |
-| HTTP **503** (`unhealthy`: database down, or storage `critical` / `exceeded`) | yes |
+| HTTP **503** (`unhealthy`: database down, processing stalled, backlog or scheduler job far behind, or storage `critical` / `exceeded`) | yes |
 | HTTP **200** with `"status": "degraded"` | no (by design) |
 
-`degraded` means the app is up but the failed queue has messages or storage needs attention. Investigate with `php bin/console messenger:failed:show` or the Admin ops panel. Sentry Uptime does not parse JSON response bodies.
+`degraded` means the app is up but the failed queue has messages, background processing falls behind or storage needs attention. Investigate with `php bin/console messenger:failed:show` or the Admin ops panel. Sentry Uptime does not parse JSON response bodies.
 
 ## Runbook: `degraded` or failed queue entries
 
