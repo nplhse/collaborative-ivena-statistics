@@ -19,8 +19,8 @@ use Symfony\Component\Mime\RawMessage;
 
 /**
  * Moves deliveries to `sent` when the mail transport accepted the email, and to `failed` when the
- * email or the delivery job itself is given up (no retry follows). Modelled on
- * MonthlyReminderDeliverySubscriber; stores reason codes, never raw errors.
+ * email or the delivery job itself is given up (no retry follows); then announces the outcome
+ * (NotificationDeliverySent, NotificationDeliveryFailed). Stores reason codes, never raw errors.
  *
  * @psalm-suppress UnusedClass Registered via #[AsEventListener].
  */
@@ -30,7 +30,7 @@ final readonly class NotificationDeliveryStatusSubscriber
         private Connection $connection,
         private ClockInterface $clock,
         private LoggerInterface $logger,
-        private NotificationDeliveryFailureAnnouncer $failureAnnouncer,
+        private NotificationDeliveryAnnouncer $announcer,
     ) {
     }
 
@@ -42,11 +42,22 @@ final readonly class NotificationDeliveryStatusSubscriber
             return;
         }
 
-        $this->connection->executeStatement(
+        $updated = $this->connection->executeStatement(
             "UPDATE notification_delivery SET status = 'sent', status_changed_at = :now WHERE id = :id AND status IN ('pending', 'queued')",
             ['now' => $this->clock->now(), 'id' => $deliveryId],
             ['now' => Types::DATETIME_IMMUTABLE],
         );
+        if (0 === $updated) {
+            return;
+        }
+
+        try {
+            $this->announcer->announceSent($deliveryId);
+        } catch (\Throwable $exception) {
+            // The email is out: failing here would make Messenger send it again. Keep `sent`; the hourly
+            // reconciliation announces it again, so producers catch up later.
+            $this->logger->error('notification.delivery.sent_announcement_failed', ['delivery_id' => $deliveryId, 'exception' => $exception::class]);
+        }
     }
 
     #[AsEventListener(event: WorkerMessageFailedEvent::class)]
@@ -71,7 +82,7 @@ final readonly class NotificationDeliveryStatusSubscriber
             // Status and announcement commit together, so producers record the failure with it.
             $this->connection->transactional(function (Connection $connection) use ($deliveryId, $reason): void {
                 if ($this->markFailed($connection, $deliveryId, $reason) > 0) {
-                    $this->failureAnnouncer->announce($deliveryId, $reason);
+                    $this->announcer->announceFailed($deliveryId, $reason);
                 }
             });
         } catch (\Throwable $exception) {

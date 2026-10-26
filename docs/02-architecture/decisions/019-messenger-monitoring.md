@@ -71,8 +71,8 @@ Every job started by the Symfony Scheduler writes a `job_run` row, also short on
 
 ### Monthly reminder: one delivery path
 
-- Notification dispatches `NotificationDeliverySent` when a delivery moves to `sent`, like `NotificationDeliveryFailed` for failures.
-- Engagement updates its dispatch from that event, with the same attempt check as for failures.
+- Notification dispatches `NotificationDeliverySent` when a delivery moves to `sent`, like `NotificationDeliveryFailed` for failures (`NotificationDeliveryAnnouncer`). An error while recording it is only logged, because failing the mail job would send the email again; the hourly reconciliation (`DeliveryOutcomeReconciler`) announces sent and failed deliveries again.
+- Engagement updates its dispatch from both events in one subscriber (`MonthlyReminderDeliveryStatusSubscriber`), with the same hospital and attempt check for both.
 - The reminder's mail headers and `MonthlyReminderDeliverySubscriber` are removed.
 - `monthly_reminder_dispatch` keeps its columns (`status`, `delivered_at`, `failure_reason`, `attempt_id`). It prevents a second scheduled reminder per hospital and period and keeps the reminder history after the notification retention (ADR 016) removed the notification and its deliveries.
 - The scheduler batch becomes the job `monthly_reminder`.

@@ -43,7 +43,7 @@ final readonly class DeliverNotificationMessageHandler
         private UserRepository $userRepository,
         private ClockInterface $clock,
         private LoggerInterface $logger,
-        private NotificationDeliveryFailureAnnouncer $failureAnnouncer,
+        private NotificationDeliveryAnnouncer $announcer,
     ) {
     }
 
@@ -79,7 +79,7 @@ final readonly class DeliverNotificationMessageHandler
                 // Status and announcement commit together: if a producer cannot record the failure, everything
                 // rolls back, the delivery stays pending and Messenger retries the whole job.
                 $this->fail($connection, $message->deliveryId, NotificationDeliveryFailureReason::RecipientUnavailable);
-                $this->failureAnnouncer->announce($message->deliveryId, NotificationDeliveryFailureReason::RecipientUnavailable);
+                $this->announcer->announceFailed($message->deliveryId, NotificationDeliveryFailureReason::RecipientUnavailable);
 
                 return;
             }
