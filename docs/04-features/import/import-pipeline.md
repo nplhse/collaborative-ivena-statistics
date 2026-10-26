@@ -103,6 +103,10 @@ File paths are resolved and removed through `ImportFileStorage` (Symfony `Filesy
 
 An existing import can be processed again from its stored source file with **Reprocess import** on the detail page, or with `app:import:start`. Both register a new run; the handler removes the data of the previous run first. Details: [import-runs.md](import-runs.md#reprocessing-from-the-detail-page)
 
+## Data coverage
+
+At the end of each run the import stores which days its records cover, shown on the detail page with potential gaps. Details: [data-coverage.md](data-coverage.md)
+
 ## Source file download (admin)
 
 Administrators can download the original uploaded CSV from the import detail page (`/import/{id}`). The file is served through `DownloadImportSourceFileController` at `/import/{id}/source-file` — not via a public path under `var/imports/`.
@@ -143,6 +147,7 @@ See [../../02-architecture/decisions/005-reject-writer-strategy.md](../../02-arc
 ## Related documentation
 
 - Import runs: [import-runs.md](import-runs.md)
+- Data coverage: [data-coverage.md](data-coverage.md)
 - Requeue: [batch-requeue.md](batch-requeue.md)
 - Reject analysis: [reject-analysis.md](reject-analysis.md)
 - Indication corruption repair: [repair-indication-corruption.md](repair-indication-corruption.md)
