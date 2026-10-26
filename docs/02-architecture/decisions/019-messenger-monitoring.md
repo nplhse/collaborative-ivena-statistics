@@ -81,7 +81,7 @@ Every job started by the Symfony Scheduler writes a `job_run` row, also short on
 
 ### Health
 
-The new checks are contributors (`HealthCheckContributorInterface`, `src/Shared/Infrastructure/Monitoring/Health`); none of them is public, but each one counts towards the overall status of `/health`. The report keeps the status of every check, so the admin dashboard shows each one with its own severity and links it to the Messenger page or the job runs.
+The new checks are contributors (`HealthCheckContributorInterface`, `src/Shared/Infrastructure/Monitoring/Health`); none of them is public, but each one counts towards the overall status of `/health`. The report keeps the status of every check, so the admin dashboard shows each one with its own severity and links it to the Messenger page or the job runs. While `messenger_failed`, `messenger_backlog`, `messenger_stalled` and `messenger_retries` are all `ok`, the dashboard shows them as one item "Messenger: ok"; otherwise only the checks that are not ok appear. `/health` keeps every check.
 
 - `messenger_failed` stays in `HealthCheckService`, unchanged (degraded while `failed` holds messages; `skipped` when the database is unreachable).
 - `messenger_backlog`: degraded when the oldest message that is ready to be handled waits longer than `backlog_warning_minutes` (30), unhealthy beyond `backlog_critical_minutes` (120). Delayed messages and the failure queue do not count.

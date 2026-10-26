@@ -20,6 +20,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
 final readonly class OperationalDashboardService
 {
     /** The admin job run list; named as a string, so Application does not depend on the UI layer. */
+    /** Checks shown as one "Messenger" item on the dashboard while all of them are ok (ADR 019). */
+    private const array MESSENGER_CHECKS = ['messenger_failed', 'messenger_backlog', 'messenger_stalled', 'messenger_retries'];
+
     private const string JOB_RUN_CONTROLLER = \App\Admin\UI\Http\Controller\JobRun\JobRunCrudController::class;
 
     public function __construct(
@@ -100,13 +103,33 @@ final readonly class OperationalDashboardService
     }
 
     /**
+     * Health items for the dashboard card. The Messenger checks collapse into one "Messenger: ok" item while all
+     * of them are ok; otherwise only the ones that are not ok are shown, each with its own severity.
+     *
      * @return list<HealthCheckItemDto>
      */
     private function mapHealthCheckItems(HealthCheckReport $report): array
     {
-        $items = [];
+        $messengerKeys = array_values(array_intersect(self::MESSENGER_CHECKS, array_keys($report->checks)));
+        $messengerOk = [] !== $messengerKeys && [] === array_filter(
+            $messengerKeys,
+            static fn (string $key): bool => 'ok' !== $report->checks[$key],
+        );
+        $messengerUrl = $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_messenger')->generateUrl();
 
+        $items = [];
+        $messengerShown = false;
         foreach ($report->checks as $key => $value) {
+            if (\in_array($key, self::MESSENGER_CHECKS, true)) {
+                if ($messengerOk && !$messengerShown) {
+                    $items[] = $this->statusItem('messenger', 'ok', HealthCheckStatus::Healthy, 'fas fa-tower-broadcast', $messengerUrl);
+                    $messengerShown = true;
+                }
+                if ($messengerOk || 'ok' === $value) {
+                    continue;
+                }
+            }
+
             $items[] = match ($key) {
                 'database' => new HealthCheckItemDto(
                     key: $key,
@@ -119,11 +142,12 @@ final readonly class OperationalDashboardService
                     key: $key,
                     labelKey: 'ops.health.check.messenger_failed',
                     value: $value,
-                    severity: 'ok' === $value ? 'success' : ('skipped' === $value ? 'warning' : 'warning'),
-                    icon: 'ok' === $value ? 'fas fa-envelope-circle-check' : 'fas fa-triangle-exclamation',
+                    severity: 'warning',
+                    icon: 'fas fa-triangle-exclamation',
+                    detailUrl: 'skipped' === $value ? null : $this->generateFailedMessagesUrl(),
                 ),
                 'storage' => $this->storageHealthItemFactory->create($value),
-                'messenger_backlog', 'messenger_stalled', 'messenger_retries' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-tower-broadcast', $this->adminUrlGenerator->setRoute('app_admin_dashboard_operations_messenger')->generateUrl()),
+                'messenger_backlog', 'messenger_stalled', 'messenger_retries' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-tower-broadcast', $messengerUrl),
                 'scheduled_jobs' => $this->statusItem($key, $value, $report->statusOf($key), 'fas fa-stopwatch', $this->adminUrlGenerator->setController(self::JOB_RUN_CONTROLLER)->setAction('index')->generateUrl()),
                 default => new HealthCheckItemDto(
                     key: $key,
