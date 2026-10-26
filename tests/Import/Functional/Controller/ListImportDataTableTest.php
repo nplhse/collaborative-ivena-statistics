@@ -210,18 +210,57 @@ final class ListImportDataTableTest extends WebTestCase
         ]);
     }
 
+    public function testListUsesMobileCardsWithTheNameAsTitle(): void
+    {
+        $client = self::createClient();
+        [$owner, $hospital] = $this->actors();
+        $this->import('Mine', $hospital, $owner);
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import?columns=name,status,rowsPassed&columnOrder=rowsPassed,status,name');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg table[role="table"]');
+        self::assertSelectorExists('[data-testid="data-table-sort"]');
+
+        $row = $crawler->filter('table.table tbody tr')->first();
+        self::assertSame('Mine', trim($row->filter('td.data-table-cell--primary')->text()));
+        self::assertCount(1, $row->filter('td.data-table-cell--select input[name="ids[]"]'));
+        self::assertSame(
+            ['Successful rows', 'Status'],
+            $row->filter('.data-table-cell__label')->each(static fn (Crawler $label): string => trim($label->text())),
+            'Labels follow the picked columns and their order; the title has none.',
+        );
+        self::assertSelectorTextContains('thead label.data-table-select-page', 'Select all rows on this page');
+    }
+
+    public function testEmptyListShowsTheEmptyStateInsteadOfACard(): void
+    {
+        $client = self::createClient();
+        [$owner] = $this->actors();
+        $client->loginUser($owner);
+
+        $crawler = $client->request(Request::METHOD_GET, '/import?search=nothing');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('table.table tbody tr.data-table-row--empty .empty-title'));
+        self::assertCount(0, $crawler->filter('table.table tbody .data-table-cell__label'));
+    }
+
     /**
+     * Column headers without the bulk checkbox column.
+     *
      * @return list<string>
      */
     private function headers(Crawler $crawler): array
     {
         return array_values(array_filter(
-            $crawler->filter('table.table thead th')->each(static fn (Crawler $th): string => trim($th->text())),
+            $crawler->filter('table.table thead th:not(.data-table-cell--select)')->each(static fn (Crawler $th): string => trim($th->text())),
         ));
     }
 
     /**
-     * Cell texts without the bulk checkbox column.
+     * Cell values without the bulk checkbox column and without the mobile card labels.
      *
      * @return list<list<string>>
      */
@@ -229,7 +268,11 @@ final class ListImportDataTableTest extends WebTestCase
     {
         return $crawler->filter('table.table tbody tr')->each(
             static fn (Crawler $row): array => array_values(array_filter(
-                $row->filter('td')->each(static fn (Crawler $cell): string => trim(preg_replace('/\s+/', ' ', $cell->text()) ?? '')),
+                $row->filter('td:not(.data-table-cell--select)')->each(static function (Crawler $cell): string {
+                    $value = $cell->filter('.data-table-cell__value');
+
+                    return trim(preg_replace('/\s+/', ' ', ($value->count() > 0 ? $value : $cell)->text()) ?? '');
+                }),
                 static fn (string $text): bool => '' !== $text,
             )),
         );

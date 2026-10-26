@@ -64,6 +64,8 @@ final class ClosureRecurringProfileTableColumns implements DataTablePreferenceDe
                 'configurable' => false,
                 'nowrap' => true,
                 'cellTemplate' => '@Statistics/closure_analytics/data_table/_recurring_profile_actions.html.twig',
+                'mobileAction' => true,
+                'mobileMenuTemplate' => '@Statistics/closure_analytics/data_table/_recurring_profile_menu.html.twig',
             ],
         ];
 

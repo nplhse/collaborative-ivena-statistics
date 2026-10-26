@@ -89,6 +89,8 @@
         {% endif %}
 
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="name"
             :paginator="paginator"
             :rows="results"
             paginationRoute="app_explore_indication_raw_review_worklist"
@@ -105,7 +107,7 @@
                 { key: 'reviewStatus', type: 'custom', label: 'label.indication.review_status', cellTemplate: '@Allocation/indications/_cell_worklist_status.html.twig' },
                 { key: 'occurrence', type: 'custom', label: 'label.indication.occurrences', sortable: true, sortKey: 'occurrence', cellTemplate: '@Allocation/indications/_cell_occurrence.html.twig' },
                 { key: 'createdAt', type: 'datetime', label: 'label.created_at', property: 'createdAt', sortable: true, sortKey: 'createdAt' },
-                { key: 'actions', type: 'custom', label: '', align: 'end', cellTemplate: '@Allocation/indications/_cell_review_action.html.twig' },
+                { key: 'actions', type: 'custom', label: '', align: 'end', cellTemplate: '@Allocation/indications/_cell_review_action.html.twig', mobileAction: true, mobileMenuTemplate: '@Allocation/indications/_menu_review_action.html.twig' },
             ]"
         >
             <twig:block name="empty_actions">

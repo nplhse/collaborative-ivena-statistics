@@ -56,14 +56,32 @@ final class ListHospitalsControllerTest extends WebTestCase
         self::assertSelectorTextContains('#page-result-count', 'Showing 1-10 of 10 results.');
         self::assertSelectorExists('#page-result-count[data-controller="result-count-mirror"]');
 
-        $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
+        $nameRowText = $rows->eq(0)->filter('td')->eq(1)->filter('.data-table-cell__value')->text();
         self::assertNotEmpty($nameRowText);
 
-        $stateRow = $rows->eq(0)->filter('td')->eq(3)->text();
+        $stateRow = $rows->eq(0)->filter('td')->eq(3)->filter('.data-table-cell__value')->text();
         self::assertSame('Hessen', trim($stateRow));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(7)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(7)->filter('.data-table-cell__value')->text();
         self::assertStringContainsString('area-user', trim($userRow));
+    }
+
+    public function testListUsesMobileCardsAndLabelsTheParticipationIcon(): void
+    {
+        $client = $this->createClientAsParticipant();
+        UserFactory::createOne();
+        StateFactory::createOne();
+        DispatchAreaFactory::createOne();
+        HospitalFactory::createOne(['name' => 'ACME Hospital']);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/hospital');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg');
+        $row = $crawler->filter('table.table tbody tr')->first();
+        self::assertSame('ACME Hospital', trim($row->filter('td.data-table-cell--primary')->text()));
+        self::assertSame('', trim($crawler->filter('table.table thead th')->first()->text()), 'The table header of the icon column stays empty.');
+        self::assertSame('Participation', trim($row->filter('.data-table-cell__label')->first()->text()));
     }
 
     public function testTableCanBeSorted(): void
@@ -84,7 +102,7 @@ final class ListHospitalsControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows, 'We should see 2 rows of results.');
-        $nameRow = $rows->eq(0)->filter('td')->eq(1)->text();
+        $nameRow = $rows->eq(0)->filter('td')->eq(1)->filter('.data-table-cell__value')->text();
         self::assertSame('XYZ Hospital', trim($nameRow));
     }
 
@@ -391,7 +409,7 @@ final class ListHospitalsControllerTest extends WebTestCase
     private function names(Crawler $crawler): array
     {
         return $crawler->filter('table.table tbody tr')->each(
-            static fn (Crawler $row): string => trim($row->filter('td')->eq(1)->text()),
+            static fn (Crawler $row): string => trim($row->filter('td')->eq(1)->filter('.data-table-cell__value')->text()),
         );
     }
 }

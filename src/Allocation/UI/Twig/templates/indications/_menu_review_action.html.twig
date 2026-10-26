@@ -1,0 +1,5 @@
+{# Card menu item for the review worklist; the table shows _cell_review_action.html.twig instead. #}
+{% set query = context.query %}
+<a class="dropdown-item" href="{{ path('app_explore_indication_raw_review', {publicId: row.publicId, segment: query.segment.value, search: query.search}) }}" target="_top">
+    {{ 'btn.indication.review'|trans({}, 'allocation') }}
+</a>

@@ -8,6 +8,9 @@ use App\Shared\UI\Twig\DataTable\BadgePalette;
 use App\Shared\UI\Twig\DataTable\BadgeView;
 use App\Shared\UI\Twig\DataTable\DataTableBulkAction;
 use App\Shared\UI\Twig\DataTable\DataTableColumn;
+use App\Shared\UI\Twig\DataTable\DataTableColumnType;
+use App\Shared\UI\Twig\DataTable\DataTableMobileBreakpoint;
+use App\Shared\UI\Twig\DataTable\DataTableMobileLayout;
 use App\Shared\UI\Twig\DataTable\DataTableValueResolver;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -123,6 +126,37 @@ final class DataTable
     public array $cellContext = [];
 
     public ?string $turboFrame = null;
+
+    /**
+     * Layout below the md breakpoint: `scroll` (default) or `cards`. Cards only apply to declarative tables.
+     *
+     * @see DataTableMobileLayout
+     */
+    public string $mobileLayout = DataTableMobileLayout::Scroll->value;
+
+    /** Column key shown as the card title in the cards layout; without it every field is a label/value pair. */
+    public ?string $mobilePrimaryColumn = null;
+
+    /**
+     * Column keys shown inside the card title box, below the primary column and without a label.
+     *
+     * @var list<string>
+     */
+    public array $mobileTitleColumns = [];
+
+    /**
+     * Column keys that come first in a card, right below the title; the other fields keep the table order.
+     *
+     * @var list<string>
+     */
+    public array $mobileColumnOrder = [];
+
+    /**
+     * Table width below which the cards layout applies: `sm` (576 px), `md` (768 px, default) or `lg` (992 px).
+     *
+     * @see DataTableMobileBreakpoint
+     */
+    public string $mobileBreakpoint = DataTableMobileBreakpoint::Md->value;
 
     /**
      * Bulk actions for selected rows. Selection is enabled when actions, a form action and a CSRF token are set.
@@ -282,9 +316,134 @@ final class DataTable
             || $this->getShouldShowSortMenu();
     }
 
+    /**
+     * The sort menu sits next to the column picker. Card tables always get it: their sortable
+     * headers are visually hidden on narrow screens.
+     */
     public function getShouldShowSortMenu(): bool
     {
-        return $this->columnVisibilityEnabled && [] !== $this->getSortChoices();
+        return ($this->columnVisibilityEnabled || $this->isMobileCards()) && [] !== $this->getSortChoices();
+    }
+
+    public function getMobileLayoutMode(): DataTableMobileLayout
+    {
+        return DataTableMobileLayout::tryFrom($this->mobileLayout)
+            ?? throw new \InvalidArgumentException(\sprintf('Unknown DataTable mobileLayout "%s"; use one of: %s.', $this->mobileLayout, implode(', ', array_column(DataTableMobileLayout::cases(), 'value'))));
+    }
+
+    public function getMobileBreakpointMode(): DataTableMobileBreakpoint
+    {
+        return DataTableMobileBreakpoint::tryFrom($this->mobileBreakpoint)
+            ?? throw new \InvalidArgumentException(\sprintf('Unknown DataTable mobileBreakpoint "%s"; use one of: %s.', $this->mobileBreakpoint, implode(', ', array_column(DataTableMobileBreakpoint::cases(), 'value'))));
+    }
+
+    /**
+     * The `content` escape hatch renders its own table, so cards need declarative columns.
+     */
+    public function isMobileCards(): bool
+    {
+        return DataTableMobileLayout::Cards === $this->getMobileLayoutMode() && $this->isDeclarative();
+    }
+
+    public function isMobilePrimary(DataTableColumn $column): bool
+    {
+        return $this->isMobileCards() && null !== $this->mobilePrimaryColumn && $column->key === $this->mobilePrimaryColumn;
+    }
+
+    /**
+     * Cards label every value except the title and row actions. Columns without a header label (an icon
+     * column) can set `mobileLabel` to get a label in cards only; `mobileLabel: false` drops the label for
+     * cells that label their parts themselves.
+     */
+    public function hasMobileLabel(DataTableColumn $column): bool
+    {
+        return $this->isMobileCards()
+            && !$this->isMobilePrimary($column)
+            && !$this->isMobileTitlePart($column)
+            && !$this->isMobileAction($column)
+            && false !== $column->option('mobileLabel')
+            && '' !== $this->mobileLabelText($column);
+    }
+
+    /**
+     * A column of `mobileTitleColumns` that joins the title box (the title itself is the primary column).
+     */
+    public function isMobileTitlePart(DataTableColumn $column): bool
+    {
+        return $this->isMobileCards()
+            && !$this->isMobilePrimary($column)
+            && \in_array($column->key, $this->mobileTitleColumns, true);
+    }
+
+    /**
+     * Grid row of a title part: the title is row 1, the parts follow in the configured order.
+     */
+    public function mobileTitleRow(DataTableColumn $column): ?int
+    {
+        if (!$this->isMobileTitlePart($column)) {
+            return null;
+        }
+
+        return (int) array_search($column->key, $this->mobileTitleColumns, true) + 2;
+    }
+
+    /**
+     * A single `actions` column (a detail link) shows as a link in the card instead of the "more" menu.
+     */
+    public function isMobileDirectAction(): bool
+    {
+        $actions = $this->getMobileActionColumns();
+
+        return 1 === \count($actions) && DataTableColumnType::Actions === $actions[0]->type;
+    }
+
+    /**
+     * CSS order of a card field: columns in `mobileColumnOrder` get a negative order so they come first.
+     */
+    public function mobileOrder(DataTableColumn $column): ?int
+    {
+        if (!$this->isMobileCards()) {
+            return null;
+        }
+
+        $position = array_search($column->key, $this->mobileColumnOrder, true);
+
+        return false === $position ? null : (int) $position - \count($this->mobileColumnOrder);
+    }
+
+    /** Translation key of the card label: `mobileLabel` when set, otherwise the header label. */
+    public function mobileLabelText(DataTableColumn $column): string
+    {
+        $label = $column->option('mobileLabel');
+
+        return \is_string($label) && '' !== $label ? $label : $column->label;
+    }
+
+    /**
+     * Row actions move into the card's "more" menu: `actions` columns, and custom columns with `mobileAction`.
+     */
+    public function isMobileAction(DataTableColumn $column): bool
+    {
+        return $this->isMobileCards()
+            && (DataTableColumnType::Actions === $column->type || true === $column->option('mobileAction'));
+    }
+
+    /**
+     * @return list<DataTableColumn>
+     */
+    public function getMobileActionColumns(): array
+    {
+        return array_values(array_filter($this->getVisibleColumns(), $this->isMobileAction(...)));
+    }
+
+    /**
+     * The first action cell holds the card menu with the items of every action column.
+     */
+    public function isMobileActionMenu(DataTableColumn $column): bool
+    {
+        $first = $this->getMobileActionColumns()[0] ?? null;
+
+        return null !== $first && $first->key === $column->key;
     }
 
     /**

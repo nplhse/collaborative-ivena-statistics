@@ -19,6 +19,9 @@
 
     <div class="mt-3" data-testid="stats-closure-units">
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="name"
+            mobileBreakpoint="lg"
             title="{{ 'stats.closure.breakdown.closure_unit'|trans({}, 'statistics') }}"
             :paginator="closureUnits"
             paginationRoute="app_stats_closure_analytics"

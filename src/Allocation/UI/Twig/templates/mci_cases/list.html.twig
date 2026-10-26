@@ -94,6 +94,10 @@
         {% endif %}
 
         <twig:DataTable
+            mobileLayout="cards"
+            mobilePrimaryColumn="title"
+            :mobileColumnOrder="['hospital', 'timestamps']"
+            mobileBreakpoint="md"
             :paginator="paginator"
             :paginationRoute="pagination_route"
             :sortBy="sortBy"
@@ -102,7 +106,7 @@
             emptyDescription="{{ (activeFilterCount > 0 ? 'empty.filtered.description' : 'empty.catalog.description')|trans({}, 'shared') }}"
             emptyIcon="{{ activeFilterCount > 0 ? 'tabler:filter-off' : 'tabler:inbox' }}"
             :columns="[
-                { key: 'timestamps', type: 'custom', label: 'label.timestamps', sortable: true, sortKey: 'createdAt', width: 'col-2', cellTemplate: '@Allocation/allocations/_cell_timestamps.html.twig' },
+                { key: 'timestamps', type: 'custom', label: 'label.timestamps', sortable: true, sortKey: 'createdAt', width: 'col-2', cellTemplate: '@Allocation/allocations/_cell_timestamps.html.twig', mobileLabel: false },
                 { key: 'hospital', type: 'custom', label: 'label.hospital', width: 'col-3', cellTemplate: '@Allocation/allocations/_cell_hospital.html.twig' },
                 { key: 'title', type: 'custom', label: 'MCI Title', width: 'col-3', cellTemplate: '@Allocation/mci_cases/_cell_title.html.twig' },
                 { key: 'properties', type: 'custom', label: 'label.properties', width: 'col-2', cellTemplate: '@Allocation/mci_cases/_cell_properties.html.twig' },

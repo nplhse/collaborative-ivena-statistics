@@ -41,7 +41,7 @@ final class HospitalListColumns implements DataTablePreferenceDefinitionInterfac
     public static function columns(): array
     {
         return [
-            ['key' => 'participating', 'type' => 'boolean', 'label' => '', 'property' => 'participating'],
+            ['key' => 'participating', 'type' => 'boolean', 'label' => '', 'mobileLabel' => 'label.is_participating', 'property' => 'participating'],
             [
                 'key' => 'name',
                 'type' => 'link',

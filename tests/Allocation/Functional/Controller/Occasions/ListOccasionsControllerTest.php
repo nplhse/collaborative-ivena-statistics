@@ -42,10 +42,10 @@ final class ListOccasionsControllerTest extends WebTestCase
         self::assertCount(25, $rows, 'We should see 25 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 1-25 of 35 results.');
 
-        $nameRowText = $rows->eq(0)->filter('td')->eq(0)->text();
+        $nameRowText = $rows->eq(0)->filter('td')->eq(0)->filter('.data-table-cell__value')->text();
         self::assertSame('Test Occasion', trim($nameRowText));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(2)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(2)->filter('.data-table-cell__value')->text();
         self::assertSame('area-user', trim($userRow));
     }
 
@@ -64,7 +64,7 @@ final class ListOccasionsControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows, 'We should see 2 rows of results.');
-        $nameRow = $rows->eq(0)->filter('td')->eq(0)->text();
+        $nameRow = $rows->eq(0)->filter('td')->eq(0)->filter('.data-table-cell__value')->text();
         self::assertSame('XYZ', trim($nameRow));
     }
 

@@ -60,6 +60,9 @@
         </div>
     </div>
     <twig:DataTable
+        mobileLayout="cards"
+        mobilePrimaryColumn="createdAt"
+        mobileBreakpoint="sm"
         class="mt-3"
         :paginator="assignments"
         paginationRoute="app_stats_closure_analytics_event"

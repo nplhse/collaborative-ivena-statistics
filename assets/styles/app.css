@@ -13,6 +13,11 @@
     background: color-mix(in srgb, var(--tblr-bg-surface) 75%, transparent);
 }
 
+/* --data-table-row-highlight: DataTable cards only colour the card title with it. */
+.allocation-row-department-closed {
+    --data-table-row-highlight: var(--tblr-red-lt);
+}
+
 .allocation-row-department-closed > td,
 .allocation-row-department-closed > th {
     background-color: var(--tblr-red-lt) !important;
@@ -285,6 +290,637 @@
     flex: 0 0 1.75rem;
     font-variant-numeric: tabular-nums;
     color: var(--tblr-secondary);
+}
+
+/* DataTable mobile cards (mobileLayout="cards"): when the table is narrower than its breakpoint
+   (container query on the table's own width, not the viewport) every row becomes a card with
+   labelled values. Same markup as the table; only tables that opt in get .data-table-cards.
+
+   Card header row: title (mobilePrimaryColumn), then the row checkbox, then the "more" menu with the
+   row actions. A row class can set --data-table-row-highlight; cards colour only the title with it.
+
+   Rules here are safe in table layout (they only take effect on grid/flex boxes or on elements that
+   exist only in cards). Everything that changes the table look sits in the container queries below,
+   one per DataTableMobileBreakpoint (sm/md/lg). Keep the three blocks identical apart from the width. */
+.data-table-cards {
+    container: data-table-cards / inline-size;
+}
+
+.data-table-cards .data-table-cell__label {
+    display: none;
+    color: var(--tblr-secondary);
+    font-size: 0.8125rem;
+}
+
+.data-table-cards .data-table-actions-menu,
+.data-table-cards .data-table-action-link,
+.data-table-cell__pair > .data-table-cell__label {
+    display: none;
+}
+
+.data-table-cards > .table > thead > tr {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 1rem;
+}
+
+.data-table-select-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    cursor: pointer;
+}
+
+.data-table-cards > .table > tbody {
+    gap: 0.75rem;
+}
+
+.data-table-cards > .table > tbody > tr {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.5rem 0.5rem;
+}
+
+.data-table-cards > .table > tbody > tr > td {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: baseline;
+}
+
+/* Values without a label use the full card width. */
+.data-table-cards td > .data-table-cell__value:only-child {
+    grid-column: 1 / -1;
+}
+
+.data-table-cards > .table > tbody > tr > td.data-table-cell--primary {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.data-table-cards > .table > tbody > tr > td.data-table-cell--select {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.data-table-cards > .table > tbody > tr > td.data-table-cell--actions {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+/* Title parts (mobileTitleColumns) sit below the title; their grid-row comes from the markup. */
+.data-table-cards > .table > tbody > tr > td.data-table-cell--title {
+    grid-column: 1;
+}
+
+/* Without a checkbox or menu next to it, the title box uses the full card width. */
+.data-table-cards > .table > tbody > tr:not(:has(> td.data-table-cell--select, > td.data-table-cell--actions)) > td:is(.data-table-cell--primary, .data-table-cell--title) {
+    grid-column: 1 / -1;
+}
+
+/* A single detail action becomes a link at the end of the card. */
+.data-table-cards > .table > tbody > tr > td.data-table-cell--action-link {
+    order: 1000;
+}
+
+@container data-table-cards (max-width: 575.98px) {
+    .data-table-cards--sm > .table,
+    .data-table-cards--sm > .table > thead {
+        display: block;
+    }
+
+    /* Headers stay in the accessibility tree (no display: none). A header becomes visible while its
+       sort link has keyboard focus; the "select page" checkbox stays visible as a bar. */
+    .data-table-cards--sm > .table > thead > tr {
+        display: flex;
+        padding: 0 1rem;
+    }
+
+    .data-table-cards--sm > .table > thead th {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .data-table-cards--sm > .table > thead th:focus-within,
+    .data-table-cards--sm > .table > thead th.data-table-cell--select {
+        position: static;
+        width: auto !important;
+        height: auto;
+        margin: 0;
+        padding: 0.5rem 0;
+        overflow: visible;
+        clip-path: none;
+        background: none;
+    }
+
+    .data-table-cards--sm .data-table-select-page .data-table-cell__label {
+        display: inline;
+    }
+
+    .data-table-cards--sm > .table > tbody {
+        display: grid;
+        padding: 0.75rem;
+        background: var(--tblr-bg-surface-secondary);
+    }
+
+    .data-table-cards--sm > .table > tbody > tr {
+        display: grid;
+        align-items: start;
+        padding: 0.75rem 1rem;
+        background: var(--tblr-bg-surface);
+        border: var(--tblr-border-width) solid var(--tblr-border-color);
+        border-radius: var(--tblr-border-radius);
+    }
+
+    .data-table-cards--sm > .table > tbody > tr:has([data-bulk-selection-target="item"]:checked) {
+        border-color: var(--tblr-primary);
+        box-shadow: 0 0 0 1px var(--tblr-primary);
+    }
+
+    /* text-end, text-nowrap, w-1 and row highlights come from the table config and are meant for the
+       table; cards reset them and colour only the title with --data-table-row-highlight. */
+    .data-table-cards--sm > .table > tbody > tr > td {
+        display: grid;
+        width: auto !important;
+        padding: 0;
+        border: 0;
+        background-color: transparent !important;
+        box-shadow: none;
+        text-align: start !important;
+        white-space: normal !important;
+    }
+
+    .data-table-cards--sm .data-table-cell__label {
+        display: block;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .data-table-cards--sm .data-table-cell__value {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* Cells that label their parts (mobileLabel: false) use the same label/value columns. */
+    .data-table-cards--sm .data-table-cell__pair {
+        display: grid;
+        grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: baseline;
+    }
+
+    .data-table-cards--sm .data-table-cell__pair + .data-table-cell__pair {
+        margin-top: 0.5rem;
+    }
+
+    /* Cell templates that centre their content (boolean icons) align with the other values. */
+    .data-table-cards--sm .data-table-cell__value > .text-center {
+        text-align: start !important;
+    }
+
+    /* Truncated badges (facets) wrap in cards instead; centred and clipped they lose both ends. */
+    .data-table-cards--sm .data-table-cell__value .text-truncate {
+        text-align: start;
+        white-space: normal !important;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--primary,
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--select,
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--actions {
+        display: block;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--primary {
+        margin: -0.25rem -0.5rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        font-size: 1rem;
+        font-weight: var(--tblr-font-weight-medium);
+    }
+
+    /* Title box: the title and its parts share one background (--data-table-row-highlight). Negative
+       margins close the row gap between them without overlapping: the highlight is translucent. */
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--title {
+        display: block;
+        margin: -0.25rem -0.5rem -0.25rem;
+        padding: 0 0.5rem 0.25rem;
+        border-radius: 0 0 var(--tblr-border-radius) var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        text-align: end !important;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr:has(> td.data-table-cell--title) > td.data-table-cell--primary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--action-link {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .data-table-cards--sm td.data-table-cell--action-link > .data-table-cell__value {
+        display: none;
+    }
+
+    .data-table-cards--sm .data-table-action-link {
+        display: block;
+    }
+
+    .data-table-cards--sm .data-table-cell--select .form-check-input {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Row actions: the inline buttons give way to the "more" menu in the card header. */
+    .data-table-cards--sm td.data-table-cell--actions > .data-table-cell__value,
+    .data-table-cards--sm > .table > tbody > tr > td.data-table-cell--actions-extra {
+        display: none;
+    }
+
+    .data-table-cards--sm .data-table-actions-menu {
+        display: block;
+    }
+
+    /* Empty state: one full-width block, not a data card. */
+    .data-table-cards--sm > .table > tbody > tr.data-table-row--empty {
+        display: block;
+        padding: 0;
+        background: none;
+        border: 0;
+    }
+
+    .data-table-cards--sm > .table > tbody > tr.data-table-row--empty > td {
+        display: block;
+    }
+}
+
+@container data-table-cards (max-width: 767.98px) {
+    .data-table-cards--md > .table,
+    .data-table-cards--md > .table > thead {
+        display: block;
+    }
+
+    /* Headers stay in the accessibility tree (no display: none). A header becomes visible while its
+       sort link has keyboard focus; the "select page" checkbox stays visible as a bar. */
+    .data-table-cards--md > .table > thead > tr {
+        display: flex;
+        padding: 0 1rem;
+    }
+
+    .data-table-cards--md > .table > thead th {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .data-table-cards--md > .table > thead th:focus-within,
+    .data-table-cards--md > .table > thead th.data-table-cell--select {
+        position: static;
+        width: auto !important;
+        height: auto;
+        margin: 0;
+        padding: 0.5rem 0;
+        overflow: visible;
+        clip-path: none;
+        background: none;
+    }
+
+    .data-table-cards--md .data-table-select-page .data-table-cell__label {
+        display: inline;
+    }
+
+    .data-table-cards--md > .table > tbody {
+        display: grid;
+        padding: 0.75rem;
+        background: var(--tblr-bg-surface-secondary);
+    }
+
+    .data-table-cards--md > .table > tbody > tr {
+        display: grid;
+        align-items: start;
+        padding: 0.75rem 1rem;
+        background: var(--tblr-bg-surface);
+        border: var(--tblr-border-width) solid var(--tblr-border-color);
+        border-radius: var(--tblr-border-radius);
+    }
+
+    .data-table-cards--md > .table > tbody > tr:has([data-bulk-selection-target="item"]:checked) {
+        border-color: var(--tblr-primary);
+        box-shadow: 0 0 0 1px var(--tblr-primary);
+    }
+
+    /* text-end, text-nowrap, w-1 and row highlights come from the table config and are meant for the
+       table; cards reset them and colour only the title with --data-table-row-highlight. */
+    .data-table-cards--md > .table > tbody > tr > td {
+        display: grid;
+        width: auto !important;
+        padding: 0;
+        border: 0;
+        background-color: transparent !important;
+        box-shadow: none;
+        text-align: start !important;
+        white-space: normal !important;
+    }
+
+    .data-table-cards--md .data-table-cell__label {
+        display: block;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .data-table-cards--md .data-table-cell__value {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* Cells that label their parts (mobileLabel: false) use the same label/value columns. */
+    .data-table-cards--md .data-table-cell__pair {
+        display: grid;
+        grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: baseline;
+    }
+
+    .data-table-cards--md .data-table-cell__pair + .data-table-cell__pair {
+        margin-top: 0.5rem;
+    }
+
+    /* Cell templates that centre their content (boolean icons) align with the other values. */
+    .data-table-cards--md .data-table-cell__value > .text-center {
+        text-align: start !important;
+    }
+
+    /* Truncated badges (facets) wrap in cards instead; centred and clipped they lose both ends. */
+    .data-table-cards--md .data-table-cell__value .text-truncate {
+        text-align: start;
+        white-space: normal !important;
+    }
+
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--primary,
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--select,
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--actions {
+        display: block;
+    }
+
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--primary {
+        margin: -0.25rem -0.5rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        font-size: 1rem;
+        font-weight: var(--tblr-font-weight-medium);
+    }
+
+    /* Title box: the title and its parts share one background (--data-table-row-highlight). Negative
+       margins close the row gap between them without overlapping: the highlight is translucent. */
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--title {
+        display: block;
+        margin: -0.25rem -0.5rem -0.25rem;
+        padding: 0 0.5rem 0.25rem;
+        border-radius: 0 0 var(--tblr-border-radius) var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        text-align: end !important;
+    }
+
+    .data-table-cards--md > .table > tbody > tr:has(> td.data-table-cell--title) > td.data-table-cell--primary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--action-link {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .data-table-cards--md td.data-table-cell--action-link > .data-table-cell__value {
+        display: none;
+    }
+
+    .data-table-cards--md .data-table-action-link {
+        display: block;
+    }
+
+    .data-table-cards--md .data-table-cell--select .form-check-input {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Row actions: the inline buttons give way to the "more" menu in the card header. */
+    .data-table-cards--md td.data-table-cell--actions > .data-table-cell__value,
+    .data-table-cards--md > .table > tbody > tr > td.data-table-cell--actions-extra {
+        display: none;
+    }
+
+    .data-table-cards--md .data-table-actions-menu {
+        display: block;
+    }
+
+    /* Empty state: one full-width block, not a data card. */
+    .data-table-cards--md > .table > tbody > tr.data-table-row--empty {
+        display: block;
+        padding: 0;
+        background: none;
+        border: 0;
+    }
+
+    .data-table-cards--md > .table > tbody > tr.data-table-row--empty > td {
+        display: block;
+    }
+}
+
+@container data-table-cards (max-width: 991.98px) {
+    .data-table-cards--lg > .table,
+    .data-table-cards--lg > .table > thead {
+        display: block;
+    }
+
+    /* Headers stay in the accessibility tree (no display: none). A header becomes visible while its
+       sort link has keyboard focus; the "select page" checkbox stays visible as a bar. */
+    .data-table-cards--lg > .table > thead > tr {
+        display: flex;
+        padding: 0 1rem;
+    }
+
+    .data-table-cards--lg > .table > thead th {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .data-table-cards--lg > .table > thead th:focus-within,
+    .data-table-cards--lg > .table > thead th.data-table-cell--select {
+        position: static;
+        width: auto !important;
+        height: auto;
+        margin: 0;
+        padding: 0.5rem 0;
+        overflow: visible;
+        clip-path: none;
+        background: none;
+    }
+
+    .data-table-cards--lg .data-table-select-page .data-table-cell__label {
+        display: inline;
+    }
+
+    .data-table-cards--lg > .table > tbody {
+        display: grid;
+        padding: 0.75rem;
+        background: var(--tblr-bg-surface-secondary);
+    }
+
+    .data-table-cards--lg > .table > tbody > tr {
+        display: grid;
+        align-items: start;
+        padding: 0.75rem 1rem;
+        background: var(--tblr-bg-surface);
+        border: var(--tblr-border-width) solid var(--tblr-border-color);
+        border-radius: var(--tblr-border-radius);
+    }
+
+    .data-table-cards--lg > .table > tbody > tr:has([data-bulk-selection-target="item"]:checked) {
+        border-color: var(--tblr-primary);
+        box-shadow: 0 0 0 1px var(--tblr-primary);
+    }
+
+    /* text-end, text-nowrap, w-1 and row highlights come from the table config and are meant for the
+       table; cards reset them and colour only the title with --data-table-row-highlight. */
+    .data-table-cards--lg > .table > tbody > tr > td {
+        display: grid;
+        width: auto !important;
+        padding: 0;
+        border: 0;
+        background-color: transparent !important;
+        box-shadow: none;
+        text-align: start !important;
+        white-space: normal !important;
+    }
+
+    .data-table-cards--lg .data-table-cell__label {
+        display: block;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .data-table-cards--lg .data-table-cell__value {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    /* Cells that label their parts (mobileLabel: false) use the same label/value columns. */
+    .data-table-cards--lg .data-table-cell__pair {
+        display: grid;
+        grid-template-columns: minmax(6rem, 40%) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: baseline;
+    }
+
+    .data-table-cards--lg .data-table-cell__pair + .data-table-cell__pair {
+        margin-top: 0.5rem;
+    }
+
+    /* Cell templates that centre their content (boolean icons) align with the other values. */
+    .data-table-cards--lg .data-table-cell__value > .text-center {
+        text-align: start !important;
+    }
+
+    /* Truncated badges (facets) wrap in cards instead; centred and clipped they lose both ends. */
+    .data-table-cards--lg .data-table-cell__value .text-truncate {
+        text-align: start;
+        white-space: normal !important;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--primary,
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--select,
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--actions {
+        display: block;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--primary {
+        margin: -0.25rem -0.5rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        font-size: 1rem;
+        font-weight: var(--tblr-font-weight-medium);
+    }
+
+    /* Title box: the title and its parts share one background (--data-table-row-highlight). Negative
+       margins close the row gap between them without overlapping: the highlight is translucent. */
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--title {
+        display: block;
+        margin: -0.25rem -0.5rem -0.25rem;
+        padding: 0 0.5rem 0.25rem;
+        border-radius: 0 0 var(--tblr-border-radius) var(--tblr-border-radius);
+        background-color: var(--data-table-row-highlight, transparent) !important;
+        text-align: end !important;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr:has(> td.data-table-cell--title) > td.data-table-cell--primary {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--action-link {
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .data-table-cards--lg td.data-table-cell--action-link > .data-table-cell__value {
+        display: none;
+    }
+
+    .data-table-cards--lg .data-table-action-link {
+        display: block;
+    }
+
+    .data-table-cards--lg .data-table-cell--select .form-check-input {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Row actions: the inline buttons give way to the "more" menu in the card header. */
+    .data-table-cards--lg td.data-table-cell--actions > .data-table-cell__value,
+    .data-table-cards--lg > .table > tbody > tr > td.data-table-cell--actions-extra {
+        display: none;
+    }
+
+    .data-table-cards--lg .data-table-actions-menu {
+        display: block;
+    }
+
+    /* Empty state: one full-width block, not a data card. */
+    .data-table-cards--lg > .table > tbody > tr.data-table-row--empty {
+        display: block;
+        padding: 0;
+        background: none;
+        border: 0;
+    }
+
+    .data-table-cards--lg > .table > tbody > tr.data-table-row--empty > td {
+        display: block;
+    }
 }
 
 /* IVENA-inspired closure timeline. Neutral cells mean “no closure represented”,
