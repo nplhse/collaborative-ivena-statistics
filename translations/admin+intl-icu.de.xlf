@@ -509,6 +509,10 @@
         <source>ops.health.check.storage</source>
         <target>Speicher</target>
       </trans-unit>
+      <trans-unit id="opsHlthMsg00de" resname="ops.health.check.messenger">
+        <source>ops.health.check.messenger</source>
+        <target>Messenger</target>
+      </trans-unit>
       <trans-unit id="opsHlthMsg01de" resname="ops.health.check.messenger_backlog">
         <source>ops.health.check.messenger_backlog</source>
         <target>Messenger-Rückstau</target>

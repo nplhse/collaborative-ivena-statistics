@@ -160,10 +160,54 @@ final class DashboardOperationsTest extends WebTestCase
         self::assertStringContainsString('bg-danger', (string) $stalled->attr('class'));
         self::assertSame('Messenger processing: 1 message(s) waiting, no handling recorded', $stalled->text());
 
-        self::assertStringContainsString('bg-success', (string) $crawler->filter('[data-health-check="messenger_retries"]')->attr('class'));
+        self::assertCount(0, $crawler->filter('[data-health-check="messenger_retries"]'), 'checks that are ok are left out while another Messenger check is not');
+        self::assertCount(0, $crawler->filter('[data-health-check="messenger_failed"]'));
+        self::assertCount(0, $crawler->filter('[data-health-check="messenger"]'));
         $jobs = $crawler->filter('[data-health-check="scheduled_jobs"]');
         self::assertSame('Scheduled jobs: ok', $jobs->text());
         self::assertStringEndsWith('/admin/job-run', (string) $jobs->attr('href'));
+    }
+
+    public function testAllMessengerChecksOkShowAsOneItem(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        self::assertResponseIsSuccessful();
+        $messenger = $crawler->filter('[data-health-check="messenger"]');
+        self::assertCount(1, $messenger);
+        self::assertSame('Messenger: ok', $messenger->text());
+        self::assertStringContainsString('bg-success', (string) $messenger->attr('class'));
+        self::assertStringEndsWith('/admin/operations/messenger', (string) $messenger->attr('href'));
+        foreach (['messenger_failed', 'messenger_backlog', 'messenger_stalled', 'messenger_retries'] as $key) {
+            self::assertCount(0, $crawler->filter(\sprintf('[data-health-check="%s"]', $key)), $key);
+        }
+        self::assertSame(
+            ['database', 'messenger', 'scheduled_jobs', 'storage'],
+            $crawler->filter('[data-health-check]')->each(static fn (Crawler $item): string => (string) $item->attr('data-health-check')),
+            'the Messenger item takes the place of the first Messenger check',
+        );
+    }
+
+    public function testFailedMessagesShowAloneAndLinkToTheFailureQueue(): void
+    {
+        $client = self::createClient();
+        $client->loginUser(UserFactory::new()->asAdmin()->create());
+        $this->store(StorageMeasurementBuilder::measuredAt(new \DateTimeImmutable('-1 hour')));
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+        self::getContainer()->get(EntityManagerInterface::class)->getConnection()->insert('messenger_messages', ['body' => 'x', 'headers' => '{}', 'queue_name' => 'failed', 'created_at' => $now, 'available_at' => $now]);
+
+        $crawler = $client->request(Request::METHOD_GET, '/admin');
+
+        $failed = $crawler->filter('[data-health-check="messenger_failed"]');
+        self::assertSame('Messenger failed: 1 failed message(s)', $failed->text());
+        self::assertStringContainsString('bg-warning', (string) $failed->attr('class'));
+        self::assertStringContainsString('/admin/operations/failed-messages', (string) $failed->attr('href'));
+        self::assertCount(0, $crawler->filter('[data-health-check="messenger"]'));
+        self::assertCount(0, $crawler->filter('[data-health-check="messenger_backlog"]'), 'the failure queue is not a backlog');
     }
 
     public function testWithoutMeasurementHealthIsDegradedAndTheStorageCardIsEmpty(): void
