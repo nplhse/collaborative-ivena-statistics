@@ -128,6 +128,25 @@ final class IndicationRawReviewWorklistControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
     }
 
+    public function testCardsOfferTheReviewActionInTheMenu(): void
+    {
+        $client = self::createClient();
+        $admin = UserFactory::createOne(['roles' => [UserRole::USER, UserRole::ADMIN]]);
+        $raw = IndicationRawFactory::createOne(['code' => 701, 'name' => 'Card Me']);
+        $client->loginUser($admin);
+
+        $crawler = $client->request(Request::METHOD_GET, '/explore/indication/raw/review', ['segment' => 'unreviewed']);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--md');
+        $row = $crawler->filter('table.table tbody tr')->first();
+        self::assertSame('Card Me', trim($row->filter('td.data-table-cell--primary')->text()));
+        $item = $row->filter('.data-table-actions-menu a.dropdown-item');
+        self::assertSame('Review', trim($item->text()));
+        self::assertStringContainsString($raw->getPublicIdString(), (string) $item->attr('href'));
+        self::assertSame($row->filter('td.data-table-cell--actions .data-table-cell__value a')->attr('href'), $item->attr('href'));
+    }
+
     public function testLegacyTopOpenSegmentRedirectsToOpenView(): void
     {
         $client = self::createClient();

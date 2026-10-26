@@ -61,6 +61,22 @@ final class ListIndicationsDataTableTest extends WebTestCase
         }
     }
 
+    public function testEachTabUsesItsOwnCardBreakpoint(): void
+    {
+        $client = $this->createClientAsParticipant();
+        $this->allocationBasics();
+        IndicationRawFactory::createOne(['code' => 7, 'name' => 'Chest pain']);
+
+        $client->request(Request::METHOD_GET, '/explore/indication?type=raw');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--lg');
+        self::assertSelectorTextContains('table.table tbody td.data-table-cell--primary', 'Chest pain');
+
+        $client->request(Request::METHOD_GET, '/explore/indication?type=normalized');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-testid="data-table-cards"].data-table-cards--md');
+    }
+
     public function testRawOccurrenceColumnShowsPrimaryPlusSecondaryCount(): void
     {
         $client = $this->createClientAsParticipant();
@@ -166,7 +182,7 @@ final class ListIndicationsDataTableTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSame(['Zulu', 'Alpha'], $crawler->filter('table.table tbody tr')->each(
-            static fn (Crawler $row): string => trim($row->filter('td')->eq(1)->text()),
+            static fn (Crawler $row): string => trim($row->filter('td')->eq(1)->filter('.data-table-cell__value')->text()),
         ));
         self::assertSelectorExists('table.table thead th[aria-sort="descending"]');
         self::assertSelectorExists('table.table thead th[aria-sort="none"]');
@@ -200,7 +216,7 @@ final class ListIndicationsDataTableTest extends WebTestCase
     {
         return $crawler->filter('table.table tbody tr')->each(
             static fn (Crawler $row): array => $row->filter('td')->each(
-                static fn (Crawler $cell): string => trim(preg_replace('/\s+/', ' ', $cell->text()) ?? ''),
+                static fn (Crawler $cell): string => trim(preg_replace('/\s+/', ' ', ($cell->filter('.data-table-cell__value')->count() > 0 ? $cell->filter('.data-table-cell__value') : $cell)->text()) ?? ''),
             ),
         );
     }

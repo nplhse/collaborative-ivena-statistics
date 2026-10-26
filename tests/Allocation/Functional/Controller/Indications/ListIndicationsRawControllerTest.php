@@ -45,13 +45,13 @@ final class ListIndicationsRawControllerTest extends WebTestCase
         self::assertCount(25, $rows, 'We should see 25 rows of results.');
         self::assertSelectorTextContains('#result-count', 'Showing 1-25 of 35 results.');
 
-        $codeRowText = $rows->eq(0)->filter('td')->eq(0)->text();
+        $codeRowText = $rows->eq(0)->filter('td')->eq(0)->filter('.data-table-cell__value')->text();
         self::assertSame('232', trim($codeRowText));
 
-        $nameRowText = $rows->eq(0)->filter('td')->eq(1)->text();
+        $nameRowText = $rows->eq(0)->filter('td')->eq(1)->filter('.data-table-cell__value')->text();
         self::assertSame('Test Indication', trim($nameRowText));
 
-        $userRow = $rows->eq(0)->filter('td')->eq(5)->text();
+        $userRow = $rows->eq(0)->filter('td')->eq(5)->filter('.data-table-cell__value')->text();
         self::assertSame('area-user', trim($userRow));
     }
 
@@ -70,7 +70,7 @@ final class ListIndicationsRawControllerTest extends WebTestCase
 
         $rows = $crawler->filter('table.table tbody tr');
         self::assertCount(2, $rows, 'We should see 2 rows of results.');
-        $nameRow = $rows->eq(0)->filter('td')->eq(1)->text();
+        $nameRow = $rows->eq(0)->filter('td')->eq(1)->filter('.data-table-cell__value')->text();
         self::assertSame('XYZ', trim($nameRow));
     }
 
