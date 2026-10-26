@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Admin\UI\Http\Controller;
 
+use App\Admin\Application\Service\Messenger\MessengerMonitoringPeriod;
+use App\Admin\Application\Service\Messenger\MessengerMonitoringService;
 use App\Admin\Application\Service\OperationalDashboardService;
 use App\Admin\Infrastructure\Repository\MessengerStatsRepository;
 use App\Admin\UI\Http\Controller\Allocation\AllocationCrudController;
@@ -71,6 +73,7 @@ final class DashboardController extends AbstractDashboardController
         private readonly MessengerStatsRepository $messengerStatsRepository,
         private readonly AnalyticsDashboardService $analyticsDashboardService,
         private readonly StorageReportService $storageReportService,
+        private readonly MessengerMonitoringService $messengerMonitoringService,
     ) {
     }
 
@@ -103,6 +106,15 @@ final class DashboardController extends AbstractDashboardController
         return $this->render('@Admin/operations/failed_messages_index.html.twig', [
             'messages' => $this->messengerStatsRepository->findFailedMessages(),
             'total_count' => $this->messengerStatsRepository->countFailedMessages(),
+        ]);
+    }
+
+    #[AdminRoute(path: '/operations/messenger', name: 'operations_messenger')]
+    public function messenger(Request $request): Response
+    {
+        return $this->render('@Admin/operations/messenger/index.html.twig', [
+            'report' => $this->messengerMonitoringService->report(MessengerMonitoringPeriod::fromQuery($request->query->getString('period'))),
+            'periods' => MessengerMonitoringPeriod::cases(),
         ]);
     }
 
@@ -426,6 +438,12 @@ final class DashboardController extends AbstractDashboardController
                         'route' => 'app_admin_dashboard_operations_storage',
                     ],
                     [
+                        'label' => 'Messenger',
+                        'description' => 'Message handling, queues, retries and failures',
+                        'icon' => 'fas fa-tower-broadcast',
+                        'route' => 'app_admin_dashboard_operations_messenger',
+                    ],
+                    [
                         'label' => 'Failed messages',
                         'description' => 'Inspect messenger failed queue',
                         'icon' => 'fas fa-triangle-exclamation',
@@ -514,6 +532,7 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(AuditLogCrudController::class, 'Audit log', 'fas fa-clipboard-list');
         yield MenuItem::linkTo(CookieConsentCrudController::class, 'Cookie consents', 'fas fa-cookie-bite');
         yield MenuItem::linkToRoute(new TranslatableMessage('storage.menu.disk_usage', domain: 'storage'), 'fas fa-hard-drive', 'app_admin_dashboard_operations_storage');
+        yield MenuItem::linkToRoute(new TranslatableMessage('ops.messenger.menu', domain: 'admin'), 'fas fa-tower-broadcast', 'app_admin_dashboard_operations_messenger');
         yield MenuItem::linkToRoute('Failed messages', 'fas fa-triangle-exclamation', 'app_admin_dashboard_operations_failed_messages');
         yield MenuItem::linkTo(JobRunCrudController::class, new TranslatableMessage('admin.job_run.menu', domain: 'admin'), 'fas fa-stopwatch');
         yield MenuItem::linkTo(MonthlyReminderDispatchCrudController::class, 'Monthly reminders', 'fas fa-envelope');

@@ -629,6 +629,190 @@
         <source>ops.failed_messages.flash.none_selected</source>
         <target>Bitte mindestens eine fehlgeschlagene Nachricht zum Löschen auswählen.</target>
       </trans-unit>
+      <trans-unit id="opsMsg01de" resname="ops.messenger.menu">
+        <source>ops.messenger.menu</source>
+        <target>Messenger</target>
+      </trans-unit>
+      <trans-unit id="opsMsg02de" resname="ops.messenger.title">
+        <source>ops.messenger.title</source>
+        <target>Messenger-Überwachung</target>
+      </trans-unit>
+      <trans-unit id="opsMsg03de" resname="ops.messenger.help">
+        <source>ops.messenger.help</source>
+        <target>Verarbeitung von Hintergrundnachrichten durch die Worker: Ergebnisse, Wiederholungen und Dauer im gewählten Zeitraum, Warteschlangen im aktuellen Stand.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg04de" resname="ops.messenger.period.label">
+        <source>ops.messenger.period.label</source>
+        <target>Zeitraum</target>
+      </trans-unit>
+      <trans-unit id="opsMsg05de" resname="ops.messenger.period.24h">
+        <source>ops.messenger.period.24h</source>
+        <target>24 Stunden</target>
+      </trans-unit>
+      <trans-unit id="opsMsg06de" resname="ops.messenger.period.7d">
+        <source>ops.messenger.period.7d</source>
+        <target>7 Tage</target>
+      </trans-unit>
+      <trans-unit id="opsMsg07de" resname="ops.messenger.period.30d">
+        <source>ops.messenger.period.30d</source>
+        <target>30 Tage</target>
+      </trans-unit>
+      <trans-unit id="opsMsg08de" resname="ops.messenger.kpi.handled">
+        <source>ops.messenger.kpi.handled</source>
+        <target>Verarbeitet</target>
+      </trans-unit>
+      <trans-unit id="opsMsg09de" resname="ops.messenger.kpi.after_retry">
+        <source>ops.messenger.kpi.after_retry</source>
+        <target>{count, plural, =0 {keine nach Wiederholung} =1 {eine nach Wiederholung} other {# nach Wiederholung}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsg10de" resname="ops.messenger.kpi.failed">
+        <source>ops.messenger.kpi.failed</source>
+        <target>Endgültig fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsMsg11de" resname="ops.messenger.kpi.success_rate">
+        <source>ops.messenger.kpi.success_rate</source>
+        <target>Erfolgsquote</target>
+      </trans-unit>
+      <trans-unit id="opsMsg12de" resname="ops.messenger.kpi.retried">
+        <source>ops.messenger.kpi.retried</source>
+        <target>Wiederholungen</target>
+      </trans-unit>
+      <trans-unit id="opsMsg13de" resname="ops.messenger.kpi.retry_rate">
+        <source>ops.messenger.kpi.retry_rate</source>
+        <target>Wiederholungsquote</target>
+      </trans-unit>
+      <trans-unit id="opsMsg14de" resname="ops.messenger.kpi.duration">
+        <source>ops.messenger.kpi.duration</source>
+        <target>Durchschnittliche Dauer</target>
+      </trans-unit>
+      <trans-unit id="opsMsg15de" resname="ops.messenger.kpi.duration_max">
+        <source>ops.messenger.kpi.duration_max</source>
+        <target>Längste</target>
+      </trans-unit>
+      <trans-unit id="opsMsg16de" resname="ops.messenger.kpi.pending">
+        <source>ops.messenger.kpi.pending</source>
+        <target>Jetzt wartend</target>
+      </trans-unit>
+      <trans-unit id="opsMsg17de" resname="ops.messenger.kpi.waiting">
+        <source>ops.messenger.kpi.waiting</source>
+        <target>{count, plural, =0 {keine warten auf Wiederholung} =1 {eine wartet auf Wiederholung} other {# warten auf Wiederholung}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsg18de" resname="ops.messenger.kpi.last_activity">
+        <source>ops.messenger.kpi.last_activity</source>
+        <target>Letzte Aktivität</target>
+      </trans-unit>
+      <trans-unit id="opsMsg19de" resname="ops.messenger.kpi.failed_queue">
+        <source>ops.messenger.kpi.failed_queue</source>
+        <target>{count, plural, =0 {Fehler-Queue leer} =1 {Eine Nachricht in der Fehler-Queue} other {# Nachrichten in der Fehler-Queue}}</target>
+      </trans-unit>
+      <trans-unit id="opsMsg20de" resname="ops.messenger.section.transports">
+        <source>ops.messenger.section.transports</source>
+        <target>Transports</target>
+      </trans-unit>
+      <trans-unit id="opsMsg21de" resname="ops.messenger.section.message_types">
+        <source>ops.messenger.section.message_types</source>
+        <target>Nachrichtentypen</target>
+      </trans-unit>
+      <trans-unit id="opsMsg22de" resname="ops.messenger.section.failures">
+        <source>ops.messenger.section.failures</source>
+        <target>Letzte Fehler</target>
+      </trans-unit>
+      <trans-unit id="opsMsg23de" resname="ops.messenger.table.transport">
+        <source>ops.messenger.table.transport</source>
+        <target>Transport</target>
+      </trans-unit>
+      <trans-unit id="opsMsg24de" resname="ops.messenger.table.pending">
+        <source>ops.messenger.table.pending</source>
+        <target>Wartend</target>
+      </trans-unit>
+      <trans-unit id="opsMsg25de" resname="ops.messenger.table.waiting">
+        <source>ops.messenger.table.waiting</source>
+        <target>Wartet auf Wiederholung</target>
+      </trans-unit>
+      <trans-unit id="opsMsg26de" resname="ops.messenger.table.oldest_pending">
+        <source>ops.messenger.table.oldest_pending</source>
+        <target>Älteste wartende</target>
+      </trans-unit>
+      <trans-unit id="opsMsg27de" resname="ops.messenger.table.handled">
+        <source>ops.messenger.table.handled</source>
+        <target>Verarbeitet</target>
+      </trans-unit>
+      <trans-unit id="opsMsg28de" resname="ops.messenger.table.retried">
+        <source>ops.messenger.table.retried</source>
+        <target>Wiederholt</target>
+      </trans-unit>
+      <trans-unit id="opsMsg29de" resname="ops.messenger.table.failed">
+        <source>ops.messenger.table.failed</source>
+        <target>Fehlgeschlagen</target>
+      </trans-unit>
+      <trans-unit id="opsMsg30de" resname="ops.messenger.table.last_activity">
+        <source>ops.messenger.table.last_activity</source>
+        <target>Letzte Aktivität</target>
+      </trans-unit>
+      <trans-unit id="opsMsg31de" resname="ops.messenger.table.message_type">
+        <source>ops.messenger.table.message_type</source>
+        <target>Nachrichtentyp</target>
+      </trans-unit>
+      <trans-unit id="opsMsg32de" resname="ops.messenger.table.attempts">
+        <source>ops.messenger.table.attempts</source>
+        <target>Versuche</target>
+      </trans-unit>
+      <trans-unit id="opsMsg33de" resname="ops.messenger.table.success_rate">
+        <source>ops.messenger.table.success_rate</source>
+        <target>Erfolgsquote</target>
+      </trans-unit>
+      <trans-unit id="opsMsg34de" resname="ops.messenger.table.retry_rate">
+        <source>ops.messenger.table.retry_rate</source>
+        <target>Wiederholungsquote</target>
+      </trans-unit>
+      <trans-unit id="opsMsg35de" resname="ops.messenger.table.duration">
+        <source>ops.messenger.table.duration</source>
+        <target>Ø Dauer</target>
+      </trans-unit>
+      <trans-unit id="opsMsg37de" resname="ops.messenger.table.exception">
+        <source>ops.messenger.table.exception</source>
+        <target>Exception</target>
+      </trans-unit>
+      <trans-unit id="opsMsg38de" resname="ops.messenger.table.failed_attempts">
+        <source>ops.messenger.table.failed_attempts</source>
+        <target>Fehlgeschlagene Versuche</target>
+      </trans-unit>
+      <trans-unit id="opsMsg39de" resname="ops.messenger.table.given_up">
+        <source>ops.messenger.table.given_up</source>
+        <target>Aufgegeben</target>
+      </trans-unit>
+      <trans-unit id="opsMsg40de" resname="ops.messenger.table.last_failure">
+        <source>ops.messenger.table.last_failure</source>
+        <target>Letzter Fehler</target>
+      </trans-unit>
+      <trans-unit id="opsMsg41de" resname="ops.messenger.not_measurable">
+        <source>ops.messenger.not_measurable</source>
+        <target>Keine Warteschlange messbar</target>
+      </trans-unit>
+      <trans-unit id="opsMsg42de" resname="ops.messenger.not_measurable.hint">
+        <source>ops.messenger.not_measurable.hint</source>
+        <target>Der Scheduler erzeugt seine Nachrichten erst, wenn sie fällig sind; ob seine Jobs laufen, zeigen die Job-Läufe.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg43de" resname="ops.messenger.empty.message_types">
+        <source>ops.messenger.empty.message_types</source>
+        <target>In diesem Zeitraum hat kein Worker eine Nachricht verarbeitet.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg44de" resname="ops.messenger.empty.failures">
+        <source>ops.messenger.empty.failures</source>
+        <target>Keine fehlgeschlagenen Versuche in diesem Zeitraum.</target>
+      </trans-unit>
+      <trans-unit id="opsMsg45de" resname="ops.messenger.link.failed_messages">
+        <source>ops.messenger.link.failed_messages</source>
+        <target>Fehler-Queue öffnen</target>
+      </trans-unit>
+      <trans-unit id="opsMsg46de" resname="ops.messenger.link.job_runs">
+        <source>ops.messenger.link.job_runs</source>
+        <target>Job-Läufe öffnen</target>
+      </trans-unit>
+      <trans-unit id="opsMsg47de" resname="ops.messenger.footnote">
+        <source>ops.messenger.footnote</source>
+        <target>Gezählt werden nur Nachrichten, die ein Worker verarbeitet. Ein Fehler, den Messenger wiederholt, zählt als Wiederholung, nicht als fehlgeschlagen; „endgültig fehlgeschlagen“ heißt, es folgt keine Wiederholung. Details zu Exceptions stehen in Sentry und in der Fehler-Queue.</target>
+      </trans-unit>
       <trans-unit id="opsRd01de" resname="ops.reminder_dispatch.title">
         <source>ops.reminder_dispatch.title</source>
         <target>Monatliche Erinnerungsversände</target>
