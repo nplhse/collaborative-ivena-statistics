@@ -35,6 +35,7 @@ final class ListMciCasesControllerTest extends WebTestCase
         $client->request(Request::METHOD_GET, '/explore/mci_case');
 
         self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('table.table thead', 'MCI title');
         self::assertSelectorTextContains('table', 'Hospital Alpha');
         self::assertSelectorTextContains('table', 'Hospital Beta');
         self::assertSelectorTextContains('table', 'Hospital Gamma');
