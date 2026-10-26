@@ -142,13 +142,9 @@ class JobRun
         return null === $this->peakMemoryBytes ? null : (int) $this->peakMemoryBytes;
     }
 
-    /** @psalm-suppress PossiblyUnusedMethod Read by EasyAdmin. */
-    public function getThresholdsExceeded(): ?string
-    {
-        return $this->thresholdsExceeded;
-    }
-
     /**
+     * The comma list of exceeded thresholds, e.g. "slow,memory", as a list.
+     *
      * @return list<string>
      */
     public function getThresholdsExceededList(): array

@@ -71,6 +71,23 @@ final class JobRunEntityTest extends KernelTestCase
         self::assertSame(['full' => true], $run->getMetrics());
     }
 
+    public function testBlankEntriesOfTheThresholdListAreSkipped(): void
+    {
+        self::getContainer()->get('doctrine.dbal.default_connection')->insert('job_run', [
+            'id' => 'run-3',
+            'job' => 'closure_rebuild',
+            'triggered_by' => 'console',
+            'status' => 'succeeded',
+            'started_at' => '2026-10-25 16:00:00+00:00',
+            'thresholds_exceeded' => ' slow, ,memory',
+        ]);
+
+        $run = $this->entityManager()->find(JobRun::class, 'run-3');
+
+        self::assertInstanceOf(JobRun::class, $run);
+        self::assertSame(['slow', 'memory'], $run->getThresholdsExceededList());
+    }
+
     private function entityManager(): EntityManagerInterface
     {
         return self::getContainer()->get(EntityManagerInterface::class);
