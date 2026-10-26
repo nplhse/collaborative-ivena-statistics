@@ -16,17 +16,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * Renders the reminder email with the existing monthly reminder design. The content is
  * built when the email is delivered, for the reference date stored with the notification, so the
- * entry itself only carries ids and names. The dispatch id header keeps `monthly_reminder_dispatch`
- * up to date (MonthlyReminderDeliverySubscriber).
+ * entry itself only carries ids and names. The dispatch follows the delivery's outcome through the
+ * notification's parameters (MonthlyReminderDeliveryStatusSubscriber).
  *
  * @psalm-suppress UnusedClass Tagged via NotificationEmailCustomizerInterface.
  */
 final readonly class MonthlyReminderEmailCustomizer implements NotificationEmailCustomizerInterface
 {
-    public const string DISPATCH_ID_HEADER = 'X-COIS-Monthly-Reminder-Dispatch-Id';
-
-    public const string ATTEMPT_ID_HEADER = 'X-COIS-Monthly-Reminder-Attempt-Id';
-
     public function __construct(
         private HospitalRepository $hospitalRepository,
         private MonthlyReminderContentBuilder $contentBuilder,
@@ -60,16 +56,5 @@ final readonly class MonthlyReminderEmailCustomizer implements NotificationEmail
         ], 'engagement', $content->locale);
         $content->htmlTemplate = '@Engagement/email/monthly_submission_reminder.html.twig';
         $content->context = ['content' => $reminder, 'app_title' => $this->mailConfig->appName];
-
-        $dispatchId = $content->parameters['dispatchId'] ?? null;
-        if (\is_int($dispatchId)) {
-            $content->headers[self::DISPATCH_ID_HEADER] = (string) $dispatchId;
-
-            // The send attempt, so a late mail event of an earlier attempt cannot change a newer one.
-            $attemptId = $content->parameters['attemptId'] ?? null;
-            if (\is_string($attemptId) && '' !== $attemptId) {
-                $content->headers[self::ATTEMPT_ID_HEADER] = $attemptId;
-            }
-        }
     }
 }

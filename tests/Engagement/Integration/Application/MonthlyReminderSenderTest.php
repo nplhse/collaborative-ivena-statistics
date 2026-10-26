@@ -11,7 +11,6 @@ use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Engagement\Application\Dto\MonthlyReminderTrigger;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\Domain\Enum\MonthlyReminderDispatchStatus;
-use App\Engagement\Infrastructure\Notification\MonthlyReminderEmailCustomizer;
 use App\Engagement\Infrastructure\Repository\MonthlyReminderDispatchRepository;
 use App\Notification\Infrastructure\Delivery\NotificationEmailFactory;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
@@ -313,9 +312,8 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         $dispatch = self::getContainer()->get(MonthlyReminderDispatchRepository::class)
             ->findForHospitalPeriodAndTrigger((int) $hospital->getId(), '2026-06', MonthlyReminderTrigger::Scheduler->value);
         self::assertNotNull($dispatch);
-        self::assertSame((string) $dispatch->getId(), $email->getHeaders()->get(MonthlyReminderEmailCustomizer::DISPATCH_ID_HEADER)?->getBodyAsString());
         self::assertNotNull($email->getHeaders()->get(NotificationEmailFactory::DELIVERY_ID_HEADER));
-        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus(), 'the mail events complete the dispatch');
+        self::assertSame(MonthlyReminderDispatchStatus::Sent, $dispatch->getStatus(), 'the delivery events complete the dispatch');
 
         $row = self::getContainer()->get(Connection::class)->fetchAssociative(
             'SELECT type, in_app_visible, scope_reference_id, parameters FROM notification WHERE recipient_id = ?',
@@ -328,7 +326,7 @@ final class MonthlyReminderSenderTest extends DatabaseKernelTestCase
         self::assertSame(['2026-07-01', $dispatch->getId()], [$parameters['referenceDate'], $parameters['dispatchId']]);
         self::assertNotNull($dispatch->getAttemptId());
         self::assertSame($dispatch->getAttemptId(), $parameters['attemptId'], 'the notification names the send attempt');
-        self::assertSame($dispatch->getAttemptId(), $email->getHeaders()->get(MonthlyReminderEmailCustomizer::ATTEMPT_ID_HEADER)?->getBodyAsString(), 'and so does its email');
+        self::assertNull($email->getHeaders()->get('X-COIS-Monthly-Reminder-Dispatch-Id'), 'the email no longer carries the dispatch');
     }
 
     public function testSendUsesOwnerGermanLocale(): void

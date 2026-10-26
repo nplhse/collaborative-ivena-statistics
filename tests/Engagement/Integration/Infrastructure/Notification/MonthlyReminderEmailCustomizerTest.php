@@ -33,6 +33,16 @@ final class MonthlyReminderEmailCustomizerTest extends DatabaseKernelTestCase
         self::assertSame([], $content->headers);
     }
 
+    public function testTheEmailCarriesNoDispatchHeaders(): void
+    {
+        $hospital = HospitalFactory::createOne(['name' => 'Klinikum Test']);
+        $content = $this->content(['hospitalId' => $hospital->getId(), 'dispatchId' => 12, 'attemptId' => 'attempt-a']);
+
+        self::getContainer()->get(MonthlyReminderEmailCustomizer::class)->customize($content, UserFactory::createOne());
+
+        self::assertSame([], $content->headers, 'the dispatch follows the delivery events, not mail headers');
+    }
+
     public function testKeepsTheGenericEmailWhenTheHospitalIsGone(): void
     {
         $content = $this->content(['hospitalId' => 999_999]);
