@@ -11,6 +11,7 @@ use App\Import\Infrastructure\Repository\ImportRunRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -72,7 +73,7 @@ class ImportRun
         $this->import = $import;
         $this->trigger = $trigger;
         $this->initiatedBy = $initiatedBy;
-        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
+        $this->createdAt = $createdAt ?? Clock::get()->now();
     }
 
     public function getId(): Uuid

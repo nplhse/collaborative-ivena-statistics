@@ -23,6 +23,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -45,6 +46,7 @@ final readonly class ImportRunLifecycle
         private LoggerInterface $importLogger,
         private ImportMilestoneRecorder $milestoneRecorder,
         private ImportBatchCompletion $batchCompletion,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -83,7 +85,7 @@ final readonly class ImportRunLifecycle
             ImportRunCommitGuard::lockCurrentRunId($connection, $importId);
             $em->refresh($import);
 
-            $now = new \DateTimeImmutable();
+            $now = $this->clock->now();
             $previous = $this->supersedeCurrentRun($em, $import, $now);
             $supersededBatchRunId = $previous?->getBatchRunItem()?->getRun()?->getId();
 
@@ -170,7 +172,7 @@ final readonly class ImportRunLifecycle
             }
 
             $resumed = ImportRunStatus::Running === $run->getStatus();
-            $run->markRunning(new \DateTimeImmutable());
+            $run->markRunning($this->clock->now());
             $em->flush();
 
             return new ImportRunContext($importId, $runId, $resumed);
@@ -275,7 +277,7 @@ final readonly class ImportRunLifecycle
             $em->refresh($import);
             $outcome = $evaluate($import);
 
-            $now = new \DateTimeImmutable();
+            $now = $this->clock->now();
             if (!$this->transitionToTerminal($em, $context->runId, $outcome, $now)) {
                 $connection->rollBack();
                 $em->refresh($import);

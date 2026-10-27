@@ -26,6 +26,7 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -429,6 +430,7 @@ final class NewImportControllerTest extends WebTestCase
             self::getContainer()->get(ImportFileStorage::class),
             self::getContainer()->get('monolog.logger'),
             $filesystem,
+            new NativeClock(),
         );
         self::getContainer()->set(FileUploader::class, $isolatedUploader);
 

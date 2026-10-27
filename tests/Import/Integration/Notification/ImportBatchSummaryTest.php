@@ -32,6 +32,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -152,6 +153,7 @@ final class ImportBatchSummaryTest extends DatabaseKernelTestCase
             new ImportAllocationsDispatcher($container->get(ImportRepository::class), $bus, $container->get(TokenStorageInterface::class), $this->lifecycle),
             new ImportRequeueResumeResolver(),
             $this->completion,
+            new NativeClock(),
         );
 
         $summary = $orchestrator->run(new ImportRequeueBatchOptions(onlyIds: $importIds, initiatedByUserId: $admin->getId()));

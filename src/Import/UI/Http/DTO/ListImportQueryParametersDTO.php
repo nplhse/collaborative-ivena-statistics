@@ -6,6 +6,7 @@ namespace App\Import\UI\Http\DTO;
 
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\UI\Twig\ImportListColumns;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class ListImportQueryParametersDTO
@@ -89,7 +90,7 @@ final readonly class ListImportQueryParametersDTO
 
     public static function defaultCreatedUntil(): string
     {
-        return new \DateTimeImmutable('today')->format('Y-m-d');
+        return Clock::get()->now()->format('Y-m-d');
     }
 
     public function isDefaultCreatedFrom(): bool
