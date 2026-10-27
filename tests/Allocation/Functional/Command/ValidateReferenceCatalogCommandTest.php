@@ -41,7 +41,9 @@ final class ValidateReferenceCatalogCommandTest extends KernelTestCase
 
         self::assertSame(Command::SUCCESS, $exitCode);
         $display = $tester->getDisplay();
-        self::assertStringContainsString('is a valid reference catalog package', $display);
+        // The success block wraps long paths, so compare with collapsed whitespace.
+        $flat = (string) preg_replace('/\s+/', ' ', $display);
+        self::assertStringContainsString('is a valid reference catalog package', $flat);
         self::assertMatchesRegularExpression('/indication-raw\s+2/', $display);
     }
 
@@ -57,7 +59,7 @@ final class ValidateReferenceCatalogCommandTest extends KernelTestCase
 
         self::assertSame(Command::FAILURE, $exitCode);
         $display = $tester->getDisplay();
-        self::assertStringContainsString('2 problem(s)', $display);
+        self::assertStringContainsString('2 problem(s)', (string) preg_replace('/\s+/', ' ', $display));
         self::assertStringContainsString('hospitals[0].size', $display);
         self::assertStringContainsString('states[0].name', $display);
     }
