@@ -50,7 +50,7 @@ final class SyntheticCatalogCsvImportTest extends KernelTestCase
         $purgerFactory = $container->get('doctrine.fixtures.purger.orm_purger_factory');
         new ORMExecutor($em, $purgerFactory->createForEntityManager('default', $em, []))->execute($loader->getFixtures(['reference']), true);
 
-        $hospital = $em->getRepository(Hospital::class)->findOneBy(['name' => 'Katharinen Kassel']);
+        $hospital = $em->getRepository(Hospital::class)->findOneBy(['name' => 'Universitätskrankenhaus Wolfhagen']);
         self::assertInstanceOf(Hospital::class, $hospital);
         $user = $em->getRepository(User::class)->findOneBy(['username' => 'admin']);
         self::assertInstanceOf(User::class, $user);

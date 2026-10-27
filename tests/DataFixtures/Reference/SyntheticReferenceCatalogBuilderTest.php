@@ -42,6 +42,20 @@ final class SyntheticReferenceCatalogBuilderTest extends KernelTestCase
         self::assertNotSame($first, $this->writer()->encode($this->builder()->build(8, 30)));
     }
 
+    public function testTheBuildNeitherReadsNorMovesTheGlobalRandomState(): void
+    {
+        mt_srand(42);
+        $expected = mt_rand();
+
+        mt_srand(42);
+        $first = $this->writer()->encode($this->builder()->build(7, 30));
+        self::assertSame($expected, mt_rand(), 'the build left the global mt_rand() state untouched');
+
+        mt_srand(1);
+        mt_rand();
+        self::assertSame($first, $this->writer()->encode($this->builder()->build(7, 30)), 'another global state gives the same catalog');
+    }
+
     public function testIdsAreStableAcrossSeeds(): void
     {
         $first = $this->builder()->build(1, 24);

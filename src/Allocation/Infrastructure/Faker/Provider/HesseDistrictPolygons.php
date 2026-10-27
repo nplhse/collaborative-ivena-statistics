@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Faker\Provider;
 
-use Faker\Provider\Base;
+use Random\Randomizer;
 
 /**
  * District shapes from `assets/geo/hessen-landkreise.geojson` (BKG VG250, public).
@@ -26,13 +26,13 @@ final class HesseDistrictPolygons
      *
      * @return array{lat: float, lng: float}
      */
-    public static function randomPoint(string $geoKey): array
+    public static function randomPoint(string $geoKey, Randomizer $random): array
     {
         [$minLng, $minLat, $maxLng, $maxLat] = self::bounds($geoKey);
 
         for ($attempt = 0; $attempt < self::MAX_ATTEMPTS; ++$attempt) {
-            $lng = self::between($minLng, $maxLng);
-            $lat = self::between($minLat, $maxLat);
+            $lng = self::between($minLng, $maxLng, $random);
+            $lat = self::between($minLat, $maxLat, $random);
             if (self::contains($geoKey, $lat, $lng)) {
                 return ['lat' => $lat, 'lng' => $lng];
             }
@@ -113,9 +113,9 @@ final class HesseDistrictPolygons
         return $inside;
     }
 
-    private static function between(float $min, float $max): float
+    private static function between(float $min, float $max, Randomizer $random): float
     {
-        return round($min + ($max - $min) * ((float) Base::numberBetween(0, 1_000_000) / 1_000_000.0), 6);
+        return round($min + ($max - $min) * ((float) $random->getInt(0, 1_000_000) / 1_000_000.0), 6);
     }
 
     /**

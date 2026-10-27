@@ -50,7 +50,7 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 ### Deterministic random streams
 
-The generator never uses global random state (`mt_srand()`, `mt_rand()`, `random_int()`). Each unit of work gets its own `Random\Randomizer` with the `Mt19937` engine, seeded from a hash of the seed, the hospital's public id, the month and the kind of data (`volume`, `allocations`, `closures`, `mci`, `scenario:<name>`). Hospital X in month M therefore gets the same rows whether it is generated alone, together with other hospitals or as part of a longer period. This is what makes adding a month later reproducible.
+The generator never uses global random state (`mt_srand()`, `mt_rand()`, `random_int()`). Each unit of work gets its own `Random\Randomizer` with the `Mt19937` engine, seeded from a hash of the seed, the hospital's public id, the month and the kind of data (`volume`, `allocations`, `closures`, `mci`, `scenario:<name>`). Hospital X in month M therefore gets the same rows whether it is generated alone, together with other hospitals or as part of a longer period. This is what makes adding a month later reproducible. The synthetic reference catalog (ADR 020) follows the same rule: each hospital, alias and raw label gets its own stream (`<seed>|catalog|<entry>`), so code that touches the global random state in the same process cannot change the catalog.
 
 Time comes from `ClockInterface` (ADR 021). The generated period ends at `until`, which defaults to the end of yesterday; a fixed `until` gives a fixed dataset. The same settings, pattern package and seed give the same data, compared by content, since database ids change after every purge.
 

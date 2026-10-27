@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class NoGlobalRandomnessTest extends TestCase
 {
-    private const array DIRECTORIES = ['Allocation', 'Generator', 'Pattern'];
+    private const array DIRECTORIES = ['Allocation', 'Generator', 'Pattern', 'Reference'];
 
     private const string FORBIDDEN = '/(?<![\w>:$])(mt_srand|mt_rand|mt_getrandmax|random_int|rand|srand|shuffle|str_shuffle|array_rand|lcg_value)\s*\(/';
 
