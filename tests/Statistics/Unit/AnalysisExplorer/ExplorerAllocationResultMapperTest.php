@@ -22,6 +22,7 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow as GenericAnalysisResultRow;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ExplorerAllocationResultMapperTest extends TestCase
@@ -196,6 +197,7 @@ final class ExplorerAllocationResultMapperTest extends TestCase
                 new HospitalCohortLabelResolver($translator),
             ),
             new ExplorerMetricKeyMapper(),
+            new NativeClock(),
         );
     }
 

@@ -13,6 +13,7 @@ use App\Statistics\UI\Application\StatisticsFilterSide;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\Statistics\UI\Form\PreTranslatedChoiceType;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -21,6 +22,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
     public function __construct(
         private StatisticsFilterFormChoiceProvider $choiceProvider,
         private TokenStorageInterface $tokenStorage,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -47,7 +49,7 @@ final readonly class BenchmarkSelectionSideFieldsConfigurator
 
         $scopeGroup = 'public';
         $period = StatisticsFilterPeriod::AllTime;
-        $periodYear = (int) new \DateTimeImmutable()->format('Y');
+        $periodYear = (int) $this->clock->now()->format('Y');
         $scopeDetail = null;
         $periodQuarter = 1;
         $periodMonth = 1;

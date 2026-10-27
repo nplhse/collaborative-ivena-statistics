@@ -14,6 +14,7 @@ use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisDimension;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResult;
 use App\Statistics\GenericAnalysis\Domain\DTO\AnalysisResultRow as GenericAnalysisResultRow;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
+use Psr\Clock\ClockInterface;
 
 final readonly class ExplorerAllocationResultMapper
 {
@@ -21,6 +22,7 @@ final readonly class ExplorerAllocationResultMapper
         private DimensionRegistry $dimensionRegistry,
         private AnalysisDimensionLabelResolver $labelResolver,
         private ExplorerMetricKeyMapper $metricKeyMapper,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -162,7 +164,7 @@ final readonly class ExplorerAllocationResultMapper
      */
     private function temporalAxisKeys(AnalysisQuery $query, array $rows): array
     {
-        $now = new \DateTimeImmutable('now');
+        $now = $this->clock->now();
         $grain = $query->rowAxis->resolvedGrain();
 
         return match ($grain) {
