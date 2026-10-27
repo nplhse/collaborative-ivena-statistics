@@ -41,11 +41,8 @@ final class DefaultDistributionPatterns
     private function pattern(string $name, HospitalTier $tier, HospitalLocation $location, bool $severe, bool $rural): DistributionPattern
     {
         return new DistributionPattern(
-            name: $name,
-            version: 1,
-            schema: DistributionPattern::SCHEMA,
             segment: new PatternSegment($tier, $location),
-            meta: ['source' => self::SOURCE],
+            meta: ['source' => self::SOURCE, 'name' => $name],
             distributions: [
                 'urgency' => $severe ? ['1' => 0.20, '2' => 0.55, '3' => 0.25] : ['1' => 0.10, '2' => 0.50, '3' => 0.40],
                 'gender' => ['M' => 0.50, 'F' => 0.49, 'X' => 0.01],

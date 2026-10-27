@@ -21,6 +21,7 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -62,7 +63,7 @@ final class SyntheticCatalogCsvImportTest extends KernelTestCase
         /** @var Filesystem $filesystem */
         $filesystem = $container->get(Filesystem::class);
         $reader = new SplCsvRowReader(new \SplFileObject($projectDir.'/'.self::FIXTURE, 'r'), new EncodingDetector(), new SplCsvStreamFactory($logger), encodingHint: 'UTF-8', delimiter: ';', enclosure: '"');
-        $rejects = new SplCsvRejectWriter(filesystem: $filesystem, rejectsBaseDir: 'var/tests/rejects', delimiter: ';', enclosure: "\0", escape: '\\');
+        $rejects = new SplCsvRejectWriter(filesystem: $filesystem, rejectsBaseDir: 'var/tests/rejects', clock: new NativeClock(), delimiter: ';', enclosure: "\0", escape: '\\');
         $rejects->start($import);
         /** @var AllocationImporterFactory $factory */
         $factory = $container->get(AllocationImporterFactory::class);
