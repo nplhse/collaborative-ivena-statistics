@@ -139,6 +139,52 @@ final class ReferenceCatalogImportTest extends KernelTestCase
         self::assertStringContainsString('belongs to another department', $this->messagesByPath($plan)['departments[0].aliases[0].name']);
     }
 
+    public function testANewNameThatIsAnAliasOfAnotherDepartmentIsAConflict(): void
+    {
+        self::bootKernel();
+        UserFactory::createOne();
+        $other = DepartmentFactory::createOne(['name' => 'Innere']);
+        $this->em()->persist(new DepartmentAlias($other, 'Allgemeine Innere Medizin', 'historical', 'test'));
+        $this->em()->flush();
+
+        $plan = $this->plan(Data::complete());
+
+        self::assertStringContainsString('is an alias of another department', $this->messagesByPath($plan)['departments[0].name']);
+    }
+
+    public function testAnAliasThatIsTheNameOfAnotherDepartmentIsAConflict(): void
+    {
+        self::bootKernel();
+        UserFactory::createOne();
+        DepartmentFactory::createOne(['name' => 'Allgemein Innere Medizin']);
+
+        $plan = $this->plan(Data::complete());
+
+        self::assertStringContainsString('is the name of another department', $this->messagesByPath($plan)['departments[0].aliases[0].name']);
+    }
+
+    public function testAHospitalInAnAreaOfAnotherStateIsAConflict(): void
+    {
+        self::bootKernel();
+        UserFactory::createOne();
+        $hessen = StateFactory::new()
+            ->afterInstantiate(static function (State $state): void {
+                $state->setPublicId(Uuid::fromString(Data::STATE));
+            })
+            ->create(['name' => 'Hessen']);
+        $bayern = StateFactory::createOne(['name' => 'Bayern']);
+        DispatchAreaFactory::new()
+            ->afterInstantiate(static function (DispatchArea $area): void {
+                $area->setPublicId(Uuid::fromString(Data::AREA));
+            })
+            ->create(['name' => 'Frankfurt', 'state' => $bayern]);
+        self::assertSame(Data::STATE, $hessen->getPublicIdString());
+
+        $plan = $this->plan($this->hospitalsOnly(Data::complete()));
+
+        self::assertSame('Dispatch area belongs to another state than the hospital.', $this->messagesByPath($plan)['hospitals[0].area']);
+    }
+
     public function testAPartialPackageRefersToRowsInTheDatabase(): void
     {
         self::bootKernel();
