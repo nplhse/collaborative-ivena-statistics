@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\PHPStan\Unit\Rules\Data;
 
-use DateTimeImmutable;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\Clock\DatePoint;
 
@@ -19,7 +18,7 @@ function wallClockInstantiation(string $variable, int $timestamp, bool $flag, \P
     new \DateTimeImmutable('+1 year');
     new \DateTimeImmutable('10:00');
     new \DateTime();
-    new DateTimeImmutable('yesterday', new \DateTimeZone('Europe/Berlin'));
+    new \DateTimeImmutable('yesterday', new \DateTimeZone('Europe/Berlin'));
     new \DateTimeImmutable($flag ? 'now' : '2026-05-01');
     new \DateTimeImmutable('');
 

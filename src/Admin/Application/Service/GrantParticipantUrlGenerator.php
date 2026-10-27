@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Application\Service;
 
 use App\User\Application\Contract\GrantParticipantUrlGeneratorInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\HttpFoundation\UriSigner;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -19,6 +20,7 @@ final readonly class GrantParticipantUrlGenerator implements GrantParticipantUrl
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private UriSigner $uriSigner,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -31,7 +33,7 @@ final readonly class GrantParticipantUrlGenerator implements GrantParticipantUrl
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $expires = time() + self::EXPIRATION_SECONDS;
+        $expires = $this->clock->now()->getTimestamp() + self::EXPIRATION_SECONDS;
         $separator = str_contains($url, '?') ? '&' : '?';
 
         return $this->uriSigner->sign($url.$separator.'expires='.$expires);

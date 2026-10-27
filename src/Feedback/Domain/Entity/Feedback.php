@@ -9,6 +9,7 @@ use App\Feedback\Domain\Enum\FeedbackStatus;
 use App\Feedback\Infrastructure\Repository\FeedbackRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 #[ORM\Table(name: 'feedback')]
@@ -56,7 +57,7 @@ class Feedback implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int

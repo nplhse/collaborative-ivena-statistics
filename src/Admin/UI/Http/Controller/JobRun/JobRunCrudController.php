@@ -30,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -44,6 +45,7 @@ final class JobRunCrudController extends AbstractCrudController
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly JobRunFormatter $formatter,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -78,7 +80,7 @@ final class JobRunCrudController extends AbstractCrudController
             ->addAction(Action::new('jobRunLast24h', $this->t('action.last_24h'), 'fas fa-calendar-day')
                 ->linkToUrl(fn (): string => $this->indexUrl(['startedAt' => [
                     'comparison' => ComparisonType::GTE,
-                    'value' => new \DateTimeImmutable('-24 hours')->format('Y-m-d H:i:s'),
+                    'value' => $this->clock->now()->modify('-24 hours')->format('Y-m-d H:i:s'),
                 ]])));
 
         return $actions

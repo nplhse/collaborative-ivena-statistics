@@ -7,6 +7,7 @@ namespace App\Onboarding\Infrastructure\Factory;
 use App\Onboarding\Domain\Entity\UserOnboardingStep;
 use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -29,7 +30,7 @@ final class UserOnboardingStepFactory extends PersistentObjectFactory
         return [
             'user' => UserFactory::new(['roles' => ['ROLE_USER', 'ROLE_PARTICIPANT']]),
             'stepKey' => OnboardingStepKey::ViewExploreData,
-            'completedAt' => new \DateTimeImmutable(),
+            'completedAt' => Clock::get()->now(),
         ];
     }
 }

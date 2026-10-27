@@ -27,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -46,6 +47,7 @@ final class PostCrudController extends AbstractCrudController
         private readonly PostContentSanitizer $postContentSanitizer,
         private readonly MediaLibraryAdminUrlProviderInterface $mediaLibraryAdminUrlProvider,
         private readonly ContentActivityNotifier $contentActivityNotifier,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -241,7 +243,7 @@ final class PostCrudController extends AbstractCrudController
     private function ensurePublishDataConsistency(Post $post): void
     {
         if (PostStatus::PUBLISHED === $post->getStatus() && !$post->getPublishedAt() instanceof \DateTimeImmutable) {
-            $post->setPublishedAt(new \DateTimeImmutable('now'));
+            $post->setPublishedAt($this->clock->now());
         }
     }
 

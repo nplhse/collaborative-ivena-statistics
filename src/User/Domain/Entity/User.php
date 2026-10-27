@@ -13,6 +13,7 @@ use App\User\Infrastructure\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -96,7 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     public function __construct()
     {
         $this->hospitals = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int
@@ -266,7 +267,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \String
     #[ORM\PreUpdate]
     public function touchUpdatedAt(): void
     {
-        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        $this->setUpdatedAt(Clock::get()->now());
     }
 
     /**

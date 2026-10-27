@@ -14,6 +14,7 @@ use App\Content\Infrastructure\Factory\PostCommentFactory;
 use App\Content\Infrastructure\Factory\PostFactory;
 use App\Content\Infrastructure\Factory\PostTagFactory;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 
 final class DemoContentLoader
 {
@@ -309,7 +310,7 @@ Germany</pre><p><strong>Contact:</strong> <a href="mailto:demo@example.org">demo
                 'category' => $postData['category'],
                 'tags' => $postData['tags'],
                 'status' => $postData['status'],
-                'publishedAt' => new \DateTimeImmutable('-'.random_int(1, 90).' days'),
+                'publishedAt' => Clock::get()->now()->modify('-'.random_int(1, 90).' days'),
                 'createdBy' => $admin,
             ]);
 

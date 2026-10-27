@@ -8,6 +8,7 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
@@ -25,6 +26,7 @@ final readonly class SwitchUserSubscriber
         private EntityManagerInterface $entityManager,
         private AuditContext $auditContext,
         private Security $security,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -116,7 +118,7 @@ final readonly class SwitchUserSubscriber
         }
 
         $this->entityManager->persist(new AuditEntry(
-            new \DateTimeImmutable('now'),
+            $this->clock->now(),
             $requestId,
             $actor,
             $origin,

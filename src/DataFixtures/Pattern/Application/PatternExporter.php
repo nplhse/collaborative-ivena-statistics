@@ -10,12 +10,14 @@ use App\DataFixtures\Pattern\Dto\DistributionPattern;
 use App\DataFixtures\Pattern\Dto\PatternSegment;
 use App\DataFixtures\Pattern\Infrastructure\Export\AllocationStatsPatternQuery;
 use App\DataFixtures\Pattern\Infrastructure\PatternYamlSerializer;
+use Psr\Clock\ClockInterface;
 
 final readonly class PatternExporter
 {
     public function __construct(
         private AllocationStatsPatternQuery $query,
         private PatternYamlSerializer $serializer,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -51,7 +53,7 @@ final readonly class PatternExporter
                 segment: $segment,
                 meta: [
                     'sample_size' => $sampleSize,
-                    'exported_at' => new \DateTimeImmutable()->format(\DateTimeInterface::ATOM),
+                    'exported_at' => $this->clock->now()->format(\DateTimeInterface::ATOM),
                     'source' => 'anonymized_aggregate',
                 ],
                 distributions: $this->query->exportDistributions($segment->hospitalTier, $segment->hospitalLocation),

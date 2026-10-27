@@ -8,12 +8,14 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 class ExportAuditLogger
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly AuditContext $auditContext,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -34,7 +36,7 @@ class ExportAuditLogger
         $origin = $this->auditContext->getOrigin() ?? AuditContext::ORIGIN_HTTP;
 
         $this->entityManager->persist(new AuditEntry(
-            new \DateTimeImmutable('now'),
+            $this->clock->now(),
             $requestId,
             $user,
             $origin,

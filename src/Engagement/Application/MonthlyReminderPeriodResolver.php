@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace App\Engagement\Application;
 
+use Psr\Clock\ClockInterface;
+
 final readonly class MonthlyReminderPeriodResolver
 {
     private const string TIMEZONE = 'Europe/Berlin';
+
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
 
     /**
      * reporting* = last complete reporting month used for insights and KPIs.
@@ -28,7 +35,7 @@ final readonly class MonthlyReminderPeriodResolver
     public function resolve(?\DateTimeImmutable $referenceDate = null): array
     {
         $tz = new \DateTimeZone(self::TIMEZONE);
-        $reference = ($referenceDate ?? new \DateTimeImmutable('now', $tz))->setTimezone($tz);
+        $reference = ($referenceDate ?? $this->clock->now())->setTimezone($tz);
 
         $currentMonthStart = $reference->modify('first day of this month 00:00:00');
         $uploadMonthStart = $currentMonthStart->modify('-1 month');

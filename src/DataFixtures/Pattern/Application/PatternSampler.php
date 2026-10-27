@@ -105,7 +105,7 @@ final readonly class PatternSampler
         $startTs = $periodStart->getTimestamp();
         $endTs = max($startTs, $periodEnd->getTimestamp());
         $dayTs = random_int($startTs, $endTs);
-        $day = new \DateTimeImmutable()->setTimestamp($dayTs)->setTime(0, 0);
+        $day = new \DateTimeImmutable('@'.$dayTs)->setTimezone(new \DateTimeZone(date_default_timezone_get()))->setTime(0, 0);
 
         return $day->setTime($hour, random_int(0, 59));
     }
