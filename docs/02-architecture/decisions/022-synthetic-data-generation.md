@@ -1,0 +1,164 @@
+# ADR 022: Synthetic data generation with hospital profiles, pattern packages and scenario overlays
+
+**Status:** accepted
+
+## Context
+
+Development, tests and demonstrations need a database with plausible IVENA data that contains no real hospitals, patients or curated reference data (issue #792). ADR 020 provides the synthetic reference catalog: Hesse with its dispatch areas, 60 synthetic hospitals, the official PZC list, departments, specialities and lookups, all deterministic per seed. It assigns the pattern system, hospital profiles and scenarios to #792.
+
+After #740 the fixtures already generate realistic volumes: presets choose how many hospitals of each size take part (`FIXTURES_PROFILE`: `single`, `minimal`, `medium`, `realistic`), each active hospital gets one import per month, and the daily count varies by size, weekday, month and random noise. Allocations are written in DBAL batches. Several things are missing:
+
+- Every feature is sampled independently from three segment patterns, which produces impossible combinations (a pregnant 80-year-old man, CPR with urgency 3, a paediatric case aged 70).
+- Volume depends on hospital size only, departments and resources on the care tier only. A resuscitation room or a catheterization laboratory cannot be configured per hospital.
+- There are no closures. `department_was_closed` is a random flag without any relation to a closure.
+- The generator is tied to the fixture: it reads the fixture configuration, requires the demo user, generates everything in one run and cannot add one month for one hospital later.
+- All randomness comes from one global `mt_srand()` sequence. The same configuration reproduces the same data, but adding a hospital or a month shifts every later value.
+- Generated imports have no export period and no data coverage, and only the allocation projection is rebuilt. Closure analysis, the closure volume projection and the materialized views are not.
+
+The offline demo environment (#791) will reuse the generator, and the export of real patterns (#797) will produce pattern packages for it.
+
+## Decision
+
+### Placement
+
+The generator lives in the existing dev/test module `src/DataFixtures/`. It is registered only in `dev` and `test` (`config/services/foundry.yaml`) and is excluded from the main service scan and the route scan, so a production install without dev dependencies never loads it.
+
+| Directory | Content |
+|-----------|---------|
+| `DataFixtures/Generator/Application/` | settings, presets, hospital profiles, planners, the month and dataset generators, scenarios |
+| `DataFixtures/Generator/Infrastructure/` | DBAL writers, random streams |
+| `DataFixtures/Generator/UI/Console/` | `app:synthetic:generate`, `app:synthetic:scenario` |
+| `DataFixtures/Pattern/` | pattern package format, validation, chain sampler, coherence rules, code defaults |
+| `DataFixtures/Reference/` | synthetic reference catalog (ADR 020) |
+| `DataFixtures/Allocation/`, `Scenario/`, `Content/`, … | Doctrine fixtures; they call the generator and hold only fixture concerns such as the demo user |
+
+It is not a bounded context of its own. It is a development tool that writes to the tables of other modules, like the fixtures before. #791 registers the same module for the `demo` environment.
+
+### Terms
+
+- A **preset** chooses the size of a dataset: how many hospitals of each size, how many months, the scale factor and the scenarios to apply. The existing `FIXTURES_PROFILE` variable and the `fixtures.profiles` parameter keep their names for compatibility. Code and documentation call them presets.
+- A **hospital profile** describes how one synthetic hospital behaves (see below).
+- A **segment** is a hospital type that a pattern package is keyed by: care tier and location. It is never a single hospital.
+
+### Settings and the generator API
+
+`GenerationSettings` holds seed, `until`, number of months, scale, yearly trend, closure frequency and pattern source. A preset builds settings and selects the hospitals.
+
+- `HospitalMonthGenerator` generates one hospital and one month: one allocation import and one closure import. It refuses a month that already has a synthetic import of that type for the hospital, and a month that has a real import of that type.
+- `SyntheticDatasetGenerator` runs the month generator for all selected hospitals and months, then runs the processing pipeline once.
+- `app:synthetic:generate` (dev and test) exposes both: selected hospitals by public id, a single month or a range, seed, scale, preset and a dry run that only reports counts. The interactive wizard of #791 is not part of it.
+
+### Deterministic random streams
+
+The generator never uses global random state (`mt_srand()`, `mt_rand()`, `random_int()`). Each unit of work gets its own `Random\Randomizer` with the `Mt19937` engine, seeded from a hash of the seed, the hospital's public id, the month and the kind of data (`volume`, `allocations`, `closures`, `mci`, `scenario:<name>`). Hospital X in month M therefore gets the same rows whether it is generated alone, together with other hospitals or as part of a longer period. This is what makes adding a month later reproducible.
+
+Time comes from `ClockInterface` (ADR 021). The generated period ends at `until`, which defaults to the end of yesterday; a fixed `until` gives a fixed dataset. The same settings, pattern package and seed give the same data, compared by content, since database ids change after every purge.
+
+### Hospital profiles
+
+A `HospitalProfile` belongs to the generator configuration, not to the reference package (ADR 020). It holds:
+
+- the segment,
+- the volume, as allocations per day or per bed and year,
+- the departments and specialities the hospital offers,
+- the resources it offers, each independent of the care tier: resuscitation room, catheterization laboratory and others,
+- the closure frequency.
+
+Default profiles are derived deterministically from tier, size and location; the defaults keep the per-size daily rates of the presets. The configuration can override single values for a hospital, keyed by its public id. Sampling only produces departments and resources the hospital offers.
+
+### Pattern packages
+
+A pattern package describes the distributions of the generated allocations as a chain of conditional tables, in the direction set by ADR 020:
+
+1. time: month index, weekday, hour by day type (weekday or weekend),
+2. indication (PZC code) by segment,
+3. age band and sex by indication category (first PZC digit),
+4. urgency by indication category,
+5. department and speciality by indication category,
+6. flags (resuscitation room, catheterization laboratory, CPR, ventilated, shock, pregnant, physician), occasion, assignment, transport type, infection and secondary transport by category and urgency,
+7. transport time percentiles by urgency,
+
+plus a volume block per segment and an `archetypes` section. A **case archetype** is a weighted template that fixes several features together, for example a resuscitation room case, a stroke, a STEMI, a birth, a paediatric infection, a geriatric fall, a psychiatric emergency or an interhospital transfer. Archetypes are mixed into the normal sampling per segment.
+
+- Format `ivena-distribution-patterns`, version 1, as JSON with a SHA-256 checksum. Files live in `var/patterns/` and are never tracked.
+- The package is validated with the Symfony Validator, like the reference package: known keys, shares that sum to 1, values that exist in the catalog, valid checksum. Errors name the table and the key.
+- Without a file the generator uses the **code defaults**: a package built in PHP from coarse, hand-written shares (whole or five percent steps, common values only). It passes the same validation. Code defaults are never derived from real data.
+- Real patterns come only from the export of #797, under the privacy rules of ADR 020.
+
+### Coherence rules
+
+Rules in code apply after sampling, whatever the pattern source:
+
+- pregnant patients are female and aged 15 to 49,
+- paediatric departments get patients younger than 18,
+- CPR implies urgency 1 and a resuscitation room,
+- a department or resource the hospital does not offer is redrawn; a requested resource the hospital does not offer is dropped.
+
+### Closures
+
+Each hospital gets one closure import per month with `ClosureInterval` rows:
+
+- department and speciality from the hospital profile, with care level, reason and facility kind,
+- durations from minutes up to 24 hours; a closure never spans several days,
+- a configurable frequency with a modest autumn and winter increase,
+- some intervals share an IVENA group id and some share exact start and end times, so all three event types of the closure analysis appear (source group, cluster, single).
+
+Closures of a month are planned before its allocations. An allocation to a closed department during an interval gets `department_was_closed = true`; the flag is no longer random.
+
+### Processing pipeline
+
+The generator writes rows directly with DBAL batches, but processing uses the regular services, so synthetic data goes through the same projections as imported data:
+
+- per import: export period (ADR 015) and data coverage,
+- after generation: allocation statistics projection, closure analysis, closure volume projection, refresh of the materialized views and, optionally, the KPI aggregation.
+
+There is no separate projection code for synthetic data.
+
+### Scenario overlays
+
+Event scenarios such as a mass casualty incident, an icy-road day, a flu wave or heat days are **overlays** applied to existing data, by command or by a preset:
+
+- An overlay only adds rows and never changes base data. For each affected hospital it writes its own allocation import, a closure import when the scenario closes departments, and `MciCase` rows for a mass casualty incident.
+- Because overlays are ordinary imports, the regular import deletion removes them together with their allocations, closures and projections, and the projections are rebuilt per import.
+- An overlay draws from its own random stream. The same scenario, parameters and seed give the same rows, and applying the same overlay twice is refused.
+- Base allocations that fall into a closure added by a scenario keep their `department_was_closed` value. The closure volume analysis reads the intervals, not this flag.
+
+### Recognising synthetic imports
+
+Synthetic imports have no source file. Their `filePath` holds a structured marker, built and parsed by `SyntheticImportMarker`:
+
+```text
+synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv
+synthetic/closures/seed-740/defaults/<hospital public id>/2026-09.csv
+synthetic/scenario/icy-road/seed-740/<hospital public id>/2026-01-14.csv
+```
+
+The marker tells the generator which months already exist, keeps overlays from being applied twice, lets them be removed, and records seed and pattern source (`defaults` or the package checksum) as ADR 020 requires. No new column is needed. Since no file exists at that path, the import voter already hides download and reprocessing, so a reprocessing run can never replace synthetic rows.
+
+## Consequences
+
+- A fresh clone gets a multi-hospital dataset with closures and coherent allocations from one `make reset`, and every statistics page works on it.
+- The generator can add one month for one hospital, or one scenario, without touching existing records.
+- The demo environment (#791) reuses the generator, the hospital profiles and the code defaults; with a private pattern package from #797 it shows real distributions without real records.
+- Synthetic data no longer depends on the order in which hospitals and months are generated. Data generated before this ADR cannot be reproduced exactly; a new `make reset` replaces it.
+- Changes to the code defaults, the coherence rules or the stream keys change the generated data. They are a new generator version, like a changed provider in ADR 020.
+- Writing with DBAL bypasses Doctrine lifecycle callbacks and entity validation. The generator therefore sets every required column itself, and tests check that generated rows pass the regular import validation rules.
+- Processing synthetic data takes longer than before, because closure analysis and the volume projection now run as well.
+- The pattern package format is a second package format next to the reference package. Both use the same validation approach, but they are versioned independently.
+
+## Alternatives
+
+- **A bounded context of its own for the generator.** Rejected: it is a development tool without its own data. A separate context would need ports into Allocation, Import and Statistics only to write synthetic rows.
+- **Generate CSV files and run them through the real import.** Rejected as the default path: it tests the import pipeline but is many times slower for a year of data and needs a writable upload directory. The synthetic CSV test of #740 keeps covering the import path, and #791 can use CSV for its demo upload.
+- **Foundry factories for every allocation.** Rejected for bulk data: one ORM entity per row costs too much memory and time for more than 100,000 allocations. Factories stay in use for tests and small data.
+- **A new column or table for generator metadata.** Rejected: the marker in `filePath` covers every need without a migration, and synthetic data never reaches production.
+- **Scenarios that modify base data.** Rejected: they could not be removed cleanly, and repeated application would change data step by step.
+- **Hospital profiles in the reference package.** Rejected: offered departments and resources are not curated reference data today (ADR 020). If hospitals get a real offer list later, the profile can read it from there.
+
+## Related
+
+- ADR 001 (projections and materialized views)
+- ADR 015 (closure volume metrics, export periods)
+- ADR 020 (portable reference catalog, synthetic catalog, pattern direction and privacy rules)
+- ADR 021 (wall clock access)
+- Issues #740, #791, #792, #797
