@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Audit\Audited]
@@ -84,7 +85,7 @@ class Post implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
         $this->tags = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }
@@ -235,7 +236,7 @@ class Post implements \Stringable
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        $this->setUpdatedAt(Clock::get()->now());
     }
 
     #[\Override]

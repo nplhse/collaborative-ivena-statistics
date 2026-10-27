@@ -11,14 +11,17 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 
 /**
  * @extends ServiceEntityRepository<Post>
  */
 final class PostRepository extends ServiceEntityRepository implements PostSlugExistsChecker
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly ClockInterface $clock,
+    ) {
         parent::__construct($registry, Post::class);
     }
 
@@ -31,7 +34,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         return $qb;
@@ -48,7 +51,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $categorySlug)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         return $qb;
@@ -66,7 +69,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $tagSlug)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         return $qb;
@@ -83,7 +86,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'DESC');
 
         if (null !== $limit) {
@@ -108,7 +111,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slug', $slug)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->addOrderBy('t.name', 'ASC')
             ->getQuery()
             ->getOneOrNullResult();
@@ -138,7 +141,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('slugs', $slugs)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getResult();
 
@@ -175,7 +178,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->andWhere('(p.publishedAt < :publishedAt OR (p.publishedAt = :publishedAt AND p.id < :id))')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->setParameter('publishedAt', $publishedAt, Types::DATETIME_IMMUTABLE)
             ->setParameter('id', $currentId)
             ->orderBy('p.publishedAt', 'DESC')
@@ -202,7 +205,7 @@ final class PostRepository extends ServiceEntityRepository implements PostSlugEx
             ->andWhere('p.publishedAt <= :now')
             ->andWhere('(p.publishedAt > :publishedAt OR (p.publishedAt = :publishedAt AND p.id > :id))')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->setParameter('publishedAt', $publishedAt, Types::DATETIME_IMMUTABLE)
             ->setParameter('id', $currentId)
             ->orderBy('p.publishedAt', 'ASC')

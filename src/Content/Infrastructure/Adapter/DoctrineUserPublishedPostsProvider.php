@@ -9,6 +9,7 @@ use App\Content\Domain\Enum\PostStatus;
 use App\User\Application\Contract\UserPublishedPostsProviderInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /** @psalm-suppress UnusedClass Wired via #[AsAlias] for UserPublishedPostsProviderInterface. */
@@ -17,6 +18,7 @@ final readonly class DoctrineUserPublishedPostsProvider implements UserPublished
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -35,7 +37,7 @@ final readonly class DoctrineUserPublishedPostsProvider implements UserPublished
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('userId', $userId)
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->getQuery()
             ->getSingleScalarResult();
 
