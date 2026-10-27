@@ -30,11 +30,11 @@ Two project rules in `tests/PHPStan/Rules/` are registered in `phpstan.dist.neon
 - Only constant strings are checked. Expressions such as `$row['created_at']` or `$date.' 00:00:00'` almost always carry an absolute value from the database or the request; reporting them would cause many false positives.
 - `microtime()` and `hrtime()` stay allowed: they measure durations, not calendar time. `->modify('-1 day')` stays allowed: it is relative to a given value.
 - Each error names the fix (`ClockInterface`, `Clock::get()->now()`). A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
-- `DateTimeImmutable::createFromFormat()` without `!` or `|` fills missing fields from the wall clock. It is not covered yet and is tracked in the follow-up issue.
+- `DateTimeImmutable::createFromFormat()` without `!` or `|` fills missing fields from the wall clock. It is not covered yet (#821).
 
 ### Existing code is baselined
 
-Occurrences that existed when the rule was introduced are listed in `phpstan-baseline-wall-clock.neon`, separate from `phpstan-baseline.neon`. New code is checked immediately. The baseline is reduced module by module, Statistics first; when it is empty, the file and its include are removed.
+Occurrences that existed when the rule was introduced were listed in `phpstan-baseline-wall-clock.neon`, separate from `phpstan-baseline.neon`, so new code was checked immediately. The baseline was reduced module by module, Statistics first (#801). It is empty and has been removed together with its include; every occurrence in `src/` is now reported.
 
 ## Consequences
 
