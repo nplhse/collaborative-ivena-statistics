@@ -43,24 +43,6 @@ parameters:
 			path: src/Admin/UI/Http/Controller/User/GrantParticipantController.php
 
 		-
-			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-29 days''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
-			identifier: wallClock.dateTime
-			count: 1
-			path: src/DataFixtures/Allocation/SyntheticAllocationGenerator.php
-
-		-
-			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-30 days''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
-			identifier: wallClock.dateTime
-			count: 1
-			path: src/DataFixtures/Allocation/SyntheticAllocationGenerator.php
-
-		-
-			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
-			identifier: wallClock.dateTime
-			count: 1
-			path: src/DataFixtures/Allocation/SyntheticAllocationGenerator.php
-
-		-
 			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-1 days''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
 			identifier: wallClock.dateTime
 			count: 1

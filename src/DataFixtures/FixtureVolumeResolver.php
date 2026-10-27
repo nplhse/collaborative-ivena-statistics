@@ -11,17 +11,16 @@ final readonly class FixtureVolumeResolver
     /**
      * @param array{
      *     hospitals_active: int,
-     *     imports: int,
-     *     allocations: int,
+     *     months: int,
+     *     allocations_per_day: array<string, float|int>,
      *     mci_cases: int,
-     *     period: string,
-     *     pattern: string,
+     *     seed: int,
      *     rebuild_projection: bool
      * } $baseline
      */
     public function __construct(
         #[Autowire(param: 'fixtures.scale')]
-        private int $scale,
+        private float $scale,
         #[Autowire(param: 'fixtures.baseline')]
         private array $baseline,
     ) {
@@ -29,26 +28,16 @@ final readonly class FixtureVolumeResolver
 
     public function resolve(): FixtureVolume
     {
-        $scale = max(1, min(10, $this->scale));
+        $scale = max(0.01, min(10.0, $this->scale));
 
         return new FixtureVolume(
-            hospitalsActive: min(77, $this->baseline['hospitals_active'] * (int) ceil(sqrt($scale))),
-            imports: $this->baseline['imports'] * $scale,
-            allocations: $this->baseline['allocations'] * $scale,
-            mciCases: $this->baseline['mci_cases'] * $scale,
-            period: $this->resolvePeriod($scale),
-            pattern: $this->baseline['pattern'],
+            hospitalsActive: max(1, $this->baseline['hospitals_active']),
+            months: max(1, $this->baseline['months']),
+            allocationsPerDay: array_map(floatval(...), $this->baseline['allocations_per_day']),
+            scale: $scale,
+            mciCases: max(0, (int) round((float) $this->baseline['mci_cases'] * min(1.0, $scale))),
+            seed: $this->baseline['seed'],
             rebuildProjection: $this->baseline['rebuild_projection'],
         );
-    }
-
-    private function resolvePeriod(int $scale): string
-    {
-        $period = $this->baseline['period'];
-        if ($scale >= 3) {
-            return '-24 months';
-        }
-
-        return $period;
     }
 }

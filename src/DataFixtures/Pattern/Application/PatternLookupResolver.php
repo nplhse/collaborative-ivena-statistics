@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Application;
 
-use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -12,6 +11,9 @@ final class PatternLookupResolver
 {
     /** @var array<class-string, array<string, int>> */
     private array $idsByClassAndName = [];
+
+    /** @var array<string, int> normalized indication name → id of a raw indication mapped to it */
+    private array $rawIdsByNormalizedName = [];
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -65,23 +67,26 @@ final class PatternLookupResolver
 
     public function referenceIndicationRawForNormalized(string $normalizedName): IndicationRaw
     {
-        $normalized = $this->entityManager->getRepository(IndicationNormalized::class)->findOneBy(['name' => $normalizedName]);
-        if ($normalized instanceof IndicationNormalized) {
-            $raw = $this->entityManager->getRepository(IndicationRaw::class)->findOneBy(['normalized' => $normalized]);
-            if ($raw instanceof IndicationRaw) {
-                $rawId = $raw->getId();
-                if (null === $rawId) {
-                    throw new \RuntimeException(sprintf('Indication raw for "%s" is not persisted.', $normalizedName));
-                }
-
-                /** @var IndicationRaw $reference */
-                $reference = $this->entityManager->getReference(IndicationRaw::class, $rawId);
-
-                return $reference;
+        if ([] === $this->rawIdsByNormalizedName) {
+            // One query instead of two per sampled allocation.
+            /** @var list<array{name: string, raw_id: int}> $rows */
+            $rows = $this->entityManager->getConnection()->fetchAllAssociative(
+                'SELECT n.name AS name, MIN(r.id) AS raw_id FROM indication_normalized n JOIN indication_raw r ON r.normalized_id = n.id GROUP BY n.name',
+            );
+            foreach ($rows as $row) {
+                $this->rawIdsByNormalizedName[$row['name']] = (int) $row['raw_id'];
             }
         }
 
-        return $this->reference(IndicationRaw::class, $this->anyName(IndicationRaw::class));
+        $rawId = $this->rawIdsByNormalizedName[$normalizedName] ?? null;
+        if (null === $rawId) {
+            return $this->reference(IndicationRaw::class, $this->anyName(IndicationRaw::class));
+        }
+
+        /** @var IndicationRaw $reference */
+        $reference = $this->entityManager->getReference(IndicationRaw::class, $rawId);
+
+        return $reference;
     }
 
     /**

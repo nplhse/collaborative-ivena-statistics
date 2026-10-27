@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Application;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
@@ -26,6 +27,18 @@ final class DefaultDistributionPatterns
     public static function names(): array
     {
         return ['urban-full', 'urban-basic', 'rural-basic'];
+    }
+
+    /**
+     * The pattern of the hospital's segment: full care, rural basic care or urban basic care.
+     */
+    public function forHospital(Hospital $hospital): DistributionPattern
+    {
+        return match (true) {
+            HospitalTier::FULL === $hospital->getTier() => $this->get('urban-full'),
+            HospitalLocation::RURAL === $hospital->getLocation() => $this->get('rural-basic'),
+            default => $this->get('urban-basic'),
+        };
     }
 
     public function get(string $name): DistributionPattern
