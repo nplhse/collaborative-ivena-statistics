@@ -9,7 +9,6 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
-use App\DataFixtures\Pattern\Dto\PatternSegment;
 
 /**
  * Plain, plausible distributions for synthetic allocations, keyed by the synthetic catalog (ADR 020).
@@ -19,8 +18,6 @@ use App\DataFixtures\Pattern\Dto\PatternSegment;
  */
 final class DefaultDistributionPatterns
 {
-    public const string SOURCE = 'defaults';
-
     /**
      * @return list<string>
      */
@@ -44,18 +41,16 @@ final class DefaultDistributionPatterns
     public function get(string $name): DistributionPattern
     {
         return match ($name) {
-            'urban-full' => $this->pattern($name, HospitalTier::FULL, HospitalLocation::URBAN, severe: true, rural: false),
-            'urban-basic' => $this->pattern($name, HospitalTier::BASIC, HospitalLocation::URBAN, severe: false, rural: false),
-            'rural-basic' => $this->pattern($name, HospitalTier::BASIC, HospitalLocation::RURAL, severe: false, rural: true),
+            'urban-full' => $this->pattern(severe: true, rural: false),
+            'urban-basic' => $this->pattern(severe: false, rural: false),
+            'rural-basic' => $this->pattern(severe: false, rural: true),
             default => throw new \InvalidArgumentException(sprintf('Unknown distribution pattern "%s". Known: %s.', $name, implode(', ', self::names()))),
         };
     }
 
-    private function pattern(string $name, HospitalTier $tier, HospitalLocation $location, bool $severe, bool $rural): DistributionPattern
+    private function pattern(bool $severe, bool $rural): DistributionPattern
     {
         return new DistributionPattern(
-            segment: new PatternSegment($tier, $location),
-            meta: ['source' => self::SOURCE, 'name' => $name],
             distributions: [
                 'urgency' => $severe ? ['1' => 0.20, '2' => 0.55, '3' => 0.25] : ['1' => 0.10, '2' => 0.50, '3' => 0.40],
                 'gender' => ['M' => 0.50, 'F' => 0.49, 'X' => 0.01],

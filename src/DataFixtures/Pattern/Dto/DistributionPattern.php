@@ -7,12 +7,9 @@ namespace App\DataFixtures\Pattern\Dto;
 final readonly class DistributionPattern
 {
     /**
-     * @param array<string, mixed> $meta
      * @param array<string, mixed> $distributions
      */
     public function __construct(
-        public PatternSegment $segment,
-        public array $meta,
         public array $distributions,
     ) {
     }

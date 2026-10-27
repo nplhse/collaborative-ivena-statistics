@@ -103,7 +103,6 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
 
         foreach (DefaultDistributionPatterns::names() as $name) {
             $pattern = $patterns->get($name);
-            self::assertSame(DefaultDistributionPatterns::SOURCE, $pattern->meta['source']);
             self::assertLessThan(0.05, $pattern->categoricalDistribution('gender')['X']);
             self::assertLessThan(0.05, $pattern->flagProbabilities()['is_cpr']);
             self::assertLessThan(0.05, $pattern->flagProbabilities()['is_pregnant']);
