@@ -185,7 +185,7 @@ final class ClosureAnalyticsFilterRequestResolver
         }
 
         $value = trim($value);
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
         if (false === $date || $date->format('Y-m-d') !== $value) {
             return null;
         }

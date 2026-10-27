@@ -4,6 +4,7 @@ includes:
 rules:
     - App\Tests\PHPStan\Rules\NoWallClockInstantiationRule
     - App\Tests\PHPStan\Rules\NoWallClockFunctionCallRule
+    - App\Tests\PHPStan\Rules\NoWallClockCreateFromFormatRule
 
 parameters:
     level: 6
@@ -28,6 +29,13 @@ parameters:
             reportUnmatched: false
         -
             identifier: wallClock.function
+            paths:
+                - bin/*
+                - config/*
+                - tests/*
+            reportUnmatched: false
+        -
+            identifier: wallClock.createFromFormat
             paths:
                 - bin/*
                 - config/*

@@ -87,7 +87,7 @@ final readonly class ActivityTimelineQueryParametersDTO
             return null;
         }
 
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $normalized);
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $normalized);
         if (false === $date || $date->format('Y-m-d') !== $normalized) {
             return null;
         }
@@ -116,12 +116,12 @@ final readonly class ActivityTimelineQueryParametersDTO
             return null;
         }
 
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
         if (false === $date) {
             return null;
         }
 
-        return $date->setTime(0, 0, 0);
+        return $date;
     }
 
     private function dateUntilExclusive(?string $value): ?\DateTimeImmutable

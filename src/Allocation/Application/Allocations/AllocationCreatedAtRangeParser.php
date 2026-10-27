@@ -55,7 +55,7 @@ final readonly class AllocationCreatedAtRangeParser
             return null;
         }
 
-        foreach (['Y-m-d\TH:i:s', 'Y-m-d H:i:s', '!Y-m-d'] as $format) {
+        foreach (['!Y-m-d\TH:i:s', '!Y-m-d H:i:s', '!Y-m-d'] as $format) {
             $parsed = \DateTimeImmutable::createFromFormat($format, $value);
             if ($parsed instanceof \DateTimeImmutable) {
                 return $parsed;
