@@ -63,7 +63,8 @@ final class ImportBatchPlannerTest extends TestCase
     {
         mt_srand(740);
         $volume = new FixtureVolume(
-            hospitalsActive: 2,
+            profile: 'test',
+            hospitals: ['Large' => 1, 'Small' => 1],
             months: 12,
             allocationsPerDay: ['Small' => 10.0, 'Medium' => 15.0, 'Large' => 40.0],
             scale: $scale,

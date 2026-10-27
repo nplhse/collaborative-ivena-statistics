@@ -49,23 +49,39 @@ php bin/console doctrine:fixtures:load --group=minimal --no-interaction
 
 ## Volume configuration
 
-Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment uses a much smaller volume):
+### Profiles
+
+`FIXTURES_PROFILE` chooses which participating hospitals receive synthetic allocations:
+
+| Profile | Hospitals with allocations | Allocations (12 months + current) | `make reset` |
+|---|---|---|---|
+| `single` | 1, drawn with the seed | ~4,000 | ~25 s |
+| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | ~25,000 | ~35 s |
+| `medium` | 6: two of each size | ~50,000 | ~45 s |
+| `realistic` (default) | 15: 3 Large, 6 Medium, 6 Small | ~105,000 | ~70 s |
+
+The demo user `foo` owns one of the active hospitals, drawn with the seed: the same seed gives the same hospital, another seed another one. In `single` it owns the only one.
+
+```bash
+FIXTURES_PROFILE=minimal make reset
+FIXTURES_PROFILE=single FIXTURES_SCALE=0.2 make reset    # fastest
+```
+
+### Parameters
+
+Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment uses `minimal` with small rates):
 
 | Parameter | Default | Effect |
 |---|---|---|
-| `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `0.1` loads fast, `1` is close to real volumes |
-| `fixtures.baseline.hospitals_active` | `15` | Participating hospitals that receive allocations; the demo hospital of `foo` is always one of them |
+| `FIXTURES_PROFILE` | `realistic` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes) |
+| `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `1` is close to real volumes |
 | `fixtures.baseline.months` | `12` | Whole months before the current one: in October 2026 the data runs from 1 October 2025 until yesterday |
 | `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes |
 | `fixtures.baseline.mci_cases` | `25` | MCI demo cases |
-| `fixtures.baseline.seed` | `740` | Seed for the daily counts and sampling |
+| `fixtures.baseline.seed` | `740` | Seed for the hospital choice, the daily counts and sampling |
 | `fixtures.baseline.rebuild_projection` | `true` | Rebuild `allocation_stats_projection` after allocation fixtures |
 
-Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise). Allocations are written in batches through DBAL: the defaults give about 105,000 allocations and `make reset` takes about a minute and a half.
-
-```bash
-FIXTURES_SCALE=0.1 make reset    # about a tenth of the volume, for quick local checks
-```
+Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise). Allocations are written in batches through DBAL.
 
 ## Reference data
 
@@ -75,7 +91,7 @@ FIXTURES_SCALE=0.1 make reset    # about a tenth of the volume, for quick local 
 - The 208 official PZC indications with their official wording; raw labels are the official wording, generated variants (abbreviation, typo) and a few unmapped labels.
 - Departments and specialities with generated aliases, lookups and a few indication groups.
 
-The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate, plus one Full Urban hospital owned by the demo user `foo`.
+The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate and gives the demo user `foo` one of the active hospitals of the profile.
 
 Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) to move the real catalog between environments.
 

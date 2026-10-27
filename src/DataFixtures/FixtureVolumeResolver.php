@@ -6,11 +6,14 @@ namespace App\DataFixtures;
 
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * Turns the fixture configuration and the chosen profile (FIXTURES_PROFILE) into a volume.
+ */
 final readonly class FixtureVolumeResolver
 {
     /**
+     * @param array<string, array<string, int>> $profiles hospitals per size for each profile
      * @param array{
-     *     hospitals_active: int,
      *     months: int,
      *     allocations_per_day: array<string, float|int>,
      *     mci_cases: int,
@@ -19,6 +22,10 @@ final readonly class FixtureVolumeResolver
      * } $baseline
      */
     public function __construct(
+        #[Autowire(param: 'fixtures.profile')]
+        private string $profile,
+        #[Autowire(param: 'fixtures.profiles')]
+        private array $profiles,
         #[Autowire(param: 'fixtures.scale')]
         private float $scale,
         #[Autowire(param: 'fixtures.baseline')]
@@ -28,10 +35,13 @@ final readonly class FixtureVolumeResolver
 
     public function resolve(): FixtureVolume
     {
+        $hospitals = $this->profiles[$this->profile]
+            ?? throw new \InvalidArgumentException(sprintf('Unknown fixture profile "%s". Known: %s.', $this->profile, implode(', ', array_keys($this->profiles))));
         $scale = max(0.01, min(10.0, $this->scale));
 
         return new FixtureVolume(
-            hospitalsActive: max(1, $this->baseline['hospitals_active']),
+            profile: $this->profile,
+            hospitals: $hospitals,
             months: max(1, $this->baseline['months']),
             allocationsPerDay: array_map(floatval(...), $this->baseline['allocations_per_day']),
             scale: $scale,

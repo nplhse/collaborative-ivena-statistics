@@ -10,10 +10,12 @@ namespace App\DataFixtures;
 final readonly class FixtureVolume
 {
     /**
+     * @param array<string, int>   $hospitals         active hospitals per size (Large, Medium, Small), or `any` for one hospital of any size
      * @param array<string, float> $allocationsPerDay average allocations per hospital and day, by hospital size
      */
     public function __construct(
-        public int $hospitalsActive,
+        public string $profile,
+        public array $hospitals,
         public int $months,
         public array $allocationsPerDay,
         public float $scale,

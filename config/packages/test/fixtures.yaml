@@ -1,11 +1,21 @@
 parameters:
+    # Which hospitals receive synthetic allocations: single, minimal, medium or realistic (see fixtures.profiles).
+    env(FIXTURES_PROFILE): 'minimal'
+    fixtures.profile: '%env(FIXTURES_PROFILE)%'
+
     # Multiplies the allocations per day (0.01–10); 1 is close to real volumes, 0.1 loads fast.
     env(FIXTURES_SCALE): '1'
     fixtures.scale: '%env(float:FIXTURES_SCALE)%'
 
+    # Active hospitals per size; "any" draws hospitals of any size with the seed.
+    # The demo user foo owns one of the active hospitals, drawn with the seed.
+    fixtures.profiles:
+        single: { any: 1 }
+        minimal: { Large: 1, Medium: 1, Small: 1 }
+        medium: { Large: 2, Medium: 2, Small: 2 }
+        realistic: { Large: 3, Medium: 6, Small: 6 }
+
     fixtures.baseline:
-        # Participating hospitals that receive synthetic allocations (the demo hospital is always one of them).
-        hospitals_active: 3
         # Whole months before the current one; in October 2026, 12 means 1 October 2025 until yesterday.
         months: 1
         # Average allocations per hospital and day by hospital size (coarse, rounded from real volumes).

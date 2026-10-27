@@ -44,6 +44,7 @@ final readonly class SyntheticAllocationGenerator
 
     public function __construct(
         private FixtureHospitals $hospitals,
+        private FixtureHospitalSelection $selection,
         private FixtureVolumeResolver $volumeResolver,
         private ImportBatchPlanner $batchPlanner,
         private DefaultDistributionPatterns $patterns,
@@ -61,10 +62,10 @@ final readonly class SyntheticAllocationGenerator
         mt_srand($volume->seed);
 
         [$periodStart, $periodEnd] = $this->period($volume);
+        $hospitals = $this->selection->active($volume, $this->hospitals->participatingHospitals());
         $fooHospital = $this->requireDemoHospitalOwnedBy('foo');
-        $hospitals = $this->hospitals->selectActiveHospitals($volume->hospitalsActive, [$fooHospital]);
-        if ([] === $hospitals) {
-            throw new \RuntimeException('No participating hospitals available for synthetic allocations.');
+        if (!\in_array((int) $fooHospital->getId(), array_map(static fn (Hospital $hospital): int => (int) $hospital->getId(), $hospitals), true)) {
+            throw new \RuntimeException(sprintf('The demo hospital of "foo" is not among the active hospitals of profile "%s".', $volume->profile));
         }
 
         $importIds = [];
