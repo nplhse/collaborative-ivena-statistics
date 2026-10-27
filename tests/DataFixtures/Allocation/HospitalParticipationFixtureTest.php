@@ -42,30 +42,22 @@ final class HospitalParticipationFixtureTest extends KernelTestCase
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
 
-        self::assertSame(26, (int) $connection->fetchOne(
-            'SELECT COUNT(*) FROM hospital WHERE is_participating = true AND owner_id IS NOT NULL',
+        $participating = (int) $connection->fetchOne('SELECT COUNT(*) FROM hospital WHERE is_participating = true');
+        $total = (int) $connection->fetchOne('SELECT COUNT(*) FROM hospital');
+        self::assertGreaterThan(0, $participating);
+        self::assertLessThan($total, $participating, 'only a part of the hospitals takes part');
+        self::assertSame($participating, (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM hospital WHERE is_participating = true AND owner_id IS NOT NULL AND participating_since IS NOT NULL',
         ));
-        self::assertSame(26, (int) $connection->fetchOne(
-            'SELECT COUNT(*) FROM hospital WHERE is_participating = true AND participating_since IS NOT NULL',
-        ));
-        self::assertSame(51, (int) $connection->fetchOne(
+        self::assertSame($total - $participating, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital WHERE is_participating = false AND owner_id IS NULL',
         ));
         self::assertSame(1, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital h
              INNER JOIN "user" u ON u.id = h.owner_id
-             WHERE h.is_participating = true AND u.username = :username',
-            ['username' => 'foo'],
+             WHERE h.is_participating = true AND h.tier = :tier AND h.location = :location AND u.username = :username',
+            ['username' => 'foo', 'tier' => 'Full', 'location' => 'Urban'],
         ));
-        self::assertSame(
-            'Helios Dr. Horst-Schmidt-Kliniken Wiesbaden',
-            $connection->fetchOne(
-                'SELECT h.name FROM hospital h
-                 INNER JOIN "user" u ON u.id = h.owner_id
-                 WHERE u.username = :username',
-                ['username' => 'foo'],
-            ),
-        );
         self::assertSame(1, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital_access_grant g
              INNER JOIN "user" owner ON owner.id = g.created_by_id

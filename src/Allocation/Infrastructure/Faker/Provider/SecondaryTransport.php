@@ -21,6 +21,14 @@ final class SecondaryTransport extends Base
         'Kapazitätsengpass',
     ];
 
+    /**
+     * @return list<string>
+     */
+    public static function names(): array
+    {
+        return self::$secondaryTransports;
+    }
+
     public function secondaryTransport(): string
     {
         return self::randomElement(self::$secondaryTransports);

@@ -13,7 +13,6 @@ use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
 use App\DataFixtures\Pattern\Infrastructure\PatternYamlSerializer;
-use App\DataFixtures\Reference\ReferenceRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -28,7 +27,7 @@ final readonly class SyntheticAllocationGenerator
     private const int FLUSH_BATCH_SIZE = 250;
 
     public function __construct(
-        private ReferenceRegistry $registry,
+        private FixtureHospitals $hospitals,
         private FixtureVolumeResolver $volumeResolver,
         private ImportBatchPlanner $batchPlanner,
         private PatternYamlSerializer $patternSerializer,
@@ -44,12 +43,12 @@ final readonly class SyntheticAllocationGenerator
         $volume = $this->volumeResolver->resolve();
         $pattern = $this->patternSerializer->load($volume->pattern);
 
-        $segmentHospitals = $this->registry->hospitalsMatching(
+        $segmentHospitals = $this->hospitals->hospitalsMatching(
             $pattern->segment->hospitalTier,
             $pattern->segment->hospitalLocation,
         );
         $fooHospital = $this->requireDemoHospitalOwnedBy('foo');
-        $activeHospitals = $this->registry->selectActiveHospitals($volume->hospitalsActive, [$fooHospital]);
+        $activeHospitals = $this->hospitals->selectActiveHospitals($volume->hospitalsActive, [$fooHospital]);
         $hospitals = $this->intersectHospitals($activeHospitals, $segmentHospitals);
         if ([] === $hospitals) {
             $hospitals = array_values(array_filter(
@@ -239,7 +238,7 @@ final readonly class SyntheticAllocationGenerator
 
     private function requireDemoHospitalOwnedBy(string $username): Hospital
     {
-        $hospital = $this->registry->findHospitalOwnedByUsername($username);
+        $hospital = $this->hospitals->findHospitalOwnedByUsername($username);
         if (!$hospital instanceof Hospital) {
             throw new \RuntimeException(sprintf('Demo user "%s" must own a participating hospital.', $username));
         }

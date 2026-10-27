@@ -32,7 +32,7 @@ enum ReferenceCatalogType: string
     case IndicationGroup = 'indication-group';
     case Hospital = 'hospital';
 
-    public function yamlKey(): string
+    public function sectionKey(): string
     {
         return match ($this) {
             self::State => 'states',

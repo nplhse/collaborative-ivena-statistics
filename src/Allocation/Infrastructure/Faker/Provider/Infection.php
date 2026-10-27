@@ -21,6 +21,14 @@ final class Infection extends Base
         'V.a. COVID',
     ];
 
+    /**
+     * @return list<string>
+     */
+    public static function names(): array
+    {
+        return self::$infections;
+    }
+
     public function infection(): string
     {
         return self::randomElement(self::$infections);

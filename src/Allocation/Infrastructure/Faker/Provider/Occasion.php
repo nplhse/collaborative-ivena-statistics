@@ -22,6 +22,14 @@ final class Occasion extends Base
         'Verkehrsunfall',
     ];
 
+    /**
+     * @return list<string>
+     */
+    public static function names(): array
+    {
+        return self::$occasions;
+    }
+
     public function occasion(): string
     {
         return self::randomElement(self::$occasions);

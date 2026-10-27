@@ -124,7 +124,7 @@ final class ReferenceCatalogPackageData
         $types = $data['meta']['types'];
         $counts = [];
         foreach ($types as $type) {
-            $section = $data[ReferenceCatalogType::from($type)->yamlKey()] ?? [];
+            $section = $data[ReferenceCatalogType::from($type)->sectionKey()] ?? [];
             $counts[$type] = \is_array($section) ? \count($section) : 0;
         }
         $data['meta']['counts'] = $counts;

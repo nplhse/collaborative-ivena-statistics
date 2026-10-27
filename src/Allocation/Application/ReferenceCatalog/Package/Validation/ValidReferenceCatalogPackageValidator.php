@@ -250,7 +250,7 @@ final class ValidReferenceCatalogPackageValidator extends ConstraintValidator
 
     private function sectionOf(ReferenceCatalogType $type): string
     {
-        return lcfirst(str_replace('_', '', ucwords($type->yamlKey(), '_')));
+        return lcfirst(str_replace('_', '', ucwords($type->sectionKey(), '_')));
     }
 
     /**
