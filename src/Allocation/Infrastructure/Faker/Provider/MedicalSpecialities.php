@@ -105,6 +105,16 @@ final class MedicalSpecialities extends Base
         ],
     ];
 
+    /**
+     * Every department and speciality name the provider knows.
+     *
+     * @return list<string>
+     */
+    public static function names(): array
+    {
+        return array_values(array_unique(array_merge(self::$departments, ...array_values(self::$specialties))));
+    }
+
     public function medicalDepartment(): string
     {
         return self::randomElement(self::$departments);
@@ -129,5 +139,35 @@ final class MedicalSpecialities extends Base
             'department' => $department,
             'specialty' => $specialty,
         ];
+    }
+
+    /**
+     * A generated alias of a department or speciality name: an abbreviation (as a catalog
+     * may spell it) or a typo (as a faulty source may), never a curated alias.
+     *
+     * @return array{name: string, classification: 'unambiguous_alias'|'faulty_catalog'}
+     */
+    public function departmentAlias(string $name): array
+    {
+        $abbreviated = strtr($name, [
+            'Allgemeine ' => 'Allg. ',
+            'Chirurgie' => 'Chir.',
+            ' und ' => ' u. ',
+            'Medizin' => 'Med.',
+            'Gynäkologie' => 'Gyn.',
+            'Pädiatrie' => 'Päd.',
+        ]);
+        if ($abbreviated !== $name && 1 === self::numberBetween(0, 1)) {
+            return ['name' => $abbreviated, 'classification' => 'unambiguous_alias'];
+        }
+
+        $length = mb_strlen($name);
+        $at = self::numberBetween(1, max(1, $length - 3));
+        $typo = mb_substr($name, 0, $at).mb_substr($name, $at + 1, 1).mb_substr($name, $at, 1).mb_substr($name, $at + 2);
+        if ($typo === $name) {
+            $typo = $name.'e';
+        }
+
+        return ['name' => $typo, 'classification' => 'faulty_catalog'];
     }
 }
