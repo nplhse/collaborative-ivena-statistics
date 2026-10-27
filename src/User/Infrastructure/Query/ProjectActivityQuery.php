@@ -15,6 +15,7 @@ use App\User\Domain\Enum\UserActivityType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
 
 /** @psalm-suppress UnusedClass Wired as ProjectActivityQueryInterface. */
@@ -22,6 +23,7 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -110,7 +112,7 @@ final readonly class ProjectActivityQuery implements ProjectActivityQueryInterfa
     {
         $qb->andWhere('NOT (a.type = :postPublished AND a.occurredAt > :now)')
             ->setParameter('postPublished', UserActivityType::POST_PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE);
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE);
     }
 
     private function applyFilters(QueryBuilder $qb, ?ProjectActivityFilters $filters): void

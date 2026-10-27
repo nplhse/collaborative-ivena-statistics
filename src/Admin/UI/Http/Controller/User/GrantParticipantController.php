@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +32,7 @@ final class GrantParticipantController extends AbstractController
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
         private readonly AuditContext $auditContext,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -43,7 +45,7 @@ final class GrantParticipantController extends AbstractController
         }
 
         $expires = $request->query->get('expires');
-        if (!\is_string($expires) || !ctype_digit($expires) || (int) $expires < time()) {
+        if (!\is_string($expires) || !ctype_digit($expires) || (int) $expires < $this->clock->now()->getTimestamp()) {
             throw $this->createAccessDeniedException('Invalid or expired link.');
         }
 

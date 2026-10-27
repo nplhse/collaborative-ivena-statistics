@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Locale;
 
 use App\Shared\Application\Locale\SupportedLocales;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
-final class LocaleCookieManager
+final readonly class LocaleCookieManager
 {
     public const string COOKIE_NAME = 'APP_LOCALE';
+
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
 
     public function readFromRequest(Request $request): ?string
     {
@@ -24,6 +30,6 @@ final class LocaleCookieManager
             ->withSecure($request->isSecure())
             ->withHttpOnly(false)
             ->withSameSite(Cookie::SAMESITE_LAX)
-            ->withExpires(new \DateTimeImmutable('+1 year'));
+            ->withExpires($this->clock->now()->modify('+1 year'));
     }
 }

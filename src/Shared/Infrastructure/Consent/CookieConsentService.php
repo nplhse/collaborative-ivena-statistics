@@ -7,6 +7,7 @@ namespace App\Shared\Infrastructure\Consent;
 use App\Shared\Domain\Entity\CookieConsent;
 use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -17,6 +18,7 @@ final readonly class CookieConsentService
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private CookieConsentRepository $repository,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -80,7 +82,7 @@ final readonly class CookieConsentService
             ->withSecure($request->isSecure())
             ->withHttpOnly(true)
             ->withSameSite(Cookie::SAMESITE_LAX)
-            ->withExpires(new \DateTimeImmutable('+1 year'));
+            ->withExpires($this->clock->now()->modify('+1 year'));
     }
 
     /**

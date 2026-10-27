@@ -7,6 +7,7 @@ namespace App\Tests\Engagement\Unit\Application;
 use App\Engagement\Application\FirstWorkingDayResolver;
 use App\Engagement\Application\MonthlyReminderDispatchGuard;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 
 final class MonthlyReminderDispatchGuardTest extends TestCase
 {
@@ -14,7 +15,7 @@ final class MonthlyReminderDispatchGuardTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->guard = new MonthlyReminderDispatchGuard(new FirstWorkingDayResolver());
+        $this->guard = new MonthlyReminderDispatchGuard(new FirstWorkingDayResolver(), new MockClock());
     }
 
     public function testReturnsTrueOnFirstWorkingDayOfJune2026(): void
@@ -57,5 +58,13 @@ final class MonthlyReminderDispatchGuardTest extends TestCase
         self::assertTrue($this->guard->shouldDispatchToday(
             new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin')),
         ));
+    }
+
+    public function testWithoutDateUsesTheBerlinDateOfTheClock(): void
+    {
+        // 22:30 UTC on 31 May is already 1 June in Berlin (CEST, UTC+2).
+        $guard = new MonthlyReminderDispatchGuard(new FirstWorkingDayResolver(), new MockClock('2026-05-31 22:30:00', 'UTC'));
+
+        self::assertTrue($guard->shouldDispatchToday());
     }
 }

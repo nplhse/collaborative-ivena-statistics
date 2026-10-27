@@ -28,8 +28,10 @@ final class ArrivalNotBeforeCreationValidator extends ConstraintValidator
             return;
         }
 
-        $created = \DateTimeImmutable::createFromFormat($constraint->format, $createdRaw);
-        $arrival = \DateTimeImmutable::createFromFormat($constraint->format, $arrivalRaw);
+        // '!' resets fields that are not in the format instead of taking them from the current time.
+        $format = '!'.ltrim($constraint->format, '!');
+        $created = \DateTimeImmutable::createFromFormat($format, $createdRaw);
+        $arrival = \DateTimeImmutable::createFromFormat($format, $arrivalRaw);
 
         if (!$created instanceof \DateTimeImmutable || !$arrival instanceof \DateTimeImmutable) {
             return;

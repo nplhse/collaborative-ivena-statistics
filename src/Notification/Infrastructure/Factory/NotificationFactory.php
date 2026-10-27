@@ -9,6 +9,7 @@ use App\Notification\Domain\Enum\NotificationAccessScope;
 use App\Notification\Domain\Enum\NotificationCategory;
 use App\Notification\Domain\Enum\NotificationPriority;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -40,7 +41,7 @@ final class NotificationFactory extends PersistentObjectFactory
             'messageKey' => 'test.example.message',
             'accessScope' => NotificationAccessScope::None,
             'inAppVisible' => true,
-            'createdAt' => new \DateTimeImmutable(),
+            'createdAt' => Clock::get()->now(),
         ];
     }
 }

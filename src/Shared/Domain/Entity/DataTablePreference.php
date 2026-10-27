@@ -8,6 +8,7 @@ use App\Shared\Infrastructure\Repository\DataTablePreferenceRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: DataTablePreferenceRepository::class)]
 #[ORM\Table(name: 'data_table_preference')]
@@ -44,7 +45,7 @@ class DataTablePreference
         $this->user = $user;
         $this->tableKey = $tableKey;
         $this->configuration = $configuration;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = Clock::get()->now();
         $this->updatedAt = $this->createdAt;
     }
 
@@ -72,6 +73,6 @@ class DataTablePreference
     public function update(array $configuration): void
     {
         $this->configuration = $configuration;
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = Clock::get()->now();
     }
 }

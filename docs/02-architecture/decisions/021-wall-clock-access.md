@@ -19,22 +19,23 @@ Issue #694 was a test whose result depended on the current date. Fixing it (#702
 
 ### PHPStan enforces it
 
-Two project rules in `tests/PHPStan/Rules/` are registered in `phpstan.dist.neon`:
+Three project rules in `tests/PHPStan/Rules/` are registered in `phpstan.dist.neon`:
 
 | Identifier | Reports |
 |------------|---------|
 | `wallClock.dateTime` | `new \DateTimeImmutable` / `new \DateTime` and `date_create()` / `date_create_immutable()` without a value or with a relative constant string |
 | `wallClock.function` | `time()`, `date()` / `gmdate()` / `idate()` / `getdate()` / `localtime()` without a timestamp, `mktime()` / `gmmktime()` without a year, `strtotime()` with a relative constant string and no base timestamp |
+| `wallClock.createFromFormat` | `createFromFormat()` on `DateTimeImmutable`, `DateTime` and their subclasses, `date_create_from_format()` and `date_create_immutable_from_format()` with a constant format that neither starts with `!` nor ends with `|` |
 
 - A string is **absolute** when it starts with `@` (Unix timestamp) or `date_parse()` finds year, month and day in it (`'2026-05-01'`, `'2026-05-01 +1 day'`, `'2026-05'`). Everything else (`'now'`, `'today'`, `'midnight'`, `'10:00'`, `'Monday'`, `'-30 days'`, an empty string) is relative and reported.
 - Only constant strings are checked. Expressions such as `$row['created_at']` or `$date.' 00:00:00'` almost always carry an absolute value from the database or the request; reporting them would cause many false positives.
 - `microtime()` and `hrtime()` stay allowed: they measure durations, not calendar time. `->modify('-1 day')` stays allowed: it is relative to a given value.
 - Each error names the fix (`ClockInterface`, `Clock::get()->now()`). A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
-- `DateTimeImmutable::createFromFormat()` without `!` or `|` fills missing fields from the wall clock. It is not covered yet and is tracked in the follow-up issue.
+- `createFromFormat()` fills every field the format does not mention from the wall clock: `createFromFormat('Y-m-d', '2026-03-01')` returns the current time of day. Formats therefore always start with `!`, which resets those fields (`'!Y-m-d'` is always midnight). `|` at the end does the same and is accepted, but the code uses `!` throughout. Formats that are not constant are not checked (#821).
 
 ### Existing code is baselined
 
-Occurrences that existed when the rule was introduced are listed in `phpstan-baseline-wall-clock.neon`, separate from `phpstan-baseline.neon`. New code is checked immediately. The baseline is reduced module by module, Statistics first; when it is empty, the file and its include are removed.
+Occurrences that existed when the rule was introduced were listed in `phpstan-baseline-wall-clock.neon`, separate from `phpstan-baseline.neon`, so new code was checked immediately. The baseline was reduced module by module, Statistics first (#801). It is empty and has been removed together with its include; every occurrence in `src/` is now reported.
 
 ## Consequences
 

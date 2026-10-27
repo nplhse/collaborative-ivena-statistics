@@ -72,7 +72,9 @@ Application code never reads the wall clock directly (ADR [021](../02-architectu
 
 Absolute values stay fine: `new \DateTimeImmutable('2026-05-01 00:00:00')`, `new \DateTimeImmutable('@'.$timestamp)`, `new \DateTimeImmutable($row['created_at'])`. Relative values go through the clock: `$this->clock->now()->modify('first day of this month')` instead of `new \DateTimeImmutable('first day of this month')`, `$this->clock->now()->getTimestamp()` instead of `time()`, `$this->clock->now()->format('Y')` instead of `date('Y')`.
 
-PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime` and `wallClock.function`. Existing occurrences are listed in `phpstan-baseline-wall-clock.neon`; do not add new entries there. When you touch a baselined line, fix it and run `make phpstan` – PHPStan reports baseline entries that no longer match, so remove them from the file. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
+Parsing with `createFromFormat()` always starts the format with `!`: `\DateTimeImmutable::createFromFormat('!Y-m-d', $value)`. Without it, every field the format does not mention comes from the current time, so `'Y-m-d'` returns the date with the time of day the code runs at.
+
+PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, `wallClock.function` and `wallClock.createFromFormat`; there is no baseline for them. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
 
 ## Static analysis and linting
 

@@ -12,6 +12,7 @@ use App\Feedback\Domain\Enum\FeedbackCategory;
 use App\Feedback\UI\Form\FeedbackSubmitFormType;
 use App\Feedback\UI\Http\FeedbackRedirectTargetResolver;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,6 +28,7 @@ final class FeedbackSubmitController extends AbstractController
         private readonly FeedbackRedirectTargetResolver $redirectTargetResolver,
         private readonly FeedbackSpamChecker $feedbackSpamChecker,
         private readonly FeedbackSpamRejectLogger $feedbackSpamRejectLogger,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -132,7 +134,7 @@ final class FeedbackSubmitController extends AbstractController
             $message,
             $honeypotValue,
             $renderedAtTimestamp,
-            time(),
+            $this->clock->now()->getTimestamp(),
             $user instanceof User,
         );
         if ($spamDecision->isSpam()) {

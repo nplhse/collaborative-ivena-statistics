@@ -67,17 +67,17 @@ final readonly class ListImportsQuery
         }
 
         if (null !== $query->createdFrom && '' !== $query->createdFrom) {
-            $from = \DateTimeImmutable::createFromFormat('Y-m-d', $query->createdFrom);
+            $from = \DateTimeImmutable::createFromFormat('!Y-m-d', $query->createdFrom);
             if (false !== $from) {
                 $qb->andWhere('i.createdAt >= :createdFrom')
-                    ->setParameter('createdFrom', $from->setTime(0, 0, 0), Types::DATETIME_IMMUTABLE);
+                    ->setParameter('createdFrom', $from, Types::DATETIME_IMMUTABLE);
             }
         }
 
         if (null !== $query->createdUntil && '' !== $query->createdUntil) {
-            $until = \DateTimeImmutable::createFromFormat('Y-m-d', $query->createdUntil);
+            $until = \DateTimeImmutable::createFromFormat('!Y-m-d', $query->createdUntil);
             if (false !== $until) {
-                $untilExclusive = $until->modify('+1 day')->setTime(0, 0, 0);
+                $untilExclusive = $until->modify('+1 day');
                 $qb->andWhere('i.createdAt < :createdUntilExclusive')
                     ->setParameter('createdUntilExclusive', $untilExclusive, Types::DATETIME_IMMUTABLE);
             }
