@@ -12,6 +12,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: DispatchAreaRepository::class)]
@@ -56,7 +57,7 @@ class DispatchArea implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
         $this->hospitals = new ArrayCollection();
     }
 
@@ -144,7 +145,7 @@ class DispatchArea implements \Stringable
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        $this->setUpdatedAt(Clock::get()->now());
     }
 
     #[\Override]

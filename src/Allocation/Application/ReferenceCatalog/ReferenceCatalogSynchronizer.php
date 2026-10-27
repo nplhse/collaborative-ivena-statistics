@@ -29,11 +29,13 @@ use App\Allocation\Domain\IndicationKey;
 use App\Import\Domain\Entity\Import;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 final readonly class ReferenceCatalogSynchronizer
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -318,7 +320,7 @@ final readonly class ReferenceCatalogSynchronizer
                     if (!$dryRun) {
                         $previous->setName($entry->name);
                         $previous->setUpdatedBy($user);
-                        $previous->setUpdatedAt(new \DateTimeImmutable('now'));
+                        $previous->setUpdatedAt($this->clock->now());
                     }
                     break;
                 }

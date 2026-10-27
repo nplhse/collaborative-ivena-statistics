@@ -6,11 +6,13 @@ namespace App\Allocation\Infrastructure\Query;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 
 final readonly class IndicationRawOccurrenceQuery
 {
     public function __construct(
         private Connection $connection,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -129,7 +131,7 @@ SQL,
             'needs_review' => ["r.review_status = 'needs_review'", []],
             'new' => [
                 "r.review_status IN ('unreviewed', 'needs_review') AND r.created_at >= :since",
-                ['since' => new \DateTimeImmutable('-30 days')->format('Y-m-d H:i:s')],
+                ['since' => $this->clock->now()->modify('-30 days')->format('Y-m-d H:i:s')],
             ],
             'top_open' => ["r.review_status IN ('unreviewed', 'needs_review')", []],
             'matched' => ["r.review_status = 'matched'", []],

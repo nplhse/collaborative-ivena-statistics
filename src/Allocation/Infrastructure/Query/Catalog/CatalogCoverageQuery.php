@@ -10,6 +10,7 @@ use App\Allocation\Application\Explore\Catalog\CatalogPrivacyPolicy;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Psr\Clock\ClockInterface;
 
 /**
  * Aggregates visible allocation coverage for a catalog reference object.
@@ -18,6 +19,7 @@ final readonly class CatalogCoverageQuery
 {
     public function __construct(
         private Connection $connection,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -96,6 +98,7 @@ final readonly class CatalogCoverageQuery
                 years: $years,
                 suppressed: false,
                 revealSensitiveMetrics: false,
+                currentYear: $this->currentYear(),
             );
         }
 
@@ -110,6 +113,7 @@ final readonly class CatalogCoverageQuery
             years: $years,
             suppressed: false,
             revealSensitiveMetrics: true,
+            currentYear: $this->currentYear(),
         );
     }
 
@@ -156,7 +160,13 @@ final readonly class CatalogCoverageQuery
             lastAt: $lastAt,
             years: $years,
             suppressed: false,
+            currentYear: $this->currentYear(),
         );
+    }
+
+    private function currentYear(): int
+    {
+        return (int) $this->clock->now()->format('Y');
     }
 
     /**

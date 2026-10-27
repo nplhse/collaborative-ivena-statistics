@@ -12,6 +12,7 @@ use App\Allocation\Infrastructure\Security\Voter\IndicationRawReviewVoter;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -22,6 +23,7 @@ final readonly class IndicationRawReviewService
         private EntityManagerInterface $em,
         private AuthorizationCheckerInterface $authorizationChecker,
         private MessageBusInterface $messageBus,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -31,7 +33,7 @@ final readonly class IndicationRawReviewService
 
         if (!$raw->getFirstMatchedBy() instanceof User) {
             $raw->setFirstMatchedBy($user);
-            $raw->setFirstMatchedAt(new \DateTimeImmutable());
+            $raw->setFirstMatchedAt($this->clock->now());
         }
 
         $raw->setTarget($target);
@@ -52,10 +54,10 @@ final readonly class IndicationRawReviewService
         }
 
         $raw->setFirstMatchedBy($user);
-        $raw->setFirstMatchedAt(new \DateTimeImmutable());
+        $raw->setFirstMatchedAt($this->clock->now());
         $raw->setTarget($target);
         $raw->setReviewStatus(IndicationRawReviewStatus::Matched);
-        $raw->setReviewedAt(new \DateTimeImmutable());
+        $raw->setReviewedAt($this->clock->now());
         $raw->setReviewedBy($user);
         $this->applyComment($raw, $comment);
         $this->em->flush();
@@ -79,7 +81,7 @@ final readonly class IndicationRawReviewService
         }
 
         $raw->setReviewStatus(IndicationRawReviewStatus::Matched);
-        $raw->setReviewedAt(new \DateTimeImmutable());
+        $raw->setReviewedAt($this->clock->now());
         $raw->setReviewedBy($user);
         $this->applyComment($raw, $comment);
         $this->em->flush();
@@ -96,7 +98,7 @@ final readonly class IndicationRawReviewService
 
         $raw->clearMatchAssignment();
         $raw->setReviewStatus(IndicationRawReviewStatus::Unreviewed);
-        $raw->setReviewedAt(new \DateTimeImmutable());
+        $raw->setReviewedAt($this->clock->now());
         $raw->setReviewedBy($user);
         $this->applyComment($raw, $comment);
         $this->em->flush();
@@ -108,7 +110,7 @@ final readonly class IndicationRawReviewService
 
         $raw->clearMatchAssignment();
         $raw->setReviewStatus(IndicationRawReviewStatus::NotMatchable);
-        $raw->setReviewedAt(new \DateTimeImmutable());
+        $raw->setReviewedAt($this->clock->now());
         $raw->setReviewedBy($user);
         $this->applyComment($raw, $comment);
         $this->em->flush();
@@ -120,7 +122,7 @@ final readonly class IndicationRawReviewService
 
         $raw->clearMatchAssignment();
         $raw->setReviewStatus(IndicationRawReviewStatus::Ignored);
-        $raw->setReviewedAt(new \DateTimeImmutable());
+        $raw->setReviewedAt($this->clock->now());
         $raw->setReviewedBy($user);
         $this->applyComment($raw, $comment);
         $this->em->flush();

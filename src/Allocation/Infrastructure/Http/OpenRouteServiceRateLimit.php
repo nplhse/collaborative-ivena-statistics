@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Allocation\Infrastructure\Http;
 
+use Symfony\Component\Clock\Clock;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final readonly class OpenRouteServiceRateLimit
@@ -44,6 +45,6 @@ final readonly class OpenRouteServiceRateLimit
             return null;
         }
 
-        return max(0, $timestamp - time());
+        return max(0, $timestamp - Clock::get()->now()->getTimestamp());
     }
 }

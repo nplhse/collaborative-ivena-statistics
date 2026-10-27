@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -26,7 +27,7 @@ final class IndicationGroupFactory extends PersistentObjectFactory
     protected function defaults(): array
     {
         return [
-            'createdAt' => new \DateTimeImmutable(),
+            'createdAt' => Clock::get()->now(),
             'createdBy' => UserFactory::randomOrCreate(),
             'name' => self::faker()->words(2, true),
             'description' => self::faker()->optional()->sentence(),
