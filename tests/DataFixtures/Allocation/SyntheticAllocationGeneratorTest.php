@@ -16,18 +16,29 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 #[ResetDatabase]
 final class SyntheticAllocationGeneratorTest extends KernelTestCase
 {
+    private const string UNTIL = '2026-09-30';
+
     public function testTwoLoadsGiveTheSameDataByContent(): void
     {
-        self::bootKernel();
+        // A fixed last day, so the result does not depend on the calendar day of the test run.
+        $_ENV['FIXTURES_UNTIL'] = $_SERVER['FIXTURES_UNTIL'] = self::UNTIL;
 
-        $first = $this->loadAndDescribe();
-        // A fresh kernel, like a new `make reset`: the lookup cache of the sampler holds ids of the first load.
-        self::ensureKernelShutdown();
-        self::bootKernel();
-        $second = $this->loadAndDescribe();
+        try {
+            self::bootKernel();
+            $first = $this->loadAndDescribe();
+            // A fresh kernel, like a new `make reset`: the lookup cache of the sampler holds ids of the first load.
+            self::ensureKernelShutdown();
+            self::bootKernel();
+            $second = $this->loadAndDescribe();
+        } finally {
+            unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
+        }
 
         self::assertNotSame([], $first['allocations']);
-        self::assertCount(\count($first['allocations']), $second['allocations']);
+        $last = max(array_map(static fn (array $row): string => (string) $row['last'], $first['summary']));
+        self::assertStringStartsWith(self::UNTIL, $last, 'the period ends on the configured day');
+        // Per hospital first, so a difference names the hospital and the period.
+        self::assertSame($first['summary'], $second['summary']);
         self::assertSame(md5(serialize($first)), md5(serialize($second)), 'same seed and period, same rows (database ids aside)');
     }
 
@@ -56,7 +67,7 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
     }
 
     /**
-     * @return array{allocations: list<array<string, mixed>>, mci: list<array<string, mixed>>}
+     * @return array{summary: list<array<string, mixed>>, allocations: list<array<string, mixed>>, mci: list<array<string, mixed>>}
      */
     private function loadAndDescribe(): array
     {
@@ -67,6 +78,13 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
 
         // Public ids of the synthetic catalog are name-based (ADR 020), database ids are not.
         return [
+            'summary' => $connection->fetchAllAssociative(
+                'SELECT h.public_id AS hospital, h.name, h.size, COUNT(a.id) AS allocations, MIN(a.created_at) AS first, MAX(a.created_at) AS last
+                 FROM hospital h LEFT JOIN allocation a ON a.hospital_id = h.id
+                 WHERE h.is_participating = true
+                 GROUP BY h.public_id, h.name, h.size
+                 ORDER BY h.public_id',
+            ),
             'allocations' => $connection->fetchAllAssociative(
                 'SELECT h.public_id AS hospital, i.name AS import, a.created_at, a.arrival_at, a.gender, a.age, a.urgency,
                         a.transport_type, a.requires_resus, a.requires_cathlab, a.is_cpr, a.is_ventilated, a.is_shock,
