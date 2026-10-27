@@ -183,6 +183,67 @@ final class ReferenceCatalogPackageReaderTest extends KernelTestCase
         self::assertArrayHasKey('meta.complete', $messages);
     }
 
+    public function testRejectsAJsonValueThatIsNoObject(): void
+    {
+        $result = $this->reader()->readJson('42');
+
+        self::assertSame(['A package must be a JSON object.'], array_map(
+            static fn (ReferenceCatalogViolation $violation): string => $violation->message,
+            $result->violations,
+        ));
+    }
+
+    public function testReportsCountsForUnlistedAndUnknownTypes(): void
+    {
+        $data = Data::complete();
+        $data['meta']['types'] = array_values(array_diff($data['meta']['types'], ['infection']));
+        $data['meta']['complete'] = false;
+        unset($data['infections']);
+        $data = Data::withCounts($data);
+        $data['meta']['counts']['infection'] = 1;
+        $data['meta']['counts']['nonsense'] = 1;
+
+        $messages = array_map(
+            static fn (ReferenceCatalogViolation $violation): string => $violation->message,
+            $this->read($this->sealed($data))->violations,
+        );
+
+        self::assertContains('Count given for type "infection", which is not listed in meta.types.', $messages);
+        self::assertContains('Unknown type "nonsense" in meta.counts.', $messages);
+    }
+
+    public function testRequiresCompleteWhenAllTypesAreListed(): void
+    {
+        $data = Data::complete();
+        $data['meta']['complete'] = false;
+
+        $messages = $this->messagesByPath($this->read($this->sealed($data)));
+
+        self::assertSame('All types are listed, so meta.complete must be true.', $messages['meta.complete']);
+    }
+
+    public function testReportsHospitalStateAndAreaMissingFromThePackage(): void
+    {
+        $data = Data::complete();
+        $data['hospitals'][0]['state'] = '0192d6a1-0000-7000-8000-0000000000fe';
+        $data['hospitals'][0]['area'] = '0192d6a1-0000-7000-8000-0000000000fd';
+
+        $messages = $this->messagesByPath($this->read($this->sealed($data)));
+
+        self::assertStringContainsString('is not in the package', $messages['hospitals[0].state']);
+        self::assertStringContainsString('is not in the package', $messages['hospitals[0].area']);
+    }
+
+    public function testReportsAliasesThatCrossAVariantBoundary(): void
+    {
+        $data = Data::complete();
+        $data['departments'][0]['aliases'][] = ['name' => 'Innere Isolierstation', 'classification' => 'historical', 'source' => 'test'];
+
+        $messages = $this->messagesByPath($this->read($this->sealed($data)));
+
+        self::assertStringContainsString('cannot alias base department', $messages['departments[0].aliases[1].name']);
+    }
+
     public function testReportsAChangedFileThroughTheChecksum(): void
     {
         $data = $this->sealed(Data::complete());
