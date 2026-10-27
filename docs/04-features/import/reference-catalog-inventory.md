@@ -4,6 +4,8 @@
 
 This page lists every type of reference data, how each field is classified, which tables depend on the catalog, and what is deliberately left out. The design is recorded in [ADR 020](../../02-architecture/decisions/020-portable-reference-catalog.md). Inventory taken on 2026-10-26 (`main` 19046b15, issue #740).
 
+> **Implemented with #740.** The gaps and the YAML catalog (`fixtures/reference/catalog.yaml`) described below are the starting point; the YAML file, its loaders and the pattern files have since been removed. The current workflow is in [reference-catalog.md](reference-catalog.md), the package format in [reference-catalog-format.md](reference-catalog-format.md). The dependent-table and local-id sections still apply: they are what the restore checks.
+
 ## Classification
 
 | Class | Meaning | In the package |
@@ -241,5 +243,5 @@ Users and credentials, hospital access grants and owners, participation, allocat
 
 - [ADR 020](../../02-architecture/decisions/020-portable-reference-catalog.md)
 - [reference-catalog.md](reference-catalog.md)
-- [reference-catalog-yaml.md](reference-catalog-yaml.md)
+- [reference-catalog-format.md](reference-catalog-format.md)
 - [closure-import.md](closure-import.md)

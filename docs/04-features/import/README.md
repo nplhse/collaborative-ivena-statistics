@@ -10,8 +10,8 @@
 | [batch-requeue.md](batch-requeue.md) | Sequential reimport with checkpoints |
 | [bulk-actions.md](bulk-actions.md) | Select imports on the list to reprocess them as one batch or delete them in the background |
 | [reject-analysis.md](reject-analysis.md) | Aggregate and export rejects |
-| [reference-catalog.md](reference-catalog.md) | Import/export/propose, prod runbook, reject gaps |
-| [reference-catalog-yaml.md](reference-catalog-yaml.md) | Schema of `fixtures/reference/catalog.yaml` (sections, fields, identity) |
+| [reference-catalog.md](reference-catalog.md) | Export, additive import, restore, development reset, runbooks, report from rejects (ADR 020) |
+| [reference-catalog-format.md](reference-catalog-format.md) | JSON package: sections, fields, identity, validation rules |
 | [reference-catalog-inventory.md](reference-catalog-inventory.md) | Reference types, field classification, dependent tables, geography (ADR 020) |
 | [repair-indication-corruption.md](repair-indication-corruption.md) | Issue 521: what broke, why STEMIs vanished from stats, production runbook (merge vs UI-match + backfill) |
 

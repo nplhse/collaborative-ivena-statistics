@@ -32,16 +32,13 @@ php bin/console doctrine:fixtures:load --group=dev --no-interaction
 
 | Group | Contents |
 |---|---|
-| `reference` | Users (dependency), areas, hospitals, lookups, indications |
-| `geo` | Areas only (subset of reference) |
-| `hospitals` | Hospitals (requires areas) |
-| `lookups` | Departments, specialities, assignments, occasions, infections, secondary transports |
-| `indications` | Normalized and raw indications with automatic linking |
-| `allocations` | Pattern-based synthetic allocations and imports |
+| `reference` | Users (dependency) and the complete synthetic reference catalog |
+| `participation` | Reference catalog plus participating hospitals, owners and the demo grant |
+| `allocations` | Participation plus pattern-based synthetic allocations and imports |
 | `content` | English demo CMS pages |
 | `minimal` | Small scenario for fast smoke tests |
 | `dev` | Reference + allocations + content (full local demo) |
-| `statistics` | Reference data used by statistics integration tests |
+| `statistics` | Reference data, participation and allocations used by statistics integration tests |
 
 Examples:
 
@@ -77,6 +74,19 @@ Scale is resolved by `FixtureVolumeResolver` and applied in `PatternAllocationFi
 The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate, plus one Full Urban hospital owned by the demo user `foo`.
 
 Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) to move the real catalog between environments.
+
+## Private catalog: reset and restore
+
+To test real IVENA files locally, replace the synthetic catalog with a private package (never committed; see [reference-catalog.md](../04-features/import/reference-catalog.md)):
+
+1. `make reset`: synthetic installation.
+2. Copy the private package to `var/reference/catalog.json`.
+3. Stop the workers, then `php bin/console app:dev:reset-operational-data` (dev/test only): deletes allocations, imports, closures, projections, access grants, hospital owners and other data that refers to catalog rows; users and the catalog stay.
+4. `php bin/console app:reference:import --mode=replace --dry-run`, then without `--dry-run`.
+5. `php bin/console app:geo:geocode-hospitals` for missing coordinates, optionally isochrones.
+6. Upload a real IVENA file and import it.
+
+`make reset` returns to the synthetic installation.
 
 ## Pattern-based synthetic allocations
 
@@ -119,3 +129,4 @@ php bin/phpunit --no-coverage tests/DataFixtures/
 - [development-workflow.md](development-workflow.md) — daily commands
 - [testing.md](testing.md) — test environment and MV refresh
 - [../02-architecture/overview.md](../02-architecture/overview.md) — bounded contexts and commands
+- [../02-architecture/decisions/020-portable-reference-catalog.md](../02-architecture/decisions/020-portable-reference-catalog.md) — synthetic data, private packages, restore

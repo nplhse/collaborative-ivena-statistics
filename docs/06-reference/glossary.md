@@ -14,7 +14,9 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[glossary-i
 | Data quality indicator | Traffic-light badge on statistics pages with scope and period filters; summarises coverage, representativeness, subgroup support, and allocation volume (indication-specific on the Insights indication dashboard) |
 | Materialized view | Pre-aggregated database view for fast reads |
 | Fixture group | Named subset of Doctrine fixtures (`reference`, `dev`, `allocations`, …) |
-| Reference fixture | Versioned master data from `fixtures/reference/catalog.yaml` |
+| Reference catalog package | Portable JSON file with the master data (catalog only, not a backup); exported to `var/reference/`, private copies outside the repository (ADR 020) |
+| Synthetic reference catalog | Master data for development, tests and demos, built in code from Faker providers (Hesse, official PZC list); same seed, same package |
+| Restore | `app:reference:import --mode=replace`: replaces the whole catalog from a complete package; refuses while other data refers to the catalog |
 | Distribution pattern | YAML file describing statistical weights for synthetic allocations |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |
