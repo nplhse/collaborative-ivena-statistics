@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Allocation\UI\Console\Command;
 
-use App\Allocation\Application\ReferenceCatalog\InvalidReferenceCatalogTypeException;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogImportMode;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogReader;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogReplaceBlockedException;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogSynchronizer;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
+use App\Allocation\Application\ReferenceCatalog\Import\ReferenceCatalogImportApplier;
+use App\Allocation\Application\ReferenceCatalog\Import\ReferenceCatalogImportPlanner;
+use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageReader;
 use App\Allocation\UI\Console\Input\ImportReferenceCatalogInput;
+use App\Allocation\UI\Console\ReferenceCatalogViolationTable;
 use App\User\Domain\Entity\User;
 use App\User\Infrastructure\Repository\UserRepository;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,13 +20,14 @@ use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(
     name: 'app:reference:import',
-    description: 'Import allocation reference catalog YAML (add missing rows, or replace catalog tables on an empty install).',
+    description: 'Import a reference catalog package (JSON): add missing rows, never change existing ones (ADR 020).',
 )]
 final readonly class ImportReferenceCatalogCommand
 {
     public function __construct(
-        private ReferenceCatalogReader $reader,
-        private ReferenceCatalogSynchronizer $synchronizer,
+        private ReferenceCatalogPackageReader $reader,
+        private ReferenceCatalogImportPlanner $planner,
+        private ReferenceCatalogImportApplier $applier,
         private UserRepository $userRepository,
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
@@ -39,15 +38,7 @@ final readonly class ImportReferenceCatalogCommand
         SymfonyStyle $io,
         #[MapInput] ImportReferenceCatalogInput $input,
     ): int {
-        try {
-            $types = ReferenceCatalogType::parseList($input->types);
-        } catch (InvalidReferenceCatalogTypeException $exception) {
-            $io->error($exception->getMessage());
-
-            return Command::FAILURE;
-        }
-
-        $source = $this->resolvePath($input->source);
+        $source = Path::isAbsolute($input->source) ? $input->source : Path::join($this->projectDir, $input->source);
         $user = $this->resolveUser($input->user);
         if (!$user instanceof User) {
             $io->error(sprintf('No user found for "%s". Create a user first or pass --user=.', $input->user));
@@ -56,61 +47,52 @@ final readonly class ImportReferenceCatalogCommand
         }
 
         $io->title('Import reference catalog');
-        $io->writeln(sprintf(
-            'Source: %s | Mode: %s%s | Types: %s',
-            $source,
-            $input->mode->value,
-            $input->dryRun ? ' (dry run)' : '',
-            implode(', ', array_map(static fn (ReferenceCatalogType $type): string => $type->value, $types)),
-        ));
+        $io->writeln(sprintf('Source: %s | Mode: %s%s', $source, $input->mode->value, $input->dryRun ? ' (dry run)' : ''));
+        $io->note('Additive import: it inserts missing rows and never changes or deletes existing ones. It is not a restore.');
 
-        try {
-            $document = $this->reader->load($source);
-            $result = $this->synchronizer->sync(
-                $document,
-                $user,
-                $types,
-                replace: ReferenceCatalogImportMode::Replace === $input->mode,
-                updateIndicationGroups: $input->update,
-                dryRun: $input->dryRun,
-            );
-        } catch (ReferenceCatalogReplaceBlockedException|\InvalidArgumentException|\RuntimeException $exception) {
-            $io->error($exception->getMessage());
+        $result = $this->reader->read($source);
+        if (!$result->isValid()) {
+            $io->error(sprintf('%s is not a valid reference catalog package (%d problem(s)). Nothing was imported.', $source, \count($result->violations)));
+            ReferenceCatalogViolationTable::render($io, $result->violations);
 
             return Command::FAILURE;
         }
 
-        $io->table(['Type', 'Created', 'Skipped', 'Updated'], $result->tableRows());
+        $plan = $this->planner->plan($result->package);
+        $io->table(['Type', 'Create', 'Skip'], array_map(
+            static fn (string $type, array $count): array => [$type, (string) $count['create'], (string) $count['skip']],
+            array_keys($plan->counts),
+            array_values($plan->counts),
+        ));
 
-        if ([] !== $result->warnings) {
-            $io->warning('Warnings:');
-            $io->listing($result->warnings);
+        if ($plan->hasConflicts()) {
+            $io->error(sprintf('The package conflicts with the database (%d conflict(s)). Nothing was imported.', \count($plan->conflicts)));
+            ReferenceCatalogViolationTable::render($io, $plan->conflicts);
+
+            return Command::FAILURE;
         }
 
         if ($input->dryRun) {
-            $io->success('Dry run finished. Re-run without --dry-run to apply changes.');
+            $io->success(sprintf('Dry run: %d row(s) would be created. Run again without --dry-run to import.', $plan->createCount()));
 
             return Command::SUCCESS;
         }
 
-        $io->success($result->hasChanges()
-            ? 'Reference catalog imported.'
-            : 'Nothing to do — selected catalog rows already exist.');
+        if (0 === $plan->createCount()) {
+            $io->success('Nothing to do: every row of the package already exists.');
+
+            return Command::SUCCESS;
+        }
+
+        $this->applier->apply($plan, $user);
+        $io->success(sprintf('Imported %d row(s). The reference data cache was cleared.', $plan->createCount()));
 
         return Command::SUCCESS;
     }
 
-    private function resolvePath(string $path): string
-    {
-        return Path::isAbsolute($path) ? $path : Path::join($this->projectDir, $path);
-    }
-
     private function resolveUser(string $identifier): ?User
     {
-        $identifier = trim($identifier);
-        if ('' === $identifier) {
-            $identifier = 'admin';
-        }
+        $identifier = '' === trim($identifier) ? 'admin' : trim($identifier);
 
         return $this->userRepository->findOneBy(['username' => $identifier])
             ?? $this->userRepository->findOneBy(['email' => mb_strtolower($identifier)]);

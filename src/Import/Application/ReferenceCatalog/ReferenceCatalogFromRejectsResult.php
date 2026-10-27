@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\Application\ReferenceCatalog;
 
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogDocument;
-
 final readonly class ReferenceCatalogFromRejectsResult
 {
     /**
@@ -14,7 +12,6 @@ final readonly class ReferenceCatalogFromRejectsResult
      * @param list<array{type: string, value: string, count: int, exampleFile: string}>  $entries
      */
     public function __construct(
-        public ReferenceCatalogDocument $document,
         public array $importIds,
         public array $imports,
         public array $entries,

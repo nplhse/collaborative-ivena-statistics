@@ -18,7 +18,6 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Yaml\Yaml;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
@@ -91,33 +90,24 @@ final class ProposeReferenceCatalogFromRejectsCommandTest extends KernelTestCase
         $exitCode = $tester->execute(['--output' => $outputDir]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertFileExists($outputDir.'/catalog.yaml');
+        self::assertFileDoesNotExist($outputDir.'/catalog.yaml');
         self::assertFileExists($outputDir.'/report.md');
         self::assertFileExists($outputDir.'/requeue-import-ids.txt');
         self::assertFileExists($outputDir.'/requeue-imports.md');
 
-        /** @var array<string, mixed> $catalog */
-        $catalog = Yaml::parseFile($outputDir.'/catalog.yaml');
-        $areaNames = array_map(static fn (mixed $row): string => \is_array($row) ? (string) ($row['name'] ?? '') : '', $catalog['dispatch_areas'] ?? []);
-        self::assertContains('Göttingen', $areaNames);
-        self::assertNotContains('Frankfurt', $areaNames);
-        foreach ($catalog['dispatch_areas'] ?? [] as $row) {
-            if (\is_array($row) && 'Göttingen' === ($row['name'] ?? null)) {
-                self::assertArrayHasKey('state', $row);
-                self::assertNull($row['state']);
-            }
-        }
-
-        self::assertContains('Chir. Überwachung', $catalog['departments'] ?? []);
-        self::assertNotContains('Perinatalzentrum Level 2', $catalog['departments'] ?? []);
-        self::assertContains('aus Klinik', $catalog['occasions'] ?? []);
-        self::assertNotContains('Erhängen', $catalog['occasions'] ?? []);
-        self::assertSame([], $catalog['secondary_transports'] ?? []);
+        $report = (string) file_get_contents($outputDir.'/report.md');
+        self::assertStringContainsString('| dispatch-area | Göttingen |', $report);
+        self::assertStringNotContainsString('| dispatch-area | Frankfurt |', $report);
+        self::assertStringContainsString('| department | Chir. Überwachung |', $report);
+        self::assertStringNotContainsString('Perinatalzentrum Level 2', $report);
+        self::assertStringContainsString('| occasion | aus Klinik |', $report);
+        self::assertStringNotContainsString('Erhängen', $report);
+        self::assertStringNotContainsString('| secondary-transport |', $report);
+        self::assertStringContainsString('admin pages', $report);
 
         $ids = trim((string) file_get_contents($outputDir.'/requeue-import-ids.txt'));
         self::assertSame((string) $import->getId(), $ids);
 
-        $report = (string) file_get_contents($outputDir.'/report.md');
         self::assertStringContainsString('Göttingen', $report);
         self::assertStringContainsString('kassel.csv', $report);
 
@@ -153,10 +143,8 @@ final class ProposeReferenceCatalogFromRejectsCommandTest extends KernelTestCase
         $projectDir = self::getContainer()->getParameter('kernel.project_dir');
         self::assertIsString($projectDir);
         $absolute = $projectDir.'/'.$relative;
-        self::assertFileExists($absolute.'/catalog.yaml');
-        /** @var array<string, mixed> $catalog */
-        $catalog = Yaml::parseFile($absolute.'/catalog.yaml');
-        self::assertNotContains('Nuklearmedizin', $catalog['specialities'] ?? []);
+        self::assertFileExists($absolute.'/report.md');
+        self::assertStringNotContainsString('Nuklearmedizin', (string) file_get_contents($absolute.'/report.md'));
     }
 
     /**

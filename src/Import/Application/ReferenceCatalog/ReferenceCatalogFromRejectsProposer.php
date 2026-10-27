@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\Application\ReferenceCatalog;
 
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogDocument;
-use App\Allocation\Application\ReferenceCatalog\ReferenceNameEntry;
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DepartmentAlias;
@@ -109,7 +107,6 @@ final readonly class ReferenceCatalogFromRejectsProposer
         ksort($importMeta);
 
         return new ReferenceCatalogFromRejectsResult(
-            document: $this->documentFromEntries($entries),
             importIds: array_map(static fn (array $row): int => $row['importId'], array_values($importMeta)),
             imports: array_values($importMeta),
             entries: $entries,
@@ -222,36 +219,6 @@ final readonly class ReferenceCatalogFromRejectsProposer
         }
 
         return 'infection' === $type && \in_array($key, self::INFECTION_NULL_VALUES, true);
-    }
-
-    /**
-     * @param list<array{type: string, value: string, count: int, exampleFile: string}> $entries
-     */
-    private function documentFromEntries(array $entries): ReferenceCatalogDocument
-    {
-        $document = new ReferenceCatalogDocument();
-        $seen = [];
-
-        foreach ($entries as $entry) {
-            $dedupe = $entry['type']."\0".$entry['value'];
-            if (isset($seen[$dedupe])) {
-                continue;
-            }
-            $seen[$dedupe] = true;
-
-            match ($entry['type']) {
-                'dispatch-area' => $document->dispatchAreas[] = ['name' => $entry['value'], 'state' => null],
-                'department' => $document->departments[] = new ReferenceNameEntry($entry['value']),
-                'speciality' => $document->specialities[] = new ReferenceNameEntry($entry['value']),
-                'assignment' => $document->assignments[] = $entry['value'],
-                'occasion' => $document->occasions[] = $entry['value'],
-                'infection' => $document->infections[] = $entry['value'],
-                'secondary-transport' => $document->secondaryTransports[] = $entry['value'],
-                default => null,
-            };
-        }
-
-        return $document;
     }
 
     /**

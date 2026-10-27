@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Import\UI\Console\Command;
 
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogWriter;
 use App\Import\Application\ReferenceCatalog\ReferenceCatalogFromRejectsProposer;
 use App\Import\Application\ReferenceCatalog\ReferenceCatalogFromRejectsResult;
 use App\Import\UI\Console\Input\ProposeReferenceCatalogFromRejectsInput;
@@ -18,13 +17,12 @@ use Symfony\Component\Filesystem\Path;
 
 #[AsCommand(
     name: 'app:reference:propose-from-rejects',
-    description: 'Propose missing catalog YAML entries from import rejects (read-only on rejects).',
+    description: 'Report catalog values that import rejects miss (read-only on rejects).',
 )]
 final readonly class ProposeReferenceCatalogFromRejectsCommand
 {
     public function __construct(
         private ReferenceCatalogFromRejectsProposer $proposer,
-        private ReferenceCatalogWriter $writer,
         private Filesystem $filesystem,
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
@@ -39,7 +37,6 @@ final readonly class ProposeReferenceCatalogFromRejectsCommand
         $this->filesystem->mkdir($outputDir);
 
         $result = $this->proposer->propose(minCount: $input->minCount);
-        $this->writer->write($outputDir.'/catalog.yaml', $result->document);
         $this->filesystem->dumpFile($outputDir.'/report.md', $this->renderReport($result));
         $this->filesystem->dumpFile(
             $outputDir.'/requeue-import-ids.txt',
@@ -53,7 +50,7 @@ final readonly class ProposeReferenceCatalogFromRejectsCommand
         $io->writeln(sprintf('Dropped (already in catalog / aliases): %d', $result->droppedAsKnown));
         $io->writeln(sprintf('Dropped (junk / denylist): %d', $result->droppedAsJunk));
         $io->writeln(sprintf('Affected imports: %d', \count($result->importIds)));
-        $io->success(sprintf('Wrote catalog proposal to %s', $outputDir));
+        $io->success(sprintf('Wrote the report to %s. Add missing values through the admin pages, then requeue the imports.', $outputDir));
 
         return Command::SUCCESS;
     }
@@ -88,7 +85,7 @@ final readonly class ProposeReferenceCatalogFromRejectsCommand
         }
 
         $lines[] = '';
-        $lines[] = 'Dispatch areas are written with empty `state`. Fill the Bundesland before `app:reference:import`.';
+        $lines[] = 'Add the missing values through the admin pages (the production database is the source of the catalog), then requeue the listed imports.';
         $lines[] = '';
 
         return implode("\n", $lines);
@@ -97,7 +94,7 @@ final readonly class ProposeReferenceCatalogFromRejectsCommand
     private function renderRequeueImports(ReferenceCatalogFromRejectsResult $result): string
     {
         $lines = [
-            '# Imports to requeue after catalog import',
+            '# Imports to requeue after adding the missing values',
             '',
             'Use `app:import:requeue-all --only-ids=` with `requeue-import-ids.txt`.',
             '',

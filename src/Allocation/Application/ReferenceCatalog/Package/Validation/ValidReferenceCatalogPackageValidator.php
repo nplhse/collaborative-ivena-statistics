@@ -6,11 +6,9 @@ namespace App\Allocation\Application\ReferenceCatalog\Package\Validation;
 
 use App\Allocation\Application\ReferenceCatalog\Package\AliasedEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\CatalogEntry;
-use App\Allocation\Application\ReferenceCatalog\Package\DispatchAreaEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\HospitalEntry;
-use App\Allocation\Application\ReferenceCatalog\Package\NormalizedIndicationEntry;
-use App\Allocation\Application\ReferenceCatalog\Package\RawIndicationEntry;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogChecksum;
+use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogNaturalKey;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackage;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogAliasConflictException;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
@@ -18,7 +16,6 @@ use App\Allocation\Application\ReferenceCatalog\ReferenceNameAliasSpec;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameCatalogGuard;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameEntry;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameKey;
-use App\Allocation\Domain\IndicationKey;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -125,9 +122,9 @@ final class ValidReferenceCatalogPackageValidator extends ConstraintValidator
                     $ids[$idKey] = $index;
                 }
 
-                $naturalKey = $this->naturalKey($entry);
+                $naturalKey = ReferenceCatalogNaturalKey::of($entry);
                 if (isset($keys[$naturalKey])) {
-                    $this->violation(sprintf('%s[%d]', $section, $index), sprintf('Same entry as %s[%d] (%s).', $section, $keys[$naturalKey], $this->naturalKeyLabel($type)));
+                    $this->violation(sprintf('%s[%d]', $section, $index), sprintf('Same entry as %s[%d] (%s).', $section, $keys[$naturalKey], ReferenceCatalogNaturalKey::label($type)));
                 } else {
                     $keys[$naturalKey] = $index;
                 }
@@ -249,26 +246,6 @@ final class ValidReferenceCatalogPackageValidator extends ConstraintValidator
                 }
             }
         }
-    }
-
-    private function naturalKey(CatalogEntry $entry): string
-    {
-        return match (true) {
-            $entry instanceof DispatchAreaEntry => strtolower($entry->state).'|'.ReferenceNameKey::normalize($entry->name),
-            $entry instanceof NormalizedIndicationEntry => $entry->code.'|'.ReferenceNameKey::normalize($entry->name),
-            $entry instanceof RawIndicationEntry => IndicationKey::hashFrom($entry->code, $entry->name),
-            default => ReferenceNameKey::normalize($entry->name),
-        };
-    }
-
-    private function naturalKeyLabel(ReferenceCatalogType $type): string
-    {
-        return match ($type) {
-            ReferenceCatalogType::DispatchArea => 'state and name',
-            ReferenceCatalogType::IndicationNormalized => 'code and name',
-            ReferenceCatalogType::IndicationRaw => 'code and label',
-            default => 'name',
-        };
     }
 
     private function sectionOf(ReferenceCatalogType $type): string
