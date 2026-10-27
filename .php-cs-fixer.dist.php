@@ -6,6 +6,8 @@ $finder = new PhpCsFixer\Finder()
     ->in(__DIR__.'/src')
     ->in(__DIR__.'/tests')
     ->exclude('var')
+    // Fixtures for the wall clock PHPStan rules contain the patterns on purpose.
+    ->exclude('PHPStan/Unit/Rules/data')
 ;
 
 return new PhpCsFixer\Config()
