@@ -219,6 +219,40 @@ final class ReferenceCatalogImportTest extends KernelTestCase
         self::assertSame(0, $plan->counts['hospital']['create']);
     }
 
+    public function testAPlanWithConflictsIsNeverWritten(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne();
+        StateFactory::createOne(['name' => 'Hessen']);
+        $plan = $this->plan(Data::complete());
+        self::assertNotSame([], $plan->conflicts);
+
+        foreach ([fn () => $this->applier()->apply($plan, $user), fn () => $this->applier()->write($plan, $user)] as $attempt) {
+            try {
+                $attempt();
+                self::fail('A plan with conflicts must be refused.');
+            } catch (\LogicException $exception) {
+                self::assertStringContainsString('conflicts', $exception->getMessage());
+            }
+        }
+
+        self::assertSame(1, $this->em()->getRepository(State::class)->count([]));
+    }
+
+    public function testAnEmptyPlanLeavesTheCacheAlone(): void
+    {
+        self::bootKernel();
+        $user = UserFactory::createOne();
+        $this->applier()->apply($this->plan(Data::complete()), $user);
+        /** @var CacheItemPoolInterface $cache */
+        $cache = self::getContainer()->get('cache.allocation.reference_data');
+        $cache->save($cache->getItem('filter-options')->set(['current']));
+
+        $this->applier()->apply($this->plan(Data::complete()), $user);
+
+        self::assertTrue($cache->getItem('filter-options')->isHit());
+    }
+
     public function testApplyClearsTheReferenceDataCache(): void
     {
         self::bootKernel();
