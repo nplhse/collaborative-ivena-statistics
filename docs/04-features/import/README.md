@@ -7,6 +7,7 @@
 | [import-pipeline.md](import-pipeline.md) | Async upload → worker → projection rebuild (incl. [upload validation](import-pipeline.md#upload-validation)) |
 | [import-runs.md](import-runs.md) | Durable runs: lifecycle, superseded runs, error classification, `--notify-user` |
 | [closure-import.md](closure-import.md) | IVENA closure-list import (beta role) |
+| [data-coverage.md](data-coverage.md) | Covered days and potential gaps on the import detail page, backfill command |
 | [batch-requeue.md](batch-requeue.md) | Sequential reimport with checkpoints |
 | [bulk-actions.md](bulk-actions.md) | Select imports on the list to reprocess them as one batch or delete them in the background |
 | [reject-analysis.md](reject-analysis.md) | Aggregate and export rejects |

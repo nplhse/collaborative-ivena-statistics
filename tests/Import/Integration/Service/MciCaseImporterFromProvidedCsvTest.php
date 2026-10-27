@@ -27,6 +27,7 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
@@ -111,11 +112,10 @@ final class MciCaseImporterFromProvidedCsvTest extends KernelTestCase
 
         $rejectWriter = new SplCsvRejectWriter(
             filesystem: $this->fs,
-            rejectsBaseDir: $this->rejectDir,
+            rejectsBaseDir: $this->rejectDir, clock: new NativeClock(),
             delimiter: ';',
             enclosure: "\0",
-            escape: '\\'
-        );
+            escape: '\\');
 
         $rejectWriter->start($this->import);
 

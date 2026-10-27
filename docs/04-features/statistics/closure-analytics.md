@@ -247,11 +247,50 @@ detail list under the day timeline uses the same SK-aware overlap join on the
 analysis interval id. Allocation detail links use `data-turbo-frame="_top"`.
 Allocation detail links still require `ROLE_PARTICIPANT`.
 
+### Reading the course charts
+
+A closure lasts at most 24 hours. The course charts focus on its edges: six
+hours outside the closure (`ClosureVolumeReferenceConfig::CONTEXT_HOURS`) and
+three hours inside it after the start and before the end
+(`INNER_FOCUS_HOURS`). On the event and interval course, a closure longer than
+six hours keeps its first and last three hours; `ClosureVolumeChartFocus` hides
+every hourly bucket that lies completely between them, and
+`ClosureVolumeChartFactory` puts one gap point in their place (`gapIndex`,
+`hiddenHours`). The line, bar and speciality reference series are filtered the
+same way, so their points stay aligned. The gap is drawn as a grey slot with a dashed border
+labelled “n h ausgeblendet”, and a note above the charts says that the key
+figures and the window table still count the whole closure. A running closure
+ends at “now” for this purpose and shows “läuft noch” instead of “Ende”.
+
+All course charts use a slot axis instead of categories: slot *i* covers
+`[i, i + 1)` and its value sits in the middle, so markers can sit exactly on
+the boundaries between hours. The axis labels name boundaries (clock times on
+the event and interval course, `−1 h`, `0 h`, … on profile courses). The line
+for the start is the left edge of the first closed hour, the line for the end
+the right edge of the last closed hour; on a profile course both sit on 0 h, and
+the blue band ends or starts exactly there. On narrow charts only every n-th
+boundary is labelled, but the axis ends, start and end always are.
+
+Both course charts on the event and interval pages use the same markers: a blue
+band for this event’s closure, labelled lines for “Beginn” and “Ende”, grey
+dashed bands for other closures. The upper chart shows observed and expected
+assignments per hour; the lower one shows observed ÷ expected × 100 for the same
+hour, with a labelled 100 % line that always stays inside the axis. Each chart
+has a question as subtitle and a collapsed “So liest du das Diagramm” help that
+explains one point, observed, expected (reference weeks, minimum slots) and the
+denominator. The wording avoids “Rate”; the unit is “Zuweisungen je Stunde”.
+
+Profile course charts use the same window: −6 h … +2 h around the start and
+−3 h … +5 h around the end (`ClosureProfileQuery::courseOffsets()`). The line at
+0 h is labelled “Beginn” or “Ende”, the x-axis says “Stunden relativ zum Beginn”
+or “… Ende”, and the values are medians in assignments per hour. The phase
+breakdown below keeps its ±6 hour windows.
+
 Profile course charts mark closure relative to hour 0 (start- or end-aligned)
 with a share of contributing events still in closure per hour bucket. Optional
 background bars (SK1–SK3, shock room, cath lab) use the same toggles as event
 volume charts. Profile pages expose `assignmentPhaseBreakdown`: per-event totals
-and means across the profile’s events in the same ±6 hour windows and
+and means across the profile’s events in ±6 hour windows and the same
 speciality/department population as the course analysis. Summed totals may count
 an allocation more than once when event windows overlap; the UI states that
 explicitly.

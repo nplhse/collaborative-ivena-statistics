@@ -8,6 +8,7 @@ use App\Analytics\Domain\Enum\FeatureArea;
 use App\Analytics\Infrastructure\Repository\AnalyticsProductEventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 /**
  * Stub entity for product events (adoption, onboarding, export, …).
@@ -63,7 +64,7 @@ class AnalyticsProductEvent
         $this->visitorKey = $visitorKey;
         $this->sessionKey = $sessionKey;
         $this->context = $context;
-        $this->occurredAt = $occurredAt ?? new \DateTimeImmutable();
+        $this->occurredAt = $occurredAt ?? Clock::get()->now();
     }
 
     public function getId(): ?int

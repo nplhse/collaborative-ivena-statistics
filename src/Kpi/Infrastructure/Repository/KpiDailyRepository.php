@@ -8,6 +8,7 @@ use App\Kpi\Domain\Entity\KpiDaily;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 
 /**
  * @extends ServiceEntityRepository<KpiDaily>
@@ -17,8 +18,10 @@ final class KpiDailyRepository extends ServiceEntityRepository
     private const string TIMEZONE = 'Europe/Berlin';
 
     /** @psalm-suppress PossiblyUnusedMethod */
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly ClockInterface $clock,
+    ) {
         parent::__construct($registry, KpiDaily::class);
     }
 
@@ -157,7 +160,7 @@ final class KpiDailyRepository extends ServiceEntityRepository
     {
         $tz = new \DateTimeZone(self::TIMEZONE);
 
-        return new \DateTimeImmutable('today', $tz)
+        return $this->clock->now()->setTimezone($tz)->modify('today')
             ->modify(sprintf('-%d days', $days - 1))
             ->setTime(0, 0);
     }

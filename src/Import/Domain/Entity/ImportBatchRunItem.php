@@ -8,6 +8,7 @@ use App\Import\Domain\Enum\ImportBatchRunItemStatus;
 use App\Import\Domain\Enum\ImportRunStatus;
 use App\Import\Infrastructure\Repository\ImportBatchRunItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: ImportBatchRunItemRepository::class)]
 #[ORM\Table(name: 'import_batch_run_item')]
@@ -169,7 +170,7 @@ class ImportBatchRunItem
     public function markSuperseded(): self
     {
         $this->status = ImportBatchRunItemStatus::Superseded;
-        $this->finishedAt = new \DateTimeImmutable();
+        $this->finishedAt = Clock::get()->now();
 
         return $this;
     }
@@ -177,7 +178,7 @@ class ImportBatchRunItem
     public function markRunning(): self
     {
         $this->status = ImportBatchRunItemStatus::Running;
-        $this->startedAt = new \DateTimeImmutable();
+        $this->startedAt = Clock::get()->now();
         $this->finishedAt = null;
         $this->incrementAttemptCount();
 
@@ -187,7 +188,7 @@ class ImportBatchRunItem
     public function markQueued(): self
     {
         $this->status = ImportBatchRunItemStatus::Queued;
-        $this->finishedAt = new \DateTimeImmutable();
+        $this->finishedAt = Clock::get()->now();
         $this->errorMessage = null;
 
         return $this;
@@ -196,7 +197,7 @@ class ImportBatchRunItem
     public function markDispatchFailed(string $message): self
     {
         $this->status = ImportBatchRunItemStatus::DispatchFailed;
-        $this->finishedAt = new \DateTimeImmutable();
+        $this->finishedAt = Clock::get()->now();
         $this->errorMessage = $message;
 
         return $this;
@@ -205,7 +206,7 @@ class ImportBatchRunItem
     public function markSkipped(string $message): self
     {
         $this->status = ImportBatchRunItemStatus::Skipped;
-        $this->finishedAt = new \DateTimeImmutable();
+        $this->finishedAt = Clock::get()->now();
         $this->errorMessage = $message;
 
         return $this;

@@ -9,6 +9,7 @@ use App\Statistics\Application\SummarizedReport\Monthly\Dto\MonthlyReportView;
 use App\Statistics\Application\SummarizedReport\ReportBuildResult;
 use App\Statistics\Application\SummarizedReport\ReportTypeInterface;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class SummarizedReportsPagePresenter
@@ -18,6 +19,7 @@ final readonly class SummarizedReportsPagePresenter
     public function __construct(
         private StatisticsNavigationUrlBuilder $statisticsNavigationUrlBuilder,
         private ProjectionEarliestDateProviderInterface $earliestDateProvider,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -52,7 +54,7 @@ final readonly class SummarizedReportsPagePresenter
     {
         $locale = $request->getLocale();
         $tz = new \DateTimeZone(self::TIMEZONE);
-        $now = new \DateTimeImmutable('now', $tz);
+        $now = $this->clock->now()->setTimezone($tz);
         $latestCompleted = $now->modify('first day of this month 00:00:00')->modify('-1 month');
         $earliestYear = $this->earliestYear($latestCompleted);
 

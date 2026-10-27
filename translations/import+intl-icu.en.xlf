@@ -477,6 +477,130 @@
         <source>flash.import.bulk.delete_queued</source>
         <target>{count, plural, one {# import is} other {# imports are}} being deleted in the background. You are notified once deleting is done.</target>
       </trans-unit>
+      <trans-unit id="impCov9b961d51En" resname="label.import.section.data_coverage">
+        <source>label.import.section.data_coverage</source>
+        <target>Data coverage</target>
+      </trans-unit>
+      <trans-unit id="impCov71af1519En" resname="import.coverage.state.pending">
+        <source>import.coverage.state.pending</source>
+        <target>The data coverage is calculated once the import has finished.</target>
+      </trans-unit>
+      <trans-unit id="impCovdb2bcd04En" resname="import.coverage.state.unavailable">
+        <source>import.coverage.state.unavailable</source>
+        <target>No data coverage is shown for failed or cancelled imports.</target>
+      </trans-unit>
+      <trans-unit id="impCovd4f513bdEn" resname="import.coverage.state.not_calculated">
+        <source>import.coverage.state.not_calculated</source>
+        <target>The data coverage has not been calculated for this import yet.</target>
+      </trans-unit>
+      <trans-unit id="impCov619dc3c6En" resname="import.coverage.state.empty">
+        <source>import.coverage.state.empty</source>
+        <target>This import contains no records.</target>
+      </trans-unit>
+      <trans-unit id="impCova559d928En" resname="import.coverage.field.period">
+        <source>import.coverage.field.period</source>
+        <target>Period</target>
+      </trans-unit>
+      <trans-unit id="impCovd4682359En" resname="import.coverage.field.first_at">
+        <source>import.coverage.field.first_at</source>
+        <target>Earliest timestamp</target>
+      </trans-unit>
+      <trans-unit id="impCov15da22b3En" resname="import.coverage.field.last_at">
+        <source>import.coverage.field.last_at</source>
+        <target>Latest timestamp</target>
+      </trans-unit>
+      <trans-unit id="impCovd041fb11En" resname="import.coverage.field.days_with_data">
+        <source>import.coverage.field.days_with_data</source>
+        <target>Days with data</target>
+      </trans-unit>
+      <trans-unit id="impCov3c779d84En" resname="import.coverage.field.days_with_closures">
+        <source>import.coverage.field.days_with_closures</source>
+        <target>Days with an active closure</target>
+      </trans-unit>
+      <trans-unit id="impCov2694eb70En" resname="import.coverage.field.days_without_data">
+        <source>import.coverage.field.days_without_data</source>
+        <target>Days without data</target>
+      </trans-unit>
+      <trans-unit id="impCove6f597e4En" resname="import.coverage.days">
+        <source>import.coverage.days</source>
+        <target>{count, plural, one {# day} other {# days}}</target>
+      </trans-unit>
+      <trans-unit id="impCovd5f193d3En" resname="import.coverage.days_of_period">
+        <source>import.coverage.days_of_period</source>
+        <target>{covered, number} of {total, plural, one {# day} other {# days}}</target>
+      </trans-unit>
+      <trans-unit id="impCov54b7214aEn" resname="import.coverage.gaps.title">
+        <source>import.coverage.gaps.title</source>
+        <target>Potential gaps</target>
+      </trans-unit>
+      <trans-unit id="impCov870df330En" resname="import.coverage.gaps.hint">
+        <source>import.coverage.gaps.hint</source>
+        <target>Days without records can be legitimate depending on the dataset and are not a confirmed error.</target>
+      </trans-unit>
+      <trans-unit id="impCov219663e3En" resname="import.coverage.gaps.none">
+        <source>import.coverage.gaps.none</source>
+        <target>There are no days without data in this period.</target>
+      </trans-unit>
+      <trans-unit id="impCov998261c9En" resname="import.coverage.closure_hint">
+        <source>import.coverage.closure_hint</source>
+        <target>Days without an active closure are normal, so no gaps are flagged.</target>
+      </trans-unit>
+      <trans-unit id="impCov01dfb5e0En" resname="import.coverage.heatmap.label">
+        <source>import.coverage.heatmap.label</source>
+        <target>Daily coverage</target>
+      </trans-unit>
+      <trans-unit id="impCov8b16c517En" resname="import.coverage.heatmap.cell">
+        <source>import.coverage.heatmap.cell</source>
+        <target>{day}: {count, plural, =0 {no records} one {# record} other {# records}}</target>
+      </trans-unit>
+      <trans-unit id="impCoved7ddbedEn" resname="import.coverage.heatmap.cell.closure">
+        <source>import.coverage.heatmap.cell.closure</source>
+        <target>{day}: {count, plural, =0 {no active closure} one {# active closure} other {# active closures}}</target>
+      </trans-unit>
+      <trans-unit id="impCovLessEn" resname="import.coverage.heatmap.legend.less">
+        <source>import.coverage.heatmap.legend.less</source>
+        <target>Less</target>
+      </trans-unit>
+      <trans-unit id="impCovMoreEn" resname="import.coverage.heatmap.legend.more">
+        <source>import.coverage.heatmap.legend.more</source>
+        <target>More</target>
+      </trans-unit>
+      <trans-unit id="impCov25f89027En" resname="import.coverage.heatmap.legend.gap">
+        <source>import.coverage.heatmap.legend.gap</source>
+        <target>Potential gap</target>
+      </trans-unit>
+      <trans-unit id="impCovd9364461En" resname="import.coverage.heatmap.legend.none">
+        <source>import.coverage.heatmap.legend.none</source>
+        <target>No active closure</target>
+      </trans-unit>
+      <trans-unit id="impCov129480dbEn" resname="import.coverage.heatmap.omitted">
+        <source>import.coverage.heatmap.omitted</source>
+        <target>The period is too long for the daily view.</target>
+      </trans-unit>
+      <trans-unit id="impCovG0En" resname="import.coverage.gaps.summary">
+        <source>import.coverage.gaps.summary</source>
+        <target>{count, plural, one {# gap} other {# gaps}} · {days, plural, one {# day} other {# days}} without data</target>
+      </trans-unit>
+      <trans-unit id="impCovG1En" resname="import.coverage.gaps.show_all">
+        <source>import.coverage.gaps.show_all</source>
+        <target>Show all {count} gaps</target>
+      </trans-unit>
+      <trans-unit id="impCovG2En" resname="import.coverage.gaps.show_less">
+        <source>import.coverage.gaps.show_less</source>
+        <target>Show less</target>
+      </trans-unit>
+      <trans-unit id="impCovG3En" resname="import.coverage.gaps.column.from">
+        <source>import.coverage.gaps.column.from</source>
+        <target>From</target>
+      </trans-unit>
+      <trans-unit id="impCovG4En" resname="import.coverage.gaps.column.to">
+        <source>import.coverage.gaps.column.to</source>
+        <target>To</target>
+      </trans-unit>
+      <trans-unit id="impCovG5En" resname="import.coverage.gaps.column.days">
+        <source>import.coverage.gaps.column.days</source>
+        <target>Duration</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

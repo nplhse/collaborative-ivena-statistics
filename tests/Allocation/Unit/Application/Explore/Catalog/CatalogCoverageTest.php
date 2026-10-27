@@ -53,6 +53,45 @@ final class CatalogCoverageTest extends TestCase
         self::assertNull($coverage->sharePercent());
     }
 
+    public function testYearHeatmapUsesTheCurrentYearOfTheCoverage(): void
+    {
+        $coverage = new CatalogCoverage(
+            allocationCount: 30,
+            totalAllocationCount: 100,
+            hospitalCount: 2,
+            dispatchAreaCount: 1,
+            stateCount: 1,
+            firstAt: new \DateTimeImmutable('2016-01-01'),
+            lastAt: new \DateTimeImmutable('2018-12-31'),
+            years: [['year' => 2016, 'count' => 30]],
+            suppressed: false,
+            currentYear: 2017,
+        );
+
+        $futureYears = array_column(array_filter($coverage->yearHeatmap()[0], static fn (array $cell): bool => $cell['future']), 'year');
+
+        self::assertSame([2018, 2019], $futureYears);
+    }
+
+    public function testYearHeatmapMarksNoFutureYearsWithoutACurrentYear(): void
+    {
+        $coverage = new CatalogCoverage(
+            allocationCount: 30,
+            totalAllocationCount: 100,
+            hospitalCount: 2,
+            dispatchAreaCount: 1,
+            stateCount: 1,
+            firstAt: new \DateTimeImmutable('2016-01-01'),
+            lastAt: new \DateTimeImmutable('2016-12-31'),
+            years: [['year' => 2016, 'count' => 30]],
+            suppressed: false,
+        );
+
+        foreach ($coverage->yearHeatmap()[0] as $cell) {
+            self::assertFalse($cell['future']);
+        }
+    }
+
     public function testYearHeatmapStartsAt2015WithFiveColumns(): void
     {
         $coverage = new CatalogCoverage(

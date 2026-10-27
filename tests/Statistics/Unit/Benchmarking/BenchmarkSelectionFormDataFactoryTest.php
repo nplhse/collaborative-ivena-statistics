@@ -12,6 +12,7 @@ use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 
 final class BenchmarkSelectionFormDataFactoryTest extends TestCase
 {
@@ -19,7 +20,7 @@ final class BenchmarkSelectionFormDataFactoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->factory = new BenchmarkSelectionFormDataFactory();
+        $this->factory = new BenchmarkSelectionFormDataFactory(new MockClock('2026-05-15 10:00:00'));
     }
 
     #[Test]
@@ -83,10 +84,9 @@ final class BenchmarkSelectionFormDataFactoryTest extends TestCase
         string $expectedScopeGroup,
     ): void {
         $comparison = new StatisticsFilter(StatisticsFilterScope::Public, null, null, StatisticsFilterPeriod::AllTime);
-        $now = new \DateTimeImmutable();
-        $expectedYear = (int) $now->format('Y');
-        $expectedMonth = (int) $now->format('n');
-        $expectedQuarter = (int) ceil($expectedMonth / 3);
+        $expectedYear = 2026;
+        $expectedMonth = 5;
+        $expectedQuarter = 2;
 
         $data = $this->factory->fromFilters(
             new StatisticsFilter($scope, null, null, $period),

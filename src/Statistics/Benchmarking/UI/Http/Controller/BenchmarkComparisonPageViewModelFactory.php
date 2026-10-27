@@ -22,6 +22,7 @@ use App\Statistics\UI\Http\Controller\StatisticsPageViewModel;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -39,12 +40,13 @@ final readonly class BenchmarkComparisonPageViewModelFactory
         private StatisticsFilterFormChoiceProvider $filterFormChoiceProvider,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
+        private ClockInterface $clock,
     ) {
     }
 
     public function create(Request $request, string $routeName, ?User $user, StatisticsFilter $filter): StatisticsPageViewModel
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $defaultYear = $filter->referenceYear ?? (int) $now->format('Y');
         $defaultMonth = $filter->referenceMonth ?? (int) $now->format('n');
         $locale = $request->getLocale();
@@ -548,7 +550,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
 
     private function statisticsHeadingPeriod(StatisticsFilter $filter, string $locale): string
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return match ($filter->period) {
             StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics', $locale),
@@ -569,7 +571,7 @@ final readonly class BenchmarkComparisonPageViewModelFactory
 
     private function statisticsHeadingMonthPeriod(StatisticsFilter $filter, string $locale): string
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
         $year = $filter->referenceYear ?? (int) $now->format('Y');
         $month = $filter->referenceMonth ?? (int) $now->format('n');
         $month = max(1, min(12, $month));

@@ -17,6 +17,7 @@ use App\Statistics\Application\StatisticsPeriodResolver;
 use App\Statistics\Application\StatisticsScopeResolver;
 use App\Statistics\Benchmarking\Application\DTO\BenchmarkCriteria;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class BenchmarkCriteriaFactory
@@ -28,6 +29,7 @@ final readonly class BenchmarkCriteriaFactory
         private HospitalCohortLabelResolver $hospitalCohortLabelResolver,
         private StateRepository $stateRepository,
         private DispatchAreaRepository $dispatchAreaRepository,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -49,7 +51,7 @@ final readonly class BenchmarkCriteriaFactory
 
     private function periodLabel(StatisticsFilter $filter): string
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return match ($filter->period) {
             StatisticsFilterPeriod::All => $this->translator->trans('stats.filter.period.all', [], 'statistics'),

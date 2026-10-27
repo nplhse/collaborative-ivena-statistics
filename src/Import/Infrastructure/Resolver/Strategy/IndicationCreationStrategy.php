@@ -14,6 +14,7 @@ use App\Import\Infrastructure\ImportCreatedById;
 use App\Import\Infrastructure\Indication\IndicationCache;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 final readonly class IndicationCreationStrategy
 {
@@ -22,6 +23,7 @@ final readonly class IndicationCreationStrategy
         private IndicationCache $indicationCache,
         private EntityManagerInterface $em,
         private ImportCreatedById $importCreatedById,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -113,7 +115,7 @@ final readonly class IndicationCreationStrategy
             ->setCode($code)
             ->setName($name)
             ->setHash($hash)
-            ->setCreatedAt(new \DateTimeImmutable());
+            ->setCreatedAt($this->clock->now());
 
         /** @var User $createdByRef */
         $createdByRef = $this->em->getReference(User::class, $createdById);

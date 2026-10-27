@@ -17,6 +17,7 @@ use App\Import\Infrastructure\Resolver\Strategy\IndicationCreationStrategy;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 
 final class AllocationIndicationResolverTest extends TestCase
 {
@@ -61,7 +62,7 @@ final class AllocationIndicationResolverTest extends TestCase
 
         $cache = new IndicationCache();
 
-        $strategy = new IndicationCreationStrategy($repo, $cache, $em, new ImportCreatedById());
+        $strategy = new IndicationCreationStrategy($repo, $cache, $em, new ImportCreatedById(), new NativeClock());
         $resolver = new AllocationIndicationResolver($strategy);
 
         $resolver->warm();
@@ -130,7 +131,7 @@ final class AllocationIndicationResolverTest extends TestCase
             });
 
         $cache = new IndicationCache();
-        $strategy = new IndicationCreationStrategy($repo, $cache, $em, new ImportCreatedById());
+        $strategy = new IndicationCreationStrategy($repo, $cache, $em, new ImportCreatedById(), new NativeClock());
         $resolver = new AllocationIndicationResolver($strategy);
         $resolver->warm();
 

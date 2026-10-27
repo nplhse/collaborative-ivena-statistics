@@ -16,6 +16,7 @@ use App\Statistics\ClosedDepartmentAssignments\Application\DTO\ClosedDepartmentA
 use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDepartmentMetricsRow;
 use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDepartmentSliceData;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Translation\IdentityTranslator;
 
@@ -336,6 +337,7 @@ final class ClosedDepartmentAssignmentsAssemblerTest extends TestCase
         return new ClosedDepartmentAssignmentsAssembler(
             new IdentityTranslator(),
             new ClosedDepartmentExploreUrlFactory($router),
+            new NativeClock(),
         );
     }
 

@@ -359,7 +359,7 @@ SQL, $params, $types);
 
         [$base, $params, $types] = ClosureTemporalSql::base($criteria);
         $anchor = $alignToEnd ? 'pe.ends_at' : 'pe.starts_at';
-        $hours = $this->contextHours();
+        [$firstOffset, $offsetEnd] = $this->courseOffsets($alignToEnd);
         $populationSql = $this->volumeHourPopulationSql($profile);
         $this->bindProfileAssignmentParams($profile, $params, $types);
         $seriesSql = $seriesId > 0 ? 'AND h.speciality_id = :course_series_id' : '';
@@ -379,7 +379,7 @@ profile_events AS (
     INNER JOIN closure_event e ON e.id = CAST(v.event_key AS bigint)
 ),
 offsets AS (
-    SELECT gs AS hour_offset FROM generate_series(-{$hours}, {$hours} - 1) AS gs
+    {$this->courseOffsetsSql($alignToEnd)}
 ),
 bins AS (
     SELECT pe.event_id,
@@ -449,7 +449,7 @@ SQL, $params, $types);
         $series = [];
         foreach (['sk1', 'sk2', 'sk3', 'resus', 'cathlab'] as $key) {
             $values = [];
-            for ($offset = -$hours; $offset < $hours; ++$offset) {
+            for ($offset = $firstOffset; $offset < $offsetEnd; ++$offset) {
                 $row = $byOffset[$offset] ?? null;
                 $values[] = \is_array($row) ? (int) ($row[$key] ?? 0) : null;
             }
@@ -1217,7 +1217,7 @@ profile_events AS (
     WHERE e.id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
 ),
 offsets AS (
-    SELECT gs AS hour_offset FROM generate_series(-{$this->contextHours()}, {$this->contextHours()} - 1) AS gs
+    {$this->courseOffsetsSql($alignToEnd)}
 ),
 bins AS (
     SELECT pe.event_id,
@@ -1305,9 +1305,10 @@ SQL, $params, $types);
         }
 
         $series = [];
+        [$firstOffset, $offsetEnd] = $this->courseOffsets($alignToEnd);
         foreach ($grouped as $seriesId => $data) {
             $points = [];
-            for ($offset = -$this->contextHours(); $offset < $this->contextHours(); ++$offset) {
+            for ($offset = $firstOffset; $offset < $offsetEnd; ++$offset) {
                 $row = $data['points'][$offset] ?? null;
                 $eventCount = \is_array($row) ? (int) $row['event_count'] : 0;
                 $points[] = new ClosureProfileCoursePoint(
@@ -1386,7 +1387,7 @@ profile_events AS (
     WHERE e.id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
 ),
 offsets AS (
-    SELECT gs AS hour_offset FROM generate_series(-{$this->contextHours()}, {$this->contextHours()} - 1) AS gs
+    {$this->courseOffsetsSql('pe.ends_at' === $anchor)}
 ),
 bins AS (
     SELECT pe.event_id,
@@ -1426,7 +1427,7 @@ profile_events AS (
     WHERE e.id IN (SELECT DISTINCT event_key::bigint FROM valid_closures)
 ),
 offsets AS (
-    SELECT gs AS hour_offset FROM generate_series(-{$this->contextHours()}, {$this->contextHours()} - 1) AS gs
+    {$this->courseOffsetsSql('pe.ends_at' === $anchor)}
 ),
 bins AS (
     SELECT pe.event_id,
@@ -1735,6 +1736,26 @@ SQL, $params, $types);
     private function contextHours(): int
     {
         return ClosureVolumeReferenceConfig::CONTEXT_HOURS;
+    }
+
+    /**
+     * Course hours around the anchor: the full context outside the closure, a few hours inside it.
+     *
+     * @return array{0: int, 1: int} first offset and the offset after the last one
+     */
+    private function courseOffsets(bool $alignToEnd): array
+    {
+        $outside = ClosureVolumeReferenceConfig::CONTEXT_HOURS;
+        $inside = ClosureVolumeReferenceConfig::INNER_FOCUS_HOURS;
+
+        return $alignToEnd ? [-$inside, $outside] : [-$outside, $inside];
+    }
+
+    private function courseOffsetsSql(bool $alignToEnd): string
+    {
+        [$first, $end] = $this->courseOffsets($alignToEnd);
+
+        return sprintf('SELECT gs AS hour_offset FROM generate_series(%d, %d) AS gs', $first, $end - 1);
     }
 
     private function limit(): int

@@ -189,54 +189,6 @@ final class MciCaseRepository extends ServiceEntityRepository
         );
     }
 
-    /**
-     * @return array<int, array{year: int, month: int, count: int}>
-     */
-    public function countByMonthLast12Months(): array
-    {
-        $from = new \DateTimeImmutable('first day of this month')
-            ->modify('-11 months')
-            ->setTime(0, 0, 0);
-
-        $qb = $this->createQueryBuilder('m')
-            ->where('m.createdAt >= :from')
-            ->setParameter('from', $from, Types::DATETIME_IMMUTABLE)
-            ->orderBy('m.createdAt', 'ASC');
-
-        /** @var MciCase[] $rows */
-        $rows = $qb->getQuery()->getResult();
-
-        $buckets = [];
-
-        foreach ($rows as $mciCase) {
-            $createdAt = $mciCase->getCreatedAt();
-            if (!$createdAt) {
-                continue;
-            }
-
-            $key = $createdAt->format('Y-m');
-
-            $buckets[$key] ??= 0;
-
-            ++$buckets[$key];
-        }
-
-        $result = [];
-        foreach ($buckets as $key => $count) {
-            [$year, $month] = explode('-', $key);
-
-            $result[] = [
-                'year' => (int) $year,
-                'month' => (int) $month,
-                'count' => $count,
-            ];
-        }
-
-        usort($result, static fn (array $a, array $b): int => [$a['year'], $a['month']] <=> [$b['year'], $b['month']]);
-
-        return $result;
-    }
-
     public function countAll(): int
     {
         return (int) $this->createQueryBuilder('m')

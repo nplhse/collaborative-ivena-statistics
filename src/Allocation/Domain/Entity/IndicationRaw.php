@@ -11,6 +11,7 @@ use App\Shared\Domain\Traits\HasRequiredPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: IndicationRawRepository::class)]
@@ -77,7 +78,7 @@ class IndicationRaw implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int
@@ -136,7 +137,7 @@ class IndicationRaw implements \Stringable
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        $this->setUpdatedAt(Clock::get()->now());
     }
 
     #[\Override]

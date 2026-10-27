@@ -22,6 +22,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
@@ -298,7 +299,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
             period: StatisticsFilterPeriod::Year,
         ));
 
-        self::assertSame(new \DateTimeImmutable()->format('Y'), $label);
+        self::assertSame('2027', $label);
     }
 
     /**
@@ -337,6 +338,7 @@ final class ExplorerAnalysisSummaryLabelResolverTest extends TestCase
             $hospitalLookup ?? $this->createStub(HospitalLookupInterface::class),
             $stateLookup ?? $this->createStub(StateLookupInterface::class),
             $dispatchAreaLookup ?? $this->createStub(DispatchAreaLookupInterface::class),
+            new MockClock('2027-06-15 12:00:00'),
         );
     }
 }

@@ -59,6 +59,62 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
         $this->assertSelectorTextNotContains('body', 'Foreign Volume Hospital');
     }
 
+    public function testShortClosureChartsExplainTheirValuesAndShowEverything(): void
+    {
+        $client = self::createClient();
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
+        $seed = $this->seedClosure($owner, 'Short Volume Hospital', 'short-volume');
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/intervals/'.$this->analysisIntervalId($seed['hospitalId'], 'short-volume'));
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-chart-card"] .card-title', 'Assignments per hour');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-ratio-card"] .card-header', '100 % means as many assignments as usual');
+        $this->assertSelectorExists('[data-testid="stats-closure-volume-chart-help"]');
+        $this->assertSelectorExists('[data-testid="stats-closure-volume-ratio-help"]');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-chart-help"]', 'weeks before the start');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-ratio-help"]', 'The denominator is the expected value');
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-chart-legend"]', 'Blue background');
+        $this->assertSelectorNotExists('[data-testid="stats-closure-volume-gap-hint"]');
+
+        $payload = $this->chartPayload($client);
+        self::assertNull($payload['volume']['gapIndex']);
+        self::assertSame(6, $payload['volume']['closureStartIndex']);
+        self::assertSame('Start', $payload['volume']['startMarkerLabel']);
+        self::assertSame('End', $payload['volume']['endMarkerLabel']);
+    }
+
+    public function testFullDayClosureHidesItsMiddleExplicitly(): void
+    {
+        $client = self::createClient();
+        $owner = $this->login($client, [UserRole::USER, UserRole::PARTICIPANT, UserRole::CLOSURE_BETA]);
+        $seed = $this->seedClosure($owner, 'Long Volume Hospital', 'long-volume', '2026-05-01 10:00:00', '2026-05-02 10:00:00');
+        self::getContainer()->get(ClosureVolumeProjectionRebuildInterface::class)->rebuild();
+
+        $client->request(Request::METHOD_GET, '/statistics/closure-analytics/intervals/'.$this->analysisIntervalId($seed['hospitalId'], 'long-volume'));
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('[data-testid="stats-closure-volume-gap-hint"]', 'The 18 hours in between are hidden');
+
+        $volume = $this->chartPayload($client)['volume'];
+        self::assertSame(18, $volume['hiddenHours']);
+        self::assertSame('18 h hidden', $volume['gapLabel']);
+        self::assertCount(6 + 3 + 1 + 3 + 6, $volume['categories']);
+        self::assertSame(9, $volume['gapIndex']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function chartPayload(KernelBrowser $client): array
+    {
+        $json = $client->getCrawler()->filter('[data-testid="stats-closure-volume-detail"] [data-closure-analytics-charts-payload-value]')->attr('data-closure-analytics-charts-payload-value');
+        self::assertNotNull($json);
+        $payload = json_decode($json, true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
+
+        return $payload;
+    }
+
     /**
      * @param list<string> $roles
      */
@@ -74,8 +130,13 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
     /**
      * @return array{hospitalId: int, intervalId: int}
      */
-    private function seedClosure(User $owner, string $hospitalName, string $groupId): array
-    {
+    private function seedClosure(
+        User $owner,
+        string $hospitalName,
+        string $groupId,
+        string $startsAt = '2026-05-01 10:00:00',
+        string $endsAt = '2026-05-01 12:00:00',
+    ): array {
         $state = StateFactory::createOne();
         $dispatch = DispatchAreaFactory::createOne(['state' => $state]);
         $hospital = HospitalFactory::createOne([
@@ -94,8 +155,8 @@ final class ClosureAnalyticsVolumeAccessTest extends WebTestCase
             'import_id' => $import->getId(),
             'speciality_id' => $speciality->getId(),
             'department_id' => $department->getId(),
-            'starts_at' => '2026-05-01 10:00:00',
-            'ends_at' => '2026-05-01 12:00:00',
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
             'care_level' => 'emergency',
             'reason' => 'no_bed_capacity',
             'facility_kind' => 'clinic',

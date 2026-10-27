@@ -34,6 +34,7 @@
             <directory>tests/Install/Unit</directory>
             <directory>tests/Kpi/Unit</directory>
             <directory>tests/Notification/Unit</directory>
+            <directory>tests/PHPStan/Unit</directory>
             <directory>tests/Shared/Unit</directory>
             <directory>tests/Statistics/Unit</directory>
             <directory>tests/Storage/Unit</directory>

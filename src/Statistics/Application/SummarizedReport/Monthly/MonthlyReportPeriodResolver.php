@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace App\Statistics\Application\SummarizedReport\Monthly;
 
+use Psr\Clock\ClockInterface;
+
 final readonly class MonthlyReportPeriodResolver
 {
     private const string TIMEZONE = 'Europe/Berlin';
+
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
 
     /**
      * @return array{
@@ -33,7 +40,7 @@ final readonly class MonthlyReportPeriodResolver
         ?int $month = null,
     ): array {
         $tz = new \DateTimeZone(self::TIMEZONE);
-        $reference = ($referenceDate ?? new \DateTimeImmutable('now', $tz))->setTimezone($tz);
+        $reference = ($referenceDate ?? $this->clock->now())->setTimezone($tz);
 
         $currentMonthStart = $reference->modify('first day of this month 00:00:00');
         $latestCompletedMonthStart = $currentMonthStart->modify('-1 month');

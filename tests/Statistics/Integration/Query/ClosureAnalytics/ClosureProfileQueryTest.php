@@ -272,7 +272,8 @@ final class ClosureProfileQueryTest extends KernelTestCase
         $profileCriteria = $criteria->withProfile(ClosureProfileRef::group($seed['hospitalId'], $rateKey));
         $barSeries = $profiles->courseBarSeries($profileCriteria, false, 0);
         self::assertArrayHasKey('sk1', $barSeries);
-        self::assertCount(12, $barSeries['sk1']);
+        self::assertCount(9, $barSeries['sk1']);
+        self::assertCount(9, $profiles->courseBarSeries($profileCriteria, true, 0)['sk1']);
         $phaseBreakdown = $profiles->assignmentPhaseBreakdown($profileCriteria);
         self::assertCount(\count(ClosureVolumeStratum::choices()), $phaseBreakdown);
     }
@@ -304,6 +305,30 @@ final class ClosureProfileQueryTest extends KernelTestCase
         self::assertNotNull($combined);
         self::assertEqualsWithDelta(4.0, (float) $this->pointFrom($combined->points, 0)->observedMedian, 0.01);
         self::assertSame(1, $view->eventCount);
+    }
+
+    public function testCourseShowsSixHoursOutsideAndThreeHoursInsideTheClosure(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedHospital();
+        $connection = self::getContainer()->get(Connection::class);
+        $eventId = $this->insertEvent($connection, $seed['hospitalId'], '2026-07-01 10:00:00', '2026-07-01 11:00:00');
+        $this->insertInterval($connection, $eventId, $seed, $seed['specialityA'], $seed['departmentA'], '2026-07-01 10:00:00', '2026-07-01 11:00:00', 'unit-window');
+        $this->insertVolume($connection, $eventId, $seed, $seed['specialityA'], '2026-07-01 10:00:00', '2026-07-01 11:00:00', 2, 1, 'reliable', '2026-07-01 08:00:00', true);
+
+        $profiles = self::getContainer()->get(ClosureProfileQuery::class);
+        $key = (string) $profiles->linksForEvent($eventId, $seed['hospitalId'])->groupKey;
+        $view = $profiles->view(
+            $this->criteria($seed['hospitalId'], '2026-01-01', '2027-01-01')->withProfile(ClosureProfileRef::group($seed['hospitalId'], $key)),
+            ClosureVolumeStratum::Sk1,
+        );
+        self::assertInstanceOf(ClosureProfileView::class, $view);
+        self::assertNotEmpty($view->startCourse);
+        self::assertNotEmpty($view->endCourse);
+
+        $offsets = static fn (array $points): array => array_map(static fn (ClosureProfileCoursePoint $point): int => $point->offset, $points);
+        self::assertSame(range(-6, 2), $offsets($view->startCourse[0]->points));
+        self::assertSame(range(-3, 5), $offsets($view->endCourse[0]->points));
     }
 
     /**

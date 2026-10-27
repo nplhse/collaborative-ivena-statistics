@@ -11,12 +11,14 @@ use App\Allocation\Application\Event\UserDisassociatedFromHospital;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final readonly class HospitalRelationNotifier
 {
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -71,7 +73,7 @@ final readonly class HospitalRelationNotifier
             grantId: $snapshot->grantId,
             hospitalPublicId: $snapshot->hospitalPublicId,
             hospitalName: $snapshot->hospitalName,
-            occurredAt: $occurredAt ?? new \DateTimeImmutable(),
+            occurredAt: $occurredAt ?? $this->clock->now(),
         ));
     }
 
@@ -90,7 +92,7 @@ final readonly class HospitalRelationNotifier
             return;
         }
 
-        $occurredAt = new \DateTimeImmutable();
+        $occurredAt = $this->clock->now();
 
         if (null !== $previousId) {
             $this->eventDispatcher->dispatch(new HospitalOwnershipRevoked(
