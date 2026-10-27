@@ -10,9 +10,9 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
-use App\DataFixtures\Pattern\Infrastructure\PatternYamlSerializer;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -30,7 +30,7 @@ final readonly class SyntheticAllocationGenerator
         private FixtureHospitals $hospitals,
         private FixtureVolumeResolver $volumeResolver,
         private ImportBatchPlanner $batchPlanner,
-        private PatternYamlSerializer $patternSerializer,
+        private DefaultDistributionPatterns $patterns,
         private PatternSampler $patternSampler,
         private EntityManagerInterface $entityManager,
         private Connection $connection,
@@ -41,7 +41,7 @@ final readonly class SyntheticAllocationGenerator
     public function generate(): void
     {
         $volume = $this->volumeResolver->resolve();
-        $pattern = $this->patternSerializer->load($volume->pattern);
+        $pattern = $this->patterns->get($volume->pattern);
 
         $segmentHospitals = $this->hospitals->hospitalsMatching(
             $pattern->segment->hospitalTier,

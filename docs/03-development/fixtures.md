@@ -1,13 +1,14 @@
 # Development fixtures
 
-This document describes how demo and reference data is loaded for local development and tests. The legacy `App\Seed` module and its `app:seed:*` commands have been removed in favour of Doctrine fixtures with versioned YAML files.
+This document describes how demo and reference data is loaded for local development and tests. All fixture data is synthetic and built in code ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)); no curated data is stored in the repository.
 
 ## Overview
 
 | Layer | Location | Purpose |
 |---|---|---|
-| Reference YAML | `fixtures/reference/catalog.yaml` | Curated master data (areas, hospitals, lookups, indications) |
-| Distribution patterns | `fixtures/patterns/*.yaml` | Statistical profiles for synthetic allocations |
+| Faker providers | `src/Allocation/Infrastructure/Faker/Provider/` | Synthetic reference data: Hesse geography, official PZC indications, departments, lookups, hospitals |
+| Synthetic catalog | `SyntheticReferenceCatalogBuilder` | Composes the providers into a reference catalog package (seed, size) |
+| Distribution patterns | `DefaultDistributionPatterns` | Plain default distributions for synthetic allocations |
 | Fixture classes | `src/DataFixtures/` | Loaders, groups, synthetic allocation generator |
 | Foundry factories | `src/*/Infrastructure/Factory/` | Ad-hoc test data; lookup factories align with reference names where possible |
 
@@ -60,41 +61,26 @@ Dev defaults live in `config/packages/dev/fixtures.yaml`:
 | `fixtures.baseline.imports` | `20` | Number of import batches |
 | `fixtures.baseline.allocations` | `5000` | Total synthetic allocations |
 | `fixtures.baseline.mci_cases` | `25` | MCI demo cases |
-| `fixtures.baseline.pattern` | `urban-full` | Distribution pattern from `fixtures/patterns/` |
+| `fixtures.baseline.pattern` | `urban-full` | Default distribution pattern (`urban-full`, `urban-basic`, `rural-basic`) |
 | `fixtures.baseline.rebuild_projection` | `true` | Rebuild `allocation_stats_projection` after allocation fixtures |
 
 Scale is resolved by `FixtureVolumeResolver` and applied in `PatternAllocationFixture`.
 
 ## Reference data
 
-YAML file `fixtures/reference/catalog.yaml` is the single source of truth for master data. Schema: [../04-features/import/reference-catalog-yaml.md](../04-features/import/reference-catalog-yaml.md). It is loaded by:
+`ReferenceCatalogFixture` builds the synthetic catalog with `SyntheticReferenceCatalogBuilder` (seed 740, 60 hospitals) and loads it through the same validation and import as a real package (`app:reference:validate`, `app:reference:import`):
 
-- `AreaReferenceFixture`
-- `HospitalReferenceFixture`
-- `LookupReferenceFixture`
-- `IndicationReferenceFixture`
+- Hesse with exactly the 24 dispatch areas the maps know; hospitals have addresses and coordinates inside their district.
+- The 208 official PZC indications with their official wording; raw labels are the official wording, generated variants (abbreviation, typo) and a few unmapped labels.
+- Departments and specialities with generated aliases, lookups and a few indication groups.
 
-`ReferenceDataLoader` persists entities and maintains a `ReferenceRegistry` for hospital/area resolution during synthetic data generation.
+The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate, plus one Full Urban hospital owned by the demo user `foo`.
 
-Indication raw rows are linked to normalized entries by hash after load (`IndicationKey`).
-
-Hospital coordinates in reference YAML / `config/hospital_population/geocoding.yaml` are **city/PLZ centroids** for local and CI maps. Production street-level coordinates and destination isochrones are filled by console commands, not by fixture load. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md).
-
-Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) (`app:reference:import --mode=add`, or `--mode=replace` only on an empty install).
+Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) to move the real catalog between environments.
 
 ## Pattern-based synthetic allocations
 
-`PatternAllocationFixture` uses committed pattern files (`fixtures/patterns/manifest.yaml` lists available patterns). Sampling is handled by `PatternSampler` and `SyntheticAllocationGenerator`.
-
-### Maintainer commands
-
-```bash
-# Validate pattern YAML (sums, required distributions)
-php bin/console app:fixtures:validate-patterns
-
-# Export patterns from production or staging data (requires DB with allocations)
-php bin/console app:fixtures:export-patterns --pattern=urban-full
-```
+`PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`). The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; conditional patterns and real pattern packages follow with #792 and #797.
 
 ## Projection rebuild
 
@@ -114,11 +100,12 @@ See [../04-features/statistics/projection-and-materialized-views.md](../04-featu
 
 Reference fixture coverage lives under `tests/DataFixtures/`:
 
-- `Reference/ReferenceYamlLoaderTest.php` — YAML content and counts
-- `Reference/ReferenceRegistryTest.php` — area/hospital registry
-- `Reference/ReferenceDataLoaderTest.php` — persistence and indication linking
+- `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, stable ids, no curated labels
 - `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load
-- `Pattern/*Test.php` — pattern validation and sampling
+- `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
+- `Pattern/*Test.php` — default patterns and sampling
+
+Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.
 
 Run:
 
