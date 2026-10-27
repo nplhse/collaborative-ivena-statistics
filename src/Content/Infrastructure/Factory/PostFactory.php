@@ -7,6 +7,7 @@ namespace App\Content\Infrastructure\Factory;
 use App\Content\Domain\Entity\Post;
 use App\Content\Domain\Enum\PostStatus;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
@@ -34,7 +35,7 @@ final class PostFactory extends PersistentObjectFactory
             'content' => '<p>'.self::faker()->realText().'</p>',
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
             'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
-            'publishedAt' => new \DateTimeImmutable('-1 day'),
+            'publishedAt' => Clock::get()->now()->modify('-1 day'),
             'slug' => strtolower(new AsciiSlugger()->slug($title)->toString()),
             'status' => PostStatus::PUBLISHED,
             'title' => $title,

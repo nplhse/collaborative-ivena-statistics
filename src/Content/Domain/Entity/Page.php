@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -65,7 +66,7 @@ class Page implements \Stringable
     {
         $this->children = new ArrayCollection();
         $this->translations = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int
@@ -200,7 +201,7 @@ class Page implements \Stringable
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->updatedAt = new \DateTimeImmutable('now');
+        $this->updatedAt = Clock::get()->now();
     }
 
     public function hasPublishedTranslation(): bool

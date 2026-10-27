@@ -11,6 +11,7 @@ use App\Import\Infrastructure\Repository\ImportRepository;
 use App\Statistics\Infrastructure\Query\GetPlatformAllocationCountsQuery;
 use App\Statistics\Infrastructure\Query\PlatformAllocationCounts;
 use App\User\Infrastructure\Repository\UserRepository;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -29,6 +30,7 @@ final readonly class DashboardMetricsService
         private HospitalRepository $hospitalRepository,
         private UserRepository $userRepository,
         private ImportRepository $importRepository,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -91,6 +93,6 @@ final readonly class DashboardMetricsService
 
     private function since30Days(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('-30 days', new \DateTimeZone(self::TIMEZONE));
+        return $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->modify('-30 days');
     }
 }

@@ -10,6 +10,7 @@ use App\User\Application\Explore\PostPublishedActivitySlugs;
 use App\User\Application\Explore\ProjectActivityCursor;
 use App\User\Application\Explore\ProjectActivityPage;
 use App\User\Application\Explore\ProjectActivityQueryInterface;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,7 @@ final class ActivityTimelineController extends AbstractController
         private readonly ProjectActivityQueryInterface $activityQuery,
         private readonly PublishedPostPreviewMapInterface $postPreviews,
         private readonly LoggerInterface $logger,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -63,7 +65,7 @@ final class ActivityTimelineController extends AbstractController
      */
     private function periodPresets(): array
     {
-        $today = new \DateTimeImmutable('today');
+        $today = $this->clock->now()->modify('today');
 
         return [
             7 => $today->modify('-7 days')->format('Y-m-d'),

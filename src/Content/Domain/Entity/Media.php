@@ -9,6 +9,7 @@ use App\Content\Infrastructure\Repository\MediaRepository;
 use App\Shared\Domain\Traits\Blamable;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute as Vich;
@@ -92,7 +93,7 @@ class Media implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     #[\Override]
@@ -246,6 +247,6 @@ class Media implements \Stringable
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTimeImmutable('now');
+        $this->updatedAt = Clock::get()->now();
     }
 }
