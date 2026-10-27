@@ -13,9 +13,11 @@ namespace App\Allocation\Infrastructure\Faker\Provider;
 interface IndicationFakerMethods
 {
     /**
-     * @return non-empty-string
+     * An official PZC indication.
+     *
+     * @return array{code: string, name: string}
      */
-    public function indication(): string;
+    public function indication(): array;
 
     /**
      * @return non-empty-string
@@ -26,4 +28,18 @@ interface IndicationFakerMethods
      * @return non-empty-string
      */
     public function indicationName(): string;
+
+    public function indicationCategory(string $code): string;
+
+    /**
+     * A generated raw label for the code; never its official wording.
+     */
+    public function rawIndicationLabel(string $code): string;
+
+    /**
+     * A raw label the catalog cannot map: only a code, or a code outside the PZC list.
+     *
+     * @return array{code: string, name: string}
+     */
+    public function unmappedRawIndication(): array;
 }

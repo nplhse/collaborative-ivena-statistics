@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\SecondaryTransport;
+use App\Allocation\Infrastructure\Faker\Provider\SecondaryTransportFakerMethods;
 use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
@@ -25,21 +26,21 @@ final class SecondaryTransportFactory extends PersistentObjectFactory
     #[\Override]
     protected function defaults(): array
     {
-        $names = [
-            'Diagnostik',
-            'Intensivstation',
-            'Intervention',
-            'OP',
-            'Sekundärverlegung',
-            'Sonstiger Einsatz',
-            'Weaning',
-            'Kapazitätsengpass',
-        ];
+        /** @var \Faker\Generator&SecondaryTransportFakerMethods $faker */
+        $faker = self::faker();
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
             'createdBy' => UserFactory::random(),
-            'name' => self::faker()->randomElement($names),
+            'name' => $faker->secondaryTransport(),
         ];
+    }
+
+    #[\Override]
+    protected function initialize(): static
+    {
+        self::faker()->addProvider(new \App\Allocation\Infrastructure\Faker\Provider\SecondaryTransport(self::faker()));
+
+        return $this;
     }
 }

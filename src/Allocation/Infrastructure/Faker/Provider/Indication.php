@@ -6,60 +6,28 @@ namespace App\Allocation\Infrastructure\Faker\Provider;
 
 use Faker\Provider\Base;
 
-/** @psalm-suppress PropertyNotSetInConstructor */
+/**
+ * Indications along the official PZC list (ADR 020, decision 6).
+ *
+ * Normalized indications use the official wording. Raw labels are generated variants of it
+ * (abbreviation, typo, case), never taken from a curated catalog, so the
+ * synthetic catalog contains non-identical raw → normalized mappings and unmapped labels.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
+ */
 final class Indication extends Base
 {
-    /**
-     * @var list<array{code: string, name: string}>
-     */
-    protected static array $indication = [
-        ['code' => '721', 'name' => 'Akute Augenerkrankung'],
-        ['code' => '322', 'name' => 'Synkope / Kollaps'],
-        ['code' => '549', 'name' => 'Drillinge ab 33+0'],
-        ['code' => '809', 'name' => 'Allgemeinmedizin, sonstiger Notfall'],
-        ['code' => '323', 'name' => 'Hypotonie'],
-        ['code' => '143', 'name' => 'vaECMO Abholung'],
-        ['code' => '255', 'name' => 'Lähmung / Querschnitt akut (nicht Stroke)'],
-        ['code' => '391', 'name' => 'Akuter endokrinologischer Notfall'],
-        ['code' => '714', 'name' => 'Hämaturie'],
-        ['code' => '346', 'name' => 'Kardiogener Schock'],
-        ['code' => '341', 'name' => 'Myokardinfarkt ST-Hebung'],
-        ['code' => '821', 'name' => 'Allergische Reaktion'],
-        ['code' => '134', 'name' => 'Schock (unbekannter Genese)'],
-        ['code' => '753', 'name' => 'Fremdkörper im Ohr'],
-        ['code' => '212', 'name' => 'Respiratorische Globalinsuffizienz'],
-        ['code' => '741', 'name' => 'Akutes Nierenversagen'],
-        ['code' => '251', 'name' => 'Ischämischer Insult'],
-        ['code' => '581', 'name' => 'Ertrinken'],
-        ['code' => '213', 'name' => 'COPD Exazerbation'],
-        ['code' => '751', 'name' => 'Fremdkörper Aspiration'],
-        ['code' => '724', 'name' => 'Glaukomanfall'],
-        ['code' => '311', 'name' => 'Hypertensive Krise'],
-        ['code' => '711', 'name' => 'Harnverhalt'],
-        ['code' => '343', 'name' => 'ACS ohne ST-Hebung'],
-        ['code' => '451', 'name' => 'Polytrauma'],
-        ['code' => '771', 'name' => 'Suizidversuch'],
-        ['code' => '482', 'name' => 'Beckenfraktur'],
-        ['code' => '331', 'name' => 'Herzrhythmusstörung Tachykard'],
-        ['code' => '561', 'name' => 'Geburt Regelversorgung'],
-        ['code' => '571', 'name' => 'Geburt Komplikation'],
-        ['code' => '222', 'name' => 'Pneumonie'],
-        ['code' => '421', 'name' => 'Thoraxtrauma'],
-        ['code' => '361', 'name' => 'Lungenembolie'],
-        ['code' => '813', 'name' => 'Psychiatrische Krise'],
-        ['code' => '411', 'name' => 'Schädel-Hirn-Trauma'],
-        ['code' => '733', 'name' => 'Akute Gastroenteritis'],
-        ['code' => '132', 'name' => 'Reanimation (präklinisch erfolgreich)'],
-        ['code' => '152', 'name' => 'ROSC nach AED / Laienreanimation'],
-        ['code' => '731', 'name' => 'Gastrointestinale Blutung'],
-        ['code' => '145', 'name' => 'prolongierte Reanimation'],
-        ['code' => '131', 'name' => 'Reanimation (präklinisch, erfolglos)'],
-        ['code' => '483', 'name' => 'Oberschenkelfraktur'],
-        ['code' => '211', 'name' => 'Asthma bronchiale'],
-        ['code' => '572', 'name' => 'Schulterdystokie'],
-        ['code' => '383', 'name' => 'Hypoglykämie'],
-        ['code' => '763', 'name' => 'Epileptischer Anfall'],
-        ['code' => '713', 'name' => 'Hämorrhagische Zystitis'],
+    private const array ABBREVIATIONS = [
+        'sonstiger' => 'sonst.',
+        'sonstige' => 'sonst.',
+        'Zu-Verlegung' => 'Zuverl.',
+        'Verletzung' => 'Verl.',
+        'Notfall' => 'NF',
+        'Reanimation' => 'Rea',
+        'Einweisung' => 'Einw.',
+        'Erstversorgung' => 'Erstvers.',
+        'Extremitäten' => 'Extr.',
+        'akut' => 'ak.',
     ];
 
     /**
@@ -67,20 +35,75 @@ final class Indication extends Base
      */
     public function indication(): array
     {
-        return self::randomElement(self::$indication);
+        return self::randomElement(PzcCodes::all());
     }
 
     public function indicationCode(): string
     {
-        $indication = $this->indication();
-
-        return $indication['code'];
+        return $this->indication()['code'];
     }
 
     public function indicationName(): string
     {
-        $indication = $this->indication();
+        return $this->indication()['name'];
+    }
 
-        return $indication['name'];
+    public function indicationCategory(string $code): string
+    {
+        return PzcCodes::category($code);
+    }
+
+    /**
+     * A label as it may arrive in an IVENA file for this code; never the official wording itself.
+     */
+    public function rawIndicationLabel(string $code): string
+    {
+        $official = PzcCodes::name($code);
+
+        /** @var list<'abbreviation'|'typo'|'case'> $kinds */
+        $kinds = self::shuffleArray(['abbreviation', 'typo', 'case']);
+        foreach ($kinds as $kind) {
+            $variant = match ($kind) {
+                'abbreviation' => strtr($official, self::ABBREVIATIONS),
+                'typo' => $this->typo($official),
+                'case' => mb_strtolower($official),
+            };
+            if ($variant !== $official) {
+                return $variant;
+            }
+        }
+
+        return $official.'.';
+    }
+
+    /**
+     * A raw label the catalog cannot map: only a code, or a code outside the PZC list.
+     *
+     * @return array{code: string, name: string}
+     */
+    public function unmappedRawIndication(): array
+    {
+        return 1 === self::numberBetween(0, 1)
+            ? ['code' => $this->indicationCode(), 'name' => '']
+            : ['code' => (string) self::numberBetween(900, 999), 'name' => self::randomElement(['Unklare Lage', 'Zuweisung ohne Angabe', 'Sonstiges'])];
+    }
+
+    /**
+     * Swaps two neighbouring letters inside the longest word.
+     */
+    private function typo(string $label): string
+    {
+        $words = explode(' ', $label);
+        usort($words, static fn (string $a, string $b): int => mb_strlen($b) <=> mb_strlen($a));
+        $word = $words[0];
+        $length = mb_strlen($word);
+        if ($length < 5) {
+            return $label;
+        }
+
+        $at = self::numberBetween(1, $length - 3);
+        $swapped = mb_substr($word, 0, $at).mb_substr($word, $at + 1, 1).mb_substr($word, $at, 1).mb_substr($word, $at + 2);
+
+        return preg_replace('/'.preg_quote($word, '/').'/u', $swapped, $label, 1) ?? $label;
     }
 }
