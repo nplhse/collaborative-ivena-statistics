@@ -6,11 +6,15 @@
             {{ include('@Statistics/closure_analytics/_profile_course_empty.html.twig') }}
         </div>
     {% else %}
+        <p class="text-muted small mb-0" data-testid="closure-profile-course-lead">
+            {{ 'stats.closure.profile.course.lead'|trans({outside: constant('App\\Statistics\\ClosureAnalytics\\Application\\Volume\\ClosureVolumeReferenceConfig::CONTEXT_HOURS'), inside: constant('App\\Statistics\\ClosureAnalytics\\Application\\Volume\\ClosureVolumeReferenceConfig::INNER_FOCUS_HOURS')}, 'statistics') }}
+        </p>
         {% for courseBlock in [
-            {title: 'stats.closure.profile.course.start', courses: startCourses, testid: 'closure-profile-course-start', drawable: startDrawable},
-            {title: 'stats.closure.profile.course.end', courses: endCourses, testid: 'closure-profile-course-end', drawable: endDrawable},
+            {title: 'stats.closure.profile.course.start', hint: 'stats.closure.profile.course.start_hint', courses: startCourses, testid: 'closure-profile-course-start', drawable: startDrawable},
+            {title: 'stats.closure.profile.course.end', hint: 'stats.closure.profile.course.end_hint', courses: endCourses, testid: 'closure-profile-course-end', drawable: endDrawable},
         ] %}
-            <h3 class="h4 mt-3">{{ courseBlock.title|trans({}, 'statistics') }}</h3>
+            <h3 class="h4 mt-3 mb-0">{{ courseBlock.title|trans({}, 'statistics') }}</h3>
+            <div class="text-muted small mb-2">{{ courseBlock.hint|trans({}, 'statistics') }}</div>
             {% if not courseBlock.drawable %}
                 <div data-testid="{{ courseBlock.testid }}-empty">
                     {{ include('@Statistics/closure_analytics/_profile_course_empty.html.twig') }}
@@ -30,6 +34,16 @@
                 </div>
             {% endif %}
         {% endfor %}
+        <p class="text-muted small mb-0" data-testid="closure-profile-course-legend">{{ 'stats.closure.profile.course.legend'|trans({}, 'statistics') }}</p>
+        <details class="closure-chart-help mt-2" data-testid="closure-profile-course-help">
+            <summary>{{ 'stats.closure.chart_help.summary'|trans({}, 'statistics') }}</summary>
+            <ul class="text-muted small mb-0 mt-2 ps-3">
+                <li>{{ 'stats.closure.profile.course.help.point'|trans({}, 'statistics') }}</li>
+                <li>{{ 'stats.closure.profile.course.help.median'|trans({}, 'statistics') }}</li>
+                <li>{{ 'stats.closure.profile.course.excluded'|trans({}, 'statistics') }}</li>
+                <li>{{ 'stats.closure.profile.course.help.band'|trans({}, 'statistics') }}</li>
+            </ul>
+        </details>
     {% endif %}
 
     <h3 class="h4 mt-3">{{ 'stats.closure.profile.phase'|trans({}, 'statistics') }}</h3>

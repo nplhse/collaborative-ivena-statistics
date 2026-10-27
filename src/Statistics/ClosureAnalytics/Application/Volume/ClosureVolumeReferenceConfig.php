@@ -8,6 +8,9 @@ final readonly class ClosureVolumeReferenceConfig
 {
     public const int CONTEXT_HOURS = 6;
 
+    /** Hours inside the closure that the course charts show after its start and before its end. */
+    public const int INNER_FOCUS_HOURS = 3;
+
     /** @var list<int> */
     public const array WINDOW_HOURS = [1, 3, 6];
 

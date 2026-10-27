@@ -1427,6 +1427,8 @@
     --closure-chart-current-border: #1864ab;
     --closure-chart-other-fill: rgba(173, 181, 189, 0.14);
     --closure-chart-other-border: rgba(134, 142, 150, 0.55);
+    --closure-chart-gap-border: #868e96;
+    --closure-chart-marker-text: #fff;
 }
 
 [data-bs-theme='dark'] [data-controller='closure-analytics-charts'] {
@@ -1434,6 +1436,19 @@
     --closure-chart-current-border: color-mix(in srgb, var(--tblr-primary) 82%, white);
     --closure-chart-other-fill: color-mix(in srgb, var(--tblr-secondary) 20%, transparent);
     --closure-chart-other-border: color-mix(in srgb, var(--tblr-secondary) 55%, transparent);
+    --closure-chart-gap-border: #adb5bd;
+    --closure-chart-marker-text: #1a1d21;
+}
+
+.closure-chart-help > summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--tblr-secondary);
+}
+
+.closure-chart-help > summary:hover,
+.closure-chart-help[open] > summary {
+    color: var(--tblr-body-color);
 }
 
 .closure-chart-legend-swatch {
