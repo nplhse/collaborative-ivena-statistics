@@ -8,9 +8,12 @@ use Symfony\Component\Console\Attribute\Option;
 
 final class ExportReferenceCatalogInput
 {
-    #[Option(description: 'Path to the catalog YAML file to write')]
-    public string $output = 'fixtures/reference/catalog.yaml';
+    #[Option(description: 'Path of the JSON package to write (default: var/reference/catalog-<timestamp>.json)')]
+    public ?string $output = null;
 
-    #[Option(description: 'Comma-separated catalog types to export')]
+    #[Option(description: 'Comma-separated catalog types to export (default: all)')]
     public ?string $types = null;
+
+    #[Option(description: 'Free-text note stored in the package meta block')]
+    public ?string $notes = null;
 }

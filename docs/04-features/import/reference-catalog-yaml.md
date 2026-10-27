@@ -2,7 +2,7 @@
 
 **Audience:** Anyone editing or reviewing `fixtures/reference/catalog.yaml`.
 
-The catalog is **one UTF-8 YAML mapping**. Doctrine fixtures, `app:reference:import`, `app:reference:export`, and `app:reference:propose-from-rejects` share this schema. Commands, add/replace rules, and the production runbook live in [reference-catalog.md](reference-catalog.md).
+The catalog is **one UTF-8 YAML mapping**. Doctrine fixtures, `app:reference:import`, and `app:reference:propose-from-rejects` share this schema (`app:reference:export` now writes the JSON package of ADR 020). Commands, add/replace rules, and the production runbook live in [reference-catalog.md](reference-catalog.md).
 
 Default path: `fixtures/reference/catalog.yaml`. `--source=` / `--output=` always point at **one file**, not a directory.
 

@@ -7,6 +7,7 @@ namespace App\Allocation\UI\Console\Command;
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageReader;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
 use App\Allocation\UI\Console\Input\ValidateReferenceCatalogInput;
+use App\Allocation\UI\Console\ReferenceCatalogViolationTable;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
@@ -36,13 +37,7 @@ final readonly class ValidateReferenceCatalogCommand
 
         if (!$result->isValid()) {
             $io->error(sprintf('%s is not a valid reference catalog package (%d problem(s)).', $source, \count($result->violations)));
-            $io->table(
-                ['Path', 'Problem', 'Value'],
-                array_map(
-                    static fn (\App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogViolation $violation): array => ['' === $violation->path ? '(file)' : $violation->path, $violation->message, $violation->invalidValue ?? ''],
-                    $result->violations,
-                ),
-            );
+            ReferenceCatalogViolationTable::render($io, $result->violations);
 
             return Command::FAILURE;
         }
