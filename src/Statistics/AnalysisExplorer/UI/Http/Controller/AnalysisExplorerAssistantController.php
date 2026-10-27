@@ -18,6 +18,7 @@ use App\Statistics\UI\Http\Controller\StatisticsFilterValueResolver;
 use App\Statistics\UI\Http\Controller\StatisticsPageViewModelFactory;
 use App\Statistics\UI\Http\Controller\StatisticsPublicScopeRedirector;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Flow\FormFlowInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +38,7 @@ final class AnalysisExplorerAssistantController extends AbstractController
         private readonly StatisticsDataQualityReportFactory $dataQualityReportFactory,
         private readonly StatisticsFilterFactory $statisticsFilterFactory,
         private readonly ExplorerStatisticsFilterInputFactory $filterInputFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -171,7 +173,7 @@ final class AnalysisExplorerAssistantController extends AbstractController
             StatisticsFilterScope::MyHospitals => ['my_hospitals', null],
             StatisticsFilterScope::Hospital => ['my_hospitals', null !== $filter->hospitalId ? (string) $filter->hospitalId : null],
         };
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return new StatisticsScopePeriodFormData(
             $scopeGroup,

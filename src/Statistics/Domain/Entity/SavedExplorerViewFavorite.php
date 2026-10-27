@@ -7,6 +7,7 @@ namespace App\Statistics\Domain\Entity;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewFavoriteRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: SavedExplorerViewFavoriteRepository::class)]
 #[ORM\Table(name: 'saved_explorer_view_favorite')]
@@ -33,7 +34,7 @@ class SavedExplorerViewFavorite
     {
         $this->user = $user;
         $this->savedView = $savedView;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int

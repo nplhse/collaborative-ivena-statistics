@@ -311,7 +311,7 @@ final class ClosureTimelineController extends AbstractController
         string $grain,
     ): \DateTimeImmutable {
         if ('month' === $grain && 1 === preg_match('/^(\d{4})-W(\d{2})$/', $key, $matches)) {
-            return new \DateTimeImmutable('now', new \DateTimeZone('Europe/Berlin'))
+            return $this->clock->now()->setTimezone(new \DateTimeZone('Europe/Berlin'))
                 ->setISODate((int) $matches[1], (int) $matches[2])
                 ->setTime(0, 0);
         }

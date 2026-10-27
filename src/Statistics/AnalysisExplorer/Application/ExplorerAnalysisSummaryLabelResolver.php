@@ -15,6 +15,7 @@ use App\Statistics\Application\DTO\StatisticsFilterPeriod;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsHospitalScopeLabelResolver;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -30,6 +31,7 @@ final readonly class ExplorerAnalysisSummaryLabelResolver implements ExplorerAna
         private HospitalLookupInterface $hospitalLookup,
         private StateLookupInterface $stateLookup,
         private DispatchAreaLookupInterface $dispatchAreaLookup,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -59,7 +61,7 @@ final readonly class ExplorerAnalysisSummaryLabelResolver implements ExplorerAna
     #[\Override]
     public function periodLabel(StatisticsFilter $filter, ?string $locale = null): string
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return match ($filter->period) {
             StatisticsFilterPeriod::All => $this->translator->trans(

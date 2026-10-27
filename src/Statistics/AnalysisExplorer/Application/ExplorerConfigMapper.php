@@ -23,6 +23,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Application\StatisticsFilterFactory;
 use App\Statistics\UI\Form\Data\StatisticsScopePeriodFormData;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 
 final readonly class ExplorerConfigMapper
 {
@@ -39,6 +40,7 @@ final readonly class ExplorerConfigMapper
         private ExplorerMetricCapabilityPolicy $metricCapabilityPolicy,
         private ExplorerAnalysisFilterMapper $analysisFilterMapper,
         private ExplorerAnalysisFilterPolicy $analysisFilterPolicy,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -612,7 +614,7 @@ final readonly class ExplorerConfigMapper
     private function sideFromFilter(StatisticsFilter $filter): StatisticsScopePeriodFormData
     {
         [$scopeGroup, $scopeDetail] = $this->scopeGroupFromFilter($filter);
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return new StatisticsScopePeriodFormData(
             $scopeGroup,

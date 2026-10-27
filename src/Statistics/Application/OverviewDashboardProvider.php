@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticWidgetType;
 use App\Statistics\Application\DTO\WidgetPayload\ChartPairWidgetPayload;
 use App\Statistics\Application\DTO\WidgetPayload\WidgetPayloadNormalizer;
 use App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery;
+use Psr\Clock\ClockInterface;
 
 final readonly class OverviewDashboardProvider
 {
@@ -20,6 +21,7 @@ final readonly class OverviewDashboardProvider
         private ProjectionTimeSeriesQuery $timeSeriesQuery,
         private WidgetPayloadNormalizer $widgetPayloadNormalizer,
         private ChartBucketMapper $chartBucketMapper,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -85,7 +87,7 @@ final readonly class OverviewDashboardProvider
      */
     private function buildRolling12MonthCharts(): array
     {
-        $currentMonth = new \DateTimeImmutable('first day of this month 00:00:00');
+        $currentMonth = $this->clock->now()->modify('first day of this month 00:00:00');
         $start = StatisticsPeriod::overviewPeriodStart();
 
         $monthKeys = [];
@@ -173,10 +175,10 @@ final readonly class OverviewDashboardProvider
             }
         }
         if (!$start instanceof \DateTimeImmutable) {
-            $start = new \DateTimeImmutable('first day of this month')->setTime(0, 0, 0);
+            $start = $this->clock->now()->modify('first day of this month')->setTime(0, 0, 0);
         }
 
-        $currentYear = (int) new \DateTimeImmutable('now')->format('Y');
+        $currentYear = (int) $this->clock->now()->format('Y');
         $startYear = (int) $start->format('Y');
         $yearKeys = [];
         $labels = [];

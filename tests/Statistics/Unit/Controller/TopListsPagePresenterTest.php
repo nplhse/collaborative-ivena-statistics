@@ -21,6 +21,7 @@ use App\Statistics\UI\Http\Controller\TopListsPagePresenter;
 use App\Statistics\UI\Http\Controller\TopListsRequestModel;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\UX\Pagination\Test\PaginatorFactory;
@@ -232,7 +233,7 @@ final class TopListsPagePresenterTest extends TestCase
     {
         return new TopListsPagePresenter(
             new StatisticsNavigationUrlBuilder($router),
-            new BenchmarkSelectionFormDataFactory(),
+            new BenchmarkSelectionFormDataFactory(new NativeClock()),
             new BenchmarkSelectionQueryBuilder(),
             new TopListCatalogCrossReference(),
             PaginatorFactory::create(urlGenerator: $router),

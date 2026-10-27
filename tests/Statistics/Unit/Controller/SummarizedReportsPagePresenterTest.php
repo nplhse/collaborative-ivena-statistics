@@ -12,6 +12,7 @@ use App\Statistics\Application\SummarizedReport\ReportTypeInterface;
 use App\Statistics\UI\Http\Controller\SummarizedReportsPagePresenter;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -36,6 +37,7 @@ final class SummarizedReportsPagePresenterTest extends TestCase
         $presenter = new SummarizedReportsPagePresenter(
             new StatisticsNavigationUrlBuilder($router),
             $earliestDateProvider,
+            new NativeClock(),
         );
 
         $reportType = $this->createStub(ReportTypeInterface::class);
@@ -82,6 +84,7 @@ final class SummarizedReportsPagePresenterTest extends TestCase
         $presenter = new SummarizedReportsPagePresenter(
             new StatisticsNavigationUrlBuilder($router),
             $earliestDateProvider,
+            new NativeClock(),
         );
 
         $reportType = $this->createStub(ReportTypeInterface::class);

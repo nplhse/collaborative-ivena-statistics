@@ -50,6 +50,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -272,6 +273,7 @@ trait AnalysisExplorerTestSupport
                 $dimensionRegistry,
                 $labelResolver,
                 $this->createExplorerMetricKeyMapper(),
+                new NativeClock(),
             ),
             new AllocationsDistributionQuery(
                 $connection,

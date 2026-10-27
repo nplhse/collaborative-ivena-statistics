@@ -9,6 +9,7 @@ use App\Statistics\GenericAnalysis\Domain\Enum\AnalysisViewVisibility;
 use App\Statistics\Infrastructure\Repository\SavedExplorerViewRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: SavedExplorerViewRepository::class)]
 #[ORM\Table(name: 'saved_explorer_view')]
@@ -79,7 +80,7 @@ class SavedExplorerView
         $this->description = $description;
         $this->isSystem = $isSystem;
         $this->visibility = $visibility;
-        $now = new \DateTimeImmutable();
+        $now = Clock::get()->now();
         $this->createdAt = $now;
         $this->updatedAt = $now;
     }
@@ -197,6 +198,6 @@ class SavedExplorerView
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = Clock::get()->now();
     }
 }
