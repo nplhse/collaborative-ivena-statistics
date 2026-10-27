@@ -130,9 +130,13 @@ final readonly class ClosureVolumeReadModel
         $contextStart = ClosureVolumeClock::wall($startsAt)->modify('-'.ClosureVolumeReferenceConfig::CONTEXT_HOURS.' hours');
         $contextEnd = ClosureVolumeClock::wall($endsAt)->modify('+'.ClosureVolumeReferenceConfig::CONTEXT_HOURS.' hours');
 
-        $chart = $this->charts->build($drafts);
+        $focus = ClosureVolumeChartFocus::around($startsAt, $endsAt, $now);
+        $ongoing = ClosureVolumeClock::wall($endsAt) > $now;
+        $chart = $this->charts->build($drafts, $focus);
+        $chart['ongoing'] = $ongoing;
         $chart['barSeries'] = $this->charts->buildBarSeries(
             $this->dedupe($this->query->draftsForEventBarLayers($eventId, $hospitalIds, $seriesScope)),
+            $focus,
         );
         if (ClosureVolumeSeriesScope::Department === $seriesScope && $applicable) {
             $referenceChart = $this->charts->build($this->dedupe($this->query->draftsForEvent(
@@ -140,7 +144,7 @@ final readonly class ClosureVolumeReadModel
                 $hospitalIds,
                 $stratum,
                 ClosureVolumeSeriesScope::Speciality,
-            )));
+            )), $focus);
             $chart['referenceAreaRatio'] = $referenceChart['areaRatio'];
         }
 
@@ -149,7 +153,7 @@ final readonly class ClosureVolumeReadModel
             true,
             $applicable,
             $this->extendsBeyond($criteria, $contextStart, $contextEnd),
-            ClosureVolumeClock::wall($endsAt) > $now,
+            $ongoing,
             $wholeDepartment,
             $during,
             $windowRows,
@@ -289,12 +293,18 @@ final readonly class ClosureVolumeReadModel
         return [
             'categories' => [],
             'starts' => [],
+            'ends' => [],
             'observed' => [],
             'expected' => [],
             'areaRatio' => [],
             'hospitalRatio' => [],
             'influenced' => [],
             'closureBands' => [],
+            'closureStartIndex' => null,
+            'closureEndIndex' => null,
+            'gapIndex' => null,
+            'hiddenHours' => null,
+            'ongoing' => false,
             'referenceAreaRatio' => null,
         ];
     }

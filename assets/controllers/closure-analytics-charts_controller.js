@@ -7,6 +7,8 @@ import {
 import {
     buildAssignmentMixedChartOptions,
     buildVolumeRatioChartOptions,
+    closureBucketLabel,
+    closureChartCategories,
     formatClosureChartCount,
     placeClosureBandsBehind,
     profileAssignmentLineSeries,
@@ -375,11 +377,11 @@ export default class extends Controller {
     }
 
     async renderVolume(ApexCharts, volume, otherClosures) {
-        const categories = volume.categories ?? [];
-        if (categories.length === 0) {
+        if ((volume.categories ?? []).length === 0) {
             return;
         }
         const volumeChartRoot = this.volumeChartTarget;
+        const categories = closureChartCategories(volume, volumeChartRoot);
         const built = buildAssignmentMixedChartOptions({
             categories,
             lineSeries: volumeAssignmentLineSeries(volume),
@@ -458,18 +460,18 @@ export default class extends Controller {
     }
 
     async renderVolumeRatio(ApexCharts, volume, otherClosures) {
-        const categories = volume.categories ?? [];
-        if (categories.length === 0) {
+        if ((volume.categories ?? []).length === 0) {
             return;
         }
         const ratioTarget = this.volumeRatioChartTarget;
+        const categories = closureChartCategories(volume, ratioTarget);
         const { options, otherClosureAt } = buildVolumeRatioChartOptions(
             categories,
             volume,
             otherClosures,
             ratioTarget,
             ({ dataPointIndex, w }) => {
-                const category = w.globals.categoryLabels[dataPointIndex] ?? '';
+                const category = closureBucketLabel(volume, categories, dataPointIndex);
                 const rows = w.config.series
                     .map((series) => {
                         const value = series.data?.[dataPointIndex];

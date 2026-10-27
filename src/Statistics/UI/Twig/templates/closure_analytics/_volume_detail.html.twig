@@ -74,6 +74,13 @@
             closureBandLabel: 'stats.closure.volume.closure_band'|trans({}, 'statistics'),
             otherClosureHint: 'stats.closure.volume.other_closure'|trans({}, 'statistics'),
             assignmentsAxisLabel: 'stats.closure.volume.assignments_axis'|trans({}, 'statistics'),
+            ratioAxisLabel: 'stats.closure.volume.ratio_axis'|trans({}, 'statistics'),
+            expectationLineLabel: 'stats.closure.volume.expectation_line'|trans({}, 'statistics'),
+            startMarkerLabel: 'stats.closure.volume.marker.start'|trans({}, 'statistics'),
+            endMarkerLabel: 'stats.closure.volume.marker.end'|trans({}, 'statistics'),
+            ongoingMarkerLabel: 'stats.closure.volume.marker.ongoing'|trans({}, 'statistics'),
+            gapLabel: 'stats.closure.volume.gap_label'|trans({hours: volumeDetail.chart.hiddenHours|default(0)}, 'statistics'),
+            gapShortLabel: 'stats.closure.volume.gap_short_label'|trans({hours: volumeDetail.chart.hiddenHours|default(0)}, 'statistics'),
             influencedLabel: 'stats.closure.volume.quality.influenced'|trans({}, 'statistics'),
         } %}
         {% if volumeSeriesScope.value|default('department') == 'department' %}
@@ -81,28 +88,58 @@
                 referenceAreaRatioLabel: 'stats.closure.volume.reference_area_ratio'|trans({}, 'statistics'),
             }) %}
         {% endif %}
+        {% set volumeChartEmpty = volumeDetail.chart.categories is empty %}
         <div data-controller="closure-analytics-charts"
              data-closure-analytics-charts-payload-value="{{ {
                 volume: volumeDetail.chart|merge(volumeChartLabels),
                 otherClosures: volumeDetail.otherClosures,
              }|json_encode|e('html_attr') }}">
-            <div class="card mb-3 closure-volume-chart-card">
-                <div class="card-header"><h3 class="card-title mb-0">{{ 'stats.closure.volume.chart_title'|trans({}, 'statistics') }}</h3></div>
+            {% if not volumeChartEmpty and volumeDetail.chart.gapIndex is not null %}
+                <p class="text-muted small mb-2" data-testid="stats-closure-volume-gap-hint">
+                    {{ 'stats.closure.volume.gap_hint'|trans({outside: constant('App\\Statistics\\ClosureAnalytics\\Application\\Volume\\ClosureVolumeReferenceConfig::CONTEXT_HOURS'), inside: constant('App\\Statistics\\ClosureAnalytics\\Application\\Volume\\ClosureVolumeReferenceConfig::INNER_FOCUS_HOURS'), hours: volumeDetail.chart.hiddenHours}, 'statistics') }}
+                </p>
+            {% endif %}
+            <div class="card mb-3 closure-volume-chart-card" data-testid="stats-closure-volume-chart-card">
+                <div class="card-header flex-column align-items-start">
+                    <h3 class="card-title mb-0">{{ 'stats.closure.volume.chart_title'|trans({}, 'statistics') }}</h3>
+                    <div class="text-muted small mt-1">{{ 'stats.closure.volume.chart_question'|trans({}, 'statistics') }}</div>
+                </div>
                 <div class="card-body">
-                    {% if volumeDetail.chart.categories is empty %}
+                    {% if volumeChartEmpty %}
                         <p class="text-muted mb-0">{{ 'stats.closure.volume.chart_empty'|trans({}, 'statistics') }}</p>
                     {% else %}
                         <div data-closure-analytics-charts-target="volumeChart" style="min-height: 320px"></div>
+                        <p class="text-muted small mb-0 mt-2" data-testid="stats-closure-volume-chart-legend">{{ 'stats.closure.volume.chart_closure_legend'|trans({}, 'statistics') }}</p>
+                        <details class="closure-chart-help mt-2" data-testid="stats-closure-volume-chart-help">
+                            <summary>{{ 'stats.closure.chart_help.summary'|trans({}, 'statistics') }}</summary>
+                            <ul class="text-muted small mb-0 mt-2 ps-3">
+                                <li>{{ 'stats.closure.volume.help.point'|trans({}, 'statistics') }}</li>
+                                <li>{{ 'stats.closure.volume.help.observed'|trans({}, 'statistics') }}</li>
+                                <li>{{ 'stats.closure.volume.help.expected'|trans({before: volumeDetail.referenceWindow.weeksBefore, after: volumeDetail.referenceWindow.weeksAfter, slots: volumeDetail.minimumReferenceSlots}, 'statistics') }}</li>
+                                <li>{{ 'stats.closure.volume.help.reading'|trans({}, 'statistics') }}</li>
+                            </ul>
+                        </details>
                     {% endif %}
                 </div>
             </div>
-            <div class="card mb-3 closure-volume-chart-card">
-                <div class="card-header"><h3 class="card-title mb-0">{{ 'stats.closure.volume.ratio_title'|trans({}, 'statistics') }}</h3></div>
+            <div class="card mb-3 closure-volume-chart-card" data-testid="stats-closure-volume-ratio-card">
+                <div class="card-header flex-column align-items-start">
+                    <h3 class="card-title mb-0">{{ 'stats.closure.volume.ratio_title'|trans({}, 'statistics') }}</h3>
+                    <div class="text-muted small mt-1">{{ 'stats.closure.volume.ratio_question'|trans({}, 'statistics') }}</div>
+                </div>
                 <div class="card-body">
-                    {% if volumeDetail.chart.categories is empty %}
+                    {% if volumeChartEmpty %}
                         <p class="text-muted mb-0">{{ 'stats.closure.volume.chart_empty'|trans({}, 'statistics') }}</p>
                     {% else %}
                         <div data-closure-analytics-charts-target="volumeRatioChart" style="min-height: 260px"></div>
+                        <details class="closure-chart-help mt-2" data-testid="stats-closure-volume-ratio-help">
+                            <summary>{{ 'stats.closure.chart_help.summary'|trans({}, 'statistics') }}</summary>
+                            <ul class="text-muted small mb-0 mt-2 ps-3">
+                                <li>{{ 'stats.closure.volume.help.ratio'|trans({}, 'statistics') }}</li>
+                                <li>{{ 'stats.closure.volume.help.ratio_lines'|trans({}, 'statistics') }}</li>
+                                <li>{{ 'stats.closure.volume.ratio_hint'|trans({}, 'statistics') }}</li>
+                            </ul>
+                        </details>
                     {% endif %}
                 </div>
             </div>

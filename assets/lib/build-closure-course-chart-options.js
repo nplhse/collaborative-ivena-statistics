@@ -29,7 +29,69 @@ const CLOSURE_PALETTE_FALLBACK = {
     currentBorder: '#1864ab',
     otherFill: 'rgba(173, 181, 189, 0.14)',
     otherBorder: 'rgba(134, 142, 150, 0.55)',
+    gapBorder: '#868e96',
+    markerText: '#fff',
 };
+
+const NARROW_CHART_WIDTH = 576;
+
+const CLOSURE_CHART_RESPONSIVE_LEGEND = {
+    position: 'bottom',
+    horizontalAlign: 'left',
+};
+
+export function isNarrowChart(chartRoot) {
+    const width = chartRoot?.clientWidth ?? 0;
+
+    return width > 0 && width < NARROW_CHART_WIDTH;
+}
+
+/**
+ * The hidden middle of a long closure is one category; it gets a readable label instead of the placeholder.
+ */
+export function closureChartCategories(chartData, chartRoot) {
+    const categories = [...(chartData.categories ?? [])];
+    const gapIndex = chartData.gapIndex;
+    if (Number.isInteger(gapIndex) && gapIndex < categories.length) {
+        const label = isNarrowChart(chartRoot) ? chartData.gapShortLabel : chartData.gapLabel;
+        categories[gapIndex] = label ?? categories[gapIndex];
+    }
+
+    return categories;
+}
+
+/**
+ * Tooltip heading: the bucket from its start to its end, or the gap label.
+ */
+export function closureBucketLabel(chartData, categories, index) {
+    const category = categories[index] ?? '';
+    if (index === chartData.gapIndex) {
+        return chartData.gapLabel ?? category;
+    }
+    const end = chartData.ends?.[index];
+    if (typeof end !== 'string' || end.length < 16) {
+        return category;
+    }
+
+    return `${category}–${end.substring(11, 16)}`;
+}
+
+function markerLabel(text, background, offsetY = 0, color = '#fff') {
+    return {
+        text,
+        orientation: 'horizontal',
+        position: 'top',
+        offsetY,
+        borderColor: background,
+        style: {
+            color,
+            background,
+            fontSize: '11px',
+            fontWeight: 600,
+            padding: { left: 4, right: 4, top: 1, bottom: 2 },
+        },
+    };
+}
 
 export function closureChartPalette(chartRoot) {
     const host =
@@ -52,6 +114,12 @@ export function closureChartPalette(chartRoot) {
         otherBorder:
             style.getPropertyValue('--closure-chart-other-border').trim() ||
             CLOSURE_PALETTE_FALLBACK.otherBorder,
+        gapBorder:
+            style.getPropertyValue('--closure-chart-gap-border').trim() ||
+            CLOSURE_PALETTE_FALLBACK.gapBorder,
+        markerText:
+            style.getPropertyValue('--closure-chart-marker-text').trim() ||
+            CLOSURE_PALETTE_FALLBACK.markerText,
     };
 }
 
@@ -107,17 +175,82 @@ export function buildClosureXAxisAnnotations(categories, chartData, otherClosure
             strokeDashArray: 4,
         });
     });
+    xaxis.push(...closureMarkerAnnotations(categories, chartData, chartRoot, palette));
     const anchorCategory = chartData.anchorCategory ?? null;
     if (anchorCategory) {
         xaxis.push({
             x: anchorCategory,
-            x2: anchorCategory,
             borderColor: palette.currentBorder,
             strokeDashArray: 4,
+            ...(chartData.anchorLabel
+                ? {
+                      label: markerLabel(
+                          chartData.anchorLabel,
+                          palette.currentBorder,
+                          0,
+                          palette.markerText,
+                      ),
+                  }
+                : {}),
         });
     }
 
     return { xaxis, otherClosureAt };
+}
+
+/**
+ * Lines with labels for the closure start and end and for the hidden middle of a long closure.
+ */
+export function closureMarkerAnnotations(categories, chartData, chartRoot, palette) {
+    const markers = [];
+    const startIndex = chartData.closureStartIndex;
+    const endIndex = chartData.closureEndIndex;
+    if (Number.isInteger(startIndex) && chartData.startMarkerLabel) {
+        markers.push({
+            x: categories[startIndex],
+            borderColor: palette.currentBorder,
+            strokeDashArray: 0,
+            label: markerLabel(
+                chartData.startMarkerLabel,
+                palette.currentBorder,
+                0,
+                palette.markerText,
+            ),
+        });
+    }
+    const endText = chartData.ongoing ? chartData.ongoingMarkerLabel : chartData.endMarkerLabel;
+    if (Number.isInteger(endIndex) && endText) {
+        const crowded = Number.isInteger(startIndex) && endIndex - startIndex < 3;
+        markers.push({
+            x: categories[endIndex],
+            borderColor: palette.currentBorder,
+            strokeDashArray: chartData.ongoing ? 4 : 0,
+            label: markerLabel(
+                endText,
+                palette.currentBorder,
+                crowded ? 22 : 0,
+                palette.markerText,
+            ),
+        });
+    }
+    const gapIndex = chartData.gapIndex;
+    if (Number.isInteger(gapIndex) && chartData.gapLabel) {
+        markers.push({
+            x: categories[gapIndex],
+            borderColor: palette.gapBorder,
+            strokeDashArray: 3,
+            label: markerLabel(
+                isNarrowChart(chartRoot)
+                    ? (chartData.gapShortLabel ?? chartData.gapLabel)
+                    : chartData.gapLabel,
+                palette.gapBorder,
+                22,
+                palette.markerText,
+            ),
+        });
+    }
+
+    return markers;
 }
 
 function seriesDataMax(series) {
@@ -321,10 +454,25 @@ export function buildAssignmentMixedChartOptions({
             markers: { size: 0, hover: { size: 4 } },
             plotOptions: { bar: { columnWidth: '55%', borderRadius: 2 } },
             grid: { padding: { top: 12, right: 8, left: 4, bottom: 0 } },
-            xaxis: { categories, labels: { rotate: -45, hideOverlappingLabels: true } },
+            xaxis: {
+                categories,
+                labels: { rotate: -45, hideOverlappingLabels: true },
+                ...(chartData.offsetAxisLabel
+                    ? { title: { text: chartData.offsetAxisLabel } }
+                    : {}),
+            },
             yaxis: mixedAssignmentYAxes(lineSeries, barEntries, lineAxisLabel, barAxisLabel),
             annotations: { xaxis: closureAnnotations },
             legend: CLOSURE_ASSIGNMENTS_CHART_LEGEND,
+            responsive: [
+                {
+                    breakpoint: NARROW_CHART_WIDTH,
+                    options: {
+                        chart: { height: Math.round(height * 0.85) },
+                        legend: CLOSURE_CHART_RESPONSIVE_LEGEND,
+                    },
+                },
+            ],
             tooltip: {
                 shared: true,
                 intersect: false,
@@ -388,6 +536,15 @@ export function volumeRatioStrokeDash(volume) {
     return [0, 0, 6];
 }
 
+/**
+ * The axis always reaches past 100 % so the expectation line stays visible.
+ */
+export function ratioYAxisRange(series) {
+    const dataMax = seriesDataMax(series);
+
+    return { min: 0, max: Math.max(120, Math.ceil((dataMax * 1.1) / 20) * 20), tickAmount: 6 };
+}
+
 export function buildVolumeRatioChartOptions(
     categories,
     volume,
@@ -424,14 +581,43 @@ export function buildVolumeRatioChartOptions(
             grid: { padding: { top: 12, right: 8, left: 4, bottom: 0 } },
             xaxis: { categories, labels: { rotate: -45, hideOverlappingLabels: true } },
             yaxis: {
+                ...ratioYAxisRange(volumeRatioSeries(volume)),
                 decimalsInFloat: 0,
+                ...(volume.ratioAxisLabel ? { title: { text: volume.ratioAxisLabel } } : {}),
                 labels: { formatter: (value) => `${Math.round(Number(value))} %` },
             },
             annotations: {
                 xaxis: closureAnnotations,
-                yaxis: [{ y: 100, borderColor: '#868e96', strokeDashArray: 4 }],
+                yaxis: [
+                    {
+                        y: 100,
+                        borderColor: '#868e96',
+                        strokeDashArray: 4,
+                        ...(volume.expectationLineLabel
+                            ? {
+                                  label: {
+                                      text: volume.expectationLineLabel,
+                                      position: 'left',
+                                      textAnchor: 'start',
+                                      borderColor: '#868e96',
+                                      style: {
+                                          color: '#fff',
+                                          background: '#868e96',
+                                          fontSize: '11px',
+                                      },
+                                  },
+                              }
+                            : {}),
+                    },
+                ],
             },
             legend: CLOSURE_ASSIGNMENTS_CHART_LEGEND,
+            responsive: [
+                {
+                    breakpoint: NARROW_CHART_WIDTH,
+                    options: { chart: { height: 230 }, legend: CLOSURE_CHART_RESPONSIVE_LEGEND },
+                },
+            ],
             tooltip: {
                 shared: true,
                 intersect: false,
@@ -443,7 +629,7 @@ export function buildVolumeRatioChartOptions(
 }
 
 export function volumeAssignmentTooltip(w, dataPointIndex, volume) {
-    const category = w.globals.categoryLabels[dataPointIndex] ?? '';
+    const category = closureBucketLabel(volume, w.globals.categoryLabels ?? [], dataPointIndex);
     const rows = w.config.series
         .map((series) => {
             const value = series.data?.[dataPointIndex];

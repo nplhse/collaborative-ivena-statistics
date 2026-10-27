@@ -171,6 +171,14 @@ final class ClosureProfileControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-closure-analytics-charts-target="profileCourseChart"]');
         $courseNode = $client->getCrawler()->filter('[data-closure-analytics-charts-target="profileCourseChart"]')->first();
         self::assertStringContainsString('"observed"', $courseNode->attr('data-course') ?? '');
+        $course = json_decode($courseNode->attr('data-course') ?? '', true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($course);
+        self::assertSame('Start', $course['anchorLabel']);
+        self::assertSame('Hours relative to the start', $course['offsetAxisLabel']);
+        self::assertSame(['-6 h', '-5 h', '-4 h', '-3 h', '-2 h', '-1 h', '+0 h', '+1 h', '+2 h'], $course['categories']);
+        $this->assertSelectorTextContains('[data-testid="closure-profile-course"]', 'Around the start of the closure');
+        $this->assertSelectorTextContains('[data-testid="closure-profile-course-lead"]', '6 hours outside and 3 hours inside');
+        $this->assertSelectorExists('[data-testid="closure-profile-course-help"]');
         $this->assertSelectorExists('[data-testid="closure-profile-phase"]');
 
         $client->request(
