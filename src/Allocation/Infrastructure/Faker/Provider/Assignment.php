@@ -19,6 +19,14 @@ final class Assignment extends Base
         'ZLST',
     ];
 
+    /**
+     * @return list<string>
+     */
+    public static function names(): array
+    {
+        return self::$assignments;
+    }
+
     public function assignment(): string
     {
         return self::randomElement(self::$assignments);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Allocation;
 
-use App\DataFixtures\Reference\IndicationReferenceFixture;
+use App\DataFixtures\Reference\ReferenceCatalogFixture;
 use App\User\Domain\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
@@ -33,7 +33,7 @@ final class HospitalParticipationFixture extends Fixture implements DependentFix
     #[\Override]
     public function getDependencies(): array
     {
-        return [IndicationReferenceFixture::class];
+        return [ReferenceCatalogFixture::class];
     }
 
     /**

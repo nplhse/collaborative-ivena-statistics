@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\Allocation\Infrastructure\Faker\Provider\Area;
 use App\User\Domain\Factory\UserFactory;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
@@ -35,18 +36,29 @@ final class HospitalFactory extends PersistentObjectFactory
          */
         $faker = self::faker();
 
+        // A consistent synthetic hospital: size, beds, tier, location, address and coordinates fit together.
+        $profile = $faker->hospitalProfile(Area::dispatchArea());
+
         return [
-            'address' => AddressFactory::new()->create(),
-            'beds' => self::faker()->numberBetween(100, 1250),
+            'address' => AddressFactory::new([
+                'street' => $profile['address']['street'],
+                'postalCode' => $profile['address']['postal_code'],
+                'city' => $profile['address']['city'],
+                'state' => $profile['address']['state'],
+                'country' => $profile['address']['country'],
+            ])->create(),
+            'beds' => $profile['beds'],
             'owner' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
             'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
             'dispatchArea' => DispatchAreaFactory::new()->withoutAutorefresh()->randomOrCreate(),
-            'location' => self::faker()->randomElement(HospitalLocation::cases()),
-            'name' => $faker->hospital(),
-            'size' => self::faker()->randomElement(HospitalSize::cases()),
+            'latitude' => $profile['coordinates']['lat'],
+            'location' => HospitalLocation::from($profile['location']),
+            'longitude' => $profile['coordinates']['lng'],
+            'name' => $profile['name'],
+            'size' => HospitalSize::from($profile['size']),
             'state' => StateFactory::new()->withoutAutorefresh()->randomOrCreate(),
-            'tier' => self::faker()->randomElement(HospitalTier::cases()),
+            'tier' => HospitalTier::from($profile['tier']),
         ];
     }
 

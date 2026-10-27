@@ -2,81 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Reference;
+namespace App\DataFixtures\Allocation;
 
-use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
-use App\Allocation\Domain\Entity\State;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class ReferenceRegistry
+/**
+ * Hospitals of the loaded reference catalog, for the allocation fixtures.
+ */
+final readonly class FixtureHospitals
 {
-    /** @var array<string, State> */
-    private array $statesByName = [];
-
-    /** @var array<string, DispatchArea> */
-    private array $areasByKey = [];
-
-    /** @var array<string, Hospital> */
-    private array $hospitalsByName = [];
-
-    /** @var list<Hospital> */
-    private array $allHospitals = [];
-
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private EntityManagerInterface $entityManager,
     ) {
-    }
-
-    public function registerState(State $state): void
-    {
-        $name = (string) $state->getName();
-        $this->statesByName[$name] = $state;
-    }
-
-    public function registerDispatchArea(DispatchArea $area): void
-    {
-        $stateName = (string) $area->getState()?->getName();
-        $key = $this->areaKey($stateName, (string) $area->getName());
-        $this->areasByKey[$key] = $area;
-    }
-
-    public function registerHospital(Hospital $hospital): void
-    {
-        $name = (string) $hospital->getName();
-        $this->hospitalsByName[$name] = $hospital;
-        $this->allHospitals[] = $hospital;
-    }
-
-    public function getState(string $name): State
-    {
-        if (!isset($this->statesByName[$name])) {
-            throw new \RuntimeException(sprintf('Unknown state reference: %s', $name));
-        }
-
-        return $this->ensureManagedState($this->statesByName[$name]);
-    }
-
-    public function getDispatchArea(string $stateName, string $areaName): DispatchArea
-    {
-        $key = $this->areaKey($stateName, $areaName);
-        if (!isset($this->areasByKey[$key])) {
-            throw new \RuntimeException(sprintf('Unknown dispatch area reference: %s / %s', $stateName, $areaName));
-        }
-
-        return $this->ensureManagedDispatchArea($this->areasByKey[$key]);
-    }
-
-    public function getHospital(string $name): Hospital
-    {
-        if (!isset($this->hospitalsByName[$name])) {
-            throw new \RuntimeException(sprintf('Unknown hospital reference: %s', $name));
-        }
-
-        return $this->ensureManagedHospital($this->hospitalsByName[$name]);
     }
 
     /**
@@ -84,10 +25,7 @@ final class ReferenceRegistry
      */
     public function allHospitals(): array
     {
-        return array_map(
-            $this->ensureManagedHospital(...),
-            $this->allHospitals,
-        );
+        return $this->entityManager->getRepository(Hospital::class)->findBy([], ['name' => 'ASC', 'id' => 'ASC']);
     }
 
     /**
@@ -229,7 +167,7 @@ final class ReferenceRegistry
             ->getQuery()
             ->getOneOrNullResult();
 
-        return $hospital instanceof Hospital ? $this->ensureManagedHospital($hospital) : null;
+        return $hospital instanceof Hospital ? $hospital : null;
     }
 
     /**
@@ -241,7 +179,7 @@ final class ReferenceRegistry
     {
         $unique = [];
         foreach ($hospitals as $hospital) {
-            $unique[(int) $hospital->getId()] = $this->ensureManagedHospital($hospital);
+            $unique[(int) $hospital->getId()] = $hospital;
         }
 
         return array_values($unique);
@@ -260,74 +198,5 @@ final class ReferenceRegistry
         }
 
         return $ids;
-    }
-
-    private function ensureManagedState(State $state): State
-    {
-        if ($this->entityManager->contains($state)) {
-            return $state;
-        }
-
-        $name = (string) $state->getName();
-        $managed = $this->entityManager->getRepository(State::class)->findOneBy(['name' => $name]);
-        if (!$managed instanceof State) {
-            throw new \RuntimeException(sprintf('State "%s" is not persisted.', $name));
-        }
-
-        $this->statesByName[$name] = $managed;
-
-        return $managed;
-    }
-
-    private function ensureManagedDispatchArea(DispatchArea $area): DispatchArea
-    {
-        if ($this->entityManager->contains($area)) {
-            return $area;
-        }
-
-        $stateName = (string) $area->getState()?->getName();
-        $areaName = (string) $area->getName();
-        $key = $this->areaKey($stateName, $areaName);
-
-        $managed = $this->entityManager->createQueryBuilder()
-            ->select('a')
-            ->from(DispatchArea::class, 'a')
-            ->join('a.state', 's')
-            ->where('a.name = :areaName')
-            ->andWhere('s.name = :stateName')
-            ->setParameter('areaName', $areaName)
-            ->setParameter('stateName', $stateName)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if (!$managed instanceof DispatchArea) {
-            throw new \RuntimeException(sprintf('Dispatch area "%s / %s" is not persisted.', $stateName, $areaName));
-        }
-
-        $this->areasByKey[$key] = $managed;
-
-        return $managed;
-    }
-
-    private function ensureManagedHospital(Hospital $hospital): Hospital
-    {
-        if ($this->entityManager->contains($hospital)) {
-            return $hospital;
-        }
-
-        $name = (string) $hospital->getName();
-        $managed = $this->entityManager->getRepository(Hospital::class)->findOneBy(['name' => $name]);
-        if (!$managed instanceof Hospital) {
-            throw new \RuntimeException(sprintf('Hospital "%s" is not persisted.', $name));
-        }
-
-        $this->hospitalsByName[$name] = $managed;
-
-        return $managed;
-    }
-
-    private function areaKey(string $stateName, string $areaName): string
-    {
-        return $stateName.'::'.$areaName;
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Unit\Application\ReferenceCatalog;
 
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogAliasConflictException;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogReader;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogRenameConflictException;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameAliasSpec;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameCatalogGuard;
@@ -14,28 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 final class ReferenceNameCatalogGuardTest extends TestCase
 {
-    public function testCommittedCatalogHasNoAliasCollisions(): void
-    {
-        $document = new ReferenceCatalogReader(\dirname(__DIR__, 5))->loadDefault();
-        $guard = new ReferenceNameCatalogGuard();
-
-        $guard->assertNoConflicts($document->departments);
-        $guard->assertNoConflicts($document->specialities);
-
-        $birthAliases = [];
-        foreach ($document->departments as $entry) {
-            if ('Geburtshilfe' === $entry->name) {
-                $birthAliases = array_map(static fn (ReferenceNameAliasSpec $alias): string => $alias->name, $entry->aliases);
-            }
-        }
-        self::assertSame([
-            'Perinatalzentrum Level 1',
-            'Perinatalzentrum Level 2',
-            'Perinataler Schwerpunkt',
-            'Geburtsklinik',
-        ], $birthAliases);
-    }
-
     public function testIsolationAliasCannotPointAtBaseDepartment(): void
     {
         $guard = new ReferenceNameCatalogGuard();

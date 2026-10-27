@@ -115,6 +115,26 @@ final class MedicalSpecialities extends Base
         return array_values(array_unique(array_merge(self::$departments, ...array_values(self::$specialties))));
     }
 
+    /**
+     * The broad fields (IVENA "Fachgebiet", a speciality in the catalog).
+     *
+     * @return list<string>
+     */
+    public static function fieldNames(): array
+    {
+        return self::$departments;
+    }
+
+    /**
+     * The narrower units (IVENA "Fachbereich", a department in the catalog).
+     *
+     * @return list<string>
+     */
+    public static function unitNames(): array
+    {
+        return array_values(array_unique(array_merge(...array_values(self::$specialties))));
+    }
+
     public function medicalDepartment(): string
     {
         return self::randomElement(self::$departments);

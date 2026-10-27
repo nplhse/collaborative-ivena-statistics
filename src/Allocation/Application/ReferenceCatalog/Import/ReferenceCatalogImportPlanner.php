@@ -79,7 +79,7 @@ final readonly class ReferenceCatalogImportPlanner
                 : [];
 
             foreach ($package->entriesOf($type) as $index => $entry) {
-                $path = sprintf('%s[%d]', $type->yamlKey(), $index);
+                $path = sprintf('%s[%d]', $type->sectionKey(), $index);
                 $id = strtolower($entry->id);
                 $key = ReferenceCatalogNaturalKey::of($entry);
                 $label = ReferenceCatalogNaturalKey::label($type);

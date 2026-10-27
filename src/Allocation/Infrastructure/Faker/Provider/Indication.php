@@ -10,7 +10,7 @@ use Faker\Provider\Base;
  * Indications along the official PZC list (ADR 020, decision 6).
  *
  * Normalized indications use the official wording. Raw labels are generated variants of it
- * (abbreviation, typo, case), never taken from a curated catalog, so the
+ * (abbreviation or typo; case and spacing would not count, the import ignores them), never taken from a curated catalog, so the
  * synthetic catalog contains non-identical raw → normalized mappings and unmapped labels.
  *
  * @psalm-suppress PropertyNotSetInConstructor
@@ -60,13 +60,12 @@ final class Indication extends Base
     {
         $official = PzcCodes::name($code);
 
-        /** @var list<'abbreviation'|'typo'|'case'> $kinds */
-        $kinds = self::shuffleArray(['abbreviation', 'typo', 'case']);
+        /** @var list<'abbreviation'|'typo'> $kinds */
+        $kinds = self::shuffleArray(['abbreviation', 'typo']);
         foreach ($kinds as $kind) {
             $variant = match ($kind) {
                 'abbreviation' => strtr($official, self::ABBREVIATIONS),
                 'typo' => $this->typo($official),
-                'case' => mb_strtolower($official),
             };
             if ($variant !== $official) {
                 return $variant;

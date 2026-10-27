@@ -10,7 +10,6 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalPermission;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Domain\HospitalPermissionMask;
-use App\DataFixtures\Reference\ReferenceRegistry;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,18 +17,19 @@ use Doctrine\ORM\EntityManagerInterface;
 final readonly class ParticipatingHospitalProvisioner
 {
     public function __construct(
-        private ReferenceRegistry $registry,
+        private FixtureHospitals $hospitals,
         private EntityManagerInterface $entityManager,
     ) {
     }
 
     public function provision(User $foo): void
     {
+        $this->markParticipating();
         $fooHospital = $this->resolveFooHospital();
         $this->assignOwner($fooHospital, $this->ensureParticipantRole($foo));
 
         $participating = array_values(array_filter(
-            $this->registry->participatingHospitals(),
+            $this->hospitals->participatingHospitals(),
             static fn (Hospital $hospital): bool => (int) $hospital->getId() !== (int) $fooHospital->getId(),
         ));
         if ([] === $participating) {
@@ -72,9 +72,34 @@ final readonly class ParticipatingHospitalProvisioner
         $this->entityManager->persist($grant);
     }
 
+    /**
+     * Participation belongs to an installation, not to the catalog (ADR 020): every third
+     * hospital by name takes part, and at least one Full Urban hospital for the demo owner.
+     */
+    private function markParticipating(): void
+    {
+        $since = new \DateTimeImmutable('2025-01-01 00:00:00');
+        $hasFullUrban = false;
+        foreach ($this->hospitals->allHospitals() as $index => $hospital) {
+            if (0 !== $index % 3) {
+                continue;
+            }
+
+            $hospital->setIsParticipating(true)->setParticipatingSince($since);
+            $hasFullUrban = $hasFullUrban || (HospitalTier::FULL === $hospital->getTier() && HospitalLocation::URBAN === $hospital->getLocation());
+        }
+
+        if (!$hasFullUrban) {
+            $fullUrban = $this->hospitals->hospitalsMatching(HospitalTier::FULL, HospitalLocation::URBAN)[0] ?? null;
+            $fullUrban?->setIsParticipating(true)->setParticipatingSince($since);
+        }
+
+        $this->entityManager->flush();
+    }
+
     private function resolveFooHospital(): Hospital
     {
-        $candidates = $this->registry->participatingHospitalsMatching(
+        $candidates = $this->hospitals->participatingHospitalsMatching(
             HospitalTier::FULL,
             HospitalLocation::URBAN,
         );
