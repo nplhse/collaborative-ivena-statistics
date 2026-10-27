@@ -9,6 +9,7 @@ use App\Allocation\Application\Explore\Catalog\CatalogPrivacyPolicy;
 use App\Allocation\Infrastructure\Query\Catalog\CatalogCoverageQuery;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 
 final class CatalogCoverageQueryTest extends TestCase
 {
@@ -26,7 +27,7 @@ final class CatalogCoverageQueryTest extends TestCase
         $connection->method('fetchOne')->willReturn(0);
         $connection->method('fetchAllAssociative')->willReturn([]);
 
-        $query = new CatalogCoverageQuery($connection);
+        $query = new CatalogCoverageQuery($connection, new MockClock('2025-07-01 12:00:00'));
         $coverage = $query->forDimension(CatalogDimensionKey::Indication, 1);
 
         self::assertFalse($coverage->hasData());
@@ -49,7 +50,7 @@ final class CatalogCoverageQueryTest extends TestCase
             ['year' => 2024, 'count' => 4],
         ]);
 
-        $query = new CatalogCoverageQuery($connection);
+        $query = new CatalogCoverageQuery($connection, new MockClock('2025-07-01 12:00:00'));
         $coverage = $query->forDimension(CatalogDimensionKey::SecondaryTransport, 55);
 
         self::assertTrue($coverage->hasData());
@@ -78,7 +79,7 @@ final class CatalogCoverageQueryTest extends TestCase
             ['year' => 2025, 'count' => 6],
         ]);
 
-        $query = new CatalogCoverageQuery($connection);
+        $query = new CatalogCoverageQuery($connection, new MockClock('2025-07-01 12:00:00'));
         $coverage = $query->forDimension(CatalogDimensionKey::Department, 9);
 
         self::assertTrue($coverage->hasData());
@@ -89,12 +90,13 @@ final class CatalogCoverageQueryTest extends TestCase
         self::assertCount(2, $coverage->years);
         self::assertNotNull($coverage->firstAt);
         self::assertNotNull($coverage->lastAt);
+        self::assertSame(2025, $coverage->currentYear);
     }
 
     public function testForIndicationIdsReturnsEmptyWhenNoMembers(): void
     {
         $connection = $this->createStub(Connection::class);
-        $query = new CatalogCoverageQuery($connection);
+        $query = new CatalogCoverageQuery($connection, new MockClock('2025-07-01 12:00:00'));
 
         $coverage = $query->forIndicationIds([]);
 
@@ -118,7 +120,7 @@ final class CatalogCoverageQueryTest extends TestCase
             ['year' => 2025, 'count' => 7],
         ]);
 
-        $query = new CatalogCoverageQuery($connection);
+        $query = new CatalogCoverageQuery($connection, new MockClock('2025-07-01 12:00:00'));
         $coverage = $query->forIndicationIds([1, 2, 3]);
 
         self::assertTrue($coverage->hasData());
@@ -143,7 +145,7 @@ final class CatalogCoverageQueryTest extends TestCase
             ['year' => 2024, 'count' => 3],
         ]);
 
-        $query = new CatalogCoverageQuery($connection);
+        $query = new CatalogCoverageQuery($connection, new MockClock('2025-07-01 12:00:00'));
         $restricted = $query->forHospital(42, false);
         $revealed = $query->forHospital(42, true);
 

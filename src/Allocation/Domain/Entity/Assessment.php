@@ -11,6 +11,7 @@ use App\Allocation\Domain\Enum\AssessmentDisability;
 use App\Allocation\Infrastructure\Repository\AssessmentRepository;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: AssessmentRepository::class)]
@@ -38,7 +39,7 @@ class Assessment implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int

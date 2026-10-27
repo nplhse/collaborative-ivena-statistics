@@ -10,6 +10,7 @@ use App\Shared\Domain\Traits\Blamable;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: HospitalAccessGrantRepository::class)]
@@ -52,7 +53,7 @@ class HospitalAccessGrant
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int
@@ -114,6 +115,6 @@ class HospitalAccessGrant
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->updatedAt = new \DateTimeImmutable('now');
+        $this->updatedAt = Clock::get()->now();
     }
 }

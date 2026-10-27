@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Security\Voter\ExportVoter;
 use App\Allocation\UI\Form\Model\OwnHospitalAllocationsExportFormData;
 use App\Allocation\UI\Form\OwnHospitalAllocationsExportType;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +23,7 @@ final class ShowAllocationsExportController extends AbstractController
 {
     public function __construct(
         private readonly ExportHospitalFormOptionsProvider $exportHospitalFormOptionsProvider,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -29,7 +31,7 @@ final class ShowAllocationsExportController extends AbstractController
     public function __invoke(Request $request, #[CurrentUser] User $user): Response
     {
         $defaultData = new OwnHospitalAllocationsExportFormData();
-        $now = new \DateTimeImmutable('today');
+        $now = $this->clock->now()->modify('today');
         $defaultData->dateFrom = $now->modify('first day of this month');
         $defaultData->dateTo = $now;
         $defaultData->timeFrom = $now->setTime(0, 0, 0);
