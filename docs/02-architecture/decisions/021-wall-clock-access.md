@@ -35,7 +35,7 @@ Three project rules in `tests/PHPStan/Rules/` are registered in `phpstan.dist.ne
 
 ### Existing code is baselined
 
-Occurrences that existed when the rule was introduced are listed in `phpstan-baseline-wall-clock.neon`, separate from `phpstan-baseline.neon`. New code is checked immediately. The baseline is reduced module by module, Statistics first; when it is empty, the file and its include are removed.
+Occurrences that existed when the rule was introduced were listed in `phpstan-baseline-wall-clock.neon`, separate from `phpstan-baseline.neon`, so new code was checked immediately. The baseline was reduced module by module, Statistics first (#801). It is empty and has been removed together with its include; every occurrence in `src/` is now reported.
 
 ## Consequences
 

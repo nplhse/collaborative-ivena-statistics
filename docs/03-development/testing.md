@@ -74,7 +74,7 @@ Absolute values stay fine: `new \DateTimeImmutable('2026-05-01 00:00:00')`, `new
 
 Parsing with `createFromFormat()` always starts the format with `!`: `\DateTimeImmutable::createFromFormat('!Y-m-d', $value)`. Without it, every field the format does not mention comes from the current time, so `'Y-m-d'` returns the date with the time of day the code runs at.
 
-PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, `wallClock.function` and `wallClock.createFromFormat`. Existing occurrences are listed in `phpstan-baseline-wall-clock.neon`; do not add new entries there. When you touch a baselined line, fix it and run `make phpstan` – PHPStan reports baseline entries that no longer match, so remove them from the file. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
+PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, `wallClock.function` and `wallClock.createFromFormat`; there is no baseline for them. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
 
 ## Static analysis and linting
 

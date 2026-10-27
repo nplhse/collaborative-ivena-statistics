@@ -10,6 +10,7 @@ use App\Engagement\Application\Message\SendMonthlySubmissionRemindersMessage;
 use App\Engagement\Application\MonthlyReminderDispatchGuard;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Shared\Application\JobRun\CurrentJobRunInterface;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -27,12 +28,13 @@ final readonly class SendMonthlySubmissionRemindersMessageHandler
         private LockFactory $lockFactory,
         private LoggerInterface $logger,
         private CurrentJobRunInterface $jobRun,
+        private ClockInterface $clock,
     ) {
     }
 
     public function __invoke(SendMonthlySubmissionRemindersMessage $message): void
     {
-        $referenceDate = ($message->referenceDate ?? new \DateTimeImmutable('now'))
+        $referenceDate = ($message->referenceDate ?? $this->clock->now())
             ->setTimezone(new \DateTimeZone(self::TIMEZONE));
 
         if (!$this->dispatchGuard->shouldDispatchToday($referenceDate)) {

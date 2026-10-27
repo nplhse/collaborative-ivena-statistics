@@ -11,6 +11,7 @@ use App\Notification\UI\ViewModel\NotificationToastGrouper;
 use App\Notification\UI\ViewModel\NotificationView;
 use App\Notification\UI\ViewModel\NotificationViewFactory;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,6 +45,7 @@ final class NotificationPollController extends AbstractController
         private readonly NotificationViewFactory $viewFactory,
         private readonly TranslatorInterface $translator,
         private readonly NotificationToastGrouper $toastGrouper,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -62,7 +64,7 @@ final class NotificationPollController extends AbstractController
         $limit = $notificationPollLimiter->create('notification_poll_'.$userId)->consume();
         if (!$limit->isAccepted()) {
             return $this->noStore(new Response(null, Response::HTTP_TOO_MANY_REQUESTS, [
-                'Retry-After' => (string) max(1, $limit->getRetryAfter()->getTimestamp() - time()),
+                'Retry-After' => (string) max(1, $limit->getRetryAfter()->getTimestamp() - $this->clock->now()->getTimestamp()),
             ]));
         }
 

@@ -6,6 +6,7 @@ namespace App\Notification\Infrastructure\Factory;
 
 use App\Notification\Domain\Entity\NotificationRecipientState;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Component\Clock\Clock;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -27,7 +28,7 @@ final class NotificationRecipientStateFactory extends PersistentObjectFactory
     {
         return [
             'user' => UserFactory::new(),
-            'updatedAt' => new \DateTimeImmutable(),
+            'updatedAt' => Clock::get()->now(),
             'version' => 1,
             'unreadCount' => 0,
         ];

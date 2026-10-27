@@ -8,6 +8,7 @@ use App\Onboarding\Domain\Enum\OnboardingStepKey;
 use App\Onboarding\Infrastructure\Repository\UserOnboardingStepRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: UserOnboardingStepRepository::class)]
 #[ORM\Table(name: 'user_onboarding_step')]
@@ -33,7 +34,7 @@ class UserOnboardingStep
     {
         $this->user = $user;
         $this->stepKey = $stepKey;
-        $this->completedAt = $completedAt ?? new \DateTimeImmutable();
+        $this->completedAt = $completedAt ?? Clock::get()->now();
     }
 
     public function getId(): ?int

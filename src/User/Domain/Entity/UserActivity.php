@@ -7,6 +7,7 @@ namespace App\User\Domain\Entity;
 use App\User\Domain\Enum\UserActivityType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 /** @psalm-suppress ClassMustBeFinal */
 #[ORM\Entity]
@@ -57,7 +58,7 @@ class UserActivity
         $this->occurredAt = $occurredAt;
         $this->deduplicationKey = $deduplicationKey;
         $this->metadata = $metadata;
-        $this->createdAt = $createdAt ?? new \DateTimeImmutable();
+        $this->createdAt = $createdAt ?? Clock::get()->now();
     }
 
     public function getId(): ?int

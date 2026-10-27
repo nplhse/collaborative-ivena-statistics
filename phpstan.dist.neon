@@ -1,6 +1,5 @@
 includes:
     - phpstan-baseline.neon
-    - phpstan-baseline-wall-clock.neon
 
 rules:
     - App\Tests\PHPStan\Rules\NoWallClockInstantiationRule

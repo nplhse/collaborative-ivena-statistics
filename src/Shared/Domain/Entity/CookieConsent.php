@@ -8,6 +8,7 @@ use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[Audit\Audited]
 #[ORM\Entity(repositoryClass: CookieConsentRepository::class)]
@@ -50,7 +51,7 @@ class CookieConsent
     public function __construct(string $subjectId)
     {
         $this->subjectId = $subjectId;
-        $now = new \DateTimeImmutable();
+        $now = Clock::get()->now();
         $this->createdAt = $now;
         $this->updatedAt = $now;
     }
@@ -99,8 +100,8 @@ class CookieConsent
             'essential' => true,
             'analytics' => $analytics,
         ];
-        $this->decidedAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->decidedAt = Clock::get()->now();
+        $this->updatedAt = Clock::get()->now();
 
         return $this;
     }

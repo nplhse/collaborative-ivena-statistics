@@ -24,6 +24,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\ComparisonType;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGeneratorInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Translation\TranslatableMessage;
 
@@ -38,6 +39,7 @@ final class AuditLogCrudController extends AbstractCrudController
 
     public function __construct(
         private readonly AdminUrlGeneratorInterface $adminUrlGenerator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -66,11 +68,11 @@ final class AuditLogCrudController extends AbstractCrudController
         $timeRangeGroup = ActionGroup::new('audit_time_range', 'Time range', 'fas fa-calendar')
             ->createAsGlobalActionGroup()
             ->addAction(Action::new('auditLast24h', 'Last 24 hours', 'fas fa-calendar-day')
-                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-24 hours'))))
+                ->linkToUrl(fn (): string => $this->indexUrlSince($this->clock->now()->modify('-24 hours'))))
             ->addAction(Action::new('auditLast7d', 'Last 7 days', 'fas fa-calendar-week')
-                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-7 days'))))
+                ->linkToUrl(fn (): string => $this->indexUrlSince($this->clock->now()->modify('-7 days'))))
             ->addAction(Action::new('auditLast30d', 'Last 30 days', 'fas fa-calendar')
-                ->linkToUrl(fn (): string => $this->indexUrlSince(new \DateTimeImmutable('-30 days'))));
+                ->linkToUrl(fn (): string => $this->indexUrlSince($this->clock->now()->modify('-30 days'))));
 
         $notificationGroup = ActionGroup::new('audit_notifications', 'Notifications', 'fas fa-envelope')
             ->createAsGlobalActionGroup()
