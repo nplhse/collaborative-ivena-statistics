@@ -68,7 +68,7 @@ final readonly class SyntheticReferenceCatalogBuilder
         ['name' => 'ECMO / eCPR', 'prefixes' => ['14'], 'description' => 'Extracorporeal procedures'],
         ['name' => 'Mehrfachverletzung', 'prefixes' => ['21'], 'description' => 'Polytrauma and multiple injuries'],
         ['name' => 'Akutes Koronarsyndrom', 'prefixes' => ['33'], 'description' => 'Chest pain, STEMI and NSTEMI'],
-        ['name' => 'Intoxikation', 'prefixes' => ['36', '370'], 'description' => 'Poisoning'],
+        ['name' => 'Vergiftung', 'prefixes' => ['36', '370'], 'description' => 'Poisoning'],
         ['name' => 'Schlaganfall', 'prefixes' => ['42'], 'description' => 'Stroke and thrombectomy'],
         ['name' => 'Geburtshilfe', 'prefixes' => ['52', '53', '54'], 'description' => 'Pregnancy and birth'],
     ];

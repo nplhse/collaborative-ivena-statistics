@@ -133,7 +133,7 @@ final class ReferenceCatalogExporterTest extends KernelTestCase
         $department = DepartmentFactory::createOne(['name' => 'Allgemeine Innere Medizin']);
         /** @var EntityManagerInterface $em */
         $em = self::getContainer()->get(EntityManagerInterface::class);
-        $em->persist(new DepartmentAlias($department, 'Allgemein Innere Medizin', 'faulty_catalog', 'local-catalog', 'typo in source', '2024-01-01'));
+        $em->persist(new DepartmentAlias($department, 'Allgem. Innere Medizin', 'faulty_catalog', 'local-catalog', 'typo in source', '2024-01-01'));
 
         $ecmo = IndicationNormalizedFactory::createOne(['code' => 143, 'name' => 'vaECMO Abholung', 'note' => 'PZC 143']);
         IndicationNormalizedFactory::createOne(['code' => 143, 'name' => 'ECMO Sekundärtransport']);

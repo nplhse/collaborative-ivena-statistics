@@ -71,7 +71,7 @@ final class HospitalGeocodeServiceTest extends TestCase
 
     public function testApplyWritesCoordinatesWithForce(): void
     {
-        $hospital = $this->hospital('Klinikum Kassel', '34125', 'Kassel', 51.3127, 9.4797);
+        $hospital = $this->hospital('Katharinen Kassel', '34125', 'Kassel', 51.3127, 9.4797);
         $client = $this->createMock(HospitalGeocodeClientInterface::class);
         $client->method('hasApiKey')->willReturn(true);
         $client->expects(self::once())->method('geocodeAddress')->with(

@@ -42,9 +42,9 @@ departments:
 occasions:
   - aus Klinik
 indication_groups:
-  - { name: 'ECMO & ECLS Transport', category: ~, codes: ['143'] }
+  - { name: 'ECMO / eCPR', category: ~, codes: ['143'] }
 hospitals:
-  - { name: Klinikum Kassel, state: Hessen, area: Kassel, participating: true }
+  - { name: Klinikum Weststadt, state: Hessen, area: Kassel, participating: true }
 ```
 
 Hospital fields (`tier`, `size`, `beds`, `location`, `address`) are documented in the YAML schema. Import does not geocode; use `app:geo:geocode-hospitals` in production.
@@ -117,7 +117,7 @@ Stop the workers first; both commands refuse while queues hold messages, and the
 
 `app:reference:propose-from-rejects` is read-only on `import_reject`. It does not write stammdaten and does not delete rejects. Pair it with [`app:import:analyze-rejects`](reject-analysis.md) when you need the full reject breakdown.
 
-It streams rejects, takes `REF_NOT_FOUND` values plus soft fields on the same row (`anlass`, `ansteckungsfaehig`, `sekundaeranlass`), applies the same normalization as import, and skips values that already resolve against the current DB catalog (including aliases such as `Frankfurt Führungsstab` → Frankfurt and `Perinatalzentrum Level 2` → Geburtshilfe). Empty values, mojibake, URLs, and denylisted leftovers (`Erhängen`) are dropped.
+It streams rejects, takes `REF_NOT_FOUND` values plus soft fields on the same row (`anlass`, `ansteckungsfaehig`, `sekundaeranlass`), applies the same normalization as import, and skips values that already resolve against the current DB catalog (including aliases such as `Frankfurt Führungsstab` → Frankfurt and `Geburtszentrum B` → Geburtshilfe). Empty values, mojibake, URLs, and denylisted leftovers (`Erhängen`) are dropped.
 
 Default `--output=` is a **directory**:
 
@@ -170,7 +170,7 @@ The allocation id list is the local snapshot whose reference misses are only `Ch
 
 `DispatchAreaNameNormalizer` trims, maps NBSP to space, collapses whitespace, strips leading `_`, parenthetical suffixes, longest-first prefixes (`Kommunale Regionalleitstelle`, `Integrierte Leitstelle`, `Zentrale Leitstelle`, `Regionalleitstelle`, `Leitstelle`, `Landkreis`, `Kreis`), trailing `Kreis` / `Führungsstab`, and keeps the `Groá-Gerau` typo map. Lookup stays name-based. Orientation maps remain Hessen-only (`disabled` for Göttingen, Bayerischer Untermain, Niedersachsen, …).
 
-Department aliases live in `catalog.yaml` and the `department_alias` table, not in PHP. `Perinatalzentrum Level 2` → `Geburtshilfe` (same family as Level 1 / Schwerpunkt / Geburtsklinik). No extra department row. Speciality aliases use `speciality_alias` the same way. The explore department page lists known spellings and says the catalog is only a matching guide.
+Department aliases live in `catalog.yaml` and the `department_alias` table, not in PHP. `Geburtszentrum B` → `Geburtshilfe` (same family as Level 1 / Schwerpunkt / Geburtsabteilung). No extra department row. Speciality aliases use `speciality_alias` the same way. The explore department page lists known spellings and says the catalog is only a matching guide.
 
 ## Reject audit (catalog gaps)
 

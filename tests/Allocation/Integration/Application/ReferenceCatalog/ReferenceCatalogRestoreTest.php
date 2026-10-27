@@ -46,7 +46,7 @@ final class ReferenceCatalogRestoreTest extends KernelTestCase
         self::assertSame(['Bayern', 'Hessen'], $this->column('SELECT name FROM state ORDER BY name'));
         self::assertSame([], $this->column("SELECT name FROM department WHERE name = 'Veraltete Abteilung'"), 'stale synthetic rows are gone');
         self::assertSame([Data::HOSPITAL], $this->column('SELECT public_id FROM hospital'));
-        self::assertSame(['Allgemein Innere Medizin'], $this->column('SELECT name FROM department_alias'));
+        self::assertSame(['Allgem. Innere Medizin'], $this->column('SELECT name FROM department_alias'));
     }
 
     public function testAHospitalOwnerBlocksTheRestore(): void

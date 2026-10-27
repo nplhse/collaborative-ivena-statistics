@@ -29,32 +29,32 @@ final class ClosureHospitalGuardTest extends TestCase
     public function testSingleUnknownShortNameIsAcceptedForTheSelectedHospital(): void
     {
         $names = [
-            7 => 'Universitätsklinikum Gießen und Marburg, Standort Marburg',
-            8 => 'Universitätsklinikum Gießen und Marburg, Standort Gießen',
-            9 => 'Klinikum Kassel',
+            7 => 'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt',
+            8 => 'Universitätsklinikum Nordstadt und Südstadt, Standort Nordstadt',
+            9 => 'Klinikum Weststadt',
         ];
-        $profile = $this->guard->profile(7, $names, ['Universitätsklinikum Marburg']);
+        $profile = $this->guard->profile(7, $names, ['Universitätsklinikum Südstadt']);
 
         self::assertFalse($profile->multiple);
-        self::assertSame('Universitätsklinikum Marburg', $profile->differingFileLabel);
-        $this->guard->assertRow($profile, 'Universitätsklinikum Marburg');
+        self::assertSame('Universitätsklinikum Südstadt', $profile->differingFileLabel);
+        $this->guard->assertRow($profile, 'Universitätsklinikum Südstadt');
     }
 
     public function testSingleShortNameThatMatchesAnotherHospitalConflicts(): void
     {
         $names = [
-            7 => 'Universitätsklinikum Gießen und Marburg, Standort Marburg',
-            9 => 'Klinikum Kassel',
+            7 => 'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt',
+            9 => 'Klinikum Weststadt',
         ];
-        $profile = $this->guard->profile(7, $names, ['Klinikum Kassel']);
+        $profile = $this->guard->profile(7, $names, ['Klinikum Weststadt']);
 
         $this->expectException(ImportException::class);
         try {
-            $this->guard->assertRow($profile, 'Klinikum Kassel');
+            $this->guard->assertRow($profile, 'Klinikum Weststadt');
         } catch (ImportException $e) {
             self::assertSame('HOSPITAL_CONFLICT', $e->getCodeStr());
-            self::assertStringContainsString('Klinikum Kassel', $e->getMessage());
-            self::assertStringContainsString('Standort Marburg', $e->getMessage());
+            self::assertStringContainsString('Klinikum Weststadt', $e->getMessage());
+            self::assertStringContainsString('Standort Südstadt', $e->getMessage());
             self::assertStringContainsString('Start the import', $e->getMessage());
             throw $e;
         }
@@ -77,7 +77,7 @@ final class ClosureHospitalGuardTest extends TestCase
     {
         $names = [
             1 => 'Klinikum Beispiel',
-            9 => 'Klinikum Kassel',
+            9 => 'Klinikum Weststadt',
         ];
         $rows = [
             ['krankenhaus_kurzname' => 'Klinikum Beispiel'],
@@ -104,14 +104,14 @@ final class ClosureHospitalGuardTest extends TestCase
     public function testMultipleNamesThatMissTheSelectedCatalogNameRejectEveryRow(): void
     {
         $names = [
-            7 => 'Universitätsklinikum Gießen und Marburg, Standort Marburg',
-            9 => 'Klinikum Kassel',
+            7 => 'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt',
+            9 => 'Klinikum Weststadt',
         ];
-        $profile = $this->guard->profile(7, $names, ['Universitätsklinikum Marburg', 'Klinikum Kassel']);
+        $profile = $this->guard->profile(7, $names, ['Universitätsklinikum Südstadt', 'Klinikum Weststadt']);
 
         self::assertTrue($profile->multiple);
 
-        foreach (['Universitätsklinikum Marburg', 'Klinikum Kassel'] as $shortName) {
+        foreach (['Universitätsklinikum Südstadt', 'Klinikum Weststadt'] as $shortName) {
             try {
                 $this->guard->assertRow($profile, $shortName);
                 self::fail('Expected a mismatch for '.$shortName);

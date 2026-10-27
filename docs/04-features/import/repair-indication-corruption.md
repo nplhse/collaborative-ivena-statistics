@@ -92,7 +92,7 @@ Run this **after** deploying the release that contains `IvenaQuotedCsvParser`, t
 php bin/console dbal:run-sql "SELECT id, name FROM hospital WHERE name ILIKE '%Kassel%' ORDER BY name"
 ```
 
-Note Elisabeth-Krankenhaus Kassel, Klinikum Kassel, and a control hospital that imported STEMIs cleanly (locally: Diakonie Kassel).
+Note Katharinen Kassel, Klinikum Weststadt, and a control hospital that imported STEMIs cleanly (locally: Diakonie Kassel).
 
 ```bash
 php bin/console dbal:run-sql "SELECT id, code, name FROM indication_normalized WHERE code = 332 ORDER BY id"
@@ -193,16 +193,16 @@ Do **not** run a full `app:statistics:rebuild-projection` unless something else 
 Normalized STEMIs since May 2025 (replace `:norm_id` and hospital names):
 
 ```bash
-php bin/console dbal:run-sql "SELECT h.name, COUNT(*) AS n FROM allocation a JOIN hospital h ON h.id = a.hospital_id WHERE a.indication_normalized_id = :norm_id AND a.arrival_at >= '2025-05-01' AND h.name IN ('Elisabeth-Krankenhaus Kassel', 'Klinikum Kassel') GROUP BY h.name ORDER BY h.name"
+php bin/console dbal:run-sql "SELECT h.name, COUNT(*) AS n FROM allocation a JOIN hospital h ON h.id = a.hospital_id WHERE a.indication_normalized_id = :norm_id AND a.arrival_at >= '2025-05-01' AND h.name IN ('Katharinen Kassel', 'Klinikum Weststadt') GROUP BY h.name ORDER BY h.name"
 ```
 
 Projection (what indication dashboards read):
 
 ```bash
-php bin/console dbal:run-sql "SELECT h.name, COUNT(*) AS n FROM allocation_stats_projection p JOIN allocation a ON a.id = p.id JOIN hospital h ON h.id = a.hospital_id WHERE p.indication_normalized_id = :norm_id AND p.arrival_at >= '2025-05-01' AND h.name IN ('Elisabeth-Krankenhaus Kassel', 'Klinikum Kassel') GROUP BY h.name ORDER BY h.name"
+php bin/console dbal:run-sql "SELECT h.name, COUNT(*) AS n FROM allocation_stats_projection p JOIN allocation a ON a.id = p.id JOIN hospital h ON h.id = a.hospital_id WHERE p.indication_normalized_id = :norm_id AND p.arrival_at >= '2025-05-01' AND h.name IN ('Katharinen Kassel', 'Klinikum Weststadt') GROUP BY h.name ORDER BY h.name"
 ```
 
-Expect non-zero counts in the same ballpark as the pre-repair garbled raw (locally: ~109 Elisabeth, ~262 Klinikum Kassel after May 2025). Compare with a control hospital that already had matched STEMIs.
+Expect non-zero counts in the same ballpark as the pre-repair garbled raw (locally: ~109 Elisabeth, ~262 Klinikum Weststadt after May 2025). Compare with a control hospital that already had matched STEMIs.
 
 Allocations on the garbled raw must no longer have NULL normalized ids (path B) or the garbled raw must be gone (path A):
 

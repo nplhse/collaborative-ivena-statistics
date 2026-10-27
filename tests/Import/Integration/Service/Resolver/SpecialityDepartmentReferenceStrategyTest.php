@@ -35,10 +35,10 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
         $department = DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
         $em = self::getContainer()->get(EntityManagerInterface::class);
         foreach ([
-            'Perinatalzentrum Level 1',
-            'Perinatalzentrum Level 2',
-            'Perinataler Schwerpunkt',
-            'Geburtsklinik',
+            'Geburtszentrum A',
+            'Geburtszentrum B',
+            'Entbindungsstation',
+            'Geburtsabteilung',
         ] as $alias) {
             $em->persist(new DepartmentAlias($department, $alias, 'historical', 'local-catalog'));
         }
@@ -69,10 +69,10 @@ final class SpecialityDepartmentReferenceStrategyTest extends KernelTestCase
      */
     public static function obstetricsDepartmentAliasProvider(): iterable
     {
-        yield 'issue 125 Perinatalzentrum Level 1' => ['Perinatalzentrum Level 1'];
-        yield 'issue 125 Perinataler Schwerpunkt' => ['Perinataler Schwerpunkt'];
-        yield 'issue 125 Geburtsklinik' => ['Geburtsklinik'];
-        yield 'perinatalzentrum level 2' => ['Perinatalzentrum Level 2'];
+        yield 'issue 125 Geburtszentrum A' => ['Geburtszentrum A'];
+        yield 'issue 125 Entbindungsstation' => ['Entbindungsstation'];
+        yield 'issue 125 Geburtsabteilung' => ['Geburtsabteilung'];
+        yield 'geburtszentrum b' => ['Geburtszentrum B'];
     }
 
     public function testUnknownDepartmentStillThrowsReferenceNotFoundException(): void

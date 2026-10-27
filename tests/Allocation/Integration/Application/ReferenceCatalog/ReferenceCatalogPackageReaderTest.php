@@ -155,7 +155,7 @@ final class ReferenceCatalogPackageReaderTest extends KernelTestCase
             'id' => '0192d6a1-0000-7000-8000-000000000022',
             'name' => 'Kardiologie',
             'aliases' => [
-                ['name' => 'allgemein innere medizin', 'classification' => 'historical', 'source' => 'test'],
+                ['name' => 'allgem. innere medizin', 'classification' => 'historical', 'source' => 'test'],
                 ['name' => 'Kardiologie', 'classification' => 'historical', 'source' => 'test'],
                 ['name' => 'Allgemeine Innere Medizin', 'classification' => 'historical', 'source' => 'test'],
             ],

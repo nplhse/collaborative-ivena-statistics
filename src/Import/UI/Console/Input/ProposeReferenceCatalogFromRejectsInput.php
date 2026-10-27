@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class ProposeReferenceCatalogFromRejectsInput
 {
-    #[Option(description: 'Output directory for catalog.yaml, report.md, and requeue files')]
+    #[Option(description: 'Output directory for report.md and the requeue files')]
     public string $output = 'var/export/reference-from-rejects';
 
     #[Option(description: 'Minimum occurrence count for a proposed value', name: 'min-count')]

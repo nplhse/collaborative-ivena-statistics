@@ -56,9 +56,9 @@ specialities:
 departments:
   - name: 'Allgemeine Innere Medizin'
     previous_names:
-      - 'Allgemein Innere Medizin'
+      - 'Allgem. Innere Medizin'
     aliases:
-      - name: 'Allgemein Innere Medizin'
+      - name: 'Allgem. Innere Medizin'
         classification: faulty_catalog
         source: local-catalog
 specialities:
@@ -128,7 +128,7 @@ Groups reference **normalized codes**. Several normalized rows may share a code;
 
 ```yaml
 indication_groups:
-  - name: 'ECMO & ECLS Transport'
+  - name: 'ECMO / eCPR'
     category: ~                    # optional string
     codes:
       - '143'
@@ -159,7 +159,7 @@ Skipped entirely in add mode if `name` already exists (owner, participating flag
 
 ```yaml
 hospitals:
-  - name: 'Agaplesion Bethanien Krankenhaus'
+  - name: 'Bethesda Klinikum Frankfurt am Main'
     state: Hessen
     area: Frankfurt
     participating: false
@@ -179,7 +179,7 @@ hospitals:
 
 `app:reference:propose-from-rejects` no longer writes YAML. It writes a report of the missing values; add them through the admin pages.
 
-Not written as catalog rows (handled in PHP or dropped): ILS/`Führungsstab` prefixes, URLs, mojibake, `Erhängen`. `Perinatalzentrum Level 2` is a department alias of `Geburtshilfe` in this file, not a separate row.
+Not written as catalog rows (handled in PHP or dropped): ILS/`Führungsstab` prefixes, URLs, mojibake, `Erhängen`. `Geburtszentrum B` is a department alias of `Geburtshilfe` in this file, not a separate row.
 
 ## Related
 

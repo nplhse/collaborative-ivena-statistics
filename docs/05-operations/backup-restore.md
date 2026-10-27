@@ -9,6 +9,7 @@ Operational guide for PostgreSQL, import files, and media uploads.
 | PostgreSQL database | from `DATABASE_URL` | from `shared/.env.local` → `DATABASE_URL` |
 | Import uploads | `var/imports/` | `~/www/shared/var/imports/` (adjust to your `deploy_path`) |
 | Media uploads | `public/uploads/media/` | `~/www/shared/public/uploads/media/` |
+| Reference catalog packages | `var/reference/` | `~/www/shared/var/reference/` — private; keep copies in the private data repository, not in these backups only ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)) |
 | Secrets | `.env.local` | `~/www/shared/.env.local` — **back up separately**, never inside DB dumps |
 
 Backups are written to `var/backups/` locally (override with `BACKUP_DIR`).
@@ -133,6 +134,7 @@ Deployer keeps persistent data outside release directories ([deployment.md](depl
 
 - `shared/.env.local`
 - `shared/var/imports`
+- `shared/var/reference` (reference catalog packages, ADR 020)
 - `shared/public/uploads/media`
 
 ### Manual backup commands
