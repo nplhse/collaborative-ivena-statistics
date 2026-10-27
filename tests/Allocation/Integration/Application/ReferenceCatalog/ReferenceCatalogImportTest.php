@@ -80,7 +80,7 @@ final class ReferenceCatalogImportTest extends KernelTestCase
         self::assertInstanceOf(IndicationGroup::class, $group);
         self::assertSame([Data::NORMALIZED], array_map(static fn (IndicationNormalized $member): string => $member->getPublicIdString(), $group->getIndications()->toArray()), 'exact members, not every row with code 143');
 
-        $alias = $this->em()->getRepository(DepartmentAlias::class)->findOneBy(['name' => 'Allgemein Innere Medizin']);
+        $alias = $this->em()->getRepository(DepartmentAlias::class)->findOneBy(['name' => 'Allgem. Innere Medizin']);
         self::assertInstanceOf(DepartmentAlias::class, $alias);
         self::assertSame(Data::DEPARTMENT, $alias->getDepartment()->getPublicIdString());
         self::assertSame('typo in source', $alias->getNote());
@@ -131,7 +131,7 @@ final class ReferenceCatalogImportTest extends KernelTestCase
         self::bootKernel();
         UserFactory::createOne();
         $other = DepartmentFactory::createOne(['name' => 'Innere Medizin']);
-        $this->em()->persist(new DepartmentAlias($other, 'Allgemein Innere Medizin', 'historical', 'test'));
+        $this->em()->persist(new DepartmentAlias($other, 'Allgem. Innere Medizin', 'historical', 'test'));
         $this->em()->flush();
 
         $plan = $this->plan(Data::complete());
@@ -156,7 +156,7 @@ final class ReferenceCatalogImportTest extends KernelTestCase
     {
         self::bootKernel();
         UserFactory::createOne();
-        DepartmentFactory::createOne(['name' => 'Allgemein Innere Medizin']);
+        DepartmentFactory::createOne(['name' => 'Allgem. Innere Medizin']);
 
         $plan = $this->plan(Data::complete());
 

@@ -32,8 +32,8 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
                 yield $this->row(1, 'REF_NOT_FOUND | field=dispatchArea | value="_Kommunale Regionalleitstelle Göttingen"', [
                     'zuweisung_durch' => '_Kommunale Regionalleitstelle Göttingen',
                 ]);
-                yield $this->row(1, 'REF_NOT_FOUND | field=department | value="Perinatalzentrum Level 2"', [
-                    'fachbereich' => 'Perinatalzentrum Level 2',
+                yield $this->row(1, 'REF_NOT_FOUND | field=department | value="Geburtszentrum B"', [
+                    'fachbereich' => 'Geburtszentrum B',
                 ]);
                 yield $this->row(2, 'REF_NOT_FOUND | field=speciality | value="ECMO-Therapie"', [
                     'fachgebiet' => 'ECMO-Therapie',
@@ -108,7 +108,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         $departmentRepo = $this->createStub(EntityRepository::class);
         $departmentRepo->method('findBy')->willReturn([$geburtshilfe]);
         $alias = $this->createStub(DepartmentAlias::class);
-        $alias->method('getNormalizedName')->willReturn('perinatalzentrum level 2');
+        $alias->method('getNormalizedName')->willReturn('geburtszentrum b');
         $aliasRepo = $this->createStub(EntityRepository::class);
         $aliasRepo->method('findBy')->willReturn([$alias, new \stdClass()]);
         $dispatchRepo = $this->createStub(EntityRepository::class);

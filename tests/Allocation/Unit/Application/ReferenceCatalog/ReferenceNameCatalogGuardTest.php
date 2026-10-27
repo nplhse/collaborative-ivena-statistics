@@ -41,13 +41,13 @@ final class ReferenceNameCatalogGuardTest extends TestCase
     {
         $entry = ReferenceNameEntry::fromYaml([
             'name' => 'Allgemeine Innere Medizin',
-            'previous_names' => ['Allgemein Innere Medizin', ''],
+            'previous_names' => ['Allgem. Innere Medizin', ''],
             'aliases' => [[
                 'name' => '   ',
                 'classification' => 'historical',
                 'source' => 'local-catalog',
             ], [
-                'name' => 'Allgemein Innere Medizin',
+                'name' => 'Allgem. Innere Medizin',
                 'classification' => 'faulty_catalog',
                 'source' => 'local-catalog',
                 'note' => 'catalog typo',
@@ -58,7 +58,7 @@ final class ReferenceNameCatalogGuardTest extends TestCase
 
         self::assertInstanceOf(ReferenceNameEntry::class, $entry);
         self::assertSame('Allgemeine Innere Medizin', $entry->name);
-        self::assertSame(['Allgemein Innere Medizin'], $entry->previousNames);
+        self::assertSame(['Allgem. Innere Medizin'], $entry->previousNames);
         self::assertCount(1, $entry->aliases);
         self::assertSame('faulty_catalog', $entry->aliases[0]->classification);
         self::assertSame('catalog typo', $entry->aliases[0]->note);
@@ -66,9 +66,9 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         self::assertNull($entry->aliases[0]->validTo);
         self::assertSame([
             'name' => 'Allgemeine Innere Medizin',
-            'previous_names' => ['Allgemein Innere Medizin'],
+            'previous_names' => ['Allgem. Innere Medizin'],
             'aliases' => [[
-                'name' => 'Allgemein Innere Medizin',
+                'name' => 'Allgem. Innere Medizin',
                 'classification' => 'faulty_catalog',
                 'source' => 'local-catalog',
                 'note' => 'catalog typo',
@@ -91,7 +91,7 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         ReferenceNameEntry::fromYaml([
             'name' => 'Geburtshilfe',
             'aliases' => [[
-                'name' => 'Geburtsklinik',
+                'name' => 'Geburtsabteilung',
                 'classification' => 'guess',
                 'source' => 'local-catalog',
             ]],
@@ -104,7 +104,7 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         ReferenceNameEntry::fromYaml([
             'name' => 'Geburtshilfe',
             'aliases' => [[
-                'name' => 'Geburtsklinik',
+                'name' => 'Geburtsabteilung',
                 'classification' => 'historical',
             ]],
         ]);
@@ -180,8 +180,8 @@ final class ReferenceNameCatalogGuardTest extends TestCase
 
         $this->expectException(ReferenceCatalogRenameConflictException::class);
         $guard->assertNoConflicts([
-            new ReferenceNameEntry('Allgemein Innere Medizin'),
-            new ReferenceNameEntry('Allgemeine Innere Medizin', ['Allgemein Innere Medizin']),
+            new ReferenceNameEntry('Allgem. Innere Medizin'),
+            new ReferenceNameEntry('Allgemeine Innere Medizin', ['Allgem. Innere Medizin']),
         ]);
     }
 }

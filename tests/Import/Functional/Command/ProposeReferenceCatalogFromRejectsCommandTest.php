@@ -33,7 +33,7 @@ final class ProposeReferenceCatalogFromRejectsCommandTest extends KernelTestCase
         DispatchAreaFactory::createOne(['name' => 'Frankfurt', 'state' => $state]);
         $obstetrics = DepartmentFactory::createOne(['name' => 'Geburtshilfe']);
         $em = self::getContainer()->get(EntityManagerInterface::class);
-        $em->persist(new DepartmentAlias($obstetrics, 'Perinatalzentrum Level 2', 'historical', 'local-catalog'));
+        $em->persist(new DepartmentAlias($obstetrics, 'Geburtszentrum B', 'historical', 'local-catalog'));
         $em->flush();
         $hospital = HospitalFactory::createOne([
             'name' => 'Propose Hospital',
@@ -65,8 +65,8 @@ final class ProposeReferenceCatalogFromRejectsCommandTest extends KernelTestCase
         );
         $this->persistReject(
             $import,
-            'REF_NOT_FOUND | Reference not found for "department" | field=department | value="Perinatalzentrum Level 2"',
-            ['fachbereich' => 'Perinatalzentrum Level 2'],
+            'REF_NOT_FOUND | Reference not found for "department" | field=department | value="Geburtszentrum B"',
+            ['fachbereich' => 'Geburtszentrum B'],
             12,
         );
         $this->persistReject(
@@ -99,7 +99,7 @@ final class ProposeReferenceCatalogFromRejectsCommandTest extends KernelTestCase
         self::assertStringContainsString('| dispatch-area | Göttingen |', $report);
         self::assertStringNotContainsString('| dispatch-area | Frankfurt |', $report);
         self::assertStringContainsString('| department | Chir. Überwachung |', $report);
-        self::assertStringNotContainsString('Perinatalzentrum Level 2', $report);
+        self::assertStringNotContainsString('Geburtszentrum B', $report);
         self::assertStringContainsString('| occasion | aus Klinik |', $report);
         self::assertStringNotContainsString('Erhängen', $report);
         self::assertStringNotContainsString('| secondary-transport |', $report);

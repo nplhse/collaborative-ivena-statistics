@@ -49,13 +49,13 @@ final class ShowDepartmentControllerTest extends WebTestCase
         $client = $this->createClientAsAreaUser();
         $department = DepartmentFactory::createOne(['name' => 'Allgemeine Innere Medizin']);
         $em = self::getContainer()->get(EntityManagerInterface::class);
-        $em->persist(new DepartmentAlias($department, 'Allgemein Innere Medizin', 'faulty_catalog', 'local-catalog'));
+        $em->persist(new DepartmentAlias($department, 'Allgem. Innere Medizin', 'faulty_catalog', 'local-catalog'));
         $em->flush();
 
         $client->request(Request::METHOD_GET, '/explore/department/'.$department->getPublicIdString());
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('[data-testid="department-alias"]', 'Allgemein Innere Medizin');
+        self::assertSelectorTextContains('[data-testid="department-alias"]', 'Allgem. Innere Medizin');
         self::assertSelectorTextContains('[data-testid="department-aliases"]', 'Not an official directory.');
         self::assertSelectorTextNotContains('[data-testid="department-aliases"]', 'faulty_catalog');
     }

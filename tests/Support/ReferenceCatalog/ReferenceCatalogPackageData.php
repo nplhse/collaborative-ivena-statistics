@@ -57,7 +57,7 @@ final class ReferenceCatalogPackageData
                     'id' => self::DEPARTMENT,
                     'name' => 'Allgemeine Innere Medizin',
                     'aliases' => [
-                        ['name' => 'Allgemein Innere Medizin', 'classification' => 'faulty_catalog', 'source' => 'local-catalog', 'note' => 'typo in source', 'valid_from' => '2024-01-01', 'valid_to' => null],
+                        ['name' => 'Allgem. Innere Medizin', 'classification' => 'faulty_catalog', 'source' => 'local-catalog', 'note' => 'typo in source', 'valid_from' => '2024-01-01', 'valid_to' => null],
                     ],
                 ],
             ],
