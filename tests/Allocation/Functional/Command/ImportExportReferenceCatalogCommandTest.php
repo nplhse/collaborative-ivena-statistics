@@ -125,21 +125,21 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
             '--user' => 'admin',
         ]);
 
-        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json';
         $exitCode = $this->commandTester('app:reference:export')->execute([
             '--output' => $output,
             '--types' => 'state,dispatch-area,department,occasion',
         ]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertFileExists($output);
-        /** @var array<string, mixed> $parsed */
-        $parsed = Yaml::parseFile($output);
-        self::assertSame(['Hessen'], $parsed['states']);
+        $parsed = $this->readExport($output);
+        self::assertSame(['Hessen'], array_column($parsed['states'], 'name'));
         self::assertSame('Frankfurt', $parsed['dispatch_areas'][0]['name'] ?? null);
-        self::assertContains('Kardiologie', $parsed['departments']);
-        self::assertContains('aus Klinik', $parsed['occasions']);
+        self::assertSame($parsed['states'][0]['id'], $parsed['dispatch_areas'][0]['state'] ?? null);
+        self::assertContains('Kardiologie', array_column($parsed['departments'], 'name'));
+        self::assertContains('aus Klinik', array_column($parsed['occasions'], 'name'));
         self::assertSame([], $parsed['hospitals']);
+        self::assertSame(['state', 'dispatch-area', 'department', 'occasion'], $parsed['meta']['types']);
     }
 
     public function testDryRunDoesNotPersist(): void
@@ -265,16 +265,15 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertSame(120, $unchanged->getBeds());
         self::assertSame(1, $em->getRepository(Hospital::class)->count([]));
 
-        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json';
         self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
             '--output' => $output,
             '--types' => 'hospital',
         ]));
-        /** @var array<string, mixed> $parsed */
-        $parsed = Yaml::parseFile($output);
+        $parsed = $this->readExport($output);
         self::assertSame('Catalog Test Klinikum', $parsed['hospitals'][0]['name'] ?? null);
         self::assertSame(120, $parsed['hospitals'][0]['beds'] ?? null);
-        self::assertTrue($parsed['hospitals'][0]['participating'] ?? false);
+        self::assertArrayNotHasKey('participating', $parsed['hospitals'][0], 'participation is not reference data');
     }
 
     public function testAddCreatesIndicationGroup(): void
@@ -316,15 +315,14 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertInstanceOf(IndicationGroup::class, $unchanged);
         self::assertSame('Kardiologie', $unchanged->getCategory());
 
-        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json';
         self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
             '--output' => $output,
             '--types' => 'indication-group',
         ]));
-        /** @var array<string, mixed> $parsed */
-        $parsed = Yaml::parseFile($output);
+        $parsed = $this->readExport($output);
         self::assertSame('ECMO Test Group', $parsed['indication_groups'][0]['name'] ?? null);
-        self::assertContains('143', $parsed['indication_groups'][0]['codes'] ?? []);
+        self::assertCount(1, $parsed['indication_groups'][0]['members'] ?? []);
     }
 
     public function testUpdateIndicationGroupChangesCategory(): void
@@ -440,13 +438,12 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertStringContainsString('Nothing to do', $tester->getDisplay());
         self::assertSame(1, $em->getRepository(IndicationRaw::class)->count([]));
 
-        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json';
         self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
             '--output' => $output,
             '--types' => 'indication-normalized,indication-raw,hospital',
         ]));
-        /** @var array<string, mixed> $parsed */
-        $parsed = Yaml::parseFile($output);
+        $parsed = $this->readExport($output);
         self::assertSame('143', $parsed['indications_normalized'][0]['code'] ?? null);
         self::assertSame('vaECMO Abholung', $parsed['indications_raw'][0]['name'] ?? null);
         self::assertSame([], $parsed['hospitals']);
@@ -464,7 +461,7 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
 
         $export = $this->commandTester('app:reference:export');
         self::assertSame(Command::FAILURE, $export->execute([
-            '--output' => sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml',
+            '--output' => sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json',
             '--types' => 'widget',
         ]));
         self::assertStringContainsString('Unknown catalog type', $export->getDisplay());
@@ -603,13 +600,12 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertSame($specialityId, $alias->getSpeciality()->getId());
         self::assertSame('short form', $alias->getNote());
 
-        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json';
         self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
             '--output' => $output,
             '--types' => 'speciality',
         ]));
-        /** @var array<string, mixed> $parsed */
-        $parsed = Yaml::parseFile($output);
+        $parsed = $this->readExport($output);
         $exported = null;
         foreach ($parsed['specialities'] as $row) {
             if (\is_array($row) && 'Innere Medizin' === ($row['name'] ?? null)) {
@@ -728,13 +724,12 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertSame('corrected note', $alias->getNote());
         self::assertSame('2024-12-31', $alias->getValidTo()?->format('Y-m-d'));
 
-        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.yaml';
+        $output = sys_get_temp_dir().'/catalog-export-'.bin2hex(random_bytes(4)).'.json';
         self::assertSame(Command::SUCCESS, $this->commandTester('app:reference:export')->execute([
             '--output' => $output,
             '--types' => 'department',
         ]));
-        /** @var array<string, mixed> $parsed */
-        $parsed = Yaml::parseFile($output);
+        $parsed = $this->readExport($output);
         $exported = null;
         foreach ($parsed['departments'] as $row) {
             if (\is_array($row) && 'Geburtshilfe' === ($row['name'] ?? null)) {
@@ -744,6 +739,19 @@ final class ImportExportReferenceCatalogCommandTest extends KernelTestCase
         self::assertIsArray($exported);
         self::assertSame('corrected note', $exported['aliases'][0]['note'] ?? null);
         self::assertSame('2024-12-31', $exported['aliases'][0]['valid_to'] ?? null);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function readExport(string $path): array
+    {
+        self::assertFileExists($path);
+        /** @var array<string, mixed> $parsed */
+        $parsed = json_decode((string) file_get_contents($path), true, 512, \JSON_THROW_ON_ERROR);
+        unlink($path);
+
+        return $parsed;
     }
 
     /**

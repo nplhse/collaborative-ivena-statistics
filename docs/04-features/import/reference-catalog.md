@@ -48,8 +48,9 @@ Hospital fields (`tier`, `size`, `beds`, `location`, `address`) are documented i
 ## Commands
 
 ```bash
-php bin/console app:reference:export --output=fixtures/reference/catalog.yaml
-php bin/console app:reference:export --output=var/export/catalog.yaml --types=occasion,infection
+php bin/console app:reference:export
+php bin/console app:reference:export --output=var/reference/catalog.json --types=occasion,infection
+php bin/console app:reference:validate --source=var/reference/catalog.json
 
 php bin/console app:reference:import --source=fixtures/reference/catalog.yaml --dry-run
 php bin/console app:reference:import --mode=add --user=admin
@@ -57,6 +58,8 @@ php bin/console app:reference:import --mode=replace --user=admin
 
 php bin/console app:reference:propose-from-rejects --output=var/export/reference-from-rejects
 ```
+
+`app:reference:export` writes the JSON package of [ADR 020](../../02-architecture/decisions/020-portable-reference-catalog.md) (default `var/reference/catalog-<timestamp>.json`, never a tracked file). The import still reads the YAML file below until it moves to the JSON package.
 
 `app:reference:load-indication-groups` still exists and reads the `indication_groups` section of the same file (create-missing, optional `--update`).
 
