@@ -8,10 +8,10 @@ import {
     buildAssignmentMixedChartOptions,
     buildVolumeRatioChartOptions,
     closureBucketLabel,
-    closureChartCategories,
     formatClosureChartCount,
     placeClosureBandsBehind,
     profileAssignmentLineSeries,
+    slotValue,
     volumeAssignmentLineSeries,
     volumeAssignmentTooltip,
 } from '../lib/build-closure-course-chart-options.js';
@@ -381,9 +381,7 @@ export default class extends Controller {
             return;
         }
         const volumeChartRoot = this.volumeChartTarget;
-        const categories = closureChartCategories(volume, volumeChartRoot);
         const built = buildAssignmentMixedChartOptions({
-            categories,
             lineSeries: volumeAssignmentLineSeries(volume),
             barSeries: volume.barSeries ?? {},
             chartData: volume,
@@ -416,7 +414,6 @@ export default class extends Controller {
         }
         const lineSeries = profileAssignmentLineSeries(course);
         const { options, barEntries } = buildAssignmentMixedChartOptions({
-            categories,
             lineSeries,
             barSeries: course.barSeries ?? {},
             chartData: course,
@@ -442,7 +439,9 @@ export default class extends Controller {
                 const lineCount = lineSeries.length;
                 const barLines = barEntries
                     .map((entry, index) => {
-                        const value = w.config.series[lineCount + index]?.data?.[dataPointIndex];
+                        const value = slotValue(
+                            w.config.series[lineCount + index]?.data?.[dataPointIndex],
+                        );
                         if (value === null || value === undefined) {
                             return '';
                         }
@@ -450,7 +449,7 @@ export default class extends Controller {
                     })
                     .join('');
 
-                return `<div class="p-2">${course.eventsLabel ?? ''}: ${point.events ?? 0}<br>${course.qualityLabel ?? ''}: ${share}%${closureLine}${spread}${barLines}</div>`;
+                return `<div class="p-2"><strong>${closureBucketLabel(course, dataPointIndex)}</strong><br>${course.eventsLabel ?? ''}: ${point.events ?? 0}<br>${course.qualityLabel ?? ''}: ${share}%${closureLine}${spread}${barLines}</div>`;
             },
         });
         const chart = new ApexCharts(element, options);
@@ -464,17 +463,15 @@ export default class extends Controller {
             return;
         }
         const ratioTarget = this.volumeRatioChartTarget;
-        const categories = closureChartCategories(volume, ratioTarget);
         const { options, otherClosureAt } = buildVolumeRatioChartOptions(
-            categories,
             volume,
             otherClosures,
             ratioTarget,
             ({ dataPointIndex, w }) => {
-                const category = closureBucketLabel(volume, categories, dataPointIndex);
+                const category = closureBucketLabel(volume, dataPointIndex);
                 const rows = w.config.series
                     .map((series) => {
-                        const value = series.data?.[dataPointIndex];
+                        const value = slotValue(series.data?.[dataPointIndex]);
                         if (value === null || value === undefined) {
                             return '';
                         }

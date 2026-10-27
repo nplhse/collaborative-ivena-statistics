@@ -257,10 +257,19 @@ six hours keeps its first and last three hours; `ClosureVolumeChartFocus` hides
 every hourly bucket that lies completely between them, and
 `ClosureVolumeChartFactory` puts one gap point in their place (`gapIndex`,
 `hiddenHours`). The line, bar and speciality reference series are filtered the
-same way, so their points stay aligned. The gap is drawn as a grey dashed line
+same way, so their points stay aligned. The gap is drawn as a grey slot with a dashed border
 labelled “n h ausgeblendet”, and a note above the charts says that the key
 figures and the window table still count the whole closure. A running closure
 ends at “now” for this purpose and shows “läuft noch” instead of “Ende”.
+
+All course charts use a slot axis instead of categories: slot *i* covers
+`[i, i + 1)` and its value sits in the middle, so markers can sit exactly on
+the boundaries between hours. The axis labels name boundaries (clock times on
+the event and interval course, `−1 h`, `0 h`, … on profile courses). The line
+for the start is the left edge of the first closed hour, the line for the end
+the right edge of the last closed hour; on a profile course both sit on 0 h, and
+the blue band ends or starts exactly there. On narrow charts only every n-th
+boundary is labelled, but the axis ends, start and end always are.
 
 Both course charts on the event and interval pages use the same markers: a blue
 band for this event’s closure, labelled lines for “Beginn” and “Ende”, grey

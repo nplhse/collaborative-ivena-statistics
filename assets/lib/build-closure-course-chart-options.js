@@ -30,6 +30,7 @@ const CLOSURE_PALETTE_FALLBACK = {
     otherFill: 'rgba(173, 181, 189, 0.14)',
     otherBorder: 'rgba(134, 142, 150, 0.55)',
     gapBorder: '#868e96',
+    gapFill: 'rgba(134, 142, 150, 0.28)',
     markerText: '#fff',
 };
 
@@ -47,33 +48,163 @@ export function isNarrowChart(chartRoot) {
 }
 
 /**
- * The hidden middle of a long closure is one category; it gets a readable label instead of the placeholder.
+ * The course charts use a slot axis: slot i covers [i, i + 1), its value sits in the middle, and the
+ * markers for start, end, bands and the hidden gap sit exactly on the slot boundaries.
  */
-export function closureChartCategories(chartData, chartRoot) {
-    const categories = [...(chartData.categories ?? [])];
-    const gapIndex = chartData.gapIndex;
-    if (Number.isInteger(gapIndex) && gapIndex < categories.length) {
-        const label = isNarrowChart(chartRoot) ? chartData.gapShortLabel : chartData.gapLabel;
-        categories[gapIndex] = label ?? categories[gapIndex];
+export function slotData(values) {
+    return (values ?? []).map((value, index) => [index + 0.5, value ?? null]);
+}
+
+function formatOffset(offset) {
+    if (offset === 0) {
+        return '0 h';
     }
 
-    return categories;
+    return `${offset > 0 ? '+' : '−'}${Math.abs(offset)} h`;
+}
+
+function formatClock(value, previous) {
+    const time = value.substring(11, 16);
+    if (previous !== null && previous.substring(0, 10) === value.substring(0, 10)) {
+        return time;
+    }
+
+    return `${value.substring(8, 10)}.${value.substring(5, 7)}. ${time}`;
 }
 
 /**
- * Tooltip heading: the bucket from its start to its end, or the gap label.
+ * Raw values of the slot boundaries 0 … n: hour offsets for profile courses, wall-clock
+ * timestamps for event and interval courses.
  */
-export function closureBucketLabel(chartData, categories, index) {
-    const category = categories[index] ?? '';
-    if (index === chartData.gapIndex) {
-        return chartData.gapLabel ?? category;
+function slotBoundaries(chartData) {
+    const points = chartData.points ?? [];
+    if (points.length > 0 && Number.isFinite(Number(points[0].offset))) {
+        const offsets = points.map((point) => Number(point.offset));
+        offsets.push(offsets[offsets.length - 1] + 1);
+
+        return { kind: 'offset', values: offsets };
     }
-    const end = chartData.ends?.[index];
-    if (typeof end !== 'string' || end.length < 16) {
-        return category;
+    const starts = chartData.starts ?? [];
+    const ends = chartData.ends ?? [];
+    if (starts.length === 0) {
+        return { kind: 'clock', values: [] };
     }
 
-    return `${category}–${end.substring(11, 16)}`;
+    return {
+        kind: 'clock',
+        values: [...starts, ends[ends.length - 1] ?? starts[starts.length - 1]],
+    };
+}
+
+/**
+ * Labels for the slot boundaries; boundaries not in `shown` stay empty. A clock label repeats the
+ * date only where it differs from the previous shown label.
+ */
+function formatSlotBoundaries({ kind, values }, shown = null) {
+    let previous = null;
+
+    return values.map((value, index) => {
+        if (shown !== null && !shown[index]) {
+            return '';
+        }
+        if (kind === 'offset') {
+            return formatOffset(value);
+        }
+        if (typeof value !== 'string' || value.length < 16) {
+            return '';
+        }
+        const label = formatClock(value, previous);
+        previous = value;
+
+        return label;
+    });
+}
+
+export function slotBoundaryLabels(chartData) {
+    return formatSlotBoundaries(slotBoundaries(chartData));
+}
+
+/**
+ * Boundaries that always keep their label: both axis ends, closure start and end, and hour 0 of a
+ * profile course.
+ */
+function keySlotBoundaries(chartData, count) {
+    const keys = [0, count];
+    if (Number.isInteger(chartData.closureStartIndex)) {
+        keys.push(chartData.closureStartIndex);
+    }
+    if (Number.isInteger(chartData.closureEndIndex)) {
+        keys.push(chartData.closureEndIndex + 1);
+    }
+    const anchor = anchorSlot(chartData);
+    if (anchor !== null) {
+        keys.push(anchor);
+    }
+
+    return keys;
+}
+
+/**
+ * On narrow charts only every n-th boundary is labelled; the key boundaries always are.
+ */
+export function visibleSlotLabels(chartData, narrow) {
+    const boundaries = slotBoundaries(chartData);
+    const count = boundaries.values.length - 1;
+    const step = narrow ? Math.ceil(count / 6) : 1;
+    if (step <= 1) {
+        return formatSlotBoundaries(boundaries);
+    }
+    const keys = keySlotBoundaries(chartData, count);
+    const shown = boundaries.values.map((_value, index) => {
+        if (keys.includes(index)) {
+            return true;
+        }
+
+        return index % step === 0 && !keys.some((key) => Math.abs(key - index) < step);
+    });
+
+    return formatSlotBoundaries(boundaries, shown);
+}
+
+export function slotXAxis(chartData, title = null, chartRoot = null) {
+    const labels = visibleSlotLabels(chartData, isNarrowChart(chartRoot));
+    const count = Math.max(labels.length - 1, 1);
+
+    return {
+        type: 'numeric',
+        min: 0,
+        max: count,
+        tickAmount: count,
+        forceNiceScale: false,
+        decimalsInFloat: 0,
+        tooltip: { enabled: false },
+        labels: {
+            rotate: -45,
+            rotateAlways: count > 12,
+            hideOverlappingLabels: true,
+            formatter: (value) => labels[Math.round(Number(value))] ?? '',
+        },
+        ...(title ? { title: { text: title } } : {}),
+    };
+}
+
+/**
+ * Tooltip heading: the slot from its start boundary to its end boundary, or the gap label.
+ */
+export function closureBucketLabel(chartData, index) {
+    if (index === chartData.gapIndex) {
+        return chartData.gapLabel ?? '';
+    }
+    const labels = slotBoundaryLabels(chartData);
+    const from = labels[index] ?? '';
+    const until = labels[index + 1] ?? '';
+    if (until === '') {
+        return from;
+    }
+    // Repeat the date only when the slot crosses midnight.
+    const untilTime = until.length > 5 && from.length > 5 ? until.slice(-5) : until;
+
+    return `${from} – ${untilTime}`;
 }
 
 function markerLabel(text, background, offsetY = 0, color = '#fff') {
@@ -117,6 +248,9 @@ export function closureChartPalette(chartRoot) {
         gapBorder:
             style.getPropertyValue('--closure-chart-gap-border').trim() ||
             CLOSURE_PALETTE_FALLBACK.gapBorder,
+        gapFill:
+            style.getPropertyValue('--closure-chart-gap-fill').trim() ||
+            CLOSURE_PALETTE_FALLBACK.gapFill,
         markerText:
             style.getPropertyValue('--closure-chart-marker-text').trim() ||
             CLOSURE_PALETTE_FALLBACK.markerText,
@@ -142,18 +276,28 @@ export function placeClosureBandsBehind(root) {
     });
 }
 
-export function buildClosureXAxisAnnotations(categories, chartData, otherClosures, chartRoot) {
+function anchorSlot(chartData) {
+    const anchor = chartData.anchorCategory ?? null;
+    if (!anchor) {
+        return null;
+    }
+    const index = (chartData.categories ?? []).indexOf(anchor);
+
+    return index < 0 ? null : index;
+}
+
+export function buildClosureXAxisAnnotations(chartData, otherClosures, chartRoot) {
     const palette = closureChartPalette(chartRoot);
     const starts = chartData.starts ?? [];
     const xaxis = (chartData.closureBands ?? []).map(([from, to]) => ({
-        x: categories[from],
-        x2: categories[to],
+        x: from,
+        x2: to + 1,
         fillColor: palette.currentFill,
         opacity: 1,
         borderColor: palette.currentBorder,
         strokeDashArray: 0,
     }));
-    const otherClosureAt = categories.map(() => null);
+    const otherClosureAt = starts.map(() => null);
     otherClosures.forEach((closure) => {
         const from = starts.findIndex((start) => start >= closure.start && start < closure.end);
         if (from < 0) {
@@ -167,21 +311,21 @@ export function buildClosureXAxisAnnotations(categories, chartData, otherClosure
             otherClosureAt[index] = closure.label;
         }
         xaxis.push({
-            x: categories[from],
-            x2: categories[to],
+            x: from,
+            x2: to + 1,
             fillColor: palette.otherFill,
             opacity: 1,
             borderColor: palette.otherBorder,
             strokeDashArray: 4,
         });
     });
-    xaxis.push(...closureMarkerAnnotations(categories, chartData, chartRoot, palette));
-    const anchorCategory = chartData.anchorCategory ?? null;
-    if (anchorCategory) {
+    xaxis.push(...closureMarkerAnnotations(chartData, chartRoot, palette));
+    const anchor = anchorSlot(chartData);
+    if (anchor !== null) {
         xaxis.push({
-            x: anchorCategory,
+            x: anchor,
             borderColor: palette.currentBorder,
-            strokeDashArray: 4,
+            strokeDashArray: 0,
             ...(chartData.anchorLabel
                 ? {
                       label: markerLabel(
@@ -199,15 +343,15 @@ export function buildClosureXAxisAnnotations(categories, chartData, otherClosure
 }
 
 /**
- * Lines with labels for the closure start and end and for the hidden middle of a long closure.
+ * Lines on the exact closure start and end boundaries, and a band for the hidden middle of a long closure.
  */
-export function closureMarkerAnnotations(categories, chartData, chartRoot, palette) {
+export function closureMarkerAnnotations(chartData, chartRoot, palette) {
     const markers = [];
     const startIndex = chartData.closureStartIndex;
     const endIndex = chartData.closureEndIndex;
     if (Number.isInteger(startIndex) && chartData.startMarkerLabel) {
         markers.push({
-            x: categories[startIndex],
+            x: startIndex,
             borderColor: palette.currentBorder,
             strokeDashArray: 0,
             label: markerLabel(
@@ -220,9 +364,9 @@ export function closureMarkerAnnotations(categories, chartData, chartRoot, palet
     }
     const endText = chartData.ongoing ? chartData.ongoingMarkerLabel : chartData.endMarkerLabel;
     if (Number.isInteger(endIndex) && endText) {
-        const crowded = Number.isInteger(startIndex) && endIndex - startIndex < 3;
+        const crowded = Number.isInteger(startIndex) && endIndex + 1 - startIndex < 3;
         markers.push({
-            x: categories[endIndex],
+            x: endIndex + 1,
             borderColor: palette.currentBorder,
             strokeDashArray: chartData.ongoing ? 4 : 0,
             label: markerLabel(
@@ -236,7 +380,10 @@ export function closureMarkerAnnotations(categories, chartData, chartRoot, palet
     const gapIndex = chartData.gapIndex;
     if (Number.isInteger(gapIndex) && chartData.gapLabel) {
         markers.push({
-            x: categories[gapIndex],
+            x: gapIndex,
+            x2: gapIndex + 1,
+            fillColor: palette.gapFill,
+            opacity: 1,
             borderColor: palette.gapBorder,
             strokeDashArray: 3,
             label: markerLabel(
@@ -257,7 +404,7 @@ function seriesDataMax(series) {
     let max = 0;
     for (const item of series) {
         for (const value of item.data ?? []) {
-            const number = Number(value);
+            const number = Number(Array.isArray(value) ? value[1] : value);
             if (Number.isFinite(number) && number > max) {
                 max = number;
             }
@@ -386,11 +533,11 @@ export function assignmentStrokeDash(lineCount, index) {
 export function buildAssignmentMixedSeries(lineSeries, barSeries) {
     const barEntries = barSeriesEntries(barSeries);
     const series = [
-        ...lineSeries,
+        ...lineSeries.map((entry) => ({ ...entry, data: slotData(entry.data) })),
         ...barEntries.map((entry) => ({
             name: entry.meta.name,
             type: 'column',
-            data: entry.data,
+            data: slotData(entry.data),
             hidden: true,
         })),
     ];
@@ -399,7 +546,6 @@ export function buildAssignmentMixedSeries(lineSeries, barSeries) {
 }
 
 export function buildAssignmentMixedChartOptions({
-    categories,
     lineSeries,
     barSeries,
     chartData,
@@ -412,7 +558,6 @@ export function buildAssignmentMixedChartOptions({
     const { series, barEntries } = buildAssignmentMixedSeries(lineSeries, barSeries);
     const lineCount = lineSeries.length;
     const { xaxis: closureAnnotations, otherClosureAt } = buildClosureXAxisAnnotations(
-        categories,
         chartData,
         otherClosures,
         chartRoot,
@@ -454,13 +599,7 @@ export function buildAssignmentMixedChartOptions({
             markers: { size: 0, hover: { size: 4 } },
             plotOptions: { bar: { columnWidth: '55%', borderRadius: 2 } },
             grid: { padding: { top: 12, right: 8, left: 4, bottom: 0 } },
-            xaxis: {
-                categories,
-                labels: { rotate: -45, hideOverlappingLabels: true },
-                ...(chartData.offsetAxisLabel
-                    ? { title: { text: chartData.offsetAxisLabel } }
-                    : {}),
-            },
+            xaxis: slotXAxis(chartData, chartData.offsetAxisLabel ?? null, chartRoot),
             yaxis: mixedAssignmentYAxes(lineSeries, barEntries, lineAxisLabel, barAxisLabel),
             annotations: { xaxis: closureAnnotations },
             legend: CLOSURE_ASSIGNMENTS_CHART_LEGEND,
@@ -545,15 +684,8 @@ export function ratioYAxisRange(series) {
     return { min: 0, max: Math.max(120, Math.ceil((dataMax * 1.1) / 20) * 20), tickAmount: 6 };
 }
 
-export function buildVolumeRatioChartOptions(
-    categories,
-    volume,
-    otherClosures,
-    chartRoot,
-    tooltip,
-) {
+export function buildVolumeRatioChartOptions(volume, otherClosures, chartRoot, tooltip) {
     const { xaxis: closureAnnotations, otherClosureAt } = buildClosureXAxisAnnotations(
-        categories,
         volume,
         otherClosures,
         chartRoot,
@@ -571,7 +703,10 @@ export function buildVolumeRatioChartOptions(
                     updated: () => placeClosureBandsBehind(chartRoot),
                 },
             },
-            series: volumeRatioSeries(volume),
+            series: volumeRatioSeries(volume).map((entry) => ({
+                ...entry,
+                data: slotData(entry.data),
+            })),
             colors: volumeRatioColors(volume),
             stroke: {
                 width: volumeRatioStrokeWidths(volume),
@@ -579,7 +714,7 @@ export function buildVolumeRatioChartOptions(
                 dashArray: volumeRatioStrokeDash(volume),
             },
             grid: { padding: { top: 12, right: 8, left: 4, bottom: 0 } },
-            xaxis: { categories, labels: { rotate: -45, hideOverlappingLabels: true } },
+            xaxis: slotXAxis(volume, null, chartRoot),
             yaxis: {
                 ...ratioYAxisRange(volumeRatioSeries(volume)),
                 decimalsInFloat: 0,
@@ -628,11 +763,15 @@ export function buildVolumeRatioChartOptions(
     };
 }
 
+export function slotValue(point) {
+    return Array.isArray(point) ? point[1] : point;
+}
+
 export function volumeAssignmentTooltip(w, dataPointIndex, volume) {
-    const category = closureBucketLabel(volume, w.globals.categoryLabels ?? [], dataPointIndex);
+    const category = closureBucketLabel(volume, dataPointIndex);
     const rows = w.config.series
         .map((series) => {
-            const value = series.data?.[dataPointIndex];
+            const value = slotValue(series.data?.[dataPointIndex]);
             if (value === null || value === undefined) {
                 return '';
             }
