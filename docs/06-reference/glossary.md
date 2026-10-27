@@ -44,6 +44,4 @@ See [console-commands.md](console-commands.md) for the full list and conventions
 | `app:user:promote-admin` | Grant `ROLE_ADMIN` to an existing user by username |
 | `app:user:demote-admin` | Remove `ROLE_ADMIN` from an existing user by username |
 | `app:user:delete` | Delete an existing user by username |
-| `app:fixtures:validate-patterns` | Validate distribution pattern YAML files |
-| `app:fixtures:export-patterns` | Export distribution patterns from statistics |
 | `doctrine:fixtures:load --group=dev` | Load full local demo dataset |
