@@ -168,7 +168,7 @@ final readonly class AnalyticsAggregateCommand
 
     private function parseDate(string $dateOption): \DateTimeImmutable
     {
-        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $dateOption, AnalyticsCalendar::timezone());
+        $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $dateOption, AnalyticsCalendar::timezone());
         $errors = \DateTimeImmutable::getLastErrors();
         if (
             false === $parsed
@@ -179,6 +179,6 @@ final readonly class AnalyticsAggregateCommand
             throw new \InvalidArgumentException(sprintf('Invalid --date "%s". Expected format YYYY-MM-DD.', $dateOption));
         }
 
-        return AnalyticsCalendar::startOfDay($parsed);
+        return $parsed;
     }
 }

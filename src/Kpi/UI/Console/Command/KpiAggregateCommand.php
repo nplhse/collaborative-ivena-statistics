@@ -120,7 +120,7 @@ final readonly class KpiAggregateCommand
 
     private function parseDate(string $dateOption, \DateTimeZone $tz): \DateTimeImmutable
     {
-        $parsed = \DateTimeImmutable::createFromFormat('Y-m-d', $dateOption, $tz);
+        $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $dateOption, $tz);
         $errors = \DateTimeImmutable::getLastErrors();
         if (
             false === $parsed
