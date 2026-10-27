@@ -6,12 +6,10 @@ namespace App\Tests\Allocation\Unit\Application\ReferenceCatalog;
 
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogDocument;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogReader;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogSyncResult;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogWriter;
 use PHPUnit\Framework\TestCase;
 
-final class ReferenceCatalogReaderWriterTest extends TestCase
+final class ReferenceCatalogReaderTest extends TestCase
 {
     public function testLoadDefaultReadsCommittedCatalog(): void
     {
@@ -53,30 +51,6 @@ final class ReferenceCatalogReaderWriterTest extends TestCase
         self::assertFileExists($reader->defaultPath());
     }
 
-    public function testWriterRoundTripPreservesNullDispatchAreaState(): void
-    {
-        $document = ReferenceCatalogDocument::fromArray([
-            'states' => ['Hessen'],
-            'dispatch_areas' => [
-                ['name' => 'Frankfurt', 'state' => 'Hessen'],
-                ['name' => 'Göttingen', 'state' => null],
-            ],
-            'departments' => ['Kardiologie'],
-        ]);
-        $path = sys_get_temp_dir().'/catalog-roundtrip-'.bin2hex(random_bytes(4)).'.yaml';
-        $writer = new ReferenceCatalogWriter();
-        $writer->write($path, $document);
-
-        $loaded = new ReferenceCatalogReader(\dirname(__DIR__, 5))->load($path);
-        self::assertSame(['Hessen'], $loaded->states);
-        self::assertSame('Frankfurt', $loaded->dispatchAreas[0]['name']);
-        self::assertSame('Hessen', $loaded->dispatchAreas[0]['state']);
-        self::assertSame('Göttingen', $loaded->dispatchAreas[1]['name']);
-        self::assertNull($loaded->dispatchAreas[1]['state']);
-        self::assertSame(['Kardiologie'], $loaded->names('departments'));
-        self::assertStringContainsString('reference-catalog-yaml.md', (string) file_get_contents($path));
-    }
-
     public function testWithTypesAndYamlKeys(): void
     {
         $document = ReferenceCatalogDocument::fromArray([
@@ -98,26 +72,5 @@ final class ReferenceCatalogReaderWriterTest extends TestCase
         self::assertSame([], $filtered->hospitals);
         self::assertSame('dispatch_areas', ReferenceCatalogType::DispatchArea->yamlKey());
         self::assertSame(['Kardiologie'], $document->names('departments.yaml'));
-    }
-
-    public function testSyncResultTableRowsAndHasChanges(): void
-    {
-        $empty = new ReferenceCatalogSyncResult();
-        self::assertFalse($empty->hasChanges());
-
-        $result = new ReferenceCatalogSyncResult(
-            createdByType: ['state' => 2],
-            skippedByType: ['dispatch-area' => 1],
-            updatedByType: ['indication-group' => 1],
-        );
-        self::assertTrue($result->hasChanges());
-        self::assertSame(2, $result->created());
-        self::assertSame(1, $result->skipped());
-        self::assertSame(1, $result->updated());
-        self::assertSame([
-            ['dispatch-area', '0', '1', '0'],
-            ['indication-group', '0', '0', '1'],
-            ['state', '2', '0', '0'],
-        ], $result->tableRows());
     }
 }

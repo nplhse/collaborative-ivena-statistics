@@ -2,23 +2,27 @@
 
 **Audience:** Operators and developers who need to move allocation master data between environments without `doctrine:fixtures:load`.
 
-Fixtures purge the whole database and must not run in production. The catalog is **one YAML file** (`fixtures/reference/catalog.yaml`) plus three console commands that are available in `prod`.
+Fixtures purge the whole database and must not run in production. The catalog moves as **one JSON package** ([ADR 020](../../02-architecture/decisions/020-portable-reference-catalog.md)): `app:reference:export` writes it, `app:reference:validate` checks it and `app:reference:import` adds it to a database. All three are available in `prod`.
 
 ## What is in the catalog
 
-| Type | Identity | `--mode=add` |
+Every row carries its public id; rows refer to each other by id. The import matches a row by id first, then by its natural key:
+
+| Type | Natural key | Import (add) |
 |---|---|---|
-| State | `name` | skip if the name exists |
-| Dispatch area | `state` + `name` | skip if the pair exists; **rows without `state` are skipped** (warning) |
-| Department, speciality, assignment, occasion, infection, secondary transport | `name` | skip if the name exists |
-| Indication normalized | `code` + `name` | skip if the pair exists |
-| Indication raw | hash of code + text | skip if the hash exists; never overwrite |
-| Indication group | `name` | skip; `--update` refreshes category and membership |
-| Hospital | `name` | skip entirely if the name exists (owner, participating, coordinates stay untouched) |
+| State | `name` | skip if id and name match |
+| Dispatch area | `state` + `name` | skip if id and key match |
+| Department, speciality, assignment, occasion, infection, secondary transport | `name` | skip if id and name match; aliases are added under their owner |
+| Indication normalized | `code` + `name` | skip if id and key match |
+| Indication raw | code + label | skip if id and key match; `target` and review data come from the package |
+| Indication group | `name` | skip if id and name match; members are exact normalized ids |
+| Hospital | `name` | skip if id and name match; owner and participation are never imported |
+
+A match by id with another key, or by key with another id, is a conflict and stops the import.
 
 **Not in the catalog:** users, allocations, imports, rejects, CMS, audit.
 
-Doctrine fixtures (`AreaReferenceFixture`, lookups, hospitals, indications) read the same file.
+Doctrine fixtures (`AreaReferenceFixture`, lookups, hospitals, indications) still read the YAML file below until they are built from code.
 
 ## File format
 
@@ -52,25 +56,28 @@ php bin/console app:reference:export
 php bin/console app:reference:export --output=var/reference/catalog.json --types=occasion,infection
 php bin/console app:reference:validate --source=var/reference/catalog.json
 
-php bin/console app:reference:import --source=fixtures/reference/catalog.yaml --dry-run
-php bin/console app:reference:import --mode=add --user=admin
-php bin/console app:reference:import --mode=replace --user=admin
+php bin/console app:reference:import --source=var/reference/catalog.json --dry-run
+php bin/console app:reference:import --source=var/reference/catalog.json --user=admin
 
 php bin/console app:reference:propose-from-rejects --output=var/export/reference-from-rejects
 ```
 
-`app:reference:export` writes the JSON package of [ADR 020](../../02-architecture/decisions/020-portable-reference-catalog.md) (default `var/reference/catalog-<timestamp>.json`, never a tracked file). The import still reads the YAML file below until it moves to the JSON package.
+`app:reference:export` writes the JSON package of [ADR 020](../../02-architecture/decisions/020-portable-reference-catalog.md) (default `var/reference/catalog-<timestamp>.json`, never a tracked file). `app:reference:import` reads such a package (default `var/reference/catalog.json`). The Doctrine fixtures still read the YAML file below until they are built from code.
 
 `app:reference:load-indication-groups` still exists and reads the `indication_groups` section of the same file (create-missing, optional `--update`).
 
-### Add vs replace
+### Additive import
 
-- **`--mode=add` (default):** insert missing rows only. No rename, delete, or field update (except indication groups with `--update`).
-- **`--mode=replace`:** delete catalog tables (reverse dependency order) and reload. **Aborts** when `allocation`, `mci_case`, or `import` rows exist. Omit `--types` (full catalog only). For a blank install after migrate + first user. Not a substitute for `doctrine:fixtures:load`.
+`app:reference:import` validates the whole package first (same checks as `app:reference:validate`), then plans every row:
 
-Dispatch-area rows without `state` are never guessed (no Niedersachsen/Thüringen/Bayern inference). Fill `state`, then import.
+- A row is matched by its id, then by its natural key (name; state and name for dispatch areas; code and name for normalized indications; code and label for raw indications).
+- Same id and same natural key: skipped. Existing rows are never changed or deleted.
+- Same id with another natural key, or same natural key with another id: conflict.
+- A new row must only refer to rows in the package or in the database. Aliases conflict when they belong to another department or speciality, or match another one's name.
 
-`createdBy` comes from `--user=` (default `admin`).
+One conflict stops the import before anything is written; the command lists every conflict with its path in the file. `--dry-run` prints the plan only. Otherwise all rows are written in one transaction with the ids from the package, and the reference data cache is cleared.
+
+New rows get `createdBy` from `--user=` (default `admin`); reviewed raw indications also get it as `reviewedBy`. Imported hospitals do not participate and have no owner. The additive import is not a restore; the restore mode (`--mode=replace`) follows with the dependency check of ADR 020.
 
 ## Propose from import rejects
 
@@ -82,12 +89,11 @@ Default `--output=` is a **directory**:
 
 | File | Contents |
 |---|---|
-| `catalog.yaml` | Same schema, only missing entries; `dispatch_areas[].state` is empty/`~` |
 | `report.md` | Value, type, counts, example file |
 | `requeue-import-ids.txt` | Comma-separated import IDs for `app:import:requeue-all --only-ids=` |
 | `requeue-imports.md` | Hospital, file, matching reject counts |
 
-Review the YAML, fill area states, merge into `fixtures/reference/catalog.yaml` or import the proposal file directly (`--source=…/catalog.yaml`). Re-run propose after a partial requeue if the ID list is stale.
+Add the missing values through the admin pages (the production database is the source of the catalog), then requeue the listed imports. Re-run propose after a partial requeue if the ID list is stale.
 
 ## Production runbook
 
@@ -96,18 +102,16 @@ No Deployer hook. After the code deploy (normalizer/aliases live, catalog **not*
 ```bash
 cd ~/www/current
 php bin/console app:reference:propose-from-rejects --output=var/export/reference-from-rejects
-# Fill dispatch_areas[].state in catalog.yaml, drop junk, merge if needed
-php bin/console app:reference:import --mode=add --source=var/export/reference-from-rejects/catalog.yaml --dry-run
-php bin/console app:reference:import --mode=add --user=admin --source=var/export/reference-from-rejects/catalog.yaml
+# Add the values from report.md through the admin pages
 php bin/console cache:pool:clear cache.allocation.reference_data
 php bin/console app:import:requeue-all --only-ids="$(cat var/export/reference-from-rejects/requeue-import-ids.txt)" --dry-run
 ```
 
-Alternative: export locally, commit YAML, deploy, then `import --mode=add` from `fixtures/reference/catalog.yaml`.
-
-Empty instance: migrate, create the admin user, `import --mode=replace`. Never replace a database that already has allocations.
+Empty instance: migrate, create the admin user, then `app:reference:import --source=var/reference/<package>.json` with a package exported from production.
 
 ## Specialty and department name correction
+
+> Historical: this correction ran with the YAML import (`previous_names`), which no longer exists. The JSON import does not rename rows; a rename comes from the admin pages or a restore.
 
 Deploy ships the migration (empty alias tables) and the reviewed `fixtures/reference/catalog.yaml`. It does not import the catalog and it does not requeue imports. There is no Deployer hook for this correction. An operator runs the commands below by hand after the release.
 

@@ -2,7 +2,7 @@
 
 **Audience:** Anyone editing or reviewing `fixtures/reference/catalog.yaml`.
 
-The catalog is **one UTF-8 YAML mapping**. Doctrine fixtures, `app:reference:import`, and `app:reference:propose-from-rejects` share this schema (`app:reference:export` now writes the JSON package of ADR 020). Commands, add/replace rules, and the production runbook live in [reference-catalog.md](reference-catalog.md).
+The catalog is **one UTF-8 YAML mapping**. Only the Doctrine fixtures still read this schema (`app:reference:export` and `app:reference:import` use the JSON package of ADR 020). Commands, add/replace rules, and the production runbook live in [reference-catalog.md](reference-catalog.md).
 
 Default path: `fixtures/reference/catalog.yaml`. `--source=` / `--output=` always point at **one file**, not a directory.
 
@@ -177,7 +177,7 @@ hospitals:
 
 ## Propose output
 
-`app:reference:propose-from-rejects` writes the **same keys**, but only sections that have missing values. Dispatch areas come with `state: ~`. After review, merge into this file or import the proposal with `--source=…/catalog.yaml`.
+`app:reference:propose-from-rejects` no longer writes YAML. It writes a report of the missing values; add them through the admin pages.
 
 Not written as catalog rows (handled in PHP or dropped): ILS/`Führungsstab` prefixes, URLs, mojibake, `Erhängen`. `Perinatalzentrum Level 2` is a department alias of `Geburtshilfe` in this file, not a separate row.
 
