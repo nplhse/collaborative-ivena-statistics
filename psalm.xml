@@ -31,6 +31,7 @@
         <PossiblyUnusedMethod>
             <errorLevel type="suppress">
                 <file name="src/Shared/Infrastructure/Pagination/CursorPaginator.php" />
+                <file name="src/Analytics/Infrastructure/Http/AnalyticsCookieManager.php" />
                 <directory name="src/Shared/Application/Export/" />
                 <directory name="src/*/Application/Contracts/" />
                 <directory name="src/*/Application/DTO/" />
