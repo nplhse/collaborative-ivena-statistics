@@ -158,7 +158,7 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load
 - `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
 - `Allocation/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
-- `Allocation/SyntheticAllocationGeneratorTest.php` — two loads give the same content, MCI cases in their month
+- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns and sampling
 

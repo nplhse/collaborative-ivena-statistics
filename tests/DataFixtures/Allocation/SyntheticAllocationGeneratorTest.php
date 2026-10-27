@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\DataFixtures\Allocation;
 
+use App\DataFixtures\Allocation\SyntheticAllocationGenerator;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -18,18 +19,26 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
 {
     private const string UNTIL = '2026-09-30';
 
-    public function testTwoLoadsGiveTheSameDataByContent(): void
+    public function testTwoRunsGiveTheSameDataByContent(): void
     {
         // A fixed last day, so the result does not depend on the calendar day of the test run.
         $_ENV['FIXTURES_UNTIL'] = $_SERVER['FIXTURES_UNTIL'] = self::UNTIL;
-
         try {
             self::bootKernel();
-            $first = $this->loadAndDescribe();
-            // A fresh kernel, like a new `make reset`: the lookup cache of the sampler holds ids of the first load.
+            $this->load();
+            $first = $this->describe();
+
+            // Run the generator again on the same catalog and participation. A fresh kernel, like a new
+            // `make reset`: the lookup cache of the sampler must not carry anything over.
+            $this->deleteGeneratedRows();
             self::ensureKernelShutdown();
             self::bootKernel();
-            $second = $this->loadAndDescribe();
+            /** @var ContainerInterface $container */
+            $container = self::getContainer()->get('test.service_container'); // @phpstan-ignore symfonyContainer.serviceNotFound
+            /** @var SyntheticAllocationGenerator $generator */
+            $generator = $container->get(SyntheticAllocationGenerator::class);
+            $generator->generate();
+            $second = $this->describe();
         } finally {
             unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
         }
@@ -69,10 +78,8 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
     /**
      * @return array{summary: list<array<string, mixed>>, allocations: list<array<string, mixed>>, mci: list<array<string, mixed>>}
      */
-    private function loadAndDescribe(): array
+    private function describe(): array
     {
-        $this->load();
-
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
 
@@ -104,6 +111,15 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
                  ORDER BY m.mci_id',
             ),
         ];
+    }
+
+    private function deleteGeneratedRows(): void
+    {
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get(Connection::class);
+        foreach (['mci_case', 'allocation_stats_projection', 'allocation', 'import'] as $table) {
+            $connection->executeStatement(sprintf('DELETE FROM %s', $table));
+        }
     }
 
     private function load(): void
