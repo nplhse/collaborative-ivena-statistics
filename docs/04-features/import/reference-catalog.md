@@ -98,6 +98,21 @@ A restore replaces the whole catalog with a **complete** package (`meta.complete
 
 `--dry-run` shows rows to delete and create per type and the blockers, and writes nothing.
 
+#### Local workflow with a private package
+
+Locally the blockers come from development data. `app:dev:reset-operational-data` (dev and test only) removes exactly that data and keeps users and the catalog:
+
+```bash
+cp ~/private-catalog/catalog.json var/reference/catalog.json
+php bin/console app:dev:reset-operational-data --dry-run
+php bin/console app:dev:reset-operational-data
+php bin/console app:reference:import --mode=replace --dry-run
+php bin/console app:reference:import --mode=replace
+php bin/console app:geo:geocode-hospitals   # only fills missing coordinates
+```
+
+Stop the workers first; both commands refuse while queues hold messages, and they share one lock.
+
 ## Propose from import rejects
 
 `app:reference:propose-from-rejects` is read-only on `import_reject`. It does not write stammdaten and does not delete rejects. Pair it with [`app:import:analyze-rejects`](reject-analysis.md) when you need the full reject breakdown.
