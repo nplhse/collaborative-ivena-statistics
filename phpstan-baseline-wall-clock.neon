@@ -1,0 +1,193 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Reading the wall clock with time\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.function
+			count: 1
+			path: src/Admin/Application/Service/GrantParticipantUrlGenerator.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-24 hours''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Admin/UI/Http/Controller/Audit/AuditLogCrudController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-30 days''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Admin/UI/Http/Controller/Audit/AuditLogCrudController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-7 days''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Admin/UI/Http/Controller/Audit/AuditLogCrudController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Admin/UI/Http/Controller/Blog/PostCrudController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-24 hours''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Admin/UI/Http/Controller/JobRun/JobRunCrudController.php
+
+		-
+			message: '#^Reading the wall clock with time\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.function
+			count: 1
+			path: src/Admin/UI/Http/Controller/User/GrantParticipantController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-1 days''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/DataFixtures/Content/DemoContentLoader.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Engagement/Application/MessageHandler/SendMonthlySubmissionRemindersMessageHandler.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Engagement/Application/MonthlyReminderDispatchGuard.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Engagement/Application/MonthlyReminderPeriodResolver.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\-300 seconds''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Engagement/Application/MonthlyReminderSender.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 2
+			path: src/Engagement/Application/MonthlyReminderSender.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Feedback/Domain/Entity/Feedback.php
+
+		-
+			message: '#^Reading the wall clock with time\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.function
+			count: 1
+			path: src/Feedback/UI/Http/Controller/FeedbackSubmitController.php
+
+		-
+			message: '#^Reading the wall clock with time\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.function
+			count: 1
+			path: src/Feedback/UI/Http/Controller/FeedbackWidgetController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Notification/Infrastructure/Factory/NotificationFactory.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Notification/Infrastructure/Factory/NotificationRecipientStateFactory.php
+
+		-
+			message: '#^Reading the wall clock with time\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.function
+			count: 1
+			path: src/Notification/UI/Http/Controller/NotificationPollController.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Onboarding/Domain/Entity/UserOnboardingStep.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Onboarding/Infrastructure/Factory/UserOnboardingStepFactory.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Shared/Application/Export/ExportAuditLogger.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 3
+			path: src/Shared/Domain/Entity/CookieConsent.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 2
+			path: src/Shared/Domain/Entity/DataTablePreference.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 3
+			path: src/Shared/Infrastructure/Audit/Doctrine/AuditingDoctrineSubscriber.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\+1 year''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Shared/Infrastructure/Consent/CookieConsentService.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''\+1 year''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/Shared/Infrastructure/Locale/LocaleCookieManager.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 2
+			path: src/User/Domain/Entity/User.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/User/Domain/Entity/UserActivity.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/User/Infrastructure/Query/ProjectActivityQuery.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/User/Infrastructure/Query/UserProfileActivityQuery.php
+
+		-
+			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
+			identifier: wallClock.dateTime
+			count: 1
+			path: src/User/Infrastructure/Security/SwitchUserSubscriber.php

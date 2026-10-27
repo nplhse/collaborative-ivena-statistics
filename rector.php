@@ -32,6 +32,8 @@ return RectorConfig::configure()
         Zenstruck\Foundry\Utils\Rector\FoundrySetList::FOUNDRY_2_7,
     ])
     ->withSkip([
+        // Fixtures for the wall clock PHPStan rules contain the patterns on purpose.
+        __DIR__.'/tests/PHPStan/Unit/Rules/data',
         Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class => [$entityPath],
         Rector\Php81\Rector\Property\ReadOnlyPropertyRector::class => [$entityPath],
         Rector\TypeDeclaration\Rector\Property\TypedPropertyFromAssignsRector::class => [$entityPath],

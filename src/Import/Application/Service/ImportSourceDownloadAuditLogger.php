@@ -9,6 +9,7 @@ use App\Shared\Infrastructure\Audit\AuditContext;
 use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 /**
  * Persists an explicit audit row for successful import source-file downloads (SEC-008).
@@ -25,6 +26,7 @@ final readonly class ImportSourceDownloadAuditLogger
     public function __construct(
         private EntityManagerInterface $entityManager,
         private AuditContext $auditContext,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -54,7 +56,7 @@ final readonly class ImportSourceDownloadAuditLogger
         }
 
         $this->entityManager->persist(new AuditEntry(
-            new \DateTimeImmutable('now'),
+            $this->clock->now(),
             $requestId,
             $actor,
             $origin,

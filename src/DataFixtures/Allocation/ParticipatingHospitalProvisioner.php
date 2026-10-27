@@ -6,10 +6,9 @@ namespace App\DataFixtures\Allocation;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
-use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalPermission;
-use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Domain\HospitalPermissionMask;
+use App\DataFixtures\FixtureVolumeResolver;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,6 +17,8 @@ final readonly class ParticipatingHospitalProvisioner
 {
     public function __construct(
         private FixtureHospitals $hospitals,
+        private FixtureHospitalSelection $selection,
+        private FixtureVolumeResolver $volumeResolver,
         private EntityManagerInterface $entityManager,
     ) {
     }
@@ -25,7 +26,8 @@ final readonly class ParticipatingHospitalProvisioner
     public function provision(User $foo): void
     {
         $this->markParticipating();
-        $fooHospital = $this->resolveFooHospital();
+        $volume = $this->volumeResolver->resolve();
+        $fooHospital = $this->selection->demoHospital($volume, $this->selection->active($volume, $this->hospitals->participatingHospitals()));
         $this->assignOwner($fooHospital, $this->ensureParticipantRole($foo));
 
         $participating = array_values(array_filter(
@@ -73,52 +75,18 @@ final readonly class ParticipatingHospitalProvisioner
     }
 
     /**
-     * Participation belongs to an installation, not to the catalog (ADR 020): every third
-     * hospital by name takes part, and at least one Full Urban hospital for the demo owner.
+     * Participation belongs to an installation, not to the catalog (ADR 020): every third hospital by name takes part.
      */
     private function markParticipating(): void
     {
         $since = new \DateTimeImmutable('2025-01-01 00:00:00');
-        $hasFullUrban = false;
         foreach ($this->hospitals->allHospitals() as $index => $hospital) {
-            if (0 !== $index % 3) {
-                continue;
+            if (0 === $index % 3) {
+                $hospital->setIsParticipating(true)->setParticipatingSince($since);
             }
-
-            $hospital->setIsParticipating(true)->setParticipatingSince($since);
-            $hasFullUrban = $hasFullUrban || (HospitalTier::FULL === $hospital->getTier() && HospitalLocation::URBAN === $hospital->getLocation());
-        }
-
-        if (!$hasFullUrban) {
-            $fullUrban = $this->hospitals->hospitalsMatching(HospitalTier::FULL, HospitalLocation::URBAN)[0] ?? null;
-            $fullUrban?->setIsParticipating(true)->setParticipatingSince($since);
         }
 
         $this->entityManager->flush();
-    }
-
-    private function resolveFooHospital(): Hospital
-    {
-        $candidates = $this->hospitals->participatingHospitalsMatching(
-            HospitalTier::FULL,
-            HospitalLocation::URBAN,
-        );
-        if ([] === $candidates) {
-            throw new \RuntimeException('No participating Full Urban hospital is available for the demo owner.');
-        }
-
-        usort(
-            $candidates,
-            static fn (Hospital $a, Hospital $b): int => strcmp((string) $a->getName(), (string) $b->getName()),
-        );
-
-        $fooHospital = $candidates[0];
-        if (!$fooHospital->isParticipating()) {
-            $fooHospital->setIsParticipating(true);
-            $this->entityManager->persist($fooHospital);
-        }
-
-        return $fooHospital;
     }
 
     private function assignOwner(Hospital $hospital, User $owner): void

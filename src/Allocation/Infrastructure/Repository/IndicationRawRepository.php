@@ -15,6 +15,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 
 /**
  * @psalm-suppress ClassMustBeFinal
@@ -25,8 +26,10 @@ class IndicationRawRepository extends ServiceEntityRepository
 {
     use PublicIdRepositoryTrait;
 
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly ClockInterface $clock,
+    ) {
         parent::__construct($registry, IndicationRaw::class);
     }
 
@@ -130,7 +133,7 @@ class IndicationRawRepository extends ServiceEntityRepository
             IndicationRawReviewWorklistSegment::New => $qb->andWhere('i.reviewStatus IN (:openStatuses)')
                 ->andWhere('i.createdAt >= :newSince')
                 ->setParameter('openStatuses', [IndicationRawReviewStatus::Unreviewed, IndicationRawReviewStatus::NeedsReview])
-                ->setParameter('newSince', new \DateTimeImmutable('-30 days'), Types::DATETIME_IMMUTABLE),
+                ->setParameter('newSince', $this->clock->now()->modify('-30 days'), Types::DATETIME_IMMUTABLE),
             IndicationRawReviewWorklistSegment::Unreviewed => $qb->andWhere('i.reviewStatus = :unreviewed')
                 ->setParameter('unreviewed', IndicationRawReviewStatus::Unreviewed),
             IndicationRawReviewWorklistSegment::NeedsReview => $qb->andWhere('i.reviewStatus = :needsReview')

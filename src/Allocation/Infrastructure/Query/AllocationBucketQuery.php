@@ -9,6 +9,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 final readonly class AllocationBucketQuery
 {
@@ -16,6 +17,7 @@ final readonly class AllocationBucketQuery
 
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -24,7 +26,7 @@ final readonly class AllocationBucketQuery
      */
     public function bucketByMonthAndGenderLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -42,7 +44,7 @@ final readonly class AllocationBucketQuery
             return [];
         }
 
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -81,7 +83,7 @@ final readonly class AllocationBucketQuery
      */
     public function bucketByMonthAndUrgencyLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -99,7 +101,7 @@ final readonly class AllocationBucketQuery
             return [];
         }
 
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -449,7 +451,7 @@ final readonly class AllocationBucketQuery
 
     private function last12MonthsFrom(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('first day of this month')
+        return $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
     }

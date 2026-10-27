@@ -20,6 +20,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 
 final class IndicationCreationStrategyTest extends TestCase
 {
@@ -457,6 +458,7 @@ final class IndicationCreationStrategyTest extends TestCase
             $cache ?? new IndicationCache(),
             $em,
             $createdBy ?? new ImportCreatedById(),
+            new NativeClock(),
         );
     }
 

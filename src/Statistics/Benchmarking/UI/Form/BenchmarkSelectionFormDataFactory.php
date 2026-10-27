@@ -8,9 +8,15 @@ use App\Statistics\Application\DTO\StatisticsFilter;
 use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionFormData;
 use App\Statistics\Benchmarking\UI\Form\Data\BenchmarkSelectionSideFormData;
+use Psr\Clock\ClockInterface;
 
 final readonly class BenchmarkSelectionFormDataFactory
 {
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
+
     public function fromFilters(StatisticsFilter $primaryFilter, StatisticsFilter $comparisonFilter): BenchmarkSelectionFormData
     {
         return new BenchmarkSelectionFormData(
@@ -22,7 +28,7 @@ final readonly class BenchmarkSelectionFormDataFactory
     public function fromFilter(StatisticsFilter $filter): BenchmarkSelectionSideFormData
     {
         [$scopeGroup, $scopeDetail] = $this->scopeGroupFromFilter($filter);
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         return new BenchmarkSelectionSideFormData(
             $scopeGroup,

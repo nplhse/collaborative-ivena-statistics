@@ -18,6 +18,7 @@ use App\Statistics\ClosedDepartmentAssignments\Application\DTO\ClosedDepartmentT
 use App\Statistics\ClosedDepartmentAssignments\Application\DTO\ClosedDepartmentTransportStats;
 use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDepartmentMetricsRow;
 use App\Statistics\ClosedDepartmentAssignments\Infrastructure\Query\Dto\ClosedDepartmentSliceData;
+use Psr\Clock\ClockInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class ClosedDepartmentAssignmentsAssembler
@@ -44,6 +45,7 @@ final readonly class ClosedDepartmentAssignmentsAssembler
     public function __construct(
         private TranslatorInterface $translator,
         private ClosedDepartmentExploreUrlFactory $exploreUrlFactory,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -77,7 +79,7 @@ final readonly class ClosedDepartmentAssignmentsAssembler
             $grain,
             $period,
             $totalByKey,
-            $now ?? new \DateTimeImmutable('now'),
+            $now ?? $this->clock->now(),
         );
         if ([] === $filledTotal) {
             return new ClosedDepartmentTimeSeries([], [], []);

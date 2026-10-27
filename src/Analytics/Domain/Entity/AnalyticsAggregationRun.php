@@ -6,6 +6,7 @@ namespace App\Analytics\Domain\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'analytics_aggregation_run')]
@@ -43,7 +44,7 @@ class AnalyticsAggregationRun
         $this->rawRequestCount = $rawRequestCount;
         $this->rawEventCount = $rawEventCount;
         $this->aggregateRowsWritten = $aggregateRowsWritten;
-        $this->aggregatedAt = $aggregatedAt ?? new \DateTimeImmutable();
+        $this->aggregatedAt = $aggregatedAt ?? Clock::get()->now();
     }
 
     public function getId(): ?int

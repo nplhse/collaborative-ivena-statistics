@@ -6,13 +6,17 @@ namespace App\Statistics\ClosureAnalytics\Application\Volume;
 
 final class ClosureVolumeChartFactory
 {
+    /** Category of the point that stands for the hidden middle of a long closure; the UI shows a label instead. */
+    public const string GAP_CATEGORY = '…';
+
     /**
      * @param list<ClosureVolumeHourDraft> $drafts
      *
      * @return array<string, mixed>
      */
-    public function build(array $drafts): array
+    public function build(array $drafts, ?ClosureVolumeChartFocus $focus = null): array
     {
+        [$drafts, $hidden] = $this->visible($drafts, $focus);
         /** @var array<string, array{start: \DateTimeImmutable, end: \DateTimeImmutable, observed: float, expected: float, hospitalObserved: ?float, hospitalExpected: ?float, inClosure: bool, influenced: bool, expectedKnown: bool, hospitalExpectedKnown: bool, observedKnown: bool, hospitalObservedKnown: bool}> $grouped */
         $grouped = [];
         foreach ($drafts as $draft) {
@@ -62,6 +66,8 @@ final class ClosureVolumeChartFactory
         uasort($grouped, static fn (array $left, array $right): int => $left['start'] <=> $right['start']);
         $categories = [];
         $starts = [];
+        $ends = [];
+        $gapIndex = null;
         $observed = [];
         $expected = [];
         $areaRatio = [];
@@ -69,8 +75,21 @@ final class ClosureVolumeChartFactory
         $influenced = [];
         $inClosure = [];
         foreach ($grouped as $point) {
+            if (null !== $hidden && null === $gapIndex && $this->startsAfter($point['start'], $hidden[1])) {
+                $gapIndex = \count($categories);
+                $categories[] = self::GAP_CATEGORY;
+                $starts[] = $hidden[0]->format('Y-m-d H:i:s');
+                $ends[] = $hidden[1]->format('Y-m-d H:i:s');
+                $observed[] = null;
+                $expected[] = null;
+                $areaRatio[] = null;
+                $hospitalRatio[] = null;
+                $influenced[] = false;
+                $inClosure[] = true;
+            }
             $categories[] = $point['start']->format('d.m. H:i');
             $starts[] = $point['start']->format('Y-m-d H:i:s');
+            $ends[] = $point['end']->format('Y-m-d H:i:s');
             $observed[] = $point['observedKnown'] ? round($point['observed'], 2) : null;
             $expectedValue = $point['expectedKnown'] ? round($point['expected'], 2) : null;
             $expected[] = $expectedValue;
@@ -82,15 +101,22 @@ final class ClosureVolumeChartFactory
             $inClosure[] = $point['inClosure'];
         }
 
+        $closureIndexes = array_keys(array_filter($inClosure));
+
         return [
             'categories' => $categories,
             'starts' => $starts,
+            'ends' => $ends,
             'observed' => $observed,
             'expected' => $expected,
             'areaRatio' => $areaRatio,
             'hospitalRatio' => $hospitalRatio,
             'influenced' => $influenced,
             'closureBands' => $this->bands($inClosure),
+            'closureStartIndex' => [] === $closureIndexes ? null : min($closureIndexes),
+            'closureEndIndex' => [] === $closureIndexes ? null : max($closureIndexes),
+            'gapIndex' => $gapIndex,
+            'hiddenHours' => null === $gapIndex || null === $hidden ? null : $this->hours($hidden[0], $hidden[1]),
         ];
     }
 
@@ -99,8 +125,9 @@ final class ClosureVolumeChartFactory
      *
      * @return array<string, list<int|float|null>>
      */
-    public function buildBarSeries(array $drafts): array
+    public function buildBarSeries(array $drafts, ?ClosureVolumeChartFocus $focus = null): array
     {
+        [$drafts, $hidden] = $this->visible($drafts, $focus);
         /** @var array<string, array<string, float>> $byBucket */
         $byBucket = [];
         $bucketOrder = [];
@@ -118,7 +145,14 @@ final class ClosureVolumeChartFactory
         foreach (['sk1', 'sk2', 'sk3', 'resus', 'cathlab'] as $key) {
             $series[$key] = [];
         }
-        foreach (array_keys($bucketOrder) as $bucketKey) {
+        $gapPlaced = false;
+        foreach ($bucketOrder as $bucketKey => $bucketStart) {
+            if (null !== $hidden && !$gapPlaced && $this->startsAfter($bucketStart, $hidden[1])) {
+                $gapPlaced = true;
+                foreach (['sk1', 'sk2', 'sk3', 'resus', 'cathlab'] as $key) {
+                    $series[$key][] = null;
+                }
+            }
             foreach (['sk1', 'sk2', 'sk3', 'resus', 'cathlab'] as $key) {
                 $value = $byBucket[$bucketKey][$key] ?? null;
                 $series[$key][] = null === $value ? null : round($value, 2);
@@ -126,6 +160,43 @@ final class ClosureVolumeChartFactory
         }
 
         return $series;
+    }
+
+    /**
+     * @param list<ClosureVolumeHourDraft> $drafts
+     *
+     * @return array{0: list<ClosureVolumeHourDraft>, 1: array{0: \DateTimeImmutable, 1: \DateTimeImmutable}|null} visible drafts and the hidden span
+     */
+    private function visible(array $drafts, ?ClosureVolumeChartFocus $focus): array
+    {
+        if (!$focus instanceof ClosureVolumeChartFocus) {
+            return [$drafts, null];
+        }
+        $visible = [];
+        $hiddenFrom = null;
+        $hiddenUntil = null;
+        foreach ($drafts as $draft) {
+            if (!$focus->hides($draft->bucketStart, $draft->bucketEnd)) {
+                $visible[] = $draft;
+                continue;
+            }
+            $start = ClosureVolumeClock::wall($draft->bucketStart);
+            $end = ClosureVolumeClock::wall($draft->bucketEnd);
+            $hiddenFrom = !$hiddenFrom instanceof \DateTimeImmutable || $start < $hiddenFrom ? $start : $hiddenFrom;
+            $hiddenUntil = !$hiddenUntil instanceof \DateTimeImmutable || $end > $hiddenUntil ? $end : $hiddenUntil;
+        }
+
+        return [$visible, !$hiddenFrom instanceof \DateTimeImmutable || !$hiddenUntil instanceof \DateTimeImmutable ? null : [$hiddenFrom, $hiddenUntil]];
+    }
+
+    private function startsAfter(\DateTimeImmutable $bucketStart, \DateTimeImmutable $hiddenUntil): bool
+    {
+        return ClosureVolumeClock::wall($bucketStart) >= $hiddenUntil;
+    }
+
+    private function hours(\DateTimeImmutable $from, \DateTimeImmutable $until): int
+    {
+        return (int) round(($until->getTimestamp() - $from->getTimestamp()) / 3600);
     }
 
     private function barSeriesKey(ClosureVolumeHourDraft $draft): string

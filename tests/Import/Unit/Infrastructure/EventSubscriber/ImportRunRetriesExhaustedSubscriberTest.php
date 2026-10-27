@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Sentry\State\HubInterface;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -65,7 +66,7 @@ final class ImportRunRetriesExhaustedSubscriberTest extends TestCase
     private function subscriber(ManagerRegistry $registry, LoggerInterface $logger): ImportRunRetriesExhaustedSubscriber
     {
         return new ImportRunRetriesExhaustedSubscriber(
-            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder(), new ImportBatchCompletion($this->createStub(Connection::class), $this->createStub(ImportBatchSummaryPublisherInterface::class), $logger)),
+            new ImportRunLifecycle($registry, new EventDispatcher(), new AuditContext(), $logger, new ImportMilestoneRecorder(), new ImportBatchCompletion($this->createStub(Connection::class), $this->createStub(ImportBatchSummaryPublisherInterface::class), $logger, new NativeClock()), new NativeClock()),
             $logger,
             new ImportRunTelemetry(
                 new JobRunRecorder($this->createStub(Connection::class), new MockClock(), $logger),

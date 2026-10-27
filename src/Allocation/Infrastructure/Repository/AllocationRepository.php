@@ -14,6 +14,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -26,6 +27,7 @@ final class AllocationRepository extends ServiceEntityRepository
     public function __construct(
         ManagerRegistry $registry,
         private readonly AllocationBucketQuery $bucketQuery,
+        private readonly ClockInterface $clock,
     ) {
         parent::__construct($registry, Allocation::class);
     }
@@ -139,7 +141,7 @@ final class AllocationRepository extends ServiceEntityRepository
      */
     public function countByMonthLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 
@@ -159,7 +161,7 @@ final class AllocationRepository extends ServiceEntityRepository
             return [];
         }
 
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 

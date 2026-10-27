@@ -100,14 +100,15 @@ final readonly class PatternSampler
         $hourDistribution = $pattern->categoricalDistribution('hour_of_day');
         $hour = [] !== $hourDistribution
             ? (int) $this->categoricalSampler->sample($hourDistribution)
-            : random_int(0, 23);
+            : mt_rand(0, 23);
 
-        $startTs = $periodStart->getTimestamp();
-        $endTs = max($startTs, $periodEnd->getTimestamp());
-        $dayTs = random_int($startTs, $endTs);
-        $day = new \DateTimeImmutable()->setTimestamp($dayTs)->setTime(0, 0);
+        // A whole day between start and end, derived from the period (same time zone, no wall clock).
+        $firstDay = $periodStart->setTime(0, 0);
+        $days = max(0, (int) $firstDay->diff($periodEnd->setTime(0, 0))->days);
+        $day = $firstDay->modify(sprintf('+%d days', mt_rand(0, $days)));
 
-        return $day->setTime($hour, random_int(0, 59));
+        // mt_rand() follows the fixture seed (mt_srand); random_int() would not.
+        return $day->setTime($hour, mt_rand(0, 59));
     }
 
     private function sampleAge(DistributionPattern $pattern): int
@@ -115,11 +116,11 @@ final readonly class PatternSampler
         $bucket = $this->categoricalSampler->sample($pattern->categoricalDistribution('age_bucket'));
 
         return match ($bucket) {
-            '0-17' => random_int(1, 17),
-            '18-39' => random_int(18, 39),
-            '40-64' => random_int(40, 64),
-            '65-99' => random_int(65, 99),
-            default => random_int(1, 99),
+            '0-17' => mt_rand(1, 17),
+            '18-39' => mt_rand(18, 39),
+            '40-64' => mt_rand(40, 64),
+            '65-99' => mt_rand(65, 99),
+            default => mt_rand(1, 99),
         };
     }
 

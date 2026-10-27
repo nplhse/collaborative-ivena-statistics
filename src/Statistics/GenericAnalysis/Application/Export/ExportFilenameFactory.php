@@ -4,9 +4,16 @@ declare(strict_types=1);
 
 namespace App\Statistics\GenericAnalysis\Application\Export;
 
-final class ExportFilenameFactory
+use Psr\Clock\ClockInterface;
+
+final readonly class ExportFilenameFactory
 {
     private const int MAX_LENGTH = 80;
+
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
 
     public function create(string $title, string $extension): string
     {
@@ -18,7 +25,7 @@ final class ExportFilenameFactory
             $slug = 'analysis-export';
         }
 
-        $date = new \DateTimeImmutable('today')->format('Y-m-d');
+        $date = $this->clock->now()->modify('today')->format('Y-m-d');
         $suffix = sprintf('-%s.%s', $date, ltrim($extension, '.'));
 
         $maxSlugLength = max(1, self::MAX_LENGTH - \strlen($suffix));

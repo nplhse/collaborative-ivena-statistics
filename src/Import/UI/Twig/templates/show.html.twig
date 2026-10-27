@@ -141,7 +141,7 @@
                         </twig:Card>
                     </div>
 
-                    <div class="col-12">
+                    <div class="col-12 mb-3">
                         <twig:Card
                             title="{{ 'label.import.section.run'|trans({}, 'import') }}"
                         >
@@ -224,6 +224,10 @@
                                 {% endif %}
                             </div>
                         </twig:Card>
+                    </div>
+
+                    <div class="col-12">
+                        {{ include('@Import/_data_coverage.html.twig', {coverage: detail.coverage}) }}
                     </div>
                 </div>
 

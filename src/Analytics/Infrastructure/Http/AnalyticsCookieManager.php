@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace App\Analytics\Infrastructure\Http;
 
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Uid\Uuid;
 
-final class AnalyticsCookieManager
+final readonly class AnalyticsCookieManager
 {
     public const string VISITOR_COOKIE = 'analytics_visitor';
 
     public const string SESSION_COOKIE = 'analytics_session';
+
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
 
     /**
      * @return array{visitorKey: ?string, sessionKey: ?string, setVisitor: ?string, setSession: ?string}
@@ -70,7 +76,7 @@ final class AnalyticsCookieManager
                     ->withSecure($request->isSecure())
                     ->withHttpOnly(true)
                     ->withSameSite(Cookie::SAMESITE_LAX)
-                    ->withExpires(new \DateTimeImmutable('+1 year')),
+                    ->withExpires($this->clock->now()->modify('+1 year')),
             );
             $request->cookies->set(self::VISITOR_COOKIE, $keys['setVisitor']);
         }

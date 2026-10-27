@@ -13,6 +13,7 @@ use App\User\Application\Activity\UserActivityBackfillPostRecord;
 use App\User\Application\Contract\UserActivityBackfillContentSourceInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /** @psalm-suppress UnusedClass Wired via #[AsAlias] for UserActivityBackfillContentSourceInterface. */
@@ -21,6 +22,7 @@ final readonly class DoctrineUserActivityBackfillContentSource implements UserAc
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -48,7 +50,7 @@ final readonly class DoctrineUserActivityBackfillContentSource implements UserAc
             ->andWhere('p.publishedAt <= :now')
             ->andWhere('IDENTITY(p.createdBy) IS NOT NULL')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->orderBy('p.publishedAt', 'ASC')
             ->addOrderBy('p.id', 'ASC')
             ->getQuery()
@@ -101,7 +103,7 @@ final readonly class DoctrineUserActivityBackfillContentSource implements UserAc
             ->andWhere('p.status = :status')
             ->andWhere('p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->orderBy('c.createdAt', 'ASC')
             ->addOrderBy('c.id', 'ASC')
             ->getQuery()

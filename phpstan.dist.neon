@@ -1,5 +1,10 @@
 includes:
     - phpstan-baseline.neon
+    - phpstan-baseline-wall-clock.neon
+
+rules:
+    - App\Tests\PHPStan\Rules\NoWallClockInstantiationRule
+    - App\Tests\PHPStan\Rules\NoWallClockFunctionCallRule
 
 parameters:
     level: 6
@@ -11,6 +16,24 @@ parameters:
         - tests/
     excludePaths:
         - config/reference.php
+        - tests/PHPStan/Unit/Rules/data/*
+
+    # Reading the wall clock is only forbidden in application code (ADR 021).
+    ignoreErrors:
+        -
+            identifier: wallClock.dateTime
+            paths:
+                - bin/*
+                - config/*
+                - tests/*
+            reportUnmatched: false
+        -
+            identifier: wallClock.function
+            paths:
+                - bin/*
+                - config/*
+                - tests/*
+            reportUnmatched: false
     doctrine:
         objectManagerLoader: tests/object-manager.php
         allowNullablePropertyForRequiredField: true

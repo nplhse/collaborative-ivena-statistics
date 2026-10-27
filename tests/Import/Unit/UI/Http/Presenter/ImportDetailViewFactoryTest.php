@@ -7,6 +7,7 @@ namespace App\Tests\Import\Unit\UI\Http\Presenter;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportType;
+use App\Import\UI\Http\Presenter\Coverage\ImportCoverageViewFactory;
 use App\Import\UI\Http\Presenter\ImportDetailViewFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -103,7 +104,7 @@ final class ImportDetailViewFactoryTest extends TestCase
             },
         );
 
-        return new ImportDetailViewFactory($translator, $urlGenerator);
+        return new ImportDetailViewFactory($translator, $urlGenerator, new ImportCoverageViewFactory());
     }
 
     private function import(

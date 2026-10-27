@@ -16,6 +16,7 @@ use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -57,6 +58,7 @@ final readonly class AnalyticsRequestSubscriber
         private Security $security,
         private LoggerInterface $logger,
         private ManagerRegistry $doctrine,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -158,7 +160,7 @@ final readonly class AnalyticsRequestSubscriber
         $ua = $this->userAgentNormalizer->normalize($request->headers->get('User-Agent'));
 
         $this->recorder->record(
-            occurredAt: new \DateTimeImmutable(),
+            occurredAt: $this->clock->now(),
             routeName: $routeName,
             featureArea: $this->featureAreaResolver->resolve($routeName),
             httpStatus: $statusCode,

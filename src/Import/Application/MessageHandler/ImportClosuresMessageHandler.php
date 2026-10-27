@@ -23,6 +23,7 @@ use App\Import\Application\Mapping\ClosureHospitalGuard;
 use App\Import\Application\Mapping\ClosureHospitalProfile;
 use App\Import\Application\Message\ImportClosuresMessage;
 use App\Import\Application\Service\ImportCreatorPermissionCheck;
+use App\Import\Application\Service\ImportDataCoverageCalculator;
 use App\Import\Application\Service\ImportExportPeriodDeriver;
 use App\Import\Application\Service\ImportFileStorage;
 use App\Import\Application\Service\ImportPreviousRunCleanupService;
@@ -67,6 +68,7 @@ final readonly class ImportClosuresMessageHandler
         private ImportRunLifecycle $runLifecycle,
         private ImportRunCommitGuard $commitGuard,
         private ImportExportPeriodDeriver $exportPeriodDeriver,
+        private ImportDataCoverageCalculator $dataCoverageCalculator,
         private ImportRunTelemetryInterface $telemetry,
     ) {
     }
@@ -259,6 +261,7 @@ final readonly class ImportClosuresMessageHandler
         }
 
         $this->exportPeriodDeriver->apply($fresh);
+        $this->dataCoverageCalculator->apply($fresh);
 
         ImportEvaluation::apply($fresh, $summary, $runtimeMs);
     }

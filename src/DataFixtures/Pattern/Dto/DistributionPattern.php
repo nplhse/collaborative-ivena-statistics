@@ -6,60 +6,15 @@ namespace App\DataFixtures\Pattern\Dto;
 
 final readonly class DistributionPattern
 {
-    public const string SCHEMA = 'distribution-pattern/v1';
-
     /**
      * @param array<string, mixed> $meta
      * @param array<string, mixed> $distributions
      */
     public function __construct(
-        public string $name,
-        public int $version,
-        public string $schema,
         public PatternSegment $segment,
         public array $meta,
         public array $distributions,
     ) {
-    }
-
-    /**
-     * @param array<string, mixed> $data
-     */
-    public static function fromArray(string $name, array $data): self
-    {
-        if (!isset($data['segment']) || !\is_array($data['segment'])) {
-            throw new \InvalidArgumentException(sprintf('Pattern "%s" is missing segment.', $name));
-        }
-        if (!isset($data['distributions']) || !\is_array($data['distributions'])) {
-            throw new \InvalidArgumentException(sprintf('Pattern "%s" is missing distributions.', $name));
-        }
-
-        /** @var array{hospital_tier: string, hospital_location: string} $segment */
-        $segment = $data['segment'];
-        $meta = $data['meta'] ?? [];
-
-        return new self(
-            name: $name,
-            version: (int) ($data['version'] ?? 0),
-            schema: (string) ($data['schema'] ?? ''),
-            segment: PatternSegment::fromArray($segment),
-            meta: \is_array($meta) ? $meta : [],
-            distributions: $data['distributions'],
-        );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function toArray(): array
-    {
-        return [
-            'version' => $this->version,
-            'schema' => $this->schema,
-            'segment' => $this->segment->toArray(),
-            'meta' => $this->meta,
-            'distributions' => $this->distributions,
-        ];
     }
 
     /**

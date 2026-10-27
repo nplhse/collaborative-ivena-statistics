@@ -21,6 +21,7 @@ final readonly class CatalogCoverage
         public array $years,
         public bool $suppressed,
         public bool $revealSensitiveMetrics = true,
+        public ?int $currentYear = null,
     ) {
     }
 
@@ -46,6 +47,7 @@ final readonly class CatalogCoverage
 
     /**
      * Year coverage as heatmap rows (default: 5 years per row, starting at 2015).
+     * Years after the current year are marked as future; without a current year none are.
      *
      * @return list<list<array{year: int, count: int, intensity: float, future: bool, countHidden: bool, hasData: bool}>>
      */
@@ -55,7 +57,7 @@ final readonly class CatalogCoverage
             return [];
         }
 
-        $currentYear ??= (int) new \DateTimeImmutable('now')->format('Y');
+        $currentYear ??= $this->currentYear;
         $byYear = [];
         $maxYear = $startYear;
         foreach ($this->years as $row) {
@@ -73,7 +75,7 @@ final readonly class CatalogCoverage
         $peak = max(1, ...array_values($byYear));
         $cells = [];
         for ($year = $startYear; $year <= $maxYear; ++$year) {
-            $future = $year > $currentYear;
+            $future = null !== $currentYear && $year > $currentYear;
             $rawCount = $future ? 0 : ($byYear[$year] ?? 0);
             $hasData = $rawCount > 0;
             $countHidden = !$this->revealSensitiveMetrics && $hasData;

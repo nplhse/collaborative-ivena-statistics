@@ -9,6 +9,7 @@ use App\Allocation\Infrastructure\Query\OwnHospitalAllocationsExportQuery;
 use App\Shared\Application\Export\CsvStreamExportResponseFactory;
 use App\Shared\Application\Export\ExporterInterface;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -97,6 +98,7 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
         private AllocationExportValueFormatter $exportValueFormatter,
         private TranslatorInterface $translator,
         private RequestStack $requestStack,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -150,7 +152,7 @@ final readonly class OwnHospitalAllocationsExporter implements ExporterInterface
     #[\Override]
     public function buildFilename(): string
     {
-        return sprintf('allocations-export-%s.csv', new \DateTimeImmutable('now')->format('Y-m-d'));
+        return sprintf('allocations-export-%s.csv', $this->clock->now()->format('Y-m-d'));
     }
 
     #[\Override]

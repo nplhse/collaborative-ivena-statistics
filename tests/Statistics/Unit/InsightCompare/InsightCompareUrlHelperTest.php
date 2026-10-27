@@ -16,6 +16,7 @@ use App\Statistics\UI\Http\Controller\InsightCompareUrlHelper;
 use App\Statistics\UI\Http\Navigation\StatisticsNavigationUrlBuilder;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -150,7 +151,7 @@ final class InsightCompareUrlHelperTest extends TestCase
         return new InsightCompareUrlHelper(
             new StatisticsNavigationUrlBuilder($router),
             new BenchmarkSelectionQueryBuilder(),
-            new BenchmarkSelectionFormDataFactory(),
+            new BenchmarkSelectionFormDataFactory(new NativeClock()),
         );
     }
 

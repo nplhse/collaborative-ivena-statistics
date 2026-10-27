@@ -10,6 +10,7 @@ use App\Import\Domain\Enum\ImportBatchRunItemStatus;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -27,6 +28,7 @@ final readonly class ImportBatchCompletion
         private Connection $connection,
         private ImportBatchSummaryPublisherInterface $summaryPublisher,
         private LoggerInterface $importLogger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -35,8 +37,10 @@ final readonly class ImportBatchCompletion
      *
      * @return bool true when this call finished the batch
      */
-    public function complete(int $batchRunId, \DateTimeImmutable $now = new \DateTimeImmutable()): bool
+    public function complete(int $batchRunId, ?\DateTimeImmutable $now = null): bool
     {
+        $now ??= $this->clock->now();
+
         return $this->connection->transactional(
             fn (Connection $connection): bool => $this->completeIfFinished($connection, $batchRunId, $now),
         );

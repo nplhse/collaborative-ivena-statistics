@@ -9,14 +9,17 @@ use App\Content\Domain\Enum\PostStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 
 /**
  * @extends ServiceEntityRepository<PostTag>
  */
 final class PostTagRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly ClockInterface $clock,
+    ) {
         parent::__construct($registry, PostTag::class);
     }
 
@@ -35,7 +38,7 @@ final class PostTagRepository extends ServiceEntityRepository
             ->select('t AS tag', 'COUNT(p.id) AS postCount')
             ->leftJoin('t.posts', 'p', 'WITH', 'p.status = :status AND p.publishedAt <= :now')
             ->setParameter('status', PostStatus::PUBLISHED)
-            ->setParameter('now', new \DateTimeImmutable('now'), Types::DATETIME_IMMUTABLE)
+            ->setParameter('now', $this->clock->now(), Types::DATETIME_IMMUTABLE)
             ->groupBy('t.id')
             ->having('COUNT(p.id) > 0')
             ->orderBy('t.name', 'ASC')

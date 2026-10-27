@@ -14,6 +14,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\HospitalAccessGrant;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -35,7 +36,7 @@ final class HospitalRelationNotifierTest extends TestCase
             $events[] = $event;
         });
 
-        $notifier = new HospitalRelationNotifier($dispatcher);
+        $notifier = new HospitalRelationNotifier($dispatcher, $this->clock());
         $notifier->ownershipChanged($previous, $current, $hospital);
 
         self::assertCount(2, $events);
@@ -45,6 +46,8 @@ final class HospitalRelationNotifierTest extends TestCase
         self::assertSame(2, $events[1]->userId);
         self::assertSame(10, $events[1]->hospitalId);
         self::assertSame('Klinik Nord', $events[1]->hospitalName);
+        self::assertSame('2026-05-04 12:30:00', $events[0]->occurredAt->format('Y-m-d H:i:s'));
+        self::assertSame($events[0]->occurredAt, $events[1]->occurredAt);
     }
 
     public function testUnchangedOwnerDispatchesNothing(): void
@@ -54,7 +57,7 @@ final class HospitalRelationNotifierTest extends TestCase
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects(self::never())->method('dispatch');
 
-        $notifier = new HospitalRelationNotifier($dispatcher);
+        $notifier = new HospitalRelationNotifier($dispatcher, $this->clock());
         $notifier->ownershipChanged($owner, $owner, $hospital);
     }
 
@@ -71,7 +74,7 @@ final class HospitalRelationNotifierTest extends TestCase
             $events[] = $event;
         });
 
-        new HospitalRelationNotifier($dispatcher)->ownershipChanged(null, $current, $hospital);
+        new HospitalRelationNotifier($dispatcher, $this->clock())->ownershipChanged(null, $current, $hospital);
 
         self::assertCount(1, $events);
         self::assertInstanceOf(HospitalOwnershipGranted::class, $events[0]);
@@ -87,7 +90,7 @@ final class HospitalRelationNotifierTest extends TestCase
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher->expects(self::never())->method('dispatch');
 
-        $notifier = new HospitalRelationNotifier($dispatcher);
+        $notifier = new HospitalRelationNotifier($dispatcher, $this->clock());
         self::assertNull($notifier->snapshot($grant));
         $notifier->associated($grant);
     }
@@ -111,7 +114,7 @@ final class HospitalRelationNotifierTest extends TestCase
             $events[] = $event;
         });
 
-        $notifier = new HospitalRelationNotifier($dispatcher);
+        $notifier = new HospitalRelationNotifier($dispatcher, $this->clock());
         $notifier->associated($grant);
         $snapshot = $notifier->snapshot($grant);
         self::assertInstanceOf(HospitalAssociationSnapshot::class, $snapshot);
@@ -123,6 +126,34 @@ final class HospitalRelationNotifierTest extends TestCase
         self::assertSame(41, $events[0]->grantId);
         self::assertInstanceOf(UserDisassociatedFromHospital::class, $events[1]);
         self::assertSame('2026-03-02 09:00:00', $events[1]->occurredAt->format('Y-m-d H:i:s'));
+    }
+
+    public function testDisassociatedWithoutTimeUsesTheClock(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $events = [];
+        $dispatcher->addListener(UserDisassociatedFromHospital::class, static function (object $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        $snapshot = new HospitalAssociationSnapshot(
+            userId: 5,
+            hospitalId: 12,
+            grantId: 41,
+            hospitalPublicId: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+            hospitalName: 'Grant Klinik',
+            grantedAt: new \DateTimeImmutable('2026-01-01 08:00:00'),
+        );
+        new HospitalRelationNotifier($dispatcher, $this->clock())->disassociated($snapshot);
+
+        self::assertCount(1, $events);
+        self::assertInstanceOf(UserDisassociatedFromHospital::class, $events[0]);
+        self::assertSame('2026-05-04 12:30:00', $events[0]->occurredAt->format('Y-m-d H:i:s'));
+    }
+
+    private function clock(): MockClock
+    {
+        return new MockClock('2026-05-04 12:30:00');
     }
 
     private function user(int $id): User

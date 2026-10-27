@@ -387,8 +387,6 @@ deptrac:
       - App\Statistics\Infrastructure\Query\IndicationGroup\IndicationGroupMemberMetricsQuery
     App\Statistics\Application\MessageHandler\RebuildAllocationStatsProjectionHandler:
       - App\Statistics\Infrastructure\MaterializedView\StatisticsMaterializedViewGroups
-    App\Statistics\Application\OverviewDashboardProvider:
-      - App\Statistics\Infrastructure\Query\ProjectionTimeSeriesQuery
     App\Statistics\Application\Overview\OverviewChartsFactory:
       - App\Statistics\Infrastructure\Query\Overview\Dto\OverviewDashboardMetricsResult
       - App\Statistics\Infrastructure\Query\Overview\OverviewQueryCriteria

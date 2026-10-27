@@ -401,6 +401,10 @@
         <source>label.mci_case.search</source>
         <target>MCI ID or title</target>
       </trans-unit>
+      <trans-unit id="MciTitleEn" resname="label.mci_case.title">
+        <source>label.mci_case.title</source>
+        <target>MCI title</target>
+      </trans-unit>
       <trans-unit id="MciIdLabelEn" resname="label.mci_id">
         <source>label.mci_id</source>
         <target>MCI ID</target>

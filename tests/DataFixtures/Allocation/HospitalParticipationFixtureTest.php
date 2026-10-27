@@ -55,9 +55,9 @@ final class HospitalParticipationFixtureTest extends KernelTestCase
         self::assertSame(1, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital h
              INNER JOIN "user" u ON u.id = h.owner_id
-             WHERE h.is_participating = true AND h.tier = :tier AND h.location = :location AND u.username = :username',
-            ['username' => 'foo', 'tier' => 'Full', 'location' => 'Urban'],
-        ));
+             WHERE h.is_participating = true AND u.username = :username',
+            ['username' => 'foo'],
+        ), 'the demo user owns exactly one participating hospital, drawn from the active ones');
         self::assertSame(1, (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM hospital_access_grant g
              INNER JOIN "user" owner ON owner.id = g.created_by_id

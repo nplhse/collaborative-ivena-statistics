@@ -18,6 +18,7 @@ use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -38,6 +39,7 @@ final readonly class ImportBulkReprocessService
         private ImportCreatorPermissionCheck $creatorPermissionCheck,
         private ImportFileStorage $fileStorage,
         private LoggerInterface $importLogger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -107,7 +109,7 @@ final readonly class ImportBulkReprocessService
         } finally {
             // Always close the dispatch phase, so the batch can complete and is never resumed from the console.
             $run = $this->batchRunRepository->managed($run);
-            $run->closeDispatch(new \DateTimeImmutable());
+            $run->closeDispatch($this->clock->now());
             $this->batchRunRepository->flush();
         }
 

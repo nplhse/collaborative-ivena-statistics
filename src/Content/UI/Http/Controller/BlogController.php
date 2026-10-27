@@ -16,6 +16,7 @@ use App\Content\UI\Http\DTO\BlogListQueryParametersDTO;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,6 +40,7 @@ final class BlogController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly ContentActivityNotifier $contentActivityNotifier,
         private readonly PaginatorInterface $paginator,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -101,7 +103,7 @@ final class BlogController extends AbstractController
     {
         $xml = $this->renderView('@Content/blog/rss.xml.twig', [
             'posts' => $this->postRepository->findPublishedForIndex(30),
-            'buildDate' => new \DateTimeImmutable('now'),
+            'buildDate' => $this->clock->now(),
         ]);
 
         return new Response($xml, Response::HTTP_OK, ['Content-Type' => 'application/rss+xml; charset=UTF-8']);

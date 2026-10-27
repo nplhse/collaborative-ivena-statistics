@@ -60,6 +60,20 @@ Do not introduce Mockery or Prophecy for application tests.
 
 PR checklist: see [CONTRIBUTING.md](../../CONTRIBUTING.md) — stub by default, spy for side effects.
 
+## Time in code and tests
+
+Application code never reads the wall clock directly (ADR [021](../02-architecture/decisions/021-wall-clock-access.md)). Otherwise `mockTime()` cannot control it and tests depend on the real date.
+
+| Where | Use |
+|-------|-----|
+| Services | Inject `Psr\Clock\ClockInterface`, call `$this->clock->now()` |
+| Entities, value objects, static helpers | `Symfony\Component\Clock\Clock::get()->now()` |
+| Tests | `use ClockSensitiveTrait;` and `self::mockTime('2026-05-15 10:00:00')` |
+
+Absolute values stay fine: `new \DateTimeImmutable('2026-05-01 00:00:00')`, `new \DateTimeImmutable('@'.$timestamp)`, `new \DateTimeImmutable($row['created_at'])`. Relative values go through the clock: `$this->clock->now()->modify('first day of this month')` instead of `new \DateTimeImmutable('first day of this month')`, `$this->clock->now()->getTimestamp()` instead of `time()`, `$this->clock->now()->format('Y')` instead of `date('Y')`.
+
+PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime` and `wallClock.function`. Existing occurrences are listed in `phpstan-baseline-wall-clock.neon`; do not add new entries there. When you touch a baselined line, fix it and run `make phpstan` – PHPStan reports baseline entries that no longer match, so remove them from the file. A deliberate exception needs `@phpstan-ignore wallClock.function (reason)`.
+
 ## Static analysis and linting
 
 ```bash
@@ -84,7 +98,7 @@ make lint-trans-de  # lint DE catalogue only
 
 - PHPUnit: `phpunit.dist.xml`
 - Test bootstrap: `tests/bootstrap.php`
-- PHPStan: `phpstan.dist.neon`
+- PHPStan: `phpstan.dist.neon`, project rules in `tests/PHPStan/Rules/`
 
 ## CI reference
 

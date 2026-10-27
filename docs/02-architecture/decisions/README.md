@@ -36,6 +36,7 @@ Each ADR includes:
 | [018](018-job-run-monitoring.md) | One run log and shared telemetry for long-running background jobs | accepted |
 | [019](019-messenger-monitoring.md) | Messenger monitoring with hourly metrics, scheduler jobs in the run log, and bounded retention | accepted |
 | [020](020-portable-reference-catalog.md) | Portable reference catalog, private reference data outside the repository, and synthetic data from code | accepted |
+| [021](021-wall-clock-access.md) | Read the current time only through the Symfony clock | accepted |
 
 ## Template
 

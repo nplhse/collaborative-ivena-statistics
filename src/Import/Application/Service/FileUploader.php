@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Import\Application\Service;
 
 use App\Import\Application\ImportAllowedFileTypes;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -21,16 +22,18 @@ final readonly class FileUploader
         private ImportFileStorage $fileStorage,
         private LoggerInterface $logger,
         private Filesystem $filesystem,
+        private ClockInterface $clock,
     ) {
     }
 
     public function upload(UploadedFile $file): string
     {
-        $absDir = Path::join($this->baseDir, date('Y'), date('m'));
+        $now = $this->clock->now();
+        $absDir = Path::join($this->baseDir, $now->format('Y'), $now->format('m'));
         $this->filesystem->mkdir($absDir, 0775);
 
         $ext = $this->resolveExtension($file);
-        $fileName = sprintf('import_%s_%s.%s', uniqid('', true), date('Ymd_His'), $ext);
+        $fileName = sprintf('import_%s_%s.%s', uniqid('', true), $now->format('Ymd_His'), $ext);
         $targetAbs = Path::canonicalize(Path::join($absDir, $fileName));
 
         try {

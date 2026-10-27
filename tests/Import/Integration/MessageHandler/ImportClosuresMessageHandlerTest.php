@@ -75,6 +75,10 @@ final class ImportClosuresMessageHandlerTest extends DatabaseKernelTestCase
         self::assertSame(1, $fresh->getRowCount());
         self::assertSame(1, $fresh->getRowsPassed());
         self::assertCount(1, $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
+        $coverage = $fresh->getDataCoverage();
+        self::assertNotNull($coverage, 'Coverage is stored when the run finishes.');
+        self::assertSame(1, $coverage->records);
+        self::assertFalse($coverage->isEmpty());
 
         $completedAgain = [];
         $failedAgain = [];

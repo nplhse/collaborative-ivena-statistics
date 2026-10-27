@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Analytics\Domain;
 
+use Symfony\Component\Clock\Clock;
+
 final class AnalyticsCalendar
 {
     public const string TIMEZONE = 'Europe/Berlin';
@@ -15,12 +17,12 @@ final class AnalyticsCalendar
 
     public static function startOfToday(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('today', self::timezone());
+        return Clock::get()->now()->setTimezone(self::timezone())->modify('today');
     }
 
     public static function yesterday(): \DateTimeImmutable
     {
-        return new \DateTimeImmutable('yesterday', self::timezone());
+        return Clock::get()->now()->setTimezone(self::timezone())->modify('yesterday');
     }
 
     public static function startOfDay(\DateTimeImmutable $date): \DateTimeImmutable

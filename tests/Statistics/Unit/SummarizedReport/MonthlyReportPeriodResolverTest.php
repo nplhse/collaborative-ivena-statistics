@@ -6,12 +6,13 @@ namespace App\Tests\Statistics\Unit\SummarizedReport;
 
 use App\Statistics\Application\SummarizedReport\Monthly\MonthlyReportPeriodResolver;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 
 final class MonthlyReportPeriodResolverTest extends TestCase
 {
     public function testResolvesPreviousCompletedCalendarMonth(): void
     {
-        $resolver = new MonthlyReportPeriodResolver();
+        $resolver = new MonthlyReportPeriodResolver(new NativeClock());
         $period = $resolver->resolve(new \DateTimeImmutable('2026-08-12 10:00:00', new \DateTimeZone('Europe/Berlin')));
 
         self::assertSame(2026, $period['year']);
@@ -29,7 +30,7 @@ final class MonthlyReportPeriodResolverTest extends TestCase
 
     public function testResolvesYearBoundary(): void
     {
-        $resolver = new MonthlyReportPeriodResolver();
+        $resolver = new MonthlyReportPeriodResolver(new NativeClock());
         $period = $resolver->resolve(new \DateTimeImmutable('2026-01-05 08:00:00', new \DateTimeZone('Europe/Berlin')));
 
         self::assertSame(2025, $period['year']);
@@ -40,7 +41,7 @@ final class MonthlyReportPeriodResolverTest extends TestCase
 
     public function testResolvesExplicitCompletedMonthAndEnablesNext(): void
     {
-        $resolver = new MonthlyReportPeriodResolver();
+        $resolver = new MonthlyReportPeriodResolver(new NativeClock());
         $period = $resolver->resolve(
             new \DateTimeImmutable('2026-08-12 10:00:00', new \DateTimeZone('Europe/Berlin')),
             2026,
@@ -58,7 +59,7 @@ final class MonthlyReportPeriodResolverTest extends TestCase
 
     public function testClampsFutureMonthToLatestCompleted(): void
     {
-        $resolver = new MonthlyReportPeriodResolver();
+        $resolver = new MonthlyReportPeriodResolver(new NativeClock());
         $period = $resolver->resolve(
             new \DateTimeImmutable('2026-08-12 10:00:00', new \DateTimeZone('Europe/Berlin')),
             2026,

@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Clock\MockClock;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -71,6 +73,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new MockClock('2026-03-07 08:09:10'),
         );
 
         // Act
@@ -86,9 +89,9 @@ final class FileUploaderTest extends TestCase
         self::assertCount(5, $parts);
         self::assertSame('var', $parts[0]);
         self::assertSame('imports', $parts[1]);
-        self::assertMatchesRegularExpression('/^\d{4}$/', $parts[2]);
-        self::assertMatchesRegularExpression('/^\d{2}$/', $parts[3]);
-        self::assertStringEndsWith('.csv', $parts[4]);
+        self::assertSame('2026', $parts[2]);
+        self::assertSame('03', $parts[3]);
+        self::assertStringEndsWith('_20260307_080910.csv', $parts[4]);
     }
 
     public function testUploadRejectsUnsupportedFileWhenNoExtensionAvailable(): void
@@ -109,6 +112,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         // Act + Assert
@@ -132,6 +136,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         $this->expectException(FileException::class);
@@ -154,6 +159,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         $this->expectException(FileException::class);
@@ -175,6 +181,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         $returnedRel = $uploader->upload($this->createMockUploadedFile(
@@ -208,6 +215,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         $returnedRel = $uploader->upload($this->createMockUploadedFile(
@@ -228,6 +236,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         $returnedRel = $uploader->upload($this->createMockUploadedFile(
@@ -255,6 +264,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         $this->expectException(FileException::class);
@@ -286,6 +296,7 @@ final class FileUploaderTest extends TestCase
             $this->createFileStorage(),
             $this->logger,
             $this->filesystem,
+            new NativeClock(),
         );
 
         // Act + Assert

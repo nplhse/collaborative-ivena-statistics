@@ -348,6 +348,8 @@ final class ClosureProfileController extends AbstractController
         return [
             'closureBands' => ClosureProfileCourseBandBuilder::bands($points, $alignToEnd),
             'anchorCategory' => ClosureProfileCourseBandBuilder::anchorCategory($points),
+            'anchorLabel' => $this->translator->trans($alignToEnd ? 'stats.closure.volume.marker.end' : 'stats.closure.volume.marker.start', domain: 'statistics'),
+            'offsetAxisLabel' => $this->translator->trans($alignToEnd ? 'stats.closure.profile.course.end_axis' : 'stats.closure.profile.course.start_axis', domain: 'statistics'),
             'alignToEnd' => $alignToEnd,
             'chartId' => ($alignToEnd ? 'end' : 'start').'-'.$seriesId,
             'barSeries' => $this->profiles->courseBarSeries($criteria, $alignToEnd, $seriesId),

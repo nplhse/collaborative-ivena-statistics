@@ -10,6 +10,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
+use Psr\Clock\ClockInterface;
 
 /**
  * @extends ServiceEntityRepository<Import>
@@ -17,8 +18,10 @@ use Doctrine\Persistence\ManagerRegistry;
 final class ImportRepository extends ServiceEntityRepository
 {
     /** @psalm-suppress PossiblyUnusedMethod */
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly ClockInterface $clock,
+    ) {
         parent::__construct($registry, Import::class);
     }
 
@@ -27,7 +30,7 @@ final class ImportRepository extends ServiceEntityRepository
      */
     public function countByMonthLast12Months(): array
     {
-        $from = new \DateTimeImmutable('first day of this month')
+        $from = $this->clock->now()->modify('first day of this month')
             ->modify('-11 months')
             ->setTime(0, 0, 0);
 

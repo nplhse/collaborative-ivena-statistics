@@ -12,12 +12,14 @@ use App\Allocation\Domain\Enum\AssessmentCirculation;
 use App\Allocation\Domain\Enum\AssessmentDisability;
 use App\Import\Application\Contracts\AllocationEntityResolverInterface;
 use App\Import\Application\DTO\AllocationRowDTO;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 
 final readonly class AllocationAssessmentResolver implements AllocationEntityResolverInterface
 {
     public function __construct(
         private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -45,7 +47,7 @@ final readonly class AllocationAssessmentResolver implements AllocationEntityRes
         }
 
         $assessment = new Assessment();
-        $assessment->setCreatedAt(new \DateTimeImmutable());
+        $assessment->setCreatedAt($this->clock->now());
         $assessment->setAirway($airway);
         $assessment->setBreathing($breathing);
         $assessment->setCirculation($circulation);

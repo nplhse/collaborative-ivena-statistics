@@ -14,6 +14,7 @@ use App\Statistics\Benchmarking\Application\BenchmarkSelectionQueryBuilder;
 use App\Statistics\Benchmarking\UI\Form\BenchmarkSelectionFormDataFactory;
 use App\Statistics\UI\Http\Navigation\StatisticsQueryKeys;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 
 final class InsightCompareFilterResolverTest extends TestCase
@@ -83,7 +84,7 @@ final class InsightCompareFilterResolverTest extends TestCase
         return new InsightCompareFilterResolver(
             new ComparisonFilterInputFactory(),
             $filterFactory,
-            new BenchmarkSelectionFormDataFactory(),
+            new BenchmarkSelectionFormDataFactory(new NativeClock()),
             new BenchmarkSelectionQueryBuilder(),
         );
     }
