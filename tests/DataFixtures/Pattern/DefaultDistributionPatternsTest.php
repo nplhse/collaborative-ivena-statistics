@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\DataFixtures\Pattern;
 
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
@@ -36,11 +37,12 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         $patterns = new DefaultDistributionPatterns();
         $start = new \DateTimeImmutable('2026-01-01');
         $end = new \DateTimeImmutable('2026-03-31');
+        $random = new RandomStreams()->stream(740, 'patterns', '2026-01', RandomStreams::ALLOCATIONS);
 
         foreach (DefaultDistributionPatterns::names() as $name) {
             $urgent = 0;
             for ($i = 0; $i < 200; ++$i) {
-                $sampled = $sampler->sample($patterns->get($name), $start, $end);
+                $sampled = $sampler->sample($patterns->get($name), $start, $end, $random);
                 self::assertNotNull($sampled->indicationNormalized, $name);
                 self::assertSame($sampled->indicationNormalized->getId(), $sampled->indicationRaw->getTarget()?->getId(), 'the raw label maps to the sampled indication');
                 self::assertGreaterThan($sampled->createdAt, $sampled->arrivalAt);
@@ -67,11 +69,11 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         $sampler = $container->get(PatternSampler::class);
 
         $rows = static function (int $seed) use ($sampler): array {
-            mt_srand($seed);
+            $random = new RandomStreams()->stream($seed, 'patterns', '2026-01', RandomStreams::ALLOCATIONS);
             $pattern = new DefaultDistributionPatterns()->get('urban-full');
             $rows = [];
             for ($i = 0; $i < 50; ++$i) {
-                $sampled = $sampler->sample($pattern, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-03-31 23:59:59'));
+                $sampled = $sampler->sample($pattern, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-03-31 23:59:59'), $random);
                 $rows[] = [
                     $sampled->createdAt->format(\DateTimeInterface::ATOM),
                     $sampled->arrivalAt->format(\DateTimeInterface::ATOM),

@@ -10,6 +10,7 @@ use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
@@ -21,6 +22,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
+use Random\Randomizer;
 
 /**
  * Generates synthetic allocations for the participating demo hospitals.
@@ -28,6 +30,9 @@ use Psr\Clock\ClockInterface;
  * Every active hospital gets one import per month and a realistic number of allocations per day
  * (by size, weekday and season), sampled with the default pattern of its segment. Allocations are
  * written in batches through DBAL, so a year of realistic volume loads in minutes.
+ *
+ * Every hospital and month draws from its own random streams (ADR 022), so its rows do not depend
+ * on which other hospitals or months are generated.
  */
 final readonly class SyntheticAllocationGenerator
 {
@@ -52,6 +57,7 @@ final readonly class SyntheticAllocationGenerator
         private EntityManagerInterface $entityManager,
         private Connection $connection,
         private AllocationStatsProjectionRebuildInterface $projectionRebuilder,
+        private RandomStreams $streams,
         private ClockInterface $clock,
     ) {
     }
@@ -59,7 +65,6 @@ final readonly class SyntheticAllocationGenerator
     public function generate(): void
     {
         $volume = $this->volumeResolver->resolve();
-        mt_srand($volume->seed);
 
         [$periodStart, $periodEnd] = $this->period($volume);
         $hospitals = $this->selection->active($volume, $this->hospitals->participatingHospitals());
@@ -68,12 +73,9 @@ final readonly class SyntheticAllocationGenerator
             throw new \RuntimeException(sprintf('The demo hospital of "foo" is not among the active hospitals of profile "%s".', $volume->profile));
         }
 
-        $importIds = [];
         foreach ($this->batchPlanner->plan($volume, $hospitals, $periodStart, $periodEnd) as $batch) {
-            $importIds[] = $this->generateBatch($batch);
+            $this->generateBatch($volume, $batch);
         }
-
-        $this->generateMciCases($volume, $importIds);
 
         if ($volume->rebuildProjection) {
             $this->rebuildProjection();
@@ -81,19 +83,21 @@ final readonly class SyntheticAllocationGenerator
     }
 
     /**
-     * From the first day of the month `months` before the current one until the end of yesterday.
+     * From the first day of the month `months` before the last day's month until the end of the last
+     * day. The last day is `until`, or yesterday when no date is configured.
      *
      * @return array{\DateTimeImmutable, \DateTimeImmutable}
      */
     private function period(FixtureVolume $volume): array
     {
-        $today = $this->clock->now()->setTime(0, 0);
-        $start = $today->modify('first day of this month')->modify(sprintf('-%d months', $volume->months));
+        $lastDay = $volume->until ?? $this->clock->now()->setTime(0, 0)->modify('-1 day');
+        $lastDay = \DateTimeImmutable::createFromInterface($lastDay)->setTime(0, 0);
+        $start = $lastDay->modify('first day of this month')->modify(sprintf('-%d months', $volume->months));
 
-        return [$start, $today->modify('-1 second')];
+        return [$start, $lastDay->setTime(23, 59, 59)];
     }
 
-    private function generateBatch(ImportBatch $batch): int
+    private function generateBatch(FixtureVolume $volume, ImportBatch $batch): void
     {
         $hospital = $this->entityManager->find(Hospital::class, (int) $batch->hospital->getId());
         $owner = $hospital?->getOwner();
@@ -112,12 +116,14 @@ final readonly class SyntheticAllocationGenerator
             'import_id' => (int) $import->getId(),
         ];
 
+        $hospitalKey = $hospital->getPublicIdString();
+        $random = $this->streams->stream($volume->seed, $hospitalKey, $batch->month, RandomStreams::ALLOCATIONS);
         $rows = [];
         foreach ($batch->dailyCounts as $day => $count) {
             $dayStart = new \DateTimeImmutable($day.' 00:00:00');
             $dayEnd = new \DateTimeImmutable($day.' 23:59:59');
             for ($i = 0; $i < $count; ++$i) {
-                $rows[] = $this->row($this->patternSampler->sample($pattern, $dayStart, $dayEnd), $fixed);
+                $rows[] = $this->row($this->patternSampler->sample($pattern, $dayStart, $dayEnd, $random), $fixed);
                 if (\count($rows) >= self::INSERT_BATCH_SIZE) {
                     $this->insert($rows);
                     $rows = [];
@@ -126,10 +132,8 @@ final readonly class SyntheticAllocationGenerator
         }
         $this->insert($rows);
 
-        $importId = (int) $import->getId();
+        $this->generateMciCases($volume, $batch, $import, $hospital, $dispatchArea, $state);
         $this->entityManager->clear();
-
-        return $importId;
     }
 
     /**
@@ -196,25 +200,25 @@ final readonly class SyntheticAllocationGenerator
     }
 
     /**
-     * @param list<int> $importIds
+     * MCI cases of one hospital and month, inside the days of the batch and from their own stream.
+     *
+     * The number of cases is Poisson distributed around the yearly rate, scaled to the days of the
+     * batch, so a partial month gets proportionally fewer cases.
      */
-    private function generateMciCases(FixtureVolume $volume, array $importIds): void
+    private function generateMciCases(FixtureVolume $volume, ImportBatch $batch, Import $import, Hospital $hospital, DispatchArea $dispatchArea, State $state): void
     {
-        if ([] === $importIds || 0 === $volume->mciCases) {
+        $days = array_keys($batch->dailyCounts);
+        if ([] === $days || $volume->mciCasesPerHospitalAndYear <= 0.0) {
             return;
         }
 
-        $now = $this->clock->now();
-        for ($i = 0; $i < $volume->mciCases; ++$i) {
-            $import = $this->entityManager->find(Import::class, $importIds[mt_rand(0, \count($importIds) - 1)]);
-            $hospital = $import?->getHospital();
-            $dispatchArea = $hospital?->getDispatchArea();
-            $state = $hospital?->getState();
-            if (!$import instanceof Import || !$hospital instanceof Hospital || !$dispatchArea instanceof DispatchArea || !$state instanceof State) {
-                throw new \RuntimeException('An import of the synthetic allocations is missing its hospital, dispatch area or state.');
-            }
+        $hospitalKey = $hospital->getPublicIdString();
+        $random = $this->streams->stream($volume->seed, $hospitalKey, $batch->month, RandomStreams::MCI);
+        $count = $this->poisson($volume->mciCasesPerHospitalAndYear * (float) \count($days) / 365.0, $random);
 
-            $createdAt = $now->modify(sprintf('-%d minutes', mt_rand(60, 60 * 24 * 300)));
+        for ($i = 1; $i <= $count; ++$i) {
+            $day = (string) $days[$random->getInt(0, \count($days) - 1)];
+            $createdAt = new \DateTimeImmutable($day.' 00:00:00')->setTime($random->getInt(0, 23), $random->getInt(0, 59));
             $this->entityManager->persist(
                 new MciCase()
                     ->setHospital($hospital)
@@ -222,14 +226,33 @@ final readonly class SyntheticAllocationGenerator
                     ->setState($state)
                     ->setImport($import)
                     ->setCreatedAt($createdAt)
-                    ->setArrivalAt($createdAt->modify(sprintf('+%d minutes', mt_rand(10, 45))))
-                    ->setMciId(sprintf('mci-%d-%d', $volume->seed, $i + 1))
+                    ->setArrivalAt($createdAt->modify(sprintf('+%d minutes', $random->getInt(10, 45))))
+                    ->setMciId(sprintf('mci-%d-%s-%s-%d', $volume->seed, substr($hospitalKey, 0, 8), $batch->month, $i))
                     ->setMciTitle('Synthetic MCI case'),
             );
         }
 
         $this->entityManager->flush();
-        $this->entityManager->clear();
+    }
+
+    /**
+     * Knuth's method; fine for the small rates of MCI cases.
+     */
+    private function poisson(float $lambda, Randomizer $random): int
+    {
+        if ($lambda <= 0.0) {
+            return 0;
+        }
+
+        $limit = exp(-$lambda);
+        $count = 0;
+        $product = $random->nextFloat();
+        while ($product > $limit) {
+            ++$count;
+            $product *= $random->nextFloat();
+        }
+
+        return $count;
     }
 
     private function requireDemoHospitalOwnedBy(string $username): Hospital

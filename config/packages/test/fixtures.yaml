@@ -7,6 +7,10 @@ parameters:
     env(FIXTURES_SCALE): '1'
     fixtures.scale: '%env(float:FIXTURES_SCALE)%'
 
+    # Last day of the generated period (Y-m-d); empty means yesterday. A fixed date gives a fixed dataset.
+    env(FIXTURES_UNTIL): ''
+    fixtures.until: '%env(FIXTURES_UNTIL)%'
+
     # Active hospitals per size; "any" draws hospitals of any size with the seed.
     # The demo user foo owns one of the active hospitals, drawn with the seed.
     fixtures.profiles:
@@ -16,13 +20,14 @@ parameters:
         realistic: { Large: 3, Medium: 6, Small: 6 }
 
     fixtures.baseline:
-        # Whole months before the current one; in October 2026, 12 means 1 October 2025 until yesterday.
+        # Whole months before the month of the last day; with yesterday in October 2026, 12 means 1 October 2025 until yesterday.
         months: 1
         # Average allocations per hospital and day by hospital size (coarse, rounded from real volumes).
         allocations_per_day:
             Small: 2
             Medium: 3
             Large: 5
-        mci_cases: 3
+        # Expected MCI cases per active hospital and year (Poisson distributed per month).
+        mci_cases_per_hospital_and_year: 12
         seed: 740
         rebuild_projection: true
