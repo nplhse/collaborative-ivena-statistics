@@ -9,7 +9,7 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Repository\HospitalRepository;
 use App\Shared\Domain\Traits\Blamable;
-use App\Shared\Domain\Traits\HasPublicId;
+use App\Shared\Domain\Traits\HasRequiredPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,7 +23,7 @@ use Symfony\Component\Clock\Clock;
 class Hospital implements \Stringable
 {
     use Blamable;
-    use HasPublicId;
+    use HasRequiredPublicId;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

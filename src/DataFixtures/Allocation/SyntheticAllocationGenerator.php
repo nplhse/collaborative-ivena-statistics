@@ -4,35 +4,50 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Allocation;
 
-use App\Allocation\Domain\Entity\Allocation;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
+use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
-use App\DataFixtures\Pattern\Infrastructure\PatternYamlSerializer;
-use App\DataFixtures\Reference\ReferenceRegistry;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
+/**
+ * Generates synthetic allocations for the participating demo hospitals.
+ *
+ * Every active hospital gets one import per month and a realistic number of allocations per day
+ * (by size, weekday and season), sampled with the default pattern of its segment. Allocations are
+ * written in batches through DBAL, so a year of realistic volume loads in minutes.
+ */
 final readonly class SyntheticAllocationGenerator
 {
-    private const int FLUSH_BATCH_SIZE = 250;
+    private const int INSERT_BATCH_SIZE = 1000;
+
+    private const array COLUMNS = [
+        'created_at', 'arrival_at', 'gender', 'age', 'urgency', 'transport_type',
+        'requires_resus', 'requires_cathlab', 'is_cpr', 'is_ventilated', 'is_shock', 'is_pregnant',
+        'is_with_physician', 'is_work_accident', 'department_was_closed',
+        'hospital_id', 'dispatch_area_id', 'state_id', 'import_id',
+        'speciality_id', 'department_id', 'assignment_id', 'occasion_id', 'infection_id',
+        'secondary_transport_id', 'indication_raw_id', 'indication_normalized_id',
+    ];
 
     public function __construct(
-        private ReferenceRegistry $registry,
+        private FixtureHospitals $hospitals,
+        private FixtureHospitalSelection $selection,
         private FixtureVolumeResolver $volumeResolver,
         private ImportBatchPlanner $batchPlanner,
-        private PatternYamlSerializer $patternSerializer,
+        private DefaultDistributionPatterns $patterns,
         private PatternSampler $patternSampler,
         private EntityManagerInterface $entityManager,
         private Connection $connection,
@@ -44,204 +59,182 @@ final readonly class SyntheticAllocationGenerator
     public function generate(): void
     {
         $volume = $this->volumeResolver->resolve();
-        $pattern = $this->patternSerializer->load($volume->pattern);
+        mt_srand($volume->seed);
 
-        $segmentHospitals = $this->registry->hospitalsMatching(
-            $pattern->segment->hospitalTier,
-            $pattern->segment->hospitalLocation,
-        );
+        [$periodStart, $periodEnd] = $this->period($volume);
+        $hospitals = $this->selection->active($volume, $this->hospitals->participatingHospitals());
         $fooHospital = $this->requireDemoHospitalOwnedBy('foo');
-        $activeHospitals = $this->registry->selectActiveHospitals($volume->hospitalsActive, [$fooHospital]);
-        $hospitals = $this->intersectHospitals($activeHospitals, $segmentHospitals);
-        if ([] === $hospitals) {
-            $hospitals = array_values(array_filter(
-                $activeHospitals,
-                static fn (Hospital $hospital): bool => $hospital->isParticipating(),
-            ));
+        if (!\in_array((int) $fooHospital->getId(), array_map(static fn (Hospital $hospital): int => (int) $hospital->getId(), $hospitals), true)) {
+            throw new \RuntimeException(sprintf('The demo hospital of "foo" is not among the active hospitals of profile "%s".', $volume->profile));
         }
 
-        $hospitals = $this->ensureHospitalIncluded($hospitals, $fooHospital);
-
-        if ([] === $hospitals) {
-            throw new \RuntimeException('No participating hospitals available for synthetic allocations.');
+        $importIds = [];
+        foreach ($this->batchPlanner->plan($volume, $hospitals, $periodStart, $periodEnd) as $batch) {
+            $importIds[] = $this->generateBatch($batch);
         }
 
-        $hospitalIds = array_map(
-            static fn (Hospital $hospital): int => (int) $hospital->getId(),
-            $hospitals,
-        );
-        $batches = $this->batchPlanner->plan($volume, $hospitals);
-
-        $periodStart = new \DateTimeImmutable($volume->period);
-        $periodEnd = $this->clock->now();
-
-        foreach ($batches as $batch) {
-            $hospitalId = (int) $batch->hospital->getId();
-            $dispatchArea = $batch->hospital->getDispatchArea();
-            $state = $batch->hospital->getState();
-            if (!$dispatchArea instanceof DispatchArea || !$state instanceof State) {
-                throw new \RuntimeException(sprintf('Hospital "%s" is missing dispatch area or state for synthetic allocations.', (string) $batch->hospital->getName()));
-            }
-
-            $owner = $batch->hospital->getOwner();
-            if (!$owner instanceof User) {
-                throw new \RuntimeException(sprintf('Hospital "%s" has no owner for synthetic import.', (string) $batch->hospital->getName()));
-            }
-
-            $ownerId = (int) $owner->getId();
-            $managedHospital = $this->entityManager->find(Hospital::class, $hospitalId);
-            $managedOwner = $this->entityManager->find(User::class, $ownerId);
-            if (!$managedHospital instanceof Hospital || !$managedOwner instanceof User) {
-                throw new \RuntimeException(sprintf('Hospital or owner not found for synthetic import (hospital #%d, owner #%d).', $hospitalId, $ownerId));
-            }
-
-            $import = $this->createImport(
-                $batch->importName,
-                $managedHospital,
-                $managedOwner,
-                $batch->allocationCount,
-            );
-            $importId = (int) $import->getId();
-
-            $hospitalRef = $this->requireReference(Hospital::class, $hospitalId);
-            $dispatchAreaRef = $this->requireReference(DispatchArea::class, (int) $dispatchArea->getId());
-            $stateRef = $this->requireReference(State::class, (int) $state->getId());
-            $importRef = $this->requireReference(Import::class, $importId);
-
-            for ($i = 0; $i < $batch->allocationCount; ++$i) {
-                $sampled = $this->patternSampler->sample($pattern, $periodStart, $periodEnd);
-                $this->entityManager->persist(
-                    $this->buildAllocation($hospitalRef, $dispatchAreaRef, $stateRef, $importRef, $sampled),
-                );
-
-                if (0 === ($i + 1) % self::FLUSH_BATCH_SIZE) {
-                    $this->entityManager->flush();
-                }
-            }
-
-            $this->entityManager->flush();
-            $this->entityManager->clear();
-        }
-
-        foreach (range(1, $volume->mciCases) as $_) {
-            $hospitalId = $hospitalIds[array_rand($hospitalIds)];
-            $hospital = $this->entityManager->find(Hospital::class, $hospitalId);
-            if (!$hospital instanceof Hospital) {
-                throw new \RuntimeException(sprintf('Hospital #%d not found for MCI case fixture.', $hospitalId));
-            }
-
-            $dispatchArea = $hospital->getDispatchArea();
-            $state = $hospital->getState();
-            if (!$dispatchArea instanceof DispatchArea || !$state instanceof State) {
-                throw new \RuntimeException(sprintf('Hospital #%d is missing dispatch area or state for MCI case fixture.', $hospitalId));
-            }
-
-            $dispatchAreaId = (int) $dispatchArea->getId();
-            $stateId = (int) $state->getId();
-            $managedDispatchArea = $this->entityManager->find(DispatchArea::class, $dispatchAreaId);
-            $managedState = $this->entityManager->find(State::class, $stateId);
-            if (!$managedDispatchArea instanceof DispatchArea || !$managedState instanceof State) {
-                throw new \RuntimeException(sprintf('Hospital #%d is missing dispatch area or state for MCI case fixture.', $hospitalId));
-            }
-
-            $import = $this->entityManager->createQueryBuilder()
-                ->select('i')
-                ->from(Import::class, 'i')
-                ->where('IDENTITY(i.hospital) = :hospitalId')
-                ->setParameter('hospitalId', $hospital->getId(), Types::INTEGER)
-                ->setMaxResults(1)
-                ->getQuery()
-                ->getOneOrNullResult();
-            if (!$import instanceof Import) {
-                throw new \RuntimeException(sprintf('Hospital #%d has no import for MCI case fixture.', $hospitalId));
-            }
-
-            $managedImport = $this->entityManager->find(Import::class, (int) $import->getId());
-            if (!$managedImport instanceof Import) {
-                throw new \RuntimeException(sprintf('Import for hospital #%d not found for MCI case fixture.', $hospitalId));
-            }
-
-            $this->entityManager->persist(
-                new MciCase()
-                    ->setHospital($hospital)
-                    ->setDispatchArea($managedDispatchArea)
-                    ->setState($managedState)
-                    ->setImport($managedImport)
-                    ->setCreatedAt($this->clock->now()->modify('-30 days'))
-                    ->setArrivalAt($this->clock->now()->modify('-29 days'))
-                    ->setMciId(uniqid('mci-', true))
-                    ->setMciTitle('Synthetic MCI case'),
-            );
-        }
-
-        $this->entityManager->flush();
+        $this->generateMciCases($volume, $importIds);
 
         if ($volume->rebuildProjection) {
             $this->rebuildProjection();
         }
     }
 
-    private function buildAllocation(
-        Hospital $hospital,
-        DispatchArea $dispatchArea,
-        State $state,
-        Import $import,
-        SampledAllocationAttributes $sampled,
-    ): Allocation {
-        return new Allocation()
-            ->setHospital($hospital)
-            ->setDispatchArea($dispatchArea)
-            ->setState($state)
-            ->setImport($import)
-            ->setCreatedAt($sampled->createdAt)
-            ->setArrivalAt($sampled->arrivalAt)
-            ->setGender($sampled->gender)
-            ->setAge($sampled->age)
-            ->setIsCPR($sampled->isCpr)
-            ->setIsPregnant($sampled->isPregnant)
-            ->setIsShock($sampled->isShock)
-            ->setIsVentilated($sampled->isVentilated)
-            ->setIsWithPhysician($sampled->isWithPhysician)
-            ->setIsWorkAccident($sampled->isWorkAccident)
-            ->setRequiresCathlab($sampled->requiresCathlab)
-            ->setRequiresResus($sampled->requiresResus)
-            ->setTransportType($sampled->transportType)
-            ->setUrgency($sampled->urgency)
-            ->setSpeciality($sampled->speciality)
-            ->setDepartment($sampled->department)
-            ->setDepartmentWasClosed($sampled->departmentWasClosed)
-            ->setAssignment($sampled->assignment)
-            ->setOccasion($sampled->occasion)
-            ->setInfection($sampled->infection)
-            ->setSecondaryTransport($sampled->secondaryTransport)
-            ->setIndicationRaw($sampled->indicationRaw)
-            ->setIndicationNormalized($sampled->indicationNormalized);
+    /**
+     * From the first day of the month `months` before the current one until the end of yesterday.
+     *
+     * @return array{\DateTimeImmutable, \DateTimeImmutable}
+     */
+    private function period(FixtureVolume $volume): array
+    {
+        $today = $this->clock->now()->setTime(0, 0);
+        $start = $today->modify('first day of this month')->modify(sprintf('-%d months', $volume->months));
+
+        return [$start, $today->modify('-1 second')];
+    }
+
+    private function generateBatch(ImportBatch $batch): int
+    {
+        $hospital = $this->entityManager->find(Hospital::class, (int) $batch->hospital->getId());
+        $owner = $hospital?->getOwner();
+        $dispatchArea = $hospital?->getDispatchArea();
+        $state = $hospital?->getState();
+        if (!$hospital instanceof Hospital || !$owner instanceof User || !$dispatchArea instanceof DispatchArea || !$state instanceof State) {
+            throw new \RuntimeException(sprintf('Hospital "%s" needs an owner, a dispatch area and a state for synthetic allocations.', (string) $batch->hospital->getName()));
+        }
+
+        $import = $this->createImport($batch->importName, $hospital, $owner, $batch->allocationCount());
+        $pattern = $this->patterns->forHospital($hospital);
+        $fixed = [
+            'hospital_id' => (int) $hospital->getId(),
+            'dispatch_area_id' => (int) $dispatchArea->getId(),
+            'state_id' => (int) $state->getId(),
+            'import_id' => (int) $import->getId(),
+        ];
+
+        $rows = [];
+        foreach ($batch->dailyCounts as $day => $count) {
+            $dayStart = new \DateTimeImmutable($day.' 00:00:00');
+            $dayEnd = new \DateTimeImmutable($day.' 23:59:59');
+            for ($i = 0; $i < $count; ++$i) {
+                $rows[] = $this->row($this->patternSampler->sample($pattern, $dayStart, $dayEnd), $fixed);
+                if (\count($rows) >= self::INSERT_BATCH_SIZE) {
+                    $this->insert($rows);
+                    $rows = [];
+                }
+            }
+        }
+        $this->insert($rows);
+
+        $importId = (int) $import->getId();
+        $this->entityManager->clear();
+
+        return $importId;
     }
 
     /**
-     * @return list<Hospital>
-     */
-    /**
-     * @param list<Hospital> $hospitals
+     * @param array<string, int> $fixed
      *
-     * @return list<Hospital>
+     * @return list<bool|int|string|null>
      */
-    private function ensureHospitalIncluded(array $hospitals, Hospital $required): array
+    private function row(SampledAllocationAttributes $sampled, array $fixed): array
     {
-        foreach ($hospitals as $hospital) {
-            if ((int) $hospital->getId() === (int) $required->getId()) {
-                return $hospitals;
+        $values = [
+            'created_at' => $sampled->createdAt->format('Y-m-d H:i:s'),
+            'arrival_at' => $sampled->arrivalAt->format('Y-m-d H:i:s'),
+            'gender' => $sampled->gender->value,
+            'age' => $sampled->age,
+            'urgency' => $sampled->urgency->value,
+            'transport_type' => $sampled->transportType?->value,
+            'requires_resus' => $sampled->requiresResus,
+            'requires_cathlab' => $sampled->requiresCathlab,
+            'is_cpr' => $sampled->isCpr,
+            'is_ventilated' => $sampled->isVentilated,
+            'is_shock' => $sampled->isShock,
+            'is_pregnant' => $sampled->isPregnant,
+            'is_with_physician' => $sampled->isWithPhysician,
+            'is_work_accident' => $sampled->isWorkAccident,
+            'department_was_closed' => $sampled->departmentWasClosed,
+            'speciality_id' => $sampled->speciality->getId(),
+            'department_id' => $sampled->department->getId(),
+            'assignment_id' => $sampled->assignment->getId(),
+            'occasion_id' => $sampled->occasion->getId(),
+            'infection_id' => $sampled->infection?->getId(),
+            'secondary_transport_id' => $sampled->secondaryTransport?->getId(),
+            'indication_raw_id' => $sampled->indicationRaw->getId(),
+            'indication_normalized_id' => $sampled->indicationNormalized?->getId(),
+        ] + $fixed;
+
+        return array_map(static fn (string $column): bool|int|string|null => $values[$column], self::COLUMNS);
+    }
+
+    /**
+     * @param list<list<bool|int|string|null>> $rows
+     */
+    private function insert(array $rows): void
+    {
+        if ([] === $rows) {
+            return;
+        }
+
+        $placeholders = '(nextval(\'allocation_id_seq\'), gen_random_uuid()::text, '.implode(', ', array_fill(0, \count(self::COLUMNS), '?')).')';
+        $parameters = [];
+        foreach ($rows as $row) {
+            foreach ($row as $value) {
+                $parameters[] = \is_bool($value) ? ($value ? 'true' : 'false') : $value;
             }
         }
 
-        array_unshift($hospitals, $required);
+        $this->connection->executeStatement(
+            sprintf(
+                'INSERT INTO allocation (id, public_id, %s) VALUES %s',
+                implode(', ', self::COLUMNS),
+                implode(', ', array_fill(0, \count($rows), $placeholders)),
+            ),
+            $parameters,
+        );
+    }
 
-        return $hospitals;
+    /**
+     * @param list<int> $importIds
+     */
+    private function generateMciCases(FixtureVolume $volume, array $importIds): void
+    {
+        if ([] === $importIds || 0 === $volume->mciCases) {
+            return;
+        }
+
+        $now = $this->clock->now();
+        for ($i = 0; $i < $volume->mciCases; ++$i) {
+            $import = $this->entityManager->find(Import::class, $importIds[mt_rand(0, \count($importIds) - 1)]);
+            $hospital = $import?->getHospital();
+            $dispatchArea = $hospital?->getDispatchArea();
+            $state = $hospital?->getState();
+            if (!$import instanceof Import || !$hospital instanceof Hospital || !$dispatchArea instanceof DispatchArea || !$state instanceof State) {
+                throw new \RuntimeException('An import of the synthetic allocations is missing its hospital, dispatch area or state.');
+            }
+
+            $createdAt = $now->modify(sprintf('-%d minutes', mt_rand(60, 60 * 24 * 300)));
+            $this->entityManager->persist(
+                new MciCase()
+                    ->setHospital($hospital)
+                    ->setDispatchArea($dispatchArea)
+                    ->setState($state)
+                    ->setImport($import)
+                    ->setCreatedAt($createdAt)
+                    ->setArrivalAt($createdAt->modify(sprintf('+%d minutes', mt_rand(10, 45))))
+                    ->setMciId(sprintf('mci-%d-%d', $volume->seed, $i + 1))
+                    ->setMciTitle('Synthetic MCI case'),
+            );
+        }
+
+        $this->entityManager->flush();
+        $this->entityManager->clear();
     }
 
     private function requireDemoHospitalOwnedBy(string $username): Hospital
     {
-        $hospital = $this->registry->findHospitalOwnedByUsername($username);
+        $hospital = $this->hospitals->findHospitalOwnedByUsername($username);
         if (!$hospital instanceof Hospital) {
             throw new \RuntimeException(sprintf('Demo user "%s" must own a participating hospital.', $username));
         }
@@ -252,28 +245,8 @@ final readonly class SyntheticAllocationGenerator
         return $hospital;
     }
 
-    /**
-     * @param list<Hospital> $activeHospitals
-     * @param list<Hospital> $segmentHospitals
-     *
-     * @return list<Hospital>
-     */
-    private function intersectHospitals(array $activeHospitals, array $segmentHospitals): array
+    private function createImport(string $name, Hospital $hospital, User $createdBy, int $rowCount): Import
     {
-        $segmentIds = array_flip(array_map(static fn (Hospital $hospital): int => (int) $hospital->getId(), $segmentHospitals));
-
-        return array_values(array_filter(
-            $activeHospitals,
-            static fn (Hospital $hospital): bool => isset($segmentIds[(int) $hospital->getId()]),
-        ));
-    }
-
-    private function createImport(
-        string $name,
-        Hospital $hospital,
-        User $createdBy,
-        int $rowCount,
-    ): Import {
         $import = new Import()
             ->setName($name)
             ->setHospital($hospital)
@@ -301,29 +274,10 @@ final readonly class SyntheticAllocationGenerator
         $this->connection->executeStatement('TRUNCATE allocation_stats_projection RESTART IDENTITY');
 
         /** @var list<int|string> $rows */
-        $rows = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT import_id FROM allocation ORDER BY import_id ASC',
-        );
+        $rows = $this->connection->fetchFirstColumn('SELECT DISTINCT import_id FROM allocation ORDER BY import_id ASC');
 
         foreach ($rows as $importId) {
             $this->projectionRebuilder->rebuildForImport((int) $importId);
         }
-    }
-
-    /**
-     * @template T of object
-     *
-     * @param class-string<T> $class
-     *
-     * @return T
-     */
-    private function requireReference(string $class, int $id): object
-    {
-        $reference = $this->entityManager->getReference($class, $id);
-        if (!$reference instanceof $class) {
-            throw new \RuntimeException(sprintf('Missing entity reference %s#%d.', $class, $id));
-        }
-
-        return $reference;
     }
 }

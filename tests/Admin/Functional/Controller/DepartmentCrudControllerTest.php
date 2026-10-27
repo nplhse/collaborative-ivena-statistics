@@ -26,13 +26,13 @@ final class DepartmentCrudControllerTest extends WebTestCase
             ->create(['username' => 'department-admin-'.bin2hex(random_bytes(4))]);
         $department = DepartmentFactory::createOne(['name' => 'Allgemeine Innere Medizin', 'createdBy' => $admin]);
         $em = self::getContainer()->get(EntityManagerInterface::class);
-        $em->persist(new DepartmentAlias($department, 'Allgemein Innere Medizin', 'faulty_catalog', 'local-catalog'));
+        $em->persist(new DepartmentAlias($department, 'Allgem. Innere Medizin', 'faulty_catalog', 'local-catalog'));
         $em->flush();
 
         $client->loginUser($admin);
         $client->request(Request::METHOD_GET, '/admin/department/'.$department->getId());
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Allgemein Innere Medizin (faulty_catalog, local-catalog)');
+        self::assertSelectorTextContains('body', 'Allgem. Innere Medizin (faulty_catalog, local-catalog)');
     }
 }

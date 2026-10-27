@@ -45,11 +45,14 @@ add('shared_files', [
 ]);
 add('shared_dirs', [
     'var/imports',
+    // Reference catalog packages (ADR 020): an export must survive the next deploy.
+    'var/reference',
     'var/geo/hospital-isochrones',
     'public/uploads/media',
 ]);
 add('writable_dirs', [
     'var/imports',
+    'var/reference',
     'var/geo/hospital-isochrones',
     'public/uploads/media',
 ]);

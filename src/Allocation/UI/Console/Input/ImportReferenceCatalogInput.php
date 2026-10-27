@@ -9,21 +9,15 @@ use Symfony\Component\Console\Attribute\Option;
 
 final class ImportReferenceCatalogInput
 {
-    #[Option(description: 'Path to a single catalog YAML file')]
-    public string $source = 'fixtures/reference/catalog.yaml';
+    #[Option(description: 'Path to the reference catalog package (JSON)')]
+    public string $source = 'var/reference/catalog.json';
 
-    #[Option(description: 'add: insert missing rows only. replace: purge catalog tables then load')]
+    #[Option(description: 'add: insert missing rows, never change existing ones. replace: restore the whole catalog from a complete package')]
     public ReferenceCatalogImportMode $mode = ReferenceCatalogImportMode::Add;
 
-    #[Option(description: 'Comma-separated catalog types to import')]
-    public ?string $types = null;
-
-    #[Option(description: 'Report planned changes without writing', name: 'dry-run')]
+    #[Option(description: 'Show what the import would do without writing', name: 'dry-run')]
     public bool $dryRun = false;
 
-    #[Option(description: 'Username or email for createdBy on new rows')]
+    #[Option(description: 'Username or email recorded as creator of the new rows')]
     public string $user = 'admin';
-
-    #[Option(description: 'Update existing indication groups (category and membership)')]
-    public bool $update = false;
 }

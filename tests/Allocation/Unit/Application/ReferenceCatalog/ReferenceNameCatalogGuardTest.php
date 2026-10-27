@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Unit\Application\ReferenceCatalog;
 
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogAliasConflictException;
-use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogReader;
 use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogRenameConflictException;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameAliasSpec;
 use App\Allocation\Application\ReferenceCatalog\ReferenceNameCatalogGuard;
@@ -14,28 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 final class ReferenceNameCatalogGuardTest extends TestCase
 {
-    public function testCommittedCatalogHasNoAliasCollisions(): void
-    {
-        $document = new ReferenceCatalogReader(\dirname(__DIR__, 5))->loadDefault();
-        $guard = new ReferenceNameCatalogGuard();
-
-        $guard->assertNoConflicts($document->departments);
-        $guard->assertNoConflicts($document->specialities);
-
-        $birthAliases = [];
-        foreach ($document->departments as $entry) {
-            if ('Geburtshilfe' === $entry->name) {
-                $birthAliases = array_map(static fn (ReferenceNameAliasSpec $alias): string => $alias->name, $entry->aliases);
-            }
-        }
-        self::assertSame([
-            'Perinatalzentrum Level 1',
-            'Perinatalzentrum Level 2',
-            'Perinataler Schwerpunkt',
-            'Geburtsklinik',
-        ], $birthAliases);
-    }
-
     public function testIsolationAliasCannotPointAtBaseDepartment(): void
     {
         $guard = new ReferenceNameCatalogGuard();
@@ -64,13 +41,13 @@ final class ReferenceNameCatalogGuardTest extends TestCase
     {
         $entry = ReferenceNameEntry::fromYaml([
             'name' => 'Allgemeine Innere Medizin',
-            'previous_names' => ['Allgemein Innere Medizin', ''],
+            'previous_names' => ['Allgem. Innere Medizin', ''],
             'aliases' => [[
                 'name' => '   ',
                 'classification' => 'historical',
                 'source' => 'local-catalog',
             ], [
-                'name' => 'Allgemein Innere Medizin',
+                'name' => 'Allgem. Innere Medizin',
                 'classification' => 'faulty_catalog',
                 'source' => 'local-catalog',
                 'note' => 'catalog typo',
@@ -81,7 +58,7 @@ final class ReferenceNameCatalogGuardTest extends TestCase
 
         self::assertInstanceOf(ReferenceNameEntry::class, $entry);
         self::assertSame('Allgemeine Innere Medizin', $entry->name);
-        self::assertSame(['Allgemein Innere Medizin'], $entry->previousNames);
+        self::assertSame(['Allgem. Innere Medizin'], $entry->previousNames);
         self::assertCount(1, $entry->aliases);
         self::assertSame('faulty_catalog', $entry->aliases[0]->classification);
         self::assertSame('catalog typo', $entry->aliases[0]->note);
@@ -89,9 +66,9 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         self::assertNull($entry->aliases[0]->validTo);
         self::assertSame([
             'name' => 'Allgemeine Innere Medizin',
-            'previous_names' => ['Allgemein Innere Medizin'],
+            'previous_names' => ['Allgem. Innere Medizin'],
             'aliases' => [[
-                'name' => 'Allgemein Innere Medizin',
+                'name' => 'Allgem. Innere Medizin',
                 'classification' => 'faulty_catalog',
                 'source' => 'local-catalog',
                 'note' => 'catalog typo',
@@ -114,7 +91,7 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         ReferenceNameEntry::fromYaml([
             'name' => 'Geburtshilfe',
             'aliases' => [[
-                'name' => 'Geburtsklinik',
+                'name' => 'Geburtsabteilung',
                 'classification' => 'guess',
                 'source' => 'local-catalog',
             ]],
@@ -127,7 +104,7 @@ final class ReferenceNameCatalogGuardTest extends TestCase
         ReferenceNameEntry::fromYaml([
             'name' => 'Geburtshilfe',
             'aliases' => [[
-                'name' => 'Geburtsklinik',
+                'name' => 'Geburtsabteilung',
                 'classification' => 'historical',
             ]],
         ]);
@@ -203,8 +180,8 @@ final class ReferenceNameCatalogGuardTest extends TestCase
 
         $this->expectException(ReferenceCatalogRenameConflictException::class);
         $guard->assertNoConflicts([
-            new ReferenceNameEntry('Allgemein Innere Medizin'),
-            new ReferenceNameEntry('Allgemeine Innere Medizin', ['Allgemein Innere Medizin']),
+            new ReferenceNameEntry('Allgem. Innere Medizin'),
+            new ReferenceNameEntry('Allgemeine Innere Medizin', ['Allgem. Innere Medizin']),
         ]);
     }
 }

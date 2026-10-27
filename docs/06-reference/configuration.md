@@ -33,7 +33,8 @@
 | `SENTRY_CSP_REPORT_URI` | Sentry CSP report endpoint | optional; prod only; adds `report-uri` when set (see [content-security-policy.md](../05-operations/content-security-policy.md)) |
 | `ANALYTICS_RAW_RETENTION_DAYS` | Days of detailed usage-analytics rows to keep | default `30`; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md) |
 | `OPENROUTESERVICE_API_KEY` | OpenRouteService key for `app:geo:geocode-hospitals` and `app:geo:fetch-isochrones` | optional; empty skips both commands. Maps read stored GeoJSON only. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
-| `FIXTURES_SCALE` | Dev fixture volume multiplier | `1`–`10`; see [../03-development/fixtures.md](../03-development/fixtures.md) |
+| `FIXTURES_PROFILE` | Which hospitals get synthetic allocations | `single`, `minimal`, `medium`, `realistic` (default); see [../03-development/fixtures.md](../03-development/fixtures.md) |
+| `FIXTURES_SCALE` | Factor on the synthetic allocations per day | `0.01`–`10`, default `1` (close to real volumes); see [../03-development/fixtures.md](../03-development/fixtures.md) |
 | `STORAGE_BUDGET_BYTES` | Storage budget in bytes, the default capacity reference | empty or `0` = no budget (level `unknown`); falls back to the former `APP_ADMIN_STORAGE_LIMIT_BYTES`. See [Storage monitoring](#storage-monitoring) |
 | `STORAGE_CAPACITY_SOURCE` | Capacity reference: `budget` or `filesystem` | default `budget`; `filesystem` only on a dedicated server or VPS |
 

@@ -61,9 +61,10 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:reference:import` | Load `fixtures/reference/catalog.yaml` (or `--source=`) into the database. Default `--mode=add` inserts missing rows only. For departments and specialities it also renames a row when `previous_names` matches an existing name and writes aliases. `--mode=replace` purges catalog tables and reloads; aborts when allocations, MCI cases, or imports exist. Dispatch areas without `state` are skipped. See [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md). |
-| `app:reference:export` | Write the current DB catalog into one YAML file (`--output=`, optional `--types=`). |
-| `app:reference:propose-from-rejects` | Read-only on rejects: write a catalog stub directory (`catalog.yaml`, `report.md`, requeue ID list). Fill area `state` before import. |
+| `app:reference:import` | Import a JSON reference catalog package (`--source=`, default `var/reference/catalog.json`). `--mode=add` (default) validates it, matches rows by id then natural key, creates missing rows with the package ids and never changes existing ones; one conflict stops it before any write. `--mode=replace` restores the whole catalog from a complete package in one transaction; it refuses while operational data, permissions, projections or saved views refer to the catalog, while queues hold messages, or while another restore or reset runs. `--dry-run` prints the plan; `--user=` sets `createdBy`. Clears the reference data cache. See [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md). |
+| `app:reference:export` | Write the current DB catalog into one JSON package (`--output=`, default `var/reference/catalog-<timestamp>.json`; optional `--types=`, `--notes=`). Rows carry their public ids and refer to each other by id. The package is checked like `app:reference:validate` before it is written; nothing is written when the data has problems. See [ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md). |
+| `app:reference:validate` | Check a JSON reference catalog package (`--source=`, default `var/reference/catalog.json`) without importing it: format and version, types, field rules, ids, references, counts and checksum. Lists every problem with its path in the file. See [ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md). |
+| `app:reference:propose-from-rejects` | Read-only on rejects: write a report directory (`report.md`, requeue ID list) with catalog values that rejects miss. Add them through the admin pages, then requeue. |
 
 ### Allocation
 
@@ -142,9 +143,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:reference:load-indication-groups` | Load indication groups from `fixtures/reference/catalog.yaml` without purging the database. Prefer `app:reference:import --types=indication-group` in production. |
-| `app:fixtures:export-patterns` | Export distribution patterns from projection data. |
-| `app:fixtures:validate-patterns` | Validate committed pattern YAML files. |
+| `app:dev:reset-operational-data` | Delete everything that blocks a catalog restore: allocations, MCI cases, imports and rejects, closures, projections, KPIs, reminder dispatches, access grants, hospital owners, hospital job runs and notifications, saved user views. Users and the reference catalog stay. One transaction, then materialized views are refreshed. Refuses outside `dev`/`test`, while queues hold messages, or while a restore runs (shared lock). `--dry-run` lists the rows; asks before deleting unless `--force`. See [ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md). |
 | `app:fixtures:generate-csv` | Generate CSV encoding test fixtures. |
 
 For full fixture loading, use `doctrine:fixtures:load` with groups — see [../03-development/fixtures.md](../03-development/fixtures.md).

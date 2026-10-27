@@ -32,8 +32,8 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
                 yield $this->row(1, 'REF_NOT_FOUND | field=dispatchArea | value="_Kommunale Regionalleitstelle Göttingen"', [
                     'zuweisung_durch' => '_Kommunale Regionalleitstelle Göttingen',
                 ]);
-                yield $this->row(1, 'REF_NOT_FOUND | field=department | value="Perinatalzentrum Level 2"', [
-                    'fachbereich' => 'Perinatalzentrum Level 2',
+                yield $this->row(1, 'REF_NOT_FOUND | field=department | value="Geburtszentrum B"', [
+                    'fachbereich' => 'Geburtszentrum B',
                 ]);
                 yield $this->row(2, 'REF_NOT_FOUND | field=speciality | value="ECMO-Therapie"', [
                     'fachgebiet' => 'ECMO-Therapie',
@@ -108,7 +108,7 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         $departmentRepo = $this->createStub(EntityRepository::class);
         $departmentRepo->method('findBy')->willReturn([$geburtshilfe]);
         $alias = $this->createStub(DepartmentAlias::class);
-        $alias->method('getNormalizedName')->willReturn('perinatalzentrum level 2');
+        $alias->method('getNormalizedName')->willReturn('geburtszentrum b');
         $aliasRepo = $this->createStub(EntityRepository::class);
         $aliasRepo->method('findBy')->willReturn([$alias, new \stdClass()]);
         $dispatchRepo = $this->createStub(EntityRepository::class);
@@ -137,23 +137,40 @@ final class ReferenceCatalogFromRejectsProposerTest extends TestCase
         );
 
         $all = $proposer->propose(minCount: 1);
-        self::assertSame(['Göttingen'], array_column($all->document->dispatchAreas, 'name'));
-        self::assertContains('aus Klinik', $all->document->occasions);
-        self::assertNotContains('Häuslicher Einsatz', $all->document->occasions);
-        self::assertNotContains('Öffentlicher Raum', $all->document->occasions);
-        self::assertNotContains("H\u{0084}uslicher Einsatz", $all->document->occasions);
-        self::assertContains('ECMO-Therapie', $all->document->names('specialities'));
-        self::assertContains('NAW', $all->document->assignments);
-        self::assertContains('MRSA', $all->document->infections);
-        self::assertContains('Verlegung KH', $all->document->secondaryTransports);
-        self::assertSame([], $all->document->departments);
-        self::assertNotContains('Anlass Ã¤', $all->document->occasions);
+        $values = $this->valuesByType($all->entries);
+        self::assertSame(['Göttingen'], $values['dispatch-area'] ?? []);
+        self::assertContains('aus Klinik', $values['occasion'] ?? []);
+        self::assertNotContains('Häuslicher Einsatz', $values['occasion'] ?? []);
+        self::assertNotContains('Öffentlicher Raum', $values['occasion'] ?? []);
+        self::assertNotContains("H\u{0084}uslicher Einsatz", $values['occasion'] ?? []);
+        self::assertContains('ECMO-Therapie', $values['speciality'] ?? []);
+        self::assertContains('NAW', $values['assignment'] ?? []);
+        self::assertContains('MRSA', $values['infection'] ?? []);
+        self::assertContains('Verlegung KH', $values['secondary-transport'] ?? []);
+        self::assertArrayNotHasKey('department', $values);
+        self::assertNotContains('Anlass Ã¤', $values['occasion'] ?? []);
         self::assertSame([1, 2], $all->importIds);
         self::assertGreaterThan(0, $all->droppedAsJunk);
         self::assertGreaterThan(0, $all->droppedAsKnown);
 
         $filtered = $proposer->propose(minCount: 2);
-        self::assertSame([], $filtered->document->names('specialities'));
-        self::assertContains('Göttingen', array_column($filtered->document->dispatchAreas, 'name'));
+        $filteredValues = $this->valuesByType($filtered->entries);
+        self::assertArrayNotHasKey('speciality', $filteredValues);
+        self::assertContains('Göttingen', $filteredValues['dispatch-area'] ?? []);
+    }
+
+    /**
+     * @param list<array{type: string, value: string, count: int, exampleFile: string}> $entries
+     *
+     * @return array<string, list<string>>
+     */
+    private function valuesByType(array $entries): array
+    {
+        $values = [];
+        foreach ($entries as $entry) {
+            $values[$entry['type']][] = $entry['value'];
+        }
+
+        return $values;
     }
 }

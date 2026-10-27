@@ -17,7 +17,7 @@ final class ReferenceNameAliasTest extends TestCase
         $department = new Department()->setName('Geburtshilfe');
         $alias = new DepartmentAlias(
             $department,
-            '  Geburtsklinik  ',
+            '  Geburtsabteilung  ',
             'historical',
             'local-catalog',
             null,
@@ -27,8 +27,8 @@ final class ReferenceNameAliasTest extends TestCase
 
         self::assertNull($alias->getId());
         self::assertSame($department, $alias->getDepartment());
-        self::assertSame('  Geburtsklinik  ', $alias->getName());
-        self::assertSame('geburtsklinik', $alias->getNormalizedName());
+        self::assertSame('  Geburtsabteilung  ', $alias->getName());
+        self::assertSame('geburtsabteilung', $alias->getNormalizedName());
         self::assertNull($alias->getValidFrom());
         self::assertNull($alias->getValidTo());
         self::assertNull($alias->getNote());
@@ -54,7 +54,7 @@ final class ReferenceNameAliasTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new DepartmentAlias(new Department(), 'Geburtsklinik', 'historical', 'local-catalog', null, 'yesterday', null);
+        new DepartmentAlias(new Department(), 'Geburtsabteilung', 'historical', 'local-catalog', null, 'yesterday', null);
     }
 
     public function testSpecialityAliasStoresMetadataAndIgnoresASecondAdd(): void

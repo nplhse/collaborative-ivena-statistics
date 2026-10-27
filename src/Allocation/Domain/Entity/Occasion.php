@@ -6,7 +6,7 @@ namespace App\Allocation\Domain\Entity;
 
 use App\Allocation\Infrastructure\Repository\OccasionRepository;
 use App\Shared\Domain\Traits\Blamable;
-use App\Shared\Domain\Traits\HasPublicId;
+use App\Shared\Domain\Traits\HasRequiredPublicId;
 use App\Shared\Infrastructure\Audit\Attribute as Audit;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +18,7 @@ use Symfony\Component\Clock\Clock;
 class Occasion implements \Stringable
 {
     use Blamable;
-    use HasPublicId;
+    use HasRequiredPublicId;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

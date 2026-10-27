@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\DataFixtures\Reference;
 
+use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogPackageWriter;
+use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
+use App\DataFixtures\Reference\SyntheticReferenceCatalogBuilder;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -18,7 +21,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 final class ReferenceFixtureLoadTest extends KernelTestCase
 {
     #[Test]
-    public function referenceGroupLoadsExpectedEntityCounts(): void
+    public function referenceGroupLoadsTheSyntheticCatalog(): void
     {
         self::bootKernel();
 
@@ -41,19 +44,19 @@ final class ReferenceFixtureLoadTest extends KernelTestCase
 
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
+        /** @var ReferenceCatalogPackageWriter $writer */
+        $writer = $container->get(ReferenceCatalogPackageWriter::class);
+        $package = new SyntheticReferenceCatalogBuilder($writer)->build();
 
-        self::assertSame(29, (int) $connection->fetchOne('SELECT COUNT(*) FROM dispatch_area'));
-        self::assertSame(77, (int) $connection->fetchOne('SELECT COUNT(*) FROM hospital'));
-        self::assertSame(137, (int) $connection->fetchOne('SELECT COUNT(*) FROM department'));
-        self::assertSame(8, (int) $connection->fetchOne('SELECT COUNT(*) FROM department_alias'));
-        self::assertSame(29, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality'));
-        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM speciality_alias'));
-        self::assertSame(7, (int) $connection->fetchOne('SELECT COUNT(*) FROM assignment'));
-        self::assertSame(31, (int) $connection->fetchOne('SELECT COUNT(*) FROM occasion'));
-        self::assertSame(19, (int) $connection->fetchOne('SELECT COUNT(*) FROM infection'));
-        self::assertSame(8, (int) $connection->fetchOne('SELECT COUNT(*) FROM secondary_transport'));
-        self::assertSame(210, (int) $connection->fetchOne('SELECT COUNT(*) FROM indication_normalized'));
-        self::assertGreaterThanOrEqual(210, (int) $connection->fetchOne('SELECT COUNT(*) FROM indication_raw'));
+        foreach (ReferenceCatalogType::importOrder() as $type) {
+            $table = $entityManager->getClassMetadata($type->entityClass())->getTableName();
+            self::assertSame($package->meta->counts[$type->value], (int) $connection->fetchOne(sprintf('SELECT COUNT(*) FROM %s', $table)), $type->value);
+        }
+
+        self::assertSame(24, (int) $connection->fetchOne('SELECT COUNT(*) FROM dispatch_area'));
+        self::assertSame(208, (int) $connection->fetchOne('SELECT COUNT(*) FROM indication_normalized'));
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM hospital WHERE latitude IS NULL OR is_participating = true OR owner_id IS NOT NULL'));
+        self::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM department_alias'));
 
         $unlinked = (int) $connection->fetchOne(
             'SELECT COUNT(*) FROM indication_normalized n

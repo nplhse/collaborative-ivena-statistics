@@ -32,4 +32,11 @@ interface MedicalSpecialityFakerMethods
      * @return array<string>
      */
     public function medicalDepartmentWithSpecialty(): array;
+
+    /**
+     * A generated alias (abbreviation or typo) of a department or speciality name.
+     *
+     * @return array{name: string, classification: 'unambiguous_alias'|'faulty_catalog'}
+     */
+    public function departmentAlias(string $name): array;
 }

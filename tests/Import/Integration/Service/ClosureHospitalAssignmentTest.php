@@ -41,10 +41,10 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
     public function testDifferentShortNameUsesTheSelectedHospital(): void
     {
         $owner = $this->betaOwner();
-        $marburg = $this->hospitalOwnedBy($owner, 'Universitätsklinikum Gießen und Marburg, Standort Marburg');
-        $kassel = $this->hospitalOwnedBy($this->betaOwner(), 'Klinikum Kassel');
+        $marburg = $this->hospitalOwnedBy($owner, 'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt');
+        $kassel = $this->hospitalOwnedBy($this->betaOwner(), 'Klinikum Weststadt');
         $id = $this->storeImport($owner, $marburg, [
-            $this->row('Universitätsklinikum Marburg'),
+            $this->row('Universitätsklinikum Südstadt'),
         ]);
 
         $this->handler->__invoke(new ImportClosuresMessage($id));
@@ -61,7 +61,7 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
         self::assertSame($marburg->getId(), $intervals[0]->getHospital()?->getId());
         self::assertSame([], $this->em->getRepository(ClosureInterval::class)->findBy(['hospital' => $kassel->getId()]));
         self::assertSame(
-            'Universitätsklinikum Gießen und Marburg, Standort Marburg',
+            'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt',
             $this->em->find(Hospital::class, $marburg->getId())?->getName(),
         );
     }
@@ -69,10 +69,10 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
     public function testShortNameOfAnotherHospitalRejectsWithoutChangingTheCatalog(): void
     {
         $owner = $this->betaOwner();
-        $marburg = $this->hospitalOwnedBy($owner, 'Universitätsklinikum Gießen und Marburg, Standort Marburg');
-        $this->hospitalOwnedBy($this->betaOwner(), 'Klinikum Kassel');
+        $marburg = $this->hospitalOwnedBy($owner, 'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt');
+        $this->hospitalOwnedBy($this->betaOwner(), 'Klinikum Weststadt');
         $id = $this->storeImport($owner, $marburg, [
-            $this->row('Klinikum Kassel'),
+            $this->row('Klinikum Weststadt'),
         ]);
 
         $this->handler->__invoke(new ImportClosuresMessage($id));
@@ -86,7 +86,7 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
         self::assertSame(1, $import->getRowsRejected());
         self::assertSame([], $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
         self::assertSame(
-            'Universitätsklinikum Gießen und Marburg, Standort Marburg',
+            'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt',
             $this->em->find(Hospital::class, $marburg->getId())?->getName(),
         );
 
@@ -98,11 +98,11 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
     public function testSeveralShortNamesAreNotAssignedWhenNoneMatchTheSelectedName(): void
     {
         $owner = $this->betaOwner();
-        $marburg = $this->hospitalOwnedBy($owner, 'Universitätsklinikum Gießen und Marburg, Standort Marburg');
-        $this->hospitalOwnedBy($this->betaOwner(), 'Klinikum Kassel');
+        $marburg = $this->hospitalOwnedBy($owner, 'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt');
+        $this->hospitalOwnedBy($this->betaOwner(), 'Klinikum Weststadt');
         $id = $this->storeImport($owner, $marburg, [
-            $this->row('Universitätsklinikum Marburg'),
-            $this->row('Klinikum Kassel'),
+            $this->row('Universitätsklinikum Südstadt'),
+            $this->row('Klinikum Weststadt'),
         ]);
 
         $this->handler->__invoke(new ImportClosuresMessage($id));
@@ -116,7 +116,7 @@ final class ClosureHospitalAssignmentTest extends DatabaseKernelTestCase
         self::assertSame(2, $import->getRowsRejected());
         self::assertSame([], $this->em->getRepository(ClosureInterval::class)->findBy(['import' => $id]));
         self::assertSame(
-            'Universitätsklinikum Gießen und Marburg, Standort Marburg',
+            'Universitätsklinikum Nordstadt und Südstadt, Standort Südstadt',
             $this->em->find(Hospital::class, $marburg->getId())?->getName(),
         );
     }

@@ -78,4 +78,88 @@ final class Hospital extends Base
 
         return $this->generator->parse($format);
     }
+
+    /**
+     * A complete synthetic hospital in the given dispatch area of Hesse.
+     *
+     * Town, postal code and coordinates fit the area; size, beds and tier fit each other,
+     * and towns classified as urban get larger hospitals more often.
+     *
+     * @return array{
+     *     name: string,
+     *     tier: 'Basic'|'Extended'|'Full',
+     *     size: 'Small'|'Medium'|'Large',
+     *     beds: int,
+     *     location: 'Urban'|'Mixed'|'Rural',
+     *     address: array{street: string, postal_code: string, city: string, state: string, country: string},
+     *     coordinates: array{lat: float, lng: float}
+     * }
+     */
+    public function hospitalProfile(string $dispatchArea): array
+    {
+        $town = Area::townIn($dispatchArea);
+        $size = $this->weighted(match ($town['location']) {
+            'Urban' => ['Large' => 40, 'Medium' => 40, 'Small' => 20],
+            'Mixed' => ['Large' => 15, 'Medium' => 45, 'Small' => 40],
+            'Rural' => ['Large' => 5, 'Medium' => 35, 'Small' => 60],
+        });
+        $tier = $this->weighted(match ($size) {
+            'Large' => ['Full' => 80, 'Extended' => 20],
+            'Medium' => ['Extended' => 60, 'Basic' => 25, 'Full' => 15],
+            'Small' => ['Basic' => 80, 'Extended' => 20],
+        });
+        $beds = match ($size) {
+            'Large' => self::numberBetween(600, 1300),
+            'Medium' => self::numberBetween(300, 599),
+            'Small' => self::numberBetween(80, 299),
+        };
+
+        $name = strtr(self::randomElement([
+            'Klinikum {town}',
+            '{name} {town}',
+            '{prefix} {name} {town}',
+            '{town}{suffix}',
+        ]), [
+            '{town}' => $town['city'],
+            '{name}' => $this->hospitalName(),
+            '{prefix}' => $this->hospitalPrefix(),
+            '{suffix}' => $this->hospitalSuffix(),
+        ]);
+
+        return [
+            'name' => trim((string) preg_replace('/\s+/', ' ', $name)),
+            'tier' => $tier,
+            'size' => $size,
+            'beds' => $beds,
+            'location' => $town['location'],
+            'address' => [
+                'street' => sprintf('%s %d', $this->generator->format('streetName'), self::numberBetween(1, 120)),
+                'postal_code' => $town['postal_code'],
+                'city' => $town['city'],
+                'state' => HesseDistricts::STATE,
+                'country' => 'Deutschland',
+            ],
+            'coordinates' => Area::coordinatesIn($dispatchArea),
+        ];
+    }
+
+    /**
+     * @template T of string
+     *
+     * @param non-empty-array<T, int> $weights
+     *
+     * @return T
+     */
+    private function weighted(array $weights): string
+    {
+        $roll = self::numberBetween(1, array_sum($weights));
+        foreach ($weights as $value => $weight) {
+            $roll -= $weight;
+            if ($roll <= 0) {
+                return $value;
+            }
+        }
+
+        return array_key_last($weights);
+    }
 }
