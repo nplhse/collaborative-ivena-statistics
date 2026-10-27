@@ -112,6 +112,19 @@ To test real IVENA files locally, replace the synthetic catalog with a private p
 
 `PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; conditional patterns and real pattern packages follow with #792 and #797.
 
+### Planned: reusable generator (#792)
+
+[ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) describes the generator that replaces this setup step by step:
+
+- the generator moves to `src/DataFixtures/Generator/` and can add one month for one hospital later (`app:synthetic:generate`);
+- each hospital, month and kind of data gets its own seeded random stream, so the result does not depend on what else is generated;
+- hospital profiles set volume, offered departments and resources such as a resuscitation room or a catheterization laboratory;
+- pattern packages replace the independent distributions with conditional tables, case archetypes and coherence rules;
+- synthetic closure imports and scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
+- synthetic imports carry a marker in `filePath` (`synthetic/…`) and go through the regular projections.
+
+`FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
+
 ## Projection rebuild
 
 After bulk allocation fixture loads, the projection table is rebuilt automatically when `rebuild_projection` is enabled. Manual rebuild:
@@ -150,3 +163,4 @@ php bin/phpunit --no-coverage tests/DataFixtures/
 - [testing.md](testing.md) — test environment and MV refresh
 - [../02-architecture/overview.md](../02-architecture/overview.md) — bounded contexts and commands
 - [../02-architecture/decisions/020-portable-reference-catalog.md](../02-architecture/decisions/020-portable-reference-catalog.md) — synthetic data, private packages, restore
+- [../02-architecture/decisions/022-synthetic-data-generation.md](../02-architecture/decisions/022-synthetic-data-generation.md) — generator, hospital profiles, pattern packages, closures, scenario overlays
