@@ -10,8 +10,10 @@ namespace App\DataFixtures;
 final readonly class FixtureVolume
 {
     /**
-     * @param array<string, int>   $hospitals         active hospitals per size (Large, Medium, Small), or `any` for one hospital of any size
-     * @param array<string, float> $allocationsPerDay average allocations per hospital and day, by hospital size
+     * @param array<string, int>      $hospitals                  active hospitals per size (Large, Medium, Small), or `any` for one hospital of any size
+     * @param array<string, float>    $allocationsPerDay          average allocations per hospital and day, by hospital size
+     * @param float                   $mciCasesPerHospitalAndYear expected MCI cases per active hospital and year
+     * @param \DateTimeImmutable|null $until                      last day of the generated period; null means yesterday
      */
     public function __construct(
         public string $profile,
@@ -19,9 +21,10 @@ final readonly class FixtureVolume
         public int $months,
         public array $allocationsPerDay,
         public float $scale,
-        public int $mciCases,
+        public float $mciCasesPerHospitalAndYear,
         public int $seed,
         public bool $rebuildProjection,
+        public ?\DateTimeImmutable $until = null,
     ) {
     }
 

@@ -65,6 +65,7 @@ The demo user `foo` owns one of the active hospitals, drawn with the seed: the s
 ```bash
 FIXTURES_PROFILE=minimal make reset
 FIXTURES_PROFILE=single FIXTURES_SCALE=0.2 make reset    # fastest
+FIXTURES_UNTIL=2026-09-30 make reset                     # fixed period, same data on every day
 ```
 
 ### Parameters
@@ -75,13 +76,23 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 |---|---|---|
 | `FIXTURES_PROFILE` | `realistic` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes) |
 | `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `1` is close to real volumes |
-| `fixtures.baseline.months` | `12` | Whole months before the current one: in October 2026 the data runs from 1 October 2025 until yesterday |
+| `FIXTURES_UNTIL` | empty | Last day of the period (`Y-m-d`); empty means yesterday |
+| `fixtures.baseline.months` | `12` | Whole months before the month of the last day: with yesterday in October 2026 the data runs from 1 October 2025 until yesterday |
 | `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes |
-| `fixtures.baseline.mci_cases` | `25` | MCI demo cases |
-| `fixtures.baseline.seed` | `740` | Seed for the hospital choice, the daily counts and sampling |
+| `fixtures.baseline.mci_cases_per_hospital_and_year` | `2` | Expected MCI cases per active hospital and year, Poisson distributed per month |
+| `fixtures.baseline.seed` | `740` | Seed for the hospital choice, the daily counts, sampling and MCI cases |
 | `fixtures.baseline.rebuild_projection` | `true` | Rebuild `allocation_stats_projection` after allocation fixtures |
 
 Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise). Allocations are written in batches through DBAL.
+
+### Reproducible data
+
+The generator draws from `RandomStreams` (`src/DataFixtures/Generator/Infrastructure/Random/`), never from `mt_rand()` or `random_int()`. Every hospital, month and kind of data (`volume`, `allocations`, `mci`) gets its own stream, seeded from the seed, the hospital's public id and the month ([ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md)). The hospitals of the synthetic catalog have name-based public ids, so:
+
+- the same seed and the same last day give the same data, compared by content (database ids change after every purge);
+- a hospital gets the same rows whether other hospitals take part or not, and a month gets the same rows alone or inside a longer period.
+
+MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Generator` or `Pattern` calls a global random function.
 
 ## Reference data
 
@@ -146,6 +157,9 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, stable ids, no curated labels
 - `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load
 - `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
+- `Allocation/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
+- `Allocation/SyntheticAllocationGeneratorTest.php` — two loads give the same content, MCI cases in their month
+- `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns and sampling
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.

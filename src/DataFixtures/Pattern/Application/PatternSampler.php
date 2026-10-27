@@ -19,6 +19,7 @@ use App\DataFixtures\Pattern\Dto\DistributionPattern;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\PercentileSampler;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
+use Random\Randomizer;
 
 final readonly class PatternSampler
 {
@@ -33,31 +34,33 @@ final readonly class PatternSampler
         DistributionPattern $pattern,
         \DateTimeImmutable $periodStart,
         \DateTimeImmutable $periodEnd,
+        Randomizer $random,
     ): SampledAllocationAttributes {
-        $createdAt = $this->sampleCreatedAt($pattern, $periodStart, $periodEnd);
-        $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles());
+        $createdAt = $this->sampleCreatedAt($pattern, $periodStart, $periodEnd, $random);
+        $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random);
         $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
-        $gender = AllocationGender::from($this->categoricalSampler->sample($pattern->categoricalDistribution('gender')));
-        $urgency = AllocationUrgency::from((int) $this->categoricalSampler->sample($pattern->categoricalDistribution('urgency')));
+        $gender = AllocationGender::from($this->categoricalSampler->sample($pattern->categoricalDistribution('gender'), $random));
+        $urgency = AllocationUrgency::from((int) $this->categoricalSampler->sample($pattern->categoricalDistribution('urgency'), $random));
 
         $transportDistribution = $pattern->categoricalDistribution('transport_type');
         $transportType = [] !== $transportDistribution
-            ? AllocationTransportType::from($this->categoricalSampler->sample($transportDistribution))
+            ? AllocationTransportType::from($this->categoricalSampler->sample($transportDistribution, $random))
             : null;
 
-        $departmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('department'));
-        $specialityName = $this->categoricalSampler->sample($pattern->categoricalDistribution('speciality'));
-        $assignmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('assignment'));
-        $occasionName = $this->categoricalSampler->sample($pattern->categoricalDistribution('occasion'));
+        $departmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('department'), $random);
+        $specialityName = $this->categoricalSampler->sample($pattern->categoricalDistribution('speciality'), $random);
+        $assignmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('assignment'), $random);
+        $occasionName = $this->categoricalSampler->sample($pattern->categoricalDistribution('occasion'), $random);
 
         $indicationNormalized = $this->sampleNullableLookup(
             $pattern,
             'indication_normalized',
             IndicationNormalized::class,
+            $random,
         );
-        $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class);
-        $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class);
+        $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
+        $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class, $random);
 
         $indicationRaw = $indicationNormalized instanceof IndicationNormalized
             ? $this->lookupResolver->referenceIndicationRawForNormalized((string) $indicationNormalized->getName())
@@ -69,7 +72,7 @@ final readonly class PatternSampler
             createdAt: $createdAt,
             arrivalAt: $arrivalAt,
             gender: $gender,
-            age: $this->sampleAge($pattern),
+            age: $this->sampleAge($pattern, $random),
             urgency: $urgency,
             transportType: $transportType,
             speciality: $this->lookupResolver->reference(Speciality::class, $specialityName),
@@ -80,15 +83,15 @@ final readonly class PatternSampler
             indicationNormalized: $indicationNormalized,
             infection: $infection,
             secondaryTransport: $secondaryTransport,
-            requiresResus: $this->sampleFlag($flags, 'requires_resus', 0.05),
-            requiresCathlab: $this->sampleFlag($flags, 'requires_cathlab', 0.01),
-            isCpr: $this->sampleFlag($flags, 'is_cpr', 0.03),
-            isVentilated: $this->sampleFlag($flags, 'is_ventilated', 0.08),
-            isShock: $this->sampleFlag($flags, 'is_shock', 0.04),
-            isPregnant: $this->sampleFlag($flags, 'is_pregnant', 0.02),
-            isWorkAccident: $this->sampleFlag($flags, 'is_work_accident', 0.08),
-            isWithPhysician: $this->sampleFlag($flags, 'is_with_physician', 0.13),
-            departmentWasClosed: $this->sampleFlag($flags, 'department_was_closed', 0.05),
+            requiresResus: $this->sampleFlag($flags, 'requires_resus', 0.05, $random),
+            requiresCathlab: $this->sampleFlag($flags, 'requires_cathlab', 0.01, $random),
+            isCpr: $this->sampleFlag($flags, 'is_cpr', 0.03, $random),
+            isVentilated: $this->sampleFlag($flags, 'is_ventilated', 0.08, $random),
+            isShock: $this->sampleFlag($flags, 'is_shock', 0.04, $random),
+            isPregnant: $this->sampleFlag($flags, 'is_pregnant', 0.02, $random),
+            isWorkAccident: $this->sampleFlag($flags, 'is_work_accident', 0.08, $random),
+            isWithPhysician: $this->sampleFlag($flags, 'is_with_physician', 0.13, $random),
+            departmentWasClosed: $this->sampleFlag($flags, 'department_was_closed', 0.05, $random),
         );
     }
 
@@ -96,40 +99,40 @@ final readonly class PatternSampler
         DistributionPattern $pattern,
         \DateTimeImmutable $periodStart,
         \DateTimeImmutable $periodEnd,
+        Randomizer $random,
     ): \DateTimeImmutable {
         $hourDistribution = $pattern->categoricalDistribution('hour_of_day');
         $hour = [] !== $hourDistribution
-            ? (int) $this->categoricalSampler->sample($hourDistribution)
-            : mt_rand(0, 23);
+            ? (int) $this->categoricalSampler->sample($hourDistribution, $random)
+            : $random->getInt(0, 23);
 
         // A whole day between start and end, derived from the period (same time zone, no wall clock).
         $firstDay = $periodStart->setTime(0, 0);
         $days = max(0, (int) $firstDay->diff($periodEnd->setTime(0, 0))->days);
-        $day = $firstDay->modify(sprintf('+%d days', mt_rand(0, $days)));
+        $day = $firstDay->modify(sprintf('+%d days', $random->getInt(0, $days)));
 
-        // mt_rand() follows the fixture seed (mt_srand); random_int() would not.
-        return $day->setTime($hour, mt_rand(0, 59));
+        return $day->setTime($hour, $random->getInt(0, 59));
     }
 
-    private function sampleAge(DistributionPattern $pattern): int
+    private function sampleAge(DistributionPattern $pattern, Randomizer $random): int
     {
-        $bucket = $this->categoricalSampler->sample($pattern->categoricalDistribution('age_bucket'));
+        $bucket = $this->categoricalSampler->sample($pattern->categoricalDistribution('age_bucket'), $random);
 
         return match ($bucket) {
-            '0-17' => mt_rand(1, 17),
-            '18-39' => mt_rand(18, 39),
-            '40-64' => mt_rand(40, 64),
-            '65-99' => mt_rand(65, 99),
-            default => mt_rand(1, 99),
+            '0-17' => $random->getInt(1, 17),
+            '18-39' => $random->getInt(18, 39),
+            '40-64' => $random->getInt(40, 64),
+            '65-99' => $random->getInt(65, 99),
+            default => $random->getInt(1, 99),
         };
     }
 
     /**
      * @param array<string, float> $flags
      */
-    private function sampleFlag(array $flags, string $name, float $default): bool
+    private function sampleFlag(array $flags, string $name, float $default, Randomizer $random): bool
     {
-        return $this->categoricalSampler->sampleBernoulli($flags[$name] ?? $default);
+        return $this->categoricalSampler->sampleBernoulli($flags[$name] ?? $default, $random);
     }
 
     /**
@@ -139,10 +142,10 @@ final readonly class PatternSampler
      *
      * @return T|null
      */
-    private function sampleNullableLookup(DistributionPattern $pattern, string $key, string $class): ?object
+    private function sampleNullableLookup(DistributionPattern $pattern, string $key, string $class, Randomizer $random): ?object
     {
         $presence = $pattern->presenceProbability($key);
-        if (null === $presence || !$this->categoricalSampler->sampleBernoulli($presence)) {
+        if (null === $presence || !$this->categoricalSampler->sampleBernoulli($presence, $random)) {
             return null;
         }
 
@@ -151,7 +154,7 @@ final readonly class PatternSampler
             return null;
         }
 
-        $name = $this->categoricalSampler->sample($distribution);
+        $name = $this->categoricalSampler->sample($distribution, $random);
 
         return $this->lookupResolver->reference($class, $name);
     }

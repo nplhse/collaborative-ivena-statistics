@@ -9,7 +9,9 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\DataFixtures\Allocation\ImportBatch;
 use App\DataFixtures\Allocation\ImportBatchPlanner;
 use App\DataFixtures\FixtureVolume;
+use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 final class ImportBatchPlannerTest extends TestCase
 {
@@ -20,6 +22,7 @@ final class ImportBatchPlannerTest extends TestCase
         // 1 Oct 2025 … 31 Oct 2026 (13 months) for two participating hospitals; the third does not take part.
         self::assertCount(26, $batches);
         self::assertSame('IVENA allocations 2025-10', $batches[0]->importName);
+        self::assertSame('2025-10', $batches[0]->month);
         self::assertSame('2025-10-01', array_key_first($batches[0]->dailyCounts));
         self::assertCount(31, $batches[0]->dailyCounts);
         self::assertSame('IVENA allocations 2026-10', $batches[12]->importName);
@@ -53,6 +56,28 @@ final class ImportBatchPlannerTest extends TestCase
         $counts = static fn (array $batches): array => array_map(static fn (ImportBatch $batch): array => $batch->dailyCounts, $batches);
 
         self::assertSame($counts($this->plan(scale: 1.0)), $counts($this->plan(scale: 1.0)));
+        self::assertNotSame($counts($this->plan(scale: 1.0)), $counts($this->plan(scale: 1.0, seed: 741)));
+    }
+
+    public function testAHospitalGetsTheSameCountsWithOrWithoutOtherHospitals(): void
+    {
+        $large = $this->hospital('Großklinikum', HospitalSize::LARGE, true);
+        $alone = $this->counts($this->plan(scale: 1.0, hospitals: [$large]), 'Großklinikum');
+        $together = $this->counts($this->plan(scale: 1.0), 'Großklinikum');
+
+        self::assertSame($alone, $together);
+    }
+
+    public function testAMonthGetsTheSameCountsAloneAndInsideALongerPeriod(): void
+    {
+        $september = $this->plan(scale: 1.0, from: '2026-09-01', until: '2026-09-30 23:59:59');
+        $year = $this->plan(scale: 1.0);
+
+        $inYear = array_values(array_filter($year, static fn (ImportBatch $batch): bool => '2026-09' === $batch->month && 'Großklinikum' === $batch->hospital->getName()));
+        $alone = array_values(array_filter($september, static fn (ImportBatch $batch): bool => 'Großklinikum' === $batch->hospital->getName()));
+
+        self::assertCount(1, $alone);
+        self::assertSame($inYear[0]->dailyCounts, $alone[0]->dailyCounts);
     }
 
     public function testTheScaleMultipliesTheVolume(): void
@@ -64,32 +89,50 @@ final class ImportBatchPlannerTest extends TestCase
     }
 
     /**
+     * @param list<Hospital>|null $hospitals
+     *
      * @return list<ImportBatch>
      */
-    private function plan(float $scale): array
+    private function plan(float $scale, int $seed = 740, ?array $hospitals = null, string $from = '2025-10-01', string $until = '2026-10-31 23:59:59'): array
     {
-        mt_srand(740);
         $volume = new FixtureVolume(
             profile: 'test',
             hospitals: ['Large' => 1, 'Small' => 1],
             months: 12,
             allocationsPerDay: ['Small' => 10.0, 'Medium' => 15.0, 'Large' => 40.0],
             scale: $scale,
-            mciCases: 0,
-            seed: 740,
+            mciCasesPerHospitalAndYear: 0.0,
+            seed: $seed,
             rebuildProjection: false,
         );
 
-        return new ImportBatchPlanner()->plan(
+        return new ImportBatchPlanner(new RandomStreams())->plan(
             $volume,
-            [
+            $hospitals ?? [
                 $this->hospital('Landkrankenhaus', HospitalSize::SMALL, true),
                 $this->hospital('Großklinikum', HospitalSize::LARGE, true),
                 $this->hospital('Nicht dabei', HospitalSize::MEDIUM, false),
             ],
-            new \DateTimeImmutable('2025-10-01'),
-            new \DateTimeImmutable('2026-10-31 23:59:59'),
+            new \DateTimeImmutable($from),
+            new \DateTimeImmutable($until),
         );
+    }
+
+    /**
+     * @param list<ImportBatch> $batches
+     *
+     * @return array<string, int>
+     */
+    private function counts(array $batches, string $hospital): array
+    {
+        $counts = [];
+        foreach ($batches as $batch) {
+            if ($hospital === $batch->hospital->getName()) {
+                $counts += $batch->dailyCounts;
+            }
+        }
+
+        return $counts;
     }
 
     /**
@@ -109,6 +152,11 @@ final class ImportBatchPlannerTest extends TestCase
 
     private function hospital(string $name, HospitalSize $size, bool $participating): Hospital
     {
-        return new Hospital()->setName($name)->setSize($size)->setIsParticipating($participating);
+        // Synthetic hospitals have a name-based public id; the random streams are keyed by it.
+        return new Hospital()
+            ->setName($name)
+            ->setSize($size)
+            ->setIsParticipating($participating)
+            ->setPublicId(Uuid::v5(Uuid::fromString(Uuid::NAMESPACE_OID), $name));
     }
 }
