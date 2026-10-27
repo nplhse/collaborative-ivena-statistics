@@ -18,4 +18,19 @@ interface HospitalFakerMethods
      * @return non-empty-string
      */
     public function hospital(): string;
+
+    /**
+     * A complete synthetic hospital in a dispatch area of Hesse.
+     *
+     * @return array{
+     *     name: string,
+     *     tier: 'Basic'|'Extended'|'Full',
+     *     size: 'Small'|'Medium'|'Large',
+     *     beds: int,
+     *     location: 'Urban'|'Mixed'|'Rural',
+     *     address: array{street: string, postal_code: string, city: string, state: string, country: string},
+     *     coordinates: array{lat: float, lng: float}
+     * }
+     */
+    public function hospitalProfile(string $dispatchArea): array;
 }
