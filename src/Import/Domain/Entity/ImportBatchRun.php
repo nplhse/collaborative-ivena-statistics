@@ -9,6 +9,7 @@ use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: ImportBatchRunRepository::class)]
 #[ORM\Table(name: 'import_batch_run')]
@@ -58,7 +59,7 @@ class ImportBatchRun
      */
     public function __construct(array $options = [])
     {
-        $now = new \DateTimeImmutable();
+        $now = Clock::get()->now();
         $this->options = $options;
         $this->startedAt = $now;
         $this->createdAt = $now;

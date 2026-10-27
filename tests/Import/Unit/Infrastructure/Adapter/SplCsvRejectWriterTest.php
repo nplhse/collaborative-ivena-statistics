@@ -7,6 +7,7 @@ namespace App\Tests\Import\Unit\Infrastructure\Adapter;
 use App\Import\Domain\Entity\Import;
 use App\Import\Infrastructure\Adapter\SplCsvRejectWriter;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class SplCsvRejectWriterTest extends TestCase
@@ -19,7 +20,7 @@ final class SplCsvRejectWriterTest extends TestCase
     {
         $this->rejectsBaseDir = sys_get_temp_dir().'/'.uniqid('spl-csv-reject-writer-', true);
         $this->filesystem = new Filesystem();
-        $this->writer = new SplCsvRejectWriter($this->filesystem, $this->rejectsBaseDir);
+        $this->writer = new SplCsvRejectWriter($this->filesystem, $this->rejectsBaseDir, new MockClock('2026-03-07 08:09:10'));
     }
 
     protected function tearDown(): void
@@ -46,6 +47,10 @@ final class SplCsvRejectWriterTest extends TestCase
         self::assertNotNull($this->writer->getPath());
         self::assertFileExists($this->writer->getPath());
         self::assertSame(0, $this->writer->getCount());
+        self::assertSame(
+            $this->rejectsBaseDir.'/2026/03/alloc_import_42_rejects_20260307_080910.csv',
+            $this->writer->getPath(),
+        );
 
         $content = file_get_contents((string) $this->writer->getPath());
         self::assertNotFalse($content);

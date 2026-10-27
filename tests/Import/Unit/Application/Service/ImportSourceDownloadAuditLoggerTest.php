@@ -11,6 +11,7 @@ use App\Shared\Infrastructure\Audit\Entity\AuditEntry;
 use App\User\Domain\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 
 final class ImportSourceDownloadAuditLoggerTest extends TestCase
 {
@@ -45,7 +46,7 @@ final class ImportSourceDownloadAuditLoggerTest extends TestCase
             }));
         $entityManager->expects(self::once())->method('flush');
 
-        $logger = new ImportSourceDownloadAuditLogger($entityManager, $auditContext);
+        $logger = new ImportSourceDownloadAuditLogger($entityManager, $auditContext, new NativeClock());
         $logger->log($actor, $import);
     }
 
@@ -57,6 +58,7 @@ final class ImportSourceDownloadAuditLoggerTest extends TestCase
         $logger = new ImportSourceDownloadAuditLogger(
             $this->createStub(EntityManagerInterface::class),
             new AuditContext(),
+            new NativeClock(),
         );
 
         $this->expectException(\InvalidArgumentException::class);

@@ -13,6 +13,7 @@ use App\Import\Application\DTO\AllocationRowDTO;
 use App\Import\Infrastructure\Resolver\AllocationAssessmentResolver;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Symfony\Component\Clock\NativeClock;
 
 final class AllocationAssessmentResolverTest extends TestCase
 {
@@ -20,7 +21,7 @@ final class AllocationAssessmentResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = new AllocationAssessmentResolver(new NullLogger());
+        $this->resolver = new AllocationAssessmentResolver(new NullLogger(), new NativeClock());
     }
 
     public function testSupportsReturnsFalseForEmptyStringFields(): void

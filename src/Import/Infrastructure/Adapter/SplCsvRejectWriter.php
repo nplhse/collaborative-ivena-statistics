@@ -7,6 +7,7 @@ namespace App\Import\Infrastructure\Adapter;
 use App\Import\Application\Contracts\RejectWriterInterface;
 use App\Import\Domain\Entity\Import;
 use App\Shared\Application\Export\CsvFormulaEscaper;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
@@ -23,6 +24,7 @@ final class SplCsvRejectWriter implements RejectWriterInterface
         public readonly Filesystem $filesystem,
         #[Autowire(param: 'app.rejects_base_dir')]
         private readonly string $rejectsBaseDir,
+        private readonly ClockInterface $clock,
         private readonly string $delimiter = ';',
         private readonly string $enclosure = "\0",
         private readonly string $escape = '\\',
@@ -40,7 +42,8 @@ final class SplCsvRejectWriter implements RejectWriterInterface
     {
         $this->count = 0;
 
-        $subDir = date('Y').'/'.date('m');
+        $now = $this->clock->now();
+        $subDir = $now->format('Y').'/'.$now->format('m');
         $dirAbs = Path::join($this->rejectsBaseDir, $subDir);
 
         $this->filesystem->mkdir($dirAbs, 0775);
@@ -50,7 +53,7 @@ final class SplCsvRejectWriter implements RejectWriterInterface
             sprintf(
                 'alloc_import_%d_rejects_%s.csv',
                 (int) $import->getId(),
-                date('Ymd_His')
+                $now->format('Ymd_His')
             )
         );
 

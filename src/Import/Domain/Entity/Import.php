@@ -16,6 +16,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Uid\Uuid;
 
 #[Audit\Audited]
@@ -125,7 +126,7 @@ class Import implements \Stringable
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int
@@ -542,7 +543,7 @@ class Import implements \Stringable
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        $this->setUpdatedAt(Clock::get()->now());
     }
 
     #[\Override]

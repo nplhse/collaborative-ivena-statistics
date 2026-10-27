@@ -36,6 +36,7 @@ use App\User\Domain\Factory\UserFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -309,6 +310,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             $dispatcher,
             new ImportRequeueResumeResolver(),
             $container->get(ImportBatchCompletion::class),
+            new NativeClock(),
         );
 
         $summary = $orchestrator->run(new ImportRequeueBatchOptions(limit: 2));
@@ -354,6 +356,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             ),
             new ImportRequeueResumeResolver(),
             $container->get(ImportBatchCompletion::class),
+            new NativeClock(),
         );
 
         $closureId = $closure->getId();
@@ -399,6 +402,7 @@ final class RequeueAllImportsCommandTest extends KernelTestCase
             $dispatcher,
             new ImportRequeueResumeResolver(),
             $container->get(ImportBatchCompletion::class),
+            new NativeClock(),
         );
 
         $summary = $orchestrator->run(new ImportRequeueBatchOptions(), $runControl);

@@ -20,6 +20,7 @@ use App\Import\Domain\Enum\ImportBatchRunStatus;
 use App\Import\Domain\Enum\ImportRunTrigger;
 use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
+use Psr\Clock\ClockInterface;
 
 final readonly class ImportRequeueBatchOrchestrator
 {
@@ -29,6 +30,7 @@ final readonly class ImportRequeueBatchOrchestrator
         private ImportAllocationsDispatcher $dispatcher,
         private ImportRequeueResumeResolver $resumeResolver,
         private ImportBatchCompletion $batchCompletion,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -62,7 +64,7 @@ final readonly class ImportRequeueBatchOrchestrator
                 $lastItem->getImportId(),
             ));
             $run->setStatus(ImportBatchRunStatus::Failed);
-            $run->setFinishedAt(new \DateTimeImmutable());
+            $run->setFinishedAt($this->clock->now());
             $this->batchRunRepository->flush();
 
             return new ImportRequeueBatchSummary(
@@ -101,7 +103,7 @@ final readonly class ImportRequeueBatchOrchestrator
                         $import['id'],
                     ));
                     $run->setStatus(ImportBatchRunStatus::Failed);
-                    $run->setFinishedAt(new \DateTimeImmutable());
+                    $run->setFinishedAt($this->clock->now());
                     $this->batchRunRepository->flush();
 
                     return new ImportRequeueBatchSummary(
@@ -147,7 +149,7 @@ final readonly class ImportRequeueBatchOrchestrator
                 $runControl?->throwIfStopRequested();
             }
 
-            $run->closeDispatch(new \DateTimeImmutable());
+            $run->closeDispatch($this->clock->now());
             $this->batchRunRepository->flush();
             // Items may all have finished during the dispatch phase; then nobody else completes the batch.
             $this->batchCompletion->complete((int) $run->getId());
@@ -164,7 +166,7 @@ final readonly class ImportRequeueBatchOrchestrator
             );
         } catch (ImportRequeueInterruptedException) {
             $run->setStatus(ImportBatchRunStatus::Interrupted);
-            $run->setFinishedAt(new \DateTimeImmutable());
+            $run->setFinishedAt($this->clock->now());
             $this->batchRunRepository->flush();
 
             return new ImportRequeueBatchSummary(
