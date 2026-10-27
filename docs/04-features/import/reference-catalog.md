@@ -77,7 +77,26 @@ php bin/console app:reference:propose-from-rejects --output=var/export/reference
 
 One conflict stops the import before anything is written; the command lists every conflict with its path in the file. `--dry-run` prints the plan only. Otherwise all rows are written in one transaction with the ids from the package, and the reference data cache is cleared.
 
-New rows get `createdBy` from `--user=` (default `admin`); reviewed raw indications also get it as `reviewedBy`. Imported hospitals do not participate and have no owner. The additive import is not a restore; the restore mode (`--mode=replace`) follows with the dependency check of ADR 020.
+New rows get `createdBy` from `--user=` (default `admin`); reviewed raw indications also get it as `reviewedBy`. Imported hospitals do not participate and have no owner. The additive import is not a restore.
+
+### Restore (`--mode=replace`)
+
+A restore replaces the whole catalog with a **complete** package (`meta.complete = true`, exported without `--types`). It is meant for an installation without operational data, for example a fresh staging system.
+
+1. It takes the shared maintenance lock (the development reset uses the same lock) and refuses while another restore or reset runs.
+2. It refuses while the Doctrine queues hold messages that are waiting or being handled. Stop the workers and let the queues drain first; the failure queue does not count.
+3. It lists every **blocker**, a table outside the catalog that refers to catalog rows, and stops when there is one:
+   - operational data: `allocation`, `mci_case`, `import`, `closure_interval`, `monthly_reminder_dispatch`
+   - permissions: `hospital_access_grant`, hospitals with an owner
+   - projections: `allocation_stats_projection`, `closure_event`, `closure_analysis_interval`, `closure_volume_hour`, `closure_rebuild_request`, `closure_relation_candidate`, `kpi_daily`
+   - monitoring: `job_run` rows with a hospital
+   - user data: saved Explorer views of users, hospital notifications
+
+   Several of these foreign keys cascade; the restore never lets them delete rows silently. Access grants are a blocker, never deleted.
+4. Without blockers it deletes the catalog (including aliases and the group join table) and inserts the package in **one transaction**, keeping the package ids. A failure rolls back and leaves the old catalog in place.
+5. Afterwards it refreshes the materialized views and clears the reference data cache.
+
+`--dry-run` shows rows to delete and create per type and the blockers, and writes nothing.
 
 ## Propose from import rejects
 
@@ -107,7 +126,7 @@ php bin/console cache:pool:clear cache.allocation.reference_data
 php bin/console app:import:requeue-all --only-ids="$(cat var/export/reference-from-rejects/requeue-import-ids.txt)" --dry-run
 ```
 
-Empty instance: migrate, create the admin user, then `app:reference:import --source=var/reference/<package>.json` with a package exported from production.
+Empty instance: migrate, create the admin user, then `app:reference:import --mode=replace --source=var/reference/<package>.json --dry-run` and the same without `--dry-run`, with a complete package exported from production.
 
 ## Specialty and department name correction
 

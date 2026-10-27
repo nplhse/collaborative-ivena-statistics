@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Allocation\Functional\Command;
 
 use App\Allocation\Application\ReferenceCatalog\Package\ReferenceCatalogChecksum;
+use App\Allocation\Application\ReferenceCatalog\Restore\CatalogMaintenanceGuard;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\State;
+use App\Allocation\Infrastructure\Factory\HospitalFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
 use App\Tests\Support\ReferenceCatalog\ReferenceCatalogPackageData as Data;
 use App\User\Domain\Factory\UserFactory;
@@ -115,6 +117,100 @@ final class ImportReferenceCatalogCommandTest extends KernelTestCase
 
         self::assertSame(Command::FAILURE, $exitCode);
         self::assertStringContainsString('No user found for "nobody"', $this->flat($tester->getDisplay()));
+    }
+
+    public function testReplaceDryRunShowsTheChangesAndWritesNothing(): void
+    {
+        $tester = $this->tester();
+        UserFactory::createOne(['username' => 'admin']);
+        StateFactory::createOne(['name' => 'Saarland']);
+        $this->writePackage(Data::complete());
+
+        $exitCode = $tester->execute(['--source' => $this->file, '--mode' => 'replace', '--dry-run' => true]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        $display = $this->flat($tester->getDisplay());
+        self::assertStringContainsString('state 1 2', $display);
+        self::assertStringContainsString('no blockers', $display);
+        self::assertSame(1, $this->em()->getRepository(State::class)->count([]));
+    }
+
+    public function testReplaceRestoresTheCatalog(): void
+    {
+        $tester = $this->tester();
+        UserFactory::createOne(['username' => 'admin']);
+        StateFactory::createOne(['name' => 'Saarland']);
+        $this->writePackage(Data::complete());
+
+        $exitCode = $tester->execute(['--source' => $this->file, '--mode' => 'replace']);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertStringContainsString('Restored the catalog', $this->flat($tester->getDisplay()));
+        self::assertSame(2, $this->em()->getRepository(State::class)->count([]));
+        self::assertNull($this->em()->getRepository(State::class)->findOneBy(['name' => 'Saarland']));
+    }
+
+    public function testReplaceListsBlockersAndChangesNothing(): void
+    {
+        $tester = $this->tester();
+        UserFactory::createOne(['username' => 'admin']);
+        HospitalFactory::createOne();
+        $this->writePackage(Data::complete());
+
+        $exitCode = $tester->execute(['--source' => $this->file, '--mode' => 'replace']);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        $display = $this->flat($tester->getDisplay());
+        self::assertStringContainsString('Restore blocked', $display);
+        self::assertStringContainsString('permissions (hospital owner)', $display);
+        self::assertSame(1, $this->em()->getRepository(Hospital::class)->count([]));
+    }
+
+    public function testReplaceNeedsACompletePackage(): void
+    {
+        $tester = $this->tester();
+        UserFactory::createOne(['username' => 'admin']);
+        $full = Data::complete();
+        $this->writePackage(Data::withCounts(['meta' => ['types' => ['state'], 'complete' => false] + $full['meta'], 'states' => $full['states']]));
+
+        $exitCode = $tester->execute(['--source' => $this->file, '--mode' => 'replace']);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertStringContainsString('needs a complete package', $this->flat($tester->getDisplay()));
+    }
+
+    public function testReplaceRefusesWhileMessagesAreWaiting(): void
+    {
+        $tester = $this->tester();
+        UserFactory::createOne(['username' => 'admin']);
+        $this->writePackage(Data::complete());
+        $this->em()->getConnection()->executeStatement("INSERT INTO messenger_messages (body, headers, queue_name, created_at, available_at) VALUES ('{}', '{}', 'high', NOW(), NOW())");
+
+        $exitCode = $tester->execute(['--source' => $this->file, '--mode' => 'replace']);
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertStringContainsString('Stop the workers', $this->flat($tester->getDisplay()));
+        self::assertSame(0, $this->em()->getRepository(State::class)->count([]));
+    }
+
+    public function testReplaceRefusesWhileAnotherMaintenanceRuns(): void
+    {
+        $tester = $this->tester();
+        UserFactory::createOne(['username' => 'admin']);
+        $this->writePackage(Data::complete());
+        /** @var CatalogMaintenanceGuard $guard */
+        $guard = self::getContainer()->get(CatalogMaintenanceGuard::class);
+        $lock = $guard->acquire();
+        self::assertNotNull($lock);
+
+        try {
+            $exitCode = $tester->execute(['--source' => $this->file, '--mode' => 'replace']);
+        } finally {
+            $lock->release();
+        }
+
+        self::assertSame(Command::FAILURE, $exitCode);
+        self::assertStringContainsString('Another restore or development reset is running', $this->flat($tester->getDisplay()));
     }
 
     /**

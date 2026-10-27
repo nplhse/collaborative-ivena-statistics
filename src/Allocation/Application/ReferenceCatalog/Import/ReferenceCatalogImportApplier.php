@@ -66,29 +66,41 @@ final readonly class ReferenceCatalogImportApplier
         }
 
         $this->entityManager->wrapInTransaction(function () use ($plan, $user): void {
-            $entities = new ImportEntityRegistry($this->entityManager);
-
-            foreach ($plan->rows as $row) {
-                $entity = $this->create($row->type, $row->entry, $user, $entities);
-                $entity->setPublicId(Uuid::fromString($row->entry->id));
-                $this->entityManager->persist($entity);
-                $entities->register($row->type, $row->entry->id, $entity);
-            }
-
-            foreach ($plan->aliases as $planned) {
-                $owner = $entities->get($planned->ownerType, $planned->ownerId);
-                $alias = $planned->alias;
-                $this->entityManager->persist(match (true) {
-                    $owner instanceof Department => new DepartmentAlias($owner, $alias->name, $alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo),
-                    $owner instanceof Speciality => new SpecialityAlias($owner, $alias->name, $alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo),
-                    default => throw new \LogicException(sprintf('Aliases belong to departments or specialities, not to %s.', $planned->ownerType->value)),
-                });
-            }
-
-            $this->entityManager->flush();
+            $this->write($plan, $user);
         });
 
         $this->referenceDataCache->clear();
+    }
+
+    /**
+     * Writes the planned rows without opening a transaction; the caller owns it (see ReferenceCatalogRestorer).
+     */
+    public function write(ReferenceCatalogImportPlan $plan, User $user): void
+    {
+        if ($plan->hasConflicts()) {
+            throw new \LogicException('An import plan with conflicts must not be applied.');
+        }
+
+        $entities = new ImportEntityRegistry($this->entityManager);
+
+        foreach ($plan->rows as $row) {
+            $entity = $this->create($row->type, $row->entry, $user, $entities);
+            $entity->setPublicId(Uuid::fromString($row->entry->id));
+            $this->entityManager->persist($entity);
+            $entities->register($row->type, $row->entry->id, $entity);
+        }
+
+        foreach ($plan->aliases as $planned) {
+            $owner = $entities->get($planned->ownerType, $planned->ownerId);
+            $alias = $planned->alias;
+            $this->entityManager->persist(match (true) {
+                $owner instanceof Department => new DepartmentAlias($owner, $alias->name, $alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo),
+                $owner instanceof Speciality => new SpecialityAlias($owner, $alias->name, $alias->classification, $alias->source, $alias->note, $alias->validFrom, $alias->validTo),
+                default => throw new \LogicException(sprintf('Aliases belong to departments or specialities, not to %s.', $planned->ownerType->value)),
+            });
+        }
+
+        $this->entityManager->flush();
     }
 
     private function create(ReferenceCatalogType $type, CatalogEntry $entry, User $user, ImportEntityRegistry $entities): State|DispatchArea|Department|Speciality|Assignment|Occasion|Infection|SecondaryTransport|IndicationNormalized|IndicationRaw|IndicationGroup|Hospital

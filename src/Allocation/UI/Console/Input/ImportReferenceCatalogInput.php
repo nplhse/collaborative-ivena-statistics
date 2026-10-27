@@ -12,7 +12,7 @@ final class ImportReferenceCatalogInput
     #[Option(description: 'Path to the reference catalog package (JSON)')]
     public string $source = 'var/reference/catalog.json';
 
-    #[Option(description: 'add: insert missing rows, never change existing ones')]
+    #[Option(description: 'add: insert missing rows, never change existing ones. replace: restore the whole catalog from a complete package')]
     public ReferenceCatalogImportMode $mode = ReferenceCatalogImportMode::Add;
 
     #[Option(description: 'Show what the import would do without writing', name: 'dry-run')]
