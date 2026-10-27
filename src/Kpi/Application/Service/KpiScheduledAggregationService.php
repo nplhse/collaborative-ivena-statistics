@@ -6,6 +6,7 @@ namespace App\Kpi\Application\Service;
 
 use App\Kpi\Application\Contract\KpiScheduledAggregationRunnerInterface;
 use App\Kpi\Application\DTO\KpiScheduledAggregationResult;
+use Psr\Clock\ClockInterface;
 
 /** @psalm-suppress UnusedClass Wired via KpiScheduledAggregationRunnerInterface autowiring. */
 final readonly class KpiScheduledAggregationService implements KpiScheduledAggregationRunnerInterface
@@ -14,6 +15,7 @@ final readonly class KpiScheduledAggregationService implements KpiScheduledAggre
 
     public function __construct(
         private KpiAggregationService $aggregationService,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -21,8 +23,9 @@ final readonly class KpiScheduledAggregationService implements KpiScheduledAggre
     public function run(): KpiScheduledAggregationResult
     {
         $tz = new \DateTimeZone(self::TIMEZONE);
-        $yesterday = new \DateTimeImmutable('yesterday', $tz);
-        $today = new \DateTimeImmutable('today', $tz);
+        $now = $this->clock->now()->setTimezone($tz);
+        $yesterday = $now->modify('yesterday');
+        $today = $now->modify('today');
 
         $dates = [$yesterday, $today];
         $totalRows = 0;

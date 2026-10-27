@@ -6,6 +6,7 @@ namespace App\Kpi\UI\Console\Command;
 
 use App\Kpi\Application\Service\KpiAggregationService;
 use App\Kpi\UI\Console\Input\KpiAggregateInput;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
@@ -21,6 +22,7 @@ final readonly class KpiAggregateCommand
 
     public function __construct(
         private KpiAggregationService $aggregationService,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -88,7 +90,7 @@ final readonly class KpiAggregateCommand
             throw new \InvalidArgumentException('The --days option must be between 1 and 366.');
         }
 
-        $yesterday = new \DateTimeImmutable('yesterday', $tz);
+        $yesterday = $this->clock->now()->setTimezone($tz)->modify('yesterday');
         $dates = [];
         for ($offset = 0; $offset < $days; ++$offset) {
             $day = $yesterday->modify(sprintf('-%d days', $offset));

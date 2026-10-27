@@ -14,6 +14,7 @@ use App\Kpi\Application\DTO\KpiCardDto;
 use App\Kpi\Application\DTO\KpiCardsDto;
 use App\Kpi\Application\DTO\KpiChartSeriesDto;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Translation\TranslatableMessage;
 
 final readonly class KpiDashboardService
@@ -25,6 +26,7 @@ final readonly class KpiDashboardService
         private ImportRepository $importRepository,
         private ImportFailureReasonResolver $failureReasonResolver,
         private AdminLinkGeneratorInterface $adminLinkGenerator,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -77,7 +79,7 @@ final readonly class KpiDashboardService
         $recordsPerDay = [];
         $rejectionRatePerDay = [];
         $tz = new \DateTimeZone(self::TIMEZONE);
-        $today = new \DateTimeImmutable('today', $tz);
+        $today = $this->clock->now()->setTimezone($tz)->modify('today');
 
         for ($offset = 29; $offset >= 0; --$offset) {
             $day = $today->modify(sprintf('-%d days', $offset));
@@ -96,7 +98,7 @@ final readonly class KpiDashboardService
 
     public function getFailedImportsDashboard(int $limit = 10): FailedImportsDashboardDto
     {
-        $since = new \DateTimeImmutable('-30 days', new \DateTimeZone(self::TIMEZONE))
+        $since = $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->modify('-30 days')
             ->setTime(0, 0);
 
         return new FailedImportsDashboardDto(

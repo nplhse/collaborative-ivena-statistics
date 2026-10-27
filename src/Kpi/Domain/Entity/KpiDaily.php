@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Kpi\Infrastructure\Repository\KpiDailyRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Clock\Clock;
 
 #[ORM\Entity(repositoryClass: KpiDailyRepository::class)]
 #[ORM\Table(name: 'kpi_daily')]
@@ -71,7 +72,7 @@ class KpiDaily
         $this->recordsProcessed = $recordsProcessed;
         $this->recordsRejected = $recordsRejected;
         $this->failedImportsCount = $failedImportsCount;
-        $this->createdAt = new \DateTimeImmutable('now');
+        $this->createdAt = Clock::get()->now();
     }
 
     public function getId(): ?int
@@ -148,6 +149,6 @@ class KpiDaily
     #[ORM\PreUpdate]
     public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTimeImmutable('now');
+        $this->updatedAt = Clock::get()->now();
     }
 }
