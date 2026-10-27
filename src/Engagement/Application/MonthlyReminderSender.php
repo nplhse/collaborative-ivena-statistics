@@ -17,6 +17,7 @@ use App\Notification\Domain\Enum\NotificationChannel;
 use App\Shared\Application\Locale\LocaleResolver;
 use App\Shared\Infrastructure\Audit\AuditContext;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Uid\Uuid;
@@ -43,6 +44,7 @@ final readonly class MonthlyReminderSender
         private LocaleResolver $localeResolver,
         private AuditContext $auditContext,
         private LockFactory $lockFactory,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -83,7 +85,7 @@ final readonly class MonthlyReminderSender
         $lock = null;
         if (MonthlyReminderTrigger::Admin === $trigger) {
             $hospitalId = (int) $hospital->getId();
-            $since = new \DateTimeImmutable(sprintf('-%d seconds', self::MANUAL_LOCK_TTL_SECONDS), new \DateTimeZone(self::TIMEZONE));
+            $since = $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE))->modify(sprintf('-%d seconds', self::MANUAL_LOCK_TTL_SECONDS));
             if ($this->dispatchRepository->hasRecentDispatchForHospitalAndTrigger($hospitalId, $trigger->value, $since)) {
                 return ['monthly_reminder.error.already_sent_recently'];
             }
@@ -114,7 +116,7 @@ final readonly class MonthlyReminderSender
         ?string $requestId,
     ): array {
         $hospitalId = (int) $hospital->getId();
-        $referenceDate ??= new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE));
+        $referenceDate ??= $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE));
         $period = $this->periodResolver->resolve($referenceDate);
         $dispatchPeriod = sprintf('%04d-%02d', $period['uploadYear'], $period['uploadMonth']);
 
@@ -126,7 +128,7 @@ final readonly class MonthlyReminderSender
         }
 
         $email = trim((string) $owner->getEmail());
-        $queuedAt = new \DateTimeImmutable('now', new \DateTimeZone(self::TIMEZONE));
+        $queuedAt = $this->clock->now()->setTimezone(new \DateTimeZone(self::TIMEZONE));
         $dispatch = $this->dispatchRepository->findForHospitalPeriodAndTrigger($hospitalId, $dispatchPeriod, $trigger->value);
         $isRetry = $dispatch instanceof MonthlyReminderDispatch;
 

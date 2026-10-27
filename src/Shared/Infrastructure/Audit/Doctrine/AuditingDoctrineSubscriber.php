@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Uid\Uuid;
 
@@ -34,6 +35,7 @@ final class AuditingDoctrineSubscriber
         private readonly AuditFieldRules $fieldRules,
         private readonly AuditValueNormalizer $normalizer,
         private readonly Security $security,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -95,7 +97,7 @@ final class AuditingDoctrineSubscriber
                 continue;
             }
             $audit = new AuditEntry(
-                new \DateTimeImmutable('now'),
+                $this->clock->now(),
                 $requestId,
                 $actor,
                 $origin,
@@ -117,7 +119,7 @@ final class AuditingDoctrineSubscriber
                 continue;
             }
             $em->persist(new AuditEntry(
-                new \DateTimeImmutable('now'),
+                $this->clock->now(),
                 $requestId,
                 $actor,
                 $origin,
@@ -131,7 +133,7 @@ final class AuditingDoctrineSubscriber
 
         foreach ($deletions as $entity) {
             $em->persist(new AuditEntry(
-                new \DateTimeImmutable('now'),
+                $this->clock->now(),
                 $requestId,
                 $actor,
                 $origin,

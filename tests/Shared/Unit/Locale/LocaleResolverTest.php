@@ -9,6 +9,7 @@ use App\Shared\Infrastructure\Locale\LocaleCookieManager;
 use App\User\Domain\Entity\User;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 
 final class LocaleResolverTest extends TestCase
@@ -17,7 +18,7 @@ final class LocaleResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->resolver = new LocaleResolver(new LocaleCookieManager());
+        $this->resolver = new LocaleResolver(new LocaleCookieManager(new NativeClock()));
     }
 
     public function testUserLocaleTakesPriorityOverCookieAndAcceptLanguage(): void

@@ -22,6 +22,7 @@ use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 
 final readonly class SyntheticAllocationGenerator
 {
@@ -36,6 +37,7 @@ final readonly class SyntheticAllocationGenerator
         private EntityManagerInterface $entityManager,
         private Connection $connection,
         private AllocationStatsProjectionRebuildInterface $projectionRebuilder,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -71,7 +73,7 @@ final readonly class SyntheticAllocationGenerator
         $batches = $this->batchPlanner->plan($volume, $hospitals);
 
         $periodStart = new \DateTimeImmutable($volume->period);
-        $periodEnd = new \DateTimeImmutable('now');
+        $periodEnd = $this->clock->now();
 
         foreach ($batches as $batch) {
             $hospitalId = (int) $batch->hospital->getId();
@@ -165,8 +167,8 @@ final readonly class SyntheticAllocationGenerator
                     ->setDispatchArea($managedDispatchArea)
                     ->setState($managedState)
                     ->setImport($managedImport)
-                    ->setCreatedAt(new \DateTimeImmutable('-30 days'))
-                    ->setArrivalAt(new \DateTimeImmutable('-29 days'))
+                    ->setCreatedAt($this->clock->now()->modify('-30 days'))
+                    ->setArrivalAt($this->clock->now()->modify('-29 days'))
                     ->setMciId(uniqid('mci-', true))
                     ->setMciTitle('Synthetic MCI case'),
             );

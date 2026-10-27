@@ -7,6 +7,7 @@ namespace App\Feedback\UI\Http\Controller;
 use App\Feedback\UI\Form\FeedbackSubmitFormType;
 use App\Feedback\UI\Http\FeedbackRedirectTargetResolver;
 use App\User\Domain\Entity\User;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,8 +15,10 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class FeedbackWidgetController extends AbstractController
 {
-    public function __construct(private readonly FeedbackRedirectTargetResolver $redirectTargetResolver)
-    {
+    public function __construct(
+        private readonly FeedbackRedirectTargetResolver $redirectTargetResolver,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     #[Route('/_ui/feedback/widget', name: 'app_feedback_widget', methods: ['GET'])]
@@ -43,7 +46,7 @@ final class FeedbackWidgetController extends AbstractController
             $form->get('extraContext')->setData($extra);
         }
 
-        $form->get('renderedAt')->setData((string) time());
+        $form->get('renderedAt')->setData((string) $this->clock->now()->getTimestamp());
 
         return $this->render('@Feedback/_includes/feedback_widget.html.twig', [
             'form' => $form->createView(),
