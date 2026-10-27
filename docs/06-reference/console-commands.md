@@ -143,7 +143,8 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 
 | Command | Purpose |
 |---|---|
-| `app:reference:load-indication-groups` | Load indication groups from `fixtures/reference/catalog.yaml` without purging the database. Prefer `app:reference:import --types=indication-group` in production. |
+| `app:dev:reset-operational-data` | Delete everything that blocks a catalog restore: allocations, MCI cases, imports and rejects, closures, projections, KPIs, reminder dispatches, access grants, hospital owners, hospital job runs and notifications, saved user views. Users and the reference catalog stay. One transaction, then materialized views are refreshed. Refuses outside `dev`/`test`, while queues hold messages, or while a restore runs (shared lock). `--dry-run` lists the rows; asks before deleting unless `--force`. See [ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md). |
+| `app:reference:load-indication-groups` | Load indication groups from `fixtures/reference/catalog.yaml` without purging the database. |
 | `app:fixtures:export-patterns` | Export distribution patterns from projection data. |
 | `app:fixtures:validate-patterns` | Validate committed pattern YAML files. |
 | `app:fixtures:generate-csv` | Generate CSV encoding test fixtures. |
