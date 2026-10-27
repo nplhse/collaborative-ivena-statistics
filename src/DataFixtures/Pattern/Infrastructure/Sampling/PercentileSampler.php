@@ -12,7 +12,7 @@ final class PercentileSampler
     public function sampleMinutes(array $percentiles): int
     {
         if ([] === $percentiles) {
-            return random_int(5, 120);
+            return mt_rand(5, 120);
         }
 
         $p25 = $percentiles['p25'] ?? $percentiles['p50'] ?? 12.0;

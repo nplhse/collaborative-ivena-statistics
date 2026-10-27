@@ -51,6 +51,52 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         }
     }
 
+    public function testTheSameSeedGivesTheSameRows(): void
+    {
+        self::bootKernel();
+        /** @var ContainerInterface $container */
+        $container = self::getContainer()->get('test.service_container'); // @phpstan-ignore symfonyContainer.serviceNotFound
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $container->get(EntityManagerInterface::class);
+        /** @var SymfonyFixturesLoader $loader */
+        $loader = $container->get('doctrine.fixtures.loader');
+        /** @var ORMPurgerFactory $purgerFactory */
+        $purgerFactory = $container->get('doctrine.fixtures.purger.orm_purger_factory');
+        new ORMExecutor($entityManager, $purgerFactory->createForEntityManager('default', $entityManager, []))->execute($loader->getFixtures(['reference']), true);
+        /** @var PatternSampler $sampler */
+        $sampler = $container->get(PatternSampler::class);
+
+        $rows = static function (int $seed) use ($sampler): array {
+            mt_srand($seed);
+            $pattern = new DefaultDistributionPatterns()->get('urban-full');
+            $rows = [];
+            for ($i = 0; $i < 50; ++$i) {
+                $sampled = $sampler->sample($pattern, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-03-31 23:59:59'));
+                $rows[] = [
+                    $sampled->createdAt->format(\DateTimeInterface::ATOM),
+                    $sampled->arrivalAt->format(\DateTimeInterface::ATOM),
+                    $sampled->age,
+                    $sampled->gender->value,
+                    $sampled->urgency->value,
+                    $sampled->department->getId(),
+                    $sampled->indicationRaw->getId(),
+                    $sampled->isCpr,
+                ];
+            }
+
+            return $rows;
+        };
+
+        $first = $rows(740);
+
+        self::assertSame($first, $rows(740), 'same seed, same allocations');
+        self::assertNotSame($first, $rows(741));
+        foreach ($first as [$createdAt]) {
+            self::assertGreaterThanOrEqual('2026-01-01', $createdAt);
+            self::assertLessThan('2026-04-01', $createdAt, 'every day lies in the period');
+        }
+    }
+
     public function testThePatternsAreNotNearUniform(): void
     {
         $patterns = new DefaultDistributionPatterns();

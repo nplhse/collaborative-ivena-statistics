@@ -49,12 +49,6 @@ parameters:
 			path: src/DataFixtures/Content/DemoContentLoader.php
 
 		-
-			message: '#^Reading the wall clock with new \\DateTimeImmutable\(\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
-			identifier: wallClock.dateTime
-			count: 1
-			path: src/DataFixtures/Pattern/Application/PatternSampler.php
-
-		-
 			message: '#^Reading the wall clock with new \\DateTimeImmutable\(''now''\) bypasses the Symfony clock and is invisible to ClockSensitiveTrait\:\:mockTime\(\)\.$#'
 			identifier: wallClock.dateTime
 			count: 1

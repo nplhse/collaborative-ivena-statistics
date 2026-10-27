@@ -48,6 +48,13 @@ final class ImportBatchPlannerTest extends TestCase
         self::assertLessThan(array_sum($weekdays[1]) / \count($weekdays[1]), array_sum($weekdays[7]) / \count($weekdays[7]), 'fewer allocations on Sundays than on Mondays');
     }
 
+    public function testTheSameSeedGivesTheSameDailyCounts(): void
+    {
+        $counts = static fn (array $batches): array => array_map(static fn (ImportBatch $batch): array => $batch->dailyCounts, $batches);
+
+        self::assertSame($counts($this->plan(scale: 1.0)), $counts($this->plan(scale: 1.0)));
+    }
+
     public function testTheScaleMultipliesTheVolume(): void
     {
         $full = $this->total($this->plan(scale: 1.0), 'Großklinikum');
