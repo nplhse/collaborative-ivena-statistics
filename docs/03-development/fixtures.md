@@ -23,12 +23,12 @@ make reset
 # or
 symfony composer load-fixtures
 # equivalent:
-php bin/console doctrine:fixtures:load --group=dev --no-interaction
+php bin/console doctrine:fixtures:load --group=dev --no-interaction --no-debug
 php bin/console app:statistics:rebuild-closure-volume-projection
 php bin/console app:statistics:refresh-mviews
 ```
 
-`make setup-dev` runs the same load after creating the database. The load writes the data, export periods, data coverage and the allocation projection; the two commands after it run the closure analysis with the closure volume projection and refresh the materialized views. They cannot run inside the load, because fixtures run in one database transaction and the closure rebuild takes a lock outside it. With the `realistic` preset the closure rebuild adds about 45 s.
+`make setup-dev` runs the same load after creating the database. The load writes the data, export periods, data coverage and the allocation projection; the two commands after it run the closure analysis with the closure volume projection and refresh the materialized views. They cannot run inside the load, because fixtures run in one database transaction and the closure rebuild takes a lock outside it. 
 
 ### Partial groups
 
@@ -55,12 +55,15 @@ php bin/console doctrine:fixtures:load --group=minimal --no-interaction
 
 `FIXTURES_PROFILE` chooses which participating hospitals receive synthetic allocations:
 
-| Profile | Hospitals with allocations | Allocations (12 months + current) | `make reset` |
+| Profile | Hospitals with allocations | Period | Allocations |
 |---|---|---|---|
-| `single` | 1, drawn with the seed | ~4,000 | ~25 s |
-| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | ~25,000 | ~35 s |
-| `medium` | 6: two of each size | ~50,000 | ~45 s |
-| `realistic` (default) | 15: 3 Large, 6 Medium, 6 Small | ~105,000 | ~70 s |
+| `single` | 1, drawn with the seed | 12 months + current | ~4,000 |
+| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | 12 months + current | ~25,000 |
+| `medium` | 6: two of each size | 12 months + current | ~50,000 |
+| `realistic` (default) | 15: 3 Large, 6 Medium, 6 Small | 12 months + current | ~106,000 |
+| `large` | all 20 participating hospitals: 3 Large, 8 Medium, 9 Small | 24 months + current | ~247,000 (1,000 imports, ~4,800 closure intervals) |
+
+`make reset` takes about 2 minutes with `realistic` (load about 80 s, closure rebuild about 45 s) and about 4½ minutes with `large` (load about 130 s, closure rebuild about 130 s). The load runs without debug mode: in debug mode Symfony keeps every SQL query in memory (`large` then needs over 800 MB instead of about 100 MB). A preset can set its own `months`; the synthetic catalog has 20 participating hospitals, so no preset can have more.
 
 The demo user `foo` owns one of the active hospitals, drawn with the seed: the same seed gives the same hospital, another seed another one. In `single` it owns the only one.
 
@@ -68,6 +71,8 @@ The demo user `foo` owns one of the active hospitals, drawn with the seed: the s
 FIXTURES_PROFILE=minimal make reset
 FIXTURES_PROFILE=single FIXTURES_SCALE=0.2 make reset    # fastest
 FIXTURES_UNTIL=2026-09-30 make reset                     # fixed period, same data on every day
+FIXTURES_PROFILE=large make reset                        # two years, every participating hospital
+FIXTURES_MONTHS=36 make reset                            # three years with the default preset
 ```
 
 ### Parameters
@@ -79,7 +84,9 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 | `FIXTURES_PROFILE` | `realistic` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes) |
 | `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `1` is close to real volumes |
 | `FIXTURES_UNTIL` | empty | Last day of the period (`Y-m-d`); empty means yesterday |
+| `FIXTURES_MONTHS` | empty | Whole months before the month of the last day; empty uses the months of the preset or `fixtures.baseline.months` |
 | `fixtures.baseline.months` | `12` | Whole months before the month of the last day: with yesterday in October 2026 the data runs from 1 October 2025 until yesterday |
+| `fixtures.baseline.trend_per_year` | `0.02` | Yearly growth of the daily rate, relative to 1 January 2026 (fixed, so a month added later gets the same volume); `0` is off |
 | `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes |
 | `fixtures.baseline.mci_cases_per_hospital_and_year` | `2` | Expected MCI cases per active hospital and year, Poisson distributed per month |
 | `fixtures.baseline.seed` | `740` | Seed for the hospital choice, the daily counts, sampling and MCI cases |

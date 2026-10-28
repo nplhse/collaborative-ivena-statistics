@@ -42,7 +42,7 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 ### Settings and the generator API
 
-The settings are seed, `until`, number of months, scale and the volume rates. They come from the fixture configuration (`FixtureVolume`); further settings such as a yearly trend, the closure frequency or the pattern source are added with the steps that need them. A preset selects the hospitals.
+The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the closure frequency or the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
 
 - `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital.
 - The allocation fixture runs the month generator for all selected hospitals and months, then rebuilds the projection once.

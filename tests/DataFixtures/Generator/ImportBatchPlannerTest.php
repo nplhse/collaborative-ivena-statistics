@@ -70,14 +70,29 @@ final class ImportBatchPlannerTest extends TestCase
 
     public function testAMonthGetsTheSameCountsAloneAndInsideALongerPeriod(): void
     {
-        $september = $this->plan(scale: 1.0, from: '2026-09-01', until: '2026-09-30 23:59:59');
-        $year = $this->plan(scale: 1.0);
+        // With a trend, too: it is relative to a fixed day, not to the end of the period.
+        $september = $this->plan(scale: 1.0, from: '2026-09-01', until: '2026-09-30 23:59:59', trend: 0.02);
+        $year = $this->plan(scale: 1.0, trend: 0.02);
 
         $inYear = array_values(array_filter($year, static fn (ImportBatch $batch): bool => '2026-09' === $batch->month && 'Großklinikum' === $batch->hospital->getName()));
         $alone = array_values(array_filter($september, static fn (ImportBatch $batch): bool => 'Großklinikum' === $batch->hospital->getName()));
 
         self::assertCount(1, $alone);
         self::assertSame($inYear[0]->dailyCounts, $alone[0]->dailyCounts);
+    }
+
+    public function testTheTrendGrowsTheVolumeFromYearToYear(): void
+    {
+        $volume = $this->volume(trend: 0.02);
+
+        self::assertSame(1.0, $volume->trendFactor(new \DateTimeImmutable(FixtureVolume::TREND_REFERENCE_DAY)));
+        self::assertEqualsWithDelta(1.02, $volume->trendFactor(new \DateTimeImmutable('2027-01-01')), 0.0005);
+        self::assertEqualsWithDelta(1 / 1.02, $volume->trendFactor(new \DateTimeImmutable('2025-01-01')), 0.0005);
+        self::assertSame(1.0, $this->volume(trend: 0.0)->trendFactor(new \DateTimeImmutable('2030-06-01')), 'no trend');
+
+        $earlier = $this->total($this->plan(scale: 1.0, from: '2024-10-01', until: '2025-09-30 23:59:59', trend: 0.10), 'Großklinikum');
+        $later = $this->total($this->plan(scale: 1.0, from: '2026-10-01', until: '2027-09-30 23:59:59', trend: 0.10), 'Großklinikum');
+        self::assertGreaterThan($earlier * 1.15, $later, 'two years at 10 % give about 21 % more');
     }
 
     public function testTheScaleMultipliesTheVolume(): void
@@ -88,14 +103,9 @@ final class ImportBatchPlannerTest extends TestCase
         self::assertEqualsWithDelta($full / 10, $tenth, $full / 10 * 0.1);
     }
 
-    /**
-     * @param list<Hospital>|null $hospitals
-     *
-     * @return list<ImportBatch>
-     */
-    private function plan(float $scale, int $seed = 740, ?array $hospitals = null, string $from = '2025-10-01', string $until = '2026-10-31 23:59:59'): array
+    private function volume(float $trend, float $scale = 1.0, int $seed = 740): FixtureVolume
     {
-        $volume = new FixtureVolume(
+        return new FixtureVolume(
             profile: 'test',
             hospitals: ['Large' => 1, 'Small' => 1],
             months: 12,
@@ -104,10 +114,19 @@ final class ImportBatchPlannerTest extends TestCase
             mciCasesPerHospitalAndYear: 0.0,
             seed: $seed,
             rebuildProjection: false,
+            trendPerYear: $trend,
         );
+    }
 
+    /**
+     * @param list<Hospital>|null $hospitals
+     *
+     * @return list<ImportBatch>
+     */
+    private function plan(float $scale, int $seed = 740, ?array $hospitals = null, string $from = '2025-10-01', string $until = '2026-10-31 23:59:59', float $trend = 0.0): array
+    {
         return new ImportBatchPlanner(new RandomStreams())->plan(
-            $volume,
+            $this->volume($trend, $scale, $seed),
             $hospitals ?? [
                 $this->hospital('Landkrankenhaus', HospitalSize::SMALL, true),
                 $this->hospital('Großklinikum', HospitalSize::LARGE, true),

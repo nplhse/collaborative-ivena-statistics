@@ -1,5 +1,5 @@
 parameters:
-    # Which hospitals receive synthetic allocations: single, minimal, medium or realistic (see fixtures.profiles).
+    # Which hospitals receive synthetic allocations: single, minimal, medium, realistic or large (see fixtures.profiles).
     env(FIXTURES_PROFILE): 'minimal'
     fixtures.profile: '%env(FIXTURES_PROFILE)%'
 
@@ -11,6 +11,10 @@ parameters:
     env(FIXTURES_UNTIL): ''
     fixtures.until: '%env(FIXTURES_UNTIL)%'
 
+    # Whole months before the month of the last day; empty uses the months of the preset or the baseline.
+    env(FIXTURES_MONTHS): ''
+    fixtures.months: '%env(FIXTURES_MONTHS)%'
+
     # Active hospitals per size; "any" draws hospitals of any size with the seed.
     # The demo user foo owns one of the active hospitals, drawn with the seed.
     fixtures.profiles:
@@ -18,6 +22,8 @@ parameters:
         minimal: { Large: 1, Medium: 1, Small: 1 }
         medium: { Large: 2, Medium: 2, Small: 2 }
         realistic: { Large: 3, Medium: 6, Small: 6 }
+        # Every participating hospital of the synthetic catalog, two years.
+        large: { Large: 3, Medium: 8, Small: 9, months: 24 }
 
     fixtures.baseline:
         # Whole months before the month of the last day; with yesterday in October 2026, 12 means 1 October 2025 until yesterday.
@@ -29,5 +35,7 @@ parameters:
             Large: 5
         # Expected MCI cases per active hospital and year (Poisson distributed per month).
         mci_cases_per_hospital_and_year: 12
+        # Yearly growth of the daily rate (0.02 = 2 %), relative to 2026-01-01; 0 is off.
+        trend_per_year: 0.0
         seed: 740
         rebuild_projection: true
