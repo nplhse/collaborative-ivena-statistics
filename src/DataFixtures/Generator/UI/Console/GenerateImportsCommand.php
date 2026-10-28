@@ -6,13 +6,14 @@ namespace App\DataFixtures\Generator\UI\Console;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolumeResolver;
-use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
+use App\DataFixtures\Generator\Application\GenerationPreflight;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\Run\GenerationRunRequest;
 use App\DataFixtures\Generator\Application\Run\GenerationRunScope;
 use App\DataFixtures\Generator\Application\Run\GenerationRunTracker;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -40,7 +41,7 @@ final readonly class GenerateImportsCommand
         private EntityManagerInterface $entityManager,
         private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
-        private CatalogCompatibility $catalog,
+        private GenerationPreflight $preflight,
         private GenerationRunTracker $runs,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
@@ -58,6 +59,8 @@ final readonly class GenerateImportsCommand
         string $month = '',
         #[Option(description: 'Seed instead of the configured one')]
         ?int $seed = null,
+        #[Option(description: 'Pattern source instead of FIXTURES_PATTERNS: "defaults" or a package (file name in var/patterns/ or a path)')]
+        string $patterns = '',
         #[Option(description: 'Show the planned counts without writing anything', name: 'dry-run')]
         bool $dryRun = false,
         #[Option(description: 'Track a generation run and leave the projections to a Messenger worker instead of waiting for them')]
@@ -81,18 +84,22 @@ final readonly class GenerateImportsCommand
             return Command::INVALID;
         }
 
+        $volume = $this->volumeResolver->resolve();
+        if (null !== $seed) {
+            $volume = $volume->withSeed($seed);
+        }
+        if ('' !== $patterns) {
+            $volume = $volume->withPatterns($patterns);
+        }
+
         try {
-            $this->catalog->assertCompatible();
-        } catch (CatalogMismatchException|\InvalidArgumentException $exception) {
+            $this->preflight->check($volume);
+        } catch (InvalidPatternPackageException|CatalogMismatchException|\InvalidArgumentException $exception) {
             $io->error($exception->getMessage());
 
             return Command::FAILURE;
         }
 
-        $volume = $this->volumeResolver->resolve();
-        if (null !== $seed) {
-            $volume = $volume->withSeed($seed);
-        }
         $lastDay = $volume->lastDay($this->clock);
 
         $rows = [];
@@ -104,7 +111,7 @@ final readonly class GenerateImportsCommand
         foreach ($hospital as $publicId) {
             $entities[$publicId] = $this->findHospital($publicId);
         }
-        $runId = $async && !$dryRun ? $this->startRun($entities, $volume->seed, $month, $notify) : null;
+        $runId = $async && !$dryRun ? $this->startRun($entities, $volume->seed, $volume->patterns, $month, $notify) : null;
 
         foreach ($entities as $publicId => $entity) {
             if (!$entity instanceof Hospital) {
@@ -165,7 +172,7 @@ final readonly class GenerateImportsCommand
     /**
      * @param array<string, Hospital|null> $entities
      */
-    private function startRun(array $entities, int $seed, string $month, bool $notify): ?string
+    private function startRun(array $entities, int $seed, string $patterns, string $month, bool $notify): ?string
     {
         $ids = [];
         foreach ($entities as $entity) {
@@ -184,7 +191,7 @@ final readonly class GenerateImportsCommand
             seed: $seed,
             fromMonth: $month,
             toMonth: $month,
-            settings: ['command' => 'app:generate:imports'],
+            settings: ['command' => 'app:generate:imports', 'patterns' => $patterns],
             notify: $notify,
         ));
     }
