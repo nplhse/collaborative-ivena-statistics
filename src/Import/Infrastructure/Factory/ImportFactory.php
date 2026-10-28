@@ -9,6 +9,7 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -30,12 +31,12 @@ final class ImportFactory extends PersistentObjectFactory
     {
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisDecade()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::random()),
             'fileExtension' => self::faker()->randomElement(['.csv']),
             'fileMimeType' => self::faker()->randomElement(['text/csv', 'text/plain']),
             'filePath' => 'dummy/path',
             'fileSize' => self::faker()->numberBetween(1, 100000),
-            'hospital' => HospitalFactory::random(),
+            'hospital' => LazyValue::new(static fn (): object => HospitalFactory::random()),
             'name' => self::faker()->sentence(5),
             'rowCount' => self::faker()->numberBetween(10, 2500),
             'runCount' => self::faker()->numberBetween(1, 10),

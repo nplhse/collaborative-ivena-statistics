@@ -6,6 +6,7 @@ namespace App\Allocation\Infrastructure\Factory;
 
 use App\Allocation\Domain\Entity\Occasion;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -34,7 +35,7 @@ final class OccasionFactory extends PersistentObjectFactory
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable($faker->dateTime()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::random()),
             'name' => $faker->occasion(),
         ];
     }

@@ -10,6 +10,7 @@ use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Faker\Provider\Area;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -48,16 +49,16 @@ final class HospitalFactory extends PersistentObjectFactory
                 'country' => $profile['address']['country'],
             ])->create(),
             'beds' => $profile['beds'],
-            'owner' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'owner' => LazyValue::new(static fn (): object => UserFactory::new()->withoutAutorefresh()->randomOrCreate()),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
-            'dispatchArea' => DispatchAreaFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::new()->withoutAutorefresh()->randomOrCreate()),
+            'dispatchArea' => LazyValue::new(static fn (): object => DispatchAreaFactory::new()->withoutAutorefresh()->randomOrCreate()),
             'latitude' => $profile['coordinates']['lat'],
             'location' => HospitalLocation::from($profile['location']),
             'longitude' => $profile['coordinates']['lng'],
             'name' => $profile['name'],
             'size' => HospitalSize::from($profile['size']),
-            'state' => StateFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'state' => LazyValue::new(static fn (): object => StateFactory::new()->withoutAutorefresh()->randomOrCreate()),
             'tier' => HospitalTier::from($profile['tier']),
         ];
     }
