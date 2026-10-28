@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Infrastructure\Sampling;
 
+use Random\Randomizer;
+
 final class WeightedCategoricalSampler
 {
     /**
      * @param array<int|string, float|int> $weights
      */
-    public function sample(array $weights): string
+    public function sample(array $weights, Randomizer $random): string
     {
         if ([] === $weights) {
             throw new \InvalidArgumentException('Cannot sample from an empty distribution.');
         }
 
         $normalized = $this->normalize($weights);
-        $target = (float) mt_rand() / (float) mt_getrandmax();
+        $target = $random->nextFloat();
         $cursor = 0.0;
 
         foreach ($normalized as $label => $weight) {
@@ -39,11 +41,11 @@ final class WeightedCategoricalSampler
         return (string) $key;
     }
 
-    public function sampleBernoulli(float $probability): bool
+    public function sampleBernoulli(float $probability, Randomizer $random): bool
     {
         $probability = max(0.0, min(1.0, $probability));
 
-        return (float) mt_rand() / (float) mt_getrandmax() < $probability;
+        return $random->nextFloat() < $probability;
     }
 
     /**

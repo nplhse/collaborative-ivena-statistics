@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Application;
 
-use App\Allocation\Domain\Entity\Hospital;
-use App\Allocation\Domain\Enum\HospitalLocation;
-use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
 
@@ -14,7 +11,8 @@ use App\DataFixtures\Pattern\Dto\DistributionPattern;
  * Plain, plausible distributions for synthetic allocations, keyed by the synthetic catalog (ADR 020).
  *
  * The shares are coarse general knowledge (whole or five percent steps, common values only),
- * not an export of real data. Real patterns, conditional chains and coherence rules belong to #792.
+ * not an export of real data. A segment sets the mix of indications, occasions, transport times and
+ * base flags; department, urgency, age and sex follow from the indication (IndicationGroups).
  */
 final class DefaultDistributionPatterns
 {
@@ -24,18 +22,6 @@ final class DefaultDistributionPatterns
     public static function names(): array
     {
         return ['urban-full', 'urban-basic', 'rural-basic'];
-    }
-
-    /**
-     * The pattern of the hospital's segment: full care, rural basic care or urban basic care.
-     */
-    public function forHospital(Hospital $hospital): DistributionPattern
-    {
-        return match (true) {
-            HospitalTier::FULL === $hospital->getTier() => $this->get('urban-full'),
-            HospitalLocation::RURAL === $hospital->getLocation() => $this->get('rural-basic'),
-            default => $this->get('urban-basic'),
-        };
     }
 
     public function get(string $name): DistributionPattern
@@ -52,46 +38,8 @@ final class DefaultDistributionPatterns
     {
         return new DistributionPattern(
             distributions: [
-                'urgency' => $severe ? ['1' => 0.20, '2' => 0.55, '3' => 0.25] : ['1' => 0.10, '2' => 0.50, '3' => 0.40],
-                'gender' => ['M' => 0.50, 'F' => 0.49, 'X' => 0.01],
                 'transport_type' => $severe ? ['G' => 0.95, 'A' => 0.05] : ['G' => 0.99, 'A' => 0.01],
-                'age_bucket' => ['0-17' => 0.05, '18-39' => 0.20, '40-64' => 0.30, '65-99' => 0.45],
                 'hour_of_day' => $this->hoursOfDay(),
-                'speciality' => [
-                    'Innere Medizin' => 0.40,
-                    'Chirurgie' => 0.25,
-                    'Neurologie' => 0.10,
-                    'Orthopädie' => 0.05,
-                    'Pädiatrie' => 0.05,
-                    'Gynäkologie und Geburtshilfe' => 0.05,
-                    'Psychiatrie' => 0.05,
-                    'Urologie' => 0.03,
-                    'HNO (Hals-Nasen-Ohren)' => 0.02,
-                ],
-                'department' => $severe
-                    ? [
-                        'Kardiologie' => 0.20,
-                        'Gastroenterologie' => 0.10,
-                        'Pulmologie' => 0.10,
-                        'Unfallchirurgie' => 0.15,
-                        'Allgemeinchirurgie' => 0.10,
-                        'Neurochirurgie' => 0.05,
-                        'Schlaganfallmedizin' => 0.10,
-                        'Allgemeine Neurologie' => 0.05,
-                        'Allgemeine Pädiatrie' => 0.05,
-                        'Geburtshilfe' => 0.05,
-                        'Allgemeine Psychiatrie' => 0.05,
-                    ]
-                    : [
-                        'Kardiologie' => 0.20,
-                        'Gastroenterologie' => 0.15,
-                        'Pulmologie' => 0.10,
-                        'Unfallchirurgie' => 0.20,
-                        'Allgemeinchirurgie' => 0.15,
-                        'Allgemeine Neurologie' => 0.10,
-                        'Geburtshilfe' => 0.05,
-                        'Allgemeine Psychiatrie' => 0.05,
-                    ],
                 'assignment' => ['RD' => 0.75, 'Notzuweisung' => 0.10, 'ZLST' => 0.05, 'Einweisung' => 0.05, 'Arzt/Arzt' => 0.04, 'Patient' => 0.01],
                 'occasion' => [
                     'Häuslicher Einsatz' => $severe ? 0.50 : 0.55,
@@ -114,7 +62,6 @@ final class DefaultDistributionPatterns
                     'is_pregnant' => 0.02,
                     'is_work_accident' => 0.03,
                     'is_with_physician' => $severe ? 0.20 : 0.10,
-                    'department_was_closed' => 0.03,
                 ],
                 'transport_time_minutes' => $rural
                     ? ['p25' => 15.0, 'p50' => 22.0, 'p75' => 32.0, 'p90' => 45.0]

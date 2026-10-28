@@ -6,6 +6,7 @@ namespace App\Content\Infrastructure\Factory;
 
 use App\Content\Domain\Entity\PostComment;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -30,7 +31,7 @@ final class PostCommentFactory extends PersistentObjectFactory
             'content' => self::faker()->paragraph(5),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
             'createdBy' => UserFactory::new()->withoutAutorefresh(),
-            'post' => PostFactory::new()->withoutAutorefresh()->random(),
+            'post' => LazyValue::new(static fn (): object => PostFactory::new()->withoutAutorefresh()->random()),
         ];
     }
 }

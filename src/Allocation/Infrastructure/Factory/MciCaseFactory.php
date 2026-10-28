@@ -35,10 +35,10 @@ final class MciCaseFactory extends PersistentObjectFactory
         return [
             'arrivalAt' => $arrivalAt,
             'createdAt' => $createdAt,
-            'dispatchArea' => DispatchAreaFactory::random(),
-            'state' => StateFactory::random(),
-            'import' => ImportFactory::random(),
-            'hospital' => HospitalFactory::random(),
+            'dispatchArea' => LazyValue::new(static fn (): object => DispatchAreaFactory::random()),
+            'state' => LazyValue::new(static fn (): object => StateFactory::random()),
+            'import' => LazyValue::new(static fn (): object => ImportFactory::random()),
+            'hospital' => LazyValue::new(static fn (): object => HospitalFactory::random()),
 
             'mciId' => self::faker()->sha1(),
             'mciTitle' => self::faker()->sentence(3),

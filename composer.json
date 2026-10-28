@@ -127,7 +127,9 @@
             "@php bin/console doctrine:migrations:migrate --no-interaction"
         ],
         "load-fixtures": [
-            "@php bin/console doctrine:fixtures:load --group=dev --no-interaction"
+            "@php bin/console doctrine:fixtures:load --group=dev --no-interaction --no-debug",
+            "@php bin/console app:statistics:rebuild-closure-volume-projection",
+            "@php bin/console app:statistics:refresh-mviews"
         ],
         "setup-env": [
             "@setup-database",

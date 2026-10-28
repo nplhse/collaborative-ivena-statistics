@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Infrastructure\Sampling;
 
+use Random\Randomizer;
+
 final class PercentileSampler
 {
     /**
      * @param array<string, float> $percentiles
      */
-    public function sampleMinutes(array $percentiles): int
+    public function sampleMinutes(array $percentiles, Randomizer $random): int
     {
         if ([] === $percentiles) {
-            return mt_rand(5, 120);
+            return $random->getInt(5, 120);
         }
 
         $p25 = $percentiles['p25'] ?? $percentiles['p50'] ?? 12.0;
@@ -20,7 +22,7 @@ final class PercentileSampler
         $p75 = $percentiles['p75'] ?? $p50;
         $p90 = $percentiles['p90'] ?? $p75;
 
-        $roll = (float) mt_rand() / (float) mt_getrandmax();
+        $roll = $random->nextFloat();
 
         $minutes = match (true) {
             $roll <= 0.25 => $this->lerp($p25, $p50, $roll / 0.25),
