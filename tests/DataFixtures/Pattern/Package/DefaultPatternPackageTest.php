@@ -36,7 +36,7 @@ final class DefaultPatternPackageTest extends PatternPackageTestCase
         self::assertSame($written->meta->checksum->value, $read->meta->checksum->value);
         self::assertSame($read->meta->checksum->value, $fromPackage->source, 'the set records the package checksum');
         self::assertSame(PatternSet::DEFAULTS, $defaults->source);
-        self::assertSame(['segments' => 3, 'indication_groups' => \count(IndicationGroups::all()), 'indications' => 29], $read->meta->counts);
+        self::assertSame(['segments' => 3, 'indication_groups' => \count(IndicationGroups::all()), 'indications' => 42], $read->meta->counts);
         self::assertSame(DefaultPatternPackage::SOURCE, $read->meta->source);
     }
 

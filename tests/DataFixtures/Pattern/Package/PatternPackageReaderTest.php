@@ -219,11 +219,11 @@ final class PatternPackageReaderTest extends PatternPackageTestCase
         ];
         yield 'wrong count' => [
             static function (array $data): array {
-                $data['meta']['counts']['indications'] = 30;
+                $data['meta']['counts']['indications'] = 43;
 
                 return $data;
             },
-            'meta.counts.indications', 'Count is 30, but the package has 29.',
+            'meta.counts.indications', 'Count is 43, but the package has 42.',
         ];
         yield 'bad source' => [
             static function (array $data): array {
@@ -238,7 +238,7 @@ final class PatternPackageReaderTest extends PatternPackageTestCase
     public function testItRefusesAChangedFileByItsChecksum(): void
     {
         $data = $this->defaultsData();
-        $data['segments']['urban-full']['occasions']['Verkehrsunfall'] = 0.04;
+        $data['segments']['urban-full']['occasions']['Verkehrsunfall'] = 0.14;
         $data['segments']['urban-full']['occasions']['Arbeitsunfall'] = 0.06;
 
         self::assertSame(
