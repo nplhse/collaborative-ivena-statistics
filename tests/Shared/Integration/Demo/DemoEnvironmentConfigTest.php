@@ -23,6 +23,8 @@ final class DemoEnvironmentConfigTest extends KernelTestCase
         self::assertSame($projectDir.'/var/demo/imports', $container->getParameter('app.imports_base_dir'));
         self::assertSame($projectDir.'/var/demo/imports/rejects', $container->getParameter('app.rejects_base_dir'));
         self::assertSame($projectDir.'/public/uploads/demo/media', $container->getParameter('app.media_upload_dir'));
+        self::assertSame($projectDir.'/var/demo/geo/hospital-isochrones', $container->getParameter('app.hospital_isochrones_dir'));
+        self::assertSame($projectDir.'/var/demo/geo/prepared-locations', $container->getParameter('app.prepared_locations_dir'));
         self::assertSame('large', $container->getParameter('fixtures.profile'));
     }
 
