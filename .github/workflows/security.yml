@@ -34,14 +34,26 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v7
 
-            - name: Psalm
-              uses: docker://ghcr.io/psalm/psalm-github-actions:6.18.1
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
               with:
-                  composer_require_dev: true
-                  security_analysis: true
-                  report_file: results.sarif
+                  coverage: none
+                  extensions: intl
+                  php-version: '8.4'
+                  tools: composer:v2
 
+            # Same Psalm version and psalm.xml as `make psalm` (no separate Docker image with its own version).
+            - name: Install dependencies
+              uses: ramsey/composer-install@v4
+              with:
+                  composer-options: --no-scripts
+
+            - name: Psalm taint analysis
+              run: vendor/bin/psalm --taint-analysis --no-progress --report=results.sarif
+
+            # Upload findings also when Psalm fails because of them.
             - name: Upload Security Analysis results to GitHub
+              if: ${{ !cancelled() && hashFiles('results.sarif') != '' }}
               uses: github/codeql-action/upload-sarif@v4
               with:
                   sarif_file: results.sarif

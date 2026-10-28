@@ -75,11 +75,12 @@ jobs:
                   path: |
                       var/cache/rector
                       var/cache/phpstan
+                      var/cache/psalm
                       .php-cs-fixer.cache
                       .twig-cs-fixer.cache
-                  key: lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-${{ github.run_id }}
+                  key: lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', 'psalm.xml', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-${{ github.run_id }}
                   restore-keys: |
-                      lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-
+                      lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', 'psalm.xml', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-
 
             - name: Check PHPUnit suite directories
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
@@ -142,6 +143,10 @@ jobs:
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
               run: make -s phpstan
 
+            - name: Run Psalm
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s psalm
+
             - name: Run Deptrac (architecture report, does not fail)
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
               run: make -s deptrac
@@ -153,6 +158,7 @@ jobs:
                   path: |
                       var/cache/rector
                       var/cache/phpstan
+                      var/cache/psalm
                       .php-cs-fixer.cache
                       .twig-cs-fixer.cache
-                  key: lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-${{ github.run_id }}
+                  key: lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', 'psalm.xml', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-${{ github.run_id }}
