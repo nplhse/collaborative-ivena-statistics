@@ -200,6 +200,17 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
+### Limitations
+
+The data looks plausible in totals, weekly rhythm and the indication-driven fields, but it does not model everything that real exports show (assessment in #874). Structural hospital profiles (#876) and pattern packages (#883) address most of it:
+
+- **Hospitals look alike.** Every hospital of one size gets the same daily rate, whatever its beds. Hospitals of one tier and location share one segment pattern, so apart from their offered departments and cath lab their indication, age and urgency mix hardly differ. The segment ignores size: a medium full-care hospital gets the mix of a large one.
+- **Severity follows the segment, not the capabilities.** STEMI, polytrauma, resuscitation and cardiogenic shock codes appear only in full-care hospitals, even when another hospital has a cath lab.
+- **About 30 PZC codes.** Urology, ENT, ophthalmology, dermatology (7xx) and transport codes (6xx) are not drawn, so the departments of those fields never get allocations; neither do allocations without a normalized indication or with a secondary indication.
+- **Few dependencies outside the indication.** Department, urgency, age, sex and flags follow from the indication. Occasion, infection, assignment, transport type, secondary transport and transport time do not (a traffic accident can bring a chest pain patient). The hour of day depends neither on the weekday nor on the case; transport time depends on the hospital's location only. Ages are uniform inside wide bands, for example 65–99.
+- **Closures are small and rare.** A closure event closes one to four departments from a fixed list. Events that close most departments of a hospital at once, closures by care level for the same department, and a closure frequency given as the share of closed department-hours are not modelled. `department_was_closed` is set only for allocations inside a generated interval.
+- **Fixed lookups.** Assignment, occasion and infection use one flat distribution per segment and only part of the catalog's values.
+
 ## Projection rebuild
 
 After bulk allocation fixture loads, the projection table is rebuilt automatically when `rebuild_projection` is enabled; `composer load-fixtures` then rebuilds the closure analysis, the closure volume projection and the materialized views (`SyntheticDataPipeline`). The fixture also aggregates the daily KPIs of every upload day; unlike the closure rebuild this works inside the fixture transaction. `app:generate:imports` and `app:generate:scenario` run all of this for the imports they add, including the KPIs of their upload days. Manual rebuild:
