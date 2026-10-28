@@ -9,6 +9,7 @@ use App\DataFixtures\Structure\Application\DefaultStructurePatterns;
 use App\DataFixtures\Structure\Application\DepartmentStructure;
 use App\DataFixtures\Structure\Application\StructureRules;
 use App\DataFixtures\Structure\Dto\Capability;
+use App\DataFixtures\Structure\Dto\ClosureModel;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
 use App\DataFixtures\Structure\Dto\HospitalResources;
 use App\DataFixtures\Structure\Dto\ObstetricsLevel;
@@ -84,6 +85,31 @@ final class StructureRulesTest extends TestCase
             'broken: unknown field "dermatology"',
             'broken: unknown tier or size "Basic/Tiny"',
         ], StructureRules::configurationViolations($configuration));
+    }
+
+    public function testAnIncoherentClosureModelIsReported(): void
+    {
+        $set = new StructurePatternSet(
+            array_values(new DefaultStructurePatterns()->get()->configurations),
+            gates: [],
+            resusShares: [],
+            closures: new ClosureModel(
+                eventSizes: ['single' => ['share' => 0.5, 'min' => 0.0, 'max' => 0.0], 'odd' => ['share' => 0.5, 'min' => 0.8, 'max' => 0.2]],
+                durations: ['week' => ['share' => 1.0, 'min' => 60, 'max' => 10080]],
+                careLevels: ['icu' => 1.0],
+                weekdays: [8 => 1.0],
+                fieldWeights: [],
+                groupShare: 1.5,
+            ),
+        );
+
+        self::assertSame([
+            'closure event size "odd": the range must lie within 0 to 1',
+            'closure duration "week": minutes must lie within 1 to 1,440',
+            'unknown closure care level "icu"',
+            'closure weekday 8 needs a factor of at least 0',
+            'the closure group share must lie within 0 to 1',
+        ], StructureRules::setViolations($set));
     }
 
     public function testASetNeedsAConfigurationForEveryTierAndSize(): void

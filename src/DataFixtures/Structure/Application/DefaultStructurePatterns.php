@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures\Structure\Application;
 
 use App\DataFixtures\Structure\Dto\Capability;
+use App\DataFixtures\Structure\Dto\ClosureModel;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
 use App\DataFixtures\Structure\Dto\HospitalResources;
 use App\DataFixtures\Structure\Dto\MixVariation;
@@ -73,9 +74,34 @@ final class DefaultStructurePatterns
 
     /**
      * Share of closed department-hours by size. General knowledge, not measured: the reference data
-     * of #874 has closures of too few hospitals for a value of its own.
+     * of #874 has closures of too few hospitals for a value of its own. The same holds for every
+     * closure value below; they are plausible, clearly rounded values.
      */
     private const array CLOSURE_SHARES = ['Small' => 0.05, 'Medium' => 0.08, 'Large' => 0.10];
+
+    /** Most events close one or a few departments, some a large part of the hospital at once. */
+    private const array EVENT_SIZES = [
+        'single' => ['share' => 0.45, 'min' => 0.0, 'max' => 0.0],
+        'few' => ['share' => 0.30, 'min' => 0.10, 'max' => 0.25],
+        'many' => ['share' => 0.15, 'min' => 0.30, 'max' => 0.60],
+        'most' => ['share' => 0.10, 'min' => 0.70, 'max' => 1.0],
+    ];
+
+    /** Minutes: mostly hours, some shifts, and whole days that start at midnight. */
+    private const array DURATIONS = [
+        'short' => ['share' => 0.40, 'min' => 30, 'max' => 120],
+        'shift' => ['share' => 0.35, 'min' => 121, 'max' => 360],
+        'long' => ['share' => 0.15, 'min' => 361, 'max' => 1439],
+        'day' => ['share' => 0.10, 'min' => 1440, 'max' => 1440],
+    ];
+
+    private const array CARE_LEVELS = ['inpatient' => 0.45, 'emergency' => 0.30, 'outpatient' => 0.25];
+
+    /** Monday to Sunday: more closures early in the week and on Friday, fewer at the weekend. */
+    private const array WEEKDAYS = [1 => 1.15, 2 => 1.10, 3 => 1.0, 4 => 1.0, 5 => 1.10, 6 => 0.85, 7 => 0.80];
+
+    /** Internal medicine and neurology are closed more often than their size suggests, paediatrics and obstetrics less. */
+    private const array FIELD_WEIGHTS = ['internal-medicine' => 1.5, 'neurology' => 1.2, 'paediatrics' => 0.7, 'gynaecology-obstetrics' => 0.7];
 
     public function get(): StructurePatternSet
     {
@@ -109,6 +135,7 @@ final class DefaultStructurePatterns
             // (#874, rounded to coarse spreads).
             mixVariation: new MixVariation(categorySpread: 0.25, oldAgeSpread: 0.20, urgentSpread: 0.35),
             closureShares: self::CLOSURE_SHARES,
+            closures: new ClosureModel(self::EVENT_SIZES, self::DURATIONS, self::CARE_LEVELS, self::WEEKDAYS, self::FIELD_WEIGHTS, groupShare: 0.55),
         );
     }
 

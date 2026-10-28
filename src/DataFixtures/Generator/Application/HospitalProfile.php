@@ -26,23 +26,21 @@ final readonly class HospitalProfile
     public bool $hasCathlab;
 
     /**
-     * @param string       $segment               default pattern of the hospital (see DefaultDistributionPatterns::names())
-     * @param float        $resusShare            share of allocations that need the resuscitation room
-     * @param list<string> $missingDepartments    departments the hospital does not offer (default labels)
-     * @param float        $closureEventsPerMonth average closure events per 30 days
-     * @param string       $configuration         key of the hospital configuration it was drawn from
-     * @param list<string> $blockedIndications    PZC code prefixes the hospital lacks the capability for
-     * @param string       $size                  size the volume anchor is taken from (Small, Medium, Large)
-     * @param float        $volumeFactor          factor on the preset rate of the size (beds and hospital factor)
-     * @param int|null     $annualVolume          explicit allocations per year; replaces preset rate and factor
-     * @param float        $closureShare          share of department-hours that are closed
+     * @param string       $segment            default pattern of the hospital (see DefaultDistributionPatterns::names())
+     * @param float        $resusShare         share of allocations that need the resuscitation room
+     * @param list<string> $missingDepartments departments the hospital does not offer (default labels)
+     * @param string       $configuration      key of the hospital configuration it was drawn from
+     * @param list<string> $blockedIndications PZC code prefixes the hospital lacks the capability for
+     * @param string       $size               size the volume anchor is taken from (Small, Medium, Large)
+     * @param float        $volumeFactor       factor on the preset rate of the size (beds and hospital factor)
+     * @param int|null     $annualVolume       explicit allocations per year; replaces preset rate and factor
+     * @param float        $closureShare       share of department-hours that are closed (merged per department)
      */
     public function __construct(
         public string $segment,
         public HospitalResources $resources,
         public float $resusShare,
         public array $missingDepartments = [],
-        public float $closureEventsPerMonth = 5.0,
         public string $configuration = 'custom',
         public array $blockedIndications = [],
         public string $size = 'Medium',

@@ -35,9 +35,6 @@ use Random\Randomizer;
  */
 final readonly class HospitalProfileResolver
 {
-    /** Average closure events per hospital and 30 days, by size. */
-    private const array CLOSURE_EVENTS_PER_MONTH = ['Large' => 8.0, 'Medium' => 5.0, 'Small' => 3.0];
-
     public function __construct(
         private RandomStreams $streams,
         private WeightedCategoricalSampler $sampler,
@@ -87,7 +84,6 @@ final readonly class HospitalProfileResolver
             resources: $resources,
             resusShare: $set->resusShares[$resources->traumaLevel->value] ?? 0.0,
             missingDepartments: DepartmentStructure::labels(array_values(array_diff(DepartmentStructure::all(), $offered))),
-            closureEventsPerMonth: self::CLOSURE_EVENTS_PER_MONTH[$size],
             configuration: $configuration->key,
             blockedIndications: $set->blockedIndications($resources),
             size: $size,
