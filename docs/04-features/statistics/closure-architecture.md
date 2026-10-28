@@ -158,12 +158,18 @@ reference weeks before the first and after the last closure of the partition
 and six hours of context. It writes only
 events whose start lies in the partition. The same reference block is computed
 once per series (population and metric), event extent, weekday, and day-time
-bucket and reused for the six hours. That cache ends with the partition.
+bucket and reused for the six hours. That cache ends with the partition. The
+hour pieces of an anchor are split once and shared by every anchor of the same
+event with the same segments (the five metrics of a population usually have the
+same ones); partial counts, reference groups and the planner use that one split.
 
 The worker limit stays `--memory-limit=256M`. `memory_limit` is not raised.
-Large scans are SQL aggregations or a cursor with `FETCH`. Inserts flush about
-200 rows. There is no ORM unit of work on this path. Each partition logs
-runtime, current memory, and peak. The retained PHP heap of a later week must
+Large scans are SQL aggregations or a cursor with `FETCH`. Rows are written with
+`COPY` in batches of 2,000 (200-row `INSERT`s without the PostgreSQL driver) into
+a build table without keys; its primary key and indexes are created after the
+last row, before publish, so the unique grain index still rejects a duplicate.
+There is no ORM unit of work on this path. Each partition logs runtime, current
+memory, and peak. The retained PHP heap of a later week must
 not grow with the earlier week.
 
 Closure imports request an analysis rebuild. The handler then builds volume for
@@ -219,6 +225,16 @@ table and `job_run.metrics` keeps the statement count (`queries`). Context
 hours look up influencing closures in an index per population and metric
 (`ClosureVolumeNeighbourIndex`), reference slots are shared by every population
 with the same event extent, and the build table is written with `COPY`.
+
+Measured for #899 on the synthetic `realistic` preset with closures from
+department-hour shares (#876; `FIXTURES_UNTIL=2026-09-30`, seed 740: 6,809 events,
+5.1 million rows), Xdebug off: a full rebuild took 221 s before and 133 s after
+splitting hours once per event and segments, keeping the reference cache for the
+whole partition and indexing the build table after the load; `closure_volume_hour`
+was byte-identical. The cost follows the number of written rows (events ×
+populations × metrics × hours), not the number of intervals as such. The
+remaining time is mostly database work: loading and indexing the rows (about
+35 s and 22 s) and the hourly counts per partition (about 16 s).
 
 A request is queued only for hospitals with `closure_interval` or
 `closure_event` rows, and only when no open, unclaimed request covers it: an
