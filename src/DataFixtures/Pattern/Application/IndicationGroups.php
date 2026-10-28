@@ -28,7 +28,7 @@ final class IndicationGroups
     private const array ADULTS = ['18-39' => 0.15, '40-64' => 0.30, '65-99' => 0.55];
 
     private const array PREGNANCY = [
-        'departments' => ['Geburtshilfe' => 0.85, 'Pränatalmedizin' => 0.10, 'Gynäkologie' => 0.05],
+        'departments' => ['Geburtshilfe' => 0.90, 'Pränatalmedizin' => 0.10],
         'urgency' => ['1' => 0.10, '2' => 0.55, '3' => 0.35],
         'ages' => ['15-17' => 0.02, '18-29' => 0.38, '30-39' => 0.55, '40-49' => 0.05],
         'female' => 1.0,

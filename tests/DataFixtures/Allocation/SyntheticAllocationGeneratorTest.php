@@ -75,7 +75,7 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
             self::assertGreaterThan($case['created_at'], $case['arrival_at']);
         }
 
-        $this->assertCathLabCasesOnlyWhereTheProfileHasOne($connection);
+        $this->assertTheProfilesHold($connection);
         $this->assertClosedFlagOnlyDuringAClosure($connection);
         $this->assertProcessedLikeAnUpload($connection);
 
@@ -129,9 +129,10 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
     }
 
     /**
+     * Cath lab cases only with a cath lab, allocations and closures only in offered departments.
      * Checked on the same load as the MCI cases, so the profiles cost no extra fixture load.
      */
-    private function assertCathLabCasesOnlyWhereTheProfileHasOne(Connection $connection): void
+    private function assertTheProfilesHold(Connection $connection): void
     {
         /** @var HospitalProfileResolver $profiles */
         $profiles = self::getContainer()->get(HospitalProfileResolver::class);
@@ -152,6 +153,24 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
             self::assertSame(0, (int) $row['cathlab'], sprintf('%s has no cath lab', (string) $hospital->getName()));
         }
         self::assertGreaterThan(0, $withCathlab, 'the full-care hospital has a cath lab');
+
+        $missing = 0;
+        $used = $connection->fetchAllAssociative(
+            'SELECT a.hospital_id, d.name FROM allocation a JOIN department d ON d.id = a.department_id
+             UNION SELECT c.hospital_id, d.name FROM closure_interval c JOIN department d ON d.id = c.department_id',
+        );
+        $byHospital = [];
+        foreach ($used as $row) {
+            $byHospital[(int) $row['hospital_id']][] = (string) $row['name'];
+        }
+        foreach ($byHospital as $hospitalId => $departments) {
+            $hospital = $entityManager->find(Hospital::class, $hospitalId);
+            self::assertInstanceOf(Hospital::class, $hospital);
+            $profile = $profiles->resolve($hospital, $seed);
+            $missing += \count($profile->missingDepartments);
+            self::assertSame([], array_values(array_intersect($departments, $profile->missingDepartments)), sprintf('%s: no allocation or closure in a department it does not offer', (string) $hospital->getName()));
+        }
+        self::assertGreaterThan(0, $missing, 'some hospital lacks a department, so the check means something');
     }
 
     /**

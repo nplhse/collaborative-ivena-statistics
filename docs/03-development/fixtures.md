@@ -95,13 +95,13 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 
 Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise), adjusted by its profile (`HospitalProfileResolver`):
 
-| | Cath lab | Resuscitation room cases |
-|---|---|---|
-| Full care | always | about 10 % |
-| Extended care | Large 80 %, Medium 50 %, Small 30 % of the hospitals | 4–6 % |
-| Basic care | Large 15 %, Medium 10 %, Small 5 % of the hospitals | 1–3 % |
+| | Cath lab | Resuscitation room cases | Offered departments |
+|---|---|---|---|
+| Full care | always | about 10 % | nearly all |
+| Extended care | Large 80 %, Medium 50 %, Small 30 % of the hospitals | 4–6 % | most; stroke unit, neurosurgery, neonatology only in some |
+| Basic care | Large 15 %, Medium 10 %, Small 5 % of the hospitals | 1–3 % | the core and a few more |
 
-The cath lab is drawn once per hospital with the seed; a hospital without one gets no cath lab cases. Allocations are written in batches through DBAL.
+The cath lab and the offered departments are drawn once per hospital with the seed; a hospital without a cath lab gets no cath lab cases. Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery); each further department has a chance by tier, larger hospitals a higher one. A hospital gets no allocations and no closures in a department it does not offer: an indication whose departments are all missing is drawn again (a hospital without obstetrics gets no births, one without neurology hardly any strokes), and after five tries the case goes to a core department. The closure frequency is part of the profile too (8, 5 or 3 events per month by size). Allocations are written in batches through DBAL.
 
 ### Reproducible data
 
@@ -149,7 +149,7 @@ An import is "uploaded" one to three days after the last day it covers, during o
 
 ### Closures
 
-Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`: on average 8, 5 or 3 closure events per month for large, medium and small hospitals, a little more in autumn and winter. An event is an IVENA group (two to four departments with one group id), an exact-time cluster (two or three departments with the same start and end) or a single closure, so the closure analysis finds all three event types. Durations run from half an hour to at most 24 hours. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
+Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`: on average 8, 5 or 3 closure events per month for large, medium and small hospitals, a little more in autumn and winter. An event is an IVENA group (two to four departments with one group id), an exact-time cluster (two or three departments with the same start and end) or a single closure, so the closure analysis finds all three event types. Durations run from half an hour to at most 24 hours. Only departments the hospital offers are closed. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
 
 ### Adding a month later
 
@@ -183,9 +183,10 @@ The same scenario, start day and seed give the same rows; applying a scenario tw
 
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
 
-- offered departments, volume per bed and overrides by public id in the hospital profile;
+- volume per bed in the hospital profile;
+- overrides of the profile by hospital public id in `fixtures.yaml` (cath lab, departments, volume, closure frequency). Left out on purpose (#863): public ids follow the catalog seed, so overrides break when the catalog changes, and the demo does not need them;
 - pattern packages as JSON files (with the export of real patterns, #797), and case archetypes;
-- presets that apply scenarios and a configurable closure frequency.
+- presets that apply scenarios.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
@@ -214,12 +215,12 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/HospitalMonthGeneratorTest.php` — a month added later equals the month of a full load (upload time included), leaves other imports alone and is refused twice; `kpi_daily` matches the imports of every upload day
 - `Generator/UploadTimeTest.php` — upload one to three days after the data, during office hours, never after the period
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
-- `Generator/HospitalProfileResolverTest.php` — cath lab by tier and size, same per seed, resuscitation room shares
-- `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed
+- `Generator/HospitalProfileResolverTest.php` — cath lab and offered departments by tier and size, same per seed, resuscitation room shares, closure frequency
+- `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed, only offered departments
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, refused twice, same plan per seed
-- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, `department_was_closed` exactly during a closure
+- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, allocations and closures only in offered departments, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
-- `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart
+- `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.
 

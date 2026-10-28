@@ -8,6 +8,7 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
+use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\CoherenceRules;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
@@ -112,6 +113,30 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         ksort($codes);
         self::assertSame([521, 531, 541], array_keys($codes), 'all three codes are drawn');
         self::assertGreaterThan($codes[541], $codes[521], 'by their shares');
+    }
+
+    public function testAHospitalGetsOnlyDepartmentsItOffers(): void
+    {
+        self::bootKernel();
+        $sampler = $this->loadReferenceCatalog();
+        $missing = ['Geburtshilfe', 'Pränatalmedizin', 'Schlaganfallmedizin', 'Allgemeine Neurologie', 'Neurochirurgie', 'Allgemeine Pädiatrie', 'Neonatologie', 'Kinderkardiologie', 'Kindergastroenterologie'];
+        $pattern = new DefaultDistributionPatterns()->get('urban-full')->withoutDepartments($missing);
+        $random = new RandomStreams()->stream(740, 'offered', '2026-01', RandomStreams::ALLOCATIONS);
+
+        $obstetric = 0;
+        for ($i = 0; $i < 1000; ++$i) {
+            $sampled = $sampler->sample($pattern, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
+            self::assertNotContains($sampled->department->getName(), $missing);
+            $obstetric += \in_array(substr((string) $sampled->indicationNormalized?->getCode(), 0, 2), ['52', '53', '54'], true) ? 1 : 0;
+        }
+        self::assertSame(0, $obstetric, 'without obstetrics the pregnancy codes are drawn again');
+
+        // Only core departments left: every case still gets one of them.
+        $onlyCore = new DefaultDistributionPatterns()->get('urban-full')->withoutDepartments(array_values(array_diff(MedicalSpecialities::unitNames(), HospitalProfileResolver::CORE_DEPARTMENTS)));
+        for ($i = 0; $i < 300; ++$i) {
+            $sampled = $sampler->sample($onlyCore, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
+            self::assertContains($sampled->department->getName(), HospitalProfileResolver::CORE_DEPARTMENTS);
+        }
     }
 
     private function loadReferenceCatalog(): PatternSampler

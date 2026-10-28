@@ -8,8 +8,6 @@ use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
-use App\Allocation\Domain\Enum\HospitalSize;
-use App\Allocation\Domain\Enum\HospitalTier;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
 use App\DataFixtures\Generator\Infrastructure\Dbal\ClosureIntervalWriter;
@@ -95,15 +93,8 @@ final readonly class HospitalMonthGenerator
 
         $hospitalKey = $hospital->getPublicIdString();
         $uploadedAt = UploadTime::after($lastGeneratedDay, $lastDay, $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::UPLOAD));
-        $closures = $this->closurePlanner->plan(
-            $volume->seed,
-            $hospitalKey,
-            $month,
-            $hospital->getSize() ?? HospitalSize::MEDIUM,
-            HospitalTier::FULL === $hospital->getTier(),
-            array_keys($batch->dailyCounts),
-            $lastDay,
-        );
+        $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $closures = $this->closurePlanner->plan($volume->seed, $hospitalKey, $month, $profile, array_keys($batch->dailyCounts), $lastDay);
         $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
         $closed = ClosedDepartments::of($closures, $this->lookups);
@@ -116,7 +107,6 @@ final readonly class HospitalMonthGenerator
             'import_id' => (int) $import->getId(),
         ];
 
-        $profile = $this->profiles->resolve($hospital, $volume->seed);
         $pattern = $profile->applyTo($this->patterns->get($profile->segment));
         $random = $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::ALLOCATIONS);
         $writer = new AllocationRowWriter($this->connection);
