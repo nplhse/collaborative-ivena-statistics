@@ -235,8 +235,8 @@ test: ## Run tests (SUITE=all|unit|integration|functional|functional-http|browse
 testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
 	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --testdox --no-coverage $(ARGS)
 
-coverage: ## Run tests with coverage (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
-	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests $(ARGS)
+coverage: ## Run tests with coverage: clover, HTML report in var/coverage/report, summary (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
+	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --coverage-html var/coverage/report --coverage-text --only-summary-for-coverage-text $(ARGS)
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs
