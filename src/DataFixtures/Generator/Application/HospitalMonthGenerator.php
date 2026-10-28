@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Generator\Application;
 
-use App\Allocation\Domain\Entity\Department;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\MciCase;
@@ -100,7 +99,7 @@ final readonly class HospitalMonthGenerator
         );
         $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner);
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
-        $closedIntervals = $this->intervalsByDepartmentId($closures);
+        $closed = ClosedDepartments::of($closures, $this->lookups);
 
         $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner);
         $fixed = [
@@ -119,7 +118,7 @@ final readonly class HospitalMonthGenerator
             $dayEnd = new \DateTimeImmutable($day.' 23:59:59');
             for ($i = 0; $i < $count; ++$i) {
                 $sampled = $this->patternSampler->sample($pattern, $dayStart, $dayEnd, $random);
-                $writer->add($sampled, $fixed, $this->isClosed($closedIntervals, (int) $sampled->department->getId(), $sampled->createdAt));
+                $writer->add($sampled, $fixed, $closed->isClosed((int) $sampled->department->getId(), $sampled->createdAt));
             }
         }
         $writer->flush();
@@ -162,35 +161,6 @@ final readonly class HospitalMonthGenerator
                 'to' => $first->modify('+1 month')->format('Y-m-d H:i:s'),
             ],
         );
-    }
-
-    /**
-     * @param list<PlannedClosure> $closures
-     *
-     * @return array<int, list<PlannedClosure>>
-     */
-    private function intervalsByDepartmentId(array $closures): array
-    {
-        $byDepartment = [];
-        foreach ($closures as $closure) {
-            $byDepartment[$this->lookups->resolveId(Department::class, $closure->department)][] = $closure;
-        }
-
-        return $byDepartment;
-    }
-
-    /**
-     * @param array<int, list<PlannedClosure>> $intervals
-     */
-    private function isClosed(array $intervals, int $departmentId, \DateTimeImmutable $at): bool
-    {
-        foreach ($intervals[$departmentId] ?? [] as $closure) {
-            if ($at >= $closure->startsAt && $at < $closure->endsAt) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

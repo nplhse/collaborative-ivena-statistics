@@ -131,6 +131,8 @@ Event scenarios such as a mass casualty incident, an icy-road day, a flu wave or
 - An overlay draws from its own random stream. The same scenario, parameters and seed give the same rows, and applying the same overlay twice is refused.
 - Base allocations that fall into a closure added by a scenario keep their `department_was_closed` value. The closure volume analysis reads the intervals, not this flag.
 
+**First version (#792):** `app:generate:scenario` applies `mci`, `icy-road`, `flu-wave` and `heat` to the participating hospitals of a dispatch area or to selected hospitals, from a start day (`ScenarioCatalog`, `ScenarioGenerator`). Extra cases draw their indication from the scenario mix; department, age and urgency follow from the indication as for base data. A mass casualty incident writes `MciCase` patients with one MCI id across the hospitals, all urgency 1 with resuscitation room and physician, within 60 to 90 minutes. The flu wave also closes internal medicine departments. After writing, the imports run through the processing pipeline. Presets do not apply scenarios yet, and there is no removal command: the regular import deletion removes an overlay.
+
 ### Recognising synthetic imports
 
 Synthetic imports have no source file. Their `filePath` holds a structured marker, built and parsed by `SyntheticImportMarker`:

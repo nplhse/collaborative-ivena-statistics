@@ -49,6 +49,23 @@ final readonly class SyntheticImportMarker
     }
 
     /**
+     * Path of a scenario import: `synthetic/scenario/icy-road/seed-740/<hospital public id>/2026-01-14.csv`.
+     * The suffix tells apart a second import of the same scenario, for example its closures.
+     */
+    public static function scenarioPath(string $scenario, int $seed, string $hospital, string $startDay, string $suffix = ''): string
+    {
+        return sprintf('synthetic/scenario/%s/seed-%d/%s/%s%s.csv', $scenario, $seed, $hospital, $startDay, $suffix);
+    }
+
+    /**
+     * SQL LIKE pattern for every import of a scenario for a hospital and start day, whatever seed.
+     */
+    public static function likeScenario(string $scenario, string $hospital, string $startDay): string
+    {
+        return sprintf('synthetic/scenario/%s/%%/%s/%s%%', $scenario, $hospital, $startDay);
+    }
+
+    /**
      * SQL LIKE pattern for every synthetic import of this type, hospital and month, whatever seed and source.
      */
     public static function likeAnySeed(string $type, string $hospital, string $month): string
