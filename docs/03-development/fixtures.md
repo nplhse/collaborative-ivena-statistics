@@ -26,7 +26,7 @@ symfony composer load-fixtures
 php bin/console doctrine:fixtures:load --group=dev --no-interaction
 ```
 
-`make setup-dev` runs the same load after creating the database.
+`make install-dev` runs the same load after creating the database.
 
 ### Partial groups
 
@@ -145,7 +145,7 @@ php bin/phpunit --no-coverage tests/DataFixtures/
 
 ## Related documentation
 
-- [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md) — `make setup-dev`, `make reset`
+- [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md) — `make install-dev`, `make reset`
 - [development-workflow.md](development-workflow.md) — daily commands
 - [testing.md](testing.md) — test environment and MV refresh
 - [../02-architecture/overview.md](../02-architecture/overview.md) — bounded contexts and commands

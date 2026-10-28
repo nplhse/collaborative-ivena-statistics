@@ -36,7 +36,7 @@ Cross-cutting groups: `browser` (Zenstruck browser tests), `materialized-view` (
 
 When adding a new bounded context under `tests/`, register its `Unit` / `Integration` / `Functional` directories in the matching named suites in `phpunit.dist.xml`. The CI unit job only runs the `unit` suite.
 
-`make check-phpunit-suite-dirs` (also part of `make ci` and the lint workflow) fails if a layer directory that contains `*Test.php` files is missing from its named suite, or if a suite lists a directory that does not exist.
+`make check-phpunit-suite-dirs` (part of `make lint` and the Linting workflow) fails if a layer directory that contains `*Test.php` files is missing from its named suite, or if a suite lists a directory that does not exist.
 
 ## Test doubles
 
@@ -79,10 +79,11 @@ PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, 
 ## Static analysis and linting
 
 ```bash
-make lint
-make phpstan
-make psalm
+make check     # every check, no tests, changes no code
+make analyse   # PHPStan and Psalm only
 ```
+
+Overview of checks, fixes and tests: [development-workflow.md](development-workflow.md#checks-fixes-and-tests).
 
 ## Translations (i18n)
 

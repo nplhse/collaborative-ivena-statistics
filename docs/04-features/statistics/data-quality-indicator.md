@@ -168,7 +168,7 @@ Service wiring: `DataQualityHospitalPopulationReaderInterface` → `DataQualityH
 All numeric thresholds live in `DataQualityThresholds.php`. After changing values:
 
 1. Update the matching unit tests under `tests/Statistics/Unit/DataQuality/`.
-2. Run `make ci`.
+2. Run `make check` and the tests in `tests/Statistics/`.
 
 There is no runtime configuration or admin UI for thresholds yet.
 
