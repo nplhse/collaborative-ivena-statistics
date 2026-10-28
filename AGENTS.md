@@ -118,6 +118,6 @@ what you observed, where (file and line), and how to reproduce it if known.
 - These commands drop data or remove installed files and are never routine setup for an existing
   environment:
   `make install`, `make install-dev`, `make purge`, `make reset`, `make fixtures`, `make clear`,
-  `make restore-db`, `composer setup-database`, `composer setup-env`.
+  `make restore-db`, `make demo-install`, `composer setup-database`, `composer setup-env`.
   Use `make upgrade-dev` to bring an existing environment up to date, and ask before anything else.
 - Do not commit secrets or `.env.local` files.

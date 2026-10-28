@@ -70,3 +70,6 @@ security-audit/
 ###> deptrac/deptrac ###
 /.deptrac.cache
 ###< deptrac/deptrac ###
+
+# Demo environment uploads (ADR 023)
+/public/uploads/demo/

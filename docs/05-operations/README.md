@@ -20,6 +20,7 @@
 | [audit-log-maintenance.md](audit-log-maintenance.md) | Guide | Audit log maintenance; purge import-generated Assessment entries |
 | [admin-entity-coverage.md](admin-entity-coverage.md) | Reference | EasyAdmin entity matrix; user disable vs delete |
 | [hospital-geodata.md](hospital-geodata.md) | Guide | Geocode hospital coordinates and fetch destination isochrones |
+| [demo-environment.md](demo-environment.md) | Guide | Local offline demo (`APP_ENV=demo`): install, start, safety |
 | [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md) | Runbook | One-time issue 521 repair on production (CSV quotes, stubs, STEMI leftover) |
 
 ## Reading order
@@ -32,6 +33,7 @@
 6. [troubleshooting.md](troubleshooting.md)
 7. [audit-log-maintenance.md](audit-log-maintenance.md) (when cleaning up historical audit noise)
 8. [hospital-geodata.md](hospital-geodata.md) (when geocoding hospitals or fetching isochrones for a state)
-9. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
+9. [demo-environment.md](demo-environment.md) (when preparing a presentation)
+10. [Indication corruption repair](../04-features/import/repair-indication-corruption.md) (when applying issue 521 on production)
 
 Other role-based paths: [../README.md#reading-paths](../README.md#reading-paths)

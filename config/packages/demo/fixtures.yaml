@@ -1,0 +1,7 @@
+# Demo environment (ADR 023): the dev fixture presets, with the largest preset as default.
+# Pick another preset for a quick install: make demo-install DEMO_PRESET=realistic
+imports:
+    - { resource: '../dev/fixtures.yaml' }
+
+parameters:
+    env(FIXTURES_PROFILE): 'large'

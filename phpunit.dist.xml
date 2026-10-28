@@ -42,6 +42,7 @@
         </testsuite>
 
         <testsuite name="integration">
+            <directory>tests/Admin/Integration</directory>
             <directory>tests/Allocation/Integration</directory>
             <directory>tests/Analytics/Integration</directory>
             <directory>tests/Content/Integration</directory>

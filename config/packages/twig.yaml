@@ -20,6 +20,7 @@ twig:
             url: '%app.map_tiles.url%'
             attribution: '%app.map_tiles.attribution%'
             max_zoom: '%app.map_tiles.max_zoom%'
+        'app_demo_mode': '%app.demo_mode%'
 
     paths:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin

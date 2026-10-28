@@ -8,18 +8,27 @@ use App\Shared\Domain\Entity\CookieConsent;
 use App\Shared\Infrastructure\Repository\CookieConsentRepository;
 use App\User\Domain\Entity\User;
 use Psr\Clock\ClockInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class CookieConsentService
 {
+    /** Cookie name without the prefix of app.cookie_prefix (empty except in the demo environment). */
     public const string SUBJECT_COOKIE_NAME = 'consent_subject_id';
 
     /** @psalm-suppress PossiblyUnusedMethod */
     public function __construct(
         private CookieConsentRepository $repository,
         private ClockInterface $clock,
+        #[Autowire(param: 'app.cookie_prefix')]
+        private string $cookiePrefix = '',
     ) {
+    }
+
+    public function subjectCookieName(): string
+    {
+        return $this->cookiePrefix.self::SUBJECT_COOKIE_NAME;
     }
 
     public function resolveForRequest(Request $request, ?User $user): CookieConsent
@@ -77,7 +86,7 @@ final readonly class CookieConsentService
 
     public function buildSubjectCookieForSubjectId(Request $request, string $subjectId): Cookie
     {
-        return Cookie::create(self::SUBJECT_COOKIE_NAME, $subjectId)
+        return Cookie::create($this->subjectCookieName(), $subjectId)
             ->withPath('/')
             ->withSecure($request->isSecure())
             ->withHttpOnly(true)
@@ -103,7 +112,7 @@ final readonly class CookieConsentService
 
     private function resolveSubjectId(Request $request): string
     {
-        $cookieValue = $request->cookies->get(self::SUBJECT_COOKIE_NAME);
+        $cookieValue = $request->cookies->get($this->subjectCookieName());
         if (\is_string($cookieValue) && '' !== trim($cookieValue)) {
             return trim($cookieValue);
         }

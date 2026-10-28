@@ -7,7 +7,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>{% block title %}{{ app_title }}{% endblock %}</title>
+    <title>{% if app_demo_mode %}{{ 'demo.title_prefix'|trans({}, 'shared') }} · {% endif %}{% block title %}{{ app_title }}{% endblock %}</title>
 
     {% if 'html' == app.request.getRequestFormat() %}
         {% set feedback_return_route = app.request.attributes.get('_route') ?? '' %}
@@ -30,6 +30,9 @@
     {% endblock %}
 </head>
 <body {% block turbo_drive %}{% endblock %}>
+{% if app_demo_mode %}
+    {{ include('@Shared/_includes/demo_banner.html.twig') }}
+{% endif %}
 {% block body %}
     {% block page %}
         <div class="page">
