@@ -372,6 +372,36 @@ final class ClosureVolumeProjectionRebuildTest extends KernelTestCase
         self::assertContains('closure_volume.build_table_cleanup_failed', $messages);
     }
 
+    public function testALateClaimReplacesItsHospitalInTheBuildTableAndPublishesTheSameRows(): void
+    {
+        self::bootKernel();
+        $seed = $this->seedComparableTuesday();
+        $connection = self::getContainer()->get(Connection::class);
+        $this->insertClosure($connection, $seed, $seed['departmentId'], '2026-06-02 10:00:00', '2026-06-02 11:00:00', 'late-a');
+        $this->insertClosure($connection, $seed, $seed['foreignDepartmentId'], '2026-06-02 10:00:00', '2026-06-02 11:00:00', 'late-b', $seed['foreignHospitalId'], $seed['foreignImportId']);
+        $this->rebuildAllocations($seed['importId'], $seed['foreignImportId']);
+        $this->rebuildClosureAnalysis();
+        $rebuilder = self::getContainer()->get(ClosureVolumeProjectionRebuilder::class);
+        $rows = static fn (): array => $connection->fetchAllAssociative(
+            'SELECT event_id, scope, speciality_id, department_id, metric_kind, bucket_start, observed_area, expected_area, reference_slot_count FROM closure_volume_hour ORDER BY event_id, scope, speciality_id, department_id, metric_kind, bucket_start',
+        );
+        $rebuilder->rebuild();
+        $expected = $rows();
+
+        // The late claim deletes the hospital's rows from the filled build table and rebuilds them in pass 2.
+        $rebuilder->rebuild(expandHospitals: static fn (?array $hospitalIds): array => ['full' => false, 'refresh' => [$seed['hospitalId']]]);
+
+        self::assertNotSame([], $expected);
+        self::assertSame($expected, $rows());
+        self::assertEqualsCanonicalizing(
+            ['uniq_closure_volume_hour_grain', 'idx_closure_volume_hour_population', 'idx_closure_volume_hour_event'],
+            $connection->fetchFirstColumn("SELECT indexname FROM pg_indexes WHERE tablename = 'closure_volume_hour' AND indexname NOT LIKE '%_pkey%'"),
+        );
+        self::assertSame(1, (int) $connection->fetchOne(
+            "SELECT COUNT(*) FROM pg_constraint WHERE conrelid = 'closure_volume_hour'::regclass AND contype = 'p'",
+        ));
+    }
+
     public function testOngoingClosureHasNoFollowUpAndDoesNotTreatTheFutureAsZero(): void
     {
         self::bootKernel();
