@@ -7,13 +7,13 @@ namespace App\DataFixtures\Generator\Application\Catalog;
 use App\DataFixtures\Generator\Application\ClosurePlanner;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioCatalog;
-use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
-use App\DataFixtures\Pattern\Application\IndicationGroups;
 use App\DataFixtures\Pattern\Application\PatternSampler;
+use App\DataFixtures\Pattern\Application\PatternSet;
 
 /**
  * Every department and speciality key, lookup value and PZC code the generator can write, collected
- * from the patterns, indication groups, hospital profiles, closures and scenarios (ADR 022).
+ * from the patterns, indication groups, hospital profiles, closures and scenarios (ADR 022). The
+ * patterns and indication groups are those of the pattern set of the run: code defaults or a package.
  *
  * Departments and specialities are given as keys (`GeneratorKeys`); the sources still name them by
  * their default label, which is translated here.
@@ -25,7 +25,7 @@ use App\DataFixtures\Pattern\Application\PatternSampler;
 final readonly class GeneratorVocabulary
 {
     public function __construct(
-        private DefaultDistributionPatterns $patterns,
+        private PatternSet $patterns,
     ) {
     }
 
@@ -44,7 +44,7 @@ final readonly class GeneratorVocabulary
             array_values(PatternSampler::FALLBACK_DEPARTMENTS),
             [PatternSampler::FALLBACK_DEPARTMENT],
         );
-        foreach (IndicationGroups::all() as $group) {
+        foreach ($this->patterns->indicationGroups()->all() as $group) {
             $names = array_merge($names, array_keys($group['departments']));
         }
         foreach (ScenarioCatalog::all() as $scenario) {
@@ -90,7 +90,7 @@ final readonly class GeneratorVocabulary
             default => throw new \InvalidArgumentException(sprintf('%s is not a lookup of the patterns.', $type->value)),
         };
         $names = [];
-        foreach (DefaultDistributionPatterns::names() as $pattern) {
+        foreach ($this->patterns->segmentNames() as $pattern) {
             foreach (array_keys($this->patterns->get($pattern)->categoricalDistribution($key)) as $name) {
                 $names[] = (string) $name;
             }
@@ -105,7 +105,7 @@ final readonly class GeneratorVocabulary
     public function indicationCodes(): array
     {
         $codes = [];
-        foreach (DefaultDistributionPatterns::names() as $pattern) {
+        foreach ($this->patterns->segmentNames() as $pattern) {
             foreach (array_keys($this->patterns->get($pattern)->categoricalDistribution('indication_normalized')) as $code) {
                 $codes[] = str_pad((string) $code, 3, '0', \STR_PAD_LEFT);
             }

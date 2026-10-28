@@ -222,22 +222,14 @@ final class IndicationGroups
     ];
 
     /** Codes without a group of their own behave like internal medicine. */
-    private const string FALLBACK = '3';
+    public const string FALLBACK = '3';
 
     /**
      * @return Group
      */
     public static function forCode(string $code): array
     {
-        for ($length = \strlen($code); $length > 0; --$length) {
-            // PHP keys numeric prefixes as int; codes starting with 0 (no patient) have no group.
-            $prefix = substr($code, 0, $length);
-            if ('0' !== $prefix[0] && ctype_digit($prefix) && isset(self::GROUPS[(int) $prefix])) {
-                return self::GROUPS[(int) $prefix];
-            }
-        }
-
-        return self::GROUPS[self::FALLBACK];
+        return IndicationGroupTable::defaults()->forCode($code);
     }
 
     /**

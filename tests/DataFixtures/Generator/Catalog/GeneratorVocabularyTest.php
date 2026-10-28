@@ -8,14 +8,14 @@ use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\DataFixtures\Generator\Application\Catalog\CatalogLookupType;
 use App\DataFixtures\Generator\Application\Catalog\GeneratorKeys;
 use App\DataFixtures\Generator\Application\Catalog\GeneratorVocabulary;
-use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
+use App\DataFixtures\Pattern\Application\PatternSet;
 use PHPUnit\Framework\TestCase;
 
 final class GeneratorVocabularyTest extends TestCase
 {
     public function testCollectsTheNamesOfEverySource(): void
     {
-        $vocabulary = new GeneratorVocabulary(new DefaultDistributionPatterns());
+        $vocabulary = new GeneratorVocabulary(PatternSet::defaults());
         $departments = $vocabulary->departments();
 
         // Core department, optional department, closure department, indication group, flu-wave closure.
@@ -49,7 +49,7 @@ final class GeneratorVocabularyTest extends TestCase
 
     public function testCollectsTheCodesOfPatternsAndScenarios(): void
     {
-        $codes = new GeneratorVocabulary(new DefaultDistributionPatterns())->indicationCodes();
+        $codes = new GeneratorVocabulary(PatternSet::defaults())->indicationCodes();
 
         self::assertContains('322', $codes, 'default pattern');
         self::assertContains('530', $codes, 'full-care pattern only');
