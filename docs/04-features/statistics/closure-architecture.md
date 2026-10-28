@@ -167,7 +167,8 @@ The worker limit stays `--memory-limit=256M`. `memory_limit` is not raised.
 Large scans are SQL aggregations or a cursor with `FETCH`. Rows are written with
 `COPY` in batches of 2,000 (200-row `INSERT`s without the PostgreSQL driver) into
 a build table without keys; its primary key and indexes are created after the
-last row, before publish, so the unique grain index still rejects a duplicate.
+last row, before publish (or earlier, before a late claim deletes a hospital's
+rows from it), so the unique grain index still rejects a duplicate.
 There is no ORM unit of work on this path. Each partition logs runtime, current
 memory, and peak. The retained PHP heap of a later week must
 not grow with the earlier week.
@@ -231,7 +232,10 @@ department-hour shares (#876; `FIXTURES_UNTIL=2026-09-30`, seed 740: 6,809 event
 5.1 million rows), Xdebug off: a full rebuild took 221 s before and 133 s after
 splitting hours once per event and segments, keeping the reference cache for the
 whole partition and indexing the build table after the load; `closure_volume_hour`
-was byte-identical. The cost follows the number of written rows (events ×
+was byte-identical. Incremental runs on the same data: a one-month `volume`
+request for one hospital (273 of its 667 events) took 19.8 s before and 11.4 s
+after, a whole-hospital rebuild (`--hospital`) 44.2 s and 23.1 s; both left the
+table byte-identical to a full rebuild. The cost follows the number of written rows (events ×
 populations × metrics × hours), not the number of intervals as such. The
 remaining time is mostly database work: loading and indexing the rows (about
 35 s and 22 s) and the hourly counts per partition (about 16 s).
