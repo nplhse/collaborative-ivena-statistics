@@ -21,9 +21,4 @@ final readonly class PlannedClosure
         public ?string $sourceGroupId,
     ) {
     }
-
-    public function covers(string $department, \DateTimeImmutable $at): bool
-    {
-        return $department === $this->department && $at >= $this->startsAt && $at < $this->endsAt;
-    }
 }

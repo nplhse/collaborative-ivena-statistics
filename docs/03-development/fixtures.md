@@ -148,7 +148,26 @@ php bin/console app:generate:imports --hospital=<public id> --month=2026-10 --dr
 php bin/console app:generate:imports --hospital=<public id> --hospital=<public id> --month=2026-10
 ```
 
-The month gets the same rows as inside a full load with the same seed. A month after the last day (`FIXTURES_UNTIL` or yesterday) and a month that already has allocations or a synthetic import for the hospital are refused; existing imports are never changed. The projection of the new import is rebuilt.
+The month gets the same rows as inside a full load with the same seed. A month after the last day (`FIXTURES_UNTIL` or yesterday) and a month that already has allocations, closures or a synthetic import for the hospital are refused; existing imports are never changed. The new imports run through the processing pipeline.
+
+### Scenarios
+
+Scenarios are laid over existing data and only add rows: per affected hospital their own import (`synthetic/scenario/<name>/seed-740/<hospital public id>/<start day>.csv`), plus a closure import when the scenario closes departments.
+
+```bash
+php bin/console app:generate:scenario                                    # list the scenarios
+php bin/console app:generate:scenario icy-road --dispatch-area=Kassel --at=2026-01-14 --dry-run
+php bin/console app:generate:scenario mci --hospital=<public id> --at=2026-02-03
+```
+
+| Scenario | Effect |
+|---|---|
+| `mci` | 8–20 MCI patients within 60–90 minutes, spread over the hospitals; urgency 1, resuscitation room, physician; one MCI id |
+| `icy-road` | one day with about 45 % more allocations, mostly falls and fractures of older patients |
+| `flu-wave` | 2–4 weeks with about 25 % more respiratory cases and extra internal medicine closures |
+| `heat` | 3–5 days with about 30 % more collapses and internal emergencies |
+
+The same scenario, start day and seed give the same rows; applying a scenario twice to a hospital and start day is refused. The imports run through the processing pipeline. To remove a scenario, delete its imports.
 
 ### Planned: reusable generator (#792)
 
@@ -156,7 +175,7 @@ The month gets the same rows as inside a full load with the same seed. A month a
 
 - hospital profiles also set offered departments and volume per bed;
 - pattern packages (with the export of #797) and case archetypes;
-- scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
+- presets that apply scenarios;
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
@@ -186,6 +205,7 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
 - `Generator/HospitalProfileResolverTest.php` — cath lab by tier and size, same per seed, resuscitation room shares
 - `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed
+- `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, MCI patients, flu closures, refused twice, same plan per seed
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases
