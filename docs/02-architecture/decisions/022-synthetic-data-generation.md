@@ -29,6 +29,7 @@ The generator lives in the existing dev/test module `src/DataFixtures/`. It is r
 | `DataFixtures/Generator/Infrastructure/` | DBAL writers, random streams |
 | `DataFixtures/Generator/UI/Console/` | `app:generate:imports`, `app:generate:scenario`, `app:demo:csv` (#791) |
 | `DataFixtures/Pattern/` | pattern package format, validation, chain sampler, coherence rules, code defaults |
+| `DataFixtures/Structure/` | structural patterns of hospitals: configurations, resources, department structure over the generator keys, structure rules, code defaults (#876) |
 | `DataFixtures/Reference/` | synthetic reference catalog (ADR 020) |
 | `DataFixtures/Allocation/`, `Scenario/`, `Content/`, … | Doctrine fixtures; they call the generator and hold only fixture concerns such as the demo user |
 
@@ -42,7 +43,7 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 ### Settings and the generator API
 
-The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months and its scenarios; the closure frequency belongs to the hospital profile. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
+The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months and its scenarios; the closure share belongs to the hospital profile. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
 
 - `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital. `HospitalMonthSampler` samples the closures and allocations of the month without writing; the generator writes them into the database, `DemoMonthCsvExporter` (`app:demo:csv`, #791) writes the same rows as IVENA CSV files.
 - The allocation fixture runs the month generator for all selected hospitals and months, then rebuilds the projection once.
@@ -62,17 +63,20 @@ A `HospitalProfile` belongs to the generator configuration, not to the reference
 - the volume, as allocations per day or per bed and year,
 - the departments and specialities the hospital offers,
 - the resources it offers, each independent of the care tier: resuscitation room, catheterization laboratory and others,
-- the closure frequency.
+- the closure share: the share of closed department-hours.
 
 Default profiles are derived deterministically from tier, size and location; the defaults keep the per-size daily rates of the presets.
 
-- Whether a hospital has a catheterization laboratory is decided once per hospital when the data is generated, from its own stream (`profile`): every full-care hospital, most large extended-care hospitals and only a few basic-care hospitals. A hospital without one gets no cath lab cases.
-- Resuscitation room cases happen in every hospital; the share depends on tier and size and is small for small basic-care hospitals.
+- The structure is drawn once per hospital when the data is generated, from its own stream (`profile`), as one **configuration** of the structural patterns (#876): a coherent bundle of resources (catheterization laboratory, neurosurgery, stroke unit, trauma level, obstetrics level, paediatrics) with a weight by tier and size. Tier and size influence the weights but exclude nothing: uncommon configurations, such as a small basic-care hospital with neurosurgery, have small weights. A hospital without a catheterization laboratory gets no cath lab cases.
+- Resuscitation room cases happen in every hospital; the share follows the trauma level and is small without a trauma centre.
+- Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery). A resource brings its departments (a stroke unit brings stroke medicine and general neurology). For each field the configuration gives the number of further departments, drawn per hospital, filled with the most common departments of the field.
+- **Capability gates:** an indication that needs a resource the hospital lacks is not drawn there (STEMI without cath lab, polytrauma without regional trauma centre, preterm birth without perinatal centre); its share goes to the other codes. Gates replace "severe codes only in the full-care segment" as the rule; the segments themselves are unchanged.
+- The closure share is part of the profile; by default it follows the size (5, 8 or 10 % of the department-hours for small, medium and large hospitals, general knowledge, not measured).
 
-- Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery). Each further department is drawn once per hospital from the same stream, after the cath lab, with a chance by tier that larger hospitals raise and smaller ones lower: full care offers nearly all, basic care the core and a few more (#863).
-- The closure frequency is part of the profile; by default it follows the size (8, 5 or 3 events per month).
+- **Volume per hospital (#876):** the preset rate of the size stays the anchor, multiplied by a bed factor ((beds ÷ reference beds of the size)^elasticity) and a log-normal hospital factor with mean 1, so hospitals of one size differ and the preset totals stay about the same.
+- **Case mix per hospital (#876):** a tilt drawn once per hospital multiplies the weights of each indication category, of the age bands from 65 on and of urgency 1. Volume and tilt are drawn after the configuration and the departments.
 
-Volume per bed follows when a step needs it. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
+A `ProfileSelection` chooses a configuration by key (also one with weight 0 for the hospital's tier and size), single resources, tier, size, beds, an annual volume and a closure share for targeted scenarios and the generation service of #877; an explicit annual volume replaces the volume model instead of being multiplied with it. The result must keep the structure rules (a supraregional trauma centre has neurosurgery, a perinatal centre paediatrics) and figures in range, otherwise it is refused. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
 
 ### Pattern packages
 
@@ -112,7 +116,7 @@ Each hospital gets one closure import per month with `ClosureInterval` rows:
 
 - department and speciality, care level, reason and facility kind; only departments the hospital offers are closed, specialised ones (stroke unit, neurosurgery, paediatrics) wherever they are offered,
 - durations from half an hour up to 24 hours; a closure never spans several days and never ends after the last generated day,
-- the frequency of the hospital profile with a modest autumn and winter increase, drawn from the hospital-month stream `closures`,
+- the closed share of department-hours of the hospital profile; a closure model of the structural patterns sets event size (share of the offered departments), duration (whole days from midnight included), care level, weekday and field weights, and the number of events follows from share and model; a modest autumn and winter increase keeps the yearly mean; drawn from the hospital-month stream `closures`,
 - some intervals share an IVENA group id and some share exact start and end times, so all three event types of the closure analysis appear (source group, cluster, single).
 
 Closures of a month are planned before its allocations. An allocation to a closed department during an interval gets `department_was_closed = true`; the flag is no longer random.
@@ -181,6 +185,26 @@ The binding makes rows valid for another catalog; it does not widen what the gen
 
 Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), the same generation workflow runs on the synthetic catalog or on a locally supplied real one. Hospital identities and locations stay synthetic in both cases, so the random streams keyed by hospital public id are the same. With another catalog the content of the rows changes, but the same catalog content, mapping and seed give the same rows, whatever database ids the rows got.
 
+## Amendment (October 2026, #876, step 1)
+
+- **Structural patterns:** hospital profiles are drawn from configurations (see Hospital profiles) in `DataFixtures/Structure/`, keyed by the department and speciality keys of the generator vocabulary (#875), not by catalog names or ids. The patterns hold no hospital names, ids or locations.
+- **Code defaults of the structure** are manually curated configurations. Their weights are coarse general knowledge, rounded in five percent steps towards the aggregates of the generator assessment (#874) where at least five hospitals stand behind a value; they are never generated from real data. A structural package (`ivena-structure-patterns`) is not part of #876: it follows in #906, together with the structural export of #797; until then the code defaults are the only source of the structure.
+- **Capability gates** decide where severe indications may go. The default allocation patterns still draw them only in the full-care segment; adding them to the other segments is part of the allocation default tuning.
+- The draw order of the `profile` stream changed (configuration, then departments per field), so every hospital gets a new structure once: a new generator version.
+
+## Amendment (October 2026, #876, step 2)
+
+- **Per-hospital volume and mix:** see Hospital profiles. Bed elasticity and the spreads of hospital factor and tilt are coarse values rounded towards the between-hospital variation measured in #874, only where at least five hospitals stand behind a value.
+- **Closure share in the profile:** the share of closed department-hours (default by size, general knowledge, not measured) and its selection exist from this step; the closure planner switches to it in the next step.
+- New draws were appended to the `profile` stream, so configurations and departments of step 1 stay; volume and mix of every hospital change once.
+
+## Amendment (October 2026, #876, step 3)
+
+- **Closures from the share of department-hours** (roadmap decision for #791): the profile gives the share, the closure model of the structural patterns how closures look, and `ClosurePlanner` derives the number of events, `−ln(1 − share) × departments × hours ÷ (expected departments × expected hours)`. Events per month are no longer an input.
+- All closure defaults are general knowledge, not measured, since the reference data has closures of too few hospitals.
+- A dataset has many times more closure intervals than before, so `department_was_closed` is set far more often and the closure rebuild takes longer.
+- **Closure share per preset:** a preset may set `closure_share` for all its hospitals; `single`, `minimal` and `medium` close 1 % and load fast, `realistic` and `large` (the demo preset) keep the shares by size. An explicit share of a `ProfileSelection` wins over the preset, the preset over the structural default. The dev default preset becomes `medium` (6 hospitals, 12 months), since the full shares make the closure volume rebuild of `realistic` several minutes long; the test environment stays on `minimal`.
+
 ## Amendment (October 2026, #883): pattern package format
 
 #883 (split from #797) builds the package format, its validation and the code defaults as a package. It needs no real data. The export of real patterns and the privacy review stay with #797.
@@ -190,11 +214,11 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - **Validation** runs in three stages, each error with the path of table and key (`indication_groups.332.departments`): format and version; structure on the decoded JSON with Validator constraints (known and required keys, numbers, shares between 0 and 1); package rules as a class constraint (segments, key formats, known flags, sums of 1 within ±0.002 so shares rounded to four places pass, ordered percentiles, counts, checksum). The tables are keyed by data, so the structure is checked on the array before the DTOs are built, unlike the reference package, which denormalizes into DTOs first.
 - **Code defaults as a package**: `DefaultPatternPackage` builds the package from `DefaultDistributionPatterns` and `IndicationGroups`; they pass the same validation and round-trip through writer and reader unchanged. The PHP classes stay the source of the defaults. `app:patterns:write-defaults` and `app:patterns:validate` (dev and test) write and check packages in `var/patterns/`.
 - **Placement**: the package classes live in `src/DataFixtures/Pattern/Package/` and use no dev-only dependencies (no Foundry, Faker or fixtures bundle). Department keys and their speciality come from `GeneratorKeys`, a plain constants class.
-- **Structural patterns (#876)** get a package type of their own, `ivena-structure-patterns`, with the same `meta` shape and the same validation approach, versioned independently.
+- **Structural patterns (#876, package in #906)** get a package type of their own, `ivena-structure-patterns`, with the same `meta` shape and the same validation approach, versioned independently.
 - **Departments by generator key**: a package keys departments by `GeneratorKeys` (#875), lookups by IVENA value and indications by PZC code, so it does not depend on the spelling of a catalog. The first step wrote catalog names; v1 was not released before, so no migration is needed. The package validator refuses unknown keys and names the key for a catalog name.
 - **Catalog check**: the package validator checks the format only. Whether the installed catalog has every name and PZC code runs through `CatalogCompatibility` (#875) with the vocabulary of the selected pattern set, so it uses the mapping file and aliases like generation; `app:patterns:validate` runs it unless `--no-catalog` is given. The separate check against raw database names from the first step is gone.
 - **Pattern source setting** (second step): `FIXTURES_PATTERNS` (`defaults`, or a package as a file name in `var/patterns/` or a path) in the fixture settings, `--patterns` on `app:generate:imports` and `app:generate:scenario`. `PatternSetLoader` turns it into a `PatternSet`; `GenerationPreflight` loads and validates it and runs the catalog check before the first row of the fixture and of both commands. The set carries its indication groups through `DistributionPattern`, so the sampler, the hospital profiles, the coherence rules and the random streams do not depend on the source, and the code defaults written as a package give the same rows.
-- **Marker source slot**: `PatternSource` builds and parses the slot of allocation and closure markers: `defaults` or the package checksum, and `<patterns>+<structures>` once structural packages (#876) are used; the structure part is left out while it is `defaults`. Scenario markers keep their form without a source slot; refusing a scenario twice and removing it depend on name, seed and start day only.
+- **Marker source slot**: `PatternSource` builds and parses the slot of allocation and closure markers: `defaults` or the package checksum, and `<patterns>+<structures>` once structural packages (#906) are used; the structure part is left out while it is `defaults`. Scenario markers keep their form without a source slot; refusing a scenario twice and removing it depend on name, seed and start day only.
 
 **Open for #797:** ADR 020 lets the export write `var/patterns` in production (a Deployer shared directory), while this ADR places the pattern package in the dev/test module `src/DataFixtures/`. #797 decides whether the package classes move to code that production loads, or whether the export runs in development against a copy of the production data.
 

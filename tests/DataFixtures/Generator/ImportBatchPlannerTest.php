@@ -7,9 +7,11 @@ namespace App\Tests\DataFixtures\Generator;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\DataFixtures\FixtureVolume;
+use App\DataFixtures\Generator\Application\HospitalProfile;
 use App\DataFixtures\Generator\Application\ImportBatch;
 use App\DataFixtures\Generator\Application\ImportBatchPlanner;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
+use App\DataFixtures\Structure\Dto\HospitalResources;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;
 
@@ -49,6 +51,25 @@ final class ImportBatchPlannerTest extends TestCase
             }
         }
         self::assertLessThan(array_sum($weekdays[1]) / \count($weekdays[1]), array_sum($weekdays[7]) / \count($weekdays[7]), 'fewer allocations on Sundays than on Mondays');
+    }
+
+    /**
+     * A profile replaces the preset rate of the size: 40 a day times a volume factor of 1.5 gives 60,
+     * an explicit annual volume of 7,300 gives 20, whatever the preset rate and scale are.
+     */
+    public function testTheProfileSetsTheRateOfTheHospital(): void
+    {
+        $planner = new ImportBatchPlanner(new RandomStreams());
+        $large = $this->hospital('Großklinikum', HospitalSize::LARGE, true);
+        $last = new \DateTimeImmutable('2026-01-31');
+        $total = static fn (ImportBatch $batch): int => array_sum($batch->dailyCounts);
+
+        $factor = $planner->planMonth($this->volume(0.0), $large, '2026-01', $last, new HospitalProfile('urban-full', new HospitalResources(), 0.1, size: 'Large', volumeFactor: 1.5));
+        $explicit = $planner->planMonth($this->volume(0.0, scale: 0.5), $large, '2026-01', $last, new HospitalProfile('urban-full', new HospitalResources(), 0.1, size: 'Large', volumeFactor: 1.5, annualVolume: 7300));
+
+        // January 2026: the weekday factors average 0.99, the month factor is 1.06, together 1.05.
+        self::assertEqualsWithDelta(60 * 31 * 1.05, $total($factor), 60 * 31 * 0.05);
+        self::assertEqualsWithDelta(20 * 31 * 1.05, $total($explicit), 20 * 31 * 0.08);
     }
 
     public function testTheSameSeedGivesTheSameDailyCounts(): void

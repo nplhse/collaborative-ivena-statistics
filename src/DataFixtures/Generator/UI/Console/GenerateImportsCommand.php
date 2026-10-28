@@ -115,15 +115,17 @@ final readonly class GenerateImportsCommand
 
         foreach ($entities as $publicId => $entity) {
             if (!$entity instanceof Hospital) {
-                $rows[] = [$publicId, $month, '–', 'unknown hospital'];
+                $rows[] = [$publicId, '–', $month, '–', 'unknown hospital'];
                 $failed = true;
                 continue;
             }
             $entityId = (int) $entity->getId();
 
+            $profile = $this->generator->profile($volume, $entity);
+            $structure = sprintf('%s, %.1f/day, %d %% closed', $profile->configuration, $profile->dailyRate($volume), (int) round($profile->closureShare * 100.0));
             try {
                 if ($dryRun) {
-                    $rows[] = [(string) $entity->getName(), $month, (string) $this->generator->plan($volume, $entity, $month, $lastDay)->allocationCount(), 'planned'];
+                    $rows[] = [(string) $entity->getName(), $structure, $month, (string) $this->generator->plan($volume, $entity, $month, $lastDay)->allocationCount(), 'planned'];
                     continue;
                 }
 
@@ -136,9 +138,9 @@ final readonly class GenerateImportsCommand
                 }
                 $allocationImports[] = $generated->importId;
                 $hospitalIds[] = $entityId;
-                $rows[] = [(string) $entity->getName(), $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
+                $rows[] = [(string) $entity->getName(), $structure, $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
             } catch (\DomainException|\InvalidArgumentException $exception) {
-                $rows[] = [(string) $entity->getName(), $month, '–', $exception->getMessage()];
+                $rows[] = [(string) $entity->getName(), $structure, $month, '–', $exception->getMessage()];
                 $failed = true;
                 if (null !== $runId) {
                     $this->runs->hospitalFailed($runId, $entityId, 'generation_failed', $exception->getMessage());
@@ -155,7 +157,7 @@ final readonly class GenerateImportsCommand
             $this->pipeline->afterImports($allocationImports, $hospitalIds);
         }
 
-        $io->table(['Hospital', 'Month', 'Allocations', 'Result'], $rows);
+        $io->table(['Hospital', 'Profile', 'Month', 'Allocations', 'Result'], $rows);
         if (null !== $runId) {
             $io->note(sprintf('Generation run %s: projections of %d hospital(s) continue in the Messenger worker. Follow them with: php bin/console app:generate:run:show %s', $runId, \count($handedOver), $runId));
         }
