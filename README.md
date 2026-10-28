@@ -105,11 +105,11 @@ Set at least `APP_SECRET` and `DATABASE_URL` in `.env.local`. You can generate a
 php -r "echo bin2hex(random_bytes(16)), PHP_EOL;"
 ```
 
-Start the containers first, then install the application. `make setup-dev` creates a fresh development database with demonstration fixtures and a test database:
+Start the containers first, then install the application. `make install-dev` creates a fresh development database with demonstration fixtures and a test database:
 
 ```bash
 make start
-make setup-dev
+make install-dev
 ```
 
 Then start the web server and the Messenger workers for asynchronous jobs and scheduled tasks:
@@ -121,14 +121,14 @@ make consume
 
 `make start` builds the Docker images without cache, so the first run can take a few minutes. If you run PostgreSQL yourself, skip it.
 
-**Important:** `make setup-dev` drops and recreates the development database. To keep an existing database, use `make upgrade-dev` instead.
+**Important:** `make install-dev` drops and recreates the development database. If the database already holds an installation, it stops unless you add `INSTALL_CONFIRM=yes`. To keep an existing database, use `make upgrade-dev` instead.
 
 | Goal | Command |
 |---|---|
-| Fresh dev setup with fixtures | `make setup-dev` |
-| Empty database, prod-like setup | `make setup-prod` |
+| Fresh dev setup with fixtures | `make install-dev` |
+| Empty database, prod-like setup | `make install` |
 | Update code and schema, keep data | `make upgrade-dev` or `make upgrade-prod` |
-| Clear runtime files and empty the database | `make purge` |
+| Clear runtime files, drop and recreate the database | `make purge` |
 | Same as `purge`, plus demo fixtures | `make reset` |
 
 For configuration options and development workflows, see the [local setup guide](docs/01-getting-started/local-setup.md), the [configuration reference](docs/06-reference/configuration.md), and the [documentation index](docs/README.md).
