@@ -120,6 +120,20 @@ technical record with a retention (ADR 018/019), a run is the summary the wizard
   and no service, schedule or route there refers to them. Without a run, generation keeps the synchronous
   `SyntheticDataPipeline::afterImports()` (fixture load, `make reset`, `app:generate:imports` without `--async`).
 
+### Demo CSV upload (#791 step 5)
+
+The presenter shows a monthly upload with a real round trip instead of a demo-specific import
+processor: `app:demo:csv` writes one synthetic month of a hospital as IVENA files (allocations and
+closures), uploaded through the normal form, parser, permission checks and projections. The rows are
+the ones `HospitalMonthGenerator` writes for that month (same random streams, ADR 022), resolved
+against the installed catalog by name like any upload. Nothing in the import code knows about the
+demo. A demo processor selected through dependency injection was the fallback in #791; it is not
+needed because the synthetic catalog resolves every value of the file (#875).
+
+Files and rows say they are synthetic: the file name starts with `synthetic-demo_`, every row has
+`SYNTHETIC DEMO DATA (#791)` in the free text (allocations, stored as notes) or remark (closures),
+and case numbers start with `SYNTH-`.
+
 ### Code that checks the environment by name
 
 Two places that allowed only `dev` and `test` also allow `demo`: creating missing overview

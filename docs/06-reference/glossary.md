@@ -52,4 +52,5 @@ See [console-commands.md](console-commands.md) for the full list and conventions
 | `app:user:delete` | Delete an existing user by username |
 | `doctrine:fixtures:load --group=dev` | Load full local demo dataset (`make reset` also runs the closure rebuild and view refresh) |
 | `app:generate:imports` | Add a synthetic month for existing hospitals (dev/test) |
+| `app:demo:csv` | Write a synthetic month as IVENA CSV files for the demo upload (#791) |
 | `app:generate:scenario` | Lay a scenario over existing synthetic data (dev/test) |
