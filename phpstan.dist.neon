@@ -8,6 +8,8 @@ rules:
 
 parameters:
     level: 6
+    # Next to the Rector and Psalm caches: `make clear` removes it and CI caches the same path.
+    tmpDir: %currentWorkingDirectory%/var/cache/phpstan
     paths:
         - bin/
         - config/

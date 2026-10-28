@@ -17,7 +17,7 @@ make test SUITE=browser                # browser tests (starts webserver)
 make test PATH_ARG=tests/Statistics    # single bounded context
 make test ARGS="--filter FooTest"      # passthrough to PHPUnit
 make testdox SUITE=unit
-make coverage SUITE=integration
+make coverage SUITE=integration       # clover + HTML report in var/coverage/report + summary
 ```
 
 After a test run, slowest tests from the PHPUnit duration cache:
@@ -104,20 +104,25 @@ make lint-trans-de  # lint DE catalogue only
 
 ## CI reference
 
-- **Unit job** (parallel, no database, PCOV): clover artifact `coverage-unit`
-- **Database job** (parallel, PostgreSQL, PCOV): clover artifact `coverage-integration`
+- **Unit job** (parallel, no database, PCOV): suite `unit`, clover artifact `coverage-unit`
+- **Database job** (parallel, PostgreSQL, PCOV): suites `integration,functional,fixtures,system`, clover artifact `coverage-integration`. Use this list, not `all` with `--exclude-testsuite unit`: `all` contains the unit folders too, so they would run twice.
 - **Coverage job** (after both succeed): one Codecov upload with both clovers, no flags (full project coverage)
+- **Prod kernel smoke**: `composer install --no-dev` (with Composer scripts, so `cache:clear` boots the prod kernel), `lint:container` and `asset-map:compile` in `APP_ENV=prod`
+- CI writes only the clover report; the HTML and text reports come from `make coverage`
+- CI runs ParaTest without `--stop-on-failure`, so a red run lists every failing test. Test results reach Codecov for red runs too.
+- The test jobs install Composer dependencies with `--no-scripts` (the `cache:clear` auto-script would build an unused dev container)
 - Either test job failing fails the workflow; the coverage job does not run unless both succeed
+- A new push to a PR cancels the previous run; changes only to `docs/**` or Markdown files start no workflow
 - Workflows: `.github/workflows/tests.yml`
 - Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`
-- Security scan: `.github/workflows/security.yml`
+- Security scan: `.github/workflows/security.yml` — Psalm taint analysis (`vendor/bin/psalm --taint-analysis`, same version and `psalm.xml` as `make psalm`), results go to GitHub code scanning as SARIF
 
 ## Rector and EasyAdmin CRUD lifecycle hooks
 
 EasyAdmin 5 declares `persistEntity()`, `updateEntity()`, and `deleteEntity()` with `object $entityInstance` in `AbstractCrudController`. CRUD controller overrides must use the same parameter type — not an entity-specific type (PHP forbids narrowing `object` to e.g. `Post`).
 
-After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `composer.lock`. If Rector behaves unexpectedly locally, clear `var/cache/rector` and re-run `vendor/bin/rector --dry-run` (CI always runs without a persisted Rector cache).
+After an EasyAdmin upgrade, run `composer install` so `vendor/` matches `composer.lock`. If Rector behaves unexpectedly locally, clear `var/cache/rector` and re-run `vendor/bin/rector --dry-run`. CI restores the Rector cache from earlier runs; a change to `composer.lock` or `rector.php` starts with a fresh one.
 
 ## Common pitfalls
 

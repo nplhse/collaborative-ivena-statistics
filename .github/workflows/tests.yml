@@ -3,7 +3,19 @@ name: Testsuite
 on:
     push:
         branches: [main]
+        paths-ignore:
+            - 'docs/**'
+            - '**.md'
     pull_request:
+        paths-ignore:
+            - 'docs/**'
+            - '**.md'
+
+# Cancel superseded runs on PR branches. On main every run gets its own group,
+# so no push is cancelled or dropped from the queue.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+    cancel-in-progress: true
 
 permissions:
     contents: read
@@ -27,31 +39,23 @@ jobs:
                   php-version: '8.4'
                   tools: composer:v2
 
-            - name: Set composer cache directory
-              id: composer-cache
-              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-              shell: bash
-
-            - name: Cache composer
-              uses: actions/cache@v6
-              with:
-                  path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-composer-prod-${{ hashFiles('composer.lock') }}
-                  restore-keys: ${{ runner.os }}-composer-prod-
-
+            # Keeps the Composer scripts: cache:clear boots the prod kernel, importmap:install fetches the JS vendors.
             - name: Install production dependencies
-              run: composer install --no-dev --no-interaction --no-progress
+              uses: ramsey/composer-install@v4
+              with:
+                  composer-options: --no-dev
+
+            - name: Lint the prod container
+              run: php bin/console lint:container
+
+            - name: Compile assets
+              run: php bin/console asset-map:compile
 
     unit:
-        name: Unit (PHP ${{ matrix.php-version }})
+        name: Unit tests
         runs-on: ubuntu-latest
         env:
             APP_SECRET: ci-test-placeholder-not-for-production
-        strategy:
-            fail-fast: true
-            matrix:
-                php-version: ['8.4']
-
         steps:
             - name: Checkout code
               uses: actions/checkout@v7
@@ -61,23 +65,14 @@ jobs:
               with:
                   coverage: pcov
                   extensions: "intl, mbstring, zip"
-                  php-version: ${{ matrix.php-version }}
+                  php-version: '8.4'
                   tools: composer:v2
 
-            - name: Set composer cache directory
-              id: composer-cache
-              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-              shell: bash
-
-            - name: Cache composer
-              uses: actions/cache@v6
-              with:
-                  path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-                  restore-keys: ${{ runner.os }}-composer-
-
+            # No Composer scripts: cache:clear would build a dev container the tests never use (~16 s).
             - name: Install dependencies
-              run: composer install --ansi --no-interaction --no-progress
+              uses: ramsey/composer-install@v4
+              with:
+                  composer-options: --no-scripts
 
             - name: Execute unit tests via ParaTest
               run: |
@@ -86,9 +81,7 @@ jobs:
                     --testsuite unit \
                     --processes=4 \
                     --coverage-clover=var/coverage/logs/clover-unit.xml \
-                    --log-junit=junit-unit.xml \
-                    --order-by duration \
-                    --stop-on-failure
+                    --log-junit=junit-unit.xml
 
             - name: Upload unit coverage artifact
               if: success()
@@ -99,7 +92,7 @@ jobs:
                   if-no-files-found: error
 
             - name: Upload unit test results to Codecov
-              if: success()
+              if: ${{ !cancelled() }}
               uses: codecov/codecov-action@v7
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
@@ -110,7 +103,7 @@ jobs:
                   fail_ci_if_error: false
 
     database:
-        name: Database tests (PHP ${{ matrix.php-version }})
+        name: Database tests
         runs-on: ubuntu-latest
         env:
             APP_SECRET: ci-test-placeholder-not-for-production
@@ -129,11 +122,6 @@ jobs:
                     --health-interval 10s
                     --health-timeout 5s
                     --health-retries 5
-        strategy:
-            fail-fast: true
-            matrix:
-                php-version: ['8.4']
-
         steps:
             - name: Checkout code
               uses: actions/checkout@v7
@@ -143,26 +131,18 @@ jobs:
               with:
                   coverage: pcov
                   extensions: "intl, mbstring, pdo_pgsql, zip"
-                  php-version: ${{ matrix.php-version }}
+                  php-version: '8.4'
                   tools: composer:v2
 
-            - name: Set composer cache directory
-              id: composer-cache
-              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-              shell: bash
-
-            - name: Cache composer
-              uses: actions/cache@v6
-              with:
-                  path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-                  restore-keys: ${{ runner.os }}-composer-
-
+            # No Composer scripts: cache:clear would build a dev container the tests never use (~16 s).
             - name: Install dependencies
-              run: composer install --ansi --no-interaction --no-progress
+              uses: ramsey/composer-install@v4
+              with:
+                  composer-options: --no-scripts
 
             - name: Build and compile assets
               run: |
+                  php bin/console assets:install public
                   php bin/console importmap:install
                   php bin/console asset-map:compile
 
@@ -173,13 +153,10 @@ jobs:
               run: |
                   mkdir -p var/coverage/logs
                   vendor/bin/paratest \
-                    --testsuite all \
-                    --exclude-testsuite unit \
+                    --testsuite integration,functional,fixtures,system \
                     --processes=4 \
                     --coverage-clover=var/coverage/logs/clover-integration.xml \
-                    --log-junit=junit-integration.xml \
-                    --order-by duration \
-                    --stop-on-failure
+                    --log-junit=junit-integration.xml
                   php bin/report-slowest-tests 10 || true
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app
@@ -193,7 +170,7 @@ jobs:
                   if-no-files-found: error
 
             - name: Upload integration test results to Codecov
-              if: success()
+              if: ${{ !cancelled() }}
               uses: codecov/codecov-action@v7
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
