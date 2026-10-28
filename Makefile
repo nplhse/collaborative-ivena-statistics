@@ -159,9 +159,9 @@ demo-install: ## Create the demo DB app_demo with synthetic data (DEMO_PRESET=la
 	@$(DEMO_CONSOLE) doctrine:migrations:migrate --no-interaction
 	@rm -rf var/demo/imports public/uploads/demo
 	@mkdir -p var/demo/imports/rejects public/uploads/demo/media
-	@FIXTURES_PROFILE=$(DEMO_PRESET) $(DEMO_CONSOLE) doctrine:fixtures:load --group=dev --no-interaction
-	@$(DEMO_CONSOLE) app:statistics:rebuild-closure-volume-projection
-	@$(DEMO_CONSOLE) app:statistics:refresh-mviews
+	@$(FIXTURES_XDEBUG) FIXTURES_PROFILE=$(DEMO_PRESET) $(DEMO_CONSOLE) doctrine:fixtures:load --group=dev --no-interaction
+	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:rebuild-closure-volume-projection
+	@$(FIXTURES_XDEBUG) $(DEMO_CONSOLE) app:statistics:refresh-mviews
 
 # Fails when app_demo already holds an installation and DEMO_CONFIRM is not "yes".
 demo-install-guard:
