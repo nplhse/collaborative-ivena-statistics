@@ -155,7 +155,7 @@ See [../04-features/statistics/projection-and-materialized-views.md](../04-featu
 Reference fixture coverage lives under `tests/DataFixtures/`:
 
 - `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, stable ids, no curated labels
-- `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load
+- `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load; two loads in one process give the same catalog
 - `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
 - `Allocation/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month
