@@ -163,6 +163,7 @@ Resolve matching Sentry CSP issues as `policy-gap` after deploy if they stop rec
 | Known CDN you plan to allow | New analytics or font host | Add to CSP in P2 or refactor to `'self'` |
 | Same route after a feature deploy | New external asset on one page | Extend policy or self-host |
 | OpenStreetMap variant | Unexpected tile subdomain | Adjust `img-src` / `connect-src` if legitimate |
+| Other tile host | `MAP_TILE_URL` points to another provider | Add that host to `img-src` / `connect-src`; local tiles (`/map-tiles/…`) are covered by `'self'` |
 | EasyAdmin + nonce (see above) | `script-src-attr` / `style-src-elem` on `/admin/…` with `blocked_uri: inline` | Prefer Stimulus / CSS / vendor nonce; do not “fix” by removing EasyAdmin nonces |
 
 **Action:** Open a P2 ticket; resolve the issue if it is understood backlog.

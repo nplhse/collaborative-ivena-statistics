@@ -32,7 +32,10 @@
 | `SENTRY_ENABLE_LOGS` | Structured logs | `true` / `false` |
 | `SENTRY_CSP_REPORT_URI` | Sentry CSP report endpoint | optional; prod only; adds `report-uri` when set (see [content-security-policy.md](../05-operations/content-security-policy.md)) |
 | `ANALYTICS_RAW_RETENTION_DAYS` | Days of detailed usage-analytics rows to keep | default `30`; see [../04-features/analytics/aggregation-and-retention.md](../04-features/analytics/aggregation-and-retention.md) |
-| `OPENROUTESERVICE_API_KEY` | OpenRouteService key for `app:geo:geocode-hospitals` and `app:geo:fetch-isochrones` | optional; empty skips both commands. Maps read stored GeoJSON only. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
+| `OPENROUTESERVICE_API_KEY` | OpenRouteService key for `app:geo:geocode-hospitals` and `app:geo:fetch-isochrones` | optional; empty skips both commands. Maps read stored GeoJSON only. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). Also used by `app:geo:prepare-location`. |
+| `MAP_TILE_URL` | Leaflet tile URL template of all maps | default OpenStreetMap (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`). Empty: no basemap (offline). Local tiles: `/map-tiles/{z}/{x}/{y}.png` from `public/map-tiles/` (git-ignored). See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#map-tiles-and-offline-use). |
+| `MAP_TILE_ATTRIBUTION` | Attribution HTML shown on the maps | default OpenStreetMap; set it to match the tile source |
+| `MAP_TILE_MAX_ZOOM` | Highest zoom level of the maps | default `18`; lower it to the highest level a local tile set contains |
 | `FIXTURES_PROFILE` | Which hospitals get synthetic allocations | `single`, `minimal`, `medium`, `realistic` (default); see [../03-development/fixtures.md](../03-development/fixtures.md) |
 | `FIXTURES_SCALE` | Factor on the synthetic allocations per day | `0.01`–`10`, default `1` (close to real volumes); see [../03-development/fixtures.md](../03-development/fixtures.md) |
 | `FIXTURES_UNTIL` | Last day of the synthetic data | `Y-m-d`, default empty (yesterday); a fixed date gives the same data on every day; see [../03-development/fixtures.md](../03-development/fixtures.md) |
