@@ -9,6 +9,7 @@ use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\DemoMonthCsvExporter;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -81,7 +82,7 @@ final readonly class ExportDemoCsvCommand
 
         try {
             $files = $this->exporter->export($volume, $entity, $month, $lastDay, '' !== $dir ? $dir : $this->projectDir.'/var/demo/csv');
-        } catch (\DomainException $exception) {
+        } catch (\DomainException|InvalidPatternPackageException $exception) {
             $io->error($exception->getMessage());
 
             return Command::FAILURE;

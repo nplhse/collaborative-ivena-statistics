@@ -12,6 +12,8 @@ use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
 use App\DataFixtures\Generator\Infrastructure\Dbal\ClosureIntervalWriter;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
+use App\DataFixtures\Pattern\Application\PatternSetLoader;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -34,6 +36,7 @@ final readonly class HospitalMonthGenerator
     public function __construct(
         private ImportBatchPlanner $planner,
         private HospitalMonthSampler $sampler,
+        private PatternSetLoader $patterns,
         private EntityManagerInterface $entityManager,
         private Connection $connection,
         private RandomStreams $streams,
@@ -65,7 +68,8 @@ final readonly class HospitalMonthGenerator
     /**
      * @param string $month month as Y-m
      *
-     * @throws \DomainException when the month cannot be generated for this hospital
+     * @throws \DomainException               when the month cannot be generated for this hospital
+     * @throws InvalidPatternPackageException when the pattern package of the volume is invalid
      */
     public function generate(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): GeneratedMonth
     {
@@ -86,11 +90,12 @@ final readonly class HospitalMonthGenerator
 
         $hospitalKey = $hospital->getPublicIdString();
         $uploadedAt = UploadTime::after($lastGeneratedDay, $lastDay, $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::UPLOAD));
+        $source = new PatternSource($this->patterns->load($volume->patterns)->source);
         $closures = $this->sampler->closures($volume, $hospital, $batch, $lastDay);
-        $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
+        $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month, $source), $owner, $uploadedAt);
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
 
-        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
+        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month, $source), $owner, $uploadedAt);
         $fixed = [
             'hospital_id' => (int) $hospital->getId(),
             'dispatch_area_id' => (int) $dispatchArea->getId(),

@@ -7,13 +7,14 @@ namespace App\DataFixtures\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
-use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
+use App\DataFixtures\Generator\Application\GenerationPreflight;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\ImportBatchPlanner;
 use App\DataFixtures\Generator\Application\Scenario\PresetScenarioPlanner;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioGenerator;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
@@ -38,17 +39,18 @@ final readonly class SyntheticAllocationGenerator
         private PresetScenarioPlanner $scenarioPlanner,
         private ScenarioGenerator $scenarioGenerator,
         private ClockInterface $clock,
-        private CatalogCompatibility $catalog,
+        private GenerationPreflight $preflight,
     ) {
     }
 
     /**
-     * @throws CatalogMismatchException before the first row when the catalog cannot serve the generator
+     * @throws CatalogMismatchException       before the first row when the catalog cannot serve the generator
+     * @throws InvalidPatternPackageException before the first row when the pattern package (FIXTURES_PATTERNS) is invalid
      */
     public function generate(): void
     {
-        $this->catalog->assertCompatible();
         $volume = $this->volumeResolver->resolve();
+        $this->preflight->check($volume);
 
         $lastDay = $volume->lastDay($this->clock);
         $periodStart = $lastDay->modify('first day of this month')->modify(sprintf('-%d months', $volume->months));

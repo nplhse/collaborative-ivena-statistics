@@ -7,9 +7,10 @@ namespace App\DataFixtures\Generator\Application;
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
-use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use App\DataFixtures\Pattern\Application\PatternLookupResolver;
 use App\DataFixtures\Pattern\Application\PatternSampler;
+use App\DataFixtures\Pattern\Application\PatternSetLoader;
 
 /**
  * Samples the closures and allocations of one hospital and month without writing anything.
@@ -21,7 +22,7 @@ use App\DataFixtures\Pattern\Application\PatternSampler;
 final readonly class HospitalMonthSampler
 {
     public function __construct(
-        private DefaultDistributionPatterns $patterns,
+        private PatternSetLoader $patterns,
         private HospitalProfileResolver $profiles,
         private PatternSampler $patternSampler,
         private RandomStreams $streams,
@@ -47,12 +48,14 @@ final readonly class HospitalMonthSampler
      * @param list<PlannedClosure> $closures
      *
      * @return iterable<SampledAllocation>
+     *
+     * @throws InvalidPatternPackageException when the pattern package of the volume is invalid
      */
     public function allocations(FixtureVolume $volume, Hospital $hospital, ImportBatch $batch, array $closures): iterable
     {
         $profile = $this->profiles->resolve($hospital, $volume->seed);
         $closed = ClosedDepartments::of($closures, $this->lookups);
-        $pattern = $profile->applyTo($this->patterns->get($profile->segment));
+        $pattern = $profile->applyTo($this->patterns->load($volume->patterns)->get($profile->segment));
         $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $batch->month, RandomStreams::ALLOCATIONS);
 
         foreach ($batch->dailyCounts as $day => $count) {

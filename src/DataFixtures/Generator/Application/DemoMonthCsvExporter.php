@@ -11,6 +11,7 @@ use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Csv\IvenaAllocationCsv;
 use App\DataFixtures\Generator\Infrastructure\Csv\IvenaClosureCsv;
 use App\DataFixtures\Generator\Infrastructure\Csv\IvenaCsvFile;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use App\DataFixtures\Pattern\Application\PatternLookupResolver;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -56,7 +57,8 @@ final readonly class DemoMonthCsvExporter
     /**
      * @param string $month month as Y-m
      *
-     * @throws \DomainException when the month is not complete by the last day, or already has data for the hospital
+     * @throws \DomainException               when the month is not complete by the last day, or already has data for the hospital
+     * @throws InvalidPatternPackageException when the pattern package of the volume is invalid
      */
     public function export(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay, string $directory): DemoMonthCsvFiles
     {

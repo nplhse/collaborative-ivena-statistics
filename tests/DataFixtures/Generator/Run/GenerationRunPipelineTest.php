@@ -40,9 +40,10 @@ final class GenerationRunPipelineTest extends KernelTestCase
             self::assertSame(Command::SUCCESS, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH, '--async' => true, '--notify' => true]), $tester->getDisplay());
             self::assertStringContainsString('app:generate:run:show', $tester->getDisplay());
 
-            $run = $this->connection()->fetchAssociative('SELECT id, status, stage, scope, seed, notify, reason_code FROM generation_run');
+            $run = $this->connection()->fetchAssociative('SELECT id, status, stage, scope, seed, notify, reason_code, settings FROM generation_run');
             self::assertIsArray($run);
             self::assertSame(['completed', 'done', 'one', true, null], [$run['status'], $run['stage'], $run['scope'], $run['notify'], $run['reason_code']]);
+            self::assertSame(['command' => 'app:generate:imports', 'patterns' => 'defaults'], json_decode((string) $run['settings'], true), 'the run records its pattern source');
 
             $importId = (int) $this->connection()->fetchOne('SELECT id FROM import WHERE file_path LIKE :marker', ['marker' => SyntheticImportMarker::likeAnySeed(SyntheticImportMarker::ALLOCATIONS, $publicId, self::MONTH)]);
             $allocations = (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation WHERE import_id = :id', ['id' => $importId]);
