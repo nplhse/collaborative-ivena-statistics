@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Structure\Application;
 
+use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\DataFixtures\Structure\Dto\Capability;
+use App\DataFixtures\Structure\Dto\ClosureModel;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
 use App\DataFixtures\Structure\Dto\HospitalResources;
 use App\DataFixtures\Structure\Dto\ObstetricsLevel;
@@ -120,10 +122,48 @@ final class StructureRules
                 $violations[] = sprintf('%s must lie between 0 and 2', $name);
             }
         }
+        $violations = [...$violations, ...self::closureViolations($set->closureModel())];
         foreach ($set->closureShares as $size => $share) {
             if (!\in_array($size, self::SIZES, true) || $share < 0.0 || $share >= 1.0) {
                 $violations[] = sprintf('closure share for "%s" must be a size with a share from 0 to below 1', $size);
             }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function closureViolations(ClosureModel $model): array
+    {
+        $violations = [
+            ...self::shareViolations('closure event sizes', array_column($model->eventSizes, 'share')),
+            ...self::shareViolations('closure durations', array_column($model->durations, 'share')),
+            ...self::shareViolations('closure care levels', $model->careLevels),
+        ];
+        foreach ($model->eventSizes as $size => $range) {
+            if ($range['min'] < 0.0 || $range['max'] > 1.0 || $range['min'] > $range['max']) {
+                $violations[] = sprintf('closure event size "%s": the range must lie within 0 to 1', $size);
+            }
+        }
+        foreach ($model->durations as $name => $duration) {
+            if ($duration['min'] < 1 || $duration['max'] > 1440 || $duration['min'] > $duration['max']) {
+                $violations[] = sprintf('closure duration "%s": minutes must lie within 1 to 1,440', $name);
+            }
+        }
+        foreach (array_keys($model->careLevels) as $careLevel) {
+            if (!ClosureCareLevel::tryFrom($careLevel) instanceof ClosureCareLevel) {
+                $violations[] = sprintf('unknown closure care level "%s"', $careLevel);
+            }
+        }
+        foreach ($model->weekdays as $weekday => $factor) {
+            if ($weekday < 1 || $weekday > 7 || $factor < 0.0) {
+                $violations[] = sprintf('closure weekday %d needs a factor of at least 0', $weekday);
+            }
+        }
+        if ($model->groupShare < 0.0 || $model->groupShare > 1.0) {
+            $violations[] = 'the closure group share must lie within 0 to 1';
         }
 
         return $violations;

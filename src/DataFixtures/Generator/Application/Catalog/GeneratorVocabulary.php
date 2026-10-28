@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Generator\Application\Catalog;
 
-use App\DataFixtures\Generator\Application\ClosurePlanner;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioCatalog;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Application\PatternSet;
@@ -38,8 +37,6 @@ final readonly class GeneratorVocabulary
     {
         $names = array_merge(
             DepartmentStructure::all(),
-            array_keys(ClosurePlanner::DEPARTMENTS),
-            array_keys(ClosurePlanner::SPECIALISED_DEPARTMENTS),
             array_values(PatternSampler::FALLBACK_DEPARTMENTS),
             [PatternSampler::FALLBACK_DEPARTMENT],
         );

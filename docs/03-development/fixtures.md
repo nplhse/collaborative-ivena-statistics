@@ -58,17 +58,19 @@ php bin/console doctrine:fixtures:load --group=minimal --no-interaction
 
 `FIXTURES_PROFILE` chooses which participating hospitals receive synthetic allocations:
 
-| Profile | Hospitals with allocations | Period | Allocations | Scenarios |
-|---|---|---|---|---|
-| `single` | 1, drawn with the seed | 12 months + current | ~4,000 | none |
-| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | 12 months + current | ~25,000 | none |
-| `medium` | 6: two of each size | 12 months + current | ~50,000 | 1 MCI |
-| `realistic` (default) | 15: 3 Large, 6 Medium, 6 Small | 12 months + current | ~106,000 | 1 flu wave in winter, 1 MCI |
-| `large` | all 20 participating hospitals: 3 Large, 8 Medium, 9 Small | 24 months + current | ~247,000 (1,000 imports, ~4,800 closure intervals) | per year 1 flu wave and 1 MCI, plus 1 icy-road day |
+| Profile | Hospitals with allocations | Period | Allocations | Closed department-hours | Scenarios |
+|---|---|---|---|---|---|
+| `single` | 1, drawn with the seed | 12 months + current | ~4,000 | 1 % | none |
+| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | 12 months + current | ~25,000 | 1 % | none |
+| `medium` (default) | 6: two of each size | 12 months + current | ~50,000 | 1 % | 1 MCI |
+| `realistic` | 15: 3 Large, 6 Medium, 6 Small | 12 months + current | ~97,000 | 5 / 8 / 10 % by size | 1 flu wave in winter, 1 MCI |
+| `large` (demo) | all 20 participating hospitals: 3 Large, 8 Medium, 9 Small | 24 months + current | ~247,000 (1,000 imports) | 5 / 8 / 10 % by size | per year 1 flu wave and 1 MCI, plus 1 icy-road day |
+
+**Closures per preset.** `closure_share` in a preset sets the share of closed department-hours for all its hospitals (a number from 0 to below 1). The small presets set 1 %, so they load fast; `realistic` and `large` leave it out, so each hospital gets the share of its size from the structural patterns. An explicit closure share of a `ProfileSelection` (generation service of #877, demo wizard) wins over the preset. The closure volume rebuild grows with the number of closure intervals, which is why the dev default is `medium`.
 
 The allocation counts are those of the base data; scenarios add a few percent on top (a flu wave about 25 % for 2–4 weeks).
 
-`make reset` takes about 2 minutes with `realistic` (load about 80 s, closure rebuild about 45 s) and about 4½ minutes with `large` (load about 130 s, closure rebuild about 130 s). These times were measured before presets applied scenarios (#865); the scenarios add a few percent of rows. The KPI aggregation inside the load adds about 0.1 s per upload day: about 5 s with `realistic`, about 10 s with `large`. The load runs without debug mode: in debug mode Symfony keeps every SQL query in memory (`large` then needs over 800 MB instead of about 100 MB). A preset can set its own `months`; the synthetic catalog has 20 participating hospitals, so no preset can have more.
+`make reset` takes about 1½ minutes with the default `medium` (load about 60 s, closure rebuild about 20 s, about 1,300 closure intervals) and about 7 minutes with `realistic` (load about 85 s, closure rebuild about 340 s for about 26,000 closure intervals at the full closure shares; measured with #876, `FIXTURES_UNTIL=2026-09-30`). `large` takes longer still, mostly in the closure rebuild. The KPI aggregation inside the load adds about 0.1 s per upload day: about 5 s with `realistic`, about 10 s with `large`. The load runs without debug mode: in debug mode Symfony keeps every SQL query in memory (`large` then needs over 800 MB instead of about 100 MB). A preset can set its own `months`; the synthetic catalog has 20 participating hospitals, so no preset can have more.
 
 The demo user `foo` owns one of the active hospitals, drawn with the seed: the same seed gives the same hospital, another seed another one. In `single` it owns the only one.
 
@@ -77,6 +79,7 @@ FIXTURES_PROFILE=minimal make reset
 FIXTURES_PROFILE=single FIXTURES_SCALE=0.2 make reset    # fastest
 FIXTURES_UNTIL=2026-09-30 make reset                     # fixed period, same data on every day
 FIXTURES_PROFILE=large make reset                        # two years, every participating hospital
+FIXTURES_PROFILE=realistic make reset                    # 15 hospitals with the full closure shares
 FIXTURES_MONTHS=36 make reset                            # three years with the default preset
 ```
 
@@ -86,7 +89,7 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 
 | Parameter | Default | Effect |
 |---|---|---|
-| `FIXTURES_PROFILE` | `realistic` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes) |
+| `FIXTURES_PROFILE` | `medium` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes; optional `months`, `closure_share`, `scenarios`) |
 | `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `1` is close to real volumes |
 | `FIXTURES_UNTIL` | empty | Last day of the period (`Y-m-d`); empty means yesterday |
 | `FIXTURES_MONTHS` | empty | Whole months before the month of the last day; empty uses the months of the preset or `fixtures.baseline.months` |
@@ -114,7 +117,7 @@ The configurations are manually curated, not sampled from data: coarse weights f
 
 Departments follow from the configuration, in the department keys of the generator vocabulary (`GeneratorKeys`). Every hospital offers the core departments (`cardiology`, `gastroenterology`, `pulmonology`, `general-surgery`, `trauma-surgery`); a resource brings its departments (stroke unit → `stroke-unit` and `general-neurology`, neurosurgery → `neurosurgery`, obstetrics → `obstetrics`, perinatal centre → `prenatal-medicine` and `neonatology`, paediatrics → `general-paediatrics`). For every field (speciality key) the configuration then gives the number of further departments, drawn per hospital, and the hospital gets the most common ones of that field (`DepartmentStructure`). The resuscitation room share follows the trauma level (1 % none, 2 % basic, 5 % regional, 10 % supraregional).
 
-**Capability gates.** An indication that needs a resource the hospital lacks is never drawn there; its share goes to the other codes: STEMI and cardiogenic shock (332, 346) need a cath lab, polytrauma (211, 212) a regional trauma centre, preterm births a perinatal centre. A hospital without a cath lab gets no cath lab cases. A hospital gets no allocations and no closures in a department it does not offer: an indication whose departments are all missing is drawn again (a hospital without obstetrics gets no births, one without neurology hardly any strokes), and after five tries the case goes to a core department. The closure frequency is part of the profile too (8, 5 or 3 events per month by size). Allocations are written in batches through DBAL.
+**Capability gates.** An indication that needs a resource the hospital lacks is never drawn there; its share goes to the other codes: STEMI and cardiogenic shock (332, 346) need a cath lab, polytrauma (211, 212) a regional trauma centre, preterm births a perinatal centre. A hospital without a cath lab gets no cath lab cases. A hospital gets no allocations and no closures in a department it does not offer: an indication whose departments are all missing is drawn again (a hospital without obstetrics gets no births, one without neurology hardly any strokes), and after five tries the case goes to a core department. How much a hospital is closed is part of the profile too (see Closures). Allocations are written in batches through DBAL.
 
 **Volume per hospital.** The preset rate of the size stays the anchor. Each hospital multiplies it by a bed factor, (beds ÷ reference beds of its size)^0.8 with reference beds Small 200, Medium 450, Large 950, and by a hospital factor drawn log-normally with mean 1 and spread 0.20. Hospitals of one size thus differ by about a fifth to a quarter, larger ones get more cases, and the preset totals stay about the same. Scenario extra cases are a share of the hospital's own rate.
 
@@ -127,7 +130,7 @@ Spreads and the bed elasticity are coarse values rounded towards the aggregates 
 - a configuration by key (also one with weight 0 for the hospital's tier and size) and/or single resources on top of it, for example `new ProfileSelection(configuration: 'basic-neurosurgery')` or `new ProfileSelection(cathlab: true)`;
 - tier, size and beds instead of those of the catalog hospital, for a new hospital of the #791 wizard; for an existing hospital they come from the catalog;
 - an annual volume (allocations per year at the trend reference day): it **replaces** preset rate, bed factor, hospital factor and scale, it is not multiplied with them; weekday, month and trend factors still apply;
-- a closure share (share of closed department-hours, default 5 / 8 / 10 % for Small / Medium / Large, general knowledge, not measured; the closure planner uses it from the next step of #876).
+- a closure share (share of closed department-hours, default 5 / 8 / 10 % for Small / Medium / Large, general knowledge, not measured; see Closures).
 
 An unknown key, an incoherent result (a supraregional trauma centre without neurosurgery) or figures out of range (beds or annual volume not above 0, a closure share outside 0 to below 1) are refused. Overrides by hospital public id in `fixtures.yaml` stay out (see below).
 
@@ -308,7 +311,18 @@ The package is read and validated, and the catalog check runs with its names and
 
 ### Closures
 
-Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`: on average 8, 5 or 3 closure events per month for large, medium and small hospitals, a little more in autumn and winter. An event is an IVENA group (two to four departments with one group id), an exact-time cluster (two or three departments with the same start and end) or a single closure, so the closure analysis finds all three event types. Durations run from half an hour to at most 24 hours. Only departments the hospital offers are closed. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
+Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`. The hospital profile sets **how much** is closed: the share of closed department-hours of its offered departments, merged per department (default 5 / 8 / 10 % for small / medium / large hospitals, or the `closure_share` of the preset). The closure model of the structural patterns (`ClosureModel`) sets **how**:
+
+| | Default |
+|---|---|
+| Departments per event (share of the offered ones) | one 45 %, few (10–25 %) 30 %, many (30–60 %) 15 %, most (70–100 %) 10 % |
+| Duration | 30 min–2 h 40 %, 2–6 h 35 %, 6–24 h 15 %, a whole day from midnight 10 % |
+| Care level per event | in-patient 45 %, emergency 30 %, out-patient 25 % |
+| Weekday factor Mon … Sun | 1.15, 1.10, 1.0, 1.0, 1.10, 0.85, 0.80 |
+| Field weight of the closed departments | internal medicine 1.5, neurology 1.2, paediatrics and obstetrics 0.7, others 1 |
+| Multi-department events | 55 % IVENA groups, 45 % exact-time clusters |
+
+All closure values are general knowledge, not measured: the reference data of #874 has closures of too few hospitals for values of their own. The number of events follows from share and model, `−ln(1 − share) × departments × hours ÷ (expected departments × expected hours of an event)`; the logarithm makes up for events that overlap on one department. Autumn and winter get somewhat more events, summer fewer, with the yearly mean unchanged. With 20 offered departments and 10 %, a hospital gets about 51 events and 230 closure intervals in a 30-day month (before: about 8 events and 10 intervals). A one-department event is a single closure, so the closure analysis still finds all three event types. Closures last at most 24 hours. Only departments the hospital offers are closed. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
 
 ### Adding a month later
 
@@ -367,7 +381,7 @@ The data looks plausible in totals, weekly rhythm and the indication-driven fiel
 - **Severe codes only in the full-care mix.** Capability gates decide where STEMI, polytrauma and cardiogenic shock may go, but only the `urban-full` segment draws them so far, so other hospitals with a cath lab or trauma centre do not get them yet (allocation defaults, after #875 and #883).
 - **About 30 PZC codes.** Urology, ENT, ophthalmology, dermatology (7xx) and transport codes (6xx) are not drawn, so the departments of those fields never get allocations; neither do allocations without a normalized indication or with a secondary indication.
 - **Few dependencies outside the indication.** Department, urgency, age, sex and flags follow from the indication. Occasion, infection, assignment, transport type, secondary transport and transport time do not (a traffic accident can bring a chest pain patient). The hour of day depends neither on the weekday nor on the case; transport time depends on the hospital's location only. Ages are uniform inside wide bands, for example 65–99.
-- **Closures are small and rare.** A closure event closes one to four departments from a fixed list. Events that close most departments of a hospital at once, closures by care level for the same department, and a closure frequency given as the share of closed department-hours are not modelled. `department_was_closed` is set only for allocations inside a generated interval.
+- **Closures follow a coarse model.** Share, event size, durations, care levels and weekdays are general-knowledge defaults. Closures do not depend on the day's load, and one event closes one care level. `department_was_closed` is set only for allocations inside a generated interval.
 - **Fixed lookups.** Assignment, occasion and infection use one flat distribution per segment and only part of the catalog's values.
 
 ## Projection rebuild
@@ -396,10 +410,10 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/UploadTimeTest.php` — upload one to three days after the data, during office hours, never after the period
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
 - `Generator/PresetScenarioTest.php` — scenario counts per period; the `medium` preset spreads one MCI over 2–4 hospitals, its rows are in the projection and the KPIs, same seed same placement
-- `Generator/HospitalProfileResolverTest.php` — configurations by tier and size (cath lab shares, uncommon ones possible), coherent departments for every draw, field counts, explicit selection and refusal, capability gates, resuscitation room shares, same per seed, closure frequency and share; volume by beds (2 ^ 0.8 for twice the reference beds), explicit annual volume, spread of hospital factors and category tilt, tier and size of a new hospital, figures out of range
+- `Generator/HospitalProfileResolverTest.php` — configurations by tier and size (cath lab shares, uncommon ones possible), coherent departments for every draw, field counts, explicit selection and refusal, capability gates, resuscitation room shares, same per seed, closure share; volume by beds (2 ^ 0.8 for twice the reference beds), explicit annual volume, spread of hospital factors and category tilt, tier and size of a new hospital, figures out of range
 - `Structure/StructureRulesTest.php` — code defaults coherent and weights summing to 1, the structure uses the generator keys with fields = speciality keys, incoherent configurations and incomplete sets reported
 - `Structure/VolumeAndTiltTest.php` — bed factor and tilt of categories, old age and urgency 1 with hand-checkable numbers
-- `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed, only offered departments
+- `Generator/ClosurePlannerTest.php` — number of events from the share by hand (ten departments, 10 %, 30 days: 47.74 events), the merged closed share of a year matches 5 % and 10 %, no closures without a share, valid intervals of at most 24 hours, whole days from midnight, all three event types, sizes and care levels, more Monday than Sunday events, same per seed, only offered departments
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, intensity, removal restores counts, projection and KPIs, refused twice, same plan per seed
 - `Generator/Catalog/InterchangeableCatalogTest.php` — a second synthetic catalog with other labels, public ids, insert order and two normalized indications for one code: the composed catalog keeps the synthetic hospitals, the check lists exactly the renamed names, the load stops before the first row without mapping, with mapping the rows use only the mapped catalog and are the same whatever the database ids; ambiguous aliases, pinned codes, unknown mapping entries, `app:generate:check-catalog`
 - `Generator/Catalog/CatalogMappingTest.php`, `GeneratorVocabularyTest.php` — mapping file format and errors, the vocabulary of every source

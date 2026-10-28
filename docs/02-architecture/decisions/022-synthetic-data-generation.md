@@ -43,7 +43,7 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 ### Settings and the generator API
 
-The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months and its scenarios; the closure frequency belongs to the hospital profile. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
+The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months and its scenarios; the closure share belongs to the hospital profile. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
 
 - `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital.
 - The allocation fixture runs the month generator for all selected hospitals and months, then rebuilds the projection once.
@@ -63,7 +63,7 @@ A `HospitalProfile` belongs to the generator configuration, not to the reference
 - the volume, as allocations per day or per bed and year,
 - the departments and specialities the hospital offers,
 - the resources it offers, each independent of the care tier: resuscitation room, catheterization laboratory and others,
-- the closure frequency.
+- the closure share: the share of closed department-hours.
 
 Default profiles are derived deterministically from tier, size and location; the defaults keep the per-size daily rates of the presets.
 
@@ -71,7 +71,7 @@ Default profiles are derived deterministically from tier, size and location; the
 - Resuscitation room cases happen in every hospital; the share follows the trauma level and is small without a trauma centre.
 - Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery). A resource brings its departments (a stroke unit brings stroke medicine and general neurology). For each field the configuration gives the number of further departments, drawn per hospital, filled with the most common departments of the field.
 - **Capability gates:** an indication that needs a resource the hospital lacks is not drawn there (STEMI without cath lab, polytrauma without regional trauma centre, preterm birth without perinatal centre); its share goes to the other codes. Gates replace "severe codes only in the full-care segment" as the rule; the segments themselves are unchanged.
-- The closure frequency is part of the profile; by default it follows the size (8, 5 or 3 events per month).
+- The closure share is part of the profile; by default it follows the size (5, 8 or 10 % of the department-hours for small, medium and large hospitals, general knowledge, not measured).
 
 - **Volume per hospital (#876):** the preset rate of the size stays the anchor, multiplied by a bed factor ((beds ÷ reference beds of the size)^elasticity) and a log-normal hospital factor with mean 1, so hospitals of one size differ and the preset totals stay about the same.
 - **Case mix per hospital (#876):** a tilt drawn once per hospital multiplies the weights of each indication category, of the age bands from 65 on and of urgency 1. Volume and tilt are drawn after the configuration and the departments.
@@ -116,7 +116,7 @@ Each hospital gets one closure import per month with `ClosureInterval` rows:
 
 - department and speciality, care level, reason and facility kind; only departments the hospital offers are closed, specialised ones (stroke unit, neurosurgery, paediatrics) wherever they are offered,
 - durations from half an hour up to 24 hours; a closure never spans several days and never ends after the last generated day,
-- the frequency of the hospital profile with a modest autumn and winter increase, drawn from the hospital-month stream `closures`,
+- the closed share of department-hours of the hospital profile; a closure model of the structural patterns sets event size (share of the offered departments), duration (whole days from midnight included), care level, weekday and field weights, and the number of events follows from share and model; a modest autumn and winter increase keeps the yearly mean; drawn from the hospital-month stream `closures`,
 - some intervals share an IVENA group id and some share exact start and end times, so all three event types of the closure analysis appear (source group, cluster, single).
 
 Closures of a month are planned before its allocations. An allocation to a closed department during an interval gets `department_was_closed = true`; the flag is no longer random.
@@ -197,6 +197,13 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - **Per-hospital volume and mix:** see Hospital profiles. Bed elasticity and the spreads of hospital factor and tilt are coarse values rounded towards the between-hospital variation measured in #874, only where at least five hospitals stand behind a value.
 - **Closure share in the profile:** the share of closed department-hours (default by size, general knowledge, not measured) and its selection exist from this step; the closure planner switches to it in the next step.
 - New draws were appended to the `profile` stream, so configurations and departments of step 1 stay; volume and mix of every hospital change once.
+
+## Amendment (October 2026, #876, step 3)
+
+- **Closures from the share of department-hours** (roadmap decision for #791): the profile gives the share, the closure model of the structural patterns how closures look, and `ClosurePlanner` derives the number of events, `−ln(1 − share) × departments × hours ÷ (expected departments × expected hours)`. Events per month are no longer an input.
+- All closure defaults are general knowledge, not measured, since the reference data has closures of too few hospitals.
+- A dataset has many times more closure intervals than before, so `department_was_closed` is set far more often and the closure rebuild takes longer.
+- **Closure share per preset:** a preset may set `closure_share` for all its hospitals; `single`, `minimal` and `medium` close 1 % and load fast, `realistic` and `large` (the demo preset) keep the shares by size. An explicit share of a `ProfileSelection` wins over the preset, the preset over the structural default. The dev default preset becomes `medium` (6 hospitals, 12 months), since the full shares make the closure volume rebuild of `realistic` several minutes long; the test environment stays on `minimal`.
 
 ## Amendment (October 2026, #883): pattern package format
 

@@ -242,7 +242,6 @@ final class HospitalProfileResolverTest extends TestCase
         self::assertSame('urban-full', $profile->segment);
         self::assertStringStartsWith('full-', $profile->configuration);
         self::assertSame('Large', $profile->size);
-        self::assertSame(8.0, $profile->closureEventsPerMonth);
         self::assertSame(0.10, $profile->closureShare, 'default share of closed department-hours of a large hospital');
     }
 
@@ -254,19 +253,26 @@ final class HospitalProfileResolverTest extends TestCase
         self::assertSame(0.25, $share(HospitalSize::SMALL, 0.25));
     }
 
+    /**
+     * A preset share is a default: it replaces the share of the size, an explicit share replaces it.
+     */
+    public function testAPresetClosureShareIsADefaultThatAnExplicitShareOverrides(): void
+    {
+        $medium = $this->hospitals(1, HospitalTier::BASIC, HospitalSize::MEDIUM)[0];
+        $share = fn (ProfileSelection $selection): float => $this->resolver()->resolve($medium, 740, $selection)->closureShare;
+
+        self::assertSame(0.08, $share(new ProfileSelection()), 'the share of a medium hospital');
+        self::assertSame(0.01, $share(new ProfileSelection()->withDefaultClosureShare(0.01)), 'the share of the preset');
+        self::assertSame(0.25, $share(new ProfileSelection(closureShare: 0.25)->withDefaultClosureShare(0.01)), 'the explicit share');
+        self::assertSame(0.08, $share(new ProfileSelection()->withDefaultClosureShare(null)), 'no preset share');
+    }
+
     public function testFiguresOutOfRangeAreRefused(): void
     {
         $this->expectException(\DomainException::class);
         $this->expectExceptionMessage('beds must be more than 0; the annual volume must be more than 0; the closure share must lie from 0 to below 1');
 
         $this->resolver()->resolve($this->hospitals(1, HospitalTier::BASIC, HospitalSize::SMALL)[0], 740, new ProfileSelection(beds: 0, annualVolume: -1, closureShare: 1.0));
-    }
-
-    public function testTheClosureFrequencyFollowsTheSize(): void
-    {
-        $events = fn (HospitalSize $size): float => $this->resolver()->resolve($this->hospitals(1, HospitalTier::BASIC, $size)[0], 740)->closureEventsPerMonth;
-
-        self::assertSame([8.0, 5.0, 3.0], [$events(HospitalSize::LARGE), $events(HospitalSize::MEDIUM), $events(HospitalSize::SMALL)]);
     }
 
     public function testTheProfileAdjustsThePattern(): void

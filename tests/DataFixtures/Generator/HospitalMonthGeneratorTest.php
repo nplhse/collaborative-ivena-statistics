@@ -62,6 +62,11 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             // An explicit annual volume of 3,650 means 10 a day: about 310 in August instead of the drawn rate.
             $explicit = $generator->plan($volume, $this->hospital($hospitalId), self::MONTH, $volume->lastDay(new MockClock()), new ProfileSelection(annualVolume: 3650));
             self::assertEqualsWithDelta(310, $explicit->allocationCount(), 60);
+
+            // The test preset minimal closes 1 % of the department-hours; an explicit share wins.
+            self::assertSame(0.01, $volume->closureShare);
+            self::assertSame(0.01, $generator->profile($volume, $this->hospital($hospitalId))->closureShare);
+            self::assertSame(0.25, $generator->profile($volume, $this->hospital($hospitalId), new ProfileSelection(closureShare: 0.25))->closureShare);
             $generated = $generator->generate($volume, $this->hospital($hospitalId), self::MONTH, $volume->lastDay(new MockClock()));
 
             self::assertSame($loaded, $this->describeMonth($generated->importId, $generated->closureImportId), 'same rows as inside the full load');

@@ -43,6 +43,22 @@ final readonly class ProfileSelection
     }
 
     /**
+     * A copy that uses the given closure share unless this selection sets one (a preset share is a
+     * default, an explicit selection wins).
+     */
+    public function withDefaultClosureShare(?float $share): self
+    {
+        if (null === $share || null !== $this->closureShare) {
+            return $this;
+        }
+
+        return new self(
+            $this->configuration, $this->cathlab, $this->neurosurgery, $this->strokeUnit, $this->traumaLevel, $this->obstetrics,
+            $this->paediatrics, $this->tier, $this->size, $this->beds, $this->annualVolume, $share,
+        );
+    }
+
+    /**
      * @return list<string> what is out of range, empty when the figures are usable
      */
     public function violations(): array

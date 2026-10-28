@@ -21,7 +21,8 @@ final readonly class StructurePatternSet
      * @param array<string, float>          $resusShares    trauma level → share of allocations that need the resuscitation room
      * @param VolumeModel                   $volume         how volume follows beds and differs between hospitals; the default changes nothing
      * @param MixVariation                  $mixVariation   how much the case mix differs between hospitals; the default changes nothing
-     * @param array<string, float>          $closureShares  size → share of department-hours that are closed (used by the closure planner from step 3 of #876)
+     * @param array<string, float>          $closureShares  size → share of department-hours that are closed
+     * @param ClosureModel|null             $closures       how closures look; null is one department for an hour per event, in-patient care
      */
     public function __construct(
         array $configurations,
@@ -30,12 +31,25 @@ final readonly class StructurePatternSet
         public VolumeModel $volume = new VolumeModel([], 0.0, 0.0),
         public MixVariation $mixVariation = new MixVariation(0.0, 0.0, 0.0),
         public array $closureShares = [],
+        public ?ClosureModel $closures = null,
     ) {
         $keyed = [];
         foreach ($configurations as $configuration) {
             $keyed[$configuration->key] = $configuration;
         }
         $this->configurations = $keyed;
+    }
+
+    public function closureModel(): ClosureModel
+    {
+        return $this->closures ?? new ClosureModel(
+            eventSizes: ['single' => ['share' => 1.0, 'min' => 0.0, 'max' => 0.0]],
+            durations: ['hour' => ['share' => 1.0, 'min' => 60, 'max' => 60]],
+            careLevels: ['inpatient' => 1.0],
+            weekdays: [],
+            fieldWeights: [],
+            groupShare: 0.5,
+        );
     }
 
     /**
