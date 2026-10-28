@@ -53,7 +53,7 @@ final readonly class DistributionPattern
     /**
      * A copy with one distribution replaced, for example the indication mix of a scenario.
      *
-     * @param array<string, float> $distribution
+     * @param array<int|string, float> $distribution labels, e.g. PZC codes (PHP keys most of them as int)
      */
     public function withDistribution(string $key, array $distribution): self
     {
@@ -74,6 +74,32 @@ final readonly class DistributionPattern
         $distributions['flags'] = $flags + $this->flagProbabilities();
 
         return new self($distributions);
+    }
+
+    /**
+     * A copy for a hospital that does not offer the given departments.
+     *
+     * @param list<string> $departments
+     */
+    public function withoutDepartments(array $departments): self
+    {
+        $distributions = $this->distributions;
+        $distributions['departments_not_offered'] = $departments;
+
+        return new self($distributions);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function departmentsNotOffered(): array
+    {
+        $departments = $this->distributions['departments_not_offered'] ?? null;
+        if (!\is_array($departments)) {
+            return [];
+        }
+
+        return array_values(array_map(strval(...), array_filter($departments, \is_string(...))));
     }
 
     /**

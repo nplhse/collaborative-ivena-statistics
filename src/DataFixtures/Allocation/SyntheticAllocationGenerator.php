@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\DataFixtures\Allocation;
 
 use App\Allocation\Domain\Entity\Hospital;
+use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\ImportBatchPlanner;
+use App\DataFixtures\Generator\Application\Scenario\PresetScenarioPlanner;
+use App\DataFixtures\Generator\Application\Scenario\ScenarioGenerator;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -15,8 +18,9 @@ use Psr\Clock\ClockInterface;
 /**
  * Generates synthetic allocations for the participating demo hospitals of the fixtures.
  *
- * Every active hospital of the preset gets one import per month from the HospitalMonthGenerator;
- * this class only adds the fixture concerns: preset, period, demo hospital and the allocation projection.
+ * Every active hospital of the preset gets one import per month from the HospitalMonthGenerator; then
+ * the scenarios of the preset are laid over the data (PresetScenarioPlanner). This class only adds the
+ * fixture concerns: preset, period, demo hospital, scenarios, the allocation projection and the KPIs.
  * Closure analysis, closure volume projection and materialized views follow after the load
  * (`composer load-fixtures`), outside the fixture transaction.
  */
@@ -29,6 +33,8 @@ final readonly class SyntheticAllocationGenerator
         private HospitalMonthGenerator $monthGenerator,
         private EntityManagerInterface $entityManager,
         private SyntheticDataPipeline $pipeline,
+        private PresetScenarioPlanner $scenarioPlanner,
+        private ScenarioGenerator $scenarioGenerator,
         private ClockInterface $clock,
     ) {
     }
@@ -58,9 +64,42 @@ final readonly class SyntheticAllocationGenerator
             }
         }
 
+        $this->applyScenarios($volume, $hospitalIds, $periodStart, $lastDay);
+
         if ($volume->rebuildProjection) {
             $this->pipeline->rebuildAllocationProjection();
+            $this->pipeline->aggregateAllKpis();
         }
+    }
+
+    /**
+     * Projections and KPIs follow with the rest of the load, so the scenarios skip their own rebuild.
+     *
+     * @param list<int> $hospitalIds
+     */
+    private function applyScenarios(FixtureVolume $volume, array $hospitalIds, \DateTimeImmutable $periodStart, \DateTimeImmutable $lastDay): void
+    {
+        foreach ($this->scenarioPlanner->plan($volume, $this->find($hospitalIds), $periodStart, $lastDay) as $scenario) {
+            $this->scenarioGenerator->apply($scenario->definition, $volume, $this->find($scenario->hospitalIds), $scenario->startDay, $lastDay, $scenario->area, rebuild: false);
+            $this->entityManager->clear();
+        }
+    }
+
+    /**
+     * @param list<int> $ids
+     *
+     * @return list<Hospital>
+     */
+    private function find(array $ids): array
+    {
+        return array_map(function (int $id): Hospital {
+            $hospital = $this->entityManager->find(Hospital::class, $id);
+            if (!$hospital instanceof Hospital) {
+                throw new \RuntimeException(sprintf('Hospital %d disappeared during generation.', $id));
+            }
+
+            return $hospital;
+        }, $ids);
     }
 
     private function requireDemoHospitalOwnedBy(string $username): Hospital

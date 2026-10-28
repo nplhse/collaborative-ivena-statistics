@@ -8,8 +8,6 @@ use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Entity\MciCase;
 use App\Allocation\Domain\Entity\State;
-use App\Allocation\Domain\Enum\HospitalSize;
-use App\Allocation\Domain\Enum\HospitalTier;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
 use App\DataFixtures\Generator\Infrastructure\Dbal\ClosureIntervalWriter;
@@ -87,21 +85,21 @@ final readonly class HospitalMonthGenerator
             throw new \DomainException(sprintf('%s needs an owner, a dispatch area and a state for synthetic allocations.', (string) $hospital->getName()));
         }
 
+        $firstDay = array_key_first($batch->dailyCounts);
+        $lastGeneratedDay = array_key_last($batch->dailyCounts);
+        if (null === $firstDay || null === $lastGeneratedDay) {
+            throw new \LogicException('A planned month has at least one day.');
+        }
+
         $hospitalKey = $hospital->getPublicIdString();
-        $closures = $this->closurePlanner->plan(
-            $volume->seed,
-            $hospitalKey,
-            $month,
-            $hospital->getSize() ?? HospitalSize::MEDIUM,
-            HospitalTier::FULL === $hospital->getTier(),
-            array_keys($batch->dailyCounts),
-            $lastDay,
-        );
-        $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner);
+        $uploadedAt = UploadTime::after($lastGeneratedDay, $lastDay, $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::UPLOAD));
+        $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $closures = $this->closurePlanner->plan($volume->seed, $hospitalKey, $month, $profile, array_keys($batch->dailyCounts), $lastDay);
+        $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
         $closed = ClosedDepartments::of($closures, $this->lookups);
 
-        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner);
+        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
         $fixed = [
             'hospital_id' => (int) $hospital->getId(),
             'dispatch_area_id' => (int) $dispatchArea->getId(),
@@ -109,7 +107,6 @@ final readonly class HospitalMonthGenerator
             'import_id' => (int) $import->getId(),
         ];
 
-        $profile = $this->profiles->resolve($hospital, $volume->seed);
         $pattern = $profile->applyTo($this->patterns->get($profile->segment));
         $random = $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::ALLOCATIONS);
         $writer = new AllocationRowWriter($this->connection);
@@ -126,11 +123,6 @@ final readonly class HospitalMonthGenerator
         $mciCases = $this->generateMciCases($volume, $batch, $import, $hospital, $dispatchArea, $state);
 
         // Closure periods depend on the allocations of the hospital, so both imports are processed now.
-        $firstDay = array_key_first($batch->dailyCounts);
-        $lastGeneratedDay = array_key_last($batch->dailyCounts);
-        if (null === $firstDay || null === $lastGeneratedDay) {
-            throw new \LogicException('A planned month has at least one day.');
-        }
         $windowStart = new \DateTimeImmutable($firstDay.' 00:00:00');
         $windowEnd = new \DateTimeImmutable($lastGeneratedDay.' 23:59:59');
         $this->pipeline->processImport($import, $windowStart, $windowEnd);
@@ -221,10 +213,11 @@ final readonly class HospitalMonthGenerator
         return $count;
     }
 
-    private function createImport(ImportType $type, string $name, Hospital $hospital, int $rowCount, SyntheticImportMarker $marker, User $createdBy): Import
+    private function createImport(ImportType $type, string $name, Hospital $hospital, int $rowCount, SyntheticImportMarker $marker, User $createdBy, \DateTimeImmutable $uploadedAt): Import
     {
         $import = new Import()
             ->setName($name)
+            ->setCreatedAt($uploadedAt)
             ->setHospital($hospital)
             ->setStatus(ImportStatus::COMPLETED)
             ->setType($type)

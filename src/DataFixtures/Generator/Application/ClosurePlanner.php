@@ -6,7 +6,6 @@ namespace App\DataFixtures\Generator\Application;
 
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
-use App\Allocation\Domain\Enum\HospitalSize;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
 use Random\Randomizer;
@@ -17,25 +16,23 @@ use Random\Randomizer;
  * A closure event is an IVENA group (several departments with one group id), an exact-time cluster
  * (several departments with the same start and end, no group id) or a single closure, so the closure
  * analysis finds all three event types. Durations run from half an hour to at most 24 hours; autumn
- * and winter get a few more closures.
+ * and winter get a few more closures. The hospital profile sets the frequency, and only departments
+ * the hospital offers are closed.
  */
 final readonly class ClosurePlanner
 {
-    /** Average closure events per hospital and 30 days, by size. */
-    private const array EVENTS_PER_MONTH = ['Large' => 8.0, 'Medium' => 5.0, 'Small' => 3.0];
-
     private const array SEASON = [1 => 1.2, 2 => 1.2, 3 => 1.1, 4 => 1.0, 5 => 0.9, 6 => 0.9, 7 => 0.9, 8 => 0.9, 9 => 1.0, 10 => 1.1, 11 => 1.2, 12 => 1.2];
 
     private const array EVENT_TYPES = ['group' => 0.30, 'cluster' => 0.25, 'single' => 0.45];
 
-    /** Departments that are commonly closed; full care adds the specialised ones. */
+    /** Departments that are commonly closed, if the hospital offers them. */
     private const array DEPARTMENTS = [
         'Kardiologie' => 0.20, 'Unfallchirurgie' => 0.15, 'Allgemeinchirurgie' => 0.10, 'Gastroenterologie' => 0.10,
         'Allgemeine Neurologie' => 0.10, 'Pulmologie' => 0.10, 'Allgemeine Psychiatrie' => 0.10, 'Geburtshilfe' => 0.05,
         'Nephrologie' => 0.05, 'Infektiologie' => 0.05,
     ];
 
-    private const array FULL_CARE_DEPARTMENTS = ['Schlaganfallmedizin' => 0.10, 'Neurochirurgie' => 0.05, 'Allgemeine Pädiatrie' => 0.05];
+    private const array SPECIALISED_DEPARTMENTS = ['Schlaganfallmedizin' => 0.10, 'Neurochirurgie' => 0.05, 'Allgemeine Pädiatrie' => 0.05];
 
     private const array CARE_LEVELS = ['emergency' => 0.60, 'inpatient' => 0.30, 'outpatient' => 0.10];
 
@@ -61,7 +58,7 @@ final readonly class ClosurePlanner
      *
      * @return list<PlannedClosure>
      */
-    public function plan(int $seed, string $hospital, string $month, HospitalSize $size, bool $fullCare, array $days, \DateTimeImmutable $lastDay): array
+    public function plan(int $seed, string $hospital, string $month, HospitalProfile $profile, array $days, \DateTimeImmutable $lastDay): array
     {
         if ([] === $days) {
             return [];
@@ -69,8 +66,12 @@ final readonly class ClosurePlanner
 
         $random = $this->streams->stream($seed, $hospital, $month, RandomStreams::CLOSURES);
         $first = new \DateTimeImmutable($days[0]);
-        $rate = self::EVENTS_PER_MONTH[$size->value] * self::SEASON[(int) $first->format('n')] * (float) \count($days) / 30.0;
-        $departments = $fullCare ? self::DEPARTMENTS + self::FULL_CARE_DEPARTMENTS : self::DEPARTMENTS;
+        $rate = $profile->closureEventsPerMonth * self::SEASON[(int) $first->format('n')] * (float) \count($days) / 30.0;
+        $departments = array_filter(
+            self::DEPARTMENTS + self::SPECIALISED_DEPARTMENTS,
+            $profile->offers(...),
+            \ARRAY_FILTER_USE_KEY,
+        );
         $end = \DateTimeImmutable::createFromInterface($lastDay)->setTime(23, 59, 59);
 
         $closures = [];

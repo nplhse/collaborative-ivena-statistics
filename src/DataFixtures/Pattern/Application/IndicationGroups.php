@@ -27,6 +27,24 @@ final class IndicationGroups
 {
     private const array ADULTS = ['18-39' => 0.15, '40-64' => 0.30, '65-99' => 0.55];
 
+    private const array PREGNANCY = [
+        'departments' => ['Geburtshilfe' => 0.90, 'Pränatalmedizin' => 0.10],
+        'urgency' => ['1' => 0.10, '2' => 0.55, '3' => 0.35],
+        'ages' => ['15-17' => 0.02, '18-29' => 0.38, '30-39' => 0.55, '40-49' => 0.05],
+        'female' => 1.0,
+        'resus_factor' => 0.2,
+        'flags' => ['is_pregnant' => 1.0],
+    ];
+
+    private const array FETAL_DANGER = [
+        'departments' => ['Geburtshilfe' => 0.70, 'Pränatalmedizin' => 0.30],
+        'urgency' => ['1' => 0.90, '2' => 0.10],
+        'ages' => ['15-17' => 0.02, '18-29' => 0.38, '30-39' => 0.55, '40-49' => 0.05],
+        'female' => 1.0,
+        'resus_factor' => 2.0,
+        'flags' => ['is_pregnant' => 1.0, 'is_with_physician' => 0.50],
+    ];
+
     private const array GROUPS = [
         // Reanimation / ECMO
         '1' => [
@@ -168,7 +186,7 @@ final class IndicationGroups
             'resus_factor' => 0.2,
             'flags' => [],
         ],
-        // Paediatrics and gynaecology (obstetric codes share their wording, so the sampler cannot draw them by name yet)
+        // Paediatrics, obstetrics and gynaecology
         '5' => [
             'departments' => ['Allgemeine Pädiatrie' => 0.85, 'Neonatologie' => 0.05, 'Kinderkardiologie' => 0.05, 'Kindergastroenterologie' => 0.05],
             'urgency' => ['1' => 0.10, '2' => 0.50, '3' => 0.40],
@@ -177,6 +195,13 @@ final class IndicationGroups
             'resus_factor' => 0.5,
             'flags' => [],
         ],
+        // Pregnancy by week of gestation; 52x, 53x and 54x share their wording
+        '52' => self::PREGNANCY,
+        '53' => self::PREGNANCY,
+        '54' => self::PREGNANCY,
+        // Acute fetal danger
+        '530' => self::FETAL_DANGER,
+        '540' => self::FETAL_DANGER,
         '55' => [
             'departments' => ['Gynäkologie' => 0.80, 'Geburtshilfe' => 0.20],
             'urgency' => ['1' => 0.05, '2' => 0.50, '3' => 0.45],

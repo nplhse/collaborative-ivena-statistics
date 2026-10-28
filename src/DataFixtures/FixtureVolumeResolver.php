@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class FixtureVolumeResolver
 {
     /**
-     * @param array<string, array<string, int>> $profiles hospitals per size for each profile, optionally `months`
+     * @param array<string, array<string, int|array<string, float|int>>> $profiles hospitals per size for each profile, optionally `months` and `scenarios` (name → per year)
      * @param array{
      *     months: int,
      *     trend_per_year?: float|int,
@@ -42,13 +42,16 @@ final readonly class FixtureVolumeResolver
     {
         $preset = $this->profiles[$this->profile]
             ?? throw new \InvalidArgumentException(sprintf('Unknown fixture profile "%s". Known: %s.', $this->profile, implode(', ', array_keys($this->profiles))));
-        $hospitals = array_diff_key($preset, ['months' => true]);
+        /** @var array<string, int> $hospitals */
+        $hospitals = array_diff_key($preset, ['months' => true, 'scenarios' => true]);
+        $months = $preset['months'] ?? $this->baseline['months'];
+        $scenarios = $preset['scenarios'] ?? [];
         $scale = max(0.01, min(10.0, $this->scale));
 
         return new FixtureVolume(
             profile: $this->profile,
             hospitals: $hospitals,
-            months: max(1, $this->months($preset['months'] ?? $this->baseline['months'])),
+            months: max(1, $this->months(\is_int($months) ? $months : $this->baseline['months'])),
             allocationsPerDay: array_map(floatval(...), $this->baseline['allocations_per_day']),
             scale: $scale,
             mciCasesPerHospitalAndYear: max(0.0, (float) $this->baseline['mci_cases_per_hospital_and_year'] * min(1.0, $scale)),
@@ -56,6 +59,7 @@ final readonly class FixtureVolumeResolver
             rebuildProjection: $this->baseline['rebuild_projection'],
             until: $this->until(),
             trendPerYear: (float) ($this->baseline['trend_per_year'] ?? 0.0),
+            scenarios: \is_array($scenarios) ? array_map(floatval(...), $scenarios) : [],
         );
     }
 

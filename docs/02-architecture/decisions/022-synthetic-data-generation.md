@@ -42,7 +42,7 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 ### Settings and the generator API
 
-The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the closure frequency or the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
+The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months and its scenarios; the closure frequency belongs to the hospital profile. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
 
 - `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital.
 - The allocation fixture runs the month generator for all selected hospitals and months, then rebuilds the projection once.
@@ -50,7 +50,7 @@ The settings are seed, `until`, number of months, scale, the volume rates and a 
 
 ### Deterministic random streams
 
-The generator never uses global random state (`mt_srand()`, `mt_rand()`, `random_int()`). Each unit of work gets its own `Random\Randomizer` with the `Mt19937` engine, seeded from a hash of the seed, the hospital's public id, the month and the kind of data (`volume`, `allocations`, `closures`, `mci`, `scenario:<name>`). Hospital X in month M therefore gets the same rows whether it is generated alone, together with other hospitals or as part of a longer period. This is what makes adding a month later reproducible.
+The generator never uses global random state (`mt_srand()`, `mt_rand()`, `random_int()`). Each unit of work gets its own `Random\Randomizer` with the `Mt19937` engine, seeded from a hash of the seed, the hospital's public id, the month and the kind of data (`volume`, `allocations`, `closures`, `mci`, `upload`, `profile`, `scenario:<name>`; preset scenarios are placed from a stream of their own). Hospital X in month M therefore gets the same rows whether it is generated alone, together with other hospitals or as part of a longer period. This is what makes adding a month later reproducible.
 
 Time comes from `ClockInterface` (ADR 021). The generated period ends at `until`, which defaults to the end of yesterday; a fixed `until` gives a fixed dataset. The same settings, pattern package and seed give the same data, compared by content, since database ids change after every purge.
 
@@ -69,7 +69,10 @@ Default profiles are derived deterministically from tier, size and location; the
 - Whether a hospital has a catheterization laboratory is decided once per hospital when the data is generated, from its own stream (`profile`): every full-care hospital, most large extended-care hospitals and only a few basic-care hospitals. A hospital without one gets no cath lab cases.
 - Resuscitation room cases happen in every hospital; the share depends on tier and size and is small for small basic-care hospitals.
 
-The first version holds only the segment, the cath lab and the resuscitation room share. Offered departments, volume per bed and overrides by public id in the configuration follow when a step needs them; with the current patterns only full-care hospitals get departments such as neurosurgery, so a department list would change nothing yet.
+- Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery). Each further department is drawn once per hospital from the same stream, after the cath lab, with a chance by tier that larger hospitals raise and smaller ones lower: full care offers nearly all, basic care the core and a few more (#863).
+- The closure frequency is part of the profile; by default it follows the size (8, 5 or 3 events per month).
+
+Volume per bed follows when a step needs it. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
 
 ### Pattern packages
 
@@ -90,7 +93,7 @@ plus a volume block per segment and an `archetypes` section. A **case archetype*
 - Without a file the generator uses the **code defaults**: a package built in PHP from coarse, hand-written shares (whole or five percent steps, common values only). It passes the same validation. Code defaults are never derived from real data.
 - Real patterns come only from the export of #797, under the privacy rules of ADR 020.
 
-**First version (#792):** the chain lives in code, without a package file. A segment pattern sets the mix of indications, occasions, assignments, infections, transport times and base flags. The indication is drawn first; department, urgency, age range, sex and the indication-specific flags follow from it (`IndicationGroups`, keyed by the longest matching PZC code prefix, for example `332` STEMI before `33` chest pain before `3` internal medicine). The speciality is the field of the drawn department. The package format, archetypes and a pattern source setting come with the export of #797, which is the first producer of a package; the obstetric codes need a lookup by code, since several of them share their wording.
+**First version (#792):** the chain lives in code, without a package file. A segment pattern sets the mix of indications, occasions, assignments, infections, transport times and base flags. The indication is drawn first; department, urgency, age range, sex and the indication-specific flags follow from it (`IndicationGroups`, keyed by the longest matching PZC code prefix, for example `332` STEMI before `33` chest pain before `3` internal medicine). The speciality is the field of the drawn department. The package format, archetypes and a pattern source setting come with the export of #797, which is the first producer of a package. Patterns and scenarios key indications by PZC code, since several obstetric codes share their wording; the obstetric codes 52x–54x have a group of their own (#864).
 
 ### Coherence rules
 
@@ -100,15 +103,16 @@ Rules in code apply after sampling, whatever the pattern source:
 - paediatric departments get patients younger than 18,
 - CPR implies urgency 1 and a resuscitation room,
 - shock implies urgency 1,
-- a cath lab case needs a hospital with a cath lab (hospital profile); a department the hospital does not offer is redrawn once offered departments are part of the profile.
+- a cath lab case needs a hospital with a cath lab (hospital profile),
+- a hospital gets no case in a department it does not offer: an indication whose departments are all missing is drawn again (up to five times, so a hospital without obstetrics gets no births), then the case goes to a core department.
 
 ### Closures
 
 Each hospital gets one closure import per month with `ClosureInterval` rows:
 
-- department and speciality, care level, reason and facility kind; full-care hospitals also close specialised departments (stroke unit, neurosurgery, paediatrics),
+- department and speciality, care level, reason and facility kind; only departments the hospital offers are closed, specialised ones (stroke unit, neurosurgery, paediatrics) wherever they are offered,
 - durations from half an hour up to 24 hours; a closure never spans several days and never ends after the last generated day,
-- a frequency by hospital size with a modest autumn and winter increase, drawn from the hospital-month stream `closures`,
+- the frequency of the hospital profile with a modest autumn and winter increase, drawn from the hospital-month stream `closures`,
 - some intervals share an IVENA group id and some share exact start and end times, so all three event types of the closure analysis appear (source group, cluster, single).
 
 Closures of a month are planned before its allocations. An allocation to a closed department during an interval gets `department_was_closed = true`; the flag is no longer random.
@@ -120,7 +124,7 @@ The generator writes rows directly with DBAL batches, but processing uses the re
 - per import: export period (ADR 015) and data coverage; a month without closures has nothing to derive a period from, so the generator stores the known window of the month as a manual period, like an empty IVENA export,
 - after generation: allocation statistics projection, closure analysis, closure volume projection and refresh of the materialized views (`SyntheticDataPipeline`).
 
-There is no separate projection code for synthetic data. Doctrine fixtures run in one database transaction, and the closure volume projection takes a lock that cannot be acquired inside it; the fixture therefore rebuilds only the allocation projection, and `composer load-fixtures` runs the closure rebuild and the view refresh as the existing commands after the load. `app:generate:imports` runs outside a transaction and processes its months completely. The KPI aggregation is not part of the pipeline yet.
+There is no separate projection code for synthetic data. Doctrine fixtures run in one database transaction, and the closure volume projection takes a lock that cannot be acquired inside it; the fixture therefore rebuilds only the allocation projection, and `composer load-fixtures` runs the closure rebuild and the view refresh as the existing commands after the load. `app:generate:imports` runs outside a transaction and processes its months completely. The daily KPI aggregation (`kpi_daily`) runs for the upload days of the generated imports, inside the fixture as well, since it needs no lock (#866). It counts imports by `created_at`, so a synthetic import gets an upload time one to three days after the data it covers instead of the load time.
 
 ### Scenario overlays
 
@@ -131,7 +135,14 @@ Event scenarios such as a mass casualty incident, an icy-road day, a flu wave or
 - An overlay draws from its own random stream. The same scenario, parameters and seed give the same rows, and applying the same overlay twice is refused.
 - Base allocations that fall into a closure added by a scenario keep their `department_was_closed` value. The closure volume analysis reads the intervals, not this flag.
 
-**First version (#792):** `app:generate:scenario` applies `mci`, `icy-road`, `flu-wave` and `heat` to the participating hospitals of a dispatch area or to selected hospitals, from a start day (`ScenarioCatalog`, `ScenarioGenerator`). Extra cases draw their indication from the scenario mix; department, age and urgency follow from the indication as for base data. A mass casualty incident writes `MciCase` patients with one MCI id across the hospitals, all urgency 1 with resuscitation room and physician, within 60 to 90 minutes. The flu wave also closes internal medicine departments. After writing, the imports run through the processing pipeline. Presets do not apply scenarios yet, and there is no removal command: the regular import deletion removes an overlay.
+**First version (#792):** `app:generate:scenario` applies `mci`, `icy-road`, `flu-wave` and `heat` to the participating hospitals of a dispatch area or to selected hospitals, from a start day (`ScenarioCatalog`, `ScenarioGenerator`). Extra cases draw their indication from the scenario mix; department, age and urgency follow from the indication as for base data. A mass casualty incident writes `MciCase` patients with one MCI id across the hospitals, all urgency 1 with resuscitation room and physician, within 60 to 90 minutes. The flu wave also closes internal medicine departments. After writing, the imports run through the processing pipeline.
+
+**Extended (#865):**
+
+- MCI patients are spread by tier and size (full care and large hospitals take more), every hospital at least one.
+- `--intensity` (0.5–2.0) scales extra cases, MCI patients and closures.
+- `--remove` deletes every import of a scenario with a seed and start day through the regular import deletion, then rebuilds the closure volume, the views and the KPIs of the upload days.
+- Presets apply scenarios (`scenarios` in `fixtures.profiles`, applications per year): `medium` one MCI, `realistic` a winter flu wave and an MCI, `large` per year a flu wave and an MCI plus one icy-road day. `PresetScenarioPlanner` places them with the seed: one part of the period per application, winter or summer days for seasonal scenarios. An MCI takes 2–4 hospitals, those of one dispatch area first, then the nearest of other areas; a flu wave takes every active hospital. The fixture applies them after the base data and before the projection and KPI rebuild.
 
 ### Recognising synthetic imports
 
@@ -144,6 +155,17 @@ synthetic/scenario/icy-road/seed-740/<hospital public id>/2026-01-14.csv
 ```
 
 The marker tells the generator which months already exist, keeps overlays from being applied twice, lets them be removed, and records seed and pattern source (`defaults` or the package checksum) as ADR 020 requires. No new column is needed. Since no file exists at that path, the import voter already hides download and reprocessing, so a reprocessing run can never replace synthetic rows.
+
+## Amendment (October 2026, #863–#866)
+
+The follow-ups of #792 changed the first version as described above:
+
+- **KPIs (#866):** the pipeline aggregates `kpi_daily` for the upload days of generated imports; synthetic imports get an upload time after their data.
+- **Indications by PZC code (#864):** patterns, scenario mixes and the lookup use the code, not the wording; the obstetric codes 52x–54x have a group of their own (obstetrics, pregnant women aged 15 to 49).
+- **Hospital profile (#863, part 1):** offered departments and closure frequency; allocations and closures only in offered departments. Overrides by public id are rejected for now (see Hospital profiles).
+- **Scenarios (#865):** presets apply scenarios, MCI patients are spread by tier and size, and the command gets intensity and removal.
+
+The default dataset of `make reset` changes with it: department mix, obstetric cases and, from `medium` on, scenario data. Tests use `minimal` without scenarios.
 
 ## Consequences
 
@@ -171,4 +193,4 @@ The marker tells the generator which months already exist, keeps overlays from b
 - ADR 015 (closure volume metrics, export periods)
 - ADR 020 (portable reference catalog, synthetic catalog, pattern direction and privacy rules)
 - ADR 021 (wall clock access)
-- Issues #740, #791, #792, #797
+- Issues #740, #791, #792, #797, #863, #864, #865, #866

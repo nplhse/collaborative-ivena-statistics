@@ -24,6 +24,13 @@ final class IndicationGroupsTest extends TestCase
             }
             self::assertGreaterThanOrEqual(0.0, $group['female']);
             self::assertLessThanOrEqual(1.0, $group['female']);
+            if (($group['flags']['is_pregnant'] ?? 0.0) >= 1.0) {
+                foreach (array_keys($group['ages']) as $range) {
+                    [$min, $max] = array_map(intval(...), explode('-', $range));
+                    self::assertTrue($min >= 15 && $max <= 49, sprintf('%s: pregnant patients are 15 to 49, not %s', $prefix, $range));
+                }
+                self::assertSame(1.0, $group['female'], (string) $prefix);
+            }
         }
     }
 
@@ -34,6 +41,13 @@ final class IndicationGroupsTest extends TestCase
         self::assertArrayHasKey('Allgemeine Psychiatrie', IndicationGroups::forCode('432')['departments'], 'psychiatry');
         self::assertSame(['0-17' => 1.0], IndicationGroups::forCode('511')['ages'], 'paediatrics');
         self::assertSame(1.0, IndicationGroups::forCode('551')['female'], 'gynaecology');
+        self::assertArrayHasKey('Gynäkologie', IndicationGroups::forCode('551')['departments'], 'gynaecology, not obstetrics');
+        foreach (['521', '526', '536', '546', '549'] as $code) {
+            self::assertArrayHasKey('Geburtshilfe', IndicationGroups::forCode($code)['departments'], 'obstetrics: '.$code);
+            self::assertSame(1.0, IndicationGroups::forCode($code)['flags']['is_pregnant'], 'obstetrics: '.$code);
+        }
+        self::assertSame(0.90, IndicationGroups::forCode('530')['urgency']['1'], 'acute fetal danger');
+        self::assertSame(IndicationGroups::forCode('530'), IndicationGroups::forCode('540'));
         self::assertSame(0.90, IndicationGroups::forCode('273')['ages']['65-99'], 'hip fracture');
         self::assertSame(IndicationGroups::forCode('3'), IndicationGroups::forCode('711'), 'codes without a group behave like internal medicine');
         self::assertSame(IndicationGroups::forCode('3'), IndicationGroups::forCode(''), 'no indication');

@@ -13,9 +13,10 @@ use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 /**
  * Derives the profile of a hospital from its care tier, size and location.
  *
- * The cath lab is drawn once per hospital from its own stream, so the same seed always gives the
- * same hospitals a cath lab: every full-care hospital, most large extended-care hospitals and
- * only a few basic-care hospitals.
+ * The cath lab and the offered departments are drawn once per hospital from its own stream, so the
+ * same seed always gives the same hospitals the same departments: full care offers nearly all,
+ * basic care the core of internal medicine and surgery and a few more. The closure frequency
+ * follows the size.
  */
 final readonly class HospitalProfileResolver
 {
@@ -33,6 +34,43 @@ final readonly class HospitalProfileResolver
         'Basic' => ['Large' => 0.03, 'Medium' => 0.02, 'Small' => 0.01],
     ];
 
+    /** Departments every hospital offers; they also take the cases of a missing department. */
+    public const array CORE_DEPARTMENTS = ['Kardiologie', 'Gastroenterologie', 'Pulmologie', 'Allgemeinchirurgie', 'Unfallchirurgie'];
+
+    /**
+     * Chance that a hospital offers a department, by tier (full, extended, basic). Large hospitals
+     * add 0.2, small ones subtract 0.2. The order is part of the stream, so new departments go last.
+     */
+    private const array OPTIONAL_DEPARTMENTS = [
+        'Nephrologie' => [1.0, 0.7, 0.3],
+        'Infektiologie' => [1.0, 0.5, 0.2],
+        'Viszeralchirurgie' => [1.0, 0.8, 0.5],
+        'Endoprothetik' => [0.8, 0.6, 0.4],
+        'Wirbelsäulenchirurgie' => [0.8, 0.4, 0.1],
+        'Neurochirurgie' => [1.0, 0.3, 0.0],
+        'Allgemeine Neurologie' => [1.0, 0.8, 0.4],
+        'Schlaganfallmedizin' => [1.0, 0.6, 0.2],
+        'Neurologische Intensiv' => [1.0, 0.3, 0.0],
+        'Epileptologie' => [0.8, 0.2, 0.0],
+        'Allgemeine Psychiatrie' => [0.9, 0.5, 0.2],
+        'Gerontopsychiatrie' => [0.6, 0.3, 0.1],
+        'Suchtmedizin' => [0.7, 0.4, 0.1],
+        'Allgemeine Pädiatrie' => [1.0, 0.6, 0.2],
+        'Neonatologie' => [1.0, 0.3, 0.0],
+        'Kinderkardiologie' => [0.8, 0.1, 0.0],
+        'Kindergastroenterologie' => [0.8, 0.1, 0.0],
+        'Gynäkologie' => [1.0, 0.8, 0.5],
+        'Geburtshilfe' => [1.0, 0.7, 0.4],
+        'Pränatalmedizin' => [1.0, 0.3, 0.0],
+    ];
+
+    private const array TIER_INDEX = ['Full' => 0, 'Extended' => 1, 'Basic' => 2];
+
+    private const array SIZE_BONUS = ['Large' => 0.2, 'Medium' => 0.0, 'Small' => -0.2];
+
+    /** Average closure events per hospital and 30 days, by size. */
+    private const array CLOSURE_EVENTS_PER_MONTH = ['Large' => 8.0, 'Medium' => 5.0, 'Small' => 3.0];
+
     public function __construct(
         private RandomStreams $streams,
     ) {
@@ -44,10 +82,22 @@ final readonly class HospitalProfileResolver
         $size = ($hospital->getSize() ?? HospitalSize::MEDIUM)->value;
         $random = $this->streams->stream($seed, $hospital->getPublicIdString(), '-', RandomStreams::PROFILE);
 
+        // The cath lab is drawn first, so adding departments did not change it.
+        $hasCathlab = $random->nextFloat() < self::CATHLAB[$tier][$size];
+        $missing = [];
+        foreach (self::OPTIONAL_DEPARTMENTS as $department => $chances) {
+            $chance = $chances[self::TIER_INDEX[$tier]] + self::SIZE_BONUS[$size];
+            if ($random->nextFloat() >= $chance) {
+                $missing[] = $department;
+            }
+        }
+
         return new HospitalProfile(
             segment: $this->segment($hospital),
-            hasCathlab: $random->nextFloat() < self::CATHLAB[$tier][$size],
+            hasCathlab: $hasCathlab,
             resusShare: self::RESUS[$tier][$size],
+            missingDepartments: $missing,
+            closureEventsPerMonth: self::CLOSURE_EVENTS_PER_MONTH[$size],
         );
     }
 
