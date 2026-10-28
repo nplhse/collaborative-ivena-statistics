@@ -141,7 +141,7 @@ To test real IVENA files locally, replace the synthetic catalog with a private p
 
 `PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; real pattern packages follow with #797.
 
-The indication of a case is drawn first; the rest follows from it (`IndicationGroups`): a stroke goes to the stroke unit, a STEMI to cardiology with a high cath lab share, a paediatric case gets a child, a hip fracture an older, mostly female patient. The speciality is the field of the department. `CoherenceRules` then make sure that pregnant patients are women aged 15 to 49, paediatric departments get patients under 18, and CPR and shock mean urgency 1 (CPR also the resuscitation room).
+The indication of a case is drawn first; the rest follows from it (`IndicationGroups`): a stroke goes to the stroke unit, a STEMI to cardiology with a high cath lab share, a paediatric case gets a child, a hip fracture an older, mostly female patient, a pregnancy (PZC 52x–54x) a pregnant woman in obstetrics. Patterns and scenarios name indications by PZC code, not by wording, since the obstetric codes share theirs (`<16 SSW` is 521, 531 and 541). The speciality is the field of the department. `CoherenceRules` then make sure that pregnant patients are women aged 15 to 49, paediatric departments get patients under 18, and CPR and shock mean urgency 1 (CPR also the resuscitation room).
 
 `HospitalMonthGenerator` (`src/DataFixtures/Generator/`) writes one hospital and one month; the fixture runs it for every active hospital and month. Each import carries a marker in `filePath`, for example `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv` (`SyntheticImportMarker`); no file exists at that path.
 
@@ -184,7 +184,7 @@ The same scenario, start day and seed give the same rows; applying a scenario tw
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
 
 - offered departments, volume per bed and overrides by public id in the hospital profile;
-- pattern packages as JSON files (with the export of real patterns, #797), case archetypes and obstetric indications;
+- pattern packages as JSON files (with the export of real patterns, #797), and case archetypes;
 - presets that apply scenarios and a configurable closure frequency.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
@@ -219,7 +219,7 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, refused twice, same plan per seed
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
-- `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases
+- `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.
 

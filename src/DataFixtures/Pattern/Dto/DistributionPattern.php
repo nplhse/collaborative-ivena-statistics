@@ -53,7 +53,7 @@ final readonly class DistributionPattern
     /**
      * A copy with one distribution replaced, for example the indication mix of a scenario.
      *
-     * @param array<string, float> $distribution
+     * @param array<int|string, float> $distribution labels, e.g. PZC codes (PHP keys most of them as int)
      */
     public function withDistribution(string $key, array $distribution): self
     {

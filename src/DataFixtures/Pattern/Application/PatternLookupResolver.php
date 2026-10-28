@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Application;
 
+use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -12,8 +13,8 @@ final class PatternLookupResolver
     /** @var array<class-string, array<string, int>> */
     private array $idsByClassAndName = [];
 
-    /** @var array<string, int> normalized indication name → id of a raw indication mapped to it */
-    private array $rawIdsByNormalizedName = [];
+    /** @var array<string, array{normalized: int, raw: int|null}> PZC code → normalized indication and a raw indication mapped to it */
+    private array $indicationIdsByCode = [];
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -65,28 +66,44 @@ final class PatternLookupResolver
         return $this->idsByClassAndName[$class][$name];
     }
 
-    public function referenceIndicationRawForNormalized(string $normalizedName): IndicationRaw
+    /**
+     * The normalized indication of a PZC code and a raw indication mapped to it.
+     *
+     * Keyed by code, not by wording: obstetric codes share their wording (`<16 SSW` is 521, 531 and 541).
+     *
+     * @param string $code three-digit PZC code
+     *
+     * @return array{IndicationNormalized, IndicationRaw}
+     */
+    public function indicationForCode(string $code): array
     {
-        if ([] === $this->rawIdsByNormalizedName) {
-            // One query instead of two per sampled allocation.
-            /** @var list<array{name: string, raw_id: int}> $rows */
+        if ([] === $this->indicationIdsByCode) {
+            // One query instead of two per sampled allocation; the lowest id wins if a code is there twice.
+            /** @var list<array{code: int, id: int, raw_id: int|null}> $rows */
             $rows = $this->entityManager->getConnection()->fetchAllAssociative(
-                'SELECT n.name AS name, MIN(r.id) AS raw_id FROM indication_normalized n JOIN indication_raw r ON r.normalized_id = n.id GROUP BY n.name',
+                'SELECT DISTINCT ON (n.code) n.code AS code, n.id AS id, (SELECT MIN(r.id) FROM indication_raw r WHERE r.normalized_id = n.id) AS raw_id
+                 FROM indication_normalized n ORDER BY n.code, n.id',
             );
             foreach ($rows as $row) {
-                $this->rawIdsByNormalizedName[$row['name']] = (int) $row['raw_id'];
+                $this->indicationIdsByCode[str_pad((string) $row['code'], 3, '0', \STR_PAD_LEFT)] = [
+                    'normalized' => $row['id'],
+                    'raw' => $row['raw_id'],
+                ];
             }
         }
 
-        $rawId = $this->rawIdsByNormalizedName[$normalizedName] ?? null;
-        if (null === $rawId) {
-            return $this->reference(IndicationRaw::class, $this->anyName(IndicationRaw::class));
+        $ids = $this->indicationIdsByCode[$code] ?? throw new \RuntimeException(sprintf('Unknown PZC code "%s" for %s.', $code, IndicationNormalized::class));
+
+        /** @var IndicationNormalized $normalized */
+        $normalized = $this->entityManager->getReference(IndicationNormalized::class, $ids['normalized']);
+        if (null === $ids['raw']) {
+            return [$normalized, $this->referenceAny(IndicationRaw::class)];
         }
 
-        /** @var IndicationRaw $reference */
-        $reference = $this->entityManager->getReference(IndicationRaw::class, $rawId);
+        /** @var IndicationRaw $raw */
+        $raw = $this->entityManager->getReference(IndicationRaw::class, $ids['raw']);
 
-        return $reference;
+        return [$normalized, $raw];
     }
 
     /**
