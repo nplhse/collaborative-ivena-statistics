@@ -110,6 +110,21 @@ final class StructureRules
                 }
             }
         }
+        foreach ($set->volume->referenceBeds as $size => $beds) {
+            if (!\in_array($size, self::SIZES, true) || $beds <= 0) {
+                $violations[] = sprintf('volume: reference beds for "%s" must be a size with more than 0 beds', $size);
+            }
+        }
+        foreach (['bed elasticity' => $set->volume->bedElasticity, 'hospital spread' => $set->volume->hospitalSpread, 'category spread' => $set->mixVariation->categorySpread, 'old age spread' => $set->mixVariation->oldAgeSpread, 'urgent spread' => $set->mixVariation->urgentSpread] as $name => $value) {
+            if ($value < 0.0 || $value > 2.0) {
+                $violations[] = sprintf('%s must lie between 0 and 2', $name);
+            }
+        }
+        foreach ($set->closureShares as $size => $share) {
+            if (!\in_array($size, self::SIZES, true) || $share < 0.0 || $share >= 1.0) {
+                $violations[] = sprintf('closure share for "%s" must be a size with a share from 0 to below 1', $size);
+            }
+        }
 
         return $violations;
     }

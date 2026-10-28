@@ -19,11 +19,17 @@ final readonly class StructurePatternSet
      * @param list<HospitalConfiguration>   $configurations in draw order
      * @param array<int|string, Capability> $gates          PZC code prefix (keyed as int by PHP) → capability a hospital needs for it
      * @param array<string, float>          $resusShares    trauma level → share of allocations that need the resuscitation room
+     * @param VolumeModel                   $volume         how volume follows beds and differs between hospitals; the default changes nothing
+     * @param MixVariation                  $mixVariation   how much the case mix differs between hospitals; the default changes nothing
+     * @param array<string, float>          $closureShares  size → share of department-hours that are closed (used by the closure planner from step 3 of #876)
      */
     public function __construct(
         array $configurations,
         public array $gates,
         public array $resusShares,
+        public VolumeModel $volume = new VolumeModel([], 0.0, 0.0),
+        public MixVariation $mixVariation = new MixVariation(0.0, 0.0, 0.0),
+        public array $closureShares = [],
     ) {
         $keyed = [];
         foreach ($configurations as $configuration) {

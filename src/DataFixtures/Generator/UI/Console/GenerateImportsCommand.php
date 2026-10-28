@@ -96,7 +96,8 @@ final readonly class GenerateImportsCommand
                 continue;
             }
 
-            $structure = $this->profiles->resolve($entity, $volume->seed)->configuration;
+            $profile = $this->profiles->resolve($entity, $volume->seed);
+            $structure = sprintf('%s, %.1f/day, %d %% closed', $profile->configuration, $profile->dailyRate($volume), (int) round($profile->closureShare * 100.0));
             try {
                 if ($dryRun) {
                     $rows[] = [(string) $entity->getName(), $structure, $month, (string) $this->generator->plan($volume, $entity, $month, $lastDay)->allocationCount(), 'planned'];
@@ -119,7 +120,7 @@ final readonly class GenerateImportsCommand
             $this->pipeline->afterImports($allocationImports, $hospitalIds);
         }
 
-        $io->table(['Hospital', 'Structure', 'Month', 'Allocations', 'Result'], $rows);
+        $io->table(['Hospital', 'Profile', 'Month', 'Allocations', 'Result'], $rows);
         if ($failed) {
             $io->error('Some months were not generated.');
 

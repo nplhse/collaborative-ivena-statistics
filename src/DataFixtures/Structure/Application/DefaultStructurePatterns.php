@@ -7,10 +7,12 @@ namespace App\DataFixtures\Structure\Application;
 use App\DataFixtures\Structure\Dto\Capability;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
 use App\DataFixtures\Structure\Dto\HospitalResources;
+use App\DataFixtures\Structure\Dto\MixVariation;
 use App\DataFixtures\Structure\Dto\ObstetricsLevel;
 use App\DataFixtures\Structure\Dto\StrokeUnitLevel;
 use App\DataFixtures\Structure\Dto\StructurePatternSet;
 use App\DataFixtures\Structure\Dto\TraumaLevel;
+use App\DataFixtures\Structure\Dto\VolumeModel;
 
 /**
  * Hand-written hospital configurations (ADR 022): manually curated, not sampled from data. Fields
@@ -66,6 +68,15 @@ final class DefaultStructurePatterns
     /** Share of allocations that need the resuscitation room, by trauma level. */
     private const array RESUS = ['none' => 0.01, 'basic' => 0.02, 'regional' => 0.05, 'supra' => 0.10];
 
+    /** Beds at which a hospital gets the preset rate of its size: about the middle of the bed band of the synthetic catalog. */
+    private const array REFERENCE_BEDS = ['Small' => 200, 'Medium' => 450, 'Large' => 950];
+
+    /**
+     * Share of closed department-hours by size. General knowledge, not measured: the reference data
+     * of #874 has closures of too few hospitals for a value of its own.
+     */
+    private const array CLOSURE_SHARES = ['Small' => 0.05, 'Medium' => 0.08, 'Large' => 0.10];
+
     public function get(): StructurePatternSet
     {
         $basic = new HospitalResources(traumaLevel: TraumaLevel::BASIC);
@@ -91,6 +102,13 @@ final class DefaultStructurePatterns
             ],
             gates: self::GATES,
             resusShares: self::RESUS,
+            // Volume grows a little less than proportionally with the beds; hospitals of one size
+            // differ by about a quarter (#874, rounded).
+            volume: new VolumeModel(self::REFERENCE_BEDS, bedElasticity: 0.8, hospitalSpread: 0.20),
+            // Hospitals of one tier differ in their mix of categories, old patients and urgency 1
+            // (#874, rounded to coarse spreads).
+            mixVariation: new MixVariation(categorySpread: 0.25, oldAgeSpread: 0.20, urgentSpread: 0.35),
+            closureShares: self::CLOSURE_SHARES,
         );
     }
 
