@@ -28,10 +28,12 @@ final readonly class ClosureVolumeHourPlanner
     }
 
     /**
-     * @param array<string, int|array<string, int>> $counts        "{series}" => hour => count, or flat partial keys "{series}|{start}|{end}"
-     * @param array<string, ClosureVolumeRate>      $areaRates     key "{weekday}|{hour}"
-     * @param array<string, ClosureVolumeRate>      $hospitalRates key "{weekday}|{hour}"
-     * @param array<string, true>                   $coveredDays
+     * @param array<string, int|array<string, int>>                   $counts        "{series}" => hour => count, or flat partial keys "{series}|{start}|{end}"
+     * @param array<string, ClosureVolumeRate>                        $areaRates     key "{weekday}|{hour}"
+     * @param array<string, ClosureVolumeRate>                        $hospitalRates key "{weekday}|{hour}"
+     * @param array<string, true>                                     $coveredDays
+     * @param list<array{0: bool, 1: list<ClosureVolumeBucket>}>|null $ranges        {@see self::ranges()} of this anchor at the
+     *                                                                               wall-clock $now, when the caller already has them
      *
      * @return list<ClosureVolumeHourDraft>
      */
@@ -44,6 +46,7 @@ final readonly class ClosureVolumeHourPlanner
         array $coveredDays,
         ClosureVolumeNeighbourIndex $neighbours,
         ?ClosureVolumeProvisionalReason $provisional,
+        ?array $ranges = null,
     ): array {
         $now = ClosureVolumeClock::wall($now);
         $areaSeries = self::series($anchor->scope, $anchor->specialityId, $anchor->departmentId, $anchor->metric);
@@ -51,16 +54,16 @@ final readonly class ClosureVolumeHourPlanner
         $context = sprintf('%d hours', ClosureVolumeReferenceConfig::CONTEXT_HOURS);
         $influencing = $neighbours->influencing($anchor, $anchor->startsAt->modify('-'.$context), $anchor->endsAt->modify('+'.$context));
         $drafts = [];
-        foreach ($this->ranges($anchor, $now) as [$inClosure, $buckets]) {
+        foreach ($ranges ?? $this->ranges($anchor, $now) as [$inClosure, $buckets]) {
             foreach ($buckets as $bucket) {
                 $rateKey = $bucket->weekday.'|'.$bucket->hour;
                 $areaRate = $areaRates[$rateKey] ?? $this->missingRate();
                 $hospitalRate = $hospitalRates[$rateKey] ?? $this->missingRate();
-                $covered = isset($coveredDays[$bucket->start->format('Y-m-d')]);
-                $hourStart = $bucket->start->format('Y-m-d H:i:s');
-                $fullHour = '00:00' === $bucket->start->format('i:s')
+                $hourStart = $bucket->startKey();
+                $covered = isset($coveredDays[substr($hourStart, 0, 10)]);
+                $fullHour = '00:00' === substr($hourStart, 14, 5)
                     && $bucket->end->getTimestamp() === $bucket->start->getTimestamp() + 3600;
-                $bucketKey = $hourStart.'|'.$bucket->end->format('Y-m-d H:i:s');
+                $bucketKey = $hourStart.'|'.$bucket->endKey();
 
                 $drafts[] = new ClosureVolumeHourDraft(
                     $anchor->eventId,

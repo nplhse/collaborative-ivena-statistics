@@ -7,6 +7,7 @@ namespace App\Statistics\ClosureAnalytics\Infrastructure\Projection;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureCoverage;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchor;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeAnchorBuilder;
+use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeBucket;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeClock;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourDraft;
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeHourPlanner;
@@ -66,6 +67,16 @@ final class ClosureVolumeProjectionRebuilder
     /** @var array<string, list<array{0: int, 1: string}>> reference slots per event extent, weekday and day-time block; one partition */
     private array $slotCache = [];
 
+    /**
+     * Hour ranges of the current event's anchors by extent and segments; one event at a time.
+     * The metrics of a population often share their segments, so most anchors reuse ranges.
+     *
+     * @var array<string, list<array{0: bool, 1: list<ClosureVolumeBucket>}>>
+     */
+    private array $rangeCache = [];
+
+    private int $rangeCacheEvent = 0;
+
     /** @var array<int, list<int>> hospitals rebuilt for these events only (ADR 015 phase 4); others are rebuilt whole */
     private array $eventScope = [];
 
@@ -117,7 +128,7 @@ final class ClosureVolumeProjectionRebuilder
             $pass = 1;
             $done = 0;
             $total = $this->countEvents($ids);
-            $this->profile->countQueries('setup', null === $hospitalIds ? 7 : 6);
+            $this->profile->countQueries('setup', null === $hospitalIds ? 4 : 3);
             $report = null === $onProgress ? null : static function (int $processed, int $events) use ($onProgress, &$pass): void {
                 $onProgress($processed, $events, $pass);
             };
@@ -184,6 +195,7 @@ final class ClosureVolumeProjectionRebuilder
                 }
                 unset($pending, $refresh, $missing, $late, $decision);
             }
+            $this->profile->time('index', fn () => $this->indexBuildTable(), 4);
             if ($this->beforePublishHook instanceof \Closure) {
                 ($this->beforePublishHook)();
             }
@@ -338,6 +350,8 @@ SQL,
         $this->telemetry->countPartition();
 
         $now = ClosureVolumeClock::now();
+        // The planner cuts hours at the wall-clock now; reference groups and partial counts use the same ranges.
+        $wallNow = ClosureVolumeClock::wall($now);
         /** @var array<int, \DateTimeImmutable> $eventEnds */
         $eventEnds = [];
         /** @var array<int, \DateTimeImmutable> $eventStarts */
@@ -376,8 +390,8 @@ SQL,
         $knownDepartments = $this->knownDepartments($departmentDays, $eventStarts, $eventEnds, $now);
         $anchors = $this->profile->time('anchors', fn (): array => $this->anchorBuilder->metricAnchors($rows, $hospitalId, $knownDepartments));
         unset($rows, $departmentDays, $knownDepartments);
-        $this->profile->time('partial_counts', function () use ($hospitalId, $anchors, $now, &$counts): void {
-            $this->fillPartialCounts($hospitalId, $anchors, $now, $counts);
+        $this->profile->time('partial_counts', function () use ($hospitalId, $anchors, $wallNow, &$counts): void {
+            $this->fillPartialCounts($hospitalId, $anchors, $wallNow, $counts);
         });
         $blocked = $this->profile->time('blocking', fn (): array => $this->blockedMaps($neighbours, $windowStart, $windowEnd));
         $neighbourIndex = $this->profile->time('neighbours', static fn (): ClosureVolumeNeighbourIndex => ClosureVolumeNeighbourIndex::fromIntervals($neighbours));
@@ -390,14 +404,18 @@ SQL,
         $this->slotCache = [];
 
         foreach ($anchors as $anchor) {
-            $groups = $this->referenceGroups($anchor, $now);
+            $ranges = $this->profile->time('plan', fn (): array => $this->anchorRanges($anchor, $wallNow));
+            $groups = $this->referenceGroups($ranges);
             $series = ClosureVolumeHourPlanner::series($anchor->scope, $anchor->specialityId, $anchor->departmentId, $anchor->metric);
             $hospitalSeries = ClosureVolumeHourPlanner::hospitalSeries($anchor->metric);
-            [$areaRates, $hospitalRates] = $this->profile->time('reference_rates', fn (): array => [
-                $this->referenceRates($anchor, $series, $groups, $counts, $coveredDays, 'hospital' === $anchor->scope ? [] : ($blocked[$series] ?? []), $rateCache),
-                $this->referenceRates($anchor, $hospitalSeries, $groups, $counts, $coveredDays, [], $rateCache),
-            ]);
-            $pending = array_merge($pending, $this->profile->time('plan', fn (): array => $this->planner->plan(
+            // By reference: an arrow function would capture a copy, and the cache would not outlive one anchor.
+            [$areaRates, $hospitalRates] = $this->profile->time('reference_rates', function () use ($anchor, $series, $hospitalSeries, $groups, $counts, $coveredDays, $blocked, &$rateCache): array {
+                return [
+                    $this->referenceRates($anchor, $series, $groups, $counts, $coveredDays, 'hospital' === $anchor->scope ? [] : ($blocked[$series] ?? []), $rateCache),
+                    $this->referenceRates($anchor, $hospitalSeries, $groups, $counts, $coveredDays, [], $rateCache),
+                ];
+            });
+            $drafts = $this->profile->time('plan', fn (): array => $this->planner->plan(
                 $anchor,
                 $now,
                 $counts,
@@ -406,7 +424,13 @@ SQL,
                 $coveredDays,
                 $neighbourIndex,
                 $provisional[$anchor->eventId] ?? null,
-            )));
+                $ranges,
+            ));
+            // Appending in place; array_merge would copy the whole pending buffer for every anchor.
+            foreach ($drafts as $draft) {
+                $pending[] = $draft;
+            }
+            unset($drafts, $ranges);
             if (\count($pending) >= $this->batchSize()) {
                 $pending = $this->flush($pending, false);
             }
@@ -418,6 +442,8 @@ SQL,
         }
 
         $this->slotCache = [];
+        $this->rangeCache = [];
+        $this->rangeCacheEvent = 0;
         unset($anchors, $neighbours, $neighbourIndex, $counts, $coveredDays, $blocked, $rateCache, $eventEnds, $provisional);
         gc_collect_cycles();
         $retained = max(0, memory_get_usage(false) - $before);
@@ -699,20 +725,56 @@ SQL,
     {
         $ranges = [];
         foreach ($anchors as $anchor) {
-            foreach ($this->planner->ranges($anchor, $now) as [, $buckets]) {
+            $key = $this->rangeKey($anchor);
+            if ($anchor->eventId === $this->rangeCacheEvent && isset($this->rangeCache[$key])) {
+                // Same ranges as an earlier anchor of this event: their partial buckets are listed already.
+                continue;
+            }
+            foreach ($this->anchorRanges($anchor, $now) as [, $buckets]) {
                 foreach ($buckets as $bucket) {
-                    if ('00:00' === $bucket->start->format('i:s') && $bucket->end->getTimestamp() === $bucket->start->getTimestamp() + 3600) {
+                    if ('00:00' === substr($bucket->startKey(), 14, 5) && $bucket->end->getTimestamp() === $bucket->start->getTimestamp() + 3600) {
                         continue;
                     }
-                    $key = $bucket->start->format('Y-m-d H:i:s').'|'.$bucket->end->format('Y-m-d H:i:s');
+                    $key = $bucket->startKey().'|'.$bucket->endKey();
                     $ranges[$key] = [$bucket->start, $bucket->end];
                 }
             }
         }
+        $this->rangeCache = [];
+        $this->rangeCacheEvent = 0;
         foreach (array_chunk($ranges, 80, true) as $chunk) {
             $this->queryPartialChunk($hospitalId, $chunk, $counts);
         }
         unset($ranges);
+    }
+
+    /**
+     * {@see ClosureVolumeHourPlanner::ranges()} of an anchor, shared with the other anchors of its event that have
+     * the same extent and segments. Anchors arrive grouped by event, so the cache holds one event only.
+     *
+     * @return list<array{0: bool, 1: list<ClosureVolumeBucket>}>
+     */
+    private function anchorRanges(ClosureVolumeAnchor $anchor, \DateTimeImmutable $wallNow): array
+    {
+        if ($anchor->eventId !== $this->rangeCacheEvent) {
+            $this->rangeCache = [];
+            $this->rangeCacheEvent = $anchor->eventId;
+        }
+
+        return $this->rangeCache[$this->rangeKey($anchor)] ??= $this->planner->ranges($anchor, $wallNow);
+    }
+
+    /**
+     * Ranges depend on the segments only (the extent is their first start and last end) and on now, which is fixed per partition.
+     */
+    private function rangeKey(ClosureVolumeAnchor $anchor): string
+    {
+        $key = '';
+        foreach ($anchor->segments as [$start, $end]) {
+            $key .= $start->getTimestamp().'-'.$end->getTimestamp().',';
+        }
+
+        return $key;
     }
 
     /**
@@ -764,12 +826,14 @@ SQL,
     }
 
     /**
+     * @param list<array{0: bool, 1: list<ClosureVolumeBucket>}> $ranges
+     *
      * @return array<string, array{0: int, 1: int}>
      */
-    private function referenceGroups(ClosureVolumeAnchor $anchor, \DateTimeImmutable $now): array
+    private function referenceGroups(array $ranges): array
     {
         $groups = [];
-        foreach ($this->planner->ranges($anchor, $now) as [, $buckets]) {
+        foreach ($ranges as [, $buckets]) {
             foreach ($buckets as $bucket) {
                 $groups[$bucket->weekday.'|'.$bucket->dayTimeBucket] = [$bucket->weekday, $bucket->dayTimeBucket];
             }
@@ -797,7 +861,7 @@ SQL,
         array &$cache,
     ): array {
         $rates = [];
-        $ranges = $this->window->ranges($anchor->startsAt, $anchor->endsAt);
+        $ranges = null;
         $windowKey = $anchor->startsAt->format('Y-m-d H:i:s').'|'.$anchor->endsAt->format('Y-m-d H:i:s');
         $hourly = $counts[$series] ?? [];
         $hourly = \is_array($hourly) ? $hourly : [];
@@ -806,7 +870,12 @@ SQL,
             if (!isset($cache[$cacheKey])) {
                 // The slots depend on the event extent only; every population and metric with that extent shares them.
                 $slotKey = 'slots|'.$windowKey.'|'.$weekday.'|'.$dayTimeBucket;
-                $slots = $this->slotCache[$slotKey] ??= $this->calendar->windowSlots($ranges, $weekday, $dayTimeBucket, $coveredDays);
+                $slots = $this->slotCache[$slotKey] ??= $this->calendar->windowSlots(
+                    $ranges ??= $this->window->ranges($anchor->startsAt, $anchor->endsAt),
+                    $weekday,
+                    $dayTimeBucket,
+                    $coveredDays,
+                );
                 $cache[$cacheKey] = [];
                 foreach ($this->calendar->tallySlots($slots, $dayTimeBucket, $hourly, $blockedHours) as $hour => $tally) {
                     $cache[$cacheKey][$hour] = $this->selector->fromTally($tally);
@@ -956,7 +1025,13 @@ SQL,
     {
         $started = microtime(true);
         $rows = [];
+        // Drafts share their bucket and cutoff objects, so each is formatted once per batch.
+        // Object ids are safe keys here: the batch keeps every object alive until the end of the call.
+        $stamps = [];
         foreach ($batch as $draft) {
+            $bucketStart = $stamps[spl_object_id($draft->bucketStart)] ??= $draft->bucketStart->format('Y-m-d H:i:s');
+            $bucketEnd = $stamps[spl_object_id($draft->bucketEnd)] ??= $draft->bucketEnd->format('Y-m-d H:i:s');
+            $referenceCutoff = $stamps[spl_object_id($draft->referenceCutoff)] ??= $draft->referenceCutoff->format('Y-m-d H:i:s');
             $rows[] = implode("\t", [
                 $draft->eventId,
                 $draft->scope,
@@ -964,8 +1039,8 @@ SQL,
                 $draft->specialityId,
                 $draft->departmentId,
                 $draft->metric->value,
-                $draft->bucketStart->format('Y-m-d H:i:s'),
-                $draft->bucketEnd->format('Y-m-d H:i:s'),
+                $bucketStart,
+                $bucketEnd,
                 $draft->inClosure ? 't' : 'f',
                 $this->copyNumeric($draft->observedArea),
                 $this->copyNumeric($draft->expectedArea),
@@ -983,7 +1058,7 @@ SQL,
                 $draft->closedDepartmentCount,
                 $draft->provisional ? 't' : 'f',
                 $draft->provisionalReason instanceof ClosureVolumeProvisionalReason ? $draft->provisionalReason->value : '\N',
-                $draft->referenceCutoff->format('Y-m-d H:i:s'),
+                $referenceCutoff,
             ]);
         }
         // The driver's default NULL marker is the text-format \N used above.
@@ -1052,10 +1127,18 @@ CREATE TABLE closure_volume_hour_build (
     closed_department_count INT NOT NULL,
     provisional BOOLEAN NOT NULL,
     provisional_reason VARCHAR(32) DEFAULT NULL,
-    reference_cutoff TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-    PRIMARY KEY (id)
+    reference_cutoff TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 )
 SQL);
+    }
+
+    /**
+     * Keys and indexes are built once after the last row: maintaining them during COPY costs more than building
+     * them in one pass. The unique grain index still rejects a duplicate row before anything is published.
+     */
+    private function indexBuildTable(): void
+    {
+        $this->connection->executeStatement('ALTER TABLE closure_volume_hour_build ADD PRIMARY KEY (id)');
         $this->connection->executeStatement('CREATE UNIQUE INDEX uniq_closure_volume_hour_build_grain ON closure_volume_hour_build (event_id, scope, speciality_id, department_id, metric_kind, bucket_start)');
         $this->connection->executeStatement('CREATE INDEX idx_closure_volume_hour_build_population ON closure_volume_hour_build (hospital_id, scope, speciality_id, department_id, metric_kind, bucket_start)');
         $this->connection->executeStatement('CREATE INDEX idx_closure_volume_hour_build_event ON closure_volume_hour_build (event_id, scope, metric_kind, in_closure, bucket_start)');
