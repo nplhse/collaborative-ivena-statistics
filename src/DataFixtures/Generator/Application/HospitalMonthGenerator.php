@@ -101,7 +101,7 @@ final readonly class HospitalMonthGenerator
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
         $closed = ClosedDepartments::of($closures, $this->lookups);
 
-        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner);
+        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner);
         $fixed = [
             'hospital_id' => (int) $hospital->getId(),
             'dispatch_area_id' => (int) $dispatchArea->getId(),
