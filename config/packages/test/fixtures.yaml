@@ -15,6 +15,15 @@ parameters:
     env(FIXTURES_MONTHS): ''
     fixtures.months: '%env(FIXTURES_MONTHS)%'
 
+    # Reference package (JSON, for example a private catalog in var/reference/) whose catalog replaces the
+    # synthetic one, except states, dispatch areas and hospitals, which stay synthetic. Empty: synthetic only.
+    env(FIXTURES_REFERENCE_PACKAGE): ''
+    fixtures.reference_package: '%env(FIXTURES_REFERENCE_PACKAGE)%'
+
+    # Mapping file (JSON) that binds the generator's names to a catalog that spells them differently. Empty: none.
+    env(FIXTURES_CATALOG_MAPPING): ''
+    fixtures.catalog_mapping: '%env(FIXTURES_CATALOG_MAPPING)%'
+
     # Active hospitals per size; "any" draws hospitals of any size with the seed.
     # The demo user foo owns one of the active hospitals, drawn with the seed.
     # "scenarios" lays scenarios over the data: name → applications per year (at least one in the period),
