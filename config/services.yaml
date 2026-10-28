@@ -37,7 +37,7 @@ parameters:
     app.hospital_isochrones_dir: '%kernel.project_dir%/var/geo/hospital-isochrones'
     # Prepared locations for offline use (#791); name real places, never committed.
     app.prepared_locations_dir: '%kernel.project_dir%/var/geo/prepared-locations'
-    # Map background tiles. Empty URL: maps render without a basemap (offline use).
+    # Map background tiles. Empty URL: maps render without a basemap (manual switch).
     env(MAP_TILE_URL): 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     env(MAP_TILE_ATTRIBUTION): '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     env(MAP_TILE_MAX_ZOOM): '18'

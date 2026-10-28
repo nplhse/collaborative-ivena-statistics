@@ -14,7 +14,7 @@ See also: [../04-features/allocation/orientation-map.md](../04-features/allocati
 | `Hospital.latitude` / `longitude` | Database | `app:geo:geocode-hospitals --apply` (production). Fixtures still seed city/PLZ centroids for local/CI. | Map pins, isochrone command |
 | Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply`, `app:geo:apply-prepared-location --apply` | Allocation show map (one 5-minute band); Statistics Overview / Insights origin heatmap (10-minute bands at 10/20/30/40/50 min, hospital scope) |
 | Prepared locations (address, coordinates, isochrones; one JSON per slug) | `var/geo/prepared-locations/{slug}.json` (`app.prepared_locations_dir`) | `app:geo:prepare-location --apply` | `app:geo:apply-prepared-location` |
-| Map background tiles | Remote tile server or `public/map-tiles/` (`MAP_TILE_URL`) | Tile source, see [Map tiles](#map-tiles-and-offline-use) | Browser (Leaflet) |
+| Map background tiles | Tile server from `MAP_TILE_URL` (default OpenStreetMap) | — (not stored) | Browser (Leaflet), see [Map tiles](#map-tiles-and-offline-use) |
 
 IDs in the CLI are numeric Doctrine IDs (`Hospital`, `DispatchArea`, `State`), not names or ISO codes. Isochrone files include `properties.origin` (`lat`/`lng` used for the OpenRouteService request). The fetch command skips an existing file only when that origin still matches the hospital coordinates.
 
@@ -215,27 +215,28 @@ state public id unnecessary: applying writes into the path of the current instal
 
 All Leaflet maps take their background tiles from `MAP_TILE_URL` (with `MAP_TILE_ATTRIBUTION` and
 `MAP_TILE_MAX_ZOOM`), passed to the browser through `<meta name="map-tiles">` in the base layout and
-read by `assets/js/geo-map/createMap.js`.
+read by `assets/js/geo-map/createMap.js`. The demo environment uses the default as well.
 
 | `MAP_TILE_URL` | Result |
 |----------------|--------|
 | default `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png` | OpenStreetMap tiles (needs network) |
-| empty | No basemap: district outlines, pins and isochrones on a plain background. No external requests. |
-| `/map-tiles/{z}/{x}/{y}.png` | Local tile set in `public/map-tiles/{z}/{x}/{y}.png` (git-ignored) |
+| empty | Manual switch: no basemap. District outlines, pins and isochrones on a neutral background, no tile requests. |
+
+**Tile server unreachable** (no network during a demo, OpenStreetMap down): a map drops its tile layer
+after 4 failed tile requests without a single loaded tile and shows the same neutral background as
+the empty setting. Districts, pins and isochrones stay visible. Maps created later on the same page
+(also after Turbo navigation) skip the tile layer; a full reload tries the tile server again. So the
+browser console shows a handful of failed tile requests, not one per tile. A tile request that hangs
+instead of failing is not detected; in that case set `MAP_TILE_URL` empty.
 
 Everything else the maps load is local: Leaflet and Turf through AssetMapper (`assets/vendor`, run
 `php bin/console importmap:install` once while online), and the district polygons in
 `assets/geo/hessen-landkreise.geojson`.
 
-**Local tile set:** not part of the repository and not downloaded by any command. Bulk downloading
-from `tile.openstreetmap.org` is not allowed by the OpenStreetMap tile usage policy, so a local set has
-to come from a source whose terms allow offline use; record the source and set `MAP_TILE_ATTRIBUTION`
-to match it. Set `MAP_TILE_MAX_ZOOM` to the highest level the set contains. Rough size: the 50-minute
-area of one location at zoom 7–13 is about 2,000 tiles (≈ 40 MB); an overview of Hesse at zoom 6–11
-about 450 tiles (≈ 10 MB). The source and download workflow are still open (#791).
-
-When `MAP_TILE_URL` points to another remote host, add it to `img-src` / `connect-src`
-([content-security-policy.md](content-security-policy.md)).
+There is no local tile cache and no command downloads tiles; bulk downloading from
+`tile.openstreetmap.org` is not allowed by the OpenStreetMap tile usage policy. When `MAP_TILE_URL`
+points to another tile server, set `MAP_TILE_ATTRIBUTION` to match it and add the host to `img-src` /
+`connect-src` ([content-security-policy.md](content-security-policy.md)).
 
 ## What not to do
 
