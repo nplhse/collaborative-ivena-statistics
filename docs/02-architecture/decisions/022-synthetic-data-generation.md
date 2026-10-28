@@ -203,6 +203,7 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - **Closures from the share of department-hours** (roadmap decision for #791): the profile gives the share, the closure model of the structural patterns how closures look, and `ClosurePlanner` derives the number of events, `−ln(1 − share) × departments × hours ÷ (expected departments × expected hours)`. Events per month are no longer an input.
 - All closure defaults are general knowledge, not measured, since the reference data has closures of too few hospitals.
 - A dataset has many times more closure intervals than before, so `department_was_closed` is set far more often and the closure rebuild takes longer.
+- **Closure share per preset:** a preset may set `closure_share` for all its hospitals; `single`, `minimal` and `medium` close 1 % and load fast, `realistic` and `large` (the demo preset) keep the shares by size. An explicit share of a `ProfileSelection` wins over the preset, the preset over the structural default. The dev default preset becomes `medium` (6 hospitals, 12 months), since the full shares make the closure volume rebuild of `realistic` several minutes long; the test environment stays on `minimal`.
 
 ## Consequences
 

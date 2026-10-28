@@ -9,7 +9,6 @@ use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
-use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -35,7 +34,6 @@ final readonly class GenerateImportsCommand
     public function __construct(
         private FixtureVolumeResolver $volumeResolver,
         private HospitalMonthGenerator $generator,
-        private HospitalProfileResolver $profiles,
         private EntityManagerInterface $entityManager,
         private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
@@ -96,7 +94,7 @@ final readonly class GenerateImportsCommand
                 continue;
             }
 
-            $profile = $this->profiles->resolve($entity, $volume->seed);
+            $profile = $this->generator->profile($volume, $entity);
             $structure = sprintf('%s, %.1f/day, %d %% closed', $profile->configuration, $profile->dailyRate($volume), (int) round($profile->closureShare * 100.0));
             try {
                 if ($dryRun) {

@@ -38,6 +38,8 @@ final class ClosurePlannerTest extends TestCase
         self::assertEqualsWithDelta(393.175 / 60.0, $model->expectedHours(), 1e-9);
         self::assertEqualsWithDelta(47.74, ClosurePlanner::expectedEvents($model, 0.10, 10, 720.0), 0.01);
         self::assertSame(0.0, ClosurePlanner::expectedEvents($model, 0.0, 10, 720.0));
+        // The small presets close 1 %: −ln(0.99) × 7,200 ÷ 15.89 = 4.55 events.
+        self::assertEqualsWithDelta(4.55, ClosurePlanner::expectedEvents($model, 0.01, 10, 720.0), 0.01);
     }
 
     /**

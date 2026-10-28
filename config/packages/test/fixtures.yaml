@@ -28,10 +28,13 @@ parameters:
     # The demo user foo owns one of the active hospitals, drawn with the seed.
     # "scenarios" lays scenarios over the data: name → applications per year (at least one in the period),
     # placed with the seed (flu wave and icy road in winter, an MCI spread over 2–4 hospitals).
+    # "closure_share" sets the share of closed department-hours for every hospital of the preset (0 to below 1);
+    # without it each hospital gets the share of its size from the structural patterns (5/8/10 %). The small
+    # presets close little, so they load fast; an explicit share of a ProfileSelection still wins.
     fixtures.profiles:
-        single: { any: 1 }
-        minimal: { Large: 1, Medium: 1, Small: 1 }
-        medium: { Large: 2, Medium: 2, Small: 2, scenarios: { mci: 1 } }
+        single: { any: 1, closure_share: 0.01 }
+        minimal: { Large: 1, Medium: 1, Small: 1, closure_share: 0.01 }
+        medium: { Large: 2, Medium: 2, Small: 2, closure_share: 0.01, scenarios: { mci: 1 } }
         realistic: { Large: 3, Medium: 6, Small: 6, scenarios: { flu-wave: 1, mci: 1 } }
         # Every participating hospital of the synthetic catalog, two years.
         large: { Large: 3, Medium: 8, Small: 9, months: 24, scenarios: { flu-wave: 1, mci: 1, icy-road: 0.5 } }

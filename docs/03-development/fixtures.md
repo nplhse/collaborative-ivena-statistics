@@ -56,17 +56,19 @@ php bin/console doctrine:fixtures:load --group=minimal --no-interaction
 
 `FIXTURES_PROFILE` chooses which participating hospitals receive synthetic allocations:
 
-| Profile | Hospitals with allocations | Period | Allocations | Scenarios |
-|---|---|---|---|---|
-| `single` | 1, drawn with the seed | 12 months + current | ~4,000 | none |
-| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | 12 months + current | ~25,000 | none |
-| `medium` | 6: two of each size | 12 months + current | ~50,000 | 1 MCI |
-| `realistic` (default) | 15: 3 Large, 6 Medium, 6 Small | 12 months + current | ~106,000 | 1 flu wave in winter, 1 MCI |
-| `large` | all 20 participating hospitals: 3 Large, 8 Medium, 9 Small | 24 months + current | ~247,000 (1,000 imports, ~4,800 closure intervals) | per year 1 flu wave and 1 MCI, plus 1 icy-road day |
+| Profile | Hospitals with allocations | Period | Allocations | Closed department-hours | Scenarios |
+|---|---|---|---|---|---|
+| `single` | 1, drawn with the seed | 12 months + current | ~4,000 | 1 % | none |
+| `minimal` | 3: one Large (preferably Full), one Medium (Extended), one Small (Basic) | 12 months + current | ~25,000 | 1 % | none |
+| `medium` (default) | 6: two of each size | 12 months + current | ~50,000 | 1 % | 1 MCI |
+| `realistic` | 15: 3 Large, 6 Medium, 6 Small | 12 months + current | ~97,000 | 5 / 8 / 10 % by size | 1 flu wave in winter, 1 MCI |
+| `large` (demo) | all 20 participating hospitals: 3 Large, 8 Medium, 9 Small | 24 months + current | ~247,000 (1,000 imports) | 5 / 8 / 10 % by size | per year 1 flu wave and 1 MCI, plus 1 icy-road day |
+
+**Closures per preset.** `closure_share` in a preset sets the share of closed department-hours for all its hospitals (a number from 0 to below 1). The small presets set 1 %, so they load fast; `realistic` and `large` leave it out, so each hospital gets the share of its size from the structural patterns. An explicit closure share of a `ProfileSelection` (generation service of #877, demo wizard) wins over the preset. The closure volume rebuild grows with the number of closure intervals, which is why the dev default is `medium`.
 
 The allocation counts are those of the base data; scenarios add a few percent on top (a flu wave about 25 % for 2–4 weeks).
 
-`make reset` takes about 2 minutes with `realistic` (load about 80 s, closure rebuild about 45 s) and about 4½ minutes with `large` (load about 130 s, closure rebuild about 130 s). These times were measured before presets applied scenarios (#865); the scenarios add a few percent of rows. The KPI aggregation inside the load adds about 0.1 s per upload day: about 5 s with `realistic`, about 10 s with `large`. The load runs without debug mode: in debug mode Symfony keeps every SQL query in memory (`large` then needs over 800 MB instead of about 100 MB). A preset can set its own `months`; the synthetic catalog has 20 participating hospitals, so no preset can have more.
+`make reset` takes about 1½ minutes with the default `medium` (load about 60 s, closure rebuild about 20 s, about 1,300 closure intervals) and about 7 minutes with `realistic` (load about 85 s, closure rebuild about 340 s for about 26,000 closure intervals at the full closure shares; measured with #876, `FIXTURES_UNTIL=2026-09-30`). `large` takes longer still, mostly in the closure rebuild. The KPI aggregation inside the load adds about 0.1 s per upload day: about 5 s with `realistic`, about 10 s with `large`. The load runs without debug mode: in debug mode Symfony keeps every SQL query in memory (`large` then needs over 800 MB instead of about 100 MB). A preset can set its own `months`; the synthetic catalog has 20 participating hospitals, so no preset can have more.
 
 The demo user `foo` owns one of the active hospitals, drawn with the seed: the same seed gives the same hospital, another seed another one. In `single` it owns the only one.
 
@@ -75,6 +77,7 @@ FIXTURES_PROFILE=minimal make reset
 FIXTURES_PROFILE=single FIXTURES_SCALE=0.2 make reset    # fastest
 FIXTURES_UNTIL=2026-09-30 make reset                     # fixed period, same data on every day
 FIXTURES_PROFILE=large make reset                        # two years, every participating hospital
+FIXTURES_PROFILE=realistic make reset                    # 15 hospitals with the full closure shares
 FIXTURES_MONTHS=36 make reset                            # three years with the default preset
 ```
 
@@ -84,7 +87,7 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 
 | Parameter | Default | Effect |
 |---|---|---|
-| `FIXTURES_PROFILE` | `realistic` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes) |
+| `FIXTURES_PROFILE` | `medium` | Profile from `fixtures.profiles` (hospitals per size; `any` = drawn from all sizes; optional `months`, `closure_share`, `scenarios`) |
 | `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `1` is close to real volumes |
 | `FIXTURES_UNTIL` | empty | Last day of the period (`Y-m-d`); empty means yesterday |
 | `FIXTURES_MONTHS` | empty | Whole months before the month of the last day; empty uses the months of the preset or `fixtures.baseline.months` |
@@ -245,7 +248,7 @@ An import is "uploaded" one to three days after the last day it covers, during o
 
 ### Closures
 
-Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`. The hospital profile sets **how much** is closed: the share of closed department-hours of its offered departments, merged per department (default 5 / 8 / 10 % for small / medium / large hospitals). The closure model of the structural patterns (`ClosureModel`) sets **how**:
+Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`. The hospital profile sets **how much** is closed: the share of closed department-hours of its offered departments, merged per department (default 5 / 8 / 10 % for small / medium / large hospitals, or the `closure_share` of the preset). The closure model of the structural patterns (`ClosureModel`) sets **how**:
 
 | | Default |
 |---|---|

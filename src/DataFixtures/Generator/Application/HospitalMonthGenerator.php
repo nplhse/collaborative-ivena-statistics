@@ -67,7 +67,7 @@ final readonly class HospitalMonthGenerator
             throw new \DomainException(sprintf('%s already has allocations, closures or a synthetic import for %s.', (string) $hospital->getName(), $month));
         }
 
-        return $this->planner->planMonth($volume, $hospital, $month, $lastDay, $this->profiles->resolve($hospital, $volume->seed, $selection));
+        return $this->planner->planMonth($volume, $hospital, $month, $lastDay, $this->profile($volume, $hospital, $selection));
     }
 
     /**
@@ -95,7 +95,7 @@ final readonly class HospitalMonthGenerator
 
         $hospitalKey = $hospital->getPublicIdString();
         $uploadedAt = UploadTime::after($lastGeneratedDay, $lastDay, $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::UPLOAD));
-        $profile = $this->profiles->resolve($hospital, $volume->seed, $selection);
+        $profile = $this->profile($volume, $hospital, $selection);
         $closures = $this->closurePlanner->plan($volume->seed, $hospitalKey, $month, $profile, array_keys($batch->dailyCounts), $lastDay);
         $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
@@ -132,6 +132,14 @@ final readonly class HospitalMonthGenerator
         $this->entityManager->flush();
 
         return new GeneratedMonth((int) $import->getId(), $batch->allocationCount(), $mciCases, (int) $closureImport->getId(), \count($closures));
+    }
+
+    /**
+     * The hospital's profile; the closure share of the preset applies unless the selection sets one.
+     */
+    public function profile(FixtureVolume $volume, Hospital $hospital, ?ProfileSelection $selection = null): HospitalProfile
+    {
+        return $this->profiles->resolve($hospital, $volume->seed, ($selection ?? new ProfileSelection())->withDefaultClosureShare($volume->closureShare));
     }
 
     /**
