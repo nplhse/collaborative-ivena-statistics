@@ -20,6 +20,9 @@ final readonly class RandomStreams
     public const string ALLOCATIONS = 'allocations';
     public const string MCI = 'mci';
 
+    /** Hospital profile; drawn once per hospital, so its month part is fixed. */
+    public const string PROFILE = 'profile';
+
     /**
      * @param string $hospital public id of the hospital
      * @param string $month    month as Y-m

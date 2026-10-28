@@ -64,7 +64,12 @@ A `HospitalProfile` belongs to the generator configuration, not to the reference
 - the resources it offers, each independent of the care tier: resuscitation room, catheterization laboratory and others,
 - the closure frequency.
 
-Default profiles are derived deterministically from tier, size and location; the defaults keep the per-size daily rates of the presets. The configuration can override single values for a hospital, keyed by its public id. Sampling only produces departments and resources the hospital offers.
+Default profiles are derived deterministically from tier, size and location; the defaults keep the per-size daily rates of the presets.
+
+- Whether a hospital has a catheterization laboratory is decided once per hospital when the data is generated, from its own stream (`profile`): every full-care hospital, most large extended-care hospitals and only a few basic-care hospitals. A hospital without one gets no cath lab cases.
+- Resuscitation room cases happen in every hospital; the share depends on tier and size and is small for small basic-care hospitals.
+
+The first version holds only the segment, the cath lab and the resuscitation room share. Offered departments, volume per bed and overrides by public id in the configuration follow when a step needs them; with the current patterns only full-care hospitals get departments such as neurosurgery, so a department list would change nothing yet.
 
 ### Pattern packages
 

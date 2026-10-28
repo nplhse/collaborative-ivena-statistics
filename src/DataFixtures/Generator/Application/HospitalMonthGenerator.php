@@ -32,6 +32,7 @@ final readonly class HospitalMonthGenerator
     public function __construct(
         private ImportBatchPlanner $planner,
         private DefaultDistributionPatterns $patterns,
+        private HospitalProfileResolver $profiles,
         private PatternSampler $patternSampler,
         private EntityManagerInterface $entityManager,
         private Connection $connection,
@@ -84,7 +85,8 @@ final readonly class HospitalMonthGenerator
             'import_id' => (int) $import->getId(),
         ];
 
-        $pattern = $this->patterns->forHospital($hospital);
+        $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $pattern = $profile->applyTo($this->patterns->get($profile->segment));
         $random = $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::ALLOCATIONS);
         $writer = new AllocationRowWriter($this->connection);
         foreach ($batch->dailyCounts as $day => $count) {

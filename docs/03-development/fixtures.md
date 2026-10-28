@@ -83,7 +83,15 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 | `fixtures.baseline.seed` | `740` | Seed for the hospital choice, the daily counts, sampling and MCI cases |
 | `fixtures.baseline.rebuild_projection` | `true` | Rebuild `allocation_stats_projection` after allocation fixtures |
 
-Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise). Allocations are written in batches through DBAL.
+Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise), adjusted by its profile (`HospitalProfileResolver`):
+
+| | Cath lab | Resuscitation room cases |
+|---|---|---|
+| Full care | always | about 10 % |
+| Extended care | Large 80 %, Medium 50 %, Small 30 % of the hospitals | 4–6 % |
+| Basic care | Large 15 %, Medium 10 %, Small 5 % of the hospitals | 1–3 % |
+
+The cath lab is drawn once per hospital with the seed; a hospital without one gets no cath lab cases. Allocations are written in batches through DBAL.
 
 ### Reproducible data
 
@@ -138,7 +146,7 @@ The month gets the same rows as inside a full load with the same seed. A month a
 
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) describes the next steps:
 
-- hospital profiles set volume, offered departments and resources such as a resuscitation room or a catheterization laboratory;
+- hospital profiles also set offered departments and volume per bed;
 - pattern packages replace the independent distributions with conditional tables, case archetypes and coherence rules;
 - synthetic closure imports and scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
 - synthetic imports go through the regular projections, including closure analysis and the materialized views.
@@ -169,7 +177,8 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
 - `Generator/HospitalMonthGeneratorTest.php` — a month added later equals the month of a full load, leaves other imports alone and is refused twice
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
-- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month
+- `Generator/HospitalProfileResolverTest.php` — cath lab by tier and size, same per seed, resuscitation room shares
+- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns and sampling
 
