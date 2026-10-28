@@ -60,6 +60,7 @@ final readonly class SyntheticAllocationGenerator
 
         if ($volume->rebuildProjection) {
             $this->pipeline->rebuildAllocationProjection();
+            $this->pipeline->aggregateAllKpis();
         }
     }
 

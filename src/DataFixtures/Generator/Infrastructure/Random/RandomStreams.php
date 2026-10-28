@@ -22,6 +22,9 @@ final readonly class RandomStreams
 
     public const string CLOSURES = 'closures';
 
+    /** Upload time of the month's imports (`created_at`). */
+    public const string UPLOAD = 'upload';
+
     /** Hospital profile; drawn once per hospital, so its month part is fixed. */
     public const string PROFILE = 'profile';
 

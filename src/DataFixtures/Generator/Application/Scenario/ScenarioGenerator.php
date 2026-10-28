@@ -19,6 +19,7 @@ use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\PlannedClosure;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use App\DataFixtures\Generator\Application\SyntheticImportMarker;
+use App\DataFixtures\Generator\Application\UploadTime;
 use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
 use App\DataFixtures\Generator\Infrastructure\Dbal\ClosureIntervalWriter;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
@@ -126,7 +127,7 @@ final readonly class ScenarioGenerator
         $allocationImports = [];
         $hospitalIds = [];
         foreach ($plans as $plan) {
-            $results[] = $this->write($scenario, $volume, $plan, $mciId);
+            $results[] = $this->write($scenario, $volume, $plan, $mciId, $lastDay);
             $allocationImports[] = $results[array_key_last($results)]->importId;
             $hospitalIds[] = (int) $plan->hospital->getId();
             $this->entityManager->clear();
@@ -139,7 +140,7 @@ final readonly class ScenarioGenerator
         return $results;
     }
 
-    private function write(ScenarioDefinition $scenario, FixtureVolume $volume, ScenarioHospitalPlan $plan, string $mciId): ScenarioHospitalResult
+    private function write(ScenarioDefinition $scenario, FixtureVolume $volume, ScenarioHospitalPlan $plan, string $mciId, \DateTimeImmutable $lastDay): ScenarioHospitalResult
     {
         $hospital = $this->entityManager->find(Hospital::class, (int) $plan->hospital->getId());
         $owner = $hospital?->getOwner();
@@ -151,14 +152,15 @@ final readonly class ScenarioGenerator
 
         $key = $hospital->getPublicIdString();
         $startDay = $plan->days[0];
+        $uploadedAt = UploadTime::after($plan->lastDay(), $lastDay, $this->streams->stream($volume->seed, $key, $startDay, 'scenario:'.$scenario->name.':upload'));
         $closureImport = null;
         if ([] !== $plan->closures) {
-            $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('Scenario %s closures %s', $scenario->name, $startDay), $hospital, \count($plan->closures), SyntheticImportMarker::scenarioPath($scenario->name, $volume->seed, $key, $startDay, '-closures'), $owner);
+            $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('Scenario %s closures %s', $scenario->name, $startDay), $hospital, \count($plan->closures), SyntheticImportMarker::scenarioPath($scenario->name, $volume->seed, $key, $startDay, '-closures'), $owner, $uploadedAt);
             $this->closureWriter->write($plan->closures, (int) $hospital->getId(), (int) $closureImport->getId());
         }
 
         $rows = $plan->isMci() ? $plan->mciPatients : array_sum($plan->dailyCounts);
-        $import = $this->createImport(ImportType::ALLOCATION, sprintf('Scenario %s %s', $scenario->name, $startDay), $hospital, $rows, SyntheticImportMarker::scenarioPath($scenario->name, $volume->seed, $key, $startDay), $owner);
+        $import = $this->createImport(ImportType::ALLOCATION, sprintf('Scenario %s %s', $scenario->name, $startDay), $hospital, $rows, SyntheticImportMarker::scenarioPath($scenario->name, $volume->seed, $key, $startDay), $owner, $uploadedAt);
 
         $profile = $this->profiles->resolve($hospital, $volume->seed);
         $pattern = $profile->applyTo($this->patterns->get($profile->segment))
@@ -321,10 +323,11 @@ final readonly class ScenarioGenerator
         );
     }
 
-    private function createImport(ImportType $type, string $name, Hospital $hospital, int $rowCount, string $path, User $createdBy): Import
+    private function createImport(ImportType $type, string $name, Hospital $hospital, int $rowCount, string $path, User $createdBy, \DateTimeImmutable $uploadedAt): Import
     {
         $import = new Import()
             ->setName($name)
+            ->setCreatedAt($uploadedAt)
             ->setHospital($hospital)
             ->setStatus(ImportStatus::COMPLETED)
             ->setType($type)

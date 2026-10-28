@@ -120,7 +120,7 @@ The generator writes rows directly with DBAL batches, but processing uses the re
 - per import: export period (ADR 015) and data coverage; a month without closures has nothing to derive a period from, so the generator stores the known window of the month as a manual period, like an empty IVENA export,
 - after generation: allocation statistics projection, closure analysis, closure volume projection and refresh of the materialized views (`SyntheticDataPipeline`).
 
-There is no separate projection code for synthetic data. Doctrine fixtures run in one database transaction, and the closure volume projection takes a lock that cannot be acquired inside it; the fixture therefore rebuilds only the allocation projection, and `composer load-fixtures` runs the closure rebuild and the view refresh as the existing commands after the load. `app:generate:imports` runs outside a transaction and processes its months completely. The KPI aggregation is not part of the pipeline yet.
+There is no separate projection code for synthetic data. Doctrine fixtures run in one database transaction, and the closure volume projection takes a lock that cannot be acquired inside it; the fixture therefore rebuilds only the allocation projection, and `composer load-fixtures` runs the closure rebuild and the view refresh as the existing commands after the load. `app:generate:imports` runs outside a transaction and processes its months completely. The daily KPI aggregation (`kpi_daily`) runs for the upload days of the generated imports, inside the fixture as well, since it needs no lock (#866). It counts imports by `created_at`, so a synthetic import gets an upload time one to three days after the data it covers instead of the load time.
 
 ### Scenario overlays
 
