@@ -77,6 +77,14 @@
         <source>import.failed.message</source>
         <target>{hospitalName}: {reason, select, missing_creator {The import has no creator.} missing_hospital {The import has no hospital.} missing_import_permission {The creator is no longer allowed to import for this hospital.} missing_closure_role {The creator is not allowed to import closures.} type_mismatch {The file type does not match the import type.} missing_file_path {The import file is missing.} invalid_file_path {The import file could not be read.} file_not_found {The import file could not be found.} invalid_file {The file failed validation.} no_rows {The file contains no rows.} rejection_ratio_exceeded {Too many rows were rejected.} retries_exhausted {Processing failed several times and was given up.} other {The import could not be processed.}}</target>
       </trans-unit>
+      <trans-unit id="Ntf09EA4B2F" resname="generation.completed.title">
+        <source>generation.completed.title</source>
+        <target>Synthetic data for {hospitalName} is ready</target>
+      </trans-unit>
+      <trans-unit id="NtfDF816300" resname="generation.completed.message">
+        <source>generation.completed.message</source>
+        <target>{months, plural, one {# month} other {# months}} with {allocations, number} allocations and {closures, number} closures; all statistics are calculated.</target>
+      </trans-unit>
       <trans-unit id="Ntf85A987C7" resname="user.first_import.title">
         <source>user.first_import.title</source>
         <target>Your first import is in!</target>
@@ -320,6 +328,10 @@
       <trans-unit id="Ntf36DEF39B" resname="import.completed.label">
         <source>import.completed.label</source>
         <target>Import completed</target>
+      </trans-unit>
+      <trans-unit id="NtfC0FE1368" resname="generation.completed.label">
+        <source>generation.completed.label</source>
+        <target>Synthetic data ready</target>
       </trans-unit>
       <trans-unit id="Ntf0C8DA30A" resname="import.failed.label">
         <source>import.failed.label</source>

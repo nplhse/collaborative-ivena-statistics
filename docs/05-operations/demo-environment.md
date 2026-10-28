@@ -108,9 +108,20 @@ Maps use the OpenStreetMap tiles like dev. Without network they drop the basemap
 still show districts, pins and isochrones; `MAP_TILE_URL=` (empty) in `.env.demo.local` switches the
 basemap off for good. Details: [hospital-geodata.md](hospital-geodata.md#prepared-locations-offline-use).
 
+## Follow a generation run
+
+Synthetic data generated in the demo (by the hospital wizard, a later step of #791) is tracked as a generation run: the data is written synchronously, the projections follow in the worker (`make demo-consume`), and the participant gets an in-app notification once everything is done. Check the progress, including failed or open hospitals:
+
+```bash
+APP_ENV=demo php bin/console app:generate:run:list
+APP_ENV=demo php bin/console app:generate:run:show
+```
+
+See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
+
 ## What the demo does not do (yet)
 
-- The hospital wizard and run tracking follow in later steps of #791.
+- The hospital wizard follows in a later step of #791.
 - Storage monitoring does not categorise the demo paths.
 
 ## Troubleshooting
@@ -121,4 +132,5 @@ basemap off for good. Details: [hospital-geodata.md](hospital-geodata.md#prepare
 | Config or code change has no effect, or a `TypeError` in a container class | Demo runs without debug mode and keeps its compiled container | Restart `make demo-start` (it deletes `var/cache/demo`) |
 | Page without styles | Assets not compiled | `make demo-start` compiles them; run `importmap:install` while online |
 | Imports stay "pending" | No worker | `make demo-consume` |
+| A generation run stays in `projecting` (`app:generate:run:show` says stale) | No worker, or a hospital failed | `make demo-consume`; then `APP_ENV=demo php bin/console app:generate:run:retry <run>` |
 | Cookie banner does not close, login fails with a CSRF or cookie consent error | Old cookies for 127.0.0.1 (from dev with TLS or an older demo build) | Delete the cookies for 127.0.0.1 in the browser, or open the demo as http://localhost:8001 |

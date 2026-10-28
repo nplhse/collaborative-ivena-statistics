@@ -235,6 +235,20 @@ php bin/console app:generate:imports --hospital=<public id> --hospital=<public i
 
 The month gets the same rows as inside a full load with the same seed. A month after the last day (`FIXTURES_UNTIL` or yesterday) and a month that already has allocations, closures or a synthetic import for the hospital are refused; existing imports are never changed. The new imports run through the processing pipeline.
 
+### Generation runs
+
+With `--async` the command records a generation run and leaves the projections to a Messenger worker instead of waiting for them; `--notify` also notifies the owner of each hospital in-app once its data is fully processed. Without these options nothing is tracked and the pipeline runs synchronously as before.
+
+```bash
+php bin/console app:generate:imports --hospital=<public id> --month=2026-10 --async --notify
+php bin/console messenger:consume async_priority_low       # projects the run
+php bin/console app:generate:run:list
+php bin/console app:generate:run:show <run id>             # newest run without an id
+php bin/console app:generate:run:retry <run id>            # failed or stuck hospitals, no new data
+```
+
+Per hospital the worker rebuilds the allocation projection of its imports and then its closure analysis and closure volume; once no hospital is open, it refreshes the materialized views and KPIs and ends the run as `completed` or `failed`. Model, ordering and retries: [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
+
 ### Scenarios
 
 Scenarios are laid over existing data and only add rows: per affected hospital their own import (`synthetic/scenario/<name>/seed-740/<hospital public id>/<start day>.csv`), plus a closure import when the scenario closes departments.
