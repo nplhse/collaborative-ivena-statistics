@@ -171,6 +171,17 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
             self::assertSame([], array_values(array_intersect($departments, $profile->missingDepartments)), sprintf('%s: no allocation or closure in a department it does not offer', (string) $hospital->getName()));
         }
         self::assertGreaterThan(0, $missing, 'some hospital lacks a department, so the check means something');
+
+        $codes = $connection->fetchAllAssociative(
+            'SELECT DISTINCT a.hospital_id, n.code FROM allocation a JOIN indication_normalized n ON n.id = a.indication_normalized_id',
+        );
+        foreach ($codes as $row) {
+            $hospital = $entityManager->find(Hospital::class, (int) $row['hospital_id']);
+            self::assertInstanceOf(Hospital::class, $hospital);
+            foreach ($profiles->resolve($hospital, $seed)->blockedIndications as $prefix) {
+                self::assertStringStartsNotWith($prefix, str_pad((string) $row['code'], 3, '0', \STR_PAD_LEFT), sprintf('%s lacks the capability for %s', (string) $hospital->getName(), (string) $row['code']));
+            }
+        }
     }
 
     /**

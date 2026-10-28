@@ -10,6 +10,7 @@ use App\DataFixtures\Generator\Application\HospitalProfile;
 use App\DataFixtures\Generator\Application\PlannedClosure;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
+use App\DataFixtures\Structure\Dto\HospitalResources;
 use PHPUnit\Framework\TestCase;
 
 final class ClosurePlannerTest extends TestCase
@@ -108,7 +109,7 @@ final class ClosurePlannerTest extends TestCase
      */
     private function profile(float $eventsPerMonth, array $missingDepartments = []): HospitalProfile
     {
-        return new HospitalProfile('urban-basic', false, 0.03, $missingDepartments, $eventsPerMonth);
+        return new HospitalProfile('urban-basic', new HospitalResources(), 0.03, $missingDepartments, $eventsPerMonth);
     }
 
     private function planner(): ClosurePlanner

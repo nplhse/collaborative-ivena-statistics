@@ -97,13 +97,21 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 
 Each active hospital gets one import per month. The number of allocations per day varies around its rate: fewer at the weekend, a little more in winter, plus random noise, so totals look like real data. Each hospital is sampled with the default pattern of its segment (`urban-full` for full care, `rural-basic` for rural, `urban-basic` otherwise), adjusted by its profile (`HospitalProfileResolver`):
 
-| | Cath lab | Resuscitation room cases | Offered departments |
-|---|---|---|---|
-| Full care | always | about 10 % | nearly all |
-| Extended care | Large 80 %, Medium 50 %, Small 30 % of the hospitals | 4–6 % | most; stroke unit, neurosurgery, neonatology only in some |
-| Basic care | Large 15 %, Medium 10 %, Small 5 % of the hospitals | 1–3 % | the core and a few more |
+Each hospital draws a **configuration** once, with the seed: a coherent bundle of resources (cath lab, neurosurgery, stroke unit, trauma level, obstetrics level, paediatrics) with a weight by tier and size (`DefaultStructurePatterns` in `src/DataFixtures/Structure/`). Resources are never drawn one by one, so a stroke unit always comes with neurology and a perinatal centre with paediatrics (`StructureRules`).
 
-The cath lab and the offered departments are drawn once per hospital with the seed; a hospital without a cath lab gets no cath lab cases. Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery); each further department has a chance by tier, larger hospitals a higher one. A hospital gets no allocations and no closures in a department it does not offer: an indication whose departments are all missing is drawn again (a hospital without obstetrics gets no births, one without neurology hardly any strokes), and after five tries the case goes to a core department. The closure frequency is part of the profile too (8, 5 or 3 events per month by size). Allocations are written in batches through DBAL.
+| Tier | Configurations (weight Small / Medium / Large) |
+|---|---|
+| Basic care | `basic-general` 55/40/30 %, `basic-obstetrics` 20 %, `basic-cardio` (cath lab) 10/20/25 %, `basic-stroke` 10/15/20 %, `basic-neurosurgery` 5 % |
+| Extended care | `extended-general` (cath lab, stroke unit, regional trauma centre, obstetrics, paediatrics) 40/45/40 %, `extended-no-stroke` (no stroke unit, obstetrics or paediatrics) 25/20/10 %, `extended-perinatal` 5/15/25 %, `extended-neurosurgery` 5/10/20 %, `extended-no-cathlab` 25/10/5 % |
+| Full care | `full-maximum` 70 %, `full-no-obstetrics` 30 % (both supraregional trauma centre, stroke unit, cath lab, neurosurgery, paediatrics) |
+
+The configurations are manually curated, not sampled from data: coarse weights from general knowledge, rounded towards the aggregates of #874 where at least five hospitals stand behind a value. Uncommon combinations, such as a small basic-care hospital with neurosurgery or a cath lab, have small weights.
+
+Departments follow from the configuration. Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery); a resource brings its departments (stroke unit → stroke medicine and general neurology, neurosurgery, obstetrics → delivery ward, perinatal centre → prenatal medicine and neonatology, paediatrics → general paediatrics). For every field the configuration then gives the number of further departments, drawn per hospital, and the hospital gets the most common ones of that field (`DepartmentVocabulary`). The resuscitation room share follows the trauma level (1 % none, 2 % basic, 5 % regional, 10 % supraregional).
+
+**Capability gates.** An indication that needs a resource the hospital lacks is never drawn there; its share goes to the other codes: STEMI and cardiogenic shock (332, 346) need a cath lab, polytrauma (211, 212) a regional trauma centre, preterm births a perinatal centre. A hospital without a cath lab gets no cath lab cases. A hospital gets no allocations and no closures in a department it does not offer: an indication whose departments are all missing is drawn again (a hospital without obstetrics gets no births, one without neurology hardly any strokes), and after five tries the case goes to a core department. The closure frequency is part of the profile too (8, 5 or 3 events per month by size). Allocations are written in batches through DBAL.
+
+**Selecting a structure.** `HospitalProfileResolver::resolve()` takes a `ProfileSelection` for targeted scenarios and the generation service of #877: a configuration by key (also one with weight 0 for the hospital's tier and size) and/or single resources on top of it, for example `new ProfileSelection(configuration: 'basic-neurosurgery')` or `new ProfileSelection(cathlab: true)`. An unknown key or an incoherent result (a supraregional trauma centre without neurosurgery) is refused with the list of supported configurations. Overrides by hospital public id in `fixtures.yaml` stay out (see below).
 
 ### Reproducible data
 
@@ -194,7 +202,9 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
 
-- volume per bed in the hospital profile;
+- volume per bed and per-hospital mix variation in the hospital profile (#876, next step);
+- closures driven by the share of closed department-hours (#876);
+- structural pattern packages (`ivena-structure-patterns`, #876 with the export of #797);
 - overrides of the profile by hospital public id in `fixtures.yaml` (cath lab, departments, volume, closure frequency). Left out on purpose (#863): public ids follow the catalog seed, so overrides break when the catalog changes, and the demo does not need them;
 - pattern packages as JSON files (with the export of real patterns, #797), and case archetypes.
 
@@ -204,8 +214,8 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 The data looks plausible in totals, weekly rhythm and the indication-driven fields, but it does not model everything that real exports show (assessment in #874). Structural hospital profiles (#876) and pattern packages (#883) address most of it:
 
-- **Hospitals look alike.** Every hospital of one size gets the same daily rate, whatever its beds. Hospitals of one tier and location share one segment pattern, so apart from their offered departments and cath lab their indication, age and urgency mix hardly differ. The segment ignores size: a medium full-care hospital gets the mix of a large one.
-- **Severity follows the segment, not the capabilities.** STEMI, polytrauma, resuscitation and cardiogenic shock codes appear only in full-care hospitals, even when another hospital has a cath lab.
+- **Hospitals look alike.** Every hospital of one size gets the same daily rate, whatever its beds. Hospitals of one tier and location share one segment pattern, so apart from their configuration (resources and departments) their indication, age and urgency mix hardly differ. The segment ignores size: a medium full-care hospital gets the mix of a large one.
+- **Severe codes only in the full-care mix.** Capability gates decide where STEMI, polytrauma and cardiogenic shock may go, but only the `urban-full` segment draws them so far, so other hospitals with a cath lab or trauma centre do not get them yet (allocation defaults, after #875 and #883).
 - **About 30 PZC codes.** Urology, ENT, ophthalmology, dermatology (7xx) and transport codes (6xx) are not drawn, so the departments of those fields never get allocations; neither do allocations without a normalized indication or with a secondary indication.
 - **Few dependencies outside the indication.** Department, urgency, age, sex and flags follow from the indication. Occasion, infection, assignment, transport type, secondary transport and transport time do not (a traffic accident can bring a chest pain patient). The hour of day depends neither on the weekday nor on the case; transport time depends on the hospital's location only. Ages are uniform inside wide bands, for example 65–99.
 - **Closures are small and rare.** A closure event closes one to four departments from a fixed list. Events that close most departments of a hospital at once, closures by care level for the same department, and a closure frequency given as the share of closed department-hours are not modelled. `department_was_closed` is set only for allocations inside a generated interval.
@@ -237,10 +247,11 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/UploadTimeTest.php` — upload one to three days after the data, during office hours, never after the period
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
 - `Generator/PresetScenarioTest.php` — scenario counts per period; the `medium` preset spreads one MCI over 2–4 hospitals, its rows are in the projection and the KPIs, same seed same placement
-- `Generator/HospitalProfileResolverTest.php` — cath lab and offered departments by tier and size, same per seed, resuscitation room shares, closure frequency
+- `Generator/HospitalProfileResolverTest.php` — configurations by tier and size (cath lab shares, uncommon ones possible), coherent departments for every draw, field counts, explicit selection and refusal, capability gates, resuscitation room shares, same per seed, closure frequency
+- `Structure/StructureRulesTest.php` — code defaults coherent and weights summing to 1, incoherent configurations and incomplete sets reported
 - `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed, only offered departments
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, intensity, removal restores counts, projection and KPIs, refused twice, same plan per seed
-- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, allocations and closures only in offered departments, `department_was_closed` exactly during a closure
+- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, allocations and closures only in offered departments, no indication the hospital lacks the capability for, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments
 

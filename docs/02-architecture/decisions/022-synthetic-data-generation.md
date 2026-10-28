@@ -29,6 +29,7 @@ The generator lives in the existing dev/test module `src/DataFixtures/`. It is r
 | `DataFixtures/Generator/Infrastructure/` | DBAL writers, random streams |
 | `DataFixtures/Generator/UI/Console/` | `app:generate:imports`, `app:generate:scenario` |
 | `DataFixtures/Pattern/` | pattern package format, validation, chain sampler, coherence rules, code defaults |
+| `DataFixtures/Structure/` | structural patterns of hospitals: configurations, resources, department vocabulary, structure rules, code defaults (#876) |
 | `DataFixtures/Reference/` | synthetic reference catalog (ADR 020) |
 | `DataFixtures/Allocation/`, `Scenario/`, `Content/`, … | Doctrine fixtures; they call the generator and hold only fixture concerns such as the demo user |
 
@@ -66,13 +67,13 @@ A `HospitalProfile` belongs to the generator configuration, not to the reference
 
 Default profiles are derived deterministically from tier, size and location; the defaults keep the per-size daily rates of the presets.
 
-- Whether a hospital has a catheterization laboratory is decided once per hospital when the data is generated, from its own stream (`profile`): every full-care hospital, most large extended-care hospitals and only a few basic-care hospitals. A hospital without one gets no cath lab cases.
-- Resuscitation room cases happen in every hospital; the share depends on tier and size and is small for small basic-care hospitals.
-
-- Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery). Each further department is drawn once per hospital from the same stream, after the cath lab, with a chance by tier that larger hospitals raise and smaller ones lower: full care offers nearly all, basic care the core and a few more (#863).
+- The structure is drawn once per hospital when the data is generated, from its own stream (`profile`), as one **configuration** of the structural patterns (#876): a coherent bundle of resources (catheterization laboratory, neurosurgery, stroke unit, trauma level, obstetrics level, paediatrics) with a weight by tier and size. Tier and size influence the weights but exclude nothing: uncommon configurations, such as a small basic-care hospital with neurosurgery, have small weights. A hospital without a catheterization laboratory gets no cath lab cases.
+- Resuscitation room cases happen in every hospital; the share follows the trauma level and is small without a trauma centre.
+- Every hospital offers the core departments (cardiology, gastroenterology, pulmonology, general and trauma surgery). A resource brings its departments (a stroke unit brings stroke medicine and general neurology). For each field the configuration gives the number of further departments, drawn per hospital, filled with the most common departments of the field.
+- **Capability gates:** an indication that needs a resource the hospital lacks is not drawn there (STEMI without cath lab, polytrauma without regional trauma centre, preterm birth without perinatal centre); its share goes to the other codes. Gates replace "severe codes only in the full-care segment" as the rule; the segments themselves are unchanged.
 - The closure frequency is part of the profile; by default it follows the size (8, 5 or 3 events per month).
 
-Volume per bed follows when a step needs it. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
+A `ProfileSelection` chooses a configuration by key (also one with weight 0 for the hospital's tier and size) or single resources for targeted scenarios and the generation service of #877; the result must keep the structure rules (a supraregional trauma centre has neurosurgery, a perinatal centre paediatrics), otherwise it is refused. Volume per bed follows when a step needs it. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
 
 ### Pattern packages
 
@@ -166,6 +167,13 @@ The follow-ups of #792 changed the first version as described above:
 - **Scenarios (#865):** presets apply scenarios, MCI patients are spread by tier and size, and the command gets intensity and removal.
 
 The default dataset of `make reset` changes with it: department mix, obstetric cases and, from `medium` on, scenario data. Tests use `minimal` without scenarios.
+
+## Amendment (October 2026, #876, step 1)
+
+- **Structural patterns:** hospital profiles are drawn from configurations (see Hospital profiles) in `DataFixtures/Structure/`, keyed by the generator's department vocabulary, not by catalog ids. The patterns hold no hospital names, ids or locations.
+- **Code defaults of the structure** are manually curated configurations. Their weights are coarse general knowledge, rounded in five percent steps towards the aggregates of the generator assessment (#874) where at least five hospitals stand behind a value; they are never generated from real data. A structural package (`ivena-structure-patterns`) follows in a later step of #876.
+- **Capability gates** decide where severe indications may go. The default allocation patterns still draw them only in the full-care segment; adding them to the other segments is part of the allocation default tuning.
+- The draw order of the `profile` stream changed (configuration, then departments per field), so every hospital gets a new structure once: a new generator version.
 
 ## Consequences
 
