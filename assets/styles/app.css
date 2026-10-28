@@ -1553,6 +1553,11 @@
     font: inherit;
 }
 
+/* Maps without background tiles (empty MAP_TILE_URL, offline use). */
+.leaflet-container.geo-map--no-basemap {
+    background: var(--tblr-bg-surface-secondary, #f8f9fa);
+}
+
 .case-flow-map-container .leaflet-pane {
     z-index: 1;
 }

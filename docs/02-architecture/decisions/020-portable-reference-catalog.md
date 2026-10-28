@@ -76,7 +76,7 @@ Portability guarantees stable public identities, not stable database primary key
 Anything that stores a local id of a reference row depends on one installation. The inventory lists what is known today: projections and materialized views, `job_run.hospital_id`, the audit log, the isochrone file path (state database id), saved Explorer views (`saved_explorer_view.config_json` with state, dispatch area and hospital ids), hospital-scoped notifications (`notification.scope_reference_id`), statistics filters in URLs and the reference data cache.
 
 - Rows in tables are covered by the restore's dependency check (blockers) or emptied by the development reset, and projections and caches are rebuilt.
-- Files and stored configuration that use local ids are listed in the inventory with their handling. The isochrone path moves to the state's `publicId` when prepared geographic data is reused (#791). Moving saved views and notifications to public ids is follow-up work, not part of #740.
+- Files and stored configuration that use local ids are listed in the inventory with their handling. The isochrone path keeps the state database id; prepared locations reuse geographic data across installations instead (#791, see the amendment below). Moving saved views and notifications to public ids is follow-up work, not part of #740.
 - New code that stores a reference to a catalog row outside the database row itself (files, JSON configuration, cache keys, URLs meant to be kept) uses the `publicId`.
 
 ### Actors and environment-specific fields
@@ -155,6 +155,19 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - A pattern package is private data: it never becomes part of tracked fixtures, and the code defaults are never generated from it automatically.
 - The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the export issue (#797).
 
+## Amendment (October 2026, #791)
+
+This ADR planned to move the isochrone file path from the state database id to the state `publicId`
+when the offline demo reuses prepared geographic data. #791 solves the reuse differently:
+**prepared locations** (`var/geo/prepared-locations/<slug>.json`, `app:geo:prepare-location`) hold
+coordinates and isochrones keyed by a slug. Applying one to a hospital
+(`app:geo:apply-prepared-location`) writes the isochrone file into the current installation's path,
+with that installation's state id. The path therefore stays on the state database id; no production
+files are moved. A restore with different state ids still needs `app:geo:fetch-isochrones` (or a
+prepared location) for the affected hospitals, as the inventory says. Prepared locations name real
+places and are never part of a catalog package or the repository. Runbook:
+`docs/05-operations/hospital-geodata.md`.
+
 ## Amendment (October 2026, #875): composed catalog for development
 
 To generate synthetic data on a real catalog, or to import real files into fictional hospitals, a development installation can combine the synthetic geography and hospitals with the catalog of another package. With `FIXTURES_REFERENCE_PACKAGE` (dev and test only) the reference fixture takes states, dispatch areas and hospitals from the synthetic package and departments, specialities, lookups, normalized and raw indications and indication groups from the given package (`ComposedReferenceCatalog`). The composed package goes through the same validation and import as any other package. Real hospitals never enter the database, so hospital identities and locations stay synthetic and the maps know every dispatch area.
@@ -168,7 +181,7 @@ The given package must contain all catalog types; a complete export or one with 
 - The YAML catalog, the YAML pattern files with `app:fixtures:export-patterns` and `app:fixtures:validate-patterns`, `ReferenceYamlLoader`, `ReferenceDataLoader` and `app:reference:load-indication-groups` are removed; the reference fixtures collapse into one fixture that loads the synthetic package.
 - Tests, factories and scenarios that rely on real names, codes or catalog sizes change to the synthetic data.
 - Statistics and maps on a fresh clone show synthetic hospitals in the real Hesse districts.
-- Isochrone files, saved Explorer views and hospital-scoped notifications still store local ids; they are documented in the inventory and moved to public ids in later work (#791 for isochrones).
+- Isochrone files, saved Explorer views and hospital-scoped notifications still store local ids; they are documented in the inventory. Saved views and notifications move to public ids in later work; isochrone files stay as they are (amendment, #791).
 - Synthetic public ids are name-based; a renamed synthetic entry gets a new id.
 - Restoring a private catalog into an installation with operational data is blocked until that data is reset; in production this means a restore is only possible on an empty installation.
 - The maintainer keeps private packages up to date by exporting from production.

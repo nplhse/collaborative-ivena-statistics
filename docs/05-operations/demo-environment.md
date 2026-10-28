@@ -54,6 +54,21 @@ Browsers keep cookies per host, not per port: dev on 127.0.0.1:8000 and the demo
 
 Put local changes into `.env.demo.local` (not committed), for example another password or database name (it must still end in `_demo`). Mail and Sentry are switched off in `config/packages/demo/framework.yaml` and cannot be turned on with variables.
 
+## Geography
+
+The demo keeps its isochrone files and prepared locations under `var/demo/geo/`. To show maps around a
+real place, prepare the location while online (key in `.env.demo.local`) and apply it to a demo
+hospital later, also offline:
+
+```bash
+APP_ENV=demo php bin/console app:geo:prepare-location <slug> --street="…" --postal-code=… --city=… --apply
+APP_ENV=demo php bin/console app:geo:apply-prepared-location <slug> --hospital-id=<id> --apply
+```
+
+Maps use the OpenStreetMap tiles like dev. Without network they drop the basemap by themselves and
+still show districts, pins and isochrones; `MAP_TILE_URL=` (empty) in `.env.demo.local` switches the
+basemap off for good. Details: [hospital-geodata.md](hospital-geodata.md#prepared-locations-offline-use).
+
 ## Follow a generation run
 
 Synthetic data generated in the demo (by the hospital wizard, a later step of #791) is tracked as a generation run: the data is written synchronously, the projections follow in the worker (`make demo-consume`), and the participant gets an in-app notification once everything is done. Check the progress, including failed or open hospitals:
@@ -67,7 +82,7 @@ See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-ru
 
 ## What the demo does not do (yet)
 
-- Offline maps and isochrones, the hospital wizard and the demo CSV upload follow in later steps of #791.
+- The hospital wizard and the demo CSV upload follow in later steps of #791.
 - Storage monitoring does not categorise the demo paths.
 
 ## Troubleshooting
