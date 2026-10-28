@@ -12,9 +12,10 @@ use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
 use App\DataFixtures\Generator\Infrastructure\Dbal\ClosureIntervalWriter;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
-use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use App\DataFixtures\Pattern\Application\PatternLookupResolver;
 use App\DataFixtures\Pattern\Application\PatternSampler;
+use App\DataFixtures\Pattern\Application\PatternSetLoader;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -36,7 +37,7 @@ final readonly class HospitalMonthGenerator
 {
     public function __construct(
         private ImportBatchPlanner $planner,
-        private DefaultDistributionPatterns $patterns,
+        private PatternSetLoader $patterns,
         private HospitalProfileResolver $profiles,
         private PatternSampler $patternSampler,
         private EntityManagerInterface $entityManager,
@@ -72,7 +73,8 @@ final readonly class HospitalMonthGenerator
     /**
      * @param string $month month as Y-m
      *
-     * @throws \DomainException when the month cannot be generated for this hospital
+     * @throws \DomainException               when the month cannot be generated for this hospital
+     * @throws InvalidPatternPackageException when the pattern package of the volume is invalid
      */
     public function generate(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): GeneratedMonth
     {
@@ -94,12 +96,14 @@ final readonly class HospitalMonthGenerator
         $hospitalKey = $hospital->getPublicIdString();
         $uploadedAt = UploadTime::after($lastGeneratedDay, $lastDay, $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::UPLOAD));
         $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $patterns = $this->patterns->load($volume->patterns);
+        $source = new PatternSource($patterns->source);
         $closures = $this->closurePlanner->plan($volume->seed, $hospitalKey, $month, $profile, array_keys($batch->dailyCounts), $lastDay);
-        $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
+        $closureImport = $this->createImport(ImportType::CLOSURE, sprintf('IVENA closures %s', $month), $hospital, \count($closures), SyntheticImportMarker::closures($volume->seed, $hospitalKey, $month, $source), $owner, $uploadedAt);
         $this->closureWriter->write($closures, (int) $hospital->getId(), (int) $closureImport->getId());
         $closed = ClosedDepartments::of($closures, $this->lookups);
 
-        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner, $uploadedAt);
+        $import = $this->createImport(ImportType::ALLOCATION, $batch->importName, $batch->hospital, $batch->allocationCount(), SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month, $source), $owner, $uploadedAt);
         $fixed = [
             'hospital_id' => (int) $hospital->getId(),
             'dispatch_area_id' => (int) $dispatchArea->getId(),
@@ -107,7 +111,7 @@ final readonly class HospitalMonthGenerator
             'import_id' => (int) $import->getId(),
         ];
 
-        $pattern = $profile->applyTo($this->patterns->get($profile->segment));
+        $pattern = $profile->applyTo($patterns->get($profile->segment));
         $random = $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::ALLOCATIONS);
         $writer = new AllocationRowWriter($this->connection);
         foreach ($batch->dailyCounts as $day => $count) {

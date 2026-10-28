@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures\Pattern\UI\Console;
 
 use App\DataFixtures\Pattern\Application\DefaultPatternPackage;
+use App\DataFixtures\Pattern\Package\PatternPackagePath;
 use App\DataFixtures\Pattern\Package\PatternPackageReader;
 use App\DataFixtures\Pattern\Package\PatternPackageWriter;
 use Psr\Clock\ClockInterface;

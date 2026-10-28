@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\DataFixtures\Pattern\Package;
 
 use App\DataFixtures\Pattern\Application\DefaultPatternPackage;
-use App\DataFixtures\Pattern\Package\IndicationGroupPattern;
 use App\DataFixtures\Pattern\Package\PatternPackage;
 use App\DataFixtures\Pattern\Package\PatternPackageWriter;
+use App\DataFixtures\Pattern\Package\SegmentPattern;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -58,23 +58,28 @@ final class PatternPackageCommandsTest extends KernelTestCase
         self::assertSame(Command::FAILURE, $write->execute(['--output' => $file]), 'an existing file is kept without --force');
     }
 
-    public function testADepartmentOutsideTheCatalogFailsWithItsPath(): void
+    public function testAValueOutsideTheCatalogFailsTheCatalogCheck(): void
     {
         $application = new Application(self::bootKernel());
         $this->loadReferenceCatalog();
-        $file = $this->directory.'/unknown-department.json';
+        $file = $this->directory.'/unknown-occasion.json';
 
         $defaults = DefaultPatternPackage::build(new \DateTimeImmutable('2026-10-01T00:00:00+00:00'));
-        $groups = $defaults->indicationGroups;
-        $stroke = $groups['42'];
-        $groups['42'] = new IndicationGroupPattern(['Mondmedizin' => 1.0], $stroke->urgency, $stroke->ages, $stroke->female, $stroke->resusFactor, $stroke->flags);
+        $segments = $defaults->segments;
+        $rural = $segments['rural-basic'];
+        $occasions = [];
+        foreach ($rural->occasions as $name => $share) {
+            $occasions['Verkehrsunfall' === $name ? 'Mondfahrt' : $name] = $share;
+        }
+        $segments['rural-basic'] = new SegmentPattern($rural->indications, $occasions, $rural->assignments, $rural->infections, $rural->secondaryTransports, $rural->transportTypes, $rural->hours, $rural->flags, $rural->transportTimeMinutes);
         /** @var PatternPackageWriter $writer */
         $writer = self::getContainer()->get(PatternPackageWriter::class);
-        $writer->write($file, $writer->seal(new PatternPackage($defaults->meta, $defaults->segments, $groups, $defaults->fallbackGroup)));
+        $writer->write($file, $writer->seal(new PatternPackage($defaults->meta, $segments, $defaults->indicationGroups, $defaults->fallbackGroup)));
 
         $validate = new CommandTester($application->find('app:patterns:validate'));
         self::assertSame(Command::FAILURE, $validate->execute(['file' => $file]));
-        self::assertStringContainsString('indication_groups.42.departments.Mondmedizin', $validate->getDisplay());
+        self::assertStringContainsString('cannot serve it', $validate->getDisplay());
+        self::assertStringContainsString('Mondfahrt', $validate->getDisplay());
 
         self::assertSame(Command::SUCCESS, $validate->execute(['file' => $file, '--no-catalog' => true]), 'the format itself is valid');
     }
