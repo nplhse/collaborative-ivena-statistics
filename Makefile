@@ -18,6 +18,8 @@ SYMFONY       = symfony
 # Alias
 # CI has no Symfony CLI and sets CONSOLE='php bin/console'.
 CONSOLE       ?= $(SYMFONY) console
+# Fixture loads and projection rebuilds need no Xdebug (about 1.7x slower with develop mode); override: XDEBUG_MODE=debug make reset
+FIXTURES_XDEBUG = XDEBUG_MODE=$${XDEBUG_MODE:-off}
 PROD_ENV      = APP_ENV=prod APP_DEBUG=0
 
 # Vendor executables
@@ -53,7 +55,7 @@ install: ## Prod-like install: --no-dev, empty DB, no fixtures (drops the DB; IN
 install-dev: ## Dev install: fresh DB with demo fixtures, test DB, npm (drops the DB; INSTALL_CONFIRM=yes if it exists)
 	@$(COMPOSER) install --no-interaction
 	@$(MAKE) --no-print-directory install-guard
-	@$(SYMFONY) composer setup-env
+	@$(FIXTURES_XDEBUG) $(SYMFONY) composer setup-env
 	@$(SYMFONY) composer setup-test-env
 	@$(CONSOLE) asset-map:compile
 	@$(MAKE) node_modules
@@ -162,7 +164,7 @@ env-check: ## Validate environment variables (dev profile; use --check-profile=b
 	@$(CONSOLE) app:env:check --skip-database
 
 fixtures: ## Purge the database and load dev demo fixtures
-	@$(SYMFONY) composer load-fixtures
+	@$(FIXTURES_XDEBUG) $(SYMFONY) composer load-fixtures
 
 TRANS_DOMAINS := messages statistics allocation import user content onboarding feedback engagement admin shared errors validators
 
