@@ -15,12 +15,15 @@ use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Uid\Uuid;
 
 #[AsCommand(
     name: 'app:generate:imports',
     description: 'Development only: add a synthetic allocation import for one month to existing hospitals (ADR 022).',
 )]
+#[When(env: 'dev')]
+#[When(env: 'test')]
 final readonly class GenerateImportsCommand
 {
     /** Environments where synthetic data may be written; the demo environment of #791 joins this list. */
