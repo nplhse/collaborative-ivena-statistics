@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\DispatchArea;
 use App\Allocation\Infrastructure\Faker\Provider\Area;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -28,12 +29,12 @@ final class DispatchAreaFactory extends PersistentObjectFactory
     {
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::new()->withoutAutorefresh()->randomOrCreate()),
             'updatedAt' => self::faker()->boolean(40)
                 ? \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-6 months', 'now'))
                 : null,
             'name' => Area::dispatchArea(),
-            'state' => StateFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'state' => LazyValue::new(static fn (): object => StateFactory::new()->withoutAutorefresh()->randomOrCreate()),
         ];
     }
 }

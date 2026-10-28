@@ -9,6 +9,7 @@ use App\Content\Domain\Enum\PostStatus;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -31,10 +32,10 @@ final class PostFactory extends PersistentObjectFactory
         $title = self::faker()->unique()->sentence(4);
 
         return [
-            'category' => PostCategoryFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'category' => LazyValue::new(static fn (): object => PostCategoryFactory::new()->withoutAutorefresh()->randomOrCreate()),
             'content' => '<p>'.self::faker()->realText().'</p>',
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeThisYear()),
-            'createdBy' => UserFactory::new()->withoutAutorefresh()->randomOrCreate(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::new()->withoutAutorefresh()->randomOrCreate()),
             'publishedAt' => Clock::get()->now()->modify('-1 day'),
             'slug' => strtolower(new AsciiSlugger()->slug($title)->toString()),
             'status' => PostStatus::PUBLISHED,
