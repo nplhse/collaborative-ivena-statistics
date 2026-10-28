@@ -26,6 +26,7 @@ make demo-install
 
 This drops and recreates `app_demo`, runs the migrations, empties the demo storage, loads the dev fixtures with the `large` preset (all 20 participating hospitals of the synthetic catalog, 24 months, flu wave, MCI and icy road scenarios), rebuilds the closure volume projection and refreshes the materialized views. Expect about 5 minutes; install before the presentation.
 
+- The load and the rebuilds run with `XDEBUG_MODE=off`, as `make reset` does ([../03-development/fixtures.md](../03-development/fixtures.md)); `XDEBUG_MODE=debug make demo-install` keeps Xdebug on.
 - Quicker install: `make demo-install DEMO_PRESET=realistic` (15 hospitals, 12 months, about 2 minutes). Presets: [../03-development/fixtures.md](../03-development/fixtures.md).
 - When `app_demo` already holds an installation, the target stops; `DEMO_CONFIRM=yes` replaces it.
 - Users and passwords are the ones of the dev fixtures (for example `foo`).
