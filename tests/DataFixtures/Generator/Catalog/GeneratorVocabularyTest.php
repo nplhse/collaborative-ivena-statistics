@@ -25,6 +25,9 @@ final class GeneratorVocabularyTest extends TestCase
         self::assertSame(array_values(array_unique($departments)), $departments, 'no duplicates');
         self::assertSame('neurology', $vocabulary->specialityOfDepartment()['stroke-unit']);
         self::assertContains('paediatrics', $vocabulary->specialities());
+        foreach (['urology' => 'urology', 'ophthalmology' => 'ophthalmology', 'ent' => 'ent'] as $department => $speciality) {
+            self::assertSame($speciality, $vocabulary->specialityOfDepartment()[$department], 'category 7 (#910)');
+        }
 
         self::assertSame(['Arzt/Arzt', 'Einweisung', 'Notzuweisung', 'Patient', 'RD', 'ZLST'], $vocabulary->lookups(CatalogLookupType::Assignment));
         self::assertNotContains('_present', $vocabulary->lookups(CatalogLookupType::Infection));

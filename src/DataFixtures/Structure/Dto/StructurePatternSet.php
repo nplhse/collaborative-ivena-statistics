@@ -16,13 +16,14 @@ final readonly class StructurePatternSet
     public array $configurations;
 
     /**
-     * @param list<HospitalConfiguration>   $configurations in draw order
-     * @param array<int|string, Capability> $gates          PZC code prefix (keyed as int by PHP) → capability a hospital needs for it
-     * @param array<string, float>          $resusShares    trauma level → share of allocations that need the resuscitation room
-     * @param VolumeModel                   $volume         how volume follows beds and differs between hospitals; the default changes nothing
-     * @param MixVariation                  $mixVariation   how much the case mix differs between hospitals; the default changes nothing
-     * @param array<string, float>          $closureShares  size → share of department-hours that are closed
-     * @param ClosureModel|null             $closures       how closures look; null is one department for an hour per event, in-patient care
+     * @param list<HospitalConfiguration>   $configurations  in draw order
+     * @param array<int|string, Capability> $gates           PZC code prefix (keyed as int by PHP) → capability a hospital needs for it
+     * @param array<string, float>          $resusShares     trauma level → share of allocations that need the resuscitation room
+     * @param VolumeModel                   $volume          how volume follows beds and differs between hospitals; the default changes nothing
+     * @param MixVariation                  $mixVariation    how much the case mix differs between hospitals; the default changes nothing
+     * @param array<string, float>          $closureShares   size → share of department-hours that are closed
+     * @param ClosureModel|null             $closures        how closures look; null is one department for an hour per event, in-patient care
+     * @param array<int|string, string>     $departmentGates PZC code prefix (keyed as int by PHP) → department key a hospital must offer for it
      */
     public function __construct(
         array $configurations,
@@ -32,6 +33,7 @@ final readonly class StructurePatternSet
         public MixVariation $mixVariation = new MixVariation(0.0, 0.0, 0.0),
         public array $closureShares = [],
         public ?ClosureModel $closures = null,
+        public array $departmentGates = [],
     ) {
         $keyed = [];
         foreach ($configurations as $configuration) {
@@ -86,6 +88,25 @@ final readonly class StructurePatternSet
         $blocked = [];
         foreach ($this->gates as $prefix => $capability) {
             if (!$resources->provides($capability)) {
+                $blocked[] = (string) $prefix;
+            }
+        }
+
+        return $blocked;
+    }
+
+    /**
+     * The PZC code prefixes whose department the hospital does not offer.
+     *
+     * @param list<string> $offered department keys
+     *
+     * @return list<string>
+     */
+    public function blockedByDepartments(array $offered): array
+    {
+        $blocked = [];
+        foreach ($this->departmentGates as $prefix => $department) {
+            if (!\in_array($department, $offered, true)) {
                 $blocked[] = (string) $prefix;
             }
         }

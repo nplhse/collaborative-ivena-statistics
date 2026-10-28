@@ -256,6 +256,53 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         }
     }
 
+    /**
+     * Category 7 in the mix of basic care: urology 6.5 (711, 713, 714 1.0; 719 1.5; 715 to 718 0.5),
+     * ENT 4 (731, 739 2.0) and eye 0.5 (729) of 105 weight points (94 for the other codes), so
+     * 11 / 105 of the cases where a hospital offers all three departments (#910).
+     */
+    public function testCategorySevenHasACoarseShareOfTheMix(): void
+    {
+        $mix = new DefaultDistributionPatterns()->get('urban-basic')->categoricalDistribution('indication_normalized');
+        $share = static fn (string $prefix): float => array_sum(array_filter($mix, static fn (int|string $code): bool => str_starts_with((string) $code, $prefix), \ARRAY_FILTER_USE_KEY));
+
+        self::assertEqualsWithDelta(11 / 105, $share('7'), 0.001, 'category 7');
+        self::assertEqualsWithDelta(6.5 / 105, $share('71'), 0.001, 'urology');
+        self::assertEqualsWithDelta(4 / 105, $share('73'), 0.001, 'ENT');
+        self::assertEqualsWithDelta(0.5 / 105, $share('72'), 0.001, 'ophthalmology');
+    }
+
+    /**
+     * A hospital with urology but without eye and ENT department (gates 72 and 73, as the profile
+     * sets them) gets urology cases in its urology department and no eye or ENT cases.
+     */
+    public function testCategorySevenGoesOnlyToHospitalsWithTheDepartment(): void
+    {
+        self::bootKernel();
+        $sampler = $this->loadReferenceCatalog();
+        $pattern = new DefaultDistributionPatterns()->get('urban-basic')
+            ->withoutDepartments(['Allgemeine Augenheilkunde', 'Rhinologie'])
+            ->withoutIndications(['72', '73']);
+        $random = new RandomStreams()->stream(740, 'category-7', '2026-01', RandomStreams::ALLOCATIONS);
+
+        $urology = 0;
+        for ($i = 0; $i < 2000; ++$i) {
+            $sampled = $sampler->sample($pattern, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
+            $code = (string) $sampled->indicationNormalized?->getCode();
+            self::assertNotContains(substr($code, 0, 2), ['72', '73'], 'no eye or ENT case without the department');
+            self::assertNotContains($sampled->department->getName(), ['Allgemeine Augenheilkunde', 'Rhinologie']);
+            if (str_starts_with($code, '71')) {
+                ++$urology;
+                self::assertSame('Allgemeine Urologie', $sampled->department->getName(), $code);
+                self::assertSame('Urologie', $sampled->speciality->getName(), $code);
+                self::assertNotSame(AllocationUrgency::EMERGENCY, $sampled->urgency, 'urology is urgency 2 or 3');
+                self::assertGreaterThanOrEqual(18, $sampled->age, $code);
+            }
+        }
+        // 6.5 of 100.5 weight points once eye and ENT are blocked: about 6.5 % of 2,000 cases.
+        self::assertEqualsWithDelta(2000 * 6.5 / 100.5, $urology, 40);
+    }
+
     public function testThePatternsAreNotNearUniform(): void
     {
         $patterns = new DefaultDistributionPatterns();

@@ -25,6 +25,10 @@ final class GeneratorKeys
     public const array DEPARTMENTS = [
         'addiction-medicine' => ['label' => 'Suchtmedizin', 'speciality' => 'psychiatry'],
         'cardiology' => ['label' => 'Kardiologie', 'speciality' => 'internal-medicine'],
+        // The general ENT department. The synthetic catalog has no unit of that name; its default
+        // label is the existing unit "Rhinologie", so the synthetic catalog keeps its entries (#910).
+        // A real catalog binds `ent` to its general ENT department in the mapping file.
+        'ent' => ['label' => 'Rhinologie', 'speciality' => 'ent'],
         'epileptology' => ['label' => 'Epileptologie', 'speciality' => 'neurology'],
         'gastroenterology' => ['label' => 'Gastroenterologie', 'speciality' => 'internal-medicine'],
         'general-neurology' => ['label' => 'Allgemeine Neurologie', 'speciality' => 'neurology'],
@@ -40,6 +44,7 @@ final class GeneratorKeys
         'neurological-intensive-care' => ['label' => 'Neurologische Intensiv', 'speciality' => 'neurology'],
         'neurosurgery' => ['label' => 'Neurochirurgie', 'speciality' => 'surgery'],
         'obstetrics' => ['label' => 'Geburtshilfe', 'speciality' => 'gynaecology-obstetrics'],
+        'ophthalmology' => ['label' => 'Allgemeine Augenheilkunde', 'speciality' => 'ophthalmology'],
         'paediatric-cardiology' => ['label' => 'Kinderkardiologie', 'speciality' => 'paediatrics'],
         'paediatric-gastroenterology' => ['label' => 'Kindergastroenterologie', 'speciality' => 'paediatrics'],
         'prenatal-medicine' => ['label' => 'Pränatalmedizin', 'speciality' => 'gynaecology-obstetrics'],
@@ -47,6 +52,7 @@ final class GeneratorKeys
         'spine-surgery' => ['label' => 'Wirbelsäulenchirurgie', 'speciality' => 'orthopaedics'],
         'stroke-unit' => ['label' => 'Schlaganfallmedizin', 'speciality' => 'neurology'],
         'trauma-surgery' => ['label' => 'Unfallchirurgie', 'speciality' => 'surgery'],
+        'urology' => ['label' => 'Allgemeine Urologie', 'speciality' => 'urology'],
         'visceral-surgery' => ['label' => 'Viszeralchirurgie', 'speciality' => 'surgery'],
     ];
 
@@ -56,13 +62,16 @@ final class GeneratorKeys
      * @var array<string, string>
      */
     public const array SPECIALITIES = [
+        'ent' => 'HNO (Hals-Nasen-Ohren)',
         'gynaecology-obstetrics' => 'Gynäkologie und Geburtshilfe',
         'internal-medicine' => 'Innere Medizin',
         'neurology' => 'Neurologie',
+        'ophthalmology' => 'Augenheilkunde',
         'orthopaedics' => 'Orthopädie',
         'paediatrics' => 'Pädiatrie',
         'psychiatry' => 'Psychiatrie',
         'surgery' => 'Chirurgie',
+        'urology' => 'Urologie',
     ];
 
     /**

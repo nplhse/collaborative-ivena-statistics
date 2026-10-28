@@ -35,6 +35,16 @@ final class DepartmentStructure
         'gynaecology-obstetrics' => ['gynaecology'],
     ];
 
+    /**
+     * Fields added later (#910: urology, ophthalmology, ENT). A hospital draws them after the tilt of
+     * its case mix, so the departments, volume and tilt it drew before keep their values.
+     */
+    public const array LATE_FIELDS = [
+        'urology' => ['urology'],
+        'ophthalmology' => ['ophthalmology'],
+        'ent' => ['ent'],
+    ];
+
     /** A field whose further departments need a resource. */
     public const array FIELD_REQUIRES = ['paediatrics' => Capability::PAEDIATRICS];
 
@@ -46,7 +56,17 @@ final class DepartmentStructure
      */
     public static function all(): array
     {
-        return array_values(array_unique([...self::CORE, ...array_merge(...array_values(self::FIELDS)), ...self::IMPLIED]));
+        return array_values(array_unique([...self::CORE, ...array_merge(...array_values(self::fields())), ...self::IMPLIED]));
+    }
+
+    /**
+     * Every field with further departments, the late ones last.
+     *
+     * @return array<string, list<string>> speciality key → department keys, most common first
+     */
+    public static function fields(): array
+    {
+        return self::FIELDS + self::LATE_FIELDS;
     }
 
     /**

@@ -81,12 +81,14 @@ final class DefaultDistributionPatterns
     }
 
     /**
-     * Common PZC codes in percent of cases: injuries about 30, internal medicine about 45, neurology
-     * and psychiatry about 13, children, gynaecology and obstetrics a few. Severe codes (STEMI,
+     * Common PZC codes, weights roughly in percent of cases: injuries about 30, internal medicine
+     * about 45, neurology and psychiatry about 13, children, gynaecology and obstetrics a few. Severe codes (STEMI,
      * cardiogenic shock, polytrauma, ROSC) are in every segment at low rates; the capability gates of
      * the hospital profile keep them away from hospitals without cath lab or trauma centre. Full care
-     * gets more strokes, preterm births and acute fetal danger. Urology, ENT and ophthalmology (7xx)
-     * have no departments in the generator vocabulary yet.
+     * gets more strokes, preterm births and acute fetal danger. Urology about 6, ENT about 4 and
+     * ophthalmology a half: the department gates leave them out of hospitals without the department,
+     * so category 7 is about a tenth of the cases where all three departments exist (#910).
+     * Dermatology, oral surgery, geriatrics and "other" (701, 749, 751, 779) are left out.
      *
      * Keyed by code, not by wording: obstetric codes share their wording across 52x, 53x and 54x.
      *
@@ -108,6 +110,10 @@ final class DefaultDistributionPatterns
             '421' => 4.0, '412' => 2.0, '414' => 2.0, '419' => 2.0, '432' => 2.0, '415' => 1.0,
             // Children, gynaecology, pregnancy at term
             '511' => 1.0, '551' => 1.0, '526' => 1.0,
+            // Urology, ENT, ophthalmology: only where the hospital has the department
+            '719' => 1.5, '711' => 1.0, '713' => 1.0, '714' => 1.0, '715' => 0.5, '716' => 0.5, '717' => 0.5, '718' => 0.5,
+            '731' => 2.0, '739' => 2.0,
+            '729' => 0.5,
         ];
         if ($severe) {
             $weights['421'] = 5.0;
