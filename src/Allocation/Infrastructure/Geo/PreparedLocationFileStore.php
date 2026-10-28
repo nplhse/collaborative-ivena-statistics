@@ -54,11 +54,8 @@ final readonly class PreparedLocationFileStore implements PreparedLocationStoreI
     #[\Override]
     public function all(): array
     {
-        $paths = glob($this->baseDirectory.'/*.json');
-        if (false === $paths) {
-            return [];
-        }
-
+        // glob() returns false only on errors such as an unreadable directory: treat as empty.
+        $paths = glob($this->baseDirectory.'/*.json') ?: [];
         sort($paths);
         $locations = [];
         foreach ($paths as $path) {

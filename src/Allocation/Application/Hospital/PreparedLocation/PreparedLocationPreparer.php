@@ -64,13 +64,16 @@ final readonly class PreparedLocationPreparer
 
         $address = $hospital instanceof Hospital ? HospitalGeocodeAddress::fromHospital($hospital) : $request->address;
         $label = $this->label($request, $hospital, $address);
-        $needsGeocode = !$hospital instanceof Hospital && null === $request->latitude;
-        $reusableIsochrones = $hospital instanceof Hospital ? $this->reusableIsochrones($hospital) : null;
+        $known = $this->knownCoordinates($request, $hospital);
+        $needsGeocode = null === $known;
+        $reusableIsochrones = $hospital instanceof Hospital && null !== $known
+            ? $this->reusableIsochrones($hospital, $known[0], $known[1])
+            : null;
         $needsIsochrones = null === $reusableIsochrones;
 
         $steps = [
             ['Location', sprintf('%s (%s)', $label, $request->slug), $this->store->exists($request->slug) ? 'replace' : 'new'],
-            $this->coordinatesStep($request, $hospital, $address, $needsGeocode),
+            $this->coordinatesStep($known, $hospital, $address),
             ['Isochrones', $needsIsochrones ? 'OpenRouteService, driving-car, 5–50 min' : 'existing file of the hospital', $needsIsochrones ? 'fetch' : 'reuse'],
         ];
         $requestsRequired = ($needsGeocode ? 1 : 0) + ($needsIsochrones ? 1 : 0);
@@ -84,8 +87,8 @@ final readonly class PreparedLocationPreparer
         }
 
         $executed = 0;
-        [$latitude, $longitude] = $this->knownCoordinates($request, $hospital);
-        if ($needsGeocode && $address instanceof HospitalGeocodeAddress) {
+        if (null === $known) {
+            $address ??= throw new \LogicException('An address is required without coordinates; PrepareLocationRequest::sourceError() checks this.');
             $outcome = $this->geocodeWithSingleRetry($address, $delayMs);
             ++$executed;
             $match = $outcome->match;
@@ -105,14 +108,11 @@ final readonly class PreparedLocationPreparer
                 );
             }
 
-            $latitude = $match->latitude;
-            $longitude = $match->longitude;
-            $steps[1][1] = sprintf('%s, %s [%s] %s', $latitude, $longitude, $match->layer, $match->label);
+            $known = [$match->latitude, $match->longitude];
+            $steps[1][1] = sprintf('%s, %s [%s] %s', $match->latitude, $match->longitude, $match->layer, $match->label);
         }
 
-        if (null === $latitude || null === $longitude) {
-            return $this->failure(false, 'No coordinates could be determined.');
-        }
+        [$latitude, $longitude] = $known;
 
         $isochrones = $reusableIsochrones;
         if (null === $isochrones) {
@@ -160,43 +160,38 @@ final readonly class PreparedLocationPreparer
     /**
      * @return array{type: string, features: list<array<string, mixed>>, properties?: array<string, mixed>}|null
      */
-    private function reusableIsochrones(Hospital $hospital): ?array
+    private function reusableIsochrones(Hospital $hospital, float $latitude, float $longitude): ?array
     {
-        $latitude = $hospital->getLatitude();
-        $longitude = $hospital->getLongitude();
-        if (null === $latitude || null === $longitude) {
-            return null;
-        }
-
         $existing = $this->isochroneProvider->findForHospital($hospital);
 
         return IsochroneOrigin::matches($existing, $latitude, $longitude) ? $existing : null;
     }
 
     /**
+     * @param array{0: float, 1: float}|null $known
+     *
      * @return array{0: string, 1: string, 2: string}
      */
-    private function coordinatesStep(PrepareLocationRequest $request, ?Hospital $hospital, ?HospitalGeocodeAddress $address, bool $needsGeocode): array
+    private function coordinatesStep(?array $known, ?Hospital $hospital, ?HospitalGeocodeAddress $address): array
     {
-        if ($needsGeocode) {
+        if (null === $known) {
             return ['Coordinates', $address?->display() ?? '—', 'geocode'];
         }
 
-        [$latitude, $longitude] = $this->knownCoordinates($request, $hospital);
-
-        return ['Coordinates', sprintf('%s, %s', $latitude ?? '—', $longitude ?? '—'), $hospital instanceof Hospital ? 'from hospital' : 'manual'];
+        return ['Coordinates', sprintf('%s, %s', $known[0], $known[1]), $hospital instanceof Hospital ? 'from hospital' : 'manual'];
     }
 
     /**
-     * @return array{0: float|null, 1: float|null}
+     * Coordinates that need no geocoding: the hospital's, or a manual pin.
+     *
+     * @return array{0: float, 1: float}|null
      */
-    private function knownCoordinates(PrepareLocationRequest $request, ?Hospital $hospital): array
+    private function knownCoordinates(PrepareLocationRequest $request, ?Hospital $hospital): ?array
     {
-        if ($hospital instanceof Hospital) {
-            return [$hospital->getLatitude(), $hospital->getLongitude()];
-        }
+        $latitude = $hospital instanceof Hospital ? $hospital->getLatitude() : $request->latitude;
+        $longitude = $hospital instanceof Hospital ? $hospital->getLongitude() : $request->longitude;
 
-        return [$request->latitude, $request->longitude];
+        return null !== $latitude && null !== $longitude ? [$latitude, $longitude] : null;
     }
 
     private function label(PrepareLocationRequest $request, ?Hospital $hospital, ?HospitalGeocodeAddress $address): string
