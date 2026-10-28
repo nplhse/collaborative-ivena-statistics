@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\IndicationGroup;
 use App\User\Domain\Factory\UserFactory;
 use Symfony\Component\Clock\Clock;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -28,7 +29,7 @@ final class IndicationGroupFactory extends PersistentObjectFactory
     {
         return [
             'createdAt' => Clock::get()->now(),
-            'createdBy' => UserFactory::randomOrCreate(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::randomOrCreate()),
             'name' => self::faker()->words(2, true),
             'description' => self::faker()->optional()->sentence(),
             'category' => self::faker()->optional()->word(),

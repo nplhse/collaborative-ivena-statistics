@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\SecondaryTransport;
 use App\Allocation\Infrastructure\Faker\Provider\SecondaryTransportFakerMethods;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -31,7 +32,7 @@ final class SecondaryTransportFactory extends PersistentObjectFactory
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTime()),
-            'createdBy' => UserFactory::random(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::random()),
             'name' => $faker->secondaryTransport(),
         ];
     }
