@@ -84,6 +84,23 @@ Routes: `config/routes/ux_live_component.yaml`
 
 Twig templates are colocated with controllers under `src/*/UI/Twig/templates/`. See [../02-architecture/decisions/004-colocated-templates.md](../02-architecture/decisions/004-colocated-templates.md).
 
+## Icons
+
+Icons render with `ux_icon()` / `<twig:ux:icon>` (Symfony UX Icons). Every used icon is committed as SVG in
+`assets/icons/<prefix>/<name>.svg`; the app does not rely on fetching icons from `api.iconify.design`.
+
+When you use a new icon:
+
+```bash
+bin/console ux:icons:import tabler:user-plus
+```
+
+`bin/console ux:icons:lock` finds names written in templates, but not names that come from PHP (presenters, enums,
+view models) and reach the template as a variable. Import those by name. `IconFilesTest`
+(`tests/Shared/Unit/UI/`) scans `src/`, `templates/`, `config/` and `assets/` for icon names and fails if an SVG is
+missing. In the test env, on-demand Iconify is off (`config/packages/ux_icons.yaml`), so a missing icon also fails
+the rendering test instead of calling the network.
+
 ## Development workflow
 
 After changing JS or CSS:
