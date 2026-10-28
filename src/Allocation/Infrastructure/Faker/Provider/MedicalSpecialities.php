@@ -9,6 +9,9 @@ use Faker\Provider\Base;
 /** @psalm-suppress PropertyNotSetInConstructor */
 final class MedicalSpecialities extends Base
 {
+    // New fields and units go last (#910): the synthetic reference catalog aliases every fourth
+    // unit with a Faker call, so a unit inserted in the middle, or one landing on such a position,
+    // changes the catalog of every seed.
     /** @var list<string> */
     protected static array $departments = [
         'Innere Medizin',
@@ -23,6 +26,7 @@ final class MedicalSpecialities extends Base
         'Radiologie',
         'HNO (Hals-Nasen-Ohren)',
         'Urologie',
+        'Augenheilkunde',
     ];
 
     /** @var array<string, list<string>> */
@@ -102,6 +106,10 @@ final class MedicalSpecialities extends Base
             'Uroonkologie',
             'Andrologie',
             'Pädiatrische Urologie',
+            'Allgemeine Urologie',
+        ],
+        'Augenheilkunde' => [
+            'Allgemeine Augenheilkunde',
         ],
     ];
 

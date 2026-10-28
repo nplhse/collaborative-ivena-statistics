@@ -56,7 +56,13 @@ final class IndicationGroupsTest extends TestCase
         self::assertSame(IndicationGroups::forCode('214'), IndicationGroups::forCode('219'), 'superficial injury');
         self::assertArrayHasKey('Wirbelsäulenchirurgie', IndicationGroups::forCode('252')['departments'], 'spine');
         self::assertNotSame(IndicationGroups::forCode('22'), IndicationGroups::forCode('223'), 'face injury has a group of its own');
-        self::assertSame(IndicationGroups::forCode('3'), IndicationGroups::forCode('711'), 'codes without a group behave like internal medicine');
+        self::assertSame(['Allgemeine Urologie' => 1.0], IndicationGroups::forCode('711')['departments'], 'urology');
+        self::assertSame(IndicationGroups::forCode('71'), IndicationGroups::forCode('718'), 'urosepsis is a urology case');
+        self::assertSame(0.85, IndicationGroups::forCode('716')['urgency']['3'], 'catheter change');
+        self::assertSame(IndicationGroups::forCode('715'), IndicationGroups::forCode('717'), 'catheter');
+        self::assertSame(['Allgemeine Augenheilkunde' => 1.0], IndicationGroups::forCode('729')['departments'], 'ophthalmology');
+        self::assertSame(['Rhinologie' => 1.0], IndicationGroups::forCode('731')['departments'], 'ENT');
+        self::assertSame(IndicationGroups::forCode('3'), IndicationGroups::forCode('751'), 'codes without a group behave like internal medicine');
         self::assertSame(IndicationGroups::forCode('3'), IndicationGroups::forCode(''), 'no indication');
     }
 

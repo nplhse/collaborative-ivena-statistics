@@ -219,11 +219,11 @@ final class PatternPackageReaderTest extends PatternPackageTestCase
         ];
         yield 'wrong count' => [
             static function (array $data): array {
-                $data['meta']['counts']['indications'] = 43;
+                $data['meta']['counts']['indications'] = 54;
 
                 return $data;
             },
-            'meta.counts.indications', 'Count is 43, but the package has 42.',
+            'meta.counts.indications', 'Count is 54, but the package has 53.',
         ];
         yield 'bad source' => [
             static function (array $data): array {

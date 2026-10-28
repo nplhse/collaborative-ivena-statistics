@@ -172,6 +172,55 @@ final class HospitalProfileResolverTest extends TestCase
         self::assertSame(0.10, $full->resusShare);
     }
 
+    /**
+     * Shares of hospitals with urology, ENT and ophthalmology (field counts of #910): basic care
+     * 0.60 / 0 / 0, extended care 0.90 / 0.40 / 0.10, full care 1.0 / 0.50 / 0.50. Every extended
+     * and full configuration uses the same field counts, so the shares hold for the tier.
+     */
+    public function testUrologyIsCommonAndEyeAndEntMostlyInLargerHospitals(): void
+    {
+        $shares = function (HospitalTier $tier): array {
+            $offers = ['Allgemeine Urologie' => 0, 'Rhinologie' => 0, 'Allgemeine Augenheilkunde' => 0];
+            foreach ($this->hospitals(400, $tier, HospitalSize::MEDIUM) as $hospital) {
+                $profile = $this->resolver()->resolve($hospital, 740);
+                foreach (array_keys($offers) as $department) {
+                    $offers[$department] += $profile->offers($department) ? 1 : 0;
+                }
+            }
+
+            return array_map(static fn (int $count): float => $count / 400, $offers);
+        };
+
+        $basic = $shares(HospitalTier::BASIC);
+        $extended = $shares(HospitalTier::EXTENDED);
+        $full = $shares(HospitalTier::FULL);
+        self::assertEqualsWithDelta(0.60, $basic['Allgemeine Urologie'], 0.06);
+        self::assertSame(0.0, $basic['Rhinologie']);
+        self::assertSame(0.0, $basic['Allgemeine Augenheilkunde']);
+        self::assertEqualsWithDelta(0.90, $extended['Allgemeine Urologie'], 0.04);
+        self::assertEqualsWithDelta(0.40, $extended['Rhinologie'], 0.06);
+        self::assertEqualsWithDelta(0.10, $extended['Allgemeine Augenheilkunde'], 0.04);
+        self::assertSame(1.0, $full['Allgemeine Urologie']);
+        self::assertEqualsWithDelta(0.50, $full['Rhinologie'], 0.06);
+        self::assertEqualsWithDelta(0.50, $full['Allgemeine Augenheilkunde'], 0.06);
+    }
+
+    /**
+     * A hospital gets urology (71), eye (72) and ENT (73) codes exactly when it offers the department.
+     */
+    public function testDepartmentGatesBlockCategorySevenWithoutTheDepartment(): void
+    {
+        $gates = ['71' => 'Allgemeine Urologie', '72' => 'Allgemeine Augenheilkunde', '73' => 'Rhinologie'];
+        foreach ([HospitalTier::BASIC, HospitalTier::EXTENDED, HospitalTier::FULL] as $tier) {
+            foreach ($this->hospitals(100, $tier, HospitalSize::LARGE) as $hospital) {
+                $profile = $this->resolver()->resolve($hospital, 740);
+                foreach ($gates as $prefix => $department) {
+                    self::assertSame(!$profile->offers($department), \in_array((string) $prefix, $profile->blockedIndications, true), $profile->configuration.' '.$prefix);
+                }
+            }
+        }
+    }
+
     public function testAnIncoherentOrUnknownSelectionIsRefused(): void
     {
         $hospital = $this->hospitals(1, HospitalTier::BASIC, HospitalSize::SMALL)[0];
