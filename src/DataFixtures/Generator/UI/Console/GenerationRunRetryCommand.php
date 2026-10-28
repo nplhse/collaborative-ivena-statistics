@@ -19,7 +19,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * Starts the asynchronous stage again for hospitals that failed after generating data or whose message was
  * lost. Generated data is not written again, so a retry never duplicates allocations; hospitals that failed
- * during generation need a new run.
+ * during generation need a new run (for a dataset run: `app:generate:dataset --retry=<run id>`, #877).
  */
 #[AsCommand(
     name: 'app:generate:run:retry',

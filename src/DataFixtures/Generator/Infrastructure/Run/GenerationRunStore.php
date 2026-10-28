@@ -107,12 +107,83 @@ final readonly class GenerationRunStore
     }
 
     /**
-     * Fails a hospital that is not finished yet. Returns false when it already was completed or failed.
+     * Adds a month the hospital already had to its imports without counting it as generated: a complete month
+     * that a dataset run keeps (#877) but whose allocations were never projected, so the asynchronous stage
+     * projects it as well.
      */
-    public function failHospital(string $runId, int $hospitalId, string $reasonCode, ?string $error, \DateTimeImmutable $now): bool
+    public function monthKept(string $runId, int $hospitalId, int $allocationImportId, int $closureImportId, \DateTimeImmutable $now): void
     {
+        $this->connection->executeStatement(
+            'UPDATE generation_run_hospital
+             SET allocation_import_ids = allocation_import_ids || CAST(:allocation_import AS JSONB),
+                 closure_import_ids = closure_import_ids || CAST(:closure_import AS JSONB)
+             WHERE run_id = :run AND hospital_id = :hospital AND status = :generating',
+            [
+                'allocation_import' => json_encode([$allocationImportId], \JSON_THROW_ON_ERROR),
+                'closure_import' => json_encode([$closureImportId], \JSON_THROW_ON_ERROR),
+                'run' => $runId,
+                'hospital' => $hospitalId,
+                'generating' => GenerationRunHospitalStatus::Generating->value,
+            ],
+        );
+        $this->touch($runId, $now);
+    }
+
+    /**
+     * Merges keys into the settings of a run, for facts that are known only after generation, such as the
+     * upload days of imports a dataset run replaced (#877).
+     *
+     * @param array<string, scalar|array<mixed>|null> $settings
+     */
+    public function mergeSettings(string $runId, array $settings, \DateTimeImmutable $now): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE generation_run SET settings = settings || CAST(:settings AS JSONB), updated_at = :now WHERE id = :run',
+            ['settings' => json_encode((object) $settings, \JSON_THROW_ON_ERROR), 'now' => $this->ts($now), 'run' => $runId],
+        );
+    }
+
+    /**
+     * Hospitals of $hospitalIds that another run is still generating: the run is in its synchronous stage, the
+     * hospital pending or generating, and the run changed after $activeSince (older runs count as abandoned).
+     *
+     * @param list<int> $hospitalIds
+     *
+     * @return list<int>
+     */
+    public function hospitalsBeingGenerated(array $hospitalIds, \DateTimeImmutable $activeSince): array
+    {
+        if ([] === $hospitalIds) {
+            return [];
+        }
+        /** @var list<int|string> $ids */
+        $ids = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT g.hospital_id FROM generation_run_hospital g JOIN generation_run r ON r.id = g.run_id
+             WHERE g.hospital_id IN (:hospitals) AND g.status IN (:open) AND r.stage = :generating AND r.status IN (:active) AND r.updated_at > :since',
+            [
+                'hospitals' => $hospitalIds,
+                'open' => [GenerationRunHospitalStatus::Pending->value, GenerationRunHospitalStatus::Generating->value],
+                'generating' => GenerationRunStage::Generating->value,
+                'active' => [GenerationRunStatus::Pending->value, GenerationRunStatus::Running->value],
+                'since' => $this->ts($activeSince),
+            ],
+            ['hospitals' => ArrayParameterType::INTEGER, 'open' => ArrayParameterType::STRING, 'active' => ArrayParameterType::STRING],
+        );
+
+        return array_map(intval(...), $ids);
+    }
+
+    /**
+     * Fails a hospital that is not finished yet. Returns false when it already was completed or failed.
+     * $discardGenerated clears its counters and imports, for a hospital whose generated months were deleted again.
+     */
+    public function failHospital(string $runId, int $hospitalId, string $reasonCode, ?string $error, \DateTimeImmutable $now, bool $discardGenerated = false): bool
+    {
+        $discard = $discardGenerated
+            ? ", months = 0, allocations = 0, closures = 0, mci_cases = 0, allocation_import_ids = '[]', closure_import_ids = '[]'"
+            : '';
         $failed = false !== $this->connection->fetchOne(
-            'UPDATE generation_run_hospital SET status = :failed, reason_code = :reason, error = :error, finished_at = :now
+            'UPDATE generation_run_hospital SET status = :failed, reason_code = :reason, error = :error, finished_at = :now'.$discard.'
              WHERE run_id = :run AND hospital_id = :hospital AND status NOT IN (:terminal)
              RETURNING id',
             [
@@ -143,7 +214,7 @@ final readonly class GenerationRunStore
         /** @var list<int|string> $generated */
         $generated = $this->connection->fetchFirstColumn(
             'UPDATE generation_run_hospital SET status = :generated, generated_at = :now
-             WHERE run_id = :run AND status IN (:open) AND months > 0
+             WHERE run_id = :run AND status IN (:open) AND (months > 0 OR jsonb_array_length(allocation_import_ids) > 0)
              RETURNING hospital_id',
             ['generated' => GenerationRunHospitalStatus::Generated->value, 'now' => $this->ts($now), 'run' => $runId, 'open' => $open],
             ['open' => ArrayParameterType::STRING],

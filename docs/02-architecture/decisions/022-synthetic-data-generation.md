@@ -205,6 +205,15 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - A dataset has many times more closure intervals than before, so `department_was_closed` is set far more often and the closure rebuild takes longer.
 - **Closure share per preset:** a preset may set `closure_share` for all its hospitals; `single`, `minimal` and `medium` close 1 % and load fast, `realistic` and `large` (the demo preset) keep the shares by size. An explicit share of a `ProfileSelection` wins over the preset, the preset over the structural default. The dev default preset becomes `medium` (6 hospitals, 12 months), since the full shares make the closure volume rebuild of `realistic` several minutes long; the test environment stays on `minimal`.
 
+## Amendment (October 2026, #877): dataset engine
+
+- **One engine for several hospitals and months:** `DatasetGenerator` plans and writes a shared period for one hospital, a selection or every participating hospital, month by month through `HospitalMonthGenerator`, with a `ProfileSelection` per hospital. Fixture load, `app:generate:imports` and `app:demo:csv` keep their paths; the dataset engine adds no sampling of its own, so a month gets the same rows on every path.
+- **Always tracked:** every dataset run is a generation run (ADR 023): allocations synchronously, projections asynchronously per hospital in the established order. The run records everything that shapes the data (seed, period, last day, pattern source, preset and scale, existing-data mode, profile per hospital) and is generated only from these settings.
+- **Checked before writing:** `prepare()` writes nothing and blocks a hospital that is not participating, has no owner with participant access, no dispatch area or state, an unusable profile, or a run still writing it. A blocked hospital refuses the run unless it is left out explicitly.
+- **Real data is never touched:** an import counts as generated only by its marker path (allocations and closures by month, scenarios by start day). A hospital with real imports in the period is blocked in every mode, so generated and real data are never mixed in a month.
+- **Existing generated data is handled explicitly:** `refuse` (default), `fill` (complete months stay, missing and incomplete months are generated) or `replace` (generated months and the hospital's scenario imports of the period are deleted through the regular import deletion, then generated again). Afterwards the run rebuilds the hospital's projections and the KPIs of the old and new upload days.
+- **Partial failures:** each month is written in one transaction, and a hospital that fails is rolled back as a whole, so a retry in mode `fill` with the recorded settings (`retryRequest()`) writes no duplicates. Complete months a stopped process left behind are kept and projected by the retry.
+
 ## Amendment (October 2026, #883): pattern package format
 
 #883 (split from #797) builds the package format, its validation and the code defaults as a package. It needs no real data. The export of real patterns and the privacy review stay with #797.
