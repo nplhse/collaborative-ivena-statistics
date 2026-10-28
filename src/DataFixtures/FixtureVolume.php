@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
+use Psr\Clock\ClockInterface;
+
 /**
  * How much synthetic operational data the fixtures generate.
  */
@@ -26,6 +28,21 @@ final readonly class FixtureVolume
         public bool $rebuildProjection,
         public ?\DateTimeImmutable $until = null,
     ) {
+    }
+
+    public function withSeed(int $seed): self
+    {
+        return new self($this->profile, $this->hospitals, $this->months, $this->allocationsPerDay, $this->scale, $this->mciCasesPerHospitalAndYear, $seed, $this->rebuildProjection, $this->until);
+    }
+
+    /**
+     * The last generated day: `until`, or yesterday when no date is configured.
+     */
+    public function lastDay(ClockInterface $clock): \DateTimeImmutable
+    {
+        $lastDay = $this->until ?? $clock->now()->setTime(0, 0)->modify('-1 day');
+
+        return \DateTimeImmutable::createFromInterface($lastDay)->setTime(0, 0);
     }
 
     /**

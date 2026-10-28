@@ -27,7 +27,7 @@ The generator lives in the existing dev/test module `src/DataFixtures/`. It is r
 |-----------|---------|
 | `DataFixtures/Generator/Application/` | settings, presets, hospital profiles, planners, the month and dataset generators, scenarios |
 | `DataFixtures/Generator/Infrastructure/` | DBAL writers, random streams |
-| `DataFixtures/Generator/UI/Console/` | `app:synthetic:generate`, `app:synthetic:scenario` |
+| `DataFixtures/Generator/UI/Console/` | `app:generate:imports`, `app:generate:scenario` |
 | `DataFixtures/Pattern/` | pattern package format, validation, chain sampler, coherence rules, code defaults |
 | `DataFixtures/Reference/` | synthetic reference catalog (ADR 020) |
 | `DataFixtures/Allocation/`, `Scenario/`, `Content/`, … | Doctrine fixtures; they call the generator and hold only fixture concerns such as the demo user |
@@ -42,11 +42,11 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 ### Settings and the generator API
 
-`GenerationSettings` holds seed, `until`, number of months, scale, yearly trend, closure frequency and pattern source. A preset builds settings and selects the hospitals.
+The settings are seed, `until`, number of months, scale and the volume rates. They come from the fixture configuration (`FixtureVolume`); further settings such as a yearly trend, the closure frequency or the pattern source are added with the steps that need them. A preset selects the hospitals.
 
-- `HospitalMonthGenerator` generates one hospital and one month: one allocation import and one closure import. It refuses a month that already has a synthetic import of that type for the hospital, and a month that has a real import of that type.
-- `SyntheticDatasetGenerator` runs the month generator for all selected hospitals and months, then runs the processing pipeline once.
-- `app:synthetic:generate` (dev and test) exposes both: selected hospitals by public id, a single month or a range, seed, scale, preset and a dry run that only reports counts. The interactive wizard of #791 is not part of it.
+- `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital.
+- The allocation fixture runs the month generator for all selected hospitals and months, then rebuilds the projection once.
+- `app:generate:imports` (dev and test) adds months later: hospitals by public id, one month, an optional seed and a dry run that only reports counts. It rebuilds the projection of each new import. The interactive wizard of #791 is not part of it; other generators join the `app:generate:` namespace (`app:generate:scenario`, `app:generate:encoding-csv`).
 
 ### Deterministic random streams
 

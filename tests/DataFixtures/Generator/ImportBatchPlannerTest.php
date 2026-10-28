@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\DataFixtures\Allocation;
+namespace App\Tests\DataFixtures\Generator;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalSize;
-use App\DataFixtures\Allocation\ImportBatch;
-use App\DataFixtures\Allocation\ImportBatchPlanner;
 use App\DataFixtures\FixtureVolume;
+use App\DataFixtures\Generator\Application\ImportBatch;
+use App\DataFixtures\Generator\Application\ImportBatchPlanner;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Uid\Uuid;

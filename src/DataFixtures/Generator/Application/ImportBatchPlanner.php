@@ -2,36 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Allocation;
+namespace App\DataFixtures\Generator\Application;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use Random\Randomizer;
-
-/**
- * One synthetic import per hospital and month, like real monthly IVENA uploads.
- */
-final readonly class ImportBatch
-{
-    /**
-     * @param string             $month       month as Y-m
-     * @param array<string, int> $dailyCounts allocations per day (Y-m-d)
-     */
-    public function __construct(
-        public Hospital $hospital,
-        public string $month,
-        public string $importName,
-        public array $dailyCounts,
-    ) {
-    }
-
-    public function allocationCount(): int
-    {
-        return array_sum($this->dailyCounts);
-    }
-}
 
 /**
  * Plans how many allocations each hospital gets per day.
@@ -67,15 +44,8 @@ final readonly class ImportBatchPlanner
 
         $batches = [];
         foreach ($hospitals as $hospital) {
-            $rate = $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value);
-            foreach ($this->daysByMonth($periodStart, $periodEnd) as $month => $days) {
-                $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $month, RandomStreams::VOLUME);
-                $dailyCounts = [];
-                foreach ($days as $day) {
-                    $expected = $rate * self::WEEKDAY_FACTOR[(int) $day->format('N')] * self::MONTH_FACTOR[(int) $day->format('n')];
-                    $dailyCounts[$day->format('Y-m-d')] = $this->noisy($expected, $random);
-                }
-                $batches[] = new ImportBatch($hospital, $month, sprintf('IVENA allocations %s', $month), $dailyCounts);
+            foreach (self::months($periodStart, $periodEnd) as $month) {
+                $batches[] = $this->planMonth($volume, $hospital, $month, $periodEnd);
             }
         }
 
@@ -83,16 +53,50 @@ final readonly class ImportBatchPlanner
     }
 
     /**
-     * @return array<string, list<\DateTimeImmutable>> days of the period by month (Y-m)
+     * The days of one month up to the last day of the period, with their counts.
+     *
+     * @param string $month month as Y-m
      */
-    private function daysByMonth(\DateTimeImmutable $periodStart, \DateTimeImmutable $periodEnd): array
+    public function planMonth(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): ImportBatch
+    {
+        $rate = $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value);
+        $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $month, RandomStreams::VOLUME);
+        $first = self::firstDay($month);
+        $last = min($first->modify('last day of this month'), \DateTimeImmutable::createFromInterface($lastDay)->setTime(0, 0));
+
+        $dailyCounts = [];
+        for ($day = $first; $day <= $last; $day = $day->modify('+1 day')) {
+            $expected = $rate * self::WEEKDAY_FACTOR[(int) $day->format('N')] * self::MONTH_FACTOR[(int) $day->format('n')];
+            $dailyCounts[$day->format('Y-m-d')] = $this->noisy($expected, $random);
+        }
+
+        return new ImportBatch($hospital, $month, sprintf('IVENA allocations %s', $month), $dailyCounts);
+    }
+
+    /**
+     * @return list<string> the months (Y-m) from the start until the end of the period
+     */
+    public static function months(\DateTimeImmutable $periodStart, \DateTimeImmutable $periodEnd): array
     {
         $months = [];
-        for ($day = $periodStart->setTime(0, 0); $day <= $periodEnd; $day = $day->modify('+1 day')) {
-            $months[$day->format('Y-m')][] = $day;
+        for ($month = $periodStart->modify('first day of this month')->setTime(0, 0); $month <= $periodEnd; $month = $month->modify('+1 month')) {
+            $months[] = $month->format('Y-m');
         }
 
         return $months;
+    }
+
+    /**
+     * @param string $month month as Y-m
+     */
+    public static function firstDay(string $month): \DateTimeImmutable
+    {
+        $first = \DateTimeImmutable::createFromFormat('!Y-m-d', $month.'-01');
+        if (false === $first || $first->format('Y-m') !== $month) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a month (YYYY-MM).', $month));
+        }
+
+        return $first;
     }
 
     /**
