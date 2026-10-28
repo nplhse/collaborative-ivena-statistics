@@ -20,9 +20,10 @@ However, you should follow the following simple guidelines for your contribution
 
 ## Before opening a pull request
 
--   While working, run `make check` (every check, changes no code) and the tests for what you changed
-    (`make test PATH_ARG=tests/…`). Before opening the pull request, run `make ci` (checks plus the complete test
-    suite). `make fix` applies the automatic fixes; review its diff. See
+-   Before opening the pull request, run `make check` (every check, changes no code) and the tests of every context
+    whose behaviour can change (`make test PATH_ARG=tests/<Context>`). The complete suite (`make ci`) runs in GitHub
+    Actions on every pull request; run it locally only for changes to central infrastructure or to reproduce a CI
+    failure. `make fix` applies the automatic fixes; review its diff. See
     [docs/03-development/development-workflow.md](docs/03-development/development-workflow.md#checks-fixes-and-tests).
 -   Update the documentation affected by your change in the same pull request.
 -   In unit tests, prefer `createStub()` for return-only collaborators; use a spy for side effects;

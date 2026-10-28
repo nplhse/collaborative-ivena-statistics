@@ -68,12 +68,15 @@ boundaries, and comparison groups. Definitions:
 | `make check` | All regular checks, no tests, offline; changes no source code |
 | `make fix` | Changes files: Swiss Knife, Rector, PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint |
 | `make test SUITE=… PATH_ARG=…` | PHPUnit; needs the test database ([testing.md](docs/03-development/testing.md)) |
-| `make ci` | `check` plus the complete test suite (slow) |
+| `make ci` | `check` plus the complete test suite (slow; GitHub Actions runs it on every PR) |
 
 Details and the single check targets: [development-workflow.md](docs/03-development/development-workflow.md#checks-fixes-and-tests).
 
-- While working: `make check` and the tests for the contexts you touched. Before a PR: `make ci`,
-  unless another checkout is running database tests (they share the test database).
+- Before a PR: `make check` and the tests of every context whose behaviour can change
+  (`make test PATH_ARG=tests/<Context>`), not only the directory you edited. Do not run `make ci` or
+  the complete suite by default; GitHub Actions runs it. Run it locally only for changes to central
+  infrastructure or to reproduce a CI failure.
+- Do not run database tests in two checkouts at the same time; they share the test database.
 - Run `make fix` only on purpose and review its diff; it can touch files outside your change.
 - A green local run does not replace the GitHub workflow results.
 - When a check fails, fix the cause. Do not raise ignore lists, add `@phpstan-ignore` or

@@ -78,12 +78,12 @@ Checks never change source code (they may write caches, compiled containers and 
 | `make fix` | Swiss Knife, Rector, PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint | **yes** | — |
 | `make test` | PHPUnit, see [testing.md](testing.md) | no | test database |
 | `make test-unit` / `make test-database` | The two CI test groups via ParaTest | no | test database (only `test-database`) |
-| `make ci` | `check`, then the complete test suite (slow) | no | test database |
+| `make ci` | `check`, then the complete test suite (slow, runs in GitHub Actions on every PR) | no | test database |
 | `make audit` | `composer audit` | no | network |
 | `make security` | Psalm taint analysis (`SARIF=results.sarif` writes a report) | no | — |
 | `make ci-full` | `ci`, `audit` and `security` | no | test database, network |
 
-Day to day: `make check` and the tests for what you changed (`make test PATH_ARG=tests/…`). Before opening a pull request: `make ci`. `make check` stops at the first failing check; `make -k check` runs all of them and lists every failure.
+Day to day and before a pull request: `make check` and the tests of every context whose behaviour can change (`make test PATH_ARG=tests/<Context>`). The complete suite runs in GitHub Actions on every pull request; run `make ci` locally only for changes to central infrastructure or to reproduce a CI failure. `make check` stops at the first failing check; `make -k check` runs all of them and lists every failure.
 
 `make fix` can change code behaviour (Rector, finalized classes) and touches every file the tools find, not only yours. Run it on purpose and review the diff. `make cs` and `make static-analysis` remain as aliases for `fix` and `analyse`. Until #850, `make ci` applied the fixes and ran no tests; use `make fix check` for that now.
 
