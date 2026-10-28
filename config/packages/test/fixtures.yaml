@@ -17,13 +17,15 @@ parameters:
 
     # Active hospitals per size; "any" draws hospitals of any size with the seed.
     # The demo user foo owns one of the active hospitals, drawn with the seed.
+    # "scenarios" lays scenarios over the data: name → applications per year (at least one in the period),
+    # placed with the seed (flu wave and icy road in winter, an MCI spread over 2–4 hospitals).
     fixtures.profiles:
         single: { any: 1 }
         minimal: { Large: 1, Medium: 1, Small: 1 }
-        medium: { Large: 2, Medium: 2, Small: 2 }
-        realistic: { Large: 3, Medium: 6, Small: 6 }
+        medium: { Large: 2, Medium: 2, Small: 2, scenarios: { mci: 1 } }
+        realistic: { Large: 3, Medium: 6, Small: 6, scenarios: { flu-wave: 1, mci: 1 } }
         # Every participating hospital of the synthetic catalog, two years.
-        large: { Large: 3, Medium: 8, Small: 9, months: 24 }
+        large: { Large: 3, Medium: 8, Small: 9, months: 24, scenarios: { flu-wave: 1, mci: 1, icy-road: 0.5 } }
 
     fixtures.baseline:
         # Whole months before the month of the last day; with yesterday in October 2026, 12 means 1 October 2025 until yesterday.

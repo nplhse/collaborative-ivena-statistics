@@ -84,6 +84,36 @@ final class ScenarioGeneratorTest extends KernelTestCase
             self::assertLessThanOrEqual(90, (float) $patients['minutes']);
             self::assertSame($base, $this->baseChecksum(), 'base allocations are still left alone');
 
+            // Intensity scales the MCI patients exactly and the extra cases roughly; outside 0.5–2.0 it is refused.
+            $mciPlan = static function (float $intensity) use ($generator, $volume, $hospitals, $lastDay): int {
+                $patients = 0;
+                foreach ($generator->plan(ScenarioCatalog::get('mci'), $volume, $hospitals, new \DateTimeImmutable('2026-04-02'), $lastDay, 'test', $intensity) as $plan) {
+                    $patients += $plan->mciPatients;
+                }
+
+                return $patients;
+            };
+            self::assertSame(2 * $mciPlan(1.0), $mciPlan(2.0));
+            $extra = static fn (float $intensity): int => $generator->plan(ScenarioCatalog::get('flu-wave'), $volume, $hospitals, new \DateTimeImmutable('2026-04-02'), $lastDay, 'test', $intensity)[0]->allocationCount();
+            self::assertGreaterThan($extra(1.0), $extra(2.0));
+            self::assertLessThan($extra(1.0), $extra(0.5));
+            try {
+                $generator->plan(ScenarioCatalog::get('mci'), $volume, $hospitals, new \DateTimeImmutable('2026-04-02'), $lastDay, 'test', 3.0);
+                self::fail('an intensity of 3 is refused');
+            } catch (\DomainException $exception) {
+                self::assertStringContainsString('intensity', $exception->getMessage());
+            }
+
+            // Removing a scenario restores allocations, projection and KPIs.
+            $before = $this->snapshot();
+            $remover = new CommandTester(new Application(self::$kernel)->find('app:generate:scenario'));
+            self::assertSame(Command::SUCCESS, $remover->execute(['scenario' => 'heat', '--hospital' => [$hospitals[0]->getPublicIdString()], '--at' => '2026-07-20']));
+            self::assertNotEquals($before, $this->snapshot(), 'heat adds rows');
+            self::assertSame(Command::SUCCESS, $remover->execute(['scenario' => 'heat', '--at' => '2026-07-20', '--remove' => true]), $remover->getDisplay());
+            self::assertEquals($before, $this->snapshot(), 'removed again');
+            $again = new CommandTester(new Application(self::$kernel)->find('app:generate:scenario'));
+            self::assertSame(Command::FAILURE, $again->execute(['scenario' => 'heat', '--at' => '2026-07-20', '--remove' => true]), 'nothing left to remove');
+
             // A second application is refused, also through the command.
             $publicId = $hospitals[0]->getPublicIdString();
             $tester = new CommandTester(new Application(self::$kernel)->find('app:generate:scenario'));
@@ -93,6 +123,21 @@ final class ScenarioGeneratorTest extends KernelTestCase
         } finally {
             unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
         }
+    }
+
+    /**
+     * Counts that a scenario changes and its removal must restore.
+     *
+     * @return array<string, mixed>
+     */
+    private function snapshot(): array
+    {
+        return [
+            'allocations' => (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation'),
+            'projection' => (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection'),
+            'imports' => (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import'),
+            'kpis' => $this->connection()->fetchAllAssociative('SELECT date, hospital_id, records_total FROM kpi_daily ORDER BY date, hospital_id NULLS FIRST'),
+        ];
     }
 
     private function baseChecksum(): string

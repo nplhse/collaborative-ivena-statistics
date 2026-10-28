@@ -12,6 +12,7 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
 use App\Allocation\Domain\Enum\HospitalSize;
+use App\Allocation\Domain\Enum\HospitalTier;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Application\ClosedDepartments;
 use App\DataFixtures\Generator\Application\HospitalProfile;
@@ -27,6 +28,7 @@ use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternLookupResolver;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
+use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Domain\Enum\ImportType;
@@ -41,11 +43,21 @@ use Random\Randomizer;
  * An overlay only adds rows: per affected hospital its own scenario import with extra allocations or
  * MCI cases, and a closure import when the scenario closes departments. Base data stays as it is.
  * The scenario draws from its own streams, so the same scenario, start day and seed give the same
- * rows; applying it twice to a hospital and start day is refused. Removing it is the regular import
- * deletion.
+ * rows; applying it twice to a hospital and start day is refused. The intensity scales extra cases,
+ * MCI patients and closures. Removing a scenario deletes its imports with the regular import deletion.
+ *
+ * MCI patients are spread over the hospitals by tier and size: full care and large hospitals take more,
+ * every hospital at least one.
  */
 final readonly class ScenarioGenerator
 {
+    public const float MIN_INTENSITY = 0.5;
+    public const float MAX_INTENSITY = 2.0;
+
+    /** Weight of a hospital in an MCI, by tier and size. */
+    private const array MCI_TIER_WEIGHT = ['Full' => 3.0, 'Extended' => 2.0, 'Basic' => 1.0];
+    private const array MCI_SIZE_WEIGHT = ['Large' => 1.5, 'Medium' => 1.0, 'Small' => 0.6];
+
     public function __construct(
         private HospitalProfileResolver $profiles,
         private DefaultDistributionPatterns $patterns,
@@ -56,6 +68,7 @@ final readonly class ScenarioGenerator
         private RandomStreams $streams,
         private EntityManagerInterface $entityManager,
         private Connection $connection,
+        private ImportDeletionService $importDeletion,
     ) {
     }
 
@@ -63,13 +76,17 @@ final readonly class ScenarioGenerator
      * What the scenario would add per hospital, without writing anything.
      *
      * @param list<Hospital> $hospitals
+     * @param float          $intensity scales extra cases, MCI patients and closures (MIN_INTENSITY–MAX_INTENSITY)
      *
      * @return list<ScenarioHospitalPlan>
      *
      * @throws \DomainException when the scenario cannot be applied
      */
-    public function plan(ScenarioDefinition $scenario, FixtureVolume $volume, array $hospitals, \DateTimeImmutable $startDay, \DateTimeImmutable $lastDay, string $area): array
+    public function plan(ScenarioDefinition $scenario, FixtureVolume $volume, array $hospitals, \DateTimeImmutable $startDay, \DateTimeImmutable $lastDay, string $area, float $intensity = 1.0): array
     {
+        if ($intensity < self::MIN_INTENSITY || $intensity > self::MAX_INTENSITY) {
+            throw new \DomainException(sprintf('The intensity must lie between %.1f and %.1f, got %s.', self::MIN_INTENSITY, self::MAX_INTENSITY, $intensity));
+        }
         if ([] === $hospitals) {
             throw new \DomainException('The scenario needs at least one participating hospital.');
         }
@@ -85,14 +102,16 @@ final readonly class ScenarioGenerator
 
         $areaRandom = $this->streams->stream($volume->seed, $area, $start->format('Y-m-d'), 'scenario:'.$scenario->name);
         $days = $this->days($scenario, $start, $lastDay, $areaRandom);
-        $mciShares = $scenario->isMci() ? $this->spread($areaRandom->getInt(...$scenario->mciPatients), \count($hospitals), $areaRandom) : [];
+        $mciShares = $scenario->isMci()
+            ? $this->spread(max(1, (int) round((float) $areaRandom->getInt(...$scenario->mciPatients) * $intensity)), $hospitals, $areaRandom)
+            : [];
         $mciStart = $start->setTime($areaRandom->getInt(6, 20), $areaRandom->getInt(0, 59));
         $mciWindow = $areaRandom->getInt(60, 90);
 
         $plans = [];
         foreach ($hospitals as $index => $hospital) {
             $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $start->format('Y-m-d'), 'scenario:'.$scenario->name);
-            $rate = $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value) * $scenario->extraShare;
+            $rate = $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value) * $scenario->extraShare * $intensity;
             $dailyCounts = [];
             foreach ($days as $day) {
                 $dailyCounts[$day] = $rate > 0.0 ? $random->getInt((int) floor($rate * 0.8), (int) ceil($rate * 1.2)) : 0;
@@ -101,7 +120,7 @@ final readonly class ScenarioGenerator
                 hospital: $hospital,
                 days: $days,
                 dailyCounts: $dailyCounts,
-                closures: $this->closures($scenario, $this->profiles->resolve($hospital, $volume->seed), $days, $lastDay, $random),
+                closures: $this->closures($scenario, $this->profiles->resolve($hospital, $volume->seed), $days, $lastDay, $random, $intensity),
                 mciPatients: $mciShares[$index] ?? 0,
                 mciStart: $mciStart,
                 mciWindowMinutes: $mciWindow,
@@ -113,14 +132,15 @@ final readonly class ScenarioGenerator
 
     /**
      * @param list<Hospital> $hospitals
+     * @param bool           $rebuild   false leaves projections, views and KPIs to the caller (full fixture load)
      *
      * @return list<ScenarioHospitalResult>
      *
      * @throws \DomainException when the scenario cannot be applied
      */
-    public function apply(ScenarioDefinition $scenario, FixtureVolume $volume, array $hospitals, \DateTimeImmutable $startDay, \DateTimeImmutable $lastDay, string $area): array
+    public function apply(ScenarioDefinition $scenario, FixtureVolume $volume, array $hospitals, \DateTimeImmutable $startDay, \DateTimeImmutable $lastDay, string $area, float $intensity = 1.0, bool $rebuild = true): array
     {
-        $plans = $this->plan($scenario, $volume, $hospitals, $startDay, $lastDay, $area);
+        $plans = $this->plan($scenario, $volume, $hospitals, $startDay, $lastDay, $area, $intensity);
         $mciId = sprintf('mci-scenario-%d-%s-%s', $volume->seed, hash('crc32b', $area), $startDay->format('Ymd'));
 
         $results = [];
@@ -133,11 +153,49 @@ final readonly class ScenarioGenerator
             $this->entityManager->clear();
         }
 
-        if ($volume->rebuildProjection) {
+        if ($rebuild && $volume->rebuildProjection) {
             $this->pipeline->afterImports($allocationImports, $hospitalIds);
         }
 
         return $results;
+    }
+
+    /**
+     * Deletes every import of the scenario with the seed and start day, through the regular import
+     * deletion, then rebuilds what depended on them: closure volume, views and the KPIs of their upload days.
+     *
+     * @return list<string> hospitals whose scenario imports were deleted
+     *
+     * @throws \DomainException when the scenario has no imports for the day
+     */
+    public function remove(ScenarioDefinition $scenario, int $seed, \DateTimeImmutable $startDay): array
+    {
+        /** @var list<array{id: int, hospital_id: int, name: string, day: string}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            'SELECT i.id, i.hospital_id, h.name, CAST(i.created_at AS date) AS day
+             FROM import i JOIN hospital h ON h.id = i.hospital_id
+             WHERE i.file_path LIKE :marker ORDER BY i.id',
+            ['marker' => SyntheticImportMarker::likeScenarioAnyHospital($scenario->name, $seed, $startDay->format('Y-m-d'))],
+        );
+        if ([] === $rows) {
+            throw new \DomainException(sprintf('No imports of the scenario "%s" with seed %d start on %s.', $scenario->name, $seed, $startDay->format('Y-m-d')));
+        }
+
+        $refreshViews = false;
+        foreach ($rows as $row) {
+            $import = $this->entityManager->find(Import::class, $row['id']);
+            if ($import instanceof Import) {
+                $refreshViews = $this->importDeletion->delete($import, refreshMaterializedView: false) || $refreshViews;
+            }
+        }
+        $this->entityManager->clear();
+
+        $this->pipeline->afterRemoval(
+            array_values(array_unique(array_column($rows, 'hospital_id'))),
+            array_map(static fn (string $day): \DateTimeImmutable => new \DateTimeImmutable($day), array_values(array_unique(array_column($rows, 'day')))),
+        );
+
+        return array_values(array_unique(array_column($rows, 'name')));
     }
 
     private function write(ScenarioDefinition $scenario, FixtureVolume $volume, ScenarioHospitalPlan $plan, string $mciId, \DateTimeImmutable $lastDay): ScenarioHospitalResult
@@ -264,14 +322,14 @@ final readonly class ScenarioGenerator
      *
      * @return list<PlannedClosure>
      */
-    private function closures(ScenarioDefinition $scenario, HospitalProfile $profile, array $days, \DateTimeImmutable $lastDay, Randomizer $random): array
+    private function closures(ScenarioDefinition $scenario, HospitalProfile $profile, array $days, \DateTimeImmutable $lastDay, Randomizer $random, float $intensity): array
     {
         $departments = array_values(array_filter($scenario->closedDepartments, $profile->offers(...)));
         if ([] === $departments || $scenario->closuresPerHospitalAndWeek <= 0.0) {
             return [];
         }
 
-        $count = (int) round($scenario->closuresPerHospitalAndWeek * (float) \count($days) / 7.0);
+        $count = (int) round($scenario->closuresPerHospitalAndWeek * (float) \count($days) / 7.0 * $intensity);
         $end = \DateTimeImmutable::createFromInterface($lastDay)->setTime(23, 59, 59);
         $closures = [];
         for ($i = 0; $i < $count; ++$i) {
@@ -291,18 +349,36 @@ final readonly class ScenarioGenerator
     }
 
     /**
-     * Splits the patients over the hospitals, every hospital at least one while patients are left.
+     * Splits the patients over the hospitals: every hospital one while patients are left, the rest drawn
+     * by tier and size (full care and large hospitals take more).
+     *
+     * @param list<Hospital> $hospitals
      *
      * @return list<int>
      */
-    private function spread(int $patients, int $hospitals, Randomizer $random): array
+    private function spread(int $patients, array $hospitals, Randomizer $random): array
     {
-        $shares = array_fill(0, $hospitals, 0);
+        $weights = array_map(static fn (Hospital $hospital): float => self::MCI_TIER_WEIGHT[($hospital->getTier() ?? HospitalTier::BASIC)->value]
+            * self::MCI_SIZE_WEIGHT[($hospital->getSize() ?? HospitalSize::MEDIUM)->value], $hospitals);
+        $total = array_sum($weights);
+
+        $shares = array_fill(0, \count($hospitals), 0);
         for ($i = 0; $i < $patients; ++$i) {
-            ++$shares[$i < $hospitals ? $i : $random->getInt(0, $hospitals - 1)];
+            if ($i < \count($hospitals)) {
+                ++$shares[$i];
+                continue;
+            }
+            $target = $random->nextFloat() * $total;
+            foreach ($weights as $index => $weight) {
+                $target -= $weight;
+                if ($target < 0.0 || $index === array_key_last($weights)) {
+                    ++$shares[$index];
+                    break;
+                }
+            }
         }
 
-        return array_values($shares);
+        return $shares;
     }
 
     private function isApplied(ScenarioDefinition $scenario, Hospital $hospital, \DateTimeImmutable $start): bool

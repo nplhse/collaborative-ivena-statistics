@@ -57,6 +57,10 @@ final readonly class GenerateScenarioCommand
         ?int $seed = null,
         #[Option(description: 'Show the planned counts without writing anything', name: 'dry-run')]
         bool $dryRun = false,
+        #[Option(description: 'Scales extra cases, MCI patients and closures (0.5–2.0)')]
+        float $intensity = 1.0,
+        #[Option(description: 'Delete the imports of the scenario starting on --at instead of applying it')]
+        bool $remove = false,
     ): int {
         if (!\in_array($this->environment, self::ALLOWED_ENVIRONMENTS, true)) {
             $io->error(sprintf('Synthetic data is only generated in %s, not in "%s".', implode(' and ', self::ALLOWED_ENVIRONMENTS), $this->environment));
@@ -73,6 +77,9 @@ final readonly class GenerateScenarioCommand
         }
 
         $startDay = \DateTimeImmutable::createFromFormat('!Y-m-d', $at);
+        if ($remove) {
+            return $this->remove($io, $scenario, $startDay, $at, $seed);
+        }
         if (false === $startDay || $startDay->format('Y-m-d') !== $at || ('' === $dispatchArea) === ([] === $hospital)) {
             $io->error('Pass --at=YYYY-MM-DD and either --dispatch-area=<name> or --hospital=<public id>.');
 
@@ -91,7 +98,7 @@ final readonly class GenerateScenarioCommand
 
             if ($dryRun) {
                 $rows = [];
-                foreach ($this->generator->plan($definition, $volume, $hospitals, $startDay, $lastDay, $area) as $plan) {
+                foreach ($this->generator->plan($definition, $volume, $hospitals, $startDay, $lastDay, $area, $intensity) as $plan) {
                     $rows[] = [(string) $plan->hospital->getName(), implode(' – ', array_unique([$plan->days[0], $plan->lastDay()])), (string) $plan->allocationCount(), (string) \count($plan->closures), (string) $plan->mciPatients];
                 }
                 $io->table(['Hospital', 'Days', 'Allocations', 'Closures', 'MCI patients'], $rows);
@@ -101,7 +108,7 @@ final readonly class GenerateScenarioCommand
             }
 
             $rows = [];
-            foreach ($this->generator->apply($definition, $volume, $hospitals, $startDay, $lastDay, $area) as $result) {
+            foreach ($this->generator->apply($definition, $volume, $hospitals, $startDay, $lastDay, $area, $intensity) as $result) {
                 $rows[] = [$result->hospital, (string) $result->importId, (string) $result->allocations, (string) $result->closures, (string) $result->mciPatients];
             }
         } catch (\DomainException|\InvalidArgumentException $exception) {
@@ -111,7 +118,29 @@ final readonly class GenerateScenarioCommand
         }
 
         $io->table(['Hospital', 'Import', 'Allocations', 'Closures', 'MCI patients'], $rows);
-        $io->success(sprintf('Scenario "%s" applied with seed %d. Delete its imports to remove it.', $scenario, $volume->seed));
+        $io->success(sprintf('Scenario "%s" applied with seed %d. Remove it with --remove --at=%s.', $scenario, $volume->seed, $at));
+
+        return Command::SUCCESS;
+    }
+
+    private function remove(SymfonyStyle $io, string $scenario, \DateTimeImmutable|false $startDay, string $at, ?int $seed): int
+    {
+        if (false === $startDay || $startDay->format('Y-m-d') !== $at) {
+            $io->error('Pass --at=YYYY-MM-DD with the first day of the scenario to remove.');
+
+            return Command::INVALID;
+        }
+
+        try {
+            $seed ??= $this->volumeResolver->resolve()->seed;
+            $hospitals = $this->generator->remove(ScenarioCatalog::get($scenario), $seed, $startDay);
+        } catch (\DomainException|\InvalidArgumentException $exception) {
+            $io->error($exception->getMessage());
+
+            return Command::FAILURE;
+        }
+
+        $io->success(sprintf('Scenario "%s" of %s removed with seed %d: %s. Projections, views and KPIs are up to date.', $scenario, $at, $seed, implode(', ', $hospitals)));
 
         return Command::SUCCESS;
     }

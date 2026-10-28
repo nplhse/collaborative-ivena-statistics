@@ -20,6 +20,7 @@ final readonly class FixtureVolume
      * @param float                   $mciCasesPerHospitalAndYear expected MCI cases per active hospital and year
      * @param \DateTimeImmutable|null $until                      last day of the generated period; null means yesterday
      * @param float                   $trendPerYear               yearly growth of the daily rate, for example 0.02 for 2 %; 0 is off
+     * @param array<string, float>    $scenarios                  scenarios the preset lays over its data: name → applications per year
      */
     public function __construct(
         public string $profile,
@@ -32,12 +33,27 @@ final readonly class FixtureVolume
         public bool $rebuildProjection,
         public ?\DateTimeImmutable $until = null,
         public float $trendPerYear = 0.0,
+        public array $scenarios = [],
     ) {
     }
 
     public function withSeed(int $seed): self
     {
-        return new self($this->profile, $this->hospitals, $this->months, $this->allocationsPerDay, $this->scale, $this->mciCasesPerHospitalAndYear, $seed, $this->rebuildProjection, $this->until, $this->trendPerYear);
+        return new self($this->profile, $this->hospitals, $this->months, $this->allocationsPerDay, $this->scale, $this->mciCasesPerHospitalAndYear, $seed, $this->rebuildProjection, $this->until, $this->trendPerYear, $this->scenarios);
+    }
+
+    /**
+     * How often the preset applies a scenario in its period: the yearly rate scaled to the months of the
+     * period (with the current month), at least once if the rate is above zero.
+     */
+    public function scenarioCount(string $scenario): int
+    {
+        $perYear = $this->scenarios[$scenario] ?? 0.0;
+        if ($perYear <= 0.0) {
+            return 0;
+        }
+
+        return max(1, (int) round($perYear * (float) ($this->months + 1) / 12.0));
     }
 
     /**

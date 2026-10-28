@@ -73,6 +73,22 @@ final readonly class SyntheticDataPipeline
     }
 
     /**
+     * After imports were deleted (the import deletion removed their projection rows already): closure
+     * volume of the hospitals, views and the KPIs of the upload days of the deleted imports.
+     *
+     * @param list<int>                $hospitalIds
+     * @param list<\DateTimeImmutable> $uploadDays
+     */
+    public function afterRemoval(array $hospitalIds, array $uploadDays): void
+    {
+        if ([] !== $hospitalIds) {
+            $this->closureVolume->rebuild(hospitalIds: array_values(array_unique($hospitalIds)));
+        }
+        $this->materializedViews->refresh();
+        $this->aggregateKpis($uploadDays);
+    }
+
+    /**
      * The allocation statistics projection from scratch, after a full fixture load.
      *
      * Fixtures run inside one database transaction, and the closure volume projection takes a lock that
