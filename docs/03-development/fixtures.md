@@ -92,7 +92,7 @@ The generator draws from `RandomStreams` (`src/DataFixtures/Generator/Infrastruc
 - the same seed and the same last day give the same data, compared by content (database ids change after every purge);
 - a hospital gets the same rows whether other hospitals take part or not, and a month gets the same rows alone or inside a longer period.
 
-MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Generator`, `Pattern` or `Reference` calls a global random function.
+MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` fails when code in `DataFixtures/Allocation`, `Generator` or `Pattern` calls a global random function.
 
 ## Reference data
 
@@ -102,7 +102,7 @@ MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` 
 - The 208 official PZC indications with their official wording; raw labels are the official wording, generated variants (abbreviation, typo) and a few unmapped labels.
 - Departments and specialities with generated aliases, lookups and a few indication groups.
 
-The same seed gives the same package byte for byte (UUIDv5 ids). The builder draws from a local `Random\Randomizer` seeded on every build, not from PHP's global random state. Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate and gives the demo user `foo` one of the active hospitals of the profile.
+The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate and gives the demo user `foo` one of the active hospitals of the profile.
 
 Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) to move the real catalog between environments.
 
@@ -154,7 +154,7 @@ See [../04-features/statistics/projection-and-materialized-views.md](../04-featu
 
 Reference fixture coverage lives under `tests/DataFixtures/`:
 
-- `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, untouched global random state, stable ids, no curated labels
+- `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, stable ids, no curated labels
 - `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load; two loads in one process give the same catalog
 - `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
 - `Allocation/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Faker\Provider;
 
 use Faker\Provider\Base;
-use Random\Randomizer;
 
 /**
  * Hesse and its dispatch areas for synthetic reference data (ADR 020).
@@ -33,15 +32,7 @@ final class Area extends Base
      */
     public static function townIn(string $dispatchArea): array
     {
-        return self::townFor($dispatchArea, RandomDraw::fromFaker());
-    }
-
-    /**
-     * @return array{city: string, postal_code: string, location: 'Urban'|'Mixed'|'Rural'}
-     */
-    public static function townFor(string $dispatchArea, Randomizer $random): array
-    {
-        return RandomDraw::element(self::district($dispatchArea)['towns'], $random);
+        return self::randomElement(self::district($dispatchArea)['towns']);
     }
 
     /**
@@ -51,15 +42,7 @@ final class Area extends Base
      */
     public static function coordinatesIn(string $dispatchArea): array
     {
-        return self::coordinatesFor($dispatchArea, RandomDraw::fromFaker());
-    }
-
-    /**
-     * @return array{lat: float, lng: float}
-     */
-    public static function coordinatesFor(string $dispatchArea, Randomizer $random): array
-    {
-        return HesseDistrictPolygons::randomPoint(self::district($dispatchArea)['geo_key'], $random);
+        return HesseDistrictPolygons::randomPoint(self::district($dispatchArea)['geo_key']);
     }
 
     /**

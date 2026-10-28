@@ -27,23 +27,25 @@ use App\Allocation\Application\ReferenceCatalog\ReferenceCatalogType;
 use App\Allocation\Infrastructure\Faker\Provider\Assignment;
 use App\Allocation\Infrastructure\Faker\Provider\HesseDistricts;
 use App\Allocation\Infrastructure\Faker\Provider\Hospital;
+use App\Allocation\Infrastructure\Faker\Provider\HospitalFakerMethods;
 use App\Allocation\Infrastructure\Faker\Provider\Indication;
+use App\Allocation\Infrastructure\Faker\Provider\IndicationFakerMethods;
 use App\Allocation\Infrastructure\Faker\Provider\Infection;
 use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
+use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialityFakerMethods;
 use App\Allocation\Infrastructure\Faker\Provider\Occasion;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\Allocation\Infrastructure\Faker\Provider\SecondaryTransport;
-use Random\Engine\Mt19937;
-use Random\Randomizer;
+use Faker\Factory;
+use Faker\Generator;
 use Symfony\Component\Uid\Uuid;
 
 /**
  * Builds a complete synthetic reference catalog from the Faker providers (ADR 020, decision 9).
  *
  * The same seed and size give a byte-identical package: ids are UUIDv5 of type and natural key,
- * the emit order is fixed and the export time is constant. Values are drawn from a local
- * Randomizer, not from PHP's global random state. The package goes through the same validation
- * and import as a real one.
+ * the emit order is fixed and the export time is constant. The package goes through the same
+ * validation and import as a real one.
  */
 final readonly class SyntheticReferenceCatalogBuilder
 {
@@ -78,8 +80,7 @@ final readonly class SyntheticReferenceCatalogBuilder
 
     public function build(int $seed = self::DEFAULT_SEED, int $hospitals = self::DEFAULT_HOSPITALS): ReferenceCatalogPackage
     {
-        // One local stream: other code in the process cannot reach it, and it is reseeded on every build.
-        $random = new Randomizer(new Mt19937($seed));
+        $faker = $this->faker($seed);
 
         $stateId = $this->id(ReferenceCatalogType::State, HesseDistricts::STATE);
         $areas = [];
@@ -112,16 +113,16 @@ final readonly class SyntheticReferenceCatalogBuilder
             ),
             [new StateEntry($stateId, HesseDistricts::STATE)],
             array_values($areas),
-            $this->aliased(ReferenceCatalogType::Department, MedicalSpecialities::unitNames(), $random),
-            $this->aliased(ReferenceCatalogType::Speciality, MedicalSpecialities::fieldNames(), $random, everyNth: 0),
+            $this->aliased(ReferenceCatalogType::Department, MedicalSpecialities::unitNames(), $faker),
+            $this->aliased(ReferenceCatalogType::Speciality, MedicalSpecialities::fieldNames(), $faker, everyNth: 0),
             $this->named(ReferenceCatalogType::Assignment, Assignment::names()),
             $this->named(ReferenceCatalogType::Occasion, Occasion::names()),
             $this->named(ReferenceCatalogType::Infection, Infection::names()),
             $this->named(ReferenceCatalogType::SecondaryTransport, SecondaryTransport::names()),
             array_values($normalized),
-            $this->rawIndications($normalized, $random),
+            $this->rawIndications($normalized, $faker),
             $this->groups($normalized),
-            $this->hospitals($hospitals, $stateId, $areas, $random),
+            $this->hospitals($hospitals, $stateId, $areas, $faker),
         );
 
         return $this->writer->seal($package);
@@ -140,18 +141,19 @@ final readonly class SyntheticReferenceCatalogBuilder
     /**
      * Every n-th entry gets a generated alias (0 = none).
      *
-     * @param list<string> $names
+     * @param list<string>                            $names
+     * @param Generator&MedicalSpecialityFakerMethods $faker
      *
      * @return list<AliasedEntry>
      */
-    private function aliased(ReferenceCatalogType $type, array $names, Randomizer $random, int $everyNth = 4): array
+    private function aliased(ReferenceCatalogType $type, array $names, Generator $faker, int $everyNth = 4): array
     {
         $canonical = array_flip(array_map(ReferenceCatalogNaturalKey::name(...), $names));
         $entries = [];
         foreach ($names as $index => $name) {
             $aliases = [];
             if ($everyNth > 0 && 0 === $index % $everyNth) {
-                $alias = MedicalSpecialities::aliasFor($name, $random);
+                $alias = $faker->departmentAlias($name);
                 if (!isset($canonical[ReferenceCatalogNaturalKey::name($alias['name'])])) {
                     $aliases[] = new AliasEntry($alias['name'], $alias['classification'], 'synthetic');
                 }
@@ -168,22 +170,23 @@ final readonly class SyntheticReferenceCatalogBuilder
      * and a few labels nobody mapped.
      *
      * @param array<string, NormalizedIndicationEntry> $normalized
+     * @param Generator&IndicationFakerMethods         $faker
      *
      * @return list<RawIndicationEntry>
      */
-    private function rawIndications(array $normalized, Randomizer $random): array
+    private function rawIndications(array $normalized, Generator $faker): array
     {
         $raw = [];
         $index = 0;
         foreach ($normalized as $code => $entry) {
             $this->addRaw($raw, (string) $code, $entry->name, $entry->id);
             if (0 === $index++ % 3) {
-                $this->addRaw($raw, (string) $code, Indication::rawLabelFor((string) $code, $random), $entry->id);
+                $this->addRaw($raw, (string) $code, $faker->rawIndicationLabel((string) $code), $entry->id);
             }
         }
 
         for ($i = 0; $i < 12; ++$i) {
-            $unmapped = Indication::unmappedFor($random);
+            $unmapped = $faker->unmappedRawIndication();
             $this->addRaw($raw, $unmapped['code'], $unmapped['name'], null);
         }
 
@@ -249,19 +252,20 @@ final readonly class SyntheticReferenceCatalogBuilder
      * Spread over all dispatch areas, so every area has at least one hospital once there are 24.
      *
      * @param array<string, DispatchAreaEntry> $areas
+     * @param Generator&HospitalFakerMethods   $faker
      *
      * @return list<HospitalEntry>
      */
-    private function hospitals(int $count, string $stateId, array $areas, Randomizer $random): array
+    private function hospitals(int $count, string $stateId, array $areas, Generator $faker): array
     {
         $names = array_keys($areas);
         $hospitals = [];
         for ($i = 0; $i < $count; ++$i) {
             $area = $names[$i % \count($names)];
 
-            $profile = Hospital::profileFor($area, $random);
+            $profile = $faker->hospitalProfile($area);
             for ($attempt = 0; isset($hospitals[ReferenceCatalogNaturalKey::name($profile['name'])]) && $attempt < 10; ++$attempt) {
-                $profile = Hospital::profileFor($area, $random);
+                $profile = $faker->hospitalProfile($area);
             }
             $key = ReferenceCatalogNaturalKey::name($profile['name']);
             if (isset($hospitals[$key])) {
@@ -290,5 +294,22 @@ final readonly class SyntheticReferenceCatalogBuilder
     private function id(ReferenceCatalogType $type, string $naturalKey): string
     {
         return Uuid::v5(Uuid::fromString(self::ID_NAMESPACE), $type->value.'|'.$naturalKey)->toRfc4122();
+    }
+
+    /**
+     * @return Generator&HospitalFakerMethods&IndicationFakerMethods&MedicalSpecialityFakerMethods
+     */
+    private function faker(int $seed): Generator
+    {
+        $faker = Factory::create('de_DE');
+        $faker->addProvider(new Hospital($faker));
+        $faker->addProvider(new Indication($faker));
+        $faker->addProvider(new MedicalSpecialities($faker));
+        $faker->seed($seed);
+
+        /** @var Generator&HospitalFakerMethods&IndicationFakerMethods&MedicalSpecialityFakerMethods $typed */
+        $typed = $faker;
+
+        return $typed;
     }
 }

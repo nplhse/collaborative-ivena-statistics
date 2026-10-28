@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Allocation\Infrastructure\Faker\Provider;
 
 use Faker\Provider\Base;
-use Random\Randomizer;
 
 /** @psalm-suppress PropertyNotSetInConstructor */
 final class MedicalSpecialities extends Base
@@ -170,16 +169,6 @@ final class MedicalSpecialities extends Base
      */
     public function departmentAlias(string $name): array
     {
-        return self::aliasFor($name, RandomDraw::fromFaker());
-    }
-
-    /**
-     * The same as departmentAlias(), drawn from the given stream (ADR 022).
-     *
-     * @return array{name: string, classification: 'unambiguous_alias'|'faulty_catalog'}
-     */
-    public static function aliasFor(string $name, Randomizer $random): array
-    {
         $abbreviated = strtr($name, [
             'Allgemeine ' => 'Allg. ',
             'Chirurgie' => 'Chir.',
@@ -188,12 +177,12 @@ final class MedicalSpecialities extends Base
             'Gynäkologie' => 'Gyn.',
             'Pädiatrie' => 'Päd.',
         ]);
-        if ($abbreviated !== $name && 1 === $random->getInt(0, 1)) {
+        if ($abbreviated !== $name && 1 === self::numberBetween(0, 1)) {
             return ['name' => $abbreviated, 'classification' => 'unambiguous_alias'];
         }
 
         $length = mb_strlen($name);
-        $at = $random->getInt(1, max(1, $length - 3));
+        $at = self::numberBetween(1, max(1, $length - 3));
         $typo = mb_substr($name, 0, $at).mb_substr($name, $at + 1, 1).mb_substr($name, $at, 1).mb_substr($name, $at + 2);
         if ($typo === $name) {
             $typo = $name.'e';
