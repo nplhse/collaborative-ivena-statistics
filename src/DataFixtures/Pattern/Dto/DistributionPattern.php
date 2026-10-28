@@ -51,6 +51,19 @@ final readonly class DistributionPattern
     }
 
     /**
+     * A copy with the given flag probabilities replaced.
+     *
+     * @param array<string, float> $flags
+     */
+    public function withFlags(array $flags): self
+    {
+        $distributions = $this->distributions;
+        $distributions['flags'] = $flags + $this->flagProbabilities();
+
+        return new self($distributions);
+    }
+
+    /**
      * @return array<string, float>
      */
     public function flagProbabilities(): array

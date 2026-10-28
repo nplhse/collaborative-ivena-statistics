@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\DataFixtures\Allocation;
 
+use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\Allocation\SyntheticAllocationGenerator;
+use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -71,6 +74,8 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
             self::assertGreaterThan($case['created_at'], $case['arrival_at']);
         }
 
+        $this->assertCathLabCasesOnlyWhereTheProfileHasOne($connection);
+
         $yesterday = (string) $connection->fetchOne("SELECT to_char(CURRENT_DATE - 1, 'YYYY-MM-DD')");
         self::assertLessThanOrEqual($yesterday.' 23:59:59', (string) $connection->fetchOne('SELECT MAX(created_at) FROM allocation'), 'the period ends yesterday');
     }
@@ -111,6 +116,32 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
                  ORDER BY m.mci_id',
             ),
         ];
+    }
+
+    /**
+     * Checked on the same load as the MCI cases, so the profiles cost no extra fixture load.
+     */
+    private function assertCathLabCasesOnlyWhereTheProfileHasOne(Connection $connection): void
+    {
+        /** @var HospitalProfileResolver $profiles */
+        $profiles = self::getContainer()->get(HospitalProfileResolver::class);
+        /** @var FixtureVolumeResolver $volumes */
+        $volumes = self::getContainer()->get(FixtureVolumeResolver::class);
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $seed = $volumes->resolve()->seed;
+
+        $withCathlab = 0;
+        foreach ($connection->fetchAllAssociative('SELECT hospital_id, COUNT(*) FILTER (WHERE requires_cathlab) AS cathlab FROM allocation GROUP BY hospital_id') as $row) {
+            $hospital = $entityManager->find(Hospital::class, (int) $row['hospital_id']);
+            self::assertInstanceOf(Hospital::class, $hospital);
+            if ($profiles->resolve($hospital, $seed)->hasCathlab) {
+                ++$withCathlab;
+                continue;
+            }
+            self::assertSame(0, (int) $row['cathlab'], sprintf('%s has no cath lab', (string) $hospital->getName()));
+        }
+        self::assertGreaterThan(0, $withCathlab, 'the full-care hospital has a cath lab');
     }
 
     private function deleteGeneratedRows(): void
