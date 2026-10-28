@@ -23,7 +23,8 @@ use App\DataFixtures\Structure\Dto\VolumeModel;
  * aggregates of #874 where at least five hospitals stand behind a value: most extended-care hospitals
  * have a cath lab, some basic-care hospitals do; most full-care hospitals have obstetrics, not all.
  * Small hospitals with a specialised resource (cath lab, neurosurgery, stroke unit) are uncommon but
- * supported. The order of the configurations is part of the random stream, so new ones go last.
+ * supported. Urology is common from basic care on; ENT and ophthalmology mostly in extended and full
+ * care (#910, rounded towards #874; each value rests on at least seven hospitals). The order of the configurations is part of the random stream, so new ones go last.
  */
 final class DefaultStructurePatterns
 {
@@ -34,6 +35,7 @@ final class DefaultStructurePatterns
         'neurology' => [0 => 0.60, 1 => 0.40],
         'psychiatry' => [0 => 0.80, 1 => 0.20],
         'gynaecology-obstetrics' => [0 => 0.60, 1 => 0.40],
+        'urology' => [0 => 0.40, 1 => 0.60],
     ];
 
     private const array EXTENDED_FIELDS = [
@@ -44,6 +46,9 @@ final class DefaultStructurePatterns
         'psychiatry' => [0 => 0.30, 1 => 0.40, 2 => 0.20, 3 => 0.10],
         'paediatrics' => [0 => 0.60, 1 => 0.30, 2 => 0.10],
         'gynaecology-obstetrics' => [1 => 1.0],
+        'urology' => [0 => 0.10, 1 => 0.90],
+        'ophthalmology' => [0 => 0.90, 1 => 0.10],
+        'ent' => [0 => 0.60, 1 => 0.40],
     ];
 
     private const array FULL_FIELDS = [
@@ -54,6 +59,9 @@ final class DefaultStructurePatterns
         'psychiatry' => [1 => 0.20, 2 => 0.30, 3 => 0.50],
         'paediatrics' => [1 => 0.30, 2 => 0.70],
         'gynaecology-obstetrics' => [1 => 1.0],
+        'urology' => [1 => 1.0],
+        'ophthalmology' => [0 => 0.50, 1 => 0.50],
+        'ent' => [0 => 0.50, 1 => 0.50],
     ];
 
     /** PZC code prefix → what a hospital needs to receive the case. */
@@ -65,6 +73,12 @@ final class DefaultStructurePatterns
         '533' => Capability::OBSTETRICS_PERINATAL, '534' => Capability::OBSTETRICS_PERINATAL, '535' => Capability::OBSTETRICS_PERINATAL, '538' => Capability::OBSTETRICS_PERINATAL,
         '543' => Capability::OBSTETRICS_PERINATAL, '544' => Capability::OBSTETRICS_PERINATAL, '545' => Capability::OBSTETRICS_PERINATAL, '548' => Capability::OBSTETRICS_PERINATAL,
     ];
+
+    /**
+     * PZC code prefix → department a hospital must offer to receive the case: urology, eye and ENT
+     * cases only go to hospitals with that department (#910).
+     */
+    private const array DEPARTMENT_GATES = ['71' => 'urology', '72' => 'ophthalmology', '73' => 'ent'];
 
     /** Share of allocations that need the resuscitation room, by trauma level. */
     private const array RESUS = ['none' => 0.01, 'basic' => 0.02, 'regional' => 0.05, 'supra' => 0.10];
@@ -136,6 +150,7 @@ final class DefaultStructurePatterns
             mixVariation: new MixVariation(categorySpread: 0.25, oldAgeSpread: 0.20, urgentSpread: 0.35),
             closureShares: self::CLOSURE_SHARES,
             closures: new ClosureModel(self::EVENT_SIZES, self::DURATIONS, self::CARE_LEVELS, self::WEEKDAYS, self::FIELD_WEIGHTS, groupShare: 0.55),
+            departmentGates: self::DEPARTMENT_GATES,
         );
     }
 

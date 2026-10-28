@@ -127,4 +127,18 @@ final class StructureRulesTest extends TestCase
         self::assertSame(['332'], $set->blockedIndications(new HospitalResources()));
         self::assertSame([], $set->blockedIndications(new HospitalResources(cathlab: true)));
     }
+
+    public function testDepartmentGatesBlockCodesWhoseDepartmentIsMissing(): void
+    {
+        $set = new StructurePatternSet(
+            array_values(new DefaultStructurePatterns()->get()->configurations),
+            gates: [],
+            resusShares: ['basic' => 0.02],
+            departmentGates: ['71' => 'urology', '72' => 'ophthalmology', '79' => 'dermatology'],
+        );
+
+        self::assertSame(['department gate "79": unknown department "dermatology"'], StructureRules::setViolations($set));
+        self::assertSame(['72', '79'], $set->blockedByDepartments(['cardiology', 'urology']));
+        self::assertSame(['71', '72', '79'], $set->blockedByDepartments([]));
+    }
 }
