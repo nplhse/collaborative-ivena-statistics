@@ -7,6 +7,7 @@
         lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de \
         lint-templates swiss-knife swiss-knife-check rector rector-check fix-php lint-php fix-twig \
         lint-twig fix-js lint-js phpstan psalm deptrac deptrac-strict deptrac-baseline test testdox \
+        demo-install demo-install-guard demo-start demo-consume \
         coverage test-unit test-database purge-runtime purge reset clear
 
 # Executables
@@ -137,6 +138,45 @@ consume: ## Consume messages from symfony messenger
 
 asset: ## Recompile local assets
 	@$(CONSOLE) asset-map:compile
+
+## —— Demo environment 🎬 —————————————————————————————————————————————————————
+# APP_ENV=demo with its own database app_demo (.env.demo), storage under var/demo and
+# public/uploads/demo, synthetic data only (ADR 023, docs/05-operations/demo-environment.md).
+# Plain php, not the Symfony CLI: the CLI may export DATABASE_URL of a Docker database, which
+# would win over .env.demo (DemoEnvironmentGuard refuses it anyway). Without debug mode the demo
+# container is not rebuilt after code changes, so the targets delete var/cache/demo first.
+DEMO_CONSOLE = APP_ENV=demo php bin/console
+DEMO_PRESET ?= large
+DEMO_PORT   ?= 8001
+
+demo-install: ## Create the demo DB app_demo with synthetic data (DEMO_PRESET=large|realistic|…; drops app_demo, DEMO_CONFIRM=yes if it exists)
+	@rm -rf var/cache/demo
+	@$(MAKE) --no-print-directory demo-install-guard
+	@$(DEMO_CONSOLE) doctrine:database:drop --if-exists --force
+	@$(DEMO_CONSOLE) doctrine:database:create
+	@$(DEMO_CONSOLE) doctrine:migrations:migrate --no-interaction
+	@rm -rf var/demo/imports public/uploads/demo
+	@mkdir -p var/demo/imports/rejects public/uploads/demo/media
+	@FIXTURES_PROFILE=$(DEMO_PRESET) $(DEMO_CONSOLE) doctrine:fixtures:load --group=dev --no-interaction
+	@$(DEMO_CONSOLE) app:statistics:rebuild-closure-volume-projection
+	@$(DEMO_CONSOLE) app:statistics:refresh-mviews
+
+# Fails when app_demo already holds an installation and DEMO_CONFIRM is not "yes".
+demo-install-guard:
+	@if [ "$(DEMO_CONFIRM)" != "yes" ] && $(DEMO_CONSOLE) dbal:run-sql "SELECT 1 FROM doctrine_migration_versions LIMIT 1" >/dev/null 2>&1; then \
+		echo "The demo database already holds an installation; demo-install would replace it." >&2; \
+		echo "Replace it: make demo-install DEMO_CONFIRM=yes" >&2; \
+		exit 1; \
+	fi
+
+demo-start: ## Serve the demo on http://127.0.0.1:8001 (DEMO_PORT=; built-in PHP server, Ctrl+C stops)
+	@rm -rf var/cache/demo
+	@$(DEMO_CONSOLE) asset-map:compile
+	@echo "Demo: http://127.0.0.1:$(DEMO_PORT)  (worker: make demo-consume)"
+	@PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:$(DEMO_PORT) -t public bin/demo-router.php
+
+demo-consume: ## Run the Messenger worker of the demo environment
+	@$(DEMO_CONSOLE) messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv
 
 ## —— Backups 💾 ———————————————————————————————————————————————————————————————
 backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)

@@ -8,3 +8,11 @@ vich_uploader:
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
             delete_on_update: true
             delete_on_remove: true
+
+# Demo environment (ADR 023): media of the demo stay apart from dev uploads.
+when@demo:
+    vich_uploader:
+        mappings:
+            media:
+                uri_prefix: /uploads/demo/media
+                upload_destination: '%app.media_upload_dir%'

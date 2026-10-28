@@ -9,4 +9,6 @@ export SYMFONY_DEPRECATIONS_HELPER="${SYMFONY_DEPRECATIONS_HELPER:-max[total]=0&
 
 php bin/console cache:warmup --no-debug
 php bin/console cache:warmup --env=test --no-debug
+# Demo environment (ADR 023): its database comes from .env.demo, not from a DATABASE_URL set for CI.
+env -u DATABASE_URL APP_ENV=demo php bin/console cache:warmup --no-debug
 php bin/console lint:container --no-debug

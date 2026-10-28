@@ -1,0 +1,16 @@
+# Demo environment (ADR 023). Fixed here, not through env vars, so a variable set on the machine
+# cannot switch outbound mail or error reporting back on.
+framework:
+    mailer:
+        dsn: 'null://null'
+    messenger:
+        routing:
+            # Like dev: mail (to null) and notification delivery run without a worker.
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+            App\Notification\Application\Message\DeliverNotificationMessage: sync
+
+sentry:
+    dsn: null
+    options:
+        traces_sample_rate: 0.0
+        enable_logs: false
