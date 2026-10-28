@@ -35,6 +35,8 @@ final readonly class FixtureVolumeResolver
         private string $until = '',
         #[Autowire(param: 'fixtures.months')]
         private string $months = '',
+        #[Autowire(param: 'fixtures.patterns')]
+        private string $patterns = 'defaults',
     ) {
     }
 
@@ -60,6 +62,7 @@ final readonly class FixtureVolumeResolver
             until: $this->until(),
             trendPerYear: (float) ($this->baseline['trend_per_year'] ?? 0.0),
             scenarios: \is_array($scenarios) ? array_map(floatval(...), $scenarios) : [],
+            patterns: '' !== trim($this->patterns) ? trim($this->patterns) : 'defaults',
             closureShare: $this->closureShare($preset['closure_share'] ?? null),
         );
     }

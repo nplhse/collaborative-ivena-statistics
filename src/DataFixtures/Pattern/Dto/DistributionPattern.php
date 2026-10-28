@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Dto;
 
+use App\DataFixtures\Pattern\Application\IndicationGroupTable;
+
 final readonly class DistributionPattern
 {
     /**
-     * @param array<string, mixed> $distributions
+     * @param array<string, mixed>      $distributions
+     * @param IndicationGroupTable|null $indicationGroups what follows from the indication; null for the code defaults
      */
     public function __construct(
         public array $distributions,
+        private ?IndicationGroupTable $indicationGroups = null,
     ) {
+    }
+
+    public function indicationGroups(): IndicationGroupTable
+    {
+        return $this->indicationGroups ?? IndicationGroupTable::defaults();
     }
 
     /**
@@ -60,7 +69,7 @@ final readonly class DistributionPattern
         $distributions = $this->distributions;
         $distributions[$key] = $distribution;
 
-        return new self($distributions);
+        return new self($distributions, $this->indicationGroups);
     }
 
     /**
@@ -73,7 +82,7 @@ final readonly class DistributionPattern
         $distributions = $this->distributions;
         $distributions['flags'] = $flags + $this->flagProbabilities();
 
-        return new self($distributions);
+        return new self($distributions, $this->indicationGroups);
     }
 
     /**
@@ -86,7 +95,7 @@ final readonly class DistributionPattern
         $distributions = $this->distributions;
         $distributions['departments_not_offered'] = $departments;
 
-        return new self($distributions);
+        return new self($distributions, $this->indicationGroups);
     }
 
     /**
@@ -112,7 +121,7 @@ final readonly class DistributionPattern
         $distributions = $this->distributions;
         $distributions['indications_blocked'] = $prefixes;
 
-        return new self($distributions);
+        return new self($distributions, $this->indicationGroups);
     }
 
     /**
@@ -139,7 +148,7 @@ final readonly class DistributionPattern
         $distributions = $this->distributions;
         $distributions['tilt'] = $tilt;
 
-        return new self($distributions);
+        return new self($distributions, $this->indicationGroups);
     }
 
     /**

@@ -6,10 +6,11 @@ namespace App\DataFixtures\Generator\UI\Console;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolumeResolver;
-use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
+use App\DataFixtures\Generator\Application\GenerationPreflight;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioCatalog;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioGenerator;
+use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -37,7 +38,7 @@ final readonly class GenerateScenarioCommand
         private ScenarioGenerator $generator,
         private EntityManagerInterface $entityManager,
         private ClockInterface $clock,
-        private CatalogCompatibility $catalog,
+        private GenerationPreflight $preflight,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
     ) {
@@ -58,6 +59,8 @@ final readonly class GenerateScenarioCommand
         string $at = '',
         #[Option(description: 'Seed instead of the configured one')]
         ?int $seed = null,
+        #[Option(description: 'Pattern source instead of FIXTURES_PATTERNS: "defaults" or a package (file name in var/patterns/ or a path)')]
+        string $patterns = '',
         #[Option(description: 'Show the planned counts without writing anything', name: 'dry-run')]
         bool $dryRun = false,
         #[Option(description: 'Scales extra cases, MCI patients and closures (0.5–2.0)')]
@@ -90,19 +93,15 @@ final readonly class GenerateScenarioCommand
         }
 
         try {
-            $this->catalog->assertCompatible();
-        } catch (CatalogMismatchException|\InvalidArgumentException $exception) {
-            $io->error($exception->getMessage());
-
-            return Command::FAILURE;
-        }
-
-        try {
             $definition = ScenarioCatalog::get($scenario);
             $volume = $this->volumeResolver->resolve();
             if (null !== $seed) {
                 $volume = $volume->withSeed($seed);
             }
+            if ('' !== $patterns) {
+                $volume = $volume->withPatterns($patterns);
+            }
+            $this->preflight->check($volume);
             $lastDay = $volume->lastDay($this->clock);
             $hospitals = '' !== $dispatchArea ? $this->hospitalsIn($dispatchArea) : $this->hospitalsById($hospital);
             $area = '' !== $dispatchArea ? $dispatchArea : implode(',', $hospital);
@@ -122,7 +121,7 @@ final readonly class GenerateScenarioCommand
             foreach ($this->generator->apply($definition, $volume, $hospitals, $startDay, $lastDay, $area, $intensity) as $result) {
                 $rows[] = [$result->hospital, (string) $result->importId, (string) $result->allocations, (string) $result->closures, (string) $result->mciPatients];
             }
-        } catch (\DomainException|\InvalidArgumentException $exception) {
+        } catch (\DomainException|\InvalidArgumentException|InvalidPatternPackageException|CatalogMismatchException $exception) {
             $io->error($exception->getMessage());
 
             return Command::FAILURE;

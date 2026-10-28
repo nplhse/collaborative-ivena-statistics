@@ -21,6 +21,7 @@ final readonly class FixtureVolume
      * @param \DateTimeImmutable|null $until                      last day of the generated period; null means yesterday
      * @param float                   $trendPerYear               yearly growth of the daily rate, for example 0.02 for 2 %; 0 is off
      * @param array<string, float>    $scenarios                  scenarios the preset lays over its data: name → applications per year
+     * @param string                  $patterns                   pattern source: `defaults` or a pattern package file (FIXTURES_PATTERNS)
      * @param float|null              $closureShare               share of closed department-hours for every hospital of the preset; null uses the shares of the structural patterns
      */
     public function __construct(
@@ -35,13 +36,22 @@ final readonly class FixtureVolume
         public ?\DateTimeImmutable $until = null,
         public float $trendPerYear = 0.0,
         public array $scenarios = [],
+        public string $patterns = 'defaults',
         public ?float $closureShare = null,
     ) {
     }
 
     public function withSeed(int $seed): self
     {
-        return new self($this->profile, $this->hospitals, $this->months, $this->allocationsPerDay, $this->scale, $this->mciCasesPerHospitalAndYear, $seed, $this->rebuildProjection, $this->until, $this->trendPerYear, $this->scenarios, $this->closureShare);
+        return new self($this->profile, $this->hospitals, $this->months, $this->allocationsPerDay, $this->scale, $this->mciCasesPerHospitalAndYear, $seed, $this->rebuildProjection, $this->until, $this->trendPerYear, $this->scenarios, $this->patterns, $this->closureShare);
+    }
+
+    /**
+     * @param string $patterns `defaults` or a pattern package file
+     */
+    public function withPatterns(string $patterns): self
+    {
+        return new self($this->profile, $this->hospitals, $this->months, $this->allocationsPerDay, $this->scale, $this->mciCasesPerHospitalAndYear, $this->seed, $this->rebuildProjection, $this->until, $this->trendPerYear, $this->scenarios, $patterns, $this->closureShare);
     }
 
     /**

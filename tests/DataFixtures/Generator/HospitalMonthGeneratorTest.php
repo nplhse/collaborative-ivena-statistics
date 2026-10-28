@@ -11,6 +11,8 @@ use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\ProfileSelection;
 use App\DataFixtures\Generator\Application\SyntheticImportMarker;
+use App\DataFixtures\Pattern\Application\DefaultPatternPackage;
+use App\DataFixtures\Pattern\Package\PatternPackageWriter;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -22,6 +24,7 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
@@ -120,6 +123,57 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             $this->assertKpisMatchTheUploads('after a month added later');
         } finally {
             unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
+        }
+    }
+
+    /**
+     * The code defaults written as a package give the same rows as the code defaults; the marker records
+     * the package checksum instead of `defaults` (#883). An invalid package stops before the first row.
+     */
+    public function testAPackageOfTheDefaultsGivesTheSameRowsAndIsRecordedInTheMarker(): void
+    {
+        $_ENV['FIXTURES_UNTIL'] = $_SERVER['FIXTURES_UNTIL'] = self::UNTIL;
+        $directory = sys_get_temp_dir().'/pattern-month-'.bin2hex(random_bytes(4));
+        try {
+            self::bootKernel();
+            $this->load();
+            $connection = $this->connection();
+            $hospitalId = (int) $connection->fetchOne('SELECT hospital_id FROM import WHERE file_path LIKE \'synthetic/allocations/%\' ORDER BY file_path LIMIT 1');
+            $publicId = (string) $connection->fetchOne('SELECT public_id FROM hospital WHERE id = :id', ['id' => $hospitalId]);
+            $importId = $this->importId(SyntheticImportMarker::ALLOCATIONS, $publicId);
+            $closureImportId = $this->importId(SyntheticImportMarker::CLOSURES, $publicId);
+            $loaded = $this->describeMonth($importId, $closureImportId);
+            $this->deleteImport($importId);
+            $this->deleteImport($closureImportId);
+
+            /** @var PatternPackageWriter $writer */
+            $writer = self::getContainer()->get(PatternPackageWriter::class);
+            $package = $writer->seal(DefaultPatternPackage::build(new \DateTimeImmutable('2026-10-01T00:00:00+00:00')));
+            $writer->write($directory.'/defaults.json', $package);
+            $checksum = $package->meta->checksum->value;
+
+            // An invalid package: the command fails and writes nothing.
+            new Filesystem()->dumpFile($directory.'/broken.json', '{"meta": {"format": "ivena-distribution-patterns", "version": 1}}');
+            $tester = new CommandTester(new Application(self::$kernel)->find('app:generate:imports'));
+            $imports = (int) $connection->fetchOne('SELECT COUNT(*) FROM import');
+            self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH, '--patterns' => $directory.'/broken.json']));
+            self::assertStringContainsString('is not a valid pattern package', $tester->getDisplay());
+            self::assertSame($imports, (int) $connection->fetchOne('SELECT COUNT(*) FROM import'), 'nothing was written');
+
+            self::assertSame(Command::SUCCESS, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH, '--patterns' => $directory.'/defaults.json']), $tester->getDisplay());
+            $marker = 'synthetic/allocations/seed-740/'.$checksum.'/'.$publicId.'/'.self::MONTH.'.csv';
+            $generatedId = (int) $connection->fetchOne('SELECT id FROM import WHERE file_path = :path', ['path' => $marker]);
+            self::assertGreaterThan(0, $generatedId, 'the allocation marker records the package checksum');
+            $generatedClosureId = (int) $connection->fetchOne('SELECT id FROM import WHERE file_path = :path', ['path' => str_replace('synthetic/allocations/', 'synthetic/closures/', $marker)]);
+            self::assertGreaterThan(0, $generatedClosureId, 'the closure marker records the package checksum');
+
+            $generated = $this->describeMonth($generatedId, $generatedClosureId);
+            self::assertSame($loaded['allocations'], $generated['allocations'], 'same allocations as with the code defaults');
+            self::assertSame($loaded['closures'], $generated['closures']);
+            self::assertSame($loaded['mci'], $generated['mci']);
+        } finally {
+            unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
+            new Filesystem()->remove($directory);
         }
     }
 

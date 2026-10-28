@@ -50,6 +50,7 @@ final class FixtureVolumeResolverTest extends TestCase
         self::assertSame(0.01, $medium->closureShare);
         self::assertSame(['Large' => 2, 'Medium' => 2, 'Small' => 2], $medium->hospitals, 'closure_share is not a hospital size');
         self::assertSame(0.01, $medium->withSeed(741)->closureShare, 'kept with another seed');
+        self::assertSame(0.01, $medium->withPatterns('tuned.json')->closureShare, 'kept with another pattern source');
         self::assertNull($this->resolver('large')->resolve()->closureShare, 'without it the structural shares apply');
 
         $this->expectException(\InvalidArgumentException::class);
