@@ -107,7 +107,6 @@ final readonly class PatternSampler
             isPregnant: $case['pregnant'],
             isWorkAccident: $this->flag($groupFlags['is_work_accident'] ?? $base['is_work_accident'] ?? 0.0, $random),
             isWithPhysician: $this->flag($groupFlags['is_with_physician'] ?? $base['is_with_physician'] ?? 0.0, $random),
-            departmentWasClosed: $this->flag($base['department_was_closed'] ?? 0.0, $random),
         );
     }
 

@@ -62,7 +62,6 @@ final class DefaultDistributionPatterns
                     'is_pregnant' => 0.02,
                     'is_work_accident' => 0.03,
                     'is_with_physician' => $severe ? 0.20 : 0.10,
-                    'department_was_closed' => 0.03,
                 ],
                 'transport_time_minutes' => $rural
                     ? ['p25' => 15.0, 'p50' => 22.0, 'p75' => 32.0, 'p90' => 45.0]

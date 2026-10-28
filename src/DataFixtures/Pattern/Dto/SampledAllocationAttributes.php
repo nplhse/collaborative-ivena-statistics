@@ -41,7 +41,6 @@ final readonly class SampledAllocationAttributes
         public bool $isPregnant,
         public bool $isWorkAccident,
         public bool $isWithPhysician,
-        public bool $departmentWasClosed,
     ) {
     }
 }

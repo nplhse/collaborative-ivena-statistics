@@ -135,6 +135,10 @@ The indication of a case is drawn first; the rest follows from it (`IndicationGr
 
 `HospitalMonthGenerator` (`src/DataFixtures/Generator/`) writes one hospital and one month; the fixture runs it for every active hospital and month. Each import carries a marker in `filePath`, for example `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv` (`SyntheticImportMarker`); no file exists at that path.
 
+### Closures
+
+Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`: on average 8, 5 or 3 closure events per month for large, medium and small hospitals, a little more in autumn and winter. An event is an IVENA group (two to four departments with one group id), an exact-time cluster (two or three departments with the same start and end) or a single closure, so the closure analysis finds all three event types. Durations run from half an hour to at most 24 hours. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
+
 ### Adding a month later
 
 ```bash
@@ -150,7 +154,7 @@ The month gets the same rows as inside a full load with the same seed. A month a
 
 - hospital profiles also set offered departments and volume per bed;
 - pattern packages (with the export of #797) and case archetypes;
-- synthetic closure imports and scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
+- scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
 - synthetic imports go through the regular projections, including closure analysis and the materialized views.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
@@ -180,7 +184,8 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/HospitalMonthGeneratorTest.php` — a month added later equals the month of a full load, leaves other imports alone and is refused twice
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
 - `Generator/HospitalProfileResolverTest.php` — cath lab by tier and size, same per seed, resuscitation room shares
-- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one
+- `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed
+- `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases
 

@@ -106,9 +106,9 @@ Rules in code apply after sampling, whatever the pattern source:
 
 Each hospital gets one closure import per month with `ClosureInterval` rows:
 
-- department and speciality from the hospital profile, with care level, reason and facility kind,
-- durations from minutes up to 24 hours; a closure never spans several days,
-- a configurable frequency with a modest autumn and winter increase,
+- department and speciality, care level, reason and facility kind; full-care hospitals also close specialised departments (stroke unit, neurosurgery, paediatrics),
+- durations from half an hour up to 24 hours; a closure never spans several days and never ends after the last generated day,
+- a frequency by hospital size with a modest autumn and winter increase, drawn from the hospital-month stream `closures`,
 - some intervals share an IVENA group id and some share exact start and end times, so all three event types of the closure analysis appear (source group, cluster, single).
 
 Closures of a month are planned before its allocations. An allocation to a closed department during an interval gets `department_was_closed = true`; the flag is no longer random.

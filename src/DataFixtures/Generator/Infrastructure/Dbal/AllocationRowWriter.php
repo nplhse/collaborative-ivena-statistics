@@ -35,10 +35,11 @@ final class AllocationRowWriter
 
     /**
      * @param array{hospital_id: int, dispatch_area_id: int, state_id: int, import_id: int} $fixed
+     * @param bool                                                                          $departmentWasClosed the department had a closure at the time of the allocation
      */
-    public function add(SampledAllocationAttributes $sampled, array $fixed): void
+    public function add(SampledAllocationAttributes $sampled, array $fixed, bool $departmentWasClosed): void
     {
-        $this->rows[] = $this->row($sampled, $fixed);
+        $this->rows[] = $this->row($sampled, $fixed + ['department_was_closed' => $departmentWasClosed]);
         if (\count($this->rows) >= self::INSERT_BATCH_SIZE) {
             $this->flush();
         }
@@ -70,7 +71,7 @@ final class AllocationRowWriter
     }
 
     /**
-     * @param array<string, int> $fixed
+     * @param array<string, bool|int> $fixed
      *
      * @return list<bool|int|string|null>
      */
@@ -91,7 +92,6 @@ final class AllocationRowWriter
             'is_pregnant' => $sampled->isPregnant,
             'is_with_physician' => $sampled->isWithPhysician,
             'is_work_accident' => $sampled->isWorkAccident,
-            'department_was_closed' => $sampled->departmentWasClosed,
             'speciality_id' => $sampled->speciality->getId(),
             'department_id' => $sampled->department->getId(),
             'assignment_id' => $sampled->assignment->getId(),

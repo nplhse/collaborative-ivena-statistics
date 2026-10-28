@@ -13,6 +13,8 @@ final readonly class GeneratedMonth
         public int $importId,
         public int $allocations,
         public int $mciCases,
+        public int $closureImportId,
+        public int $closures,
     ) {
     }
 }

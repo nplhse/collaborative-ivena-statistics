@@ -40,21 +40,24 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             $this->load();
             $connection = $this->connection();
 
-            $hospitalId = (int) $connection->fetchOne('SELECT hospital_id FROM import ORDER BY file_path LIMIT 1');
+            $hospitalId = (int) $connection->fetchOne('SELECT hospital_id FROM import WHERE file_path LIKE \'synthetic/allocations/%\' ORDER BY file_path LIMIT 1');
             $publicId = (string) $connection->fetchOne('SELECT public_id FROM hospital WHERE id = :id', ['id' => $hospitalId]);
-            $marker = SyntheticImportMarker::likeAnySeed(SyntheticImportMarker::ALLOCATIONS, $publicId, self::MONTH);
-            $importId = (int) $connection->fetchOne('SELECT id FROM import WHERE file_path LIKE :marker', ['marker' => $marker]);
-            self::assertGreaterThan(0, $importId, 'the full load has an import for the month');
+            $importId = $this->importId(SyntheticImportMarker::ALLOCATIONS, $publicId);
+            $closureImportId = $this->importId(SyntheticImportMarker::CLOSURES, $publicId);
+            self::assertGreaterThan(0, $importId, 'the full load has an allocation import for the month');
+            self::assertGreaterThan(0, $closureImportId, 'the full load has a closure import for the month');
 
-            $loaded = $this->describeMonth($importId);
+            $loaded = $this->describeMonth($importId, $closureImportId);
             $others = $this->describeOthers($importId);
             $this->deleteImport($importId);
+            $this->deleteImport($closureImportId);
 
             $generator = $this->generator();
             $volume = $this->volume();
             $generated = $generator->generate($volume, $this->hospital($hospitalId), self::MONTH, $volume->lastDay(new MockClock()));
 
-            self::assertSame($loaded, $this->describeMonth($generated->importId), 'same rows as inside the full load');
+            self::assertSame($loaded, $this->describeMonth($generated->importId, $generated->closureImportId), 'same rows as inside the full load');
+            self::assertSame(\count($loaded['closures']), $generated->closures);
             self::assertSame($others, $this->describeOthers($generated->importId), 'other imports are left alone');
             self::assertSame(\count($loaded['allocations']), $generated->allocations);
 
@@ -71,7 +74,7 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
         try {
             self::bootKernel();
             $this->load();
-            $publicId = (string) $this->connection()->fetchOne('SELECT h.public_id FROM import i JOIN hospital h ON h.id = i.hospital_id ORDER BY i.file_path LIMIT 1');
+            $publicId = (string) $this->connection()->fetchOne('SELECT h.public_id FROM import i JOIN hospital h ON h.id = i.hospital_id WHERE i.file_path LIKE \'synthetic/allocations/%\' ORDER BY i.file_path LIMIT 1');
             $tester = new CommandTester(new Application(self::$kernel)->find('app:generate:imports'));
 
             self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH]));
@@ -89,17 +92,24 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
     }
 
     /**
-     * @return array{allocations: list<array<string, mixed>>, mci: list<array<string, mixed>>, import: array<string, mixed>|false}
+     * @return array{allocations: list<array<string, mixed>>, mci: list<array<string, mixed>>, closures: list<array<string, mixed>>, import: array<string, mixed>|false, closure_import: array<string, mixed>|false}
      */
-    private function describeMonth(int $importId): array
+    private function describeMonth(int $importId, int $closureImportId): array
     {
         $connection = $this->connection();
 
         return [
             'import' => $connection->fetchAssociative('SELECT name, file_path, row_count, status FROM import WHERE id = :id', ['id' => $importId]),
+            'closure_import' => $connection->fetchAssociative('SELECT name, file_path, row_count, status, type FROM import WHERE id = :id', ['id' => $closureImportId]),
+            'closures' => $connection->fetchAllAssociative(
+                'SELECT c.starts_at, c.ends_at, c.care_level, c.reason, c.source_group_id, d.public_id AS department
+                 FROM closure_interval c INNER JOIN department d ON d.id = c.department_id
+                 WHERE c.import_id = :id ORDER BY c.starts_at, d.public_id',
+                ['id' => $closureImportId],
+            ),
             'allocations' => $connection->fetchAllAssociative(
                 'SELECT a.created_at, a.arrival_at, a.gender, a.age, a.urgency, a.transport_type, a.requires_resus,
-                        a.requires_cathlab, a.is_cpr, d.public_id AS department, r.public_id AS indication_raw
+                        a.requires_cathlab, a.is_cpr, a.department_was_closed, d.public_id AS department, r.public_id AS indication_raw
                  FROM allocation a
                  INNER JOIN department d ON d.id = a.department_id
                  INNER JOIN indication_raw r ON r.id = a.indication_raw_id
@@ -126,9 +136,14 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
 
     private function deleteImport(int $importId): void
     {
-        foreach (['allocation_stats_projection WHERE import_id', 'mci_case WHERE import_id', 'allocation WHERE import_id', 'import WHERE id'] as $where) {
+        foreach (['allocation_stats_projection WHERE import_id', 'mci_case WHERE import_id', 'allocation WHERE import_id', 'closure_interval WHERE import_id', 'import WHERE id'] as $where) {
             $this->connection()->executeStatement(sprintf('DELETE FROM %s = :id', $where), ['id' => $importId]);
         }
+    }
+
+    private function importId(string $type, string $publicId): int
+    {
+        return (int) $this->connection()->fetchOne('SELECT id FROM import WHERE file_path LIKE :marker', ['marker' => SyntheticImportMarker::likeAnySeed($type, $publicId, self::MONTH)]);
     }
 
     private function load(): void
