@@ -40,10 +40,29 @@ See [testing.md](testing.md).
 ### Code checks / coding standards
 
 ```bash
-make lint
-make static-analysis
-make cs
+make ci     # fix what can be fixed, then check everything (run before pushing)
+make lint   # check everything, change nothing (what the Linting workflow runs)
 ```
+
+`make ci` and `make lint` run the same checks in the same order; the fixing tools (Swiss Knife, Rector,
+PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint) run in their fix variant in `ci` and in their check variant in `lint`:
+
+| # | Group | Targets |
+|---|---|---|
+| 1 | Repository | `check-phpunit-suite-dirs`, `composer-validate`, `check-conflicts` |
+| 2 | Symfony config | `lint-yaml`, `lint-container` (deprecations + `lint:container`), `lint-xliff`, `lint-trans`, `lint-templates` (Twig syntax) |
+| 3 | Code style and refactoring | `swiss-knife` / `swiss-knife-check`, `rector` / `rector-check`, `fix-php` / `lint-php`, `fix-twig` / `lint-twig` (twig-cs-fixer), `fix-js` / `lint-js` |
+| 4 | Analysis | `phpstan`, `psalm`, `deptrac` (report only, does not fail) |
+
+The fixers come before the analysis, so PHPStan and Psalm see the final code. Every target also runs on its own,
+for example `make phpstan` or `make lint-templates`.
+
+The Linting workflow (`.github/workflows/lint.yml`) calls these targets one step at a time, in this order, and runs
+every check even if an earlier one failed, so one run lists all problems. Only `composer audit` is CI-only. Add a new
+check as a make target first, then to `ci`, `lint` and the workflow at the same position.
+
+Tool caches live in `var/cache/` (`rector`, `phpstan`, `psalm`) and in `.php-cs-fixer.cache` / `.twig-cs-fixer.cache`;
+CI caches the same paths. `make clear` removes the ones in `var/cache/`.
 
 ### Translations
 
