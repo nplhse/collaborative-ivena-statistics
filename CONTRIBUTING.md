@@ -13,6 +13,12 @@ However, you should follow the following simple guidelines for your contribution
     branch and pull request into it, and a final pull request to `main` closes the issue. A switch to the
     [GitFlow branching model](http://nvie.com/posts/a-successful-git-branching-model/) is planned after beta v0.2.
 -   Please keep in mind, that this project follows [SemVer v2.0.0](http://semver.org/).
+-   Commit messages and pull request titles follow
+    [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), for example
+    `fix(import): skip empty rows (#123)`. Details are in [AGENTS.md](AGENTS.md#language-commits-and-pull-requests).
+-   The project language is English: code, comments, documentation, commits, issues and pull requests.
+-   If you notice a bug or another problem outside the scope of your change, open an issue for it instead of
+    fixing it in passing.
 -   You should make sure to follow the [PHP Standards Recommendations](http://www.php-fig.org/psr/) and the
     [Symfony best practices](http://symfony.com/doc/current/best_practices/index.html), except where the
     [architecture docs and ADRs](docs/02-architecture/README.md) decide otherwise (for example colocated Twig templates).
