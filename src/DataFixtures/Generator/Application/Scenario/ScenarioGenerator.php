@@ -12,7 +12,6 @@ use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
 use App\Allocation\Domain\Enum\HospitalSize;
-use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Application\ClosedDepartments;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
@@ -164,7 +163,7 @@ final readonly class ScenarioGenerator
 
         $profile = $this->profiles->resolve($hospital, $volume->seed);
         $pattern = $profile->applyTo($this->patterns->get($profile->segment))
-            ->withDistribution('indication_normalized', ['_present' => 1.0] + $this->indicationsByName($scenario));
+            ->withDistribution('indication_normalized', ['_present' => 1.0] + $scenario->indications);
         $random = $this->streams->stream($volume->seed, $key, $startDay, 'scenario:'.$scenario->name.':rows');
 
         if ($plan->isMci()) {
@@ -300,19 +299,6 @@ final readonly class ScenarioGenerator
         }
 
         return array_values($shares);
-    }
-
-    /**
-     * @return array<string, float>
-     */
-    private function indicationsByName(ScenarioDefinition $scenario): array
-    {
-        $byName = [];
-        foreach ($scenario->indications as $code => $share) {
-            $byName[PzcCodes::name((string) $code)] = $share;
-        }
-
-        return $byName;
     }
 
     private function isApplied(ScenarioDefinition $scenario, Hospital $hospital, \DateTimeImmutable $start): bool

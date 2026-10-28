@@ -6,7 +6,6 @@ namespace App\DataFixtures\Pattern\Application;
 
 use App\Allocation\Domain\Entity\Assignment;
 use App\Allocation\Domain\Entity\Department;
-use App\Allocation\Domain\Entity\IndicationNormalized;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
@@ -45,16 +44,14 @@ final readonly class PatternSampler
         $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random);
         $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
-        $indicationNormalized = $this->sampleNullableLookup($pattern, 'indication_normalized', IndicationNormalized::class, $random);
+        $code = $this->sampleIndicationCode($pattern, $random);
         $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
         $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class, $random);
-        $indicationRaw = $indicationNormalized instanceof IndicationNormalized
-            ? $this->lookupResolver->referenceIndicationRawForNormalized((string) $indicationNormalized->getName())
-            : $this->lookupResolver->referenceAny(IndicationRaw::class);
+        [$indicationNormalized, $indicationRaw] = null !== $code
+            ? $this->lookupResolver->indicationForCode($code)
+            : [null, $this->lookupResolver->referenceAny(IndicationRaw::class)];
 
-        $codeNumber = $indicationNormalized?->getCode();
-        $code = null !== $codeNumber ? str_pad((string) $codeNumber, 3, '0', \STR_PAD_LEFT) : '';
-        $group = IndicationGroups::forCode($code);
+        $group = IndicationGroups::forCode($code ?? '');
 
         $departmentName = $this->categoricalSampler->sample($group['departments'], $random);
         $female = $group['female'];
@@ -142,6 +139,25 @@ final readonly class PatternSampler
     private function flag(float $probability, Randomizer $random): bool
     {
         return $this->categoricalSampler->sampleBernoulli($probability, $random);
+    }
+
+    /**
+     * The PZC code of the indication, or null for a case without one. Patterns key indications by
+     * code, so codes with the same wording stay apart.
+     */
+    private function sampleIndicationCode(DistributionPattern $pattern, Randomizer $random): ?string
+    {
+        $presence = $pattern->presenceProbability('indication_normalized');
+        if (null === $presence || !$this->categoricalSampler->sampleBernoulli($presence, $random)) {
+            return null;
+        }
+
+        $distribution = $pattern->categoricalDistribution('indication_normalized');
+        if ([] === $distribution) {
+            return null;
+        }
+
+        return str_pad($this->categoricalSampler->sample($distribution, $random), 3, '0', \STR_PAD_LEFT);
     }
 
     /**

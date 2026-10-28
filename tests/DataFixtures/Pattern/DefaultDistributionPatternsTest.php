@@ -7,6 +7,7 @@ namespace App\Tests\DataFixtures\Pattern;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
+use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\CoherenceRules;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
@@ -85,6 +86,51 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         }
     }
 
+    /**
+     * 521, 531 and 541 share the wording "<16 SSW"; the sampler keeps them apart (#864).
+     */
+    public function testCodesWithTheSameWordingStayApart(): void
+    {
+        self::bootKernel();
+        $sampler = $this->loadReferenceCatalog();
+        $pattern = new DefaultDistributionPatterns()->get('urban-full')
+            ->withDistribution('indication_normalized', ['_present' => 1.0, '521' => 0.5, '531' => 0.3, '541' => 0.2]);
+        $random = new RandomStreams()->stream(740, 'obstetrics', '2026-01', RandomStreams::ALLOCATIONS);
+
+        $codes = [];
+        for ($i = 0; $i < 200; ++$i) {
+            $sampled = $sampler->sample($pattern, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
+            self::assertNotNull($sampled->indicationNormalized);
+            self::assertSame('<16 SSW', $sampled->indicationNormalized->getName());
+            self::assertSame($sampled->indicationNormalized->getId(), $sampled->indicationRaw->getTarget()?->getId(), 'the raw label maps to the sampled code');
+            self::assertContains($sampled->department->getName(), ['Geburtshilfe', 'Pränatalmedizin', 'Gynäkologie']);
+            self::assertSame(AllocationGender::FEMALE, $sampled->gender);
+            self::assertTrue($sampled->isPregnant, 'obstetric cases are pregnant');
+            $codes[(int) $sampled->indicationNormalized->getCode()] = ($codes[(int) $sampled->indicationNormalized->getCode()] ?? 0) + 1;
+        }
+
+        ksort($codes);
+        self::assertSame([521, 531, 541], array_keys($codes), 'all three codes are drawn');
+        self::assertGreaterThan($codes[541], $codes[521], 'by their shares');
+    }
+
+    private function loadReferenceCatalog(): PatternSampler
+    {
+        /** @var ContainerInterface $container */
+        $container = self::getContainer()->get('test.service_container'); // @phpstan-ignore symfonyContainer.serviceNotFound
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $container->get(EntityManagerInterface::class);
+        /** @var SymfonyFixturesLoader $loader */
+        $loader = $container->get('doctrine.fixtures.loader');
+        /** @var ORMPurgerFactory $purgerFactory */
+        $purgerFactory = $container->get('doctrine.fixtures.purger.orm_purger_factory');
+        new ORMExecutor($entityManager, $purgerFactory->createForEntityManager('default', $entityManager, []))->execute($loader->getFixtures(['reference']), true);
+        /** @var PatternSampler $sampler */
+        $sampler = $container->get(PatternSampler::class);
+
+        return $sampler;
+    }
+
     public function testTheSameSeedGivesTheSameRows(): void
     {
         self::bootKernel();
@@ -146,11 +192,19 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
             }
         }
 
-        $names = array_column(\App\Allocation\Infrastructure\Faker\Provider\PzcCodes::all(), 'name');
-        $counts = array_count_values($names);
-        foreach (array_keys($patterns->get('urban-full')->categoricalDistribution('indication_normalized')) as $indication) {
-            self::assertSame(1, $counts[$indication] ?? 0, sprintf('"%s" must name exactly one PZC code', $indication));
+        $codes = array_column(PzcCodes::all(), 'code');
+        foreach (DefaultDistributionPatterns::names() as $name) {
+            foreach (array_keys($patterns->get($name)->categoricalDistribution('indication_normalized')) as $code) {
+                self::assertContains(str_pad((string) $code, 3, '0', \STR_PAD_LEFT), $codes, sprintf('%s: "%s" must be a PZC code', $name, $code));
+            }
         }
+        $obstetric = static fn (string $name): float => array_sum(array_filter(
+            $patterns->get($name)->categoricalDistribution('indication_normalized'),
+            static fn (int|string $code): bool => \in_array(substr((string) $code, 0, 2), ['52', '53', '54'], true),
+            \ARRAY_FILTER_USE_KEY,
+        ));
+        self::assertGreaterThan(0.0, $obstetric('urban-basic'), 'basic care gets a few obstetric cases');
+        self::assertGreaterThan($obstetric('urban-basic'), $obstetric('urban-full'), 'full care gets more of them');
 
         $this->expectException(\InvalidArgumentException::class);
         $patterns->get('unknown');

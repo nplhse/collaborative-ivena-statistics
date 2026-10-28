@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\Application;
 
-use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
 
 /**
@@ -71,9 +70,11 @@ final class DefaultDistributionPatterns
     }
 
     /**
-     * Common PZC codes by their official wording; the full-care segment gets more severe cases.
+     * Common PZC codes; the full-care segment gets more severe and more obstetric cases.
      *
-     * @return array<string, float>
+     * Keyed by code, not by wording: obstetric codes share their wording across 52x, 53x and 54x.
+     *
+     * @return array<string, float> PZC code → share
      */
     private function indications(bool $severe): array
     {
@@ -82,20 +83,24 @@ final class DefaultDistributionPatterns
             '329' => 0.08, '315' => 0.05, '224' => 0.05, '361' => 0.05, '809' => 0.05,
             '273' => 0.04, '341' => 0.04, '412' => 0.03, '414' => 0.03, '345' => 0.03,
             '432' => 0.03, '421' => 0.03, '551' => 0.02, '511' => 0.02,
+            // Pregnancy at term, once per block of the PZC list.
+            '526' => 0.01, '536' => 0.01, '546' => 0.01,
         ];
         if ($severe) {
             $weights += ['332' => 0.03, '211' => 0.02, '132' => 0.01, '346' => 0.01];
             $weights['421'] = 0.05;
+            // Full care also takes preterm births and acute fetal danger.
+            $weights += ['525' => 0.01, '535' => 0.01, '530' => 0.01];
+            $weights['526'] = 0.02;
         }
 
-        // Codes whose official wording is unique, so the sampler finds the indication by its name.
         $total = array_sum($weights);
-        $byName = [];
+        $byCode = [];
         foreach ($weights as $code => $weight) {
-            $byName[PzcCodes::name(str_pad((string) $code, 3, '0', \STR_PAD_LEFT))] = round($weight / $total, 4);
+            $byCode[str_pad((string) $code, 3, '0', \STR_PAD_LEFT)] = round($weight / $total, 4);
         }
 
-        return $byName;
+        return $byCode;
     }
 
     /**

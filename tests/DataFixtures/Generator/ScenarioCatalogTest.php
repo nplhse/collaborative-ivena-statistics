@@ -11,14 +11,14 @@ use PHPUnit\Framework\TestCase;
 
 final class ScenarioCatalogTest extends TestCase
 {
-    public function testEveryScenarioUsesUniquePzcWordingsAndCatalogDepartments(): void
+    public function testEveryScenarioUsesPzcCodesAndCatalogDepartments(): void
     {
-        $counts = array_count_values(array_column(PzcCodes::all(), 'name'));
+        $codes = array_column(PzcCodes::all(), 'code');
         foreach (ScenarioCatalog::all() as $name => $scenario) {
             self::assertSame($name, $scenario->name);
             self::assertEqualsWithDelta(1.0, array_sum($scenario->indications), 0.001, $name);
             foreach (array_keys($scenario->indications) as $code) {
-                self::assertSame(1, $counts[PzcCodes::name((string) $code)] ?? 0, sprintf('%s: %s must have a unique wording, the sampler finds it by name', $name, $code));
+                self::assertContains(str_pad((string) $code, 3, '0', \STR_PAD_LEFT), $codes, sprintf('%s: %s must be a PZC code', $name, $code));
             }
             foreach ($scenario->closedDepartments as $department) {
                 self::assertContains($department, MedicalSpecialities::unitNames(), $name);
