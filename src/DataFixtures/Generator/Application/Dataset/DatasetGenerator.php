@@ -168,6 +168,7 @@ final readonly class DatasetGenerator
                 'selections' => $selections,
                 'skipped' => $skipped,
                 'retry_of' => $request->retryOf,
+                GenerationRunView::NOTIFY_USER_IDS => array_values(array_unique($request->notifyUserIds)),
             ],
             trigger: $request->trigger,
             notify: $request->notify,
@@ -342,6 +343,7 @@ final readonly class DatasetGenerator
             initiatedById: $run->initiatedById,
             retryOf: $runId,
             lastDay: new \DateTimeImmutable($this->string($run->settings, 'last_day')),
+            notifyUserIds: $run->notifyUserIds(),
         );
     }
 

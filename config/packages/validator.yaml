@@ -9,3 +9,9 @@ when@test:
     framework:
         validation:
             not_compromised_password: false
+
+# The demo runs offline (ADR 023): no breached-password lookup when the wizard creates a participant.
+when@demo:
+    framework:
+        validation:
+            not_compromised_password: false

@@ -57,6 +57,30 @@ final class Hospital extends Base
         '-Klinikum', ' Klinikum', '-Krankenhaus',
     ];
 
+    /**
+     * Bed bands of the synthetic hospitals by size: size => [fewest, most beds]. The demo wizard (#791) derives
+     * the size of a new hospital from its beds with the same bands (sizeForBeds()).
+     */
+    public const array BED_BANDS = [
+        'Small' => [80, 299],
+        'Medium' => [300, 599],
+        'Large' => [600, 1300],
+    ];
+
+    /**
+     * The size whose bed band holds the beds; below the smallest band Small, above the largest Large.
+     *
+     * @return 'Small'|'Medium'|'Large'
+     */
+    public static function sizeForBeds(int $beds): string
+    {
+        return match (true) {
+            $beds >= self::BED_BANDS['Large'][0] => 'Large',
+            $beds >= self::BED_BANDS['Medium'][0] => 'Medium',
+            default => 'Small',
+        };
+    }
+
     public function hospitalName(): string
     {
         return self::randomElement(self::$hospitalName);
@@ -108,11 +132,7 @@ final class Hospital extends Base
             'Medium' => ['Extended' => 60, 'Basic' => 25, 'Full' => 15],
             'Small' => ['Basic' => 80, 'Extended' => 20],
         });
-        $beds = match ($size) {
-            'Large' => self::numberBetween(600, 1300),
-            'Medium' => self::numberBetween(300, 599),
-            'Small' => self::numberBetween(80, 299),
-        };
+        $beds = self::numberBetween(...self::BED_BANDS[$size]);
 
         $name = strtr(self::randomElement([
             'Klinikum {town}',

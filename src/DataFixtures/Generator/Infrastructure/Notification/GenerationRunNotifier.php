@@ -13,7 +13,8 @@ use App\Notification\Application\Publishing\NotificationRequest;
 
 /**
  * One `generation.completed` per completed hospital of a finished run with `notify`, to the hospital's owner
- * (the participant). Failed hospitals get none. The publisher checks hospital access as for every
+ * (the participant) and the users the run names in addition (the demo participant with an access grant, #791),
+ * each once. Failed hospitals get none. The publisher checks hospital access as for every
  * hospital-scoped type; the deduplication key per run and hospital lets the reconciler call this again.
  */
 final readonly class GenerationRunNotifier implements GenerationRunNotifierInterface
@@ -31,13 +32,14 @@ final readonly class GenerationRunNotifier implements GenerationRunNotifierInter
 
         $published = 0;
         foreach ($run->hospitals as $hospital) {
-            if (GenerationRunHospitalStatus::Completed !== $hospital->status || null === $hospital->ownerId) {
+            $recipients = array_values(array_unique(array_filter([$hospital->ownerId, ...$run->notifyUserIds()], static fn (?int $id): bool => null !== $id)));
+            if (GenerationRunHospitalStatus::Completed !== $hospital->status || [] === $recipients) {
                 continue;
             }
 
             $this->publisher->publish(new NotificationRequest(
                 type: 'generation.completed',
-                recipientUserIds: [$hospital->ownerId],
+                recipientUserIds: $recipients,
                 deduplicationKey: \sprintf('generation.completed:%s:%d', $run->id, $hospital->hospitalId),
                 parameters: [
                     'hospitalName' => $hospital->hospitalName,
