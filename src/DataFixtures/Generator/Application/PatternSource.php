@@ -8,7 +8,7 @@ namespace App\DataFixtures\Generator\Application;
  * Which patterns generated an import: the source slot of the import marker (ADR 022).
  *
  * The slot is `<pattern source>+<structure source>`; each part is `defaults` or the checksum of a
- * package. The structure part (hospital structure packages, #876) appears only when it is not
+ * package. The structure part (hospital structure packages, #906) appears only when it is not
  * `defaults`, so `defaults` alone means code defaults for both. Build and parse the slot only here.
  */
 final readonly class PatternSource

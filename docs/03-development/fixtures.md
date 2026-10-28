@@ -366,7 +366,7 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
 
 - closures driven by the share of closed department-hours (#876);
-- structural pattern packages (`ivena-structure-patterns`, #876 with the export of #797);
+- structural pattern packages (`ivena-structure-patterns`, #906, with the structural export of #797); hospital structures come from the code defaults (`DefaultStructurePatterns`) until then;
 - overrides of the profile by hospital public id in `fixtures.yaml` (cath lab, departments, volume, closure frequency). Left out on purpose (#863): public ids follow the catalog seed, so overrides break when the catalog changes, and the demo does not need them;
 - the export of real patterns (#797), and case archetypes;
 - the pattern source in scenario markers: `synthetic/scenario/<name>/seed-740/<hospital public id>/<start day>.csv` has no source slot, although scenario rows are sampled with the selected patterns. Refusing a scenario twice and `--remove` look at name, seed and start day only, so they work whatever the source.
