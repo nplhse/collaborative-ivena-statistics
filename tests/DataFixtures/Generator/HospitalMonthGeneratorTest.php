@@ -86,6 +86,14 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             $imports = (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import');
             self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => ['00000000-0000-0000-0000-000000000000'], '--month' => self::MONTH]));
             self::assertSame($imports, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM import'), 'nothing was written');
+
+            // A free month is generated and runs through the pipeline: projection and closure analysis.
+            $this->deleteImport($this->importId(SyntheticImportMarker::ALLOCATIONS, $publicId));
+            $this->deleteImport($this->importId(SyntheticImportMarker::CLOSURES, $publicId));
+            self::assertSame(Command::SUCCESS, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH]), $tester->getDisplay());
+            $importId = $this->importId(SyntheticImportMarker::ALLOCATIONS, $publicId);
+            self::assertGreaterThan(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = :id', ['id' => $importId]));
+            self::assertGreaterThan(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM closure_event e JOIN hospital h ON h.id = e.hospital_id WHERE h.public_id = :id', ['id' => $publicId]));
         } finally {
             unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
         }

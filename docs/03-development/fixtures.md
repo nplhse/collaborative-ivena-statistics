@@ -24,9 +24,11 @@ make reset
 symfony composer load-fixtures
 # equivalent:
 php bin/console doctrine:fixtures:load --group=dev --no-interaction
+php bin/console app:statistics:rebuild-closure-volume-projection
+php bin/console app:statistics:refresh-mviews
 ```
 
-`make setup-dev` runs the same load after creating the database.
+`make setup-dev` runs the same load after creating the database. The load writes the data, export periods, data coverage and the allocation projection; the two commands after it run the closure analysis with the closure volume projection and refresh the materialized views. They cannot run inside the load, because fixtures run in one database transaction and the closure rebuild takes a lock outside it. With the `realistic` preset the closure rebuild adds about 45 s.
 
 ### Partial groups
 
@@ -155,13 +157,12 @@ The month gets the same rows as inside a full load with the same seed. A month a
 - hospital profiles also set offered departments and volume per bed;
 - pattern packages (with the export of #797) and case archetypes;
 - scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
-- synthetic imports go through the regular projections, including closure analysis and the materialized views.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
 ## Projection rebuild
 
-After bulk allocation fixture loads, the projection table is rebuilt automatically when `rebuild_projection` is enabled. Manual rebuild:
+After bulk allocation fixture loads, the projection table is rebuilt automatically when `rebuild_projection` is enabled; `composer load-fixtures` then rebuilds the closure analysis, the closure volume projection and the materialized views (`SyntheticDataPipeline`). `app:generate:imports` runs all of this for the months it adds. Manual rebuild:
 
 ```bash
 php bin/console app:statistics:rebuild-projection

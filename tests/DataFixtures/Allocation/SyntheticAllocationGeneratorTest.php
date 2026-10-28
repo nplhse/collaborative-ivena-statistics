@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\Allocation\SyntheticAllocationGenerator;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
+use App\Statistics\ClosureAnalytics\Infrastructure\Projection\ClosureAnalysisRebuilder;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -76,6 +77,7 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
 
         $this->assertCathLabCasesOnlyWhereTheProfileHasOne($connection);
         $this->assertClosedFlagOnlyDuringAClosure($connection);
+        $this->assertProcessedLikeAnUpload($connection);
 
         $yesterday = (string) $connection->fetchOne("SELECT to_char(CURRENT_DATE - 1, 'YYYY-MM-DD')");
         self::assertLessThanOrEqual($yesterday.' 23:59:59', (string) $connection->fetchOne('SELECT MAX(created_at) FROM allocation'), 'the period ends yesterday');
@@ -173,6 +175,21 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
         self::assertSame(0, (int) $rows['flagged_without_closure']);
         self::assertSame(0, (int) $rows['closure_without_flag']);
         self::assertGreaterThan(0, (int) $rows['flagged'], 'some allocations reach a closed department');
+    }
+
+    /**
+     * Every import has an export period and a data coverage, and the closure analysis finds all three event types.
+     */
+    private function assertProcessedLikeAnUpload(Connection $connection): void
+    {
+        self::assertSame(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM import WHERE export_starts_at IS NULL OR data_coverage IS NULL'));
+        self::assertGreaterThan(0, (int) $connection->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection'));
+
+        /** @var ClosureAnalysisRebuilder $analysis */
+        $analysis = self::getContainer()->get(ClosureAnalysisRebuilder::class);
+        $analysis->rebuild();
+        $types = $connection->fetchFirstColumn('SELECT DISTINCT event_type FROM closure_event ORDER BY event_type');
+        self::assertSame(['cluster', 'single', 'source_group'], $types);
     }
 
     private function deleteGeneratedRows(): void
