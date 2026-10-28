@@ -1,3 +1,16 @@
 framework:
     property_info:
         with_constructor_extractor: true
+
+when@test:
+    services:
+        # The debug kernel has no property info cache, so Live Components parse docblocks on every
+        # render. Cache the results in memory for the PHP process.
+        app.test.property_info_pool:
+            class: Psr\Cache\CacheItemPoolInterface
+            factory: ['App\Tests\Support\PropertyInfo\ProcessPropertyInfoCache', 'pool']
+
+        app.test.property_info_cache:
+            class: Symfony\Component\PropertyInfo\PropertyInfoCacheExtractor
+            decorates: property_info
+            arguments: ['@.inner', '@app.test.property_info_pool']
