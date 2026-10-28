@@ -32,11 +32,23 @@ final readonly class HospitalMonthSampler
     }
 
     /**
+     * The hospital's profile; the closure share of the preset applies unless the selection sets one.
+     * Every path that samples a month (fixture load, app:generate:imports, demo CSV) resolves it here,
+     * so they get the same rows.
+     *
+     * @throws \DomainException when the selection is not usable
+     */
+    public function profile(FixtureVolume $volume, Hospital $hospital, ?ProfileSelection $selection = null): HospitalProfile
+    {
+        return $this->profiles->resolve($hospital, $volume->seed, ($selection ?? new ProfileSelection())->withDefaultClosureShare($volume->closureShare));
+    }
+
+    /**
      * @return list<PlannedClosure>
      */
-    public function closures(FixtureVolume $volume, Hospital $hospital, ImportBatch $batch, \DateTimeImmutable $lastDay): array
+    public function closures(FixtureVolume $volume, Hospital $hospital, ImportBatch $batch, \DateTimeImmutable $lastDay, ?ProfileSelection $selection = null): array
     {
-        $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $profile = $this->profile($volume, $hospital, $selection);
 
         return $this->closurePlanner->plan($volume->seed, $hospital->getPublicIdString(), $batch->month, $profile, array_keys($batch->dailyCounts), $lastDay);
     }
@@ -51,9 +63,9 @@ final readonly class HospitalMonthSampler
      *
      * @throws InvalidPatternPackageException when the pattern package of the volume is invalid
      */
-    public function allocations(FixtureVolume $volume, Hospital $hospital, ImportBatch $batch, array $closures): iterable
+    public function allocations(FixtureVolume $volume, Hospital $hospital, ImportBatch $batch, array $closures, ?ProfileSelection $selection = null): iterable
     {
-        $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $profile = $this->profile($volume, $hospital, $selection);
         $closed = ClosedDepartments::of($closures, $this->lookups);
         $pattern = $profile->applyTo($this->patterns->load($volume->patterns)->get($profile->segment));
         $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $batch->month, RandomStreams::ALLOCATIONS);

@@ -6,35 +6,36 @@ namespace App\DataFixtures\Generator\Application;
 
 use App\Allocation\Domain\Enum\ClosureCareLevel;
 use App\Allocation\Domain\Enum\ClosureReason;
+use App\DataFixtures\Generator\Application\Catalog\GeneratorKeys;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
+use App\DataFixtures\Structure\Application\DefaultStructurePatterns;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
+use App\DataFixtures\Structure\Dto\ClosureModel;
 use Random\Randomizer;
 
 /**
  * Plans the closures of one hospital and month from their own stream (ADR 022).
  *
- * A closure event is an IVENA group (several departments with one group id), an exact-time cluster
- * (several departments with the same start and end, no group id) or a single closure, so the closure
- * analysis finds all three event types. Durations run from half an hour to at most 24 hours; autumn
- * and winter get a few more closures. The hospital profile sets the frequency, and only departments
- * the hospital offers are closed.
+ * The hospital profile sets how much is closed: the share of department-hours of its offered
+ * departments. The closure model sets how: how many departments one event closes, how long, with
+ * which care level and on which weekday. The number of events follows from both, so a share of
+ * 10 % means about 10 % of the department-hours are closed (merged per department), whatever the
+ * events look like:
+ *
+ *   events = −ln(1 − share) × departments × hours ÷ (expected departments × expected hours of an event)
+ *
+ * The logarithm makes up for events that overlap on one department. Autumn and winter get somewhat
+ * more and summer fewer, with the yearly mean unchanged.
+ *
+ * An event with several departments is an IVENA group (one group id) or an exact-time cluster (same
+ * start and end, no group id), a one-department event a single closure, so the closure analysis
+ * finds all three event types. A closure lasts at most 24 hours; a whole day starts at midnight.
+ * Only departments the hospital offers are closed.
  */
 final readonly class ClosurePlanner
 {
     private const array SEASON = [1 => 1.2, 2 => 1.2, 3 => 1.1, 4 => 1.0, 5 => 0.9, 6 => 0.9, 7 => 0.9, 8 => 0.9, 9 => 1.0, 10 => 1.1, 11 => 1.2, 12 => 1.2];
-
-    private const array EVENT_TYPES = ['group' => 0.30, 'cluster' => 0.25, 'single' => 0.45];
-
-    /** Departments that are commonly closed, if the hospital offers them. */
-    public const array DEPARTMENTS = [
-        'Kardiologie' => 0.20, 'Unfallchirurgie' => 0.15, 'Allgemeinchirurgie' => 0.10, 'Gastroenterologie' => 0.10,
-        'Allgemeine Neurologie' => 0.10, 'Pulmologie' => 0.10, 'Allgemeine Psychiatrie' => 0.10, 'Geburtshilfe' => 0.05,
-        'Nephrologie' => 0.05, 'Infektiologie' => 0.05,
-    ];
-
-    public const array SPECIALISED_DEPARTMENTS = ['Schlaganfallmedizin' => 0.10, 'Neurochirurgie' => 0.05, 'Allgemeine Pädiatrie' => 0.05];
-
-    private const array CARE_LEVELS = ['emergency' => 0.60, 'inpatient' => 0.30, 'outpatient' => 0.10];
 
     private const array REASONS = [
         'emergency_department_overload' => 0.45, 'no_bed_capacity' => 0.40, 'technical_fault' => 0.05,
@@ -47,10 +48,28 @@ final readonly class ClosurePlanner
         12 => 6.0, 13 => 6.0, 14 => 6.0, 15 => 6.0, 16 => 6.0, 17 => 5.0, 18 => 4.0, 19 => 3.0, 20 => 2.5, 21 => 2.0, 22 => 1.5, 23 => 1.0,
     ];
 
+    private const int DAY_MINUTES = 1440;
+
     public function __construct(
         private RandomStreams $streams,
         private WeightedCategoricalSampler $sampler,
+        private DefaultStructurePatterns $structures,
     ) {
+    }
+
+    /**
+     * Expected closure events in a period, before the random count.
+     *
+     * @param int   $departments offered departments
+     * @param float $hours       hours of the period
+     */
+    public static function expectedEvents(ClosureModel $model, float $share, int $departments, float $hours): float
+    {
+        if ($share <= 0.0 || $departments <= 0 || $hours <= 0.0) {
+            return 0.0;
+        }
+
+        return -log(1.0 - $share) * (float) $departments * $hours / ($model->expectedDepartments($departments) * $model->expectedHours());
     }
 
     /**
@@ -64,33 +83,38 @@ final readonly class ClosurePlanner
             return [];
         }
 
+        $model = $this->structures->get()->closureModel();
+        $departments = $this->offeredDepartments($profile, $model);
         $random = $this->streams->stream($seed, $hospital, $month, RandomStreams::CLOSURES);
-        $first = new \DateTimeImmutable($days[0]);
-        $rate = $profile->closureEventsPerMonth * self::SEASON[(int) $first->format('n')] * (float) \count($days) / 30.0;
-        $departments = array_filter(
-            self::DEPARTMENTS + self::SPECIALISED_DEPARTMENTS,
-            $profile->offers(...),
-            \ARRAY_FILTER_USE_KEY,
-        );
+        $season = self::SEASON[(int) new \DateTimeImmutable($days[0])->format('n')] * 12.0 / array_sum(self::SEASON);
+        $rate = self::expectedEvents($model, $profile->closureShare, \count($departments), 24.0 * (float) \count($days)) * $season;
+        $dayWeights = $this->dayWeights($days, $model);
         $end = \DateTimeImmutable::createFromInterface($lastDay)->setTime(23, 59, 59);
 
         $closures = [];
         $events = $this->poisson($rate, $random);
         for ($event = 1; $event <= $events; ++$event) {
-            $type = $this->sampler->sample(self::EVENT_TYPES, $random);
-            $startsAt = new \DateTimeImmutable($days[$random->getInt(0, \count($days) - 1)])
-                ->setTime((int) $this->sampler->sample(self::START_HOURS, $random), $random->getInt(0, 59));
-            $endsAt = min($startsAt->modify(sprintf('+%d minutes', $this->durationMinutes($random))), $end);
+            [$low, $high] = $model->departmentRange($this->sampler->sample(array_map(static fn (array $size): float => $size['share'], $model->eventSizes), $random), \count($departments));
+            $count = $random->getInt($low, $high);
+            $type = 1 === $count ? 'single' : ($random->nextFloat() < $model->groupShare ? 'group' : 'cluster');
+
+            $day = new \DateTimeImmutable($this->sampler->sample($dayWeights, $random));
+            $duration = $model->durations[$this->sampler->sample(array_map(static fn (array $duration): float => $duration['share'], $model->durations), $random)];
+            $minutes = $random->getInt($duration['min'], $duration['max']);
+            $startsAt = self::DAY_MINUTES === $minutes
+                ? $day->setTime(0, 0)
+                : $day->setTime((int) $this->sampler->sample(self::START_HOURS, $random), $random->getInt(0, 59));
+            $endsAt = min($startsAt->modify(sprintf('+%d minutes', $minutes)), $end);
+
+            // Unique per hospital, month and event, at most 32 characters like the column.
+            $groupId = 'group' === $type ? sprintf('%s-%s-%02d', hash('crc32b', $seed.'|'.$hospital), str_replace('-', '', $month), $event) : null;
+            $careLevel = ClosureCareLevel::from($this->sampler->sample($model->careLevels, $random));
+            $reason = ClosureReason::from($this->sampler->sample(self::REASONS, $random));
+            $picked = $this->distinctDepartments($departments, $count, $random);
             if ($endsAt <= $startsAt) {
                 continue;
             }
-
-            $count = 'single' === $type ? 1 : $random->getInt(2, 'group' === $type ? 4 : 3);
-            // Unique per hospital, month and event, at most 32 characters like the column.
-            $groupId = 'group' === $type ? sprintf('%s-%s-%02d', hash('crc32b', $seed.'|'.$hospital), str_replace('-', '', $month), $event) : null;
-            $careLevel = ClosureCareLevel::from($this->sampler->sample(self::CARE_LEVELS, $random));
-            $reason = ClosureReason::from($this->sampler->sample(self::REASONS, $random));
-            foreach ($this->distinctDepartments($departments, $count, $random) as $department) {
+            foreach ($picked as $department) {
                 $closures[] = new PlannedClosure($department, $startsAt, $endsAt, $careLevel, $reason, $groupId);
             }
         }
@@ -99,15 +123,36 @@ final readonly class ClosurePlanner
     }
 
     /**
-     * Half an hour to two hours mostly, sometimes a shift, rarely up to a day.
+     * The departments the hospital offers (default labels), weighted by their field.
+     *
+     * @return array<string, float>
      */
-    private function durationMinutes(Randomizer $random): int
+    private function offeredDepartments(HospitalProfile $profile, ClosureModel $model): array
     {
-        return match ($this->sampler->sample(['short' => 0.50, 'shift' => 0.35, 'long' => 0.15], $random)) {
-            'short' => $random->getInt(30, 120),
-            'shift' => $random->getInt(121, 360),
-            default => $random->getInt(361, 24 * 60),
-        };
+        $departments = [];
+        foreach (DepartmentStructure::all() as $key) {
+            $label = GeneratorKeys::DEPARTMENTS[$key]['label'];
+            if ($profile->offers($label)) {
+                $departments[$label] = $model->fieldWeights[GeneratorKeys::DEPARTMENTS[$key]['speciality']] ?? 1.0;
+            }
+        }
+
+        return $departments;
+    }
+
+    /**
+     * @param list<string> $days
+     *
+     * @return array<string, float> day → weight by its weekday
+     */
+    private function dayWeights(array $days, ClosureModel $model): array
+    {
+        $weights = [];
+        foreach ($days as $day) {
+            $weights[$day] = $model->weekdays[(int) new \DateTimeImmutable($day)->format('N')] ?? 1.0;
+        }
+
+        return $weights;
     }
 
     /**
@@ -126,8 +171,22 @@ final readonly class ClosurePlanner
         return $picked;
     }
 
+    /**
+     * Knuth's method for small rates, a normal approximation for large ones (Knuth underflows above
+     * about 700 and gets slow long before).
+     */
     private function poisson(float $lambda, Randomizer $random): int
     {
+        if ($lambda <= 0.0) {
+            return 0;
+        }
+        if ($lambda > 30.0) {
+            $u1 = max(1e-12, $random->nextFloat());
+            $u2 = $random->nextFloat();
+
+            return max(0, (int) round($lambda + sqrt(-2.0 * log($u1)) * cos(2.0 * \M_PI * $u2) * sqrt($lambda)));
+        }
+
         $limit = exp(-$lambda);
         $count = 0;
         $product = $random->nextFloat();

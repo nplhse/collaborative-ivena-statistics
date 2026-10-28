@@ -46,7 +46,8 @@ final readonly class PatternSampler
      *
      * A hospital gets only departments it offers: an indication whose departments are all missing
      * is drawn again (a hospital without obstetrics gets hardly any births); after a few tries the
-     * case goes to a core department every hospital offers.
+     * case goes to a core department every hospital offers. Indications the hospital lacks the
+     * capability for (hospital profile) are never drawn; their share goes to the other codes.
      */
     public function sample(
         DistributionPattern $pattern,
@@ -91,8 +92,8 @@ final readonly class PatternSampler
 
         $case = CoherenceRules::apply([
             'gender' => $gender,
-            'age' => $this->sampleAge($group['ages'], $random),
-            'urgency' => AllocationUrgency::from((int) $this->categoricalSampler->sample($group['urgency'], $random)),
+            'age' => $this->sampleAge($pattern->tiltAges($group['ages']), $random),
+            'urgency' => AllocationUrgency::from((int) $this->categoricalSampler->sample($pattern->tiltUrgency($group['urgency']), $random)),
             'field' => MedicalSpecialities::fieldOfUnit($departmentName),
             'pregnant' => $this->flag($groupFlags['is_pregnant'] ?? $base['is_pregnant'] ?? 0.0, $random),
             'cpr' => $this->flag($groupFlags['is_cpr'] ?? 0.0, $random),
@@ -180,7 +181,8 @@ final readonly class PatternSampler
 
     /**
      * The PZC code of the indication, or null for a case without one. Patterns key indications by
-     * code, so codes with the same wording stay apart.
+     * code, so codes with the same wording stay apart. Blocked codes are left out; when every code of
+     * the mix is blocked, the case has no indication.
      */
     private function sampleIndicationCode(DistributionPattern $pattern, Randomizer $random): ?string
     {
@@ -189,7 +191,11 @@ final readonly class PatternSampler
             return null;
         }
 
-        $distribution = $pattern->categoricalDistribution('indication_normalized');
+        $distribution = array_filter(
+            $pattern->tiltIndications($pattern->categoricalDistribution('indication_normalized')),
+            static fn (int|string $code): bool => !$pattern->blocksIndication(str_pad((string) $code, 3, '0', \STR_PAD_LEFT)),
+            \ARRAY_FILTER_USE_KEY,
+        );
         if ([] === $distribution) {
             return null;
         }

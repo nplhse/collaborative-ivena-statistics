@@ -7,7 +7,7 @@ namespace App\DataFixtures\Pattern\Package;
 /**
  * The `meta` block of a pattern package (ADR 022).
  *
- * The shape does not depend on the format, so the structural pattern packages of #876 can reuse it:
+ * The shape does not depend on the format, so the structural pattern packages of #906 can reuse it:
  * format and version say what the file is, `source` who made it (`defaults`, `export`, …), `catalog`
  * which reference catalog the values belong to, and the checksum covers everything except `meta`.
  */
