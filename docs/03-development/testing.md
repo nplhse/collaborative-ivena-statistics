@@ -60,6 +60,17 @@ Do not introduce Mockery or Prophecy for application tests.
 
 PR checklist: see [CONTRIBUTING.md](../../CONTRIBUTING.md) — stub by default, spy for side effects.
 
+## Fast database tests
+
+Database tests make up most of the CI time. Keep them fast without weakening what they assert (#833).
+
+- **Factory defaults are lazy.** In a Foundry factory's `defaults()`, wrap every relation that queries or creates rows (`::random()`, `::randomOrCreate()`, `::createOne()`) in `LazyValue::new(fn () => …)`. It then only runs when the test does not pass that value. A random condition that decides about the relation goes inside the closure too: `LazyValue::new(fn (): ?object => self::faker()->boolean(20) ? FooFactory::randomOrCreate() : null)`.
+- **Many objects: one flush.** When a test creates dozens of objects in a loop or with `createMany()`, wrap it in `Zenstruck\Foundry\Persistence\flush_after(function () { … })`. Without it, every object is flushed on its own. Example: `ClosureVolumeIncrementalRebuildTest`.
+- **Config read at compile time** forces extra container builds in tests. Prefer `%env()%` values that are read at runtime (example: the CSP `report-uri`, so `ContentSecurityPolicyTest` compiles one prod container for both cases).
+- **Property info is cached per process.** The debug test kernel has no property info cache, so Live Components would parse the same docblocks on every render. `config/packages/property_info.yaml` (`when@test`) adds an in-memory cache that lives as long as the PHP process ([`ProcessPropertyInfoCache`](../../tests/Support/PropertyInfo/ProcessPropertyInfoCache.php)); it never outlives a run, so changed docblocks are always read fresh.
+
+To find slow tests, run the suite and then `php bin/report-slowest-tests 25`, or read the JUnit file of a CI run. Profile a single test with `XDEBUG_MODE=profile` before changing it; the cause is not always the data setup.
+
 ## Time in code and tests
 
 Application code never reads the wall clock directly (ADR [021](../02-architecture/decisions/021-wall-clock-access.md)). Otherwise `mockTime()` cannot control it and tests depend on the real date.
@@ -108,6 +119,7 @@ make lint-trans-de  # lint DE catalogue only
 - **Database job** (parallel, PostgreSQL, PCOV): clover artifact `coverage-integration`
 - **Coverage job** (after both succeed): one Codecov upload with both clovers, no flags (full project coverage)
 - Either test job failing fails the workflow; the coverage job does not run unless both succeed
+- **Coverage runs on every PR**, including step PRs into integration branches, so coverage stays high at every step and is not only checked on `main`. PCOV makes the tests about 2.4× slower; this cost is accepted, and speed-ups come from the tests and workflows instead (decided in #833)
 - Workflows: `.github/workflows/tests.yml`
 - Codecov: [`codecov.yml`](../../codecov.yml)
 - Linting: `.github/workflows/lint.yml`
