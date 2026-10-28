@@ -8,8 +8,9 @@ This document describes how demo and reference data is loaded for local developm
 |---|---|---|
 | Faker providers | `src/Allocation/Infrastructure/Faker/Provider/` | Synthetic reference data: Hesse geography, official PZC indications, departments, lookups, hospitals |
 | Synthetic catalog | `SyntheticReferenceCatalogBuilder` | Composes the providers into a reference catalog package (seed, size) |
-| Distribution patterns | `DefaultDistributionPatterns` | Plain default distributions for synthetic allocations |
-| Fixture classes | `src/DataFixtures/` | Loaders, groups, synthetic allocation generator |
+| Distribution patterns | `src/DataFixtures/Pattern/` | Segment patterns, indication groups and coherence rules for synthetic allocations |
+| Generator | `src/DataFixtures/Generator/` | One hospital and month (allocations, MCI cases, closures), hospital profiles, scenarios, processing pipeline, `app:generate:*` commands ([ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md)) |
+| Fixture classes | `src/DataFixtures/` | Loaders and groups; the allocation fixture runs the generator for the active hospitals of the preset |
 | Foundry factories | `src/*/Infrastructure/Factory/` | Ad-hoc test data; lookup factories align with reference names where possible |
 
 Factories live under `src/` but are registered only in `dev`/`test` (see `config/services/foundry.yaml`). Attribute route loading scans `src/` with glob excludes for dev-only directories (`**/Infrastructure/Factory`, `**/Infrastructure/Faker`, `DataFixtures`, `**/Domain/Factory`) so `composer install --no-dev` can boot the kernel in production.
@@ -176,13 +177,13 @@ php bin/console app:generate:scenario mci --hospital=<public id> --at=2026-02-03
 
 The same scenario, start day and seed give the same rows; applying a scenario twice to a hospital and start day is refused. The imports run through the processing pipeline. To remove a scenario, delete its imports.
 
-### Planned: reusable generator (#792)
+### Not built yet
 
-[ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) describes the next steps:
+[ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
 
-- hospital profiles also set offered departments and volume per bed;
-- pattern packages (with the export of #797) and case archetypes;
-- presets that apply scenarios;
+- offered departments, volume per bed and overrides by public id in the hospital profile;
+- pattern packages as JSON files (with the export of real patterns, #797), case archetypes and obstetric indications;
+- presets that apply scenarios, a configurable closure frequency and the KPI aggregation after a load.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
