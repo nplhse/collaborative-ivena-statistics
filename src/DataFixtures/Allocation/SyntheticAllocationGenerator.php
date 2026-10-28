@@ -7,6 +7,8 @@ namespace App\DataFixtures\Allocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
+use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\ImportBatchPlanner;
 use App\DataFixtures\Generator\Application\Scenario\PresetScenarioPlanner;
@@ -36,11 +38,16 @@ final readonly class SyntheticAllocationGenerator
         private PresetScenarioPlanner $scenarioPlanner,
         private ScenarioGenerator $scenarioGenerator,
         private ClockInterface $clock,
+        private CatalogCompatibility $catalog,
     ) {
     }
 
+    /**
+     * @throws CatalogMismatchException before the first row when the catalog cannot serve the generator
+     */
     public function generate(): void
     {
+        $this->catalog->assertCompatible();
         $volume = $this->volumeResolver->resolve();
 
         $lastDay = $volume->lastDay($this->clock);

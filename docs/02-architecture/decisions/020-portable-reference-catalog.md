@@ -155,6 +155,12 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - A pattern package is private data: it never becomes part of tracked fixtures, and the code defaults are never generated from it automatically.
 - The export rules get an explicit privacy review, including combinations of features and segment sizes, before a package is shown in a presentation to other hospitals. Passing that review is an acceptance criterion of the export issue (#797).
 
+## Amendment (October 2026, #875): composed catalog for development
+
+To generate synthetic data on a real catalog, or to import real files into fictional hospitals, a development installation can combine the synthetic geography and hospitals with the catalog of another package. With `FIXTURES_REFERENCE_PACKAGE` (dev and test only) the reference fixture takes states, dispatch areas and hospitals from the synthetic package and departments, specialities, lookups, normalized and raw indications and indication groups from the given package (`ComposedReferenceCatalog`). The composed package goes through the same validation and import as any other package. Real hospitals never enter the database, so hospital identities and locations stay synthetic and the maps know every dispatch area.
+
+The given package must contain all catalog types; a complete export or one with `--types=department,speciality,assignment,occasion,infection,secondary-transport,indication-normalized,indication-raw,indication-group` works. Names the generator uses but the catalog spells differently are bound in a private mapping file in `var/reference/` (ADR 022, amendment for #875). The restore runbook (development reset, `--mode=replace`) stays for installations that need the real hospitals too.
+
 ## Consequences
 
 - Export → empty database → import → export gives the same package, apart from `exported_at`.
@@ -185,5 +191,5 @@ Privacy of pattern packages. Aggregated data is not anonymous by itself, so the 
 - ADR 002 (hospital permission bitmask)
 - ADR 012 (Explore data catalog)
 - ADR 015 (closure volume metrics)
-- Issues #740, #791, #792, #797
+- Issues #740, #791, #792, #797, #875
 - Inventory: `docs/04-features/import/reference-catalog-inventory.md` (step 1 of #740)

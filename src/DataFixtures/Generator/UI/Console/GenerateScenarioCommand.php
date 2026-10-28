@@ -6,6 +6,8 @@ namespace App\DataFixtures\Generator\UI\Console;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
+use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioCatalog;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,6 +37,7 @@ final readonly class GenerateScenarioCommand
         private ScenarioGenerator $generator,
         private EntityManagerInterface $entityManager,
         private ClockInterface $clock,
+        private CatalogCompatibility $catalog,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
     ) {
@@ -84,6 +87,14 @@ final readonly class GenerateScenarioCommand
             $io->error('Pass --at=YYYY-MM-DD and either --dispatch-area=<name> or --hospital=<public id>.');
 
             return Command::INVALID;
+        }
+
+        try {
+            $this->catalog->assertCompatible();
+        } catch (CatalogMismatchException|\InvalidArgumentException $exception) {
+            $io->error($exception->getMessage());
+
+            return Command::FAILURE;
         }
 
         try {
