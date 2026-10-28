@@ -14,9 +14,14 @@ final class ClosureVolumeClock
 {
     public const string TIMEZONE = 'Europe/Berlin';
 
+    private static ?\DateTimeZone $zone = null;
+
+    /**
+     * A time zone object never changes, so one instance is shared; the rebuild asks for it millions of times.
+     */
     public static function zone(): \DateTimeZone
     {
-        return new \DateTimeZone(self::TIMEZONE);
+        return self::$zone ??= new \DateTimeZone(self::TIMEZONE);
     }
 
     public static function now(): \DateTimeImmutable
