@@ -15,8 +15,8 @@ final readonly class HospitalConfiguration
 {
     /**
      * @param array<string, array<string, float>> $weights     tier → size → relative weight
-     * @param list<string>                        $departments departments the configuration always offers, besides the core and those its resources imply
-     * @param array<string, array<int, float>>    $fieldCounts field → number of further departments of that field → share
+     * @param list<string>                        $departments department keys the configuration always offers, besides the core and those its resources imply
+     * @param array<string, array<int, float>>    $fieldCounts speciality key → number of further departments of that field → share
      */
     public function __construct(
         public string $key,

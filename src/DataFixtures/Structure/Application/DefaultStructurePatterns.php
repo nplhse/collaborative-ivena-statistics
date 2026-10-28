@@ -13,7 +13,8 @@ use App\DataFixtures\Structure\Dto\StructurePatternSet;
 use App\DataFixtures\Structure\Dto\TraumaLevel;
 
 /**
- * Hand-written hospital configurations (ADR 022): manually curated, not sampled from data.
+ * Hand-written hospital configurations (ADR 022): manually curated, not sampled from data. Fields
+ * are speciality keys and departments department keys of the generator vocabulary (#875).
  *
  * Weights are coarse (five percent steps) and follow general knowledge, rounded towards the
  * aggregates of #874 where at least five hospitals stand behind a value: most extended-care hospitals
@@ -24,32 +25,32 @@ use App\DataFixtures\Structure\Dto\TraumaLevel;
 final class DefaultStructurePatterns
 {
     private const array BASIC_FIELDS = [
-        'Innere Medizin' => [0 => 0.30, 1 => 0.50, 2 => 0.20],
-        'Chirurgie' => [0 => 0.50, 1 => 0.50],
-        'Orthopädie' => [0 => 0.40, 1 => 0.50, 2 => 0.10],
-        'Neurologie' => [0 => 0.60, 1 => 0.40],
-        'Psychiatrie' => [0 => 0.80, 1 => 0.20],
-        'Gynäkologie und Geburtshilfe' => [0 => 0.60, 1 => 0.40],
+        'internal-medicine' => [0 => 0.30, 1 => 0.50, 2 => 0.20],
+        'surgery' => [0 => 0.50, 1 => 0.50],
+        'orthopaedics' => [0 => 0.40, 1 => 0.50, 2 => 0.10],
+        'neurology' => [0 => 0.60, 1 => 0.40],
+        'psychiatry' => [0 => 0.80, 1 => 0.20],
+        'gynaecology-obstetrics' => [0 => 0.60, 1 => 0.40],
     ];
 
     private const array EXTENDED_FIELDS = [
-        'Innere Medizin' => [1 => 0.40, 2 => 0.60],
-        'Chirurgie' => [0 => 0.20, 1 => 0.80],
-        'Orthopädie' => [1 => 0.50, 2 => 0.50],
-        'Neurologie' => [0 => 0.30, 1 => 0.50, 2 => 0.20],
-        'Psychiatrie' => [0 => 0.30, 1 => 0.40, 2 => 0.20, 3 => 0.10],
-        'Pädiatrie' => [0 => 0.60, 1 => 0.30, 2 => 0.10],
-        'Gynäkologie und Geburtshilfe' => [1 => 1.0],
+        'internal-medicine' => [1 => 0.40, 2 => 0.60],
+        'surgery' => [0 => 0.20, 1 => 0.80],
+        'orthopaedics' => [1 => 0.50, 2 => 0.50],
+        'neurology' => [0 => 0.30, 1 => 0.50, 2 => 0.20],
+        'psychiatry' => [0 => 0.30, 1 => 0.40, 2 => 0.20, 3 => 0.10],
+        'paediatrics' => [0 => 0.60, 1 => 0.30, 2 => 0.10],
+        'gynaecology-obstetrics' => [1 => 1.0],
     ];
 
     private const array FULL_FIELDS = [
-        'Innere Medizin' => [2 => 1.0],
-        'Chirurgie' => [1 => 1.0],
-        'Orthopädie' => [1 => 0.20, 2 => 0.80],
-        'Neurologie' => [1 => 0.30, 2 => 0.70],
-        'Psychiatrie' => [1 => 0.20, 2 => 0.30, 3 => 0.50],
-        'Pädiatrie' => [1 => 0.30, 2 => 0.70],
-        'Gynäkologie und Geburtshilfe' => [1 => 1.0],
+        'internal-medicine' => [2 => 1.0],
+        'surgery' => [1 => 1.0],
+        'orthopaedics' => [1 => 0.20, 2 => 0.80],
+        'neurology' => [1 => 0.30, 2 => 0.70],
+        'psychiatry' => [1 => 0.20, 2 => 0.30, 3 => 0.50],
+        'paediatrics' => [1 => 0.30, 2 => 0.70],
+        'gynaecology-obstetrics' => [1 => 1.0],
     ];
 
     /** PZC code prefix → what a hospital needs to receive the case. */
@@ -71,14 +72,14 @@ final class DefaultStructurePatterns
         $extended = new HospitalResources(cathlab: true, strokeUnit: StrokeUnitLevel::REGIONAL, traumaLevel: TraumaLevel::REGIONAL, obstetrics: ObstetricsLevel::BASIC, paediatrics: true);
         $full = new HospitalResources(cathlab: true, neurosurgery: true, strokeUnit: StrokeUnitLevel::SUPRA, traumaLevel: TraumaLevel::SUPRA, obstetrics: ObstetricsLevel::PERINATAL, paediatrics: true);
         $withoutPaediatrics = self::EXTENDED_FIELDS;
-        unset($withoutPaediatrics['Pädiatrie']);
+        unset($withoutPaediatrics['paediatrics']);
 
         return new StructurePatternSet(
             configurations: [
                 new HospitalConfiguration('basic-general', $this->weights(basic: [0.55, 0.40, 0.30]), $basic, fieldCounts: self::BASIC_FIELDS),
-                new HospitalConfiguration('basic-obstetrics', $this->weights(basic: [0.20, 0.20, 0.20]), $basic->with(obstetrics: ObstetricsLevel::BASIC), fieldCounts: ['Gynäkologie und Geburtshilfe' => [1 => 1.0]] + self::BASIC_FIELDS),
+                new HospitalConfiguration('basic-obstetrics', $this->weights(basic: [0.20, 0.20, 0.20]), $basic->with(obstetrics: ObstetricsLevel::BASIC), fieldCounts: ['gynaecology-obstetrics' => [1 => 1.0]] + self::BASIC_FIELDS),
                 new HospitalConfiguration('basic-cardio', $this->weights(basic: [0.10, 0.20, 0.25]), $basic->with(cathlab: true), fieldCounts: self::BASIC_FIELDS),
-                new HospitalConfiguration('basic-stroke', $this->weights(basic: [0.10, 0.15, 0.20]), $basic->with(strokeUnit: StrokeUnitLevel::REGIONAL), fieldCounts: ['Neurologie' => [0 => 0.70, 1 => 0.30]] + self::BASIC_FIELDS),
+                new HospitalConfiguration('basic-stroke', $this->weights(basic: [0.10, 0.15, 0.20]), $basic->with(strokeUnit: StrokeUnitLevel::REGIONAL), fieldCounts: ['neurology' => [0 => 0.70, 1 => 0.30]] + self::BASIC_FIELDS),
                 new HospitalConfiguration('basic-neurosurgery', $this->weights(basic: [0.05, 0.05, 0.05]), $basic->with(neurosurgery: true, traumaLevel: TraumaLevel::REGIONAL), fieldCounts: self::BASIC_FIELDS),
                 new HospitalConfiguration('extended-general', $this->weights(extended: [0.40, 0.45, 0.40]), $extended, fieldCounts: self::EXTENDED_FIELDS),
                 new HospitalConfiguration('extended-no-stroke', $this->weights(extended: [0.25, 0.20, 0.10]), $extended->with(strokeUnit: StrokeUnitLevel::NONE, obstetrics: ObstetricsLevel::NONE, paediatrics: false), fieldCounts: $withoutPaediatrics),

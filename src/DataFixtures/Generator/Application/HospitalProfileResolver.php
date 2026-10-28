@@ -11,7 +11,7 @@ use App\Allocation\Domain\Enum\HospitalTier;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
 use App\DataFixtures\Structure\Application\DefaultStructurePatterns;
-use App\DataFixtures\Structure\Application\DepartmentVocabulary;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
 use App\DataFixtures\Structure\Application\StructureRules;
 use App\DataFixtures\Structure\Dto\Capability;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
@@ -53,10 +53,10 @@ final readonly class HospitalProfileResolver
         $configuration = $this->select($set, $set->configuration($selection->configuration ?? $drawn), $selection);
         $resources = $configuration->resources;
 
-        $offered = array_values(array_unique([...DepartmentVocabulary::CORE, ...DepartmentVocabulary::impliedBy($resources), ...$configuration->departments]));
-        foreach (DepartmentVocabulary::FIELDS as $field => $departments) {
+        $offered = array_values(array_unique([...DepartmentStructure::CORE, ...DepartmentStructure::impliedBy($resources), ...$configuration->departments]));
+        foreach (DepartmentStructure::FIELDS as $field => $departments) {
             $count = (int) $this->sampler->sample($configuration->fieldCounts[$field] ?? [0 => 1.0], $random);
-            $required = DepartmentVocabulary::FIELD_REQUIRES[$field] ?? null;
+            $required = DepartmentStructure::FIELD_REQUIRES[$field] ?? null;
             if ($required instanceof Capability && !$resources->provides($required)) {
                 continue;
             }
@@ -68,7 +68,7 @@ final readonly class HospitalProfileResolver
             segment: $this->segment($hospital),
             resources: $resources,
             resusShare: $set->resusShares[$resources->traumaLevel->value] ?? 0.0,
-            missingDepartments: array_values(array_diff(DepartmentVocabulary::all(), $offered)),
+            missingDepartments: DepartmentStructure::labels(array_values(array_diff(DepartmentStructure::all(), $offered))),
             closureEventsPerMonth: self::CLOSURE_EVENTS_PER_MONTH[$size],
             configuration: $configuration->key,
             blockedIndications: $set->blockedIndications($resources),

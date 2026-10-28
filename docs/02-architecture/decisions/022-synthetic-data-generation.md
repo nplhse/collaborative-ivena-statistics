@@ -29,7 +29,7 @@ The generator lives in the existing dev/test module `src/DataFixtures/`. It is r
 | `DataFixtures/Generator/Infrastructure/` | DBAL writers, random streams |
 | `DataFixtures/Generator/UI/Console/` | `app:generate:imports`, `app:generate:scenario` |
 | `DataFixtures/Pattern/` | pattern package format, validation, chain sampler, coherence rules, code defaults |
-| `DataFixtures/Structure/` | structural patterns of hospitals: configurations, resources, department vocabulary, structure rules, code defaults (#876) |
+| `DataFixtures/Structure/` | structural patterns of hospitals: configurations, resources, department structure over the generator keys, structure rules, code defaults (#876) |
 | `DataFixtures/Reference/` | synthetic reference catalog (ADR 020) |
 | `DataFixtures/Allocation/`, `Scenario/`, `Content/`, … | Doctrine fixtures; they call the generator and hold only fixture concerns such as the demo user |
 
@@ -168,9 +168,23 @@ The follow-ups of #792 changed the first version as described above:
 
 The default dataset of `make reset` changes with it: department mix, obstetric cases and, from `medium` on, scenario data. Tests use `minimal` without scenarios.
 
+## Amendment (October 2026, #875): interchangeable catalogs
+
+The generator no longer depends on the synthetic catalog. It has a vocabulary of its own, independent of any catalog: departments and specialities by stable English keys (`GeneratorKeys`, for example `stroke-unit` and `neurology`; each key has a default label, its name in the synthetic catalog, and a department key names the speciality key it is written with), lookups by their IVENA value and indications by PZC code. `GeneratorVocabulary` collects what the patterns, indication groups, hospital profiles, closure planner and scenarios use, and `GeneratorCatalog` binds that vocabulary to whatever catalog is installed. Pattern packages and structural profiles address departments by key, never by catalog name; keys are renamed never, new departments get new keys. The code defaults still name departments by their default label and are translated to keys in one place.
+
+- A key resolves through the mapping file if it binds it, else by its default label. Names resolve like in the import: by the normalized name key and the department and speciality aliases. A name that leads to more than one row is ambiguous.
+- A local mapping file (`FIXTURES_CATALOG_MAPPING`, format `ivena-generator-catalog-mapping` version 1) binds a key to a catalog name, sets the speciality a department is written with, and pins the normalized or raw indication of a PZC code. Keys are generator keys, values catalog names. For a real catalog the file is private: it lives in `var/reference/` and is never tracked.
+- Where the catalog offers several rows, the choice follows name and public id, never the database id: the normalized indication of a code by name, the raw indication with the official wording first. A code with several normalized indications is a warning until the mapping pins one; a code without a mapped raw indication is an error instead of an arbitrary raw label.
+- The speciality of an allocation or closure is the mapping's choice for its department, otherwise the field of the unit (`MedicalSpecialities`), resolved through the catalog.
+- `CatalogCompatibility` checks every name and code before anything is generated. The allocation fixture, `app:generate:imports` and `app:generate:scenario` stop before their first row with the full list of missing and ambiguous names; `app:generate:check-catalog` prints the same report.
+
+The binding makes rows valid for another catalog; it does not widen what the generator knows. A real catalog has many more departments, specialities, occasions and infections; they get no generated rows until patterns and profiles use more keys and values (#883, #797, #876).
+
+Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), the same generation workflow runs on the synthetic catalog or on a locally supplied real one. Hospital identities and locations stay synthetic in both cases, so the random streams keyed by hospital public id are the same. With another catalog the content of the rows changes, but the same catalog content, mapping and seed give the same rows, whatever database ids the rows got.
+
 ## Amendment (October 2026, #876, step 1)
 
-- **Structural patterns:** hospital profiles are drawn from configurations (see Hospital profiles) in `DataFixtures/Structure/`, keyed by the generator's department vocabulary, not by catalog ids. The patterns hold no hospital names, ids or locations.
+- **Structural patterns:** hospital profiles are drawn from configurations (see Hospital profiles) in `DataFixtures/Structure/`, keyed by the department and speciality keys of the generator vocabulary (#875), not by catalog names or ids. The patterns hold no hospital names, ids or locations.
 - **Code defaults of the structure** are manually curated configurations. Their weights are coarse general knowledge, rounded in five percent steps towards the aggregates of the generator assessment (#874) where at least five hospitals stand behind a value; they are never generated from real data. A structural package (`ivena-structure-patterns`) follows in a later step of #876.
 - **Capability gates** decide where severe indications may go. The default allocation patterns still draw them only in the full-care segment; adding them to the other segments is part of the allocation default tuning.
 - The draw order of the `profile` stream changed (configuration, then departments per field), so every hospital gets a new structure once: a new generator version.
@@ -201,4 +215,4 @@ The default dataset of `make reset` changes with it: department mix, obstetric c
 - ADR 015 (closure volume metrics, export periods)
 - ADR 020 (portable reference catalog, synthetic catalog, pattern direction and privacy rules)
 - ADR 021 (wall clock access)
-- Issues #740, #791, #792, #797, #863, #864, #865, #866
+- Issues #740, #791, #792, #797, #863, #864, #865, #866, #875

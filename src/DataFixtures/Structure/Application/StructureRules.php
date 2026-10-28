@@ -51,17 +51,17 @@ final class StructureRules
     public static function configurationViolations(HospitalConfiguration $configuration): array
     {
         $violations = self::resourceViolations($configuration->resources);
-        $known = DepartmentVocabulary::all();
+        $known = DepartmentStructure::all();
         foreach ($configuration->departments as $department) {
             if (!\in_array($department, $known, true)) {
                 $violations[] = sprintf('unknown department "%s"', $department);
-            } elseif (\in_array($department, DepartmentVocabulary::IMPLIED, true)) {
+            } elseif (\in_array($department, DepartmentStructure::IMPLIED, true)) {
                 $violations[] = sprintf('"%s" follows from a resource and cannot be listed on its own', $department);
             }
         }
 
         foreach ($configuration->fieldCounts as $field => $counts) {
-            $departments = DepartmentVocabulary::FIELDS[$field] ?? null;
+            $departments = DepartmentStructure::FIELDS[$field] ?? null;
             if (null === $departments) {
                 $violations[] = sprintf('unknown field "%s"', $field);
                 continue;
@@ -74,7 +74,7 @@ final class StructureRules
                 if ($count < 0 || $count > \count($departments)) {
                     $violations[] = sprintf('field "%s": %d departments, but the field has %d', $field, $count, \count($departments));
                 }
-                $required = DepartmentVocabulary::FIELD_REQUIRES[$field] ?? null;
+                $required = DepartmentStructure::FIELD_REQUIRES[$field] ?? null;
                 if ($count > 0 && $required instanceof Capability && !$configuration->resources->provides($required)) {
                     $violations[] = sprintf('field "%s" needs %s', $field, $required->value);
                 }

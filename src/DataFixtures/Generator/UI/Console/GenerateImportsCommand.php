@@ -6,6 +6,8 @@ namespace App\DataFixtures\Generator\UI\Console;
 
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolumeResolver;
+use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
+use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
@@ -37,6 +39,7 @@ final readonly class GenerateImportsCommand
         private EntityManagerInterface $entityManager,
         private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
+        private CatalogCompatibility $catalog,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
     ) {
@@ -65,6 +68,14 @@ final readonly class GenerateImportsCommand
             $io->error('Pass at least one --hospital=<public id> and --month=YYYY-MM.');
 
             return Command::INVALID;
+        }
+
+        try {
+            $this->catalog->assertCompatible();
+        } catch (CatalogMismatchException|\InvalidArgumentException $exception) {
+            $io->error($exception->getMessage());
+
+            return Command::FAILURE;
         }
 
         $volume = $this->volumeResolver->resolve();

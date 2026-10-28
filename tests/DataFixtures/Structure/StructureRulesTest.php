@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\DataFixtures\Structure;
 
+use App\DataFixtures\Generator\Application\Catalog\GeneratorKeys;
 use App\DataFixtures\Structure\Application\DefaultStructurePatterns;
-use App\DataFixtures\Structure\Application\DepartmentVocabulary;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
 use App\DataFixtures\Structure\Application\StructureRules;
 use App\DataFixtures\Structure\Dto\Capability;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
@@ -37,10 +38,20 @@ final class StructureRulesTest extends TestCase
         self::assertSame(['basic-general' => 0.55, 'basic-obstetrics' => 0.20, 'basic-cardio' => 0.10, 'basic-stroke' => 0.10, 'basic-neurosurgery' => 0.05], $set->weightsFor('Basic', 'Small'));
     }
 
-    public function testTheVocabularyCoversTheGeneratorDepartments(): void
+    /**
+     * The structure uses the department keys of the generator vocabulary (#875), every field is the
+     * speciality key its departments are written with, and every generator department has a place.
+     */
+    public function testTheStructureUsesTheGeneratorKeys(): void
     {
-        self::assertCount(25, DepartmentVocabulary::all());
-        self::assertSame(['Neurochirurgie', 'Schlaganfallmedizin', 'Allgemeine Neurologie', 'Geburtshilfe', 'Pränatalmedizin', 'Neonatologie', 'Allgemeine Pädiatrie'], DepartmentVocabulary::impliedBy(new HospitalResources(
+        self::assertEqualsCanonicalizing(array_keys(GeneratorKeys::DEPARTMENTS), DepartmentStructure::all());
+        foreach (DepartmentStructure::FIELDS as $field => $departments) {
+            foreach ($departments as $department) {
+                self::assertSame($field, GeneratorKeys::DEPARTMENTS[$department]['speciality'], $department);
+            }
+        }
+        self::assertSame(['Kardiologie', 'Gastroenterologie', 'Pulmologie', 'Allgemeinchirurgie', 'Unfallchirurgie'], DepartmentStructure::labels(DepartmentStructure::CORE));
+        self::assertSame(['neurosurgery', 'stroke-unit', 'general-neurology', 'obstetrics', 'prenatal-medicine', 'neonatology', 'general-paediatrics'], DepartmentStructure::impliedBy(new HospitalResources(
             neurosurgery: true,
             strokeUnit: StrokeUnitLevel::REGIONAL,
             obstetrics: ObstetricsLevel::PERINATAL,
@@ -54,23 +65,23 @@ final class StructureRulesTest extends TestCase
             key: 'broken',
             weights: ['Basic' => ['Tiny' => 1.0]],
             resources: new HospitalResources(traumaLevel: TraumaLevel::SUPRA, obstetrics: ObstetricsLevel::PERINATAL),
-            departments: ['Schlaganfallmedizin', 'Zahnmedizin'],
+            departments: ['stroke-unit', 'dentistry'],
             fieldCounts: [
-                'Chirurgie' => [0 => 0.5, 2 => 0.4],
-                'Pädiatrie' => [1 => 1.0],
-                'Dermatologie' => [0 => 1.0],
+                'surgery' => [0 => 0.5, 2 => 0.4],
+                'paediatrics' => [1 => 1.0],
+                'dermatology' => [0 => 1.0],
             ],
         );
 
         self::assertSame([
             'broken: a supraregional trauma centre needs neurosurgery',
             'broken: a perinatal centre needs paediatrics',
-            'broken: "Schlaganfallmedizin" follows from a resource and cannot be listed on its own',
-            'broken: unknown department "Zahnmedizin"',
-            'broken: field "Chirurgie": shares sum to 0.900, not 1',
-            'broken: field "Chirurgie": 2 departments, but the field has 1',
-            'broken: field "Pädiatrie" needs paediatrics',
-            'broken: unknown field "Dermatologie"',
+            'broken: "stroke-unit" follows from a resource and cannot be listed on its own',
+            'broken: unknown department "dentistry"',
+            'broken: field "surgery": shares sum to 0.900, not 1',
+            'broken: field "surgery": 2 departments, but the field has 1',
+            'broken: field "paediatrics" needs paediatrics',
+            'broken: unknown field "dermatology"',
             'broken: unknown tier or size "Basic/Tiny"',
         ], StructureRules::configurationViolations($configuration));
     }

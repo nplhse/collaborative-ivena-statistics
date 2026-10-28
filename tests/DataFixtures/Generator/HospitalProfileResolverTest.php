@@ -15,7 +15,7 @@ use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
 use App\DataFixtures\Structure\Application\DefaultStructurePatterns;
-use App\DataFixtures\Structure\Application\DepartmentVocabulary;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
 use App\DataFixtures\Structure\Application\StructureRules;
 use App\DataFixtures\Structure\Dto\HospitalResources;
 use App\DataFixtures\Structure\Dto\ObstetricsLevel;
@@ -84,7 +84,7 @@ final class HospitalProfileResolverTest extends TestCase
                     $label = $profile->configuration;
 
                     self::assertSame([], StructureRules::resourceViolations($resources), $label);
-                    foreach (DepartmentVocabulary::CORE as $department) {
+                    foreach (DepartmentStructure::labels(DepartmentStructure::CORE) as $department) {
                         self::assertTrue($profile->offers($department), $department);
                     }
                     self::assertSame(StrokeUnitLevel::NONE !== $resources->strokeUnit, $profile->offers('Schlaganfallmedizin'), $label);

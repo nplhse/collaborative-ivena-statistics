@@ -13,7 +13,7 @@ use App\DataFixtures\Pattern\Application\CoherenceRules;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
-use App\DataFixtures\Structure\Application\DepartmentVocabulary;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -132,10 +132,10 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         self::assertSame(0, $obstetric, 'without obstetrics the pregnancy codes are drawn again');
 
         // Only core departments left: every case still gets one of them.
-        $onlyCore = new DefaultDistributionPatterns()->get('urban-full')->withoutDepartments(array_values(array_diff(MedicalSpecialities::unitNames(), DepartmentVocabulary::CORE)));
+        $onlyCore = new DefaultDistributionPatterns()->get('urban-full')->withoutDepartments(array_values(array_diff(MedicalSpecialities::unitNames(), DepartmentStructure::labels(DepartmentStructure::CORE))));
         for ($i = 0; $i < 300; ++$i) {
             $sampled = $sampler->sample($onlyCore, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
-            self::assertContains($sampled->department->getName(), DepartmentVocabulary::CORE);
+            self::assertContains($sampled->department->getName(), DepartmentStructure::labels(DepartmentStructure::CORE));
         }
 
         // A hospital without cath lab and trauma centre never gets STEMI, cardiogenic shock or polytrauma.
