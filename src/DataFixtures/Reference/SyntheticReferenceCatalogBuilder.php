@@ -33,7 +33,6 @@ use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\Allocation\Infrastructure\Faker\Provider\Occasion;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\Allocation\Infrastructure\Faker\Provider\SecondaryTransport;
-use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
 use Symfony\Component\Uid\Uuid;
@@ -42,9 +41,9 @@ use Symfony\Component\Uid\Uuid;
  * Builds a complete synthetic reference catalog from the Faker providers (ADR 020, decision 9).
  *
  * The same seed and size give a byte-identical package: ids are UUIDv5 of type and natural key,
- * the emit order is fixed and the export time is constant. Every generated entry draws from its
- * own seeded stream, never from PHP's global random state, so other code in the process cannot
- * change the result. The package goes through the same validation and import as a real one.
+ * the emit order is fixed and the export time is constant. Values are drawn from a local
+ * Randomizer, not from PHP's global random state. The package goes through the same validation
+ * and import as a real one.
  */
 final readonly class SyntheticReferenceCatalogBuilder
 {
@@ -79,6 +78,9 @@ final readonly class SyntheticReferenceCatalogBuilder
 
     public function build(int $seed = self::DEFAULT_SEED, int $hospitals = self::DEFAULT_HOSPITALS): ReferenceCatalogPackage
     {
+        // One local stream: other code in the process cannot reach it, and it is reseeded on every build.
+        $random = new Randomizer(new Mt19937($seed));
+
         $stateId = $this->id(ReferenceCatalogType::State, HesseDistricts::STATE);
         $areas = [];
         foreach (HesseDistricts::names() as $name) {
@@ -110,16 +112,16 @@ final readonly class SyntheticReferenceCatalogBuilder
             ),
             [new StateEntry($stateId, HesseDistricts::STATE)],
             array_values($areas),
-            $this->aliased(ReferenceCatalogType::Department, MedicalSpecialities::unitNames(), $seed),
-            $this->aliased(ReferenceCatalogType::Speciality, MedicalSpecialities::fieldNames(), $seed, everyNth: 0),
+            $this->aliased(ReferenceCatalogType::Department, MedicalSpecialities::unitNames(), $random),
+            $this->aliased(ReferenceCatalogType::Speciality, MedicalSpecialities::fieldNames(), $random, everyNth: 0),
             $this->named(ReferenceCatalogType::Assignment, Assignment::names()),
             $this->named(ReferenceCatalogType::Occasion, Occasion::names()),
             $this->named(ReferenceCatalogType::Infection, Infection::names()),
             $this->named(ReferenceCatalogType::SecondaryTransport, SecondaryTransport::names()),
             array_values($normalized),
-            $this->rawIndications($normalized, $seed),
+            $this->rawIndications($normalized, $random),
             $this->groups($normalized),
-            $this->hospitals($hospitals, $stateId, $areas, $seed),
+            $this->hospitals($hospitals, $stateId, $areas, $random),
         );
 
         return $this->writer->seal($package);
@@ -142,14 +144,14 @@ final readonly class SyntheticReferenceCatalogBuilder
      *
      * @return list<AliasedEntry>
      */
-    private function aliased(ReferenceCatalogType $type, array $names, int $seed, int $everyNth = 4): array
+    private function aliased(ReferenceCatalogType $type, array $names, Randomizer $random, int $everyNth = 4): array
     {
         $canonical = array_flip(array_map(ReferenceCatalogNaturalKey::name(...), $names));
         $entries = [];
         foreach ($names as $index => $name) {
             $aliases = [];
             if ($everyNth > 0 && 0 === $index % $everyNth) {
-                $alias = MedicalSpecialities::aliasFor($name, $this->stream($seed, 'alias|'.$type->value.'|'.$name));
+                $alias = MedicalSpecialities::aliasFor($name, $random);
                 if (!isset($canonical[ReferenceCatalogNaturalKey::name($alias['name'])])) {
                     $aliases[] = new AliasEntry($alias['name'], $alias['classification'], 'synthetic');
                 }
@@ -169,19 +171,19 @@ final readonly class SyntheticReferenceCatalogBuilder
      *
      * @return list<RawIndicationEntry>
      */
-    private function rawIndications(array $normalized, int $seed): array
+    private function rawIndications(array $normalized, Randomizer $random): array
     {
         $raw = [];
         $index = 0;
         foreach ($normalized as $code => $entry) {
             $this->addRaw($raw, (string) $code, $entry->name, $entry->id);
             if (0 === $index++ % 3) {
-                $this->addRaw($raw, (string) $code, Indication::rawLabelFor((string) $code, $this->stream($seed, 'raw|'.$code)), $entry->id);
+                $this->addRaw($raw, (string) $code, Indication::rawLabelFor((string) $code, $random), $entry->id);
             }
         }
 
         for ($i = 0; $i < 12; ++$i) {
-            $unmapped = Indication::unmappedFor($this->stream($seed, 'unmapped|'.$i));
+            $unmapped = Indication::unmappedFor($random);
             $this->addRaw($raw, $unmapped['code'], $unmapped['name'], null);
         }
 
@@ -250,14 +252,13 @@ final readonly class SyntheticReferenceCatalogBuilder
      *
      * @return list<HospitalEntry>
      */
-    private function hospitals(int $count, string $stateId, array $areas, int $seed): array
+    private function hospitals(int $count, string $stateId, array $areas, Randomizer $random): array
     {
         $names = array_keys($areas);
         $hospitals = [];
         for ($i = 0; $i < $count; ++$i) {
             $area = $names[$i % \count($names)];
 
-            $random = $this->stream($seed, 'hospital|'.$i);
             $profile = Hospital::profileFor($area, $random);
             for ($attempt = 0; isset($hospitals[ReferenceCatalogNaturalKey::name($profile['name'])]) && $attempt < 10; ++$attempt) {
                 $profile = Hospital::profileFor($area, $random);
@@ -289,14 +290,5 @@ final readonly class SyntheticReferenceCatalogBuilder
     private function id(ReferenceCatalogType $type, string $naturalKey): string
     {
         return Uuid::v5(Uuid::fromString(self::ID_NAMESPACE), $type->value.'|'.$naturalKey)->toRfc4122();
-    }
-
-    /**
-     * One stream per entry, so nothing else in the process can shift the catalog and a changed
-     * entry leaves the others as they are (ADR 022).
-     */
-    private function stream(int $seed, string $entry): Randomizer
-    {
-        return new Randomizer(new Mt19937(RandomStreams::engineSeed(sprintf('%d|catalog|%s', $seed, $entry))));
     }
 }
