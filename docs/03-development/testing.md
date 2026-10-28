@@ -18,7 +18,11 @@ make test PATH_ARG=tests/Statistics    # single bounded context
 make test ARGS="--filter FooTest"      # passthrough to PHPUnit
 make testdox SUITE=unit
 make coverage SUITE=integration       # clover + HTML report in var/coverage/report + summary
+make test-unit                         # unit suite via ParaTest, as the CI unit job
+make test-database                     # all other suites via ParaTest, as the CI database job
 ```
+
+`make test` runs PHPUnit serially and stops at the first failure. `make test-unit` and `make test-database` run the same groups as the two CI jobs in parallel (`PROCESSES=4` by default) and do not stop early. `COVERAGE=1` writes the clover report to `var/coverage/logs/clover-unit.xml` / `clover-integration.xml` (needs PCOV or Xdebug), `JUNIT=1` writes `junit-unit.xml` / `junit-integration.xml`. Each ParaTest worker uses its own test database (`dbname_suffix` with `TEST_TOKEN`).
 
 After a test run, slowest tests from the PHPUnit duration cache:
 
@@ -36,7 +40,7 @@ Cross-cutting groups: `browser` (Zenstruck browser tests), `materialized-view` (
 
 When adding a new bounded context under `tests/`, register its `Unit` / `Integration` / `Functional` directories in the matching named suites in `phpunit.dist.xml`. The CI unit job only runs the `unit` suite.
 
-`make check-phpunit-suite-dirs` (also part of `make ci` and the lint workflow) fails if a layer directory that contains `*Test.php` files is missing from its named suite, or if a suite lists a directory that does not exist.
+`make check-phpunit-suite-dirs` (part of `make lint` and the Linting workflow) fails if a layer directory that contains `*Test.php` files is missing from its named suite, or if a suite lists a directory that does not exist.
 
 ## Test doubles
 
@@ -90,10 +94,11 @@ PHPStan reports violations in `src/` with the identifiers `wallClock.dateTime`, 
 ## Static analysis and linting
 
 ```bash
-make lint
-make phpstan
-make psalm
+make check     # every check, no tests, changes no code
+make analyse   # PHPStan and Psalm only
 ```
+
+Overview of checks, fixes and tests: [development-workflow.md](development-workflow.md#checks-fixes-and-tests).
 
 ## Translations (i18n)
 
@@ -115,8 +120,8 @@ make lint-trans-de  # lint DE catalogue only
 
 ## CI reference
 
-- **Unit job** (parallel, no database, PCOV): suite `unit`, clover artifact `coverage-unit`
-- **Database job** (parallel, PostgreSQL, PCOV): suites `integration,functional,fixtures,system`, clover artifact `coverage-integration`. Use this list, not `all` with `--exclude-testsuite unit`: `all` contains the unit folders too, so they would run twice.
+- **Unit job** (parallel, no database, PCOV): `make test-unit COVERAGE=1 JUNIT=1`, clover artifact `coverage-unit`
+- **Database job** (parallel, PostgreSQL, PCOV): `make test-database COVERAGE=1 JUNIT=1`, suites `integration,functional,fixtures,system`, clover artifact `coverage-integration`. The list lives in `DATABASE_SUITES` in the `Makefile`; use it, not `all` with `--exclude-testsuite unit`: `all` contains the unit folders too, so they would run twice.
 - **Coverage job** (after both succeed): one Codecov upload with both clovers, no flags (full project coverage)
 - **Prod kernel smoke**: `composer install --no-dev` (with Composer scripts, so `cache:clear` boots the prod kernel), `lint:container` and `asset-map:compile` in `APP_ENV=prod`
 - CI writes only the clover report; the HTML and text reports come from `make coverage`

@@ -13,6 +13,7 @@
 /phpunit.xml
 /.phpunit.cache/
 .phpunit.result.cache
+/junit-*.xml
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###
@@ -22,6 +23,12 @@
 
 /.idea/
 /.cursor/
+
+# Local coding agent files (shared instructions: AGENTS.md, CLAUDE.md)
+/.claude/worktrees/
+/.claude/launch.json
+/.claude/settings.local.json
+/CLAUDE.local.md
 
 ###> phpstan/phpstan ###
 phpstan.neon

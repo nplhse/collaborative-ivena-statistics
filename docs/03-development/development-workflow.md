@@ -5,7 +5,7 @@
 ### Initialize the environment
 
 ```bash
-make setup-dev    # greenfield with fixtures (alias: make install)
+make install-dev  # greenfield with fixtures; drops the DB (INSTALL_CONFIRM=yes if it holds an installation)
 make upgrade-dev  # update deps/schema; keeps existing DB (e.g. mirror DB)
 ```
 
@@ -13,7 +13,7 @@ First-time setup details: [../01-getting-started/local-setup.md](../01-getting-s
 
 ### Work in a git worktree
 
-A new worktree has no `vendor/`, no `node_modules/`, no local env files and cold caches for the code checks. `bin/worktree-init` takes all of that from an existing checkout, so tests and `make ci` run right away:
+A new worktree has no `vendor/`, no `node_modules/`, no local env files and cold caches for the code checks. `bin/worktree-init` takes all of that from an existing checkout, so checks and tests run right away:
 
 ```bash
 git worktree add -b feature/my-topic ../my-topic origin/main
@@ -34,10 +34,16 @@ Existing files in the worktree are kept; `--force` replaces them. The script is 
 
 The same steps apply to people and to coding agents that work in parallel worktrees.
 
+A worktree uses the same databases as its source checkout: the development database from the copied `.env.local`, and the test databases from `DATABASE_URL` in `.env` (or a copied `.env.test.local`; the test environment does not read `.env.local`) with the suffix `_test`, plus one per ParaTest worker via `TEST_TOKEN`. In practice:
+
+- Do not run database tests in two checkouts at the same time. `make ci`, `make test` and `make test-database` reset the test databases and get in each other's way.
+- Migrations from a branch change the shared development database; other checkouts then run against that schema.
+- For an isolated worktree, set another database name in its `.env.local` (development) and `.env.test.local` (tests), then run `make install-dev` there.
+
 ### Reset local runtime data
 
 ```bash
-make purge   # clear assets, uploads, imports, logs; empty DB; no fixtures
+make purge   # clear assets, uploads, imports, logs; drop and recreate the DB; no fixtures
 make reset   # like purge, then load demo fixtures (see [fixtures.md](fixtures.md))
 ```
 
@@ -60,29 +66,42 @@ make coverage
 
 See [testing.md](testing.md).
 
-### Code checks / coding standards
+### Checks, fixes and tests
 
-```bash
-make ci     # fix what can be fixed, then check everything (run before pushing)
-make lint   # check everything, change nothing (what the Linting workflow runs)
-```
+Checks never change source code (they may write caches, compiled containers and reports). Only `make fix` changes code.
 
-`make ci` and `make lint` run the same checks in the same order; the fixing tools (Swiss Knife, Rector,
-PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint) run in their fix variant in `ci` and in their check variant in `lint`:
+| Command | What it does | Changes code | Needs |
+|---|---|---|---|
+| `make lint` | Repository, Symfony config and code style checks (groups 1–3 below) | no | — |
+| `make analyse` | PHPStan and Psalm (group 4) | no | — |
+| `make check` | `lint`, `analyse` and the Deptrac report: every check, no tests | no | — |
+| `make fix` | Swiss Knife, Rector, PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint | **yes** | — |
+| `make test` | PHPUnit, see [testing.md](testing.md) | no | test database |
+| `make test-unit` / `make test-database` | The two CI test groups via ParaTest | no | test database (only `test-database`) |
+| `make ci` | `check`, then the complete test suite (slow, runs in GitHub Actions on every PR) | no | test database |
+| `make audit` | `composer audit` | no | network |
+| `make security` | Psalm taint analysis (`SARIF=results.sarif` writes a report) | no | — |
+| `make ci-full` | `ci`, `audit` and `security` | no | test database, network |
 
-| # | Group | Targets |
+Day to day and before a pull request: `make check` and the tests of every context whose behaviour can change (`make test PATH_ARG=tests/<Context>`). The complete suite runs in GitHub Actions on every pull request; run `make ci` locally only for changes to central infrastructure or to reproduce a CI failure. `make check` stops at the first failing check; `make -k check` runs all of them and lists every failure.
+
+`make fix` can change code behaviour (Rector, finalized classes) and touches every file the tools find, not only yours. Run it on purpose and review the diff. `make cs` and `make static-analysis` remain as aliases for `fix` and `analyse`. Until #850, `make ci` applied the fixes and ran no tests; use `make fix check` for that now.
+
+The checks in the order of `make check`:
+
+| # | Group | Check targets (fix variant) |
 |---|---|---|
 | 1 | Repository | `check-phpunit-suite-dirs`, `composer-validate`, `check-conflicts` |
 | 2 | Symfony config | `lint-yaml`, `lint-container` (deprecations + `lint:container`), `lint-xliff`, `lint-trans`, `lint-templates` (Twig syntax) |
-| 3 | Code style and refactoring | `swiss-knife` / `swiss-knife-check`, `rector` / `rector-check`, `fix-php` / `lint-php`, `fix-twig` / `lint-twig` (twig-cs-fixer), `fix-js` / `lint-js` |
-| 4 | Analysis | `phpstan`, `psalm`, `deptrac` (report only, does not fail) |
+| 3 | Code style and refactoring | `swiss-knife-check` (`swiss-knife`), `rector-check` (`rector`), `lint-php` (`fix-php`), `lint-twig` (`fix-twig`, twig-cs-fixer), `lint-js` (`fix-js`) |
+| 4 | Analysis | `phpstan`, `psalm` |
+| 5 | Architecture | `deptrac`: report only, never fails ([ADR 010](../02-architecture/decisions/010-architecture-guardrails-and-beta-scope.md)); `deptrac-strict` fails on violations outside the baseline |
 
-The fixers come before the analysis, so PHPStan and Psalm see the final code. Every target also runs on its own,
-for example `make phpstan` or `make lint-templates`.
+Every target also runs on its own, for example `make phpstan` or `make lint-templates`. Fix a failing check at its cause; do not regenerate `deptrac.baseline.yaml` or `phpstan-baseline.neon` to make it pass.
 
-The Linting workflow (`.github/workflows/lint.yml`) calls these targets one step at a time, in this order, and runs
-every check even if an earlier one failed, so one run lists all problems. Only `composer audit` is CI-only. Add a new
-check as a make target first, then to `ci`, `lint` and the workflow at the same position.
+The Linting workflow (`.github/workflows/lint.yml`) calls these targets one step at a time, in this order, and runs every check even if an earlier one failed, so one run lists all problems. Add a new check as a make target first, then to its group in the `Makefile` and to the workflow at the same position. A green local run does not replace the results of the GitHub workflows.
+
+The `Makefile` defines the commands: which tool runs with which options, which test suites belong together, where reports go. The workflows call those targets and provide everything around them: PHP, Node and extensions, the locked dependencies, Composer and tool caches, the PostgreSQL service and job environment (`APP_SECRET`, `DATABASE_URL`, `CONSOLE: php bin/console`, as CI has no Symfony CLI), compiled assets before the database tests, and the coverage, JUnit and SARIF uploads. The prod kernel smoke job keeps its own steps: it replaces `vendor/` with a `--no-dev` install, which should not happen in a development checkout.
 
 Tool caches live in `var/cache/` (`rector`, `phpstan`, `psalm`) and in `.php-cs-fixer.cache` / `.twig-cs-fixer.cache`;
 CI caches the same paths. `make clear` removes the ones in `var/cache/`.
@@ -156,6 +175,12 @@ make upgrade-dev
 # or manually:
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
+
+New migrations:
+
+- Generate them with `php bin/console doctrine:migrations:diff` (or `make:migration`) and review the SQL.
+- Name the version with the actual current time, `Version<YYYYMMDDHHMMSS>` (`date '+%Y%m%d%H%M%S'`), never a rounded value such as `Version20261014190000`. If you rename one that already ran locally, update `doctrine_migration_versions` too.
+- Never edit a migration that is already on `main`; add a new one instead.
 
 ## Tips
 

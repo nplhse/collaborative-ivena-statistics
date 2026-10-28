@@ -16,24 +16,24 @@ git clone https://github.com/nplhse/collaborative-ivena-statistics.git
 cd collaborative-ivena-statistics
 cp .env.example .env.local
 # configure APP_SECRET and DATABASE_URL
-make setup-dev
+make install-dev
 ```
 
-`make setup-dev` installs Composer and npm dependencies, prepares the database, and compiles assets.
+`make install-dev` installs Composer and npm dependencies, prepares the database, and compiles assets. It drops and recreates the database; if the database already holds an installation, it stops unless you add `INSTALL_CONFIRM=yes`.
 
-`make install` is an alias for `make setup-dev`.
+`make install` is the prod-like counterpart (`--no-dev`, empty database), not an alias for the dev setup. The old names `setup-dev`, `setup-prod` and `prod` stop with a hint to the new ones.
 
-Local `setup-dev` loads demo users via fixtures. An empty database (`make setup-prod` or a new server) has no default administrator — create one with `php bin/console app:user:create`. See [../05-operations/deployment.md](../05-operations/deployment.md).
+Local `install-dev` loads demo users via fixtures. An empty database (`make install` or a new server) has no default administrator — create one with `php bin/console app:user:create`. See [../05-operations/deployment.md](../05-operations/deployment.md).
 
 ### Make targets
 
 | Target | Use when |
 |--------|----------|
-| `setup-dev` | New machine: dev dependencies (`vendor` + `node_modules`), fresh DB, fixtures, test DB |
-| `setup-prod` | Prod-like local run: `--no-dev`, empty DB, no fixtures |
+| `install-dev` | New machine: dev dependencies (`vendor` + `node_modules`), fresh DB, fixtures, test DB (drops the DB) |
+| `install` | Prod-like local run: `--no-dev`, empty DB, no fixtures (drops the DB) |
 | `upgrade-dev` | Pull/update: keep existing dev DB, recreate test DB (incl. test cache clear), migrate, refresh assets, `make node_modules` |
 | `upgrade-prod` | Same as upgrade-dev with prod env and `--no-dev` |
-| `purge` | Remove assets, uploads, `var/imports`, logs, cache; empty DB; no fixtures |
+| `purge` | Remove assets, uploads, `var/imports`, logs, cache; drop and recreate the DB; no fixtures |
 | `reset` | Like `purge`, then load fixtures |
 | `warmup` | Recompile assets and warm cache only (no DB changes) |
 | `node_modules` | Install npm dev dependencies from `package-lock.json` (ESLint, Prettier) |
@@ -79,10 +79,10 @@ symfony composer upgrade-test-env   # same as setup-test-env; used by make upgra
 
 ```bash
 make test
-make lint
+make check
 ```
 
-`make lint` includes `lint-js` (Prettier check + ESLint). Use `make fix-js` or `make ci` to auto-fix JavaScript before committing.
+`make check` runs every check without tests and changes no code. `make fix` applies the automatic fixes (PHP, Twig, JavaScript); review its diff before committing.
 
 If both pass, the local development environment is ready.
 

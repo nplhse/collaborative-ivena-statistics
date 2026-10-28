@@ -29,7 +29,7 @@ php bin/console app:statistics:rebuild-closure-volume-projection
 php bin/console app:statistics:refresh-mviews
 ```
 
-`make setup-dev` runs the same load after creating the database. The load writes the data, export periods, data coverage, the allocation projection and the daily KPIs (`kpi_daily`); the two commands after it run the closure analysis with the closure volume projection and refresh the materialized views. They cannot run inside the load, because fixtures run in one database transaction and the closure rebuild takes a lock outside it. 
+`make install-dev` runs the same load after creating the database. The load writes the data, export periods, data coverage, the allocation projection and the daily KPIs (`kpi_daily`); the two commands after it run the closure analysis with the closure volume projection and refresh the materialized views. They cannot run inside the load, because fixtures run in one database transaction and the closure rebuild takes a lock outside it. 
 
 ### Partial groups
 
@@ -231,7 +231,7 @@ php bin/phpunit --no-coverage tests/DataFixtures/
 
 ## Related documentation
 
-- [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md) — `make setup-dev`, `make reset`
+- [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md) — `make install-dev`, `make reset`
 - [development-workflow.md](development-workflow.md) — daily commands
 - [testing.md](testing.md) — test environment and MV refresh
 - [../02-architecture/overview.md](../02-architecture/overview.md) — bounded contexts and commands
