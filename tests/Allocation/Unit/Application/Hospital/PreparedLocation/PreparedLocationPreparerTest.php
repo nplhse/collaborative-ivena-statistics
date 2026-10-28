@@ -216,6 +216,71 @@ final class PreparedLocationPreparerTest extends TestCase
         self::assertFalse($this->store->exists('musterstadt'));
     }
 
+    public function testInvalidRequestFailsWithoutLookupsOrRequests(): void
+    {
+        $geocode = $this->geocodeClient();
+        $geocode->expects(self::never())->method('geocodeAddress');
+
+        $report = $this->preparer($geocode, $this->isochroneStub())->run(
+            new PrepareLocationRequest(slug: 'pin', latitude: 50.5),
+            apply: true,
+            force: false,
+            delayMs: 0,
+        );
+
+        self::assertFalse($report->success);
+        self::assertSame('Pass both --lat and --lng.', $report->error);
+        self::assertSame([], $report->steps);
+    }
+
+    public function testUnknownHospitalFails(): void
+    {
+        $report = $this->preparer($this->geocodeStub(), $this->isochroneStub(), hospital: null)->run(
+            new PrepareLocationRequest(slug: 'musterdorf', hospitalId: 999),
+            apply: false,
+            force: false,
+            delayMs: 0,
+        );
+
+        self::assertFalse($report->success);
+        self::assertTrue($report->dryRun);
+        self::assertSame('Unknown hospital id 999.', $report->error);
+    }
+
+    public function testGeocodeRateLimitIsRetriedOnceThenReported(): void
+    {
+        $geocode = $this->geocodeClient();
+        $geocode->expects(self::exactly(2))->method('geocodeAddress')
+            ->willReturn(HospitalGeocodeOutcome::rateLimited(1));
+        $isochrones = $this->isochroneClient();
+        $isochrones->expects(self::never())->method('fetchDestinationIsochrones');
+
+        $report = $this->preparer($geocode, $isochrones)->run($this->addressRequest(), apply: true, force: false, delayMs: 0);
+
+        self::assertFalse($report->success);
+        self::assertTrue($report->rateLimited);
+        self::assertSame('OpenRouteService rate limit reached. Re-run later.', $report->error);
+        self::assertSame('rate-limited', $report->steps[1][2]);
+        self::assertSame(1, $report->requestsExecuted);
+    }
+
+    public function testGeocodeRetrySucceedsAfterOneRateLimit(): void
+    {
+        $geocode = $this->geocodeClient();
+        $geocode->expects(self::exactly(2))->method('geocodeAddress')->willReturnOnConsecutiveCalls(
+            HospitalGeocodeOutcome::rateLimited(1),
+            HospitalGeocodeOutcome::match(new HospitalGeocodeMatch(50.5, 8.25, 'Musterstraße 1, Musterstadt', 'address')),
+        );
+        $isochrones = $this->isochroneClient();
+        $isochrones->expects(self::once())->method('fetchDestinationIsochrones')->with(50.5, 8.25)
+            ->willReturn(HospitalIsochroneFetchOutcome::success($this->geojson()));
+
+        $report = $this->preparer($geocode, $isochrones)->run($this->addressRequest(), apply: true, force: false, delayMs: 0);
+
+        self::assertTrue($report->success, (string) $report->error);
+        self::assertSame(50.5, $this->store->find('musterstadt')?->latitude);
+    }
+
     public function testRequestValidation(): void
     {
         $address = new HospitalGeocodeAddress('Musterstraße 1', '12345', 'Musterstadt', 'DE');
@@ -226,6 +291,7 @@ final class PreparedLocationPreparerTest extends TestCase
         self::assertStringContainsString('Specify', (string) new PrepareLocationRequest(slug: 'a')->sourceError());
         self::assertStringContainsString('Specify', (string) new PrepareLocationRequest(slug: 'a', address: new HospitalGeocodeAddress('', '12345', '', 'DE'))->sourceError());
         self::assertStringContainsString('Latitude', (string) new PrepareLocationRequest(slug: 'a', latitude: 91.0, longitude: 8.0)->sourceError());
+        self::assertStringContainsString('Longitude', (string) new PrepareLocationRequest(slug: 'a', latitude: 50.0, longitude: -180.5)->sourceError());
         self::assertNull(new PrepareLocationRequest(slug: 'a', address: $address)->sourceError());
         self::assertNull(new PrepareLocationRequest(slug: 'a', address: $address, latitude: 50.0, longitude: 8.0)->sourceError());
     }

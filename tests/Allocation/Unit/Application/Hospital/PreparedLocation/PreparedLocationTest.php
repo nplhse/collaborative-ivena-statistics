@@ -71,6 +71,49 @@ final class PreparedLocationTest extends TestCase
         PreparedLocation::fromArray($data);
     }
 
+    public function testConstructorRejectsInvalidSlug(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid prepared location slug "Muster Stadt"');
+
+        new PreparedLocation(
+            slug: 'Muster Stadt',
+            label: 'Musterstadt',
+            address: null,
+            latitude: 50.5,
+            longitude: 8.25,
+            isochrones: IsochroneOrigin::withCoordinates($this->geojson(), 50.5, 8.25),
+            preparedAt: new \DateTimeImmutable('2026-10-28T12:00:00+00:00'),
+        );
+    }
+
+    /**
+     * @param \Closure(array<string, mixed>): array<string, mixed> $break
+     */
+    #[DataProvider('malformedFiles')]
+    public function testRejectsMalformedData(\Closure $break, string $message): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($message);
+
+        PreparedLocation::fromArray($break($this->location()->toArray()));
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(array<string, mixed>): array<string, mixed>, string}>
+     */
+    public static function malformedFiles(): iterable
+    {
+        yield 'coordinates missing' => [static fn (array $d): array => array_diff_key($d, ['coordinates' => true]), 'missing coordinates or isochrones'];
+        yield 'isochrones not an object' => [static fn (array $d): array => ['isochrones' => 'none'] + $d, 'missing coordinates or isochrones'];
+        yield 'timestamp not ISO 8601' => [static fn (array $d): array => ['preparedAt' => '28.10.2026'] + $d, 'invalid "preparedAt" timestamp'];
+        yield 'address not an object' => [static fn (array $d): array => ['address' => 'Musterstraße 1'] + $d, 'invalid address'];
+        yield 'address field missing' => [static fn (array $d): array => ['address' => ['street' => 'Musterstraße 1']] + $d, 'field "postalCode" must be a string'];
+        yield 'feature not an object' => [static fn (array $d): array => ['isochrones' => ['type' => 'FeatureCollection', 'features' => ['polygon']]] + $d, 'contain an invalid feature'];
+        yield 'slug not a string' => [static fn (array $d): array => ['slug' => 42] + $d, 'field "slug" must be a string'];
+        yield 'latitude not a number' => [static fn (array $d): array => ['coordinates' => ['lat' => '50.5', 'lng' => 8.25]] + $d, 'coordinate "lat" must be a number'];
+    }
+
     public function testRejectsEmptyIsochrones(): void
     {
         $data = $this->location()->toArray();

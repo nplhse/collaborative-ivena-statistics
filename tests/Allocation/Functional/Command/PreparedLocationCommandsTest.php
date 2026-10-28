@@ -103,6 +103,57 @@ final class PreparedLocationCommandsTest extends KernelTestCase
         self::assertFalse($this->locationStore()->exists('pin'));
     }
 
+    public function testPrepareReportsRateLimitAndStoresNothing(): void
+    {
+        $httpClient = new MockHttpClient([
+            new MockResponse('{"error":"Rate limit exceeded"}', ['http_code' => 429]),
+            new MockResponse('{"error":"Rate limit exceeded"}', ['http_code' => 429]),
+        ]);
+        $tester = $this->prepareTester($httpClient);
+
+        $status = $tester->execute(['slug' => 'pin', '--lat' => '50.5', '--lng' => '8.25', '--apply' => true, '--delay-ms' => 0]);
+
+        self::assertSame(Command::FAILURE, $status);
+        self::assertSame(2, $httpClient->getRequestsCount());
+        self::assertStringContainsString('rate limit reached', $tester->getDisplay());
+        self::assertStringContainsString('Nothing was stored', $tester->getDisplay());
+        self::assertFalse($this->locationStore()->exists('pin'));
+    }
+
+    public function testPrepareWarnsWhenApplyAndDryRunAreBothPassed(): void
+    {
+        $httpClient = new MockHttpClient(fn (): MockResponse => $this->isochroneResponse());
+        $tester = $this->prepareTester($httpClient);
+
+        $status = $tester->execute(['slug' => 'pin', '--lat' => '50.5', '--lng' => '8.25', '--apply' => true, '--dry-run' => true, '--delay-ms' => 0]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertStringContainsString('--apply takes precedence', $tester->getDisplay());
+        self::assertTrue($this->locationStore()->exists('pin'));
+    }
+
+    public function testListWithoutLocationsPointsToThePrepareCommand(): void
+    {
+        $list = new CommandTester(new ListPreparedLocationsCommand($this->locationStore()));
+
+        self::assertSame(Command::SUCCESS, $list->execute([]));
+        self::assertStringContainsString('No prepared locations yet', $list->getDisplay());
+        self::assertStringContainsString('app:geo:prepare-location', $list->getDisplay());
+    }
+
+    public function testApplyWarnsWhenApplyAndDryRunAreBothPassed(): void
+    {
+        $this->prepareFromPin();
+        $hospital = $this->hospital(latitude: null, longitude: null, street: '');
+        $tester = $this->applyTester();
+
+        $status = $tester->execute(['slug' => 'musterstadt', '--hospital-id' => $hospital->getId(), '--apply' => true, '--dry-run' => true]);
+
+        self::assertSame(Command::SUCCESS, $status);
+        self::assertStringContainsString('--apply takes precedence', $tester->getDisplay());
+        self::assertSame(50.5, $this->reloadHospital($hospital)->getLatitude());
+    }
+
     public function testPrepareRejectsNonNumericCoordinates(): void
     {
         $tester = $this->prepareTester($this->failingHttpClient());

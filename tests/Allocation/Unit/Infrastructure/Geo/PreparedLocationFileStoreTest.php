@@ -67,10 +67,62 @@ final class PreparedLocationFileStoreTest extends TestCase
         self::assertNull($this->store->find('renamed'));
     }
 
+    public function testEmptyFileAndJsonThatIsNoObjectAreIgnored(): void
+    {
+        mkdir($this->baseDirectory);
+        file_put_contents($this->baseDirectory.'/empty.json', '');
+        file_put_contents($this->baseDirectory.'/number.json', '42');
+
+        self::assertNull($this->store->find('empty'));
+        self::assertNull($this->store->find('number'));
+        self::assertSame([], $this->store->all());
+    }
+
+    public function testSaveFailsWhenTheDirectoryCannotBeCreated(): void
+    {
+        // A regular file where the directory should be.
+        file_put_contents($this->baseDirectory, 'not a directory');
+
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('Unable to create prepared location directory');
+            $this->withoutWarnings(fn () => $this->store->save($this->location('musterstadt')));
+        } finally {
+            unlink($this->baseDirectory);
+        }
+    }
+
+    public function testSaveFailsWhenTheFileCannotBeWritten(): void
+    {
+        // A directory where the file should be.
+        mkdir($this->baseDirectory.'/musterstadt.json', 0775, true);
+
+        try {
+            $this->expectException(\RuntimeException::class);
+            $this->expectExceptionMessage('Unable to write prepared location "musterstadt"');
+            $this->withoutWarnings(fn () => $this->store->save($this->location('musterstadt')));
+        } finally {
+            rmdir($this->baseDirectory.'/musterstadt.json');
+        }
+    }
+
     public function testInvalidSlugIsNeverResolvedToAPath(): void
     {
         self::assertNull($this->store->find('../etc/passwd'));
         self::assertFalse($this->store->exists('../etc/passwd'));
+    }
+
+    /**
+     * mkdir() and file_put_contents() warn before they return false; the store turns that into an exception.
+     */
+    private function withoutWarnings(\Closure $action): void
+    {
+        set_error_handler(static fn (): bool => true, \E_WARNING);
+        try {
+            $action();
+        } finally {
+            restore_error_handler();
+        }
     }
 
     private function location(string $slug): PreparedLocation
