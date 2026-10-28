@@ -32,7 +32,8 @@ use Random\Randomizer;
  * during an interval gets `department_was_closed`.
  *
  * The month draws from its own random streams (ADR 022), so it gets the same rows whether it is
- * generated alone, later, or inside a full fixture load. Projections are not rebuilt here.
+ * generated alone, later, or inside a full fixture load. Export period and data coverage are set here;
+ * projections are rebuilt by the caller through SyntheticDataPipeline.
  */
 final readonly class HospitalMonthGenerator
 {
@@ -47,6 +48,7 @@ final readonly class HospitalMonthGenerator
         private ClosurePlanner $closurePlanner,
         private ClosureIntervalWriter $closureWriter,
         private PatternLookupResolver $lookups,
+        private SyntheticDataPipeline $pipeline,
     ) {
     }
 
@@ -123,6 +125,18 @@ final readonly class HospitalMonthGenerator
         $writer->flush();
 
         $mciCases = $this->generateMciCases($volume, $batch, $import, $hospital, $dispatchArea, $state);
+
+        // Closure periods depend on the allocations of the hospital, so both imports are processed now.
+        $firstDay = array_key_first($batch->dailyCounts);
+        $lastGeneratedDay = array_key_last($batch->dailyCounts);
+        if (null === $firstDay || null === $lastGeneratedDay) {
+            throw new \LogicException('A planned month has at least one day.');
+        }
+        $windowStart = new \DateTimeImmutable($firstDay.' 00:00:00');
+        $windowEnd = new \DateTimeImmutable($lastGeneratedDay.' 23:59:59');
+        $this->pipeline->processImport($import, $windowStart, $windowEnd);
+        $this->pipeline->processImport($closureImport, $windowStart, $windowEnd);
+        $this->entityManager->flush();
 
         return new GeneratedMonth((int) $import->getId(), $batch->allocationCount(), $mciCases, (int) $closureImport->getId(), \count($closures));
     }

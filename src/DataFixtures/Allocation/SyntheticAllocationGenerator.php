@@ -8,8 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\ImportBatchPlanner;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
-use Doctrine\DBAL\Connection;
+use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 
@@ -17,7 +16,9 @@ use Psr\Clock\ClockInterface;
  * Generates synthetic allocations for the participating demo hospitals of the fixtures.
  *
  * Every active hospital of the preset gets one import per month from the HospitalMonthGenerator;
- * this class only adds the fixture concerns: preset, period, demo hospital and projection rebuild.
+ * this class only adds the fixture concerns: preset, period, demo hospital and the allocation projection.
+ * Closure analysis, closure volume projection and materialized views follow after the load
+ * (`composer load-fixtures`), outside the fixture transaction.
  */
 final readonly class SyntheticAllocationGenerator
 {
@@ -27,8 +28,7 @@ final readonly class SyntheticAllocationGenerator
         private FixtureVolumeResolver $volumeResolver,
         private HospitalMonthGenerator $monthGenerator,
         private EntityManagerInterface $entityManager,
-        private Connection $connection,
-        private AllocationStatsProjectionRebuildInterface $projectionRebuilder,
+        private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
     ) {
     }
@@ -59,7 +59,7 @@ final readonly class SyntheticAllocationGenerator
         }
 
         if ($volume->rebuildProjection) {
-            $this->rebuildProjection();
+            $this->pipeline->rebuildAllocationProjection();
         }
     }
 
@@ -74,17 +74,5 @@ final readonly class SyntheticAllocationGenerator
         }
 
         return $hospital;
-    }
-
-    private function rebuildProjection(): void
-    {
-        $this->connection->executeStatement('TRUNCATE allocation_stats_projection RESTART IDENTITY');
-
-        /** @var list<int|string> $rows */
-        $rows = $this->connection->fetchFirstColumn('SELECT DISTINCT import_id FROM allocation ORDER BY import_id ASC');
-
-        foreach ($rows as $importId) {
-            $this->projectionRebuilder->rebuildForImport((int) $importId);
-        }
     }
 }

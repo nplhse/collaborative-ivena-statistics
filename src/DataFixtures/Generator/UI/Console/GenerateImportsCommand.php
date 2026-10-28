@@ -7,7 +7,7 @@ namespace App\DataFixtures\Generator\UI\Console;
 use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
-use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
+use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -33,7 +33,7 @@ final readonly class GenerateImportsCommand
         private FixtureVolumeResolver $volumeResolver,
         private HospitalMonthGenerator $generator,
         private EntityManagerInterface $entityManager,
-        private AllocationStatsProjectionRebuildInterface $projectionRebuilder,
+        private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
@@ -73,6 +73,8 @@ final readonly class GenerateImportsCommand
 
         $rows = [];
         $failed = false;
+        $allocationImports = [];
+        $hospitalIds = [];
         foreach ($hospital as $publicId) {
             $entity = $this->findHospital($publicId);
             if (!$entity instanceof Hospital) {
@@ -88,9 +90,8 @@ final readonly class GenerateImportsCommand
                 }
 
                 $generated = $this->generator->generate($volume, $entity, $month, $lastDay);
-                if ($volume->rebuildProjection) {
-                    $this->projectionRebuilder->rebuildForImport($generated->importId);
-                }
+                $allocationImports[] = $generated->importId;
+                $hospitalIds[] = (int) $entity->getId();
                 $rows[] = [(string) $entity->getName(), $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
             } catch (\DomainException|\InvalidArgumentException $exception) {
                 $rows[] = [(string) $entity->getName(), $month, '–', $exception->getMessage()];
@@ -98,6 +99,10 @@ final readonly class GenerateImportsCommand
             } finally {
                 $this->entityManager->clear();
             }
+        }
+
+        if ([] !== $allocationImports && $volume->rebuildProjection) {
+            $this->pipeline->afterImports($allocationImports, $hospitalIds);
         }
 
         $io->table(['Hospital', 'Month', 'Allocations', 'Result'], $rows);
