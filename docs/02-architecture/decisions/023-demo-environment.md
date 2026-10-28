@@ -41,7 +41,7 @@ wrong `.env.local` would show real data in a presentation.
 | Messenger | same Doctrine transports; the queues live in `app_demo`, so they are separate |
 | Locks | PostgreSQL advisory locks of `app_demo` |
 | Cookies | `demo_PHPSESSID`, `demo_REMEMBERME`, `demo_consent_subject_id`, `demo_APP_LOCALE`, `demo_analytics_*` |
-| Geodata | left to the offline geography step of #791; new paths follow `var/demo/…` |
+| Geodata | `var/demo/geo/hospital-isochrones` (`app.hospital_isochrones_dir`), `var/demo/geo/prepared-locations` (`app.prepared_locations_dir`) |
 
 Browsers keep cookies per host, not per port. A dev server with TLS on `https://127.0.0.1:8000`
 sets secure cookies that an `http` page on port 8001 may not overwrite, so a demo with the same

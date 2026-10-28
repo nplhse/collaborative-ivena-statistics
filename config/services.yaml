@@ -156,6 +156,8 @@ when@demo:
         app.imports_base_dir: '%kernel.project_dir%/var/demo/imports'
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
         app.media_upload_dir: '%kernel.project_dir%/public/uploads/demo/media'
+        app.hospital_isochrones_dir: '%kernel.project_dir%/var/demo/geo/hospital-isochrones'
+        app.prepared_locations_dir: '%kernel.project_dir%/var/demo/geo/prepared-locations'
 
 when@test:
     services:
