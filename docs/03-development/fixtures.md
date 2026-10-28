@@ -123,16 +123,25 @@ To test real IVENA files locally, replace the synthetic catalog with a private p
 
 `PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; conditional patterns and real pattern packages follow with #792 and #797.
 
+`HospitalMonthGenerator` (`src/DataFixtures/Generator/`) writes one hospital and one month; the fixture runs it for every active hospital and month. Each import carries a marker in `filePath`, for example `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv` (`SyntheticImportMarker`); no file exists at that path.
+
+### Adding a month later
+
+```bash
+php bin/console app:generate:imports --hospital=<public id> --month=2026-10 --dry-run
+php bin/console app:generate:imports --hospital=<public id> --hospital=<public id> --month=2026-10
+```
+
+The month gets the same rows as inside a full load with the same seed. A month after the last day (`FIXTURES_UNTIL` or yesterday) and a month that already has allocations or a synthetic import for the hospital are refused; existing imports are never changed. The projection of the new import is rebuilt.
+
 ### Planned: reusable generator (#792)
 
-[ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) describes the generator that replaces this setup step by step:
+[ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) describes the next steps:
 
-- the generator moves to `src/DataFixtures/Generator/` and can add one month for one hospital later (`app:synthetic:generate`);
-- each hospital, month and kind of data gets its own seeded random stream, so the result does not depend on what else is generated;
 - hospital profiles set volume, offered departments and resources such as a resuscitation room or a catheterization laboratory;
 - pattern packages replace the independent distributions with conditional tables, case archetypes and coherence rules;
 - synthetic closure imports and scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
-- synthetic imports carry a marker in `filePath` (`synthetic/…`) and go through the regular projections.
+- synthetic imports go through the regular projections, including closure analysis and the materialized views.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
@@ -157,7 +166,9 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, stable ids, no curated labels
 - `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load; two loads in one process give the same catalog
 - `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
-- `Allocation/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
+- `Generator/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
+- `Generator/HospitalMonthGeneratorTest.php` — a month added later equals the month of a full load, leaves other imports alone and is refused twice
+- `Generator/SyntheticImportMarkerTest.php` — marker path round trip
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns and sampling

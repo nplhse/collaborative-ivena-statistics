@@ -1,0 +1,207 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\DataFixtures\Generator\Application;
+
+use App\Allocation\Domain\Entity\DispatchArea;
+use App\Allocation\Domain\Entity\Hospital;
+use App\Allocation\Domain\Entity\MciCase;
+use App\Allocation\Domain\Entity\State;
+use App\DataFixtures\FixtureVolume;
+use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
+use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
+use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
+use App\DataFixtures\Pattern\Application\PatternSampler;
+use App\Import\Domain\Entity\Import;
+use App\Import\Domain\Enum\ImportStatus;
+use App\Import\Domain\Enum\ImportType;
+use App\User\Domain\Entity\User;
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
+use Random\Randomizer;
+
+/**
+ * Generates one hospital and one month: an allocation import with its allocations and MCI cases.
+ *
+ * The month draws from its own random streams (ADR 022), so it gets the same rows whether it is
+ * generated alone, later, or inside a full fixture load. Projections are not rebuilt here.
+ */
+final readonly class HospitalMonthGenerator
+{
+    public function __construct(
+        private ImportBatchPlanner $planner,
+        private DefaultDistributionPatterns $patterns,
+        private PatternSampler $patternSampler,
+        private EntityManagerInterface $entityManager,
+        private Connection $connection,
+        private RandomStreams $streams,
+    ) {
+    }
+
+    /**
+     * The daily counts the month would get, without writing anything.
+     *
+     * @param string $month month as Y-m
+     *
+     * @throws \DomainException when the month cannot be generated for this hospital
+     */
+    public function plan(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): ImportBatch
+    {
+        $first = ImportBatchPlanner::firstDay($month);
+        if ($first > $lastDay) {
+            throw new \DomainException(sprintf('%s lies after the last day of the period (%s).', $month, $lastDay->format('Y-m-d')));
+        }
+        if ($this->hasAllocationImport($hospital, $month, $first)) {
+            throw new \DomainException(sprintf('%s already has allocations or a synthetic allocation import for %s.', (string) $hospital->getName(), $month));
+        }
+
+        return $this->planner->planMonth($volume, $hospital, $month, $lastDay);
+    }
+
+    /**
+     * @param string $month month as Y-m
+     *
+     * @throws \DomainException when the month cannot be generated for this hospital
+     */
+    public function generate(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): GeneratedMonth
+    {
+        $batch = $this->plan($volume, $hospital, $month, $lastDay);
+
+        $owner = $hospital->getOwner();
+        $dispatchArea = $hospital->getDispatchArea();
+        $state = $hospital->getState();
+        if (!$owner instanceof User || !$dispatchArea instanceof DispatchArea || !$state instanceof State) {
+            throw new \DomainException(sprintf('%s needs an owner, a dispatch area and a state for synthetic allocations.', (string) $hospital->getName()));
+        }
+
+        $hospitalKey = $hospital->getPublicIdString();
+        $import = $this->createImport($batch, SyntheticImportMarker::allocations($volume->seed, $hospitalKey, $month), $owner);
+        $fixed = [
+            'hospital_id' => (int) $hospital->getId(),
+            'dispatch_area_id' => (int) $dispatchArea->getId(),
+            'state_id' => (int) $state->getId(),
+            'import_id' => (int) $import->getId(),
+        ];
+
+        $pattern = $this->patterns->forHospital($hospital);
+        $random = $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::ALLOCATIONS);
+        $writer = new AllocationRowWriter($this->connection);
+        foreach ($batch->dailyCounts as $day => $count) {
+            $dayStart = new \DateTimeImmutable($day.' 00:00:00');
+            $dayEnd = new \DateTimeImmutable($day.' 23:59:59');
+            for ($i = 0; $i < $count; ++$i) {
+                $writer->add($this->patternSampler->sample($pattern, $dayStart, $dayEnd, $random), $fixed);
+            }
+        }
+        $writer->flush();
+
+        $mciCases = $this->generateMciCases($volume, $batch, $import, $hospital, $dispatchArea, $state);
+
+        return new GeneratedMonth((int) $import->getId(), $batch->allocationCount(), $mciCases);
+    }
+
+    /**
+     * A synthetic import of any seed for the month, or allocations of any import inside it.
+     */
+    private function hasAllocationImport(Hospital $hospital, string $month, \DateTimeImmutable $first): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM import i
+             WHERE i.hospital_id = :hospital AND i.type = :type
+               AND (i.file_path LIKE :marker
+                    OR EXISTS (SELECT 1 FROM allocation a WHERE a.import_id = i.id AND a.created_at >= :from AND a.created_at < :to))
+             LIMIT 1',
+            [
+                'hospital' => (int) $hospital->getId(),
+                'type' => ImportType::ALLOCATION->value,
+                'marker' => SyntheticImportMarker::likeAnySeed(SyntheticImportMarker::ALLOCATIONS, $hospital->getPublicIdString(), $month),
+                'from' => $first->format('Y-m-d H:i:s'),
+                'to' => $first->modify('+1 month')->format('Y-m-d H:i:s'),
+            ],
+        );
+    }
+
+    /**
+     * MCI cases inside the days of the month, from their own stream.
+     *
+     * The number of cases is Poisson distributed around the yearly rate, scaled to the days of the
+     * month, so a partial month gets proportionally fewer cases.
+     */
+    private function generateMciCases(FixtureVolume $volume, ImportBatch $batch, Import $import, Hospital $hospital, DispatchArea $dispatchArea, State $state): int
+    {
+        $days = array_keys($batch->dailyCounts);
+        if ([] === $days || $volume->mciCasesPerHospitalAndYear <= 0.0) {
+            return 0;
+        }
+
+        $hospitalKey = $hospital->getPublicIdString();
+        $random = $this->streams->stream($volume->seed, $hospitalKey, $batch->month, RandomStreams::MCI);
+        $count = $this->poisson($volume->mciCasesPerHospitalAndYear * (float) \count($days) / 365.0, $random);
+
+        for ($i = 1; $i <= $count; ++$i) {
+            $day = $days[$random->getInt(0, \count($days) - 1)];
+            $createdAt = new \DateTimeImmutable($day.' 00:00:00')->setTime($random->getInt(0, 23), $random->getInt(0, 59));
+            $this->entityManager->persist(
+                new MciCase()
+                    ->setHospital($hospital)
+                    ->setDispatchArea($dispatchArea)
+                    ->setState($state)
+                    ->setImport($import)
+                    ->setCreatedAt($createdAt)
+                    ->setArrivalAt($createdAt->modify(sprintf('+%d minutes', $random->getInt(10, 45))))
+                    ->setMciId(sprintf('mci-%d-%s-%s-%d', $volume->seed, substr($hospitalKey, 0, 8), $batch->month, $i))
+                    ->setMciTitle('Synthetic MCI case'),
+            );
+        }
+
+        $this->entityManager->flush();
+
+        return $count;
+    }
+
+    /**
+     * Knuth's method; fine for the small rates of MCI cases.
+     */
+    private function poisson(float $lambda, Randomizer $random): int
+    {
+        if ($lambda <= 0.0) {
+            return 0;
+        }
+
+        $limit = exp(-$lambda);
+        $count = 0;
+        $product = $random->nextFloat();
+        while ($product > $limit) {
+            ++$count;
+            $product *= $random->nextFloat();
+        }
+
+        return $count;
+    }
+
+    private function createImport(ImportBatch $batch, SyntheticImportMarker $marker, User $createdBy): Import
+    {
+        $rowCount = $batch->allocationCount();
+        $import = new Import()
+            ->setName($batch->importName)
+            ->setHospital($batch->hospital)
+            ->setStatus(ImportStatus::COMPLETED)
+            ->setType(ImportType::ALLOCATION)
+            ->setFilePath($marker->path())
+            ->setFileExtension('.csv')
+            ->setFileMimeType('text/csv')
+            ->setFileSize(1)
+            ->setRowCount($rowCount)
+            ->setRowsPassed($rowCount)
+            ->setRowsRejected(0)
+            ->setRunCount(1)
+            ->setRunTime(1)
+            ->setCreatedBy($createdBy);
+
+        $this->entityManager->persist($import);
+        $this->entityManager->flush();
+
+        return $import;
+    }
+}
