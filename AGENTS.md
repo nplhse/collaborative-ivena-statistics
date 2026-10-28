@@ -31,7 +31,8 @@ research. Real clinical data is never part of the repository; local work uses sy
 ## Implementing
 
 - Keep the change to the task. No drive-by refactors, renames or architecture moves; propose
-  them separately (ADR 010: small, single-purpose PRs).
+  them separately (ADR 010: small, single-purpose PRs). For findings outside the task, see
+  [Side findings](#side-findings).
 - Respect context boundaries and use the existing extension points
   ([extension-points.md](docs/02-architecture/extension-points.md)) instead of new mechanisms.
 - Project rules that differ from Symfony defaults:
@@ -83,6 +84,29 @@ Details and the single check targets: [development-workflow.md](docs/03-developm
   `@psalm-suppress`, or regenerate `phpstan-baseline.neon` / `deptrac.baseline.yaml` to get green;
   if an exception is justified, explain it in the PR.
 - Report what you ran, what passed, and what you could not run and why.
+
+## Language, commits and pull requests
+
+- English is the shared language: code, comments, docs, commit messages, branch names, and
+  everything on GitHub (issues, pull requests, comments, reviews), even when the conversation with
+  the user is in another language. Exception: the German translation files.
+- Commit messages and pull request titles follow
+  [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/):
+  `<type>(<optional scope>): <description>`, for example `fix(import): skip empty rows (#123)`.
+  - Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `build`, `ci`, `chore`, `style`,
+    `revert`. Scope is the bounded context or area in lowercase (`statistics`, `fixtures`, `adr`).
+  - Description in the imperative, lowercase start, no trailing period; reference the issue as
+    `(#123)` at the end.
+  - Breaking changes get `!` after the type/scope and a `BREAKING CHANGE:` footer.
+- One logical change per commit; the pull request title summarises the whole change in the same
+  format.
+
+## Side findings
+
+When you notice something outside the task (a potential bug, inconsistent behaviour, a missing
+test, outdated docs), do not fix it in passing and do not let it get lost: mention it in your report
+and offer to open a GitHub issue for it. Open the issue only after the user agrees, in English, with
+what you observed, where (file and line), and how to reproduce it if known.
 
 ## Docs, ADRs and environment
 
