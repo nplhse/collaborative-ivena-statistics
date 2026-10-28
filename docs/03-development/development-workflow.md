@@ -11,6 +11,29 @@ make upgrade-dev  # update deps/schema; keeps existing DB (e.g. mirror DB)
 
 First-time setup details: [../01-getting-started/local-setup.md](../01-getting-started/local-setup.md)
 
+### Work in a git worktree
+
+A new worktree has no `vendor/`, no `node_modules/`, no local env files and cold caches for the code checks. `bin/worktree-init` takes all of that from an existing checkout, so tests and `make ci` run right away:
+
+```bash
+git worktree add -b feature/my-topic ../my-topic origin/main
+bin/worktree-init ../my-topic
+```
+
+What it does, from the main checkout (or the checkout given as second argument):
+
+| What | How |
+|---|---|
+| `.env.local`, `.env.*.local` | copied |
+| `vendor/`, `node_modules/` | cloned (APFS clone on macOS, so no extra disk space), then synced with the worktree's lock files via `composer install` and, if `package-lock.json` differs, `npm ci` |
+| Rector, PHP-CS-Fixer, twig-cs-fixer caches | copied; each tool re-checks only files that differ |
+| PHPStan cache | copied once it lives in `var/cache/phpstan` |
+| Psalm cache | not copied: it is tied to the checkout path |
+
+Existing files in the worktree are kept; `--force` replaces them. The script is safe to run again. The caches help most when the source checkout is up to date.
+
+The same steps apply to people and to coding agents that work in parallel worktrees.
+
 ### Reset local runtime data
 
 ```bash
