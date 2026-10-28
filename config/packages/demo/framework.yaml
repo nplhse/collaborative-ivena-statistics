@@ -1,6 +1,10 @@
 # Demo environment (ADR 023). Fixed here, not through env vars, so a variable set on the machine
 # cannot switch outbound mail or error reporting back on.
 framework:
+    # Own session cookie: cookies are per host, not per port, and a secure dev cookie on
+    # https://127.0.0.1:8000 would block the demo's session on http://127.0.0.1:8001.
+    session:
+        name: 'demo_PHPSESSID'
     mailer:
         dsn: 'null://null'
     messenger:

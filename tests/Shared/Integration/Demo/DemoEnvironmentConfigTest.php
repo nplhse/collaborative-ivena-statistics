@@ -26,6 +26,16 @@ final class DemoEnvironmentConfigTest extends KernelTestCase
         self::assertSame('large', $container->getParameter('fixtures.profile'));
     }
 
+    public function testDemoEnvironmentUsesOwnCookieNames(): void
+    {
+        $container = $this->bootDemoKernel();
+
+        self::assertSame('demo_', $container->getParameter('app.cookie_prefix'));
+        $sessionOptions = $container->getParameter('session.storage.options');
+        self::assertIsArray($sessionOptions);
+        self::assertSame('demo_PHPSESSID', $sessionOptions['name'] ?? null);
+    }
+
     public function testDemoEnvironmentHasNoProfilerOrDebugTools(): void
     {
         $container = $this->bootDemoKernel();
@@ -44,6 +54,9 @@ final class DemoEnvironmentConfigTest extends KernelTestCase
         self::bootKernel();
 
         self::assertFalse(self::getContainer()->getParameter('app.demo_mode'));
+        $sessionOptions = self::getContainer()->getParameter('session.storage.options');
+        self::assertIsArray($sessionOptions);
+        self::assertArrayNotHasKey('name', $sessionOptions);
     }
 
     private function bootDemoKernel(): ContainerInterface

@@ -8,6 +8,7 @@ A local, offline demo of the platform with synthetic data only (issue #791, [ADR
 | Database | `.env.local` (often `app`) | `app_demo` from `.env.demo` |
 | URL | http://127.0.0.1:8000 | http://127.0.0.1:8001 |
 | Imports, uploads | `var/imports`, `public/uploads/media` | `var/demo/imports`, `public/uploads/demo/media` |
+| Cookies | `PHPSESSID`, `consent_subject_id`, … | `demo_PHPSESSID`, `demo_consent_subject_id`, … |
 | Debug mode, profiler | on | off |
 | Mail, Sentry, OpenRouteService | configurable | off |
 
@@ -45,6 +46,10 @@ make demo-consume  # Messenger worker: imports, projections, scheduler
 
 The demo targets call `APP_ENV=demo php bin/console`, not `symfony console`: the Symfony CLI can export `DATABASE_URL` of a Docker database, which would override `.env.demo` (the guard would then stop the command).
 
+## Cookies
+
+Browsers keep cookies per host, not per port: dev on 127.0.0.1:8000 and the demo on 127.0.0.1:8001 see each other's cookies. The demo therefore uses its own names (`demo_PHPSESSID`, `demo_REMEMBERME`, `demo_consent_subject_id`, `demo_APP_LOCALE`, `demo_analytics_*`), so a secure cookie from a dev server with TLS cannot block the demo's session, cookie banner or login. Cookies set by an older demo build still carry the dev names; delete them once (see Troubleshooting).
+
 ## Local overrides
 
 Put local changes into `.env.demo.local` (not committed), for example another password or database name (it must still end in `_demo`). Mail and Sentry are switched off in `config/packages/demo/framework.yaml` and cannot be turned on with variables.
@@ -62,3 +67,4 @@ Put local changes into `.env.demo.local` (not committed), for example another pa
 | Config or code change has no effect, or a `TypeError` in a container class | Demo runs without debug mode and keeps its compiled container | Restart `make demo-start` (it deletes `var/cache/demo`) |
 | Page without styles | Assets not compiled | `make demo-start` compiles them; run `importmap:install` while online |
 | Imports stay "pending" | No worker | `make demo-consume` |
+| Cookie banner does not close, login fails with a CSRF or cookie consent error | Old cookies for 127.0.0.1 (from dev with TLS or an older demo build) | Delete the cookies for 127.0.0.1 in the browser, or open the demo as http://localhost:8001 |

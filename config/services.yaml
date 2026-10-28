@@ -37,6 +37,9 @@ parameters:
     app.hospital_isochrones_dir: '%kernel.project_dir%/var/geo/hospital-isochrones'
     # True only in the demo environment (ADR 023): shows the demo banner.
     app.demo_mode: false
+    # Prefix for the cookies the application sets itself (consent, locale, analytics, remember-me).
+    # Empty except in the demo environment, which shares cookies per host with dev (ADR 023).
+    app.cookie_prefix: ''
 
 services:
     _defaults:
@@ -139,6 +142,7 @@ services:
 when@demo:
     parameters:
         app.demo_mode: true
+        app.cookie_prefix: 'demo_'
         app.imports_base_dir: '%kernel.project_dir%/var/demo/imports'
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
         app.media_upload_dir: '%kernel.project_dir%/public/uploads/demo/media'

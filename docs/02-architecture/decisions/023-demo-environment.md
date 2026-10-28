@@ -40,7 +40,16 @@ wrong `.env.local` would show real data in a presentation.
 | Cache, logs | `var/cache/demo`, `var/log/demo.log` (Symfony default per environment) |
 | Messenger | same Doctrine transports; the queues live in `app_demo`, so they are separate |
 | Locks | PostgreSQL advisory locks of `app_demo` |
+| Cookies | `demo_PHPSESSID`, `demo_REMEMBERME`, `demo_consent_subject_id`, `demo_APP_LOCALE`, `demo_analytics_*` |
 | Geodata | left to the offline geography step of #791; new paths follow `var/demo/…` |
+
+Browsers keep cookies per host, not per port. A dev server with TLS on `https://127.0.0.1:8000`
+sets secure cookies that an `http` page on port 8001 may not overwrite, so a demo with the same
+cookie names gets no session (no CSRF token, no cookie consent, no login). The demo therefore names
+its session cookie `demo_PHPSESSID` and prefixes the application's own cookies (consent, locale,
+analytics, remember-me) with `app.cookie_prefix` (`demo_`; empty everywhere else, so the names in
+dev, test and production stay as they are). The double-submit CSRF cookies are named per token and
+get the `__Host-` prefix on https, so they cannot collide.
 
 `DemoEnvironmentGuard` (registered only with `#[When('demo')]`) checks the Doctrine connection
 before every main request and console command and stops with an error unless the database is on
