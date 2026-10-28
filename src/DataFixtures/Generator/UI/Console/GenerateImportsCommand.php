@@ -9,6 +9,7 @@ use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
+use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -34,6 +35,7 @@ final readonly class GenerateImportsCommand
     public function __construct(
         private FixtureVolumeResolver $volumeResolver,
         private HospitalMonthGenerator $generator,
+        private HospitalProfileResolver $profiles,
         private EntityManagerInterface $entityManager,
         private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
@@ -89,23 +91,24 @@ final readonly class GenerateImportsCommand
         foreach ($hospital as $publicId) {
             $entity = $this->findHospital($publicId);
             if (!$entity instanceof Hospital) {
-                $rows[] = [$publicId, $month, '–', 'unknown hospital'];
+                $rows[] = [$publicId, '–', $month, '–', 'unknown hospital'];
                 $failed = true;
                 continue;
             }
 
+            $structure = $this->profiles->resolve($entity, $volume->seed)->configuration;
             try {
                 if ($dryRun) {
-                    $rows[] = [(string) $entity->getName(), $month, (string) $this->generator->plan($volume, $entity, $month, $lastDay)->allocationCount(), 'planned'];
+                    $rows[] = [(string) $entity->getName(), $structure, $month, (string) $this->generator->plan($volume, $entity, $month, $lastDay)->allocationCount(), 'planned'];
                     continue;
                 }
 
                 $generated = $this->generator->generate($volume, $entity, $month, $lastDay);
                 $allocationImports[] = $generated->importId;
                 $hospitalIds[] = (int) $entity->getId();
-                $rows[] = [(string) $entity->getName(), $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
+                $rows[] = [(string) $entity->getName(), $structure, $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
             } catch (\DomainException|\InvalidArgumentException $exception) {
-                $rows[] = [(string) $entity->getName(), $month, '–', $exception->getMessage()];
+                $rows[] = [(string) $entity->getName(), $structure, $month, '–', $exception->getMessage()];
                 $failed = true;
             } finally {
                 $this->entityManager->clear();
@@ -116,7 +119,7 @@ final readonly class GenerateImportsCommand
             $this->pipeline->afterImports($allocationImports, $hospitalIds);
         }
 
-        $io->table(['Hospital', 'Month', 'Allocations', 'Result'], $rows);
+        $io->table(['Hospital', 'Structure', 'Month', 'Allocations', 'Result'], $rows);
         if ($failed) {
             $io->error('Some months were not generated.');
 

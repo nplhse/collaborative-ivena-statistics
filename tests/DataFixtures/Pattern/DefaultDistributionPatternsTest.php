@@ -8,12 +8,12 @@ use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationUrgency;
 use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
-use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\CoherenceRules;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -132,11 +132,24 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         self::assertSame(0, $obstetric, 'without obstetrics the pregnancy codes are drawn again');
 
         // Only core departments left: every case still gets one of them.
-        $onlyCore = new DefaultDistributionPatterns()->get('urban-full')->withoutDepartments(array_values(array_diff(MedicalSpecialities::unitNames(), HospitalProfileResolver::CORE_DEPARTMENTS)));
+        $onlyCore = new DefaultDistributionPatterns()->get('urban-full')->withoutDepartments(array_values(array_diff(MedicalSpecialities::unitNames(), DepartmentStructure::labels(DepartmentStructure::CORE))));
         for ($i = 0; $i < 300; ++$i) {
             $sampled = $sampler->sample($onlyCore, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
-            self::assertContains($sampled->department->getName(), HospitalProfileResolver::CORE_DEPARTMENTS);
+            self::assertContains($sampled->department->getName(), DepartmentStructure::labels(DepartmentStructure::CORE));
         }
+
+        // A hospital without cath lab and trauma centre never gets STEMI, cardiogenic shock or polytrauma.
+        $gated = new DefaultDistributionPatterns()->get('urban-full')->withoutIndications(['332', '346', '21']);
+        $codes = [];
+        for ($i = 0; $i < 1000; ++$i) {
+            $codes[] = (string) $sampler->sample($gated, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random)->indicationNormalized?->getCode();
+        }
+        self::assertSame([], array_values(array_filter($codes, static fn (string $code): bool => \in_array($code, ['332', '346'], true) || str_starts_with($code, '21'))));
+        self::assertContains('331', $codes, 'the other codes are still drawn');
+
+        // Every code of the mix blocked: the case has no indication.
+        $allBlocked = new DefaultDistributionPatterns()->get('urban-basic')->withDistribution('indication_normalized', ['_present' => 1.0, '332' => 1.0])->withoutIndications(['332']);
+        self::assertNull($sampler->sample($allBlocked, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random)->indicationNormalized);
     }
 
     private function loadReferenceCatalog(): PatternSampler

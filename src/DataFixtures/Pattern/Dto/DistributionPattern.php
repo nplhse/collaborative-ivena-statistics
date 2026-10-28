@@ -103,6 +103,32 @@ final readonly class DistributionPattern
     }
 
     /**
+     * A copy for a hospital that lacks the capability for indications with the given PZC code prefixes.
+     *
+     * @param list<string> $prefixes
+     */
+    public function withoutIndications(array $prefixes): self
+    {
+        $distributions = $this->distributions;
+        $distributions['indications_blocked'] = $prefixes;
+
+        return new self($distributions);
+    }
+
+    /**
+     * Whether the hospital lacks the capability for the code (a blocked prefix matches it).
+     */
+    public function blocksIndication(string $code): bool
+    {
+        $prefixes = $this->distributions['indications_blocked'] ?? null;
+        if (!\is_array($prefixes)) {
+            return false;
+        }
+
+        return array_any($prefixes, fn ($prefix): bool => \is_string($prefix) && '' !== $prefix && str_starts_with($code, $prefix));
+    }
+
+    /**
      * @return array<string, float>
      */
     public function flagProbabilities(): array

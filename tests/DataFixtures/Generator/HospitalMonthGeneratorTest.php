@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
+use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\SyntheticImportMarker;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
@@ -80,6 +81,15 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
 
             self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH]));
             self::assertStringContainsString('already has allocations', $tester->getDisplay());
+            /** @var EntityManagerInterface $entityManager */
+            $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+            /** @var HospitalProfileResolver $profiles */
+            $profiles = self::getContainer()->get(HospitalProfileResolver::class);
+            /** @var FixtureVolumeResolver $volumes */
+            $volumes = self::getContainer()->get(FixtureVolumeResolver::class);
+            $hospital = $entityManager->find(Hospital::class, (int) $this->connection()->fetchOne('SELECT id FROM hospital WHERE public_id = :id', ['id' => $publicId]));
+            self::assertInstanceOf(Hospital::class, $hospital);
+            self::assertStringContainsString($profiles->resolve($hospital, $volumes->resolve()->seed)->configuration, $tester->getDisplay(), 'the table shows the structure of the hospital');
 
             self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => [$publicId], '--month' => '2026-10']));
             self::assertStringContainsString('lies after the last day', $tester->getDisplay());

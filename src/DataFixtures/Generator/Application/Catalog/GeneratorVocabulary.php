@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\DataFixtures\Generator\Application\Catalog;
 
 use App\DataFixtures\Generator\Application\ClosurePlanner;
-use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\Scenario\ScenarioCatalog;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\IndicationGroups;
 use App\DataFixtures\Pattern\Application\PatternSampler;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
 
 /**
  * Every department and speciality key, lookup value and PZC code the generator can write, collected
@@ -37,8 +37,7 @@ final readonly class GeneratorVocabulary
     public function departments(): array
     {
         $names = array_merge(
-            HospitalProfileResolver::CORE_DEPARTMENTS,
-            array_keys(HospitalProfileResolver::OPTIONAL_DEPARTMENTS),
+            DepartmentStructure::all(),
             array_keys(ClosurePlanner::DEPARTMENTS),
             array_keys(ClosurePlanner::SPECIALISED_DEPARTMENTS),
             array_values(PatternSampler::FALLBACK_DEPARTMENTS),
