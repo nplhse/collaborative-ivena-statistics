@@ -61,6 +61,18 @@
         <source>cookie.preferences.title</source>
         <target>Cookie preferences</target>
       </trans-unit>
+      <trans-unit id="SlkQMPg" resname="demo.banner.title">
+        <source>demo.banner.title</source>
+        <target>Demo environment.</target>
+      </trans-unit>
+      <trans-unit id="vL2ZqAT" resname="demo.banner.text">
+        <source>demo.banner.text</source>
+        <target>All hospitals, users and records shown here are synthetic.</target>
+      </trans-unit>
+      <trans-unit id="YblGCca" resname="demo.title_prefix">
+        <source>demo.title_prefix</source>
+        <target>Demo</target>
+      </trans-unit>
       <trans-unit id="S0Cv.FB" resname="flash.cookies.updated">
         <source>flash.cookies.updated</source>
         <target>Cookie preferences updated.</target>

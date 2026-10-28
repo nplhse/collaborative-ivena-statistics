@@ -16,6 +16,7 @@ twig:
         'app_copyright_start_year': '%app.meta.copyright_start_year%'
         'app_hoster_name': '%app.meta.hoster.name%'
         'app_hoster_url': '%app.meta.hoster.url%'
+        'app_demo_mode': '%app.demo_mode%'
 
     paths:
         '%kernel.project_dir%/src/Admin/UI/Twig/templates': Admin

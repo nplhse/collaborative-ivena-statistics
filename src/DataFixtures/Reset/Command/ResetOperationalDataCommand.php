@@ -19,8 +19,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 )]
 final readonly class ResetOperationalDataCommand
 {
-    /** Environments where the reset may run; the demo environment of #791 joins this list. */
-    private const array ALLOWED_ENVIRONMENTS = ['dev', 'test'];
+    /** Environments where the reset may run; never prod (demo: ADR 023). */
+    private const array ALLOWED_ENVIRONMENTS = ['dev', 'test', 'demo'];
 
     public function __construct(
         private OperationalDataReset $reset,
@@ -38,7 +38,7 @@ final readonly class ResetOperationalDataCommand
         bool $force = false,
     ): int {
         if (!\in_array($this->environment, self::ALLOWED_ENVIRONMENTS, true)) {
-            $io->error(sprintf('The reset deletes operational data and only runs in %s, not in "%s".', implode(' and ', self::ALLOWED_ENVIRONMENTS), $this->environment));
+            $io->error(sprintf('The reset deletes operational data and only runs in %s, not in "%s".', implode(', ', self::ALLOWED_ENVIRONMENTS), $this->environment));
 
             return Command::FAILURE;
         }

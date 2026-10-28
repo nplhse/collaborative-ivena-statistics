@@ -1,0 +1,9 @@
+{# Adds the demo banner (ADR 023) to every EasyAdmin page; everything else is the bundle layout. #}
+{% extends '@!EasyAdmin/layout.html.twig' %}
+
+{% block flash_messages %}
+    {% if app_demo_mode %}
+        {{ include('@Shared/_includes/demo_banner.html.twig') }}
+    {% endif %}
+    {{ parent() }}
+{% endblock flash_messages %}
