@@ -3,6 +3,8 @@
 Any contribution to this project is appreciated, whether it is related to fixing bugs, suggestions or improvements. Feel
 free to take your part in the development!
 
+Coding agents start at [AGENTS.md](AGENTS.md). It points to the same documentation and checks as this guide.
+
 However, you should follow the following simple guidelines for your contribution to be properly received:
 
 -   This project uses the [GitFlow branching model](http://nvie.com/posts/a-successful-git-branching-model/) for the
