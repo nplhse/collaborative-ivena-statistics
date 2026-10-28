@@ -8,7 +8,7 @@
 
 | Document | Type | Description |
 |----------|------|-------------|
-| [local-setup.md](local-setup.md) | Guide | Clone, `.env.local`, `make setup-dev`, first run |
+| [local-setup.md](local-setup.md) | Guide | Clone, `.env.local`, `make install-dev`, first run |
 
 ## Reading order
 
