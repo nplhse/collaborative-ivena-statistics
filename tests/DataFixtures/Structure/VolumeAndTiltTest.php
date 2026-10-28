@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\DataFixtures\Structure;
 
+use App\DataFixtures\Generator\Application\HospitalProfile;
+use App\DataFixtures\Pattern\Application\IndicationGroups;
+use App\DataFixtures\Pattern\Application\IndicationGroupTable;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
+use App\DataFixtures\Structure\Dto\HospitalResources;
 use App\DataFixtures\Structure\Dto\MixTilt;
 use App\DataFixtures\Structure\Dto\VolumeModel;
 use PHPUnit\Framework\TestCase;
@@ -32,6 +36,21 @@ final class VolumeAndTiltTest extends TestCase
         self::assertSame(['211' => 1.0, '311' => 0.5], $pattern->tiltIndications(['211' => 0.5, '311' => 0.5]));
         self::assertSame([1 => 0.4, 2 => 0.8], $pattern->tiltUrgency([1 => 0.2, 2 => 0.8]));
         self::assertSame(['18-39' => 0.15, '40-64' => 0.30, '65-99' => 0.275], $pattern->tiltAges(['18-39' => 0.15, '40-64' => 0.30, '65-99' => 0.55]));
+    }
+
+    /**
+     * A pattern package brings its own indication groups (#883); the hospital profile must keep them.
+     */
+    public function testTheProfileKeepsTheIndicationGroupsOfAPackage(): void
+    {
+        $groups = new IndicationGroupTable(['3' => IndicationGroups::forCode('3')], '3');
+        $pattern = new DistributionPattern([], $groups);
+
+        $applied = new HospitalProfile('urban-basic', new HospitalResources(), 0.02, ['Geburtshilfe'], blockedIndications: ['332'], tilt: new MixTilt([2 => 2.0]))->applyTo($pattern);
+
+        self::assertSame($groups, $applied->indicationGroups());
+        self::assertSame($groups, $pattern->withTilt(new MixTilt()->toArray())->indicationGroups());
+        self::assertSame($groups, $pattern->withoutIndications(['332'])->indicationGroups());
     }
 
     public function testWithoutTiltNothingChanges(): void

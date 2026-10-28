@@ -8,7 +8,8 @@ namespace App\DataFixtures\Generator\Application;
  * The file path of a synthetic import (ADR 022). No file exists at this path.
  *
  * It records seed, pattern source, hospital and month, so the generator can tell which months
- * already exist: `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv`.
+ * already exist: `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv`. The source
+ * slot is `defaults` or the package checksum, later with a structure part (`PatternSource`).
  */
 final readonly class SyntheticImportMarker
 {
@@ -16,27 +17,25 @@ final readonly class SyntheticImportMarker
 
     public const string CLOSURES = 'closures';
 
-    public const string DEFAULT_SOURCE = 'defaults';
-
-    private const string PATTERN = '#^synthetic/(?<type>[a-z]+)/seed-(?<seed>\d+)/(?<source>[a-z0-9-]+)/(?<hospital>[0-9a-f-]{36})/(?<month>\d{4}-\d{2})\.csv$#';
+    private const string PATTERN = '#^synthetic/(?<type>[a-z]+)/seed-(?<seed>\d+)/(?<source>'.PatternSource::SLOT.')/(?<hospital>[0-9a-f-]{36})/(?<month>\d{4}-\d{2})\.csv$#';
 
     public function __construct(
         public string $type,
         public int $seed,
-        public string $source,
+        public PatternSource $source,
         public string $hospital,
         public string $month,
     ) {
     }
 
-    public static function allocations(int $seed, string $hospital, string $month): self
+    public static function allocations(int $seed, string $hospital, string $month, ?PatternSource $source = null): self
     {
-        return new self(self::ALLOCATIONS, $seed, self::DEFAULT_SOURCE, $hospital, $month);
+        return new self(self::ALLOCATIONS, $seed, $source ?? PatternSource::defaults(), $hospital, $month);
     }
 
-    public static function closures(int $seed, string $hospital, string $month): self
+    public static function closures(int $seed, string $hospital, string $month, ?PatternSource $source = null): self
     {
-        return new self(self::CLOSURES, $seed, self::DEFAULT_SOURCE, $hospital, $month);
+        return new self(self::CLOSURES, $seed, $source ?? PatternSource::defaults(), $hospital, $month);
     }
 
     public static function fromPath(string $path): ?self
@@ -45,7 +44,7 @@ final readonly class SyntheticImportMarker
             return null;
         }
 
-        return new self($match['type'], (int) $match['seed'], $match['source'], $match['hospital'], $match['month']);
+        return new self($match['type'], (int) $match['seed'], PatternSource::fromSlot($match['source']), $match['hospital'], $match['month']);
     }
 
     /**
@@ -83,6 +82,6 @@ final readonly class SyntheticImportMarker
 
     public function path(): string
     {
-        return sprintf('synthetic/%s/seed-%d/%s/%s/%s.csv', $this->type, $this->seed, $this->source, $this->hospital, $this->month);
+        return sprintf('synthetic/%s/seed-%d/%s/%s/%s.csv', $this->type, $this->seed, $this->source->slot(), $this->hospital, $this->month);
     }
 }
