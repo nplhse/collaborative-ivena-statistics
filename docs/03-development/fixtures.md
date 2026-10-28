@@ -149,6 +149,58 @@ The indication of a case is drawn first; the rest follows from it (`IndicationGr
 
 An import is "uploaded" one to three days after the last day it covers, during office hours, and never after the last day of the period (`UploadTime`, drawn with the seed). Its `created_at` is that upload time, so the import list and the KPI aggregation, which counts imports by upload day, show a monthly upload rhythm instead of one day with every import. The running month is uploaded on the last day.
 
+### Pattern packages
+
+A pattern package is the same distributions as a JSON file: format `ivena-distribution-patterns`, version 1 (`src/DataFixtures/Pattern/Package/`, [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md#pattern-packages)). Packages live in `var/patterns/` and are never tracked; tests write synthetic packages only.
+
+```text
+{
+    "meta": {
+        "format": "ivena-distribution-patterns", "version": 1,
+        "created_at": "2026-10-28T12:00:00+01:00", "source": "defaults", "catalog": "synthetic",
+        "counts": { "segments": 3, "indication_groups": 25, "indications": 29 },
+        "checksum": { "algorithm": "sha256", "value": "…" }
+    },
+    "segments": {
+        "urban-full": {
+            "indications": { "present": 1.0, "shares": { "322": 0.0885, "…": 0.0 } },
+            "occasions": { "Häuslicher Einsatz": 0.5, "…": 0.0 },
+            "assignments": { … }, "infections": { "present": 0.05, "shares": { … } },
+            "secondary_transports": { "present": 0.1, "shares": { … } },
+            "transport_types": { "G": 0.95, "A": 0.05 }, "hours": { "0": 0.0225, "…": 0.0 },
+            "flags": { "requires_resus": 0.1, … },
+            "transport_time_minutes": { "p25": 10.0, "p50": 15.0, "p75": 22.0, "p90": 30.0 }
+        },
+        "urban-basic": { … }, "rural-basic": { … }
+    },
+    "indication_groups": {
+        "332": { "departments": { "Kardiologie": 1.0 }, "urgency": { "1": 0.9, "2": 0.1 },
+                 "ages": { "18-39": 0.05, "40-64": 0.45, "65-99": 0.5 }, "female": 0.3,
+                 "resus_factor": 3.0, "flags": { "requires_cathlab": 0.9, "is_with_physician": 0.7 } }
+    },
+    "fallback_group": "3"
+}
+```
+
+`segments` holds what `DefaultDistributionPatterns` sets per segment, `indication_groups` what `IndicationGroups` sets per PZC code prefix (the longest matching prefix wins, `fallback_group` takes the rest). The checksum is SHA-256 over everything except `meta`.
+
+`PatternPackageReader` validates a package completely, in this order, and every error names the table and the key (`indication_groups.332.departments`):
+
+1. format and version;
+2. structure: known keys only, every key present, numbers where numbers belong, shares and probabilities between 0 and 1;
+3. package rules: the three segments the generator uses, three-digit PZC codes, transport types `G`/`A`, hours 0–23, urgency 1–3, age ranges `min-max` up to 120, known flags (`requires_resus` of a group is its `resus_factor`), every table summing to 1 (±0.002, for shares rounded to four places), percentiles that do not decrease, counts and checksum;
+4. catalog, when asked: every PZC code, department, occasion, assignment, infection and secondary transport exists in the reference catalog of the database.
+
+The code defaults pass the same validation; the PHP classes stay their source.
+
+```bash
+php bin/console app:patterns:write-defaults                  # var/patterns/defaults.json (--output, --force)
+php bin/console app:patterns:validate defaults.json          # a file name in var/patterns/ or a path
+php bin/console app:patterns:validate defaults.json --no-catalog
+```
+
+Both commands exist in `dev` and `test` only. The generator does not read packages yet; selecting a package for the fixture and the `app:generate:*` commands follows in the second step of #883.
+
 ### Closures
 
 Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`: on average 8, 5 or 3 closure events per month for large, medium and small hospitals, a little more in autumn and winter. An event is an IVENA group (two to four departments with one group id), an exact-time cluster (two or three departments with the same start and end) or a single closure, so the closure analysis finds all three event types. Durations run from half an hour to at most 24 hours. Only departments the hospital offers are closed. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
@@ -196,7 +248,7 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 - volume per bed in the hospital profile;
 - overrides of the profile by hospital public id in `fixtures.yaml` (cath lab, departments, volume, closure frequency). Left out on purpose (#863): public ids follow the catalog seed, so overrides break when the catalog changes, and the demo does not need them;
-- pattern packages as JSON files (with the export of real patterns, #797), and case archetypes.
+- the generator reading a pattern package (second step of #883), the export of real patterns (#797), and case archetypes.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
@@ -231,6 +283,7 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, intensity, removal restores counts, projection and KPIs, refused twice, same plan per seed
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, allocations and closures only in offered departments, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
+- `Pattern/Package/*Test.php` — the code defaults round-trip through writer, reader and validator unchanged, same bytes per package, invalid packages name table and key, catalog check, `app:patterns:*` commands
 - `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.
