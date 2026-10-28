@@ -41,7 +41,7 @@ make demo-start    # fresh cache, asset-map:compile, built-in PHP server on http
 make demo-consume  # Messenger worker: imports, projections, scheduler
 ```
 
-`DEMO_PORT=8002 make demo-start` uses another port. The page title starts with "Demo" and a banner says that all data is synthetic.
+`DEMO_PORT=8002 make demo-start` uses another port. The page title starts with "Demo" and a banner says that all data is synthetic, in the application and in the admin area.
 
 The demo targets call `APP_ENV=demo php bin/console`, not `symfony console`: the Symfony CLI can export `DATABASE_URL` of a Docker database, which would override `.env.demo` (the guard would then stop the command).
 

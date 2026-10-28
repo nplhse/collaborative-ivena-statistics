@@ -67,7 +67,8 @@ plain `php bin/console`).
   code defaults and the synthetic catalog (ADR 020, ADR 022); no private catalog or pattern package
   is needed.
 - The parameter `app.demo_mode` (false by default, true only `when@demo`) feeds the Twig global
-  `app_demo_mode`: the layout shows a banner ("all data is synthetic") and prefixes the page title.
+  `app_demo_mode`: the layout shows a banner ("all data is synthetic") and prefixes the page title;
+  the EasyAdmin layout (`templates/bundles/EasyAdminBundle/layout.html.twig`) shows the same banner.
 
 ### Code that checks the environment by name
 
