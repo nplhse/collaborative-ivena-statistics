@@ -21,6 +21,7 @@ use App\DataFixtures\Structure\Dto\TraumaLevel;
  * - departments that only a resource brings (stroke medicine, neurosurgery, obstetrics, neonatology,
  *   paediatrics) are never listed on their own,
  * - field counts stay within the departments of the field, and a paediatric field needs paediatrics,
+ * - a department gate names a known department,
  * - shares are not negative and sum to 1, and every tier and size has a configuration to draw.
  */
 final class StructureRules
@@ -63,7 +64,7 @@ final class StructureRules
         }
 
         foreach ($configuration->fieldCounts as $field => $counts) {
-            $departments = DepartmentStructure::FIELDS[$field] ?? null;
+            $departments = DepartmentStructure::fields()[$field] ?? null;
             if (null === $departments) {
                 $violations[] = sprintf('unknown field "%s"', $field);
                 continue;
@@ -120,6 +121,11 @@ final class StructureRules
         foreach (['bed elasticity' => $set->volume->bedElasticity, 'hospital spread' => $set->volume->hospitalSpread, 'category spread' => $set->mixVariation->categorySpread, 'old age spread' => $set->mixVariation->oldAgeSpread, 'urgent spread' => $set->mixVariation->urgentSpread] as $name => $value) {
             if ($value < 0.0 || $value > 2.0) {
                 $violations[] = sprintf('%s must lie between 0 and 2', $name);
+            }
+        }
+        foreach ($set->departmentGates as $prefix => $department) {
+            if (!\in_array($department, DepartmentStructure::all(), true)) {
+                $violations[] = sprintf('department gate "%s": unknown department "%s"', $prefix, $department);
             }
         }
         $violations = [...$violations, ...self::closureViolations($set->closureModel())];

@@ -29,6 +29,9 @@ final class IndicationGroups
     /** Internal medicine: mostly old patients, fewer over 90 than in their 80s, and a few children. */
     private const array INTERNAL_AGES = ['1-17' => 0.05, '18-39' => 0.10, '40-64' => 0.25, '65-79' => 0.25, '80-89' => 0.25, '90-99' => 0.10];
 
+    /** Urology: mostly old men. */
+    private const array UROLOGY_AGES = ['18-39' => 0.10, '40-64' => 0.20, '65-79' => 0.30, '80-89' => 0.30, '90-99' => 0.10];
+
     private const array PREGNANCY = [
         'departments' => ['Geburtshilfe' => 0.90, 'Pränatalmedizin' => 0.10],
         'urgency' => ['1' => 0.10, '2' => 0.80, '3' => 0.10],
@@ -45,6 +48,15 @@ final class IndicationGroups
         'female' => 1.0,
         'resus_factor' => 2.0,
         'flags' => ['is_pregnant' => 1.0, 'is_with_physician' => 0.50],
+    ];
+
+    private const array CATHETER = [
+        'departments' => ['Allgemeine Urologie' => 1.0],
+        'urgency' => ['2' => 0.15, '3' => 0.85],
+        'ages' => self::UROLOGY_AGES,
+        'female' => 0.20,
+        'resus_factor' => 0.2,
+        'flags' => [],
     ];
 
     private const array POLYTRAUMA = [
@@ -241,6 +253,36 @@ final class IndicationGroups
             'female' => 1.0,
             'resus_factor' => 0.5,
             'flags' => ['is_pregnant' => 0.10],
+        ],
+        // Urology, ophthalmology, ENT (#910): urgency 2 or 3, rarely 1; only hospitals with the
+        // department get them (department gates of the structure)
+        '71' => [
+            'departments' => ['Allgemeine Urologie' => 1.0],
+            'urgency' => ['2' => 0.80, '3' => 0.20],
+            'ages' => self::UROLOGY_AGES,
+            'female' => 0.30,
+            'resus_factor' => 0.2,
+            'flags' => [],
+        ],
+        // Catheter change, loss or blockage: mostly urgency 3
+        '715' => self::CATHETER,
+        '716' => self::CATHETER,
+        '717' => self::CATHETER,
+        '72' => [
+            'departments' => ['Allgemeine Augenheilkunde' => 1.0],
+            'urgency' => ['1' => 0.05, '2' => 0.60, '3' => 0.35],
+            'ages' => ['1-17' => 0.05, '18-39' => 0.20, '40-64' => 0.25, '65-79' => 0.25, '80-89' => 0.20, '90-99' => 0.05],
+            'female' => 0.50,
+            'resus_factor' => 0.2,
+            'flags' => [],
+        ],
+        '73' => [
+            'departments' => ['Rhinologie' => 1.0],
+            'urgency' => ['2' => 0.60, '3' => 0.40],
+            'ages' => ['1-17' => 0.05, '18-39' => 0.15, '40-64' => 0.25, '65-79' => 0.30, '80-89' => 0.20, '90-99' => 0.05],
+            'female' => 0.50,
+            'resus_factor' => 0.2,
+            'flags' => [],
         ],
         // General medicine
         '8' => [

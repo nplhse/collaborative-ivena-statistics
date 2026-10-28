@@ -27,8 +27,9 @@ use Random\Randomizer;
  * trauma level and obstetrics) by tier and size, then the number of further departments per field.
  * Both come from the hospital's own stream, so the same seed always gives the same hospital the same
  * structure. After the departments the hospital draws its volume factor (beds and a hospital factor)
- * and the tilt of its case mix, so hospitals of one tier and size differ. New draws go last in the
- * stream, so earlier ones keep their values.
+ * and the tilt of its case mix, so hospitals of one tier and size differ; fields added later
+ * (urology, ophthalmology, ENT) come after the tilt. New draws go last in the stream, so earlier
+ * ones keep their values. A hospital never gets codes whose department it lacks (department gates).
  *
  * A ProfileSelection replaces tier, size, beds, the drawn configuration, single resources, the
  * volume (an explicit annual volume) or the closure share for targeted scenarios and #877.
@@ -65,19 +66,12 @@ final readonly class HospitalProfileResolver
         $resources = $configuration->resources;
 
         $offered = array_values(array_unique([...DepartmentStructure::CORE, ...DepartmentStructure::impliedBy($resources), ...$configuration->departments]));
-        foreach (DepartmentStructure::FIELDS as $field => $departments) {
-            $count = (int) $this->sampler->sample($configuration->fieldCounts[$field] ?? [0 => 1.0], $random);
-            $required = DepartmentStructure::FIELD_REQUIRES[$field] ?? null;
-            if ($required instanceof Capability && !$resources->provides($required)) {
-                continue;
-            }
-            $further = array_values(array_diff($departments, $offered));
-            array_push($offered, ...\array_slice($further, 0, $count));
-        }
+        $offered = $this->drawFields(DepartmentStructure::FIELDS, $configuration, $offered, $random);
 
         // Drawn even when an explicit annual volume replaces it, so the tilt keeps its numbers.
         $volumeFactor = $set->volume->bedFactor($size, $beds) * $this->logNormal($set->volume->hospitalSpread, $random);
         $tilt = $this->tilt($set->mixVariation, $random);
+        $offered = $this->drawFields(DepartmentStructure::LATE_FIELDS, $configuration, $offered, $random);
 
         return new HospitalProfile(
             segment: $this->segment($tierEnum, $hospital->getLocation()),
@@ -85,13 +79,36 @@ final readonly class HospitalProfileResolver
             resusShare: $set->resusShares[$resources->traumaLevel->value] ?? 0.0,
             missingDepartments: DepartmentStructure::labels(array_values(array_diff(DepartmentStructure::all(), $offered))),
             configuration: $configuration->key,
-            blockedIndications: $set->blockedIndications($resources),
+            blockedIndications: [...$set->blockedIndications($resources), ...$set->blockedByDepartments($offered)],
             size: $size,
             volumeFactor: $volumeFactor,
             annualVolume: $selection?->annualVolume,
             closureShare: $selection->closureShare ?? $set->closureShares[$size] ?? 0.0,
             tilt: $tilt,
         );
+    }
+
+    /**
+     * Draws the number of further departments per field and adds the first ones of the field.
+     *
+     * @param array<string, list<string>> $fields  speciality key → department keys, most common first
+     * @param list<string>                $offered department keys
+     *
+     * @return list<string> department keys
+     */
+    private function drawFields(array $fields, HospitalConfiguration $configuration, array $offered, Randomizer $random): array
+    {
+        foreach ($fields as $field => $departments) {
+            $count = (int) $this->sampler->sample($configuration->fieldCounts[$field] ?? [0 => 1.0], $random);
+            $required = DepartmentStructure::FIELD_REQUIRES[$field] ?? null;
+            if ($required instanceof Capability && !$configuration->resources->provides($required)) {
+                continue;
+            }
+            $further = array_values(array_diff($departments, $offered));
+            array_push($offered, ...\array_slice($further, 0, $count));
+        }
+
+        return $offered;
     }
 
     /**
