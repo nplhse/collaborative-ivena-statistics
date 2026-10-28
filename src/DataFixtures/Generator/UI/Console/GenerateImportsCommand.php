@@ -91,7 +91,7 @@ final readonly class GenerateImportsCommand
                 if ($volume->rebuildProjection) {
                     $this->projectionRebuilder->rebuildForImport($generated->importId);
                 }
-                $rows[] = [(string) $entity->getName(), $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases', $generated->importId, $generated->mciCases)];
+                $rows[] = [(string) $entity->getName(), $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
             } catch (\DomainException|\InvalidArgumentException $exception) {
                 $rows[] = [(string) $entity->getName(), $month, '–', $exception->getMessage()];
                 $failed = true;

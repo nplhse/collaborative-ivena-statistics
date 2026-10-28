@@ -14,6 +14,8 @@ final readonly class SyntheticImportMarker
 {
     public const string ALLOCATIONS = 'allocations';
 
+    public const string CLOSURES = 'closures';
+
     public const string DEFAULT_SOURCE = 'defaults';
 
     private const string PATTERN = '#^synthetic/(?<type>[a-z]+)/seed-(?<seed>\d+)/(?<source>[a-z0-9-]+)/(?<hospital>[0-9a-f-]{36})/(?<month>\d{4}-\d{2})\.csv$#';
@@ -30,6 +32,11 @@ final readonly class SyntheticImportMarker
     public static function allocations(int $seed, string $hospital, string $month): self
     {
         return new self(self::ALLOCATIONS, $seed, self::DEFAULT_SOURCE, $hospital, $month);
+    }
+
+    public static function closures(int $seed, string $hospital, string $month): self
+    {
+        return new self(self::CLOSURES, $seed, self::DEFAULT_SOURCE, $hospital, $month);
     }
 
     public static function fromPath(string $path): ?self

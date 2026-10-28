@@ -75,13 +75,14 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
         }
 
         $this->assertCathLabCasesOnlyWhereTheProfileHasOne($connection);
+        $this->assertClosedFlagOnlyDuringAClosure($connection);
 
         $yesterday = (string) $connection->fetchOne("SELECT to_char(CURRENT_DATE - 1, 'YYYY-MM-DD')");
         self::assertLessThanOrEqual($yesterday.' 23:59:59', (string) $connection->fetchOne('SELECT MAX(created_at) FROM allocation'), 'the period ends yesterday');
     }
 
     /**
-     * @return array{summary: list<array<string, mixed>>, allocations: list<array<string, mixed>>, mci: list<array<string, mixed>>}
+     * @return array{summary: list<array<string, mixed>>, allocations: list<array<string, mixed>>, closures: list<array<string, mixed>>, mci: list<array<string, mixed>>}
      */
     private function describe(): array
     {
@@ -109,6 +110,13 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
                  INNER JOIN speciality s ON s.id = a.speciality_id
                  INNER JOIN indication_raw r ON r.id = a.indication_raw_id
                  ORDER BY h.public_id, a.created_at, a.arrival_at, a.age, a.gender, d.public_id, r.public_id, a.urgency',
+            ),
+            'closures' => $connection->fetchAllAssociative(
+                'SELECT h.public_id AS hospital, c.starts_at, c.ends_at, c.care_level, c.reason, c.source_group_id, d.public_id AS department
+                 FROM closure_interval c
+                 INNER JOIN hospital h ON h.id = c.hospital_id
+                 INNER JOIN department d ON d.id = c.department_id
+                 ORDER BY h.public_id, c.starts_at, d.public_id',
             ),
             'mci' => $connection->fetchAllAssociative(
                 'SELECT h.public_id AS hospital, m.mci_id, m.created_at, m.arrival_at
@@ -144,11 +152,34 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
         self::assertGreaterThan(0, $withCathlab, 'the full-care hospital has a cath lab');
     }
 
+    /**
+     * An allocation is flagged exactly when its department has a closure interval at its time.
+     */
+    private function assertClosedFlagOnlyDuringAClosure(Connection $connection): void
+    {
+        $rows = $connection->fetchAssociative(
+            'SELECT COUNT(*) FILTER (WHERE a.department_was_closed AND c.id IS NULL) AS flagged_without_closure,
+                    COUNT(*) FILTER (WHERE NOT a.department_was_closed AND c.id IS NOT NULL) AS closure_without_flag,
+                    COUNT(*) FILTER (WHERE a.department_was_closed) AS flagged
+             FROM allocation a
+             LEFT JOIN LATERAL (
+                 SELECT ci.id FROM closure_interval ci
+                 WHERE ci.hospital_id = a.hospital_id AND ci.department_id = a.department_id
+                   AND a.created_at >= ci.starts_at AND a.created_at < ci.ends_at
+                 LIMIT 1
+             ) c ON true',
+        );
+        self::assertIsArray($rows);
+        self::assertSame(0, (int) $rows['flagged_without_closure']);
+        self::assertSame(0, (int) $rows['closure_without_flag']);
+        self::assertGreaterThan(0, (int) $rows['flagged'], 'some allocations reach a closed department');
+    }
+
     private function deleteGeneratedRows(): void
     {
         /** @var Connection $connection */
         $connection = self::getContainer()->get(Connection::class);
-        foreach (['mci_case', 'allocation_stats_projection', 'allocation', 'import'] as $table) {
+        foreach (['mci_case', 'allocation_stats_projection', 'allocation', 'closure_interval', 'import'] as $table) {
             $connection->executeStatement(sprintf('DELETE FROM %s', $table));
         }
     }

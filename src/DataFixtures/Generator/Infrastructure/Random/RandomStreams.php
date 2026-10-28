@@ -20,6 +20,8 @@ final readonly class RandomStreams
     public const string ALLOCATIONS = 'allocations';
     public const string MCI = 'mci';
 
+    public const string CLOSURES = 'closures';
+
     /** Hospital profile; drawn once per hospital, so its month part is fixed. */
     public const string PROFILE = 'profile';
 
