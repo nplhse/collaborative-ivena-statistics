@@ -8,7 +8,8 @@ DOCKER        = docker
 SYMFONY       = symfony
 
 # Alias
-CONSOLE       = $(SYMFONY) console
+# CI has no Symfony CLI and sets CONSOLE='php bin/console'.
+CONSOLE       ?= $(SYMFONY) console
 PROD_ENV      = APP_ENV=prod APP_DEBUG=0
 
 # Vendor executables
@@ -159,68 +160,105 @@ trans-de-all: ## Extract missing DE translation skeletons for all application do
 	done
 
 ## —— Coding standards ✨ ——————————————————————————————————————————————————————
-lint: lint-container lint-php lint-twig lint-trans lint-js static-analysis ## Run continuous integration pipeline
+# `make ci` (fixes) and `make lint` (checks only) run the same checks in the same order; the Linting
+# workflow calls these targets one by one. Order: cheap repository checks, Symfony config, then the
+# tools that change code, then the analysis, which must see the final code.
+CI_REPOSITORY   = check-phpunit-suite-dirs composer-validate check-conflicts
+CI_SYMFONY      = lint-yaml lint-container lint-xliff lint-trans lint-templates
+CI_ANALYSIS     = phpstan psalm deptrac
 
-cs: rector fix-php ## Run all coding standards checks
+ci: $(CI_REPOSITORY) $(CI_SYMFONY) swiss-knife rector fix-php fix-twig fix-js $(CI_ANALYSIS) ## Fix and check everything (run before pushing)
 
-ci: check-phpunit-suite-dirs swiss-knife rector fix-php fix-twig fix-js static-analysis
+lint: $(CI_REPOSITORY) $(CI_SYMFONY) swiss-knife-check rector-check lint-php lint-twig lint-js $(CI_ANALYSIS) ## Check everything without changing files (same order as ci)
+
+cs: rector fix-php ## Run Rector and PHP-CS-Fixer
 
 static-analysis: phpstan psalm ## Run the static analysis
 
-fix-php: ## Fix files with php-cs-fixer
-	@$(PHP_CS_FIXER) fix
+# 1. Repository
+check-phpunit-suite-dirs: ## Fail if tests/{Context}/{Unit|Integration|Functional} drift from phpunit.dist.xml suites
+	@./bin/check-phpunit-suite-dirs
 
-fix-twig: ## Fix files with twig-cs-fixer
-	@$(TWIG_CS_FIXER) --fix
+composer-validate: ## Validate composer.json and composer.lock
+	@$(COMPOSER) validate --strict
 
-lint-container: ## Lint translations
-	@$(CONSOLE) lint:container
+check-conflicts: ## Fail on leftover git merge conflict markers
+	@$(SWISS_KNIFE) check-conflicts . --exclude vendor --exclude var --exclude node_modules
 
-lint-php: ## Lint files with php-cs-fixer
-	@$(PHP_CS_FIXER) fix --dry-run
+# 2. Symfony config
+lint-yaml: ## Lint YAML config files
+	@$(CONSOLE) lint:yaml config --parse-tags
 
-lint-trans: ## Lint translations
+lint-container: ## Compile the prod and test containers without deprecations, lint the container
+	@./bin/check-deprecations
+
+check-deprecations: lint-container ## Alias for lint-container
+
+lint-xliff: ## Lint XLIFF translation files
+	@$(CONSOLE) lint:xliff translations
+
+lint-trans: ## Lint EN + DE translation contents
 	@$(CONSOLE) lint:translations --locale=en
 	@$(CONSOLE) lint:translations --locale=de
 
 lint-trans-de: ## Lint DE translation contents
 	@$(CONSOLE) lint:translations --locale=de
 
-lint-twig: ## Lint files with twig-cs-fixer
-	@$(TWIG_CS_FIXER)
+lint-templates: ## Lint Twig template syntax (templates/ and src/)
+	@$(CONSOLE) lint:twig templates src --env=prod
 
-lint-js: ## Lint JavaScript (Prettier + ESLint)
-	@npm run check:js
+# 3. Code style and refactoring (fix / check)
+swiss-knife: ## Apply Swiss Knife fixes (commented code, finalize classes)
+	@$(SWISS_KNIFE) check-commented-code src tests
+	@$(SWISS_KNIFE) finalize-classes src tests $(SWISS_KNIFE_FINALIZE_OPTS)
+
+swiss-knife-check: ## Check for commented-out code and non-final classes
+	@$(SWISS_KNIFE) check-commented-code src tests
+	@$(SWISS_KNIFE) finalize-classes src tests --dry-run $(SWISS_KNIFE_FINALIZE_OPTS)
+
+rector: ## Run Rector
+	@$(RECTOR)
+
+rector-check: ## Check for Rector changes without applying them
+	@$(RECTOR) --dry-run
+
+fix-php: ## Fix files with php-cs-fixer
+	@$(PHP_CS_FIXER) fix
+
+lint-php: ## Lint files with php-cs-fixer
+	@$(PHP_CS_FIXER) fix --dry-run
+
+fix-twig: ## Fix Twig style with twig-cs-fixer
+	@$(TWIG_CS_FIXER) lint --fix
+
+lint-twig: ## Lint Twig style with twig-cs-fixer (syntax: lint-templates)
+	@$(TWIG_CS_FIXER) lint
 
 fix-js: ## Fix JavaScript formatting and auto-fixable ESLint issues
-	@npm run format
-	@npm run lint:fix
+	@$(NPM) run format
+	@$(NPM) run lint:fix
 
-phpstan: ## Run PHPStan
+lint-js: ## Lint JavaScript (Prettier + ESLint)
+	@$(NPM) run check:js
+
+# 4. Analysis
+# PHPStan reads the dev container (phpstan.dist.neon: containerXmlPath); build it when it is missing.
+PHPSTAN_CONTAINER_XML = var/cache/dev/App_KernelDevDebugContainer.xml
+
+$(PHPSTAN_CONTAINER_XML):
+	@$(CONSOLE) cache:warmup --env=dev
+
+phpstan: $(PHPSTAN_CONTAINER_XML) ## Run PHPStan
 	@$(PHPSTAN) analyse --memory-limit=-1
 
 psalm: ## Run Psalm
 	@$(PSALM) --show-info=true
 
-rector: ## Run Rector
-	@$(RECTOR)
-
-deptrac: ## Run Deptrac architecture analysis
-	@$(DEPTRAC) analyse --no-progress
+deptrac: ## Run Deptrac architecture analysis (report only, does not fail, see ADR 010)
+	-@$(DEPTRAC) analyse --no-progress
 
 deptrac-baseline: ## Regenerate deptrac.baseline.yaml from current violations
 	@$(DEPTRAC) analyse --formatter=baseline --output=deptrac.baseline.yaml --no-progress
-
-swiss-knife: ## Apply Swiss Knife fixes (conflicts, commented code, finalize)
-	@$(SWISS_KNIFE) check-conflicts . --exclude vendor --exclude var
-	@$(SWISS_KNIFE) check-commented-code src tests
-	@$(SWISS_KNIFE) finalize-classes src tests $(SWISS_KNIFE_FINALIZE_OPTS)
-
-check-deprecations: ## Run deprecation checks (console + phpunit)
-	@./bin/check-deprecations
-
-check-phpunit-suite-dirs: ## Fail if tests/{Context}/{Unit|Integration|Functional} drift from phpunit.dist.xml suites
-	@./bin/check-phpunit-suite-dirs
 
 ## —— Tests ✅ —————————————————————————————————————————————————————————————————
 SUITE ?= all
@@ -235,8 +273,8 @@ test: ## Run tests (SUITE=all|unit|integration|functional|functional-http|browse
 testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
 	@SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --testdox --no-coverage $(ARGS)
 
-coverage: ## Run tests with coverage (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
-	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests $(ARGS)
+coverage: ## Run tests with coverage: clover, HTML report in var/coverage/report, summary (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
+	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --coverage-html var/coverage/report --coverage-text --only-summary-for-coverage-text $(ARGS)
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs

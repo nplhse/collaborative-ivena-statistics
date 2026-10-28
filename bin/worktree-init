@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# Set up a git worktree with local env files, dependencies and warm analysis caches.
+#
+# Usage: bin/worktree-init [--force] <worktree-path> [<source-checkout>]
+#
+# The source defaults to the main checkout (first entry of `git worktree list`).
+# Existing files in the worktree are kept unless --force is given.
+# See docs/03-development/development-workflow.md.
+set -euo pipefail
+
+usage() {
+    sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+force=false
+args=()
+for arg in "$@"; do
+    case "$arg" in
+        --force) force=true ;;
+        -h|--help) usage; exit 0 ;;
+        -*) echo "Unknown option: $arg" >&2; usage >&2; exit 2 ;;
+        *) args+=("$arg") ;;
+    esac
+done
+
+if [ "${#args[@]}" -lt 1 ] || [ "${#args[@]}" -gt 2 ]; then
+    usage >&2
+    exit 2
+fi
+
+target=$(cd "${args[0]}" 2>/dev/null && pwd -P) || { echo "Worktree not found: ${args[0]}" >&2; exit 1; }
+git -C "$target" rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "Not a git worktree: $target" >&2; exit 1; }
+target=$(git -C "$target" rev-parse --show-toplevel)
+
+if [ "${#args[@]}" -eq 2 ]; then
+    source=$(cd "${args[1]}" 2>/dev/null && pwd -P) || { echo "Source not found: ${args[1]}" >&2; exit 1; }
+else
+    source=$(git -C "$target" worktree list --porcelain | sed -n '1s/^worktree //p')
+fi
+source=$(cd "$source" && pwd -P)
+
+if [ "$source" = "$target" ]; then
+    echo "Source and worktree are the same directory: $target" >&2
+    exit 1
+fi
+
+echo "Worktree: $target"
+echo "Source:   $source"
+echo
+
+report() {
+    printf '  %-8s %s\n' "$1" "$2"
+}
+
+# Copy a file or directory: APFS clone on macOS, reflink on Linux, plain copy as fallback.
+copy_path() {
+    local from=$1 to=$2
+    mkdir -p "$(dirname "$to")"
+    if cp -c -R "$from" "$to" 2>/dev/null; then return 0; fi
+    rm -rf "$to"
+    if cp --reflink=auto -R "$from" "$to" 2>/dev/null; then return 0; fi
+    rm -rf "$to"
+    cp -R "$from" "$to"
+}
+
+# Copy <relative path> from source to target unless it already exists there (or --force).
+take() {
+    local rel=$1 note=${2:-}
+    if [ ! -e "$source/$rel" ]; then
+        report skipped "$rel (not in source${note:+; $note})"
+        return 1
+    fi
+    if [ -e "$target/$rel" ] && [ "$force" = false ]; then
+        report kept "$rel (already there)"
+        return 1
+    fi
+    rm -rf "${target:?}/$rel"
+    copy_path "$source/$rel" "$target/$rel"
+    report copied "$rel"
+}
+
+echo "Env files"
+found_env=false
+for file in "$source"/.env.local "$source"/.env.*.local; do
+    [ -e "$file" ] || continue
+    found_env=true
+    take "$(basename "$file")" || true
+done
+[ "$found_env" = true ] || report skipped ".env*.local (none in source)"
+
+echo
+echo "Dependencies"
+take vendor || true
+(cd "$target" && composer install --no-interaction --no-progress --quiet)
+report synced "vendor (composer install)"
+
+if take node_modules; then
+    if ! cmp -s "$source/package-lock.json" "$target/package-lock.json"; then
+        (cd "$target" && npm ci --no-audit --no-fund --silent)
+        report synced "node_modules (npm ci, package-lock.json differs)"
+    fi
+elif [ ! -d "$target/node_modules" ]; then
+    (cd "$target" && npm ci --no-audit --no-fund --silent)
+    report synced "node_modules (npm ci)"
+fi
+
+echo
+echo "Analysis caches"
+take var/cache/rector || true
+take var/cache/phpstan "PHPStan still uses the system temp folder" || true
+take .php-cs-fixer.cache || true
+take .twig-cs-fixer.cache || true
+report skipped "Psalm (its cache is tied to the checkout path)"
+
+echo
+echo "Done."

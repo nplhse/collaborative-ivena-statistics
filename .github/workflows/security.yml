@@ -3,9 +3,21 @@ name: Security Scan
 on:
     push:
         branches: [ "main" ]
+        paths-ignore:
+            - 'docs/**'
+            - '**.md'
     pull_request:
+        paths-ignore:
+            - 'docs/**'
+            - '**.md'
     schedule:
         - cron: '33 20 * * 5'
+
+# Cancel superseded runs on PR branches. On main every run gets its own group,
+# so no push is cancelled or dropped from the queue.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.run_id || github.ref }}
+    cancel-in-progress: true
 
 permissions:
     contents: read
@@ -22,14 +34,26 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v7
 
-            - name: Psalm
-              uses: docker://ghcr.io/psalm/psalm-github-actions:6.18.1
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
               with:
-                  composer_require_dev: true
-                  security_analysis: true
-                  report_file: results.sarif
+                  coverage: none
+                  extensions: intl
+                  php-version: '8.4'
+                  tools: composer:v2
 
+            # Same Psalm version and psalm.xml as `make psalm` (no separate Docker image with its own version).
+            - name: Install dependencies
+              uses: ramsey/composer-install@v4
+              with:
+                  composer-options: --no-scripts
+
+            - name: Psalm taint analysis
+              run: vendor/bin/psalm --taint-analysis --no-progress --report=results.sarif
+
+            # Upload findings also when Psalm fails because of them.
             - name: Upload Security Analysis results to GitHub
+              if: ${{ !cancelled() && hashFiles('results.sarif') != '' }}
               uses: github/codeql-action/upload-sarif@v4
               with:
                   sarif_file: results.sarif

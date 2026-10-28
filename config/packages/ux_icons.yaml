@@ -1,0 +1,6 @@
+# All used icons live in assets/icons/ (`bin/console ux:icons:lock`, plus `ux:icons:import` for names that only
+# appear in PHP). Tests must not fetch icons from api.iconify.design: a missing icon fails the test instead.
+when@test:
+    ux_icons:
+        iconify:
+            on_demand: false
