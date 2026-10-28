@@ -129,7 +129,9 @@ To test real IVENA files locally, replace the synthetic catalog with a private p
 
 ## Pattern-based synthetic allocations
 
-`PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; conditional patterns and real pattern packages follow with #792 and #797.
+`PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; real pattern packages follow with #797.
+
+The indication of a case is drawn first; the rest follows from it (`IndicationGroups`): a stroke goes to the stroke unit, a STEMI to cardiology with a high cath lab share, a paediatric case gets a child, a hip fracture an older, mostly female patient. The speciality is the field of the department. `CoherenceRules` then make sure that pregnant patients are women aged 15 to 49, paediatric departments get patients under 18, and CPR and shock mean urgency 1 (CPR also the resuscitation room).
 
 `HospitalMonthGenerator` (`src/DataFixtures/Generator/`) writes one hospital and one month; the fixture runs it for every active hospital and month. Each import carries a marker in `filePath`, for example `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv` (`SyntheticImportMarker`); no file exists at that path.
 
@@ -147,7 +149,7 @@ The month gets the same rows as inside a full load with the same seed. A month a
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) describes the next steps:
 
 - hospital profiles also set offered departments and volume per bed;
-- pattern packages replace the independent distributions with conditional tables, case archetypes and coherence rules;
+- pattern packages (with the export of #797) and case archetypes;
 - synthetic closure imports and scenario overlays (mass casualty incident, icy-road day, flu wave, heat days) are added;
 - synthetic imports go through the regular projections, including closure analysis and the materialized views.
 
@@ -180,7 +182,7 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/HospitalProfileResolverTest.php` — cath lab by tier and size, same per seed, resuscitation room shares
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one
 - `Generator/*Test.php` — random streams, no global random functions
-- `Pattern/*Test.php` — default patterns and sampling
+- `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.
 

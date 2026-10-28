@@ -71,6 +71,18 @@ final class IndicationProviderTest extends TestCase
         }
     }
 
+    public function testEveryUnitBelongsToItsField(): void
+    {
+        self::assertSame('Innere Medizin', MedicalSpecialities::fieldOfUnit('Kardiologie'));
+        self::assertSame('Pädiatrie', MedicalSpecialities::fieldOfUnit('Allgemeine Pädiatrie'));
+        foreach (MedicalSpecialities::unitNames() as $unit) {
+            self::assertContains(MedicalSpecialities::fieldOfUnit($unit), MedicalSpecialities::fieldNames(), $unit);
+        }
+
+        $this->expectException(\InvalidArgumentException::class);
+        MedicalSpecialities::fieldOfUnit('Innere Medizin');
+    }
+
     public function testDepartmentAliasesDifferFromTheirName(): void
     {
         /** @var Generator&MedicalSpecialityFakerMethods $faker */

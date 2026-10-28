@@ -15,6 +15,7 @@ use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
 use App\DataFixtures\Pattern\Infrastructure\Sampling\PercentileSampler;
@@ -30,6 +31,10 @@ final readonly class PatternSampler
     ) {
     }
 
+    /**
+     * Draws the indication first; department, urgency, age, sex and flags follow from it
+     * (IndicationGroups), then the coherence rules apply.
+     */
     public function sample(
         DistributionPattern $pattern,
         \DateTimeImmutable $periodStart,
@@ -40,42 +45,53 @@ final readonly class PatternSampler
         $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random);
         $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
-        $gender = AllocationGender::from($this->categoricalSampler->sample($pattern->categoricalDistribution('gender'), $random));
-        $urgency = AllocationUrgency::from((int) $this->categoricalSampler->sample($pattern->categoricalDistribution('urgency'), $random));
+        $indicationNormalized = $this->sampleNullableLookup($pattern, 'indication_normalized', IndicationNormalized::class, $random);
+        $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
+        $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class, $random);
+        $indicationRaw = $indicationNormalized instanceof IndicationNormalized
+            ? $this->lookupResolver->referenceIndicationRawForNormalized((string) $indicationNormalized->getName())
+            : $this->lookupResolver->referenceAny(IndicationRaw::class);
+
+        $codeNumber = $indicationNormalized?->getCode();
+        $code = null !== $codeNumber ? str_pad((string) $codeNumber, 3, '0', \STR_PAD_LEFT) : '';
+        $group = IndicationGroups::forCode($code);
+
+        $departmentName = $this->categoricalSampler->sample($group['departments'], $random);
+        $female = $group['female'];
+        $other = $female >= 1.0 ? 0.0 : 0.01;
+        $gender = AllocationGender::from($this->categoricalSampler->sample(['F' => $female * (1.0 - $other), 'M' => (1.0 - $female) * (1.0 - $other), 'X' => $other], $random));
 
         $transportDistribution = $pattern->categoricalDistribution('transport_type');
         $transportType = [] !== $transportDistribution
             ? AllocationTransportType::from($this->categoricalSampler->sample($transportDistribution, $random))
             : null;
-
-        $departmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('department'), $random);
-        $specialityName = $this->categoricalSampler->sample($pattern->categoricalDistribution('speciality'), $random);
         $assignmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('assignment'), $random);
         $occasionName = $this->categoricalSampler->sample($pattern->categoricalDistribution('occasion'), $random);
 
-        $indicationNormalized = $this->sampleNullableLookup(
-            $pattern,
-            'indication_normalized',
-            IndicationNormalized::class,
-            $random,
-        );
-        $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
-        $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class, $random);
+        // The pattern carries the hospital profile: resus share, and a cath lab share of 0 without a cath lab.
+        $base = $pattern->flagProbabilities();
+        $groupFlags = $group['flags'];
+        $hasCathlab = ($base['requires_cathlab'] ?? 0.0) > 0.0;
 
-        $indicationRaw = $indicationNormalized instanceof IndicationNormalized
-            ? $this->lookupResolver->referenceIndicationRawForNormalized((string) $indicationNormalized->getName())
-            : $this->lookupResolver->referenceAny(IndicationRaw::class);
-
-        $flags = $pattern->flagProbabilities();
+        $case = CoherenceRules::apply([
+            'gender' => $gender,
+            'age' => $this->sampleAge($group['ages'], $random),
+            'urgency' => AllocationUrgency::from((int) $this->categoricalSampler->sample($group['urgency'], $random)),
+            'field' => MedicalSpecialities::fieldOfUnit($departmentName),
+            'pregnant' => $this->flag($groupFlags['is_pregnant'] ?? $base['is_pregnant'] ?? 0.0, $random),
+            'cpr' => $this->flag($groupFlags['is_cpr'] ?? 0.0, $random),
+            'resus' => $this->flag(min(1.0, ($base['requires_resus'] ?? 0.05) * $group['resus_factor']), $random),
+            'shock' => $this->flag($groupFlags['is_shock'] ?? $base['is_shock'] ?? 0.0, $random),
+        ], $random);
 
         return new SampledAllocationAttributes(
             createdAt: $createdAt,
             arrivalAt: $arrivalAt,
-            gender: $gender,
-            age: $this->sampleAge($pattern, $random),
-            urgency: $urgency,
+            gender: $case['gender'],
+            age: $case['age'],
+            urgency: $case['urgency'],
             transportType: $transportType,
-            speciality: $this->lookupResolver->reference(Speciality::class, $specialityName),
+            speciality: $this->lookupResolver->reference(Speciality::class, $case['field']),
             department: $this->lookupResolver->reference(Department::class, $departmentName),
             assignment: $this->lookupResolver->reference(Assignment::class, $assignmentName),
             occasion: $this->lookupResolver->reference(Occasion::class, $occasionName),
@@ -83,15 +99,15 @@ final readonly class PatternSampler
             indicationNormalized: $indicationNormalized,
             infection: $infection,
             secondaryTransport: $secondaryTransport,
-            requiresResus: $this->sampleFlag($flags, 'requires_resus', 0.05, $random),
-            requiresCathlab: $this->sampleFlag($flags, 'requires_cathlab', 0.01, $random),
-            isCpr: $this->sampleFlag($flags, 'is_cpr', 0.03, $random),
-            isVentilated: $this->sampleFlag($flags, 'is_ventilated', 0.08, $random),
-            isShock: $this->sampleFlag($flags, 'is_shock', 0.04, $random),
-            isPregnant: $this->sampleFlag($flags, 'is_pregnant', 0.02, $random),
-            isWorkAccident: $this->sampleFlag($flags, 'is_work_accident', 0.08, $random),
-            isWithPhysician: $this->sampleFlag($flags, 'is_with_physician', 0.13, $random),
-            departmentWasClosed: $this->sampleFlag($flags, 'department_was_closed', 0.05, $random),
+            requiresResus: $case['resus'],
+            requiresCathlab: $hasCathlab && $this->flag($groupFlags['requires_cathlab'] ?? 0.0, $random),
+            isCpr: $case['cpr'],
+            isVentilated: $this->flag($groupFlags['is_ventilated'] ?? $base['is_ventilated'] ?? 0.0, $random),
+            isShock: $case['shock'],
+            isPregnant: $case['pregnant'],
+            isWorkAccident: $this->flag($groupFlags['is_work_accident'] ?? $base['is_work_accident'] ?? 0.0, $random),
+            isWithPhysician: $this->flag($groupFlags['is_with_physician'] ?? $base['is_with_physician'] ?? 0.0, $random),
+            departmentWasClosed: $this->flag($base['department_was_closed'] ?? 0.0, $random),
         );
     }
 
@@ -114,25 +130,19 @@ final readonly class PatternSampler
         return $day->setTime($hour, $random->getInt(0, 59));
     }
 
-    private function sampleAge(DistributionPattern $pattern, Randomizer $random): int
+    /**
+     * @param array<string, float> $ages age ranges ("18-39") and their shares
+     */
+    private function sampleAge(array $ages, Randomizer $random): int
     {
-        $bucket = $this->categoricalSampler->sample($pattern->categoricalDistribution('age_bucket'), $random);
+        [$min, $max] = array_map(intval(...), explode('-', $this->categoricalSampler->sample($ages, $random)));
 
-        return match ($bucket) {
-            '0-17' => $random->getInt(1, 17),
-            '18-39' => $random->getInt(18, 39),
-            '40-64' => $random->getInt(40, 64),
-            '65-99' => $random->getInt(65, 99),
-            default => $random->getInt(1, 99),
-        };
+        return $random->getInt($min, $max);
     }
 
-    /**
-     * @param array<string, float> $flags
-     */
-    private function sampleFlag(array $flags, string $name, float $default, Randomizer $random): bool
+    private function flag(float $probability, Randomizer $random): bool
     {
-        return $this->categoricalSampler->sampleBernoulli($flags[$name] ?? $default, $random);
+        return $this->categoricalSampler->sampleBernoulli($probability, $random);
     }
 
     /**

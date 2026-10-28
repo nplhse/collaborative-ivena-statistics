@@ -135,6 +135,20 @@ final class MedicalSpecialities extends Base
         return array_values(array_unique(array_merge(...array_values(self::$specialties))));
     }
 
+    /**
+     * The field (catalog speciality) a unit (catalog department) belongs to.
+     */
+    public static function fieldOfUnit(string $unit): string
+    {
+        foreach (self::$specialties as $field => $units) {
+            if (\in_array($unit, $units, true)) {
+                return $field;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('"%s" is not a unit of any field.', $unit));
+    }
+
     public function medicalDepartment(): string
     {
         return self::randomElement(self::$departments);
