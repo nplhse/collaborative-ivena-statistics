@@ -34,10 +34,16 @@ Existing files in the worktree are kept; `--force` replaces them. The script is 
 
 The same steps apply to people and to coding agents that work in parallel worktrees.
 
+A worktree uses the same databases as its source checkout: the development database from the copied `.env.local`, and the test databases from `DATABASE_URL` in `.env` (or a copied `.env.test.local`; the test environment does not read `.env.local`) with the suffix `_test`, plus one per ParaTest worker via `TEST_TOKEN`. In practice:
+
+- Do not run database tests in two checkouts at the same time. `make ci`, `make test` and `make test-database` reset the test databases and get in each other's way.
+- Migrations from a branch change the shared development database; other checkouts then run against that schema.
+- For an isolated worktree, set another database name in its `.env.local` (development) and `.env.test.local` (tests), then run `make install-dev` there.
+
 ### Reset local runtime data
 
 ```bash
-make purge   # clear assets, uploads, imports, logs; empty DB; no fixtures
+make purge   # clear assets, uploads, imports, logs; drop and recreate the DB; no fixtures
 make reset   # like purge, then load demo fixtures (see [fixtures.md](fixtures.md))
 ```
 
@@ -94,6 +100,8 @@ The checks in the order of `make check`:
 Every target also runs on its own, for example `make phpstan` or `make lint-templates`. Fix a failing check at its cause; do not regenerate `deptrac.baseline.yaml` or `phpstan-baseline.neon` to make it pass.
 
 The Linting workflow (`.github/workflows/lint.yml`) calls these targets one step at a time, in this order, and runs every check even if an earlier one failed, so one run lists all problems. Add a new check as a make target first, then to its group in the `Makefile` and to the workflow at the same position. A green local run does not replace the results of the GitHub workflows.
+
+The `Makefile` defines the commands: which tool runs with which options, which test suites belong together, where reports go. The workflows call those targets and provide everything around them: PHP, Node and extensions, the locked dependencies, Composer and tool caches, the PostgreSQL service and job environment (`APP_SECRET`, `DATABASE_URL`, `CONSOLE: php bin/console`, as CI has no Symfony CLI), compiled assets before the database tests, and the coverage, JUnit and SARIF uploads. The prod kernel smoke job keeps its own steps: it replaces `vendor/` with a `--no-dev` install, which should not happen in a development checkout.
 
 Tool caches live in `var/cache/` (`rector`, `phpstan`, `psalm`) and in `.php-cs-fixer.cache` / `.twig-cs-fixer.cache`;
 CI caches the same paths. `make clear` removes the ones in `var/cache/`.
@@ -167,6 +175,12 @@ make upgrade-dev
 # or manually:
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
+
+New migrations:
+
+- Generate them with `php bin/console doctrine:migrations:diff` (or `make:migration`) and review the SQL.
+- Name the version with the actual current time, `Version<YYYYMMDDHHMMSS>` (`date '+%Y%m%d%H%M%S'`), never a rounded value such as `Version20261014190000`. If you rename one that already ran locally, update `doctrine_migration_versions` too.
+- Never edit a migration that is already on `main`; add a new one instead.
 
 ## Tips
 
