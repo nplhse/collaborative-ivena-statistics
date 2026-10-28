@@ -22,7 +22,7 @@ final class GenerateCsvFixturesCommandTest extends KernelTestCase
     public function testCommandGeneratesFiles(): void
     {
         $application = new Application(self::$kernel);
-        $command = $application->find('app:fixtures:generate-csv');
+        $command = $application->find('app:generate:encoding-csv');
         $tester = new CommandTester($command);
 
         $exitCode = $tester->execute([]);

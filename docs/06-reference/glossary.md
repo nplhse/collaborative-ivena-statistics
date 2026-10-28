@@ -17,7 +17,11 @@ For EN↔DE UI translation terms, open decisions, and MT rules see **[glossary-i
 | Reference catalog package | Portable JSON file with the master data (catalog only, not a backup); exported to `var/reference/`, private copies outside the repository (ADR 020) |
 | Synthetic reference catalog | Master data for development, tests and demos, built in code from Faker providers (Hesse, official PZC list); same seed, same package |
 | Restore | `app:reference:import --mode=replace`: replaces the whole catalog from a complete package; refuses while other data refers to the catalog |
-| Distribution pattern | YAML file describing statistical weights for synthetic allocations |
+| Distribution pattern | Shares for synthetic allocations per hospital segment (indication mix, occasions, transport times); department, age and urgency follow from the indication (`IndicationGroups`, ADR 022) |
+| Preset | Size of a synthetic dataset (`FIXTURES_PROFILE`: `single`, `minimal`, `medium`, `realistic`, `large`): hospitals per size and months |
+| Hospital profile | How one synthetic hospital behaves: segment, cath lab yes/no, resuscitation room share (ADR 022) |
+| Synthetic import | Import written by the generator; its `filePath` holds a marker such as `synthetic/allocations/seed-740/defaults/<hospital public id>/2026-09.csv`, no file exists |
+| Scenario overlay | Event laid over existing synthetic data (`app:generate:scenario`: `mci`, `icy-road`, `flu-wave`, `heat`); only adds imports, removed by deleting them |
 | Messenger worker | Process that consumes asynchronous messages |
 | Bounded context | A domain module boundary (`Import`, `Statistics`, …) |
 | Participant onboarding | Dashboard checklist for `ROLE_PARTICIPANT`; see [../04-features/onboarding/participant-onboarding.md](../04-features/onboarding/participant-onboarding.md) |
@@ -46,4 +50,6 @@ See [console-commands.md](console-commands.md) for the full list and conventions
 | `app:user:promote-admin` | Grant `ROLE_ADMIN` to an existing user by username |
 | `app:user:demote-admin` | Remove `ROLE_ADMIN` from an existing user by username |
 | `app:user:delete` | Delete an existing user by username |
-| `doctrine:fixtures:load --group=dev` | Load full local demo dataset |
+| `doctrine:fixtures:load --group=dev` | Load full local demo dataset (`make reset` also runs the closure rebuild and view refresh) |
+| `app:generate:imports` | Add a synthetic month for existing hospitals (dev/test) |
+| `app:generate:scenario` | Lay a scenario over existing synthetic data (dev/test) |

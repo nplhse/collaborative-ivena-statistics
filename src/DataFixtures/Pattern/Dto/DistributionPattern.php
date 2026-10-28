@@ -51,6 +51,32 @@ final readonly class DistributionPattern
     }
 
     /**
+     * A copy with one distribution replaced, for example the indication mix of a scenario.
+     *
+     * @param array<string, float> $distribution
+     */
+    public function withDistribution(string $key, array $distribution): self
+    {
+        $distributions = $this->distributions;
+        $distributions[$key] = $distribution;
+
+        return new self($distributions);
+    }
+
+    /**
+     * A copy with the given flag probabilities replaced.
+     *
+     * @param array<string, float> $flags
+     */
+    public function withFlags(array $flags): self
+    {
+        $distributions = $this->distributions;
+        $distributions['flags'] = $flags + $this->flagProbabilities();
+
+        return new self($distributions);
+    }
+
+    /**
      * @return array<string, float>
      */
     public function flagProbabilities(): array

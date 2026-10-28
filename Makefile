@@ -1,5 +1,5 @@
 .DEFAULT_GOAL = help
-.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset load-fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore env-check update-security-advisories
+.PHONY        : help purge-runtime setup-dev setup-prod upgrade-dev upgrade-prod install prod warmup purge reset fixtures upgrade node_modules backup backup-db backup-files restore-db verify-restore-baseline verify-restore env-check update-security-advisories
 
 # Executables
 COMPOSER      = composer
@@ -291,7 +291,7 @@ purge: purge-runtime ## Clear runtime files and empty DB (no fixtures)
 reset: purge-runtime ## Like purge plus demo fixtures
 	@$(SYMFONY) composer setup-database
 	@$(MAKE) warmup
-	@$(MAKE) load-fixtures
+	@$(MAKE) fixtures
 
 clear: ## Cleanup everything
 	@rm -rf vendor/*
