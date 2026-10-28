@@ -108,8 +108,6 @@
     <coverage>
         <report>
             <clover outputFile="var/coverage/logs/clover.xml" />
-            <html outputDirectory="var/coverage/report" />
-            <text outputFile="php://stdout" showOnlySummary="true" />
         </report>
     </coverage>
 
