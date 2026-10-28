@@ -31,6 +31,7 @@ final readonly class OperationalDataReset
         ['table' => 'closure_analysis_interval', 'kind' => 'projection', 'condition' => null],
         ['table' => 'closure_event', 'kind' => 'projection', 'condition' => null],
         ['table' => 'kpi_daily', 'kind' => 'projection', 'condition' => null],
+        ['table' => 'generation_run', 'kind' => 'operational data', 'condition' => null],
         ['table' => 'monthly_reminder_dispatch', 'kind' => 'operational data', 'condition' => null],
         ['table' => 'allocation', 'kind' => 'operational data', 'condition' => null],
         ['table' => 'mci_case', 'kind' => 'operational data', 'condition' => null],

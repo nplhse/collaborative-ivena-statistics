@@ -77,6 +77,14 @@
         <source>import.failed.message</source>
         <target>{hospitalName}: {reason, select, missing_creator {Der Import hat keinen Ersteller.} missing_hospital {Der Import ist keiner Klinik zugeordnet.} missing_import_permission {Der Ersteller darf für diese Klinik nicht mehr importieren.} missing_closure_role {Der Ersteller darf keine Abmeldungen importieren.} type_mismatch {Der Dateityp passt nicht zum Importtyp.} missing_file_path {Die Importdatei fehlt.} invalid_file_path {Die Importdatei konnte nicht gelesen werden.} file_not_found {Die Importdatei wurde nicht gefunden.} invalid_file {Die Datei hat die Prüfung nicht bestanden.} no_rows {Die Datei enthält keine Zeilen.} rejection_ratio_exceeded {Zu viele Zeilen wurden abgelehnt.} retries_exhausted {Die Verarbeitung ist mehrfach fehlgeschlagen und wurde abgebrochen.} other {Der Import konnte nicht verarbeitet werden.}}</target>
       </trans-unit>
+      <trans-unit id="Ntf09EA4B2F" resname="generation.completed.title">
+        <source>generation.completed.title</source>
+        <target>Synthetische Daten für {hospitalName} sind bereit</target>
+      </trans-unit>
+      <trans-unit id="NtfDF816300" resname="generation.completed.message">
+        <source>generation.completed.message</source>
+        <target>{months, plural, one {# Monat} other {# Monate}} mit {allocations, number} Zuweisungen und {closures, number} Abmeldungen; alle Statistiken sind berechnet.</target>
+      </trans-unit>
       <trans-unit id="Ntf85A987C7" resname="user.first_import.title">
         <source>user.first_import.title</source>
         <target>Ihr erster Import ist da!</target>
@@ -320,6 +328,10 @@
       <trans-unit id="Ntf36DEF39B" resname="import.completed.label">
         <source>import.completed.label</source>
         <target>Import abgeschlossen</target>
+      </trans-unit>
+      <trans-unit id="NtfC0FE1368" resname="generation.completed.label">
+        <source>generation.completed.label</source>
+        <target>Synthetische Daten bereit</target>
       </trans-unit>
       <trans-unit id="Ntf0C8DA30A" resname="import.failed.label">
         <source>import.failed.label</source>
