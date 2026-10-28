@@ -14,6 +14,7 @@ use App\Allocation\Domain\Enum\ClosureReason;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Application\ClosedDepartments;
+use App\DataFixtures\Generator\Application\HospitalProfile;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\PlannedClosure;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
@@ -100,7 +101,7 @@ final readonly class ScenarioGenerator
                 hospital: $hospital,
                 days: $days,
                 dailyCounts: $dailyCounts,
-                closures: $this->closures($scenario, $days, $lastDay, $random),
+                closures: $this->closures($scenario, $this->profiles->resolve($hospital, $volume->seed), $days, $lastDay, $random),
                 mciPatients: $mciShares[$index] ?? 0,
                 mciStart: $mciStart,
                 mciWindowMinutes: $mciWindow,
@@ -257,13 +258,16 @@ final readonly class ScenarioGenerator
     }
 
     /**
+     * Extra closures, only in departments the hospital offers.
+     *
      * @param list<string> $days
      *
      * @return list<PlannedClosure>
      */
-    private function closures(ScenarioDefinition $scenario, array $days, \DateTimeImmutable $lastDay, Randomizer $random): array
+    private function closures(ScenarioDefinition $scenario, HospitalProfile $profile, array $days, \DateTimeImmutable $lastDay, Randomizer $random): array
     {
-        if ([] === $scenario->closedDepartments || $scenario->closuresPerHospitalAndWeek <= 0.0) {
+        $departments = array_values(array_filter($scenario->closedDepartments, $profile->offers(...)));
+        if ([] === $departments || $scenario->closuresPerHospitalAndWeek <= 0.0) {
             return [];
         }
 
@@ -274,7 +278,7 @@ final readonly class ScenarioGenerator
             $startsAt = new \DateTimeImmutable($days[$random->getInt(0, \count($days) - 1)])->setTime($random->getInt(8, 20), $random->getInt(0, 59));
             $endsAt = min($startsAt->modify(sprintf('+%d minutes', $random->getInt(6 * 60, 24 * 60))), $end);
             $closures[] = new PlannedClosure(
-                $scenario->closedDepartments[$random->getInt(0, \count($scenario->closedDepartments) - 1)],
+                $departments[$random->getInt(0, \count($departments) - 1)],
                 $startsAt,
                 $endsAt,
                 ClosureCareLevel::INPATIENT,

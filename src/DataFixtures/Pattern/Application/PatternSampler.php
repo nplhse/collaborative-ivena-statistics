@@ -23,6 +23,17 @@ use Random\Randomizer;
 
 final readonly class PatternSampler
 {
+    /** Draws of the indication before a case falls back to a core department. */
+    private const int INDICATION_TRIES = 5;
+
+    /** Department for a case whose indication the hospital cannot treat, by field of the indication's first department. */
+    private const array FALLBACK_DEPARTMENTS = [
+        'Chirurgie' => 'Allgemeinchirurgie',
+        'Orthopädie' => 'Unfallchirurgie',
+    ];
+
+    private const string FALLBACK_DEPARTMENT = 'Gastroenterologie';
+
     public function __construct(
         private WeightedCategoricalSampler $categoricalSampler,
         private PercentileSampler $percentileSampler,
@@ -33,6 +44,10 @@ final readonly class PatternSampler
     /**
      * Draws the indication first; department, urgency, age, sex and flags follow from it
      * (IndicationGroups), then the coherence rules apply.
+     *
+     * A hospital gets only departments it offers: an indication whose departments are all missing
+     * is drawn again (a hospital without obstetrics gets hardly any births); after a few tries the
+     * case goes to a core department every hospital offers.
      */
     public function sample(
         DistributionPattern $pattern,
@@ -44,7 +59,11 @@ final readonly class PatternSampler
         $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random);
         $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
+        $missing = array_flip($pattern->departmentsNotOffered());
         $code = $this->sampleIndicationCode($pattern, $random);
+        for ($try = 1; $try < self::INDICATION_TRIES && [] === array_diff_key(IndicationGroups::forCode($code ?? '')['departments'], $missing); ++$try) {
+            $code = $this->sampleIndicationCode($pattern, $random);
+        }
         $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
         $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class, $random);
         [$indicationNormalized, $indicationRaw] = null !== $code
@@ -53,7 +72,7 @@ final readonly class PatternSampler
 
         $group = IndicationGroups::forCode($code ?? '');
 
-        $departmentName = $this->categoricalSampler->sample($group['departments'], $random);
+        $departmentName = $this->categoricalSampler->sample($this->offeredDepartments($group['departments'], $missing), $random);
         $female = $group['female'];
         $other = $female >= 1.0 ? 0.0 : 0.01;
         $gender = AllocationGender::from($this->categoricalSampler->sample(['F' => $female * (1.0 - $other), 'M' => (1.0 - $female) * (1.0 - $other), 'X' => $other], $random));
@@ -105,6 +124,24 @@ final readonly class PatternSampler
             isWorkAccident: $this->flag($groupFlags['is_work_accident'] ?? $base['is_work_accident'] ?? 0.0, $random),
             isWithPhysician: $this->flag($groupFlags['is_with_physician'] ?? $base['is_with_physician'] ?? 0.0, $random),
         );
+    }
+
+    /**
+     * @param array<string, float> $departments
+     * @param array<string, int>   $missing     departments the hospital does not offer, as keys
+     *
+     * @return array<string, float>
+     */
+    private function offeredDepartments(array $departments, array $missing): array
+    {
+        $offered = array_diff_key($departments, $missing);
+        if ([] !== $offered) {
+            return $offered;
+        }
+
+        $field = MedicalSpecialities::fieldOfUnit((string) array_key_first($departments));
+
+        return [self::FALLBACK_DEPARTMENTS[$field] ?? self::FALLBACK_DEPARTMENT => 1.0];
     }
 
     private function sampleCreatedAt(

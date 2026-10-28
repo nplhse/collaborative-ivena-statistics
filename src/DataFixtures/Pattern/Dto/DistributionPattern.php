@@ -77,6 +77,32 @@ final readonly class DistributionPattern
     }
 
     /**
+     * A copy for a hospital that does not offer the given departments.
+     *
+     * @param list<string> $departments
+     */
+    public function withoutDepartments(array $departments): self
+    {
+        $distributions = $this->distributions;
+        $distributions['departments_not_offered'] = $departments;
+
+        return new self($distributions);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function departmentsNotOffered(): array
+    {
+        $departments = $this->distributions['departments_not_offered'] ?? null;
+        if (!\is_array($departments)) {
+            return [];
+        }
+
+        return array_values(array_map(strval(...), array_filter($departments, \is_string(...))));
+    }
+
+    /**
      * @return array<string, float>
      */
     public function flagProbabilities(): array
