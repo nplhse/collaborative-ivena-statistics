@@ -79,6 +79,47 @@ plain `php bin/console`).
   `app_demo_mode`: the layout shows a banner ("all data is synthetic") and prefixes the page title;
   the EasyAdmin layout (`templates/bundles/EasyAdminBundle/layout.html.twig`) shows the same banner.
 
+### Generation runs (#791 step 3)
+
+Generating a hospital for the presentation must not wait for the projections, and the participant should
+learn when the data is complete. A **generation run** tracks this across both stages. It is a domain record
+of the generator, like `import_run` for imports (ADR 016), not a `job_run` row: `job_run` is a best-effort
+technical record with a retention (ADR 018/019), a run is the summary the wizard and #877 report from.
+
+- `generation_run`: scope (`one`, `selected`, `all`), seed, period, settings (JSON), trigger, initiator,
+  `notify`, status `pending` → `running` → `completed` | `failed` (also partial runs), stage `generating` →
+  `projecting` → `finishing` → `done`, reason code. `generation_run_hospital`: status `pending` →
+  `generating` → `generated` → `projecting` → `completed` | `failed`, counts (months, allocations,
+  closures, MCI cases), the import ids, projection attempts, reason code and the error class.
+- **Synchronous stage:** the caller generates and reports to `GenerationRunTracker`
+  (`start`, `hospitalStarted`, `monthGenerated`, `hospitalFailed`, `generationFinished`).
+  `generationFinished()` dispatches one `ProjectGeneratedHospital` per hospital with data and returns.
+- **Asynchronous stage per hospital** (`async_priority_low`): the allocation projection of each of its
+  imports, then the closure analysis and closure volume of that hospital (`SyntheticDataPipeline::projectHospital`).
+  Both run in one handler, so the closure volume always reads finished allocation projections, and
+  only the generated hospital is rebuilt. Generated imports do not raise `ImportCompleted`, so the coalesced
+  `closure_rebuild_request` path of uploads is not involved.
+- **Final stage** once no hospital is open (`FinishGenerationRun`): materialized views and the KPIs of the
+  upload days, once for the run, then the terminal transition.
+- **Retries and concurrency:** each step is a conditional update. A lock per run and hospital keeps a second
+  delivery from projecting the same hospital in parallel; a delivery for a completed or failed hospital is
+  a no-op; the last hospital starts the final stage through one conditional update (`claimFinishing`), and
+  the terminal transition is one conditional update whose winner alone notifies. Rebuilding replaces rows,
+  so a Messenger retry gives the same result. When Messenger gives up, the hospital (or the final stage) fails
+  with `retries_exhausted`; `app:generate:run:retry` projects failed hospitals again without writing data
+  again.
+- **Notification:** `generation.completed` (in-app and toast, hospital-scoped) per completed hospital to its
+  owner, only for runs with `notify` and only after the run's terminal transition, i.e. after views and KPIs.
+  Failed hospitals get none; the other hospitals of a partial run are still announced. See ADR 016.
+- **Inspection:** `app:generate:run:list`, `app:generate:run:show [<run>]` (settings, hospitals, imports,
+  failures, stale runs and the `job_run` rows of the background stages). Both messages are recorded jobs
+  (`generation_project_hospital`, `generation_finish_run`), so the admin list of job runs shows them with
+  `generation_run_id` in their metrics; there is no admin page of its own.
+- Everything lives in `DataFixtures/Generator` and exists only where the generator services are registered
+  (dev, test, demo). The migration creates both tables in every environment; in production they stay empty
+  and no service, schedule or route there refers to them. Without a run, generation keeps the synchronous
+  `SyntheticDataPipeline::afterImports()` (fixture load, `make reset`, `app:generate:imports` without `--async`).
+
 ### Code that checks the environment by name
 
 Two places that allowed only `dev` and `test` also allow `demo`: creating missing overview
@@ -97,6 +138,8 @@ materialized views on the fly (`OverviewMaterializedViewsInstaller`) and
   cannot silently break.
 - Storage monitoring classifies the known production paths; demo paths are not categorised.
 - Every new external integration has to decide how it behaves in `demo` (off by default).
+- The demo needs a Messenger worker (`messenger:consume async_priority_low`) for generation runs; without
+  one a run stays in the stage `projecting`, and `app:generate:run:show` marks it stale after 30 minutes.
 
 ## Alternatives
 
