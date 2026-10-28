@@ -66,7 +66,7 @@ final readonly class ImportBatchPlanner
 
         $dailyCounts = [];
         for ($day = $first; $day <= $last; $day = $day->modify('+1 day')) {
-            $expected = $rate * self::WEEKDAY_FACTOR[(int) $day->format('N')] * self::MONTH_FACTOR[(int) $day->format('n')];
+            $expected = $rate * self::WEEKDAY_FACTOR[(int) $day->format('N')] * self::MONTH_FACTOR[(int) $day->format('n')] * $volume->trendFactor($day);
             $dailyCounts[$day->format('Y-m-d')] = $this->noisy($expected, $random);
         }
 
