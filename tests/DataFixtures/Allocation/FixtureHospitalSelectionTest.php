@@ -69,7 +69,7 @@ final class FixtureHospitalSelectionTest extends TestCase
      */
     private function volume(array $hospitals, int $seed = 740): FixtureVolume
     {
-        return new FixtureVolume('test', $hospitals, 12, ['Small' => 10.0, 'Medium' => 15.0, 'Large' => 40.0], 1.0, 0, $seed, false);
+        return new FixtureVolume('test', $hospitals, 12, ['Small' => 10.0, 'Medium' => 15.0, 'Large' => 40.0], 1.0, 0.0, $seed, false);
     }
 
     private function selection(): FixtureHospitalSelection

@@ -17,6 +17,22 @@ final class ContentSecurityPolicyTest extends WebTestCase
     use Factories;
     use InteractsWithAuthenticatedUser;
 
+    /**
+     * Shared by both prod tests: the report URI is read at runtime, so one compiled prod container is enough.
+     */
+    private static ?string $prodCacheDir = null;
+
+    #[\Override]
+    public static function tearDownAfterClass(): void
+    {
+        if (null !== self::$prodCacheDir && is_dir(self::$prodCacheDir)) {
+            new Filesystem()->remove(self::$prodCacheDir);
+        }
+        self::$prodCacheDir = null;
+
+        parent::tearDownAfterClass();
+    }
+
     public function testProdIncludesCspReportOnlyHeader(): void
     {
         $this->assertProdHealthCspHeader(env: [
@@ -68,7 +84,7 @@ final class ContentSecurityPolicyTest extends WebTestCase
             $env['DATABASE_URL'] = $databaseUrl;
         }
 
-        $cacheDir = sys_get_temp_dir().'/ivena_csp_test_'.uniqid('', true);
+        $cacheDir = self::$prodCacheDir ??= sys_get_temp_dir().'/ivena_csp_test_'.uniqid('', true);
         $envKeys = array_keys($env);
         $envKeys[] = 'APP_CACHE_DIR';
         $envSnapshot = $this->snapshotEnv($envKeys);
@@ -106,10 +122,6 @@ final class ContentSecurityPolicyTest extends WebTestCase
         } finally {
             self::ensureKernelShutdown();
             $this->restoreEnv($envSnapshot);
-
-            if (is_dir($cacheDir)) {
-                new Filesystem()->remove($cacheDir);
-            }
         }
     }
 

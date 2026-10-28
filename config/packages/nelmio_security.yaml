@@ -37,3 +37,5 @@ when@prod:
                 font-src: ["'self'", "data:"]
                 connect-src: ["'self'", "https://*.tile.openstreetmap.org", "https://*.ingest.sentry.io"]
                 form-action: ["'self'"]
+                # Read at runtime; nelmio drops the directive when the variable is empty.
+                report-uri: ['%env(trim:SENTRY_CSP_REPORT_URI)%']

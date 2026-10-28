@@ -17,7 +17,7 @@ Production uses **Content-Security-Policy-Report-Only** via [NelmioSecurityBundl
 | Piece | Location |
 |-------|----------|
 | Policy directives | [`config/packages/nelmio_security.yaml`](../../config/packages/nelmio_security.yaml) (`when@prod` → `csp.report`) |
-| Optional `report-uri` | [`config/packages/nelmio_security_csp_report_uri.php`](../../config/packages/nelmio_security_csp_report_uri.php) (only when `SENTRY_CSP_REPORT_URI` is set) |
+| Optional `report-uri` | Same file, `report-uri: ['%env(trim:SENTRY_CSP_REPORT_URI)%']`. Read at runtime, so a changed value needs no cache clear; when it is empty, Nelmio leaves the directive out |
 | Env default | [`config/services.yaml`](../../config/services.yaml) — `env(SENTRY_CSP_REPORT_URI): ''` |
 | Example env | [`.env.example`](../../.env.example) |
 

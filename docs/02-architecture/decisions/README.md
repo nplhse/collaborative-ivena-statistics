@@ -37,6 +37,7 @@ Each ADR includes:
 | [019](019-messenger-monitoring.md) | Messenger monitoring with hourly metrics, scheduler jobs in the run log, and bounded retention | accepted |
 | [020](020-portable-reference-catalog.md) | Portable reference catalog, private reference data outside the repository, and synthetic data from code | accepted |
 | [021](021-wall-clock-access.md) | Read the current time only through the Symfony clock | accepted |
+| [022](022-synthetic-data-generation.md) | Synthetic data generation with hospital profiles, pattern packages and scenario overlays | accepted |
 
 ## Template
 

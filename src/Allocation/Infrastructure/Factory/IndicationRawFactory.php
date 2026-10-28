@@ -7,6 +7,7 @@ namespace App\Allocation\Infrastructure\Factory;
 use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\IndicationKey;
 use App\User\Domain\Factory\UserFactory;
+use Zenstruck\Foundry\LazyValue;
 use Zenstruck\Foundry\Persistence\PersistentObjectFactory;
 
 /**
@@ -38,7 +39,7 @@ final class IndicationRawFactory extends PersistentObjectFactory
 
         return [
             'createdAt' => \DateTimeImmutable::createFromMutable($faker->dateTime()),
-            'createdBy' => UserFactory::randomOrCreate(),
+            'createdBy' => LazyValue::new(static fn (): object => UserFactory::randomOrCreate()),
             'code' => $indicationCode,
             'name' => $indicationName,
             'hash' => IndicationKey::hashFrom($indicationCode, $indicationName),
