@@ -12,6 +12,8 @@ final class FixtureVolumeResolverTest extends TestCase
     private const array PROFILES = [
         'realistic' => ['Large' => 3, 'Medium' => 6, 'Small' => 6],
         'large' => ['Large' => 3, 'Medium' => 8, 'Small' => 9, 'months' => 24],
+        'medium' => ['Large' => 2, 'Medium' => 2, 'Small' => 2, 'closure_share' => 0.01],
+        'broken' => ['Large' => 1, 'closure_share' => 1.5],
     ];
 
     private const array BASELINE = [
@@ -39,6 +41,21 @@ final class FixtureVolumeResolverTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $this->resolver('large', 'two years')->resolve();
+    }
+
+    public function testAPresetCanSetTheClosureShare(): void
+    {
+        $medium = $this->resolver('medium')->resolve();
+
+        self::assertSame(0.01, $medium->closureShare);
+        self::assertSame(['Large' => 2, 'Medium' => 2, 'Small' => 2], $medium->hospitals, 'closure_share is not a hospital size');
+        self::assertSame(0.01, $medium->withSeed(741)->closureShare, 'kept with another seed');
+        self::assertSame(0.01, $medium->withPatterns('tuned.json')->closureShare, 'kept with another pattern source');
+        self::assertNull($this->resolver('large')->resolve()->closureShare, 'without it the structural shares apply');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('closure_share of fixture profile "broken" must be a number from 0 to below 1, got 1.5.');
+        $this->resolver('broken')->resolve();
     }
 
     private function resolver(string $profile, string $months = ''): FixtureVolumeResolver

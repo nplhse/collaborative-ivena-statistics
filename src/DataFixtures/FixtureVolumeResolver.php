@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 final readonly class FixtureVolumeResolver
 {
     /**
-     * @param array<string, array<string, int|array<string, float|int>>> $profiles hospitals per size for each profile, optionally `months` and `scenarios` (name → per year)
+     * @param array<string, array<string, int|float|array<string, float|int>>> $profiles hospitals per size for each profile, optionally `months`, `closure_share` and `scenarios` (name → per year)
      * @param array{
      *     months: int,
      *     trend_per_year?: float|int,
@@ -45,7 +45,7 @@ final readonly class FixtureVolumeResolver
         $preset = $this->profiles[$this->profile]
             ?? throw new \InvalidArgumentException(sprintf('Unknown fixture profile "%s". Known: %s.', $this->profile, implode(', ', array_keys($this->profiles))));
         /** @var array<string, int> $hospitals */
-        $hospitals = array_diff_key($preset, ['months' => true, 'scenarios' => true]);
+        $hospitals = array_diff_key($preset, ['months' => true, 'scenarios' => true, 'closure_share' => true]);
         $months = $preset['months'] ?? $this->baseline['months'];
         $scenarios = $preset['scenarios'] ?? [];
         $scale = max(0.01, min(10.0, $this->scale));
@@ -63,7 +63,23 @@ final readonly class FixtureVolumeResolver
             trendPerYear: (float) ($this->baseline['trend_per_year'] ?? 0.0),
             scenarios: \is_array($scenarios) ? array_map(floatval(...), $scenarios) : [],
             patterns: '' !== trim($this->patterns) ? trim($this->patterns) : 'defaults',
+            closureShare: $this->closureShare($preset['closure_share'] ?? null),
         );
+    }
+
+    /**
+     * The share of closed department-hours of the preset, or null for the shares of the structural patterns.
+     */
+    private function closureShare(mixed $share): ?float
+    {
+        if (null === $share) {
+            return null;
+        }
+        if ((!\is_int($share) && !\is_float($share)) || $share < 0 || $share >= 1) {
+            throw new \InvalidArgumentException(sprintf('closure_share of fixture profile "%s" must be a number from 0 to below 1, got %s.', $this->profile, var_export($share, true)));
+        }
+
+        return (float) $share;
     }
 
     /**

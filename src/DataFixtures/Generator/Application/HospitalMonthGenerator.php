@@ -53,11 +53,12 @@ final readonly class HospitalMonthGenerator
     /**
      * The daily counts the month would get, without writing anything.
      *
-     * @param string $month month as Y-m
+     * @param string                $month     month as Y-m
+     * @param ProfileSelection|null $selection explicit structure, volume or closure share instead of the drawn profile
      *
-     * @throws \DomainException when the month cannot be generated for this hospital
+     * @throws \DomainException when the month cannot be generated for this hospital or the selection is not usable
      */
-    public function plan(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): ImportBatch
+    public function plan(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay, ?ProfileSelection $selection = null): ImportBatch
     {
         $first = ImportBatchPlanner::firstDay($month);
         if ($first > $lastDay) {
@@ -67,18 +68,19 @@ final readonly class HospitalMonthGenerator
             throw new \DomainException(sprintf('%s already has allocations, closures or a synthetic import for %s.', (string) $hospital->getName(), $month));
         }
 
-        return $this->planner->planMonth($volume, $hospital, $month, $lastDay);
+        return $this->planner->planMonth($volume, $hospital, $month, $lastDay, $this->profile($volume, $hospital, $selection));
     }
 
     /**
-     * @param string $month month as Y-m
+     * @param string                $month     month as Y-m
+     * @param ProfileSelection|null $selection explicit structure, volume or closure share instead of the drawn profile
      *
-     * @throws \DomainException               when the month cannot be generated for this hospital
+     * @throws \DomainException               when the month cannot be generated for this hospital or the selection is not usable
      * @throws InvalidPatternPackageException when the pattern package of the volume is invalid
      */
-    public function generate(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): GeneratedMonth
+    public function generate(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay, ?ProfileSelection $selection = null): GeneratedMonth
     {
-        $batch = $this->plan($volume, $hospital, $month, $lastDay);
+        $batch = $this->plan($volume, $hospital, $month, $lastDay, $selection);
 
         $owner = $hospital->getOwner();
         $dispatchArea = $hospital->getDispatchArea();
@@ -95,7 +97,7 @@ final readonly class HospitalMonthGenerator
 
         $hospitalKey = $hospital->getPublicIdString();
         $uploadedAt = UploadTime::after($lastGeneratedDay, $lastDay, $this->streams->stream($volume->seed, $hospitalKey, $month, RandomStreams::UPLOAD));
-        $profile = $this->profiles->resolve($hospital, $volume->seed);
+        $profile = $this->profile($volume, $hospital, $selection);
         $patterns = $this->patterns->load($volume->patterns);
         $source = new PatternSource($patterns->source);
         $closures = $this->closurePlanner->plan($volume->seed, $hospitalKey, $month, $profile, array_keys($batch->dailyCounts), $lastDay);
@@ -134,6 +136,14 @@ final readonly class HospitalMonthGenerator
         $this->entityManager->flush();
 
         return new GeneratedMonth((int) $import->getId(), $batch->allocationCount(), $mciCases, (int) $closureImport->getId(), \count($closures));
+    }
+
+    /**
+     * The hospital's profile; the closure share of the preset applies unless the selection sets one.
+     */
+    public function profile(FixtureVolume $volume, Hospital $hospital, ?ProfileSelection $selection = null): HospitalProfile
+    {
+        return $this->profiles->resolve($hospital, $volume->seed, ($selection ?? new ProfileSelection())->withDefaultClosureShare($volume->closureShare));
     }
 
     /**

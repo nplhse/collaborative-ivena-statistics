@@ -9,103 +9,151 @@ use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
+use App\DataFixtures\Pattern\Infrastructure\Sampling\WeightedCategoricalSampler;
+use App\DataFixtures\Structure\Application\DefaultStructurePatterns;
+use App\DataFixtures\Structure\Application\DepartmentStructure;
+use App\DataFixtures\Structure\Application\StructureRules;
+use App\DataFixtures\Structure\Dto\Capability;
+use App\DataFixtures\Structure\Dto\HospitalConfiguration;
+use App\DataFixtures\Structure\Dto\MixTilt;
+use App\DataFixtures\Structure\Dto\MixVariation;
+use App\DataFixtures\Structure\Dto\StructurePatternSet;
+use Random\Randomizer;
 
 /**
- * Derives the profile of a hospital from its care tier, size and location.
+ * Derives the profile of a hospital from its care tier, size and location and the structural patterns.
  *
- * The cath lab and the offered departments are drawn once per hospital from its own stream, so the
- * same seed always gives the same hospitals the same departments: full care offers nearly all,
- * basic care the core of internal medicine and surgery and a few more. The closure frequency
- * follows the size.
+ * A hospital draws one configuration (a coherent bundle of resources such as cath lab, stroke unit,
+ * trauma level and obstetrics) by tier and size, then the number of further departments per field.
+ * Both come from the hospital's own stream, so the same seed always gives the same hospital the same
+ * structure. After the departments the hospital draws its volume factor (beds and a hospital factor)
+ * and the tilt of its case mix, so hospitals of one tier and size differ. New draws go last in the
+ * stream, so earlier ones keep their values.
+ *
+ * A ProfileSelection replaces tier, size, beds, the drawn configuration, single resources, the
+ * volume (an explicit annual volume) or the closure share for targeted scenarios and #877.
  */
 final readonly class HospitalProfileResolver
 {
-    /** Chance of a cath lab by tier and size. */
-    private const array CATHLAB = [
-        'Full' => ['Large' => 1.0, 'Medium' => 1.0, 'Small' => 1.0],
-        'Extended' => ['Large' => 0.8, 'Medium' => 0.5, 'Small' => 0.3],
-        'Basic' => ['Large' => 0.15, 'Medium' => 0.1, 'Small' => 0.05],
-    ];
-
-    /** Share of allocations that need the resuscitation room, by tier and size. */
-    private const array RESUS = [
-        'Full' => ['Large' => 0.10, 'Medium' => 0.10, 'Small' => 0.08],
-        'Extended' => ['Large' => 0.06, 'Medium' => 0.05, 'Small' => 0.04],
-        'Basic' => ['Large' => 0.03, 'Medium' => 0.02, 'Small' => 0.01],
-    ];
-
-    /** Departments every hospital offers; they also take the cases of a missing department. */
-    public const array CORE_DEPARTMENTS = ['Kardiologie', 'Gastroenterologie', 'Pulmologie', 'Allgemeinchirurgie', 'Unfallchirurgie'];
-
-    /**
-     * Chance that a hospital offers a department, by tier (full, extended, basic). Large hospitals
-     * add 0.2, small ones subtract 0.2. The order is part of the stream, so new departments go last.
-     */
-    public const array OPTIONAL_DEPARTMENTS = [
-        'Nephrologie' => [1.0, 0.7, 0.3],
-        'Infektiologie' => [1.0, 0.5, 0.2],
-        'Viszeralchirurgie' => [1.0, 0.8, 0.5],
-        'Endoprothetik' => [0.8, 0.6, 0.4],
-        'Wirbelsäulenchirurgie' => [0.8, 0.4, 0.1],
-        'Neurochirurgie' => [1.0, 0.3, 0.0],
-        'Allgemeine Neurologie' => [1.0, 0.8, 0.4],
-        'Schlaganfallmedizin' => [1.0, 0.6, 0.2],
-        'Neurologische Intensiv' => [1.0, 0.3, 0.0],
-        'Epileptologie' => [0.8, 0.2, 0.0],
-        'Allgemeine Psychiatrie' => [0.9, 0.5, 0.2],
-        'Gerontopsychiatrie' => [0.6, 0.3, 0.1],
-        'Suchtmedizin' => [0.7, 0.4, 0.1],
-        'Allgemeine Pädiatrie' => [1.0, 0.6, 0.2],
-        'Neonatologie' => [1.0, 0.3, 0.0],
-        'Kinderkardiologie' => [0.8, 0.1, 0.0],
-        'Kindergastroenterologie' => [0.8, 0.1, 0.0],
-        'Gynäkologie' => [1.0, 0.8, 0.5],
-        'Geburtshilfe' => [1.0, 0.7, 0.4],
-        'Pränatalmedizin' => [1.0, 0.3, 0.0],
-    ];
-
-    private const array TIER_INDEX = ['Full' => 0, 'Extended' => 1, 'Basic' => 2];
-
-    private const array SIZE_BONUS = ['Large' => 0.2, 'Medium' => 0.0, 'Small' => -0.2];
-
-    /** Average closure events per hospital and 30 days, by size. */
-    private const array CLOSURE_EVENTS_PER_MONTH = ['Large' => 8.0, 'Medium' => 5.0, 'Small' => 3.0];
-
     public function __construct(
         private RandomStreams $streams,
+        private WeightedCategoricalSampler $sampler,
+        private DefaultStructurePatterns $structures,
     ) {
     }
 
-    public function resolve(Hospital $hospital, int $seed): HospitalProfile
+    /**
+     * @throws \DomainException when the selection names an unknown configuration or makes the structure incoherent
+     */
+    public function resolve(Hospital $hospital, int $seed, ?ProfileSelection $selection = null): HospitalProfile
     {
-        $tier = ($hospital->getTier() ?? HospitalTier::BASIC)->value;
-        $size = ($hospital->getSize() ?? HospitalSize::MEDIUM)->value;
-        $random = $this->streams->stream($seed, $hospital->getPublicIdString(), '-', RandomStreams::PROFILE);
-
-        // The cath lab is drawn first, so adding departments did not change it.
-        $hasCathlab = $random->nextFloat() < self::CATHLAB[$tier][$size];
-        $missing = [];
-        foreach (self::OPTIONAL_DEPARTMENTS as $department => $chances) {
-            $chance = $chances[self::TIER_INDEX[$tier]] + self::SIZE_BONUS[$size];
-            if ($random->nextFloat() >= $chance) {
-                $missing[] = $department;
-            }
+        $violations = $selection?->violations() ?? [];
+        if ([] !== $violations) {
+            throw new \DomainException(sprintf('The selected profile is not usable: %s.', implode('; ', $violations)));
         }
 
+        $set = $this->structures->get();
+        $tierEnum = $selection->tier ?? $hospital->getTier() ?? HospitalTier::BASIC;
+        $tier = $tierEnum->value;
+        $size = ($selection->size ?? $hospital->getSize() ?? HospitalSize::MEDIUM)->value;
+        $beds = $selection->beds ?? $hospital->getBeds();
+        $random = $this->streams->stream($seed, $hospital->getPublicIdString(), '-', RandomStreams::PROFILE);
+
+        // Drawn even when a selection replaces it, so the departments below use the same numbers.
+        $drawn = $this->sampler->sample($set->weightsFor($tier, $size), $random);
+        $configuration = $this->select($set, $set->configuration($selection->configuration ?? $drawn), $selection);
+        $resources = $configuration->resources;
+
+        $offered = array_values(array_unique([...DepartmentStructure::CORE, ...DepartmentStructure::impliedBy($resources), ...$configuration->departments]));
+        foreach (DepartmentStructure::FIELDS as $field => $departments) {
+            $count = (int) $this->sampler->sample($configuration->fieldCounts[$field] ?? [0 => 1.0], $random);
+            $required = DepartmentStructure::FIELD_REQUIRES[$field] ?? null;
+            if ($required instanceof Capability && !$resources->provides($required)) {
+                continue;
+            }
+            $further = array_values(array_diff($departments, $offered));
+            array_push($offered, ...\array_slice($further, 0, $count));
+        }
+
+        // Drawn even when an explicit annual volume replaces it, so the tilt keeps its numbers.
+        $volumeFactor = $set->volume->bedFactor($size, $beds) * $this->logNormal($set->volume->hospitalSpread, $random);
+        $tilt = $this->tilt($set->mixVariation, $random);
+
         return new HospitalProfile(
-            segment: $this->segment($hospital),
-            hasCathlab: $hasCathlab,
-            resusShare: self::RESUS[$tier][$size],
-            missingDepartments: $missing,
-            closureEventsPerMonth: self::CLOSURE_EVENTS_PER_MONTH[$size],
+            segment: $this->segment($tierEnum, $hospital->getLocation()),
+            resources: $resources,
+            resusShare: $set->resusShares[$resources->traumaLevel->value] ?? 0.0,
+            missingDepartments: DepartmentStructure::labels(array_values(array_diff(DepartmentStructure::all(), $offered))),
+            configuration: $configuration->key,
+            blockedIndications: $set->blockedIndications($resources),
+            size: $size,
+            volumeFactor: $volumeFactor,
+            annualVolume: $selection?->annualVolume,
+            closureShare: $selection->closureShare ?? $set->closureShares[$size] ?? 0.0,
+            tilt: $tilt,
         );
     }
 
-    private function segment(Hospital $hospital): string
+    /**
+     * One factor per indication category (first PZC digit 1 to 8), then old age, then urgency 1.
+     */
+    private function tilt(MixVariation $variation, Randomizer $random): MixTilt
+    {
+        $categories = [];
+        for ($digit = 1; $digit <= 8; ++$digit) {
+            $categories[$digit] = $this->logNormal($variation->categorySpread, $random);
+        }
+
+        return new MixTilt(
+            categories: $categories,
+            oldAge: $this->logNormal($variation->oldAgeSpread, $random),
+            urgent: $this->logNormal($variation->urgentSpread, $random),
+        );
+    }
+
+    /**
+     * A log-normal factor with mean 1 (Box-Muller); 1 when the spread is 0. Always takes two numbers
+     * from the stream, so later draws do not depend on the spread.
+     */
+    private function logNormal(float $spread, Randomizer $random): float
+    {
+        $u1 = max(1e-12, $random->nextFloat());
+        $u2 = $random->nextFloat();
+        if ($spread <= 0.0) {
+            return 1.0;
+        }
+        $gauss = sqrt(-2.0 * log($u1)) * cos(2.0 * \M_PI * $u2);
+
+        return exp($spread * $gauss - $spread * $spread / 2.0);
+    }
+
+    private function select(StructurePatternSet $set, HospitalConfiguration $configuration, ?ProfileSelection $selection): HospitalConfiguration
+    {
+        if (!$selection instanceof ProfileSelection) {
+            return $configuration;
+        }
+
+        $resources = $configuration->resources->with(
+            cathlab: $selection->cathlab,
+            neurosurgery: $selection->neurosurgery,
+            strokeUnit: $selection->strokeUnit,
+            traumaLevel: $selection->traumaLevel,
+            obstetrics: $selection->obstetrics,
+            paediatrics: $selection->paediatrics,
+        );
+        $violations = StructureRules::resourceViolations($resources);
+        if ([] !== $violations) {
+            throw new \DomainException(sprintf('The selected structure is not coherent: %s. Supported configurations: %s.', implode('; ', $violations), implode(', ', array_keys($set->configurations))));
+        }
+
+        return $configuration->withResources($resources);
+    }
+
+    private function segment(HospitalTier $tier, ?HospitalLocation $location): string
     {
         return match (true) {
-            HospitalTier::FULL === $hospital->getTier() => 'urban-full',
-            HospitalLocation::RURAL === $hospital->getLocation() => 'rural-basic',
+            HospitalTier::FULL === $tier => 'urban-full',
+            HospitalLocation::RURAL === $location => 'rural-basic',
             default => 'urban-basic',
         };
     }
