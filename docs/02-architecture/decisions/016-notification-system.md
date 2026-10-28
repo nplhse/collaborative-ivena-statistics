@@ -402,6 +402,16 @@ Batch states, the suppression of per-import notifications and the summary are in
 - Default channels are in-app and email; no channel is mandatory, so each admin can switch any of them off. The former opt-in roles `ROLE_RECEIVES_NOTIFICATION` and `ROLE_FEEDBACK_RECIPIENT` are replaced by these preferences: admins without a role were migrated with the matching types switched off, then both roles were removed.
 - `AdminNotificationSender`, `AdminNotification*` and the feedback admin mailer are removed once migrated.
 
+#### Synthetic data generation (`generation.completed`)
+
+*Added with #791 (ADR 023).* A generation run of the synthetic data generator announces each completed
+hospital to the hospital's owner once all its processing is done: projections, closure volume,
+materialized views and KPIs. In-app and toast, configurable, hospital-scoped, category imports. Only runs
+started with `notify` publish; failed hospitals get nothing. The notification is published after the
+run's conditional terminal transition with the key `generation.completed:{runId}:{hospitalId}`, and the
+generator's reconciler re-publishes runs finished inside the 24-hour window from `generation_run`. The
+type is defined in `DataFixtures/Generator`, so it exists only in dev, test and demo.
+
 ### Scope boundaries
 
 Email verification, password reset, account recovery and any other authentication-critical mail stay outside the system. They keep using `TransactionalMailer` and never depend on preferences.

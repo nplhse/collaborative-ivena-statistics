@@ -9,6 +9,9 @@ use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
 use App\DataFixtures\Generator\Application\Catalog\CatalogMismatchException;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
+use App\DataFixtures\Generator\Application\Run\GenerationRunRequest;
+use App\DataFixtures\Generator\Application\Run\GenerationRunScope;
+use App\DataFixtures\Generator\Application\Run\GenerationRunTracker;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;
@@ -38,6 +41,7 @@ final readonly class GenerateImportsCommand
         private SyntheticDataPipeline $pipeline,
         private ClockInterface $clock,
         private CatalogCompatibility $catalog,
+        private GenerationRunTracker $runs,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
     ) {
@@ -56,11 +60,20 @@ final readonly class GenerateImportsCommand
         ?int $seed = null,
         #[Option(description: 'Show the planned counts without writing anything', name: 'dry-run')]
         bool $dryRun = false,
+        #[Option(description: 'Track a generation run and leave the projections to a Messenger worker instead of waiting for them')]
+        bool $async = false,
+        #[Option(description: 'With --async: notify the owner of each hospital in-app once its data is fully processed')]
+        bool $notify = false,
     ): int {
         if (!\in_array($this->environment, self::ALLOWED_ENVIRONMENTS, true)) {
             $io->error(sprintf('Synthetic data is only generated in %s, not in "%s".', implode(' and ', self::ALLOWED_ENVIRONMENTS), $this->environment));
 
             return Command::FAILURE;
+        }
+        if ($notify && !$async) {
+            $io->error('--notify needs --async: notifications follow the tracked background processing.');
+
+            return Command::INVALID;
         }
         if ([] === $hospital || '' === $month) {
             $io->error('Pass at least one --hospital=<public id> and --month=YYYY-MM.');
@@ -86,13 +99,20 @@ final readonly class GenerateImportsCommand
         $failed = false;
         $allocationImports = [];
         $hospitalIds = [];
+        /** @var array<string, Hospital|null> $entities */
+        $entities = [];
         foreach ($hospital as $publicId) {
-            $entity = $this->findHospital($publicId);
+            $entities[$publicId] = $this->findHospital($publicId);
+        }
+        $runId = $async && !$dryRun ? $this->startRun($entities, $volume->seed, $month, $notify) : null;
+
+        foreach ($entities as $publicId => $entity) {
             if (!$entity instanceof Hospital) {
                 $rows[] = [$publicId, $month, '–', 'unknown hospital'];
                 $failed = true;
                 continue;
             }
+            $entityId = (int) $entity->getId();
 
             try {
                 if ($dryRun) {
@@ -100,23 +120,38 @@ final readonly class GenerateImportsCommand
                     continue;
                 }
 
+                if (null !== $runId) {
+                    $this->runs->hospitalStarted($runId, $entityId);
+                }
                 $generated = $this->generator->generate($volume, $entity, $month, $lastDay);
+                if (null !== $runId) {
+                    $this->runs->monthGenerated($runId, $entityId, $generated);
+                }
                 $allocationImports[] = $generated->importId;
-                $hospitalIds[] = (int) $entity->getId();
+                $hospitalIds[] = $entityId;
                 $rows[] = [(string) $entity->getName(), $month, (string) $generated->allocations, sprintf('import %d, %d MCI cases; closure import %d, %d closures', $generated->importId, $generated->mciCases, $generated->closureImportId, $generated->closures)];
             } catch (\DomainException|\InvalidArgumentException $exception) {
                 $rows[] = [(string) $entity->getName(), $month, '–', $exception->getMessage()];
                 $failed = true;
+                if (null !== $runId) {
+                    $this->runs->hospitalFailed($runId, $entityId, 'generation_failed', $exception->getMessage());
+                }
             } finally {
                 $this->entityManager->clear();
             }
         }
 
-        if ([] !== $allocationImports && $volume->rebuildProjection) {
+        $handedOver = [];
+        if (null !== $runId) {
+            $handedOver = $this->runs->generationFinished($runId);
+        } elseif ([] !== $allocationImports && $volume->rebuildProjection) {
             $this->pipeline->afterImports($allocationImports, $hospitalIds);
         }
 
         $io->table(['Hospital', 'Month', 'Allocations', 'Result'], $rows);
+        if (null !== $runId) {
+            $io->note(sprintf('Generation run %s: projections of %d hospital(s) continue in the Messenger worker. Follow them with: php bin/console app:generate:run:show %s', $runId, \count($handedOver), $runId));
+        }
         if ($failed) {
             $io->error('Some months were not generated.');
 
@@ -125,6 +160,33 @@ final readonly class GenerateImportsCommand
         $io->success($dryRun ? 'Dry run: nothing was written.' : sprintf('Generated with seed %d.', $volume->seed));
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * @param array<string, Hospital|null> $entities
+     */
+    private function startRun(array $entities, int $seed, string $month, bool $notify): ?string
+    {
+        $ids = [];
+        foreach ($entities as $entity) {
+            if ($entity instanceof Hospital) {
+                $ids[] = (int) $entity->getId();
+            }
+        }
+        $ids = array_values(array_unique($ids));
+        if ([] === $ids) {
+            return null;
+        }
+
+        return $this->runs->start(new GenerationRunRequest(
+            scope: 1 === \count($ids) ? GenerationRunScope::One : GenerationRunScope::Selected,
+            hospitalIds: $ids,
+            seed: $seed,
+            fromMonth: $month,
+            toMonth: $month,
+            settings: ['command' => 'app:generate:imports'],
+            notify: $notify,
+        ));
     }
 
     private function findHospital(string $publicId): ?Hospital

@@ -73,6 +73,33 @@ final readonly class SyntheticDataPipeline
     }
 
     /**
+     * The per-hospital part of afterImports() for the asynchronous stage of a generation run: allocation
+     * projections of the hospital's imports first, then its closure analysis and closure volume, which read them.
+     * Both steps replace their rows, so running them again after a failed attempt gives the same result.
+     *
+     * @param list<int> $allocationImportIds
+     */
+    public function projectHospital(int $hospitalId, array $allocationImportIds): void
+    {
+        foreach ($allocationImportIds as $importId) {
+            $this->allocationProjection->rebuildForImport($importId);
+        }
+        $this->closureVolume->rebuild(hospitalIds: [$hospitalId]);
+    }
+
+    /**
+     * The shared part of afterImports() once every hospital of a generation run is projected: materialized
+     * views and the daily KPIs of the upload days.
+     *
+     * @param list<int> $allocationImportIds
+     */
+    public function finishImports(array $allocationImportIds): void
+    {
+        $this->materializedViews->refresh();
+        $this->aggregateKpis($this->uploadDays($allocationImportIds));
+    }
+
+    /**
      * After imports were deleted (the import deletion removed their projection rows already): closure
      * volume of the hospitals, views and the KPIs of the upload days of the deleted imports.
      *
