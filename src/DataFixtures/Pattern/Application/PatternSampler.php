@@ -33,6 +33,9 @@ final readonly class PatternSampler
 
     public const string FALLBACK_DEPARTMENT = 'Gastroenterologie';
 
+    /** Share of patients with sex "unknown" (X); groups for women only have none. */
+    public const float UNKNOWN_SEX_SHARE = 0.001;
+
     public function __construct(
         private WeightedCategoricalSampler $categoricalSampler,
         private PercentileSampler $percentileSampler,
@@ -42,7 +45,8 @@ final readonly class PatternSampler
 
     /**
      * Draws the indication first; department, urgency, age, sex and flags follow from it
-     * (IndicationGroups), then the coherence rules apply.
+     * (IndicationGroups), then the coherence rules apply. Occasion, infection, hour and transport
+     * time are linked to the case by PatternCouplings.
      *
      * A hospital gets only departments it offers: an indication whose departments are all missing
      * is drawn again (a hospital without obstetrics gets hardly any births); after a few tries the
@@ -56,8 +60,6 @@ final readonly class PatternSampler
         Randomizer $random,
     ): SampledAllocationAttributes {
         $createdAt = $this->sampleCreatedAt($pattern, $periodStart, $periodEnd, $random);
-        $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random);
-        $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
         $groups = $pattern->indicationGroups();
         $missing = array_flip($pattern->departmentsNotOffered());
@@ -65,7 +67,7 @@ final readonly class PatternSampler
         for ($try = 1; $try < self::INDICATION_TRIES && [] === array_diff_key($groups->forCode($code ?? '')['departments'], $missing); ++$try) {
             $code = $this->sampleIndicationCode($pattern, $random);
         }
-        $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
+        $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random, static fn (array $shares): array => PatternCouplings::infections($shares, $code));
         $secondaryTransport = $this->sampleNullableLookup($pattern, 'secondary_transport', SecondaryTransport::class, $random);
         [$indicationNormalized, $indicationRaw] = null !== $code
             ? $this->lookupResolver->indicationForCode($code)
@@ -75,7 +77,7 @@ final readonly class PatternSampler
 
         $departmentName = $this->categoricalSampler->sample($this->offeredDepartments($group['departments'], $missing), $random);
         $female = $group['female'];
-        $other = $female >= 1.0 ? 0.0 : 0.01;
+        $other = $female >= 1.0 ? 0.0 : self::UNKNOWN_SEX_SHARE;
         $gender = AllocationGender::from($this->categoricalSampler->sample(['F' => $female * (1.0 - $other), 'M' => (1.0 - $female) * (1.0 - $other), 'X' => $other], $random));
 
         $transportDistribution = $pattern->categoricalDistribution('transport_type');
@@ -83,7 +85,7 @@ final readonly class PatternSampler
             ? AllocationTransportType::from($this->categoricalSampler->sample($transportDistribution, $random))
             : null;
         $assignmentName = $this->categoricalSampler->sample($pattern->categoricalDistribution('assignment'), $random);
-        $occasionName = $this->categoricalSampler->sample($pattern->categoricalDistribution('occasion'), $random);
+        $occasionName = $this->categoricalSampler->sample(PatternCouplings::occasions($pattern->categoricalDistribution('occasion'), $code), $random);
 
         // The pattern carries the hospital profile: resus share, and a cath lab share of 0 without a cath lab.
         $base = $pattern->flagProbabilities();
@@ -100,6 +102,13 @@ final readonly class PatternSampler
             'resus' => $this->flag(min(1.0, ($base['requires_resus'] ?? 0.05) * $group['resus_factor']), $random),
             'shock' => $this->flag($groupFlags['is_shock'] ?? $base['is_shock'] ?? 0.0, $random),
         ], $random);
+
+        $transportMinutes = PatternCouplings::transportMinutes(
+            $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random),
+            $case['urgency'],
+            $this->flag(PatternCouplings::ROUNDED_SHARE, $random),
+        );
+        $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
         return new SampledAllocationAttributes(
             createdAt: $createdAt,
@@ -122,7 +131,7 @@ final readonly class PatternSampler
             isVentilated: $this->flag($groupFlags['is_ventilated'] ?? $base['is_ventilated'] ?? 0.0, $random),
             isShock: $case['shock'],
             isPregnant: $case['pregnant'],
-            isWorkAccident: $this->flag($groupFlags['is_work_accident'] ?? $base['is_work_accident'] ?? 0.0, $random),
+            isWorkAccident: PatternCouplings::WORK_ACCIDENT_OCCASION === $occasionName || $this->flag($groupFlags['is_work_accident'] ?? $base['is_work_accident'] ?? 0.0, $random),
             isWithPhysician: $this->flag($groupFlags['is_with_physician'] ?? $base['is_with_physician'] ?? 0.0, $random),
         );
     }
@@ -151,15 +160,16 @@ final readonly class PatternSampler
         \DateTimeImmutable $periodEnd,
         Randomizer $random,
     ): \DateTimeImmutable {
-        $hourDistribution = $pattern->categoricalDistribution('hour_of_day');
-        $hour = [] !== $hourDistribution
-            ? (int) $this->categoricalSampler->sample($hourDistribution, $random)
-            : $random->getInt(0, 23);
-
         // A whole day between start and end, derived from the period (same time zone, no wall clock).
         $firstDay = $periodStart->setTime(0, 0);
         $days = max(0, (int) $firstDay->diff($periodEnd->setTime(0, 0))->days);
         $day = $firstDay->modify(sprintf('+%d days', $random->getInt(0, $days)));
+
+        // The day comes first: weekend nights are busier.
+        $hourDistribution = $pattern->categoricalDistribution('hour_of_day');
+        $hour = [] !== $hourDistribution
+            ? (int) $this->categoricalSampler->sample(PatternCouplings::hours($hourDistribution, $day), $random)
+            : $random->getInt(0, 23);
 
         return $day->setTime($hour, $random->getInt(0, 59));
     }
@@ -206,11 +216,12 @@ final readonly class PatternSampler
     /**
      * @template T of object
      *
-     * @param class-string<T> $class
+     * @param class-string<T>                                             $class
+     * @param (\Closure(array<string, float>): array<string, float>)|null $couple adjusts the shares to the case
      *
      * @return T|null
      */
-    private function sampleNullableLookup(DistributionPattern $pattern, string $key, string $class, Randomizer $random): ?object
+    private function sampleNullableLookup(DistributionPattern $pattern, string $key, string $class, Randomizer $random, ?\Closure $couple = null): ?object
     {
         $presence = $pattern->presenceProbability($key);
         if (null === $presence || !$this->categoricalSampler->sampleBernoulli($presence, $random)) {
@@ -220,6 +231,9 @@ final readonly class PatternSampler
         $distribution = $pattern->categoricalDistribution($key);
         if ([] === $distribution) {
             return null;
+        }
+        if ($couple instanceof \Closure) {
+            $distribution = $couple($distribution);
         }
 
         $name = $this->categoricalSampler->sample($distribution, $random);

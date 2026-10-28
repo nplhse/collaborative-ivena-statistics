@@ -11,6 +11,7 @@ use App\Allocation\Infrastructure\Faker\Provider\PzcCodes;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
 use App\DataFixtures\Pattern\Application\CoherenceRules;
 use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
+use App\DataFixtures\Pattern\Application\PatternCouplings;
 use App\DataFixtures\Pattern\Application\PatternSampler;
 use App\DataFixtures\Pattern\Dto\SampledAllocationAttributes;
 use App\DataFixtures\Structure\Application\DepartmentStructure;
@@ -150,6 +151,46 @@ final class DefaultDistributionPatternsTest extends KernelTestCase
         // Every code of the mix blocked: the case has no indication.
         $allBlocked = new DefaultDistributionPatterns()->get('urban-basic')->withDistribution('indication_normalized', ['_present' => 1.0, '332' => 1.0])->withoutIndications(['332']);
         self::assertNull($sampler->sample($allBlocked, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random)->indicationNormalized);
+    }
+
+    /**
+     * Accident occasions only for injuries, a work accident occasion sets the flag, transport times
+     * mostly in steps of five minutes, and severe codes in basic care only with the capability (#909).
+     */
+    public function testTheCouplingsHoldForSampledCases(): void
+    {
+        self::bootKernel();
+        $sampler = $this->loadReferenceCatalog();
+        $basic = new DefaultDistributionPatterns()->get('urban-basic');
+        $random = new RandomStreams()->stream(740, 'couplings', '2026-01', RandomStreams::ALLOCATIONS);
+
+        $accidents = 0;
+        $rounded = 0;
+        $codes = [];
+        for ($i = 0; $i < 2000; ++$i) {
+            $sampled = $sampler->sample($basic, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random);
+            $code = (string) $sampled->indicationNormalized?->getCode();
+            $codes[$code] = true;
+            if (\in_array($sampled->occasion->getName(), PatternCouplings::TRAUMA_OCCASIONS, true)) {
+                ++$accidents;
+                self::assertStringStartsWith('2', $code, 'accident occasion with code '.$code);
+            }
+            if (PatternCouplings::WORK_ACCIDENT_OCCASION === $sampled->occasion->getName()) {
+                self::assertTrue($sampled->isWorkAccident, 'a work accident occasion sets the flag');
+            }
+            $minutes = intdiv($sampled->arrivalAt->getTimestamp() - $sampled->createdAt->getTimestamp(), 60);
+            $rounded += 0 === $minutes % 5 ? 1 : 0;
+        }
+        self::assertGreaterThan(0, $accidents, 'injuries still have accidents');
+        // 80 % are rounded on purpose, a fifth of the rest happen to be multiples of five: about 84 %.
+        self::assertEqualsWithDelta(0.84, $rounded / 2000, 0.05);
+        self::assertArrayHasKey('332', $codes, 'basic care with a cath lab gets STEMI');
+
+        $gated = $basic->withoutIndications(['332', '346', '211', '212']);
+        for ($i = 0; $i < 2000; ++$i) {
+            $code = (string) $sampler->sample($gated, new \DateTimeImmutable('2026-01-01'), new \DateTimeImmutable('2026-01-31'), $random)->indicationNormalized?->getCode();
+            self::assertNotContains($code, ['332', '346', '211', '212'], 'without cath lab and trauma centre');
+        }
     }
 
     private function loadReferenceCatalog(): PatternSampler
