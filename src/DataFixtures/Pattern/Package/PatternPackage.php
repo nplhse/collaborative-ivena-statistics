@@ -10,7 +10,8 @@ use App\DataFixtures\Pattern\Package\Validation\ValidPatternPackage;
  * An allocation pattern package, format `ivena-distribution-patterns` (ADR 022).
  *
  * Segment patterns keyed by segment name, indication groups keyed by PZC code prefix, and the group
- * for codes without a group of their own. Package rules run as a class constraint.
+ * for codes without a group of their own. Departments are keyed by the generator's catalog-independent
+ * keys (`GeneratorKeys`, for example `stroke-unit`), lookups by their IVENA value, indications by PZC code. Package rules run as a class constraint.
  */
 #[ValidPatternPackage]
 final readonly class PatternPackage

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Pattern\UI\Console;
 
-use App\DataFixtures\Pattern\Infrastructure\Query\PatternCatalogQuery;
+use App\DataFixtures\Generator\Application\Catalog\CatalogCompatibility;
+use App\DataFixtures\Pattern\Application\PatternSet;
+use App\DataFixtures\Pattern\Package\PatternPackagePath;
 use App\DataFixtures\Pattern\Package\PatternPackageReader;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -24,7 +26,7 @@ final readonly class ValidatePatternPackageCommand
 {
     public function __construct(
         private PatternPackageReader $reader,
-        private PatternCatalogQuery $catalog,
+        private CatalogCompatibility $catalog,
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
     ) {
@@ -34,17 +36,32 @@ final readonly class ValidatePatternPackageCommand
         SymfonyStyle $io,
         #[Argument(description: 'Package file: a path, or a file name in var/patterns/')]
         string $file,
-        #[Option(description: 'Skip the check against the reference catalog in the database', name: 'no-catalog')]
+        #[Option(description: 'Skip the check against the installed reference catalog and the catalog mapping', name: 'no-catalog')]
         bool $noCatalog = false,
     ): int {
         $path = PatternPackagePath::resolve($file, $this->projectDir);
-        $result = $this->reader->read($path, $noCatalog ? null : $this->catalog->current());
+        $result = $this->reader->read($path);
 
         if (!$result->isValid()) {
             $io->error(sprintf('%s is not a valid pattern package (%d problem(s)).', $path, \count($result->violations)));
             PatternViolationTable::render($io, $result->violations);
 
             return Command::FAILURE;
+        }
+
+        if (!$noCatalog) {
+            try {
+                $report = $this->catalog->check(PatternSet::fromPackage($result->package));
+            } catch (\InvalidArgumentException $exception) {
+                $io->error($exception->getMessage());
+
+                return Command::FAILURE;
+            }
+            if (!$report->isCompatible()) {
+                $io->error(array_merge([sprintf('%s is a valid pattern package, but the installed catalog cannot serve it with the generator:', $path)], $report->errors()));
+
+                return Command::FAILURE;
+            }
         }
 
         $meta = $result->package->meta;

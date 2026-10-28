@@ -13,7 +13,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * 1. Format and version are checked first; another format or version is never read further.
  * 2. Structure: known keys, required keys, numbers and shares in range (PatternPackageStructure).
  * 3. Package rules: segments, table keys, sums, percentiles, counts and checksum (ValidPatternPackage).
- * 4. Catalog, when one is given: every name and PZC code exists in the selected reference catalog.
+ *
+ * Whether the names and PZC codes exist in the installed catalog is checked by the generator
+ * (`CatalogCompatibility`), through the catalog mapping, before anything is written.
  */
 final readonly class PatternPackageReader
 {
@@ -22,7 +24,7 @@ final readonly class PatternPackageReader
     ) {
     }
 
-    public function read(string $path, ?PatternCatalogNames $catalog = null): PatternPackageReadResult
+    public function read(string $path): PatternPackageReadResult
     {
         if (!is_file($path) || !is_readable($path)) {
             return PatternPackageReadResult::invalid([new PatternPackageViolation('', sprintf('File not found or not readable: %s', $path))]);
@@ -33,10 +35,10 @@ final readonly class PatternPackageReader
             return PatternPackageReadResult::invalid([new PatternPackageViolation('', sprintf('File could not be read: %s', $path))]);
         }
 
-        return $this->readJson($json, $catalog);
+        return $this->readJson($json);
     }
 
-    public function readJson(string $json, ?PatternCatalogNames $catalog = null): PatternPackageReadResult
+    public function readJson(string $json): PatternPackageReadResult
     {
         try {
             $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
@@ -61,9 +63,6 @@ final readonly class PatternPackageReader
         /** @var array<string, mixed> $data */
         $package = PatternPackage::fromArray($data);
         $violations = $this->fromConstraintViolations($this->validator->validate($package));
-        if ([] === $violations && $catalog instanceof PatternCatalogNames) {
-            $violations = PatternCatalogCheck::check($package, $catalog);
-        }
 
         return [] === $violations ? PatternPackageReadResult::valid($package) : PatternPackageReadResult::invalid($violations);
     }

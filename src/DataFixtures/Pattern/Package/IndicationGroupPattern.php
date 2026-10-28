@@ -11,7 +11,7 @@ namespace App\DataFixtures\Pattern\Package;
 final readonly class IndicationGroupPattern
 {
     /**
-     * @param array<array-key, float> $departments department name → share
+     * @param array<array-key, float> $departments department key (GeneratorKeys) → share
      * @param array<array-key, float> $urgency     urgency 1–3 → share
      * @param array<array-key, float> $ages        age range ("18-39") → share
      * @param array<array-key, float> $flags       flag → probability

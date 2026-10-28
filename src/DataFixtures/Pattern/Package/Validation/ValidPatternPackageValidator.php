@@ -6,6 +6,7 @@ namespace App\DataFixtures\Pattern\Package\Validation;
 
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
+use App\DataFixtures\Generator\Application\Catalog\GeneratorKeys;
 use App\DataFixtures\Pattern\Package\IndicationGroupPattern;
 use App\DataFixtures\Pattern\Package\PatternPackage;
 use App\DataFixtures\Pattern\Package\PatternPackageFormat;
@@ -18,7 +19,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 /**
  * Checks the rules of a whole pattern package: segments and groups the generator knows, keys of each
- * table, shares that sum to 1, ordered percentiles, counts and checksum. Paths name the table and the key.
+ * table (departments by generator key), shares that sum to 1, ordered percentiles, counts and checksum. Paths name the table and the key.
  */
 final class ValidPatternPackageValidator extends ConstraintValidator
 {
@@ -122,6 +123,14 @@ final class ValidPatternPackageValidator extends ConstraintValidator
 
     private function checkIndicationGroup(string $path, IndicationGroupPattern $group): void
     {
+        foreach (array_keys($group->departments) as $department) {
+            if (!isset(GeneratorKeys::DEPARTMENTS[$department])) {
+                $isLabel = \in_array((string) $department, array_column(GeneratorKeys::DEPARTMENTS, 'label'), true);
+                $this->violation(sprintf('%s.departments.%s', $path, $department), $isLabel
+                    ? sprintf('Departments are keyed by the generator key, here "%s", not by a catalog name.', GeneratorKeys::department((string) $department))
+                    : 'Unknown department key. Known keys: GeneratorKeys::DEPARTMENTS (for example cardiology, stroke-unit).');
+            }
+        }
         foreach (array_keys($group->urgency) as $urgency) {
             if (1 !== preg_match('/^\d$/', (string) $urgency) || null === AllocationUrgency::tryFrom((int) $urgency)) {
                 $this->violation(sprintf('%s.urgency.%s', $path, $urgency), 'Expected an urgency of 1, 2 or 3.');

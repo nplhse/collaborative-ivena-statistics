@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\DataFixtures\Pattern\UI\Console;
+namespace App\DataFixtures\Pattern\Package;
 
 use Symfony\Component\Filesystem\Path;
 

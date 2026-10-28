@@ -97,11 +97,27 @@ final class PatternPackageReaderTest extends PatternPackageTestCase
         ];
         yield 'shares do not sum to 1' => [
             static function (array $data): array {
-                $data['indication_groups']['332']['departments']['Kardiologie'] = 0.8;
+                $data['indication_groups']['332']['departments']['cardiology'] = 0.8;
 
                 return $data;
             },
             'indication_groups.332.departments', 'Shares must sum to 1, they sum to 0.8.',
+        ];
+        yield 'department by catalog name' => [
+            static function (array $data): array {
+                $data['indication_groups']['332']['departments'] = ['Kardiologie' => 1.0];
+
+                return $data;
+            },
+            'indication_groups.332.departments.Kardiologie', 'Departments are keyed by the generator key, here "cardiology", not by a catalog name.',
+        ];
+        yield 'unknown department key' => [
+            static function (array $data): array {
+                $data['indication_groups']['332']['departments'] = ['moon-medicine' => 1.0];
+
+                return $data;
+            },
+            'indication_groups.332.departments.moon-medicine', 'Unknown department key.',
         ];
         yield 'missing segment' => [
             static function (array $data): array {
