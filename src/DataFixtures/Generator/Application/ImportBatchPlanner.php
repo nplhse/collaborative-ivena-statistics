@@ -13,8 +13,10 @@ use Random\Randomizer;
 /**
  * Plans how many allocations each hospital gets per day.
  *
- * The daily count varies around the hospital's rate (by size): fewer at the weekend, a little more in
- * winter, and random noise, so the totals look like real data and are never round numbers.
+ * The daily count varies around the hospital's rate: fewer at the weekend, a little more in winter,
+ * and random noise, so the totals look like real data and are never round numbers. The rate comes
+ * from the hospital profile (preset rate of the size times its volume factor, or an explicit annual
+ * volume); without a profile it is the preset rate of the size.
  */
 final readonly class ImportBatchPlanner
 {
@@ -57,9 +59,9 @@ final readonly class ImportBatchPlanner
      *
      * @param string $month month as Y-m
      */
-    public function planMonth(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay): ImportBatch
+    public function planMonth(FixtureVolume $volume, Hospital $hospital, string $month, \DateTimeImmutable $lastDay, ?HospitalProfile $profile = null): ImportBatch
     {
-        $rate = $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value);
+        $rate = $profile?->dailyRate($volume) ?? $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value);
         $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $month, RandomStreams::VOLUME);
         $first = self::firstDay($month);
         $last = min($first->modify('last day of this month'), \DateTimeImmutable::createFromInterface($lastDay)->setTime(0, 0));

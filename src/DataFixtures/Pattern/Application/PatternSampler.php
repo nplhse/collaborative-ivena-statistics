@@ -91,8 +91,8 @@ final readonly class PatternSampler
 
         $case = CoherenceRules::apply([
             'gender' => $gender,
-            'age' => $this->sampleAge($group['ages'], $random),
-            'urgency' => AllocationUrgency::from((int) $this->categoricalSampler->sample($group['urgency'], $random)),
+            'age' => $this->sampleAge($pattern->tiltAges($group['ages']), $random),
+            'urgency' => AllocationUrgency::from((int) $this->categoricalSampler->sample($pattern->tiltUrgency($group['urgency']), $random)),
             'field' => MedicalSpecialities::fieldOfUnit($departmentName),
             'pregnant' => $this->flag($groupFlags['is_pregnant'] ?? $base['is_pregnant'] ?? 0.0, $random),
             'cpr' => $this->flag($groupFlags['is_cpr'] ?? 0.0, $random),
@@ -191,7 +191,7 @@ final readonly class PatternSampler
         }
 
         $distribution = array_filter(
-            $pattern->categoricalDistribution('indication_normalized'),
+            $pattern->tiltIndications($pattern->categoricalDistribution('indication_normalized')),
             static fn (int|string $code): bool => !$pattern->blocksIndication(str_pad((string) $code, 3, '0', \STR_PAD_LEFT)),
             \ARRAY_FILTER_USE_KEY,
         );

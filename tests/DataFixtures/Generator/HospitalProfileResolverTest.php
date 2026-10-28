@@ -8,6 +8,7 @@ use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Domain\Enum\HospitalLocation;
 use App\Allocation\Domain\Enum\HospitalSize;
 use App\Allocation\Domain\Enum\HospitalTier;
+use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\Generator\Application\HospitalProfile;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
 use App\DataFixtures\Generator\Application\ProfileSelection;
@@ -187,6 +188,80 @@ final class HospitalProfileResolverTest extends TestCase
         $this->resolver()->resolve($hospital, 740, new ProfileSelection(configuration: 'small-university'));
     }
 
+    /**
+     * Volume and tilt are drawn after the configuration and departments, so a hospital keeps the
+     * structure it had before; only beds and an explicit volume change its rate.
+     */
+    public function testTheVolumeFollowsTheBedsAndAnExplicitAnnualVolumeReplacesIt(): void
+    {
+        $hospital = $this->hospitals(1, HospitalTier::EXTENDED, HospitalSize::MEDIUM)[0];
+        $volume = $this->volume();
+
+        $reference = $this->resolver()->resolve($hospital, 740, new ProfileSelection(beds: 450));
+        $double = $this->resolver()->resolve($hospital, 740, new ProfileSelection(beds: 900));
+        $explicit = $this->resolver()->resolve($hospital, 740, new ProfileSelection(beds: 900, annualVolume: 7300));
+
+        self::assertEqualsWithDelta(2 ** 0.8, $double->volumeFactor / $reference->volumeFactor, 1e-9, 'twice the reference beds: 2 ^ 0.8 = 1.74 times the cases');
+        self::assertEqualsWithDelta(15.0 * $reference->volumeFactor, $reference->dailyRate($volume), 1e-9, 'preset rate of a medium hospital times its factor');
+        self::assertSame(20.0, $explicit->dailyRate($volume), '7,300 a year are 20 a day, whatever beds and factor say');
+        self::assertSame($reference->configuration, $double->configuration);
+        self::assertSame($reference->missingDepartments, $explicit->missingDepartments);
+        self::assertEquals($reference->tilt, $explicit->tilt);
+    }
+
+    /**
+     * The hospital factor is log-normal with mean 1 and spread 0.20: hospitals of one size and with
+     * the same beds differ by about a fifth.
+     */
+    public function testHospitalsOfOneSizeDifferInVolumeAndMix(): void
+    {
+        $factors = [];
+        $trauma = [];
+        foreach ($this->hospitals(400, HospitalTier::EXTENDED, HospitalSize::MEDIUM) as $hospital) {
+            $profile = $this->resolver()->resolve($hospital, 740, new ProfileSelection(beds: 450));
+            $factors[] = $profile->volumeFactor;
+            $trauma[] = log($profile->tilt->categories[2]);
+            self::assertCount(8, $profile->tilt->categories);
+        }
+
+        $mean = array_sum($factors) / \count($factors);
+        $deviation = sqrt(array_sum(array_map(static fn (float $factor): float => ($factor - $mean) ** 2, $factors)) / \count($factors));
+        self::assertEqualsWithDelta(1.0, $mean, 0.04);
+        self::assertEqualsWithDelta(0.20, $deviation / $mean, 0.03);
+
+        $traumaMean = array_sum($trauma) / \count($trauma);
+        self::assertEqualsWithDelta(0.25, sqrt(array_sum(array_map(static fn (float $log): float => ($log - $traumaMean) ** 2, $trauma)) / \count($trauma)), 0.03, 'category spread 0.25');
+    }
+
+    public function testTierAndSizeCanBeSelectedForANewHospital(): void
+    {
+        $hospital = $this->hospitals(1, HospitalTier::BASIC, HospitalSize::SMALL)[0];
+
+        $profile = $this->resolver()->resolve($hospital, 740, new ProfileSelection(tier: HospitalTier::FULL, size: HospitalSize::LARGE));
+
+        self::assertSame('urban-full', $profile->segment);
+        self::assertStringStartsWith('full-', $profile->configuration);
+        self::assertSame('Large', $profile->size);
+        self::assertSame(8.0, $profile->closureEventsPerMonth);
+        self::assertSame(0.10, $profile->closureShare, 'default share of closed department-hours of a large hospital');
+    }
+
+    public function testTheClosureShareFollowsTheSizeOrTheSelection(): void
+    {
+        $share = fn (HospitalSize $size, ?float $selected = null): float => $this->resolver()->resolve($this->hospitals(1, HospitalTier::BASIC, $size)[0], 740, new ProfileSelection(closureShare: $selected))->closureShare;
+
+        self::assertSame([0.05, 0.08, 0.10], [$share(HospitalSize::SMALL), $share(HospitalSize::MEDIUM), $share(HospitalSize::LARGE)]);
+        self::assertSame(0.25, $share(HospitalSize::SMALL, 0.25));
+    }
+
+    public function testFiguresOutOfRangeAreRefused(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('beds must be more than 0; the annual volume must be more than 0; the closure share must lie from 0 to below 1');
+
+        $this->resolver()->resolve($this->hospitals(1, HospitalTier::BASIC, HospitalSize::SMALL)[0], 740, new ProfileSelection(beds: 0, annualVolume: -1, closureShare: 1.0));
+    }
+
     public function testTheClosureFrequencyFollowsTheSize(): void
     {
         $events = fn (HospitalSize $size): float => $this->resolver()->resolve($this->hospitals(1, HospitalTier::BASIC, $size)[0], 740)->closureEventsPerMonth;
@@ -227,6 +302,11 @@ final class HospitalProfileResolverTest extends TestCase
         }
 
         return $hospitals;
+    }
+
+    private function volume(): FixtureVolume
+    {
+        return new FixtureVolume('test', ['Medium' => 1], 12, ['Small' => 10.0, 'Medium' => 15.0, 'Large' => 40.0], 1.0, 0.0, 740, false);
     }
 
     private function resolver(): HospitalProfileResolver

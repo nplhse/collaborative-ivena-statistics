@@ -111,7 +111,9 @@ final readonly class ScenarioGenerator
         $plans = [];
         foreach ($hospitals as $index => $hospital) {
             $random = $this->streams->stream($volume->seed, $hospital->getPublicIdString(), $start->format('Y-m-d'), 'scenario:'.$scenario->name);
-            $rate = $volume->dailyRate(($hospital->getSize() ?? HospitalSize::MEDIUM)->value) * $scenario->extraShare * $intensity;
+            $profile = $this->profiles->resolve($hospital, $volume->seed);
+            // Extra cases are a share of the hospital's own rate, so a busier hospital gets more.
+            $rate = $profile->dailyRate($volume) * $scenario->extraShare * $intensity;
             $dailyCounts = [];
             foreach ($days as $day) {
                 $dailyCounts[$day] = $rate > 0.0 ? $random->getInt((int) floor($rate * 0.8), (int) ceil($rate * 1.2)) : 0;
@@ -120,7 +122,7 @@ final readonly class ScenarioGenerator
                 hospital: $hospital,
                 days: $days,
                 dailyCounts: $dailyCounts,
-                closures: $this->closures($scenario, $this->profiles->resolve($hospital, $volume->seed), $days, $lastDay, $random, $intensity),
+                closures: $this->closures($scenario, $profile, $days, $lastDay, $random, $intensity),
                 mciPatients: $mciShares[$index] ?? 0,
                 mciStart: $mciStart,
                 mciWindowMinutes: $mciWindow,

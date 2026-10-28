@@ -129,6 +129,105 @@ final readonly class DistributionPattern
     }
 
     /**
+     * A copy with the case mix tilt of a hospital: factors on indication categories (first PZC
+     * digit), on age bands from 65 on and on urgency 1 (see MixTilt).
+     *
+     * @param array{categories: array<int, float>, old_age: float, urgent: float} $tilt
+     */
+    public function withTilt(array $tilt): self
+    {
+        $distributions = $this->distributions;
+        $distributions['tilt'] = $tilt;
+
+        return new self($distributions);
+    }
+
+    /**
+     * Indication weights with the category factors of the hospital applied.
+     *
+     * @param array<int|string, float> $weights PZC code → weight
+     *
+     * @return array<int|string, float>
+     */
+    public function tiltIndications(array $weights): array
+    {
+        $categories = $this->tilt()['categories'];
+        if ([] === $categories) {
+            return $weights;
+        }
+
+        foreach ($weights as $code => $weight) {
+            $weights[$code] = $weight * ($categories[(int) substr(str_pad((string) $code, 3, '0', \STR_PAD_LEFT), 0, 1)] ?? 1.0);
+        }
+
+        return $weights;
+    }
+
+    /**
+     * Urgency weights with the urgency 1 factor of the hospital applied.
+     *
+     * @param array<int|string, float> $weights urgency → weight
+     *
+     * @return array<int|string, float>
+     */
+    public function tiltUrgency(array $weights): array
+    {
+        $urgent = $this->tilt()['urgent'];
+        if (1.0 !== $urgent && isset($weights[1])) {
+            $weights[1] *= $urgent;
+        }
+
+        return $weights;
+    }
+
+    /**
+     * Age band weights with the old age factor of the hospital applied to bands from 65 on.
+     *
+     * @param array<string, float> $weights age range ("65-99") → weight
+     *
+     * @return array<string, float>
+     */
+    public function tiltAges(array $weights): array
+    {
+        $old = $this->tilt()['old_age'];
+        if (1.0 === $old) {
+            return $weights;
+        }
+
+        foreach ($weights as $range => $weight) {
+            if ((int) explode('-', $range)[0] >= 65) {
+                $weights[$range] = $weight * $old;
+            }
+        }
+
+        return $weights;
+    }
+
+    /**
+     * @return array{categories: array<int, float>, old_age: float, urgent: float}
+     */
+    private function tilt(): array
+    {
+        $tilt = $this->distributions['tilt'] ?? null;
+        if (!\is_array($tilt)) {
+            return ['categories' => [], 'old_age' => 1.0, 'urgent' => 1.0];
+        }
+
+        $categories = [];
+        foreach (\is_array($tilt['categories'] ?? null) ? $tilt['categories'] : [] as $digit => $factor) {
+            if (is_numeric($factor)) {
+                $categories[(int) $digit] = (float) $factor;
+            }
+        }
+
+        return [
+            'categories' => $categories,
+            'old_age' => is_numeric($tilt['old_age'] ?? null) ? (float) $tilt['old_age'] : 1.0,
+            'urgent' => is_numeric($tilt['urgent'] ?? null) ? (float) $tilt['urgent'] : 1.0,
+        ];
+    }
+
+    /**
      * @return array<string, float>
      */
     public function flagProbabilities(): array

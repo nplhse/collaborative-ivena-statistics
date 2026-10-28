@@ -15,7 +15,10 @@ use App\DataFixtures\Structure\Application\DepartmentStructure;
 use App\DataFixtures\Structure\Application\StructureRules;
 use App\DataFixtures\Structure\Dto\Capability;
 use App\DataFixtures\Structure\Dto\HospitalConfiguration;
+use App\DataFixtures\Structure\Dto\MixTilt;
+use App\DataFixtures\Structure\Dto\MixVariation;
 use App\DataFixtures\Structure\Dto\StructurePatternSet;
+use Random\Randomizer;
 
 /**
  * Derives the profile of a hospital from its care tier, size and location and the structural patterns.
@@ -23,8 +26,12 @@ use App\DataFixtures\Structure\Dto\StructurePatternSet;
  * A hospital draws one configuration (a coherent bundle of resources such as cath lab, stroke unit,
  * trauma level and obstetrics) by tier and size, then the number of further departments per field.
  * Both come from the hospital's own stream, so the same seed always gives the same hospital the same
- * structure. A ProfileSelection replaces the drawn configuration or single resources for targeted
- * scenarios. The closure frequency follows the size.
+ * structure. After the departments the hospital draws its volume factor (beds and a hospital factor)
+ * and the tilt of its case mix, so hospitals of one tier and size differ. New draws go last in the
+ * stream, so earlier ones keep their values.
+ *
+ * A ProfileSelection replaces tier, size, beds, the drawn configuration, single resources, the
+ * volume (an explicit annual volume) or the closure share for targeted scenarios and #877.
  */
 final readonly class HospitalProfileResolver
 {
@@ -43,9 +50,16 @@ final readonly class HospitalProfileResolver
      */
     public function resolve(Hospital $hospital, int $seed, ?ProfileSelection $selection = null): HospitalProfile
     {
+        $violations = $selection?->violations() ?? [];
+        if ([] !== $violations) {
+            throw new \DomainException(sprintf('The selected profile is not usable: %s.', implode('; ', $violations)));
+        }
+
         $set = $this->structures->get();
-        $tier = ($hospital->getTier() ?? HospitalTier::BASIC)->value;
-        $size = ($hospital->getSize() ?? HospitalSize::MEDIUM)->value;
+        $tierEnum = $selection->tier ?? $hospital->getTier() ?? HospitalTier::BASIC;
+        $tier = $tierEnum->value;
+        $size = ($selection->size ?? $hospital->getSize() ?? HospitalSize::MEDIUM)->value;
+        $beds = $selection->beds ?? $hospital->getBeds();
         $random = $this->streams->stream($seed, $hospital->getPublicIdString(), '-', RandomStreams::PROFILE);
 
         // Drawn even when a selection replaces it, so the departments below use the same numbers.
@@ -64,15 +78,57 @@ final readonly class HospitalProfileResolver
             array_push($offered, ...\array_slice($further, 0, $count));
         }
 
+        // Drawn even when an explicit annual volume replaces it, so the tilt keeps its numbers.
+        $volumeFactor = $set->volume->bedFactor($size, $beds) * $this->logNormal($set->volume->hospitalSpread, $random);
+        $tilt = $this->tilt($set->mixVariation, $random);
+
         return new HospitalProfile(
-            segment: $this->segment($hospital),
+            segment: $this->segment($tierEnum, $hospital->getLocation()),
             resources: $resources,
             resusShare: $set->resusShares[$resources->traumaLevel->value] ?? 0.0,
             missingDepartments: DepartmentStructure::labels(array_values(array_diff(DepartmentStructure::all(), $offered))),
             closureEventsPerMonth: self::CLOSURE_EVENTS_PER_MONTH[$size],
             configuration: $configuration->key,
             blockedIndications: $set->blockedIndications($resources),
+            size: $size,
+            volumeFactor: $volumeFactor,
+            annualVolume: $selection?->annualVolume,
+            closureShare: $selection->closureShare ?? $set->closureShares[$size] ?? 0.0,
+            tilt: $tilt,
         );
+    }
+
+    /**
+     * One factor per indication category (first PZC digit 1 to 8), then old age, then urgency 1.
+     */
+    private function tilt(MixVariation $variation, Randomizer $random): MixTilt
+    {
+        $categories = [];
+        for ($digit = 1; $digit <= 8; ++$digit) {
+            $categories[$digit] = $this->logNormal($variation->categorySpread, $random);
+        }
+
+        return new MixTilt(
+            categories: $categories,
+            oldAge: $this->logNormal($variation->oldAgeSpread, $random),
+            urgent: $this->logNormal($variation->urgentSpread, $random),
+        );
+    }
+
+    /**
+     * A log-normal factor with mean 1 (Box-Muller); 1 when the spread is 0. Always takes two numbers
+     * from the stream, so later draws do not depend on the spread.
+     */
+    private function logNormal(float $spread, Randomizer $random): float
+    {
+        $u1 = max(1e-12, $random->nextFloat());
+        $u2 = $random->nextFloat();
+        if ($spread <= 0.0) {
+            return 1.0;
+        }
+        $gauss = sqrt(-2.0 * log($u1)) * cos(2.0 * \M_PI * $u2);
+
+        return exp($spread * $gauss - $spread * $spread / 2.0);
     }
 
     private function select(StructurePatternSet $set, HospitalConfiguration $configuration, ?ProfileSelection $selection): HospitalConfiguration
@@ -97,11 +153,11 @@ final readonly class HospitalProfileResolver
         return $configuration->withResources($resources);
     }
 
-    private function segment(Hospital $hospital): string
+    private function segment(HospitalTier $tier, ?HospitalLocation $location): string
     {
         return match (true) {
-            HospitalTier::FULL === $hospital->getTier() => 'urban-full',
-            HospitalLocation::RURAL === $hospital->getLocation() => 'rural-basic',
+            HospitalTier::FULL === $tier => 'urban-full',
+            HospitalLocation::RURAL === $location => 'rural-basic',
             default => 'urban-basic',
         };
     }

@@ -92,7 +92,7 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 | `FIXTURES_CATALOG_MAPPING` | empty | Mapping file (JSON) that binds the generator's names to a catalog that spells them differently |
 | `fixtures.baseline.months` | `12` | Whole months before the month of the last day: with yesterday in October 2026 the data runs from 1 October 2025 until yesterday |
 | `fixtures.baseline.trend_per_year` | `0.02` | Yearly growth of the daily rate, relative to 1 January 2026 (fixed, so a month added later gets the same volume); `0` is off |
-| `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes |
+| `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes; each hospital's profile scales it (see below) |
 | `fixtures.baseline.mci_cases_per_hospital_and_year` | `2` | Expected MCI cases per active hospital and year, Poisson distributed per month |
 | `fixtures.baseline.seed` | `740` | Seed for the hospital choice, the daily counts, sampling and MCI cases |
 | `fixtures.baseline.rebuild_projection` | `true` | Rebuild `allocation_stats_projection` after allocation fixtures |
@@ -113,7 +113,20 @@ Departments follow from the configuration, in the department keys of the generat
 
 **Capability gates.** An indication that needs a resource the hospital lacks is never drawn there; its share goes to the other codes: STEMI and cardiogenic shock (332, 346) need a cath lab, polytrauma (211, 212) a regional trauma centre, preterm births a perinatal centre. A hospital without a cath lab gets no cath lab cases. A hospital gets no allocations and no closures in a department it does not offer: an indication whose departments are all missing is drawn again (a hospital without obstetrics gets no births, one without neurology hardly any strokes), and after five tries the case goes to a core department. The closure frequency is part of the profile too (8, 5 or 3 events per month by size). Allocations are written in batches through DBAL.
 
-**Selecting a structure.** `HospitalProfileResolver::resolve()` takes a `ProfileSelection` for targeted scenarios and the generation service of #877: a configuration by key (also one with weight 0 for the hospital's tier and size) and/or single resources on top of it, for example `new ProfileSelection(configuration: 'basic-neurosurgery')` or `new ProfileSelection(cathlab: true)`. An unknown key or an incoherent result (a supraregional trauma centre without neurosurgery) is refused with the list of supported configurations. Overrides by hospital public id in `fixtures.yaml` stay out (see below).
+**Volume per hospital.** The preset rate of the size stays the anchor. Each hospital multiplies it by a bed factor, (beds ÷ reference beds of its size)^0.8 with reference beds Small 200, Medium 450, Large 950, and by a hospital factor drawn log-normally with mean 1 and spread 0.20. Hospitals of one size thus differ by about a fifth to a quarter, larger ones get more cases, and the preset totals stay about the same. Scenario extra cases are a share of the hospital's own rate.
+
+**Case mix per hospital.** Each hospital also draws a tilt of its mix: one factor per indication category (first PZC digit, spread 0.25), one on the age bands from 65 on (spread 0.20) and one on urgency 1 (spread 0.35), all log-normal with mean 1. The factors multiply the weights of the segment pattern and the indication groups before a case is drawn, so hospitals of one tier differ in their share of trauma, internal medicine, old and urgent patients. Volume and tilt are drawn after configuration and departments, so they did not change the structures of step 1.
+
+Spreads and the bed elasticity are coarse values rounded towards the aggregates of #874 (between-hospital variation within a size or tier, hospitals with at least five behind each value).
+
+**Selecting a structure.** `HospitalProfileResolver::resolve()` and `HospitalMonthGenerator::plan()` / `generate()` take a `ProfileSelection` for targeted scenarios and the generation service of #877:
+
+- a configuration by key (also one with weight 0 for the hospital's tier and size) and/or single resources on top of it, for example `new ProfileSelection(configuration: 'basic-neurosurgery')` or `new ProfileSelection(cathlab: true)`;
+- tier, size and beds instead of those of the catalog hospital, for a new hospital of the #791 wizard; for an existing hospital they come from the catalog;
+- an annual volume (allocations per year at the trend reference day): it **replaces** preset rate, bed factor, hospital factor and scale, it is not multiplied with them; weekday, month and trend factors still apply;
+- a closure share (share of closed department-hours, default 5 / 8 / 10 % for Small / Medium / Large, general knowledge, not measured; the closure planner uses it from the next step of #876).
+
+An unknown key, an incoherent result (a supraregional trauma centre without neurosurgery) or figures out of range (beds or annual volume not above 0, a closure share outside 0 to below 1) are refused. Overrides by hospital public id in `fixtures.yaml` stay out (see below).
 
 ### Reproducible data
 
@@ -275,7 +288,6 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md) also describes parts that follow when they are needed:
 
-- volume per bed and per-hospital mix variation in the hospital profile (#876, next step);
 - closures driven by the share of closed department-hours (#876);
 - structural pattern packages (`ivena-structure-patterns`, #876 with the export of #797);
 - overrides of the profile by hospital public id in `fixtures.yaml` (cath lab, departments, volume, closure frequency). Left out on purpose (#863): public ids follow the catalog seed, so overrides break when the catalog changes, and the demo does not need them;
@@ -287,7 +299,7 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 The data looks plausible in totals, weekly rhythm and the indication-driven fields, but it does not model everything that real exports show (assessment in #874). Structural hospital profiles (#876) and pattern packages (#883) address most of it:
 
-- **Hospitals look alike.** Every hospital of one size gets the same daily rate, whatever its beds. Hospitals of one tier and location share one segment pattern, so apart from their configuration (resources and departments) their indication, age and urgency mix hardly differ. The segment ignores size: a medium full-care hospital gets the mix of a large one.
+- **Hospitals differ only coarsely.** Volume follows beds and a hospital factor, and the mix of each hospital is tilted by category, old age and urgency 1. Within a category the mix of codes still follows the segment, and the segment ignores size: a medium full-care hospital gets the mix of a large one, tilted.
 - **Severe codes only in the full-care mix.** Capability gates decide where STEMI, polytrauma and cardiogenic shock may go, but only the `urban-full` segment draws them so far, so other hospitals with a cath lab or trauma centre do not get them yet (allocation defaults, after #875 and #883).
 - **About 30 PZC codes.** Urology, ENT, ophthalmology, dermatology (7xx) and transport codes (6xx) are not drawn, so the departments of those fields never get allocations; neither do allocations without a normalized indication or with a secondary indication.
 - **Few dependencies outside the indication.** Department, urgency, age, sex and flags follow from the indication. Occasion, infection, assignment, transport type, secondary transport and transport time do not (a traffic accident can bring a chest pain patient). The hour of day depends neither on the weekday nor on the case; transport time depends on the hospital's location only. Ages are uniform inside wide bands, for example 65–99.
@@ -315,13 +327,14 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Reference/SyntheticReferenceCatalogBuilderTest.php` — valid package, same bytes per seed, stable ids, no curated labels
 - `Reference/ReferenceFixtureLoadTest.php` — end-to-end reference group load; two loads in one process give the same catalog
 - `Allocation/HospitalParticipationFixtureTest.php` — participation and demo owner
-- `Generator/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months
+- `Generator/ImportBatchPlannerTest.php` — daily counts, independent of other hospitals and months; the profile's rate (volume factor, explicit annual volume) replaces the preset rate
 - `Generator/HospitalMonthGeneratorTest.php` — a month added later equals the month of a full load (upload time included), leaves other imports alone and is refused twice; `kpi_daily` matches the imports of every upload day
 - `Generator/UploadTimeTest.php` — upload one to three days after the data, during office hours, never after the period
 - `Generator/SyntheticImportMarkerTest.php` — marker path round trip
 - `Generator/PresetScenarioTest.php` — scenario counts per period; the `medium` preset spreads one MCI over 2–4 hospitals, its rows are in the projection and the KPIs, same seed same placement
-- `Generator/HospitalProfileResolverTest.php` — configurations by tier and size (cath lab shares, uncommon ones possible), coherent departments for every draw, field counts, explicit selection and refusal, capability gates, resuscitation room shares, same per seed, closure frequency
+- `Generator/HospitalProfileResolverTest.php` — configurations by tier and size (cath lab shares, uncommon ones possible), coherent departments for every draw, field counts, explicit selection and refusal, capability gates, resuscitation room shares, same per seed, closure frequency and share; volume by beds (2 ^ 0.8 for twice the reference beds), explicit annual volume, spread of hospital factors and category tilt, tier and size of a new hospital, figures out of range
 - `Structure/StructureRulesTest.php` — code defaults coherent and weights summing to 1, the structure uses the generator keys with fields = speciality keys, incoherent configurations and incomplete sets reported
+- `Structure/VolumeAndTiltTest.php` — bed factor and tilt of categories, old age and urgency 1 with hand-checkable numbers
 - `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed, only offered departments
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, intensity, removal restores counts, projection and KPIs, refused twice, same plan per seed
 - `Generator/Catalog/InterchangeableCatalogTest.php` — a second synthetic catalog with other labels, public ids, insert order and two normalized indications for one code: the composed catalog keeps the synthetic hospitals, the check lists exactly the renamed names, the load stops before the first row without mapping, with mapping the rows use only the mapped catalog and are the same whatever the database ids; ambiguous aliases, pinned codes, unknown mapping entries, `app:generate:check-catalog`

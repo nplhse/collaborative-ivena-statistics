@@ -9,6 +9,7 @@ use App\DataFixtures\FixtureVolume;
 use App\DataFixtures\FixtureVolumeResolver;
 use App\DataFixtures\Generator\Application\HospitalMonthGenerator;
 use App\DataFixtures\Generator\Application\HospitalProfileResolver;
+use App\DataFixtures\Generator\Application\ProfileSelection;
 use App\DataFixtures\Generator\Application\SyntheticImportMarker;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
@@ -55,6 +56,9 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
 
             $generator = $this->generator();
             $volume = $this->volume();
+            // An explicit annual volume of 3,650 means 10 a day: about 310 in August instead of the drawn rate.
+            $explicit = $generator->plan($volume, $this->hospital($hospitalId), self::MONTH, $volume->lastDay(new MockClock()), new ProfileSelection(annualVolume: 3650));
+            self::assertEqualsWithDelta(310, $explicit->allocationCount(), 60);
             $generated = $generator->generate($volume, $this->hospital($hospitalId), self::MONTH, $volume->lastDay(new MockClock()));
 
             self::assertSame($loaded, $this->describeMonth($generated->importId, $generated->closureImportId), 'same rows as inside the full load');

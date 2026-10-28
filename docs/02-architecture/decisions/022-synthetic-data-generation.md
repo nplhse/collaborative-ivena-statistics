@@ -73,7 +73,10 @@ Default profiles are derived deterministically from tier, size and location; the
 - **Capability gates:** an indication that needs a resource the hospital lacks is not drawn there (STEMI without cath lab, polytrauma without regional trauma centre, preterm birth without perinatal centre); its share goes to the other codes. Gates replace "severe codes only in the full-care segment" as the rule; the segments themselves are unchanged.
 - The closure frequency is part of the profile; by default it follows the size (8, 5 or 3 events per month).
 
-A `ProfileSelection` chooses a configuration by key (also one with weight 0 for the hospital's tier and size) or single resources for targeted scenarios and the generation service of #877; the result must keep the structure rules (a supraregional trauma centre has neurosurgery, a perinatal centre paediatrics), otherwise it is refused. Volume per bed follows when a step needs it. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
+- **Volume per hospital (#876):** the preset rate of the size stays the anchor, multiplied by a bed factor ((beds ÷ reference beds of the size)^elasticity) and a log-normal hospital factor with mean 1, so hospitals of one size differ and the preset totals stay about the same.
+- **Case mix per hospital (#876):** a tilt drawn once per hospital multiplies the weights of each indication category, of the age bands from 65 on and of urgency 1. Volume and tilt are drawn after the configuration and the departments.
+
+A `ProfileSelection` chooses a configuration by key (also one with weight 0 for the hospital's tier and size), single resources, tier, size, beds, an annual volume and a closure share for targeted scenarios and the generation service of #877; an explicit annual volume replaces the volume model instead of being multiplied with it. The result must keep the structure rules (a supraregional trauma centre has neurosurgery, a perinatal centre paediatrics) and figures in range, otherwise it is refused. Overrides of the profile by hospital public id in the configuration are not built (#863): public ids follow the catalog seed, so overrides would break when the catalog changes, and neither tests nor the demo need them.
 
 ### Pattern packages
 
@@ -188,6 +191,12 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - **Code defaults of the structure** are manually curated configurations. Their weights are coarse general knowledge, rounded in five percent steps towards the aggregates of the generator assessment (#874) where at least five hospitals stand behind a value; they are never generated from real data. A structural package (`ivena-structure-patterns`) follows in a later step of #876.
 - **Capability gates** decide where severe indications may go. The default allocation patterns still draw them only in the full-care segment; adding them to the other segments is part of the allocation default tuning.
 - The draw order of the `profile` stream changed (configuration, then departments per field), so every hospital gets a new structure once: a new generator version.
+
+## Amendment (October 2026, #876, step 2)
+
+- **Per-hospital volume and mix:** see Hospital profiles. Bed elasticity and the spreads of hospital factor and tilt are coarse values rounded towards the between-hospital variation measured in #874, only where at least five hospitals stand behind a value.
+- **Closure share in the profile:** the share of closed department-hours (default by size, general knowledge, not measured) and its selection exist from this step; the closure planner switches to it in the next step.
+- New draws were appended to the `profile` stream, so configurations and departments of step 1 stay; volume and mix of every hospital change once.
 
 ## Consequences
 
