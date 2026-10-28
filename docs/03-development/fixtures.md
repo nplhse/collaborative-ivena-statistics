@@ -29,6 +29,8 @@ php bin/console app:statistics:rebuild-closure-volume-projection
 php bin/console app:statistics:refresh-mviews
 ```
 
+`make fixtures`, `make reset` and `make install-dev` run the load and the rebuilds with `XDEBUG_MODE=off` (the closure rebuild of `realistic` took 221 s instead of 383 s with `xdebug.mode=develop`). To debug a fixture run on purpose, set the mode yourself: `XDEBUG_MODE=debug make reset`. Calling `composer load-fixtures` directly keeps your PHP's Xdebug mode; tests and coverage targets are not affected.
+
 `make install-dev` runs the same load after creating the database. The load writes the data, export periods, data coverage, the allocation projection and the daily KPIs (`kpi_daily`); the two commands after it run the closure analysis with the closure volume projection and refresh the materialized views. They cannot run inside the load, because fixtures run in one database transaction and the closure rebuild takes a lock outside it. 
 
 ### Partial groups
