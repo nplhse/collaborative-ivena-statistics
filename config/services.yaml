@@ -35,6 +35,15 @@ parameters:
     analytics.raw_retention_days: '%env(int:ANALYTICS_RAW_RETENTION_DAYS)%'
     env(OPENROUTESERVICE_API_KEY): ''
     app.hospital_isochrones_dir: '%kernel.project_dir%/var/geo/hospital-isochrones'
+    # Prepared locations for offline use (#791); name real places, never committed.
+    app.prepared_locations_dir: '%kernel.project_dir%/var/geo/prepared-locations'
+    # Map background tiles. Empty URL: maps render without a basemap (manual switch).
+    env(MAP_TILE_URL): 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    env(MAP_TILE_ATTRIBUTION): '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    env(MAP_TILE_MAX_ZOOM): '18'
+    app.map_tiles.url: '%env(trim:MAP_TILE_URL)%'
+    app.map_tiles.attribution: '%env(MAP_TILE_ATTRIBUTION)%'
+    app.map_tiles.max_zoom: '%env(int:MAP_TILE_MAX_ZOOM)%'
     # True only in the demo environment (ADR 023): shows the demo banner.
     app.demo_mode: false
     # Prefix for the cookies the application sets itself (consent, locale, analytics, remember-me).
@@ -61,6 +70,7 @@ services:
     App\Allocation\Application\Contracts\HospitalIsochroneProviderInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface: '@App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore'
     App\Allocation\Application\Contracts\HospitalIsochroneClientInterface: '@App\Allocation\Infrastructure\Http\OpenRouteServiceIsochroneClient'
+    App\Allocation\Application\Contracts\PreparedLocationStoreInterface: '@App\Allocation\Infrastructure\Geo\PreparedLocationFileStore'
     App\Analytics\Application\UsageEvents\UsageEventContextResolverInterface: '@App\Analytics\Application\UsageEvents\UsageEventContextResolver'
     App\Analytics\Application\UsageEvents\UsageEventRecorderInterface: '@App\Analytics\Application\UsageEvents\UsageEventRecorder'
     App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolverInterface: '@App\Statistics\AnalysisExplorer\Application\ExplorerAnalysisSummaryLabelResolver'
@@ -146,6 +156,8 @@ when@demo:
         app.imports_base_dir: '%kernel.project_dir%/var/demo/imports'
         app.rejects_base_dir: '%kernel.project_dir%/var/demo/imports/rejects'
         app.media_upload_dir: '%kernel.project_dir%/public/uploads/demo/media'
+        app.hospital_isochrones_dir: '%kernel.project_dir%/var/demo/geo/hospital-isochrones'
+        app.prepared_locations_dir: '%kernel.project_dir%/var/demo/geo/prepared-locations'
 
 when@test:
     services:

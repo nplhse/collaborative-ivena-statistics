@@ -23,7 +23,7 @@ Examples: `app:import:start`, `app:statistics:rebuild-projection`. Geographic en
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:geo:geocode-hospitals`, and `app:geo:fetch-isochrones` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
 
 ### Output
 
@@ -81,6 +81,9 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:geo:geocode-hospitals` | Geocode hospital street addresses via OpenRouteService. Scope: exactly one of `--hospital-id`, `--dispatch-area-id`, `--state-id`. Optional `--participating-only` for area/state. Default: dry-run. Writes only with `--apply`. Existing coordinates are skipped unless `--force`. Runbook: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
 | `app:geo:fetch-isochrones` | Fetch destination isochrones (5–50 minutes) and store GeoJSON under `var/geo/hospital-isochrones/{stateId}/{publicId}.geojson`. Same scope options as geocode. Skips an existing file only when its stored origin still matches the hospital coordinates. Rate-limit abort is resumable. Runbook: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md). |
+| `app:geo:prepare-location <slug>` | Prepare a location for offline use (demo): coordinates from an address (`--street`, `--postal-code`, `--city`; geocoded), a manual pin (`--lat`, `--lng`) or an existing hospital (`--from-hospital-id`), plus destination isochrones. Stores `var/geo/prepared-locations/<slug>.json`. Default: dry-run; `--apply` calls OpenRouteService when needed (at most 2 requests) and writes; `--force` replaces an existing slug. Runbook: [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#prepared-locations-offline-use). |
+| `app:geo:list-prepared-locations` | List prepared locations (slug, label, address, coordinates, bands, date). Read-only, offline. |
+| `app:geo:apply-prepared-location <slug> --hospital-id=` | Apply a prepared location to a hospital without network access: sets coordinates, fills an empty address, writes the isochrone file. Default: dry-run; `--apply` writes; different existing coordinates need `--force`. |
 
 ### Statistics
 

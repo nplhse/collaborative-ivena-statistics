@@ -187,7 +187,7 @@ A restore keeps public ids but not local database ids (ADR 020). These places st
 | `saved_explorer_view.config_json` | state, dispatch area and hospital ids in the saved filter scope | blocker for a restore; moving to public ids is follow-up work |
 | `notification.scope_reference_id` | hospital of a hospital-scoped notification | blocker for a restore; moving to public ids is follow-up work |
 | Statistics filters in URLs (`stateId`, `dispatchAreaId`, hospital ids) | bookmarks and shared links | not stored by the application; links break after a restore |
-| `var/geo/hospital-isochrones/<state id>/…` | isochrone files | path moves to the state public id with #791 |
+| `var/geo/hospital-isochrones/<state id>/…` | isochrone files | path keeps the state id; after a restore with new ids re-run `app:geo:fetch-isochrones` or apply a prepared location (#791) |
 | `cache.allocation.reference_data` | Explore filter options | cleared after an import |
 
 Consequences for a restore:
@@ -206,7 +206,7 @@ Consequences for a restore:
 
 - **Maps:** `config/case_flow/dispatch_area_geo_map.yaml` maps each dispatch area name to a geo key (24 entries, all in Hesse). `config/case_flow/dispatch_area_geo_sources.yaml` maps the keys to official district names, and `app:statistics:case-flow:build-geojson` (`BuildCaseFlowGeoJsonCommand`) builds `assets/geo/hessen-landkreise.geojson` from `assets/geo/.source/hessen-kreise-raw.geojson` (BKG VG250 via Opendatasoft). Explore, case flow, hospital population and isochrone maps match a dispatch area **by exact name**. A dispatch area with another name has no shape. These files are public geography and stay in the repository.
 - **Hospital coordinates:** `latitude`/`longitude` on the hospital, filled by `app:geo:geocode-hospitals` through OpenRouteService (`OPENROUTESERVICE_API_KEY`). `HospitalGeoScopeResolver` selects hospitals by hospital, dispatch area or state.
-- **Isochrones:** `app:geo:fetch-isochrones` stores one GeoJSON per hospital in `var/geo/hospital-isochrones/<state id>/<hospital public id>.geojson` (`HospitalIsochroneFileStore`, Deployer shared directory). The hospital part is portable; the state part is the local database id. Prepared isochrones survive a restore only if the state keeps its id. Switching the path to the state's public id is left to the offline demo work (#791).
+- **Isochrones:** `app:geo:fetch-isochrones` stores one GeoJSON per hospital in `var/geo/hospital-isochrones/<state id>/<hospital public id>.geojson` (`HospitalIsochroneFileStore`, Deployer shared directory). The hospital part is portable; the state part is the local database id. Prepared isochrones survive a restore only if the state keeps its id. The path stays on the state id: to reuse geographic data in another installation (offline demo, #791), prepare a location (`app:geo:prepare-location`, keyed by slug) and apply it there (`app:geo:apply-prepared-location`); see [hospital-geodata.md](../../05-operations/hospital-geodata.md#prepared-locations-offline-use).
 - **For synthetic data:** synthetic dispatch areas use the names from `dispatch_area_geo_map.yaml`, and synthetic hospital coordinates lie inside their district polygon, so all maps work offline without geocoding.
 
 ## Indications and the PZC list

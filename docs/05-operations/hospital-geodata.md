@@ -2,7 +2,7 @@
 
 **Audience:** Operators and developers who need to geocode hospital addresses, fetch destination isochrones, or add another federal state.
 
-Allocation detail maps (`/explore/allocation/{publicId}`) **never** call OpenRouteService. They only read hospital coordinates from the database and GeoJSON files under `var/geo/hospital-isochrones`. The two console commands below are the only write path.
+Allocation detail maps (`/explore/allocation/{publicId}`) **never** call OpenRouteService. They only read hospital coordinates from the database and GeoJSON files under `var/geo/hospital-isochrones`. The two console commands below are the only write path that calls OpenRouteService for hospitals; [prepared locations](#prepared-locations-offline-use) reuse the same clients and write the same files.
 
 See also: [../04-features/allocation/orientation-map.md](../04-features/allocation/orientation-map.md), [../04-features/statistics/isochrone-origin-heatmap.md](../04-features/statistics/isochrone-origin-heatmap.md), [../06-reference/console-commands.md](../06-reference/console-commands.md), [configuration.md](../06-reference/configuration.md), [deployment.md](deployment.md).
 
@@ -12,7 +12,9 @@ See also: [../04-features/allocation/orientation-map.md](../04-features/allocati
 |------|---------|---------------|--------------|
 | Hospital street address | `hospital` / address columns | Import, fixtures, admin | Geocode command |
 | `Hospital.latitude` / `longitude` | Database | `app:geo:geocode-hospitals --apply` (production). Fixtures still seed city/PLZ centroids for local/CI. | Map pins, isochrone command |
-| Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply` | Allocation show map (one 5-minute band); Statistics Overview / Insights origin heatmap (10-minute bands at 10/20/30/40/50 min, hospital scope) |
+| Destination isochrones (5–50 min, 5-minute bands, driving-car) | `var/geo/hospital-isochrones/{stateId}/{hospitalPublicId}.geojson` | `app:geo:fetch-isochrones --apply`, `app:geo:apply-prepared-location --apply` | Allocation show map (one 5-minute band); Statistics Overview / Insights origin heatmap (10-minute bands at 10/20/30/40/50 min, hospital scope) |
+| Prepared locations (address, coordinates, isochrones; one JSON per slug) | `var/geo/prepared-locations/{slug}.json` (`app.prepared_locations_dir`) | `app:geo:prepare-location --apply` | `app:geo:apply-prepared-location` |
+| Map background tiles | Tile server from `MAP_TILE_URL` (default OpenStreetMap) | — (not stored) | Browser (Leaflet), see [Map tiles](#map-tiles-and-offline-use) |
 
 IDs in the CLI are numeric Doctrine IDs (`Hospital`, `DispatchArea`, `State`), not names or ISO codes. Isochrone files include `properties.origin` (`lat`/`lng` used for the OpenRouteService request). The fetch command skips an existing file only when that origin still matches the hospital coordinates.
 
@@ -151,9 +153,95 @@ If `city` looks like a 5-digit PLZ and `postalCode` does not, the command swaps 
 
 Both commands preview by default. `--apply` writes. `--apply --dry-run` together: `--apply` wins (warning). `--delay-ms=0` is for tests only. The summary lists how many OpenRouteService requests are required before any writes in dry-run, and how many were executed after `--apply`.
 
+## Prepared locations (offline use)
+
+The offline demo (#791) shows maps and isochrones around a real place while hospital identities and
+clinical records stay synthetic. A **prepared location** carries everything the maps need for one
+place: label, address, coordinates and the destination isochrones (5–50 minutes, the same format and
+`properties.origin` as a hospital file). It is keyed by a slug, not by a database id, so it moves
+between installations (dev, demo) and can be applied to a hospital that does not exist yet when it is
+prepared.
+
+Prepared location files name real places, often a prospective participant. **Never commit them, never
+copy them into tests or fixtures, and never attach them to issues or pull requests.** They live under
+`var/` (git-ignored).
+
+### Prepare while online
+
+Needs `OPENROUTESERVICE_API_KEY` (in the demo environment: `.env.demo.local`). Dry-run first; it
+shows the steps and how many OpenRouteService requests `--apply` makes (at most two).
+
+```bash
+# From an address (geocode + isochrones: 2 requests)
+php bin/console app:geo:prepare-location klinikum-musterstadt --label="Klinikum Musterstadt" \
+    --street="Musterstraße 1" --postal-code=12345 --city=Musterstadt
+php bin/console app:geo:prepare-location klinikum-musterstadt --label="Klinikum Musterstadt" \
+    --street="Musterstraße 1" --postal-code=12345 --city=Musterstadt --apply
+
+# From a manual pin (isochrones only: 1 request); address optional, used to fill an empty hospital address
+php bin/console app:geo:prepare-location klinikum-musterstadt --lat=50.5 --lng=8.25 --apply
+
+# From a hospital that already has coordinates; reuses its isochrone file when the origin matches (0 requests)
+php bin/console app:geo:prepare-location klinikum-musterstadt --from-hospital-id=<id> --apply
+```
+
+The geocoding rules are those of `app:geo:geocode-hospitals` (street-level matches only). If no
+usable match comes back, pass `--lat`/`--lng`. An existing slug is only replaced with `--force`. Rate
+limits abort after one retry; re-run later.
+
+### Use offline
+
+```bash
+php bin/console app:geo:list-prepared-locations
+php bin/console app:geo:apply-prepared-location klinikum-musterstadt --hospital-id=<id>          # preview
+php bin/console app:geo:apply-prepared-location klinikum-musterstadt --hospital-id=<id> --apply
+```
+
+Applying needs no network and no API key. It
+
+- sets the hospital's latitude/longitude (different existing coordinates only with `--force`),
+- fills the address only when street, postal code and city are all empty,
+- writes the isochrone file through the regular store, so every map and the heatmap read it as usual,
+- never changes name, dispatch area, state or any other master data.
+
+After applying, `app:geo:fetch-isochrones` reports the hospital as `skip` (origin matches). The
+dispatch area still decides which district outline is highlighted; choose a hospital in the matching
+dispatch area. The demo hospital wizard (#791) calls the same `PreparedLocationApplier`.
+
+The isochrone file path keeps the state's **database** id. Prepared locations make moving it to the
+state public id unnecessary: applying writes into the path of the current installation.
+
+## Map tiles and offline use
+
+All Leaflet maps take their background tiles from `MAP_TILE_URL` (with `MAP_TILE_ATTRIBUTION` and
+`MAP_TILE_MAX_ZOOM`), passed to the browser through `<meta name="map-tiles">` in the base layout and
+read by `assets/js/geo-map/createMap.js`. The demo environment uses the default as well.
+
+| `MAP_TILE_URL` | Result |
+|----------------|--------|
+| default `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png` | OpenStreetMap tiles (needs network) |
+| empty | Manual switch: no basemap. District outlines, pins and isochrones on a neutral background, no tile requests. |
+
+**Tile server unreachable** (no network during a demo, OpenStreetMap down): a map drops its tile layer
+after 4 failed tile requests without a single loaded tile and shows the same neutral background as
+the empty setting. Districts, pins and isochrones stay visible. Maps created later on the same page
+(also after Turbo navigation) skip the tile layer; a full reload tries the tile server again. So the
+browser console shows a handful of failed tile requests, not one per tile. A tile request that hangs
+instead of failing is not detected; in that case set `MAP_TILE_URL` empty.
+
+Everything else the maps load is local: Leaflet and Turf through AssetMapper (`assets/vendor`, run
+`php bin/console importmap:install` once while online), and the district polygons in
+`assets/geo/hessen-landkreise.geojson`.
+
+There is no local tile cache and no command downloads tiles; bulk downloading from
+`tile.openstreetmap.org` is not allowed by the OpenStreetMap tile usage policy. When `MAP_TILE_URL`
+points to another tile server, set `MAP_TILE_ATTRIBUTION` to match it and add the host to `img-src` /
+`connect-src` ([content-security-policy.md](content-security-policy.md)).
+
 ## What not to do
 
 - Do not call OpenRouteService on allocation show, hospital show, or fixture load.
 - Do not commit `.env` or the API key.
 - Do not treat fixture/YAML centroids as street-accurate in production; re-geocode with `--force` once.
 - Do not delete `shared/var/geo/hospital-isochrones` on deploy; if it is empty, re-run the fetch command.
+- Do not commit prepared location files or use real places in tests; tests use made-up addresses.
