@@ -27,6 +27,8 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
+use function Zenstruck\Foundry\Persistence\flush_after;
+
 /**
  * ADR 015 phase 4: after every change, the incremental rebuild must leave exactly the rows a full
  * rebuild of the hospital produces, while rebuilding only the events the change can reach.
@@ -269,21 +271,24 @@ final class ClosureVolumeIncrementalRebuildTest extends KernelTestCase
             'type' => ImportType::ALLOCATION,
             'status' => ImportStatus::COMPLETED,
         ]);
-        foreach ($allocations as $allocation) {
-            AllocationFactory::createOne([
-                'import' => $import,
-                'hospital' => $this->seed['hospital'],
-                'state' => $this->seed['state'],
-                'dispatchArea' => $this->seed['dispatch'],
-                'speciality' => $this->seed['speciality'],
-                'department' => $this->seed[$allocation[1]],
-                'createdAt' => new \DateTimeImmutable($allocation[0]),
-                'arrivalAt' => new \DateTimeImmutable($allocation[0])->modify('+20 minutes'),
-                'urgency' => AllocationUrgency::EMERGENCY,
-                'requiresResus' => $allocation[2] ?? false,
-                'requiresCathlab' => false,
-            ]);
-        }
+        // One flush for all allocations instead of one per createOne() keeps this test fast.
+        flush_after(function () use ($import, $allocations): void {
+            foreach ($allocations as $allocation) {
+                AllocationFactory::createOne([
+                    'import' => $import,
+                    'hospital' => $this->seed['hospital'],
+                    'state' => $this->seed['state'],
+                    'dispatchArea' => $this->seed['dispatch'],
+                    'speciality' => $this->seed['speciality'],
+                    'department' => $this->seed[$allocation[1]],
+                    'createdAt' => new \DateTimeImmutable($allocation[0]),
+                    'arrivalAt' => new \DateTimeImmutable($allocation[0])->modify('+20 minutes'),
+                    'urgency' => AllocationUrgency::EMERGENCY,
+                    'requiresResus' => $allocation[2] ?? false,
+                    'requiresCathlab' => false,
+                ]);
+            }
+        });
         $importId = (int) $import->getId();
         $this->derivePeriod($importId, $from, $to);
         $this->rebuildProjection($importId);
