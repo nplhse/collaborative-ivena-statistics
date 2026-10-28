@@ -10,7 +10,6 @@ use App\Allocation\Domain\Entity\IndicationRaw;
 use App\Allocation\Domain\Entity\Infection;
 use App\Allocation\Domain\Entity\Occasion;
 use App\Allocation\Domain\Entity\SecondaryTransport;
-use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Enum\AllocationGender;
 use App\Allocation\Domain\Enum\AllocationTransportType;
 use App\Allocation\Domain\Enum\AllocationUrgency;
@@ -27,12 +26,12 @@ final readonly class PatternSampler
     private const int INDICATION_TRIES = 5;
 
     /** Department for a case whose indication the hospital cannot treat, by field of the indication's first department. */
-    private const array FALLBACK_DEPARTMENTS = [
+    public const array FALLBACK_DEPARTMENTS = [
         'Chirurgie' => 'Allgemeinchirurgie',
         'Orthopädie' => 'Unfallchirurgie',
     ];
 
-    private const string FALLBACK_DEPARTMENT = 'Gastroenterologie';
+    public const string FALLBACK_DEPARTMENT = 'Gastroenterologie';
 
     public function __construct(
         private WeightedCategoricalSampler $categoricalSampler,
@@ -107,7 +106,7 @@ final readonly class PatternSampler
             age: $case['age'],
             urgency: $case['urgency'],
             transportType: $transportType,
-            speciality: $this->lookupResolver->reference(Speciality::class, $case['field']),
+            speciality: $this->lookupResolver->specialityFor($departmentName),
             department: $this->lookupResolver->reference(Department::class, $departmentName),
             assignment: $this->lookupResolver->reference(Assignment::class, $assignmentName),
             occasion: $this->lookupResolver->reference(Occasion::class, $occasionName),

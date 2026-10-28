@@ -41,7 +41,7 @@ final readonly class HospitalProfileResolver
      * Chance that a hospital offers a department, by tier (full, extended, basic). Large hospitals
      * add 0.2, small ones subtract 0.2. The order is part of the stream, so new departments go last.
      */
-    private const array OPTIONAL_DEPARTMENTS = [
+    public const array OPTIONAL_DEPARTMENTS = [
         'Nephrologie' => [1.0, 0.7, 0.3],
         'Infektiologie' => [1.0, 0.5, 0.2],
         'Viszeralchirurgie' => [1.0, 0.8, 0.5],

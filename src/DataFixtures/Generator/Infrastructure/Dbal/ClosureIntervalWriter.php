@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\DataFixtures\Generator\Infrastructure\Dbal;
 
 use App\Allocation\Domain\Entity\Department;
-use App\Allocation\Domain\Entity\Speciality;
 use App\Allocation\Domain\Enum\ClosureFacilityKind;
-use App\Allocation\Infrastructure\Faker\Provider\MedicalSpecialities;
 use App\DataFixtures\Generator\Application\PlannedClosure;
 use App\DataFixtures\Pattern\Application\PatternLookupResolver;
 use Doctrine\DBAL\Connection;
@@ -49,7 +47,7 @@ final readonly class ClosureIntervalWriter
             $parameters[] = $closure->endsAt->format('Y-m-d H:i:s');
             $parameters[] = $hospitalId;
             $parameters[] = $importId;
-            $parameters[] = $this->lookups->resolveId(Speciality::class, MedicalSpecialities::fieldOfUnit($closure->department));
+            $parameters[] = $this->lookups->specialityIdFor($closure->department);
             $parameters[] = $this->lookups->resolveId(Department::class, $closure->department);
         }
 

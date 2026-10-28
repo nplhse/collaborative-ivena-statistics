@@ -26,13 +26,13 @@ final readonly class ClosurePlanner
     private const array EVENT_TYPES = ['group' => 0.30, 'cluster' => 0.25, 'single' => 0.45];
 
     /** Departments that are commonly closed, if the hospital offers them. */
-    private const array DEPARTMENTS = [
+    public const array DEPARTMENTS = [
         'Kardiologie' => 0.20, 'Unfallchirurgie' => 0.15, 'Allgemeinchirurgie' => 0.10, 'Gastroenterologie' => 0.10,
         'Allgemeine Neurologie' => 0.10, 'Pulmologie' => 0.10, 'Allgemeine Psychiatrie' => 0.10, 'Geburtshilfe' => 0.05,
         'Nephrologie' => 0.05, 'Infektiologie' => 0.05,
     ];
 
-    private const array SPECIALISED_DEPARTMENTS = ['Schlaganfallmedizin' => 0.10, 'Neurochirurgie' => 0.05, 'Allgemeine Pädiatrie' => 0.05];
+    public const array SPECIALISED_DEPARTMENTS = ['Schlaganfallmedizin' => 0.10, 'Neurochirurgie' => 0.05, 'Allgemeine Pädiatrie' => 0.05];
 
     private const array CARE_LEVELS = ['emergency' => 0.60, 'inpatient' => 0.30, 'outpatient' => 0.10];
 
