@@ -1,19 +1,47 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const OSM_ATTRIBUTION =
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const DEFAULT_MAX_ZOOM = 18;
+
+/**
+ * Tile settings from <meta name="map-tiles"> (MAP_TILE_URL in the layout).
+ * An empty URL means no basemap: the map shows only its own layers (offline use).
+ * Without the meta tag (e.g. isolated tests) the OpenStreetMap defaults apply.
+ */
+export function mapTileSettings(doc = document) {
+    const meta = doc.querySelector('meta[name="map-tiles"]');
+    if (!meta) {
+        return { url: OSM_TILE_URL, attribution: OSM_ATTRIBUTION, maxZoom: DEFAULT_MAX_ZOOM };
+    }
+
+    const maxZoom = Number.parseInt(meta.dataset.maxZoom ?? '', 10);
+
+    return {
+        url: (meta.getAttribute('content') ?? '').trim(),
+        attribution: meta.dataset.attribution ?? '',
+        maxZoom: Number.isFinite(maxZoom) && maxZoom > 0 ? maxZoom : DEFAULT_MAX_ZOOM,
+    };
+}
 
 export function createLeafletMap(container, { scrollWheelZoom = true } = {}) {
+    const tiles = mapTileSettings();
     const map = L.map(container, {
         scrollWheelZoom,
         attributionControl: true,
+        maxZoom: tiles.maxZoom,
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: OSM_ATTRIBUTION,
-    }).addTo(map);
+    if (tiles.url === '') {
+        container.classList.add('geo-map--no-basemap');
+    } else {
+        L.tileLayer(tiles.url, {
+            maxZoom: tiles.maxZoom,
+            attribution: tiles.attribution,
+        }).addTo(map);
+    }
 
     return map;
 }

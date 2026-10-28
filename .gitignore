@@ -70,3 +70,6 @@ security-audit/
 ###> deptrac/deptrac ###
 /.deptrac.cache
 ###< deptrac/deptrac ###
+
+# Local map tiles for offline use (MAP_TILE_URL, docs/05-operations/hospital-geodata.md)
+/public/map-tiles/
