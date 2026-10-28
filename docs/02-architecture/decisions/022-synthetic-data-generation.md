@@ -27,7 +27,7 @@ The generator lives in the existing dev/test module `src/DataFixtures/`. It is r
 |-----------|---------|
 | `DataFixtures/Generator/Application/` | settings, presets, hospital profiles, planners, the month and dataset generators, scenarios |
 | `DataFixtures/Generator/Infrastructure/` | DBAL writers, random streams |
-| `DataFixtures/Generator/UI/Console/` | `app:generate:imports`, `app:generate:scenario` |
+| `DataFixtures/Generator/UI/Console/` | `app:generate:imports`, `app:generate:scenario`, `app:demo:csv` (#791) |
 | `DataFixtures/Pattern/` | pattern package format, validation, chain sampler, coherence rules, code defaults |
 | `DataFixtures/Reference/` | synthetic reference catalog (ADR 020) |
 | `DataFixtures/Allocation/`, `Scenario/`, `Content/`, … | Doctrine fixtures; they call the generator and hold only fixture concerns such as the demo user |
@@ -44,7 +44,7 @@ It is not a bounded context of its own. It is a development tool that writes to 
 
 The settings are seed, `until`, number of months, scale, the volume rates and a yearly trend. They come from the fixture configuration (`FixtureVolume`); further settings such as the pattern source are added with the steps that need them. A preset selects the hospitals and may set its own number of months and its scenarios; the closure frequency belongs to the hospital profile. The trend is relative to a fixed day (1 January 2026), so a month added later gets the same volume as inside a full load.
 
-- `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital.
+- `HospitalMonthGenerator` generates one hospital and one month: one allocation import (and, once closures exist, one closure import). It refuses a month after the last day of the period and a month that already has a synthetic import of that type or allocations of any import for the hospital. `HospitalMonthSampler` samples the closures and allocations of the month without writing; the generator writes them into the database, `DemoMonthCsvExporter` (`app:demo:csv`, #791) writes the same rows as IVENA CSV files.
 - The allocation fixture runs the month generator for all selected hospitals and months, then rebuilds the projection once.
 - `app:generate:imports` (dev and test) adds months later: hospitals by public id, one month, an optional seed and a dry run that only reports counts. It rebuilds the projection of each new import. The interactive wizard of #791 is not part of it; other generators join the `app:generate:` namespace (`app:generate:scenario`, `app:generate:encoding-csv`).
 

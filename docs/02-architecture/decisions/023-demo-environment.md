@@ -79,6 +79,20 @@ plain `php bin/console`).
   `app_demo_mode`: the layout shows a banner ("all data is synthetic") and prefixes the page title;
   the EasyAdmin layout (`templates/bundles/EasyAdminBundle/layout.html.twig`) shows the same banner.
 
+### Demo CSV upload (step 5 of #791)
+
+The presenter shows a monthly upload with a real round trip instead of a demo-specific import
+processor: `app:demo:csv` writes one synthetic month of a hospital as IVENA files (allocations and
+closures), uploaded through the normal form, parser, permission checks and projections. The rows are
+the ones `HospitalMonthGenerator` writes for that month (same random streams, ADR 022), resolved
+against the installed catalog by name like any upload. Nothing in the import code knows about the
+demo. A demo processor selected through dependency injection was the fallback in #791; it is not
+needed because the synthetic catalog resolves every value of the file (#875).
+
+Files and rows say they are synthetic: the file name starts with `synthetic-demo_`, every row has
+`SYNTHETIC DEMO DATA (#791)` in the free text (allocations, stored as notes) or remark (closures),
+and case numbers start with `SYNTH-`.
+
 ### Code that checks the environment by name
 
 Two places that allowed only `dev` and `test` also allow `demo`: creating missing overview

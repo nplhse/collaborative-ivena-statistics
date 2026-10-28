@@ -46,6 +46,45 @@ make demo-consume  # Messenger worker: imports, projections, scheduler
 
 The demo targets call `APP_ENV=demo php bin/console`, not `symfony console`: the Symfony CLI can export `DATABASE_URL` of a Docker database, which would override `.env.demo` (the guard would then stop the command).
 
+## Upload a month during the presentation
+
+The demo shows how a participant uploads a monthly IVENA export. The files are synthetic but go
+through the normal upload: form, permission checks, parser, rejects and projections.
+
+Before the presentation, write the files for the presented hospital:
+
+```bash
+APP_ENV=demo php bin/console app:demo:csv --hospital=<public id>
+```
+
+The command writes two files to `var/demo/csv/`:
+
+- `synthetic-demo_<hospital>_<YYYY-MM>_allocations.csv`
+- `synthetic-demo_<hospital>_<YYYY-MM>_closures.csv`
+
+Without `--month` it takes the month after the hospital's newest allocation or closure. It refuses a
+month that is not complete by yesterday (or `FIXTURES_UNTIL`) and a month that already has data for
+the hospital. It writes nothing into the database.
+
+During the presentation, logged in as a participant with the import permission for the hospital
+(and `ROLE_CLOSURE_BETA` for the closure file, assigned in EasyAdmin):
+
+1. Import page → choose the hospital → upload the allocation file. `make demo-consume` must run.
+2. When it is processed, upload the closure file as a closure import.
+
+The allocation file contains the rows the generator would write for that month, including infants
+with age 0. The import accepts ages 1 to 99, so these few rows show up as rejects (see the reject
+analysis of the import).
+
+The files say they are synthetic: the file name prefix, `SYNTHETIC DEMO DATA (#791)` in the free text
+of every allocation (stored as its notes) and in the remark of every closure, and case numbers
+starting with `SYNTH-`.
+
+**Intended flow:** the hospital wizard (step 4 of #791) generates the presented hospital up to the end
+of the month before last and leaves the last complete month empty, so the upload fills a whole month
+right before today. Hospitals of the baseline installation have data up
+to yesterday, so the command finds no free complete month for them.
+
 ## Cookies
 
 Browsers keep cookies per host, not per port: dev on 127.0.0.1:8000 and the demo on 127.0.0.1:8001 see each other's cookies. The demo therefore uses its own names (`demo_PHPSESSID`, `demo_REMEMBERME`, `demo_consent_subject_id`, `demo_APP_LOCALE`, `demo_analytics_*`), so a secure cookie from a dev server with TLS cannot block the demo's session, cookie banner or login. Cookies set by an older demo build still carry the dev names; delete them once (see Troubleshooting).
@@ -56,7 +95,7 @@ Put local changes into `.env.demo.local` (not committed), for example another pa
 
 ## What the demo does not do (yet)
 
-- Offline maps and isochrones, the hospital wizard, run tracking and the demo CSV upload follow in later steps of #791.
+- Offline maps and isochrones, the hospital wizard and run tracking follow in later steps of #791.
 - Storage monitoring does not categorise the demo paths.
 
 ## Troubleshooting
