@@ -14,12 +14,12 @@ use App\DataFixtures\Generator\Application\Run\GenerationRunTrigger;
 final readonly class DatasetRequest
 {
     /**
-     * @param list<int>                    $hospitalIds hospitals for the scopes One and Selected; empty for All
-     * @param int|null                     $seed        null takes the configured seed
-     * @param array<int, ProfileSelection> $selections  hospital id => explicit profile; without one the profile is drawn
-     * @param string|null                  $patterns    pattern source; null takes FIXTURES_PATTERNS
-     * @param string|null                  $retryOf     run whose failed hospitals this run generates again
-     * @param \DateTimeImmutable|null      $lastDay     last day with data; null takes the end of the period or yesterday, whichever is earlier
+     * @param list<int>                    $hospitalIds   hospitals for the scopes One and Selected; empty for All
+     * @param int|null                     $seed          null takes the configured seed
+     * @param array<int, ProfileSelection> $selections    hospital id => explicit profile; without one the profile is drawn
+     * @param string|null                  $patterns      pattern source; null takes FIXTURES_PATTERNS
+     * @param string|null                  $retryOf       run whose failed hospitals this run generates again
+     * @param \DateTimeImmutable|null      $lastDay       last day with data; null takes the end of the period or yesterday, whichever is earlier
      * @param list<int>                    $notifyUserIds users notified with notify, in addition to each hospital's owner (the demo participant of #791)
      */
     public function __construct(
