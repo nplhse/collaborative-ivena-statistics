@@ -90,6 +90,7 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 | `FIXTURES_MONTHS` | empty | Whole months before the month of the last day; empty uses the months of the preset or `fixtures.baseline.months` |
 | `FIXTURES_REFERENCE_PACKAGE` | empty | Reference package (JSON) whose catalog replaces the synthetic one; states, dispatch areas and hospitals stay synthetic ([Generator on another catalog](#generator-on-another-catalog)) |
 | `FIXTURES_CATALOG_MAPPING` | empty | Mapping file (JSON) that binds the generator's names to a catalog that spells them differently |
+| `FIXTURES_PATTERNS` | `defaults` | Distribution patterns: `defaults` (code defaults) or a pattern package, as a file name in `var/patterns/` or a path ([Pattern packages](#pattern-packages)) |
 | `fixtures.baseline.months` | `12` | Whole months before the month of the last day: with yesterday in October 2026 the data runs from 1 October 2025 until yesterday |
 | `fixtures.baseline.trend_per_year` | `0.02` | Yearly growth of the daily rate, relative to 1 January 2026 (fixed, so a month added later gets the same volume); `0` is off |
 | `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes; each hospital's profile scales it (see below) |
@@ -243,6 +244,66 @@ The indication of a case is drawn first; the rest follows from it (`IndicationGr
 
 An import is "uploaded" one to three days after the last day it covers, during office hours, and never after the last day of the period (`UploadTime`, drawn with the seed). Its `created_at` is that upload time, so the import list and the KPI aggregation, which counts imports by upload day, show a monthly upload rhythm instead of one day with every import. The running month is uploaded on the last day.
 
+### Pattern packages
+
+A pattern package is the same distributions as a JSON file: format `ivena-distribution-patterns`, version 1 (`src/DataFixtures/Pattern/Package/`, [ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md#pattern-packages)). Packages live in `var/patterns/` and are never tracked; tests write synthetic packages only.
+
+```text
+{
+    "meta": {
+        "format": "ivena-distribution-patterns", "version": 1,
+        "created_at": "2026-10-28T12:00:00+01:00", "source": "defaults", "catalog": "synthetic",
+        "counts": { "segments": 3, "indication_groups": 25, "indications": 29 },
+        "checksum": { "algorithm": "sha256", "value": "…" }
+    },
+    "segments": {
+        "urban-full": {
+            "indications": { "present": 1.0, "shares": { "322": 0.0885, "…": 0.0 } },
+            "occasions": { "Häuslicher Einsatz": 0.5, "…": 0.0 },
+            "assignments": { … }, "infections": { "present": 0.05, "shares": { … } },
+            "secondary_transports": { "present": 0.1, "shares": { … } },
+            "transport_types": { "G": 0.95, "A": 0.05 }, "hours": { "0": 0.0225, "…": 0.0 },
+            "flags": { "requires_resus": 0.1, … },
+            "transport_time_minutes": { "p25": 10.0, "p50": 15.0, "p75": 22.0, "p90": 30.0 }
+        },
+        "urban-basic": { … }, "rural-basic": { … }
+    },
+    "indication_groups": {
+        "332": { "departments": { "cardiology": 1.0 }, "urgency": { "1": 0.9, "2": 0.1 },
+                 "ages": { "18-39": 0.05, "40-64": 0.45, "65-99": 0.5 }, "female": 0.3,
+                 "resus_factor": 3.0, "flags": { "requires_cathlab": 0.9, "is_with_physician": 0.7 } }
+    },
+    "fallback_group": "3"
+}
+```
+
+`segments` holds what `DefaultDistributionPatterns` sets per segment, `indication_groups` what `IndicationGroups` sets per PZC code prefix (the longest matching prefix wins, `fallback_group` takes the rest). Departments are keyed by the generator's catalog-independent keys (`GeneratorKeys`, for example `cardiology`, `stroke-unit`), lookups by their IVENA value and indications by PZC code, so a package works with any catalog the generator can bind. The checksum is SHA-256 over everything except `meta`.
+
+`PatternPackageReader` validates a package completely, in this order, and every error names the table and the key (`indication_groups.332.departments`):
+
+1. format and version;
+2. structure: known keys only, every key present, numbers where numbers belong, shares and probabilities between 0 and 1;
+3. package rules: the three segments the generator uses, department keys of `GeneratorKeys` (a catalog name such as `Kardiologie` is refused with the key to use), three-digit PZC codes, transport types `G`/`A`, hours 0–23, urgency 1–3, age ranges `min-max` up to 120, known flags (`requires_resus` of a group is its `resus_factor`), every table summing to 1 (±0.002, for shares rounded to four places), percentiles that do not decrease, counts and checksum;
+
+The code defaults pass the same validation; the PHP classes stay their source. Whether the installed catalog has every name and PZC code of a package is the catalog check of the generator ([Generator on another catalog](#generator-on-another-catalog)): it runs with the vocabulary of the selected pattern set, through the mapping file.
+
+```bash
+php bin/console app:patterns:write-defaults                  # var/patterns/defaults.json (--output, --force)
+php bin/console app:patterns:validate defaults.json          # a file name in var/patterns/ or a path
+php bin/console app:patterns:validate defaults.json --no-catalog   # format only, no database
+```
+
+Both commands exist in `dev` and `test` only. Without `--no-catalog`, `app:patterns:validate` also runs the catalog check of the generator with the package's patterns.
+
+**Selecting a package.** `FIXTURES_PATTERNS` selects the patterns of the fixture, `--patterns` overrides it for `app:generate:imports` and `app:generate:scenario`:
+
+```bash
+FIXTURES_PATTERNS=tuned.json make reset
+php bin/console app:generate:imports --hospital=<public id> --month=2026-09 --patterns=tuned.json
+```
+
+The package is read and validated, and the catalog check runs with its names and PZC codes, before the first row is written; an invalid package or a missing name stops the run with every problem. Coherence rules, hospital profiles, closures and the random streams are the same whatever the source, so the same package and seed give the same rows, and the code defaults written as a package give exactly the rows of `defaults`. The allocation and closure markers record the source: `defaults`, or the package checksum (`synthetic/allocations/seed-740/<checksum>/<hospital public id>/2026-09.csv`). The slot is built by `PatternSource`; structural patterns (#876) will add a part after `+` when they are not the defaults. A month that exists with any source is refused.
+
 ### Closures
 
 Each hospital and month also gets a closure import (`synthetic/closures/…`) with `closure_interval` rows from `ClosurePlanner`: on average 8, 5 or 3 closure events per month for large, medium and small hospitals, a little more in autumn and winter. An event is an IVENA group (two to four departments with one group id), an exact-time cluster (two or three departments with the same start and end) or a single closure, so the closure analysis finds all three event types. Durations run from half an hour to at most 24 hours. Only departments the hospital offers are closed. Closures are planned before the allocations of the month: an allocation to a closed department during an interval gets `department_was_closed`, other allocations never do.
@@ -291,7 +352,8 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 - closures driven by the share of closed department-hours (#876);
 - structural pattern packages (`ivena-structure-patterns`, #876 with the export of #797);
 - overrides of the profile by hospital public id in `fixtures.yaml` (cath lab, departments, volume, closure frequency). Left out on purpose (#863): public ids follow the catalog seed, so overrides break when the catalog changes, and the demo does not need them;
-- pattern packages as JSON files (with the export of real patterns, #797), and case archetypes.
+- the export of real patterns (#797), and case archetypes;
+- the pattern source in scenario markers: `synthetic/scenario/<name>/seed-740/<hospital public id>/<start day>.csv` has no source slot, although scenario rows are sampled with the selected patterns. Refusing a scenario twice and `--remove` look at name, seed and start day only, so they work whatever the source.
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
@@ -341,6 +403,8 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/Catalog/CatalogMappingTest.php`, `GeneratorVocabularyTest.php` — mapping file format and errors, the vocabulary of every source
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, allocations and closures only in offered departments, no indication the hospital lacks the capability for, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
+- `Pattern/Package/*Test.php` — the code defaults round-trip through writer, reader and validator unchanged, same bytes per package, departments by generator key, invalid packages name table and key, the loader (`defaults`, a file in `var/patterns/`, invalid and missing files), `app:patterns:*` commands with the catalog check
+- `Generator/HospitalMonthGeneratorTest.php` also: the code defaults written as a package give the same rows, the markers record the checksum, an invalid package writes nothing
 - `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.

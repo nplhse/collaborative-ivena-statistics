@@ -24,9 +24,9 @@ use App\DataFixtures\Generator\Application\UploadTime;
 use App\DataFixtures\Generator\Infrastructure\Dbal\AllocationRowWriter;
 use App\DataFixtures\Generator\Infrastructure\Dbal\ClosureIntervalWriter;
 use App\DataFixtures\Generator\Infrastructure\Random\RandomStreams;
-use App\DataFixtures\Pattern\Application\DefaultDistributionPatterns;
 use App\DataFixtures\Pattern\Application\PatternLookupResolver;
 use App\DataFixtures\Pattern\Application\PatternSampler;
+use App\DataFixtures\Pattern\Application\PatternSetLoader;
 use App\DataFixtures\Pattern\Dto\DistributionPattern;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
@@ -60,7 +60,7 @@ final readonly class ScenarioGenerator
 
     public function __construct(
         private HospitalProfileResolver $profiles,
-        private DefaultDistributionPatterns $patterns,
+        private PatternSetLoader $patterns,
         private PatternSampler $sampler,
         private PatternLookupResolver $lookups,
         private ClosureIntervalWriter $closureWriter,
@@ -142,6 +142,8 @@ final readonly class ScenarioGenerator
      */
     public function apply(ScenarioDefinition $scenario, FixtureVolume $volume, array $hospitals, \DateTimeImmutable $startDay, \DateTimeImmutable $lastDay, string $area, float $intensity = 1.0, bool $rebuild = true): array
     {
+        // An invalid pattern package stops here, before the first import is written.
+        $this->patterns->load($volume->patterns);
         $plans = $this->plan($scenario, $volume, $hospitals, $startDay, $lastDay, $area, $intensity);
         $mciId = sprintf('mci-scenario-%d-%s-%s', $volume->seed, hash('crc32b', $area), $startDay->format('Ymd'));
 
@@ -223,7 +225,7 @@ final readonly class ScenarioGenerator
         $import = $this->createImport(ImportType::ALLOCATION, sprintf('Scenario %s %s', $scenario->name, $startDay), $hospital, $rows, SyntheticImportMarker::scenarioPath($scenario->name, $volume->seed, $key, $startDay), $owner, $uploadedAt);
 
         $profile = $this->profiles->resolve($hospital, $volume->seed);
-        $pattern = $profile->applyTo($this->patterns->get($profile->segment))
+        $pattern = $profile->applyTo($this->patterns->load($volume->patterns)->get($profile->segment))
             ->withDistribution('indication_normalized', ['_present' => 1.0] + $scenario->indications);
         $random = $this->streams->stream($volume->seed, $key, $startDay, 'scenario:'.$scenario->name.':rows');
 

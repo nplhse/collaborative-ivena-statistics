@@ -59,9 +59,10 @@ final readonly class PatternSampler
         $transportMinutes = $this->percentileSampler->sampleMinutes($pattern->transportTimePercentiles(), $random);
         $arrivalAt = $createdAt->add(new \DateInterval('PT'.$transportMinutes.'M'));
 
+        $groups = $pattern->indicationGroups();
         $missing = array_flip($pattern->departmentsNotOffered());
         $code = $this->sampleIndicationCode($pattern, $random);
-        for ($try = 1; $try < self::INDICATION_TRIES && [] === array_diff_key(IndicationGroups::forCode($code ?? '')['departments'], $missing); ++$try) {
+        for ($try = 1; $try < self::INDICATION_TRIES && [] === array_diff_key($groups->forCode($code ?? '')['departments'], $missing); ++$try) {
             $code = $this->sampleIndicationCode($pattern, $random);
         }
         $infection = $this->sampleNullableLookup($pattern, 'infection', Infection::class, $random);
@@ -70,7 +71,7 @@ final readonly class PatternSampler
             ? $this->lookupResolver->indicationForCode($code)
             : [null, $this->lookupResolver->referenceAny(IndicationRaw::class)];
 
-        $group = IndicationGroups::forCode($code ?? '');
+        $group = $groups->forCode($code ?? '');
 
         $departmentName = $this->categoricalSampler->sample($this->offeredDepartments($group['departments'], $missing), $random);
         $female = $group['female'];

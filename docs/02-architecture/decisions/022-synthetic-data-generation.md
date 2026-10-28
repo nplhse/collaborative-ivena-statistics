@@ -198,6 +198,23 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - **Closure share in the profile:** the share of closed department-hours (default by size, general knowledge, not measured) and its selection exist from this step; the closure planner switches to it in the next step.
 - New draws were appended to the `profile` stream, so configurations and departments of step 1 stay; volume and mix of every hospital change once.
 
+## Amendment (October 2026, #883): pattern package format
+
+#883 (split from #797) builds the package format, its validation and the code defaults as a package. It needs no real data. The export of real patterns and the privacy review stay with #797.
+
+- **Format v1** `ivena-distribution-patterns` follows the first version of the chain as it lives in code, not the full chain described under *Pattern packages*: `segments` (one per segment the generator uses: indication mix, occasions, assignments, infections, secondary transports, transport types, hour of day, base flags, transport time percentiles), `indication_groups` keyed by PZC code prefix (departments, urgency, age ranges, female share, resuscitation room factor, flags) and a `fallback_group`. Time by month and weekday, the volume block and archetypes are not part of v1; adding them raises the version. The reader accepts only the current format and version.
+- **`meta`**: format, version, `created_at`, `source` (`defaults`, `export`, …), optional `app_version`, `catalog` and `notes`, `counts` (segments, indication groups, indications) and the SHA-256 checksum over everything except `meta`. The writer is deterministic (same package, same bytes).
+- **Validation** runs in three stages, each error with the path of table and key (`indication_groups.332.departments`): format and version; structure on the decoded JSON with Validator constraints (known and required keys, numbers, shares between 0 and 1); package rules as a class constraint (segments, key formats, known flags, sums of 1 within ±0.002 so shares rounded to four places pass, ordered percentiles, counts, checksum). The tables are keyed by data, so the structure is checked on the array before the DTOs are built, unlike the reference package, which denormalizes into DTOs first.
+- **Code defaults as a package**: `DefaultPatternPackage` builds the package from `DefaultDistributionPatterns` and `IndicationGroups`; they pass the same validation and round-trip through writer and reader unchanged. The PHP classes stay the source of the defaults. `app:patterns:write-defaults` and `app:patterns:validate` (dev and test) write and check packages in `var/patterns/`.
+- **Placement**: the package classes live in `src/DataFixtures/Pattern/Package/` and use no dev-only dependencies (no Foundry, Faker or fixtures bundle). Department keys and their speciality come from `GeneratorKeys`, a plain constants class.
+- **Structural patterns (#876)** get a package type of their own, `ivena-structure-patterns`, with the same `meta` shape and the same validation approach, versioned independently.
+- **Departments by generator key**: a package keys departments by `GeneratorKeys` (#875), lookups by IVENA value and indications by PZC code, so it does not depend on the spelling of a catalog. The first step wrote catalog names; v1 was not released before, so no migration is needed. The package validator refuses unknown keys and names the key for a catalog name.
+- **Catalog check**: the package validator checks the format only. Whether the installed catalog has every name and PZC code runs through `CatalogCompatibility` (#875) with the vocabulary of the selected pattern set, so it uses the mapping file and aliases like generation; `app:patterns:validate` runs it unless `--no-catalog` is given. The separate check against raw database names from the first step is gone.
+- **Pattern source setting** (second step): `FIXTURES_PATTERNS` (`defaults`, or a package as a file name in `var/patterns/` or a path) in the fixture settings, `--patterns` on `app:generate:imports` and `app:generate:scenario`. `PatternSetLoader` turns it into a `PatternSet`; `GenerationPreflight` loads and validates it and runs the catalog check before the first row of the fixture and of both commands. The set carries its indication groups through `DistributionPattern`, so the sampler, the hospital profiles, the coherence rules and the random streams do not depend on the source, and the code defaults written as a package give the same rows.
+- **Marker source slot**: `PatternSource` builds and parses the slot of allocation and closure markers: `defaults` or the package checksum, and `<patterns>+<structures>` once structural packages (#876) are used; the structure part is left out while it is `defaults`. Scenario markers keep their form without a source slot; refusing a scenario twice and removing it depend on name, seed and start day only.
+
+**Open for #797:** ADR 020 lets the export write `var/patterns` in production (a Deployer shared directory), while this ADR places the pattern package in the dev/test module `src/DataFixtures/`. #797 decides whether the package classes move to code that production loads, or whether the export runs in development against a copy of the production data.
+
 ## Consequences
 
 - A fresh clone gets a multi-hospital dataset with closures and coherent allocations from one `make reset`, and every statistics page works on it.
@@ -224,4 +241,4 @@ Together with the composed catalog of ADR 020 (`FIXTURES_REFERENCE_PACKAGE`), th
 - ADR 015 (closure volume metrics, export periods)
 - ADR 020 (portable reference catalog, synthetic catalog, pattern direction and privacy rules)
 - ADR 021 (wall clock access)
-- Issues #740, #791, #792, #797, #863, #864, #865, #866, #875
+- Issues #740, #791, #792, #797, #863, #864, #865, #866, #875, #876, #883
