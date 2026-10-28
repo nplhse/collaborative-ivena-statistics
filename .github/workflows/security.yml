@@ -49,7 +49,7 @@ jobs:
                   composer-options: --no-scripts
 
             - name: Psalm taint analysis
-              run: vendor/bin/psalm --taint-analysis --no-progress --report=results.sarif
+              run: make -s security SARIF=results.sarif
 
             # Upload findings also when Psalm fails because of them.
             - name: Upload Security Analysis results to GitHub

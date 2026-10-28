@@ -71,6 +71,7 @@ Checks never change source code (they may write caches, compiled containers and 
 | `make check` | `lint`, `analyse` and the Deptrac report: every check, no tests | no | — |
 | `make fix` | Swiss Knife, Rector, PHP-CS-Fixer, twig-cs-fixer, Prettier/ESLint | **yes** | — |
 | `make test` | PHPUnit, see [testing.md](testing.md) | no | test database |
+| `make test-unit` / `make test-database` | The two CI test groups via ParaTest | no | test database (only `test-database`) |
 | `make ci` | `check`, then the complete test suite (slow) | no | test database |
 | `make audit` | `composer audit` | no | network |
 | `make security` | Psalm taint analysis (`SARIF=results.sarif` writes a report) | no | — |

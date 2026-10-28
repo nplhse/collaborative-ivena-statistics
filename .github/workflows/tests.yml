@@ -74,14 +74,9 @@ jobs:
               with:
                   composer-options: --no-scripts
 
+            # Same command as `make test-unit` locally; COVERAGE and JUNIT write the files uploaded below.
             - name: Execute unit tests via ParaTest
-              run: |
-                  mkdir -p var/coverage/logs
-                  vendor/bin/paratest \
-                    --testsuite unit \
-                    --processes=4 \
-                    --coverage-clover=var/coverage/logs/clover-unit.xml \
-                    --log-junit=junit-unit.xml
+              run: make -s test-unit COVERAGE=1 JUNIT=1
 
             - name: Upload unit coverage artifact
               if: success()
@@ -149,14 +144,10 @@ jobs:
             - name: Warm test cache
               run: php bin/console cache:warmup --env=test
 
+            # Same command as `make test-database` locally; COVERAGE and JUNIT write the files uploaded below.
             - name: Execute database-backed tests via ParaTest
               run: |
-                  mkdir -p var/coverage/logs
-                  vendor/bin/paratest \
-                    --testsuite integration,functional,fixtures,system \
-                    --processes=4 \
-                    --coverage-clover=var/coverage/logs/clover-integration.xml \
-                    --log-junit=junit-integration.xml
+                  make -s test-database COVERAGE=1 JUNIT=1
                   php bin/report-slowest-tests 10 || true
               env:
                   DATABASE_URL: postgres://app:password@127.0.0.1:${{ job.services.postgres.ports['5432'] }}/app

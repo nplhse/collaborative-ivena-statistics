@@ -7,7 +7,7 @@
         lint-yaml lint-container check-deprecations lint-xliff lint-trans lint-trans-de \
         lint-templates swiss-knife swiss-knife-check rector rector-check fix-php lint-php fix-twig \
         lint-twig fix-js lint-js phpstan psalm deptrac deptrac-strict deptrac-baseline test testdox \
-        coverage purge-runtime purge reset clear
+        coverage test-unit test-database purge-runtime purge reset clear
 
 # Executables
 COMPOSER      = composer
@@ -30,6 +30,7 @@ DEPTRAC       = ./vendor/bin/deptrac
 SWISS_KNIFE   = ./vendor/bin/swiss-knife
 SWISS_KNIFE_FINALIZE_OPTS = --skip-mocked --skip-file 'src/**/Domain/Entity/*' --skip-file 'src/**/Infrastructure/Entity/*'
 TWIG_CS_FIXER = ./vendor/bin/twig-cs-fixer
+PARATEST      = ./vendor/bin/paratest
 
 ## —— 🎵 🐳 The Symfony Docker makefile 🐳 🎵 ——————————————————————————————————
 help: ## Outputs this help screen
@@ -314,6 +315,23 @@ testdox: ## Run tests with testdox (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS
 
 coverage: ## Run tests with coverage: clover, HTML report in var/coverage/report, summary (same SUITE/PATH_ARG/GROUP/EXCLUDE_GROUP/ARGS as test)
 	@XDEBUG_MODE=coverage SUITE=$(SUITE) PATH_ARG=$(PATH_ARG) GROUP=$(GROUP) EXCLUDE_GROUP=$(EXCLUDE_GROUP) ./bin/run-tests --coverage-html var/coverage/report --coverage-text --only-summary-for-coverage-text $(ARGS)
+
+# Parallel test groups, as the Testsuite workflow runs them. Unit tests need no database; the
+# database group covers every other suite. COVERAGE=1 writes var/coverage/logs/clover-<group>.xml
+# (needs PCOV or Xdebug), JUNIT=1 writes junit-<group>.xml; both are the paths the workflow uploads.
+PROCESSES        ?= 4
+COVERAGE         ?=
+JUNIT            ?=
+DATABASE_SUITES   = integration,functional,fixtures,system
+PARATEST_REPORTS  = $(if $(COVERAGE),--coverage-clover=var/coverage/logs/clover-$(1).xml,--no-coverage) $(if $(JUNIT),--log-junit=junit-$(1).xml)
+
+test-unit: ## Run the unit suite via ParaTest, no database (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
+	@mkdir -p var/coverage/logs
+	@$(PARATEST) --testsuite unit --processes=$(PROCESSES) $(call PARATEST_REPORTS,unit) $(ARGS)
+
+test-database: ## Run every non-unit suite via ParaTest, needs the test DB (PROCESSES=4, COVERAGE=1, JUNIT=1, ARGS=)
+	@mkdir -p var/coverage/logs
+	@$(PARATEST) --testsuite $(DATABASE_SUITES) --processes=$(PROCESSES) $(call PARATEST_REPORTS,integration) $(ARGS)
 
 ## —— Cleanup 🚮 ————————————————————————————————————————————————————————————————
 purge-runtime: ## Remove compiled assets, uploads, imports, cache, and logs

@@ -92,8 +92,8 @@ jobs:
 
             - name: Check if any dependencies are compromised
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
-              # CI only: needs the network, so it has no make target.
-              run: composer audit
+              # Not part of `make check`: needs the network and can fail on a new advisory without a code change.
+              run: make -s audit
 
             - name: Check for git merge conflicts
               if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
