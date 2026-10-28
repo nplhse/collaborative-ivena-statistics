@@ -52,6 +52,14 @@ final class ScenarioGeneratorTest extends KernelTestCase
             self::assertSame($result->allocations, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = :id', ['id' => $result->importId]), 'the overlay goes through the projection');
             self::assertSame($base, $this->baseChecksum(), 'base allocations are left alone');
 
+            // The overlay is uploaded after its day, and the KPIs of that day count it.
+            $uploadDay = (string) $this->connection()->fetchOne('SELECT CAST(created_at AS date) FROM import WHERE id = :id', ['id' => $result->importId]);
+            self::assertContains($uploadDay, ['2026-01-15', '2026-01-16', '2026-01-17']);
+            self::assertSame(
+                (int) $this->connection()->fetchOne('SELECT SUM(row_count) FROM import WHERE CAST(created_at AS date) = :day', ['day' => $uploadDay]),
+                (int) $this->connection()->fetchOne('SELECT records_total FROM kpi_daily WHERE hospital_id IS NULL AND date = :day', ['day' => $uploadDay]),
+            );
+
             // Flu wave: extra closures in their own import; flagged allocations only during them.
             [$flu] = $generator->apply(ScenarioCatalog::get('flu-wave'), $volume, $this->reload($hospitals), new \DateTimeImmutable('2026-02-02'), $lastDay, 'test');
             self::assertGreaterThan(0, $flu->closures);

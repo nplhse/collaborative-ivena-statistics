@@ -76,6 +76,7 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             $this->load();
             $publicId = (string) $this->connection()->fetchOne('SELECT h.public_id FROM import i JOIN hospital h ON h.id = i.hospital_id WHERE i.file_path LIKE \'synthetic/allocations/%\' ORDER BY i.file_path LIMIT 1');
             $tester = new CommandTester(new Application(self::$kernel)->find('app:generate:imports'));
+            $this->assertKpisMatchTheUploads('after the full load');
 
             self::assertSame(Command::FAILURE, $tester->execute(['--hospital' => [$publicId], '--month' => self::MONTH]));
             self::assertStringContainsString('already has allocations', $tester->getDisplay());
@@ -94,6 +95,10 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             $importId = $this->importId(SyntheticImportMarker::ALLOCATIONS, $publicId);
             self::assertGreaterThan(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = :id', ['id' => $importId]));
             self::assertGreaterThan(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM closure_event e JOIN hospital h ON h.id = e.hospital_id WHERE h.public_id = :id', ['id' => $publicId]));
+            $uploadDay = (string) $this->connection()->fetchOne('SELECT CAST(created_at AS date) FROM import WHERE id = :id', ['id' => $importId]);
+            self::assertGreaterThan(self::MONTH.'-31', $uploadDay, 'uploaded after the month');
+            self::assertLessThanOrEqual(self::UNTIL, $uploadDay, 'not after the last day of the period');
+            $this->assertKpisMatchTheUploads('after a month added later');
         } finally {
             unset($_ENV['FIXTURES_UNTIL'], $_SERVER['FIXTURES_UNTIL']);
         }
@@ -107,8 +112,8 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
         $connection = $this->connection();
 
         return [
-            'import' => $connection->fetchAssociative('SELECT name, file_path, row_count, status FROM import WHERE id = :id', ['id' => $importId]),
-            'closure_import' => $connection->fetchAssociative('SELECT name, file_path, row_count, status, type FROM import WHERE id = :id', ['id' => $closureImportId]),
+            'import' => $connection->fetchAssociative('SELECT name, file_path, row_count, status, created_at FROM import WHERE id = :id', ['id' => $importId]),
+            'closure_import' => $connection->fetchAssociative('SELECT name, file_path, row_count, status, type, created_at FROM import WHERE id = :id', ['id' => $closureImportId]),
             'closures' => $connection->fetchAllAssociative(
                 'SELECT c.starts_at, c.ends_at, c.care_level, c.reason, c.source_group_id, d.public_id AS department
                  FROM closure_interval c INNER JOIN department d ON d.id = c.department_id
@@ -127,6 +132,18 @@ final class HospitalMonthGeneratorTest extends KernelTestCase
             ),
             'mci' => $connection->fetchAllAssociative('SELECT mci_id, created_at, arrival_at FROM mci_case WHERE import_id = :id ORDER BY mci_id', ['id' => $importId]),
         ];
+    }
+
+    /**
+     * Every upload day has the global KPI row of its imports, and no KPI row counts imports of another day.
+     */
+    private function assertKpisMatchTheUploads(string $message): void
+    {
+        $uploads = $this->connection()->fetchAllKeyValue('SELECT CAST(created_at AS date) AS day, SUM(row_count) FROM import GROUP BY 1 ORDER BY 1');
+        $kpis = $this->connection()->fetchAllKeyValue('SELECT date, records_total FROM kpi_daily WHERE hospital_id IS NULL ORDER BY date');
+
+        self::assertGreaterThan(1, \count($uploads), 'imports are spread over several upload days');
+        self::assertEquals($uploads, $kpis, $message);
     }
 
     /**
