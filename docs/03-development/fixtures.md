@@ -88,6 +88,8 @@ Dev defaults live in `config/packages/dev/fixtures.yaml` (the test environment u
 | `FIXTURES_SCALE` | `1` | Factor on the allocations per day (0.01–10); `1` is close to real volumes |
 | `FIXTURES_UNTIL` | empty | Last day of the period (`Y-m-d`); empty means yesterday |
 | `FIXTURES_MONTHS` | empty | Whole months before the month of the last day; empty uses the months of the preset or `fixtures.baseline.months` |
+| `FIXTURES_REFERENCE_PACKAGE` | empty | Reference package (JSON) whose catalog replaces the synthetic one; states, dispatch areas and hospitals stay synthetic ([Generator on another catalog](#generator-on-another-catalog)) |
+| `FIXTURES_CATALOG_MAPPING` | empty | Mapping file (JSON) that binds the generator's names to a catalog that spells them differently |
 | `fixtures.baseline.months` | `12` | Whole months before the month of the last day: with yesterday in October 2026 the data runs from 1 October 2025 until yesterday |
 | `fixtures.baseline.trend_per_year` | `0.02` | Yearly growth of the daily rate, relative to 1 January 2026 (fixed, so a month added later gets the same volume); `0` is off |
 | `fixtures.baseline.allocations_per_day` | Small `10`, Medium `15`, Large `40` | Average allocations per hospital and day by hospital size, rounded from real volumes |
@@ -139,9 +141,80 @@ To test real IVENA files locally, replace the synthetic catalog with a private p
 
 `make reset` returns to the synthetic installation.
 
+This brings in the real hospitals as well. To keep fictional hospitals, for example to generate synthetic data on the real catalog, use the composed catalog below instead.
+
+## Generator on another catalog
+
+The generator writes its own vocabulary, independent of any catalog ([ADR 022](../02-architecture/decisions/022-synthetic-data-generation.md)):
+
+| Type | Key | Example | Where |
+|---|---|---|---|
+| Department | stable English key | `stroke-unit`, `cardiology`, `obstetrics` | `GeneratorKeys::DEPARTMENTS` (25 keys, each with its default label and speciality key) |
+| Speciality | stable English key | `neurology`, `paediatrics` | `GeneratorKeys::SPECIALITIES` (7 keys) |
+| Assignment, occasion, infection, secondary transport | the IVENA value | `RD`, `Häuslicher Einsatz`, `MRSA` | `DefaultDistributionPatterns` |
+| Indication | PZC code | `421` | patterns, `IndicationGroups`, scenarios |
+
+Patterns and profiles should address departments by key. `GeneratorCatalog` binds each key to the installed catalog: through the mapping file if it binds the key, else by the default label (the name in the synthetic catalog), resolved the way the import resolves names: by name and alias, case and spacing ignored. Where the catalog has several rows for one code, the choice follows the name, never the database id. The generator's sources still name departments by their default label; they are translated to keys in one place (`GeneratorVocabulary`, `PatternLookupResolver`).
+
+Before the first row, the allocation fixture, `app:generate:imports` and `app:generate:scenario` check every name and code and stop with the full list of missing and ambiguous ones. The same report, read-only:
+
+```bash
+php bin/console app:generate:check-catalog
+php bin/console app:generate:check-catalog --mapping=var/reference/generator-mapping.json --all
+```
+
+### Composed catalog
+
+`FIXTURES_REFERENCE_PACKAGE` loads the synthetic states, dispatch areas and hospitals together with every other type from a package, for example a private export ([ADR 020](../02-architecture/decisions/020-portable-reference-catalog.md)). Hospital identities and locations stay synthetic, real files resolve their departments, indications and lookups, and the generator runs on the real catalog:
+
+1. Copy the private package to `var/reference/catalog.json` (never committed; a complete export, or one with every catalog type except state, dispatch area and hospital).
+2. Find the names the catalog spells differently: load only the catalog, then check it.
+
+   ```bash
+   FIXTURES_REFERENCE_PACKAGE=var/reference/catalog.json php bin/console doctrine:fixtures:load --group=reference --no-interaction
+   php bin/console app:generate:check-catalog
+   ```
+
+   Bind each missing name in `var/reference/generator-mapping.json` (below) and check again with `--mapping=var/reference/generator-mapping.json` until it passes.
+3. Load the fixtures with both files; the load stops before the first allocation if a name is still missing:
+
+```bash
+FIXTURES_REFERENCE_PACKAGE=var/reference/catalog.json FIXTURES_CATALOG_MAPPING=var/reference/generator-mapping.json make reset
+```
+
+`make reset` without the variables returns to the synthetic catalog. Every load replaces the database, as always.
+
+### Mapping file
+
+Keys are keys of the generator (department and speciality keys, lookup values, PZC codes), values names in the installed catalog. Every part is optional; an entry for a key the generator does not use is an error, so typos show up.
+
+```json
+{
+    "format": "ivena-generator-catalog-mapping",
+    "version": 1,
+    "names": {
+        "department": { "stroke-unit": "<catalog department>" },
+        "speciality": { "paediatrics": "<catalog speciality>" },
+        "assignment": {}, "occasion": {}, "infection": {}, "secondary_transport": {}
+    },
+    "speciality_of_department": { "stroke-unit": "<catalog speciality>" },
+    "indications": { "211": { "normalized": "<catalog name>", "raw": "<catalog label>" } }
+}
+```
+
+- `names` binds a key to a catalog name, per type. Without an entry, a key resolves by its default label.
+- `speciality_of_department` sets the speciality a department is written with. Without it, it is the speciality key of the department (`paediatrics` for `neonatology`), resolved through `names.speciality`.
+- `indications` pins the normalized indication of a code when the catalog has several (otherwise the first by name is used, with a warning), and the raw label (otherwise the one with the official wording, else the first by label).
+
+A mapping for a real catalog holds real labels: keep it in `var/reference/` next to the package and never commit it.
+
+### Limits on a real catalog
+
+The binding makes the generator write valid rows of another catalog; it does not make the data look like that catalog. A real catalog is finer: more departments and specialities (urology, ENT, ophthalmology, dermatology and others of their own) and more occasions and infections than the generator knows. The generator still uses only its 25 department keys and the lookup values of its patterns, so a real catalog's other departments and values get no generated rows. Wider coverage belongs to the pattern packages (#883, #797) and structural profiles (#876).
+
 ## Pattern-based synthetic allocations
 
-`PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares keyed by the synthetic catalog, not exported real data; real pattern packages follow with #797.
+`PatternAllocationFixture` samples allocations from `DefaultDistributionPatterns` (`PatternSampler`, `SyntheticAllocationGenerator`), with the pattern of each hospital's segment. The defaults are coarse, plausible shares in the generator's vocabulary (the names of the synthetic catalog), not exported real data; real pattern packages follow with #797. On another catalog the names are bound through [Generator on another catalog](#generator-on-another-catalog).
 
 The indication of a case is drawn first; the rest follows from it (`IndicationGroups`): a stroke goes to the stroke unit, a STEMI to cardiology with a high cath lab share, a paediatric case gets a child, a hip fracture an older, mostly female patient, a pregnancy (PZC 52x–54x) a pregnant woman in obstetrics. Patterns and scenarios name indications by PZC code, not by wording, since the obstetric codes share theirs (`<16 SSW` is 521, 531 and 541). The speciality is the field of the department. `CoherenceRules` then make sure that pregnant patients are women aged 15 to 49, paediatric departments get patients under 18, and CPR and shock mean urgency 1 (CPR also the resuscitation room).
 
@@ -200,6 +273,17 @@ The same scenario, start day, seed and intensity give the same rows; applying a 
 
 `FIXTURES_PROFILE` keeps its name; the ADR calls its values *presets* to tell them apart from hospital profiles.
 
+### Limitations
+
+The data looks plausible in totals, weekly rhythm and the indication-driven fields, but it does not model everything that real exports show (assessment in #874). Structural hospital profiles (#876) and pattern packages (#883) address most of it:
+
+- **Hospitals look alike.** Every hospital of one size gets the same daily rate, whatever its beds. Hospitals of one tier and location share one segment pattern, so apart from their offered departments and cath lab their indication, age and urgency mix hardly differ. The segment ignores size: a medium full-care hospital gets the mix of a large one.
+- **Severity follows the segment, not the capabilities.** STEMI, polytrauma, resuscitation and cardiogenic shock codes appear only in full-care hospitals, even when another hospital has a cath lab.
+- **About 30 PZC codes.** Urology, ENT, ophthalmology, dermatology (7xx) and transport codes (6xx) are not drawn, so the departments of those fields never get allocations; neither do allocations without a normalized indication or with a secondary indication.
+- **Few dependencies outside the indication.** Department, urgency, age, sex and flags follow from the indication. Occasion, infection, assignment, transport type, secondary transport and transport time do not (a traffic accident can bring a chest pain patient). The hour of day depends neither on the weekday nor on the case; transport time depends on the hospital's location only. Ages are uniform inside wide bands, for example 65–99.
+- **Closures are small and rare.** A closure event closes one to four departments from a fixed list. Events that close most departments of a hospital at once, closures by care level for the same department, and a closure frequency given as the share of closed department-hours are not modelled. `department_was_closed` is set only for allocations inside a generated interval.
+- **Fixed lookups.** Assignment, occasion and infection use one flat distribution per segment and only part of the catalog's values.
+
 ## Projection rebuild
 
 After bulk allocation fixture loads, the projection table is rebuilt automatically when `rebuild_projection` is enabled; `composer load-fixtures` then rebuilds the closure analysis, the closure volume projection and the materialized views (`SyntheticDataPipeline`). The fixture also aggregates the daily KPIs of every upload day; unlike the closure rebuild this works inside the fixture transaction. `app:generate:imports` and `app:generate:scenario` run all of this for the imports they add, including the KPIs of their upload days. Manual rebuild:
@@ -229,6 +313,8 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 - `Generator/HospitalProfileResolverTest.php` — cath lab and offered departments by tier and size, same per seed, resuscitation room shares, closure frequency
 - `Generator/ClosurePlannerTest.php` — valid intervals of at most 24 hours, all three event types, same per seed, only offered departments
 - `Generator/ScenarioGeneratorTest.php`, `ScenarioCatalogTest.php` — overlays add only their rows, are uploaded after their days and counted in the KPIs, MCI patients, flu closures, intensity, removal restores counts, projection and KPIs, refused twice, same plan per seed
+- `Generator/Catalog/InterchangeableCatalogTest.php` — a second synthetic catalog with other labels, public ids, insert order and two normalized indications for one code: the composed catalog keeps the synthetic hospitals, the check lists exactly the renamed names, the load stops before the first row without mapping, with mapping the rows use only the mapped catalog and are the same whatever the database ids; ambiguous aliases, pinned codes, unknown mapping entries, `app:generate:check-catalog`
+- `Generator/Catalog/CatalogMappingTest.php`, `GeneratorVocabularyTest.php` — mapping file format and errors, the vocabulary of every source
 - `Allocation/SyntheticAllocationGeneratorTest.php` — two generator runs on the same catalog give the same content, MCI cases in their month, cath lab cases only where the profile has one, allocations and closures only in offered departments, `department_was_closed` exactly during a closure
 - `Generator/*Test.php` — random streams, no global random functions
 - `Pattern/*Test.php` — default patterns, indication groups, coherence rules, no impossible combinations in a sample of 1,500 cases, codes with the same wording stay apart, only offered departments

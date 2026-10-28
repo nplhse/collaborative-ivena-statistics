@@ -107,6 +107,18 @@ php bin/console app:geo:geocode-hospitals   # only fills missing coordinates
 
 Then upload and import a real IVENA file. Stop the workers first; reset and restore refuse while queues hold messages, and they share one lock.
 
+### Local development with the private catalog and fictional hospitals
+
+A restore brings in the real hospitals. To keep the synthetic hospitals and use only the private catalog (departments, specialities, lookups, indications, groups), load a composed catalog instead; the generator then writes synthetic data against the private catalog:
+
+```bash
+cp /path/to/private-catalog/catalog.json var/reference/catalog.json
+FIXTURES_REFERENCE_PACKAGE=var/reference/catalog.json FIXTURES_CATALOG_MAPPING=var/reference/generator-mapping.json make reset
+php bin/console app:generate:check-catalog
+```
+
+The mapping file binds the generator's names to the private labels; see [fixtures.md](../../03-development/fixtures.md#generator-on-another-catalog). Both files stay in `var/reference/` and are never committed.
+
 ### Adding a few rows to an existing installation
 
 Export a partial package where the rows exist (`--types=occasion,infection`) and import it with `--mode=add` where they are missing. Rows that exist with another id are reported as conflicts; add those through the admin pages instead.
