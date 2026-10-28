@@ -57,7 +57,7 @@
 
 {% block content %}
     <div class="text-body-secondary mb-3">
-        {{ 'label.pagination_numbers'|trans({}, 'messages')({
+        {{ 'label.pagination_numbers'|trans({
             first: paginator.firstItemNumber|default(0)|number_format(0, ',', '.'),
             last: paginator.lastItemNumber|default(0)|number_format(0, ',', '.'),
             total: paginator.totalItems|default(0)|number_format(0, ',', '.'),
