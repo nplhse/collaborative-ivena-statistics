@@ -68,6 +68,14 @@ final readonly class SyntheticImportMarker
     /**
      * SQL LIKE pattern for every synthetic import of this type, hospital and month, whatever seed and source.
      */
+    /**
+     * LIKE pattern for every hospital's imports of a scenario with a seed and start day.
+     */
+    public static function likeScenarioAnyHospital(string $scenario, int $seed, string $startDay): string
+    {
+        return sprintf('synthetic/scenario/%s/seed-%d/%%/%s%%', $scenario, $seed, $startDay);
+    }
+
     public static function likeAnySeed(string $type, string $hospital, string $month): string
     {
         return sprintf('synthetic/%s/%%/%s/%s.csv', $type, $hospital, $month);
