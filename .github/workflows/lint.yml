@@ -32,85 +32,30 @@ jobs:
             DATABASE_URL: 'sqlite:///${{ github.workspace }}/var/lint.db'
             MESSENGER_TRANSPORT_DSN: sync://
             SYMFONY_DEPRECATIONS_HELPER: 'max[total]=0&verbose=1'
-        strategy:
-            fail-fast: true
-            matrix:
-                php-version: ['8.4']
+            # The Makefile defaults to the Symfony CLI, which the runner does not have.
+            CONSOLE: php bin/console
 
+        # Each check runs as its own step in the order of `make lint` (see Makefile). Every check runs
+        # even if an earlier one failed, so one run lists all problems; setup failures skip the checks.
         steps:
-            - name: "Checkout code"
+            - name: Checkout code
               uses: actions/checkout@v7
 
-            - name: "Install PHP with extensions"
+            - name: Install PHP with extensions
               uses: shivammathur/setup-php@v2
               with:
-                  coverage: "none"
+                  coverage: none
                   extensions: intl, pdo_sqlite
-                  php-version: ${{ matrix.php-version }}
+                  php-version: '8.4'
                   tools: composer:v2
 
-            - name: "Set composer cache directory"
-              id: composer-cache
-              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-            - name: "Cache composer"
-              uses: actions/cache@v6
+            # No Composer scripts: their cache:clear would build the dev container here; the phpstan target
+            # builds it when needed.
+            - name: Install dependencies
+              id: composer
+              uses: ramsey/composer-install@v4
               with:
-                  path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
-                  restore-keys: ${{ runner.os }}-composer-
-
-            - name: "Install dependencies"
-              run: composer install --ansi --no-interaction --no-progress
-
-            - name: Lint YAML files
-              run: ./bin/console lint:yaml config --parse-tags
-
-            - name: Lint Twig templates
-              run: ./bin/console lint:twig templates --env=prod
-
-            - name: Lint XLIFF translation files
-              run: ./bin/console lint:xliff translations
-
-            - name: Lint translation contents
-              run: |
-                  ./bin/console lint:translations --locale=en
-                  ./bin/console lint:translations --locale=de
-
-            - name: Check Symfony deprecations
-              run: ./bin/check-deprecations
-
-            - name: Check PHPUnit suite directories
-              run: ./bin/check-phpunit-suite-dirs
-
-            - name: Lint Composer config
-              run: composer validate --strict
-
-            - name: Check if any dependencies are compromised
-              run: composer audit
-
-            - name: Check for git merge conflicts
-              run: vendor/bin/swiss-knife check-conflicts . --exclude vendor --exclude var
-
-            - name: Check for commented-out code
-              run: vendor/bin/swiss-knife check-commented-code src tests
-
-            - name: Check for non-final classes
-              run: vendor/bin/swiss-knife finalize-classes src tests --dry-run --skip-mocked --skip-file 'src/**/Domain/Entity/*' --skip-file 'src/**/Infrastructure/Entity/*'
-
-            - name: Check if rector finds any issues
-              run: vendor/bin/rector --dry-run
-
-            - name: Lint PHP Code (PHP-CS-Fixer)
-              run: vendor/bin/php-cs-fixer fix --dry-run
-
-            - name: Run PHPStan
-              run: ./vendor/bin/phpstan analyze
-
-            - name: Run Deptrac (architecture report)
-              continue-on-error: true
-              run: vendor/bin/deptrac analyse --no-progress
-              # Report-only for now; remove continue-on-error when baseline violations are reduced (ADR 010).
+                  composer-options: --no-scripts
 
             - name: Set up Node.js
               uses: actions/setup-node@v7
@@ -119,7 +64,95 @@ jobs:
                   cache: npm
 
             - name: Install npm dependencies
+              id: npm
               run: npm ci
 
-            - name: Lint JavaScript
-              run: npm run check:js
+            # Tool caches: key changes with the lock file and the tool configs; restore takes the newest
+            # cache with the same prefix. Measured in #830: Lint 235 s → 54 s with a warm cache.
+            - name: Restore analysis caches
+              uses: actions/cache/restore@v6
+              with:
+                  path: |
+                      var/cache/rector
+                      var/cache/phpstan
+                      .php-cs-fixer.cache
+                      .twig-cs-fixer.cache
+                  key: lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-${{ github.run_id }}
+                  restore-keys: |
+                      lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-
+
+            - name: Check PHPUnit suite directories
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s check-phpunit-suite-dirs
+
+            - name: Lint Composer config
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s composer-validate
+
+            - name: Check if any dependencies are compromised
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              # CI only: needs the network, so it has no make target.
+              run: composer audit
+
+            - name: Check for git merge conflicts
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s check-conflicts
+
+            - name: Lint YAML files
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-yaml
+
+            - name: Check Symfony deprecations and lint the container
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-container
+
+            - name: Lint XLIFF translation files
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-xliff
+
+            - name: Lint translation contents
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-trans
+
+            - name: Lint Twig template syntax
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-templates
+
+            - name: Check for commented-out code and non-final classes
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s swiss-knife-check
+
+            - name: Check Rector
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s rector-check
+
+            - name: Lint PHP code style (PHP-CS-Fixer)
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-php
+
+            - name: Lint Twig code style (twig-cs-fixer)
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s lint-twig
+
+            - name: Lint JavaScript (Prettier + ESLint)
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' && steps.npm.outcome == 'success' }}
+              run: make -s lint-js
+
+            - name: Run PHPStan
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s phpstan
+
+            - name: Run Deptrac (architecture report, does not fail)
+              if: ${{ !cancelled() && steps.composer.outcome == 'success' }}
+              run: make -s deptrac
+
+            - name: Save analysis caches
+              if: ${{ !cancelled() }}
+              uses: actions/cache/save@v6
+              with:
+                  path: |
+                      var/cache/rector
+                      var/cache/phpstan
+                      .php-cs-fixer.cache
+                      .twig-cs-fixer.cache
+                  key: lint-${{ runner.os }}-${{ hashFiles('composer.lock', 'rector.php', 'phpstan.dist.neon', 'phpstan-baseline.neon', '.php-cs-fixer.dist.php', '.twig-cs-fixer.dist.php') }}-${{ github.run_id }}
