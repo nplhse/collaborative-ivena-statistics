@@ -90,6 +90,8 @@ plus a volume block per segment and an `archetypes` section. A **case archetype*
 - Without a file the generator uses the **code defaults**: a package built in PHP from coarse, hand-written shares (whole or five percent steps, common values only). It passes the same validation. Code defaults are never derived from real data.
 - Real patterns come only from the export of #797, under the privacy rules of ADR 020.
 
+**First version (#792):** the chain lives in code, without a package file. A segment pattern sets the mix of indications, occasions, assignments, infections, transport times and base flags. The indication is drawn first; department, urgency, age range, sex and the indication-specific flags follow from it (`IndicationGroups`, keyed by the longest matching PZC code prefix, for example `332` STEMI before `33` chest pain before `3` internal medicine). The speciality is the field of the drawn department. The package format, archetypes and a pattern source setting come with the export of #797, which is the first producer of a package; the obstetric codes need a lookup by code, since several of them share their wording.
+
 ### Coherence rules
 
 Rules in code apply after sampling, whatever the pattern source:
@@ -97,7 +99,8 @@ Rules in code apply after sampling, whatever the pattern source:
 - pregnant patients are female and aged 15 to 49,
 - paediatric departments get patients younger than 18,
 - CPR implies urgency 1 and a resuscitation room,
-- a department or resource the hospital does not offer is redrawn; a requested resource the hospital does not offer is dropped.
+- shock implies urgency 1,
+- a cath lab case needs a hospital with a cath lab (hospital profile); a department the hospital does not offer is redrawn once offered departments are part of the profile.
 
 ### Closures
 
