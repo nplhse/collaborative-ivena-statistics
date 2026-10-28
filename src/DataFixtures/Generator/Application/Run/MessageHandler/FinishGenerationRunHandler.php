@@ -8,6 +8,7 @@ use App\DataFixtures\Generator\Application\Run\GenerationRunHospitalStatus;
 use App\DataFixtures\Generator\Application\Run\GenerationRunNotifierInterface;
 use App\DataFixtures\Generator\Application\Run\GenerationRunReason;
 use App\DataFixtures\Generator\Application\Run\GenerationRunStage;
+use App\DataFixtures\Generator\Application\Run\GenerationRunTracker;
 use App\DataFixtures\Generator\Application\Run\Message\FinishGenerationRun;
 use App\DataFixtures\Generator\Application\SyntheticDataPipeline;
 use App\DataFixtures\Generator\Infrastructure\Run\GenerationRunStore;
@@ -48,8 +49,10 @@ final readonly class FinishGenerationRunHandler
                 array_push($importIds, ...$hospital->allocationImportIds);
             }
         }
-        if ([] !== $importIds) {
-            $this->pipeline->finishImports($importIds);
+        $removed = $run->settings[GenerationRunTracker::REMOVED_UPLOAD_DAYS] ?? [];
+        $removedDays = \is_array($removed) ? array_values(array_map(static fn (mixed $day): \DateTimeImmutable => new \DateTimeImmutable(\is_string($day) ? $day : ''), $removed)) : [];
+        if ([] !== $importIds || [] !== $removedDays) {
+            $this->pipeline->finishImports($importIds, $removedDays);
         }
 
         $status = $this->store->finish($message->runId, GenerationRunReason::HOSPITAL_FAILED, $this->clock->now());

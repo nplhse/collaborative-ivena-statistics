@@ -89,14 +89,20 @@ final readonly class SyntheticDataPipeline
 
     /**
      * The shared part of afterImports() once every hospital of a generation run is projected: materialized
-     * views and the daily KPIs of the upload days.
+     * views and the daily KPIs of the upload days, plus the upload days of imports the run deleted before.
      *
-     * @param list<int> $allocationImportIds
+     * @param list<int>                $allocationImportIds
+     * @param list<\DateTimeImmutable> $removedUploadDays
      */
-    public function finishImports(array $allocationImportIds): void
+    public function finishImports(array $allocationImportIds, array $removedUploadDays = []): void
     {
         $this->materializedViews->refresh();
-        $this->aggregateKpis($this->uploadDays($allocationImportIds));
+        $days = [];
+        foreach ([...$this->uploadDays($allocationImportIds), ...$removedUploadDays] as $day) {
+            $days[$day->format('Y-m-d')] = $day;
+        }
+        ksort($days);
+        $this->aggregateKpis(array_values($days));
     }
 
     /**

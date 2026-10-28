@@ -20,6 +20,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 final readonly class GenerationRunTracker
 {
+    /** Settings key with the upload days (Y-m-d) of imports the run deleted. */
+    public const string REMOVED_UPLOAD_DAYS = 'removed_upload_days';
+
     public function __construct(
         private GenerationRunStore $store,
         private MessageBusInterface $messageBus,
@@ -47,12 +50,57 @@ final readonly class GenerationRunTracker
     }
 
     /**
+     * A complete month the hospital already had, handed to the asynchronous stage for its projections without
+     * counting as generated (#877).
+     */
+    public function monthKept(string $runId, int $hospitalId, int $allocationImportId, int $closureImportId): void
+    {
+        $this->store->monthKept($runId, $hospitalId, $allocationImportId, $closureImportId, $this->clock->now());
+    }
+
+    /**
+     * Upload days of imports the run deleted before generating again; the final stage aggregates their KPIs
+     * together with those of the new imports.
+     *
+     * @param list<string> $days Y-m-d
+     */
+    public function importsRemoved(string $runId, array $days): void
+    {
+        if ([] === $days) {
+            return;
+        }
+        $known = $this->get($runId)?->settings[self::REMOVED_UPLOAD_DAYS] ?? [];
+        $days = array_values(array_unique([...(\is_array($known) ? array_map(strval(...), $known) : []), ...$days]));
+        sort($days);
+        $this->store->mergeSettings($runId, [self::REMOVED_UPLOAD_DAYS => $days], $this->clock->now());
+    }
+
+    /**
+     * @param list<int> $hospitalIds
+     *
+     * @return list<int> hospitals another run is still generating (runs idle for 30 minutes count as abandoned)
+     */
+    public function hospitalsBeingGenerated(array $hospitalIds): array
+    {
+        return $this->store->hospitalsBeingGenerated($hospitalIds, $this->clock->now()->modify('-30 minutes'));
+    }
+
+    /**
      * The hospital gets no asynchronous stage; months it generated before stay in the database and are listed
      * by `app:generate:run:show`.
      */
     public function hospitalFailed(string $runId, int $hospitalId, string $reasonCode, ?string $message = null): void
     {
         $this->store->failHospital($runId, $hospitalId, $reasonCode, $message, $this->clock->now());
+    }
+
+    /**
+     * Like hospitalFailed(), for a hospital whose months of this run were deleted again (#877): its counters and
+     * imports are cleared, so neither the asynchronous stage nor `app:generate:run:retry` projects it.
+     */
+    public function hospitalRolledBack(string $runId, int $hospitalId, string $reasonCode, ?string $message = null): void
+    {
+        $this->store->failHospital($runId, $hospitalId, $reasonCode, $message, $this->clock->now(), discardGenerated: true);
     }
 
     /**

@@ -120,6 +120,45 @@ technical record with a retention (ADR 018/019), a run is the summary the wizard
   and no service, schedule or route there refers to them. Without a run, generation keeps the synchronous
   `SyntheticDataPipeline::afterImports()` (fixture load, `make reset`, `app:generate:imports` without `--async`).
 
+### Dataset engine (#877)
+
+The demo wizard (#791 step 4) and `app:generate:dataset` generate through one service,
+`DatasetGenerator` (ADR 022, amendment #877), with two entry points that differ only in how the hospital
+comes to exist: a new synthetic hospital is created by the wizard first, an existing hospital of the demo
+database (prepared name, location, isochrones) is used as it is. The engine never writes hospital master data,
+never creates users or access grants, and never touches real imports.
+
+```php
+$plan = $datasets->prepare(new DatasetRequest(
+    scope: GenerationRunScope::One,                      // One, Selected or AllParticipating
+    hospitalIds: [$hospitalId],
+    period: DatasetPeriod::demoDefault($clock, 12),      // up to the month before last
+    existing: ExistingData::Refuse,                      // Refuse (default), Fill or Replace
+    selections: [$hospitalId => new ProfileSelection(annualVolume: 24000, closureShare: 0.05)],
+    trigger: GenerationRunTrigger::Wizard,
+    notify: true,
+    initiatedById: $userId,
+));                                                      // read-only: per hospital ready or blocked, months, planned allocations
+$runId = $datasets->start($plan->withoutBlocked());      // records the run with every setting
+$result = $datasets->generate($runId);                   // synchronous generation, then the asynchronous stage
+$tracker->get($runId);                                   // progress and final state for the wizard
+```
+
+- **Existing hospital:** the selection carries only what the wizard asks for (annual volume, closure share);
+  tier, size, beds and departments come from the hospital. **New hospital:** the wizard may also set tier,
+  size, beds or a configuration.
+- **Prerequisites the wizard sets up before `prepare()`:** participation, an owner with `ROLE_PARTICIPANT`
+  (the demo participant), dispatch area and state. `prepare()` blocks a hospital without them and names what
+  is missing.
+- **Period:** `DatasetPeriod::demoDefault()` ends with the month before last, so the last complete month stays
+  for the CSV upload below.
+- `generate()` takes as long as the months take. It can run in a console process or a message handler; the
+  wizard has the run id from `start()` and polls the run. Hospitals that fail are rolled back and can be
+  generated again with `DatasetGenerator::retryRequest($runId)` (`app:generate:dataset --retry`).
+- **Real identity, synthetic records:** an existing hospital keeps its real name and location while all its
+  operational data is synthetic and marked as such (marker paths). How the UI tells the two apart when
+  showing volumes or closure statistics is decided with the wizard (#791 step 4).
+
 ### Demo CSV upload (#791 step 5)
 
 The presenter shows a monthly upload with a real round trip instead of a demo-specific import

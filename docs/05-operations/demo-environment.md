@@ -111,12 +111,16 @@ basemap off for good. Details: [hospital-geodata.md](hospital-geodata.md#prepare
 
 ## Follow a generation run
 
-Synthetic data generated in the demo (by the hospital wizard, a later step of #791) is tracked as a generation run: the data is written synchronously, the projections follow in the worker (`make demo-consume`), and the participant gets an in-app notification once everything is done. Check the progress, including failed or open hospitals:
+Synthetic data generated in the demo (by the hospital wizard, a later step of #791, or `app:generate:dataset`) is tracked as a generation run: the data is written synchronously, the projections follow in the worker (`make demo-consume`), and the participant gets an in-app notification once everything is done. Check the progress, including failed or open hospitals:
 
 ```bash
+APP_ENV=demo php bin/console app:generate:dataset --hospital=<public id> --annual-volume=24000 --closure-share=0.05 --dry-run
+APP_ENV=demo php bin/console app:generate:dataset --hospital=<public id> --annual-volume=24000 --closure-share=0.05 --notify
 APP_ENV=demo php bin/console app:generate:run:list
 APP_ENV=demo php bin/console app:generate:run:show
 ```
+
+Without `--from`/`--to` the dataset ends with the month before last, so the last complete month is left for the CSV upload below. A hospital that already has generated data is refused unless `--existing=fill` or `--existing=replace` is given; real uploads are never touched. Details: [fixtures.md](../03-development/fixtures.md#datasets-for-several-hospitals-and-months).
 
 See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
 
