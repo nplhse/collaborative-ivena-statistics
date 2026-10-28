@@ -167,6 +167,20 @@ The follow-ups of #792 changed the first version as described above:
 
 The default dataset of `make reset` changes with it: department mix, obstetric cases and, from `medium` on, scenario data. Tests use `minimal` without scenarios.
 
+## Amendment (October 2026, #883): pattern package format
+
+#883 (split from #797) builds the package format, its validation and the code defaults as a package. It needs no real data. The export of real patterns and the privacy review stay with #797.
+
+- **Format v1** `ivena-distribution-patterns` follows the first version of the chain as it lives in code, not the full chain described under *Pattern packages*: `segments` (one per segment the generator uses: indication mix, occasions, assignments, infections, secondary transports, transport types, hour of day, base flags, transport time percentiles), `indication_groups` keyed by PZC code prefix (departments, urgency, age ranges, female share, resuscitation room factor, flags) and a `fallback_group`. Time by month and weekday, the volume block and archetypes are not part of v1; adding them raises the version. The reader accepts only the current format and version.
+- **`meta`**: format, version, `created_at`, `source` (`defaults`, `export`, …), optional `app_version`, `catalog` and `notes`, `counts` (segments, indication groups, indications) and the SHA-256 checksum over everything except `meta`. The writer is deterministic (same package, same bytes).
+- **Validation** runs in four stages, each error with the path of table and key (`indication_groups.332.departments`): format and version; structure on the decoded JSON with Validator constraints (known and required keys, numbers, shares between 0 and 1); package rules as a class constraint (segments, key formats, known flags, sums of 1 within ±0.002 so shares rounded to four places pass, ordered percentiles, counts, checksum); and, when asked, the catalog check: every PZC code and lookup name exists in the reference catalog of the database. The tables are keyed by data, so the structure is checked on the array before the DTOs are built, unlike the reference package, which denormalizes into DTOs first.
+- **Code defaults as a package**: `DefaultPatternPackage` builds the package from `DefaultDistributionPatterns` and `IndicationGroups`; they pass the same validation and round-trip through writer and reader unchanged. The PHP classes stay the source of the defaults. `app:patterns:write-defaults` and `app:patterns:validate` (dev and test) write and check packages in `var/patterns/`.
+- **Placement**: the package classes live in `src/DataFixtures/Pattern/Package/` and use no dev-only dependencies (no Foundry, Faker or fixtures bundle). The department-to-speciality mapping the sampler needs comes from a Faker provider, so the package validator does not check it; the generator checks it when it loads a package.
+- **Structural patterns (#876)** get a package type of their own, `ivena-structure-patterns`, with the same `meta` shape and the same validation approach, versioned independently.
+- **Generator use** follows in a second step of #883: a pattern source setting (`defaults` or a package in `var/patterns/`) for the fixture and the `app:generate:*` commands, validation before anything is written, and the source in the import marker.
+
+**Open for #797:** ADR 020 lets the export write `var/patterns` in production (a Deployer shared directory), while this ADR places the pattern package in the dev/test module `src/DataFixtures/`. #797 decides whether the package classes move to code that production loads, or whether the export runs in development against a copy of the production data.
+
 ## Consequences
 
 - A fresh clone gets a multi-hospital dataset with closures and coherent allocations from one `make reset`, and every statistics page works on it.
@@ -193,4 +207,4 @@ The default dataset of `make reset` changes with it: department mix, obstetric c
 - ADR 015 (closure volume metrics, export periods)
 - ADR 020 (portable reference catalog, synthetic catalog, pattern direction and privacy rules)
 - ADR 021 (wall clock access)
-- Issues #740, #791, #792, #797, #863, #864, #865, #866
+- Issues #740, #791, #792, #797, #863, #864, #865, #866, #876, #883

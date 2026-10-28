@@ -222,7 +222,7 @@ final class IndicationGroups
     ];
 
     /** Codes without a group of their own behave like internal medicine. */
-    private const string FALLBACK = '3';
+    public const string FALLBACK = '3';
 
     /**
      * @return Group
