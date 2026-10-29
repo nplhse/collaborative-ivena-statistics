@@ -37,10 +37,10 @@ web_url: https://your-username.uberspace.de
 APP_URL=https://your-username.uberspace.de
 ```
 
-After saving, clear the prod cache and restart the Messenger worker:
+After saving, clear the prod cache and restart the Messenger worker from the current release ([paths on the server](deployment.md#paths-on-the-server)):
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 php bin/console cache:clear --env=prod
 systemctl --user restart messenger
 ```
@@ -48,7 +48,7 @@ systemctl --user restart messenger
 **Verify `APP_URL` is active:**
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 php bin/console debug:config framework router --env=prod | grep default_uri
 ```
 

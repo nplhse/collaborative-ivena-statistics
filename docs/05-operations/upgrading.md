@@ -8,7 +8,7 @@ Deployer runs the database migrations and restarts the worker on every deploy ([
 cd <deploy_path>/current
 ```
 
-`<deploy_path>` is the `deploy_path` of the host in your `hosts.yaml`. On Uberspace u8 it is usually `~/www` ([hosts.yaml.example](../../hosts.yaml.example)).
+`<deploy_path>` is the `deploy_path` of the host in your `hosts.yaml`, on Uberspace u8 usually `~/www` ([paths on the server](deployment.md#paths-on-the-server)).
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 

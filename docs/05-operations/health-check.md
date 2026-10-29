@@ -82,9 +82,9 @@ For external uptime monitoring (Sentry Uptime or similar), point the monitor at 
 
 Use this when `/health` returns `degraded` or when routine checks show failed messages.
 
-1. Inspect failed messages:
+1. Inspect failed messages from the current release ([paths on the server](deployment.md#paths-on-the-server)):
    ```bash
-   cd ~/www/current
+   cd <deploy_path>/current
    php bin/console messenger:failed:show
    ```
 2. Identify the failing message class and error details.
@@ -106,7 +106,7 @@ If failures keep reappearing, escalate as an incident and keep the failed queue 
 1. Check that the scheduler worker runs (the daily measurement is a scheduled message).
 2. Measure by hand and look at the output for failed parts:
    ```bash
-   cd ~/www/current
+   cd <deploy_path>/current
    php bin/console app:storage:analyze --persist
    ```
 3. Re-check `curl -sS https://<host>/health | jq`.
