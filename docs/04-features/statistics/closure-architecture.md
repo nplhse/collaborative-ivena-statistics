@@ -2,8 +2,7 @@
 
 Imported closure rows, analysis intervals, and events are three different things.
 `closure_interval` stays the import protocol. Analytics and the volume projection
-read the derived tables. The October 2026 investigation that led here is
-[closure-architecture-assessment.md](closure-architecture-assessment.md).
+read the derived tables.
 
 ## Three levels
 
