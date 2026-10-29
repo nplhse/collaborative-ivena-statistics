@@ -22,7 +22,6 @@
 | `MAILER_DSN` | Mail transport | required in production |
 | `MAILER_FROM` | Sender address | transactional mail |
 | `MAILER_REPLY_TO` | Reply-to address | optional |
-| `DEMO_MAIL_CATCHER` | Demo only: send mail to the local mail catcher | `0` (default, mail off) or `1` (`smtp://127.0.0.1:1025`); other values fail. `MAILER_DSN` has no effect in the demo. See [../05-operations/demo-environment.md](../05-operations/demo-environment.md#preview-demo-emails). |
 | `APP_URL` | Public base URL | required in prod for correct links |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
 | `APP_CONTENT_DEFAULT_LOCALE` | CMS page content fallback locale | default `en`; set `de` in production |

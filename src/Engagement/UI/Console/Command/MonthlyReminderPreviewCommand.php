@@ -36,7 +36,6 @@ final readonly class MonthlyReminderPreviewCommand
         private TranslatorInterface $translator,
         private LocalMailCatcher $mailCatcher,
         #[Autowire(param: 'app.mailer_dsn')] private string $mailerDsn,
-        #[Autowire(param: 'kernel.environment')] private string $appEnvironment,
     ) {
     }
 
@@ -57,14 +56,9 @@ final readonly class MonthlyReminderPreviewCommand
             return Command::FAILURE;
         }
 
-        // Delivers to the local mail catcher: always in dev, in the demo only with DEMO_MAIL_CATCHER=1.
+        // Dev and demo deliver to the local mail catcher (Mailpit).
         $catcherMode = LocalMailCatcher::receives($this->mailerDsn);
         if ($input->send) {
-            if ('demo' === $this->appEnvironment && !$catcherMode) {
-                $io->error('Mail is off in the demo environment; nothing was sent. Start the mail catcher (docker compose up -d mailer) and run the command with DEMO_MAIL_CATCHER=1, e.g. make demo-reminder HOSPITAL=<id>.');
-
-                return Command::FAILURE;
-            }
             if ($catcherMode && !$this->mailCatcher->isReachable()) {
                 $io->error(sprintf('Mailpit is not reachable on %s:%d. Start it with: docker compose up -d mailer', LocalMailCatcher::HOST, LocalMailCatcher::SMTP_PORT));
 

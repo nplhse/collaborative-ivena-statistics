@@ -20,7 +20,7 @@ final class DemoEnvironmentGuardTest extends TestCase
     #[DoesNotPerformAssertions]
     public function testLetsCommandsAndRequestsReachALocalDemoDatabase(): void
     {
-        $guard = new DemoEnvironmentGuard(self::DEMO_URL, 'null://null');
+        $guard = new DemoEnvironmentGuard(self::DEMO_URL);
 
         $guard->onConsoleCommand();
         $guard->onKernelRequest($this->requestEvent(HttpKernelInterface::MAIN_REQUEST));
@@ -28,7 +28,7 @@ final class DemoEnvironmentGuardTest extends TestCase
 
     public function testStopsConsoleCommandsOnAnotherDatabase(): void
     {
-        $guard = new DemoEnvironmentGuard(self::DEV_URL, 'null://null');
+        $guard = new DemoEnvironmentGuard(self::DEV_URL);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('The demo environment refuses this database: database name "app" does not end in "_demo".');
@@ -38,7 +38,7 @@ final class DemoEnvironmentGuardTest extends TestCase
 
     public function testStopsMainRequestsOnARemoteDatabase(): void
     {
-        $guard = new DemoEnvironmentGuard('postgresql://app:password@db.example.org:5432/app_demo?serverVersion=18', 'null://null');
+        $guard = new DemoEnvironmentGuard('postgresql://app:password@db.example.org:5432/app_demo?serverVersion=18');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('database host "db.example.org" is not local');
@@ -47,27 +47,9 @@ final class DemoEnvironmentGuardTest extends TestCase
     }
 
     #[DoesNotPerformAssertions]
-    public function testLetsTheDemoDeliverToTheLocalMailCatcher(): void
-    {
-        $guard = new DemoEnvironmentGuard(self::DEMO_URL, 'smtp://127.0.0.1:1025');
-
-        $guard->onConsoleCommand();
-    }
-
-    public function testStopsCommandsWithAnotherMailerDsn(): void
-    {
-        $guard = new DemoEnvironmentGuard(self::DEMO_URL, 'smtp://mail.example.org:25');
-
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('The demo environment only sends mail to the local mail catcher.');
-
-        $guard->onConsoleCommand();
-    }
-
-    #[DoesNotPerformAssertions]
     public function testLeavesSubRequestsToTheMainRequestCheck(): void
     {
-        $guard = new DemoEnvironmentGuard(self::DEV_URL, 'null://null');
+        $guard = new DemoEnvironmentGuard(self::DEV_URL);
 
         $guard->onKernelRequest($this->requestEvent(HttpKernelInterface::SUB_REQUEST));
     }

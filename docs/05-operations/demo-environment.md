@@ -10,7 +10,7 @@ A local, offline demo of the platform with synthetic data only (issue #791, [ADR
 | Imports, uploads | `var/imports`, `public/uploads/media` | `var/demo/imports`, `public/uploads/demo/media` |
 | Cookies | `PHPSESSID`, `consent_subject_id`, … | `demo_PHPSESSID`, `demo_consent_subject_id`, … |
 | Debug mode, profiler | on | off |
-| Mail | Mailpit (`smtp://127.0.0.1:1025`) | off; opt-in `DEMO_MAIL_CATCHER=1` sends to the local Mailpit only ([Preview demo emails](#preview-demo-emails)) |
+| Mail | Mailpit (`smtp://127.0.0.1:1025`) | Mailpit (`smtp://127.0.0.1:1025`), fixed ([Preview demo emails](#preview-demo-emails)) |
 | Sentry, OpenRouteService | configurable | off |
 
 ## Prerequisites
@@ -93,13 +93,14 @@ Browsers keep cookies per host, not per port: dev on 127.0.0.1:8000 and the demo
 
 ## Local overrides
 
-Put local changes into `.env.demo.local` (not committed), for example another password or database name (it must still end in `_demo`). Sentry is switched off in `config/packages/demo/framework.yaml` and cannot be turned on with variables. Mail is off as well; `MAILER_DSN` has no effect in the demo, and the only switch is `DEMO_MAIL_CATCHER=1`, which sends to the local mail catcher (see below).
+Put local changes into `.env.demo.local` (not committed), for example another password or database name (it must still end in `_demo`). Sentry is switched off in `config/packages/demo/framework.yaml` and cannot be turned on with variables. Mail always goes to the local Mailpit, also fixed there; `MAILER_DSN` has no effect in the demo (see below).
 
 ## Preview demo emails
 
-The demo can show the emails it sends (for example the monthly submission reminder) in Mailpit, the
-local mail catcher of `compose.override.yaml`. Nothing leaves the machine: with the opt-in the demo
-delivers to `smtp://127.0.0.1:1025` only, a value fixed in the code.
+Like dev, the demo sends all mail (monthly reminders, notification emails, the reminder buttons in
+the admin area) to Mailpit, the local mail catcher of `compose.override.yaml`. The address
+`smtp://127.0.0.1:1025` is fixed in `config/packages/demo/framework.yaml`, so nothing leaves the
+machine.
 
 1. Start Mailpit (SMTP on port 1025, web UI on port 8025):
 
@@ -115,28 +116,21 @@ delivers to `smtp://127.0.0.1:1025` only, a value fixed in the code.
 
    The id is also in the URL of the hospital in the admin area (EasyAdmin).
 
-3. Send the monthly reminder of that hospital to Mailpit:
+3. Send the monthly reminder of that hospital:
 
    ```bash
    make demo-reminder HOSPITAL=<id>
    ```
 
-   This runs `APP_ENV=demo DEMO_MAIL_CATCHER=1 php bin/console app:reminder:preview --hospital-id=<id> --send`.
-   The reminder follows the owner's notification settings; an owner who switched it off gets
-   nothing, and the command says so.
+   This runs `APP_ENV=demo php bin/console app:reminder:preview --hospital-id=<id> --send`. The
+   reminder follows the owner's notification settings; an owner who switched it off gets nothing,
+   and the command says so.
 
 4. Open http://127.0.0.1:8025. The command prints this URL after sending.
 
-To let the whole demo send mail to Mailpit (for example the reminder buttons in the admin area or
-notification emails), start it with the opt-in: `DEMO_MAIL_CATCHER=1 make demo-start`, or put
-`DEMO_MAIL_CATCHER=1` into `.env.demo.local`.
-
-- `DEMO_MAIL_CATCHER` accepts `0` (default, mail off) and `1` (Mailpit) only; any other value stops
-  every demo request and command with an error.
-- Without the opt-in, `app:reminder:preview --send` refuses in the demo, sends nothing and points to
-  `DEMO_MAIL_CATCHER=1`. The preview without `--send` (HTML to the terminal or `--output`) needs no
-  mail at all.
-- With the opt-in but without Mailpit running, the command stops with "Mailpit is not reachable".
+Without Mailpit, `app:reminder:preview --send` stops with "Mailpit is not reachable", and mail sent
+by the application fails as in dev. The preview without `--send` (HTML to the terminal or `--output`)
+needs no Mailpit.
 
 ## Geography
 
@@ -181,7 +175,6 @@ See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-ru
 | Config or code change has no effect, or a `TypeError` in a container class | Demo runs without debug mode and keeps its compiled container | Restart `make demo-start` (it deletes `var/cache/demo`) |
 | Page without styles | Assets not compiled | `make demo-start` compiles them; run `importmap:install` while online |
 | Imports stay "pending" | No worker | `make demo-consume` |
-| `app:reminder:preview --send` says mail is off | Opt-in not set | `make demo-reminder HOSPITAL=<id>` ([Preview demo emails](#preview-demo-emails)) |
-| "DEMO_MAIL_CATCHER must be "0" (mail off) or "1"" | Another value in the environment or `.env.demo.local` | Set it to `0` or `1` |
+| "Mailpit is not reachable", or mail errors in the demo | Mailpit not running | `docker compose up -d mailer` ([Preview demo emails](#preview-demo-emails)) |
 | A generation run stays in `projecting` (`app:generate:run:show` says stale) | No worker, or a hospital failed | `make demo-consume`; then `APP_ENV=demo php bin/console app:generate:run:retry <run>` |
 | Cookie banner does not close, login fails with a CSRF or cookie consent error | Old cookies for 127.0.0.1 (from dev with TLS or an older demo build) | Delete the cookies for 127.0.0.1 in the browser, or open the demo as http://localhost:8001 |

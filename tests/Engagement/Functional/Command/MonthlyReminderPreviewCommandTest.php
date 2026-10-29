@@ -195,22 +195,6 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         }
     }
 
-    public function testDemoWithoutMailOptInRefusesToSendAndSendsNothing(): void
-    {
-        self::bootKernel();
-        self::mockTime(new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin')));
-        $hospital = $this->createHospital(optedOut: false);
-        $tester = new CommandTester($this->command('demo', 'null://null', new LocalMailCatcher()));
-
-        self::assertSame(Command::FAILURE, $tester->execute([
-            '--hospital-id' => (string) $hospital->getId(),
-            '--send' => true,
-        ]));
-        self::assertStringContainsString('Mail is off in the demo environment', $tester->getDisplay());
-        self::assertStringContainsString('DEMO_MAIL_CATCHER=1', $tester->getDisplay());
-        self::assertEmailCount(0);
-    }
-
     public function testCatcherModeSendsTheReminderAndPrintsTheWebUiUrl(): void
     {
         self::bootKernel();
@@ -221,7 +205,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         self::assertNotFalse($catcherSmtp);
 
         try {
-            $tester = new CommandTester($this->command('demo', 'smtp://127.0.0.1:1025', new LocalMailCatcher($this->port($catcherSmtp))));
+            $tester = new CommandTester($this->command('smtp://127.0.0.1:1025', new LocalMailCatcher($this->port($catcherSmtp))));
 
             self::assertSame(Command::SUCCESS, $tester->execute([
                 '--hospital-id' => (string) $hospital->getId(),
@@ -245,7 +229,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         self::assertNotFalse($closed);
         $closedPort = $this->port($closed);
         fclose($closed);
-        $tester = new CommandTester($this->command('dev', 'smtp://127.0.0.1:1025', new LocalMailCatcher($closedPort)));
+        $tester = new CommandTester($this->command('smtp://127.0.0.1:1025', new LocalMailCatcher($closedPort)));
 
         self::assertSame(Command::FAILURE, $tester->execute([
             '--hospital-id' => (string) $hospital->getId(),
@@ -255,7 +239,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         self::assertEmailCount(0);
     }
 
-    private function command(string $environment, string $mailerDsn, LocalMailCatcher $mailCatcher): MonthlyReminderPreviewCommand
+    private function command(string $mailerDsn, LocalMailCatcher $mailCatcher): MonthlyReminderPreviewCommand
     {
         $container = self::getContainer();
 
@@ -268,7 +252,6 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
             $container->get(TranslatorInterface::class),
             $mailCatcher,
             $mailerDsn,
-            $environment,
         );
     }
 

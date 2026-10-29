@@ -1,11 +1,8 @@
 # Demo environment (ADR 023). Fixed here, not through env vars, so a variable set on the machine
-# cannot switch outbound mail or error reporting back on (the mail opt-in below only reaches the
-# local mail catcher).
+# cannot send mail to a real server or switch error reporting back on.
 parameters:
-    env(DEMO_MAIL_CATCHER): '0'
-    # Mail is off. The only opt-in is DEMO_MAIL_CATCHER=1: delivery to the local mail catcher on
-    # smtp://127.0.0.1:1025 (DemoMailerDsnEnvVarProcessor); no other DSN can be set.
-    app.mailer_dsn: '%env(demo_mailer_dsn:DEMO_MAIL_CATCHER)%'
+    # Like dev: all mail goes to the local Mailpit (compose.override.yaml), never to a real server.
+    app.mailer_dsn: 'smtp://127.0.0.1:1025'
 
 framework:
     # Own session cookie: cookies are per host, not per port, and a secure dev cookie on
@@ -14,7 +11,7 @@ framework:
         name: 'demo_PHPSESSID'
     messenger:
         routing:
-            # Like dev: mail (off, or to the local catcher) and notification delivery run without a worker.
+            # Like dev: mail (to Mailpit) and notification delivery run without a worker.
             Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
             App\Notification\Application\Message\DeliverNotificationMessage: sync
             # Background stages of generation runs (ADR 023): the wizard returns, the demo worker projects.

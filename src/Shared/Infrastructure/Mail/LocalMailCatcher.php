@@ -6,7 +6,7 @@ namespace App\Shared\Infrastructure\Mail;
 
 /**
  * The local mail catcher of compose.override.yaml (Mailpit): SMTP and web UI on this machine only.
- * Dev always delivers to it; the demo only with DEMO_MAIL_CATCHER=1 (ADR 023).
+ * Dev and demo deliver all mail to it (ADR 023).
  */
 final readonly class LocalMailCatcher
 {

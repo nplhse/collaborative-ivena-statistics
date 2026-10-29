@@ -175,16 +175,15 @@ demo-start: ## Serve the demo on http://127.0.0.1:8001 (DEMO_PORT=; built-in PHP
 	@rm -rf var/cache/demo
 	@$(DEMO_CONSOLE) asset-map:compile
 	@echo "Demo: http://127.0.0.1:$(DEMO_PORT)  (worker: make demo-consume)"
-	@echo "Mail preview: docker compose up -d mailer, DEMO_MAIL_CATCHER=1 make demo-start or make demo-reminder HOSPITAL=<id>, then http://127.0.0.1:8025"
+	@echo "Mail: docker compose up -d mailer, then http://127.0.0.1:8025  (reminder: make demo-reminder HOSPITAL=<id>)"
 	@PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:$(DEMO_PORT) -t public bin/demo-router.php
 
 demo-consume: ## Run the Messenger worker of the demo environment
 	@$(DEMO_CONSOLE) messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv
 
-# Opt-in DEMO_MAIL_CATCHER=1 delivers to the local mail catcher only (smtp://127.0.0.1:1025).
-demo-reminder: ## Send the monthly reminder of a demo hospital to the local mail catcher (HOSPITAL=<id>; needs: docker compose up -d mailer)
+demo-reminder: ## Send the monthly reminder of a demo hospital to Mailpit (HOSPITAL=<id>; needs: docker compose up -d mailer)
 	@if [ -z "$(HOSPITAL)" ]; then echo "Usage: make demo-reminder HOSPITAL=<hospital id>" >&2; exit 1; fi
-	@DEMO_MAIL_CATCHER=1 $(DEMO_CONSOLE) app:reminder:preview --hospital-id=$(HOSPITAL) --send
+	@$(DEMO_CONSOLE) app:reminder:preview --hospital-id=$(HOSPITAL) --send
 
 ## —— Backups 💾 ———————————————————————————————————————————————————————————————
 backup-db: ## PostgreSQL dump to var/backups (uses Docker database service when running)
