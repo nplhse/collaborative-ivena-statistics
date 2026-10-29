@@ -305,6 +305,10 @@ final readonly class SyntheticReferenceCatalogBuilder
         $faker->addProvider(new Hospital($faker));
         $faker->addProvider(new Indication($faker));
         $faker->addProvider(new MedicalSpecialities($faker));
+        // Faker draws from the global mt_rand state, and Generator::__destruct() reseeds it at random.
+        // Providers and their generator reference each other, so a discarded generator is only freed
+        // by the cycle collector, which may run in the middle of this build. Free them before seeding.
+        gc_collect_cycles();
         $faker->seed($seed);
 
         /** @var Generator&HospitalFakerMethods&IndicationFakerMethods&MedicalSpecialityFakerMethods $typed */
