@@ -146,6 +146,8 @@ final class IndicationProviderTest extends TestCase
         $faker->addProvider(new Indication($faker));
         $faker->addProvider(new MedicalSpecialities($faker));
         $faker->addProvider(new SecondaryTransport($faker));
+        // Free discarded generators first: Generator::__destruct() reseeds the global state at random (#891).
+        gc_collect_cycles();
         $faker->seed($seed);
 
         return $faker;

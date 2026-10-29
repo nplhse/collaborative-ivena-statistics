@@ -495,6 +495,8 @@ Reference fixture coverage lives under `tests/DataFixtures/`:
 
 Provider tests live in `tests/Allocation/Unit/Infrastructure/Faker/`.
 
+The Faker providers draw from the global `mt_rand` state, unlike the generator's seeded streams. Faker's `Generator::__destruct()` reseeds that state at random, and a discarded generator is only freed by the cycle collector, because it and its providers reference each other. Code that seeds a generator and expects repeatable values (`SyntheticReferenceCatalogBuilder`, the provider tests) therefore calls `gc_collect_cycles()` right before `seed()` (#891).
+
 Run:
 
 ```bash

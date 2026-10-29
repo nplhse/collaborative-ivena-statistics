@@ -127,6 +127,9 @@ final class HesseGeographyTest extends TestCase
         $faker = $this->faker($seed);
         $profiles = [];
         foreach (['Kassel', 'Frankfurt', 'Vogelsberg', 'Offenbach'] as $area) {
+            // The cycle collector may run at any point; force it here so a generator discarded by an
+            // earlier call reseeds the global state in the middle of this one if it was not freed (#891).
+            gc_collect_cycles();
             $profiles[] = $faker->hospitalProfile($area);
         }
 
@@ -137,6 +140,8 @@ final class HesseGeographyTest extends TestCase
     {
         $faker = Factory::create('de_DE');
         $faker->addProvider(new Hospital($faker));
+        // Free discarded generators first: Generator::__destruct() reseeds the global state at random (#891).
+        gc_collect_cycles();
         $faker->seed($seed);
 
         return $faker;
