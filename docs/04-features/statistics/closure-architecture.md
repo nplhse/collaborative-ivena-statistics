@@ -208,6 +208,11 @@ console progress shows; a console rebuild takes requests it already covers
 before its first pass. The previous table stays readable until commit. A full
 rebuild swaps the side table. A partial rebuild replaces only the affected
 hospitals in one transaction. An error drops the build table.
+A writer that deletes and writes closure data of many imports in a row (the
+synthetic data generator) holds the same lock through `whileRebuildsPaused()`:
+the worker waits instead of deadlocking with it on `closure_analysis_source`,
+and requests made in the writing process stay open for its own rebuild
+afterwards.
 `app:statistics:rebuild-closure-volume-projection` rebuilds analysis and volume
 for every hospital, or for the hospitals given with `--hospital`. There is no
 projection version. `--reference-window=backward` uses all reference weeks

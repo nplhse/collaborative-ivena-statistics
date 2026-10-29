@@ -104,7 +104,7 @@ final class ResetOperationalDataCommandTest extends KernelTestCase
         self::assertStringContainsString('Another restore or development reset is running', $this->flat($tester->getDisplay()));
     }
 
-    public function testRefusesOutsideDevelopmentAndTest(): void
+    public function testRefusesOutsideDevelopmentTestAndDemo(): void
     {
         $application = new Application(self::bootKernel());
         /** @var OperationalDataReset $reset */
@@ -118,7 +118,7 @@ final class ResetOperationalDataCommandTest extends KernelTestCase
         $exitCode = $tester->execute(['--force' => true]);
 
         self::assertSame(Command::FAILURE, $exitCode);
-        self::assertStringContainsString('only runs in dev and test, not in "prod"', $this->flat($tester->getDisplay()));
+        self::assertStringContainsString('only runs in dev, test, demo, not in "prod"', $this->flat($tester->getDisplay()));
     }
 
     private function operationalData(): void

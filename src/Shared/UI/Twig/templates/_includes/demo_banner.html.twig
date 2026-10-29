@@ -1,0 +1,7 @@
+{# Shown only in the demo environment (app_demo_mode, ADR 023). The cones are decorative; the text is the message. #}
+<div id="demo-environment-banner" class="alert alert-warning rounded-0 m-0 py-2 text-center" role="status">
+    <twig:ux:icon name="tabler:traffic-cone" width="1.15em" height="1.15em" class="align-text-bottom me-1" aria-hidden="true" />
+    <strong>{{ 'demo.banner.title'|trans({}, 'shared') }}</strong>
+    {{ 'demo.banner.text'|trans({}, 'shared') }}
+    <twig:ux:icon name="tabler:traffic-cone" width="1.15em" height="1.15em" class="align-text-bottom ms-1" aria-hidden="true" />
+</div>

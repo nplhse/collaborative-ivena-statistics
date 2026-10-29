@@ -18,6 +18,20 @@ interface ClosureVolumeProjectionRebuildInterface
      */
     public function consume(bool $waitForLock = true, ?string $trigger = null): void;
 
+    /**
+     * Runs $work while no closure rebuild can run in another process, for writers that delete or replace closure
+     * data of many imports in a row (the synthetic data generator). Rebuilds requested meanwhile stay open:
+     * consume() in this process returns at once, other processes wait for the lock. rebuild() in this process
+     * still runs, since the process already holds the lock.
+     *
+     * @template T
+     *
+     * @param callable(): T $work
+     *
+     * @return T
+     */
+    public function whileRebuildsPaused(callable $work): mixed;
+
     public function maxPartitionBytes(): int;
 
     /**

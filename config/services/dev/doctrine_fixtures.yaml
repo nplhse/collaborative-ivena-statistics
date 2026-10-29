@@ -13,3 +13,4 @@ when@dev: &materialized_view_orm_purger
                 $materializedViewsInstaller: '@App\Statistics\Infrastructure\Query\Overview\OverviewMaterializedViewsInstaller'
 
 when@test: *materialized_view_orm_purger
+when@demo: *materialized_view_orm_purger

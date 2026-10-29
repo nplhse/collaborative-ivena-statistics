@@ -13,7 +13,7 @@ This document describes how demo and reference data is loaded for local developm
 | Fixture classes | `src/DataFixtures/` | Loaders and groups; the allocation fixture runs the generator for the active hospitals of the preset |
 | Foundry factories | `src/*/Infrastructure/Factory/` | Ad-hoc test data; lookup factories align with reference names where possible |
 
-Factories live under `src/` but are registered only in `dev`/`test` (see `config/services/foundry.yaml`). Attribute route loading scans `src/` with glob excludes for dev-only directories (`**/Infrastructure/Factory`, `**/Infrastructure/Faker`, `DataFixtures`, `**/Domain/Factory`) so `composer install --no-dev` can boot the kernel in production.
+Factories live under `src/` but are registered only in `dev`/`test`/`demo` (see `config/services/foundry.yaml`). Attribute route loading scans `src/` with glob excludes for dev-only directories (`**/Infrastructure/Factory`, `**/Infrastructure/Faker`, `DataFixtures`, `**/Domain/Factory`) so `composer install --no-dev` can boot the kernel in production. The main `App\` service scan in `config/services.yaml` excludes the same directories (paths relative to that file, `../src/...`); the CI job "Prod kernel smoke" fails when a service from `App\DataFixtures` or a factory or Faker directory shows up in the prod container (#914).
 
 ## Loading fixtures
 
@@ -153,7 +153,7 @@ MCI cases lie in the month of their hospital's import. `NoGlobalRandomnessTest` 
 
 The same seed gives the same package byte for byte (UUIDv5 ids). Participation is not part of the catalog: `HospitalParticipationFixture` makes every third hospital participate and gives the demo user `foo` one of the active hospitals of the profile.
 
-Production and staging must not run `doctrine:fixtures:load`. Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) to move the real catalog between environments.
+Production and staging must not run `doctrine:fixtures:load`. The local demo environment loads the same presets into its own database `app_demo`, with `large` as default ([../05-operations/demo-environment.md](../05-operations/demo-environment.md)). Use [../04-features/import/reference-catalog.md](../04-features/import/reference-catalog.md) to move the real catalog between environments.
 
 ## Private catalog: reset and restore
 
@@ -358,6 +358,50 @@ php bin/console app:generate:imports --hospital=<public id> --hospital=<public i
 ```
 
 The month gets the same rows as inside a full load with the same seed. A month after the last day (`FIXTURES_UNTIL` or yesterday) and a month that already has allocations, closures or a synthetic import for the hospital are refused; existing imports are never changed. The new imports run through the processing pipeline.
+
+### Generation runs
+
+With `--async` the command records a generation run and leaves the projections to a Messenger worker instead of waiting for them; `--notify` also notifies the owner of each hospital in-app once its data is fully processed. Without these options nothing is tracked and the pipeline runs synchronously as before.
+
+```bash
+php bin/console app:generate:imports --hospital=<public id> --month=2026-10 --async --notify
+php bin/console messenger:consume async_priority_low       # projects the run
+php bin/console app:generate:run:list
+php bin/console app:generate:run:show <run id>             # newest run without an id
+php bin/console app:generate:run:retry <run id>            # failed or stuck hospitals, no new data
+```
+
+Per hospital the worker rebuilds the allocation projection of its imports and then its closure analysis and closure volume; once no hospital is open, it refreshes the materialized views and KPIs and ends the run as `completed` or `failed`. Model, ordering and retries: [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
+
+### Datasets for several hospitals and months
+
+`app:generate:dataset` (dev, test and demo, #877) generates a shared period for one hospital, several hospitals or every participating hospital, each with its own volume and structure. It always records a generation run: allocations are written synchronously, projections follow in the Messenger worker as above.
+
+```bash
+php bin/console app:generate:dataset --all-participating --dry-run                    # plan only, writes nothing
+php bin/console app:generate:dataset --hospital=<public id> --hospital=<public id>   # default period, see below
+php bin/console app:generate:dataset --hospital=<public id> --from=2025-10 --to=2026-08 --annual-volume=24000 --closure-share=0.05
+php bin/console app:generate:dataset --all-participating --profiles=var/demo/profiles.json --existing=replace --notify
+php bin/console app:generate:dataset --retry=<run id>                                 # hospitals that failed during generation
+```
+
+- **Scope.** Exactly one of `--hospital` (repeatable) and `--all-participating`. "All" takes the hospitals marked as participating and nothing else.
+- **Period.** Whole months. Without `--from`/`--to` it is `--months` (12) up to the month before last: on 28 October 2026 that is 2025-09 to 2026-08, and September stays free for the demo CSV upload (`app:demo:csv`). A month is generated up to yesterday at most.
+- **Profiles.** Without a selection each hospital draws its profile from tier, size and seed (`HospitalProfileResolver`). `--annual-volume`, `--closure-share` and `--configuration` set a `ProfileSelection` for a single hospital; `--profiles` reads a JSON object `{"<public id>": {"annual_volume": 24000, "closure_share": 0.05, "cathlab": false}}` for several (fields: `configuration`, `cathlab`, `neurosurgery`, `stroke_unit`, `trauma_level`, `obstetrics`, `paediatrics`, `tier`, `size`, `beds`, `annual_volume`, `closure_share`). Hospital master data is never changed.
+- **Checks before writing.** Environment, pattern package and catalog, the period, and per hospital: participating, an owner with participant access, dispatch area and state, a usable profile, no other run still writing it. A blocked hospital refuses the whole run and the plan names what is missing; `--skip-blocked` leaves blocked hospitals out instead, and the summary lists them with the reason.
+- **Existing data (`--existing`).** Real imports (every import that is not a synthetic marker, such as uploads and `app:demo:csv`) are never touched: a hospital with real data in the period is blocked in every mode.
+
+  | Mode | Generated months in the period | Scenario imports in the period |
+  |---|---|---|
+  | `refuse` (default) | block the hospital | block the hospital |
+  | `fill` | complete months stay, missing and incomplete months are generated | stay if they lie on kept months, otherwise block |
+  | `replace` | deleted and generated again (any seed) | deleted |
+
+  Deleting uses the regular import deletion (rows, MCI cases, projection rows); the run then rebuilds the hospital's projections and the KPIs of the old and new upload days. Other hospitals are not touched. With the same seed a replaced month gets the same rows.
+- **Reproducible.** The run records seed, period, last day, mode, pattern source, preset and scale, and the profile of each hospital (`app:generate:run:show`). `generate()` reads only these, and refuses a different `FIXTURES_PROFILE` or `FIXTURES_SCALE`.
+- **Failures and retry.** Each month is written in one transaction. A hospital that fails is rolled back as a whole (its months of this run are deleted again) and reported with its reason; the other hospitals go on. `--retry=<run id>` starts a new run for those hospitals with the recorded settings in mode `fill`, so nothing is written twice. A run whose process stopped is retried the same way once it has been idle for 30 minutes; complete months it left behind are kept and projected by the new run. Hospitals that failed in the asynchronous stage keep their data: `app:generate:run:retry` projects them again.
+
+The demo wizard (#791) uses the same service, `DatasetGenerator`: `prepare(DatasetRequest)` returns the plan, `start(DatasetPlan)` records the run, `generate(runId)` writes it; `GenerationRunTracker::get(runId)` shows the progress. See [ADR 023](../02-architecture/decisions/023-demo-environment.md#dataset-engine-877).
 
 ### Scenarios
 

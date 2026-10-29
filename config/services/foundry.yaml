@@ -1,5 +1,5 @@
 # Foundry model factories: excluded from the main App\ scan in services.yaml,
-# registered here for dev/test only (ZenstruckFoundryBundle tags them foundry.factory).
+# registered here for dev/test/demo only (ZenstruckFoundryBundle tags them foundry.factory).
 when@dev: &foundry_factories
     services:
         _defaults:
@@ -18,3 +18,4 @@ when@dev: &foundry_factories
             resource: '../../src/User/Domain/Factory/'
 
 when@test: *foundry_factories
+when@demo: *foundry_factories

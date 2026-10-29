@@ -70,6 +70,9 @@ when@dev:
                 Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
                 # Benachrichtigungs-E-Mails ebenfalls sofort (ADR 016); läuft im Request des Auslösers
                 App\Notification\Application\Message\DeliverNotificationMessage: sync
+                # Background stages of tracked generation runs (ADR 023); their handlers exist only in dev, test and demo.
+                App\DataFixtures\Generator\Application\Run\Message\ProjectGeneratedHospital: async_priority_low
+                App\DataFixtures\Generator\Application\Run\Message\FinishGenerationRun: async_priority_low
 
 when@test:
     framework:

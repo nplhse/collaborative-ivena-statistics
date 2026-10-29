@@ -24,6 +24,15 @@ use Doctrine\DBAL\Connection;
  */
 final readonly class SyntheticDataPipeline
 {
+    /** Steps of the asynchronous stage of a generation run, as stored for the wizard's summary. */
+    public const string STEP_ALLOCATIONS = 'allocation projection';
+
+    public const string STEP_CLOSURES = 'closure analysis and volume';
+
+    public const string STEP_VIEWS = 'materialized views';
+
+    public const string STEP_KPIS = 'daily KPIs';
+
     public function __construct(
         private ImportExportPeriodDeriver $exportPeriods,
         private ImportDataCoverageCalculator $coverage,
@@ -70,6 +79,56 @@ final readonly class SyntheticDataPipeline
         }
         $this->materializedViews->refresh();
         $this->aggregateKpis($this->uploadDays($allocationImportIds));
+    }
+
+    /**
+     * The per-hospital part of afterImports() for the asynchronous stage of a generation run: allocation
+     * projections of the hospital's imports first, then its closure analysis and closure volume, which read them.
+     * Both steps replace their rows, so running them again after a failed attempt gives the same result.
+     *
+     * $onStep hears each step before it runs: one per allocation import, then the closures (total: imports + 1).
+     *
+     * @param list<int>                                                  $allocationImportIds
+     * @param (callable(string $step, int $done, int $total): void)|null $onStep
+     */
+    public function projectHospital(int $hospitalId, array $allocationImportIds, ?callable $onStep = null): void
+    {
+        $total = \count($allocationImportIds) + 1;
+        foreach ($allocationImportIds as $index => $importId) {
+            if (null !== $onStep) {
+                $onStep(self::STEP_ALLOCATIONS, $index, $total);
+            }
+            $this->allocationProjection->rebuildForImport($importId);
+        }
+        if (null !== $onStep) {
+            $onStep(self::STEP_CLOSURES, $total - 1, $total);
+        }
+        $this->closureVolume->rebuild(hospitalIds: [$hospitalId]);
+    }
+
+    /**
+     * The shared part of afterImports() once every hospital of a generation run is projected: materialized
+     * views and the daily KPIs of the upload days, plus the upload days of imports the run deleted before.
+     *
+     * @param list<int>                           $allocationImportIds
+     * @param list<\DateTimeImmutable>            $removedUploadDays
+     * @param (callable(string $step): void)|null $onStep              hears each step before it runs
+     */
+    public function finishImports(array $allocationImportIds, array $removedUploadDays = [], ?callable $onStep = null): void
+    {
+        if (null !== $onStep) {
+            $onStep(self::STEP_VIEWS);
+        }
+        $this->materializedViews->refresh();
+        if (null !== $onStep) {
+            $onStep(self::STEP_KPIS);
+        }
+        $days = [];
+        foreach ([...$this->uploadDays($allocationImportIds), ...$removedUploadDays] as $day) {
+            $days[$day->format('Y-m-d')] = $day;
+        }
+        ksort($days);
+        $this->aggregateKpis(array_values($days));
     }
 
     /**

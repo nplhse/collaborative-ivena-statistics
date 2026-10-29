@@ -52,7 +52,7 @@ final class OverviewMaterializedViewsInstaller
             }
         }
 
-        if (!\in_array($this->kernelEnvironment, ['test', 'dev'], true)) {
+        if (!\in_array($this->kernelEnvironment, ['test', 'dev', 'demo'], true)) {
             throw new \RuntimeException('Overview materialized views are missing. Run doctrine migrations or app:statistics:refresh-mviews --overview.');
         }
 

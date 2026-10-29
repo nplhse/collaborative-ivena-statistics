@@ -1,3 +1,8 @@
+parameters:
+    # Effective mailer DSN; dev and demo set their own (config/packages/{dev,demo}/).
+    # app:reminder:preview reads it to detect the local mail catcher.
+    app.mailer_dsn: '%env(MAILER_DSN)%'
+
 framework:
     mailer:
-        dsn: '%env(MAILER_DSN)%'
+        dsn: '%app.mailer_dsn%'

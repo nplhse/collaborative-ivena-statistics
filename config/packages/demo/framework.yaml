@@ -1,0 +1,25 @@
+# Demo environment (ADR 023). Fixed here, not through env vars, so a variable set on the machine
+# cannot send mail to a real server or switch error reporting back on.
+parameters:
+    # Like dev: all mail goes to the local Mailpit (compose.override.yaml), never to a real server.
+    app.mailer_dsn: 'smtp://127.0.0.1:1025'
+
+framework:
+    # Own session cookie: cookies are per host, not per port, and a secure dev cookie on
+    # https://127.0.0.1:8000 would block the demo's session on http://127.0.0.1:8001.
+    session:
+        name: 'demo_PHPSESSID'
+    messenger:
+        routing:
+            # Like dev: mail (to Mailpit) and notification delivery run without a worker.
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: sync
+            App\Notification\Application\Message\DeliverNotificationMessage: sync
+            # Background stages of generation runs (ADR 023): the wizard returns, the demo worker projects.
+            App\DataFixtures\Generator\Application\Run\Message\ProjectGeneratedHospital: async_priority_low
+            App\DataFixtures\Generator\Application\Run\Message\FinishGenerationRun: async_priority_low
+
+sentry:
+    dsn: null
+    options:
+        traces_sample_rate: 0.0
+        enable_logs: false
