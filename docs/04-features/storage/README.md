@@ -39,10 +39,10 @@ Every item has a category (what) and a location (where):
 |---|---|
 | Database | PostgreSQL database |
 | Imports | `var/imports`, `var/import_rejects` |
-| Media | `public/uploads/media` |
+| Media | `public/uploads/media`, demo uploads (`public/uploads/demo`) |
 | Application | source, `vendor/`, `public/build` / `public/assets`, `node_modules/`, `.git/` |
 | Temporary | `var/cache`, `var/log`, other `var/` content |
-| Other | geodata (`var/geo`), `.env.local`, `.dep`, unused shared paths, unclassified files |
+| Other | geodata (`var/geo`), demo files (`var/demo`), `.env.local`, `.dep`, unused shared paths, unclassified files |
 
 Locations: current release, each previous release, shared directory, deploy root, project (standalone) and database. Rules live in `StoragePathClassifier`; colors and icons of the categories in the `StorageCategory` enum, used by the dashboard bar, the Disk Usage page and the history chart alike.
 

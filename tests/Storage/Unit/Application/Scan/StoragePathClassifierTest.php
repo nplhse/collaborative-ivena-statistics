@@ -25,6 +25,8 @@ final class StoragePathClassifierTest extends TestCase
         yield 'import rejects' => [StorageLocation::Project, 'var/import_rejects/1.csv', StorageCategory::Imports, 'import_rejects'];
         yield 'media' => [StorageLocation::Shared, 'public/uploads/media/a.jpg', StorageCategory::Media, 'media_uploads'];
         yield 'geodata' => [StorageLocation::Shared, 'var/geo/hospital-isochrones/1.json', StorageCategory::Other, 'geodata'];
+        yield 'demo files' => [StorageLocation::Project, 'var/demo/imports/2026/a.csv', StorageCategory::Other, 'var_other'];
+        yield 'demo media' => [StorageLocation::Project, 'public/uploads/demo/media/a.jpg', StorageCategory::Media, 'media_uploads'];
         yield 'other var' => [StorageLocation::Project, 'var/sessions/x', StorageCategory::Temporary, 'var_other'];
         yield 'var itself' => [StorageLocation::Project, 'var', StorageCategory::Temporary, 'var_other'];
         yield 'prefix is not a parent' => [StorageLocation::Project, 'var/imports-old/a.csv', StorageCategory::Temporary, 'var_other'];
