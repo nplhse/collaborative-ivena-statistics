@@ -200,6 +200,12 @@ $tracker->get($runId);                                   // progress and final s
   closure rebuild lock: other processes wait, a rebuild requested in the generating process stays open, and the
   background stage of the run takes the open requests of the hospital. Retrying on deadlocks was rejected as it
   hides the race; skipping the requests on deletion would need a flag through the import deletion.
+- **Following the background stage:** the asynchronous jobs record their step (`projection_step`,
+  `projection_done`, `projection_total` per hospital, `finish_step` per run) through a callback of
+  `SyntheticDataPipeline`. The wizard can follow a run with a self-updating overview (Symfony Console sections,
+  no TUI library). Whether a worker runs is read from the Doctrine Messenger table (`messenger_messages`, queues
+  `high` and `low`): messages waiting over a minute with none delivered count as "no worker"; with another
+  transport the state is unknown. `app:generate:run:show` keeps the detailed view.
 - **Failure output:** a hospital that fails during generation is rolled back and gets no background stage; the
   wizard and `app:generate:run:show` show the first line of the error (`-v` the whole text) and one block per
   hospital instead of a wide table.

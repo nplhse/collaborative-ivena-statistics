@@ -88,7 +88,13 @@ After a summary and a confirmation it:
    the maps lack the pin or the isochrones;
 4. generates one allocation and one closure import per month as a generation run, with live progress
    per stage (participant, hospital, location, monthly imports, allocations, closures, projections);
-5. hands the projections to the worker and prints the hospital, the login, the dataset and the run id.
+5. hands the projections to the worker and prints the hospital, the login, the dataset and the run id;
+6. asks whether to follow the background stage (`--watch` without asking). The overview redraws itself
+   every 2 seconds until the run is done: hospitals done and in progress, the step of each hospital in
+   progress (for example "allocation projection 7/13", then "closure analysis and volume"), the final
+   stage (materialized views, daily KPIs), whether a worker takes the work, and the first line of an
+   error. When messages wait for over a minute and none is being handled, it says so and points to
+   `make demo-consume`. Ctrl+C ends only the view; the worker goes on.
 
 If the dataset cannot be generated (for example the hospital already has generated data in the period,
 or real uploads), nothing is written: account and hospital are rolled back. `--existing=replace`
@@ -119,8 +125,8 @@ APP_ENV=demo php bin/console app:demo:hospital:create --hospital=<public id> --a
 2. Start the demo: `make demo-start` and `make demo-consume` in two terminals, open http://127.0.0.1:8001.
 3. Run the wizard in a third terminal, pick the prepared location, confirm. The stages fill up in place,
    month by month, with the real counts of allocations and closures.
-4. When the projections line says "in worker", switch to the browser: log in as `demo` with `Ivena!1234`
-   (the wizard prints the login). The
+4. Answer yes to follow the background stage, or switch to the browser right away: log in as `demo`
+   with `Ivena!1234` (the wizard prints the login). The
    statistics fill as the worker finishes; an in-app notification arrives when everything is done
    (to the new account, and for an existing hospital also to its owner).
    `app:generate:run:show <run id>` shows the background stage, also later or after a failure: one block

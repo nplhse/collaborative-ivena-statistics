@@ -51,6 +51,7 @@ final readonly class CreateDemoHospitalCommand
 
     public function __construct(
         private DemoHospitalWizard $wizard,
+        private GenerationRunWatch $watch,
         private Connection $connection,
         #[Autowire(param: 'kernel.environment')]
         private string $environment,
@@ -89,6 +90,8 @@ final readonly class CreateDemoHospitalCommand
         string $existing = 'refuse',
         #[Option(description: 'Do not ask for confirmation')]
         bool $yes = false,
+        #[Option(description: 'Follow the background stage until it is done (asked when interactive)')]
+        bool $watch = false,
     ): int {
         $io->title('Demo hospital wizard');
         $io->text([
@@ -115,10 +118,10 @@ final readonly class CreateDemoHospitalCommand
             return Command::SUCCESS;
         }
 
-        return $this->run($io, $output, $request);
+        return $this->run($io, $output, $request, $watch, $input->isInteractive());
     }
 
-    private function run(SymfonyStyle $io, OutputInterface $output, DemoHospitalRequest $request): int
+    private function run(SymfonyStyle $io, OutputInterface $output, DemoHospitalRequest $request, bool $watch, bool $interactive): int
     {
         $io->section('Generating');
         $progress = new DemoWizardProgress($output);
@@ -169,6 +172,19 @@ final readonly class CreateDemoHospitalCommand
         }
 
         $this->renderResult($io, $provisioning, $runId, $run?->status, $hospitalRun?->allocations, $hospitalRun?->closures, $hospitalRun?->mciCases);
+
+        $finished = $run?->status->isTerminal() ?? true;
+        if ($watch || (!$finished && $interactive && $io->confirm('Follow the background stage until it is done?', true))) {
+            $io->section('Background stage');
+            $followedStatus = $this->watch->follow($output, $runId)?->status;
+            if (GenerationRunStatus::Completed === $followedStatus) {
+                $io->success('Everything is done: the statistics are up to date and the notification was sent.');
+            } elseif (GenerationRunStatus::Failed === $followedStatus) {
+                $io->error(\sprintf('The background stage failed. Details: %s app:generate:run:show %s -v', $this->console(), $runId));
+
+                return Command::FAILURE;
+            }
+        }
 
         return Command::SUCCESS;
     }

@@ -137,6 +137,7 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
             '--months' => 6,
             '--closure-share' => 0.02,
             '--yes' => true,
+            '--watch' => true,
         ], ['interactive' => false]);
 
         self::assertSame(Command::SUCCESS, $exitCode, $tester->getDisplay());
@@ -146,6 +147,10 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         self::assertSame(31, $grant['permissions'], 'view, statistics, import, export and benchmarking');
         self::assertSame('demo', $grant['username']);
         self::assertStringContainsString('This is the test environment, not the demo', $tester->getDisplay(), 'a run outside the demo environment is pointed out');
+        // Background messages run at once in tests, so following the run shows it finished.
+        self::assertMatchesRegularExpression('/Run\s+completed, took \d+:\d\d min/', $tester->getDisplay(), '--watch follows the run');
+        self::assertMatchesRegularExpression('/Hospitals\s+█+ 1\/1 done/u', $tester->getDisplay());
+        self::assertStringContainsString('Everything is done', $tester->getDisplay());
         self::assertSame(6, (int) $this->connection()->fetchOne("SELECT COUNT(*) FROM import WHERE hospital_id = :id AND file_path LIKE 'synthetic/allocations/%'", ['id' => $id]));
         self::assertStringContainsString('owner '.$masterData['owner'].' stays; both are notified', $tester->getDisplay());
         self::assertSame(
