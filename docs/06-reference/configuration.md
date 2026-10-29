@@ -23,6 +23,8 @@
 | `MAILER_FROM` | Sender address | transactional mail |
 | `MAILER_REPLY_TO` | Reply-to address | optional |
 | `APP_URL` | Public base URL | required in prod for correct links |
+| `SYMFONY_TRUSTED_HOSTS` | Host names the application answers to | recommended in prod: a regular expression for the host of `APP_URL`, for example `^statistik\.example\.org$`. Requests with any other `Host` header get `400`. Read by Symfony itself (`framework.trusted_hosts`); empty accepts every host |
+| `SYMFONY_TRUSTED_PROXIES` | Reverse proxies whose `X-Forwarded-*` headers are trusted | only behind a proxy that sets these headers: its address or range, for example `127.0.0.1`. Without it, client IPs (rate limits, audit log) are the proxy's address. Never `REMOTE_ADDR` or `0.0.0.0/0` unless only the proxy can reach the server |
 | `APP_TITLE` | Application display title | overrides `app.title` in `app.yaml` |
 | `APP_CONTENT_DEFAULT_LOCALE` | CMS page content fallback locale | default `en`; set `de` in production |
 | `SENTRY_DSN` | Sentry DSN | empty = disabled |
