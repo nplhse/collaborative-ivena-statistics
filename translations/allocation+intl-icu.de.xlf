@@ -433,10 +433,6 @@
         <source>title.indication.assign</source>
         <target>Indikationen zuweisen</target>
       </trans-unit>
-      <trans-unit id="De0f08acbf" resname="title.indication.assign_raw">
-        <source>title.indication.assign_raw</source>
-        <target>Original-Indikation zuweisen</target>
-      </trans-unit>
       <trans-unit id="Debfd4b1cb" resname="title.indication.list">
         <source>title.indication.list</source>
         <target>Indikationen</target>
