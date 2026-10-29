@@ -15,7 +15,6 @@ use App\User\Application\AdministrativeUser\CreateUserInput;
 use App\User\Domain\Entity\User;
 use App\User\Domain\Security\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
  * The master-data part of the demo wizard (#791), kept apart from data generation: the participant account, a new
@@ -28,7 +27,14 @@ final readonly class DemoHospitalSetup
     /** Domain of the participant accounts the wizard creates; `.invalid` can never receive mail (RFC 2606). */
     public const string EMAIL_DOMAIN = 'demo.invalid';
 
-    public const string USERNAME_PREFIX = 'demo-';
+    /** Login of the first demo participant; later ones are numbered: demo2, demo3, … */
+    public const string USERNAME = 'demo';
+
+    /**
+     * Known password of every demo participant, easy to type in a presentation. The demo runs only on the
+     * presenter's machine with synthetic data (ADR 023); it passes the regular password rules.
+     */
+    public const string PASSWORD = 'Ivena!1234';
 
     public function __construct(
         private AdministrativeUserService $users,
@@ -39,18 +45,33 @@ final readonly class DemoHospitalSetup
     /**
      * An active, verified participant account for the presented hospital, with access to closure analytics.
      */
-    public function createParticipant(string $hospitalName): DemoParticipant
+    public function createParticipant(): DemoParticipant
     {
-        $slug = substr(new AsciiSlugger()->slug($hospitalName)->lower()->toString(), 0, 40);
-        $username = rtrim(self::USERNAME_PREFIX.('' === $slug ? 'hospital' : $slug), '-').'-'.bin2hex(random_bytes(2));
+        $username = $this->nextUsername();
         $email = $username.'@'.self::EMAIL_DOMAIN;
-        // Credentials are not generated data: they must differ on every run and are shown once.
-        $password = 'Demo-'.bin2hex(random_bytes(8));
 
-        $user = $this->users->create(new CreateUserInput($username, $email, $password, grantAdmin: false));
+        $user = $this->users->create(new CreateUserInput($username, $email, self::PASSWORD, grantAdmin: false));
         $user->setRoles(array_values(array_unique([...$user->getRoles(), UserRole::PARTICIPANT, UserRole::CLOSURE_BETA])));
 
-        return new DemoParticipant((int) $user->getId(), $username, $email, $password);
+        return new DemoParticipant((int) $user->getId(), $username, $email, self::PASSWORD);
+    }
+
+    /**
+     * `demo` while it is free, else the number after the highest demo participant: demo2, demo3, ….
+     */
+    public function nextUsername(): string
+    {
+        /** @var list<string> $taken */
+        $taken = $this->entityManager->getConnection()->fetchFirstColumn(
+            'SELECT username FROM "user" WHERE username = :name OR username ~ :numbered',
+            ['name' => self::USERNAME, 'numbered' => '^'.self::USERNAME.'[0-9]+$'],
+        );
+        if ([] === $taken) {
+            return self::USERNAME;
+        }
+        $highest = max(array_map(static fn (string $name): int => self::USERNAME === $name ? 1 : (int) substr($name, \strlen(self::USERNAME)), $taken));
+
+        return self::USERNAME.($highest + 1);
     }
 
     /**

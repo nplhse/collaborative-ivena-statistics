@@ -178,15 +178,31 @@ $tracker->get($runId);                                   // progress and final s
   600–1300; fewer beds count as Small, more as Large), so wizard and catalog hospitals agree; its state comes
   from the dispatch area, and stores tier, size and beds on the hospital, so the selection passed to the engine carries
   only the annual volume and the closure share for both entry points.
-- **Participant:** an active, verified account `demo-<hospital>-<4 hex>@demo.invalid` (`.invalid` cannot receive
-  mail) with `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`, created through `AdministrativeUserService` like the
-  CLI user commands; a random password is shown once and stored only hashed. The run records it as initiator.
+- **Participant:** an active, verified account `demo` (then `demo2`, `demo3`, …) with the e-mail
+  `<login>@demo.invalid` (`.invalid` cannot receive mail), `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`, created
+  through `AdministrativeUserService` like the CLI user commands, so the regular password rules apply. Every demo
+  participant has the known password `Ivena!1234`: a presenter types it in front of an audience, and the demo
+  runs only on the presenter's machine with synthetic data. A random password per account was tried first and
+  was hard to use in a presentation. The run records the account as initiator.
 - **All or nothing before generation:** account, hospital and `DatasetGenerator::prepare()` run in one
   transaction; a plan that cannot run (real imports, generated data in mode Refuse, missing master data) rolls
   everything back. `--existing=replace` is the explicit way to generate a hospital anew.
-- **Location:** a prepared location is applied after the commit through `PreparedLocationApplier`, never forced
-  over other coordinates of an existing hospital (refused before anything is written). A failure there does not
-  stop the generation; the dataset does not depend on coordinates.
+- **Location:** after the commit the wizard checks the geodata of the hospital. Coordinates with an isochrone
+  file are kept. Otherwise it applies the prepared location through `PreparedLocationApplier` (never forced over
+  other coordinates), then, with `OPENROUTESERVICE_API_KEY` set, geocodes and fetches isochrones through the
+  regular `HospitalGeocodeService` and `HospitalIsochroneFetchService` for this one hospital. Nothing of this
+  stops the wizard; the dataset does not depend on coordinates, so missing geodata is shown as information.
+- **Environment:** the command also exists in dev and test. The summary names the environment and the database,
+  and outside `demo` it warns, because the development database holds the same synthetic hospitals.
+- **Closure rebuilds during generation:** deleting the replaced months of a hospital requests closure rebuilds,
+  and the worker took them at once and deadlocked with the generator on `closure_analysis_source`. The engine
+  now runs each hospital inside `ClosureVolumeProjectionRebuildInterface::whileRebuildsPaused()`, which holds the
+  closure rebuild lock: other processes wait, a rebuild requested in the generating process stays open, and the
+  background stage of the run takes the open requests of the hospital. Retrying on deadlocks was rejected as it
+  hides the race; skipping the requests on deletion would need a flag through the import deletion.
+- **Failure output:** a hospital that fails during generation is rolled back and gets no background stage; the
+  wizard and `app:generate:run:show` show the first line of the error (`-v` the whole text) and one block per
+  hospital instead of a wide table.
 - **Progress:** the wizard implements `DatasetProgress` and shows one console section per stage (participant,
   hospital, location, monthly imports, allocations, closures, projections) with pending, running, completed,
   failed states and the counts of `GeneratedMonth`; without a terminal it writes one line per change. It

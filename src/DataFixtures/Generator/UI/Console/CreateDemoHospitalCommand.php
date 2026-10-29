@@ -12,11 +12,13 @@ use App\Allocation\Domain\Enum\HospitalTier;
 use App\Allocation\Infrastructure\Faker\Provider\Hospital as HospitalFaker;
 use App\DataFixtures\Generator\Application\Dataset\ExistingData;
 use App\DataFixtures\Generator\Application\Demo\DemoHospitalRequest;
+use App\DataFixtures\Generator\Application\Demo\DemoHospitalSetup;
 use App\DataFixtures\Generator\Application\Demo\DemoHospitalWizard;
 use App\DataFixtures\Generator\Application\Demo\DemoProvisioning;
 use App\DataFixtures\Generator\Application\Demo\DemoWizardRefused;
 use App\DataFixtures\Generator\Application\Demo\NewDemoHospital;
 use App\DataFixtures\Generator\Application\Run\GenerationRunStatus;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -24,6 +26,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Uid\Uuid;
 
@@ -44,10 +47,14 @@ final readonly class CreateDemoHospitalCommand
     private const string NEW = 'A new synthetic hospital';
     private const string EXISTING = 'An existing hospital of the demo database';
     private const string ENTER_COORDINATES = 'Enter coordinates';
-    private const string NO_LOCATION = 'No location (no map pin)';
+    private const string NO_LOCATION = 'No prepared location (fetched online when an OpenRouteService key is set)';
 
-    public function __construct(private DemoHospitalWizard $wizard)
-    {
+    public function __construct(
+        private DemoHospitalWizard $wizard,
+        private Connection $connection,
+        #[Autowire(param: 'kernel.environment')]
+        private string $environment,
+    ) {
     }
 
     public function __invoke(
@@ -98,6 +105,10 @@ final readonly class CreateDemoHospitalCommand
         }
 
         $this->renderSummary($io, $request);
+        if ('demo' !== $this->environment) {
+            // Without APP_ENV=demo the wizard writes into the development database, which looks alike (same seed).
+            $io->warning(\sprintf('This is the %s environment, not the demo: the wizard writes into the database "%s". For the demo database start it with APP_ENV=demo.', $this->environment, $this->database()));
+        }
         if (!$yes && !$io->confirm('Create the participant and generate the dataset?', true)) {
             $io->warning('Nothing was written.');
 
@@ -132,7 +143,7 @@ final readonly class CreateDemoHospitalCommand
             ? \sprintf('%s created', $provisioning->hospitalName)
             : \sprintf('%s: %s', $provisioning->hospitalName, [] === $provisioning->changes ? 'master data kept' : 'master data kept, '.implode(', ', $provisioning->changes)));
 
-        $this->applyLocation($progress, $provisioning);
+        $this->ensureLocation($progress, $provisioning);
 
         $plan = $provisioning->plan->hospitals[0];
         $progress->plan(\count($provisioning->months()), $plan->plannedAllocations);
@@ -142,8 +153,12 @@ final readonly class CreateDemoHospitalCommand
         $run = $result->run;
         $hospitalRun = $run->hospitals[0] ?? null;
         if ($result->hasFailures()) {
-            $io->error(\sprintf('Generation failed and was rolled back: %s. Generate it again without duplicates: php bin/console app:generate:dataset --retry=%s', (string) $hospitalRun?->error, $runId));
-            $this->renderResult($io, $provisioning, $runId, $result->run?->status);
+            $io->error([
+                'No dataset was generated: the months written for the hospital were rolled back.',
+                'Reason: '.GenerationRunFormatter::error($hospitalRun?->error, $io->isVerbose()),
+                'Nothing was handed to the Messenger worker, so the run has no background jobs.',
+            ]);
+            $this->renderResult($io, $provisioning, $runId, $result->run?->status, failed: true);
 
             return Command::FAILURE;
         }
@@ -158,27 +173,12 @@ final readonly class CreateDemoHospitalCommand
         return Command::SUCCESS;
     }
 
-    private function applyLocation(DemoWizardProgress $progress, DemoProvisioning $provisioning): void
+    private function ensureLocation(DemoWizardProgress $progress, DemoProvisioning $provisioning): void
     {
-        $request = $provisioning->request;
-        if (null === $request->preparedLocation) {
-            $progress->set(DemoWizardProgress::LOCATION, StageState::Skipped, match (true) {
-                null !== $request->newHospital?->latitude => 'coordinates set, no isochrones',
-                $request->isNewHospital() => 'no location',
-                default => 'location kept',
-            });
-
-            return;
-        }
-
-        $progress->set(DemoWizardProgress::LOCATION, StageState::Running, \sprintf('applying "%s"', $request->preparedLocation));
-        $report = $this->wizard->applyLocation($provisioning);
-        if ($report instanceof \App\Allocation\Application\Hospital\PreparedLocation\ApplyPreparedLocationReport && $report->success) {
-            $progress->set(DemoWizardProgress::LOCATION, StageState::Completed, \sprintf('"%s": coordinates and isochrones%s', $request->preparedLocation, $report->changed ? '' : ' (unchanged)'));
-        } else {
-            // The dataset does not depend on the location: generation goes on, the map lacks the pin.
-            $progress->set(DemoWizardProgress::LOCATION, StageState::Failed, \sprintf('"%s": %s', $request->preparedLocation, (string) $report?->error));
-        }
+        $progress->set(DemoWizardProgress::LOCATION, StageState::Running, 'checking the geodata');
+        $outcome = $this->wizard->ensureLocation($provisioning);
+        // The dataset does not depend on the location: missing geodata is information, not a failure.
+        $progress->set(DemoWizardProgress::LOCATION, $outcome->isComplete() ? StageState::Completed : StageState::Skipped, $outcome->detail);
     }
 
     private function askRequest(
@@ -213,7 +213,7 @@ final readonly class CreateDemoHospitalCommand
             $new = null;
             $existingId = (int) $chosen->getId();
             $defaultVolume = $this->defaultVolume((int) $chosen->getBeds());
-            if (null === $slug && $interactive && (null === $chosen->getLatitude() || null === $chosen->getLongitude())) {
+            if (null === $slug && $interactive && !$this->wizard->hasGeodata($chosen)) {
                 [$slug] = $this->askLocation($io, allowCoordinates: false);
             }
         } else {
@@ -371,17 +371,17 @@ final readonly class CreateDemoHospitalCommand
         $new = $request->newHospital;
         $io->section('Summary');
         $io->definitionList(
+            ['Environment' => \sprintf('%s, database "%s"', $this->environment, $this->database())],
             ['Hospital' => $new instanceof NewDemoHospital
                 ? \sprintf('new: %s (%s care, %d beds → %s, %s)', $new->name, $new->tier->value, $new->beds, $new->size->value, strtolower($new->location->value))
                 : \sprintf('existing hospital #%d (master data kept)', (int) $request->existingHospitalId)],
             ['Size by beds' => $this->bedBands()],
             ['Location' => match (true) {
-                null !== $request->preparedLocation => \sprintf('prepared location "%s"', $request->preparedLocation),
-                null !== $this->coordinates($new?->latitude, $new?->longitude) => $this->coordinates($new?->latitude, $new?->longitude).' (no isochrones)',
-                $new instanceof NewDemoHospital => 'none',
-                default => 'kept',
+                null !== $request->preparedLocation => \sprintf('prepared location "%s" unless the hospital has geodata', $request->preparedLocation),
+                null !== $this->coordinates($new?->latitude, $new?->longitude) => $this->coordinates($new?->latitude, $new?->longitude).'; isochrones fetched online when possible',
+                default => 'kept when present, else fetched online when possible (never a reason to stop)',
             }],
-            ['Participant' => 'a new synthetic account (password shown once at the end)'],
+            ['Participant' => \sprintf('a new account "%s", password %s', $this->wizard->nextParticipantUsername(), DemoHospitalSetup::PASSWORD)],
             ['EMS allocations per year' => number_format($request->annualVolume)],
             ['Period' => \sprintf('%s to %s (%d months); %s stays free for the CSV upload', $period->from, $period->to, $request->months, $period->end()->format('Y-m'))],
             ['Closed department-hours' => \sprintf('%s %%', rtrim(rtrim(number_format($request->closureShare * 100.0, 1, '.', ''), '0'), '.'))],
@@ -389,7 +389,7 @@ final readonly class CreateDemoHospitalCommand
         );
     }
 
-    private function renderResult(SymfonyStyle $io, DemoProvisioning $provisioning, string $runId, ?GenerationRunStatus $status, ?int $allocations = null, ?int $closures = null, ?int $mciCases = null): void
+    private function renderResult(SymfonyStyle $io, DemoProvisioning $provisioning, string $runId, ?GenerationRunStatus $status, ?int $allocations = null, ?int $closures = null, ?int $mciCases = null, bool $failed = false): void
     {
         $participant = $provisioning->participant;
         $period = $provisioning->plan->request->period;
@@ -404,12 +404,35 @@ final readonly class CreateDemoHospitalCommand
             ['Dataset' => null === $allocations ? '–' : \sprintf('%s to %s: %s allocations, %s closure intervals, %d MCI case(s)', $period->from, $period->to, number_format($allocations), number_format((int) $closures), (int) $mciCases)],
             ['Generation run' => \sprintf('%s (%s)', $runId, $status instanceof GenerationRunStatus ? $status->value : '–')],
         );
+        if ($failed) {
+            $io->note([
+                'The participant account and the hospital setup were kept: the login works, but the hospital has no new data.',
+                'Months the run was replacing and had already deleted stay deleted; the retry generates every missing month.',
+                \sprintf('Generate the hospital again without duplicates: %s app:generate:dataset --retry=%s', $this->console(), $runId),
+                \sprintf('Details: %s app:generate:run:show %s -v', $this->console(), $runId),
+            ]);
+
+            return;
+        }
         $io->note([
-            'The password is shown only now. The account is synthetic (e-mail domain demo.invalid) and can open the hospital, its statistics and closure analytics.',
+            'Every demo participant has this password. The account is synthetic (e-mail domain demo.invalid) and can open the hospital, its statistics and closure analytics.',
             'The statistics are rebuilt in the background (make demo-consume); you can leave the terminal and continue in the browser. The owner gets an in-app notification once everything is processed.',
-            \sprintf('Follow the background stage: APP_ENV=demo php bin/console app:generate:run:show %s', $runId),
-            \sprintf('Upload month for the demo CSV: APP_ENV=demo php bin/console app:demo:csv --hospital=%s', $provisioning->hospitalPublicId),
+            \sprintf('Follow the background stage: %s app:generate:run:show %s', $this->console(), $runId),
+            \sprintf('Upload month for the demo CSV: %s app:demo:csv --hospital=%s', $this->console(), $provisioning->hospitalPublicId),
         ]);
+    }
+
+    private function database(): string
+    {
+        return (string) $this->connection->getDatabase();
+    }
+
+    /**
+     * The console call of this environment, for the hints.
+     */
+    private function console(): string
+    {
+        return \sprintf('APP_ENV=%s php bin/console', $this->environment);
     }
 
     /**

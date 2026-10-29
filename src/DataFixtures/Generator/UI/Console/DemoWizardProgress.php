@@ -123,7 +123,7 @@ final class DemoWizardProgress implements DatasetProgress
     #[\Override]
     public function hospitalFailed(DatasetHospitalPlan $hospital, string $message): void
     {
-        $this->set(self::IMPORTS, StageState::Failed, \sprintf('rolled back: %s', $message));
+        $this->set(self::IMPORTS, StageState::Failed, \sprintf('rolled back: %s', GenerationRunFormatter::error($message, $this->output->isVerbose())));
         $this->set(self::ALLOCATIONS, StageState::Failed, 'rolled back');
         $this->set(self::CLOSURES, StageState::Failed, 'rolled back');
         $this->set(self::PROJECTIONS, StageState::Failed, 'not started');

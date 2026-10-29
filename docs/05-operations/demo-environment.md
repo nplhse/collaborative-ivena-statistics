@@ -56,6 +56,10 @@ watches. Start it once the demo runs (`make demo-start`, `make demo-consume`):
 APP_ENV=demo php bin/console app:demo:hospital:create
 ```
 
+Without `APP_ENV=demo` it runs in the development environment and writes into the development database,
+which holds the same synthetic hospitals; the summary names environment and database and warns outside
+the demo.
+
 It asks for:
 
 - **Which hospital:** a new synthetic hospital, or an existing hospital of the demo database (for
@@ -63,19 +67,25 @@ It asks for:
   (name, tier, size, beds, address, coordinates, dispatch area); only the simulation is asked for.
 - **New hospital:** name, emergency care tier, beds (the size follows from the bed bands of the synthetic
   catalog: Small 80–299, Medium 300–599, Large 600–1300; the summary names them), dispatch area (the federal state follows), location: a prepared location (offline,
-  with isochrones), coordinates (pin without isochrones) or none. `--location-type=urban|rural` changes
-  the setting (default mixed).
+  with isochrones), coordinates, or neither. `--location-type=urban|rural` changes the setting (default
+  mixed).
+- **Existing hospital without geodata** (coordinates and isochrones): a prepared location, or neither.
 - **Simulation:** expected EMS allocations per year (default about 40 per bed), period of 6, 12 or 24
   months ending with the month before last, closed department-hours in % (default 5).
 
 After a summary and a confirmation it:
 
-1. creates an active synthetic participant account `demo-<hospital>-<4 hex>@demo.invalid` with
-   `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`; the password is shown once at the end;
+1. creates an active synthetic participant account with `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`:
+   login `demo` (later ones `demo2`, `demo3`, …), e-mail `<login>@demo.invalid`, password `Ivena!1234`
+   for every demo participant, so it is easy to type in front of an audience;
 2. creates the hospital (owner: the participant, participating from the first month), or gives an existing
    hospital what it lacks: participation, and the participant as owner when it has none, otherwise a grant
    with all permissions (the existing owner stays; the participant is notified as well);
-3. applies the prepared location (never over other coordinates of an existing hospital);
+3. checks the geodata for the maps: a hospital with coordinates and isochrones keeps them; otherwise it
+   applies the prepared location (offline, never over other coordinates), and then, when
+   `OPENROUTESERVICE_API_KEY` is set in `.env.demo.local`, geocodes the address and fetches the
+   isochrones online. Missing geodata only shows as information: the dataset does not depend on it,
+   the maps lack the pin or the isochrones;
 4. generates one allocation and one closure import per month as a generation run, with live progress
    per stage (participant, hospital, location, monthly imports, allocations, closures, projections);
 5. hands the projections to the worker and prints the hospital, the login, the dataset and the run id.
@@ -83,6 +93,15 @@ After a summary and a confirmation it:
 If the dataset cannot be generated (for example the hospital already has generated data in the period,
 or real uploads), nothing is written: account and hospital are rolled back. `--existing=replace`
 generates an existing hospital anew; real imports are never touched.
+
+While the wizard (or `app:generate:dataset`) deletes and writes the months of a hospital, closure
+rebuilds wait: the worker would otherwise rebuild the closure analysis of the same hospital at the
+same time and both would deadlock. The rebuilds follow in the background stage of the run.
+
+If the hospital fails during generation, its new months are rolled back and nothing goes to the
+worker, so the run has no background jobs. The account and the hospital setup stay; months that
+`--existing=replace` had already deleted stay deleted. The wizard prints the first line of the error
+and the retry command (`app:generate:dataset --retry=<run id>`, which generates every missing month).
 
 Every answer can be passed as an option, for example to prepare a presentation as a script:
 
@@ -95,14 +114,17 @@ APP_ENV=demo php bin/console app:demo:hospital:create --hospital=<public id> --a
 ### Presenter walkthrough
 
 1. Before the presentation, online: `make demo-install`, prepare the location of the prospective hospital
-   (`app:geo:prepare-location <slug> …`, see Geography), optionally try the wizard once.
+   (`app:geo:prepare-location <slug> …`, see Geography), optionally try the wizard once. With a network
+   during the presentation and a key in `.env.demo.local`, the wizard fetches missing geodata itself.
 2. Start the demo: `make demo-start` and `make demo-consume` in two terminals, open http://127.0.0.1:8001.
 3. Run the wizard in a third terminal, pick the prepared location, confirm. The stages fill up in place,
    month by month, with the real counts of allocations and closures.
-4. When the projections line says "in worker", switch to the browser: log in with the shown account. The
+4. When the projections line says "in worker", switch to the browser: log in as `demo` with `Ivena!1234`
+   (the wizard prints the login). The
    statistics fill as the worker finishes; an in-app notification arrives when everything is done
    (to the new account, and for an existing hospital also to its owner).
-   `app:generate:run:show <run id>` shows the background stage, also later or after a failure.
+   `app:generate:run:show <run id>` shows the background stage, also later or after a failure: one block
+   per hospital, errors shortened to their first line (`-v` shows them in full, and the run settings).
 5. Show the upload: `app:demo:csv --hospital=<public id>` (printed by the wizard) writes the last complete
    month, which the wizard left free; upload it as described below.
 

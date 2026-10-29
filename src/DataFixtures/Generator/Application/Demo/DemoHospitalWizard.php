@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Generator\Application\Demo;
 
+use App\Allocation\Application\Contracts\HospitalGeocodeClientInterface;
+use App\Allocation\Application\Contracts\HospitalIsochroneClientInterface;
+use App\Allocation\Application\Contracts\HospitalIsochroneStoreInterface;
 use App\Allocation\Application\Contracts\PreparedLocationStoreInterface;
-use App\Allocation\Application\Hospital\PreparedLocation\ApplyPreparedLocationReport;
+use App\Allocation\Application\Hospital\HospitalGeocodeService;
+use App\Allocation\Application\Hospital\HospitalGeoScope;
+use App\Allocation\Application\Hospital\HospitalIsochroneFetchService;
 use App\Allocation\Application\Hospital\PreparedLocation\PreparedLocation;
 use App\Allocation\Application\Hospital\PreparedLocation\PreparedLocationApplier;
 use App\Allocation\Domain\Entity\DispatchArea;
@@ -30,7 +35,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *
  * 1. provision(): in one transaction the participant account, the new hospital (or what an existing one lacks)
  *    and the dataset plan. A plan that cannot run rolls everything back, so a refused wizard leaves no account.
- * 2. applyLocation(): the prepared location, offline, after the hospital exists (never forced over coordinates).
+ * 2. ensureLocation(): geodata for the maps after the hospital exists: kept when present, else the prepared location
+ *    (offline) or OpenRouteService (with a key); never forced over coordinates and never a reason to stop.
  * 3. start() and generate(): the generation run (trigger wizard, owner notified); the projections continue in the
  *    Messenger worker.
  */
@@ -41,6 +47,11 @@ final readonly class DemoHospitalWizard
         private DatasetGenerator $datasets,
         private PreparedLocationStoreInterface $locations,
         private PreparedLocationApplier $applier,
+        private HospitalIsochroneStoreInterface $isochrones,
+        private HospitalGeocodeClientInterface $geocodeClient,
+        private HospitalIsochroneClientInterface $isochroneClient,
+        private HospitalGeocodeService $geocoding,
+        private HospitalIsochroneFetchService $isochroneFetch,
         private EntityManagerInterface $entityManager,
         private Connection $connection,
         private ClockInterface $clock,
@@ -81,6 +92,14 @@ final readonly class DemoHospitalWizard
         return $this->locations->all();
     }
 
+    /**
+     * Login the next participant account gets, for the summary.
+     */
+    public function nextParticipantUsername(): string
+    {
+        return $this->setup->nextUsername();
+    }
+
     public function hospitalNameTaken(string $name): bool
     {
         return $this->setup->nameTaken($name);
@@ -105,11 +124,8 @@ final readonly class DemoHospitalWizard
             if (null !== $request->existingHospitalId) {
                 $existing = $this->entityManager->find(Hospital::class, $request->existingHospitalId)
                     ?? throw new DemoWizardRefused([\sprintf('Unknown hospital #%d.', $request->existingHospitalId)]);
-                $this->refuseLocationConflict($existing, $request->preparedLocation);
             }
-            $name = $existing?->getName() ?? $request->newHospital->name ?? '';
-
-            $participant = $this->setup->createParticipant($name);
+            $participant = $this->setup->createParticipant();
             $user = $this->entityManager->find(User::class, $participant->userId) ?? throw new \LogicException('The participant was not stored.');
             $changes = [];
             if ($request->newHospital instanceof NewDemoHospital) {
@@ -163,19 +179,54 @@ final readonly class DemoHospitalWizard
     }
 
     /**
-     * Applies the prepared location of the request, if any; null when there is none.
+     * Geodata for the maps: a hospital with coordinates and isochrones keeps them. Otherwise the prepared location
+     * of the request, then OpenRouteService when a key is set (geocoding needs an address, isochrones coordinates).
+     * Nothing here fails the wizard; the outcome says what the maps will show.
      */
-    public function applyLocation(DemoProvisioning $provisioning): ?ApplyPreparedLocationReport
+    public function ensureLocation(DemoProvisioning $provisioning): DemoLocationOutcome
     {
         $slug = $provisioning->request->preparedLocation;
-        if (null === $slug) {
-            return null;
+        if ($this->hasGeodata($this->hospital($provisioning))) {
+            return new DemoLocationOutcome(DemoLocationOutcome::COMPLETE, null === $slug ? 'coordinates and isochrones already present' : \sprintf('coordinates and isochrones already present, "%s" not needed', $slug));
         }
-        $hospital = $this->entityManager->find(Hospital::class, $provisioning->hospitalId) ?? throw new \DomainException('The hospital was deleted.');
-        $report = $this->applier->run($slug, $hospital, apply: true, force: false);
-        $this->entityManager->clear();
 
-        return $report;
+        $notes = [];
+        if (null !== $slug) {
+            $report = $this->applier->run($slug, $this->hospital($provisioning), apply: true, force: false);
+            $this->entityManager->clear();
+            if ($report->success && $this->hasGeodata($this->hospital($provisioning))) {
+                return new DemoLocationOutcome(DemoLocationOutcome::COMPLETE, \sprintf('"%s": coordinates and isochrones (offline)', $slug));
+            }
+            $notes[] = \sprintf('"%s": %s', $slug, $report->error ?? 'not applied');
+        }
+
+        if (!$this->geocodeClient->hasApiKey() || !$this->isochroneClient->hasApiKey()) {
+            $notes[] = 'no OpenRouteService key, so nothing is fetched online';
+        } else {
+            $notes = [...$notes, ...$this->fetchOnline($provisioning)];
+        }
+
+        $hospital = $this->hospital($provisioning);
+        if ($this->hasGeodata($hospital)) {
+            return new DemoLocationOutcome(DemoLocationOutcome::COMPLETE, 'coordinates and isochrones fetched online');
+        }
+        $coordinates = null !== $hospital->getLatitude() && null !== $hospital->getLongitude();
+
+        return new DemoLocationOutcome(
+            $coordinates ? DemoLocationOutcome::PARTIAL : DemoLocationOutcome::NONE,
+            ($coordinates ? 'map pin without isochrones: ' : 'no map pin: ').implode('; ', $notes),
+        );
+    }
+
+    /**
+     * Coordinates and an isochrone file that belongs to them. Reads the current state, which applying or fetching
+     * geodata changes.
+     *
+     * @phpstan-impure
+     */
+    public function hasGeodata(Hospital $hospital): bool
+    {
+        return null !== $hospital->getLatitude() && null !== $hospital->getLongitude() && $this->isochrones->existsForHospital($hospital);
     }
 
     /**
@@ -192,16 +243,40 @@ final readonly class DemoHospitalWizard
     }
 
     /**
-     * An existing hospital keeps its coordinates: a prepared location for other coordinates is refused up front.
+     * @return list<string> what did not work, for the outcome
      */
-    private function refuseLocationConflict(Hospital $hospital, ?string $slug): void
+    private function fetchOnline(DemoProvisioning $provisioning): array
     {
-        if (null === $slug) {
-            return;
+        $scope = HospitalGeoScope::hospital($provisioning->hospitalId);
+        $notes = [];
+        try {
+            $hospital = $this->hospital($provisioning);
+            if (null === $hospital->getLatitude() || null === $hospital->getLongitude()) {
+                $geocode = $this->geocoding->run($scope, apply: true, force: false, delayMs: 0);
+                $this->entityManager->clear();
+                if (!$geocode->success || 0 === $geocode->written) {
+                    $notes[] = 'online geocoding found no coordinates'.(null === $geocode->error ? ($geocode->missingAddress > 0 ? ' (the hospital has no address)' : '') : ': '.$geocode->error);
+                }
+            }
+            $hospital = $this->hospital($provisioning);
+            if (null !== $hospital->getLatitude() && null !== $hospital->getLongitude()) {
+                $isochrones = $this->isochroneFetch->run($scope, apply: true, force: false, delayMs: 0);
+                $this->entityManager->clear();
+                if (!$isochrones->success || 0 === $isochrones->written) {
+                    $notes[] = 'online isochrones failed'.(null === $isochrones->error ? '' : ': '.$isochrones->error);
+                }
+            }
+        } catch (\Throwable $exception) {
+            // Offline or a service error: the demo goes on without these maps.
+            $this->entityManager->clear();
+            $notes[] = 'online request failed: '.$exception->getMessage();
         }
-        $check = $this->applier->run($slug, $hospital, apply: false, force: false);
-        if (!$check->success) {
-            throw new DemoWizardRefused([\sprintf('The prepared location "%s" cannot be applied: %s The wizard never replaces coordinates of an existing hospital.', $slug, (string) $check->error)]);
-        }
+
+        return $notes;
+    }
+
+    private function hospital(DemoProvisioning $provisioning): Hospital
+    {
+        return $this->entityManager->find(Hospital::class, $provisioning->hospitalId) ?? throw new \DomainException('The hospital was deleted.');
     }
 }

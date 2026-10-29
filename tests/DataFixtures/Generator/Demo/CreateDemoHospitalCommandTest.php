@@ -10,16 +10,22 @@ use App\Allocation\Application\Hospital\IsochroneOrigin;
 use App\Allocation\Application\Hospital\PreparedLocation\PreparedLocation;
 use App\Allocation\Domain\Entity\Hospital;
 use App\Allocation\Infrastructure\Geo\HospitalIsochroneFileStore;
+use App\Allocation\Infrastructure\Http\OpenRouteServiceGeocodeClient;
+use App\Allocation\Infrastructure\Http\OpenRouteServiceIsochroneClient;
+use App\DataFixtures\Generator\Application\Demo\DemoHospitalSetup;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
@@ -62,7 +68,7 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
             'Full',
             '500',
             '',                          // first dispatch area
-            'No location (no map pin)',
+            'No prepared location (fetched online when an OpenRouteService key is set)',
             '3650',                      // 10 a day
             '6',
             '5',
@@ -80,11 +86,15 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         self::assertSame($users + 1, $this->countRows('"user"'), 'one participant account');
         $user = $this->connection()->fetchAssociative('SELECT username, email, roles, is_enabled, is_verified FROM "user" WHERE id = :id', ['id' => $hospital['owner_id']]);
         self::assertIsArray($user);
-        self::assertStringStartsWith('demo-klinikum-demo-stadt-', (string) $user['username']);
-        self::assertSame($user['username'].'@demo.invalid', $user['email']);
+        self::assertSame(['demo', 'demo@demo.invalid'], [$user['username'], $user['email']], 'the first demo participant is called demo');
         self::assertTrue($user['is_enabled'] && $user['is_verified']);
         self::assertEqualsCanonicalizing(['ROLE_USER', 'ROLE_PARTICIPANT', 'ROLE_CLOSURE_BETA'], json_decode((string) $user['roles'], true));
-        self::assertMatchesRegularExpression('/Participant password\s+Demo-[0-9a-f]{16}/', $display, 'the password is shown once');
+        self::assertMatchesRegularExpression('/Participant password\s+Ivena!1234/', $display, 'the known demo password');
+        self::assertStringContainsString('a new account "demo", password Ivena!1234', $display, 'the summary names the account');
+        $setup = self::getContainer()->get(DemoHospitalSetup::class);
+        self::assertSame('demo2', $setup->nextUsername(), 'the next participant is numbered');
+        $this->connection()->executeStatement("UPDATE \"user\" SET username = 'demo7' WHERE username = 'demo'");
+        self::assertSame('demo8', $setup->nextUsername(), 'numbering continues after the highest number');
 
         $hospitalId = (int) $hospital['id'];
         self::assertSame(
@@ -106,6 +116,7 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         foreach (['Participant', 'Hospital', 'Monthly imports', 'Allocations', 'Closures', 'Projections'] as $stage) {
             self::assertMatchesRegularExpression('/✔ '.$stage.'\s+completed/u', $display, $stage);
         }
+        self::assertMatchesRegularExpression('/– Location\s+skipped\s+no map pin: no OpenRouteService key/u', $display, 'missing geodata is information, not a failure');
         self::assertStringContainsString('6/6 months', $display);
         self::assertStringContainsString('app:generate:run:show '.$run['id'], $display);
         self::assertStringContainsString('2026-09 stays free for the CSV upload', $display);
@@ -133,7 +144,8 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         $grant = $this->connection()->fetchAssociative('SELECT g.permissions, u.username FROM hospital_access_grant g JOIN "user" u ON u.id = g.user_id WHERE g.hospital_id = :id', ['id' => $id]);
         self::assertIsArray($grant);
         self::assertSame(31, $grant['permissions'], 'view, statistics, import, export and benchmarking');
-        self::assertStringStartsWith('demo-', (string) $grant['username']);
+        self::assertSame('demo', $grant['username']);
+        self::assertStringContainsString('This is the test environment, not the demo', $tester->getDisplay(), 'a run outside the demo environment is pointed out');
         self::assertSame(6, (int) $this->connection()->fetchOne("SELECT COUNT(*) FROM import WHERE hospital_id = :id AND file_path LIKE 'synthetic/allocations/%'", ['id' => $id]));
         self::assertStringContainsString('owner '.$masterData['owner'].' stays; both are notified', $tester->getDisplay());
         self::assertSame(
@@ -195,6 +207,43 @@ final class CreateDemoHospitalCommandTest extends KernelTestCase
         self::assertTrue($isochrones->existsForHospital($hospital));
         self::assertSame(0, $this->rows('closure_interval', (int) $hospital->getId()), 'a closure share of 0 closes nothing');
 
+        if ($isochrones instanceof HospitalIsochroneFileStore && null !== ($path = $isochrones->pathFor($hospital)) && is_file($path)) {
+            unlink($path);
+        }
+    }
+
+    public function testMissingIsochronesAreFetchedOnlineWhenAKeyIsSet(): void
+    {
+        $requests = 0;
+        $client = new OpenRouteServiceIsochroneClient(new MockHttpClient(static function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return new MockResponse(json_encode(['type' => 'FeatureCollection', 'features' => [['type' => 'Feature', 'properties' => ['value' => 600], 'geometry' => ['type' => 'Polygon', 'coordinates' => [[[8.2, 50.4], [8.3, 50.4], [8.3, 50.6], [8.2, 50.4]]]]]]], \JSON_THROW_ON_ERROR), ['http_code' => 200]);
+        }), new NullLogger(), 'test-key');
+        self::getContainer()->set(OpenRouteServiceIsochroneClient::class, $client);
+        self::getContainer()->set(OpenRouteServiceGeocodeClient::class, new OpenRouteServiceGeocodeClient(new MockHttpClient(static fn (): never => throw new \LogicException('The coordinates are given; nothing is geocoded.')), new NullLogger(), 'test-key'));
+
+        $tester = $this->tester();
+        $exitCode = $tester->execute([
+            '--name' => 'Kreisklinik Online',
+            '--tier' => 'basic',
+            '--beds' => 180,
+            '--latitude' => 50.5,
+            '--longitude' => 8.25,
+            '--annual-volume' => 3650,
+            '--months' => 6,
+            '--closure-share' => 0,
+            '--yes' => true,
+        ], ['interactive' => false]);
+
+        self::assertSame(Command::SUCCESS, $exitCode, $tester->getDisplay());
+        self::assertSame(1, $requests);
+        self::assertMatchesRegularExpression('/✔ Location\s+completed\s+coordinates and isochrones fetched online/u', $tester->getDisplay());
+        $hospital = $this->entityManager()->getRepository(Hospital::class)->findOneBy(['name' => 'Kreisklinik Online']);
+        self::assertInstanceOf(Hospital::class, $hospital);
+        /** @var HospitalIsochroneStoreInterface $isochrones */
+        $isochrones = self::getContainer()->get(HospitalIsochroneStoreInterface::class);
+        self::assertTrue($isochrones->existsForHospital($hospital));
         if ($isochrones instanceof HospitalIsochroneFileStore && null !== ($path = $isochrones->pathFor($hospital)) && is_file($path)) {
             unlink($path);
         }
