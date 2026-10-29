@@ -9,7 +9,8 @@
 | Document | Type | Description |
 |----------|------|-------------|
 | [development-workflow.md](development-workflow.md) | Guide | Make targets, worker, lint, migrations |
-| [fixtures.md](fixtures.md) | Guide | Reference YAML, fixture groups, synthetic data |
+| [fixtures.md](fixtures.md) | Guide | Loading fixtures: groups, presets, parameters, synthetic reference catalog |
+| [synthetic-data-generator.md](synthetic-data-generator.md) | Guide | Generator: hospital profiles, patterns and pattern packages, closures, datasets, scenarios, other catalogs |
 | [testing.md](testing.md) | Guide | PHPUnit suites, CI, test doubles, static analysis |
 | [translations.md](translations.md) | Guide | Symfony domains, extract/lint workflow |
 | [frontend.md](frontend.md) | Concept | Stimulus, Asset Mapper, Live Components |
@@ -20,6 +21,7 @@
 
 1. [development-workflow.md](development-workflow.md)
 2. [fixtures.md](fixtures.md)
+   - [synthetic-data-generator.md](synthetic-data-generator.md) when you change generated data
 3. [testing.md](testing.md)
 
 ### i18n / translation work

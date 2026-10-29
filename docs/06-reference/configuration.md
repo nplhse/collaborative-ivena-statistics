@@ -36,9 +36,13 @@
 | `MAP_TILE_URL` | Leaflet tile URL template of all maps | default OpenStreetMap (`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`). Empty: no basemap (manual switch). If the tile server is unreachable, maps drop the basemap on their own. See [../05-operations/hospital-geodata.md](../05-operations/hospital-geodata.md#map-tiles-and-offline-use). |
 | `MAP_TILE_ATTRIBUTION` | Attribution HTML shown on the maps | default OpenStreetMap; set it to match the tile source |
 | `MAP_TILE_MAX_ZOOM` | Highest zoom level of the maps | default `18`; match it to the tile server |
-| `FIXTURES_PROFILE` | Which hospitals get synthetic allocations | `single`, `minimal`, `medium`, `realistic` (default); see [../03-development/fixtures.md](../03-development/fixtures.md) |
+| `FIXTURES_PROFILE` | Which hospitals get synthetic allocations | `single`, `minimal`, `medium`, `realistic`, `large`; default `medium` in `dev`, `minimal` in `test`, `large` in `demo`; see [../03-development/fixtures.md](../03-development/fixtures.md#profiles) |
 | `FIXTURES_SCALE` | Factor on the synthetic allocations per day | `0.01`–`10`, default `1` (close to real volumes); see [../03-development/fixtures.md](../03-development/fixtures.md) |
 | `FIXTURES_UNTIL` | Last day of the synthetic data | `Y-m-d`, default empty (yesterday); a fixed date gives the same data on every day; see [../03-development/fixtures.md](../03-development/fixtures.md) |
+| `FIXTURES_MONTHS` | Whole months of synthetic data before the month of the last day | default empty (the months of the preset, else 12); see [../03-development/fixtures.md](../03-development/fixtures.md#parameters) |
+| `FIXTURES_PATTERNS` | Distribution patterns of the synthetic allocations | default `defaults` (code defaults), or a pattern package as a file name in `var/patterns/` or a path; see [../03-development/synthetic-data-generator.md](../03-development/synthetic-data-generator.md#pattern-packages) |
+| `FIXTURES_REFERENCE_PACKAGE` | Reference package (JSON) whose catalog replaces the synthetic one; states, dispatch areas and hospitals stay synthetic | default empty; see [../03-development/synthetic-data-generator.md](../03-development/synthetic-data-generator.md#composed-catalog) |
+| `FIXTURES_CATALOG_MAPPING` | Mapping file (JSON) that binds the generator's names to another catalog | default empty; see [../03-development/synthetic-data-generator.md](../03-development/synthetic-data-generator.md#mapping-file) |
 | `STORAGE_BUDGET_BYTES` | Storage budget in bytes, the default capacity reference | empty or `0` = no budget (level `unknown`); falls back to the former `APP_ADMIN_STORAGE_LIMIT_BYTES`. See [Storage monitoring](#storage-monitoring) |
 | `STORAGE_CAPACITY_SOURCE` | Capacity reference: `budget` or `filesystem` | default `budget`; `filesystem` only on a dedicated server or VPS |
 
