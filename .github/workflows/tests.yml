@@ -48,6 +48,14 @@ jobs:
             - name: Lint the prod container
               run: php bin/console lint:container
 
+            # Fixture, factory and generator code is registered only in dev, test and demo (#914).
+            - name: Keep fixture code out of the prod container
+              run: |
+                  if php bin/console debug:container | grep -E 'App\\(DataFixtures|[A-Za-z]+\\Infrastructure\\(Factory|Faker)|User\\Domain\\Factory)\\'; then
+                      echo "Services above are fixture or factory code and must not be registered in prod." >&2
+                      exit 1
+                  fi
+
             - name: Compile assets
               run: php bin/console asset-map:compile
 

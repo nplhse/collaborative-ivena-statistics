@@ -13,7 +13,7 @@ This document describes how demo and reference data is loaded for local developm
 | Fixture classes | `src/DataFixtures/` | Loaders and groups; the allocation fixture runs the generator for the active hospitals of the preset |
 | Foundry factories | `src/*/Infrastructure/Factory/` | Ad-hoc test data; lookup factories align with reference names where possible |
 
-Factories live under `src/` but are registered only in `dev`/`test`/`demo` (see `config/services/foundry.yaml`). Attribute route loading scans `src/` with glob excludes for dev-only directories (`**/Infrastructure/Factory`, `**/Infrastructure/Faker`, `DataFixtures`, `**/Domain/Factory`) so `composer install --no-dev` can boot the kernel in production.
+Factories live under `src/` but are registered only in `dev`/`test`/`demo` (see `config/services/foundry.yaml`). Attribute route loading scans `src/` with glob excludes for dev-only directories (`**/Infrastructure/Factory`, `**/Infrastructure/Faker`, `DataFixtures`, `**/Domain/Factory`) so `composer install --no-dev` can boot the kernel in production. The main `App\` service scan in `config/services.yaml` excludes the same directories (paths relative to that file, `../src/...`); the CI job "Prod kernel smoke" fails when a service from `App\DataFixtures` or a factory or Faker directory shows up in the prod container (#914).
 
 ## Loading fixtures
 

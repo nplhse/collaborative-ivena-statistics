@@ -57,11 +57,12 @@ services:
 
     App\:
         resource: '../src/'
+        # Paths are relative to this file, like the resource.
         exclude:
-            - 'DataFixtures/'
-            - '**/Infrastructure/Factory'
-            - '**/Infrastructure/Faker'
-            - 'User/Domain/Factory'
+            - '../src/DataFixtures/'
+            - '../src/**/Infrastructure/Factory/'
+            - '../src/**/Infrastructure/Faker/'
+            - '../src/User/Domain/Factory/'
 
     App\Analytics\Infrastructure\Doctrine\AnalyticsQueryCounterMiddleware:
         tags:
