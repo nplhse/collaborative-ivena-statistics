@@ -87,6 +87,8 @@ On the server:
 
 Required variables: see [../06-reference/configuration.md](../06-reference/configuration.md). At minimum set `APP_ENV=prod`, `APP_DEBUG=0`, `APP_SECRET`, `DATABASE_URL`, `MAILER_DSN`, `MAILER_FROM`, `APP_URL`, and `MESSENGER_TRANSPORT_DSN`.
 
+Also set `SYMFONY_TRUSTED_HOSTS` to the host of `APP_URL`. Password reset and e-mail verification links are built from the host of the request, so the application should only answer to its own host. Set `SYMFONY_TRUSTED_PROXIES` only when a reverse proxy in front of PHP forwards the client address in `X-Forwarded-For`.
+
 Run database migrations so the `messenger_messages` table exists (included in the default deploy workflow).
 
 ## Pre-deploy verification
@@ -104,6 +106,8 @@ Use `--skip-database` only for a quick env-format check without a DB ping. See [
 Manual checks that `app:env:check` cannot perform:
 
 - [ ] `APP_ENV=prod` and `APP_DEBUG=0` in `shared/.env.local`
+- [ ] `SYMFONY_TRUSTED_HOSTS` matches the host of `APP_URL`: `curl -s -o /dev/null -w '%{http_code}\n' -H 'Host: other.invalid' https://<APP_URL>/health` returns `400` (or the web server refuses the host before PHP)
+- [ ] Client IP is the visitor's, not a proxy's: compare the IP of your own login in the audit log with your public IP; if it is a proxy address, set `SYMFONY_TRUSTED_PROXIES`
 - [ ] Messenger worker running: `systemctl --user status messenger` — see [messenger-workers.md](messenger-workers.md)
 - [ ] Queue consumers active: `php bin/console messenger:stats`
 - [ ] No stuck failed messages: `php bin/console messenger:failed:show`
