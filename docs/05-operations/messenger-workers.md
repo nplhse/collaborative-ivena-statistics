@@ -63,7 +63,7 @@ After changing the unit file, always run `systemctl --user daemon-reload` before
 Before relying on systemd, run the consumer manually from the deploy path:
 
 ```bash
-cd ~/html/current
+cd ~/www/current
 php bin/console messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv --time-limit=30
 ```
 
