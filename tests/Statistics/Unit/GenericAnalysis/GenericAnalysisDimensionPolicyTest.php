@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\StatisticsFilterScope;
 use App\Statistics\GenericAnalysis\Application\GenericAnalysisDimensionPolicy;
 use App\Statistics\GenericAnalysis\Registry\DimensionRegistry;
 use App\User\Domain\Entity\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class GenericAnalysisDimensionPolicyTest extends TestCase
@@ -38,16 +39,40 @@ final class GenericAnalysisDimensionPolicyTest extends TestCase
         ));
     }
 
-    public function testCohortScopeAllowsHospitalForParticipant(): void
+    /**
+     * @return iterable<string, array{StatisticsFilter}>
+     */
+    public static function nonPublicScopes(): iterable
+    {
+        yield 'my hospitals' => [new StatisticsFilter(StatisticsFilterScope::MyHospitals, null, null, StatisticsFilterPeriod::All)];
+        yield 'hospital' => [new StatisticsFilter(StatisticsFilterScope::Hospital, 1, null, StatisticsFilterPeriod::All)];
+        yield 'state' => [new StatisticsFilter(StatisticsFilterScope::State, null, null, StatisticsFilterPeriod::All, stateId: 1)];
+        yield 'dispatch area' => [new StatisticsFilter(StatisticsFilterScope::DispatchArea, null, null, StatisticsFilterPeriod::All, dispatchAreaId: 1)];
+        yield 'hospital cohort' => [new StatisticsFilter(StatisticsFilterScope::HospitalCohort, null, new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::RURAL, \App\Allocation\Domain\Enum\HospitalTier::BASIC), StatisticsFilterPeriod::All)];
+    }
+
+    #[DataProvider('nonPublicScopes')]
+    public function testHospitalIsDeniedForParticipantInEveryScope(StatisticsFilter $filter): void
     {
         $user = $this->createStub(User::class);
         $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(false);
 
-        self::assertTrue($this->policy->isAllowed(
-            'hospital',
-            $this->filter(StatisticsFilterScope::HospitalCohort, cohortType: new HospitalCohortKey(\App\Allocation\Domain\Enum\HospitalLocation::RURAL, \App\Allocation\Domain\Enum\HospitalTier::BASIC)),
-            $user,
-        ));
+        self::assertFalse($this->policy->isAllowed('hospital', $filter, $user));
+    }
+
+    #[DataProvider('nonPublicScopes')]
+    public function testHospitalIsDeniedWithoutUser(StatisticsFilter $filter): void
+    {
+        self::assertFalse($this->policy->isAllowed('hospital', $filter, null));
+    }
+
+    #[DataProvider('nonPublicScopes')]
+    public function testHospitalIsAllowedForAdminInEveryScope(StatisticsFilter $filter): void
+    {
+        $user = $this->createStub(User::class);
+        $this->hospitalAccess->method('isAdminHospitalScopeUser')->willReturn(true);
+
+        self::assertTrue($this->policy->isAllowed('hospital', $filter, $user));
     }
 
     public function testAdminAllowsHospitalOnPublicScope(): void

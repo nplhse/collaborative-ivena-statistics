@@ -21,7 +21,7 @@ final readonly class GenericAnalysisDimensionPolicy
     public function isAllowed(string $dimensionKey, StatisticsFilter $filter, ?User $user): bool
     {
         return match ($dimensionKey) {
-            'hospital' => $this->allowsHospital($filter, $user),
+            'hospital' => $this->allowsHospital($user),
             'state' => $this->allowsState($filter, $user),
             'dispatchArea' => $this->allowsDispatchArea($filter, $user),
             'hospital_cohort' => true,
@@ -34,20 +34,13 @@ final readonly class GenericAnalysisDimensionPolicy
         return $user instanceof User && $this->hospitalAccess->isAdminHospitalScopeUser($user);
     }
 
-    private function allowsHospital(StatisticsFilter $filter, ?User $user): bool
+    /**
+     * A hospital breakdown names each hospital with its figures, so only admins get it for now.
+     * Comparing the own hospital with others is planned as its own feature.
+     */
+    private function allowsHospital(?User $user): bool
     {
-        if ($this->isAdmin($user)) {
-            return true;
-        }
-
-        return match ($filter->scope) {
-            StatisticsFilterScope::MyHospitals,
-            StatisticsFilterScope::Hospital,
-            StatisticsFilterScope::State,
-            StatisticsFilterScope::DispatchArea,
-            StatisticsFilterScope::HospitalCohort => true,
-            default => false,
-        };
+        return $this->isAdmin($user);
     }
 
     private function allowsState(StatisticsFilter $filter, ?User $user): bool

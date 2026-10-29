@@ -311,7 +311,7 @@ Analysis filters narrow the allocation set **before** row/column grouping. They 
 | Statistical metrics | catalogued but disabled in Phase 7 (`mean_transport_time`, …) |
 | Temporal dimension | `time` — grains: `month`, `year`, `quarter`, `week` |
 | Breakdown dimensions | `gender`, `urgency`, `age_group`, `department`, `hospital_cohort`, `speciality`, `occasion`, `assignment`, `indication`, `infection`, `weekday`, `hour`, `clinical_resources`, `clinical_features`, `resus`, `cathlab`, `cpr`, `ventilation`, `shock`, `workAccident`, `pregnancy`, `with_physician`, `secondary_indication`, `transport_type`, `transport_time_bucket`, `day_time_bucket`, `shift_bucket` |
-| Scope-gated breakdowns | `hospital`, `state`, `dispatchArea` (visible when `GenericAnalysisDimensionPolicy` allows for user + filter scope) |
+| Scope-gated breakdowns | `hospital` (admins only, in every scope: it names each hospital with its figures), `state`, `dispatchArea` (visible when `GenericAnalysisDimensionPolicy` allows for user + filter scope) |
 | Grains (breakdown dims) | `total` (default); `month`, `year` for multi-series over time |
 | Charts | `bar`, `line`; multi-series (breakdown + month/year): `grouped_bar`, `stacked_bar`, `line` |
 
