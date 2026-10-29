@@ -24,6 +24,7 @@ Entry point for project documentation.
 | Development | [03-development/development-workflow.md](03-development/development-workflow.md) |
 | Console commands | [06-reference/console-commands.md](06-reference/console-commands.md) |
 | Fixtures | [03-development/fixtures.md](03-development/fixtures.md) |
+| Synthetic data generator | [03-development/synthetic-data-generator.md](03-development/synthetic-data-generator.md) |
 | Testing | [03-development/testing.md](03-development/testing.md) |
 | Deployment | [05-operations/deployment.md](05-operations/deployment.md) |
 | Upgrading an installation | [05-operations/upgrading.md](05-operations/upgrading.md) |

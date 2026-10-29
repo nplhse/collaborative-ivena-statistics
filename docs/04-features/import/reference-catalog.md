@@ -117,7 +117,7 @@ FIXTURES_REFERENCE_PACKAGE=var/reference/catalog.json FIXTURES_CATALOG_MAPPING=v
 php bin/console app:generate:check-catalog
 ```
 
-The mapping file binds the generator's names to the private labels; see [fixtures.md](../../03-development/fixtures.md#generator-on-another-catalog). Both files stay in `var/reference/` and are never committed.
+The mapping file binds the generator's names to the private labels; see [synthetic-data-generator.md](../../03-development/synthetic-data-generator.md#generator-on-another-catalog). Both files stay in `var/reference/` and are never committed.
 
 ### Adding a few rows to an existing installation
 
