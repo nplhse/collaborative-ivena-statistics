@@ -60,9 +60,12 @@ plain `php bin/console`).
 
 ### No outbound integrations
 
-- Mail: `framework.mailer.dsn: null://null` in `config/packages/demo/`, not an env var, so no
-  variable can turn delivery on. Mail and notification delivery messages run synchronously as in
-  dev, so the demo needs no mail worker.
+- Mail: like dev, all mail goes to the local Mailpit; `smtp://127.0.0.1:1025` is fixed in
+  `config/packages/demo/` (parameter `app.mailer_dsn`), not an env var, so no variable can point the
+  demo at a real mail server and real recipients stay out of reach. Earlier the demo used
+  `null://null`; #791 step 7 switched to Mailpit so presenters can show the emails the demo sends
+  (`make demo-reminder HOSPITAL=<id>`). Mail and notification delivery messages run synchronously
+  as in dev, so the demo needs no mail worker.
 - Sentry: `dsn: null`, no traces, no logs, also fixed in config.
 - OpenRouteService: `.env.demo` leaves `OPENROUTESERVICE_API_KEY` empty. Preparing geodata while
   online is an explicit opt-in through `.env.demo.local` (offline geography step of #791).

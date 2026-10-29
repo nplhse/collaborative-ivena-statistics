@@ -15,17 +15,29 @@ use App\Allocation\Infrastructure\Factory\InfectionFactory;
 use App\Allocation\Infrastructure\Factory\OccasionFactory;
 use App\Allocation\Infrastructure\Factory\SpecialityFactory;
 use App\Allocation\Infrastructure\Factory\StateFactory;
+use App\Allocation\Infrastructure\Repository\HospitalRepository;
+use App\Engagement\Application\MonthlyReminderContentBuilder;
+use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\UI\Console\Command\MonthlyReminderPreviewCommand;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Factory\ImportFactory;
+use App\Shared\Application\Locale\LocaleResolver;
+use App\Shared\Infrastructure\Mail\LocalMailCatcher;
 use App\Statistics\Application\Contract\AllocationStatsProjectionRebuildInterface;
 use App\Tests\Support\Foundry\DatabaseKernelTestCase;
 use App\User\Domain\Factory\UserFactory;
+use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Mime\BodyRendererInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
 {
+    use ClockSensitiveTrait;
+    use MailerAssertionsTrait;
+
     public function testRequiresHospitalOption(): void
     {
         self::bootKernel();
@@ -183,6 +195,76 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
         }
     }
 
+    public function testCatcherModeSendsTheReminderAndPrintsTheWebUiUrl(): void
+    {
+        self::bootKernel();
+        self::mockTime(new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin')));
+        $hospital = $this->createHospital(optedOut: false);
+        // Stands in for Mailpit's SMTP port; the test mailer itself uses the null transport.
+        $catcherSmtp = stream_socket_server('tcp://127.0.0.1:0');
+        self::assertNotFalse($catcherSmtp);
+
+        try {
+            $tester = new CommandTester($this->command('smtp://127.0.0.1:1025', new LocalMailCatcher($this->port($catcherSmtp))));
+
+            self::assertSame(Command::SUCCESS, $tester->execute([
+                '--hospital-id' => (string) $hospital->getId(),
+                '--send' => true,
+            ]));
+        } finally {
+            fclose($catcherSmtp);
+        }
+
+        self::assertStringContainsString('Sent reminder to preview-', $tester->getDisplay());
+        self::assertStringContainsString('Open the mail catcher: http://127.0.0.1:8025', $tester->getDisplay());
+        self::assertEmailCount(1);
+    }
+
+    public function testCatcherModeFailsWhenTheCatcherIsNotRunning(): void
+    {
+        self::bootKernel();
+        self::mockTime(new \DateTimeImmutable('2026-07-01 08:00:00', new \DateTimeZone('Europe/Berlin')));
+        $hospital = $this->createHospital(optedOut: false);
+        $closed = stream_socket_server('tcp://127.0.0.1:0');
+        self::assertNotFalse($closed);
+        $closedPort = $this->port($closed);
+        fclose($closed);
+        $tester = new CommandTester($this->command('smtp://127.0.0.1:1025', new LocalMailCatcher($closedPort)));
+
+        self::assertSame(Command::FAILURE, $tester->execute([
+            '--hospital-id' => (string) $hospital->getId(),
+            '--send' => true,
+        ]));
+        self::assertStringContainsString('Mailpit is not reachable', $tester->getDisplay());
+        self::assertEmailCount(0);
+    }
+
+    private function command(string $mailerDsn, LocalMailCatcher $mailCatcher): MonthlyReminderPreviewCommand
+    {
+        $container = self::getContainer();
+
+        return new MonthlyReminderPreviewCommand(
+            $container->get(HospitalRepository::class),
+            $container->get(MonthlyReminderContentBuilder::class),
+            $container->get(BodyRendererInterface::class),
+            $container->get(LocaleResolver::class),
+            $container->get(MonthlyReminderSender::class),
+            $container->get(TranslatorInterface::class),
+            $mailCatcher,
+            $mailerDsn,
+        );
+    }
+
+    /**
+     * @param resource $server
+     */
+    private function port($server): int
+    {
+        $name = (string) stream_socket_get_name($server, false);
+
+        return (int) substr($name, (int) strrpos($name, ':') + 1);
+    }
+
     private function createHospital(bool $optedOut): object
     {
         $owner = UserFactory::createOne([
@@ -199,6 +281,7 @@ final class MonthlyReminderPreviewCommandTest extends DatabaseKernelTestCase
             'owner' => $owner,
             'state' => $state,
             'dispatchArea' => $dispatchArea,
+            'isParticipating' => true,
         ]);
     }
 
