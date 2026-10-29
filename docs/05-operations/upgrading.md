@@ -5,8 +5,10 @@ Steps for moving a running production installation to a new release. A new serve
 Deployer runs the database migrations and restarts the worker on every deploy ([deployment.md](deployment.md#what-happens-on-deploy)). This page lists what a deploy does **not** do: configuration changes, preconditions and one-time commands. Run the commands from the current release:
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 ```
+
+`<deploy_path>` is the `deploy_path` of the host in your `hosts.yaml`. On Uberspace u8 it is usually `~/www` ([hosts.yaml.example](../../hosts.yaml.example)).
 
 Commands that write data preview by default. Run them without `--apply` first, read the output, then apply. A command that finds nothing to do can be skipped.
 

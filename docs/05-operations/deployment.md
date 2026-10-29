@@ -185,11 +185,13 @@ Typical order (Symfony recipe plus project tasks):
 
 ## Operations
 
+`<deploy_path>` is the `deploy_path` of the host in `hosts.yaml`; on Uberspace u8 it is usually `~/www`.
+
 | Task | Command |
 |------|---------|
 | Worker status | `systemctl --user status messenger` |
 | Restart worker | `systemctl --user restart messenger` |
-| Queue stats | `cd ~/www/current && php bin/console messenger:stats` |
+| Queue stats | `cd <deploy_path>/current && php bin/console messenger:stats` |
 | Failed messages | `php bin/console messenger:failed:show` |
 | Retry failed | `php bin/console messenger:failed:retry` |
 
@@ -203,7 +205,7 @@ After deploying the Analytics migration (`Version20260804151958`) and the new `a
 2. Re-prompt existing users for consent (old rows treat missing `analytics` as false while `decidedAt` stays set — banner would not reappear otherwise). Prefer deleting consent rows rather than silently enabling analytics:
 
    ```bash
-   cd ~/www/current   # or your release path
+   cd <deploy_path>/current
    php bin/console dbal:run-sql 'SELECT COUNT(*) AS n FROM cookie_consent'
    php bin/console dbal:run-sql 'DELETE FROM cookie_consent'
    ```

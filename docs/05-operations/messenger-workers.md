@@ -60,10 +60,10 @@ After changing the unit file, always run `systemctl --user daemon-reload` before
 
 ## Smoke test
 
-Before relying on systemd, run the consumer manually from the deploy path:
+Before relying on systemd, run the consumer manually from the current release (`deploy_path` of the host in `hosts.yaml`; on Uberspace u8 usually `~/www`):
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 php bin/console messenger:consume async_priority_high async_priority_low async_mail scheduler_default -vv --time-limit=30
 ```
 
