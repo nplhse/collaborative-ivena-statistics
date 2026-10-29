@@ -23,7 +23,7 @@ Examples: `app:import:start`, `app:statistics:rebuild-projection`. Geographic en
 | `--<entity>-id` | Optional or filter scoping | `--hospital-id`, `--user-id`, `--only-id`, `--page-id` |
 | `--dry-run` | Preview destructive or write operations without persisting | Backfill, requeue, deduplicate, content migration |
 
-**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
+**Dry-run rule:** Analysis-only commands are read-only by default. Commands that write data apply changes when run without `--dry-run`. Use `--dry-run` to preview what would change. Exceptions that preview by default: `app:audit:purge-import-assessments` (`--execute` to delete), `app:user:backfill-created-at`, `app:user-activity:backfill`, `app:hospital:backfill-participating-since`, `app:import:derive-export-periods`, `app:import:derive-data-coverage`, `app:user:normalize-usernames`, `app:geo:geocode-hospitals`, `app:geo:fetch-isochrones`, `app:geo:prepare-location` and `app:geo:apply-prepared-location` (`--apply` to write).
 
 ### Output
 
@@ -54,6 +54,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:import:start <importId>` | Dispatch a single import job via Messenger. The import type is resolved from the Import. The worker records the run in `job_run` with trigger `console`. |
 | `app:import:requeue-all` | Re-queue imports sequentially with resume/checkpoint support. See [../04-features/import/batch-requeue.md](../04-features/import/batch-requeue.md). `--only-ids` limits to a comma-separated ID list. |
 | `app:import:derive-export-periods` | Derive `import.export_starts_at` / `export_ends_at` from imported rows (allocations first, then closures). Dry run by default; `--apply` writes and requests a closure rebuild per changed hospital. `--hospital=<id>` limits the scope, `--show-unchanged` lists every import. Manual periods are kept. See [../04-features/statistics/closure-architecture.md](../04-features/statistics/closure-architecture.md). |
+| `app:import:derive-data-coverage` | Calculate the data coverage summary of completed imports that have none yet. Dry run by default; `--apply` writes. `--hospital=<id>` limits the scope, `--all` recalculates stored summaries too. See [../04-features/import/data-coverage.md](../04-features/import/data-coverage.md). |
 | `app:import:analyze-rejects` | Aggregate and export import rejects for transformer planning. See [../04-features/import/reject-analysis.md](../04-features/import/reject-analysis.md). |
 | `app:import:repair-indication-corruption` | One-time issue 521 repair: merge quote/stub/`\OMI\""` IndicationRaws, then requeue quote-broken imports whose source CSV still exists. Production runbook: [../04-features/import/repair-indication-corruption.md](../04-features/import/repair-indication-corruption.md). |
 
@@ -113,6 +114,12 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 |---|---|
 | `app:storage:analyze` | Measure storage usage now and print it by category and location. Dry run by default; `--persist` stores today's measurement like the scheduled job and triggers storage alerts and the daily report unless `--no-notify` is given. `--format=json`, `-v` lists every contributor. Exit code `1` when files or database could not be measured or another measurement is running. See [../04-features/storage/README.md](../04-features/storage/README.md). |
 
+### Notification
+
+| Command | Purpose |
+|---|---|
+| `app:notification:reconcile` | Publish the notifications of business outcomes in a time range again (`--from`, `--to`; default: the last 24 hours) and dispatch deliveries that are still pending. Deduplication prevents duplicates. The range may not reach further back than the shortest deduplication period (7 days by default). The hourly scheduler job does the same for the default range. See [../04-features/notification/README.md](../04-features/notification/README.md#recovery). |
+
 ### Content
 
 | Command | Purpose |
@@ -127,6 +134,7 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:user:promote-admin` | Grant `ROLE_ADMIN` to an existing user identified by **username**. Asks for confirmation. |
 | `app:user:demote-admin` | Remove `ROLE_ADMIN` from an existing user identified by **username**. Asks for confirmation. Refuses to demote the last remaining administrator. |
 | `app:user:delete` | Delete an existing user identified by **username**. Asks for confirmation. Refuses when the user is the last administrator, still owns hospitals, or other records still reference the account. |
+| `app:user:normalize-usernames` | Rename usernames that break the username policy (`UserUsernameConstraints`), for example by replacing whitespace with hyphens. Renames only when the proposal is valid and unique; collisions and still invalid names are listed for an administrator. Default: dry-run preview. Writes only with `--apply`. |
 | `app:user:backfill-created-at` | One-time legacy tool: reconstruct `User.createdAt` from the earliest successful own import, otherwise the earliest successful import of an **owned** hospital. Access-grant users are not backfilled from hospital imports. Default: dry-run preview. Writes only with `--apply`. Removable after the production run. |
 | `app:user-activity:backfill` | One-time backfill of the `user_activity` profile projection from historical imports, posts, comments, and hospital relations. Default: dry-run preview. Writes only with `--apply`. Idempotent via unique deduplication keys. See [ADR 014](../02-architecture/decisions/014-persisted-user-activity-projection.md). |
 
@@ -157,6 +165,8 @@ Commands are invokable classes with `#[AsCommand]` and autoconfiguration via `co
 | `app:demo:hospital:create` | Demo (also dev and test): the presenter's wizard (#791). Asks for a new synthetic hospital (name, care tier, beds → size, dispatch area, location) or an existing hospital of the demo database (master data kept), then annual EMS allocations, period (6, 12 or 24 months up to the month before last) and the share of closed department-hours. Names environment and database and warns outside demo. Creates an active synthetic participant (`demo`, `demo2`, … with `<login>@demo.invalid` and the known demo password `Ivena!1234`), the hospital or what an existing one lacks (participation, owner or a full access grant), keeps existing geodata or applies a prepared location offline or fetches it online with an OpenRouteService key (missing geodata is only information), and generates the dataset as a generation run with live progress; the projections continue in the worker. Every answer also as option (`--name`, `--tier`, `--beds`, `--dispatch-area`, `--location-type`, `--hospital`, `--annual-volume`, `--months`, `--closure-share`, `--location`, `--latitude`/`--longitude`, `--existing=refuse\|replace`, `--yes`, `--watch`). Afterwards it offers to follow the background stage in a self-updating overview with the step of each hospital and worker detection. See [demo-environment.md](../05-operations/demo-environment.md#create-the-presented-hospital). |
 | `app:demo:csv` | Demo (also dev and test): write one synthetic month of a hospital as two IVENA CSV files, allocations and closures, for the normal upload: `--hospital=<public id>`, optional `--month=YYYY-MM` (default: the month after the hospital's newest allocation or closure), `--seed`, `--dir` (default `var/demo/csv`). The rows are the ones `app:generate:imports` would write. Refuses a month that is not complete by the last day (`FIXTURES_UNTIL` or yesterday) or already has data for the hospital. Writes nothing into the database. See [demo-environment.md](../05-operations/demo-environment.md#upload-a-month-during-the-presentation). |
 | `app:generate:scenario` | Lay a scenario over existing synthetic data: `mci`, `icy-road`, `flu-wave` or `heat`; without a name it lists them. `--dispatch-area=<name>` or `--hospital=<public id>` (repeatable), `--at=YYYY-MM-DD`, optional `--seed`, `--dry-run`. Writes one import per hospital (and closures for the flu wave), refuses a second application for the same hospital and start day, then runs the processing pipeline. Delete the imports to remove a scenario. |
+| `app:patterns:write-defaults` | dev/test: write the code defaults of the allocation patterns as a pattern package (`--output`, default `var/patterns/defaults.json`; `--force` replaces an existing file). See [fixtures.md](../03-development/fixtures.md#pattern-packages). |
+| `app:patterns:validate <file>` | dev/test: check a pattern package (a path or a file name in `var/patterns/`) against the format and, unless `--no-catalog`, against the installed reference catalog and the catalog mapping. See [fixtures.md](../03-development/fixtures.md#pattern-packages). |
 
 For full fixture loading, use `doctrine:fixtures:load` with groups — see [../03-development/fixtures.md](../03-development/fixtures.md).
 
@@ -172,3 +182,4 @@ Some commands mirror scheduled Messenger jobs:
 | Daily 08:00 Europe/Berlin | `SendMonthlySubmissionRemindersMessage` | `app:reminder:preview --hospital-id=ID --send` (per hospital) |
 | Daily 02:15 Europe/Berlin | `AggregateDailyAnalyticsMessage` | `app:analytics:aggregate` (yesterday + catch-up + cleanup) |
 | Daily 03:30 Europe/Berlin | `MeasureStorageMessage` | `app:storage:analyze --persist` |
+| Hourly at minute 17 | `ReconcileNotificationsMessage` | `app:notification:reconcile` (last 24 hours) |

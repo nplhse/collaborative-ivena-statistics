@@ -216,4 +216,4 @@ make trans-de-all # scaffold missing DE units
 make lint-trans   # lint EN + DE catalogues
 ```
 
-See also [glossary-i18n-de.md](glossary-i18n-de.md) for EN↔DE terminology and [../03-development/testing.md](../03-development/testing.md) for CI checks.
+See also [glossary-i18n-de.md](../06-reference/glossary-i18n-de.md) for EN↔DE terminology and [../03-development/testing.md](../03-development/testing.md) for CI checks.
