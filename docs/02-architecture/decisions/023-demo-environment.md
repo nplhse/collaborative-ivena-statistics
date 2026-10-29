@@ -67,6 +67,8 @@ plain `php bin/console`).
   (`make demo-reminder HOSPITAL=<id>`). Mail and notification delivery messages run synchronously
   as in dev, so the demo needs no mail worker.
 - Sentry: `dsn: null`, no traces, no logs, also fixed in config.
+- Breached-password lookup (`framework.validation.not_compromised_password`): off, as in `test`; the demo
+  wizard creates participant accounts offline.
 - OpenRouteService: `.env.demo` leaves `OPENROUTESERVICE_API_KEY` empty. Preparing geodata while
   online is an explicit opt-in through `.env.demo.local` (offline geography step of #791).
 - Usage analytics stay on: they write to the demo database only.
@@ -112,7 +114,8 @@ technical record with a retention (ADR 018/019), a run is the summary the wizard
   with `retries_exhausted`; `app:generate:run:retry` projects failed hospitals again without writing data
   again.
 - **Notification:** `generation.completed` (in-app and toast, hospital-scoped) per completed hospital to its
-  owner, only for runs with `notify` and only after the run's terminal transition, i.e. after views and KPIs.
+  owner and to the users the run names in its setting `notify_user_ids` (the demo participant, step 4), each
+  once, only for runs with `notify` and only after the run's terminal transition, i.e. after views and KPIs.
   Failed hospitals get none; the other hospitals of a partial run are still announced. See ADR 016.
 - **Inspection:** `app:generate:run:list`, `app:generate:run:show [<run>]` (settings, hospitals, imports,
   failures, stale runs and the `job_run` rows of the background stages). Both messages are recorded jobs
@@ -159,8 +162,63 @@ $tracker->get($runId);                                   // progress and final s
   wizard has the run id from `start()` and polls the run. Hospitals that fail are rolled back and can be
   generated again with `DatasetGenerator::retryRequest($runId)` (`app:generate:dataset --retry`).
 - **Real identity, synthetic records:** an existing hospital keeps its real name and location while all its
-  operational data is synthetic and marked as such (marker paths). How the UI tells the two apart when
-  showing volumes or closure statistics is decided with the wizard (#791 step 4).
+  operational data is synthetic and marked as such (marker paths). The wizard says so before it starts, and
+  the demo banner says that all data is synthetic; the pages themselves do not tell the two apart.
+
+### Demo hospital wizard (#791 step 4)
+
+`app:demo:hospital:create` (dev, test, demo) is the presenter's entry point on top of the engine. It lives in
+`DataFixtures/Generator` like the engine, so it does not exist in production.
+
+- **Master data apart from data generation:** `DemoHospitalSetup` creates the participant account and a new
+  hospital, or gives an existing hospital only what generation needs and lacks: participation (since the first
+  generated month), the participant as owner when there is none, otherwise an access grant with all
+  permissions; ownership is never transferred. The participant is passed to the run as an additional recipient
+  (`DatasetRequest::$notifyUserIds`), so the presenter gets the completion notification also when an existing
+  owner keeps the hospital. Name, tier, size, beds, address, coordinates and dispatch area of an existing hospital are never
+  written; the engine itself still writes no master data. A new hospital takes its size from the beds with the bed bands
+  of the synthetic catalog (`BED_BANDS` of the Faker hospital provider: Small 80–299, Medium 300–599, Large
+  600–1300; fewer beds count as Small, more as Large), so wizard and catalog hospitals agree; its state comes
+  from the dispatch area, and stores tier, size and beds on the hospital, so the selection passed to the engine carries
+  only the annual volume and the closure share for both entry points.
+- **Participant:** an active, verified account `demo` (then `demo2`, `demo3`, …) with the e-mail
+  `<login>@demo.invalid` (`.invalid` cannot receive mail), `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`, created
+  through `AdministrativeUserService` like the CLI user commands, so the regular password rules apply. Every demo
+  participant has the known password `Ivena!1234`: a presenter types it in front of an audience, and the demo
+  runs only on the presenter's machine with synthetic data. A random password per account was tried first and
+  was hard to use in a presentation. The run records the account as initiator.
+- **All or nothing before generation:** account, hospital and `DatasetGenerator::prepare()` run in one
+  transaction; a plan that cannot run (real imports, generated data in mode Refuse, missing master data) rolls
+  everything back. `--existing=replace` is the explicit way to generate a hospital anew.
+- **Location:** after the commit the wizard checks the geodata of the hospital. Coordinates with an isochrone
+  file are kept. Otherwise it applies the prepared location through `PreparedLocationApplier` (never forced over
+  other coordinates), then, with `OPENROUTESERVICE_API_KEY` set, geocodes and fetches isochrones through the
+  regular `HospitalGeocodeService` and `HospitalIsochroneFetchService` for this one hospital. Nothing of this
+  stops the wizard; the dataset does not depend on coordinates, so missing geodata is shown as information.
+- **Environment:** the command also exists in dev and test. The summary names the environment and the database,
+  and outside `demo` it warns, because the development database holds the same synthetic hospitals.
+- **Closure rebuilds during generation:** deleting the replaced months of a hospital requests closure rebuilds,
+  and the worker took them at once and deadlocked with the generator on `closure_analysis_source`. The engine
+  now runs each hospital inside `ClosureVolumeProjectionRebuildInterface::whileRebuildsPaused()`, which holds the
+  closure rebuild lock: other processes wait, a rebuild requested in the generating process stays open, and the
+  background stage of the run takes the open requests of the hospital. Retrying on deadlocks was rejected as it
+  hides the race; skipping the requests on deletion would need a flag through the import deletion.
+- **Following the background stage:** the asynchronous jobs record their step (`projection_step`,
+  `projection_done`, `projection_total` per hospital, `finish_step` per run) through a callback of
+  `SyntheticDataPipeline`. The wizard can follow a run with a self-updating overview (Symfony Console sections,
+  no TUI library). Whether a worker runs is read from the Doctrine Messenger table (`messenger_messages`, queues
+  `high` and `low`): messages waiting over a minute with none delivered count as "no worker"; with another
+  transport the state is unknown. `app:generate:run:show` keeps the detailed view.
+- **Failure output:** a hospital that fails during generation is rolled back and gets no background stage; the
+  wizard and `app:generate:run:show` show the first line of the error (`-v` the whole text) and one block per
+  hospital instead of a wide table.
+- **Progress:** the wizard implements `DatasetProgress` and shows one console section per stage (participant,
+  hospital, location, monthly imports, allocations, closures, projections) with pending, running, completed,
+  failed states and the counts of `GeneratedMonth`; without a terminal it writes one line per change. It
+  returns after the synchronous stage; the projections continue in the worker and `app:generate:run:show`
+  follows them. No TUI dependency beyond Symfony Console.
+- **Offline:** the breached-password check of the validator (`not_compromised_password`) calls an online service;
+  it is off in `demo` as in `test`, so the wizard works without network.
 
 ### Demo CSV upload (#791 step 5)
 

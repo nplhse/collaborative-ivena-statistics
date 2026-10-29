@@ -57,7 +57,11 @@ final readonly class ProjectGeneratedHospitalHandler
             }
 
             $importIds = $this->hospital($message)->allocationImportIds ?? [];
-            $this->pipeline->projectHospital($message->hospitalId, $importIds);
+            $this->pipeline->projectHospital(
+                $message->hospitalId,
+                $importIds,
+                fn (string $step, int $done, int $total) => $this->store->projectionStep($message->runId, $message->hospitalId, $step, $done, $total, $this->clock->now()),
+            );
             if (!$this->store->completeHospital($message->runId, $message->hospitalId, $this->clock->now())) {
                 // Failed meanwhile, e.g. by a given-up earlier delivery; the run keeps that outcome.
                 $this->logger->warning('generation_run.hospital_not_completed', ['run' => $message->runId, 'hospital_id' => $message->hospitalId]);

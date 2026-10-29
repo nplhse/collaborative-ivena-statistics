@@ -23,8 +23,8 @@ use Symfony\Component\Uid\Uuid;
  * Every state change is one conditional statement, so concurrent workers and retries cannot move a hospital or
  * a run backwards, and a terminal state is reached exactly once (the statement that returns a row wins).
  *
- * @psalm-type RunRow = array{id: string, scope: string, trigger: string, seed: int|string, period_from: ?string, period_to: ?string, settings: string, notify: bool|int|string, initiated_by_id: int|string|null, status: string, stage: string, reason_code: ?string, created_at: string, updated_at: string, generated_at: ?string, finished_at: ?string}
- * @psalm-type HospitalRow = array{hospital_id: int|string, hospital_name: ?string, owner_id: int|string|null, status: string, months: int|string, allocations: int|string, closures: int|string, mci_cases: int|string, allocation_import_ids: string, closure_import_ids: string, projection_attempts: int|string, reason_code: ?string, error: ?string, started_at: ?string, generated_at: ?string, finished_at: ?string}
+ * @psalm-type RunRow = array{id: string, scope: string, trigger: string, seed: int|string, period_from: ?string, period_to: ?string, settings: string, notify: bool|int|string, initiated_by_id: int|string|null, status: string, stage: string, reason_code: ?string, created_at: string, updated_at: string, generated_at: ?string, finished_at: ?string, finish_step: ?string}
+ * @psalm-type HospitalRow = array{hospital_id: int|string, hospital_name: ?string, owner_id: int|string|null, status: string, months: int|string, allocations: int|string, closures: int|string, mci_cases: int|string, allocation_import_ids: string, closure_import_ids: string, projection_attempts: int|string, reason_code: ?string, error: ?string, started_at: ?string, generated_at: ?string, finished_at: ?string, projection_step: ?string, projection_done: int|string, projection_total: int|string}
  */
 final readonly class GenerationRunStore
 {
@@ -269,10 +269,35 @@ final readonly class GenerationRunStore
         return $claimed;
     }
 
+    /**
+     * The step the asynchronous stage of a hospital is at, for the wizard's summary; only while it is projecting.
+     */
+    public function projectionStep(string $runId, int $hospitalId, string $step, int $done, int $total, \DateTimeImmutable $now): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE generation_run_hospital SET projection_step = :step, projection_done = :done, projection_total = :total
+             WHERE run_id = :run AND hospital_id = :hospital AND status = :projecting',
+            ['step' => $step, 'done' => $done, 'total' => $total, 'run' => $runId, 'hospital' => $hospitalId, 'projecting' => GenerationRunHospitalStatus::Projecting->value],
+        );
+        $this->touch($runId, $now);
+    }
+
+    /**
+     * The step the run's final stage is at (materialized views, KPIs); only while it is finishing.
+     */
+    public function finishStep(string $runId, string $step, \DateTimeImmutable $now): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE generation_run SET finish_step = :step, updated_at = :now WHERE id = :run AND stage = :finishing',
+            ['step' => $step, 'now' => $this->ts($now), 'run' => $runId, 'finishing' => GenerationRunStage::Finishing->value],
+        );
+    }
+
     public function completeHospital(string $runId, int $hospitalId, \DateTimeImmutable $now): bool
     {
         $completed = $this->connection->executeStatement(
-            'UPDATE generation_run_hospital SET status = :completed, reason_code = NULL, error = NULL, finished_at = :now
+            'UPDATE generation_run_hospital SET status = :completed, reason_code = NULL, error = NULL, finished_at = :now,
+                 projection_step = NULL, projection_done = projection_total
              WHERE run_id = :run AND hospital_id = :hospital AND status = :projecting',
             [
                 'completed' => GenerationRunHospitalStatus::Completed->value,
@@ -552,6 +577,7 @@ final readonly class GenerationRunStore
             updatedAt: new \DateTimeImmutable($run['updated_at']),
             generatedAt: self::time($run['generated_at']),
             finishedAt: self::time($run['finished_at']),
+            finishStep: $run['finish_step'],
             hospitals: array_map(static fn (array $row): GenerationRunHospitalView => new GenerationRunHospitalView(
                 hospitalId: (int) $row['hospital_id'],
                 hospitalName: (string) $row['hospital_name'],
@@ -569,6 +595,9 @@ final readonly class GenerationRunStore
                 startedAt: self::time($row['started_at']),
                 generatedAt: self::time($row['generated_at']),
                 finishedAt: self::time($row['finished_at']),
+                projectionStep: $row['projection_step'],
+                projectionDone: (int) $row['projection_done'],
+                projectionTotal: (int) $row['projection_total'],
             ), $hospitals),
         );
     }

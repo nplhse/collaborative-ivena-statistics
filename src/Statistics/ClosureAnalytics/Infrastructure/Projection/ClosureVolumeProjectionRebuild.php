@@ -9,6 +9,7 @@ use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceCon
 use App\Statistics\ClosureAnalytics\Application\Volume\ClosureVolumeReferenceWindow;
 use App\Statistics\ClosureAnalytics\Infrastructure\Monitoring\ClosureRebuildTelemetry;
 use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -21,6 +22,9 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
     private const string LOCK = 'closure-volume-projection';
 
     private int $maxPartitionBytes = 0;
+
+    /** True while whileRebuildsPaused() holds the lock in this process. */
+    private bool $paused = false;
 
     public function __construct(
         private readonly ClosureAnalysisRebuilder $analysis,
@@ -40,8 +44,9 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
     public function rebuild(?callable $onHospital = null, ?array $hospitalIds = null, ?string $referenceWindow = null): int
     {
         $window = null === $referenceWindow ? null : ClosureVolumeReferenceWindow::named($referenceWindow, $this->config->window);
-        $lock = $this->lockFactory->createLock(self::LOCK, null);
-        if (!$lock->acquire(true)) {
+        // During a pause this process holds the lock already; a second acquire would wait for itself.
+        $lock = $this->paused ? null : $this->lockFactory->createLock(self::LOCK, null);
+        if ($lock instanceof LockInterface && !$lock->acquire(true)) {
             throw new \RuntimeException('Closure volume projection rebuild is already running.');
         }
 
@@ -66,13 +71,17 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
             throw $exception;
         } finally {
             $this->telemetry->end($error);
-            $lock->release();
+            $lock?->release();
         }
     }
 
     #[\Override]
     public function consume(bool $waitForLock = true, ?string $trigger = null): void
     {
+        if ($this->paused) {
+            // The requests stay open; the writer that paused rebuilds rebuilds or consumes them afterwards.
+            return;
+        }
         $lock = $this->lockFactory->createLock(self::LOCK, null);
         if (!$lock->acquire($waitForLock)) {
             if ($waitForLock) {
@@ -119,6 +128,26 @@ final class ClosureVolumeProjectionRebuild implements ClosureVolumeProjectionReb
             if ($began) {
                 $this->telemetry->end($error);
             }
+            $lock->release();
+        }
+    }
+
+    #[\Override]
+    public function whileRebuildsPaused(callable $work): mixed
+    {
+        if ($this->paused) {
+            return $work();
+        }
+
+        $lock = $this->lockFactory->createLock(self::LOCK, null);
+        if (!$lock->acquire(true)) {
+            throw new \RuntimeException('Closure rebuilds could not be paused.');
+        }
+        $this->paused = true;
+        try {
+            return $work();
+        } finally {
+            $this->paused = false;
             $lock->release();
         }
     }

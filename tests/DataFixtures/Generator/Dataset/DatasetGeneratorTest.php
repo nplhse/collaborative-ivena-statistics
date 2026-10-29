@@ -27,6 +27,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Lock\LockFactory;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 /**
@@ -164,6 +165,55 @@ final class DatasetGeneratorTest extends KernelTestCase
         self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM mci_case m LEFT JOIN import i ON i.id = m.import_id WHERE i.id IS NULL'), 'no MCI case is left without its import');
         self::assertSame($this->rows('allocation', $hospital), $this->rows('allocation_stats_projection', $hospital), 'the hospital is projected again');
         $this->assertKpisMatchTheUploads();
+    }
+
+    /**
+     * The worker must not rebuild the closure analysis of a hospital while the generator deletes and writes its
+     * imports (deadlock on closure_analysis_source, #791): closure rebuilds wait until the hospital is written,
+     * and the rebuilds its deletions requested are done by the run afterwards.
+     */
+    public function testClosureRebuildsWaitWhileAHospitalIsReplacedAndFollowAfterwards(): void
+    {
+        $hospital = $this->activeHospital();
+        $plan = $this->datasets()->prepare(new DatasetRequest(GenerationRunScope::One, [$hospital], DatasetPeriod::between('2026-08', '2026-09'), existing: ExistingData::Replace));
+        self::assertSame(['2026-08', '2026-09'], $plan->hospitals[0]->replace);
+
+        $locks = self::getContainer()->get(LockFactory::class);
+        $probe = new class($locks) implements DatasetProgress {
+            /** @var list<bool> whether another holder could take the closure rebuild lock, per written month */
+            public array $lockFree = [];
+
+            public function __construct(private readonly LockFactory $locks)
+            {
+            }
+
+            public function hospitalStarted(DatasetHospitalPlan $hospital): void
+            {
+            }
+
+            public function monthGenerated(DatasetHospitalPlan $hospital, string $month, GeneratedMonth $generated): void
+            {
+                $lock = $this->locks->createLock('closure-volume-projection', null);
+                $this->lockFree[] = $lock->acquire(false);
+                $lock->release();
+            }
+
+            public function hospitalFinished(DatasetHospitalPlan $hospital): void
+            {
+            }
+
+            public function hospitalFailed(DatasetHospitalPlan $hospital, string $message): void
+            {
+            }
+        };
+        $result = $this->datasets()->generate($this->datasets()->start($plan), $probe);
+
+        self::assertFalse($result->hasFailures());
+        self::assertSame([false, false], $probe->lockFree, 'no closure rebuild can start while the months are replaced');
+        self::assertSame(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM closure_rebuild_request WHERE consumed_at IS NULL AND hospital_id = :id', ['id' => $hospital]), 'the requests of the deletions are done by the run');
+        // The analysis rows of the old closures went with their imports; rows for the new ones exist only when the
+        // rebuild ran after the months were written.
+        self::assertGreaterThan(0, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM closure_analysis_source s JOIN closure_interval c ON c.id = s.closure_interval_id WHERE c.hospital_id = :id', ['id' => $hospital]), 'the closures of the new months are analysed');
     }
 
     public function testAFailedHospitalIsRolledBackAndARetryCompletesItWithoutDuplicates(): void

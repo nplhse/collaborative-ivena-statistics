@@ -14,12 +14,13 @@ use App\DataFixtures\Generator\Application\Run\GenerationRunTrigger;
 final readonly class DatasetRequest
 {
     /**
-     * @param list<int>                    $hospitalIds hospitals for the scopes One and Selected; empty for All
-     * @param int|null                     $seed        null takes the configured seed
-     * @param array<int, ProfileSelection> $selections  hospital id => explicit profile; without one the profile is drawn
-     * @param string|null                  $patterns    pattern source; null takes FIXTURES_PATTERNS
-     * @param string|null                  $retryOf     run whose failed hospitals this run generates again
-     * @param \DateTimeImmutable|null      $lastDay     last day with data; null takes the end of the period or yesterday, whichever is earlier
+     * @param list<int>                    $hospitalIds   hospitals for the scopes One and Selected; empty for All
+     * @param int|null                     $seed          null takes the configured seed
+     * @param array<int, ProfileSelection> $selections    hospital id => explicit profile; without one the profile is drawn
+     * @param string|null                  $patterns      pattern source; null takes FIXTURES_PATTERNS
+     * @param string|null                  $retryOf       run whose failed hospitals this run generates again
+     * @param \DateTimeImmutable|null      $lastDay       last day with data; null takes the end of the period or yesterday, whichever is earlier
+     * @param list<int>                    $notifyUserIds users notified with notify, in addition to each hospital's owner (the demo participant of #791)
      */
     public function __construct(
         public GenerationRunScope $scope,
@@ -34,12 +35,18 @@ final readonly class DatasetRequest
         public ?int $initiatedById = null,
         public ?string $retryOf = null,
         public ?\DateTimeImmutable $lastDay = null,
+        public array $notifyUserIds = [],
     ) {
         match ($scope) {
             GenerationRunScope::One => 1 === \count($hospitalIds) ?: throw new \InvalidArgumentException('The scope "one" takes exactly one hospital.'),
             GenerationRunScope::Selected => [] !== $hospitalIds ?: throw new \InvalidArgumentException('The scope "selected" takes at least one hospital.'),
             GenerationRunScope::AllParticipating => [] === $hospitalIds ?: throw new \InvalidArgumentException('The scope "all" takes every participating hospital; do not pass hospitals.'),
         };
+        foreach ($notifyUserIds as $userId) {
+            if ($userId < 1) {
+                throw new \InvalidArgumentException(\sprintf('Invalid user id %d to notify.', $userId));
+            }
+        }
         if (\count($hospitalIds) !== \count(array_unique($hospitalIds))) {
             throw new \InvalidArgumentException('A hospital can only be selected once.');
         }

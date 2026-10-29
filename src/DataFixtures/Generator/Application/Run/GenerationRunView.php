@@ -9,6 +9,9 @@ namespace App\DataFixtures\Generator\Application\Run;
  */
 final readonly class GenerationRunView
 {
+    /** Setting with the users notified in addition to each hospital's owner (the demo participant, #791). */
+    public const string NOTIFY_USER_IDS = 'notify_user_ids';
+
     /**
      * @param array<string, mixed>            $settings
      * @param list<GenerationRunHospitalView> $hospitals
@@ -30,8 +33,19 @@ final readonly class GenerationRunView
         public \DateTimeImmutable $updatedAt,
         public ?\DateTimeImmutable $generatedAt,
         public ?\DateTimeImmutable $finishedAt,
+        public ?string $finishStep,
         public array $hospitals,
     ) {
+    }
+
+    /**
+     * @return list<int> users notified in addition to each hospital's owner
+     */
+    public function notifyUserIds(): array
+    {
+        $ids = $this->settings[self::NOTIFY_USER_IDS] ?? [];
+
+        return \is_array($ids) ? array_values(array_filter(array_map(intval(...), $ids), static fn (int $id): bool => $id > 0)) : [];
     }
 
     /**

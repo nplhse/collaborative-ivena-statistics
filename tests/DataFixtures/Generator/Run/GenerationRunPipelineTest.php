@@ -47,13 +47,15 @@ final class GenerationRunPipelineTest extends KernelTestCase
 
             $importId = (int) $this->connection()->fetchOne('SELECT id FROM import WHERE file_path LIKE :marker', ['marker' => SyntheticImportMarker::likeAnySeed(SyntheticImportMarker::ALLOCATIONS, $publicId, self::MONTH)]);
             $allocations = (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation WHERE import_id = :id', ['id' => $importId]);
-            $hospital = $this->connection()->fetchAssociative('SELECT status, months, allocations, allocation_import_ids, projection_attempts FROM generation_run_hospital WHERE run_id = :run', ['run' => $run['id']]);
+            $hospital = $this->connection()->fetchAssociative('SELECT status, months, allocations, allocation_import_ids, projection_attempts, projection_step, projection_done, projection_total FROM generation_run_hospital WHERE run_id = :run', ['run' => $run['id']]);
             self::assertIsArray($hospital);
             self::assertSame('completed', $hospital['status']);
             self::assertSame(1, $hospital['months']);
             self::assertSame($allocations, $hospital['allocations'], 'the run counts what was written');
             self::assertSame('['.$importId.']', $hospital['allocation_import_ids']);
             self::assertSame(1, $hospital['projection_attempts']);
+            self::assertSame([null, 2, 2], [$hospital['projection_step'], $hospital['projection_done'], $hospital['projection_total']], 'one allocation import plus the closures, all done');
+            self::assertSame('daily KPIs', $this->connection()->fetchOne('SELECT finish_step FROM generation_run WHERE id = :run', ['run' => $run['id']]), 'the last step of the final stage');
 
             // The same projections as the synchronous path: one projection row per allocation, closure events.
             self::assertSame($allocations, (int) $this->connection()->fetchOne('SELECT COUNT(*) FROM allocation_stats_projection WHERE import_id = :id', ['id' => $importId]));

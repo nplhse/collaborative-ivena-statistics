@@ -82,6 +82,31 @@ final class GenerationRunStateTest extends KernelTestCase
         self::assertSame(GenerationRunHospitalStatus::Completed, $this->hospital($this->view($run), $hospital)->status);
     }
 
+    public function testStepsAreRecordedOnlyWhileTheirStageRuns(): void
+    {
+        [$run, $hospital] = $this->runWithTwoHospitals();
+        $store = $this->store();
+        $store->endGeneration($run, GenerationRunReason::NOTHING_GENERATED, $this->now());
+
+        $store->projectionStep($run, $hospital, 'allocation projection', 0, 3, $this->now());
+        self::assertNull($this->hospital($this->view($run), $hospital)->projectionStep, 'a generated hospital is not projecting yet');
+
+        $store->claimProjection($run, $hospital, $this->now());
+        $store->projectionStep($run, $hospital, 'allocation projection', 1, 3, $this->now());
+        $projecting = $this->hospital($this->view($run), $hospital);
+        self::assertSame(['allocation projection', 1, 3], [$projecting->projectionStep, $projecting->projectionDone, $projecting->projectionTotal]);
+
+        $store->completeHospital($run, $hospital, $this->now());
+        $completed = $this->hospital($this->view($run), $hospital);
+        self::assertSame([null, 3, 3], [$completed->projectionStep, $completed->projectionDone, $completed->projectionTotal], 'a completed hospital is done with every step');
+
+        $store->finishStep($run, 'materialized views', $this->now());
+        self::assertNull($this->view($run)->finishStep, 'the run is not finishing yet');
+        $store->claimFinishing($run, $this->now());
+        $store->finishStep($run, 'daily KPIs', $this->now());
+        self::assertSame('daily KPIs', $this->view($run)->finishStep);
+    }
+
     public function testTheFinalStageAndTheTerminalTransitionHappenOnce(): void
     {
         [$run, $hospital] = $this->runWithTwoHospitals();

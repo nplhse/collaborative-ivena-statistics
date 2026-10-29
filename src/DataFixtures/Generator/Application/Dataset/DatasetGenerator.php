@@ -26,6 +26,7 @@ use App\DataFixtures\Generator\Infrastructure\Query\HospitalPeriodDataQuery;
 use App\DataFixtures\Pattern\Application\InvalidPatternPackageException;
 use App\Import\Application\Service\ImportDeletionService;
 use App\Import\Domain\Entity\Import;
+use App\Statistics\Application\Contract\ClosureVolumeProjectionRebuildInterface;
 use App\User\Domain\Entity\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -72,6 +73,7 @@ final readonly class DatasetGenerator
         private GenerationRunTracker $runs,
         private ImportDeletionService $importDeletion,
         private SyntheticDataPipeline $pipeline,
+        private ClosureVolumeProjectionRebuildInterface $closureRebuilds,
         private EntityManagerInterface $entityManager,
         private ManagerRegistry $managerRegistry,
         private Connection $connection,
@@ -168,6 +170,7 @@ final readonly class DatasetGenerator
                 'selections' => $selections,
                 'skipped' => $skipped,
                 'retry_of' => $request->retryOf,
+                GenerationRunView::NOTIFY_USER_IDS => array_values(array_unique($request->notifyUserIds)),
             ],
             trigger: $request->trigger,
             notify: $request->notify,
@@ -211,59 +214,13 @@ final readonly class DatasetGenerator
             if (GenerationRunHospitalStatus::Pending !== $entry->status) {
                 continue;
             }
-            $hospitalId = $entry->hospitalId;
-            $this->runs->hospitalStarted($runId, $hospitalId);
-            $selection = \is_array($selections[(string) $hospitalId] ?? null) ? ProfileSelectionCodec::decode($selections[(string) $hospitalId]) : null;
-
-            $hospital = $this->entityManager->find(Hospital::class, $hospitalId);
-            $plan = $hospital instanceof Hospital
-                ? $this->hospitalPlan($hospital, $period, $existing, $selection, $volume, $lastDay, false)
-                : new DatasetHospitalPlan($hospitalId, $entry->hospitalName, ['unknown hospital']);
-            $progress?->hospitalStarted($plan);
-
-            $written = [];
-            $days = [];
-            try {
-                if (null !== $preflightError) {
-                    throw new \DomainException($preflightError);
-                }
-                if (!$plan->isReady()) {
-                    throw new \DomainException('blocked: '.implode('; ', $plan->blockers));
-                }
-
-                $data = $this->periodData->find($hospitalId, $period);
-                array_push($days, ...$this->delete($plan->scenarioImports));
-                foreach ($plan->keep as $month) {
-                    $unprojected = $data->unprojected($month);
-                    if (null !== $unprojected) {
-                        $this->runs->monthKept($runId, $hospitalId, $unprojected['allocations'], $unprojected['closures']);
-                    }
-                }
-                foreach ($plan->generate as $month) {
-                    if (\in_array($month, $plan->replace, true)) {
-                        array_push($days, ...$this->delete($data->generatedImportIds($month)));
-                    }
-                    $hospital = $this->entityManager->find(Hospital::class, $hospitalId) ?? throw new \DomainException('The hospital was deleted.');
-                    $generated = $this->connection->transactional(fn (): GeneratedMonth => $this->generator->generate($volume, $hospital, $month, $lastDay, $selection));
-                    $written[] = $generated->importId;
-                    $written[] = $generated->closureImportId;
-                    $this->runs->monthGenerated($runId, $hospitalId, $generated);
-                    $progress?->monthGenerated($plan, $month, $generated);
-                    $this->entityManager->clear();
-                }
-                array_push($removedDays, ...$days);
-                $progress?->hospitalFinished($plan);
-            } catch (\Exception $exception) {
-                $this->resetEntityManager();
-                // The hospital fails as a whole: months it wrote in this run go again, so a retry starts clean.
-                array_push($days, ...$this->delete($written));
-                $this->runs->hospitalRolledBack($runId, $hospitalId, $plan->isReady() ? self::REASON_FAILED : self::REASON_BLOCKED, $exception->getMessage());
-                $progress?->hospitalFailed($plan, $exception->getMessage());
-                if ([] !== $days) {
-                    $lostData[$hospitalId] = $days;
-                }
-            } finally {
-                $this->entityManager->clear();
+            // The worker would rebuild the closure analysis of the hospital while its imports are still being
+            // deleted and written, and both sides deadlock on the same rows; requests made meanwhile stay open
+            // for the asynchronous stage or afterRemoval().
+            $outcome = $this->closureRebuilds->whileRebuildsPaused(fn (): array => $this->generateHospital($runId, $entry->hospitalId, $entry->hospitalName, $selections, $period, $existing, $volume, $lastDay, $preflightError, $progress));
+            array_push($removedDays, ...$outcome['removed']);
+            if ([] !== $outcome['lost']) {
+                $lostData[$entry->hospitalId] = $outcome['lost'];
             }
         }
 
@@ -280,6 +237,83 @@ final readonly class DatasetGenerator
         $skipped = \is_array($run->settings['skipped'] ?? null) ? array_map(strval(...), $run->settings['skipped']) : [];
 
         return new DatasetResult($runId, $handedOver, $this->runs->get($runId), $skipped);
+    }
+
+    /**
+     * Generates one hospital of a run. A hospital that fails is rolled back as a whole.
+     *
+     * @param array<array-key, mixed> $selections recorded profile selections by hospital id
+     *
+     * @return array{removed: list<string>, lost: list<string>} upload days of deleted imports; `lost` when the
+     *                                                          hospital failed after imports were deleted
+     */
+    private function generateHospital(
+        string $runId,
+        int $hospitalId,
+        string $hospitalName,
+        array $selections,
+        DatasetPeriod $period,
+        ExistingData $existing,
+        FixtureVolume $volume,
+        \DateTimeImmutable $lastDay,
+        ?string $preflightError,
+        ?DatasetProgress $progress,
+    ): array {
+        $removed = [];
+        $lost = [];
+        $this->runs->hospitalStarted($runId, $hospitalId);
+        $selection = \is_array($selections[(string) $hospitalId] ?? null) ? ProfileSelectionCodec::decode($selections[(string) $hospitalId]) : null;
+
+        $hospital = $this->entityManager->find(Hospital::class, $hospitalId);
+        $plan = $hospital instanceof Hospital
+            ? $this->hospitalPlan($hospital, $period, $existing, $selection, $volume, $lastDay, false)
+            : new DatasetHospitalPlan($hospitalId, $hospitalName, ['unknown hospital']);
+        $progress?->hospitalStarted($plan);
+
+        $written = [];
+        $days = [];
+        try {
+            if (null !== $preflightError) {
+                throw new \DomainException($preflightError);
+            }
+            if (!$plan->isReady()) {
+                throw new \DomainException('blocked: '.implode('; ', $plan->blockers));
+            }
+
+            $data = $this->periodData->find($hospitalId, $period);
+            array_push($days, ...$this->delete($plan->scenarioImports));
+            foreach ($plan->keep as $month) {
+                $unprojected = $data->unprojected($month);
+                if (null !== $unprojected) {
+                    $this->runs->monthKept($runId, $hospitalId, $unprojected['allocations'], $unprojected['closures']);
+                }
+            }
+            foreach ($plan->generate as $month) {
+                if (\in_array($month, $plan->replace, true)) {
+                    array_push($days, ...$this->delete($data->generatedImportIds($month)));
+                }
+                $hospital = $this->entityManager->find(Hospital::class, $hospitalId) ?? throw new \DomainException('The hospital was deleted.');
+                $generated = $this->connection->transactional(fn (): GeneratedMonth => $this->generator->generate($volume, $hospital, $month, $lastDay, $selection));
+                $written[] = $generated->importId;
+                $written[] = $generated->closureImportId;
+                $this->runs->monthGenerated($runId, $hospitalId, $generated);
+                $progress?->monthGenerated($plan, $month, $generated);
+                $this->entityManager->clear();
+            }
+            $removed = $days;
+            $progress?->hospitalFinished($plan);
+        } catch (\Exception $exception) {
+            $this->resetEntityManager();
+            // The hospital fails as a whole: months it wrote in this run go again, so a retry starts clean.
+            array_push($days, ...$this->delete($written));
+            $this->runs->hospitalRolledBack($runId, $hospitalId, $plan->isReady() ? self::REASON_FAILED : self::REASON_BLOCKED, $exception->getMessage());
+            $progress?->hospitalFailed($plan, $exception->getMessage());
+            $lost = $days;
+        } finally {
+            $this->entityManager->clear();
+        }
+
+        return ['removed' => $removed, 'lost' => $lost];
     }
 
     /**
@@ -342,6 +376,7 @@ final readonly class DatasetGenerator
             initiatedById: $run->initiatedById,
             retryOf: $runId,
             lastDay: new \DateTimeImmutable($this->string($run->settings, 'last_day')),
+            notifyUserIds: $run->notifyUserIds(),
         );
     }
 

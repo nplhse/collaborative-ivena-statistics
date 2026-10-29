@@ -48,6 +48,93 @@ make demo-consume  # Messenger worker: imports, projections, scheduler
 
 The demo targets call `APP_ENV=demo php bin/console`, not `symfony console`: the Symfony CLI can export `DATABASE_URL` of a Docker database, which would override `.env.demo` (the guard would then stop the command).
 
+## Create the presented hospital
+
+The wizard creates the hospital of the presentation and its synthetic dataset while the audience
+watches. Start it once the demo runs (`make demo-start`, `make demo-consume`):
+
+```bash
+APP_ENV=demo php bin/console app:demo:hospital:create
+```
+
+Without `APP_ENV=demo` it runs in the development environment and writes into the development database,
+which holds the same synthetic hospitals; the summary names environment and database and warns outside
+the demo.
+
+It asks for:
+
+- **Which hospital:** a new synthetic hospital, or an existing hospital of the demo database (for
+  example one whose real name and location you prepared). An existing hospital keeps its master data
+  (name, tier, size, beds, address, coordinates, dispatch area); only the simulation is asked for.
+- **New hospital:** name, emergency care tier, beds (the size follows from the bed bands of the synthetic
+  catalog: Small 80–299, Medium 300–599, Large 600–1300; the summary names them), dispatch area (the federal state follows), location: a prepared location (offline,
+  with isochrones), coordinates, or neither. `--location-type=urban|rural` changes the setting (default
+  mixed).
+- **Existing hospital without geodata** (coordinates and isochrones): a prepared location, or neither.
+- **Simulation:** expected EMS allocations per year (default about 40 per bed), period of 6, 12 or 24
+  months ending with the month before last, closed department-hours in % (default 5).
+
+After a summary and a confirmation it:
+
+1. creates an active synthetic participant account with `ROLE_PARTICIPANT` and `ROLE_CLOSURE_BETA`:
+   login `demo` (later ones `demo2`, `demo3`, …), e-mail `<login>@demo.invalid`, password `Ivena!1234`
+   for every demo participant, so it is easy to type in front of an audience;
+2. creates the hospital (owner: the participant, participating from the first month), or gives an existing
+   hospital what it lacks: participation, and the participant as owner when it has none, otherwise a grant
+   with all permissions (the existing owner stays; the participant is notified as well);
+3. checks the geodata for the maps: a hospital with coordinates and isochrones keeps them; otherwise it
+   applies the prepared location (offline, never over other coordinates), and then, when
+   `OPENROUTESERVICE_API_KEY` is set in `.env.demo.local`, geocodes the address and fetches the
+   isochrones online. Missing geodata only shows as information: the dataset does not depend on it,
+   the maps lack the pin or the isochrones;
+4. generates one allocation and one closure import per month as a generation run, with live progress
+   per stage (participant, hospital, location, monthly imports, allocations, closures, projections);
+5. hands the projections to the worker and prints the hospital, the login, the dataset and the run id;
+6. asks whether to follow the background stage (`--watch` without asking). The overview redraws itself
+   every 2 seconds until the run is done: hospitals done and in progress, the step of each hospital in
+   progress (for example "allocation projection 7/13", then "closure analysis and volume"), the final
+   stage (materialized views, daily KPIs), whether a worker takes the work, and the first line of an
+   error. When messages wait for over a minute and none is being handled, it says so and points to
+   `make demo-consume`. Ctrl+C ends only the view; the worker goes on.
+
+If the dataset cannot be generated (for example the hospital already has generated data in the period,
+or real uploads), nothing is written: account and hospital are rolled back. `--existing=replace`
+generates an existing hospital anew; real imports are never touched.
+
+While the wizard (or `app:generate:dataset`) deletes and writes the months of a hospital, closure
+rebuilds wait: the worker would otherwise rebuild the closure analysis of the same hospital at the
+same time and both would deadlock. The rebuilds follow in the background stage of the run.
+
+If the hospital fails during generation, its new months are rolled back and nothing goes to the
+worker, so the run has no background jobs. The account and the hospital setup stay; months that
+`--existing=replace` had already deleted stay deleted. The wizard prints the first line of the error
+and the retry command (`app:generate:dataset --retry=<run id>`, which generates every missing month).
+
+Every answer can be passed as an option, for example to prepare a presentation as a script:
+
+```bash
+APP_ENV=demo php bin/console app:demo:hospital:create --name="Klinikum Musterstadt" --tier=full --beds=650 \
+    --dispatch-area="Frankfurt" --location=klinikum-musterstadt --annual-volume=26000 --months=12 --closure-share=0.05 --yes
+APP_ENV=demo php bin/console app:demo:hospital:create --hospital=<public id> --annual-volume=18000 --months=12 --closure-share=0.03 --yes
+```
+
+### Presenter walkthrough
+
+1. Before the presentation, online: `make demo-install`, prepare the location of the prospective hospital
+   (`app:geo:prepare-location <slug> …`, see Geography), optionally try the wizard once. With a network
+   during the presentation and a key in `.env.demo.local`, the wizard fetches missing geodata itself.
+2. Start the demo: `make demo-start` and `make demo-consume` in two terminals, open http://127.0.0.1:8001.
+3. Run the wizard in a third terminal, pick the prepared location, confirm. The stages fill up in place,
+   month by month, with the real counts of allocations and closures.
+4. Answer yes to follow the background stage, or switch to the browser right away: log in as `demo`
+   with `Ivena!1234` (the wizard prints the login). The
+   statistics fill as the worker finishes; an in-app notification arrives when everything is done
+   (to the new account, and for an existing hospital also to its owner).
+   `app:generate:run:show <run id>` shows the background stage, also later or after a failure: one block
+   per hospital, errors shortened to their first line (`-v` shows them in full, and the run settings).
+5. Show the upload: `app:demo:csv --hospital=<public id>` (printed by the wizard) writes the last complete
+   month, which the wizard left free; upload it as described below.
+
 ## Upload a month during the presentation
 
 The demo shows how a participant uploads a monthly IVENA export. The files are synthetic but go
@@ -69,7 +156,7 @@ month that is not complete by yesterday (or `FIXTURES_UNTIL`) and a month that a
 the hospital. It writes nothing into the database.
 
 During the presentation, logged in as a participant with the import permission for the hospital
-(and `ROLE_CLOSURE_BETA` for the closure file, assigned in EasyAdmin):
+(and `ROLE_CLOSURE_BETA` for the closure file; the wizard's account has both, other accounts get the role in EasyAdmin):
 
 1. Import page → choose the hospital → upload the allocation file. `make demo-consume` must run.
 2. When it is processed, upload the closure file as a closure import.
@@ -82,7 +169,7 @@ The files say they are synthetic: the file name prefix, `SYNTHETIC DEMO DATA (#7
 of every allocation (stored as its notes) and in the remark of every closure, and case numbers
 starting with `SYNTH-`.
 
-**Intended flow:** the hospital wizard (step 4 of #791) generates the presented hospital up to the end
+**Intended flow:** the hospital wizard (`app:demo:hospital:create`, above) generates the presented hospital up to the end
 of the month before last and leaves the last complete month empty, so the upload fills a whole month
 right before today. Hospitals of the baseline installation have data up
 to yesterday, so the command finds no free complete month for them.
@@ -149,7 +236,7 @@ basemap off for good. Details: [hospital-geodata.md](hospital-geodata.md#prepare
 
 ## Follow a generation run
 
-Synthetic data generated in the demo (by the hospital wizard, a later step of #791, or `app:generate:dataset`) is tracked as a generation run: the data is written synchronously, the projections follow in the worker (`make demo-consume`), and the participant gets an in-app notification once everything is done. Check the progress, including failed or open hospitals:
+Synthetic data generated in the demo (by the hospital wizard or `app:generate:dataset`) is tracked as a generation run: the data is written synchronously, the projections follow in the worker (`make demo-consume`), and the participant gets an in-app notification once everything is done. Check the progress, including failed or open hospitals:
 
 ```bash
 APP_ENV=demo php bin/console app:generate:dataset --hospital=<public id> --annual-volume=24000 --closure-share=0.05 --dry-run
@@ -164,7 +251,6 @@ See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-ru
 
 ## What the demo does not do (yet)
 
-- The hospital wizard follows in a later step of #791.
 - Storage monitoring does not categorise the demo paths.
 
 ## Troubleshooting
