@@ -15,7 +15,8 @@ final class SafeTargetPath
             return null;
         }
 
-        if (!str_starts_with($target, '/') || str_starts_with($target, '//') || str_contains($target, '\\')) {
+        // A backslash or control character could turn the path into a link to another host.
+        if (!str_starts_with($target, '/') || str_starts_with($target, '//') || 1 === preg_match('/[\\\\\x00-\x1F\x7F]/', $target)) {
             return null;
         }
 

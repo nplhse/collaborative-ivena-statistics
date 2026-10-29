@@ -18,7 +18,8 @@ final class FeedbackRedirectTargetResolver
             $target = substr($target, 0, $fragmentPos);
         }
 
-        if ('' === $target || str_contains($target, "\0") || preg_match('/[\r\n]/', $target)) {
+        // A backslash or control character could turn the path into a link to another host.
+        if ('' === $target || 1 === preg_match('/[\\\\\x00-\x1F\x7F]/', $target)) {
             return '/';
         }
 

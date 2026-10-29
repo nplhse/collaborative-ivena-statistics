@@ -14,6 +14,12 @@ final class SafeRedirectTargetResolver
             return false;
         }
 
+        // Browsers read a backslash as a slash and drop tabs and line breaks, so "/\host" or
+        // "/<tab>/host" would leave the site.
+        if (1 === preg_match('/[\\\\\x00-\x1F\x7F]/', $target)) {
+            return false;
+        }
+
         if (str_starts_with($target, '/')) {
             return !str_starts_with($target, '//');
         }

@@ -6,6 +6,7 @@ namespace App\Tests\Shared\Functional\Locale;
 
 use App\Shared\Infrastructure\Locale\LocaleCookieManager;
 use App\User\Domain\Factory\UserFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
@@ -152,6 +153,25 @@ final class LocaleResolutionTest extends WebTestCase
         );
 
         self::assertResponseRedirects('/login');
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function foreignTargetPaths(): iterable
+    {
+        yield 'protocol relative' => ['//evil.example/'];
+        yield 'backslash' => ['/%5Cevil.example/'];
+        yield 'tab' => ['/%09/evil.example/'];
+    }
+
+    #[DataProvider('foreignTargetPaths')]
+    public function testGuestLocaleSwitchIgnoresTargetPathToAnotherHost(string $encodedTargetPath): void
+    {
+        $client = self::createClient();
+        $client->request(Request::METHOD_GET, '/locale/switch/de?_target_path='.$encodedTargetPath);
+
+        self::assertResponseRedirects('/');
     }
 
     private function createLocaleCookie(string $locale): \Symfony\Component\BrowserKit\Cookie

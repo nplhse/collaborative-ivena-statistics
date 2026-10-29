@@ -38,6 +38,13 @@ final class SafeRedirectTargetResolverTest extends TestCase
         yield 'same host absolute' => ['https://app.example/statistics/analysis/library', true];
         yield 'same host root' => ['https://app.example', true];
         yield 'empty' => ['', false];
+        yield 'backslash after slash' => ['/\\evil.example/phish', false];
+        yield 'backslash inside path' => ['/statistics\\..\\evil', false];
+        yield 'tab before second slash' => ["/\t/evil.example", false];
+        yield 'line break' => ["/statistics\n/evil", false];
+        yield 'null byte' => ["/statistics\0", false];
+        yield 'delete character' => ["/\x7F/evil.example", false];
+        yield 'same host absolute with backslash' => ['https://app.example/\\evil.example', false];
     }
 
     public function testResolveReturnsCandidateWhenSafe(): void

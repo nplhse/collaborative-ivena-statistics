@@ -34,5 +34,7 @@ final class FeedbackRedirectTargetResolverTest extends TestCase
         yield 'empty falls back' => ['', '/'];
         yield 'external url falls back' => ['//evil.example/phish', '/'];
         yield 'absolute url falls back' => ['https://evil.example/phish', '/'];
+        yield 'backslash falls back' => ['/\\evil.example/phish', '/'];
+        yield 'tab falls back' => ["/\t/evil.example/phish", '/'];
     }
 }

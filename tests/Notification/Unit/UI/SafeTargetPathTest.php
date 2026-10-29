@@ -27,6 +27,8 @@ final class SafeTargetPathTest extends TestCase
         yield 'absolute url' => ['https://example.org/', null];
         yield 'protocol relative' => ['//example.org/', null];
         yield 'backslash trick' => ['/\\example.org', null];
+        yield 'tab trick' => ["/\t/example.org", null];
+        yield 'line break' => ["/notifications\r\n", null];
         yield 'relative' => ['notifications', null];
     }
 }
