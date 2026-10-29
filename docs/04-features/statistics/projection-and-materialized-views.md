@@ -189,4 +189,4 @@ self::getContainer()
 
 ## Related documentation
 
-- [../02-architecture/overview.md](../02-architecture/overview.md) — controller and query overview
+- [../../02-architecture/overview.md](../../02-architecture/overview.md) — controller and query overview
