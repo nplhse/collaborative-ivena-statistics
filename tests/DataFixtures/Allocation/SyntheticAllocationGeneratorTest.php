@@ -15,12 +15,15 @@ use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 #[ResetDatabase]
 final class SyntheticAllocationGeneratorTest extends KernelTestCase
 {
+    use ClockSensitiveTrait;
+
     private const string UNTIL = '2026-09-30';
 
     public function testTwoRunsGiveTheSameDataByContent(): void
@@ -57,6 +60,9 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
 
     public function testMciCasesLieInTheMonthOfTheirImport(): void
     {
+        // Half past midnight in Berlin is still the previous day in UTC, so a test that took
+        // "yesterday" from the database clock would expect one day too many here (#917).
+        self::mockTime(new \DateTimeImmutable('2026-10-29 00:30:00', new \DateTimeZone('Europe/Berlin')));
         self::bootKernel();
         $this->load();
 
@@ -79,8 +85,8 @@ final class SyntheticAllocationGeneratorTest extends KernelTestCase
         $this->assertClosedFlagOnlyDuringAClosure($connection);
         $this->assertProcessedLikeAnUpload($connection);
 
-        $yesterday = (string) $connection->fetchOne("SELECT to_char(CURRENT_DATE - 1, 'YYYY-MM-DD')");
-        self::assertLessThanOrEqual($yesterday.' 23:59:59', (string) $connection->fetchOne('SELECT MAX(created_at) FROM allocation'), 'the period ends yesterday');
+        $last = (string) $connection->fetchOne('SELECT MAX(created_at) FROM allocation');
+        self::assertLessThanOrEqual('2026-10-28 23:59:59', $last, 'the period ends yesterday');
     }
 
     /**
