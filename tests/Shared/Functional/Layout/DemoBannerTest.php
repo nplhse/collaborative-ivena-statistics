@@ -31,5 +31,8 @@ final class DemoBannerTest extends WebTestCase
         self::assertStringContainsString('id="demo-environment-banner"', $html);
         self::assertStringContainsString('Demo environment.', $html);
         self::assertStringContainsString('All hospitals, users and records shown here are synthetic.', $html);
+        // Two decorative cones around the text, from the local icon set (the demo runs offline).
+        self::assertSame(2, substr_count($html, '<svg'));
+        self::assertSame(2, substr_count($html, 'aria-hidden="true"'));
     }
 }
