@@ -68,10 +68,10 @@ A restore replaces the whole catalog with a **complete** package (`meta.complete
 
 ### Production → private repository
 
-The private copies of the catalog live in a separate private Git repository outside this one.
+The private copies of the catalog live in a separate private Git repository outside this one. Run on the server from the current release ([paths on the server](../../05-operations/deployment.md#paths-on-the-server)):
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 php bin/console app:reference:export --notes="monthly export"
 php bin/console app:reference:validate --source=var/reference/catalog-<timestamp>.json
 ```

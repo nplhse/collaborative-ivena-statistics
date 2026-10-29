@@ -2,6 +2,12 @@
 
 This application is deployed with [Deployer](https://deployer.org/) using the Symfony recipe. Production runs on [Uberspace](https://uberspace.de/) with a **user systemd** service for the Symfony Messenger worker.
 
+Upgrading an existing installation to a new release needs configuration changes and one-time commands that a deploy does not run: see [upgrading.md](upgrading.md).
+
+## Paths on the server
+
+The operations docs write server paths as `<deploy_path>/current` (the current release, a Deployer symlink) and `<deploy_path>/shared` (files kept across releases). `<deploy_path>` is the `deploy_path` of the host in your `hosts.yaml`. On Uberspace u8 it is usually `~/www`, as in [hosts.yaml.example](../../hosts.yaml.example).
+
 ## Quick operations
 
 Most common commands:
@@ -10,8 +16,8 @@ Most common commands:
 vendor/bin/dep deploy
 systemctl --user status messenger
 systemctl --user restart messenger
-cd ~/www/current && php bin/console messenger:stats
-cd ~/www/current && php bin/console messenger:failed:show
+cd <deploy_path>/current && php bin/console messenger:stats
+cd <deploy_path>/current && php bin/console messenger:failed:show
 ```
 
 ### Media uploads (shared across releases)
@@ -53,7 +59,7 @@ detail maps read these files only; they do not call OpenRouteService.
 If the shared directory is empty after a deploy, or after hospital coordinates were geocoded, fetch them:
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 php bin/console dbal:run-sql "SELECT id, name FROM state ORDER BY id"
 php bin/console app:geo:geocode-hospitals --state-id=<stateId>
 php bin/console app:geo:geocode-hospitals --state-id=<stateId> --apply --force
@@ -94,7 +100,7 @@ Run database migrations so the `messenger_messages` table exists (included in th
 Validate server configuration before going live:
 
 ```bash
-cd ~/www/current
+cd <deploy_path>/current
 set -a && source ../shared/.env.local && set +a
 php bin/console app:env:check --check-profile=prod
 ```
@@ -115,13 +121,13 @@ Manual checks that `app:env:check` cannot perform:
 - [ ] Backups scheduled on Uberspace (cron — see [backup-restore.md](backup-restore.md))
 - [ ] Sentry Uptime Monitor on `GET /health` — see [health-check.md](health-check.md)
 - [ ] Storage budget set: `STORAGE_BUDGET_BYTES` in `shared/.env.local` (replaces `APP_ADMIN_STORAGE_LIMIT_BYTES`) — see [../06-reference/configuration.md](../06-reference/configuration.md#storage-monitoring)
-- [ ] First storage measurement stored, so health is not `unavailable` until the scheduled run at 03:30: `cd ~/www/current && php bin/console app:storage:analyze --persist` — see [../04-features/storage/README.md](../04-features/storage/README.md)
+- [ ] First storage measurement stored, so health is not `unavailable` until the scheduled run at 03:30: `cd <deploy_path>/current && php bin/console app:storage:analyze --persist` — see [../04-features/storage/README.md](../04-features/storage/README.md)
 
 ### P1 - before first invite (beta)
 
 - [ ] Sentry Error Alert rule is active and scoped to `environment=beta` (for example: more than `N` new issues in 1 hour) — see [observability-sentry.md](observability-sentry.md#proactive-error-alerts-beta)
 - [ ] Ops response for `/health` = `degraded` is documented and known by maintainers — see [health-check.md](health-check.md#runbook-degraded-or-failed-queue-entries)
-- [ ] A recurring failed-message check rhythm is defined (at least weekly): `cd ~/www/current && php bin/console messenger:failed:show`
+- [ ] A recurring failed-message check rhythm is defined (at least weekly): `cd <deploy_path>/current && php bin/console messenger:failed:show`
 
 ## Bootstrap order on a new server
 
@@ -187,7 +193,7 @@ Typical order (Symfony recipe plus project tasks):
 |------|---------|
 | Worker status | `systemctl --user status messenger` |
 | Restart worker | `systemctl --user restart messenger` |
-| Queue stats | `cd ~/html/current && php bin/console messenger:stats` |
+| Queue stats | `cd <deploy_path>/current && php bin/console messenger:stats` |
 | Failed messages | `php bin/console messenger:failed:show` |
 | Retry failed | `php bin/console messenger:failed:retry` |
 
@@ -201,7 +207,7 @@ After deploying the Analytics migration (`Version20260804151958`) and the new `a
 2. Re-prompt existing users for consent (old rows treat missing `analytics` as false while `decidedAt` stays set — banner would not reappear otherwise). Prefer deleting consent rows rather than silently enabling analytics:
 
    ```bash
-   cd ~/html/current   # or your release path
+   cd <deploy_path>/current
    php bin/console dbal:run-sql 'SELECT COUNT(*) AS n FROM cookie_consent'
    php bin/console dbal:run-sql 'DELETE FROM cookie_consent'
    ```
@@ -211,7 +217,7 @@ After deploying the Analytics migration (`Version20260804151958`) and the new `a
 4. Optional one-off: delete historical admin UI request rows so Overview/Performance are not skewed — see [../04-features/analytics/usage-analytics.md](../04-features/analytics/usage-analytics.md#admin-area-exclusion).
 
 Recommended beta operations rhythm:
-- Weekly (minimum): `cd ~/www/current && php bin/console messenger:failed:show`
+- Weekly (minimum): `cd <deploy_path>/current && php bin/console messenger:failed:show`
 - Immediately when `/health` reports `degraded`: follow [health-check.md](health-check.md#runbook-degraded-or-failed-queue-entries)
 
 ### Scanner path blocking (Apache)
