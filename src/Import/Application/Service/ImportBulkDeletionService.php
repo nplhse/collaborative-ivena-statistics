@@ -11,6 +11,7 @@ use App\Import\Domain\Entity\Import;
 use App\Import\Domain\Enum\ImportStatus;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Uid\Uuid;
 
@@ -24,6 +25,7 @@ final readonly class ImportBulkDeletionService
     public function __construct(
         private ImportRepository $importRepository,
         private MessageBusInterface $bus,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

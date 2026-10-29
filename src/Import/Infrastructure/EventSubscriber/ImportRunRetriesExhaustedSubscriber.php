@@ -10,6 +10,7 @@ use App\Import\Application\Service\ImportRunLifecycle;
 use App\Import\Domain\Enum\ImportType;
 use App\Import\Infrastructure\Monitoring\ImportRunTelemetry;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
 
@@ -21,6 +22,7 @@ final readonly class ImportRunRetriesExhaustedSubscriber
 {
     public function __construct(
         private ImportRunLifecycle $runLifecycle,
+        #[Target('import')]
         private LoggerInterface $importLogger,
         private ImportRunTelemetry $telemetry,
     ) {

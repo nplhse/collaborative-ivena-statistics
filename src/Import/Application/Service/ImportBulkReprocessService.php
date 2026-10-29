@@ -20,6 +20,7 @@ use App\Import\Infrastructure\Repository\ImportBatchRunRepository;
 use App\Import\Infrastructure\Repository\ImportRepository;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 /**
  * Queues selected imports for reprocessing as one batch (#720).
@@ -38,6 +39,7 @@ final readonly class ImportBulkReprocessService
         private ImportBatchCompletion $batchCompletion,
         private ImportCreatorPermissionCheck $creatorPermissionCheck,
         private ImportFileStorage $fileStorage,
+        #[Target('import')]
         private LoggerInterface $importLogger,
         private ClockInterface $clock,
     ) {

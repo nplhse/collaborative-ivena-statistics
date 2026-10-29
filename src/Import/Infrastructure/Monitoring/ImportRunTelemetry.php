@@ -17,6 +17,7 @@ use App\Shared\Infrastructure\Monitoring\JobRun\JobRunTrace;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Sentry\State\HubInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -58,6 +59,7 @@ final class ImportRunTelemetry implements ImportRunTelemetryInterface
         private readonly JobRunThresholdConfig $thresholdConfig,
         private readonly HubInterface $hub,
         private readonly Connection $connection,
+        #[Target('import')]
         private readonly LoggerInterface $importLogger,
     ) {
     }

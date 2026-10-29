@@ -26,6 +26,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -43,6 +44,7 @@ final readonly class ImportRunLifecycle
         private ManagerRegistry $managerRegistry,
         private EventDispatcherInterface $dispatcher,
         private AuditContext $auditContext,
+        #[Target('import')]
         private LoggerInterface $importLogger,
         private ImportMilestoneRecorder $milestoneRecorder,
         private ImportBatchCompletion $batchCompletion,
