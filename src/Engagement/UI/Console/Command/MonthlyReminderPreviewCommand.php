@@ -11,6 +11,7 @@ use App\Engagement\Application\MonthlyReminderContentBuilder;
 use App\Engagement\Application\MonthlyReminderSender;
 use App\Engagement\UI\Console\Input\MonthlyReminderPreviewInput;
 use App\Shared\Application\Locale\LocaleResolver;
+use App\Shared\Infrastructure\Mail\LocalMailCatcher;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
@@ -33,7 +34,8 @@ final readonly class MonthlyReminderPreviewCommand
         private LocaleResolver $localeResolver,
         private MonthlyReminderSender $reminderSender,
         private TranslatorInterface $translator,
-        #[Autowire(env: 'MAILER_DSN')] private string $mailerDsn,
+        private LocalMailCatcher $mailCatcher,
+        #[Autowire(param: 'app.mailer_dsn')] private string $mailerDsn,
         #[Autowire(param: 'kernel.environment')] private string $appEnvironment,
     ) {
     }
@@ -53,6 +55,24 @@ final readonly class MonthlyReminderPreviewCommand
             $io->error(sprintf('Hospital %d not found.', $input->hospitalId));
 
             return Command::FAILURE;
+        }
+
+        // Delivers to the local mail catcher: always in dev, in the demo only with DEMO_MAIL_CATCHER=1.
+        $catcherMode = LocalMailCatcher::receives($this->mailerDsn);
+        if ($input->send) {
+            if ('demo' === $this->appEnvironment && !$catcherMode) {
+                $io->error('Mail is off in the demo environment; nothing was sent. Start the mail catcher (docker compose up -d mailer) and run the command with DEMO_MAIL_CATCHER=1, e.g. make demo-reminder HOSPITAL=<id>.');
+
+                return Command::FAILURE;
+            }
+            if ($catcherMode && !$this->mailCatcher->isReachable()) {
+                $io->error(sprintf('Mailpit is not reachable on %s:%d. Start it with: docker compose up -d mailer', LocalMailCatcher::HOST, LocalMailCatcher::SMTP_PORT));
+
+                return Command::FAILURE;
+            }
+            if (!$catcherMode && str_starts_with($this->mailerDsn, 'null://')) {
+                $io->warning('MAILER_DSN is set to a null transport — no mail will be delivered. Set MAILER_DSN=smtp://127.0.0.1:1025 for Mailpit.');
+            }
         }
 
         $referenceDate = $input->date;
@@ -80,14 +100,6 @@ final readonly class MonthlyReminderPreviewCommand
         }
 
         if ($shouldSend) {
-            if ('dev' !== $this->appEnvironment && str_starts_with($this->mailerDsn, 'null://')) {
-                $io->warning('MAILER_DSN is set to a null transport — no mail will be delivered. Set MAILER_DSN=smtp://127.0.0.1:1025 for Mailpit.');
-            } elseif ('dev' === $this->appEnvironment && !$this->isSmtpReachable('127.0.0.1', 1025)) {
-                $io->error('Mailpit is not reachable on 127.0.0.1:1025. Start it with: docker compose up -d mailer');
-
-                return Command::FAILURE;
-            }
-
             $errors = $this->reminderSender->sendForHospital($hospital, MonthlyReminderTrigger::Cli, $referenceDate);
             if ([] !== $errors) {
                 foreach ($errors as $errorKey) {
@@ -101,22 +113,12 @@ final readonly class MonthlyReminderPreviewCommand
             }
             $owner = $hospital->getOwner();
             $email = $owner?->getEmail();
-            $io->success(sprintf('Sent reminder to %s (check Mailpit at http://127.0.0.1:8025)', $email ?? 'unknown'));
+            $io->success(sprintf('Sent reminder to %s', $email ?? 'unknown'));
+            if ($catcherMode) {
+                $io->writeln(sprintf('Open the mail catcher: %s', LocalMailCatcher::WEB_UI_URL));
+            }
         }
 
         return Command::SUCCESS;
-    }
-
-    private function isSmtpReachable(string $host, int $port): bool
-    {
-        $socket = @fsockopen($host, $port, $errno, $errstr, 1.0);
-
-        if (false === $socket) {
-            return false;
-        }
-
-        fclose($socket);
-
-        return true;
     }
 }
