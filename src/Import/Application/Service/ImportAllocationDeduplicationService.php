@@ -9,11 +9,13 @@ use App\Import\Domain\Entity\Import;
 use App\Statistics\Application\Projection\AllocationProjectionDeduplicator;
 use App\Statistics\Application\Projection\Dto\DeduplicationResult;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final readonly class ImportAllocationDeduplicationService
 {
     public function __construct(
         private AllocationProjectionDeduplicator $deduplicator,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

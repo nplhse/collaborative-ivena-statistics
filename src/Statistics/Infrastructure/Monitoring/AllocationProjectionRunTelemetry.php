@@ -12,6 +12,7 @@ use App\Statistics\Application\DTO\AllocationStatsProjectionRebuildResult;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Sentry\State\HubInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -55,6 +56,7 @@ final class AllocationProjectionRunTelemetry implements AllocationProjectionRunT
         private readonly JobRunThresholdConfig $thresholdConfig,
         private readonly HubInterface $hub,
         private readonly Connection $connection,
+        #[Target('projection_rebuild')]
         private readonly LoggerInterface $projectionRebuildLogger,
     ) {
     }

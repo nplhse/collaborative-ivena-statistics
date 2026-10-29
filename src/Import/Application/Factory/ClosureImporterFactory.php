@@ -10,12 +10,14 @@ use App\Import\Application\Service\ClosureImporter;
 use App\Import\Application\Service\ClosureRowProcessor;
 use App\Import\Infrastructure\Adapter\DoctrineClosureIntervalPersister;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 final readonly class ClosureImporterFactory
 {
     public function __construct(
         private ClosureRowProcessor $processor,
         private DoctrineClosureIntervalPersister $persister,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }

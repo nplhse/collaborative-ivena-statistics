@@ -12,6 +12,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 /**
  * Finishes a batch re-import once its last item is done and publishes the summary (ADR 016).
@@ -27,6 +28,7 @@ final readonly class ImportBatchCompletion
     public function __construct(
         private Connection $connection,
         private ImportBatchSummaryPublisherInterface $summaryPublisher,
+        #[Target('import')]
         private LoggerInterface $importLogger,
         private ClockInterface $clock,
     ) {

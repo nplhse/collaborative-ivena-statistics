@@ -13,6 +13,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 
 #[AsCommand(
     name: 'app:import:repair-indication-corruption',
@@ -22,6 +23,7 @@ final readonly class RepairIndicationCorruptionCommand
 {
     public function __construct(
         private IndicationCorruptionRepairService $repairService,
+        #[Target('import')]
         private LoggerInterface $importLogger,
     ) {
     }
