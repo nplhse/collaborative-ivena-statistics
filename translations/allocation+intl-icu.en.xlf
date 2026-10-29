@@ -153,10 +153,6 @@
         <source>title.indication.assign</source>
         <target>Assign Indications</target>
       </trans-unit>
-      <trans-unit id="aHx7rGR" resname="title.indication.assign_raw">
-        <source>title.indication.assign_raw</source>
-        <target>Assign raw indication</target>
-      </trans-unit>
       <trans-unit id="EDuCAXA" resname="title.indication.list">
         <source>title.indication.list</source>
         <target>Listing Indications</target>
