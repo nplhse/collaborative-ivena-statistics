@@ -52,7 +52,7 @@ final readonly class FinishGenerationRunHandler
         $removed = $run->settings[GenerationRunTracker::REMOVED_UPLOAD_DAYS] ?? [];
         $removedDays = \is_array($removed) ? array_values(array_map(static fn (mixed $day): \DateTimeImmutable => new \DateTimeImmutable(\is_string($day) ? $day : ''), $removed)) : [];
         if ([] !== $importIds || [] !== $removedDays) {
-            $this->pipeline->finishImports($importIds, $removedDays);
+            $this->pipeline->finishImports($importIds, $removedDays, fn (string $step) => $this->store->finishStep($message->runId, $step, $this->clock->now()));
         }
 
         $status = $this->store->finish($message->runId, GenerationRunReason::HOSPITAL_FAILED, $this->clock->now());

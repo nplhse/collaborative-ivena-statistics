@@ -33,6 +33,7 @@ final readonly class GenerationRunView
         public \DateTimeImmutable $updatedAt,
         public ?\DateTimeImmutable $generatedAt,
         public ?\DateTimeImmutable $finishedAt,
+        public ?string $finishStep,
         public array $hospitals,
     ) {
     }

@@ -30,6 +30,10 @@ final readonly class GenerationRunHospitalView
         public ?\DateTimeImmutable $startedAt,
         public ?\DateTimeImmutable $generatedAt,
         public ?\DateTimeImmutable $finishedAt,
+        /** Step of the asynchronous stage while projecting (SyntheticDataPipeline::STEP_*), with done of total. */
+        public ?string $projectionStep = null,
+        public int $projectionDone = 0,
+        public int $projectionTotal = 0,
     ) {
     }
 }
