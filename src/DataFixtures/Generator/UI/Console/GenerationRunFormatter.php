@@ -25,4 +25,22 @@ final class GenerationRunFormatter
     {
         return $time?->setTimezone($now->getTimezone())->format('Y-m-d H:i:s') ?? '–';
     }
+
+    /**
+     * The first line of an error, for overviews; database errors carry the statement and the server's detail on
+     * further lines. The whole text with $full (console -v).
+     */
+    public static function error(?string $error, bool $full = false): string
+    {
+        $error = trim((string) $error);
+        if ('' === $error) {
+            return '–';
+        }
+        if ($full) {
+            return $error;
+        }
+        $first = strtok($error, "\n");
+
+        return false === $first || $first === $error ? $error : trim($first).' … (full text with -v)';
+    }
 }

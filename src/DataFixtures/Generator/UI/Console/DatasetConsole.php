@@ -51,14 +51,19 @@ final readonly class DatasetConsole
         $result = $this->datasets->generate($runId, $progress);
         $progress->finish();
 
-        $rows = [];
+        // One block per hospital: a failed hospital's error is too long for a table cell.
         foreach ($result->run->hospitals ?? [] as $hospital) {
-            $rows[] = [$hospital->hospitalName, $hospital->status->value, (string) $hospital->months, (string) $hospital->allocations, (string) $hospital->closures, (string) $hospital->mciCases, trim(($hospital->reasonCode ?? '').' '.($hospital->error ?? ''))];
+            $io->text(\sprintf('<info>%s</info> (#%d)', $hospital->hospitalName, $hospital->hospitalId));
+            $io->definitionList(
+                ['Status' => $hospital->status->value.(null === $hospital->reasonCode ? '' : ' ('.$hospital->reasonCode.')')],
+                ['Generated' => \sprintf('%d months, %d allocations, %d closures, %d MCI cases', $hospital->months, $hospital->allocations, $hospital->closures, $hospital->mciCases)],
+                ['Error' => GenerationRunFormatter::error($hospital->error, $io->isVerbose())],
+            );
         }
         foreach ($result->skipped as $name => $reason) {
-            $rows[] = [$name, 'skipped', '–', '–', '–', '–', $reason];
+            $io->text(\sprintf('<info>%s</info>', $name));
+            $io->definitionList(['Status' => 'skipped'], ['Reason' => $reason]);
         }
-        $io->table(['Hospital', 'Status', 'Months', 'Allocations', 'Closures', 'MCI cases', 'Reason'], $rows);
         $io->note(\sprintf('Generation run %s (seed %d): projections of %d hospital(s) continue in the Messenger worker. Follow them with: php bin/console app:generate:run:show %s', $result->runId, $plan->seed, \count($result->handedOver), $result->runId));
 
         if ($result->hasFailures()) {
