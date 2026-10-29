@@ -249,10 +249,6 @@ Without `--from`/`--to` the dataset ends with the month before last, so the last
 
 See [ADR 023](../02-architecture/decisions/023-demo-environment.md#generation-runs-791-step-3).
 
-## What the demo does not do (yet)
-
-- Storage monitoring does not categorise the demo paths.
-
 ## Troubleshooting
 
 | Symptom | Cause | Fix |

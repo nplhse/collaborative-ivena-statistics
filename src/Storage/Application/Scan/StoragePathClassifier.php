@@ -26,6 +26,8 @@ final class StoragePathClassifier
         ['var/import_rejects', StorageCategory::Imports, 'import_rejects'],
         ['public/uploads/media', StorageCategory::Media, 'media_uploads'],
         ['var/geo', StorageCategory::Other, 'geodata'],
+        ['var/demo', StorageCategory::Other, 'var_other'],
+        ['public/uploads/demo', StorageCategory::Media, 'media_uploads'],
         ['var', StorageCategory::Temporary, 'var_other'],
         ['vendor', StorageCategory::Application, 'vendor'],
         ['node_modules', StorageCategory::Application, 'node_modules'],
